@@ -220,6 +220,7 @@ lMainMenuName	Haupt
 lMenuAbout	Ü&ber
 lMenuAddFavorite	Favoriten hinzufügen
 lMenuAddThisFolder	Diesen Ordner hinzufügen
+lMenuAddThisFolderXpress	Add This Folder Express
 lMenuAlternativeEditFavorite	Favoriten bearbeiten
 lMenuAlternativeNewWindow	In neuen Fenster öffnen
 lMenuAppData	Anwendungsdaten
@@ -230,6 +231,8 @@ lMenuCommonAppData	Standard Anwendungsdaten
 lMenuCommonDesktop	Standard Desktop
 lMenuCommonStartMenu	Standard Startmenü
 lMenuCommonStartupMenu	Standard Startupmenü
+lMenuComputerRestart	Restart Computer
+lMenuComputerShutdown	Shutdown Computer
 lMenuCookies	Cookies
 lMenuCopyLocation	Kopieren von Pfad/URL eines Favoriten
 lMenuCurrentFolders	Ordner neu ffnen
@@ -258,6 +261,7 @@ lMenuPublicLibraries	Öffentliche Bibliotheken
 lMenuQuickLaunch	Schnellstart
 lMenuRecentFolders	Kürzlich verwendete Ordner
 lMenuRecentItems	Zuletzt verwendet
+lMenuReload	Restart ~1~
 lMenuRunAtStartup	&Beim Start von Windows ausführen
 lMenuSettings	Einstellungen
 lMenuStartMenu	Startmenü
@@ -273,6 +277,7 @@ lMenuUserPinned	Benutzer Pinned
 lNavigateFileError	Beim Öffnen des Ordners `n~1~ trat ein Fehler auf.
 lNavigateSpecialError	Beim Öffnen des Speziellen Ordners #~1~ trat ein Fehler auf.
 lOopsCannotCopyFavorite	Favoriten des Typs "~1~" können nicht kopiert werden.
+lOopsChangeFolderInDialogAlert	Did you want to change folder in this dialog box? In order to navigate inside a dialog box, you have to enable an option (first checkbox in the "General" tab).`n`nDo you want to open the Options window?
 lOopsCouldNotOpenSpecialFolder	~1~ konnte den Systemordner nicht öffnen: "~2~".
 lOopsEmpty	leer
 lOopsFtpLocationProtocol	FTP-Verzeichnis muss mit "ftp://" beginnen.
@@ -280,6 +285,7 @@ lOopsGroup	Gruppe
 lOopsHotkeyAlreadyUsed	Der "~1~" wird bereits für ~2~ verwendet.`n`nBitte verwenden Sie einen anderen Hotkey für ~3~.
 lOopsHotkeyNotInMenus	Fehler: Ort "~1~" für Hotkey "~1~" nicht in den Menüs gefunden.
 lOopsHttpLocationTransformed	Der http Ort (URL Format) wurde aus Kompatibilitätsgründen mit Windows Explorer in einen Netzwerkpfad umgewandelt (UNC Format):`n`n~1~`n~2~
+lOopsInvalidWinCmdIni	Total Commander settings file "wincmd.ini" not found.`n`nSelect the file in "Options", "File managers" tab.
 lOopsInvalidWindowPosition	Ungültige Werte für Fensterposition
 lOopsLaunchWithNotFound	"Mit dieser Anwendung starten" Datei nicht gefunden:`n`n~1~`n`nPrüfen Sie die erweiterten Einstellungen des Favoriten.
 lOopsLocation	Ort
@@ -292,7 +298,7 @@ lOopsWrongThirdPartyPathQAPconnect	Falscher Pfad oder Dateiname für QAPconnect A
 lOopsZipFileError	Es scheint, daß ~1~ direkt aus einer .ZIP Datei ausgeführt wird.`n`nSie müssen zuerst die Datei ~1~ .EXE aus dem Archiv in ein Verzeichnis Ihrer Wahl entpacken und dann ausführen.`n`n~1~ wird beendet.
 lOptionsAlternativeMenuFeatures	Alternative Menü-Hotkeys
 lOptionsAlternativeMenuFeaturesIntro	Verwalten Sie die Shortcuts welche die Funktionen des alternativen Menüs steuern.
-lOptionsChangeFolderInDialog	Ändern Sie die Ordner der Dialogboxen mit den Haupt QAP hotkeys
+lOptionsChangeFolderInDialog	Change folders in dialog box with main QAP mouse and keyboard hotkeys
 lOptionsChangeFolderInDialogCheckbox	Aktivieren Sie das Kontrollkästchen, daß Sie verstanden haben, welche möglichen Konsequenzen es haben könnte, die Funktion Ordner wechseln in "nicht-Datei" Dialogboxen zu verwenden.
 lOptionsChangeFolderInDialogText	Aktivieren Sie diese Option um die Ordnernavigation in Dialogboxen zu nutzen (Öffnen, Speichern unter, usw.), lesen Sie aber bitte die folgende Warnung.`n`nNutzen Sie diese Funktion AUSSCHLIESSLICH in Dateidialogen. Wenn Sie es in anderen Dialogboxen verwenden, beispielsweise in Optionsdialogen, könnte es ohne Hinweis zu Änderungen in den Dialogboxen kommen.
 lOptionsChangeHotkey	Ändern
@@ -312,7 +318,7 @@ lOptionsHotkeyRemindersPrompt	Hotkey-Erinnerungen im Menü:
 lOptionsHotkeyRemindersShort	Zeige abgekürzte Namen
 lOptionsIconSize	Symbolgröße im Menü
 lOptionsLanguage	Sprache
-lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch
+lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch|Chinese
 lOptionsMenuActiveWindow	Im aktiven Fenster
 lOptionsMenuFixPosition	An fester Position
 lOptionsMenuNearMouse	Nahe des Mauszeigers
@@ -342,12 +348,19 @@ lOptionsThirdPartyUseTabs	Verwende Registerkarten satt eines neuen Fensters
 lOptionsTrayTip	Beim Start &Tray-Tip anzeigen
 lPickIconNoLocation	Bitte zuerst einen Favoriten auswählen, bevor ein Icon gewählt wird.
 lReloadPrompt	~1~  wurde in ~2~ geändert. Wollen Sie jetzt ~3~ in ~2~ neu laden? Ungespeicherte Änderungen am Ordnermenü gehen verloren.
+lTCMenuName	TC Directory hotlist
+lTCWinCmdLocation	WinCmd.ini location
 lTrayTipInstalledDetail	~1~ oder ~2~ um Favoriten zu starten
 lTrayTipInstalledTitle	~1~ ~2~ bereit!
 lTrayTipWorkingDetail	Erzeuge Menüs
 lTrayTipWorkingDetailFinished	Das Menü wurde aktualisiert.
 lTrayTipWorkingTitle	~1~ ~2~ arbeite...
+lUpdateButtonChangeLog	See change log
+lUpdateButtonDownloadPortable	Download Portable zip file
+lUpdateButtonDownloadSetup	Download Setup file
 lUpdateButtonRemind	Erinnere mich
+lUpdateButtonSkipVersion	Skip this version
+lUpdateButtonVisit	Visit web site
 lUpdateError	Beim Zugriff auf die letzte Versionsnummer trat ein Fehler auf. Prüfe auf unterbrochene Updates.
 lUpdatePrompt	Update ~1~ von v~2~ auf v~3~?
 lUpdatePromptAlpha	Es gibt eine neue ~1~ ALPHA Version.`n`nUpdate ~1~ von v~2~ auf v~3~?
