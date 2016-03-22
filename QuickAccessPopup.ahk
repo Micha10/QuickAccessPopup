@@ -19,16 +19,18 @@ BUGS
 
 TO-DO
 - add FAQ abut "Close this menu"
+- link to VirusTotal.com (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
 
 HISTORY
 =======
 
-Version: 7.1.6 (2016-03-??)
-- addition of Chineese Chinese language as used in Taiwan (ZH-TW), thanks to Jess Yang
-- update to Sweeden language file
+Version: 7.1.7 (2016-03-22)
+- addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
+- update to Spanish and Sweeden language files
+- fix Add This Folder bug caused by safety coded introduced in v7.1.5
 
-Version: 7.1.5 (2016-03-20)
+Version: 7.1.5/7.1.6 (2016-03-20)
 - safety code to keep the focus on the popup menu, preventing the issue where, in some situations, the menu was not closing when clicking elsewhere or hitting Escape
 - add the QAP feature "Close this menu" to force closing the menu if the issue mentionned above is still present
 - add the "Close this menu" to the default menu created at first QAP execution (actual users must add it manually - Settings, Add buton, QAP Feature, Close this menu)
@@ -508,7 +510,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.6
+;@Ahk2Exe-SetVersion 7.1.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -554,7 +556,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.6" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.7" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -11234,9 +11236,16 @@ else ; (g_intPopupMenuPosition =  3) - fix position - use the g_intMenuPosX and 
 	g_intMenuPosY := g_arrPopupFixPosition2
 }
 
+/*
 ; keep focus on scripts hidden window and on script's popup menu
 ; see https://autohotkey.com/boards/viewtopic.php?f=5&t=15006
-WinActivate, ahk_id %A_ScriptHwnd%
+
+; ###_D(A_DetectHiddenWindows )
+; WinActivate, ahk_id %A_ScriptHwnd%
+
+; Trying SwitchToThisWindow
+; DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
+*/
 
 Menu, %g_strMenuToShow%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
