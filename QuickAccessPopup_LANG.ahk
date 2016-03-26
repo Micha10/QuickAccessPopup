@@ -1,5 +1,5 @@
 global lAboutText1 := "~1~ ~2~ (~3~ bits)"
-global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nDutch translation: Pieter Dejonghe`nKorean translation: Om Il-Sung`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nChinese Traditional translation: Jess Yang`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
+global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nDutch translation: Pieter Dejonghe`nKorean translation: Om Il-Sung`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
 global lAboutText3 := "~1~ Jean Lalonde 2013-2014. Freeware."
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
@@ -319,7 +319,7 @@ global lOptionsHotkeyRemindersPrompt := "Hotkey reminders in menu:" ; new
 global lOptionsHotkeyRemindersShort := "Display abbreviated names" ; new
 global lOptionsIconSize := "Menu icons size"
 global lOptionsLanguage := "Language"
-global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Chinese" ; removed Dutch|Korean|
+global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Traditional Chinese" ; removed Dutch|Korean|
 global lOptionsMenuActiveWindow := "Top-left of active window"
 global lOptionsMenuFixPosition := "At a fix position"
 global lOptionsMenuNearMouse := "Near the mouse pointer"
