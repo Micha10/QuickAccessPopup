@@ -719,8 +719,8 @@ OnMessage(0x200, "WM_MOUSEMOVE")
 ; see http://www.autohotkey.com/board/topic/94962-doubleclick-on-gui-pictures-puts-their-path-in-your-clipboard/#entry682595
 OnMessage(0x203, "WM_LBUTTONDBLCLK")
 
-; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
-OnMessage(0x404, "AHK_NOTIFYICON")
+; To popup menu when left click on the tray icon if g_blnOpenMenuOnTaskbar - See AHK_NOTIFYICON function below
+OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : ""))
 
 ; Respond to SendMessage sent by ImportFPsettings to signal that QAP is running
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
@@ -4401,6 +4401,7 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
+OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : ""))
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
 
@@ -6124,7 +6125,7 @@ SettingsHotkey:
 
 ; should not be required but safer
 GuiControlGet, blnSaveEnabled, Enabled, %lGuiSave%
-if (blnSaveEnabled)
+if (blnSaveEnabled) ; the gui is already open with modified items
 {
 	gosub, GuiShowCleanup
 	return
@@ -11280,7 +11281,8 @@ if (g_blnDiagMode)
 
 ; Keep focus on scripts hidden window and on script's popup menu to avoid the "close menu issue"
 ; see https://autohotkey.com/boards/viewtopic.php?f=5&t=15006
-DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
+if !(g_blnClickOnTrayIcon)
+	DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
 
 if (g_blnDiagMode)
 {
@@ -11365,10 +11367,9 @@ AHK_NOTIFYICON(wParam, lParam)
 ; To popup menu when left click on the tray icon - See the OnMessage command in the init section
 ;------------------------------------------------------------
 {
-	global g_blnOpenMenuOnTaskbar
 	global g_blnClickOnTrayIcon
 	
-	if (g_blnOpenMenuOnTaskbar and lParam = 0x202) ; WM_LBUTTONUP
+	if (lParam = 0x202) ; WM_LBUTTONUP
 	{
 		g_blnClickOnTrayIcon := true
 		; The timer ensures that AHK_NOTIFYICON() will catch the message even if the user right-clicks the icon while the menu is still showing. (Lexikos)
