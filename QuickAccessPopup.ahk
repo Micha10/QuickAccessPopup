@@ -18,7 +18,7 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 BUGS
 
 TO-DO
-- add FAQ abut "Close this menu"
+- add FAQ about "Close this menu"
 - link to VirusTotal.com (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
 
@@ -26,7 +26,11 @@ HISTORY
 =======
 
 Version: 7.1.8 (2016-03-??)
-- 
+- before showing the menu, keep focus on scripts hidden window and on script's popup menu to avoid the "close menu issue"
+- before opening the favorite, give back the focus to the target window 
+- fix bug in Add This Folder Express window position not correctly saved
+- addition of debugging code about active window id
+- avoid writing diag info if diag mode is off
 
 Version: 7.1.7 (2016-03-22)
 - addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
@@ -8155,15 +8159,15 @@ WindowIsDesktop(strClass)
 ;------------------------------------------------------------
 {
 	global g_blnOpenMenuOnTaskbar
-	global blnClickOnTrayIcon
+	global g_blnClickOnTrayIcon
 	
 	blnWindowIsDesktop := (strClass = "ProgMan")
 		or (strClass = "WorkerW")
-		or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or blnClickOnTrayIcon))
+		or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or g_blnClickOnTrayIcon))
 		or (strClass = "NotifyIconOverflowWindow")
 
-	blnClickOnTrayIcon := false
-	; blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
+	g_blnClickOnTrayIcon := false
+	; g_blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
 	; turn it off to avoid further clicks on taskbar to be accepted if g_blnOpenMenuOnTaskbar is off
 
 	return blnWindowIsDesktop
@@ -11361,12 +11365,13 @@ AHK_NOTIFYICON(wParam, lParam)
 ; To popup menu when left click on the tray icon - See the OnMessage command in the init section
 ;------------------------------------------------------------
 {
-	global blnClickOnTrayIcon
+	global g_blnOpenMenuOnTaskbar
+	global g_blnClickOnTrayIcon
 	
-	if (lParam = 0x202) ; WM_LBUTTONUP
+	if (g_blnOpenMenuOnTaskbar and lParam = 0x202) ; WM_LBUTTONUP
 	{
-		blnClickOnTrayIcon := true
-		; SetTimer, LaunchHotkeyMouse, -1
+		g_blnClickOnTrayIcon := true
+		; The timer ensures that AHK_NOTIFYICON() will catch the message even if the user right-clicks the icon while the menu is still showing. (Lexikos)
 		SetTimer, LaunchFromTrayIcon, -1
 		return 0
 	}
