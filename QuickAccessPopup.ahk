@@ -25,7 +25,10 @@ TO-DO
 HISTORY
 =======
 
-Version: 7.1.8 (2016-03-??)
+Version: 7.1.1.9 (2016-03-??)
+-
+
+Version: 7.1.8 (2016-03-25)
 - before showing the menu, keep focus on scripts hidden window and on script's popup menu to avoid the "close menu issue"
 - before opening the favorite, give back the focus to the target window 
 - fix bug in Add This Folder Express window position not correctly saved
@@ -517,7 +520,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.8
+;@Ahk2Exe-SetVersion 7.1.1.9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -563,7 +566,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.8" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.1.9" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4401,7 +4404,7 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
-OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : ""))
+OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : "")) ; enable or disable the option's function
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
 
