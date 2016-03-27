@@ -16,6 +16,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
+- add OpenFavoriteNavigateUnknown to avoid error message
+- calling a submenu from a hotkey does not insert column breaks
+- target window not correctly indentified when submenu called from a hotkey
 
 TO-DO
 - add FAQ about "Close this menu"
@@ -25,7 +28,7 @@ TO-DO
 HISTORY
 =======
 
-Version: 7.1.1.9 (2016-03-??)
+Version: 7.1.9.1 (2016-03-??)
 -
 
 Version: 7.1.8 (2016-03-25)
@@ -34,6 +37,8 @@ Version: 7.1.8 (2016-03-25)
 - fix bug in Add This Folder Express window position not correctly saved
 - addition of debugging code about active window id
 - avoid writing diag info if diag mode is off
+- fix bug Open Menu on Taskbar option not being considered (menu was always shown regardless of the option)
+- fix Traditional Chinese language mention in about text
 
 Version: 7.1.7 (2016-03-22)
 - addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
@@ -520,7 +525,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.1.9
+;@Ahk2Exe-SetVersion 7.1.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -566,7 +571,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.1.9" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -832,7 +837,7 @@ SetQAPWorkingDirectory:
 
 First, the whole story...
 
-Check if what mode QAP is running:
+Check in what mode QAP is running:
 - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
 - else we are in Portable mode.
 
@@ -11079,14 +11084,14 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 	if (blnMouseElseKeyboard)
 	{
 		MouseGetPos, , , g_strTargetWinId, g_strTargetControl
-		WinGetClass g_strTargetClass, % "ahk_id " . g_strTargetWinId
+		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Mouse, %strMouseOrKeyboard% = %g_strMouseNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%`n%g_strTargetControl%
 	}
 	else ; Keyboard
 	{
 		g_strTargetWinId := WinExist("A")
 		g_strTargetControl := ""
-		WinGetClass g_strTargetClass, % "ahk_id " . g_strTargetWinId
+		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Keyboard, %strMouseOrKeyboard% = %g_strKeyboardNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%
 	}
 
@@ -11375,8 +11380,7 @@ AHK_NOTIFYICON(wParam, lParam)
 	if (lParam = 0x202) ; WM_LBUTTONUP
 	{
 		g_blnClickOnTrayIcon := true
-		; The timer ensures that AHK_NOTIFYICON() will catch the message even if the user right-clicks the icon while the menu is still showing. (Lexikos)
-		SetTimer, LaunchFromTrayIcon, -1
+		Gosub, LaunchFromTrayIcon
 		return 0
 	}
 } 
