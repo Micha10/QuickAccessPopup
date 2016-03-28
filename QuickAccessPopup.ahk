@@ -29,6 +29,10 @@ TO-DO
 HISTORY
 =======
 
+Version: 7.1.99.1 BETA (2016-03-28)
+- add the option "Add Close to menus" and save/retrieve to ini file
+- add "Close this menu" to main, alternative menu and dynamic menus if option Add Close to menus is on
+
 Version: 7.1.9 (2016-03-28)
 - reverting to v7.1.4 before tentative patches to fix the "close menu issue", keeping the following changes in v7.1.5 to v7.1.8:
 - add the QAP feature "Close this menu" to force closing the menu when the issue is present
@@ -536,7 +540,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.9
+;@Ahk2Exe-SetVersion 7.1.9 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -583,7 +587,7 @@ Gosub, InitLanguageVariables
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
 g_strCurrentVersion := "7.1.9" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -1961,6 +1965,7 @@ StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
 IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
 IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
 IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
+IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
@@ -2624,6 +2629,7 @@ Menu, g_menuClipboard, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
 AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu("g_menuClipboard")
 
 return
 ;------------------------------------------------------------
@@ -2705,6 +2711,7 @@ if StrLen(strContentsInClipboard)
 		if StrLen(strMenuName) < 260 ; skip too long URLs
 			AddMenuIcon("g_menuClipboard", strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
+	AddCloseMenu("g_menuClipboard")
 	; Critical, Off
 }
 
@@ -2789,6 +2796,7 @@ Menu, g_menuDrives, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
 AddMenuIcon("g_menuDrives", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu("g_menuDrives")
 
 return
 ;------------------------------------------------------------
@@ -2865,6 +2873,7 @@ Loop, Parse, strMenuItemsList, `n
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
+AddCloseMenu("g_menuDrives")
 ; Until background tasks is back...
 ; Critical, Off
 
@@ -2897,6 +2906,7 @@ Menu, g_menuRecentFolders, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
 AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu("g_menuRecentFolders")
 
 return
 ;------------------------------------------------------------
@@ -3002,6 +3012,7 @@ Loop, Parse, strMenuItemsList, `n
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
+AddCloseMenu("g_menuRecentFolders")
 ; Until background tasks is back...
 ; Critical, Off
 
@@ -3037,6 +3048,8 @@ if (g_blnUseColors)
 }
 AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
 AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu("g_menuReopenFolder")
+AddCloseMenu("g_menuSwitchFolderOrApp")
 
 return
 ;------------------------------------------------------------
@@ -3248,6 +3261,9 @@ else
 if !(blnWeHaveFolders)
 	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShow", "iconNoContent", false) ; will never be called because disabled
 
+AddCloseMenu("g_menuReopenFolder")
+AddCloseMenu("g_menuSwitchFolderOrApp")
+
 Critical, Off
 
 objDOpusListers := ""
@@ -3420,11 +3436,24 @@ Menu, %lTCMenuName%, DeleteAll
 if (g_blnUseColors)
     Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
 AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu(lTCMenuName)
 
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
 g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
 
 Gosub, RefreshTotalCommanderHotlist
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+TotalCommanderHotlistMenuShortcut:
+;------------------------------------------------------------
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lTCMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -3455,6 +3484,8 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 }
 else
 	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+
+AddCloseMenu(lTCMenuName)
 
 return
 ;------------------------------------------------------------
@@ -3547,18 +3578,6 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 
 
 ;------------------------------------------------------------
-TotalCommanderHotlistMenuShortcut:
-;------------------------------------------------------------
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, %lTCMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 BuildAlternativeMenu:
 ;------------------------------------------------------------
 
@@ -3585,6 +3604,8 @@ Loop
 			Menu, g_menuAlternative, Add
 		else
 			break ; menu finished
+
+AddCloseMenu("g_menuAlternative")
 
 strMenuName := ""
 strThisHotkey := ""
@@ -3621,6 +3642,8 @@ if !(g_blnDonor)
 		Menu, %lMainMenuName%, Add
 	AddMenuIcon(lMainMenuName, lDonateMenu . "...", "GuiDonate", "iconDonate")
 }
+
+AddCloseMenu(lMainMenuName)
 
 if (A_ThisLabel = "BuildMainMenuWithStatus")
 {
@@ -3757,6 +3780,21 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteName = lMenuSettings . "...") ; make Settings... menu bold in any menu
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
+	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+AddCloseMenu(strMenuName)
+;------------------------------------------------------------
+{
+	global g_blnAddCloseToDynamicMenus
+	
+	if (g_blnAddCloseToDynamicMenus)
+	{
+		Menu, g_menuClipboard, Add
+		AddMenuIcon(strMenuName, lMenuCloseThisMenu, "DoNothing", "iconClose")
 	}
 }
 ;------------------------------------------------------------
@@ -3969,6 +4007,9 @@ GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
 GuiControl, , f_blnOpenMenuOnTaskbar, %g_blnOpenMenuOnTaskbar%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddCloseToDynamicMenus, %lOptionsAddCloseToDynamicMenus%
+GuiControl, , f_blnAddCloseToDynamicMenus, %g_blnAddCloseToDynamicMenus%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayIcons gDisplayIconsClicked, %lOptionsDisplayIcons%
 GuiControl, , f_blnDisplayIcons, % (OSVersionIsWorkstation() ? g_blnDisplayIcons : false) 
@@ -4432,6 +4473,8 @@ IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
 OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : "")) ; enable or disable the option's function
+g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
+IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
 
@@ -5150,10 +5193,7 @@ if (g_blnAbordEdit)
 	return
 }
 
-if (g_strCurrentBranch <> "prod")
-	g_strTypesForTabWindowOptions := "Folder|Document|Application|Special|URL|FTP"
-else ; prod
-	g_strTypesForTabWindowOptions := "Folder|Special|FTP"
+g_strTypesForTabWindowOptions := "Folder|Special|FTP"
 g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Group"
 
 if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")

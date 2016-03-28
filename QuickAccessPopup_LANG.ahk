@@ -297,6 +297,7 @@ global lOopsWriteProtectedError := "It appears that ~1~ is running from a WRITE-
 global lOopsWrongThirdPartyPath := "Wrong path or file name for ~1~:`n~2~.`n`nCheck the .exe file selected for ~1~ in ""Options"", tab ""~3~""."
 global lOopsWrongThirdPartyPathQAPconnect := "Wrong path or file name for QAPconnect application`n~1~:`n~2~.`n`nCheck values for [~1~] in ~3~. Use the ""~4~"" button in ""Options"", tab ""~5~""." ; new
 global lOopsZipFileError := "It appears that ~1~ is running directly from a .ZIP file.`n`nYou must extract the ~1~ .EXE file from the .ZIP file to the folder of your choice before running it.`n`n~1~ will quit."
+global lOptionsAddCloseToDynamicMenus := "Add ""Close"" to menus"
 global lOptionsAlternativeMenuFeatures := "Alternative Menu Hotkeys" ; new
 global lOptionsAlternativeMenuFeaturesIntro := "Manage the shortcuts that will trigger the Alternative menu features." ; new
 global lOptionsChangeFolderInDialog := "Change folders in dialog box with main QAP mouse and keyboard hotkeys" ; changed
