@@ -17,8 +17,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 BUGS
 - add OpenFavoriteNavigateUnknown to avoid error message
-- calling a submenu from a hotkey does not insert column breaks
+- calling a submenu from a hotkey at startup does not insert column breaks
 - target window not correctly indentified when submenu called from a hotkey
+- add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
 
 TO-DO
 - add FAQ about "Close this menu"
@@ -28,8 +29,18 @@ TO-DO
 HISTORY
 =======
 
-Version: 7.1.9.1 (2016-03-??)
--
+Version: 7.1.9 (2016-03-28)
+- reverting to v7.1.4 before tentative patches to fix the "close menu issue", keeping the following changes in v7.1.5 to v7.1.8:
+- add the QAP feature "Close this menu" to force closing the menu when the issue is present
+- add the "Close this menu" to the default menu created at first QAP execution (actual users must add it manually - Settings, Add buton, QAP Feature, Close this menu)
+- fix bug Open Menu on Taskbar option not being considered (menu was always shown regardless of the option)
+- keep command line parameters when reloading after changing language or theme in options
+- stop display the popup menu on unsupported "Select Folder" dialog boxes (with TreeView)
+- fix bug in Add This Folder Express window position not correctly saved
+- avoid writing diag info if diag mode is off
+- additional code to fix bug mouse pointer staying in "wait" state by error when saving options
+- addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
+- update to language files
 
 Version: 7.1.8 (2016-03-25)
 - before showing the menu, keep focus on scripts hidden window and on script's popup menu to avoid the "close menu issue"
@@ -525,7 +536,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.9.1
+;@Ahk2Exe-SetVersion 7.1.9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -571,7 +582,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.9" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -951,6 +962,7 @@ FileCreateDir, %g_strTempDir%
 ; 1- add the FileInstall line below
 ; 2- update strOptionsLanguageCodes
 ; 3- edit lOptionsLanguageLabels in all languages
+
 FileInstall, FileInstall\QuickAccessPopup_LANG_DE.txt, %g_strTempDir%\QuickAccessPopup_LANG_DE.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_FR.txt, %g_strTempDir%\QuickAccessPopup_LANG_FR.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_SV.txt, %g_strTempDir%\QuickAccessPopup_LANG_SV.txt, 1
@@ -2430,6 +2442,7 @@ if !FileExist(g_strDiagFile)
 	Diag("A_OSVersion", A_OSVersion)
 	Diag("A_Is64bitOS", A_Is64bitOS)
 	Diag("A_IsUnicode", A_IsUnicode)
+	Diag("A_IsUnicode", A_IsUnicode)
 	Diag("A_Language", A_Language)
 	Diag("A_IsAdmin", A_IsAdmin)
 }
@@ -2622,8 +2635,9 @@ ClipboardMenuShortcut:
 
 Gosub, RefreshClipboardMenu
 
-g_strMenuToShow := "g_menuClipboard"
-Gosub, ShowMenu
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuClipboard, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -2788,16 +2802,18 @@ DrivesMenuShortcut:
 /*
 Gosub, RefreshDrivesMenu ; refreshed by SetTimer but also just before when called by the shortcut
 
-g_strMenuToShow := "g_menuDrives"
-Gosub, ShowMenu
-
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
 */
 
 ; Until background tasks is back...
+Gosub, SetMenuPosition
+
 Gosub, RefreshDrivesMenu
 
-g_strMenuToShow := "g_menuDrives"
-Gosub, ShowMenu
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -2894,15 +2910,18 @@ RecentFoldersMenuShortcut:
 /*
 Gosub, RefreshRecentFoldersMenu ; refreshed by SetTimer but also just before when called by the shortcut
 
-g_strMenuToShow := "g_menuRecentFolders"
-Gosub, ShowMenu
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
 */
 
 ; Until background tasks is back...
+Gosub, SetMenuPosition
+
 Gosub, RefreshRecentFoldersMenu
 
-g_strMenuToShow := "g_menuRecentFolders"
-Gosub, ShowMenu
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -3029,8 +3048,9 @@ ReopenFolderMenuShortcut:
 
 Gosub, RefreshReopenFolderMenu
 
-g_strMenuToShow := "g_menuReopenFolder"
-Gosub, ShowMenu
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuReopenFolder, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -3042,8 +3062,9 @@ SwitchFolderOrAppMenuShortcut:
 
 Gosub, RefreshSwitchFolderOrAppMenu
 
-g_strMenuToShow := "g_menuSwitchFolderOrApp"
-Gosub, ShowMenu
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, g_menuSwitchFolderOrApp, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -3529,8 +3550,9 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 TotalCommanderHotlistMenuShortcut:
 ;------------------------------------------------------------
 
-g_strMenuToShow := lTCMenuName
-Gosub, ShowMenu
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lTCMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -8016,13 +8038,15 @@ if (g_blnGetWinInfo)
 	return
 }
 
+Gosub, SetMenuPosition
+
 g_blnAlternativeMenu := (A_ThisLabel = "LaunchFromAlternativeMenu")
 if !(g_blnAlternativeMenu)
 	g_strAlternativeMenu := "" ; delete from previous call to Alternative key, else keep what was set in OpenAlternativeMenu
 
 if (A_ThisLabel = "LaunchFromTrayIcon")
 {
-	; ##### REQUIRED HERE (or already covered by CanNavigate?) -> SetTargetWinInfo(false)
+	SetTargetWinInfo(false)
 	g_strHokeyTypeDetected := "Launch"
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
@@ -8057,8 +8081,7 @@ if (g_blnDiagMode)
 
 Gosub, InsertColumnBreaks
 
-g_strMenuToShow := lMainMenuName
-Gosub, ShowMenu ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
+Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 ; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
 
@@ -8074,8 +8097,32 @@ AlternativeHotkeyKeyboard:
 g_blnAlternativeMenu := true
 g_strHokeyTypeDetected := "Alternative"
 
-g_strMenuToShow := "g_menuAlternative"
-Gosub, ShowMenu
+Menu, g_menuAlternative, Show
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SetMenuPosition:
+;------------------------------------------------------------
+
+; relative to active window if option g_intPopupMenuPosition = 2
+CoordMode, Mouse, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+if (g_intPopupMenuPosition = 1) ; display menu near mouse pointer location
+	MouseGetPos, g_intMenuPosX, g_intMenuPosY
+else if (g_intPopupMenuPosition = 2) ; display menu at an offset of 20x20 pixel from top-left of active window area
+{
+	g_intMenuPosX := 20
+	g_intMenuPosY := 20
+}
+else ; (g_intPopupMenuPosition =  3) - fix position - use the g_intMenuPosX and g_intMenuPosY values from the ini file
+{
+	g_intMenuPosX := g_arrPopupFixPosition1
+	g_intMenuPosY := g_arrPopupFixPosition2
+}
 
 return
 ;------------------------------------------------------------
@@ -8508,25 +8555,6 @@ OpenDrives:
 OpenFavoriteHotlist:
 ;------------------------------------------------------------
 
-if (g_blnDiagMode)
-{
-	Diag("Begin " . A_ThisLabel . " - Active ID", WinExist("A"))
-	WinGetTitle, strWinTitle, A
-	Diag("Begin " . A_ThisLabel . " - Active Title", strWinTitle)
-}
-
-; Give back the focus to the target window after we secured the focus to the script hidden window
-; before showing the menu to avoid the "close memu issue".
-; See: https://autohotkey.com/boards/viewtopic.php?f=5&t=15006
-WinActivate, ahk_id %g_strTargetWinId%
-
-if (g_blnDiagMode)
-{
-	Diag("After WinActivate - Active ID", WinExist("A"))
-	WinGetTitle, strWinTitle, A
-	Diag("After WinActivate - Active Title", strWinTitle)
-}
-
 g_strOpenFavoriteLabel := A_ThisLabel
 ; if (g_blnDiagMode)
 ;	Diag("OpenFavoriteHotlist", "---------")
@@ -8672,8 +8700,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 
 if (g_objThisFavorite.FavoriteType = "Menu")
 {
-	g_strMenuToShow := lMainMenuName . " " . g_strFullLocation
-	Gosub, ShowMenu
+	Menu, %lMainMenuName% %g_strFullLocation%, Show
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -11255,53 +11282,6 @@ SetWaitCursor(blnOnOff)
 		blnCursorWaitAlreadyOn := false
 	}
 }
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ShowMenu:
-;------------------------------------------------------------
-
-; SetMenuPosition:
-; relative to active window if option g_intPopupMenuPosition = 2
-CoordMode, Mouse, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-
-if (g_intPopupMenuPosition = 1) ; display menu near mouse pointer location
-	MouseGetPos, g_intMenuPosX, g_intMenuPosY
-else if (g_intPopupMenuPosition = 2) ; display menu at an offset of 20x20 pixel from top-left of active window area
-{
-	g_intMenuPosX := 20
-	g_intMenuPosY := 20
-}
-else ; (g_intPopupMenuPosition =  3) - fix position - use the g_intMenuPosX and g_intMenuPosY values from the ini file
-{
-	g_intMenuPosX := g_arrPopupFixPosition1
-	g_intMenuPosY := g_arrPopupFixPosition2
-}
-
-if (g_blnDiagMode)
-{
-	Diag("Before - SwitchToThisWindow", WinExist("A"))
-	WinGetTitle, strWinTitle, A
-	Diag("Before - SwitchToThisWindow", strWinTitle)
-}
-
-; Keep focus on scripts hidden window and on script's popup menu to avoid the "close menu issue"
-; see https://autohotkey.com/boards/viewtopic.php?f=5&t=15006
-if !(g_blnClickOnTrayIcon)
-	DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
-
-if (g_blnDiagMode)
-{
-	intErrorLevel := ErrorLevel
-	Diag("After - SwitchToThisWindow - ErrorLevel", intErrorLevel)
-	Diag("After - SwitchToThisWindow - ActiveWindow", WinExist("A"))
-}
-
-Menu, %g_strMenuToShow%, Show, %g_intMenuPosX%, %g_intMenuPosY%
-
-return
 ;------------------------------------------------------------
 
 
