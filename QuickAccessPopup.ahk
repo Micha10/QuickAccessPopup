@@ -31,6 +31,7 @@ HISTORY
 
 Version: 7.1.99.2 BETA (2016-03-??)
 - fix bug with application favorite start in folder
+- fix bug exclusion list is now considered only for QAP mouse button (middle mouse button by default)
 
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
@@ -2449,7 +2450,6 @@ if !FileExist(g_strDiagFile)
 	Diag("A_AhkVersion", A_AhkVersion)
 	Diag("A_OSVersion", A_OSVersion)
 	Diag("A_Is64bitOS", A_Is64bitOS)
-	Diag("A_IsUnicode", A_IsUnicode)
 	Diag("A_IsUnicode", A_IsUnicode)
 	Diag("A_Language", A_Language)
 	Diag("A_IsAdmin", A_IsAdmin)
@@ -8064,13 +8064,15 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
-NavigateHotkeyMouse:
-NavigateHotkeyKeyboard:
-LaunchHotkeyMouse:
-LaunchHotkeyKeyboard:
-LaunchFromTrayIcon:
-LaunchFromAlternativeMenu:
+NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
+NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
+LaunchHotkeyMouse:			; g_strTargetWinId set by CanLaunch
+LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanLaunch
+LaunchFromTrayIcon:			; g_strTargetWinId set inside
+LaunchFromAlternativeMenu:	; g_strTargetWinId set by ######
 ;------------------------------------------------------------
+
+DiagWindowInfo(A_ThisLabel . " Begin")
 
 if !(g_blnMenuReady)
 	return
@@ -8124,6 +8126,7 @@ if (g_blnDiagMode)
 
 Gosub, InsertColumnBreaks
 
+DiagWindowInfo(A_ThisLabel . " Before Menu Show")
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 ; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
@@ -8183,6 +8186,8 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
+	DiagWindowInfo("CanNavigate Begin")
+	
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
@@ -8206,6 +8211,8 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 		}
 	}
 	
+	DiagWindowInfo("CanNavigate End")
+	
 	return blnCanNavigate
 }
 ;------------------------------------------------------------
@@ -8217,15 +8224,20 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
+	DiagWindowInfo("CanLaunch Begin")
+
 	; g_arrPopupHotkeys1 is mouse hotkey
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
 	; strExclusionList := (strMouseOrKeyboard = g_arrPopupHotkeys1 ? g_strExclusionMouseList : g_strExclusionKeyboardList)
 	; Loop, Parse, strExclusionList, |
-	Loop, Parse, g_strExclusionMouseList, |
-		if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
-			return false
-		
+	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
+		Loop, Parse, g_strExclusionMouseList, |
+			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
+				return false
+	
+	DiagWindowInfo("CanLaunch End")
+	
 	; if not excluded, return true except if dialog box is a Select Folder (TreeView)
 	return % !WindowIsTreeview(g_strTargetWinId)
 }
@@ -10716,6 +10728,20 @@ GetFirstNotModifier(strHotkey)
 	return intPos
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------
+DiagWindowInfo(strName)
+;------------------------------------------------
+{
+	global g_strTargetWinId
+	
+	WinGetClass, strClass, ahk_id %g_strTargetWinId%
+	WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
+
+	Diag(strName . " - WindowInfo", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
+}
+;------------------------------------------------
 
 
 ;------------------------------------------------
