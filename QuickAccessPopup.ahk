@@ -29,6 +29,9 @@ TO-DO
 HISTORY
 =======
 
+Version: 7.1.99.2 BETA (2016-03-??)
+- fix bug with application favorite start in folder
+
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
 - add "Close this menu" to main, alternative menu and dynamic menus if option Add Close to menus is on
@@ -8722,7 +8725,7 @@ if (g_blnAlternativeMenu)
 ; --- Launch with ---
 
 if InStr("Document|URL", g_objThisFavorite.FavoriteType)
-	or StrLen(g_objThisFavorite.FavoriteLaunchWith)
+	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and g_objThisFavorite.FavoriteType <> "Application")
 {
 	Run, %g_strFullLocation%, , , intPid
 	; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
