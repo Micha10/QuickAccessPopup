@@ -16,10 +16,13 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
+- target window not correctly indentified when submenu called from a hotkey (CanNavigate and CanLaunch called from OpenFavoriteFromHotkey?)
+- clipboard menu has empty lines at end of menu (only when empty?)
+- check for update doublew message if beta
 - add OpenFavoriteNavigateUnknown to avoid error message
 - calling a submenu from a hotkey at startup does not insert column breaks
-- target window not correctly indentified when submenu called from a hotkey
 - add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
+- if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
 TO-DO
 - add FAQ about "Close this menu"
@@ -8068,8 +8071,8 @@ NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanLaunch
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanLaunch
-LaunchFromTrayIcon:			; g_strTargetWinId set inside
-LaunchFromAlternativeMenu:	; g_strTargetWinId set by ######
+LaunchFromTrayIcon:			; g_strTargetWinId set below
+LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
 DiagWindowInfo(A_ThisLabel . " Begin")
@@ -8126,6 +8129,7 @@ if (g_blnDiagMode)
 
 Gosub, InsertColumnBreaks
 
+DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
 DiagWindowInfo(A_ThisLabel . " Before Menu Show")
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
@@ -8143,7 +8147,9 @@ AlternativeHotkeyKeyboard:
 g_blnAlternativeMenu := true
 g_strHokeyTypeDetected := "Alternative"
 
-Menu, g_menuAlternative, Show
+SetTargetWinInfo(A_ThisLabel = "AlternativeHotkeyMouse")
+Gosub, SetMenuPosition
+Menu, g_menuAlternative, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -8416,6 +8422,8 @@ if (g_blnDisplayNumericShortcuts)
 if (g_intHotkeyReminders > 1) and InStr(g_strAlternativeMenu, " (")
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, " (", -1) - 1) ; and remove hotkey reminder
 
+; ###_V("", A_ThisHotkey, g_arrPopupHotkeys1, g_arrPopupHotkeys2, g_arrPopupHotkeys3, g_arrPopupHotkeys4, A_ThisHotkey = g_arrPopupHotkeys3)
+; NOT here anymore - now in AlternativeHotkeyMouse/AlternativeHotkeyKeyboard - SetTargetWinInfo(A_ThisHotkey = g_arrPopupHotkeys3) ; true = mouse / false = keyboard
 gosub, OpenAlternativeMenuTrayTip
 gosub, LaunchFromAlternativeMenu
 
@@ -8611,6 +8619,11 @@ OpenFavoriteHotlist:
 ;------------------------------------------------------------
 
 g_strOpenFavoriteLabel := A_ThisLabel
+
+DiagWindowInfo(A_ThisLabel . " Begin")
+WinActivate, ahk_id %g_strTargetWinId%
+DiagWindowInfo(A_ThisLabel . " After WinActivate")
+
 ; if (g_blnDiagMode)
 ;	Diag("OpenFavoriteHotlist", "---------")
 
@@ -8695,6 +8708,8 @@ if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.Favor
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
+Diag(A_ThisLabel . " After WinActivate - Location", g_strHokeyTypeDetected . "`t" . g_strFullLocation)
+
 ; === ACTIONS ===
 
 ; --- Alternative Menu actions ---
@@ -8755,7 +8770,8 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 
 if (g_objThisFavorite.FavoriteType = "Menu")
 {
-	Menu, %lMainMenuName% %g_strFullLocation%, Show
+	Gosub, SetMenuPosition
+	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -8933,6 +8949,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		if objMenu.MaxIndex() > 1 ; has more that the backlink entry
 		{
 			loop, % objMenu.MaxIndex()
+			; this scans only this menu, not its submenu - QAP features needing to be refreshed may be in submenu...
 				if (objMenu[A_Index].FavoriteType = "QAP")
 					if (objMenu[A_Index].FavoriteLocation = "{Clipboard}")
 						Gosub, RefreshClipboardMenu
@@ -8953,7 +8970,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return
 	}
-	if CanNavigate(A_ThisHotkey)
+	if CanNavigate(A_ThisHotkey) ; ##### update window ID - OK?
 		g_strHokeyTypeDetected := "Navigate"
 	else if CanLaunch(A_ThisHotkey)
 		g_strHokeyTypeDetected := "Launch"
@@ -10738,8 +10755,12 @@ DiagWindowInfo(strName)
 	
 	WinGetClass, strClass, ahk_id %g_strTargetWinId%
 	WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-
-	Diag(strName . " - WindowInfo", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
+	Diag(strName . " - Window Info", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
+	
+	strActiveWindowId := WinActive("A")
+	WinGetClass, strClass, ahk_id %strActiveWindowId%
+	WinGetTitle, strTitle, ahk_id %strActiveWindowId%
+	Diag(strName . " - Active Window", strActiveWindowId . "`t" . strClass . "`t" . strTitle)
 }
 ;------------------------------------------------
 
@@ -11182,6 +11203,8 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		MouseGetPos, , , g_strTargetWinId, g_strTargetControl
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Mouse, %strMouseOrKeyboard% = %g_strMouseNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%`n%g_strTargetControl%
+		WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
+		DiagWindowInfo("SetTargetWinInfo - Mouse")
 	}
 	else ; Keyboard
 	{
@@ -11189,6 +11212,7 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		g_strTargetControl := ""
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Keyboard, %strMouseOrKeyboard% = %g_strKeyboardNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%
+		DiagWindowInfo("SetTargetWinInfo - Keyboard")
 	}
 
 	WinGetTitle, g_strTargetWinTitle, % "ahk_id " . g_strTargetWinId
