@@ -35,6 +35,9 @@ HISTORY
 Version: 7.1.99.2 BETA (2016-03-??)
 - fix bug with application favorite start in folder
 - fix bug exclusion list is now considered only for QAP mouse button (middle mouse button by default)
+- fix bug set window info and menu position for alternative menu hotkey command
+- fix bug set menu position when menu is called from a hotkey
+- ##### test SwitchToThisWindow from main hotkey and restore active window
 
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
@@ -8069,9 +8072,9 @@ return
 ;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
-LaunchHotkeyMouse:			; g_strTargetWinId set by CanLaunch
-LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanLaunch
-LaunchFromTrayIcon:			; g_strTargetWinId set below
+LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
+LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
+LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
@@ -8094,8 +8097,8 @@ if !(g_blnAlternativeMenu)
 
 if (A_ThisLabel = "LaunchFromTrayIcon")
 {
-	SetTargetWinInfo(false)
-	g_strHokeyTypeDetected := "Launch"
+	g_strTargetWinId := "" ; never target window when launched from the tray icon
+	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
@@ -8130,7 +8133,8 @@ if (g_blnDiagMode)
 Gosub, InsertColumnBreaks
 
 DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
-DiagWindowInfo(A_ThisLabel . " Before Menu Show")
+WinHide, ahk_id %A_ScriptHwnd%
+DiagWindowInfo(A_ThisLabel . " After SwitchToThisWindow")
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 ; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
@@ -8233,7 +8237,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	DiagWindowInfo("CanLaunch Begin")
 
 	; g_arrPopupHotkeys1 is mouse hotkey
-	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
+	; ###### SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
 	; strExclusionList := (strMouseOrKeyboard = g_arrPopupHotkeys1 ? g_strExclusionMouseList : g_strExclusionKeyboardList)
 	; Loop, Parse, strExclusionList, |
@@ -8619,9 +8623,11 @@ OpenFavoriteHotlist:
 ;------------------------------------------------------------
 
 g_strOpenFavoriteLabel := A_ThisLabel
+g_strNewWindowId := "" ; start fresh for any new favorite to open
 
-DiagWindowInfo(A_ThisLabel . " Begin")
-WinActivate, ahk_id %g_strTargetWinId%
+DiagWindowInfo(A_ThisLabel . " Before WinActivate")
+if StrLen(g_strTargetWinId)
+	WinActivate, ahk_id %g_strTargetWinId%
 DiagWindowInfo(A_ThisLabel . " After WinActivate")
 
 ; if (g_blnDiagMode)
@@ -8706,6 +8712,7 @@ if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.Favor
 ; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
 ; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
+; Diag("strFavoriteWindowPosition", strFavoriteWindowPosition)
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
 Diag(A_ThisLabel . " After WinActivate - Location", g_strHokeyTypeDetected . "`t" . g_strFullLocation)
@@ -8825,6 +8832,7 @@ if (g_strHokeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
+	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
 	gosub, OpenFavoriteWindowResize
 }
 
@@ -8970,6 +8978,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return
 	}
+	DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
 	if CanNavigate(A_ThisHotkey) ; ##### update window ID - OK?
 		g_strHokeyTypeDetected := "Navigate"
 	else if CanLaunch(A_ThisHotkey)
@@ -8979,6 +8988,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return ; active window is on exclusion list
 	}
+	DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 {
@@ -9508,13 +9518,14 @@ if (g_arrFavoriteWindowPosition1)
 	; when run -> pid? if not scan Explorer ids
 	gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
+	; Diag(A_ThisLabel . " strExplorerIDsBefore", strExplorerIDsBefore)
 }
 
 Run, % "Explorer """ . g_strFullLocation . """" ; there was a bug prior to v3.3.1 because the lack of double-quotes
 
 if (g_arrFavoriteWindowPosition1)
 {
-	g_strNewWindowId := ""
+	; Diag(A_ThisLabel . " g_arrFavoriteWindowPosition7", g_arrFavoriteWindowPosition7)
 	Loop
 	{
 		if (A_Index > 25)
@@ -9525,7 +9536,9 @@ if (g_arrFavoriteWindowPosition1)
 		}
 		Sleep, %g_arrFavoriteWindowPosition7%
 		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
+		; Diag(A_ThisLabel . " g_strExplorerIDs take " . A_Index, g_strExplorerIDs)
 		Loop, Parse, g_strExplorerIDs, |
+			; Diag(A_ThisLabel . " A_LoopField", A_LoopField)
 			if !InStr(strExplorerIDsBefore, A_LoopField . "|")
 			{
 				g_strNewWindowId  := "ahk_id " . A_LoopField
