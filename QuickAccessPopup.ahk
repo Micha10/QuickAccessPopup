@@ -10098,7 +10098,7 @@ Check4UpdateDialogProd:
 
 strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
 
-intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ") ; additional space to make sure 7.1.9 and 7.1.99 are not confused anymore...
+intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd)
 strChangeLog := SubStr(strChangeLog, intPos)
 intPos := InStr(strChangeLog, "`n`n")
 strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
