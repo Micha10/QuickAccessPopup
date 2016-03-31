@@ -293,6 +293,7 @@ global lOopsLocation := "location" ; new
 global lOopsOSVerrsionError := "~1~ requires Window 7 or a more recent operating system. Windows Vista and XP users are invited to use Folders Popup that is compatible with these versions.`n`nDo you want to visit Folders Popup website?" ; new
 global lOopsQAPfeature := "QAP feature" ; new
 global lOopsTitle := "~1~ (~2~)"
+global lOopsUnknownTargetAppName := "An error occurred while trying to open this favorite. Please, try again..." ; new
 global lOopsWriteProtectedError := "It appears that ~1~ is running from a WRITE-PROTECTED folder where the configuration file ""~1~.ini"" could not be created.`n`nMove the ~1~ .EXE file to the REGULAR folder of your choice and re-run it from this folder.`n`n~1~ will quit."
 global lOopsWrongThirdPartyPath := "Wrong path or file name for ~1~:`n~2~.`n`nCheck the .exe file selected for ~1~ in ""Options"", tab ""~3~""."
 global lOopsWrongThirdPartyPathQAPconnect := "Wrong path or file name for QAPconnect application`n~1~:`n~2~.`n`nCheck values for [~1~] in ~3~. Use the ""~4~"" button in ""Options"", tab ""~5~""." ; new

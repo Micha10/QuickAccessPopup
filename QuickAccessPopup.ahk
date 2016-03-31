@@ -16,9 +16,6 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
-- clipboard menu has empty lines at end of menu (only when empty?)
-- check for update doublew message if beta
-- add OpenFavoriteNavigateUnknown to avoid error message
 - calling a submenu from a hotkey at startup does not insert column breaks
 - add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
@@ -38,6 +35,9 @@ Version: 7.1.99.2 BETA (2016-03-??)
 - fix bug set window info and menu position for alternative menu hotkey command
 - fix bug set menu position when menu is called from a hotkey
 - fix bug target window now correctly indentified when favorite is called from a favorite hotkey or when submenu is called from a menu favorite hotkey
+- fix bug clipboard menu had empty lines at end of menu
+- fix bug when version numbers overlap in error log (example 7.1.9 vs 7.1.99) causing bad log section to be displayed in check for update dialog box
+- better error messages if a "target app name unknown" occurs when trying to navigate a favorite or open it in a new window
 
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
@@ -3801,10 +3801,7 @@ AddCloseMenu(strMenuName)
 	global g_blnAddCloseToDynamicMenus
 	
 	if (g_blnAddCloseToDynamicMenus)
-	{
-		Menu, g_menuClipboard, Add
 		AddMenuIcon(strMenuName, lMenuCloseThisMenu, "DoNothing", "iconClose")
-	}
 }
 ;------------------------------------------------------------
 
@@ -9451,6 +9448,17 @@ return
 
 
 ;------------------------------------------------------------
+OpenFavoriteNavigateUnknown:
+;------------------------------------------------------------
+; avoid an error message if target app name is unknown
+
+Oops(lOopsUnknownTarget)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ControlIsVisible(strWinTitle, strControlClass)
 /*
 Adapted from ControlIsVisible(WinTitle,ControlClass) by Learning One
@@ -9745,6 +9753,17 @@ else
 
 intPreviousTitleMatchMode := ""
 strQAPconnectParamString := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenFavoriteInNewWindowUnknown:
+;------------------------------------------------------------
+; avoid an error message if target app name is unknown
+
+Oops(lOopsUnknownTargetAppName)
 
 return
 ;------------------------------------------------------------
@@ -10079,7 +10098,7 @@ Check4UpdateDialogProd:
 
 strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
 
-intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd)
+intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ") ; additional space to make sure 7.1.9 and 7.1.99 are not confused anymore...
 strChangeLog := SubStr(strChangeLog, intPos)
 intPos := InStr(strChangeLog, "`n`n")
 strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
