@@ -16,7 +16,6 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
-- target window not correctly indentified when submenu called from a hotkey (CanNavigate and CanLaunch called from OpenFavoriteFromHotkey?)
 - clipboard menu has empty lines at end of menu (only when empty?)
 - check for update doublew message if beta
 - add OpenFavoriteNavigateUnknown to avoid error message
@@ -33,11 +32,12 @@ HISTORY
 =======
 
 Version: 7.1.99.2 BETA (2016-03-??)
+- when menu is called from main hotkey, implemented SwitchToThisWindow and restore active window before open favorite
 - fix bug with application favorite start in folder
 - fix bug exclusion list is now considered only for QAP mouse button (middle mouse button by default)
 - fix bug set window info and menu position for alternative menu hotkey command
 - fix bug set menu position when menu is called from a hotkey
-- ##### test SwitchToThisWindow from main hotkey and restore active window
+- fix bug target window now correctly indentified when favorite is called from a favorite hotkey or when submenu is called from a menu favorite hotkey
 
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
@@ -8097,7 +8097,7 @@ if !(g_blnAlternativeMenu)
 
 if (A_ThisLabel = "LaunchFromTrayIcon")
 {
-	g_strTargetWinId := "" ; never target window when launched from the tray icon
+	g_strTargetWinId := "" ; never use target window when launched from the tray icon
 	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
@@ -8624,6 +8624,8 @@ OpenFavoriteHotlist:
 
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
+if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
+	g_strTargetWinId := "" ; forget value from previous open favorite
 
 DiagWindowInfo(A_ThisLabel . " Before WinActivate")
 if StrLen(g_strTargetWinId)
@@ -8634,7 +8636,10 @@ DiagWindowInfo(A_ThisLabel . " After WinActivate")
 ;	Diag("OpenFavoriteHotlist", "---------")
 
 if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFavorites
-	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch (no Navigate)
+{
+	g_strTargetWinId := "" ; never use target window when launched in a group
+	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
+}
 else
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
 
@@ -8679,7 +8684,10 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 
 ; preparation for Alternative menu features before setting the full location
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
+{
+	g_strTargetWinId := "" ; never use target window when launched from alternative menu with new window
 	g_strHokeyTypeDetected := "Launch"
+}
 
 gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
 ; if (g_blnDiagMode)
@@ -8832,7 +8840,8 @@ if (g_strHokeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
-	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
+	if (g_arrFavoriteWindowPosition1)
+		Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
 	gosub, OpenFavoriteWindowResize
 }
 
@@ -8883,7 +8892,10 @@ else
 	g_strTargetAppName := "Unknown"
 
 if (g_strTargetAppName = "Desktop")
-    g_strHokeyTypeDetected := "Launch"
+{
+	g_strTargetWinId := "" ; never use target window when clicked on the desktop
+	g_strHokeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
+}
 
 if (g_strHokeyTypeDetected = "Launch")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
@@ -8979,10 +8991,13 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		return
 	}
 	DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
-	if CanNavigate(A_ThisHotkey) ; ##### update window ID - OK?
+	if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
 		g_strHokeyTypeDetected := "Navigate"
 	else if CanLaunch(A_ThisHotkey)
+	{
+		g_strTargetWinId := "" ; never use target window when launched from hotkey
 		g_strHokeyTypeDetected := "Launch"
+	}
 	else
 	{
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
