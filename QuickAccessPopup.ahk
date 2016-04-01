@@ -28,16 +28,17 @@ TO-DO
 HISTORY
 =======
 
-Version: 7.1.99.2 BETA (2016-03-??)
-- when menu is called from main hotkey, implemented SwitchToThisWindow and restore active window before open favorite
-- fix bug with application favorite start in folder
+Version: 7.1.99.2 BETA (2016-03-31)
+- fix bug with application favorite Start in folder (Working directory)
 - fix bug exclusion list is now considered only for QAP mouse button (middle mouse button by default)
 - fix bug set window info and menu position for alternative menu hotkey command
 - fix bug set menu position when menu is called from a hotkey
 - fix bug target window now correctly indentified when favorite is called from a favorite hotkey or when submenu is called from a menu favorite hotkey
 - fix bug clipboard menu had empty lines at end of menu
-- fix bug when version numbers overlap in error log (example 7.1.9 vs 7.1.99) causing bad log section to be displayed in check for update dialog box
 - better error messages if a "target app name unknown" occurs when trying to navigate a favorite or open it in a new window
+
+Tried but not retained:
+- when menu is called from main hotkey, implemented SwitchToThisWindow and restore active window before open favorite
 
 Version: 7.1.99.1 BETA (2016-03-28)
 - add the option "Add Close to menus" and save/retrieve to ini file
@@ -7947,7 +7948,8 @@ return
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
-WinActivate, ahk_id %g_intGui1WinID%
+if (g_intGui1WinID <> A_ScriptHwnd)
+	WinActivate, ahk_id %g_intGui1WinID%
 
 return
 ;------------------------------------------------------------
@@ -7960,7 +7962,8 @@ return
 
 Gui, 2:-Disabled
 Gui, 3:Destroy
-WinActivate, ahk_id %intGui2WinID%
+if (g_intGui2WinID <> A_ScriptHwnd)
+	WinActivate, ahk_id %intGui2WinID%
 
 return
 ;------------------------------------------------------------
@@ -8129,9 +8132,22 @@ if (g_blnDiagMode)
 
 Gosub, InsertColumnBreaks
 
+/*
+; Tentative solution against "close menu issue" (see http://www.quickaccesspopup.com/what-is-the-close-menu-issue/)
+; This cause side effects espcially when QAP runs in compiled mode (scripts hidden window or main GUI being randomly shown inavertandly)
+
 DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
+
+DetectHiddenWindows, Off
+WinGet, intNbWindows, Count, ahk_id %A_ScriptHwnd%
+Diag(A_ThisLabel . " Before WinHide - Nb A_ScriptHwnd", intNbWindows)
 WinHide, ahk_id %A_ScriptHwnd%
+WinGet, intNbWindows, Count, ahk_id %A_ScriptHwnd%
+DetectHiddenWindows, On
+Diag(A_ThisLabel . " After WinHide - Nb A_ScriptHwnd", intNbWindows)
 DiagWindowInfo(A_ThisLabel . " After SwitchToThisWindow")
+*/
+
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 ; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
@@ -8233,11 +8249,6 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 
 	DiagWindowInfo("CanLaunch Begin")
 
-	; g_arrPopupHotkeys1 is mouse hotkey
-	; ###### SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
-
-	; strExclusionList := (strMouseOrKeyboard = g_arrPopupHotkeys1 ? g_strExclusionMouseList : g_strExclusionKeyboardList)
-	; Loop, Parse, strExclusionList, |
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseList, |
 			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
@@ -8423,8 +8434,6 @@ if (g_blnDisplayNumericShortcuts)
 if (g_intHotkeyReminders > 1) and InStr(g_strAlternativeMenu, " (")
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, " (", -1) - 1) ; and remove hotkey reminder
 
-; ###_V("", A_ThisHotkey, g_arrPopupHotkeys1, g_arrPopupHotkeys2, g_arrPopupHotkeys3, g_arrPopupHotkeys4, A_ThisHotkey = g_arrPopupHotkeys3)
-; NOT here anymore - now in AlternativeHotkeyMouse/AlternativeHotkeyKeyboard - SetTargetWinInfo(A_ThisHotkey = g_arrPopupHotkeys3) ; true = mouse / false = keyboard
 gosub, OpenAlternativeMenuTrayTip
 gosub, LaunchFromAlternativeMenu
 
@@ -8623,11 +8632,16 @@ g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	g_strTargetWinId := "" ; forget value from previous open favorite
+/*
+Counterpart of the SwitchToThisWindow command trying to fight against the "close menu issue" (see commented code with "SwitchToThisWindow" above)
 
 DiagWindowInfo(A_ThisLabel . " Before WinActivate")
 if StrLen(g_strTargetWinId)
+	and (g_strTargetWinId <> A_ScriptHwnd)
+	and (g_strTargetWinId <> g_strAppHwnd)
 	WinActivate, ahk_id %g_strTargetWinId%
 DiagWindowInfo(A_ThisLabel . " After WinActivate")
+*/
 
 ; if (g_blnDiagMode)
 ;	Diag("OpenFavoriteHotlist", "---------")
@@ -11250,8 +11264,8 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		MouseGetPos, , , g_strTargetWinId, g_strTargetControl
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Mouse, %strMouseOrKeyboard% = %g_strMouseNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%`n%g_strTargetControl%
-		WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-		DiagWindowInfo("SetTargetWinInfo - Mouse")
+		; WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
+		; DiagWindowInfo("SetTargetWinInfo - Mouse")
 	}
 	else ; Keyboard
 	{
@@ -11259,7 +11273,7 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		g_strTargetControl := ""
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Keyboard, %strMouseOrKeyboard% = %g_strKeyboardNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%
-		DiagWindowInfo("SetTargetWinInfo - Keyboard")
+		; DiagWindowInfo("SetTargetWinInfo - Keyboard")
 	}
 
 	WinGetTitle, g_strTargetWinTitle, % "ahk_id " . g_strTargetWinId
