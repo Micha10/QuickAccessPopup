@@ -28,7 +28,11 @@ TO-DO
 HISTORY
 =======
 
-Version: 7.1.99.2 BETA (2016-03-31)
+Version BETA: 7.1.99.3 (2016-04-??)
+- stop adding the "Close this menu" QAP feature to the default menu created at first QAP execution
+- stop changing mouse cursor to hand over buttons in Settings when running uncompiled
+
+Version BETA: 7.1.99.2 (2016-03-31)
 - fix bug with application favorite Start in folder (Working directory)
 - fix bug exclusion list is now considered only for QAP mouse button (middle mouse button by default)
 - fix bug set window info and menu position for alternative menu hotkey command
@@ -551,7 +555,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.2 BETA
+;@Ahk2Exe-SetVersion 7.1.99.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -597,7 +601,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.99.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -746,8 +750,16 @@ if (g_blnDisplayTrayTip)
 g_blnMenuReady := true
 
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
-objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
+g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
 OnMessage(0x200, "WM_MOUSEMOVE")
+
+; Stop changing mouse cursor to hand over buttons in Settings when running uncompiled
+;@Ahk2Exe-IgnoreBegin
+; Start of code for development environment only - won't be compiled
+; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
+OnMessage(0x200, "")
+; / End of code for developement enviuronment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
 
 ; To prevent double-click on image static controls to copy their path to the clipboard - See WM_LBUTTONDBLCLK function below
 ; see http://www.autohotkey.com/board/topic/94962-doubleclick-on-gui-pictures-puts-their-path-in-your-clipboard/#entry682595
@@ -2254,15 +2266,6 @@ if (g_intActiveFileManager = 3) ; TotalCommander
 }
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP")
-
-strThisMenuName := lMenuCloseThisMenu
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
-if (strThisMenuName = lMenuCloseThisMenu) ; if equal, it means that this menu is not already there
-; (we cannot have this menu twice with "+" because, as all QAP features, lMenuSettings always have the same menu name)
-{
-	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{CloseMenu}", lMenuCloseThisMenu, "QAP") ; back in main menu
-}
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
@@ -4678,8 +4681,8 @@ IniRead, strTextColor, %g_strIniFile%, Gui-%g_strTheme%, TextColor, 000000
 IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewBackground, FFFFFF
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
-lGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize636x538, %lGuiFullTitle%
+g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+Gui, 1:New, +Resize -MinimizeBox +MinSize636x538, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -11456,11 +11459,12 @@ WM_MOUSEMOVE(wParam, lParam)
 ; see http://www.autohotkey.com/board/topic/70261-gui-buttons-hover-cant-change-cursor-to-hand/
 ;------------------------------------------------
 {
-	Global objHandCursor
-	Global lGuiFullTitle
+	Global g_objHandCursor
+	Global g_strGuiFullTitle
 
 	WinGetTitle, strCurrentWindow, A
-	if (strCurrentWindow <> lGuiFullTitle)
+
+	if (strCurrentWindow <> g_strGuiFullTitle)
 		return
 
 	MouseGetPos, , , , strControl ; Static1, StaticN, Button1, ButtonN
@@ -11474,7 +11478,7 @@ WM_MOUSEMOVE(wParam, lParam)
 	else if !InStr(strControl, "Button")
 		return
 
-	DllCall("SetCursor", "UInt", objHandCursor)
+	DllCall("SetCursor", "UInt", g_objHandCursor)
 
 	return
 }
