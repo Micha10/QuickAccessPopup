@@ -21,6 +21,7 @@ BUGS
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
 TO-DO
+- in Settings. replace column header "Location" with "Location / Content"
 - add FAQ about "Close this menu"
 - link to VirusTotal.com (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
@@ -1081,7 +1082,7 @@ strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconC
 	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
 	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
 	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose"
+	. "|iconClose|iconTextDocument"
 
 if (GetOsVersion() = "WIN_10")
 {
@@ -1095,7 +1096,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres"
+		. "|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1106,7 +1107,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|222|240|261|299|300"
 		. "|319|324|1|325|9"
 		. "|7|10|12|13|239"
-		. "|94"
+		. "|94|71"
 }
 else
 {
@@ -1120,7 +1121,7 @@ else
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres"
+		. "|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1131,7 +1132,7 @@ else
 		. "|222|240|261|297|298"
 		. "|301|304|1|305|9"
 		. "|7|10|12|13|239"
-		. "|94"
+		. "|94|71"
 }
 
 StringSplit, arrIconsFile, strIconsFile, |
@@ -6025,6 +6026,11 @@ else if (g_objEditedFavorite.FavoriteType = "FTP")
 {
 	; default FTP icon
 	g_strDefaultIconResource := g_objIconsFile["iconFTP"] . "," . g_objIconsIndex["iconFTP"]
+}
+else if (g_objEditedFavorite.FavoriteType = "Snippet")
+{
+	; default Snippet icon
+	g_strDefaultIconResource := g_objIconsFile["iconTextDocument"] . "," . g_objIconsIndex["iconTextDocument"]
 }
 else if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and StrLen(f_strFavoriteLocation)
 {
