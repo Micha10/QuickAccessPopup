@@ -1255,7 +1255,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -1264,6 +1264,7 @@ g_objFavoriteTypesLocationLabels := Object()
 ; StringSplit, arrFavoriteTypesHelp, lDialogFavoriteTypesHelp, |
 Loop, 9 ; excluding X, K and B
 	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
+arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
 g_objFavoriteTypesHelp := Object()
 StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
 g_objFavoriteTypesShortNames := Object()
@@ -4959,9 +4960,13 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
-loop, %g_arrFavoriteTypes0%
-	if StrLen(g_arrFavoriteTypes%A_Index%) > 1 ; to exclude types "X" and "K"
-		Gui, 2:Add, Radio, % (A_Index = 1 ? " vf_intRadioFavoriteType yp " : (A_Index = 7 or A_Index = 8? "y+15 " : "")) . "xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+loop, 6
+	Gui, 2:Add, Radio, % (A_Index = 1 ? " yp " : "") . "vf_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index% . " xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinue%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancel%
@@ -4981,13 +4986,26 @@ FavoriteSelectTypeRadioButtonsChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (g_arrFavoriteTypes%f_intRadioFavoriteType% = "QAP")
-	GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
-else
-	GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%f_intRadioFavoriteType%]
+g_strAddFavoriteType := "" ; start fresh
+
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+loop, %g_arrFavoriteTypes0%
+{
+	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index%
+	if (blnThisType)
+	{
+		if (g_arrFavoriteTypes%A_Index% = "QAP")
+			GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+		else
+			GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+		g_strAddFavoriteType := g_arrFavoriteTypes%A_Index%
+	}
+}
 
 if (A_GuiEvent = "DoubleClick")
 	Gosub, GuiAddFavoriteSelectTypeContinue
+
+blnThisType := ""
 
 return
 ;------------------------------------------------------------
@@ -4998,15 +5016,11 @@ GuiAddFavoriteSelectTypeContinue:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-; GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[] ; OUT OK?
-
-if !(f_intRadioFavoriteType)
+if !StrLen(g_strAddFavoriteType)
 {
 	Oops(lDialogFavoriteSelectType, lDialogContinue)
 	return
 }
-
-g_strAddFavoriteType := g_arrFavoriteTypes%f_intRadioFavoriteType%
 
 Gosub, GuiAddFavorite
 
