@@ -29,6 +29,8 @@ TO-DO
 HISTORY
 =======
 
+Version BETA: 7.1.99.4 (2016-04-??)
+
 Version: 7.1.10 (2016-04-03)
 - stop adding the "Close this menu" QAP feature to the default menu created at first QAP execution
 - stop changing mouse cursor to hand over buttons in Settings when running uncompiled
@@ -556,7 +558,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.10
+;@Ahk2Exe-SetVersion 7.1.99.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -602,8 +604,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.10" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.1.99.4" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -5497,7 +5499,9 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if !InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
-		Gui, 2:Add, Edit, x20 y+10 w400 h20 vf_strFavoriteLocation gEditFavoriteLocationChanged, % g_objEditedFavorite.FavoriteLocation
+		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
+			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r7" : "gEditFavoriteLocationChanged w400 h20")
+			, % g_objEditedFavorite.FavoriteLocation
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 		
@@ -5512,6 +5516,13 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
 		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+	}
+
+	if (g_objEditedFavorite.FavoriteType = "Snippet")
+	{
+		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n`n
+		Gui, 2:Add, Link, x20 y+5 w500, %lDialogFavoriteSnippetHelpWeb%
 	}
 }
 else ; "Special" or "QAP"
@@ -5869,6 +5880,17 @@ if !StrLen(f_strFavoriteShortName)
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ProcessEOLTabChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess)
 
 return
 ;------------------------------------------------------------
@@ -6496,6 +6518,16 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
+	if  (g_objEditedFavorite.FavoriteType = "Snippet")
+		if !StrLen(strNewFavoriteLocation)
+		{
+			Oops(lDialogFavoriteSnippetEmpty)
+			gosub, GuiAddFavoriteSaveCleanup
+			return
+		}
+		else
+			strNewFavoriteLocation := (f_chkProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
 	{
 		Oops(lOopsFtpLocationProtocol)
@@ -6571,7 +6603,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 }
 
-loop ; loop for Add this Folder Express - if name is not new, add " (2)", " (3)", etc.)
+loop ; loop for Add this Folder Express - if name is not new, add " [!]")
 	if !FavoriteNameIsNew((strThisLabel = "GuiMoveOneFavoriteSave" ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 		; we have the same name in the destination menu
@@ -11130,6 +11162,44 @@ CollectRunningApplications(strDefaultPath)
 	}
 
 	return strPaths
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EncodeSnippet(strSnippet)
+;------------------------------------------------------------
+/*
+https://rosettacode.org/wiki/Special_characters#AutoHotkey
+The escape character defaults to accent/backtick (`).
+
+`, = , (literal comma). Note: Commas that appear within the last parameter of a command do not need to be escaped because the program knows to treat them literally. The same is true for all parameters of MsgBox because it has smart comma handling.
+`% = % (literal percent)
+`` = ` (literal accent; i.e. two consecutive escape characters result in a single literal character)
+`; = ; (literal semicolon). Note: This is necessary only if a semicolon has a space or tab to its left. If it does not, it will be recognized correctly without being escaped.
+`n = newline (linefeed/LF)
+`r = carriage return (CR)
+`b = backspace
+`t = tab (the more typical horizontal variety)
+`v = vertical tab -- corresponds to Ascii value 11. It can also be manifest in some applications by typing Control+K.
+`a = alert (bell) -- corresponds to Ascii value 7. It can also be manifest in some applications by typing Control+G.
+`f = formfeed -- corresponds to Ascii value 12. It can also be manifest in some applications by typing Control+L.
+Send = When the Send command or Hotstrings are used in their default (non-raw) mode, characters such as {}^!+# have special meaning. Therefore, to use them literally in these cases, enclose them in braces. For example: Send {^}{!}{{}
+"" = Within an expression, two consecutive quotes enclosed inside a literal string resolve to a single literal quote. For example: Var := "The color ""red"" was found."
+
+Process:
+
+*/
+{
+	; loop, Parse, strSnippet
+	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
+	StringReplace, strSnippet, strSnippet, `n, ``n, A
+	StringReplace, strSnippet, strSnippet, `t, ``t, A
+	; ReplaceAllInString(strSnippet, Chr(10), "`n")
+	; ReplaceAllInString(strSnippet, Chr(9), "`t")
+	###_V("After", strSnippet)
+	
+	return strSnippet
 }
 ;------------------------------------------------------------
 
