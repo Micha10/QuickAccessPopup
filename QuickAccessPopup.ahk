@@ -28,6 +28,12 @@ TO-DO
 HISTORY
 =======
 
+Hotfix check4update
+- fix bug now remember if user skipped the latest beta version
+- stop checking for prod update if user decide to download the newest beta version
+- remove code checking for alpha version and unused commented code
+- add comments to check for update code
+
 Version: 7.1.10 (2016-04-03)
 - stop adding the "Close this menu" QAP feature to the default menu created at first QAP execution
 - stop changing mouse cursor to hand over buttons in Settings when running uncompiled
@@ -602,7 +608,7 @@ Gosub, InitLanguageVariables
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
 g_strCurrentVersion := "7.1.10" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentBranch := "prod" ; "prod" or "beta", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -696,7 +702,7 @@ Gosub, InitGuiControls
 
 Gosub, LoadIniFile
 ; must be after LoadIniFile
-IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
+IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" . (g_strCurrentBranch = "beta" ? "Beta" : "Prod")
 
 if (g_blnDiagMode)
 {
@@ -1884,7 +1890,7 @@ StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "alpha" ? 20 : (g_strCurrentBranch = "beta" ? 10 : 5))
+intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
 Loop, Parse, strFileList, `n
 	if (A_Index > intNumberOfBackups)
 		if StrLen(A_LoopField)
@@ -9914,13 +9920,11 @@ strUrlCheck4Update := "http://quickaccesspopup.com/latest/latest-version-4.php"
 
 g_strUrlAppLandingPage := "http://quickaccesspopup.com" ; must be here if user select Check for update from tray menu
 strBetaLandingPage := "http://quickaccesspopup.com/latest/check4update-beta-redirect.html"
-strAlphaLandingPage := "http://quickaccesspopup.com/latest/check4update-alpha-redirect.html"
 
 IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
 IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
 IniRead, strLatestUsedProd, %g_strIniFile%, Global, LastVersionUsedProd, 0.0
 IniRead, strLatestUsedBeta, %g_strIniFile%, Global, LastVersionUsedBeta, 0.0
-IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
 
 IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
 
@@ -9976,77 +9980,60 @@ Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only c
 StringSplit, arrLatestVersions, strLatestVersions, |
 strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
-strLatestVersionAlpha := arrLatestVersions3
 
-if (strLatestUsedAlpha <> "0.0")
-{
-	if FirstVsSecondIs(strLatestVersionAlpha, g_strCurrentVersion) = 1
-	{
-		SetTimer, Check4UpdateChangeButtonNames, 50
-
-		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add Alpha to keep buttons rename working
-			, % l(lUpdatePromptAlpha, g_strAppNameText, g_strCurrentVersion, strLatestVersionAlpha)
-		IfMsgBox, Yes
-			Run, %strAlphaLandingPage%
-		IfMsgBox, Cancel ; Remind me
-			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedAlpha
-		IfMsgBox, No
-		{
-			IniWrite, %strLatestVersionAlpha%, %g_strIniFile%, Global, LatestVersionSkippedAlpha
-			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " Alpha"), %lUpdatePromptAlphaContinue%
-			IfMsgBox, No
-				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedAlpha
-		}
-	}
-}
-
+; check if user already ran a beta version
 if (strLatestUsedBeta <> "0.0")
 {
-	if FirstVsSecondIs(strLatestVersionBeta, g_strCurrentVersion) = 1
-	{
-		SetTimer, Check4UpdateChangeButtonNames, 50
-
-		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
-			, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
-		IfMsgBox, Yes
-			Run, %strBetaLandingPage%
-		IfMsgBox, Cancel ; Remind me
-			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
-		IfMsgBox, No
+	; if yes, check if user skipped the newest beta version unless user choose the update menu
+	if !(FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
+		; if no, check if the newest beta version is newer than the currently used version
+		if FirstVsSecondIs(strLatestVersionBeta, g_strCurrentVersion) = 1
 		{
-			IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
-			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+			; there is a newer beta version, offer to open the beta web page
+			SetTimer, Check4UpdateChangeButtonNames, 50
+
+			MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
+				, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
+			; if user want it, open the beta web page and skip cheking for prod update
+			IfMsgBox, Yes
+			{
+				Run, %strBetaLandingPage%
+				gosub, Check4UpdateCleanup
+				return
+			}
+			; if cancel or escape, remember to check again at next launch
+			IfMsgBox, Cancel ; Remind me
+				IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
+			; if no, remember the skipped beta version
 			IfMsgBox, No
-				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+			{
+				IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
+				; and ask if user wants to check again for newer beta version in the future
+				MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+				; if yes, keep the last used beta version; if no, forget the last used beta version
+				IfMsgBox, No
+					IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+			}
 		}
-	}
 }
 
+; check if user skipped this prod version unless if choose the update menu
 if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
 {
 	gosub, Check4UpdateCleanup
 	return
 }
 
+; if no, check if the newest prod version is higher than the currently used version
 if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
-/*
-{
-	SetTimer, Check4UpdateChangeButtonNames, 50
 
-	MsgBox, 3, % l(lUpdateTitle, g_strAppNameText)
-		, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion, strLatestVersionProd)
-	IfMsgBox, Yes
-		Run, %strAppLandingPage%
-	IfMsgBox, No
-		IniWrite, %strLatestVersionProd%, %g_strIniFile%, Global, LatestVersionSkipped ; do not add "Prod" to ini variable for backward compatibility
-	IfMsgBox, Cancel ; Remind me
-		IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkipped ; do not add "Prod" to ini variable for backward compatibility
-}
-*/
+	; if there is a newer version display the update dialog box
 	gosub, Check4UpdateDialogProd
-	
+
+; if no, stop unless the user choose the update menu, then ask
 else if (A_ThisMenuItem = lMenuUpdate)
 {
+	; ask if user wants to visite the download page
 	MsgBox, 4, % l(lUpdateTitle, g_strAppNameText), % l(lUpdateYouHaveLatest, g_strAppVersion, g_strAppNameText)
 	IfMsgBox, Yes
 		Run, %g_strUrlAppLandingPage%
@@ -10057,7 +10044,6 @@ strLatestSkippedProd := ""
 strLatestSkippedBeta := ""
 strLatestUsedProd := ""
 strLatestUsedBeta := ""
-strLatestUsedAlpha := ""
 intStartups := ""
 
 return 
