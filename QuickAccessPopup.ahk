@@ -21,6 +21,7 @@ BUGS
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
 TO-DO
+- in Settings. replace column header "Location" with "Location / Content"
 - add FAQ about "Close this menu"
 - link to VirusTotal.com (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
@@ -28,6 +29,11 @@ TO-DO
 HISTORY
 =======
 
+Version BETA: 7.1.99.4 (2016-04-??)
+Snippets
+- add Snippet favorite type, labels, help text and default icons for snippets
+- add snippet to add/edit favorite dialog box with help text, checkbox to process end-of-line and tab characters and advanced setting radio buttons to send snippet in text or macro mode
+- encode snippet before saving and decode when editing
 Hotfix check4update
 - fix bug now remember if user skipped the latest beta version
 - stop checking for prod update if user decide to download the newest beta version
@@ -561,7 +567,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.10
+;@Ahk2Exe-SetVersion 7.1.99.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -607,8 +613,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.10" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod" or "beta", always lowercase for filename
+g_strCurrentVersion := "7.1.99.4" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -702,7 +708,7 @@ Gosub, InitGuiControls
 
 Gosub, LoadIniFile
 ; must be after LoadIniFile
-IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" . (g_strCurrentBranch = "beta" ? "Beta" : "Prod")
+IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (g_blnDiagMode)
 {
@@ -1087,7 +1093,7 @@ strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconC
 	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
 	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
 	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose"
+	. "|iconClose|iconTextDocument"
 
 if (GetOsVersion() = "WIN_10")
 {
@@ -1101,7 +1107,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres"
+		. "|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1112,7 +1118,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|222|240|261|299|300"
 		. "|319|324|1|325|9"
 		. "|7|10|12|13|239"
-		. "|94"
+		. "|94|71"
 }
 else
 {
@@ -1126,7 +1132,7 @@ else
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres"
+		. "|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1137,7 +1143,7 @@ else
 		. "|222|240|261|297|298"
 		. "|301|304|1|305|9"
 		. "|7|10|12|13|239"
-		. "|94"
+		. "|94|71"
 }
 
 StringSplit, arrIconsFile, strIconsFile, |
@@ -1261,7 +1267,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -1270,6 +1276,7 @@ g_objFavoriteTypesLocationLabels := Object()
 ; StringSplit, arrFavoriteTypesHelp, lDialogFavoriteTypesHelp, |
 Loop, 9 ; excluding X, K and B
 	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
+arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
 g_objFavoriteTypesHelp := Object()
 StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
 g_objFavoriteTypesShortNames := Object()
@@ -1890,7 +1897,7 @@ StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
+intNumberOfBackups := (g_strCurrentBranch = "alpha" ? 20 : (g_strCurrentBranch = "beta" ? 10 : 5))
 Loop, Parse, strFileList, `n
 	if (A_Index > intNumberOfBackups)
 		if StrLen(A_LoopField)
@@ -4965,9 +4972,13 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
-loop, %g_arrFavoriteTypes0%
-	if StrLen(g_arrFavoriteTypes%A_Index%) > 1 ; to exclude types "X" and "K"
-		Gui, 2:Add, Radio, % (A_Index = 1 ? " vf_intRadioFavoriteType yp " : (A_Index = 7 or A_Index = 8? "y+15 " : "")) . "xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+loop, 6
+	Gui, 2:Add, Radio, % (A_Index = 1 ? " yp " : "") . "vf_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index% . " xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinue%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancel%
@@ -4987,13 +4998,26 @@ FavoriteSelectTypeRadioButtonsChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (g_arrFavoriteTypes%f_intRadioFavoriteType% = "QAP")
-	GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
-else
-	GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%f_intRadioFavoriteType%]
+g_strAddFavoriteType := "" ; start fresh
+
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+loop, %g_arrFavoriteTypes0%
+{
+	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index%
+	if (blnThisType)
+	{
+		if (g_arrFavoriteTypes%A_Index% = "QAP")
+			GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+		else
+			GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+		g_strAddFavoriteType := g_arrFavoriteTypes%A_Index%
+	}
+}
 
 if (A_GuiEvent = "DoubleClick")
 	Gosub, GuiAddFavoriteSelectTypeContinue
+
+blnThisType := ""
 
 return
 ;------------------------------------------------------------
@@ -5004,15 +5028,11 @@ GuiAddFavoriteSelectTypeContinue:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-; GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[] ; OUT OK?
-
-if !(f_intRadioFavoriteType)
+if !StrLen(g_strAddFavoriteType)
 {
 	Oops(lDialogFavoriteSelectType, lDialogContinue)
 	return
 }
-
-g_strAddFavoriteType := g_arrFavoriteTypes%f_intRadioFavoriteType%
 
 Gosub, GuiAddFavorite
 
@@ -5210,7 +5230,7 @@ if (g_blnAbordEdit)
 }
 
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Group"
+g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
 
 if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
 {
@@ -5488,7 +5508,9 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if !InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
-		Gui, 2:Add, Edit, x20 y+10 w400 h20 vf_strFavoriteLocation gEditFavoriteLocationChanged, % g_objEditedFavorite.FavoriteLocation
+		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
+			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r7 t8" : "gEditFavoriteLocationChanged w400 h20")
+			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? DecodeSnippet(g_objEditedFavorite.FavoriteLocation) : g_objEditedFavorite.FavoriteLocation)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 		
@@ -5503,6 +5525,13 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
 		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+	}
+
+	if (g_objEditedFavorite.FavoriteType = "Snippet")
+	{
+		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n
+		Gui, 2:Add, Link, x20 y+5 w500, %lDialogFavoriteSnippetHelpWeb%
 	}
 }
 else ; "Special" or "QAP"
@@ -5662,6 +5691,13 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, %g_arrGroupSettingsGui3%
 		Gui, 2:Add, Text, x+10 yp vf_AdvancedSettingsLabel3, %lGuiGroupRestoreDelayMilliseconds%
 	}
+	else if (g_objEditedFavorite.FavoriteType = "Snippet")
+	{
+		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		Gui, 2:Add, Link, x20 y+15 w500, %lDialogFavoriteSnippetHelpWeb%
+	}
 	else
 	{
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel4, %lDialogLaunchWith%
@@ -5669,7 +5705,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Button, x+10 yp vf_AdvancedSettingsButton2 gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
-	if (g_objEditedFavorite.FavoriteType <> "Group")
+	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400 vf_AdvancedSettingsLabel5, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
@@ -5866,6 +5902,21 @@ return
 
 
 ;------------------------------------------------------------
+ProcessEOLTabChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+; change help text according to encoding state
+GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess)
+
+; encode or decode edit box content according to encoding state
+GuiControl, , f_strFavoriteLocation, % (f_chkProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
+	
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 FavoriteArgumentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -6017,6 +6068,11 @@ else if (g_objEditedFavorite.FavoriteType = "FTP")
 {
 	; default FTP icon
 	g_strDefaultIconResource := g_objIconsFile["iconFTP"] . "," . g_objIconsIndex["iconFTP"]
+}
+else if (g_objEditedFavorite.FavoriteType = "Snippet")
+{
+	; default Snippet icon
+	g_strDefaultIconResource := g_objIconsFile["iconTextDocument"] . "," . g_objIconsIndex["iconTextDocument"]
 }
 else if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and StrLen(f_strFavoriteLocation)
 {
@@ -6482,6 +6538,16 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
+	if  (g_objEditedFavorite.FavoriteType = "Snippet")
+		if !StrLen(strNewFavoriteLocation)
+		{
+			Oops(lDialogFavoriteSnippetEmpty)
+			gosub, GuiAddFavoriteSaveCleanup
+			return
+		}
+		else
+			strNewFavoriteLocation := (f_chkProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
 	{
 		Oops(lOopsFtpLocationProtocol)
@@ -6557,7 +6623,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 }
 
-loop ; loop for Add this Folder Express - if name is not new, add " (2)", " (3)", etc.)
+loop ; loop for Add this Folder Express - if name is not new, add " [!]")
 	if !FavoriteNameIsNew((strThisLabel = "GuiMoveOneFavoriteSave" ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 		; we have the same name in the destination menu
@@ -6665,16 +6731,16 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	{
 		g_objEditedFavorite.FavoriteGroupSettings := f_blnRadioGroupReplace
 		g_objEditedFavorite.FavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
-		g_objEditedFavorite.FavoriteGroupSettings .= (f_blnUseDefaultSettings ? "" : "," . f_intGroupRestoreDelay)
+		g_objEditedFavorite.FavoriteGroupSettings .= "," . f_intGroupRestoreDelay
 	}
 	
 	g_objEditedFavorite.FavoriteLoginName := f_strFavoriteLoginName
 	g_objEditedFavorite.FavoritePassword := f_strFavoritePassword
 	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
 	
-	g_objEditedFavorite.FavoriteArguments := (f_blnUseDefaultSettings ? "" : f_strFavoriteArguments)
-	g_objEditedFavorite.FavoriteAppWorkingDir := (f_blnUseDefaultSettings ? "" : f_strFavoriteAppWorkingDir)
-	g_objEditedFavorite.FavoriteLaunchWith := (f_blnUseDefaultSettings ? "" : f_strFavoriteLaunchWith)
+	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
+	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	g_objEditedFavorite.FavoriteLaunchWith := (g_objEditedFavorite.FavoriteType = "Snippet" ? f_blnRadioSendModeMacro : f_strFavoriteLaunchWith)
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
@@ -6804,7 +6870,6 @@ f_blnRadioGroupAdd := ""
 f_blnRadioGroupReplace := ""
 f_blnRadioGroupRestoreWithExplorer := ""
 f_blnRadioGroupRestoreWithOther := ""
-f_blnUseDefaultSettings := ""
 f_chkUseDefaultWindowPosition := ""
 f_drpParentMenu := ""
 f_drpParentMenuItems := ""
@@ -8685,6 +8750,14 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 	return
 }
 
+if (g_objThisFavorite.FavoriteType = "Snippet") and !(g_blnAlternativeMenu)
+{
+	gosub, OpenSnippet
+	
+	gosub, OpenFavoriteCleanup
+	return
+}
+
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
 if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for these favorites, file/folder must exist
@@ -9257,6 +9330,17 @@ RestartComputer:
 MsgBox, 4, %g_strAppNameText%, % (A_ThisLabel = "ShutdownComputer" ? lMenuComputerShutdown : lMenuComputerRestart) . "?"
 IfMsgBox, Yes
 	Shutdown, % (A_ThisLabel = "ShutdownComputer" ? 1+8 : 2) ; Logoff 0, Shutdown 1, Reboot 2, Force 4, Power down 8 
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenSnippet:
+;------------------------------------------------------------
+
+; g_objThisFavorite.FavoriteLaunchWith = 1 for macro mode, else for text mnode
+SendInput, % (g_objThisFavorite.FavoriteLaunchWith <> 1 ? "{Raw}" : "") . DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 
 return
 ;------------------------------------------------------------
@@ -9920,11 +10004,13 @@ strUrlCheck4Update := "http://quickaccesspopup.com/latest/latest-version-4.php"
 
 g_strUrlAppLandingPage := "http://quickaccesspopup.com" ; must be here if user select Check for update from tray menu
 strBetaLandingPage := "http://quickaccesspopup.com/latest/check4update-beta-redirect.html"
+strAlphaLandingPage := "http://quickaccesspopup.com/latest/check4update-alpha-redirect.html"
 
 IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
 IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
 IniRead, strLatestUsedProd, %g_strIniFile%, Global, LastVersionUsedProd, 0.0
 IniRead, strLatestUsedBeta, %g_strIniFile%, Global, LastVersionUsedBeta, 0.0
+IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
 
 IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
 
@@ -9980,60 +10066,77 @@ Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only c
 StringSplit, arrLatestVersions, strLatestVersions, |
 strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
+strLatestVersionAlpha := arrLatestVersions3
 
-; check if user already ran a beta version
-if (strLatestUsedBeta <> "0.0")
+if (strLatestUsedAlpha <> "0.0")
 {
-	; if yes, check if user skipped the newest beta version unless user choose the update menu
-	if !(FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
-		; if no, check if the newest beta version is newer than the currently used version
-		if FirstVsSecondIs(strLatestVersionBeta, g_strCurrentVersion) = 1
-		{
-			; there is a newer beta version, offer to open the beta web page
-			SetTimer, Check4UpdateChangeButtonNames, 50
+	if FirstVsSecondIs(strLatestVersionAlpha, g_strCurrentVersion) = 1
+	{
+		SetTimer, Check4UpdateChangeButtonNames, 50
 
-			MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
-				, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
-			; if user want it, open the beta web page and skip cheking for prod update
-			IfMsgBox, Yes
-			{
-				Run, %strBetaLandingPage%
-				gosub, Check4UpdateCleanup
-				return
-			}
-			; if cancel or escape, remember to check again at next launch
-			IfMsgBox, Cancel ; Remind me
-				IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
-			; if no, remember the skipped beta version
+		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add Alpha to keep buttons rename working
+			, % l(lUpdatePromptAlpha, g_strAppNameText, g_strCurrentVersion, strLatestVersionAlpha)
+		IfMsgBox, Yes
+			Run, %strAlphaLandingPage%
+		IfMsgBox, Cancel ; Remind me
+			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedAlpha
+		IfMsgBox, No
+		{
+			IniWrite, %strLatestVersionAlpha%, %g_strIniFile%, Global, LatestVersionSkippedAlpha
+			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " Alpha"), %lUpdatePromptAlphaContinue%
 			IfMsgBox, No
-			{
-				IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
-				; and ask if user wants to check again for newer beta version in the future
-				MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
-				; if yes, keep the last used beta version; if no, forget the last used beta version
-				IfMsgBox, No
-					IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
-			}
+				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedAlpha
 		}
+	}
 }
 
-; check if user skipped this prod version unless if choose the update menu
+if (strLatestUsedBeta <> "0.0")
+{
+	if FirstVsSecondIs(strLatestVersionBeta, g_strCurrentVersion) = 1
+	{
+		SetTimer, Check4UpdateChangeButtonNames, 50
+
+		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
+			, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
+		IfMsgBox, Yes
+			Run, %strBetaLandingPage%
+		IfMsgBox, Cancel ; Remind me
+			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
+		IfMsgBox, No
+		{
+			IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
+			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+			IfMsgBox, No
+				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+		}
+	}
+}
+
 if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
 {
 	gosub, Check4UpdateCleanup
 	return
 }
 
-; if no, check if the newest prod version is higher than the currently used version
 if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
+/*
+{
+	SetTimer, Check4UpdateChangeButtonNames, 50
 
-	; if there is a newer version display the update dialog box
+	MsgBox, 3, % l(lUpdateTitle, g_strAppNameText)
+		, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion, strLatestVersionProd)
+	IfMsgBox, Yes
+		Run, %strAppLandingPage%
+	IfMsgBox, No
+		IniWrite, %strLatestVersionProd%, %g_strIniFile%, Global, LatestVersionSkipped ; do not add "Prod" to ini variable for backward compatibility
+	IfMsgBox, Cancel ; Remind me
+		IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkipped ; do not add "Prod" to ini variable for backward compatibility
+}
+*/
 	gosub, Check4UpdateDialogProd
-
-; if no, stop unless the user choose the update menu, then ask
+	
 else if (A_ThisMenuItem = lMenuUpdate)
 {
-	; ask if user wants to visite the download page
 	MsgBox, 4, % l(lUpdateTitle, g_strAppNameText), % l(lUpdateYouHaveLatest, g_strAppVersion, g_strAppNameText)
 	IfMsgBox, Yes
 		Run, %g_strUrlAppLandingPage%
@@ -10044,6 +10147,7 @@ strLatestSkippedProd := ""
 strLatestSkippedBeta := ""
 strLatestUsedProd := ""
 strLatestUsedBeta := ""
+strLatestUsedAlpha := ""
 intStartups := ""
 
 return 
@@ -11096,6 +11200,57 @@ CollectRunningApplications(strDefaultPath)
 	}
 
 	return strPaths
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EncodeSnippet(strSnippet)
+;------------------------------------------------------------
+/*
+https://rosettacode.org/wiki/Special_characters#AutoHotkey
+The escape character defaults to accent/backtick (`).
+
+`, = , (literal comma). Note: Commas that appear within the last parameter of a command do not need to be escaped because the program knows to treat them literally. The same is true for all parameters of MsgBox because it has smart comma handling.
+`% = % (literal percent)
+`` = ` (literal accent; i.e. two consecutive escape characters result in a single literal character)
+`; = ; (literal semicolon). Note: This is necessary only if a semicolon has a space or tab to its left. If it does not, it will be recognized correctly without being escaped.
+`n = newline (linefeed/LF)
+`r = carriage return (CR)
+`b = backspace
+`t = tab (the more typical horizontal variety)
+`v = vertical tab -- corresponds to Ascii value 11. It can also be manifest in some applications by typing Control+K.
+`a = alert (bell) -- corresponds to Ascii value 7. It can also be manifest in some applications by typing Control+G.
+`f = formfeed -- corresponds to Ascii value 12. It can also be manifest in some applications by typing Control+L.
+Send = When the Send command or Hotstrings are used in their default (non-raw) mode, characters such as {}^!+# have special meaning. Therefore, to use them literally in these cases, enclose them in braces. For example: Send {^}{!}{{}
+"" = Within an expression, two consecutive quotes enclosed inside a literal string resolve to a single literal quote. For example: Var := "The color ""red"" was found."
+
+Process only:
+`n = newline (linefeed/LF)
+`t = tab (the more typical horizontal variety)
+
+*/
+{
+	; loop, Parse, strSnippet
+	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
+	StringReplace, strSnippet, strSnippet, `n, ``n, A
+	StringReplace, strSnippet, strSnippet, `t, ``t, A
+	; ###_V("After Encode", strSnippet)
+	
+	return strSnippet
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DecodeSnippet(strSnippet)
+;------------------------------------------------------------
+{
+	StringReplace, strSnippet, strSnippet, ``n, `n, A
+	StringReplace, strSnippet, strSnippet, ``t, `t, A
+	; ###_V("After Decode", strSnippet)
+	
+	return strSnippet
 }
 ;------------------------------------------------------------
 
