@@ -61,10 +61,13 @@ global lDialogFavoriteRemoveTitle := "Remove Favorite - ~1~"
 global lDialogFavoriteSelectType := "Select the type of favorite to add.`n`nIn the next window, you will give your favorite:`n- a name`n- a content (depending on the type)`n- various settings (icon, shortcut, etc.)`n`nChoose the new favorite's type and click ""~1~""." ; new
 global lDialogFavoriteShortNameLabel := "Short name for menu" ; new
 global lDialogFavoriteSnippetEmpty := "The contenu is empty. Please, enter the snippet's  content." ; new
-global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"
 global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab."
-global lDialogFavoriteSnippetHelpWeb := "See <a href=""http://www.quickaccesspopup.com/snippets-help/"">Snippets help</a> for special characters and commands encoding."
 global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
+global lDialogFavoriteSnippetHelpWeb := "See <a href=""http://www.quickaccesspopup.com/snippets-help/"">Snippets help</a> for special characters and commands encoding."
+global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"
+global lDialogFavoriteSnippetSendMode := "Send snippet to current application in:"
+global lDialogFavoriteSnippetSendModeMacro := "Macro mode"
+global lDialogFavoriteSnippetSendModeText := "Text mode"
 global lDialogFavoriteType := "Favorite Type" ; new
 global lDialogFavoriteTypesHelp1 := "Create a shortcut to a frequently used ""Folder"".`n`nSet the favorite's menu name, path and various menu options.`n`nAdvanced settings allow to set the window position and file manager options." ; new
 global lDialogFavoriteTypesHelp2 := "Create a shortcut to a ""Document"".`n`nSet the favorite's menu name, path and various menu options.`n`nAdvanced settings allow to choose a specific application to launch the document, add optional parameters and set the window position." ; new

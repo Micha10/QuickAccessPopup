@@ -32,7 +32,7 @@ HISTORY
 Version BETA: 7.1.99.4 (2016-04-??)
 Snippets
 add Snippet favorite type, labels, help text and default icons for snippets
-add snippet to add favorite dialog box with help text and checkbox to process end-of-line and tab characters
+add snippet to add/edit favorite dialog box with help text, checkbox to process end-of-line and tab characters and advanced setting radio buttons to send snippet in text or macro mode
 encode snippet before saving and decode when editing
 
 Version: 7.1.10 (2016-04-03)
@@ -5225,7 +5225,7 @@ if (g_blnAbordEdit)
 }
 
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Group"
+g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
 
 if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
 {
@@ -5686,6 +5686,13 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, %g_arrGroupSettingsGui3%
 		Gui, 2:Add, Text, x+10 yp vf_AdvancedSettingsLabel3, %lGuiGroupRestoreDelayMilliseconds%
 	}
+	else if (g_objEditedFavorite.FavoriteType = "Snippet")
+	{
+		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		Gui, 2:Add, Link, x20 y+15 w500, %lDialogFavoriteSnippetHelpWeb%
+	}
 	else
 	{
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel4, %lDialogLaunchWith%
@@ -5693,7 +5700,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Button, x+10 yp vf_AdvancedSettingsButton2 gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
-	if (g_objEditedFavorite.FavoriteType <> "Group")
+	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400 vf_AdvancedSettingsLabel5, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
@@ -6719,16 +6726,16 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	{
 		g_objEditedFavorite.FavoriteGroupSettings := f_blnRadioGroupReplace
 		g_objEditedFavorite.FavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
-		g_objEditedFavorite.FavoriteGroupSettings .= (f_blnUseDefaultSettings ? "" : "," . f_intGroupRestoreDelay)
+		g_objEditedFavorite.FavoriteGroupSettings .= "," . f_intGroupRestoreDelay
 	}
 	
 	g_objEditedFavorite.FavoriteLoginName := f_strFavoriteLoginName
 	g_objEditedFavorite.FavoritePassword := f_strFavoritePassword
 	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
 	
-	g_objEditedFavorite.FavoriteArguments := (f_blnUseDefaultSettings ? "" : f_strFavoriteArguments)
-	g_objEditedFavorite.FavoriteAppWorkingDir := (f_blnUseDefaultSettings ? "" : f_strFavoriteAppWorkingDir)
-	g_objEditedFavorite.FavoriteLaunchWith := (f_blnUseDefaultSettings ? "" : f_strFavoriteLaunchWith)
+	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
+	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	g_objEditedFavorite.FavoriteLaunchWith := (g_objEditedFavorite.FavoriteType = "Snippet" ? f_blnRadioSendModeMacro : f_strFavoriteLaunchWith)
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
@@ -6858,7 +6865,6 @@ f_blnRadioGroupAdd := ""
 f_blnRadioGroupReplace := ""
 f_blnRadioGroupRestoreWithExplorer := ""
 f_blnRadioGroupRestoreWithOther := ""
-f_blnUseDefaultSettings := ""
 f_chkUseDefaultWindowPosition := ""
 f_drpParentMenu := ""
 f_drpParentMenuItems := ""
@@ -8739,6 +8745,14 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 	return
 }
 
+if (g_objThisFavorite.FavoriteType = "Snippet") and !(g_blnAlternativeMenu)
+{
+	gosub, OpenSnippet
+	
+	gosub, OpenFavoriteCleanup
+	return
+}
+
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
 if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for these favorites, file/folder must exist
@@ -9311,6 +9325,16 @@ RestartComputer:
 MsgBox, 4, %g_strAppNameText%, % (A_ThisLabel = "ShutdownComputer" ? lMenuComputerShutdown : lMenuComputerRestart) . "?"
 IfMsgBox, Yes
 	Shutdown, % (A_ThisLabel = "ShutdownComputer" ? 1+8 : 2) ; Logoff 0, Shutdown 1, Reboot 2, Force 4, Power down 8 
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenSnippet:
+;------------------------------------------------------------
+
+SendInput, % (g_objThisFavorite.FavoriteLaunchWith = 1 ? "{Raw}" : "") . DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 
 return
 ;------------------------------------------------------------
