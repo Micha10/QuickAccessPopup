@@ -9334,7 +9334,8 @@ return
 OpenSnippet:
 ;------------------------------------------------------------
 
-SendInput, % (g_objThisFavorite.FavoriteLaunchWith = 1 ? "{Raw}" : "") . DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+; g_objThisFavorite.FavoriteLaunchWith = 1 for macro mode, else for text mnode
+SendInput, % (g_objThisFavorite.FavoriteLaunchWith <> 1 ? "{Raw}" : "") . DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 
 return
 ;------------------------------------------------------------
