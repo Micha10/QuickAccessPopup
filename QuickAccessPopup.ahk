@@ -30,6 +30,10 @@ HISTORY
 =======
 
 Version BETA: 7.1.99.4 (2016-04-??)
+Snippets
+add Snippet favorite type, labels, help text and default icons for snippets
+add snippet to add favorite dialog box with help text and checkbox to process end-of-line and tab characters
+encode snippet before saving and decode when editing
 
 Version: 7.1.10 (2016-04-03)
 - stop adding the "Close this menu" QAP feature to the default menu created at first QAP execution
@@ -5500,8 +5504,8 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
-			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r7" : "gEditFavoriteLocationChanged w400 h20")
-			, % g_objEditedFavorite.FavoriteLocation
+			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r7 t8" : "gEditFavoriteLocationChanged w400 h20")
+			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? DecodeSnippet(g_objEditedFavorite.FavoriteLocation) : g_objEditedFavorite.FavoriteLocation)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 		
@@ -5521,7 +5525,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
-		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n`n
+		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n
 		Gui, 2:Add, Link, x20 y+5 w500, %lDialogFavoriteSnippetHelpWeb%
 	}
 }
@@ -5890,8 +5894,12 @@ ProcessEOLTabChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+; change help text according to encoding state
 GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess)
 
+; encode or decode edit box content according to encoding state
+GuiControl, , f_strFavoriteLocation, % (f_chkProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
+	
 return
 ;------------------------------------------------------------
 
@@ -11187,7 +11195,9 @@ The escape character defaults to accent/backtick (`).
 Send = When the Send command or Hotstrings are used in their default (non-raw) mode, characters such as {}^!+# have special meaning. Therefore, to use them literally in these cases, enclose them in braces. For example: Send {^}{!}{{}
 "" = Within an expression, two consecutive quotes enclosed inside a literal string resolve to a single literal quote. For example: Var := "The color ""red"" was found."
 
-Process:
+Process only:
+`n = newline (linefeed/LF)
+`t = tab (the more typical horizontal variety)
 
 */
 {
@@ -11195,9 +11205,20 @@ Process:
 	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
 	StringReplace, strSnippet, strSnippet, `n, ``n, A
 	StringReplace, strSnippet, strSnippet, `t, ``t, A
-	; ReplaceAllInString(strSnippet, Chr(10), "`n")
-	; ReplaceAllInString(strSnippet, Chr(9), "`t")
-	###_V("After", strSnippet)
+	; ###_V("After Encode", strSnippet)
+	
+	return strSnippet
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DecodeSnippet(strSnippet)
+;------------------------------------------------------------
+{
+	StringReplace, strSnippet, strSnippet, ``n, `n, A
+	StringReplace, strSnippet, strSnippet, ``t, `t, A
+	; ###_V("After Decode", strSnippet)
 	
 	return strSnippet
 }
