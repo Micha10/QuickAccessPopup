@@ -9362,7 +9362,7 @@ if (g_blnMouseElseKeyboard)
 }
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
-blnTextSnippet = (g_objThisFavorite.FavoriteLaunchWith <> 1)
+blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
 
 if (blnTextSnippet)
 {
@@ -9381,7 +9381,7 @@ if (blnTextSnippet)
 	Clipboard := objPrevClipboard ; Restore the original clipboard
 }
 else ; snippet of type Macro
-	SendInput, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	Send, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 
 return
 ;------------------------------------------------------------
