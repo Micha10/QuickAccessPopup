@@ -21,15 +21,13 @@ BUGS
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
 TO-DO
-- in Settings. replace column header "Location" with "Location / Content"
-- add FAQ about "Close this menu"
-- link to VirusTotal.com (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
+- link to VirusTotal.com using API (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
 
 HISTORY
 =======
 
-text-snippets2
+Version BETA: 7.1.99.5 (2016-04-06)
 - for snippets of type Text, use clipboard to paste content faster (the original clipboard content is preserved)
 - when pasting a snippet from a mouse trigger, pause to ask confirmation of insertion point until user press Enter
 - in Settings, limit the displayed length of snippet content to 250 characters
@@ -38,7 +36,7 @@ text-snippets2
 - change Send mode to Input globally, except for sending Ctrl-V (use Event mode)
 
 
-Version BETA: 7.1.99.4 (2016-04-??)
+Version BETA: 7.1.99.4 (2016-04-05)
 Snippets
 - add Snippet favorite type, labels, help text and default icons for snippets
 - add snippet to add/edit favorite dialog box with help text, checkbox to process end-of-line and tab characters and advanced setting radio buttons to send snippet in text or macro mode
