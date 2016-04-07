@@ -29,6 +29,15 @@ TO-DO
 HISTORY
 =======
 
+text-snippets2
+- for snippets of type Text, use clipboard to paste content faster (the original clipboard content is preserved)
+- when pasting a snippet from a mouse trigger, pause to ask confirmation of insertion point until user press Enter
+- in Settings, limit the displayed length of snippet content to 250 characters
+- in Change Hotkey dialog box, limit the displayed length of snippet content to 150 characters
+- in Manage Hotkeys list, limit the displayed length of snippet content to 50 characters
+- change Send mode to Input globally, except for sending Ctrl-V (use Event mode)
+
+
 Version BETA: 7.1.99.4 (2016-04-??)
 Snippets
 - add Snippet favorite type, labels, help text and default icons for snippets
@@ -580,6 +589,7 @@ f_typNameOfVariable
 #KeyHistory 0
 ListLines, Off
 DetectHiddenWindows, On ; On required for button centering function GuiCenterButtons
+SendMode, Input
 StringCaseSense, Off
 ComObjError(False) ; we will do our own error handling
 
@@ -4807,7 +4817,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   " , "")
 		
 	else ; this is a folder, document, URL or application
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType], g_objMenuInGui[A_Index].FavoriteLocation)
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
+			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 
 LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
@@ -7342,7 +7353,7 @@ for strMenuPath, objMenu in g_objMenusIndex
 			LV_Add(, A_Index
 				, strMenuPath, objMenu[A_Index].FavoriteName, objMenu[A_Index].FavoriteType
 				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
-				, objMenu[A_Index].FavoriteLocation)
+				, (objMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objMenu[A_Index].FavoriteLocation, 50) : objMenu[A_Index].FavoriteLocation))
 		}
 
 LV_ModifyCol(2, "Sort")
@@ -7570,7 +7581,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
 	Gui, Font
 	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w300, %strFavoriteLocation%
+		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
 	if StrLen(strDescription)
 	{
 		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
@@ -7614,7 +7625,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
 	}
 	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, x50 y+25 w300 center, % L(lDialogChangeHotkeyNote, strFavoriteLocation)
+		Gui, Add, Text, x50 y+25 w400 center, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
 		
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOK%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancel%
@@ -8752,7 +8763,7 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Snippet") and !(g_blnAlternativeMenu)
 {
-	gosub, OpenSnippet
+	gosub, PasteSnippet
 	
 	gosub, OpenFavoriteCleanup
 	return
@@ -9336,11 +9347,43 @@ return
 
 
 ;------------------------------------------------------------
-OpenSnippet:
+PasteSnippet:
 ;------------------------------------------------------------
 
-; g_objThisFavorite.FavoriteLaunchWith = 1 for macro mode, else for text mnode
-SendInput, % (g_objThisFavorite.FavoriteLaunchWith <> 1 ? "{Raw}" : "") . DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+strWaitKey := "Enter"
+strWaitTime := 5
+
+if (g_blnMouseElseKeyboard)
+{
+	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
+	KeyWait, %strWaitKey%, D T%strWaitTime%
+	intErrorLevel := ErrorLevel
+	ToolTip
+	if (intErrorLevel)
+		return
+}
+
+; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
+blnTextSnippet = (g_objThisFavorite.FavoriteLaunchWith <> 1)
+
+if (blnTextSnippet)
+{
+	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
+	ClipBoard := ""
+	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	ClipWait, 0
+	if (ErrorLevel)
+		return
+	
+	; avoid using SendInput to send ^v
+	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
+	SendEvent, ^v
+	Sleep, 10 ; safety
+	
+	Clipboard := objPrevClipboard ; Restore the original clipboard
+}
+else ; snippet of type Macro
+	SendInput, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 
 return
 ;------------------------------------------------------------
@@ -11229,6 +11272,8 @@ Process only:
 `n = newline (linefeed/LF)
 `t = tab (the more typical horizontal variety)
 
+No need to process:
+- | (pipe) used as separator in favorites lines in ini file are already replaced with the escape sequence "Ð¡þ€"
 */
 {
 	; loop, Parse, strSnippet
@@ -11402,6 +11447,8 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 ;------------------------------------------------------------
 {
 	global
+	
+	g_blnMouseElseKeyboard := blnMouseElseKeyboard
 	
 	if (blnMouseElseKeyboard)
 	{
@@ -11583,10 +11630,19 @@ SetWaitCursor(blnOnOff)
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+StringLeftDotDotDot(strText, intMax)
+;------------------------------------------------------------
+{
+	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? "..." : "")
+}
+;------------------------------------------------------------
+
 
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
 ;========================================================================================================================
+
 
 ;========================================================================================================================
 !_095_ONMESSAGE_FUNCTIONS:
