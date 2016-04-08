@@ -16,6 +16,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
+Snippets:
+
+Others:
 - calling a submenu from a hotkey at startup does not insert column breaks
 - add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
@@ -27,6 +30,12 @@ TO-DO
 HISTORY
 =======
 
+Version BETA: 7.1.99.6 (2016-04-07)
+- fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
+- remove new line created after waiting for the Enter key when pasting snippet using mouse
+- decode end-of-line to CR/LF instead of only LF for compatibility with some targets applications
+- remove keyboard delay when pasting a snippet from a menu triggered by the mouse
+
 Version BETA: 7.1.99.5 (2016-04-06)
 - for snippets of type Text, use clipboard to paste content faster (the original clipboard content is preserved)
 - when pasting a snippet from a mouse trigger, pause to ask confirmation of insertion point until user press Enter
@@ -36,7 +45,7 @@ Version BETA: 7.1.99.5 (2016-04-06)
 - change Send mode to Input globally, except for sending Ctrl-V (use Event mode)
 
 
-Version BETA: 7.1.99.4 (2016-04-05)
+Version BETA: 7.1.99.3/7.1.99.4 (2016-04-05)
 Snippets
 - add Snippet favorite type, labels, help text and default icons for snippets
 - add snippet to add/edit favorite dialog box with help text, checkbox to process end-of-line and tab characters and advanced setting radio buttons to send snippet in text or macro mode
@@ -574,7 +583,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.4 BETA
+;@Ahk2Exe-SetVersion 7.1.99.6 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -621,7 +630,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.4" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.99.6" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -721,7 +730,7 @@ IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  
 if (g_blnDiagMode)
 {
 	Gosub, InitDiagMode
-	Diag("A_ScriptHwnd", A_ScriptHwnd)
+	; Diag("A_ScriptHwnd", A_ScriptHwnd)
 }
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
@@ -8161,7 +8170,7 @@ LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
-DiagWindowInfo(A_ThisLabel . " Begin")
+; DiagWindowInfo(A_ThisLabel . " Begin")
 
 if !(g_blnMenuReady)
 	return
@@ -8182,6 +8191,8 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 {
 	g_strTargetWinId := "" ; never use target window when launched from the tray icon
 	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
+	g_blnMouseElseKeyboard := true
+	g_blnLaunchFromTrayIcon := true ; ##### FOR TEMP TEST IN v7.1.99.6
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
@@ -8292,7 +8303,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	DiagWindowInfo("CanNavigate Begin")
+	; DiagWindowInfo("CanNavigate Begin")
 	
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
@@ -8317,7 +8328,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 		}
 	}
 	
-	DiagWindowInfo("CanNavigate End")
+	; DiagWindowInfo("CanNavigate End")
 	
 	return blnCanNavigate
 }
@@ -8330,14 +8341,14 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	DiagWindowInfo("CanLaunch Begin")
+	; DiagWindowInfo("CanLaunch Begin")
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseList, |
 			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
 				return false
 	
-	DiagWindowInfo("CanLaunch End")
+	; DiagWindowInfo("CanLaunch End")
 	
 	; if not excluded, return true except if dialog box is a Select Folder (TreeView)
 	return % !WindowIsTreeview(g_strTargetWinId)
@@ -8825,7 +8836,7 @@ strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,
 ; Diag("strFavoriteWindowPosition", strFavoriteWindowPosition)
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
-Diag(A_ThisLabel . " After WinActivate - Location", g_strHokeyTypeDetected . "`t" . g_strFullLocation)
+; Diag(A_ThisLabel . " After WinActivate - Location", g_strHokeyTypeDetected . "`t" . g_strFullLocation)
 
 ; === ACTIONS ===
 
@@ -8942,8 +8953,8 @@ if (g_strHokeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
-	if (g_arrFavoriteWindowPosition1)
-		Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
+	; if (g_arrFavoriteWindowPosition1)
+	;	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
 	gosub, OpenFavoriteWindowResize
 }
 
@@ -9092,7 +9103,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return
 	}
-	DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
+	; DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
 	if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
 		g_strHokeyTypeDetected := "Navigate"
 	else if CanLaunch(A_ThisHotkey)
@@ -9105,7 +9116,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return ; active window is on exclusion list
 	}
-	DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
+	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 {
@@ -9348,40 +9359,73 @@ return
 PasteSnippet:
 ;------------------------------------------------------------
 
+Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / g_blnMouseElseKeyboard", g_blnLaunchFromTrayIcon . " / " . g_blnMouseElseKeyboard)
+DiagWindowInfo(A_ThisLabel . " Start")
+
 strWaitKey := "Enter"
 strWaitTime := 5
 
-if (g_blnMouseElseKeyboard)
+if (g_blnLaunchFromTrayIcon) ; (g_blnMouseElseKeyboard) ##### REMOVED FOR TESTING IN RELEASE v7.1.99.6
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
+	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
 	KeyWait, %strWaitKey%, D T%strWaitTime%
 	intErrorLevel := ErrorLevel
 	ToolTip
+	Diag("KeyWait After - intErrorLevel", intErrorLevel)
 	if (intErrorLevel)
+	{
+		Gosub, PasteSnippetCleanup
 		return
+	}
+	; not required if keywait for Control
+	else
+		SendEvent, {Backspace} ; revert the Enter key press
 }
+*/
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
 blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-
+Diag("KeyWait Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
+Diag("KeyWait Before - blnTextSnippet", blnTextSnippet)
+	
 if (blnTextSnippet)
 {
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
 	ClipBoard := ""
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0
-	if (ErrorLevel)
+	intErrorLevel := ErrorLevel
+	Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
+	if (intErrorLevel)
+	{
+		Gosub, PasteSnippetCleanup
 		return
+	}
 	
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
+	Sleep, 100 ; delay required by some application, including Notepad
 	SendEvent, ^v
 	Sleep, 10 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
+	Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 }
 else ; snippet of type Macro
+{
 	Send, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+}
+
+PasteSnippetCleanup:
+strWaitKey := ""
+strWaitTim := ""
+intErrorLevel := ""
+blnTextSnippet := ""
+objPrevClipboard := ""
+
+g_blnLaunchFromTrayIcon := false
 
 return
 ;------------------------------------------------------------
@@ -11276,6 +11320,7 @@ No need to process:
 {
 	; loop, Parse, strSnippet
 	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
+	StringReplace, strSnippet, strSnippet, ``, ````, A
 	StringReplace, strSnippet, strSnippet, `n, ``n, A
 	StringReplace, strSnippet, strSnippet, `t, ``t, A
 	; ###_V("After Encode", strSnippet)
@@ -11289,7 +11334,8 @@ No need to process:
 DecodeSnippet(strSnippet)
 ;------------------------------------------------------------
 {
-	StringReplace, strSnippet, strSnippet, ``n, `n, A
+	StringReplace, strSnippet, strSnippet, ````, ``, A
+	StringReplace, strSnippet, strSnippet, ``n, `r`n, A
 	StringReplace, strSnippet, strSnippet, ``t, `t, A
 	; ###_V("After Decode", strSnippet)
 	
