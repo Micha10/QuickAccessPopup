@@ -32,9 +32,11 @@ HISTORY
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
+- remove keyboard delay when pasting a snippet from a menu triggered by the mouse
 - remove new line created after waiting for the Enter key when pasting snippet using mouse
 - decode end-of-line to CR/LF instead of only LF for compatibility with some targets applications
-- remove keyboard delay when pasting a snippet from a menu triggered by the mouse
+- encode ` character (backtick ) to `` allowing to include backticks in snippets
+- insert a 1/10 sec. delay before sending Control-V to paste the snippet content to increase paste reliability
 
 Version BETA: 7.1.99.5 (2016-04-06)
 - for snippets of type Text, use clipboard to paste content faster (the original clipboard content is preserved)
