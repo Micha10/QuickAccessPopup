@@ -16,6 +16,8 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
+External menu:
+
 Snippets:
 
 Others:
@@ -29,6 +31,8 @@ TO-DO
 
 HISTORY
 =======
+
+External menu:
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -2159,10 +2163,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
+	
+	###_V("RecursiveLoadMenuFromIni Begin", g_strIniFile, g_intIniLine)
+	###_O("objCurrentMenu", objCurrentMenu)
 
 	Loop
 	{
 		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
+		###_V("Loop Begin", g_strIniFile, g_intIniLine, strLoadIniLine)
         g_intIniLine++
 
 		if (strLoadIniLine = "ERROR")
@@ -2192,8 +2200,26 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
+			; ##### TEST
+			if (arrThisFavorite2 = "External menu")
+			{
+				strPreviousIniFile := g_strIniFile
+				intPreviousIniLine := g_intIniLine
+				g_strIniFile := A_WorkingDir . "\external-menu-poc.ini"
+				g_intIniLine := 27
+			}
+			; /TEST
+			
 			; build the submenu
 			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
+			
+			; ##### TEST
+			if (arrThisFavorite2 = "External menu")
+			{
+				g_strIniFile := strPreviousIniFile
+				g_intIniLine := intPreviousIniLine
+			}
+			; /TEST
 			
 			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 				Return, %strResult%
