@@ -1297,7 +1297,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -2194,7 +2194,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		
 		objLoadIniFavorite := Object() ; new favorite item
 		
-		if InStr("Menu|Group", arrThisFavorite1) ; begin a submenu
+		if InStr("Menu|Group|External", arrThisFavorite1) ; begin a submenu
 		{
 			objNewMenu := Object() ; create the submenu object
 			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
@@ -2207,26 +2207,22 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
-			; ##### TEST
-			if (arrThisFavorite2 = "External menu")
+			if (arrThisFavorite1 = "External")
 			{
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
-				g_strIniFile := A_WorkingDir . "\external-menu-poc.ini"
-				g_intIniLine := 27
+				g_strIniFile := ReplaceAllInString(arrThisFavorite6, g_strEscapePipe, "|") ; FavoriteAppWorkingDir, settings file path ###### add code to support relative locations
+				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings
 			}
-			; /TEST
 			
 			; build the submenu
 			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
 			
-			; ##### TEST
-			if (arrThisFavorite2 = "External menu")
+			if (arrThisFavorite1 = "External")
 			{
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
 			}
-			; /TEST
 			
 			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 				Return, %strResult%
@@ -2255,14 +2251,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
 		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
-		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable
+		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
 		objLoadIniFavorite.FavoriteLoginName := ReplaceAllInString(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
-		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings
+		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu options
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		
 		; this is a submenu favorite, link to the submenu object
-		if InStr("Menu|Group", arrThisFavorite1)
+		if InStr("Menu|Group|External", arrThisFavorite1)
 			objLoadIniFavorite.SubMenu := objNewMenu
 		
 		; update the current menu object
@@ -7538,6 +7534,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_intIniLine
 	global g_strEscapePipe
 	
+	###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
+	###_O("objCurrentMenu", objCurrentMenu)
+	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		; skip ".." back link to parent menu
@@ -7567,11 +7566,28 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
+			###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
 			g_intIniLine++
 		}
 		
-		if InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType) and !(blnIsBackMenu)
+		if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType) and !(blnIsBackMenu)
+		{
+			if (objCurrentMenu[A_Index].FavoriteType = "External")
+			{
+				strPreviousIniFile := g_strIniFile
+				intPreviousIniLine := g_intIniLine
+				g_strIniFile := objCurrentMenu[A_Index].FavoriteAppWorkingDir ; settings file path ###### add code to support relative locations
+				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings
+			}
+			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+			
+			if (arrThisFavorite1 = "External")
+			{
+				g_strIniFile := strPreviousIniFile
+				g_intIniLine := intPreviousIniLine
+			}
+		}
 	}
 		
 	IniWrite, Z, %g_strIniFile%, Favorites, Favorite%g_intIniLine% ; end of menu marker
