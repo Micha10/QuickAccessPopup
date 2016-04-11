@@ -25,13 +25,6 @@ Others:
 - add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
-TO-DO
-External menus:
-- implement new fav type
-- make [Favorites] section in external ini file unnecessary
-- implement add/edit fav with name, location, first line, option to allow make submenu read-only
-- save to ini file
-
 Others
 - link to VirusTotal.com using API (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
@@ -40,6 +33,10 @@ HISTORY
 =======
 
 External menu:
+- add External menu favorite type, label, etc.
+- load external menu settings ini file using working directory for external file location and group settings for external menu settings
+- save external menu settings ini file
+- adapt Add/Edit favorite dialog box to external menus
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -2212,7 +2209,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
 				g_strIniFile := ReplaceAllInString(arrThisFavorite6, g_strEscapePipe, "|") ; FavoriteAppWorkingDir, settings file path ###### add code to support relative locations
-				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings
+				StringSplit, arrExternalOptions, arrThisFavorite11, | ; FavoriteGroupSettings
+				g_intIniLine := arrExternalOptions1 ; read-only external menu
 			}
 			
 			; build the submenu
@@ -5279,7 +5277,7 @@ if (g_blnAbordEdit)
 }
 
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
+g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group|External"
 
 if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
 {
@@ -5433,11 +5431,22 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
+	if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		strExternalOptions := g_objEditedFavorite.FavoriteGroupSettings . ",,,," ; ,,, to make sure all fields are re-init
+		StringSplit, arrExternalOptions, strExternalOptions, |
+		if (arrExternalOptions2 = 1) ; read-only external menu
+		{
+			g_blnAbordEdit := true
+			return
+		}
+	}
+	
 	if (g_objEditedFavorite.FavoriteType = "B")
 		g_blnAbordEdit := true
 	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
 		g_blnAbordEdit := true
-	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group", g_objEditedFavorite.FavoriteType)) ; menu or group cannot be copied
+	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType)) ; menu or group cannot be copied
 		g_blnAbordEdit := true
 	
 	if (g_blnAbordEdit = true)
@@ -5518,6 +5527,7 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
+strExternalOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -5549,12 +5559,12 @@ else
 		, % g_objEditedFavorite.FavoriteName
 }
 
-if (g_objEditedFavorite.FavoriteType = "Menu" and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
+if (InStr("Menu|External", g_objEditedFavorite.FavoriteType) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, %lDialogOpenThisMenu%
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
-	if !InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
+	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
@@ -5635,6 +5645,13 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	Gui, 2:Add, Radio, % "x+10 yp " . (arrNewFavoriteWindowPosition8 = "R" ? "checked" : ""), %lDialogWindowPositionRight%
 }
 
+if (g_objEditedFavorite.FavoriteType = "External")
+{
+	Gui, 2:Add, Text, x20 y+10, %lDialogExternalLocation% *
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
+	Gui, 2:Add, Button, x+10 yp vf_AdvancedSettingsButton1 gButtonSelectWorkingDir, %lDialogBrowseButton%
+}
+
 arrNewFavoriteWindowPosition := ""
 
 return
@@ -5648,9 +5665,9 @@ GuiFavoriteTabMenuOptions:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Add, Text, x20 y40 vf_lblFavoriteParentMenu
-	, % (g_objEditedFavorite.FavoriteType = "Menu" ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
+	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (g_objEditedFavorite.FavoriteType = "Menu" ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
+	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
@@ -5746,6 +5763,13 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
 		Gui, 2:Add, Link, x20 y+15 w500, %lDialogFavoriteSnippetHelpWeb%
+	}
+	else if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		Gui, 2:Add, Text, x20 y+20 vf_AdvancedSettingsLabel2, %lDialogExternalStartingNumber%
+		strExternalOptions := g_objEditedFavorite.FavoriteGroupSettings . ",,,," ; ,,, to make sure all fields are re-init
+		StringSplit, arrExternalOptions, strExternalOptions, |
+		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber, %arrExternalOptions1%
 	}
 	else
 	{
@@ -7577,7 +7601,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
 				g_strIniFile := objCurrentMenu[A_Index].FavoriteAppWorkingDir ; settings file path ###### add code to support relative locations
-				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings
+				strExternalOptions := objCurrentMenu[A_Index].FavoriteGroupSettings . ",,,," ; ,,, to make sure all fields are re-init
+				StringSplit, arrExternalOptions, strExternalOptions , |
+				g_intIniLine := arrExternalOptions1
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
