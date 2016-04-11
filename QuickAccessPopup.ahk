@@ -26,6 +26,13 @@ Others:
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
 TO-DO
+External menus:
+- implement new fav type
+- make [Favorites] section in external ini file unnecessary
+- implement add/edit fav with name, location, first line, option to allow make submenu read-only
+- save to ini file
+
+Others
 - link to VirusTotal.com using API (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
 
