@@ -37,6 +37,10 @@ External menu:
 - load external menu settings ini file using working directory for external file location and group settings for external menu settings
 - save external menu settings ini file
 - adapt Add/Edit favorite dialog box to external menus
+- button to select or create external menu settings file
+- read readonly value in external menu
+- build menu with external menu
+- double-click to edit external menu in listview;
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -5441,9 +5445,12 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
-	if (g_objEditedFavorite.FavoriteType = "External")
+	###_V(A_ThisLabel, g_objMenuInGui.MenuPath, g_objMenuInGui.MenuType)
+	if (g_objMenuInGui.MenuType = "External")
 	{
+		; ##### find path to external settings file of menu in gui...
 		IniRead, blnExternalMenuReadOnly, % g_objEditedFavorite.FavoriteAppWorkingDir, Global, MenuReadOnly, 0
+		###_V(A_ThisLabel, g_objEditedFavorite.FavoriteAppWorkingDir, blnExternalMenuReadOnly)
 		if (blnExternalMenuReadOnly) ; read-only external menu
 		{
 			g_blnAbordEdit := true
@@ -7590,7 +7597,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_strEscapePipe
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
-	; ###_O("objCurrentMenu", objCurrentMenu)
+	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
@@ -7637,7 +7644,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
 			
-			if (arrThisFavorite1 = "External")
+			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
