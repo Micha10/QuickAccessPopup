@@ -294,6 +294,7 @@ global lOopsCannotCopyFavorite := "Favorites of type ""~1~"" cannot be copied." 
 global lOopsChangeFolderInDialogAlert := "Did you want to change folder in this dialog box? In order to navigate inside a dialog box, you have to enable an option (first checkbox in the ""General"" tab).`n`nDo you want to open the Options window?" ; new
 global lOopsCouldNotOpenSpecialFolder := "~1~ could not open the special folder: ""~2~""."
 global lOopsEmpty := "empty" ; new (no capital)
+global lOopsErrorReadingIniFile := "An error occurred while reading the favorites in the ini file." ; new
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new
 global lOopsHotkeyAlreadyUsed := "The hotkey ""~1~"" is already used for ~2~.`n`nPlease, choose another hotkey for ~3~." ; new
