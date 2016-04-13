@@ -1929,21 +1929,7 @@ LoadIniFile:
 ReloadIniFile:
 ;-----------------------------------------------------------
 
-; delete old backup files (keep only 5/10/20 most recent files)
-StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
-Loop, %strIniBackupFile%
-	strFileList .= A_LoopFileFullPath . "`n"
-Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "alpha" ? 20 : (g_strCurrentBranch = "beta" ? 10 : 5))
-Loop, Parse, strFileList, `n
-	if (A_Index > intNumberOfBackups)
-		if StrLen(A_LoopField)
-			FileDelete, %A_LoopField%
-
-; create a daily backup of the ini file
-StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
-if !FileExist(strIniBackupFile)
-	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+Gosub, BackupIniFile
 
 ; reinit after Settings save if already exist
 g_objMenuInGui := Object() ; object of menu currently in Gui
@@ -2138,7 +2124,6 @@ else
 		Oops(lOopsErrorReadingIniFile)
 }
 
-strIniBackupFile := ""
 arrMainMenu := ""
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
@@ -6797,7 +6782,7 @@ if (g_objEditedFavorite.FavoriteType = "External") and FileExist(f_strFavoriteAp
 	intPreviousIniLine := g_intIniLine
 	g_strIniFile := f_strFavoriteAppWorkingDir ; FavoriteAppWorkingDir, settings file path ###### add code to support relative locations
 	g_intIniLine := f_intExternalStartingNumber ; starting number
-
+	
 	strResult := RecursiveLoadMenuFromIni(objNewMenu)
 	; ###_V("RecursiveLoadMenuFromIni - strResult", strResult)
 	
@@ -7666,6 +7651,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				intPreviousIniLine := g_intIniLine
 				g_strIniFile := objCurrentMenu[A_Index].FavoriteAppWorkingDir ; settings file path ###### add code to support relative locations
 				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
+				
+				gosub, BackupIniFile ; backup non read-only external settings ini file, if required
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -11819,6 +11806,34 @@ StringLeftDotDotDot(strText, intMax)
 {
 	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? "..." : "")
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BackupIniFile:
+;------------------------------------------------------------
+
+; g_strIniFile contains the basinc QAP ini file or an external menu settings ini file
+
+; delete old backup files (keep only 5/10 most recent files)
+StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+Loop, %strIniBackupFile%
+	strFileList .= A_LoopFileFullPath . "`n"
+Sort, strFileList, R
+intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
+Loop, Parse, strFileList, `n
+	if (A_Index > intNumberOfBackups)
+		if StrLen(A_LoopField)
+			FileDelete, %A_LoopField%
+
+; create a daily backup of the ini file
+StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
+if !FileExist(strIniBackupFile)
+	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+
+strIniBackupFile := ""
+
+return
 ;------------------------------------------------------------
 
 
