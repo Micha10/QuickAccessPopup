@@ -15,41 +15,23 @@ or Rexx version Folder Menu
 http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-change-your-folders/
 
 
-BUGS
-External menu:
-
-Snippets:
-
-Others:
-- calling a submenu from a hotkey at startup does not insert column breaks
-- add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
-- if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
-
-Others
-- link to VirusTotal.com using API (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
-
-
 HISTORY
 =======
 
+Version BETA: 7.1.99.7 (2016-04-14)
 External menu:
 - add External menu favorite type, label, etc.
-- load external menu settings ini file using working directory for external file location and group settings for external menu settings
-- save external menu settings ini file
-- adapt Add/Edit favorite dialog box to external menus
-- button to select or create external menu settings file
-- read readonly value in external menu
-- build menu with external menu
-- double-click to edit external menu in listview
-- items of external menu with [Global] value MenuReadOnly=1 cannot be modified
-- if External menu name empty, fill it with external file name
-- support replacing external settings file for an external menu
-- confirm before removing external menu
-- removing external menu (does not delete the external menu settings file)
-- init read-only value to 0 in new external menu settings file
+- load external menu settings ini file using working directory field for external file location and group settings field for external menu starting line
 - manage error reading settings file
+- save external menu to external settings ini file
+- adapt Add/Edit favorite dialog box to external menus
+- adapt settings window to manage external menus (listview, buttons, etc.)
+- items in external menu with [Global] value MenuReadOnly=1 cannot be modified
+- init read-only value to 0 in new external menu settings file
+- removing external menu (does not delete the external menu settings file)
+- build menu including external menu
 - support relative paths and env vars in external menu settings file path
-- make starting line in external ini file read-only when editing favorite (cause error is allowed)
+- make starting line in external ini file read-only when editing favorite (cause error if allowed)
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -606,7 +588,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.6 BETA
+;@Ahk2Exe-SetVersion 7.1.99.7 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -653,7 +635,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.6" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.99.7" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
