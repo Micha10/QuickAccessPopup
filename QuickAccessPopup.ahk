@@ -16,6 +16,8 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 
 
 BUGS
+External menu:
+
 Snippets:
 
 Others:
@@ -23,12 +25,31 @@ Others:
 - add this folder does not work with DOpus (and TC?) when file manager is changed before restarting QAP
 - if launched favorite is a submenu, check if some of its items are QAP features needing to be refreshed BUT scans only this menu, not its submenu
 
-TO-DO
+Others
 - link to VirusTotal.com using API (https://www.virustotal.com/en/documentation/public-api/#getting-url-scans)
 
 
 HISTORY
 =======
+
+External menu:
+- add External menu favorite type, label, etc.
+- load external menu settings ini file using working directory for external file location and group settings for external menu settings
+- save external menu settings ini file
+- adapt Add/Edit favorite dialog box to external menus
+- button to select or create external menu settings file
+- read readonly value in external menu
+- build menu with external menu
+- double-click to edit external menu in listview
+- items of external menu with [Global] value MenuReadOnly=1 cannot be modified
+- if External menu name empty, fill it with external file name
+- support replacing external settings file for an external menu
+- confirm before removing external menu
+- removing external menu (does not delete the external menu settings file)
+- init read-only value to 0 in new external menu settings file
+- manage error reading settings file
+- support relative paths and env vars in external menu settings file path
+- make starting line in external ini file read-only when editing favorite (cause error is allowed)
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -1286,7 +1307,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -1296,6 +1317,7 @@ g_objFavoriteTypesLocationLabels := Object()
 Loop, 9 ; excluding X, K and B
 	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
 arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
+arrFavoriteTypesHelp14 := lDialogFavoriteTypesHelp14
 g_objFavoriteTypesHelp := Object()
 StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
 g_objFavoriteTypesShortNames := Object()
@@ -1911,21 +1933,7 @@ LoadIniFile:
 ReloadIniFile:
 ;-----------------------------------------------------------
 
-; delete old backup files (keep only 5/10/20 most recent files)
-StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
-Loop, %strIniBackupFile%
-	strFileList .= A_LoopFileFullPath . "`n"
-Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "alpha" ? 20 : (g_strCurrentBranch = "beta" ? 10 : 5))
-Loop, Parse, strFileList, `n
-	if (A_Index > intNumberOfBackups)
-		if StrLen(A_LoopField)
-			FileDelete, %A_LoopField%
-
-; create a daily backup of the ini file
-StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
-if !FileExist(strIniBackupFile)
-	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+Gosub, BackupIniFile
 
 ; reinit after Settings save if already exist
 g_objMenuInGui := Object() ; object of menu currently in Gui
@@ -2117,10 +2125,9 @@ else
 	g_intIniLine := 1
 	
 	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
-		Oops("An error occurred while reading the favorites in the ini file.")
+		ExitApp
 }
 
-strIniBackupFile := ""
 arrMainMenu := ""
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
@@ -2159,14 +2166,20 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
+	
+	; ###_V("RecursiveLoadMenuFromIni Begin", g_strIniFile, g_intIniLine)
+	; ###_O("objCurrentMenu", objCurrentMenu)
 
 	Loop
 	{
 		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
-        g_intIniLine++
-
+		; ###_V("Loop Begin", g_strIniFile, g_intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
+		{
+			Oops(lOopsErrorReadingIniFile . "`n`n" . g_strIniFile . "`nFavorite" . g_intIniLine . "=")
 			Return, "EOF" ; end of file - should not happen if main menu ends with a "Z" type favorite as expected
+		}
+        g_intIniLine++
 		
 		strLoadIniLine := strLoadIniLine . "||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
@@ -2176,14 +2189,18 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 
 		if (arrThisFavorite1 = "Z")
 			return, "EOM" ; end of menu
+		; else
+		;	###_V("Loop PAS Z", g_strIniFile, g_intIniLine, strLoadIniLine)
 		
 		objLoadIniFavorite := Object() ; new favorite item
 		
-		if InStr("Menu|Group", arrThisFavorite1) ; begin a submenu
+		if InStr("Menu|Group|External", arrThisFavorite1, true) ; begin a submenu / case sensitive because type X is included in External ...
 		{
 			objNewMenu := Object() ; create the submenu object
 			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			objNewMenu.MenuType := arrThisFavorite1
+			if (objNewMenu.MenuType = "External")
+				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
 			
 			; create a navigation entry to navigate to the parent menu
 			objNewMenuBack := Object()
@@ -2192,8 +2209,22 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
+			if (arrThisFavorite1 = "External")
+			{
+				strPreviousIniFile := g_strIniFile
+				intPreviousIniLine := g_intIniLine
+				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
+				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number
+			}
+			
 			; build the submenu
 			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
+			
+			if (arrThisFavorite1 = "External")
+			{
+				g_strIniFile := strPreviousIniFile
+				g_intIniLine := intPreviousIniLine
+			}
 			
 			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 				Return, %strResult%
@@ -2222,14 +2253,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
 		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
-		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable
+		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
 		objLoadIniFavorite.FavoriteLoginName := ReplaceAllInString(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
-		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings
+		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		
 		; this is a submenu favorite, link to the submenu object
-		if InStr("Menu|Group", arrThisFavorite1)
+		if InStr("Menu|Group|External", arrThisFavorite1, true)
 			objLoadIniFavorite.SubMenu := objNewMenu
 		
 		; update the current menu object
@@ -2237,6 +2268,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		
 		; if !InStr("X|K", objLoadIniFavorite.FavoriteType) ; menu separators and column breaks do not use a item position numeric shortcut number
 		;	intMenuItemPos++
+		; ###_V("Loop Fin", g_strIniFile, g_intIniLine, strLoadIniLine)
 	}
 }
 ;-----------------------------------------------------------
@@ -2346,7 +2378,8 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
-	
+
+	; ###_V("AddToIniOneDefaultMenu", strLocation, strName, strFavoriteType)
 	if (strFavoriteType = "Z")
 		strNewIniLine := strFavoriteType
 	else
@@ -3721,6 +3754,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 
 	intShortcut := 0
 	
+	; ###_O("objCurrentMenu .FavoriteLocation", objCurrentMenu, "FavoriteLocation")
 	; try because at first execution the strMenu menu does not exist and produces an error,
 	; but DeleteAll is required later for menu updates
 	try Menu, % objCurrentMenu.MenuPath, DeleteAll
@@ -3743,8 +3777,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (g_intHotkeyReminders > 1) and g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : Hotkey2Text(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation])) . ")"
 		
-		if (objCurrentMenu[A_Index].FavoriteType = "Menu")
+		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
 		{
+			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
 			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 			
 			if (g_blnUseColors)
@@ -4811,9 +4847,11 @@ LV_Delete()
 
 Loop, % g_objMenuInGui.MaxIndex()
 	
-	if InStr("Menu|Group", g_objMenuInGui[A_Index].FavoriteType) ; this is a menu or a group
+	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
-			, (g_objMenuInGui[A_Index].FavoriteType = "Menu" ? g_strMenuPathSeparator : " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix))
+			, (g_objMenuInGui[A_Index].FavoriteType = "Menu" ? g_strMenuPathSeparator
+				: (g_objMenuInGui[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+				: g_strMenuPathSeparator . g_strMenuPathSeparator)))
 	
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
@@ -4933,7 +4971,7 @@ Gui, 1:ListView, f_lvFavoritesList
 if (A_GuiEvent = "DoubleClick")
 {
 	g_intOriginalMenuPosition := LV_GetNext()
-	if StrLen(g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType) and InStr("Menu|Group", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)
+	if StrLen(g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType) and InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
 		Gosub, OpenMenuFromGuiHotkey
 	else if (g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType = "B")
 		Gosub, GuiGotoUpMenu
@@ -4979,6 +5017,12 @@ GuiAddFavoriteFromQAP:
 if (A_ThisLabel = "GuiAddFavoriteFromQAP")
 	gosub, GuiShow
 
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
+
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
@@ -4999,6 +5043,7 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioBut
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["External"]
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinue%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancel%
@@ -5020,7 +5065,7 @@ Gui, 2:Submit, NoHide
 
 g_strAddFavoriteType := "" ; start fresh
 
-; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External
 loop, %g_arrFavoriteTypes0%
 {
 	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index%
@@ -5250,7 +5295,7 @@ if (g_blnAbordEdit)
 }
 
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
+g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group|External"
 
 if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
 {
@@ -5404,11 +5449,19 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
+	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath, g_objMenuInGui.MenuType, g_objMenuInGui.MenuExternalPath)
+	if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+	{
+		Oops(lOopsExternalMenuReadOnly)
+		g_blnAbordEdit := true
+		return
+	}
+	
 	if (g_objEditedFavorite.FavoriteType = "B")
 		g_blnAbordEdit := true
 	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
 		g_blnAbordEdit := true
-	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group", g_objEditedFavorite.FavoriteType)) ; menu or group cannot be copied
+	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)) ; menu or group cannot be copied
 		g_blnAbordEdit := true
 	
 	if (g_blnAbordEdit = true)
@@ -5489,6 +5542,7 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
+strExternalOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -5520,12 +5574,12 @@ else
 		, % g_objEditedFavorite.FavoriteName
 }
 
-if (g_objEditedFavorite.FavoriteType = "Menu" and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
+if (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, %lDialogOpenThisMenu%
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
-	if !InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
+	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
@@ -5606,6 +5660,13 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	Gui, 2:Add, Radio, % "x+10 yp " . (arrNewFavoriteWindowPosition8 = "R" ? "checked" : ""), %lDialogWindowPositionRight%
 }
 
+if (g_objEditedFavorite.FavoriteType = "External")
+{
+	Gui, 2:Add, Text, x20 y+10, %lDialogExternalLocation% *
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
+	Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
+}
+
 arrNewFavoriteWindowPosition := ""
 
 return
@@ -5619,9 +5680,9 @@ GuiFavoriteTabMenuOptions:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Add, Text, x20 y40 vf_lblFavoriteParentMenu
-	, % (g_objEditedFavorite.FavoriteType = "Menu" ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
+	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (g_objEditedFavorite.FavoriteType = "Menu" ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
+	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
@@ -5703,7 +5764,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel1, %lDialogWorkingDirLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
-		Gui, 2:Add, Button, x+10 yp vf_AdvancedSettingsButton1 gButtonSelectWorkingDir, %lDialogBrowseButton%
+		Gui, 2:Add, Button, x+10 yp gButtonSelectWorkingDir, %lDialogBrowseButton%
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -5718,14 +5779,20 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
 		Gui, 2:Add, Link, x20 y+15 w500, %lDialogFavoriteSnippetHelpWeb%
 	}
+	else if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		Gui, 2:Add, Text, x20 y+20, %lDialogExternalStartingNumber%
+		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
+			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
+	}
 	else
 	{
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel4, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
-		Gui, 2:Add, Button, x+10 yp vf_AdvancedSettingsButton2 gButtonSelectLaunchWith, %lDialogBrowseButton%
+		Gui, 2:Add, Button, x+10 yp gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
-	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType)
+	if !InStr("Group|Snippet|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400 vf_AdvancedSettingsLabel5, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
@@ -5752,6 +5819,12 @@ return
 ;------------------------------------------------------------
 GuiMoveMultipleFavoritesToMenu:
 ;------------------------------------------------------------
+
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
@@ -5908,11 +5981,12 @@ return
 
 ;------------------------------------------------------------
 EditFavoriteLocationChanged:
+EditFavoriteExternalLocationChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
 if !StrLen(f_strFavoriteShortName)
-	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName(f_strFavoriteLocation)
+	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
@@ -5954,6 +6028,7 @@ return
 ButtonSelectFavoriteLocation:
 ButtonSelectWorkingDir:
 ButtonSelectLaunchWith:
+ButtonSelectExternalSettingsFile:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
@@ -5963,10 +6038,10 @@ if (A_ThisLabel = "ButtonSelectFavoriteLocation")
 	strDefault := f_strFavoriteLocation
 	strType := (g_objEditedFavorite.FavoriteType = "Folder" ? "Folder" : "File")
 }
-else if (A_ThisLabel = "ButtonSelectWorkingDir")
+else if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisLabel)
 {
-	strDefault := f_strFavoriteAppWorkingDir
-	strType := "Folder"
+	strDefault := f_strFavoriteAppWorkingDir ; working directory or external menu settings file
+	strType := (A_ThisLabel = "ButtonSelectWorkingDir" ? "Folder" : "IniFile") ; file if External settings file
 }
 else ; ButtonSelectLaunchWith
 {
@@ -5976,9 +6051,12 @@ else ; ButtonSelectLaunchWith
 
 if (strType = "Folder")
 	FileSelectFolder, strNewLocation, *%strDefault%, 3, %lDialogAddFolderSelect%
-else ; File
-	; do not use optioon "S" because it gives an error message on read-only supports
+else if (strType = "File")
+	; do not use option "S" because it gives an error message on read-only supports
 	FileSelectFile, strNewLocation, 3, %strDefault%, %lDialogAddFileSelect%
+else ; IniFile
+	; do not use option "S" because it gives an error message on read-only supports
+	FileSelectFile, strNewLocation, 8, %strDefault%, %lDialogAddFileSelect%, *.ini ; option 8 to prompt to create a new file
 
 if !(StrLen(strNewLocation))
 {
@@ -5986,7 +6064,7 @@ if !(StrLen(strNewLocation))
 	return
 }
 
-if (A_ThisLabel = "ButtonSelectWorkingDir")
+if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisLabel)
 	GuiControl, 2:, f_strFavoriteAppWorkingDir, %strNewLocation%
 else if (A_ThisLabel = "ButtonSelectLaunchWith")
 	GuiControl, 2:, f_strFavoriteLaunchWith, %strNewLocation%
@@ -6069,7 +6147,7 @@ GuiFavoriteIconDefault:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (g_objEditedFavorite.FavoriteType = "Menu")
+if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
 	; default submenu icon
 	g_strDefaultIconResource := g_objIconsFile["iconSubmenu"] . "," . g_objIconsIndex["iconSubmenu"]
 else if (g_objEditedFavorite.FavoriteType = "Group")
@@ -6196,7 +6274,7 @@ Gui, 1:ListView, f_lvFavoritesList
 
 g_intOriginalMenuPosition := LV_GetNext()
 
-if InStr("Menu|Group", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)
+if InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
 	Gosub, OpenMenuFromGuiHotkey
 
 return
@@ -6531,7 +6609,7 @@ if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave g_intNewItemPos may be alre
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
-if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group", g_objEditedFavorite.FavoriteType))
+if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group|External", g_objEditedFavorite.FavoriteType, true))
 {
 	Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -6546,7 +6624,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 {
 	if !StrLen(strNewFavoriteShortName)
 	{
-		Oops(g_objEditedFavorite.FavoriteType = "Menu" ? lDialogSubmenuNameEmpty : lDialogFavoriteNameEmpty)
+		Oops(InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuNameEmpty : lDialogFavoriteNameEmpty)
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
@@ -6582,7 +6660,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
-	if InStr("Menu|Group", g_objEditedFavorite.FavoriteType) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
+	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
 	{
 		Oops(L(lDialogFavoriteNameNoSeparator, g_strMenuPathSeparator))
 		gosub, GuiAddFavoriteSaveCleanup
@@ -6680,12 +6758,14 @@ if (InStr(strDestinationMenu, strOriginalMenu . " " . g_strMenuPathSeparator " "
 
 ; if adding menu or group, create submenu object
 
-if (InStr("Menu|Group", g_objEditedFavorite.FavoriteType) and (strThisLabel = "GuiAddFavoriteSave"))
+if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (strThisLabel = "GuiAddFavoriteSave"))
 {
 	objNewMenu := Object() ; object for the new menu or group
 	objNewMenu.MenuPath := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
+	if (objNewMenu.MenuType = "External")
+		objNewMenu.MenuExternalPath := g_objEditedFavorite.FavoriteAppWorkingDir
 
 	; create a navigation entry to navigate to the parent menu
 	objNewMenuBack := Object()
@@ -6697,6 +6777,34 @@ if (InStr("Menu|Group", g_objEditedFavorite.FavoriteType) and (strThisLabel = "G
 	g_objMenusIndex.Insert(objNewMenu.MenuPath, objNewMenu)
 	g_objEditedFavorite.Submenu := objNewMenu
 }
+
+; if external menu file exists, load the submenu from the external settings ini file
+	
+; ###_O("AVANT objNewMenu", objNewMenu, "FavoriteLocation")
+; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
+
+if (g_objEditedFavorite.FavoriteType = "External") and FileExist(PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir))) ; settings file path
+{
+	; remove existing menu entries but keep entry #1 (back menu)
+	loop, % objNewMenu.MaxIndex() -  1
+		objNewMenu.Delete(objNewMenu.MaxIndex()) ; do ot use .RemoveAt() because all keys in object are not numeric - risk of side effects
+	; ###_O("PENDANT objNewMenu", objNewMenu, "FavoriteLocation")
+	; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
+	
+	strPreviousIniFile := g_strIniFile
+	intPreviousIniLine := g_intIniLine
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+	g_intIniLine := f_intExternalStartingNumber ; starting number
+	
+	strResult := RecursiveLoadMenuFromIni(objNewMenu)
+	; ###_V("RecursiveLoadMenuFromIni - strResult", strResult)
+	
+	g_strIniFile := strPreviousIniFile
+	g_intIniLine := intPreviousIniLine
+}
+
+; ###_O("APRÈS objNewMenu", objNewMenu, "FavoriteLocation")
+; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
 
 ; update menu object and hotkeys object except if we move favorites
 
@@ -6712,7 +6820,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 			g_objHotkeysByLocation.Insert(strNewFavoriteLocation, g_strNewFavoriteHotkey) ; if the key already exists, its value is overwritten
 	}
 	
-	if InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
+	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
 			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
@@ -6753,7 +6861,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		g_objEditedFavorite.FavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
 		g_objEditedFavorite.FavoriteGroupSettings .= "," . f_intGroupRestoreDelay
 	}
-	
+	else if (g_objEditedFavorite.FavoriteType = "External")
+		g_objEditedFavorite.FavoriteGroupSettings := f_intExternalStartingNumber
+
 	g_objEditedFavorite.FavoriteLoginName := f_strFavoriteLoginName
 	g_objEditedFavorite.FavoritePassword := f_strFavoritePassword
 	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
@@ -6763,7 +6873,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteLaunchWith := (g_objEditedFavorite.FavoriteType = "Snippet" ? f_blnRadioSendModeMacro : f_strFavoriteLaunchWith)
 }
 else ; GuiMoveOneFavoriteSave
-	if InStr("Menu|Group", g_objEditedFavorite.FavoriteType)
+	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	; for Menu and Group in multiple moved, update the .FavoriteLocation in favorite object and update menus and hotkeys index objects
 	{
 		strPreviousLocation := g_objEditedFavorite.FavoriteLocation ; save it to be able to remove hotkey if there is one for this location
@@ -6822,7 +6932,7 @@ if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview i
 if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
 	LV_Modify(0, "-Select")
-	if (g_objEditedFavorite.FavoriteType = "Menu")
+	if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
@@ -6939,7 +7049,7 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 			continue
 		}
 		
-		if InStr("Menu|Group", objEditedFavorite.SubMenu[A_Index].FavoriteType)
+		if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
 			RecursiveUpdateMenuPathAndLocation(objEditedFavorite.SubMenu[A_Index]
 				, objEditedFavorite.SubMenu.MenuPath . " " . g_strMenuPathSeparator . " " . objEditedFavorite.SubMenu[A_Index].FavoriteName
 				. (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
@@ -7005,6 +7115,12 @@ FavoriteNameIsNew(strCandidateName, objMenu)
 GuiRemoveMultipleFavorites:
 ;------------------------------------------------------------
 
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
+
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
@@ -7031,6 +7147,13 @@ GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
 
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
+
+	
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 intItemToRemove := LV_GetNext()
@@ -7047,17 +7170,18 @@ if (g_objMenuInGui[intItemToRemove].FavoriteType = "B")
 }
 ; remove favorite in object model (if menu, leaving submenu objects unlinked without releasing them)
 
-blnItemIsMenu := (g_objMenuInGui[intItemToRemove].FavoriteType = "Menu")
+blnItemIsMenu := InStr("Menu|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
 
 if (blnItemIsMenu)
 {
-	MsgBox, 52, % L(lDialogFavoriteRemoveTitle, g_strAppNameText), % L(lDialogFavoriteRemovePrompt, g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
+	MsgBox, 52, % L(lDialogFavoriteRemoveTitle, g_strAppNameText)
+		, % L((g_objMenuInGui[intItemToRemove].FavoriteType = "Menu" ? lDialogFavoriteRemovePrompt : lDialogFavoriteRemoveExternalPrompt), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
 	IfMsgBox, No
 	{
 		gosub, GuiRemoveFavoriteCleanup
 		return
 	}
-	g_objMenusIndex.Remove(g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
+	g_objMenusIndex.Remove(g_objMenuInGui[intItemToRemove].Submenu.MenuPath) ; if user cancels settings changes, menu object will not be re-created (we live with it)
 }
 g_objMenuInGui.Remove(intItemToRemove)
 
@@ -7092,6 +7216,12 @@ return
 GuiMoveMultipleFavoritesUp:
 GuiMoveMultipleFavoritesDown:
 ;------------------------------------------------------------
+
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
 
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
@@ -7155,6 +7285,12 @@ GuiMoveFavoriteDown:
 GuiMoveOneFavoriteUp:
 GuiMoveOneFavoriteDown:
 ;------------------------------------------------------------
+
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
 
 if !InStr(A_ThisLabel, "One")
 {
@@ -7395,6 +7531,12 @@ GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
 
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
+{
+	Oops(lOopsExternalMenuReadOnly)
+	return
+}
+
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
@@ -7505,6 +7647,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_intIniLine
 	global g_strEscapePipe
 	
+	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
+	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
+	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		; skip ".." back link to parent menu
@@ -7534,11 +7679,34 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
+			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
 			g_intIniLine++
 		}
-		
-		if InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType) and !(blnIsBackMenu)
+
+		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true)  and !(blnIsBackMenu))
+			or (objCurrentMenu[A_Index].FavoriteType = "External" and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir))
+		{
+			if (objCurrentMenu[A_Index].FavoriteType = "External")
+			{
+				strPreviousIniFile := g_strIniFile
+				intPreviousIniLine := g_intIniLine
+				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
+				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
+				
+				gosub, BackupIniFile ; backup non read-only external settings ini file, if required
+				
+				if !FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
+					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+			}
+			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+			
+			if (objCurrentMenu[A_Index].FavoriteType = "External")
+			{
+				g_strIniFile := strPreviousIniFile
+				g_intIniLine := intPreviousIniLine
+			}
+		}
 	}
 		
 	IniWrite, Z, %g_strIniFile%, Favorites, Favorite%g_intIniLine% ; end of menu marker
@@ -7945,7 +8113,7 @@ RecursiveHotkeyNotNeeded(strHotkeyLocation, objCurrentMenu)
 		if InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType) ; skip back link and separators
 			continue
 		
-		if (objCurrentMenu[A_Index].FavoriteType = "Menu")
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
 		{
 			blnHotkeyNotNeeded := RecursiveHotkeyNotNeeded(strHotkeyLocation, objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
 			if !(blnHotkeyNotNeeded)
@@ -8114,7 +8282,7 @@ if (A_ThisLabel = "RestoreBackupMenusObjects")
 	g_objMainMenu := g_objMenusIndex[lMainMenuName] ; re-connect main menu
 	for strMenuPath, objMenuDest in g_objMenusIndex
 		loop, % objMenuDest.MaxIndex()
-			if InStr("Menu|Group", objMenuDest[A_Index].FavoriteType)
+			if InStr("Menu|Group|External", objMenuDest[A_Index].FavoriteType, true)
 			{
 				objSubMenu := Object()
 				objSubMenu.MenuPath := lMainMenuName . " " . objMenuDest[A_Index].FavoriteLocation
@@ -8898,7 +9066,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 
 ; --- Menu type ---
 
-if (g_objThisFavorite.FavoriteType = "Menu")
+if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 {
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
@@ -9077,7 +9245,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 			}
 	}
 	
-	if (g_objThisFavorite.FavoriteType = "Menu")
+	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
 	{
 		objMenu := g_objMenusIndex[lMainMenuName . " " . strThisHotkeyLocation]
@@ -11166,7 +11334,7 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		strList .= "|" ; default value
 
 	Loop, % objMenu.MaxIndex()
-		if InStr("Menu|Group", objMenu[A_Index].FavoriteType) ; this is a menu or a group
+		if InStr("Menu|Group|External", objMenu[A_Index].FavoriteType, true) ; this is a menu or a group
 			if (objMenu[A_Index].Submenu.MenuPath <> strSkipMenuName) ; skip to avoid moving a submenu under itself (in GuiEditFavorite)
 				strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName) ; recursive call
 	return strList
@@ -11681,6 +11849,50 @@ StringLeftDotDotDot(strText, intMax)
 ;------------------------------------------------------------
 {
 	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? "..." : "")
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BackupIniFile:
+;------------------------------------------------------------
+
+; g_strIniFile contains the basinc QAP ini file or an external menu settings ini file
+
+; delete old backup files (keep only 5/10 most recent files)
+StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+Loop, %strIniBackupFile%
+	strFileList .= A_LoopFileFullPath . "`n"
+Sort, strFileList, R
+intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
+Loop, Parse, strFileList, `n
+	if (A_Index > intNumberOfBackups)
+		if StrLen(A_LoopField)
+			FileDelete, %A_LoopField%
+
+; create a daily backup of the ini file
+StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
+if !FileExist(strIniBackupFile)
+	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+
+strIniBackupFile := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuIsReadOnly(strFile)
+;------------------------------------------------------------
+{
+	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	
+	if StrLen(strFile)
+		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
+	else
+		return false
+
+	return blnExternalMenuReadOnly
 }
 ;------------------------------------------------------------
 
