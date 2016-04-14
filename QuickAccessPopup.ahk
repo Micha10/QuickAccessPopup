@@ -46,6 +46,10 @@ External menu:
 - support replacing external settings file for an external menu
 - confirm before removing external menu
 - removing external menu (does not delete the external menu settings file)
+- init read-only value to 0 in new external menu settings file
+- manage error reading settings file
+- support relative paths and env vars in external menu settings file path
+- make starting line in external ini file read-only when editing favorite (cause error is allowed)
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -2121,7 +2125,7 @@ else
 	g_intIniLine := 1
 	
 	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
-		Oops(lOopsErrorReadingIniFile)
+		ExitApp
 }
 
 arrMainMenu := ""
@@ -2172,7 +2176,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; ###_V("Loop Begin", g_strIniFile, g_intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
 		{
-			###_V("Loop Error", g_strIniFile, g_intIniLine, strLoadIniLine)
+			Oops(lOopsErrorReadingIniFile . "`n`n" . g_strIniFile . "`nFavorite" . g_intIniLine . "=")
 			Return, "EOF" ; end of file - should not happen if main menu ends with a "Z" type favorite as expected
 		}
         g_intIniLine++
@@ -2209,7 +2213,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			{
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
-				g_strIniFile := ReplaceAllInString(arrThisFavorite6, g_strEscapePipe, "|") ; FavoriteAppWorkingDir, settings file path ###### add code to support relative locations
+				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
 				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number
 			}
 			
@@ -5777,8 +5781,9 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		Gui, 2:Add, Text, x20 y+20 vf_AdvancedSettingsLabel2, %lDialogExternalStartingNumber%
-		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
+		Gui, 2:Add, Text, x20 y+20, %lDialogExternalStartingNumber%
+		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
+			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
 	}
 	else
 	{
@@ -6778,7 +6783,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 ; ###_O("AVANT objNewMenu", objNewMenu, "FavoriteLocation")
 ; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
 
-if (g_objEditedFavorite.FavoriteType = "External") and FileExist(f_strFavoriteAppWorkingDir) ; settings file path ###### add code to support relative locations)
+if (g_objEditedFavorite.FavoriteType = "External") and FileExist(PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir))) ; settings file path
 {
 	; remove existing menu entries but keep entry #1 (back menu)
 	loop, % objNewMenu.MaxIndex() -  1
@@ -6788,7 +6793,7 @@ if (g_objEditedFavorite.FavoriteType = "External") and FileExist(f_strFavoriteAp
 	
 	strPreviousIniFile := g_strIniFile
 	intPreviousIniLine := g_intIniLine
-	g_strIniFile := f_strFavoriteAppWorkingDir ; FavoriteAppWorkingDir, settings file path ###### add code to support relative locations
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 	g_intIniLine := f_intExternalStartingNumber ; starting number
 	
 	strResult := RecursiveLoadMenuFromIni(objNewMenu)
@@ -7685,10 +7690,13 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			{
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
-				g_strIniFile := objCurrentMenu[A_Index].FavoriteAppWorkingDir ; settings file path ###### add code to support relative locations
+				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
 				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
 				
 				gosub, BackupIniFile ; backup non read-only external settings ini file, if required
+				
+				if !FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
+					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -11877,6 +11885,8 @@ return
 ExternalMenuIsReadOnly(strFile)
 ;------------------------------------------------------------
 {
+	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	
 	if StrLen(strFile)
 		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
 	else
