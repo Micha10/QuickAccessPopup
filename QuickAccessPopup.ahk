@@ -8336,6 +8336,8 @@ if (g_blnGetWinInfo)
 Gosub, SetMenuPosition
 
 g_blnAlternativeMenu := (A_ThisLabel = "LaunchFromAlternativeMenu")
+g_blnLaunchFromTrayIcon := (A_ThisLabel = "LaunchFromTrayIcon") ; make sure it is initialized true or false
+
 if !(g_blnAlternativeMenu)
 	g_strAlternativeMenu := "" ; delete from previous call to Alternative key, else keep what was set in OpenAlternativeMenu
 
@@ -8343,8 +8345,6 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 {
 	g_strTargetWinId := "" ; never use target window when launched from the tray icon
 	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
-	g_blnMouseElseKeyboard := true
-	g_blnLaunchFromTrayIcon := true ; ##### FOR TEMP TEST IN v7.1.99.6
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
@@ -9511,13 +9511,15 @@ return
 PasteSnippet:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / g_blnMouseElseKeyboard", g_blnLaunchFromTrayIcon . " / " . g_blnMouseElseKeyboard)
+strWaitKey := "Enter"
+strWaitTime := 10
+
+WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
+
+Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
 DiagWindowInfo(A_ThisLabel . " Start")
 
-strWaitKey := "Enter"
-strWaitTime := 5
-
-if (g_blnLaunchFromTrayIcon) ; (g_blnMouseElseKeyboard) ##### REMOVED FOR TESTING IN RELEASE v7.1.99.6
+if (g_blnLaunchFromTrayIcon or strClassSnippet = "Shell_TrayWnd")
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
 	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
@@ -9534,19 +9536,22 @@ if (g_blnLaunchFromTrayIcon) ; (g_blnMouseElseKeyboard) ##### REMOVED FOR TESTIN
 	else
 		SendEvent, {Backspace} ; revert the Enter key press
 }
-*/
+else
+	WinActivate, ahk_id %g_strTargetWinId%
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
 blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-Diag("KeyWait Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
-Diag("KeyWait Before - blnTextSnippet", blnTextSnippet)
-	
+Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
+Diag("Paste Before - blnTextSnippet", blnTextSnippet)
+
 if (blnTextSnippet)
 {
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
+	Sleep, 100 ; safety delay
 	ClipBoard := ""
+	Sleep, 100 ; safety delay
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
-	ClipWait, 0
+	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
 	Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
 	if (intErrorLevel)
@@ -9557,9 +9562,9 @@ if (blnTextSnippet)
 	
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
-	Sleep, 100 ; delay required by some application, including Notepad
+	Sleep, 200 ; delay required by some application, including Notepad
 	SendEvent, ^v
-	Sleep, 10 ; safety
+	Sleep, 100 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
 	Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
@@ -9576,7 +9581,7 @@ strWaitTim := ""
 intErrorLevel := ""
 blnTextSnippet := ""
 objPrevClipboard := ""
-
+strClassSnippet := ""
 g_blnLaunchFromTrayIcon := false
 
 return
@@ -11643,8 +11648,6 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 ;------------------------------------------------------------
 {
 	global
-	
-	g_blnMouseElseKeyboard := blnMouseElseKeyboard
 	
 	if (blnMouseElseKeyboard)
 	{
