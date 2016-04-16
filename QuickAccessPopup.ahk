@@ -8336,6 +8336,8 @@ if (g_blnGetWinInfo)
 Gosub, SetMenuPosition
 
 g_blnAlternativeMenu := (A_ThisLabel = "LaunchFromAlternativeMenu")
+g_blnLaunchFromTrayIcon := (A_ThisLabel = "LaunchFromTrayIcon") ; make sure it is initialized true or false
+
 if !(g_blnAlternativeMenu)
 	g_strAlternativeMenu := "" ; delete from previous call to Alternative key, else keep what was set in OpenAlternativeMenu
 
@@ -8343,7 +8345,6 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 {
 	g_strTargetWinId := "" ; never use target window when launched from the tray icon
 	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
-	g_blnLaunchFromTrayIcon := true
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
@@ -9510,13 +9511,15 @@ return
 PasteSnippet:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon", g_blnLaunchFromTrayIcon)
-DiagWindowInfo(A_ThisLabel . " Start")
-
 strWaitKey := "Enter"
 strWaitTime := 10
 
-if (g_blnLaunchFromTrayIcon)
+WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
+
+Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
+DiagWindowInfo(A_ThisLabel . " Start")
+
+if (g_blnLaunchFromTrayIcon or strClassSnippet = "Shell_TrayWnd")
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
 	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
@@ -9533,12 +9536,14 @@ if (g_blnLaunchFromTrayIcon)
 	else
 		SendEvent, {Backspace} ; revert the Enter key press
 }
+else
+	WinActivate, ahk_id %g_strTargetWinId%
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
 blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
 Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
 Diag("Paste Before - blnTextSnippet", blnTextSnippet)
-	
+
 if (blnTextSnippet)
 {
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
@@ -9576,7 +9581,7 @@ strWaitTim := ""
 intErrorLevel := ""
 blnTextSnippet := ""
 objPrevClipboard := ""
-
+strClassSnippet := ""
 g_blnLaunchFromTrayIcon := false
 
 return
