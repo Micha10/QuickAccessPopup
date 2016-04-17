@@ -18,7 +18,7 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version BETA: 7.1.99.7 (2016-04-14)
+Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
 - add External menu favorite type, label, etc.
 - load external menu settings ini file using working directory field for external file location and group settings field for external menu starting line
@@ -32,6 +32,11 @@ External menu:
 - build menu including external menu
 - support relative paths and env vars in external menu settings file path
 - make starting line in external ini file read-only when editing favorite (cause error if allowed)
+Snippet:
+- wait for Enter up to 10 seconds (instead of 5) when paste a snippet with QAP menu popped from QAP icon on the Tray (Notification area)
+- wait for Enter when QAP menu is popped from anywhere on the taskbar (Shell_TrayWnd) using the middle mouse button
+- improve reliability by inserting 0.1 secs delays before and after modifying or pasting the clipboard's content
+- additional code to keep the target active window after QAP menu is closed
 
 Version BETA: 7.1.99.6 (2016-04-07)
 - fix bug when pasting snippet from the QAP icon in notification zone (paste must be processes as done using the mouse)
@@ -9562,6 +9567,7 @@ if (blnTextSnippet)
 	
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
+	; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
 	Sleep, 200 ; delay required by some application, including Notepad
 	SendEvent, ^v
 	Sleep, 100 ; safety
