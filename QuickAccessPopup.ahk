@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version BETA: 7.1.99.8 (2016-04-??)
+- removed the option to open the Settings window by double-clicking the QAP tray icon
+
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
 - add External menu favorite type, label, etc.
@@ -2635,7 +2638,8 @@ Menu, Tray, Add, %lMenuAbout%, GuiAbout
 Menu, Tray, Add, %lDonateMenu%, GuiDonate
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
-Menu, Tray, Default, % lMenuSettings . "..."
+; removed in v7.1.99.8 to see if this solves the Settings windows displayed unexpectedly when left-clickingf the QAP tray icon
+; Menu, Tray, Default, % lMenuSettings . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButton) ; A_PtrSize * 8 = 32 or 64
