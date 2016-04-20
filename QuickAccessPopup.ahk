@@ -20,6 +20,8 @@ HISTORY
 
 Version BETA: 7.1.99.8 (2016-04-??)
 - removed the option to open the Settings window by double-clicking the QAP tray icon
+- fix bug column breaks now inserted in menu when called from hotkey
+- fix bug column breaks now inserted at the correct position in submenus
 
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
@@ -3807,7 +3809,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			intMenuItemsCount -= 1 ; column breaks do not take a slot in menus
 			objMenuColumnBreak := Object()
 			objMenuColumnBreak.MenuPath := objCurrentMenu.MenuPath
-			objMenuColumnBreak.MenuPosition := intMenuItemsCount - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
+			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
 		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group)
@@ -8885,8 +8887,13 @@ OpenFavoriteHotlist:
 
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
+
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
+{
 	g_strTargetWinId := "" ; forget value from previous open favorite
+	Gosub, InsertColumnBreaks
+}
+
 /*
 Counterpart of the SwitchToThisWindow command trying to fight against the "close menu issue" (see commented code with "SwitchToThisWindow" above)
 
