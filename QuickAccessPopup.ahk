@@ -809,8 +809,8 @@ OnMessage(0x200, "")
 ; see http://www.autohotkey.com/board/topic/94962-doubleclick-on-gui-pictures-puts-their-path-in-your-clipboard/#entry682595
 OnMessage(0x203, "WM_LBUTTONDBLCLK")
 
-; To popup menu when left click on the tray icon if g_blnOpenMenuOnTaskbar - See AHK_NOTIFYICON function below
-OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : ""))
+; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
+OnMessage(0x404, "AHK_NOTIFYICON")
 
 ; Respond to SendMessage sent by ImportFPsettings to signal that QAP is running
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
@@ -4543,7 +4543,6 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
-OnMessage(0x404, (g_blnOpenMenuOnTaskbar ? "AHK_NOTIFYICON" : "")) ; enable or disable the option's function
 g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
 IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
@@ -8515,6 +8514,23 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	
 	; if not excluded, return true except if dialog box is a Select Folder (TreeView)
 	return % !WindowIsTreeview(g_strTargetWinId)
+	/*
+	; ###_V("CanLaunch", g_strTargetClass, g_blnOpenMenuOnTaskbar, g_blnClickOnTrayIcon, (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar))
+	---
+	if (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar)
+		return false
+	---
+	
+	if 
+		return false
+	else if (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar) ; and !g_blnClickOnTrayIcon
+		return false
+	else
+	{
+		###_D(1)
+		return true
+	}
+	*/
 }
 ;------------------------------------------------------------
 
@@ -8551,6 +8567,7 @@ WindowIsDesktop(strClass)
 		or (strClass = "WorkerW")
 		or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or g_blnClickOnTrayIcon))
 		or (strClass = "NotifyIconOverflowWindow")
+	; ###_V("WindowIsDesktop", strClass, g_blnOpenMenuOnTaskbar, g_blnClickOnTrayIcon, blnWindowIsDesktop)
 
 	g_blnClickOnTrayIcon := false
 	; g_blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
@@ -9171,6 +9188,7 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 		g_strTargetAppName := "Explorer"
 else
 	g_strTargetAppName := "Unknown"
+; ###_D(g_strTargetAppName)
 
 if (g_strTargetAppName = "Desktop")
 {
