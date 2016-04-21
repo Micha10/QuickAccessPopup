@@ -22,6 +22,9 @@ Version BETA: 7.1.99.8 (2016-04-??)
 - removed the option to open the Settings window by double-clicking the QAP tray icon
 - fix bug column breaks now inserted in menu when called from hotkey
 - fix bug column breaks now inserted at the correct position in submenus
+- fix bug option Open Menu on Tarskbar is now considered
+- refactor processing/filtering mouse clicks on taskbar and tray icon, remove unused code
+- paste snippet with keyboard pause if menu clicekd on taskbar, on tray icon or on Desktop
 
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
@@ -8466,11 +8469,12 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
 	; DiagWindowInfo("CanNavigate Begin")
-	
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
-	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsDesktop(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
+	; Diag("CanNavigate Begin - g_strTargetClass", g_strTargetClass)
+	
+	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
 		or (g_intActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
 		or (g_intActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
@@ -8491,6 +8495,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	}
 	
 	; DiagWindowInfo("CanNavigate End")
+	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
 	
 	return blnCanNavigate
 }
@@ -8504,33 +8509,26 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	global
 
 	; DiagWindowInfo("CanLaunch Begin")
+	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseList, |
 			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
 				return false
+
+	; Diag("CanLaunch End1 - g_blnClickOnTrayIcon / g_blnOpenMenuOnTaskbar", g_blnClickOnTrayIcon . " / " . g_blnOpenMenuOnTaskbar)
+	; Diag("CanLaunch End2 - WindowIsTray(g_strTargetClass)", WindowIsTray(g_strTargetClass))
 	
-	; DiagWindowInfo("CanLaunch End")
+	if WindowIsTray(g_strTargetClass)
+		return g_blnOpenMenuOnTaskbar
+
+	; Diag("CanLaunch End3 - WindowIsTreeview(g_strTargetWinId)", WindowIsTreeview(g_strTargetWinId))
+	if WindowIsTreeview(g_strTargetWinId)
+		return false
 	
-	; if not excluded, return true except if dialog box is a Select Folder (TreeView)
-	return % !WindowIsTreeview(g_strTargetWinId)
-	/*
-	; ###_V("CanLaunch", g_strTargetClass, g_blnOpenMenuOnTaskbar, g_blnClickOnTrayIcon, (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar))
-	---
-	if (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar)
-		return false
-	---
-	
-	if 
-		return false
-	else if (g_strTargetClass = "Shell_TrayWnd" and !g_blnOpenMenuOnTaskbar) ; and !g_blnClickOnTrayIcon
-		return false
-	else
-	{
-		###_D(1)
-		return true
-	}
-	*/
+	; else we can launch
+
+	return true
 }
 ;------------------------------------------------------------
 
@@ -8560,20 +8558,20 @@ WindowIsExplorer(strClass)
 WindowIsDesktop(strClass)
 ;------------------------------------------------------------
 {
-	global g_blnOpenMenuOnTaskbar
-	global g_blnClickOnTrayIcon
+	; global g_blnOpenMenuOnTaskbar
+	; global g_blnClickOnTrayIcon
 	
-	blnWindowIsDesktop := (strClass = "ProgMan")
-		or (strClass = "WorkerW")
-		or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or g_blnClickOnTrayIcon))
-		or (strClass = "NotifyIconOverflowWindow")
+	; blnWindowIsDesktop := (strClass = "ProgMan")
+	;	or (strClass = "WorkerW")
+	;	or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or g_blnClickOnTrayIcon))
+	;	or (strClass = "NotifyIconOverflowWindow")
 	; ###_V("WindowIsDesktop", strClass, g_blnOpenMenuOnTaskbar, g_blnClickOnTrayIcon, blnWindowIsDesktop)
 
-	g_blnClickOnTrayIcon := false
+	; g_blnClickOnTrayIcon := false
 	; g_blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
 	; turn it off to avoid further clicks on taskbar to be accepted if g_blnOpenMenuOnTaskbar is off
 
-	return blnWindowIsDesktop
+	return (strClass = "ProgMan") or (strClass = "WorkerW")
 }
 ;------------------------------------------------------------
 
@@ -9161,16 +9159,16 @@ SetTargetName:
 
 if WindowIsExplorer(g_strTargetClass)
 	g_strTargetAppName := "Explorer"
-else if WindowIsDesktop(g_strTargetClass)
-	g_strTargetAppName := "Desktop"
-else if WindowIsTray(g_strTargetClass)
-	g_strTargetAppName := "Tray"
+; else if WindowIsDesktop(g_strTargetClass)
+;	g_strTargetAppName := "Desktop"
+; else if WindowIsTray(g_strTargetClass)
+;	g_strTargetAppName := "Tray"
 else if WindowIsConsole(g_strTargetClass)
 	g_strTargetAppName := "Console"
 else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 	g_strTargetAppName := "Dialog"
-else if WindowIsTreeview(g_strTargetWinId)
-	g_strTargetAppName := "Treeview"
+; else if WindowIsTreeview(g_strTargetWinId)
+;	g_strTargetAppName := "Treeview"
 else if WindowIsDirectoryOpus(g_strTargetClass) and (g_intActiveFileManager = 2)
 	g_strTargetAppName := "DirectoryOpus"
 else if WindowIsTotalCommander(g_strTargetClass) and (g_intActiveFileManager = 3)
@@ -9553,7 +9551,7 @@ WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
 DiagWindowInfo(A_ThisLabel . " Start")
 
-if (g_blnLaunchFromTrayIcon or strClassSnippet = "Shell_TrayWnd")
+if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet))
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
 	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
@@ -11988,11 +11986,11 @@ AHK_NOTIFYICON(wParam, lParam)
 ; To popup menu when left click on the tray icon - See the OnMessage command in the init section
 ;------------------------------------------------------------
 {
-	global g_blnClickOnTrayIcon
+	; global g_blnClickOnTrayIcon
 	
 	if (lParam = 0x202) ; WM_LBUTTONUP
 	{
-		g_blnClickOnTrayIcon := true
+		; g_blnClickOnTrayIcon := true
 		Gosub, LaunchFromTrayIcon
 		return 0
 	}
