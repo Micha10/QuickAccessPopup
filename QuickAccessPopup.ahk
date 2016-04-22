@@ -2174,7 +2174,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		if (objCurrentMenu.MenuType = "External") and !FileExist(g_strIniFile)
 		{
 			objCurrentMenu.MenuLoaded := false
-			Oops(lOopsErrorIniFileUnavailable, g_strIniFile, g_strAppNameText)
+			Oops(lOopsErrorIniFileUnavailable . ":`n`n" . g_strIniFile . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
 			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
 		}
 			
@@ -4858,13 +4858,22 @@ Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
 Loop, % g_objMenuInGui.MaxIndex()
-	
+
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
+	{
+		if (g_objMenuInGui[A_Index].FavoriteType = "Menu")
+			strGuiMenuLocation := g_strMenuPathSeparator
+		else if (g_objMenuInGui[A_Index].FavoriteType = "Group")
+			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
+			if (g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
+				strGuiMenuLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
+			else
+				strGuiMenuLocation := lOopsErrorIniFileUnavailable
+			
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
-			, (g_objMenuInGui[A_Index].FavoriteType = "Menu" ? g_strMenuPathSeparator
-				: (g_objMenuInGui[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
-				: g_strMenuPathSeparator . g_strMenuPathSeparator)))
-	
+			, strGuiMenuLocation)
+	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
 	
@@ -4886,6 +4895,8 @@ Gosub, AdjustColumnsWidth
 GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|"
 
 GuiControl, Focus, f_lvFavoritesList
+
+strGuiMenuLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -6326,12 +6337,21 @@ else
 	g_arrSubmenuStack.Insert(1, g_objMenuInGui.MenuPath) ; push the current menu to the left arrow stack
 	
 	if (A_ThisLabel = "GuiMenusListChanged")
-		g_objMenuInGui := g_objMenusIndex[strNewDropdownMenu]
+		objNewMenuInGui := g_objMenusIndex[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		g_objMenuInGui := g_objMenuInGui[1].SubMenu
+		objNewMenuInGui := g_objMenuInGui[1].SubMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
-		g_objMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
+		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 
+	if (objNewMenuInGui.MenuType <> "External") or (objNewMenuInGui.MenuLoaded)
+		g_objMenuInGui := objNewMenuInGui
+	else
+	{
+		Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
+		gosub, GuiMenusListChangedCleanup
+		return
+	}
+	
 	g_arrSubmenuStackPosition.Insert(1, LV_GetNext("Focused"))
 }
 
@@ -6352,6 +6372,7 @@ if (A_ThisLabel = "GuiMenusListChanged") ; keep focus on dropdown list
 GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
 strNewDropdownMenu := ""
+objNewMenuInGui := ""
 
 return
 ;------------------------------------------------------------
@@ -7682,7 +7703,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 		}
 
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true)  and !(blnIsBackMenu))
-			or (objCurrentMenu[A_Index].FavoriteType = "External" and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir))
+			or (objCurrentMenu[A_Index].FavoriteType = "External"
+				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
+				and objCurrentMenu[A_Index].SubMenu.MenuLoaded)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
