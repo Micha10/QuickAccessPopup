@@ -19,7 +19,6 @@ HISTORY
 =======
 
 Version BETA: 7.1.99.8 (2016-04-??)
-- removed the option to open the Settings window by double-clicking the QAP tray icon
 - fix bug column breaks now inserted in menu when called from hotkey
 - fix bug column breaks now inserted at the correct position in submenus
 - fix bug option Open Menu on Tarskbar is now considered
@@ -28,6 +27,8 @@ Version BETA: 7.1.99.8 (2016-04-??)
 - encode external menu settings file path from http to unc format; refactor http to unc transformation as a function
 - validate that external menu settings file exists
 - do not abort menu load if error is in an external settings file, instead, give adapted error message
+- if external settings file did not load, display unavailable in settings gui list, block editing external menu in settings and do not save external menu
+- italian language update
 
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
@@ -604,7 +605,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.7 BETA
+;@Ahk2Exe-SetVersion 7.1.99.8 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -651,7 +652,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.7" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.99.8" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2660,8 +2661,7 @@ Menu, Tray, Add, %lMenuAbout%, GuiAbout
 Menu, Tray, Add, %lDonateMenu%, GuiDonate
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
-; removed in v7.1.99.8 to see if this solves the Settings windows displayed unexpectedly when left-clickingf the QAP tray icon
-; Menu, Tray, Default, % lMenuSettings . "..."
+Menu, Tray, Default, % lMenuSettings . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButton) ; A_PtrSize * 8 = 32 or 64
