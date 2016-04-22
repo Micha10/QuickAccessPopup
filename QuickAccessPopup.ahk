@@ -6689,23 +6689,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 			return
 		}
 	}
-	
-	if InStr("Folder|Document", g_objEditedFavorite.FavoriteType)
-		and (SubStr(strNewFavoriteLocation, 1, 5) = "http:" or SubStr(strNewFavoriteLocation, 1, 6) = "https:")
-	{
-		; Transform from "http:" to "\\" (WevDAV to UNC), example:
-		; From: http://abc.server.com/folder/subfolder/My Name.doc
-		; to:   \\abc.server.com\folder\subfolder\My%20Name.doc
-		; See: http://stackoverflow.com/questions/1344910/get-the-content-of-a-sharepoint-folder-with-excel-vba
-		
-		StringReplace, strHttpLocationTransformed, strNewFavoriteLocation, /, \, All
-		StringReplace, strHttpLocationTransformed, strHttpLocationTransformed, http:
-		StringReplace, strHttpLocationTransformed, strHttpLocationTransformed, https:
-		; not required? StringReplace, strNewFavoriteLocation, strNewFavoriteLocation, %A_Space%, `%20, All
-		
-		Oops(lOopsHttpLocationTransformed, strNewFavoriteLocation, strHttpLocationTransformed)
-		strNewFavoriteLocation := strHttpLocationTransformed
-	}
+
+	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
 	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !g_blnWinCmdIniFileExist)
 	{
@@ -11913,6 +11899,29 @@ ExternalMenuIsReadOnly(strFile)
 	return blnExternalMenuReadOnly
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LocationTransformedFromHTTP2UNC(strType, ByRef strLocation)
+;------------------------------------------------------------
+{
+	if InStr("Folder|Document|External", strType)
+		and (SubStr(strLocation, 1, 5) = "http:" or SubStr(strLocation, 1, 6) = "https:")
+	{
+		; Transform from "http:" to "\\" (WevDAV to UNC), example:
+		; From: http://abc.server.com/folder/subfolder/My Name.doc
+		; to:   \\abc.server.com\folder\subfolder\My%20Name.doc
+		; See: http://stackoverflow.com/questions/1344910/get-the-content-of-a-sharepoint-folder-with-excel-vba
+		
+		StringReplace, strLocation, strLocation, /, \, All
+		StringReplace, strLocation, strLocation, http:
+		StringReplace, strLocation, strLocation, https:
+		; not required? StringReplace, strLocation, strLocation, %A_Space%, `%20, All
+		return true
+	}
+	else
+		return false
+}
 
 
 ;========================================================================================================================
