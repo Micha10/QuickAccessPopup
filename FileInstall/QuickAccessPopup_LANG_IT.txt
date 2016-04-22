@@ -16,7 +16,7 @@ lDialogActivateAlreadyRunning	Se l'applicazione è già in esecuzione, viene resa 
 lDialogAdd	Aggiungi
 lDialogAddEditFavoriteTitle	~1~ Favorite: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Aggiungi un Preferito - ~1~ ~2~
-lDialogAddFavoriteTabs	Impostazioni di base|Menù Opzioni|Finestra Opzioni|Impostazioni Avanzate
+lDialogAddFavoriteTabs	Impostazioni di base|Opzioni del Menù|Finestra Opzioni|Impostazioni Avanzate
 lDialogAddFileSelect	Scegli il nuovo Documento:
 lDialogAddFolderManuallyPrompt	Spiacente, ma non riesco a intercettare la cartella corrente in questo tipo di finestra.`n`nVuoi aggiungere adesso, manualmente, una cartella come Preferito?
 lDialogAddFolderManuallyTitle	Aggiungi Questa Cartella - ~1~ ~2~
@@ -52,7 +52,7 @@ lDialogFavoriteLocationEmpty	La destinazione è vuota. Si prega di riprovare: sce
 lDialogFavoriteMenuPosition	Inserisci il nuovo Preferito prima di questo elemento
 lDialogFavoriteNameEmpty	Il nome del Preferito non può essere vuoto. Per favore, scegli un nome.
 lDialogFavoriteNameNoSeparator	Questo oggetto non può contenere il carattere riservato "~1~".
-lDialogFavoriteNameNotAllowed	Preferiti del tipo "~1~" non sono permessi nei Gruppi. Per favore, seleziona un altro menù di destinazione dalla scheda "Menù Opzioni".
+lDialogFavoriteNameNotAllowed	Preferiti del tipo "~1~" non sono permessi nei Gruppi. Per favore, seleziona un altro menù di destinazione dalla scheda "Opzioni del Menù".
 lDialogFavoriteNameNotNew	Il nome "~1~" è già in uso in questo menù. Si prega di scegliere un altro nome.
 lDialogFavoriteNameNotNewQAPfeature	Il nome "~1~" è già in uso in questo menù. Per favore, rinomina il Preferito esistente e prova di nuovo.
 lDialogFavoriteParentMenu	Scegli il menù in cui inserirlo
@@ -69,11 +69,11 @@ lDialogFavoriteTypesHelp4	Crea una scorciatoia per una delle 50 "Cartelle Specia
 lDialogFavoriteTypesHelp5	Crea un "Link" ad una pagina web.`n`nAssegna il nome del menù del Preferito, indirizzo della pagina web (URL) e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il browser da usare per aprire il link, aggiungere parametri opzionali e assegnare la posizione della finestra.
 lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il nome del menù del Preferito, indirizzo del sito FTP (URL), nome di login, password e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il programma FTP da usare per accedere a questo sito, aggiungere parametri, assegnare la posizione della finestra e codificare nome di login e password.`n`nNota: la password NON viene criptata quando viene inviata in Internet.
 lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- ecc.
-lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù o spostali da altri sottomenù o gruppi cliccando su "Edit".
-lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo gruppo o spostali da altri sottomenù o gruppi cliccando su "Edit".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciacuno Preferito da ripristinare.
-lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|&QAP Proprietà|Sotto&menù|&Gruppo
-lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)||||||
-lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Separatore Colonna|..
+lDialogFavoriteTypesHelp8	Raggruppa dei Preferiti (che ritieni attinenti fra loro) in un "Sottomenù".`n`nDai al nuovo Sottomenù un nome e seleziona il tab "Opzioni Menù".`n`nAggiungi uno o più Preferiti al nuovo Sottomenù (o spostali da altri sottomenù o gruppi) cliccando su "Aggiungi" o "Modifica".
+lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al nuovo Gruppo un nome e seleziona il tab "Opzioni Menù".`n`nAggiungi uno o più Preferiti al nuovo Gruppo (o spostali da altri sottomenù o gruppi) cliccando su "Aggiungi" o "Modifica".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciascun Preferito da ripristinare.
+lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|&QAP Proprietà|Sotto&menù|&Gruppo||||Text Snippet ; changed
+lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Content|| ; changed
+lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Separatore Colonna|..|Snippet ; changed
 lDialogFileLabel	Documento
 lDialogFolderLabel	Cartella
 lDialogGetWinInfo	Per identificare la finestra di cui vuoi trovare titolo e classe, clicca sulla finestra desiderata premendo la scorciatoia del menù QAP [~1~].
@@ -183,7 +183,7 @@ lGuiHelp	Aiuto
 lGuiHotkeysHelp	Organizzazione Preferiti (scorciatoie)
 lGuiHotkeysHelpText	Giù: Seleziona il Preferito successivo`nSu: Seleziona Preferito precedente`n`nEnter: Modifica il Preferito`nCtrl-N: Aggiungi un nuovo Preferito`nCtrl-C: Copia un Preferito`nDel: Rimuovi Preferito/i`n`nShift-Su/Giù: Seleziona Preferiti contigui`nCtrl-Click: Seleziona Preferiti non contigui`nCtrl-A: Seleziona tutti i Preferiti`n`nCtrl-Giù: Sposta Preferito/i giù`nCtrl-Su: Sposta Preferito/i su`n`nCtrl-Destra: Apri il sottomenù o gruppo selezionato`nCtrl-Sinistra: Apri menù superioreOpen parent menu
 lGuiLoginName	Nome di Login
-lGuiLvFavoritesHeader	Nome|Tipo|Destinazione
+lGuiLvFavoritesHeader	Nome|Tipo|Destinazione or content ; changed
 lGuiMove	Sposta
 lGuiOptions	Opzioni
 lGuiPassword	Password
@@ -191,7 +191,7 @@ lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla 
 lGuiRemoveFavorite	Elimina
 lGuiResetDefault	Ripristina hotkey predefinito
 lGuiSave	&Salva
-lGuiSaveToUpdateBacklinks	Salva per aggiornare back links
+lGuiSaveToUpdateBacklinks	Avviso: Salva ora (per aggiornare i collegamenti creati)
 lGuiSubmenuDropdownLabel	Menù o gruppo da modificare:
 lGuiTitle	Impostazioni - ~1~ ~2~
 lHelpTabAddingFavorite	Aggiungere Preferiti
@@ -201,25 +201,25 @@ lHelpTabTipsAndTricks	Trucchi e suggerimenti
 lHelpText11	Appena lanciato, QAP  (Quick Access Popup) aggiunge un'icona nell'area notifiche e resta in attesa dei tuoi comandi. Quando vuoi aprire una delle tue CARTELLE, DOCUMENTI, APPLICAZIONI, LINK WEB o siti FTP, semplicemente premi il tasto dedicato per QAP [~1~] o [~2~] e, nel menù popup, seleziona il Preefrito desiderato.
 lHelpText12	Quando selezioni una CARTELLA preferita in Windows Explorer o in una finestra di dialogo per file*, Quick Access Popup istantaneamente "navigherà" dalla finestra attuale a tale cartella! * Questa funzionalità deve essere abilitata in Opzioni.
 lHelpText13	Per forzare l'apertura della cartella in una nuova finestra, premi i tasti Alternativi [~1~] o [~2~]. Nel menù Alternativo, seleziona "Apri in una nuova finestra", poi seleziona la cartella voluta. Il Menù Alternativo offre diverse altre funzionalità.
-lHelpText14	Scegli "Impostazioni" per personalizzare il tuo menù di Quick Access Popup. Puoi aggiungere Preferiti al tuo Menù. Puoi spostarli, rinominarli o eliminarli. Puoi anche aggiungere SOTTOMENU o GRUPPI. Scegli il "Menù o gruppo da editare:" nell'elenco a discesa. Clicca "Salva" per conservare le modifiche.
+lHelpText14	Scegli "Impostazioni" per personalizzare il tuo menù di Quick Access Popup. Puoi aggiungere Preferiti al tuo Menù. Puoi spostarli, rinominarli o eliminarli. Puoi anche aggiungere SOTTOMENU o GRUPPI. Scegli il "Menù o gruppo da modificare:" nell'elenco a discesa. Clicca "Salva" per conservare le modifiche.
 lHelpText21	Per aggiungere Preferiti, nella finestra "Impostazioni", clicca sul pulsante "Aggiungi". Seleziona il tipo del nuovo Preferito e leggi il suggerimento sul lato destro della finestra. Clicca "Continua" per aprire la casella di dialogo "Aggiungi Preferito".
 lHelpText22	Nei 4 tab della casella di dialogo "Aggiungi Preferito", inserisci le "Impostazioni di base", "Opzioni del Menù", "Opzioni della finestra" e "Impostazioni Avanzate". Clicca "Aggiungi" per inserire il Preferito nel tuo menù e "Salva" nella finestra Impostazioni.
 lHelpText23	AGGIUNGI QUESTA CARTELLA`n`nPer AGGIUNGERE velocemente una nuova CARTELLA preferita al menù popup:`n1) Vai in una cartella che usi di frequente.`n2) Clicca il tasto dedicato di QAP [~1~] o [~2~], scegli il menù "Strumenti di QAP" e clicca "Aggiungi questa Cartella".`n3) Assegna un nome breve alla cartella, clicca "Aggiungi", quindi "Salva" nella finestra Impostazioni.
 lHelpText31	Nel menù "Strumenti di QAP":
 lHelpText32	- Scegli il menù "Cartelle recenti..." per mostrare una lista aggiornata delle cartelle recenti di Windows.`n- Usa il menù "Riusa una Cartella Aperta" per riaprire una delle cartelle già aperte in una finestra di Explorer (utilissimo in caselle di dialogo per file).`n- Accedi ai file o URL negli Appunti dal menù "Appunti".
 lHelpText33	PERSONALIZZA IL MENU DELLE FUNZIONALITA' DI QAP
-lHelpText34	Puoi spostare voci del menù "Strumenti di QAP" nel menù principale o ad altri sottomenù come desideri.`n`n1) Seleziona il menù "Impostazioni" (o premi [~1~]).`n2) Nell'elenco a discesa "Menu o gruppo da editare:", seleziona "Principale > Strumenti di QAP".`n3) Seleziona la funzionalità di QAP da spostare e clicca "Edita".`n4) Nel tab "Opzioni del Menù", seleziona il nuovo "Menù Superiore del Preferito".`n5) Salva le modifiche.
+lHelpText34	Puoi spostare voci del menù "Strumenti di QAP" nel menù principale o ad altri sottomenù come desideri.`n`n1) Seleziona il menù "Impostazioni" (o premi [~1~]).`n2) Nell'elenco a discesa "Menu o gruppo da modificare:", seleziona "Principale > Strumenti di QAP".`n3) Seleziona la funzionalità di QAP da spostare e clicca "Modifica".`n4) Nel tab "Opzioni del Menù", seleziona il nuovo "Menù Superiore del Preferito".`n5) Salva le modifiche.
 lHelpText41	- Usa l'icona Quick Access Popup nell'Area Notifiche (in basso a destra dello schermo di Windows) in uno dei seguenti tre modi:`n1) Click sinistro sull'icona per aprire il menù popup di QAP`n2) Click destro sull'ciona per aprire il menù di sistema di QAP.`n3) Doppio click sull'icona per aprire la casella di dialogo "Impostazioni".
 lHelpText42	- Nell'Area Notifiche, clicca col destro sull'icona di Quick Access Popup e spunta l'opzione "Esegui all'Avvio" per lanciare Quick Access Popup automaticamente all'avvio di Windows.
-lHelpText43	- Configura le condizioni per aprire il menù Quick Access Popup: scegli il tuo tasto del mouse preferito o le scorciatoie da tastiera in "Impostazioni, Opzioni, scorciatoie del Menu".
-lHelpText44	- Sempre in "Opzioni": scegli la tua lingua preferita, dimensione delle icone del menù, e i colori per la finestra. Seleziona il numero di cartelle recenti da visualizzare, aggiungi scorciatoie numeriche da tastiera al menù delle cartelle o promemoria delle scorciatoie. Fissa il menù popup in una posizione prestabilita o ricorda la posizione della finestra delle Impostazioni.
+lHelpText43	- Configura le combinazioni preferite per aprire il menù Quick Access Popup: scegli il tuo tasto del mouse preferito o le scorciatoie da tastiera in "Impostazioni, Opzioni, scorciatoie del Menu".
+lHelpText44	- Sempre in "Opzioni": scegli la tua lingua preferita, la dimensione delle icone del menù, e i colori per la finestra. Seleziona il numero di cartelle recenti da visualizzare, aggiungi scorciatoie numeriche da tastiera al menù delle cartelle o dei promemoria delle scorciatoie. Fissa il menù popup in una posizione prestabilita o ricorda la posizione della finestra delle Impostazioni.
 lHelpText45	- Utenti di Directory Opus: consultare <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">questa pagina</a> per informazioni addizionali.`n- Utenti di Total Commander: consultare <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">questa pagina</a> per informazioni addizionali.`n- Utenti di altri file manager: consultare <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">questa pagina</a> per informazioni addizionali su QAPconnect.
 lHelpTextLead	Quick Access Popup ti consente di spostarti come una scheggia tra le cartelle, documenti e pagine web che usi più spesso!
 lHelpTitle	Aiuto - ~1~ ~2~
 lMainMenuName	Principale
 lMenuAbout	C&rediti
 lMenuAddFavorite	Aggiungi Preferito
-lMenuAddThisFolder	Aggiungi Questa Cartella
+lMenuAddThisFolder	Aggiungi questa cartella
 lMenuAddThisFolderXpress	Aggiungi questa Cartella Express ; new
 lMenuAlternativeEditFavorite	Modifica un Preferito
 lMenuAlternativeNewWindow	Apri in una nuova finestra
@@ -267,7 +267,7 @@ lMenuSettings	Impostazioni
 lMenuStartMenu	Menù Avvio
 lMenuStartup	Esecuzione Automatica
 lMenuSuspendHotkeys	Sospendi Scorciatoie
-lMenuSwitchFolderOrApp	Cambia
+lMenuSwitchFolderOrApp	Cambia finestra attiva
 lMenuSystemCertificates	Certificati di Sistema
 lMenuTemplates	Modelli
 lMenuTemporaryFiles	File temporanei
@@ -350,7 +350,7 @@ lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù delle cartelle verranno perse.
 lTCMenuName	Hotlist Cartelle di TC ; new
 lTCWinCmdLocation	posizione di WinCmd.ini ; new
-lTrayTipInstalledDetail	~1~ o ~2~ per aprire Preferiti
+lTrayTipInstalledDetail	~1~ o ~2~ per aprire il menù dei Preferiti
 lTrayTipInstalledTitle	~1~ ~2~ è pronto!
 lTrayTipWorkingDetail	Menù in costruzione...
 lTrayTipWorkingDetailFinished	Il menù è stato aggiornato.
