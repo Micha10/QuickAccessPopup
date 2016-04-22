@@ -25,6 +25,9 @@ Version BETA: 7.1.99.8 (2016-04-??)
 - fix bug option Open Menu on Tarskbar is now considered
 - refactor processing/filtering mouse clicks on taskbar and tray icon, remove unused code
 - paste snippet with keyboard pause if menu clicekd on taskbar, on tray icon or on Desktop
+- encode external menu settings file path from http to unc format; refactor http to unc transformation as a function
+- validate that external menu settings file exists
+- do not abort menu load if error is in an external settings file, instead, give adapted error message
 
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
@@ -2158,6 +2161,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 	global g_strEscapePipe
 	global g_objQAPfeaturesInMenus
 	global g_objQAPFeaturesDefaultNameByCode
+	global g_strAppNameText
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
@@ -2167,13 +2171,26 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 
 	Loop
 	{
+		if (objCurrentMenu.MenuType = "External") and !FileExist(g_strIniFile)
+		{
+			objCurrentMenu.MenuLoaded := false
+			Oops(lOopsErrorIniFileUnavailable, g_strIniFile, g_strAppNameText)
+			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
+		}
+			
 		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 		; ###_V("Loop Begin", g_strIniFile, g_intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
 		{
 			Oops(lOopsErrorReadingIniFile . "`n`n" . g_strIniFile . "`nFavorite" . g_intIniLine . "=")
-			Return, "EOF" ; end of file - should not happen if main menu ends with a "Z" type favorite as expected
+			objCurrentMenu.MenuLoaded := false
+			if (objCurrentMenu.MenuType = "External")
+				return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuLoaded false - external menu will stop at the previous favorite
+			else
+				Return, "EOF" ; end of file - an unknown error occurred while reading the ini file - menu loading will be aborted
 		}
+		else
+			objCurrentMenu.MenuLoaded := true
         g_intIniLine++
 		
 		strLoadIniLine := strLoadIniLine . "||||||||||||" ; additional "|" to make sure we have all empty items
