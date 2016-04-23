@@ -28,7 +28,9 @@ Version BETA: 7.1.99.8 (2016-04-??)
 - validate that external menu settings file exists
 - do not abort menu load if error is in an external settings file, instead, give adapted error message
 - if external settings file did not load, display unavailable in settings gui list, block editing external menu in settings and do not save external menu
-- italian language update
+- add help link in add/edit favorite for external menus
+- italian language update for v7.1.10 features
+- french language update for v7.1.99.8 features
 
 Version BETA: 7.1.99.7 (2016-04-17)
 External menu:
