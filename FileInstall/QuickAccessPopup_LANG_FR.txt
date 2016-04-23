@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduction française: Jean Lalonde`nTraduction allemande: Edgar "Fast Edi" Hoffmann`nTraduction néerlandaise: Pieter Dejonghe`nTraduction coréenne: Om Il-Sung`nTraduction suédoise: Åke Engelbrektson`nTraduction italienne: Riccardo Leone`nTraduction espagnole: kiketrucker`nTraduction en portugais brésilien: Igor Ruckert`nTraduction en chinois traditionel: Jess Yang`nRévision anglaise: (aide bienvenue)`n`nIcônes par: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstallateur: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> par jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduction française: Jean Lalonde`nTraduction allemande: Edgar "Fast Edi" Hoffmann`nTraduction suédoise: Åke Engelbrektson`nTraduction italienne: Riccardo Leone`nTraduction espagnole: kiketrucker`nTraduction en portugais brésilien: Igor Ruckert`nTraduction en chinois traditionel: Jess Yang`nRévision anglaise: (aide bienvenue)`n`nIcônes par: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstallateur: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> par jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-2014. Gratuiciel.
 lAboutText4	Soutien en ligne: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	À propos - ~1~ ~2~
@@ -34,6 +34,7 @@ lDialogCancelPrompt	Annuler les changements?
 lDialogCancelTitle	Annuler - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Ceci est un raccourci du menu Alternatif.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyNote	Note: L'emplacement "~1~" sera relié à ce nouveau raccourci dans tous les menus.
+lDialogChangeHotkeyNoteSnippet	Note: Le fragment sera relié à ce nouveau raccourci dans tous les menus.
 lDialogChangeHotkeyPopup	Ceci est un raccourci de menu popup.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyTitle	Modifier le raccourci - ~1~ ~2~
 lDialogContinue	Poursuivre
@@ -45,9 +46,12 @@ lDialogEditIcon	Modifier la ressources de l'icône
 lDialogEditIconPrompt	Modifiez l'icône de la ressource selon le format "fichier,index" (par exemple, "shell32.dll,2")
 lDialogEndOfMenu	fin du menu
 lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
+lDialogExternalLocation	Emplacement du fichier de configuration de ce menu externe ; new
+lDialogExternalStartingNumber	Numéro du premier favori: ; new
 lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disponible.`n`nSi ce favori réside sur un lecteur réseau, veuillez essayer à nouveau après l'authentification réseau.
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
+lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus externes</a> (anglais)  pour plus de renseignements. ; new
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.
@@ -56,13 +60,24 @@ lDialogFavoriteNameNotAllowed	Les favoris de type "~1~" ne peuvent être ajoutés 
 lDialogFavoriteNameNotNew	Le nom "~1~" est déjà présent dans ce menu. Veuillez choisir un nouveau nom.
 lDialogFavoriteNameNotNewQAPfeature	Le nom "~1~" est déjà présent dans ce menu. Veuillez renommer le favori existant et essayez à nouveau.
 lDialogFavoriteParentMenu	Insérer le nouveau favori dans ce menu
+lDialogFavoriteRemoveExternalPrompt	Supprimer le menu externe "~1~"`n(le fichier de configuration externe ne sera PAS supprimé)? ; new
 lDialogFavoriteRemovePrompt	Supprimer le sous-menu "~1~"`net TOUT son contenu (dossiers et sous-menus)?
 lDialogFavoriteRemoveTitle	Supprimer un favori - ~1~
 lDialogFavoriteSelectType	Sélectionnez le type du nouveau favori.`n`nDans l'écran suivant, vous pourrez:`n- nommer votre favori`n- déterminer le contenu visé (selon le type)`n- choisir divers réglages (icône, raccourci, etc.)`n`nChoisissez le type du nouveau favori et cliquez "~1~".
 lDialogFavoriteShortNameLabel	Nom court pour le menu
+lDialogFavoriteSnippetEmpty	Le contenu est vide. Veuillez entrer le contenu du fragment. ; new
+lDialogFavoriteSnippetHelpNoProcess	Insérez ``n pour une fin de ligne et ``t pour une tabulation. ; new
+lDialogFavoriteSnippetHelpProcess	Pressez Ctrl-Tab pour insérer une tabulation et Entrée pour insérer une fin de ligne ; new
+lDialogFavoriteSnippetHelpWeb	Voir l'<a href="~1~">aide sur les fragments</a> (anglais) pour les caractères spéciaux et l'encodage des commandes.
+lDialogFavoriteSnippetProcessEOLTab	Encoder automatiquement les fins de ligne et les tabulations ; new
+lDialogFavoriteSnippetSendMode	Envoyer le fragment à l'application active en: ; new
+lDialogFavoriteSnippetSendModeMacro	Mode macro ; new
+lDialogFavoriteSnippetSendModeText	Mode texte ; new
 lDialogFavoritesParentMenuMove	Déplacer ~1~ favori vers ce menu
 lDialogFavoriteType	Type de favori
-lDialogFavoriteTypesHelp1	Créez un raccourci vers un "Dossier" douvent consulté.`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
+lDialogFavoriteTypesHelp1	Créez un raccourci vers un "Dossier" souvent consulté.`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
+lDialogFavoriteTypesHelp13	Créez un "Fragment de texte". Indiquez le nom, le contenu et diverses options.`n`nDans les réglages avancés, choisissez "Mode texte" pour coller un fragment de texte comme avec le Presse-papiers ou choisissez "Mode macro" pour envoyer le frangment comme des touches frappées au clavier (incluant les touches spéciales, voir l'aide).
+lDialogFavoriteTypesHelp14	Créez un "Menu externe" pour utiliser des favoris sur divers systèmes à partir d'un même fichier de configuration dans un emplacement partagé.`n`nChoisissez le nom, l'emplacement du fichier externe de configuration et diverses options.`n`nLes menus externes peuvent être modifiés comme des menus réguliers sauf s'ils sont configurés en lecture seule (voir l'aide).
 lDialogFavoriteTypesHelp2	Créez un raccourci vers un "Document".`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes réglages avancés permettent de choisir l'application qui lancera ce document, d'ajouter des paramètres optionels et de définir la position de la fenêtre.
 lDialogFavoriteTypesHelp3	Créez un raccourci vers une "Appplication" (programme, batch ou script).`n`nParcourez les dossiers pour choisir le fichier exécutable ou choisissez-le dans la liste déroulante des programmes actifs. Réglez diverses options pour le menu.`n`nLes réglages avancés permettent de choisir le dossier de démarrage de l'application, d'ajouter des paramètres optionels et de définir la position de la fenêtre.
 lDialogFavoriteTypesHelp4	Créez un raccourci vers l'un des 50 "Dossiers spéciaux" de Windows tel que: Bibliothèque, Mes Images, Corbeille, Téléchargements, etc.`n`nRéglez diverses options pour le menu. Les réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
@@ -71,9 +86,9 @@ lDialogFavoriteTypesHelp6	Créez un raccourci vers un "Site FTP".`n`nChoisissez l
 lDialogFavoriteTypesHelp7	Dans n'importe quel menu, insérez des fonctionnalités de QAP tel que:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Rassemblez des favoris apparentés dans un "Sous-menu".`n`nDonnez un nom à ce sous-menu et sélectionnez diverses options.`n`nAjoutez des favoris à votre sous-menu ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Modifier".
 lDialogFavoriteTypesHelp9	Lancez un "Groupe" de favoris en un seul raccourci.`n`nDonnez un nom à ce groupe et sélectionnez diverses options.`n`nAjoutez des favoris à votre groupe ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Modifier".`n`nLes Réglages avancés permettent de contrôle la vitesse de restauration en insérant un délai entre chaque favori à restaurer.
-lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe
-lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier||Lien (URL)|Site FTP (URL)||||||
-lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..
+lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|Menu e&xterne
+lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier||Lien (URL)|Site FTP (URL)|||||||Contenu|Menu externe (emplacement et nom du fichier)|
+lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..|Fragment|Externe
 lDialogFileLabel	Document
 lDialogFolderLabel	Dossier
 lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
@@ -183,7 +198,7 @@ lGuiHelp	Aide
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
 lGuiHotkeysHelpText	Flèche Bas: Sélectioner le prochain favori`nFlèche Haut: Sélectioner le favori précédent`n`nEntrée: Modifier un favori`nCtrl-N: Ajouter un favori`nCtrl-C: Copier un favori`nSuppr: Supprimer un ou des favoris`n`nMaj-Haut/Bas: Sélectionner des favori contigus`nCtrl-Clic: Sélectionner des favoris non-contigus`nCtrl-A: Sélectionner tous les favoris`n`nCtrl-Bas: Déplacer un ou des favoris vers le bas`nCtrl-Haut: Déplacer un ou des favoris vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu`nCtrl-Gauche: Ouvrir le sous-menu contenant ce menu
 lGuiLoginName	Code d'utilisateur
-lGuiLvFavoritesHeader	Nom|Type|Emplacement
+lGuiLvFavoritesHeader	Nom|Type|Emplacement ou contenu
 lGuiMove	Déplacer
 lGuiOptions	Options
 lGuiPassword	Mot de passe
@@ -198,10 +213,10 @@ lHelpTabAddingFavorite	Ajouter des favoris
 lHelpTabGettingStarted	Premier pas
 lHelpTabQAPFeatures	Fonctionnalités QAP
 lHelpTabTipsAndTricks	Trucs et astuces
-lHelpText11	Au lancement de FoldersPopup, une icône attend vos ordres dans la zone de Notifications. Lorsque vous voudrez ouvrir une de vos DOSSIERS, DOCUMENTS, APPLICATIONS, SITES WEB ou FTP favoris, appuyez sur les raccourcis QAP [~1~] ou [~2~] pour qu'un menu popup affiche vos favoris.
+lHelpText11	Au lancement de FoldersPopup, une icône attend vos ordres dans la zone de Notifications. Lorsque vous voudrez ouvrir une de vos DOSSIERS, DOCUMENTS, APPLICATIONS, SITES WEB, SITES FTP ou FRAGMENTS DE TEXTE favoris, appuyez sur les raccourcis QAP [~1~] ou [~2~] pour qu'un menu popup affiche vos favoris.
 lHelpText12	Lorsque vous sélectionnez un DOSSIER favori dans l'Explorateur de fichiers ou une boîte de dialogue*, Quick Access Popup vous y mène instantanément! * Cette fonctionnalité doit être activée dans les  Options.
 lHelpText13	Pour forcer l'ouverture du favori dans une nouvelle fenêtre, appuyez sur les raccourcis du menu Alternatif [~1~] ou [~2~]. Dans le menu Alternatif, selectionnez "Ouvrir dans une nouvelle fenêtre", puis choisissez le dossier désiré. Le menu Alternatif offre plusieurs autres fonctionnalités.
-lHelpText14	Choisissez "Réglages" pour personnaliser votre menu Quick Access Popup. Vous pouvez ajouter des favoris à votre menu. Vous pouvez les déplacer, renommer, supprimer. Vous pouvez aussi ajouter des SOUS-MENUS ou des GROUPES. Chosissez "Menu ou groupe à modifier:" dans la liste déroulante. Cliquez sur "Enregistrer" pour conserver vos changements.
+lHelpText14	Choisissez "Réglages" pour personnaliser votre menu Quick Access Popup. Vous pouvez ajouter des favoris à votre menu. Vous pouvez les déplacer, renommer, supprimer. Vous pouvez aussi ajouter des SOUS-MENUS, des GROUPES ou des SOUS-MENUS EXTERNES. Chosissez "Menu ou groupe à modifier:" dans la liste déroulante. Cliquez sur "Enregistrer" pour conserver vos changements.
 lHelpText21	Pour ajouter des favoris, dans la fenêtre "Réglages", cliquez sur le bouton "Ajouter". Sélectionnez le type du nouveau favori et consultez les conseils dans la partie droite de la fenêtre. Cliquez "Poursuivre" pour ouvrir la boîte de dialogue "Ajouter un favori".
 lHelpText22	Dans les quatre onglets de la boîte de dialogue "Ajouter un favori", entrez les "Réglages de base", "Options du menu", "Options de fenêtres" et "Réglages avancés". Cliquez sur "Ajouterpour insérer le favori dans votre menu et sur "Enregistrer" dans la fenêtre "Réglages".
 lHelpText23	AJOUTER CE DOSSIER`n`nPour AJOUTER rapidement un nouveau DOSSIER favori au menu:`n1) Ouvrez un dossier souvent consulté.`n2) Appuyez sur [~1~] ou [~2~] et cliquez sur "Ajouter ce dossier".`n3) Donnez au menu un nom court, cliquez sur "Ajouter", puis sur "Enregistrer" dans la fenêtre "Réglages".
@@ -226,6 +241,7 @@ lMenuAlternativeNewWindow	Ouvrir dans une nouvelle fenêtre
 lMenuAppData	Application Data
 lMenuCache	Cache
 lMenuClipboard	Presse-papiers
+lMenuCloseThisMenu	Fermer ce menu ; new
 lMenuColumnBreak	colonne
 lMenuCommonAppData	Application Data (commun)
 lMenuCommonDesktop	Bureau (commun)
@@ -280,11 +296,15 @@ lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide
+lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible. ; new
+lOopsErrorIniFileUnavailable	Le fichier de configuration externe n'est pas disponible ; new
+lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration: ; new
+lOopsExternalMenuReadOnly	Ce menu externe est en lecture seulement et ne peut être modifié. ; new
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
 lOopsHotkeyAlreadyUsed	Le raccourci "~1~" est déjà utilisé pour l'emplacement ~2~.`n`nVeuillez choisis un autre raccourci pour ~3~.
 lOopsHotkeyNotInMenus	Erreur: l'emplacement "~1~" pour le raccourci "~1~" est introuvable dans les menus.
-lOopsHttpLocationTransformed	L'emplacement HTTP (format URL) a été converti en chemin réseau (format UNC) afin d'être compatible avec l'Explorateur Windows:`n`n~1~`n~2~
+lOopsHttpLocationTransformed	L'emplacement HTTP (format URL) a été converti en chemin réseau (format UNC) afin d'être compatible avec Windows:`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	Le fichier des paramêtres "wincmd.ini" de Total Commander est introuvable.`n`nSélectionnez "Options" et l'onglet "Gestionnaires de fichiers".
 lOopsInvalidWindowPosition	Valeur(s) de position de la fenêtre invalide
 lOopsLaunchWithNotFound	Le fichier de l'application "Lancer avec cette application" est introuvable:`n`n~1~`n`nVérifiez les réglages avancés ce ce favori.
@@ -292,10 +312,12 @@ lOopsLocation	emplacement
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
 lOopsTitle	~1~ (~2~)
+lOopsUnknownTargetAppName	Une erreur s'est produite pendant l'ouverture de ce favori. Veuillez essayer à nouveau... ; new
 lOopsWriteProtectedError	Il semble que ~1~ a été lancé depuis un dossier en ÉCRITURE SEULEMENT où il est impossible de créer le fichier de configuration "~1~.ini".`n`nDéplacez le fichier .EXE de ~1~ dans un dossier RÉGULIER de votre choix, puis exécutez l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
 lOopsWrongThirdPartyPath	Chemin ou nom de fichier incorrect pour ~1~:`n~2~.`n`nVérifiez le fichier .exe sélectionné pour ~1~ dans les "Options", onglet "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Fichier de l'application invalide dans QAPconnect`n~1~:`n~2~.`n`nVérifiez les valeurs pour [~1~] dans ~3~. Utilisez le bouton "~4~" dans "Options", onglet "~5~".
 lOopsZipFileError	Il semble que ~1~ a été lancé directement depuis un fichier compressé (ZIP).`n`nVous devez extraire le fichier .EXE de ~1~ du fichier ZIP dans un dossier de votre choix, puis exécuter l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
+lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus ; new
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
 lOptionsChangeFolderInDialog	Change folders in dialog box with main QAP mouse and keyboard hotkeys
@@ -350,6 +372,8 @@ lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner un
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu des dossiers seront perdus.
 lTCMenuName	TC Directory Hotlist
 lTCWinCmdLocation	Emplacement de WinCmd.ini
+lTooltipSnippetWait	Sélectionnez le point d'insertion et appuyez sur "~1~" pour coller le fragment (attente de ~2~ secondes) ; new
+lTooltipSnippetWaitEnter	Entrée
 lTrayTipInstalledDetail	~1~ ou ~2~ pour lancer vos favoris
 lTrayTipInstalledTitle	~1~ ~2~ est prêt!
 lTrayTipWorkingDetail	Préparation des menus

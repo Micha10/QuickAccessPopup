@@ -1,5 +1,5 @@
 global lAboutText1 := "~1~ ~2~ (~3~ bits)"
-global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nDutch translation: Pieter Dejonghe`nKorean translation: Om Il-Sung`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
+global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
 global lAboutText3 := "~1~ Jean Lalonde 2013-2014. Freeware."
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
@@ -47,10 +47,11 @@ global lDialogEditIconPrompt := "Edit icon resource in the format ""iconfile,ind
 global lDialogEndOfMenu := "end of menu"
 global lDialogErrorMoving := "Unable to resize for favorite:`n""~1~""" ; new
 global lDialogExternalLocation := "External menu settings file location" ; new
-global lDialogExternalStartingNumber := "Favorite starting number:" ; new
+global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
 global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not exist or is not available.`n`nIf this favorite is on a network drive, please try again after network authentification." ; changed
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
 global lDialogFavoriteDropdownEmpty := "Please choose an item in the ~1~ drop-down list." ; new
+global lDialogFavoriteExternalHelpWeb := "See <a href=""~1~"">External menus help</a> for more information."
 global lDialogFavoriteLocationEmpty := "The location is empty. Please, choose a location."
 global lDialogFavoriteMenuPosition := "Insert the new favorite before this item"
 global lDialogFavoriteNameEmpty := "The favorite name is empty. Please, choose a name."
@@ -64,10 +65,10 @@ global lDialogFavoriteRemovePrompt := "Remove the submenu ""~1~""`nand ALL its c
 global lDialogFavoriteRemoveTitle := "Remove Favorite - ~1~"
 global lDialogFavoriteSelectType := "Select the type of favorite to add.`n`nIn the next window, you will give your favorite:`n- a name`n- a content (depending on the type)`n- various settings (icon, shortcut, etc.)`n`nChoose the new favorite's type and click ""~1~""." ; new
 global lDialogFavoriteShortNameLabel := "Short name for menu" ; new
-global lDialogFavoriteSnippetEmpty := "The contenu is empty. Please, enter the snippet's  content." ; new
+global lDialogFavoriteSnippetEmpty := "The content is empty. Please, enter the snippet's content." ; new
 global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab."
 global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
-global lDialogFavoriteSnippetHelpWeb := "See <a href=""http://www.quickaccesspopup.com/snippets-help/"">Snippets help</a> for special characters and commands encoding."
+global lDialogFavoriteSnippetHelpWeb := "See <a href=""~1~"">Snippets help</a> for special characters and commands encoding."
 global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"
 global lDialogFavoriteSnippetSendMode := "Send snippet to current application in:"
 global lDialogFavoriteSnippetSendModeMacro := "Macro mode"
@@ -82,11 +83,11 @@ global lDialogFavoriteTypesHelp6 := "Create a shortcut to an ""FTP Site"".`n`nSe
 global lDialogFavoriteTypesHelp7 := "Insert anywhere in your menu ""Quick Access Popup Features"" such as:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc." ; new
 global lDialogFavoriteTypesHelp8 := "Gather related favorites in a ""Submenu"".`n`nGive your submenu a name and select menu options.`n`nAdd favorites to your submenu or move them from other submenus or groups using the ""Edit"" button." ; new
 global lDialogFavoriteTypesHelp9 := "Launch a ""Group"" of favorites, all in one shortcut!`n`nGive your group a name and set various options for your group.`n`nAdd favorites to your group or move them from other submenus or groups using the ""Edit"" button.`n`nAdvanced settings allow to control restoring speed by inserting a delay between each favorite to restore." ; new
-global lDialogFavoriteTypesHelp13 := "Create a ""Text Snippet"".`n`nSet the snippet's title for the menu, its content and various menu options." ; new
-global lDialogFavoriteTypesHelp14 := "Create an ""External menu"".`n`nSet the external menu's name for the menu, the external settings file location and various options." ; new
+global lDialogFavoriteTypesHelp13 := "Create a ""Text Snippet"". Set the snippet's title for the menu, its content and various menu options.`n`nIn advanced options, choose ""Text mode"" to paste snippets of text as you would do with the Clipboard or choose ""Macro mode"" to send snippets as if you would type keystrokes (including special keys, see help)." ; new
+global lDialogFavoriteTypesHelp14 := "Create an ""External menu"" to use favorites on various systems from the same settings file on a shared location.`n`nSet the external menu's name for the menu, the external settings file location and various options.`n`nExternal menus can be edited as regular menus except if they are set as read-only (see help)." ; new
 global lDialogFavoriteTypesLabels := "&Folder|&Document|&Application|&Special Folder|&Link|F&TP Site|&QAP Feature|Sub&menu|&Group||||Text S&nippet|&External Menu" ; changed
 global lDialogFavoriteTypesLocationLabels := "Folder (path)|Document (path and file name)|Application (path and file name)||Link (URL)|FTP Site (URL)|||||||Content|External settings file (path)|" ; changed
-global lDialogFavoriteTypesShortNames := "Folder|Doc|App|Special|Link|FTP|QAP|Menu|Group|Separator|Column Break|..|Snippet|External" ; new
+global lDialogFavoriteTypesShortNames := "Folder|Doc|App|Special|Link|FTP|QAP|Menu|Group|Separator|Column Break|..|Snippet|External" ; changed
 global lDialogFavoritesParentMenuMove := "Move ~1~ favorites to this menu"
 global lDialogFileLabel := "Document"
 global lDialogFolderLabel := "Folder"
@@ -212,7 +213,7 @@ global lHelpTabAddingFavorite := "Adding Favorites" ; changed
 global lHelpTabGettingStarted := "Getting Started"
 global lHelpTabQAPFeatures := "QAP Features" ; new
 global lHelpTabTipsAndTricks := "Tips and Tricks" ; variable name changed
-global lHelpText11 := "At its launch, Quick Access Popup adds an icon in the System Tray and awaits your orders. When you want to launch one of your preferred FOLDERS, DOCUMENTS, APPLICATIONS, WEB LINKS, FTP SITE or TEXT SNIPPET, just hit the QAP hotkey [~1~] or [~2~] and, in the popup menu, select the desired favorite." ; new
+global lHelpText11 := "At its launch, Quick Access Popup adds an icon in the System Tray and awaits your orders. When you want to launch one of your preferred FOLDERS, DOCUMENTS, APPLICATIONS, WEB LINKS, FTP SITE or TEXT SNIPPET, just hit the QAP hotkey [~1~] or [~2~] and, in the popup menu, select the desired favorite." ; changed
 global lHelpText12 := "When you select a favorite FOLDER in Windows Explorer or a file dialog box*, Quick Access Popup  instantly ""navigate"" the current window to this folder! * This feature must be enabled in Options." ; new
 global lHelpText13 := "To force opening the folder in a new window, hit the Alternative hotkeys [~1~] or [~2~]. In the Alternative menu, select ""Open in new window"", then select the desired folder. The Alternative menu offers several other functionalities." ; new
 global lHelpText14 := "Choose ""Settings"" to customize your Quick Access Popup menu. You can add favorites to your menu. You can move, rename or delete them. You can also add SUBMENUS, GROUPS or EXTERNAL MENUS. Choose the ""Menu or group to edit:"" in the  drop-down list. Click ""Save"" to keep your changes." ; changed
@@ -372,6 +373,7 @@ global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ no
 global lTCMenuName := "TC Directory hotlist" ; new
 global lTCWinCmdLocation := "WinCmd.ini location" ; new
 global lTooltipSnippetWait := "Select the insertion point and hit ""~1~"" to paste the snippet (waiting ~2~ seconds)" ; new
+global lTooltipSnippetWaitEnter := "Enter"
 global lTrayTipInstalledDetail := "~1~ or ~2~ to launch favorites" ; changed
 global lTrayTipInstalledTitle := "~1~ ready!"
 global lTrayTipWorkingDetail := "Building menus"
@@ -391,5 +393,5 @@ global lUpdatePromptBeta := "There is a new ~1~ BETA version.`n`nUpdate ~1~ from
 global lUpdatePromptBetaContinue := "Do you still want to to be informed of future beta versions?"
 global lUpdateTitle := "Update ~1~?"
 global lUpdateYouHaveLatest := "You have the latest version: ~1~.`n`nVisit the ~2~ web page anyway?"
-global lWindowIsTreeviewText := "Windows limitation..."
+global lWindowIsTreeviewText := "Windows limitation..." ; changed
 global lWindowIsTreeviewTitle := "Tree view dialog box not supported"
