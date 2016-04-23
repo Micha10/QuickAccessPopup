@@ -5606,11 +5606,11 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
-			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r7 t8" : "gEditFavoriteLocationChanged w400 h20")
+			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
 			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? DecodeSnippet(g_objEditedFavorite.FavoriteLocation) : g_objEditedFavorite.FavoriteLocation)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
-		
+
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
 			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
 	}
@@ -5628,7 +5628,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
 		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n
-		Gui, 2:Add, Link, x20 y+5 w500, %lDialogFavoriteSnippetHelpWeb%
+		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 	}
 }
 else ; "Special" or "QAP"
@@ -5688,6 +5688,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Text, x20 y+10, %lDialogExternalLocation% *
 	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
 	Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
+	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
 
 arrNewFavoriteWindowPosition := ""
@@ -5800,13 +5801,14 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
-		Gui, 2:Add, Link, x20 y+15 w500, %lDialogFavoriteSnippetHelpWeb%
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogExternalStartingNumber%
 		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
 			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 	}
 	else
 	{
@@ -9570,6 +9572,7 @@ PasteSnippet:
 ;------------------------------------------------------------
 
 strWaitKey := "Enter"
+strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
@@ -9579,7 +9582,7 @@ DiagWindowInfo(A_ThisLabel . " Start")
 
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet))
 {
-	ToolTip, % L(lTooltipSnippetWait, strWaitKey, strWaitTime)
+	ToolTip, % L(lTooltipSnippetWait, strWaitKeyText, strWaitTime)
 	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
 	KeyWait, %strWaitKey%, D T%strWaitTime%
 	intErrorLevel := ErrorLevel
@@ -9636,6 +9639,7 @@ else ; snippet of type Macro
 
 PasteSnippetCleanup:
 strWaitKey := ""
+strWaitKeyText := ""
 strWaitTim := ""
 intErrorLevel := ""
 blnTextSnippet := ""
