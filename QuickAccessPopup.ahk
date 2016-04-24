@@ -18,7 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version BETA: 7.1.99.8 (2016-04-??)
+- stop launching Directory Opus when refreshing the list of open folders in listers if Directory Opus is not running
+
+Version BETA: 7.1.99.8 (2016-04-23)
 - fix bug column breaks now inserted in menu when called from hotkey
 - fix bug column breaks now inserted at the correct position in submenus
 - fix bug option Open Menu on Tarskbar is now considered
@@ -3192,7 +3194,7 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Current Folders}") or g_objQAPfeaturesInMe
 
 if (g_intActiveFileManager = 2) ; DirectoryOpus
 {
-	Gosub, InitDOpusListText
+	Gosub, RefreshDOpusListText
 	objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 }
 
@@ -3382,7 +3384,7 @@ return
 
 
 ;------------------------------------------------------------
-InitDOpusListText:
+RefreshDOpusListText:
 ;------------------------------------------------------------
 
 FileDelete, %g_strDOpusTempFilePath%
@@ -5159,7 +5161,7 @@ if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass
 {
 	if WindowIsDirectoryOpus(g_strTargetClass)
 	{
-		Gosub, InitDOpusListText
+		Gosub, RefreshDOpusListText
 		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 		
 		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
@@ -10973,6 +10975,14 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 ;------------------------------------------------------------
 {
 	global g_strDirectoryOpusRtPath
+	
+	if (strCommand = "/info")
+	{
+		Process, Exist, dopus.exe
+		; abord if DOpus.exe is not running
+		if !(ErrorLevel)
+			return
+	}
 	
 	if FileExist(g_strDirectoryOpusRtPath) ; for safety only
 		Run, % """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
