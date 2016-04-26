@@ -827,6 +827,9 @@ OnMessage(0x404, "AHK_NOTIFYICON")
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
 OnMessage(0x2224, "REPLY_QAPISRUNNING")
 
+; Respond to SendMessage sent by QAPmessenger to add a favorite from Explorer context menu
+OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
+
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
@@ -5152,96 +5155,102 @@ return
 ;------------------------------------------------------------
 AddThisFolder:
 AddThisFolderXpress:
+AddThisFolderMsg:
 ;------------------------------------------------------------
 
-g_strNewLocation := ""
+; if A_ThisLabel = "AddThisFolderMsg" we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
-if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-	or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+if (A_ThisLabel <> "AddThisFolderMsg")
 {
-	if WindowIsDirectoryOpus(g_strTargetClass)
+	g_strNewLocation := ""
+
+	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 	{
-		Gosub, RefreshDOpusListText
-		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-		
-		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-		; Lines will have active_lister="1" if they represent tabs from the active lister.
-		; To get the active tab you want the line with active_lister="1" and tab_state="1".
-		; tab_state="1" means it's the selected tab, on the active side of the lister.
-		; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
-		; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
-
-		for intIndex, objLister in objDOpusListers
-			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
-			{
-				g_strNewLocation := objLister.LocationURL
-				break
-			}
-	}
-	else ; Explorer, TotalCommander or dialog boxes
-	{
-		objPrevClipboard := ClipboardAll ; Save the entire clipboard
-		ClipBoard := ""
-
-		; Under Windows 7 and 8.1 (not tested with Windows 10)...
-		; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
-		; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
-		; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
-		if (g_strTargetClass = "#32770")
-			intWaitTimeIncrement := 300 ; time allowed for dialog boxes
-		else
-			intWaitTimeIncrement := 150 ; time allowed for Explorer
-
-		if (g_blnDiagMode)
-			intTries := 8
-		else
-			intTries := 3
-
-		strAddThisFolderWindowTitle := ""
-		Loop, %intTries%
+		if WindowIsDirectoryOpus(g_strTargetClass)
 		{
-			Sleep, intWaitTimeIncrement * A_Index
-			WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-		} Until (StrLen(strAddThisFolderWindowTitle))
+			Gosub, RefreshDOpusListText
+			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+			
+			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+			; Lines will have active_lister="1" if they represent tabs from the active lister.
+			; To get the active tab you want the line with active_lister="1" and tab_state="1".
+			; tab_state="1" means it's the selected tab, on the active side of the lister.
+			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
+			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
 
-		if WindowIsTotalCommander(g_strTargetClass)
-		{
-			cm_CopySrcPathToClip := 2029
-			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-			WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+			for intIndex, objLister in objDOpusListers
+				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
+				{
+					g_strNewLocation := objLister.LocationURL
+					break
+				}
 		}
-		else ; Explorer or dialog boxes
+		else ; Explorer, TotalCommander or dialog boxes
 		{
+			objPrevClipboard := ClipboardAll ; Save the entire clipboard
+			ClipBoard := ""
+
+			; Under Windows 7 and 8.1 (not tested with Windows 10)...
+			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
+			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
+			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
+
+			if (g_strTargetClass = "#32770")
+				intWaitTimeIncrement := 300 ; time allowed for dialog boxes
+			else
+				intWaitTimeIncrement := 150 ; time allowed for Explorer
+
+			if (g_blnDiagMode)
+				intTries := 8
+			else
+				intTries := 3
+
+			strAddThisFolderWindowTitle := ""
 			Loop, %intTries%
 			{
 				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
-				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, ^c ; Copy
-				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-				intTriesIndex := A_Index
-			} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
-			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
-				SendInput, {Esc}
-		}
+				WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+			} Until (StrLen(strAddThisFolderWindowTitle))
 
-		g_strNewLocation := ClipBoard
-		Clipboard := objPrevClipboard ; Restore the original clipboard
-		
-		/*
-		if (g_blnDiagMode)
-		{
-			Diag("Menu", A_ThisLabel)
-			Diag("Class", g_strTargetClass)
-			Diag("Tries", intTries)
-			Diag("TriesIndex", intTriesIndex)
-			Diag("AddedFolder", g_strNewLocation)
+			if WindowIsTotalCommander(g_strTargetClass)
+			{
+				cm_CopySrcPathToClip := 2029
+				SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
+				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+			}
+			else ; Explorer or dialog boxes
+			{
+				Loop, %intTries%
+				{
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, ^c ; Copy
+					Sleep, intWaitTimeIncrement * A_Index
+					WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+					intTriesIndex := A_Index
+				} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+				if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
+					SendInput, {Esc}
+			}
+
+			g_strNewLocation := ClipBoard
+			Clipboard := objPrevClipboard ; Restore the original clipboard
+			
+			/*
+			if (g_blnDiagMode)
+			{
+				Diag("Menu", A_ThisLabel)
+				Diag("Class", g_strTargetClass)
+				Diag("Tries", intTries)
+				Diag("TriesIndex", intTriesIndex)
+				Diag("AddedFolder", g_strNewLocation)
+			}
+			*/
 		}
-		*/
+			
 	}
-		
 }
 
 g_strNewLocationSpecialName := ""
@@ -5267,11 +5276,16 @@ If !StrLen(g_strNewLocation)
 }
 else
 {
-	g_intOriginalMenuPosition := 0xFFFF
+	g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 	if (A_ThisLabel = "AddThisFolder")
 	{
 		Gosub, GuiShow
 		Gosub, GuiAddThisFolder
+	}
+	else if (A_ThisLabel = "AddThisFolderMsg")
+	{
+		Gosub, GuiShow
+		Gosub, GuiAddThisFolderMsg
 	}
 	else ; AddThisFolderXpress
 	{
@@ -5304,6 +5318,7 @@ return
 GuiAddFavorite:
 GuiAddThisFolder:
 GuiAddThisFolderXpress:
+GuiAddThisFolderMsg:
 GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
@@ -5517,7 +5532,8 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 }
 else ; add favorite
 {
-	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId) and InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress
+	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude GuiAddThisFolderMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -5528,9 +5544,9 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
-	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddFromDropFiles", strGuiFavoriteLabel)
+	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddThisFolderMsg|GuiAddFromDropFiles", strGuiFavoriteLabel)
 	{
-		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress or GuiDropFiles
+		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress, AddThisFolderMsg or GuiDropFiles
 		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 	}
@@ -5538,12 +5554,12 @@ else ; add favorite
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
-	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress
+	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress and GuiAddThisFolderMsg
 		g_objEditedFavorite.FavoriteType := (StrLen(g_strNewLocationSpecialName) ? "Special" : "Folder")
 	else if (strGuiFavoriteLabel = "GuiAddFromDropFiles")
 	{
 		SplitPath, g_strNewLocation, , , strExtension
-		if StrLen(strExtension) and InStr("exe|com|bat", strExtension)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
 			g_objEditedFavorite.FavoriteType := "Document"
@@ -12069,6 +12085,36 @@ REPLY_QAPISRUNNING(wParam, lParam)
 {
 	return true
 } 
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RECEIVE_QAPMESSENGER(wParam, lParam) 
+; Adapted from AHK documentation (https://autohotkey.com/docs/commands/OnMessage.htm)
+;------------------------------------------------------------
+{
+	global g_strNewLocation
+	
+	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
+	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
+	
+	StringSplit, arrData, strCopyOfData, |
+	
+	if (arrData1 = "AddFolder")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFolderMsg
+	}
+	else if (arrData1 = "AddFile")
+	{
+		g_strNewLocation := arrData2
+		; Gosub, ###
+	}
+	else
+		return 0
+
+	return 1
+}
 ;------------------------------------------------------------
 
 
