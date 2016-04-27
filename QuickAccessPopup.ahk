@@ -5156,10 +5156,12 @@ return
 AddThisFolder:
 AddThisFolderXpress:
 AddThisFolderFromMsg:
+AddThisFolderFromMsgXpress:
 AddThisFileFromMsg:
+AddThisFileFromMsgXpress:
 ;------------------------------------------------------------
 
-; if A_ThisLabel = "AddThisFolderFromMsg"  or "AddThisFileFromMsg" we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
+; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 {
@@ -5279,9 +5281,9 @@ else
 {
 	g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 	
-	if (A_ThisLabel <> "AddThisFolderXpress")
+	if !InStr(A_ThisLabel, "Xpress") ; except for Express add, show Settings window
 		Gosub, GuiShow
-		
+	
 	if (A_ThisLabel = "AddThisFolder")
 		
 		Gosub, GuiAddThisFolder
@@ -5294,10 +5296,21 @@ else
 		
 		Gosub, GuiAddThisFileFromMsg
 		
-	else ; AddThisFolderXpress
+	else ; AddThisFolderXpress, AddThisFolderFromMsgXpress or AddThisFileFromMsgXpress
 	{
-		Gosub, GuiAddThisFolderXpress
-		Gosub, GuiSaveFavorites
+		if (A_ThisLabel = "AddThisFolderXpress")
+			
+			Gosub, GuiAddThisFolderXpress
+			
+		else if (A_ThisLabel = "AddThisFolderFromMsgXpress")
+			
+			Gosub, GuiAddThisFolderFromMsgXpress
+			
+		else ; AddThisFileFromMsgXpress
+			
+			Gosub, GuiAddThisFileFromMsgXpress
+		
+		Gosub, GuiSaveFavorites ; for Express save all favorites to ini file
 	}
 }
 
@@ -5326,7 +5339,9 @@ GuiAddFavorite:
 GuiAddThisFolder:
 GuiAddThisFolderXpress:
 GuiAddThisFolderFromMsg:
+GuiAddThisFolderFromMsgXpress:
 GuiAddThisFileFromMsg:
+GuiAddThisFileFromMsgXpress:
 GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
@@ -5344,10 +5359,11 @@ if (g_blnAbordEdit)
 	return
 }
 
+; must be before GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
 g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group|External"
 
-if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
+if InStr(strGuiFavoriteLabel, "Xpress")
 {
 	gosub, GuiAddFavoriteSaveXpress
 	gosub, GuiAddFavoriteCleanup
@@ -5478,7 +5494,7 @@ g_strNewFavoriteIconResource := ""
 strGroupSettings := ",,,,,,," ; ,,, to make sure all fields are re-init
 StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 
-if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite")
+if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; include GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
 	g_intOriginalMenuPosition := LV_GetNext()
@@ -5541,7 +5557,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude GuiAddThisFolderFromMsg
+		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude all ...FromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -5552,9 +5568,11 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
-	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddThisFolderFromMsg|GuiAddThisFileFromMsg|GuiAddFromDropFiles", strGuiFavoriteLabel)
+	if (strGuiFavoriteLabel <> "GuiAddFavorite")
+	; include GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
+	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles
 	{
-		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress, AddThisFolderFromMsg, AddThisFileFromMsg or GuiDropFiles
+		; g_strNewLocation is received from AddThisFolder (etc.) or GuiDropFiles
 		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 	}
@@ -5562,9 +5580,9 @@ else ; add favorite
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
-	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress and GuiAddThisFolderFromMsg
+	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 		g_objEditedFavorite.FavoriteType := (StrLen(g_strNewLocationSpecialName) ? "Special" : "Folder")
-	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg", strGuiFavoriteLabel)
+	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
 		SplitPath, g_strNewLocation, , , strExtension
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
@@ -12117,6 +12135,16 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	{
 		g_strNewLocation := arrData2
 		Gosub, AddThisFileFromMsg
+	}
+	else if (arrData1 = "AddFolderXpress")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFolderFromMsgXpress
+	}
+	else if (arrData1 = "AddFileXpress")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFileFromMsgXpress
 	}
 	else
 		return 0
