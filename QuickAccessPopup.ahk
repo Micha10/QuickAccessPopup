@@ -5155,12 +5155,13 @@ return
 ;------------------------------------------------------------
 AddThisFolder:
 AddThisFolderXpress:
-AddThisFolderMsg:
+AddThisFolderFromMsg:
+AddThisFileFromMsg:
 ;------------------------------------------------------------
 
-; if A_ThisLabel = "AddThisFolderMsg" we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
+; if A_ThisLabel = "AddThisFolderFromMsg"  or "AddThisFileFromMsg" we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
-if (A_ThisLabel <> "AddThisFolderMsg")
+if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 {
 	g_strNewLocation := ""
 
@@ -5277,16 +5278,22 @@ If !StrLen(g_strNewLocation)
 else
 {
 	g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
+	
+	if (A_ThisLabel <> "AddThisFolderXpress")
+		Gosub, GuiShow
+		
 	if (A_ThisLabel = "AddThisFolder")
-	{
-		Gosub, GuiShow
+		
 		Gosub, GuiAddThisFolder
-	}
-	else if (A_ThisLabel = "AddThisFolderMsg")
-	{
-		Gosub, GuiShow
-		Gosub, GuiAddThisFolderMsg
-	}
+		
+	else if (A_ThisLabel = "AddThisFolderFromMsg")
+		
+		Gosub, GuiAddThisFolderFromMsg
+		
+	else if (A_ThisLabel = "AddThisFileFromMsg")
+		
+		Gosub, GuiAddThisFileFromMsg
+		
 	else ; AddThisFolderXpress
 	{
 		Gosub, GuiAddThisFolderXpress
@@ -5318,7 +5325,8 @@ return
 GuiAddFavorite:
 GuiAddThisFolder:
 GuiAddThisFolderXpress:
-GuiAddThisFolderMsg:
+GuiAddThisFolderFromMsg:
+GuiAddThisFileFromMsg:
 GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
@@ -5533,7 +5541,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude GuiAddThisFolderMsg
+		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude GuiAddThisFolderFromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -5544,9 +5552,9 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
-	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddThisFolderMsg|GuiAddFromDropFiles", strGuiFavoriteLabel)
+	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddThisFolderFromMsg|GuiAddThisFileFromMsg|GuiAddFromDropFiles", strGuiFavoriteLabel)
 	{
-		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress, AddThisFolderMsg or GuiDropFiles
+		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress, AddThisFolderFromMsg, AddThisFileFromMsg or GuiDropFiles
 		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 	}
@@ -5554,9 +5562,9 @@ else ; add favorite
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
-	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress and GuiAddThisFolderMsg
+	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress and GuiAddThisFolderFromMsg
 		g_objEditedFavorite.FavoriteType := (StrLen(g_strNewLocationSpecialName) ? "Special" : "Folder")
-	else if (strGuiFavoriteLabel = "GuiAddFromDropFiles")
+	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg", strGuiFavoriteLabel)
 	{
 		SplitPath, g_strNewLocation, , , strExtension
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
@@ -12103,12 +12111,12 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	if (arrData1 = "AddFolder")
 	{
 		g_strNewLocation := arrData2
-		Gosub, AddThisFolderMsg
+		Gosub, AddThisFolderFromMsg
 	}
 	else if (arrData1 = "AddFile")
 	{
 		g_strNewLocation := arrData2
-		; Gosub, ###
+		Gosub, AddThisFileFromMsg
 	}
 	else
 		return 0
