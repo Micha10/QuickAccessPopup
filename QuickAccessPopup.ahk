@@ -5365,7 +5365,7 @@ g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|
 
 if InStr(strGuiFavoriteLabel, "Xpress")
 {
-	gosub, GuiAddFavoriteSaveXpress
+	gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -5494,7 +5494,7 @@ g_strNewFavoriteIconResource := ""
 strGroupSettings := ",,,,,,," ; ,,, to make sure all fields are re-init
 StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 
-if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; include GuiEditFavoriteFromAlternative
+if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
 	g_intOriginalMenuPosition := LV_GetNext()
@@ -5557,7 +5557,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; exclude all ...FromMsg
+		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; excludes all ...FromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -5569,7 +5569,7 @@ else ; add favorite
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
 	if (strGuiFavoriteLabel <> "GuiAddFavorite")
-	; include GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
+	; includes GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
 	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles
 	{
 		; g_strNewLocation is received from AddThisFolder (etc.) or GuiDropFiles
