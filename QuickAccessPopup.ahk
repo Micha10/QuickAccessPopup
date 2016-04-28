@@ -6734,6 +6734,20 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		}
 	}
 
+	if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		SplitPath, f_strFavoriteAppWorkingDir, , , strExternalSettingsExtension
+
+		if !StrLen(strExternalSettingsExtension)
+			f_strFavoriteAppWorkingDir .= ".ini"
+		else if (strExternalSettingsExtension <> "ini")
+		{
+			Oops(lDialogExternalLocationIni)
+			gosub, GuiAddFavoriteSaveCleanup
+			return
+		}
+	}
+	
 	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
 		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
@@ -6790,7 +6804,10 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
+	{
 		objNewMenu.MenuExternalPath := g_objEditedFavorite.FavoriteAppWorkingDir
+		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
+	}
 
 	; create a navigation entry to navigate to the parent menu
 	objNewMenuBack := Object()

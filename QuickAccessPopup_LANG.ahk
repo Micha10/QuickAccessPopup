@@ -47,6 +47,7 @@ global lDialogEditIconPrompt := "Edit icon resource in the format ""iconfile,ind
 global lDialogEndOfMenu := "end of menu"
 global lDialogErrorMoving := "Unable to resize for favorite:`n""~1~""" ; new
 global lDialogExternalLocation := "External menu settings file location" ; new
+global lDialogExternalLocationIni := "External menu settings file must be an .ini file" ; new
 global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
 global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not exist or is not available.`n`nIf this favorite is on a network drive, please try again after network authentification." ; changed
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
