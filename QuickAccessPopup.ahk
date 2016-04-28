@@ -5279,25 +5279,28 @@ If !StrLen(g_strNewLocation)
 }
 else
 {
-	g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
-	
-	if !InStr(A_ThisLabel, "Xpress") ; except for Express add, show Settings window
-		Gosub, GuiShow
-	
-	if (A_ThisLabel = "AddThisFolder")
+	if !InStr(A_ThisLabel, "Xpress") ; NOT Xpress
+	{
+		g_intOriginalMenuPosition := 0xFFFF ; add item at the end of menu in GUI
 		
-		Gosub, GuiAddThisFolder
+		Gosub, GuiShow ; except for Express add, show Settings window
 		
-	else if (A_ThisLabel = "AddThisFolderFromMsg")
-		
-		Gosub, GuiAddThisFolderFromMsg
-		
-	else if (A_ThisLabel = "AddThisFileFromMsg")
-		
-		Gosub, GuiAddThisFileFromMsg
-		
+		if (A_ThisLabel = "AddThisFolder")
+			
+			Gosub, GuiAddThisFolder
+			
+		else if (A_ThisLabel = "AddThisFolderFromMsg")
+			
+			Gosub, GuiAddThisFolderFromMsg
+			
+		else if (A_ThisLabel = "AddThisFileFromMsg")
+			
+			Gosub, GuiAddThisFileFromMsg
+	}
 	else ; AddThisFolderXpress, AddThisFolderFromMsgXpress or AddThisFileFromMsgXpress
 	{
+		g_intOriginalMenuPosition := 1 ; add item at the top of menu without GUI
+	
 		if (A_ThisLabel = "AddThisFolderXpress")
 			
 			Gosub, GuiAddThisFolderXpress
@@ -6686,7 +6689,7 @@ else
 	strDestinationMenu := f_drpParentMenu
 }
 
-if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave g_intNewItemPos may be already set
+if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress g_intNewItemPos may be already set
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
@@ -6755,7 +6758,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
-	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
+	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_chkUseDefaultWindowPosition ? 0 : 1)
 		if (!f_chkUseDefaultWindowPosition)
