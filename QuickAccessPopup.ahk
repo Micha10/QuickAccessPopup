@@ -18,7 +18,12 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version BETA: 7.1.99.9 (2016-04-28)
+- fix bug when trying to edit an external submenu just created
+- validate that external settings file is an .ini file or add .ini extension if no extension is provided
+- completely delete old favorites in external menu settings files when saving current favorites
 - stop launching Directory Opus when refreshing the list of open folders in listers if Directory Opus is not running
+- update to Portuguese-Brazilian and Swedish language files
 
 Version BETA: 7.1.99.8 (2016-04-23)
 - fix bug column breaks now inserted in menu when called from hotkey
@@ -126,7 +131,7 @@ Version: 7.1.8 (2016-03-25)
 
 Version: 7.1.7 (2016-03-22)
 - addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
-- update to Spanish and Sweeden language files
+- update to Spanish and Swedish language files
 - fix Add This Folder bug caused by safety coded introduced in v7.1.5
 
 Version: 7.1.5/7.1.6 (2016-03-20)
@@ -246,7 +251,7 @@ Version: 6.5.1 beta (2016-01-18)
 - disabled dynamic menus refresh background task ("Recent folders" and "Drives")
 - reverted "Recent folders" menu to external menu (not integrated) until the refresh background task is fixed
 - changed the "Drives" menu to external menu (not integrated) until the refresh background task is fixed
-- update to Sweeden and Spanish language
+- update to Swedish and Spanish language
 
 Version: 6.4.4 beta (2016-01-10)
 - little changes in the code refreshing the Clipboard menu, trying to find the source of the issue causing a crash of QAP during dynamic menus refresh
@@ -609,7 +614,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.8 BETA
+;@Ahk2Exe-SetVersion 7.1.99.9 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -656,7 +661,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.8" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.1.99.9" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -7741,6 +7746,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				
 				if !FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
 					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+				
+				IniDelete, %g_strIniFile%, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
