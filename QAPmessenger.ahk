@@ -8,11 +8,21 @@ By Jean Lalonde (JnLlnd on AHKScript.org forum)
 DESCRIPTION
 
 Called from Explorer context menus to send messages to QAP in order to launch various actions like:
-- add the selected folder to favorites
-- ...
+- add the selected folder to favorites (message "AddFolder")
+- add the selected file to favorites (message "AddFile")
+- add the selected folder to favorites in express mode (message "AddFolderXpress")
+- add the selected file tofavorites in express mode (message "AddFileXpress")
+
+HISTORY
+=======
+
+Version: 0.2 beta (2016-04-29)
+- check for result 0xFFFF flagging an open settings window in QAP
 
 Version: 0.1 beta (2016-04-25)
-- Initial alpha test release
+- initial alpha test release
+- implement message "AddFolder", "AddFile", "AddFolderXpress" and "AddFileXpress"
+- manage result codes sent by QAP: 1 for success, FAIL or 0 if an error occurred
 
 */ 
 ;========================================================================================================================
@@ -24,7 +34,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 0.1 BETA
+;@Ahk2Exe-SetVersion 0.2 BETA
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -46,8 +56,9 @@ ListLines, On
 ;@Ahk2Exe-IgnoreEnd
 
 g_strAppNameText := "Quick Access Popup Messenger"
-g_strAppVersion := "0.1 BETA"
+g_strAppVersion := "0.2 BETA"
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
+g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
 g_stTargetAppName := "Quick Access Popup"
 
 ; Use traditional method, not expression
@@ -58,17 +69,20 @@ g_strParam2 = %2% ; second parameter, the selected path or filename
 if (g_strParam0 > 0) and StrLen(g_strParam1)
 {
 	; try to send message to compiled QAP
-	strResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitle)
+	intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitle)
+	; returns FAIL or 0 if an error occurred, 0xFFFF if a QAP window is open or 1 if success
 	
-	; check if running in dev
-	if (strResult <> 1)
-		strResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, "Quick Access Popup v7 ahk_class AutoHotkeyGUI")
+	; if error, check if running in dev
+	if (intResult <> 1) and (intResult <> 0xFFFF)
+		intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitleDev)
 	
-	if (strResult <> 1)
-		Oops("An error occurred while sending message to ~1~ (error: ~2~).`n`nCheck if ~1~ is running?", g_stTargetAppName, strResult)
+	if (intResult = 0xFFFF)
+		Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
+	else if (intResult <> 1)
+		Oops("An error occurred while sending message to ~1~ (error: ~2~).`n`nCheck if ~1~ is running...", g_stTargetAppName, intResult)
 }
 else
-	Oops("Do not run ~1~ directly.`n`nSee the ""Context menus"" options in Quick Access Popup Options window.", g_stTargetAppName)
+	Oops("Do not run ~1~ directly. Right-click file or folder icons in Explorer.`n`nSee ""Context menus"" checkbox in ~2~ Options window.", g_strAppNameText, g_stTargetAppName)
 
 return
 
