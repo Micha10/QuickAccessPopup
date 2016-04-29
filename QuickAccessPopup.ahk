@@ -5378,7 +5378,8 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-Gui, 2:New, , % L(lDialogAddEditFavoriteTitle, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd)), g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd)), g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+Gui, 2:New, , %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -8251,7 +8252,6 @@ if (blnSaveEnabled)
 		
 		Gosub, RestoreBackupMenusObjects
 
-
 		; restore popup menu
 		Gosub, BuildMainMenu ; rebuild menus but not hotkeys
 		Gosub, SetTimerRefreshDynamicMenus
@@ -8279,6 +8279,8 @@ return
 2GuiClose:
 2GuiEscape:
 ;------------------------------------------------------------
+
+g_strFavoriteDialogTitle := "" ; empty because checked by RECEIVE_QAPMESSENGER
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -12122,7 +12124,21 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 ; Adapted from AHK documentation (https://autohotkey.com/docs/commands/OnMessage.htm)
 ;------------------------------------------------------------
 {
+	global g_strAppNameText
 	global g_strNewLocation
+	global g_strAppVersion
+	global g_strFavoriteDialogTitle
+	
+	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
+	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
+		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
+
+	if (blnDialogOpen)
+		return 0xFFFF
 	
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
