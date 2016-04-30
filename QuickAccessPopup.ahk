@@ -8408,6 +8408,7 @@ return
 ;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
+NavigateFromMsg:			; g_strTargetWinId set here
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
@@ -8440,6 +8441,11 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
+else if (A_ThisLabel = "NavigateFromMsg")
+{
+	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
+	g_strHokeyTypeDetected := "Navigate"
+}
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
@@ -9238,8 +9244,8 @@ SetTargetName:
 
 if WindowIsExplorer(g_strTargetClass)
 	g_strTargetAppName := "Explorer"
-; else if WindowIsDesktop(g_strTargetClass)
-;	g_strTargetAppName := "Desktop"
+else if WindowIsDesktop(g_strTargetClass)
+	g_strTargetAppName := "Desktop"
 ; else if WindowIsTray(g_strTargetClass)
 ;	g_strTargetAppName := "Tray"
 else if WindowIsConsole(g_strTargetClass)
@@ -9265,7 +9271,6 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 		g_strTargetAppName := "Explorer"
 else
 	g_strTargetAppName := "Unknown"
-; ###_D(g_strTargetAppName)
 
 if (g_strTargetAppName = "Desktop")
 {
@@ -9915,7 +9920,7 @@ OpenFavoriteNavigateUnknown:
 ;------------------------------------------------------------
 ; avoid an error message if target app name is unknown
 
-Oops(lOopsUnknownTarget)
+Oops(lOopsUnknownTargetAppName)
 
 return
 ;------------------------------------------------------------
@@ -12125,8 +12130,8 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 ;------------------------------------------------------------
 {
 	global g_strAppNameText
-	global g_strNewLocation
 	global g_strAppVersion
+	global g_strNewLocation
 	global g_strFavoriteDialogTitle
 	
 	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
@@ -12165,6 +12170,14 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 		g_strNewLocation := arrData2
 		Gosub, AddThisFileFromMsgXpress
 	}
+	else if (arrData1 = "ShowMenu")
+
+		Gosub, NavigateFromMsg
+
+	else if (arrData1 = "ShowMenuAternative")
+
+		Gosub, AlternativeHotkeyKeyboard
+
 	else
 		return 0
 
