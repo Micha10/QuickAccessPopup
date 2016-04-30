@@ -78,8 +78,8 @@ if (g_strParam0 > 0) and StrLen(g_strParam1)
 	
 	if (intResult = 0xFFFF)
 		Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
-	else if (intResult <> 1)
-		Oops("An error occurred while sending message to ~1~ (error: ~2~).`n`nCheck if ~1~ is running...", g_stTargetAppName, intResult)
+	; else if (intResult <> 1)
+	;	Oops("An error occurred while sending message to ~1~ (error: ~2~).`n`nCheck if ~1~ is running...", g_stTargetAppName, intResult)
 }
 else
 	Oops("Do not run ~1~ directly. Right-click file or folder icons in Explorer.`n`nSee ""Context menus"" checkbox in ~2~ Options window.", g_strAppNameText, g_stTargetAppName)
