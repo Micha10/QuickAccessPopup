@@ -18,12 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version BETA: 7.1.99.12 (2016-05-??)
+Version BETA: 7.1.99.11 (2016-05-01)
 - fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
-
-Version BETA: 7.1.99.11 (2016-04-30)
-- reverting to runtime v1.1.22.07 from AHK (2015-09-27)
-- same features
+- additional debuging code to track the Show Settings window bug
 
 Version BETA: 7.1.99.10 (2016-04-30)
 - new runtime v1.1.23.5 from AHK
@@ -2668,7 +2665,7 @@ Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-Menu, Tray, Add, % lMenuSettings . "...", GuiShow
+Menu, Tray, Add, % lMenuSettings . "...", GuiShowFromTray
 Menu, Tray, Add, % L(lMenuEditIniFile, g_strAppNameFile . ".ini"), ShowSettingsIniFile
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
@@ -2739,7 +2736,7 @@ Menu, g_menuClipboard, Add
 Menu, g_menuClipboard, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled1", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuClipboard")
 
 return
@@ -2906,7 +2903,7 @@ Menu, g_menuDrives, Add
 Menu, g_menuDrives, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuDrives", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled2", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuDrives")
 
 return
@@ -3016,7 +3013,7 @@ Menu, g_menuRecentFolders, Add
 Menu, g_menuRecentFolders, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled3", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuRecentFolders")
 
 return
@@ -3157,8 +3154,8 @@ if (g_blnUseColors)
     Menu, g_menuReopenFolder, Color, %g_strMenuBackgroundColor%
     Menu, g_menuSwitchFolderOrApp, Color, %g_strMenuBackgroundColor%
 }
-AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
-AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled4", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled5", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
 
@@ -3367,10 +3364,10 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled6", "iconNoContent", false) ; will never be called because disabled
 
 if !(blnWeHaveFolders)
-	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled7", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
@@ -3546,7 +3543,7 @@ Menu, %lTCMenuName%, Add
 Menu, %lTCMenuName%, DeleteAll
 if (g_blnUseColors)
     Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled8", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu(lTCMenuName)
 
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
@@ -3594,7 +3591,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
 }
 else
-	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled9", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu(lTCMenuName)
 
@@ -4030,7 +4027,7 @@ GuiOptionsFromQAPFeature:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiOptionsFromQAPFeature")
-	Gosub, GuiShow
+	Gosub, GuiShowFromGuiOptions
 
 g_intGui1WinID := WinExist("A")
 loop, 4
@@ -4424,13 +4421,13 @@ Gui, 3:Font
 Gui, 3:Add, Text, x10 w400, % L(lOptionsChangeFolderInDialogText , Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4), Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
 Gui, 3:Add, Checkbox, x10 w400 vf_blnUnderstandChangeFoldersInDialogRisk, %lOptionsChangeFolderInDialogCheckbox%
 
-Gui, Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
-Gui, Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
+Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
+Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
 	
 GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
-Gui, Show, AutoSize Center
+Gui, 3:Show, AutoSize Center
 Gui, 2:+Disabled
 
 return
@@ -4853,6 +4850,7 @@ if !(g_blnDonor)
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
 StringSplit, arrSettingsPosition, strSettingsPosition, |
 
+Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
 	? "center w636 h538"
@@ -5058,7 +5056,7 @@ GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiAddFavoriteFromQAP")
-	gosub, GuiShow
+	gosub, GuiShowFromGuiAddFavoriteSelectType
 
 if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
 {
@@ -5276,7 +5274,7 @@ If !StrLen(g_strNewLocation)
 	MsgBox, 52, % L(lDialogAddFolderManuallyTitle, g_strAppNameText, g_strAppVersion), %lDialogAddFolderManuallyPrompt%
 	IfMsgBox, Yes
 	{
-		Gosub, GuiShow
+		Gosub, GuiShowFromAddThisFolder1
 		g_strAddFavoriteType := "Folder"
 		Gosub, GuiAddFavorite
 	}
@@ -5286,7 +5284,7 @@ else
 	g_intOriginalMenuPosition := 0xFFFF
 	if (A_ThisLabel = "AddThisFolder")
 	{
-		Gosub, GuiShow
+		Gosub, GuiShowFromAddThisFolder2
 		Gosub, GuiAddThisFolder
 	}
 	else ; AddThisFolderXpress
@@ -6416,6 +6414,21 @@ return
 GuiShow:
 GuiShowFromAlternative:
 SettingsHotkey:
+GuiShowFromTray:
+GuiShowNeverCalled1:
+GuiShowNeverCalled2:
+GuiShowNeverCalled3:
+GuiShowNeverCalled4:
+GuiShowNeverCalled5:
+GuiShowNeverCalled6:
+GuiShowNeverCalled7:
+GuiShowNeverCalled8:
+GuiShowNeverCalled9:
+GuiShowFromGuiOptions:
+GuiShowFromGuiAddFavoriteSelectType:
+GuiShowFromAddThisFolder1:
+GuiShowFromAddThisFolder2:
+GuiShowFromHotkeysManage:
 ;------------------------------------------------------------
 
 ; should not be required but safer
@@ -6437,6 +6450,7 @@ if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
 else
 	Gosub, LoadMenuInGui
+Diag(A_ThisLabel, "")
 Gui, 1:Show
 
 GuiShowCleanup:
@@ -7418,7 +7432,7 @@ GuiHotkeysManageFromQAPFeature:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
-	Gosub, GuiShow
+	Gosub, GuiShowFromHotkeysManage
 	
 intWidth := 840
 
@@ -9616,17 +9630,17 @@ strWaitTime := 10
 
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
-Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
+; Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
 DiagWindowInfo(A_ThisLabel . " Start")
 
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet))
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKeyText, strWaitTime)
-	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
+	; Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
 	KeyWait, %strWaitKey%, D T%strWaitTime%
 	intErrorLevel := ErrorLevel
 	ToolTip
-	Diag("KeyWait After - intErrorLevel", intErrorLevel)
+	; Diag("KeyWait After - intErrorLevel", intErrorLevel)
 	if (intErrorLevel)
 	{
 		Gosub, PasteSnippetCleanup
@@ -9641,8 +9655,8 @@ else
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
 blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
-Diag("Paste Before - blnTextSnippet", blnTextSnippet)
+; Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
+; Diag("Paste Before - blnTextSnippet", blnTextSnippet)
 
 if (blnTextSnippet)
 {
@@ -9653,7 +9667,7 @@ if (blnTextSnippet)
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
-	Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
+	; Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
 	if (intErrorLevel)
 	{
 		Gosub, PasteSnippetCleanup
@@ -9668,12 +9682,12 @@ if (blnTextSnippet)
 	Sleep, 100 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
-	Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+	; Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 }
 else ; snippet of type Macro
 {
 	Send, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
-	Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 }
 
 PasteSnippetCleanup:
