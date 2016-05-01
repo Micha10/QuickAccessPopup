@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version BETA: 7.1.99.12 (2016-05-??)
+- fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
+
 Version BETA: 7.1.99.11 (2016-04-30)
 - reverting to runtime v1.1.22.07 from AHK (2015-09-27)
 - same features
@@ -9452,7 +9455,7 @@ else
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
 
-if StrLen(g_objThisFavorite.FavoriteLaunchWith) and (g_objThisFavorite.FavoriteType <> "Application") ; ignore for Application favorites
+if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType) ; ignore for Application favorites
 {
 	strFullLaunchWith := g_objThisFavorite.FavoriteLaunchWith
 	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
