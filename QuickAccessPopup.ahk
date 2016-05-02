@@ -6431,6 +6431,18 @@ GuiShowFromAddThisFolder2:
 GuiShowFromHotkeysManage:
 ;------------------------------------------------------------
 
+if (A_ThisLabel = "GuiShowFromTray")
+{
+	Diag("A_DefaultGui", A_DefaultGui )
+	Diag("A_Gui", A_Gui)
+	Diag("A_GuiControl", A_GuiControl)
+	Diag("A_GuiEvent", A_GuiEvent)
+	Diag("A_GuiControlEvent", A_GuiControlEvent)
+	Diag("A_EventInfo", A_EventInfo)
+	Diag("A_ThisMenu", A_ThisMenu)
+	Diag("A_ThisMenuItem", A_ThisMenuItem)
+}
+
 ; should not be required but safer
 GuiControlGet, blnSaveEnabled, Enabled, %lGuiSave%
 if (blnSaveEnabled) ; the gui is already open with modified items
