@@ -8457,8 +8457,8 @@ else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
-if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId)
-	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate"))
+if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId))
+	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate")
 {
 	Click ; to make sure the DOpus lister or TC pane under the mouse become active
 	Sleep, 20
