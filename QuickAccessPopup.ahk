@@ -19,8 +19,8 @@ HISTORY
 =======
 
 Version BETA: 7.1.99.11 (2016-05-01)
+- fix bug Settings window opening when clicking on the QAP tray icon
 - fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
-- additional debuging code to track the Show Settings window bug
 
 Version BETA: 7.1.99.10 (2016-04-30)
 - new runtime v1.1.23.5 from AHK
@@ -2736,7 +2736,7 @@ Menu, g_menuClipboard, Add
 Menu, g_menuClipboard, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled1", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuClipboard")
 
 return
@@ -2903,7 +2903,7 @@ Menu, g_menuDrives, Add
 Menu, g_menuDrives, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled2", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuDrives")
 
 return
@@ -3013,7 +3013,7 @@ Menu, g_menuRecentFolders, Add
 Menu, g_menuRecentFolders, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled3", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuRecentFolders")
 
 return
@@ -3154,8 +3154,8 @@ if (g_blnUseColors)
     Menu, g_menuReopenFolder, Color, %g_strMenuBackgroundColor%
     Menu, g_menuSwitchFolderOrApp, Color, %g_strMenuBackgroundColor%
 }
-AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled4", "iconNoContent", false) ; will never be called because disabled
-AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled5", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
 
@@ -3364,10 +3364,10 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled6", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 if !(blnWeHaveFolders)
-	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled7", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
@@ -3543,7 +3543,7 @@ Menu, %lTCMenuName%, Add
 Menu, %lTCMenuName%, DeleteAll
 if (g_blnUseColors)
     Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled8", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu(lTCMenuName)
 
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
@@ -3591,7 +3591,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
 }
 else
-	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled9", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu(lTCMenuName)
 
@@ -5274,7 +5274,7 @@ If !StrLen(g_strNewLocation)
 	MsgBox, 52, % L(lDialogAddFolderManuallyTitle, g_strAppNameText, g_strAppVersion), %lDialogAddFolderManuallyPrompt%
 	IfMsgBox, Yes
 	{
-		Gosub, GuiShowFromAddThisFolder1
+		Gosub, GuiShowFromAddThisFolder
 		g_strAddFavoriteType := "Folder"
 		Gosub, GuiAddFavorite
 	}
@@ -5284,7 +5284,7 @@ else
 	g_intOriginalMenuPosition := 0xFFFF
 	if (A_ThisLabel = "AddThisFolder")
 	{
-		Gosub, GuiShowFromAddThisFolder2
+		Gosub, GuiShowFromAddThisFolder
 		Gosub, GuiAddThisFolder
 	}
 	else ; AddThisFolderXpress
@@ -6415,33 +6415,13 @@ GuiShow:
 GuiShowFromAlternative:
 SettingsHotkey:
 GuiShowFromTray:
-GuiShowNeverCalled1:
-GuiShowNeverCalled2:
-GuiShowNeverCalled3:
-GuiShowNeverCalled4:
-GuiShowNeverCalled5:
-GuiShowNeverCalled6:
-GuiShowNeverCalled7:
-GuiShowNeverCalled8:
-GuiShowNeverCalled9:
+; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
 GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
-GuiShowFromAddThisFolder1:
-GuiShowFromAddThisFolder2:
+GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
+GuiShowNeverCalled:
 ;------------------------------------------------------------
-
-if (A_ThisLabel = "GuiShowFromTray")
-{
-	Diag("A_DefaultGui", A_DefaultGui )
-	Diag("A_Gui", A_Gui)
-	Diag("A_GuiControl", A_GuiControl)
-	Diag("A_GuiEvent", A_GuiEvent)
-	Diag("A_GuiControlEvent", A_GuiControlEvent)
-	Diag("A_EventInfo", A_EventInfo)
-	Diag("A_ThisMenu", A_ThisMenu)
-	Diag("A_ThisMenuItem", A_ThisMenuItem)
-}
 
 ; should not be required but safer
 GuiControlGet, blnSaveEnabled, Enabled, %lGuiSave%
@@ -6462,7 +6442,7 @@ if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
 else
 	Gosub, LoadMenuInGui
-Diag(A_ThisLabel, "")
+; Diag(A_ThisLabel, "")
 Gui, 1:Show
 
 GuiShowCleanup:
