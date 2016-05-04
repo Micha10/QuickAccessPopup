@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.1.1 BETA (2016-05-03)
+- implement macro snippet commands Sleep, SetKeyDelay and KeyWait
+
 Version: 7.2.1 (2016-05-03)
  
 SNIPPETS
@@ -660,7 +663,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.1
+;@Ahk2Exe-SetVersion 7.2.1.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -707,8 +710,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.1" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.2.1.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -9769,7 +9772,7 @@ else ; snippet of type Macro
 					if !InStr(strOptions, "D")
 						strOptions .= " D"
 					ToolTip, % L(lTooltipSnippetKeyWait, arrOptions1)
-					if !InStr(strOptions, "B")
+					if InStr(strOptions, "B")
 						SoundBeep
 					KeyWait, %arrOptions1%, %strOptions%
 					ToolTip
