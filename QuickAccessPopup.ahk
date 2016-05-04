@@ -18,7 +18,7 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2 (2016-05-03)
+Version: 7.2.1 (2016-05-03)
  
 SNIPPETS
 - add new favorite type "Snippet" to paste pieces of text from the QAP popup menu or hotkeys
@@ -51,6 +51,9 @@ Bug fixes
 Other
 - French, Italian and Swedish language update new v7.2 features
 - new runtime v1.1.23.5 from AHK
+
+Version: 7.2 (2016-05-03)
+- incomplete release, fixed in v7.2.1
 
 Version BETA: 7.1.99.11 (2016-05-01)
 - fix bug Settings window opening when clicking on the QAP tray icon
