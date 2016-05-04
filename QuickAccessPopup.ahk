@@ -55,6 +55,7 @@ Other
 Version BETA: 7.1.99.11 (2016-05-01)
 - fix bug Settings window opening when clicking on the QAP tray icon
 - fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
+- add auto-detection of .ahk and .vbs extensions when user add a favorite using drag-and-drop to the Settings window
 
 Version BETA: 7.1.99.10 (2016-04-30)
 - new runtime v1.1.23.5 from AHK
@@ -5591,7 +5592,7 @@ else ; add favorite
 	else if (strGuiFavoriteLabel = "GuiAddFromDropFiles")
 	{
 		SplitPath, g_strNewLocation, , , strExtension
-		if StrLen(strExtension) and InStr("exe|com|bat", strExtension)
+		if StrLen(strExtension) and InStr("exe|com|bat|vbs|ahk", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
 			g_objEditedFavorite.FavoriteType := "Document"
@@ -9433,7 +9434,7 @@ else ; OpenRecentFolder or OpenClipboard
 	else
 	{
 		SplitPath, strThisMenuItem, , , strExtension
-		if StrLen(strExtension) and InStr("exe.com.bat", strExtension)
+		if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
 			strFavoriteType := "Application" ; application
 		else
 			strFavoriteType := (LocationIsDocument(EnvVars(strThisMenuItem)) ? "Document" : "Folder")
