@@ -18,6 +18,40 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2 (2016-05-03)
+ 
+SNIPPETS
+- add new favorite type "Snippet" to paste pieces of text from the QAP popup menu or hotkeys
+- snippet is pasted to the active window at the current insertion point
+- an option in "Advanced settings" can make a snippet be sent as "Text" (default) or as "Macro"
+- snippets of type "Text" are pasted to the active window using the clipboard (the original clipboard content is preserved)
+- snippets of type "Macro" are sent as keystrokes supporting AHK special characters (handle with care - see help page)
+- if snippet is selected by clicking on Taskbar, on QAP icon in Notification area (Tray icon) or on Desktop, a keyboard pause allows user to select the insertion point and press the Enter key to start pasting (timeout after 10 seconds)
+- in snippet text, end-of-line and tab characters can be processed automatically or entered as special codes (`n for new line and `t for tab)
+- add help link in Add/Edit favorite for snippets
+ 
+EXTERNAL MENUS
+- add "External menu" favorite type allowing to load favorites from a shared .ini file
+- external menu can be modified as regular submenus
+- external menu can be made read-only by adding the value "MenuReadOnly=1" in the ini file [Global] section
+- first favorite number in external settings file can be configured in "Advanced settings"
+- external menu settings file path supports relative paths, environment variables, UNC and HTTP paths
+- if external menu settings file cannot be loaded properly, give an error message, display menu as unavailable in Settings favorites list and block menu editing
+- removing an external menu from QAP menu does not delete the external menu settings file
+- add help link in Add/Edit favorite for external menus
+ 
+Bug fixes
+- fix bug Settings window occasionally opening inavertandly when clicking on the QAP tray icon (when Total Commander and Directory Opus as file manager only)
+- option "Open Menu on Taskbar" is now considered
+- column breaks now inserted in menu when called from a hotkey and now inserted at the correct position in submenus
+- stop checking for prod update if user decide to download the newest beta version
+- stop launching Directory Opus when refreshing the list of open folders in listers if Directory Opus is not running
+- add the auto-detection of .ahk and .vbs extensions when user add a favorite using drag-and-drop to the Settings window
+ 
+Other
+- French, Italian and Swedish language update new v7.2 features
+- new runtime v1.1.23.5 from AHK
+
 Version BETA: 7.1.99.11 (2016-05-01)
 - fix bug Settings window opening when clicking on the QAP tray icon
 - fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
@@ -622,7 +656,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.11 BETA
+;@Ahk2Exe-SetVersion 7.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -669,8 +703,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.11" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
