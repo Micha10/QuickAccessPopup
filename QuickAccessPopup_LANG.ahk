@@ -373,6 +373,7 @@ global lPickIconNoLocation := "First select a favorite before choosing an icon."
 global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ now? Unsaved changes to the folders menu will be lost."
 global lTCMenuName := "TC Directory hotlist" ; new
 global lTCWinCmdLocation := "WinCmd.ini location" ; new
+global lTooltipSnippetKeyWait := "Press {~1~} to continue..."
 global lTooltipSnippetWait := "Select the insertion point and hit ""~1~"" to paste the snippet (waiting ~2~ seconds)" ; new
 global lTooltipSnippetWaitEnter := "Enter"
 global lTrayTipInstalledDetail := "~1~ or ~2~ to launch favorites" ; changed

@@ -732,6 +732,10 @@ g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupInd
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
 
+g_strSnippetCommandStart := "{&" ; start of command in macro snippets
+g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
+g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
+
 g_objGuiControls := Object() ; to build Settings gui
 
 g_strMouseButtons := ""
@@ -9716,8 +9720,73 @@ if (blnTextSnippet)
 }
 else ; snippet of type Macro
 {
-	Send, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+
+	Loop
+	{
+		if InStr(strTemp, g_strSnippetCommandStart)
+		{
+			intCommandStart := InStr(strTemp, g_strSnippetCommandStart)
+			intCommandEnd := InStr(strTemp, g_strSnippetCommandEnd, , intCommandStart)
+			strSend := SubStr(strTemp, 1, intCommandStart - 1)
+			strCommand := SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2)
+			
+			if StrLen(strSend)
+				Send, %strSend% ; SendMode is Input mode by default until user sends a SetKeyDelay where it would be changed to Event mode
+			
+			if StrLen(strCommand)
+			; {&Sleep:n} or {&n}: pause sending the snippet for n milliseconds (see https://autohotkey.com/docs/commands/Sleep.htm)
+			; {&SetKeyDelay:n, option}: speed down the sending of the snippet (see https://autohotkey.com/docs/commands/SetKeyDelay.htm)
+			; {&KeyWait:keyname, options}: pause sending the snippet until user press the specified key, option D by default, added option B to "Beep" (see https://autohotkey.com/docs/commands/KeyWait.htm)
+			{
+				if strCommand is integer ; shortcut {&n} for {&Sleep:n} command
+				{
+					strOptions := strCommand ; copy the n of milliseconds to sleep
+					strCommand := "Sleep" ; set the shortcut command
+				}
+				else if InStr(strCommand, g_strSnippetOptionsSeparator)
+				{
+					strOptions := SubStr(strCommand, InStr(strCommand, g_strSnippetOptionsSeparator) + 1)
+					strCommand := SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1)
+				}
+				else
+					strOptions := ""
+
+				strOptions .= ",,,,," ; append comas to make sure we init an empty array
+				StringSplit, arrOptions, strOptions, `,
+				
+				if (strCommand = "Sleep")
+					Sleep, %arrOptions1%
+				else if (strCommand = "SetKeyDelay")
+				{
+					SendMode, Event ; to support key delay
+					SetKeyDelay, %arrOptions1%, %arrOptions2%
+				}
+				else if (strCommand = "KeyWait")
+				{
+					strOptions := Trim(arrOptions2 . " " . arrOptions3 . " " . arrOptions4)
+					if !InStr(strOptions, "D")
+						strOptions .= " D"
+					ToolTip, % L(lTooltipSnippetKeyWait, arrOptions1)
+					if !InStr(strOptions, "B")
+						SoundBeep
+					KeyWait, %arrOptions1%, %strOptions%
+					ToolTip
+				}
+			}
+			
+			strTemp := SubStr(strTemp, intCommandEnd + 1) ; loop with the remaining of the snippet
+		}
+		else ; this is the last section of the snippet
+		{
+			if StrLen(strTemp)
+				Send, %strTemp%
+			break
+		}
+	}
+
+	SendMode, Input ; restore default SendMode to Input mode
 }
 
 PasteSnippetCleanup:
@@ -9729,6 +9798,9 @@ blnTextSnippet := ""
 objPrevClipboard := ""
 strClassSnippet := ""
 g_blnLaunchFromTrayIcon := false
+strTemp := ""
+strSend := ""
+strCommand := ""
 
 return
 ;------------------------------------------------------------
