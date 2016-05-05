@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
-lAboutText2	~1~ wird entwickelt von Jean Lalonde unter`nVerwendung der <a href="http://ahkscript.org/">AutoHotkey</a> Programmiersprache.`n`nDeutsche Übersetzung: Edgar "Fast Edi" Hoffmann`nFranzösische Übersetzung: Jean Lalonde`nHolländische Übersetzung: Pieter Dejonghe`Koreanisch Übersetzung: Om Il-Sung`nSchwedisch Übersetzung: Åke Engelbrektson`nItalienische Übersetzung: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nEnglische Gegenleser: (Hilfe willkommen)`n`nIcons von: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramm installieren: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> von jrsoftware.org`nAutoHotkey_L v1.1 Sourcen: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a> ; changed
+lAboutText2	~1~ wird entwickelt von Jean Lalonde unter`nVerwendung der <a href="http://ahkscript.org/">AutoHotkey</a> Programmiersprache.`n`nDeutsche Übersetzung: Edgar "Fast Edi" Hoffmann`nFranzösische Übersetzung: Jean Lalonde`nHolländische Übersetzung: Pieter Dejonghe`Koreanisch Übersetzung: Om Il-Sung`nSchwedisch Übersetzung: Åke Engelbrektson`nItalienische Übersetzung: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nEnglische Gegenleser: (Hilfe willkommen)`n`nIcons von: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramm installieren: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> von jrsoftware.org`nAutoHotkey_L v1.1 Sourcen: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a> ; changed
 lAboutText3	~1~ Jean Lalonde 2013-2014. Freeware.
 lAboutText4	Support unter <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Über - ~1~ ~2~
@@ -71,9 +71,9 @@ lDialogFavoriteTypesHelp6	Erstelle einen Shortcut zu einem "FTP-Ordner".`n`nSetz
 lDialogFavoriteTypesHelp7	Fügen Sie überall in Ihrem Menü "Quick Access Popup Features" wie:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- usw. ein.
 lDialogFavoriteTypesHelp8	Sammeln Sie zusammengehörige Favoriten in einem "Untermenü".`n`nVergeben Sie einen Namen für das Untermenü und wählen Sie Menü-Optionen.`n`nFügen Sie Favoriten hinzu oder verschieben Sie diese mit dem Schalter "Bearbeiten" aus anderen Untermenüs oder Gruppen.
 lDialogFavoriteTypesHelp9	Starten Sie eine ganze "Gruppe" von Favoriten mit nur einem Shortcut!`n`nVergeben Sie einen Gruppennamen und setzen Sie verschiedene Optionen für die Gruppe.`n`nFügen Sie Favoriten hinzu oder verschieben Sie diese mit dem Schalter "Bearbeiten" aus anderen Untermenüs oder Gruppen.`n`nErweiterte Einstellungen erlauben es, durch Angabe von Verzögerungen zwischen den Aufrufen die Geschwindigkeit zu optimieren.
-lDialogFavoriteTypesLabels	&Ordner|&Dokument|&Anwendung|&Systemordner|&Link|F&TP Seite|&QAP Feature|Unter&menü|&Gruppe
-lDialogFavoriteTypesLocationLabels	Ordner (Pfad)|Dokument (Pfad und Dateiname)|Anwendung (Pfad und Dateiname)||Link (URL)|FTP Seite (URL)||||||
-lDialogFavoriteTypesShortNames	Ordner|Dok|Anw|Spezial|Link|FTP|QAP|Menü|Gruppe|Trenner|Spaltenumbruch|..
+lDialogFavoriteTypesLabels	&Ordner|&Dokument|&Anwendung|&Systemordner|&Link|F&TP Seite|&QAP Feature|Unter&menü|&Gruppe||||Text Snippet|External Menu ; changed
+lDialogFavoriteTypesLocationLabels	Ordner (Pfad)|Dokument (Pfad und Dateiname)|Anwendung (Pfad und Dateiname)||Link (URL)|FTP Seite (URL)|||||||Content|External settings file (path)| ; changed
+lDialogFavoriteTypesShortNames	Ordner|Dok|Anw|Spezial|Link|FTP|QAP|Menü|Gruppe|Trenner|Spaltenumbruch|..|Snippet|External ; changed
 lDialogFileLabel	Dokumente
 lDialogFolderLabel	Ordner
 lDialogGetWinInfo	Zur Identifizierung des Titels und der Klasse des Fensters, klicken Sie im Zielfenster mit dem QAP Menü-Hotkey [~1~].
@@ -183,7 +183,7 @@ lGuiHelp	Hilfe
 lGuiHotkeysHelp	Favoriten Shortcuts Hilfe
 lGuiHotkeysHelpText	Runter: Nächster Favorit`nRauf: Vorhergehender Favorit`nStrg-N: Neuen Favoriten hinzufügen`nEnter: Favorit bearbeiten`n`nShift-Rauf/Runter: Zusammenhängende Favoriten auswählen`nStrg-Click: Unzusammenhängende Favoriten auswählen`nStrg-A: Alle Favoriten auswählen`n`nStrg-Runter: Favorit(en) nach unten verschieben`nStrg-Hoch: Favorit(en) nach Oben verschieben`nEntf: Favorit(en) entfernen`n`nStrg-Rechts: Untermenü öffnen`nStrg-Links: Elternmenü öffnen
 lGuiLoginName	Login-Name
-lGuiLvFavoritesHeader	Name|Typ|Ort
+lGuiLvFavoritesHeader	Name|Typ|Ort ; changed
 lGuiMove	Verschieben
 lGuiOptions	Optionen
 lGuiPassword	Passwort
@@ -318,7 +318,7 @@ lOptionsHotkeyRemindersPrompt	Hotkey-Erinnerungen im Menü:
 lOptionsHotkeyRemindersShort	Zeige abgekürzte Namen
 lOptionsIconSize	Symbolgröße im Menü
 lOptionsLanguage	Sprache
-lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch|Chinese
+lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch|Chinese|Brasilianisch
 lOptionsMenuActiveWindow	Im aktiven Fenster
 lOptionsMenuFixPosition	An fester Position
 lOptionsMenuNearMouse	Nahe des Mauszeigers

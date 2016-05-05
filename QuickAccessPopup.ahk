@@ -18,7 +18,61 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.1.1 BETA (2016-05-03)
+- implement macro snippet commands Sleep, SetKeyDelay and KeyWait
+
+Version: 7.2.1 (2016-05-03)
+ 
+SNIPPETS
+- add new favorite type "Snippet" to paste pieces of text from the QAP popup menu or hotkeys
+- snippet is pasted to the active window at the current insertion point
+- an option in "Advanced settings" can make a snippet be sent as "Text" (default) or as "Macro"
+- snippets of type "Text" are pasted to the active window using the clipboard (the original clipboard content is preserved)
+- snippets of type "Macro" are sent as keystrokes supporting AHK special characters (handle with care - see help page)
+- if snippet is selected by clicking on Taskbar, on QAP icon in Notification area (Tray icon) or on Desktop, a keyboard pause allows user to select the insertion point and press the Enter key to start pasting (timeout after 10 seconds)
+- in snippet text, end-of-line and tab characters can be processed automatically or entered as special codes (`n for new line and `t for tab)
+- add help link in Add/Edit favorite for snippets
+ 
+EXTERNAL MENUS
+- add "External menu" favorite type allowing to load favorites from a shared .ini file
+- external menu can be modified as regular submenus
+- external menu can be made read-only by adding the value "MenuReadOnly=1" in the ini file [Global] section
+- first favorite number in external settings file can be configured in "Advanced settings"
+- external menu settings file path supports relative paths, environment variables, UNC and HTTP paths
+- if external menu settings file cannot be loaded properly, give an error message, display menu as unavailable in Settings favorites list and block menu editing
+- removing an external menu from QAP menu does not delete the external menu settings file
+- add help link in Add/Edit favorite for external menus
+ 
+Bug fixes
+- fix bug Settings window occasionally opening inavertandly when clicking on the QAP tray icon (when Total Commander and Directory Opus as file manager only)
+- option "Open Menu on Taskbar" is now considered
+- column breaks now inserted in menu when called from a hotkey and now inserted at the correct position in submenus
+- stop checking for prod update if user decide to download the newest beta version
 - stop launching Directory Opus when refreshing the list of open folders in listers if Directory Opus is not running
+- add the auto-detection of .ahk and .vbs extensions when user add a favorite using drag-and-drop to the Settings window
+ 
+Other
+- French, Italian and Swedish language update new v7.2 features
+- new runtime v1.1.23.5 from AHK
+
+Version: 7.2 (2016-05-03)
+- incomplete release, fixed in v7.2.1
+
+Version BETA: 7.1.99.11 (2016-05-01)
+- fix bug Settings window opening when clicking on the QAP tray icon
+- fix bug when trying to get a Snippet location using Alternative menu feature "Copy a Favorite's Path or URL"
+- add auto-detection of .ahk and .vbs extensions when user add a favorite using drag-and-drop to the Settings window
+
+Version BETA: 7.1.99.10 (2016-04-30)
+- new runtime v1.1.23.5 from AHK
+- same features
+
+Version BETA: 7.1.99.9 (2016-04-29)
+- fix bug when trying to edit an external submenu just created
+- validate that external settings file is an .ini file or add .ini extension if no extension is provided
+- completely delete old favorites in external menu settings files when saving current favorites
+- stop launching Directory Opus when refreshing the list of open folders in listers if Directory Opus is not running
+- update to Portuguese-Brazilian and Swedish language files
 
 Version BETA: 7.1.99.8 (2016-04-23)
 - fix bug column breaks now inserted in menu when called from hotkey
@@ -126,7 +180,7 @@ Version: 7.1.8 (2016-03-25)
 
 Version: 7.1.7 (2016-03-22)
 - addition of Chineese Traditional (Taiwanese Mandarin, ZH-TW), thanks to Jess Yang
-- update to Spanish and Sweeden language files
+- update to Spanish and Swedish language files
 - fix Add This Folder bug caused by safety coded introduced in v7.1.5
 
 Version: 7.1.5/7.1.6 (2016-03-20)
@@ -246,7 +300,7 @@ Version: 6.5.1 beta (2016-01-18)
 - disabled dynamic menus refresh background task ("Recent folders" and "Drives")
 - reverted "Recent folders" menu to external menu (not integrated) until the refresh background task is fixed
 - changed the "Drives" menu to external menu (not integrated) until the refresh background task is fixed
-- update to Sweeden and Spanish language
+- update to Swedish and Spanish language
 
 Version: 6.4.4 beta (2016-01-10)
 - little changes in the code refreshing the Clipboard menu, trying to find the source of the issue causing a crash of QAP during dynamic menus refresh
@@ -609,7 +663,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.1.99.8 BETA
+;@Ahk2Exe-SetVersion 7.2.1.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -656,7 +710,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.1.99.8" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.1.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -680,6 +734,10 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+
+g_strSnippetCommandStart := "{&" ; start of command in macro snippets
+g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
+g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
 
 g_objGuiControls := Object() ; to build Settings gui
 
@@ -1055,6 +1113,7 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_ES.txt, %g_strTempDir%\QuickAcces
 FileInstall, FileInstall\QuickAccessPopup_LANG_PT-BR.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT-BR.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAccessPopup_LANG_IT.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-TW.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-TW.txt, 1
+FileInstall, FileInstall\QuickAccessPopup_LANG_PT.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_KO.txt, %g_strTempDir%\QuickAccessPopup_LANG_KO.txt, 1
 
@@ -1294,7 +1353,7 @@ InitLanguageArrays:
 ; ----------------------
 ; OPTIONS
 StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
-strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
+strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 
@@ -2655,7 +2714,7 @@ Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-Menu, Tray, Add, % lMenuSettings . "...", GuiShow
+Menu, Tray, Add, % lMenuSettings . "...", GuiShowFromTray
 Menu, Tray, Add, % L(lMenuEditIniFile, g_strAppNameFile . ".ini"), ShowSettingsIniFile
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
@@ -2726,7 +2785,7 @@ Menu, g_menuClipboard, Add
 Menu, g_menuClipboard, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuClipboard")
 
 return
@@ -2893,7 +2952,7 @@ Menu, g_menuDrives, Add
 Menu, g_menuDrives, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuDrives", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuDrives")
 
 return
@@ -3003,7 +3062,7 @@ Menu, g_menuRecentFolders, Add
 Menu, g_menuRecentFolders, DeleteAll
 if (g_blnUseColors)
     Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuRecentFolders")
 
 return
@@ -3144,8 +3203,8 @@ if (g_blnUseColors)
     Menu, g_menuReopenFolder, Color, %g_strMenuBackgroundColor%
     Menu, g_menuSwitchFolderOrApp, Color, %g_strMenuBackgroundColor%
 }
-AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
-AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
 
@@ -3354,10 +3413,10 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 if !(blnWeHaveFolders)
-	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu("g_menuReopenFolder")
 AddCloseMenu("g_menuSwitchFolderOrApp")
@@ -3533,7 +3592,7 @@ Menu, %lTCMenuName%, Add
 Menu, %lTCMenuName%, DeleteAll
 if (g_blnUseColors)
     Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 AddCloseMenu(lTCMenuName)
 
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
@@ -3581,7 +3640,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
 }
 else
-	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShow", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 AddCloseMenu(lTCMenuName)
 
@@ -4017,7 +4076,7 @@ GuiOptionsFromQAPFeature:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiOptionsFromQAPFeature")
-	Gosub, GuiShow
+	Gosub, GuiShowFromGuiOptions
 
 g_intGui1WinID := WinExist("A")
 loop, 4
@@ -4411,13 +4470,13 @@ Gui, 3:Font
 Gui, 3:Add, Text, x10 w400, % L(lOptionsChangeFolderInDialogText , Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4), Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
 Gui, 3:Add, Checkbox, x10 w400 vf_blnUnderstandChangeFoldersInDialogRisk, %lOptionsChangeFolderInDialogCheckbox%
 
-Gui, Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
-Gui, Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
+Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
+Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
 	
 GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
-Gui, Show, AutoSize Center
+Gui, 3:Show, AutoSize Center
 Gui, 2:+Disabled
 
 return
@@ -4840,6 +4899,7 @@ if !(g_blnDonor)
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
 StringSplit, arrSettingsPosition, strSettingsPosition, |
 
+Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
 	? "center w636 h538"
@@ -5045,7 +5105,7 @@ GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiAddFavoriteFromQAP")
-	gosub, GuiShow
+	gosub, GuiShowFromGuiAddFavoriteSelectType
 
 if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
 {
@@ -5272,7 +5332,7 @@ If !StrLen(g_strNewLocation)
 	MsgBox, 52, % L(lDialogAddFolderManuallyTitle, g_strAppNameText, g_strAppVersion), %lDialogAddFolderManuallyPrompt%
 	IfMsgBox, Yes
 	{
-		Gosub, GuiShow
+		Gosub, GuiShowFromAddThisFolder
 		g_strAddFavoriteType := "Folder"
 		Gosub, GuiAddFavorite
 	}
@@ -5283,7 +5343,7 @@ else
 	{
 		g_intOriginalMenuPosition := 0xFFFF ; add item at the end of menu in GUI
 		
-		Gosub, GuiShow ; except for Express add, show Settings window
+		Gosub, GuiShowFromAddThisFolder ; except for Express add, show Settings window
 		
 		if (A_ThisLabel = "AddThisFolder")
 			
@@ -6446,6 +6506,13 @@ return
 GuiShow:
 GuiShowFromAlternative:
 SettingsHotkey:
+GuiShowFromTray:
+; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
+GuiShowFromGuiOptions:
+GuiShowFromGuiAddFavoriteSelectType:
+GuiShowFromAddThisFolder:
+GuiShowFromHotkeysManage:
+GuiShowNeverCalled:
 ;------------------------------------------------------------
 
 ; should not be required but safer
@@ -6467,6 +6534,7 @@ if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
 else
 	Gosub, LoadMenuInGui
+; Diag(A_ThisLabel, "")
 Gui, 1:Show
 
 GuiShowCleanup:
@@ -6780,6 +6848,20 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		}
 	}
 
+	if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		SplitPath, f_strFavoriteAppWorkingDir, , , strExternalSettingsExtension
+
+		if !StrLen(strExternalSettingsExtension)
+			f_strFavoriteAppWorkingDir .= ".ini"
+		else if (strExternalSettingsExtension <> "ini")
+		{
+			Oops(lDialogExternalLocationIni)
+			gosub, GuiAddFavoriteSaveCleanup
+			return
+		}
+	}
+	
 	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
 		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
@@ -6836,7 +6918,10 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
+	{
 		objNewMenu.MenuExternalPath := g_objEditedFavorite.FavoriteAppWorkingDir
+		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
+	}
 
 	; create a navigation entry to navigate to the parent menu
 	objNewMenuBack := Object()
@@ -7431,7 +7516,7 @@ GuiHotkeysManageFromQAPFeature:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
-	Gosub, GuiShow
+	Gosub, GuiShowFromHotkeysManage
 	
 intWidth := 840
 
@@ -7770,6 +7855,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				
 				if !FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
 					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+				
+				IniDelete, %g_strIniFile%, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -8449,8 +8536,8 @@ else if (A_ThisLabel = "NavigateFromMsg")
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
-if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId)
-	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate"))
+if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId))
+	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate")
 {
 	Click ; to make sure the DOpus lister or TC pane under the mouse become active
 	Sleep, 20
@@ -9410,7 +9497,7 @@ else ; OpenRecentFolder or OpenClipboard
 	else
 	{
 		SplitPath, strThisMenuItem, , , strExtension
-		if StrLen(strExtension) and InStr("exe.com.bat", strExtension)
+		if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
 			strFavoriteType := "Application" ; application
 		else
 			strFavoriteType := (LocationIsDocument(EnvVars(strThisMenuItem)) ? "Document" : "Folder")
@@ -9472,7 +9559,7 @@ else
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
 
-if StrLen(g_objThisFavorite.FavoriteLaunchWith) and (g_objThisFavorite.FavoriteType <> "Application") ; ignore for Application favorites
+if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType) ; ignore for Application favorites
 {
 	strFullLaunchWith := g_objThisFavorite.FavoriteLaunchWith
 	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
@@ -9633,17 +9720,17 @@ strWaitTime := 10
 
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
-Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
+; Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
 DiagWindowInfo(A_ThisLabel . " Start")
 
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet))
 {
 	ToolTip, % L(lTooltipSnippetWait, strWaitKeyText, strWaitTime)
-	Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
+	; Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
 	KeyWait, %strWaitKey%, D T%strWaitTime%
 	intErrorLevel := ErrorLevel
 	ToolTip
-	Diag("KeyWait After - intErrorLevel", intErrorLevel)
+	; Diag("KeyWait After - intErrorLevel", intErrorLevel)
 	if (intErrorLevel)
 	{
 		Gosub, PasteSnippetCleanup
@@ -9658,8 +9745,8 @@ else
 
 ; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
 blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
-Diag("Paste Before - blnTextSnippet", blnTextSnippet)
+; Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
+; Diag("Paste Before - blnTextSnippet", blnTextSnippet)
 
 if (blnTextSnippet)
 {
@@ -9670,7 +9757,7 @@ if (blnTextSnippet)
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
-	Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
+	; Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
 	if (intErrorLevel)
 	{
 		Gosub, PasteSnippetCleanup
@@ -9685,12 +9772,77 @@ if (blnTextSnippet)
 	Sleep, 100 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
-	Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+	; Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 }
 else ; snippet of type Macro
 {
-	Send, % DecodeSnippet(g_objThisFavorite.FavoriteLocation)
-	Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
+
+	Loop
+	{
+		if InStr(strTemp, g_strSnippetCommandStart)
+		{
+			intCommandStart := InStr(strTemp, g_strSnippetCommandStart)
+			intCommandEnd := InStr(strTemp, g_strSnippetCommandEnd, , intCommandStart)
+			strSend := SubStr(strTemp, 1, intCommandStart - 1)
+			strCommand := SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2)
+			
+			if StrLen(strSend)
+				Send, %strSend% ; SendMode is Input mode by default until user sends a SetKeyDelay where it would be changed to Event mode
+			
+			if StrLen(strCommand)
+			; {&Sleep:n} or {&n}: pause sending the snippet for n milliseconds (see https://autohotkey.com/docs/commands/Sleep.htm)
+			; {&SetKeyDelay:n, option}: speed down the sending of the snippet (see https://autohotkey.com/docs/commands/SetKeyDelay.htm)
+			; {&KeyWait:keyname, options}: pause sending the snippet until user press the specified key, option D by default, added option B to "Beep" (see https://autohotkey.com/docs/commands/KeyWait.htm)
+			{
+				if strCommand is integer ; shortcut {&n} for {&Sleep:n} command
+				{
+					strOptions := strCommand ; copy the n of milliseconds to sleep
+					strCommand := "Sleep" ; set the shortcut command
+				}
+				else if InStr(strCommand, g_strSnippetOptionsSeparator)
+				{
+					strOptions := SubStr(strCommand, InStr(strCommand, g_strSnippetOptionsSeparator) + 1)
+					strCommand := SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1)
+				}
+				else
+					strOptions := ""
+
+				strOptions .= ",,,,," ; append comas to make sure we init an empty array
+				StringSplit, arrOptions, strOptions, `,
+				
+				if (strCommand = "Sleep")
+					Sleep, %arrOptions1%
+				else if (strCommand = "SetKeyDelay")
+				{
+					SendMode, Event ; to support key delay
+					SetKeyDelay, %arrOptions1%, %arrOptions2%
+				}
+				else if (strCommand = "KeyWait")
+				{
+					strOptions := Trim(arrOptions2 . " " . arrOptions3 . " " . arrOptions4)
+					if !InStr(strOptions, "D")
+						strOptions .= " D"
+					ToolTip, % L(lTooltipSnippetKeyWait, arrOptions1)
+					if InStr(strOptions, "B")
+						SoundBeep
+					KeyWait, %arrOptions1%, %strOptions%
+					ToolTip
+				}
+			}
+			
+			strTemp := SubStr(strTemp, intCommandEnd + 1) ; loop with the remaining of the snippet
+		}
+		else ; this is the last section of the snippet
+		{
+			if StrLen(strTemp)
+				Send, %strTemp%
+			break
+		}
+	}
+
+	SendMode, Input ; restore default SendMode to Input mode
 }
 
 PasteSnippetCleanup:
@@ -9702,6 +9854,9 @@ blnTextSnippet := ""
 objPrevClipboard := ""
 strClassSnippet := ""
 g_blnLaunchFromTrayIcon := false
+strTemp := ""
+strSend := ""
+strCommand := ""
 
 return
 ;------------------------------------------------------------

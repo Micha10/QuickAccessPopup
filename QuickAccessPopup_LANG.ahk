@@ -1,5 +1,5 @@
 global lAboutText1 := "~1~ ~2~ (~3~ bits)"
-global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
+global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
 global lAboutText3 := "~1~ Jean Lalonde 2013-2014. Freeware."
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
@@ -47,6 +47,7 @@ global lDialogEditIconPrompt := "Edit icon resource in the format ""iconfile,ind
 global lDialogEndOfMenu := "end of menu"
 global lDialogErrorMoving := "Unable to resize for favorite:`n""~1~""" ; new
 global lDialogExternalLocation := "External menu settings file location" ; new
+global lDialogExternalLocationIni := "External menu settings file must be an .ini file" ; new
 global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
 global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not exist or is not available.`n`nIf this favorite is on a network drive, please try again after network authentification." ; changed
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
@@ -340,7 +341,7 @@ global lOptionsHotkeyRemindersPrompt := "Hotkey reminders in menu:" ; new
 global lOptionsHotkeyRemindersShort := "Display abbreviated names" ; new
 global lOptionsIconSize := "Menu icons size"
 global lOptionsLanguage := "Language"
-global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Traditional Chinese" ; removed Dutch|Korean|
+global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Traditional Chinese|Portuguese" ; removed Dutch|Korean|
 global lOptionsMenuActiveWindow := "Top-left of active window"
 global lOptionsMenuFixPosition := "At a fix position"
 global lOptionsMenuNearMouse := "Near the mouse pointer"
@@ -372,6 +373,7 @@ global lPickIconNoLocation := "First select a favorite before choosing an icon."
 global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ now? Unsaved changes to the folders menu will be lost."
 global lTCMenuName := "TC Directory hotlist" ; new
 global lTCWinCmdLocation := "WinCmd.ini location" ; new
+global lTooltipSnippetKeyWait := "Press {~1~} to continue..."
 global lTooltipSnippetWait := "Select the insertion point and hit ""~1~"" to paste the snippet (waiting ~2~ seconds)" ; new
 global lTooltipSnippetWaitEnter := "Enter"
 global lTrayTipInstalledDetail := "~1~ or ~2~ to launch favorites" ; changed

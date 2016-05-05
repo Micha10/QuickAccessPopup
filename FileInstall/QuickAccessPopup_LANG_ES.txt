@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ ha sido desarrollado por Jean Lalonde`nsobre la plataforma <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al español: kiketrucker`nTraducción al Francés: Jean Lalonde`nTraducción al alemán: Edgar ""Fast Edi"" Hoffmann`nTraducción al holandés: Pieter Dejonghe`nTraducción al coreano: Om Il-Sung`nTraducción al sueco: Åke Engelbrektson`nTraducción al italiano: Riccardo Leone`nTraducción al portugués brasileño: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nRevisión del ingles: (bienvenida la ayuda)`n`nIconos por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a> ; changed
+lAboutText2	~1~ ha sido desarrollado por Jean Lalonde`nsobre la plataforma <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al español: kiketrucker`nTraducción al Francés: Jean Lalonde`nTraducción al alemán: Edgar ""Fast Edi"" Hoffmann`nTraducción al holandés: Pieter Dejonghe`nTraducción al coreano: Om Il-Sung`nTraducción al sueco: Åke Engelbrektson`nTraducción al italiano: Riccardo Leone`nTraducción al portugués brasileño: Igor Ruckert`nTraditional Traducción al chino: Jess Yang`nTraducción al portugués: Luis Neves`nRevisión del ingles: (bienvenida la ayuda)`n`nIconos por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-2014. Gratuiciel.
 lAboutText4	Soporte en línea: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca de - ~1~ ~2~
@@ -71,9 +71,9 @@ lDialogFavoriteTypesHelp6	Crear un acceso directo a un "FTP Sitio".`n`nEstablece
 lDialogFavoriteTypesHelp7	Inserte cualquier lugar en su menú "Quick Access Popup Características" como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados en un "Submenú".`n`nDele a su submenú un nombre y seleccione las opciones de menú.`n`nAñadir favoritos a su submenú o moverlos a otros submenús o grupos utilizando el botón "Editar".
 lDialogFavoriteTypesHelp9	Lance un "grupo" de favoritos, todo en un acceso directo!`n`nDele a su grupo un nombre y configure varias opciones para su grupo.`n`nAñadir favoritos a tu grupo o moverlos a otros submenús o grupos utilizando el botón "Editar".`n`nAjustes avanzados permiten controlar la velocidad de la restauración mediante la inserción de un retardo entre cada favorito para restaurar.
-lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta especial|&Link|F&TP Sitio|&QAP Funciones|Sub&menú|&Grupo
-lDialogFavoriteTypesLocationLabels	Carpeta (ruta de)|Documento (ruta y nombre)|Aplicación (ruta y nombre)||Link (URL)|FTP Sitio (URL)||||||
-lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Special|Link|FTP|QAP|Menú|Grupo|Separador|Salto de columna|..
+lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta especial|&Link|F&TP Sitio|&QAP Funciones|Sub&menú|&Grupo||||Text Snippet|External Menu
+lDialogFavoriteTypesLocationLabels	Carpeta (ruta de)|Documento (ruta y nombre)|Aplicación (ruta y nombre)||Link (URL)|FTP Sitio (URL)|||||||Content|External settings file (path)|
+lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Special|Link|FTP|QAP|Menú|Grupo|Separador|Salto de columna|..|Snippet|External
 lDialogFileLabel	Documento
 lDialogFolderLabel	Carpeta
 lDialogGetWinInfo	Para identificar la ventana de la cual desea obtener el título y la categoría, haga clic en la ventana de destino con el menú de teclas rápidas QAP [~1~].
@@ -318,7 +318,7 @@ lOptionsHotkeyRemindersPrompt	Recordatorios teclas de acceso directo en el menú:
 lOptionsHotkeyRemindersShort	Mostrar nombres abreviados
 lOptionsIconSize	Tamaño de iconos del menú
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chinese
+lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chinese|Portugués
 lOptionsMenuActiveWindow	En la ventana activa
 lOptionsMenuFixPosition	En una posición fija
 lOptionsMenuNearMouse	Cerca del puntero del ratón
