@@ -376,7 +376,7 @@ lTCWinCmdLocation	Emplacement de WinCmd.ini
 lTooltipSnippetKeyWait	Appuyez sur {~1~} pour continuer…
 lTooltipSnippetWait	Sélectionnez le point d'insertion et appuyez sur "~1~" pour coller le fragment (attente de ~2~ secondes) ; new
 lTooltipSnippetWaitEnter	Entrée
-lTrayTipInstalledDetail	~1~ ou ~2~ pour lancer vos favoris
+lTrayTipInstalledDetail	~1~ pour lancer vos favoris
 lTrayTipInstalledTitle	~1~ ~2~ est prêt!
 lTrayTipWorkingDetail	Préparation des menus
 lTrayTipWorkingDetailFinished	Le menu a été mis à jour.

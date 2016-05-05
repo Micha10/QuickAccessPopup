@@ -350,7 +350,7 @@ lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar u
 lReloadPrompt	Cambio ~1~ guardado: ~2~. Desea reiniciar ~3~ en ~2~ ahora? Se perderán los cambios no guardados en el menú de carpetas.
 lTCMenuName	TC Lista de sitios Favoritos 
 lTCWinCmdLocation	WinCmd.ini ubicación 
-lTrayTipInstalledDetail	~1~ or ~2~ para lanzar favoritos
+lTrayTipInstalledDetail	~1~ para lanzar favoritos
 lTrayTipInstalledTitle	~1~ ~2~ Listo!
 lTrayTipWorkingDetail	Preparación de los menús
 lTrayTipWorkingDetailFinished	El menú ha sido actualizado.

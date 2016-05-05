@@ -374,7 +374,7 @@ lTCMenuName	Lista de Acesso de Pastas do TC
 lTCWinCmdLocation	Local do WinCmd.ini
 lTooltipSnippetWait	Selecione o ponto de inserção e pressione "~1~" para colar o recorte (aguardando ~2~ segundos)
 lTooltipSnippetWaitEnter	Enter
-lTrayTipInstalledDetail	~1~ ou ~2~ para iniciar favoritos
+lTrayTipInstalledDetail	~1~ para iniciar favoritos
 lTrayTipInstalledTitle	~1~ ~2~ pronto!
 lTrayTipWorkingDetail	Criando menus
 lTrayTipWorkingDetailFinished	O menu foi atualizado.

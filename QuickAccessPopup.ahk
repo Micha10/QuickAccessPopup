@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.1.2 BETA (2016-05-03)
+- do not display None in startup notification if mouse or keyboard hotkey is not used
+
 Version: 7.2.1.1 BETA (2016-05-03)
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
 
@@ -852,10 +855,16 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 if (g_blnDisplayTrayTip)
 {
 ; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
+	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
+	if (strMouseHotkey = lDialogNone)
+		strMouseHotkey := ""
+	strKeyboardHotkey := HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2)
+	if (strKeyboardHotkey = lDialogNone)
+		strKeyboardHotkey := ""
+	strSeparatorHotkey := (StrLen(strMouseHotkey) and StrLen(strKeyboardHotkey) ? " / " : "")
+			
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail
-			, HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
-			, HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2))
+		, % L(lTrayTipInstalledDetail, strMouseHotkey . strSeparatorHotkey . strKeyboardHotkey)
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
