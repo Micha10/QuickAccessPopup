@@ -9081,9 +9081,10 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 	return
 }
 
-if (g_objThisFavorite.FavoriteType = "Snippet") and !(g_blnAlternativeMenu)
+if (g_objThisFavorite.FavoriteType = "Snippet")
 {
-	gosub, PasteSnippet
+	if !(g_blnAlternativeMenu) or (g_strAlternativeMenu = lMenuAlternativeNewWindow)
+		gosub, PasteSnippet
 	
 	gosub, OpenFavoriteCleanup
 	return
@@ -9191,7 +9192,7 @@ if (g_blnAlternativeMenu)
 ; --- Launch with ---
 
 if InStr("Document|URL", g_objThisFavorite.FavoriteType)
-	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and g_objThisFavorite.FavoriteType <> "Application")
+	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType))
 {
 	Run, %g_strFullLocation%, , , intPid
 	; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
