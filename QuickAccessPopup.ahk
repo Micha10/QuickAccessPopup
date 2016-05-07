@@ -9116,13 +9116,12 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 }
 
 if (g_objThisFavorite.FavoriteType = "Snippet")
-{
-	if !(g_blnAlternativeMenu) or (g_strAlternativeMenu = lMenuAlternativeNewWindow)
+	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
+	{
 		gosub, PasteSnippet
-	
-	gosub, OpenFavoriteCleanup
-	return
-}
+		gosub, OpenFavoriteCleanup
+		return
+	}
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
