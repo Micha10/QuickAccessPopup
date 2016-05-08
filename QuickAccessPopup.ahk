@@ -20,6 +20,9 @@ HISTORY
 
 Version: 7.2.1.2 BETA (2016-05-03)
 - do not display None in startup notification if mouse or keyboard hotkey is not used
+- in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+- fix bug double-click on separator display wrong message "cannot be copied"
 
 Version: 7.2.1.1 BETA (2016-05-03)
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
@@ -5558,13 +5561,13 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
 		g_blnAbordEdit := true
 	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)) ; menu or group cannot be copied
-		g_blnAbordEdit := true
-	
-	if (g_blnAbordEdit = true)
 	{
 		Oops(lOopsCannotCopyFavorite, g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType])
-		return
+		g_blnAbordEdit := true
 	}
+	
+	if (g_blnAbordEdit = true)
+		return
 
 	g_strNewFavoriteIconResource := g_objEditedFavorite.FavoriteIconResource
 	g_strNewFavoriteWindowPosition := g_objEditedFavorite.FavoriteWindowPosition
