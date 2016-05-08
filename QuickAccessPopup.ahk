@@ -19,9 +19,12 @@ HISTORY
 =======
 
 Version: 7.2.1.2 BETA (2016-05-03)
-- do not display None in startup notification if mouse or keyboard hotkey is not used
+- add text box for Snippet prompt in advanced settings; display snippet prompt before launching the snippet
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
 - in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
 - in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+- fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
+- fix bug when launching Snippet using Alternative menu "Open in new window"
 - fix bug double-click on separator display wrong message "cannot be copied"
 
 Version: 7.2.1.1 BETA (2016-05-03)
