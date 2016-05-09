@@ -23,6 +23,7 @@ Version: 7.2.1.2 BETA (2016-05-03)
 - do not display "None" in startup notification if mouse or keyboard hotkey is not used
 - in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
 - in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+- if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 - fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
 - fix bug when launching Snippet using Alternative menu "Open in new window"
 - fix bug double-click on separator display wrong message "cannot be copied"
@@ -857,6 +858,9 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 	Menu, Tray, Check, %lMenuRunAtStartup%
 }
+; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+IfExist, %A_Startup%\FoldersPopup.lnk
+	FileDelete, %A_Startup%\FoldersPopup.lnk
 
 if (g_blnDisplayTrayTip)
 {
