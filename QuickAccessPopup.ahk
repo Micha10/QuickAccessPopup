@@ -23,6 +23,7 @@ Version: 7.2.1.2 BETA (2016-05-03)
 - do not display "None" in startup notification if mouse or keyboard hotkey is not used
 - in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
 - in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+- in What's new dialog box, add a vertical scroll bar to the text zone and set the dialog box height of 550px
 - if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 - fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
 - fix bug when launching Snippet using Alternative menu "Open in new window"
@@ -10744,7 +10745,7 @@ Gui, Update:Font, s10 w700, Verdana
 Gui, Update:Add, Text, x10 y10 w640, % L(lUpdateTitle, g_strAppNameText)
 Gui, Update:Font
 Gui, Update:Add, Text, x10 w640, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion, strLatestVersionProd)
-Gui, Update:Add, Text, x8 y+10 w640, %strChangeLog%
+Gui, Update:Add, Edit, x8 y+10 w640 h300 ReadOnly, %strChangeLog%
 Gui, Update:Font
 
 Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogChangeLog gButtonCheck4UpdateDialogChangeLog, %lUpdateButtonChangeLog%
