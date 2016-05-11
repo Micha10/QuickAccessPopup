@@ -10733,7 +10733,7 @@ Check4UpdateDialogProd:
 
 strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
 
-intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd)
+intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ")
 strChangeLog := SubStr(strChangeLog, intPos)
 intPos := InStr(strChangeLog, "`n`n")
 strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
