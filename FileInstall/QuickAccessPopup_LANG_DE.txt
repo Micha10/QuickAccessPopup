@@ -350,7 +350,7 @@ lPickIconNoLocation	Bitte zuerst einen Favoriten auswählen, bevor ein Icon gewäh
 lReloadPrompt	~1~  wurde in ~2~ geändert. Wollen Sie jetzt ~3~ in ~2~ neu laden? Ungespeicherte Änderungen am Ordnermenü gehen verloren.
 lTCMenuName	TC Directory hotlist
 lTCWinCmdLocation	WinCmd.ini location
-lTrayTipInstalledDetail	~1~ oder ~2~ um Favoriten zu starten
+lTrayTipInstalledDetail	~1~ um Favoriten zu starten
 lTrayTipInstalledTitle	~1~ ~2~ bereit!
 lTrayTipWorkingDetail	Erzeuge Menüs
 lTrayTipWorkingDetailFinished	Das Menü wurde aktualisiert.

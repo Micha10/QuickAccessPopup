@@ -350,7 +350,7 @@ lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù delle cartelle verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
-lTrayTipInstalledDetail	~1~ o ~2~ per aprire Preferiti
+lTrayTipInstalledDetail	~1~ per aprire Preferiti
 lTrayTipInstalledTitle	~1~ ~2~ è pronto!
 lTrayTipWorkingDetail	Menù in costruzione...
 lTrayTipWorkingDetailFinished	Il menù è stato aggiornato.

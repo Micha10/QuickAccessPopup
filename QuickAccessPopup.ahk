@@ -18,6 +18,17 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.1.2 BETA (2016-05-03)
+- add text box for Snippet prompt in advanced settings; display snippet prompt before launching the snippet
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
+- in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+- in What's new dialog box, add a vertical scroll bar to the text zone and set the dialog box height of 550px
+- if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+- fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
+- fix bug when launching Snippet using Alternative menu "Open in new window"
+- fix bug double-click on separator display wrong message "cannot be copied"
+
 Version: 7.2.1.1 BETA (2016-05-03)
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
 
@@ -848,14 +859,23 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 	Menu, Tray, Check, %lMenuRunAtStartup%
 }
+; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+IfExist, %A_Startup%\FoldersPopup.lnk
+	FileDelete, %A_Startup%\FoldersPopup.lnk
 
 if (g_blnDisplayTrayTip)
 {
 ; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
+	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
+	if (strMouseHotkey = lDialogNone)
+		strMouseHotkey := ""
+	strKeyboardHotkey := HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2)
+	if (strKeyboardHotkey = lDialogNone)
+		strKeyboardHotkey := ""
+	strSeparatorHotkey := (StrLen(strMouseHotkey) and StrLen(strKeyboardHotkey) ? " / " : "")
+			
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail
-			, HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
-			, HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2))
+		, % L(lTrayTipInstalledDetail, strMouseHotkey . strSeparatorHotkey . strKeyboardHotkey)
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -5592,13 +5612,13 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
 		g_blnAbordEdit := true
 	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)) ; menu or group cannot be copied
-		g_blnAbordEdit := true
-	
-	if (g_blnAbordEdit = true)
 	{
 		Oops(lOopsCannotCopyFavorite, g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType])
-		return
+		g_blnAbordEdit := true
 	}
+	
+	if (g_blnAbordEdit = true)
+		return
 
 	g_strNewFavoriteIconResource := g_objEditedFavorite.FavoriteIconResource
 	g_strNewFavoriteWindowPosition := g_objEditedFavorite.FavoriteWindowPosition
@@ -5909,8 +5929,16 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		
+		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith
+		; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
+		; 2 prompt (pause prompt before pasting/launching the snippet)
+		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
+		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
+		
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
@@ -5946,6 +5974,21 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
 	}
 }
+
+strFavoriteSnippetOptions := ""
+arrFavoriteSnippetOptions := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SnippetModeChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+; change snippet prompt label according to snippet type
+GuiControl, 2:, f_lblSnippetPrompt, % L(lDialogFavoriteSnippetPromptLabel, (f_blnRadioSendModeMacro = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 
 return
 ;------------------------------------------------------------
@@ -6790,6 +6833,13 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	}
 
 	if  (g_objEditedFavorite.FavoriteType = "Snippet")
+	{
+		if InStr(f_strFavoriteSnippetPrompt, "|")
+		{
+			Oops(lDialogFavoriteSnippetPromptNoPipe)
+			gosub, GuiAddFavoriteSaveCleanup
+			return
+		}
 		if !StrLen(strNewFavoriteLocation)
 		{
 			Oops(lDialogFavoriteSnippetEmpty)
@@ -6798,6 +6848,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		}
 		else
 			strNewFavoriteLocation := (f_chkProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+	}
 
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
 	{
@@ -7026,7 +7077,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
-	g_objEditedFavorite.FavoriteLaunchWith := (g_objEditedFavorite.FavoriteType = "Snippet" ? f_blnRadioSendModeMacro : f_strFavoriteLaunchWith)
+	if (g_objEditedFavorite.FavoriteType = "Snippet")
+		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
+	else
+		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
@@ -9125,13 +9179,13 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 	return
 }
 
-if (g_objThisFavorite.FavoriteType = "Snippet") and !(g_blnAlternativeMenu)
-{
-	gosub, PasteSnippet
-	
-	gosub, OpenFavoriteCleanup
-	return
-}
+if (g_objThisFavorite.FavoriteType = "Snippet")
+	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
+	{
+		gosub, PasteSnippet
+		gosub, OpenFavoriteCleanup
+		return
+	}
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
@@ -9235,7 +9289,7 @@ if (g_blnAlternativeMenu)
 ; --- Launch with ---
 
 if InStr("Document|URL", g_objThisFavorite.FavoriteType)
-	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and g_objThisFavorite.FavoriteType <> "Application")
+	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType))
 {
 	Run, %g_strFullLocation%, , , intPid
 	; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
@@ -9718,14 +9772,20 @@ strWaitKey := "Enter"
 strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
+strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith
+; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
+; 2 prompt (pause prompt before pasting/launching the snippet)
+StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
 ; Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
-DiagWindowInfo(A_ThisLabel . " Start")
+; DiagWindowInfo(A_ThisLabel . " Start")
 
-if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet))
+if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
-	ToolTip, % L(lTooltipSnippetWait, strWaitKeyText, strWaitTime)
+	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
+		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), strWaitKeyText, strWaitTime)
 	; Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
 	KeyWait, %strWaitKey%, D T%strWaitTime%
 	intErrorLevel := ErrorLevel
@@ -9736,7 +9796,7 @@ if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(
 		Gosub, PasteSnippetCleanup
 		return
 	}
-	; not required if keywait for Control
+	; not required if keywait for Modifier keys (Alt, Control, etc.)
 	else
 		SendEvent, {Backspace} ; revert the Enter key press
 }
@@ -9786,7 +9846,7 @@ else ; snippet of type Macro
 			intCommandStart := InStr(strTemp, g_strSnippetCommandStart)
 			intCommandEnd := InStr(strTemp, g_strSnippetCommandEnd, , intCommandStart)
 			strSend := SubStr(strTemp, 1, intCommandStart - 1)
-			strCommand := SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2)
+			strCommand := Trim(SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2))
 			
 			if StrLen(strSend)
 				Send, %strSend% ; SendMode is Input mode by default until user sends a SetKeyDelay where it would be changed to Event mode
@@ -9804,13 +9864,15 @@ else ; snippet of type Macro
 				else if InStr(strCommand, g_strSnippetOptionsSeparator)
 				{
 					strOptions := SubStr(strCommand, InStr(strCommand, g_strSnippetOptionsSeparator) + 1)
-					strCommand := SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1)
+					strCommand := Trim(SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1))
 				}
 				else
 					strOptions := ""
 
 				strOptions .= ",,,,," ; append comas to make sure we init an empty array
 				StringSplit, arrOptions, strOptions, `,
+				loop, %arrOptions0%
+					arrOptions%A_Index% := Trim(arrOptions%A_Index%)
 				
 				if (strCommand = "Sleep")
 					Sleep, %arrOptions1%
@@ -9857,6 +9919,8 @@ g_blnLaunchFromTrayIcon := false
 strTemp := ""
 strSend := ""
 strCommand := ""
+arrFavoriteSnippetOptions := ""
+strFavoriteSnippetOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -10721,7 +10785,7 @@ Check4UpdateDialogProd:
 
 strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
 
-intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd)
+intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ")
 strChangeLog := SubStr(strChangeLog, intPos)
 intPos := InStr(strChangeLog, "`n`n")
 strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
@@ -10733,7 +10797,7 @@ Gui, Update:Font, s10 w700, Verdana
 Gui, Update:Add, Text, x10 y10 w640, % L(lUpdateTitle, g_strAppNameText)
 Gui, Update:Font
 Gui, Update:Add, Text, x10 w640, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion, strLatestVersionProd)
-Gui, Update:Add, Text, x8 y+10 w640, %strChangeLog%
+Gui, Update:Add, Edit, x8 y+10 w640 h300 ReadOnly, %strChangeLog%
 Gui, Update:Font
 
 Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogChangeLog gButtonCheck4UpdateDialogChangeLog, %lUpdateButtonChangeLog%
