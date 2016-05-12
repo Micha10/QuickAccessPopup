@@ -18,15 +18,20 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.1.2 BETA (2016-05-03)
-- add text box for Snippet prompt in advanced settings; display snippet prompt before launching the snippet
-- do not display "None" in startup notification if mouse or keyboard hotkey is not used
-- in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
-- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
-- in What's new dialog box, add a vertical scroll bar to the text zone and set the dialog box height of 550px
-- if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+Version: 7.2.1.2 BETA (2016-05-12)
+Snippets:
+- add configurable prompt before pasting a text snippet or launching a macro snippet
 - fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
 - fix bug when launching Snippet using Alternative menu "Open in new window"
+ 
+Shared menus (aka External menus)
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+ 
+Other:
+- new language Portuguese, thanks to 
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
+- in What's new dialog box, add a vertical scroll bar when the text zone is very long
+- if a startup shortcut for FoldersPopup exists after QAP installation, remove it
 - fix bug double-click on separator display wrong message "cannot be copied"
 
 Version: 7.2.1.1 BETA (2016-05-03)
@@ -674,7 +679,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.1.1 BETA
+;@Ahk2Exe-SetVersion 7.2.1.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -721,7 +726,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.1.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.1.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
