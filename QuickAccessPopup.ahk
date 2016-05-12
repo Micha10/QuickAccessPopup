@@ -2102,6 +2102,7 @@ Gosub, LoadIniPopupHotkeys
 ; ---------------------
 ; Load Options Tab 1 General
 
+IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -4147,6 +4148,9 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
@@ -4635,6 +4639,15 @@ if (f_blnOptionsRunAtStartup)
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartup%
 
+if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+	gosub, EnableExplorerContextMenus
+	; else already enabled
+if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+	gosub, DisableExplorerContextMenus
+	; else already disabled
+g_blnExplorerContextMenus := f_blnExplorerContextMenus
+IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
@@ -4824,6 +4837,158 @@ loop, 4
 	g_arrPopupHotkeys%A_Index% := g_arrPopupHotkeysPrevious%A_Index% ; revert to previous content of g_arrPopupHotkeys
 
 Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EnableExplorerContextMenus:
+DisableExplorerContextMenus:
+;------------------------------------------------------------
+
+if (A_ThisLabel = "EnableExplorerContextMenus")
+{
+	FileAppend,
+		(LTrim Join`r`n
+			Windows Registry Editor Version 5.00
+
+			; Add context menus for Quick Access Popup
+			; For more information:
+			; http://www.quickaccesspopup.com/explorer-context-menus-help/
+
+			;--------------------------------------
+			; ADD FILE
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu]
+			@="Add File to Quick Access Popup menu"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFile \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; ADD FILE EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express]
+			@="Add File to Quick Access Popup menu Express"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFileXpress \"`%1\""
+
+
+			;--------------------------------------
+			; ADD FOLDER
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu]
+			@="Add Folder to Quick Access Popup menu"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; ADD FOLDER EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express]
+			@="Add Folder to Quick Access Popup menu Express"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; DESKTOP SHOW MENU 
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
+			@="Show Quick Access Popup menu"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; DESKTOP SHOW ALTERNATIVE MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
+			@="Show Quick Access Popup Alternative menu"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND SHOW MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
+			@="Show Quick Access Popup menu"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
+			@="Show Quick Access Popup Alternative menu"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND ADD FOLDER
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu]
+			@="Add Folder to Quick Access Popup menu"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%V\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND ADD FOLDER EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express]
+			@="Add Folder to Quick Access Popup menu Express"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
+			;--------------------------------------
+
+)
+		, %g_strTempDir%\enable-qap-context-menus.reg
+		
+		Run, %g_strTempDir%\enable-qap-context-menus.reg
+}
+else ; DisableExplorerContextMenus
+{
+	a := a
+}
 
 return
 ;------------------------------------------------------------
