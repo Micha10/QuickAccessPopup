@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version BETA: 7.2.1.3 (2016-05-18)
+- fix bug preventing editing and running macro snippets
+
 Version: 7.2.1.2 BETA (2016-05-12)
 Snippets:
 - add configurable prompt before pasting a text snippet or launching a macro snippet
@@ -679,7 +682,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.1.2 BETA
+;@Ahk2Exe-SetVersion 7.2.1.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -726,7 +729,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.1.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.1.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5887,14 +5890,15 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
-		
-		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith
+		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;" ; safety
 		; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
 		; 2 prompt (pause prompt before pasting/launching the snippet)
 		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+		
+		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 		
@@ -9725,7 +9729,7 @@ strWaitKey := "Enter"
 strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
-strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith
+strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith . ";;;" ; safety
 ; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
 ; 2 prompt (pause prompt before pasting/launching the snippet)
 StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
@@ -9756,10 +9760,8 @@ if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(
 else
 	WinActivate, ahk_id %g_strTargetWinId%
 
-; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
-blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-; Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
-; Diag("Paste Before - blnTextSnippet", blnTextSnippet)
+; arrFavoriteSnippetOptions1 is 1 for Macro snippet, anything else is Text snippet
+blnTextSnippet := (arrFavoriteSnippetOptions1 <> 1)
 
 if (blnTextSnippet)
 {
