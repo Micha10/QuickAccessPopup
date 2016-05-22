@@ -340,7 +340,7 @@ lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti nel menù:
 lOptionsHotkeyRemindersShort	Mostra nomi abbreviati
 lOptionsIconSize	Dimensione delle icone
 lOptionsLanguage	Lingua
-lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese ; changed
+lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese|Cinese Simplified ; changed
 lOptionsMenuActiveWindow	In alto a sinistra della finestra attiva
 lOptionsMenuFixPosition	In posizione prefissata
 lOptionsMenuNearMouse	Vicino al puntatore del mouse

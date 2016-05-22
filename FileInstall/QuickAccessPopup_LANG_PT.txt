@@ -340,7 +340,7 @@ lOptionsHotkeyRemindersPrompt	Lembretes de teclas de atalho no menu:
 lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
 lOptionsMenuFixPosition	Numa posição fixa
 lOptionsMenuNearMouse	Junto ao cursor do rato
