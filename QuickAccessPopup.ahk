@@ -18,8 +18,26 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.2 (2016-05-24)
+Snippets:
+- implement macro snippet commands Sleep, SetKeyDelay and KeyWait
+- add configurable prompt before pasting a text snippet or launching a macro snippet
+- fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
+- fix bug when launching Snippet using Alternative menu "Open in new window"
+ 
+Shared menus (aka External menus)
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+ 
+Other:
+- new language Portuguese (PT), thanks to Luis Neves
+- new language Simplified Chinese language (ZH-CN), thanks to Jess Yang
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
+- in What's new dialog box, add a vertical scroll bar when the text zone is very long
+- if a startup shortcut for FoldersPopup exists after QAP installation, remove it
+- fix bug double-click on separator was displaying wrong message "cannot be copied"
+
 Version BETA: 7.2.1.3 (2016-05-18)
-- fix bug preventing editing and running macro snippets
+- fix bug in v7.2.1.2 preventing editing and running macro snippets
 
 Version: 7.2.1.2 BETA (2016-05-12)
 Snippets:
@@ -31,7 +49,7 @@ Shared menus (aka External menus)
 - in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
  
 Other:
-- new language Portuguese, thanks to 
+- new language Portuguese, thanks to Luis Neves
 - do not display "None" in startup notification if mouse or keyboard hotkey is not used
 - in What's new dialog box, add a vertical scroll bar when the text zone is very long
 - if a startup shortcut for FoldersPopup exists after QAP installation, remove it
@@ -682,7 +700,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.1.3 BETA
+;@Ahk2Exe-SetVersion 7.2.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -729,8 +747,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.1.3" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.2.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
