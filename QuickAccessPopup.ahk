@@ -18,15 +18,41 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.1.2 BETA (2016-05-03)
-- add text box for Snippet prompt in advanced settings; display snippet prompt before launching the snippet
-- do not display "None" in startup notification if mouse or keyboard hotkey is not used
-- in Add Favorite dialog box, changed the "Text Snippet" type name to "Snippet"
-- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
-- in What's new dialog box, add a vertical scroll bar to the text zone and set the dialog box height of 550px
-- if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+Version: 7.2.2 (2016-05-24)
+Snippets:
+- implement macro snippet commands Sleep, SetKeyDelay and KeyWait
+- add configurable prompt before pasting a text snippet or launching a macro snippet
 - fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
 - fix bug when launching Snippet using Alternative menu "Open in new window"
+ 
+Shared menus (aka External menus)
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+ 
+Other:
+- new language Portuguese (PT), thanks to Luis Neves
+- new language Simplified Chinese language (ZH-CN), thanks to Jess Yang
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
+- in What's new dialog box, add a vertical scroll bar when the text zone is very long
+- if a startup shortcut for FoldersPopup exists after QAP installation, remove it
+- fix bug double-click on separator was displaying wrong message "cannot be copied"
+
+Version BETA: 7.2.1.3 (2016-05-18)
+- fix bug in v7.2.1.2 preventing editing and running macro snippets
+
+Version: 7.2.1.2 BETA (2016-05-12)
+Snippets:
+- add configurable prompt before pasting a text snippet or launching a macro snippet
+- fix bug Alternative menu Edit a favorite and Copy favorite location not working with snippets
+- fix bug when launching Snippet using Alternative menu "Open in new window"
+ 
+Shared menus (aka External menus)
+- in Add Favorite dialog and other boxes, change "External menu" to "Shared menu"
+ 
+Other:
+- new language Portuguese, thanks to Luis Neves
+- do not display "None" in startup notification if mouse or keyboard hotkey is not used
+- in What's new dialog box, add a vertical scroll bar when the text zone is very long
+- if a startup shortcut for FoldersPopup exists after QAP installation, remove it
 - fix bug double-click on separator display wrong message "cannot be copied"
 
 Version: 7.2.1.1 BETA (2016-05-03)
@@ -674,7 +700,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.1.1 BETA
+;@Ahk2Exe-SetVersion 7.2.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -721,8 +747,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.1.1" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.2.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -1134,6 +1160,7 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_PT-BR.txt, %g_strTempDir%\QuickAc
 FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAccessPopup_LANG_IT.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-TW.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-TW.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_PT.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT.txt, 1
+FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-CN.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_KO.txt, %g_strTempDir%\QuickAccessPopup_LANG_KO.txt, 1
 
@@ -1373,7 +1400,7 @@ InitLanguageArrays:
 ; ----------------------
 ; OPTIONS
 StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
-strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
+strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 
@@ -6093,14 +6120,15 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (g_objEditedFavorite.FavoriteLaunchWith = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
-		
-		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith
+		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;" ; safety
 		; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
 		; 2 prompt (pause prompt before pasting/launching the snippet)
 		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+		
+		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
+		
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 		
@@ -9937,7 +9965,7 @@ strWaitKey := "Enter"
 strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
-strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith
+strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith . ";;;" ; safety
 ; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
 ; 2 prompt (pause prompt before pasting/launching the snippet)
 StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
@@ -9968,10 +9996,8 @@ if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(
 else
 	WinActivate, ahk_id %g_strTargetWinId%
 
-; g_objThisFavorite.FavoriteLaunchWith is 1 for Macro snippet, anything else is Text snippet
-blnTextSnippet := (g_objThisFavorite.FavoriteLaunchWith <> 1)
-; Diag("Paste Before - g_objThisFavorite.FavoriteLaunchWith", g_objThisFavorite.FavoriteLaunchWith)
-; Diag("Paste Before - blnTextSnippet", blnTextSnippet)
+; arrFavoriteSnippetOptions1 is 1 for Macro snippet, anything else is Text snippet
+blnTextSnippet := (arrFavoriteSnippetOptions1 <> 1)
 
 if (blnTextSnippet)
 {

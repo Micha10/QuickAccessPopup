@@ -1,5 +1,5 @@
 global lAboutText1 := "~1~ ~2~ (~3~ bits)"
-global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
+global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nSimplified and Traditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""http://www.visualpharm.com"">Visual Pharm</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
 global lAboutText3 := "~1~ Jean Lalonde 2013-2014. Freeware."
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
@@ -71,7 +71,10 @@ global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``
 global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
 global lDialogFavoriteSnippetHelpWeb := "See <a href=""~1~"">Snippets help</a> for special characters and commands encoding."
 global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"
-global lDialogFavoriteSnippetPromptLabel := "Prompt before ~1~ the macro" ; new
+global lDialogFavoriteSnippetSendMode := "Send snippet to current application in:"
+global lDialogFavoriteSnippetSendModeMacro := "Macro mode"
+global lDialogFavoriteSnippetSendModeText := "Text mode"
+global lDialogFavoriteSnippetPromptLabel := "Prompt before ~1~ the snippet" ; new
 global lDialogFavoriteSnippetPromptLabelLaunching := "launching" ; new
 global lDialogFavoriteSnippetPromptLabelPasting := "pasting" ; new
 global lDialogFavoriteSnippetPromptNoPipe := "Pipe character (|) are not allowed in snippet prompt." ; new
@@ -346,7 +349,7 @@ global lOptionsHotkeyRemindersPrompt := "Hotkey reminders in menu:" ; new
 global lOptionsHotkeyRemindersShort := "Display a&bbreviated names" ; new
 global lOptionsIconSize := "&Menu icons size"
 global lOptionsLanguage := "&Language"
-global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Traditional Chinese|Portuguese" ; removed Dutch|Korean|
+global lOptionsLanguageLabels := "English|French|German|Swedish|Spanish|Brazilian Portuguese|Italian|Traditional Chinese|Portuguese|Simplified Chinese" ; removed Dutch|Korean|
 global lOptionsMenuActiveWindow := "Top-left of acti&ve window"
 global lOptionsMenuFixPosition := "At a fi&x position"
 global lOptionsMenuNearMouse := "Near the mouse &pointer"
