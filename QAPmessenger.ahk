@@ -37,7 +37,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 0.2 BETA
+;@Ahk2Exe-SetVersion 0.3 BETA
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
