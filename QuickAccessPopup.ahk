@@ -18,7 +18,10 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.2 (2016-05-24)
+Version: 7.2.2.1 (2016-05-25)
+- change Add This Folder icon for an icon identical in previous and current Windows 10 icons file (imageres.dll)
+
+Version: 7.2.2 (2016-05-23)
 Snippets:
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
 - add configurable prompt before pasting a text snippet or launching a macro snippet
@@ -700,7 +703,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.2
+;@Ahk2Exe-SetVersion 7.2.2.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -747,7 +750,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.2.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1260,7 +1263,7 @@ if (GetOsVersion() = "WIN_10")
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
-		. "|189|204|209|307"
+		. "|189|204|209|201"
 		. "|4|24|39|46|55"
 		. "|68|87|99|104|110"
 		. "|153|174|176|215|216"
