@@ -16,6 +16,9 @@ Called from Explorer context menus to send messages to QAP in order to launch va
 HISTORY
 =======
 
+Version: 0.3 beta (2016-05-24)
+- improve version number and branch mangement
+
 Version: 0.2 beta (2016-04-29)
 - check for result 0xFFFF flagging an open settings window in QAP
 
@@ -56,7 +59,9 @@ ListLines, On
 ;@Ahk2Exe-IgnoreEnd
 
 g_strAppNameText := "Quick Access Popup Messenger"
-g_strAppVersion := "0.2 BETA"
+g_strAppVersion := "0.3"
+g_strAppVersionBranch := "beta"
+g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
 g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
 g_stTargetAppName := "Quick Access Popup"
@@ -121,9 +126,9 @@ Oops(strMessage, objVariables*)
 ;------------------------------------------------
 {
 	global g_strAppNameText
-	global g_strAppVersion
+	global g_strAppVersionLong
 	
-	MsgBox, 48, % L("~1~ (~2~)", g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
+	MsgBox, 48, % L("~1~ (~2~)", g_strAppNameText, g_strAppVersionLong), % L(strMessage, objVariables*)
 }
 ; ------------------------------------------------
 
