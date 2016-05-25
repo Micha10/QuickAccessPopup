@@ -19,7 +19,10 @@ HISTORY
 =======
 
 Version: 7.2.3.1 BETA (2016-05-??)
--
+- at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable concetx menu if required, and set ExplorerContextMenus value in QAP ini file
+ 
+Other
+- remove unused DynamicMenusRefreshRate ini value
 
 Version: 7.2.2 (2016-05-24)
 Snippets:
@@ -934,7 +937,7 @@ OnMessage(0x404, "AHK_NOTIFYICON")
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
 OnMessage(0x2224, "REPLY_QAPISRUNNING")
 
-; Respond to SendMessage sent by QAPmessenger to add a favorite from Explorer context menu
+; Respond to SendMessage sent by QAPmessenger after execution of the requested action from Explorer context menu
 OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
@@ -1059,7 +1062,7 @@ instead of using the Start menu or Startup shortcuts. In this situation, we know
 We change it to "{commonappdata}\Quick Access Popup".
 
 In "{commonappdata}\Quick Access Popup", setup program created or saved the file:
-- "{commonappdata}\{#MyAppName}" the files quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language)
+- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language, and flag to enable Explorer context menus)
 
 If, during setup, the user selected the "Import Folders Popup settings and favorites" option, the setup program will import the FP settings
 and create the file "quickaccesspopup.ini" in "{commonappdata}\Quick Access Popup". An administrator could also create this file that will
@@ -2063,7 +2066,17 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
 	if !(g_blnPortableMode)
 		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-	
+
+	; if not in portable mode, read the Explorer context menu flag in the setup ini file
+	if !(g_blnPortableMode)
+	{
+		IniRead, g_blnExplorerContextMenus, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , ExplorerContextMenus, 0 ; if absent, no not enable
+		if (g_blnExplorerContextMenus)
+			gosub, EnableExplorerContextMenus
+	}
+	else
+		g_blnExplorerContextMenus := 0
+
 	strNavigateOrLaunchHotkeyMouseDefault := g_arrPopupHotkeyDefaults1 ; "MButton"
 	strNavigateOrLaunchHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults2 ; "W"
 	strAlternativeHotkeyMouseDefault := g_arrPopupHotkeyDefaults3 ; "+MButton"
@@ -2075,7 +2088,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 		(LTrim Join`r`n
 			[Global]
 			LanguageCode=%g_strLanguageCode%
-			DynamicMenusRefreshRate=10000
+			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
 			[Gui-Grey]
