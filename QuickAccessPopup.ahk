@@ -24,6 +24,9 @@ Version: 7.2.3.1 BETA (2016-05-??)
 Other
 - remove unused DynamicMenusRefreshRate ini value
 
+Version: 7.2.2.1 (2016-05-25)
+- change Add This Folder icon for an icon identical in previous and current Windows 10 icons file (imageres.dll)
+
 Version: 7.2.2 (2016-05-24)
 Snippets:
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
@@ -2324,10 +2327,10 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objCurrentMenu.MenuLoaded := true
         g_intIniLine++
 		
-		strLoadIniLine := strLoadIniLine . "||||||||||||" ; additional "|" to make sure we have all empty items
+		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2401,6 +2404,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
+		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; Elevate application, 0 do not elevate, 1 elevate
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -5959,7 +5963,9 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
 			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
 		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
+		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteElevate, %lDialogElevate%
 		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+		GuiControl, , f_strFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)
 	}
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
@@ -7290,6 +7296,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
 	else
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
+		g_objEditedFavorite.FavoriteElevate := f_strFavoriteElevate
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
@@ -7439,6 +7446,7 @@ f_strFavoriteLocation := ""
 f_strFavoriteLoginName := ""
 f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
+f_strFavoriteElevate := ""
 f_strHotkeyText := ""
 
 return
@@ -8096,6 +8104,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoritePassword, "|", g_strEscapePipe) . "|" ; 10
 			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
+			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -8690,6 +8699,7 @@ for strMenuPath, objMenuSource in objMenusSource
 		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition
 		; REMOVED objFavorite.FavoriteHotkey := objMenuSource[A_Index].FavoriteHotkey
 		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith
+		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate
 		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
 		; after menu/groups objects are recreated during restore
 		objMenuDest.Insert(objFavorite)
@@ -9527,7 +9537,10 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 
 if (g_objThisFavorite.FavoriteType = "Application")
 {
-	Run, %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
+	if g_objThisFavorite.FavoriteElevate = "1"
+		Run, *runas %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
+	else
+		Run, %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
 	if (intPid)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
