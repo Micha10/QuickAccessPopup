@@ -19,9 +19,11 @@ HISTORY
 =======
 
 Version: 7.2.3.1 BETA (2016-05-??)
-- at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable concetx menu if required, and set ExplorerContextMenus value in QAP ini file
+- add an option to enable/disable QAP Explorer context menus (enabling or disabling requires running with administrator privileges)
+- at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable context menu if required, and set ExplorerContextMenus value in QAP ini file
  
 Other
+- add advanced option for application favorite to run apps with elevated privileges using the run as command
 - remove unused DynamicMenusRefreshRate ini value
 
 Version: 7.2.2.1 (2016-05-25)
@@ -817,7 +819,7 @@ g_strQAPconnectCompanionPath := ""
 
 if InStr("WIN_VISTA|WIN_2003|WIN_XP|WIN_2000", A_OSVersion)
 {
-	MsgBox, 4, %g_strAppNameFile%, % L(lOopsOSVerrsionError, g_strAppNameFile)
+	MsgBox, 4, %g_strAppNameText%, % L(lOopsOSVerrsionError, g_strAppNameText)
 	IfMsgBox, Yes
 		Run, http://code.jeanlalonde.ca/folderspopup/
 	ExitApp
@@ -2404,7 +2406,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
-		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; Elevate application, 0 do not elevate, 1 elevate
+		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4896,6 +4898,7 @@ DisableExplorerContextMenus:
 
 if (A_ThisLabel = "EnableExplorerContextMenus")
 {
+	FileDelete, %g_strTempDir%\enable-qap-context-menus.reg
 	FileAppend,
 		(LTrim Join`r`n
 			Windows Registry Editor Version 5.00
@@ -5030,12 +5033,47 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
-		Run, %g_strTempDir%\enable-qap-context-menus.reg
+		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		if (blnOptionsGuiWasActive)
+			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+		RunWait, %g_strTempDir%\enable-qap-context-menus.reg
+		if (blnOptionsGuiWasActive)
+			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 }
 else ; DisableExplorerContextMenus
 {
-	a := a
+	FileDelete, %g_strTempDir%\disable-qap-context-menus.bat
+	FileAppend,
+		(LTrim Join`r`n
+			:: BATCH START - DELETE QUICK ACCESS POPUP REGISTRY KEYS
+			:: http://www.quickaccesspopup.com/explorer-context-menus-help/
+			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
+			:: BATCH END
+
+)
+		, %g_strTempDir%\disable-qap-context-menus.bat
+
+		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		if (blnOptionsGuiWasActive)
+			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+		RunWait, *RunAs %g_strTempDir%\disable-qap-context-menus.bat
+		if (blnOptionsGuiWasActive)
+			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 }
+
+blnMainGuiWasActive := ""
+blnOptionsGuiWasActive := ""
 
 return
 ;------------------------------------------------------------
@@ -5963,9 +6001,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
 			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
 		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
-		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteElevate, %lDialogElevate%
 		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
-		GuiControl, , f_strFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)
 	}
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
@@ -6130,6 +6166,8 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 	if (g_objEditedFavorite.FavoriteType = "Application")
 	{
+		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteElevate, %lDialogElevate%
+		GuiControl, , f_strFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel1, %lDialogWorkingDirLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
 		Gui, 2:Add, Button, x+10 yp gButtonSelectWorkingDir, %lDialogBrowseButton%
@@ -7295,8 +7333,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
 	else
+	{
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
 		g_objEditedFavorite.FavoriteElevate := f_strFavoriteElevate
+	}
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
@@ -9537,10 +9577,9 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 
 if (g_objThisFavorite.FavoriteType = "Application")
 {
-	if g_objThisFavorite.FavoriteElevate = "1"
-		Run, *runas %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
-	else
-		Run, %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
+	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
+	; see RunAs doc remarks
+	Run, % (g_objThisFavorite.FavoriteElevate ? "*RunAs " : "") . g_strFullLocation, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
 	if (intPid)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
