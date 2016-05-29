@@ -18,7 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.3.1 BETA (2016-05-??)
+Version: 7.2.3.1 BETA (2016-05-29)
+ 
+Context menus
 - add an option to enable/disable QAP Explorer context menus (enabling or disabling requires running with administrator privileges)
 - at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable context menu if required, and set ExplorerContextMenus value in QAP ini file
 - context menu localized language
@@ -2151,7 +2153,10 @@ Gosub, LoadIniPopupHotkeys
 ; ---------------------
 ; Load Options Tab 1 General
 
-IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
+if !(g_blnPortableMode)
+	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enable by default only in setup install mode
+else
+	g_blnExplorerContextMenus := 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -4198,8 +4203,11 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
-GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+if !(g_blnPortableMode)
+{
+	Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+}
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
@@ -4689,14 +4697,17 @@ if (f_blnOptionsRunAtStartup)
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartup%
 
-if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
-	gosub, EnableExplorerContextMenus
-	; else already enabled
-if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
-	gosub, DisableExplorerContextMenus
-	; else already disabled
-g_blnExplorerContextMenus := f_blnExplorerContextMenus
-IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+if !(g_blnPortableMode)
+{
+	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+		gosub, EnableExplorerContextMenus
+		; else already enabled
+	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+		gosub, DisableExplorerContextMenus
+		; else already disabled
+	g_blnExplorerContextMenus := f_blnExplorerContextMenus
+	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+}
 
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
