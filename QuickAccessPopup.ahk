@@ -18,6 +18,18 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.3.1 BETA (2016-05-??)
+- add an option to enable/disable QAP Explorer context menus (enabling or disabling requires running with administrator privileges)
+- at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable context menu if required, and set ExplorerContextMenus value in QAP ini file
+- context menu localized language
+ 
+Other
+- add advanced option for application favorite to run apps with elevated privileges using the run as command
+- remove unused DynamicMenusRefreshRate ini value
+
+Version: 7.2.2.1 (2016-05-25)
+- change Add This Folder icon for an icon identical in previous and current Windows 10 icons file (imageres.dll)
+
 Version: 7.2.2 (2016-05-24)
 Snippets:
 - implement macro snippet commands Sleep, SetKeyDelay and KeyWait
@@ -700,7 +712,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.2
+;@Ahk2Exe-SetVersion 7.2.3.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -747,8 +759,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.2" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.2.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -808,7 +820,7 @@ g_strQAPconnectCompanionPath := ""
 
 if InStr("WIN_VISTA|WIN_2003|WIN_XP|WIN_2000", A_OSVersion)
 {
-	MsgBox, 4, %g_strAppNameFile%, % L(lOopsOSVerrsionError, g_strAppNameFile)
+	MsgBox, 4, %g_strAppNameText%, % L(lOopsOSVerrsionError, g_strAppNameText)
 	IfMsgBox, Yes
 		Run, http://code.jeanlalonde.ca/folderspopup/
 	ExitApp
@@ -930,6 +942,9 @@ OnMessage(0x404, "AHK_NOTIFYICON")
 ; Respond to SendMessage sent by ImportFPsettings to signal that QAP is running
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
 OnMessage(0x2224, "REPLY_QAPISRUNNING")
+
+; Respond to SendMessage sent by QAPmessenger after execution of the requested action from Explorer context menu
+OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
@@ -1053,7 +1068,7 @@ instead of using the Start menu or Startup shortcuts. In this situation, we know
 We change it to "{commonappdata}\Quick Access Popup".
 
 In "{commonappdata}\Quick Access Popup", setup program created or saved the file:
-- "{commonappdata}\{#MyAppName}" the files quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language)
+- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language, and flag to enable Explorer context menus)
 
 If, during setup, the user selected the "Import Folders Popup settings and favorites" option, the setup program will import the FP settings
 and create the file "quickaccesspopup.ini" in "{commonappdata}\Quick Access Popup". An administrator could also create this file that will
@@ -1260,7 +1275,7 @@ if (GetOsVersion() = "WIN_10")
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
-		. "|189|204|209|307"
+		. "|189|204|209|307" ; iconAddThisFolder icon 307 in an old Win10 file should be 310 in a newer Win10 file :-(
 		. "|4|24|39|46|55"
 		. "|68|87|99|104|110"
 		. "|153|174|176|215|216"
@@ -2057,7 +2072,17 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
 	if !(g_blnPortableMode)
 		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-	
+
+	; if not in portable mode, read the Explorer context menu flag in the setup ini file
+	if !(g_blnPortableMode)
+	{
+		IniRead, g_blnExplorerContextMenus, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , ExplorerContextMenus, 0 ; if absent, no not enable
+		if (g_blnExplorerContextMenus)
+			gosub, EnableExplorerContextMenus
+	}
+	else
+		g_blnExplorerContextMenus := 0
+
 	strNavigateOrLaunchHotkeyMouseDefault := g_arrPopupHotkeyDefaults1 ; "MButton"
 	strNavigateOrLaunchHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults2 ; "W"
 	strAlternativeHotkeyMouseDefault := g_arrPopupHotkeyDefaults3 ; "+MButton"
@@ -2069,7 +2094,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 		(LTrim Join`r`n
 			[Global]
 			LanguageCode=%g_strLanguageCode%
-			DynamicMenusRefreshRate=10000
+			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
 			[Gui-Grey]
@@ -2126,6 +2151,7 @@ Gosub, LoadIniPopupHotkeys
 ; ---------------------
 ; Load Options Tab 1 General
 
+IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -2304,10 +2330,10 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objCurrentMenu.MenuLoaded := true
         g_intIniLine++
 		
-		strLoadIniLine := strLoadIniLine . "||||||||||||" ; additional "|" to make sure we have all empty items
+		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2381,6 +2407,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
+		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4171,6 +4198,9 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
@@ -4659,6 +4689,15 @@ if (f_blnOptionsRunAtStartup)
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartup%
 
+if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+	gosub, EnableExplorerContextMenus
+	; else already enabled
+if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+	gosub, DisableExplorerContextMenus
+	; else already disabled
+g_blnExplorerContextMenus := f_blnExplorerContextMenus
+IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
@@ -4848,6 +4887,194 @@ loop, 4
 	g_arrPopupHotkeys%A_Index% := g_arrPopupHotkeysPrevious%A_Index% ; revert to previous content of g_arrPopupHotkeys
 
 Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EnableExplorerContextMenus:
+DisableExplorerContextMenus:
+;------------------------------------------------------------
+
+if (A_ThisLabel = "EnableExplorerContextMenus")
+{
+	FileDelete, %g_strTempDir%\enable-qap-context-menus.reg
+	FileAppend,
+		(LTrim Join`r`n
+			Windows Registry Editor Version 5.00
+
+			; Add context menus for Quick Access Popup
+			; For more information:
+			; http://www.quickaccesspopup.com/explorer-context-menus-help/
+
+			;--------------------------------------
+			; ADD FILE
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu]
+			@="%lContextAddFile%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFile \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; ADD FILE EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express]
+			@="%lContextAddFileXpress%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFileXpress \"`%1\""
+
+
+			;--------------------------------------
+			; ADD FOLDER
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu]
+			@="%lContextAddFolder%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; ADD FOLDER EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express]
+			@="%lContextAddFolderXpress%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%1\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; DESKTOP SHOW MENU 
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
+			@="%lContextShowMenu%"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; DESKTOP SHOW ALTERNATIVE MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
+			@="%lContextShowMenuAternative%"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND SHOW MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
+			@="%lContextShowMenu%"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
+			@="%lContextShowMenuAternative%"
+			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND ADD FOLDER
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu]
+			@="%lContextAddFolder%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%V\""
+			;--------------------------------------
+
+
+			;--------------------------------------
+			; FOLDER BACKGROUND ADD FOLDER EXPRESS
+			;--------------------------------------
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express]
+			@="%lContextAddFolderXpress%"
+			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Extended"=""
+
+			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command]
+			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
+			;--------------------------------------
+
+)
+		, %g_strTempDir%\enable-qap-context-menus.reg
+		
+		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		if (blnOptionsGuiWasActive)
+			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+		RunWait, %g_strTempDir%\enable-qap-context-menus.reg
+		if (blnOptionsGuiWasActive)
+			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+}
+else ; DisableExplorerContextMenus
+{
+	FileDelete, %g_strTempDir%\disable-qap-context-menus.bat
+	FileAppend,
+		(LTrim Join`r`n
+			:: BATCH START - DELETE QUICK ACCESS POPUP REGISTRY KEYS
+			:: http://www.quickaccesspopup.com/explorer-context-menus-help/
+			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
+			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
+			:: BATCH END
+
+)
+		, %g_strTempDir%\disable-qap-context-menus.bat
+
+		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		if (blnOptionsGuiWasActive)
+			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+		RunWait, *RunAs %g_strTempDir%\disable-qap-context-menus.bat
+		if (blnOptionsGuiWasActive)
+			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+}
+
+blnMainGuiWasActive := ""
+blnOptionsGuiWasActive := ""
 
 return
 ;------------------------------------------------------------
@@ -5259,96 +5486,105 @@ return
 ;------------------------------------------------------------
 AddThisFolder:
 AddThisFolderXpress:
+AddThisFolderFromMsg:
+AddThisFolderFromMsgXpress:
+AddThisFileFromMsg:
+AddThisFileFromMsgXpress:
 ;------------------------------------------------------------
 
-g_strNewLocation := ""
+; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
-if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-	or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 {
-	if WindowIsDirectoryOpus(g_strTargetClass)
+	g_strNewLocation := ""
+
+	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 	{
-		Gosub, RefreshDOpusListText
-		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-		
-		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-		; Lines will have active_lister="1" if they represent tabs from the active lister.
-		; To get the active tab you want the line with active_lister="1" and tab_state="1".
-		; tab_state="1" means it's the selected tab, on the active side of the lister.
-		; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
-		; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
-
-		for intIndex, objLister in objDOpusListers
-			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
-			{
-				g_strNewLocation := objLister.LocationURL
-				break
-			}
-	}
-	else ; Explorer, TotalCommander or dialog boxes
-	{
-		objPrevClipboard := ClipboardAll ; Save the entire clipboard
-		ClipBoard := ""
-
-		; Under Windows 7 and 8.1 (not tested with Windows 10)...
-		; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
-		; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
-		; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
-		if (g_strTargetClass = "#32770")
-			intWaitTimeIncrement := 300 ; time allowed for dialog boxes
-		else
-			intWaitTimeIncrement := 150 ; time allowed for Explorer
-
-		if (g_blnDiagMode)
-			intTries := 8
-		else
-			intTries := 3
-
-		strAddThisFolderWindowTitle := ""
-		Loop, %intTries%
+		if WindowIsDirectoryOpus(g_strTargetClass)
 		{
-			Sleep, intWaitTimeIncrement * A_Index
-			WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-		} Until (StrLen(strAddThisFolderWindowTitle))
+			Gosub, RefreshDOpusListText
+			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+			
+			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+			; Lines will have active_lister="1" if they represent tabs from the active lister.
+			; To get the active tab you want the line with active_lister="1" and tab_state="1".
+			; tab_state="1" means it's the selected tab, on the active side of the lister.
+			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
+			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
 
-		if WindowIsTotalCommander(g_strTargetClass)
-		{
-			cm_CopySrcPathToClip := 2029
-			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-			WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+			for intIndex, objLister in objDOpusListers
+				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
+				{
+					g_strNewLocation := objLister.LocationURL
+					break
+				}
 		}
-		else ; Explorer or dialog boxes
+		else ; Explorer, TotalCommander or dialog boxes
 		{
+			objPrevClipboard := ClipboardAll ; Save the entire clipboard
+			ClipBoard := ""
+
+			; Under Windows 7 and 8.1 (not tested with Windows 10)...
+			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
+			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
+			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
+
+			if (g_strTargetClass = "#32770")
+				intWaitTimeIncrement := 300 ; time allowed for dialog boxes
+			else
+				intWaitTimeIncrement := 150 ; time allowed for Explorer
+
+			if (g_blnDiagMode)
+				intTries := 8
+			else
+				intTries := 3
+
+			strAddThisFolderWindowTitle := ""
 			Loop, %intTries%
 			{
 				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
-				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, ^c ; Copy
-				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-				intTriesIndex := A_Index
-			} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
-			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
-				SendInput, {Esc}
-		}
+				WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+			} Until (StrLen(strAddThisFolderWindowTitle))
 
-		g_strNewLocation := ClipBoard
-		Clipboard := objPrevClipboard ; Restore the original clipboard
-		
-		/*
-		if (g_blnDiagMode)
-		{
-			Diag("Menu", A_ThisLabel)
-			Diag("Class", g_strTargetClass)
-			Diag("Tries", intTries)
-			Diag("TriesIndex", intTriesIndex)
-			Diag("AddedFolder", g_strNewLocation)
+			if WindowIsTotalCommander(g_strTargetClass)
+			{
+				cm_CopySrcPathToClip := 2029
+				SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
+				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+			}
+			else ; Explorer or dialog boxes
+			{
+				Loop, %intTries%
+				{
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, ^c ; Copy
+					Sleep, intWaitTimeIncrement * A_Index
+					WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+					intTriesIndex := A_Index
+				} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+				if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
+					SendInput, {Esc}
+			}
+
+			g_strNewLocation := ClipBoard
+			Clipboard := objPrevClipboard ; Restore the original clipboard
+			
+			/*
+			if (g_blnDiagMode)
+			{
+				Diag("Menu", A_ThisLabel)
+				Diag("Class", g_strTargetClass)
+				Diag("Tries", intTries)
+				Diag("TriesIndex", intTriesIndex)
+				Diag("AddedFolder", g_strNewLocation)
+			}
+			*/
 		}
-		*/
+			
 	}
-		
 }
 
 g_strNewLocationSpecialName := ""
@@ -5374,16 +5610,41 @@ If !StrLen(g_strNewLocation)
 }
 else
 {
-	g_intOriginalMenuPosition := 0xFFFF
-	if (A_ThisLabel = "AddThisFolder")
+	if !InStr(A_ThisLabel, "Xpress") ; NOT Xpress
 	{
-		Gosub, GuiShowFromAddThisFolder
-		Gosub, GuiAddThisFolder
+		g_intOriginalMenuPosition := 0xFFFF ; add item at the end of menu in GUI
+		
+		Gosub, GuiShowFromAddThisFolder ; except for Express add, show Settings window
+		
+		if (A_ThisLabel = "AddThisFolder")
+			
+			Gosub, GuiAddThisFolder
+			
+		else if (A_ThisLabel = "AddThisFolderFromMsg")
+			
+			Gosub, GuiAddThisFolderFromMsg
+			
+		else if (A_ThisLabel = "AddThisFileFromMsg")
+			
+			Gosub, GuiAddThisFileFromMsg
 	}
-	else ; AddThisFolderXpress
+	else ; AddThisFolderXpress, AddThisFolderFromMsgXpress or AddThisFileFromMsgXpress
 	{
-		Gosub, GuiAddThisFolderXpress
-		Gosub, GuiSaveFavorites
+		g_intOriginalMenuPosition := 1 ; add item at the top of menu without GUI
+	
+		if (A_ThisLabel = "AddThisFolderXpress")
+			
+			Gosub, GuiAddThisFolderXpress
+			
+		else if (A_ThisLabel = "AddThisFolderFromMsgXpress")
+			
+			Gosub, GuiAddThisFolderFromMsgXpress
+			
+		else ; AddThisFileFromMsgXpress
+			
+			Gosub, GuiAddThisFileFromMsgXpress
+		
+		Gosub, GuiSaveFavorites ; for Express save all favorites to ini file
 	}
 }
 
@@ -5411,6 +5672,10 @@ return
 GuiAddFavorite:
 GuiAddThisFolder:
 GuiAddThisFolderXpress:
+GuiAddThisFolderFromMsg:
+GuiAddThisFolderFromMsgXpress:
+GuiAddThisFileFromMsg:
+GuiAddThisFileFromMsgXpress:
 GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
@@ -5428,12 +5693,13 @@ if (g_blnAbordEdit)
 	return
 }
 
+; must be before GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
 g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group|External"
 
-if (strGuiFavoriteLabel = "GuiAddThisFolderXpress")
+if InStr(strGuiFavoriteLabel, "Xpress")
 {
-	gosub, GuiAddFavoriteSaveXpress
+	gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -5443,7 +5709,8 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-Gui, 2:New, , % L(lDialogAddEditFavoriteTitle, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd)), g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd)), g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+Gui, 2:New, , %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -5562,7 +5829,7 @@ g_strNewFavoriteIconResource := ""
 strGroupSettings := ",,,,,,," ; ,,, to make sure all fields are re-init
 StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 
-if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite")
+if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
 	g_intOriginalMenuPosition := LV_GetNext()
@@ -5624,7 +5891,8 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 }
 else ; add favorite
 {
-	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId) and InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress
+	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; excludes all ...FromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -5635,9 +5903,11 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
-	if InStr("GuiAddThisFolder|GuiAddThisFolderXpress|GuiAddFromDropFiles", strGuiFavoriteLabel)
+	if (strGuiFavoriteLabel <> "GuiAddFavorite")
+	; includes GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
+	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles
 	{
-		; g_strNewLocation is received from AddThisFolder, AddThisFolderXpress or GuiDropFiles
+		; g_strNewLocation is received from AddThisFolder (etc.) or GuiDropFiles
 		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 	}
@@ -5645,12 +5915,12 @@ else ; add favorite
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
-	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress
+	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 		g_objEditedFavorite.FavoriteType := (StrLen(g_strNewLocationSpecialName) ? "Special" : "Folder")
-	else if (strGuiFavoriteLabel = "GuiAddFromDropFiles")
+	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
 		SplitPath, g_strNewLocation, , , strExtension
-		if StrLen(strExtension) and InStr("exe|com|bat|vbs|ahk", strExtension)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
 			g_objEditedFavorite.FavoriteType := "Document"
@@ -5897,6 +6167,8 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 	if (g_objEditedFavorite.FavoriteType = "Application")
 	{
+		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteElevate, %lDialogElevate%
+		GuiControl, , f_strFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
 		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel1, %lDialogWorkingDirLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
 		Gui, 2:Add, Button, x+10 yp gButtonSelectWorkingDir, %lDialogBrowseButton%
@@ -6783,7 +7055,7 @@ else
 	strDestinationMenu := f_drpParentMenu
 }
 
-if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave g_intNewItemPos may be already set
+if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress g_intNewItemPos may be already set
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
@@ -6860,7 +7132,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
-	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
+	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_chkUseDefaultWindowPosition ? 0 : 1)
 		if (!f_chkUseDefaultWindowPosition)
@@ -7062,7 +7334,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
 	else
+	{
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
+		g_objEditedFavorite.FavoriteElevate := f_strFavoriteElevate
+	}
 }
 else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
@@ -7212,6 +7487,7 @@ f_strFavoriteLocation := ""
 f_strFavoriteLoginName := ""
 f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
+f_strFavoriteElevate := ""
 f_strHotkeyText := ""
 
 return
@@ -7869,6 +8145,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoritePassword, "|", g_strEscapePipe) . "|" ; 10
 			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
+			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -8375,7 +8652,6 @@ if (blnSaveEnabled)
 		
 		Gosub, RestoreBackupMenusObjects
 
-
 		; restore popup menu
 		Gosub, BuildMainMenu ; rebuild menus but not hotkeys
 		Gosub, SetTimerRefreshDynamicMenus
@@ -8403,6 +8679,8 @@ return
 2GuiClose:
 2GuiEscape:
 ;------------------------------------------------------------
+
+g_strFavoriteDialogTitle := "" ; empty because checked by RECEIVE_QAPMESSENGER
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -8462,6 +8740,7 @@ for strMenuPath, objMenuSource in objMenusSource
 		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition
 		; REMOVED objFavorite.FavoriteHotkey := objMenuSource[A_Index].FavoriteHotkey
 		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith
+		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate
 		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
 		; after menu/groups objects are recreated during restore
 		objMenuDest.Insert(objFavorite)
@@ -8530,6 +8809,7 @@ return
 ;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
+NavigateFromMsg:			; g_strTargetWinId set here
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
@@ -8562,6 +8842,11 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
+else if (A_ThisLabel = "NavigateFromMsg")
+{
+	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
+	g_strHokeyTypeDetected := "Navigate"
+}
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
@@ -9293,7 +9578,9 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 
 if (g_objThisFavorite.FavoriteType = "Application")
 {
-	Run, %g_strFullLocation%, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
+	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
+	; see RunAs doc remarks
+	Run, % (g_objThisFavorite.FavoriteElevate ? "*RunAs " : "") . g_strFullLocation, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
 	if (intPid)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
@@ -9360,8 +9647,8 @@ SetTargetName:
 
 if WindowIsExplorer(g_strTargetClass)
 	g_strTargetAppName := "Explorer"
-; else if WindowIsDesktop(g_strTargetClass)
-;	g_strTargetAppName := "Desktop"
+else if WindowIsDesktop(g_strTargetClass)
+	g_strTargetAppName := "Desktop"
 ; else if WindowIsTray(g_strTargetClass)
 ;	g_strTargetAppName := "Tray"
 else if WindowIsConsole(g_strTargetClass)
@@ -9387,7 +9674,6 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 		g_strTargetAppName := "Explorer"
 else
 	g_strTargetAppName := "Unknown"
-; ###_D(g_strTargetAppName)
 
 if (g_strTargetAppName = "Desktop")
 {
@@ -10113,7 +10399,7 @@ OpenFavoriteNavigateUnknown:
 ;------------------------------------------------------------
 ; avoid an error message if target app name is unknown
 
-Oops(lOopsUnknownTarget)
+Oops(lOopsUnknownTargetAppName)
 
 return
 ;------------------------------------------------------------
@@ -12314,6 +12600,68 @@ REPLY_QAPISRUNNING(wParam, lParam)
 {
 	return true
 } 
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RECEIVE_QAPMESSENGER(wParam, lParam) 
+; Adapted from AHK documentation (https://autohotkey.com/docs/commands/OnMessage.htm)
+;------------------------------------------------------------
+{
+	global g_strAppNameText
+	global g_strAppVersion
+	global g_strNewLocation
+	global g_strFavoriteDialogTitle
+	
+	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
+	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
+		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
+
+	if (blnDialogOpen)
+		return 0xFFFF
+	
+	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
+	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
+	
+	StringSplit, arrData, strCopyOfData, |
+	
+	if (arrData1 = "AddFolder")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFolderFromMsg
+	}
+	else if (arrData1 = "AddFile")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFileFromMsg
+	}
+	else if (arrData1 = "AddFolderXpress")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFolderFromMsgXpress
+	}
+	else if (arrData1 = "AddFileXpress")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisFileFromMsgXpress
+	}
+	else if (arrData1 = "ShowMenu")
+
+		Gosub, NavigateFromMsg
+
+	else if (arrData1 = "ShowMenuAternative")
+
+		Gosub, AlternativeHotkeyKeyboard
+
+	else
+		return 0
+
+	return 1
+}
 ;------------------------------------------------------------
 
 

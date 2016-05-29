@@ -4,6 +4,7 @@
 #define MyAppURL "http://wwww.QuickAccessPopup.com"
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
+#define QAPmessengerVersionFileName "QAPmessenger-0_3-32-bit.exe"
 
 #define MyAppVersion "v7.2.3.1 BETA"
 #define MyVersionFileName "7_2_3_1-beta"
@@ -30,6 +31,7 @@ Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 AppMutex={#MyAppName}Mutex
+UsePreviousTasks=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -43,6 +45,7 @@ Name: "spanish"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "brazilportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 Name: "chinesetraditional"; MessagesFile: "compiler:Languages\ChineseTraditional.isl"
 Name: "portuguese"; MessagesFile: "compiler:Languages\Portuguese.isl"
+Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
 
 [Dirs]
 ; repository for files to be copied to "{userappdata}\{#MyAppName}" at first QAP execution with quickaccesspopup.ini and _temp subfolder
@@ -52,6 +55,7 @@ Name: "{commonappdata}\{#MyAppName}"
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"
 ; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"
 ; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
@@ -70,6 +74,8 @@ Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "PT-BR"; Languages: brazilportuguese
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "ZH-TW"; Languages: chinesetraditional
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "PT"; Languages: portuguese
+Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "ZH-CN"; Languages: chinesesimplified
+Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "ExplorerContextMenus"; String: "1"; Tasks: enablecontextmenus
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"
@@ -82,8 +88,12 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Filename: "{app}\ImportFPsettings.exe"; Flags: runhidden waituntilterminated; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Flags: waituntilidle postinstall skipifsilent
 
+[CustomMessages]
+ContextMenuTaskDescription=Enable Windows Explorer &Context Menus%n(please, accept the Windows Registry script running at first QAP execution)
+
 [Tasks]
-Name: importfpsettings; Description: "Import &Folders Popup settings and favorites (only for Folders Popup users)"; Flags: unchecked
+Name: enablecontextmenus; Description: "{cm:ContextMenuTaskDescription}"; GroupDescription: "Windows integration"; Flags: unchecked checkedonce
+Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; GroupDescription: "Folders Popup users upgrading to QAP"; Flags: checkedonce
 
 [UninstallDelete]
 Type: files; Name: "{userstartup}\{#MyAppName}.lnk"
