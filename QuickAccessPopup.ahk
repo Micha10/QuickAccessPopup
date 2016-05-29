@@ -21,6 +21,7 @@ HISTORY
 Version: 7.2.3.1 BETA (2016-05-??)
 - add an option to enable/disable QAP Explorer context menus (enabling or disabling requires running with administrator privileges)
 - at first QAP execution (when ini file is absent), if running in setup mode, check the ExplorerContextMenus value in setup ini file and enable context menu if required, and set ExplorerContextMenus value in QAP ini file
+- context menu localized language
  
 Other
 - add advanced option for application favorite to run apps with elevated privileges using the run as command
@@ -4911,7 +4912,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FILE
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu]
-			@="Add File to Quick Access Popup menu"
+			@="%lContextAddFile%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu\command]
@@ -4923,7 +4924,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FILE EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express]
-			@="Add File to Quick Access Popup menu Express"
+			@="%lContextAddFileXpress%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 			"Extended"=""
 
@@ -4935,7 +4936,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FOLDER
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu]
-			@="Add Folder to Quick Access Popup menu"
+			@="%lContextAddFolder%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu\command]
@@ -4947,7 +4948,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FOLDER EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express]
-			@="Add Folder to Quick Access Popup menu Express"
+			@="%lContextAddFolderXpress%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 			"Extended"=""
 
@@ -4960,7 +4961,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; DESKTOP SHOW MENU 
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
-			@="Show Quick Access Popup menu"
+			@="%lContextShowMenu%"
 			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
@@ -4972,7 +4973,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; DESKTOP SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
-			@="Show Quick Access Popup Alternative menu"
+			@="%lContextShowMenuAternative%"
 			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
 			"Extended"=""
 
@@ -4985,7 +4986,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND SHOW MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
-			@="Show Quick Access Popup menu"
+			@="%lContextShowMenu%"
 			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
@@ -4997,7 +4998,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
-			@="Show Quick Access Popup Alternative menu"
+			@="%lContextShowMenuAternative%"
 			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
 			"Extended"=""
 
@@ -5010,7 +5011,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND ADD FOLDER
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu]
-			@="Add Folder to Quick Access Popup menu"
+			@="%lContextAddFolder%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu\command]
@@ -5022,7 +5023,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND ADD FOLDER EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express]
-			@="Add Folder to Quick Access Popup menu Express"
+			@="%lContextAddFolderXpress%"
 			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
 			"Extended"=""
 
