@@ -18,6 +18,9 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.3.2 BETA (2016-05-30)
+- fix a path bug, now using custom path selected in setup program
+ 
 Version: 7.2.3.1 BETA (2016-05-29)
  
 Context menus
@@ -714,7 +717,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.3.1
+;@Ahk2Exe-SetVersion 7.2.3.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -761,7 +764,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4908,6 +4911,8 @@ EnableExplorerContextMenus:
 DisableExplorerContextMenus:
 ;------------------------------------------------------------
 
+StringReplace, strQAPPathDoubleBackslash, A_ScriptDir, \, \\, All
+
 if (A_ThisLabel = "EnableExplorerContextMenus")
 {
 	FileDelete, %g_strTempDir%\enable-qap-context-menus.reg
@@ -4924,10 +4929,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu]
 			@="%lContextAddFile%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFile \"`%1\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFile \"`%1\""
 			;--------------------------------------
 
 
@@ -4936,11 +4941,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express]
 			@="%lContextAddFileXpress%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFileXpress \"`%1\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFileXpress \"`%1\""
 
 
 			;--------------------------------------
@@ -4948,10 +4953,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu]
 			@="%lContextAddFolder%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%1\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolder \"`%1\""
 			;--------------------------------------
 
 
@@ -4960,11 +4965,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express]
 			@="%lContextAddFolderXpress%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%1\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%1\""
 			;--------------------------------------
 
 
@@ -4973,10 +4978,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
 			@="%lContextShowMenu%"
-			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenu"
 			;--------------------------------------
 
 
@@ -4985,11 +4990,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
 			@="%lContextShowMenuAternative%"
-			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAternative"
 			;--------------------------------------
 
 
@@ -4998,10 +5003,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
 			@="%lContextShowMenu%"
-			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenu"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenu"
 			;--------------------------------------
 
 
@@ -5010,11 +5015,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
 			@="%lContextShowMenuAternative%"
-			"Icon"="C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe"
+			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" ShowMenuAternative"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAternative"
 			;--------------------------------------
 
 
@@ -5023,10 +5028,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu]
 			@="%lContextAddFolder%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolder \"`%V\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolder \"`%V\""
 			;--------------------------------------
 
 
@@ -5035,11 +5040,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express]
 			@="%lContextAddFolderXpress%"
-			"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command]
-			@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
 			;--------------------------------------
 
 )
@@ -5086,6 +5091,7 @@ else ; DisableExplorerContextMenus
 
 blnMainGuiWasActive := ""
 blnOptionsGuiWasActive := ""
+strQAPPathDoubleBackslash := ""
 
 return
 ;------------------------------------------------------------
