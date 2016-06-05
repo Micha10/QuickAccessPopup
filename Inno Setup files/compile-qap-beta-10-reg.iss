@@ -77,7 +77,7 @@ Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "ZH-TW"; Languages: chinesetraditional
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "PT"; Languages: portuguese
 Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "LanguageCode"; String: "ZH-CN"; Languages: chinesesimplified
-; Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "ExplorerContextMenus"; String: "1"; Tasks: enablecontextmenus
+Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "Global"; Key: "ExplorerContextMenus"; String: "1"; Tasks: enablecontextmenus
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"
@@ -97,10 +97,10 @@ Filename: "{app}\ImportFPsettings.exe"; Flags: runhidden waituntilterminated; Wo
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Flags: waituntilidle postinstall skipifsilent
 
 [CustomMessages]
-ContextMenuTaskDescription=Enable Windows Explorer &Context Menus%n(Windows Registry script must be accepted at first QAP execution)
+ContextMenuTaskDescription=Enable Windows Explorer &Context Menus ; %n(Windows Registry script must be accepted at first QAP execution)
 
 [Tasks]
-; Name: enablecontextmenus; Description: "{cm:ContextMenuTaskDescription}"; Flags: checkedonce
+Name: enablecontextmenus; Description: "{cm:ContextMenuTaskDescription}"
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; GroupDescription: "For users upgrading from Folders Popup"; Flags: checkedonce unchecked
 
 [UninstallDelete]
