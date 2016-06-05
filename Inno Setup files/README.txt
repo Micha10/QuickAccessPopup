@@ -49,7 +49,7 @@ Specifically, Quick Access Popup does not write any information in the Windows r
 The file QuickAccessPopup.ico included in this zip file contains the app's icon that you can use to customize the Quick Access Popup's folder or shortcut.
 
 
-Quick Access Popup – Copyright (C) 2013-2014 Jean Lalonde
+Quick Access Popup – Copyright (C) 2013-2016 Jean Lalonde
 ---------------------------------------------------------
 
 Quick Access Popup can be freely distributed over the internet in an unchanged form.
