@@ -717,7 +717,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.3.2 BETA
+;@Ahk2Exe-SetVersion 7.2.3.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -764,7 +764,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.3.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2080,11 +2080,12 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 
 	; if not in portable mode, read the Explorer context menu flag in the setup ini file
 	if !(g_blnPortableMode)
-	{
+		
 		IniRead, g_blnExplorerContextMenus, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , ExplorerContextMenus, 0 ; if absent, no not enable
-		if (g_blnExplorerContextMenus)
-			gosub, EnableExplorerContextMenus
-	}
+		; No need to enable since v7.2.3.3 because already done by Inno Setup
+		; if (g_blnExplorerContextMenus)
+		;	gosub, EnableExplorerContextMenus
+
 	else
 		g_blnExplorerContextMenus := 0
 
@@ -2157,9 +2158,9 @@ Gosub, LoadIniPopupHotkeys
 ; Load Options Tab 1 General
 
 if !(g_blnPortableMode)
-	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enable by default only in setup install mode
+	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 0 ; disabled by default in setup install mode
 else
-	g_blnExplorerContextMenus := 0
+	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -5050,7 +5051,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
-		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		; blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		if (blnOptionsGuiWasActive)
 			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
@@ -5080,7 +5081,7 @@ else ; DisableExplorerContextMenus
 )
 		, %g_strTempDir%\disable-qap-context-menus.bat
 
-		blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		; blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		if (blnOptionsGuiWasActive)
 			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
@@ -5089,7 +5090,7 @@ else ; DisableExplorerContextMenus
 			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 }
 
-blnMainGuiWasActive := ""
+; blnMainGuiWasActive := ""
 blnOptionsGuiWasActive := ""
 strQAPPathDoubleBackslash := ""
 
