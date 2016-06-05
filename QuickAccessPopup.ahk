@@ -4990,12 +4990,12 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; DESKTOP SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
-			@="%lContextShowMenuAternative%"
+			@="%lContextShowMenuAlternative%"
 			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAternative"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAlternative"
 			;--------------------------------------
 
 
@@ -5015,12 +5015,12 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
-			@="%lContextShowMenuAternative%"
+			@="%lContextShowMenuAlternative%"
 			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAternative"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuAlternative"
 			;--------------------------------------
 
 
@@ -12671,7 +12671,7 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 
 		Gosub, NavigateFromMsg
 
-	else if (arrData1 = "ShowMenuAternative")
+	else if (arrData1 = "ShowMenuAlternative")
 
 		Gosub, AlternativeHotkeyKeyboard
 
