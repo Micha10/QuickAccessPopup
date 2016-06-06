@@ -2078,16 +2078,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	if !(g_blnPortableMode)
 		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 
-	; if not in portable mode, read the Explorer context menu flag in the setup ini file
-	if !(g_blnPortableMode)
-		
-		IniRead, g_blnExplorerContextMenus, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , ExplorerContextMenus, 0 ; if absent, no not enable
-		; No need to enable since v7.2.3.3 because already done by Inno Setup
-		; if (g_blnExplorerContextMenus)
-		;	gosub, EnableExplorerContextMenus
-
-	else
-		g_blnExplorerContextMenus := 0
+	g_blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
 	strNavigateOrLaunchHotkeyMouseDefault := g_arrPopupHotkeyDefaults1 ; "MButton"
 	strNavigateOrLaunchHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults2 ; "W"
@@ -2158,7 +2149,7 @@ Gosub, LoadIniPopupHotkeys
 ; Load Options Tab 1 General
 
 if !(g_blnPortableMode)
-	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 0 ; disabled by default in setup install mode
+	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
