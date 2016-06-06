@@ -16,6 +16,10 @@ Called from Explorer context menus to send messages to QAP in order to launch va
 HISTORY
 =======
 
+Version: 0.4 beta (2016-06-06)
+- check if QAP is running before sending message; if not display error message
+- improved message if QAPmessenger is launched directly
+
 Version: 0.3 beta (2016-05-24)
 - improve version number and branch mangement
 
@@ -59,35 +63,38 @@ ListLines, On
 ;@Ahk2Exe-IgnoreEnd
 
 g_strAppNameText := "Quick Access Popup Messenger"
-g_strAppVersion := "0.3"
+g_strAppVersion := "0.4"
 g_strAppVersionBranch := "beta"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
 g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
 g_stTargetAppName := "Quick Access Popup"
 
-; Use traditional method, not expression
-g_strParam0 = %0% ; number of parameters
-g_strParam1 = %1% ; fisrt parameter, the command name
-g_strParam2 = %2% ; second parameter, the selected path or filename
-
-if (g_strParam0 > 0) and StrLen(g_strParam1)
+if QAPisRunning()
 {
-	; try to send message to compiled QAP
-	intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitle)
-	; returns FAIL or 0 if an error occurred, 0xFFFF if a QAP window is open or 1 if success
-	
-	; if error, check if running in dev
-	if (intResult <> 1) and (intResult <> 0xFFFF)
-		intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitleDev)
-	
-	if (intResult = 0xFFFF)
-		Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
-	; else if (intResult <> 1)
-	;	Oops("An error occurred while sending message to ~1~ (error: ~2~).`n`nCheck if ~1~ is running...", g_stTargetAppName, intResult)
+	; Use traditional method, not expression
+	g_strParam0 = %0% ; number of parameters
+	g_strParam1 = %1% ; fisrt parameter, the command name
+	g_strParam2 = %2% ; second parameter, the selected path or filename
+
+	if (g_strParam0 > 0) and StrLen(g_strParam1)
+	{
+		; try to send message to compiled QAP
+		intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitle)
+		; returns FAIL or 0 if an error occurred, 0xFFFF if a QAP window is open or 1 if success
+		
+		; if error, check if running in dev
+		if (intResult <> 1) and (intResult <> 0xFFFF)
+			intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitleDev)
+		
+		if (intResult = 0xFFFF)
+			Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
+	}
+	else
+		Oops("Do not run ~1~ directly. You can:`n`n- right-click a file or a folder icon in Explorer to add them to the menu`n- right-click Explorer window background to add the current folder`n- right-click the Desktop background to popup the menu.`n`nMake sure ~2~ is launched before using its context menus. See ""Context menus"" checkbox in ~2~ ""Options"" window.", g_strAppNameText, g_stTargetAppName)
 }
 else
-	Oops("Do not run ~1~ directly. Right-click file or folder icons in Explorer.`n`nSee ""Context menus"" checkbox in ~2~ Options window.", g_strAppNameText, g_stTargetAppName)
+	Oops("An error occurred.`n`nMake sure ~1~ is running before using its context menus.", g_stTargetAppName)
 
 return
 
@@ -150,3 +157,19 @@ L(strMessage, objVariables*)
 ;------------------------------------------------
 
 
+;------------------------------------------------------------
+QAPisRunning()
+;------------------------------------------------------------
+{
+    strPrevDetectHiddenWindows := A_DetectHiddenWindows
+    intPrevTitleMatchMode := A_TitleMatchMode
+    DetectHiddenWindows, On
+    SetTitleMatchMode, 2
+	
+	SendMessage, 0x2224, , , , Quick Access Popup ahk_class JeanLalonde.ca
+    DetectHiddenWindows, %strPrevDetectHiddenWindows%
+    SetTitleMatchMode, %intPrevTitleMatchMode%
+	
+    return (ErrorLevel = 1) ; QAP reply 1 if it runs, else SendMessage returns "FAIL".
+}
+;------------------------------------------------------------
