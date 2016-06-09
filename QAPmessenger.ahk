@@ -166,7 +166,7 @@ QAPisRunning()
     DetectHiddenWindows, On
     SetTitleMatchMode, 2
 	
-	SendMessage, 0x2224, , , , Quick Access Popup ahk_class JeanLalonde.ca
+	SendMessage, 0x2224, , , , Quick Access Popup ahk_class JeanLalonde.ca ; USE v7.2 OR ahk_class JeanLalonde.ca
     DetectHiddenWindows, %strPrevDetectHiddenWindows%
     SetTitleMatchMode, %intPrevTitleMatchMode%
 	
