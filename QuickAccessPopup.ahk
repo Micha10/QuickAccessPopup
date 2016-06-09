@@ -18,6 +18,13 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.3.3 BETA (2016-06-08)
+- Registry keys for QAP context menu are now created during setup (by Inno Setup tool) and removed when user uninstalls the app
+- Create context menus for: Explorer folders and files icons, Explorer background (white space) and Desktop background
+- Context menu actions: Add Folder to Quick Access Popup menu (regular and express), Add File to Quick Access Popup menu (regular and express), Show Quick Access Popup menu, Show Quick Access Popup Alternative menu
+- Context menu registry keys can also be removed or recreated using the "Enable Context menus" in Options first tab
+- Fix bug that prevented the Startup folder shortcut to be remeved when uninstalling the app 
+
 Version: 7.2.3.2 BETA (2016-05-30)
 - fix a path bug, now using custom path selected in setup program
  
@@ -4970,10 +4977,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
 			@="%lContextShowMenu%"
-			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenu"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuLaunch"
 			;--------------------------------------
 
 
@@ -4982,7 +4989,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
 			@="%lContextShowMenuAlternative%"
-			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu\command]
@@ -4995,10 +5002,10 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
 			@="%lContextShowMenu%"
-			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenu"
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" ShowMenuNavigate"
 			;--------------------------------------
 
 
@@ -5007,7 +5014,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
 			@="%lContextShowMenuAlternative%"
-			"Icon"="%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.exe\""
 			"Extended"=""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu\command]
@@ -8819,6 +8826,7 @@ return
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 NavigateFromMsg:			; g_strTargetWinId set here
+LaunchFromMsg:				; g_strTargetWinId set here
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
@@ -8851,10 +8859,10 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
-else if (A_ThisLabel = "NavigateFromMsg")
+else if InStr(A_ThisLabel, "FromMsg")
 {
 	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
-	g_strHokeyTypeDetected := "Navigate"
+	g_strHokeyTypeDetected := (InStr(A_ThisLabel, "Navigate") ? "Navigate" : "Launch")
 }
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
@@ -12658,9 +12666,13 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 		g_strNewLocation := arrData2
 		Gosub, AddThisFileFromMsgXpress
 	}
-	else if (arrData1 = "ShowMenu")
+	else if (arrData1 = "ShowMenuNavigate")
 
 		Gosub, NavigateFromMsg
+
+	else if (arrData1 = "ShowMenuLaunch")
+
+		Gosub, LaunchFromMsg
 
 	else if (arrData1 = "ShowMenuAlternative")
 
