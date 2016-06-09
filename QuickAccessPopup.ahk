@@ -20,9 +20,9 @@ HISTORY
 
 Version: 7.2.3.3 BETA (2016-06-08)
 - Registry keys for QAP context menu are now created during setup (by Inno Setup tool) and removed when user uninstalls the app
+- Context menu registry keys can also be removed or recreated using the "Enable Context menus" checkbox in Options (first tab)
 - Create context menus for: Explorer folders and files icons, Explorer background (white space) and Desktop background
 - Context menu actions: Add Folder to Quick Access Popup menu (regular and express), Add File to Quick Access Popup menu (regular and express), Show Quick Access Popup menu, Show Quick Access Popup Alternative menu
-- Context menu registry keys can also be removed or recreated using the "Enable Context menus" in Options first tab
 - Fix bug that prevented the Startup folder shortcut to be remeved when uninstalling the app 
 
 Version: 7.2.3.2 BETA (2016-05-30)
