@@ -1,4 +1,5 @@
 #define MyAppName "Quick Access Popup"
+#define MyAppNameNoSpace "QuickAccessPopup"
 #define MyAppNameLower "quickaccesspopup"
 #define MyAppPublisher "Jean Lalonde"
 #define MyAppURL "http://wwww.QuickAccessPopup.com"
@@ -7,8 +8,8 @@
 #define QAPmessengerVersionFileName "QAPmessenger-0_4-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-0_1-32-bit.exe"
 
-#define MyAppVersion "v7.2.3.3 BETA"
-#define MyVersionFileName "7_2_3_3-beta"
+#define MyAppVersion "v7.2.3.4 BETA"
+#define MyVersionFileName "7_2_3_4-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -31,7 +32,7 @@ SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
-AppMutex={#MyAppName}Mutex
+AppMutex={#MyAppNameNoSpace}Mutex
 UsePreviousTasks=yes
 
 [Languages]
