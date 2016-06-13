@@ -18,6 +18,17 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.3.4 BETA (2016-06-13)
+- No change to the main QAP executable file
+- Addition od the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
+ 
+Changes for portable installation users
+- Addition to the portable setup zip file of the executable file QAPmessenger-0_4-32-bit.exe used to send commands from the Explorer context menus to QAP (this file should be saved in the same folder as the QAP executable file)
+- Addition to the portable setup zip file of the text files used to add or remove QAP Explorer context menus: QuickAccessPopup-ContextMenus_reg.txt and QuickAccessPopup-RemoveContextMenus_bat.txt (see instructions in these files on how to rename, edit and execute these script files)
+ 
+Change for the standard installation
+- fix bug in the uninstall procedure that was not properlyu checking that QAP was not running before uninstalling it (now, QAP must be closes before uninstall)
+
 Version: 7.2.3.3 BETA (2016-06-08)
 - Registry keys for QAP context menu are now created during setup (by Inno Setup tool) and removed when user uninstalls the app
 - Context menu registry keys can also be removed or recreated using the "Enable Context menus" checkbox in Options (first tab)
