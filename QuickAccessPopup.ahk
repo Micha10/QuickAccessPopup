@@ -27,7 +27,7 @@ Changes for portable installation users
 - Addition to the portable setup zip file of the text files used to add or remove QAP Explorer context menus: QuickAccessPopup-ContextMenus_reg.txt and QuickAccessPopup-RemoveContextMenus_bat.txt (see instructions in these files on how to rename, edit and execute these script files)
  
 Change for the standard installation
-- fix bug in the uninstall procedure that was not properlyu checking that QAP was not running before uninstalling it (now, QAP must be closes before uninstall)
+- fix bug in the uninstall procedure that was not properly checking that QAP was not running before uninstalling it (now, QAP must be closed before uninstall)
 
 Version: 7.2.3.3 BETA (2016-06-08)
 - Registry keys for QAP context menu are now created during setup (by Inno Setup tool) and removed when user uninstalls the app
