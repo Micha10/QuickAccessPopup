@@ -5526,12 +5526,14 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	Loop, %strIDs%
 	{
 		WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
-		WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-		WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
-		g_strTargetWinId := strIDs%A_Index%
 		if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
 			or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+		{
+			WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+			WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+			g_strTargetWinId := strIDs%A_Index%
 			break
+		}
 	}
 }
 	

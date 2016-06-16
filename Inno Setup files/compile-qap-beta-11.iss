@@ -8,8 +8,8 @@
 #define QAPmessengerVersionFileName "QAPmessenger-0_4-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-0_1-32-bit.exe"
 
-#define MyAppVersion "v7.2.3.4 BETA"
-#define MyVersionFileName "7_2_3_4-beta"
+#define MyAppVersion "v7.2.3.5 BETA"
+#define MyVersionFileName "7_2_3_5-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
