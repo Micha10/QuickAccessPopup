@@ -18,6 +18,11 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
+Version: 7.2.3.5 BETA (2016-06-??)
+- fix bug when adding folder from context menu and target folder is a drive root (e.g. C:\)
+- reactivate the last file manager window (Explorer, DOpus or TC) before getting the current folder when "Add This Folder" command is called from QAP icon in the Notification zone
+- add tip dialog box if "Add This Folder" command failed after being called from QAP icon in the Notification zone
+
 Version: 7.2.3.4 BETA (2016-06-13)
 - No change to the main QAP executable file
 - Addition od the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
@@ -735,7 +740,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.3.4 BETA
+;@Ahk2Exe-SetVersion 7.2.3.5 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -782,7 +787,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.3.4" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.3.5" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -926,17 +931,10 @@ IfExist, %A_Startup%\FoldersPopup.lnk
 
 if (g_blnDisplayTrayTip)
 {
-; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
-	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
-	if (strMouseHotkey = lDialogNone)
-		strMouseHotkey := ""
-	strKeyboardHotkey := HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2)
-	if (strKeyboardHotkey = lDialogNone)
-		strKeyboardHotkey := ""
-	strSeparatorHotkey := (StrLen(strMouseHotkey) and StrLen(strKeyboardHotkey) ? " / " : "")
-			
+	GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
+		
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail, strMouseHotkey . strSeparatorHotkey . strKeyboardHotkey)
+		, % L(lTrayTipInstalledDetail, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -5519,6 +5517,24 @@ AddThisFileFromMsg:
 AddThisFileFromMsgXpress:
 ;------------------------------------------------------------
 
+if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
+{
+	DetectHiddenWindows, Off
+	Winget, strIDs, list
+	DetectHiddenWindows, On ; revert to app default
+	
+	Loop, %strIDs%
+	{
+		WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
+		WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+		WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+		g_strTargetWinId := strIDs%A_Index%
+		if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+			or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+			break
+	}
+}
+	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
@@ -5626,14 +5642,24 @@ If !StrLen(g_strNewLocation)
 	or !(InStr(g_strNewLocation, ":") or InStr(g_strNewLocation, "\\") or  InStr(g_strNewLocation, "{"))
 	or (strAddThisFolderWindowTitle <> strWindowActiveTitle)
 {
-	Gui, 1:+OwnDialogs 
-	MsgBox, 52, % L(lDialogAddFolderManuallyTitle, g_strAppNameText, g_strAppVersion), %lDialogAddFolderManuallyPrompt%
-	IfMsgBox, Yes
+	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
-		Gosub, GuiShowFromAddThisFolder
-		g_strAddFavoriteType := "Folder"
-		Gosub, GuiAddFavorite
+		GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
+		Gui, 1:+OwnDialogs 
+		Oops(lOopsAddThisFolderTip, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
 	}
+	else
+	{
+		Gui, 1:+OwnDialogs 
+		MsgBox, 52, % L(lDialogAddFolderManuallyTitle, g_strAppNameText, g_strAppVersion), %lDialogAddFolderManuallyPrompt%
+		IfMsgBox, Yes
+		{
+			Gosub, GuiShowFromAddThisFolder
+			g_strAddFavoriteType := "Folder"
+			Gosub, GuiAddFavorite
+		}
+	}
+	return
 }
 else
 {
@@ -5681,6 +5707,9 @@ strAddThisFolderWindowTitle := ""
 intWaitTimeIncrement := ""
 intTries := ""
 intTriesIndex := ""
+strIDs := ""
+strMouseHotkey := ""
+strKeyboardHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -11675,6 +11704,28 @@ SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton, B
 
 
 ;------------------------------------------------------------
+GetHotkeysText(ByRef strMouseHotkey, ByRef strKeyboardHotkey)
+;------------------------------------------------------------
+{
+	global strModifiers1
+	global strMouseButton1
+	global strOptionsKey1
+	global strModifiers2
+	global strMouseButton2
+	global strOptionsKey2
+	
+	; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
+	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
+	if (strMouseHotkey = lDialogNone)
+		strMouseHotkey := ""
+	strKeyboardHotkey := HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2)
+	if (strKeyboardHotkey = lDialogNone)
+		strKeyboardHotkey := ""
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 Hotkey2Text(strHotkey, blnShort := false)
 ;------------------------------------------------------------
 {
@@ -12656,6 +12707,11 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
 	
 	StringSplit, arrData, strCopyOfData, |
+	if InStr(arrData1, "AddFolder") and (SubStr(arrData2, -1, 2) = ":""") ; -1 extracts the 2 last characters
+		arrData2 := SubStr(arrData2, 1, StrLen(arrData2) - 1) . "\"
+
+	if (arrData2 = "C:""")
+		arrData2 := "C:\"
 	
 	if (arrData1 = "AddFolder")
 	{
