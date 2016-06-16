@@ -18,7 +18,7 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.3.5 BETA (2016-06-??)
+Version: 7.2.3.5 BETA (2016-06-16)
 - fix bug when adding folder from context menu and target folder is a drive root (e.g. C:\)
 - reactivate the last file manager window (Explorer, DOpus or TC) before getting the current folder when "Add This Folder" command is called from QAP icon in the Notification zone
 - add tip dialog box if "Add This Folder" command failed after being called from QAP icon in the Notification zone
