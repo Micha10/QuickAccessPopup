@@ -18,12 +18,17 @@ http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-
 HISTORY
 =======
 
-Version: 7.2.3.5 BETA (2016-06-16)
+Version BETA: 7.2.3.6 (2016-06-20)
+- when called from QAP icon in the Notification zone, display the popup menu higher than the taskbar area
+- remove extra & in Language in change language dialog box message
+- disable QAP hotkeys when changing hotkeys solving assignement issues in some situation
+
+Version BETA: 7.2.3.5 (2016-06-16)
 - fix bug when adding folder from context menu and target folder is a drive root (e.g. C:\)
 - reactivate the last file manager window (Explorer, DOpus or TC) before getting the current folder when "Add This Folder" command is called from QAP icon in the Notification zone
 - add tip dialog box if "Add This Folder" command failed after being called from QAP icon in the Notification zone
 
-Version: 7.2.3.4 BETA (2016-06-13)
+Version BETA: 7.2.3.4 (2016-06-13)
 - No change to the main QAP executable file
 - Addition od the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
  
@@ -34,17 +39,17 @@ Changes for portable installation users
 Change for the standard installation
 - fix bug in the uninstall procedure that was not properly checking that QAP was not running before uninstalling it (now, QAP must be closed before uninstall)
 
-Version: 7.2.3.3 BETA (2016-06-08)
+Version BETA: 7.2.3.3 (2016-06-08)
 - Registry keys for QAP context menu are now created during setup (by Inno Setup tool) and removed when user uninstalls the app
 - Context menu registry keys can also be removed or recreated using the "Enable Context menus" checkbox in Options (first tab)
 - Create context menus for: Explorer folders and files icons, Explorer background (white space) and Desktop background
 - Context menu actions: Add Folder to Quick Access Popup menu (regular and express), Add File to Quick Access Popup menu (regular and express), Show Quick Access Popup menu, Show Quick Access Popup Alternative menu
 - Fix bug that prevented the Startup folder shortcut to be remeved when uninstalling the app 
 
-Version: 7.2.3.2 BETA (2016-05-30)
+Version BETA: 7.2.3.2 (2016-05-30)
 - fix a path bug, now using custom path selected in setup program
  
-Version: 7.2.3.1 BETA (2016-05-29)
+Version BETA: 7.2.3.1 (2016-05-29)
  
 Context menus
 - add an option to enable/disable QAP Explorer context menus (enabling or disabling requires running with administrator privileges)
@@ -740,7 +745,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.3.5 BETA
+;@Ahk2Exe-SetVersion 7.2.3.6 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -787,7 +792,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.3.5" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.2.3.6" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -796,6 +801,7 @@ g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
 
 g_blnMenuReady := false
+g_blnChangeHotkeyInProgress := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -4854,7 +4860,8 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 ; if language or theme changed, offer to restart the app
 if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme)
 {
-	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, (strLanguageCodePrev <> g_strLanguageCode ? lOptionsLanguage : lOptionsTheme), (strLanguageCodePrev <> g_strLanguageCode ? g_strLanguageLabel : g_strTheme), g_strAppNameText)
+	StringReplace, strLanguageNoAmpersand, lOptionsLanguage, &
+	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, (strLanguageCodePrev <> g_strLanguageCode ? strLanguageNoAmpersand : lOptionsTheme), (strLanguageCodePrev <> g_strLanguageCode ? g_strLanguageLabel : g_strTheme), g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
 }	
@@ -4896,6 +4903,7 @@ strActiveFileManagerDisplayName := ""
 blnActiveFileManangerOK := ""
 strExclusionCleanup := ""
 strTempLocation := ""
+strLanguageNoAmpersand := ""
 
 return
 ;------------------------------------------------------------
@@ -8269,6 +8277,8 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	; safer than declaring individual variables (see "Common source of confusion" in https://www.autohotkey.com/docs/Functions.htm#Locals)
 	global
 
+	g_blnChangeHotkeyInProgress := true
+	
 	SplitHotkey(strActualHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
 
 	intGui2WinID := WinExist("A")
@@ -8485,6 +8495,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		}
 	}
 
+	g_blnChangeHotkeyInProgress := false
 	Gosub, 3GuiClose
 	
 	return
@@ -8496,6 +8507,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	
 	strNewHotkey := ""
 
+	g_blnChangeHotkeyInProgress := false
 	Gosub, 3GuiClose
   
 	return
@@ -8877,7 +8889,7 @@ LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/Alte
 
 ; DiagWindowInfo(A_ThisLabel . " Begin")
 
-if !(g_blnMenuReady)
+if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
 	return
 
 if (g_blnGetWinInfo)
@@ -8886,10 +8898,10 @@ if (g_blnGetWinInfo)
 	return
 }
 
-Gosub, SetMenuPosition
-
 g_blnAlternativeMenu := (A_ThisLabel = "LaunchFromAlternativeMenu")
 g_blnLaunchFromTrayIcon := (A_ThisLabel = "LaunchFromTrayIcon") ; make sure it is initialized true or false
+
+Gosub, SetMenuPosition
 
 if !(g_blnAlternativeMenu)
 	g_strAlternativeMenu := "" ; delete from previous call to Alternative key, else keep what was set in OpenAlternativeMenu
@@ -8985,7 +8997,15 @@ CoordMode, Mouse, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
 
 if (g_intPopupMenuPosition = 1) ; display menu near mouse pointer location
+{
 	MouseGetPos, g_intMenuPosX, g_intMenuPosY
+	if (g_blnLaunchFromTrayIcon)
+	{
+		SysGet, intMonitorWorkArea, MonitorWorkArea
+		if (g_intMenuPosY > intMonitorWorkAreaBottom - 5)
+			g_intMenuPosY := intMonitorWorkAreaBottom - 5
+	}
+}
 else if (g_intPopupMenuPosition = 2) ; display menu at an offset of 20x20 pixel from top-left of active window area
 {
 	g_intMenuPosX := 20
@@ -8996,6 +9016,8 @@ else ; (g_intPopupMenuPosition =  3) - fix position - use the g_intMenuPosX and 
 	g_intMenuPosX := g_arrPopupFixPosition1
 	g_intMenuPosY := g_arrPopupFixPosition2
 }
+
+intMonitorWorkArea := ""
 
 return
 ;------------------------------------------------------------
@@ -9262,6 +9284,9 @@ return
 OpenAlternativeMenuHotkey:
 ;------------------------------------------------------------
 
+if (g_blnChangeHotkeyInProgress)
+	return
+
 ; search Alternative menu code in g_objQAPFeatures to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
 g_strAlternativeMenu := ""
 for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -9444,6 +9469,9 @@ OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
 ;------------------------------------------------------------
+
+if (g_blnChangeHotkeyInProgress)
+ 	return
 
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
