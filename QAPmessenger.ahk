@@ -16,6 +16,9 @@ Called from Explorer context menus to send messages to QAP in order to launch va
 HISTORY
 =======
 
+Version: 1.0 (2016-06-20)
+- small adjustment to prevent the cursor to shortly turn to wait image when showing menu from Desktop background
+
 Version: 0.4 beta (2016-06-06)
 - check if QAP is running before sending message; if not display error message
 - improved message if QAPmessenger is launched directly
@@ -41,7 +44,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 0.3 BETA
+;@Ahk2Exe-SetVersion 1.0
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -63,8 +66,8 @@ ListLines, On
 ;@Ahk2Exe-IgnoreEnd
 
 g_strAppNameText := "Quick Access Popup Messenger"
-g_strAppVersion := "0.4"
-g_strAppVersionBranch := "beta"
+g_strAppVersion := "1.0"
+g_strAppVersionBranch := "prod"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
 g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
@@ -169,6 +172,7 @@ QAPisRunning()
 	SendMessage, 0x2224, , , , Quick Access Popup ahk_class JeanLalonde.ca ; USE v7.2 OR ahk_class JeanLalonde.ca
     DetectHiddenWindows, %strPrevDetectHiddenWindows%
     SetTitleMatchMode, %intPrevTitleMatchMode%
+	Sleep, -1 ; prevent the cursor to turn to WAIT image for 5 seconds (did not search why) when showing menu from Desktop background
 	
     return (ErrorLevel = 1) ; QAP reply 1 if it runs, else SendMessage returns "FAIL".
 }
