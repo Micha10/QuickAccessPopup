@@ -31,6 +31,31 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.3 (2016-06-22)
+ 
+Context menus
+- context menus for: Explorer folders and files icons, Explorer background (white space) and Desktop background
+- context menu actions (right-click): Add Folder to menu, Add File to menu, Show menu
+- context menu advanced actions (Shift + right-click): Add Folder to menu Express, Add File to menu Express, Show Alternative menu
+ 
+For the standard "Easy one-step" installation users (Setup)
+- change to setup procedure to create registry keys for QAP context menu at installation and removed them when user uninstalls the app (using Inno Setup tool)
+- add a check box in Option ("General" tab) to enable/disable QAP Explorer context menus (enabling or disabling scripts will ask to run with elevated administrator privileges)
+- creation of the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
+- fix bug in the uninstall procedure that was not properly checking that QAP was not running before uninstalling it (now, QAP must be closed by the user before installing and uninstalling it)
+- fix bug that prevented the Startup folder shortcut to be removed when uninstalling the app 
+ 
+Changes for portable installation users
+- addition to the portable package of the scripts to add and delete manually QAP Explorer context menus: QuickAccessPopup-InstallContextMenus_reg.txt and QuickAccessPopup-RemoveContextMenus_bat.txt (see instructions in these files)
+- addition of the executable file QAPmessenger-1_0-32-bit.exe required to send commands from the Explorer context menus to QAP (this file should be saved in the same folder as the QAP executable file)
+ 
+Other changes (all users)
+- add a check box in Add Application favorite dialog box (in "Advanced Settings" tab) to run favorite application with elevated privileges using the "Run as" command
+- for QAP users upgrading from Windows 7 to Windows 10, add the utility to adapt references to icons in the new Windows 10 icons files (see the startup menu "Update QAP Icons from Window 7 to Windows 10" or run the file "QAPupdateIconsWin10-1_0-32-bit.exe")
+- when "Add This Folder" command is called from QAP icon in the Notification zone, reactivate the last used file manager window to detect the folder to add
+- when called from QAP icon in the Notification zone, display the popup menu a little higher than the taskbar area (preventing occasional overlap)
+- disable QAP hotkeys when changing hotkeys, solving assignement issues in some situation
+
 Version BETA: 7.2.3.6 (2016-06-20)
 - when called from QAP icon in the Notification zone, display the popup menu higher than the taskbar area
 - remove extra & in Language in change language dialog box message
@@ -758,7 +783,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.2.3.6 BETA
+;@Ahk2Exe-SetVersion 7.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -805,8 +830,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.2.3.6" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.3" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
