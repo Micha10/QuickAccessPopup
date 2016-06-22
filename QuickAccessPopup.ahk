@@ -10958,7 +10958,8 @@ if (A_ThisMenuItem <> lMenuUpdate)
 {
 	if Time2Donate(intStartups, g_blnDonor)
 	{
-		MsgBox, 36, % l(lDonateCheckTitle, intStartups, g_strAppNameText), % l(lDonateCheckPrompt, g_strAppNameText, intStartups)
+		MsgBox, 36, % l(lDonateCheckTitle, intStartups, g_strAppNameText)
+			, % l(lDonateCheckPrompt . "`n`n" . L(lDonateCheckPrompt2, lDonateCheckPrompt3), g_strAppNameText, intStartups)
 		IfMsgBox, Yes
 			Gosub, GuiDonate
 	}
@@ -11287,11 +11288,15 @@ Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://code.jeanlalonde.ca/support-freeware/")
-loop, 2
-{
-	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
-	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
-}
+; loop, 2
+; {
+;	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
+;	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
+; }
+Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate1, %lDonatePlatformName1%
+Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment1%
+
+Gui, 2:Add, Link, xm y+10 w420, % L(lDonateCheckPrompt2, lDonateCheckPrompt4)
 
 Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Link, xm y+20 w420, %lDonateText3%
@@ -11342,8 +11347,8 @@ strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&ho
 strDonatePlatformUrl2 := "http://www.shareit.com/product.html?productid=300628012"
 strDonatePlatformUrl3 := "http://code.jeanlalonde.ca/?flattrss_redirect&id=19&md5=e1767c143c9bde02b4e7f8d9eb362b71"
 
-StringReplace, strButton, A_ThisLabel, ButtonDonate
-Run, % strDonatePlatformUrl%strButton%
+StringReplace, intButton, A_ThisLabel, ButtonDonate
+Run, % strDonatePlatformUrl%intButton%
 
 return
 ;------------------------------------------------------------
