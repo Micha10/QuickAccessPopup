@@ -6,10 +6,10 @@
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
-#define QAPupdateIconsWin10 "QAPupdateIconsWin10-0_1-32-bit.exe"
+#define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_0-32-bit.exe"
 
-#define MyAppVersion "v7.2.3.6 BETA"
-#define MyVersionFileName "7_2_3_6-beta"
+#define MyAppVersion "v7.3"
+#define MyVersionFileName "7_3"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -26,9 +26,9 @@ AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Inno Setup files\license.txt
-OutputDir=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\
-OutputBaseFilename={#MyAppNameLower}-setup-beta
-SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico
+OutputDir=C:\Dropbox\AutoHotkey\QuickAccessPopup\build\
+OutputBaseFilename={#MyAppNameLower}-setup
+SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-512.ico
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -54,15 +54,15 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "{commonappdata}\{#MyAppName}" 
 
 [Files]
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-{#MyVersionFileName}-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-{#MyVersionFileName}-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#QAPupdateIconsWin10}"; DestDir: "{app}"; DestName: "QAPupdateIconsWin10.exe"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"; Flags: ignoreversion
-; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-BETA.ico"; Flags: ignoreversion
+; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"; Flags: ignoreversion
+; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup.ico"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
@@ -83,7 +83,7 @@ Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"
 Name: "{group}\Import Folders Popup Settings"; Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"
 Name: "{group}\Update QAP Icons from Window 7 to Windows 10"; Filename: "{app}\QAPupdateIconsWin10.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"
-Name: "{group}\OS Version Info"; Filename: "{app}\OSVersion.exe"
+; Name: "{group}\OS Version Info"; Filename: "{app}\OSVersion.exe"
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
@@ -151,4 +151,4 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: checkedonce unchecked
 
 [UninstallDelete]
-Type: files; Name: "{userstartup}\{#MyAppNameLower}.lnk"
+Type: files; Name: "{userstartup}\{#MyAppName}.lnk"
