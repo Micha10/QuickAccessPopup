@@ -6,7 +6,10 @@ QAPupdateIconsWin10
 Update icons in favorites created with Quick Access Popup under Windows 7 to Windows 10 icons
 Written using AutoHotkey_L v1.1.09.03+ (http://ahkscript.org/)
 By Jean Lalonde (JnLlnd on AHKScript.org forum)
-	
+
+Version: 1.0 (2016-06-21)
+- first official release
+
 Version: 0.1 (2016-05-25)
 - first release
 
@@ -20,7 +23,7 @@ Version: 0.1 (2016-05-25)
 
 ;@Ahk2Exe-SetName QAPupdateIconsWin10
 ;@Ahk2Exe-SetDescription Update QAP icons to Windows 10
-;@Ahk2Exe-SetVersion 0.1
+;@Ahk2Exe-SetVersion 1.0
 ;@Ahk2Exe-SetOrigFilename QAPupdateIconsWin10.exe
 
 
