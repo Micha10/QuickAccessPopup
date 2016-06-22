@@ -1,12 +1,18 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
 lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduction française: Jean Lalonde`nTraduction allemande: Edgar "Fast Edi" Hoffmann`nTraduction suédoise: Åke Engelbrektson`nTraduction italienne: Riccardo Leone`nTraduction espagnole: kiketrucker`nTraduction en portugais brésilien: Igor Ruckert`nTraduction en chinois simplifié et traditionel: Jess Yang`nTraduction en portuguais: Luis Never`nRévision anglaise: (aide bienvenue)`n`nIcônes par: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstallateur: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> par jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
-lAboutText3	~1~ Jean Lalonde 2013-2014. Gratuiciel.
+lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soutien en ligne: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	À propos - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Choisissez le favori à copier
 lAlternativeMenuTrayTipEditFavorite	Choisissez le favori à modifier
 lAlternativeMenuTrayTipNewWindow	Choisissez le dossier à ouvrir dans une nouvelle fenêtre
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Initiation rapide</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Foire aux questions</a> • <a href="http://www.quickaccesspopup.com">Soutien en ligne</a> (anglais)
+lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
+lContextAddFileXpress	Ajouter ce fichier au menu Quick Access Popup (Express)
+lContextAddFolder	Ajouter ce dossier au menu Quick Access Popup
+lContextAddFolderXpress	Ajouter ce dossier au menu Quick Access Popup (Express)
+lContextShowMenu	Afficher le menu de Quick Access Popup
+lContextShowMenuAternative	Afficher le menu Alternatif de Quick Access Popup
 lCopyLocationCopiedToClipboard	Emplacement copié dans le Presse-papiers
 lDiagModeCaution	~1~ roule en mode de diagnostique.`n`nDes renseignements à propos de l'exécution de cette application seront colligées dans le fichier:`n~2~`n`nAucune information ne sera transmise sans votre consentement.`n`nVoulez-vous rester en mode diagnostique?
 lDiagModeExit	~1~ a colligé des renseignements à des fins de diagnostique dans le fichier ~2~.
@@ -44,6 +50,7 @@ lDialogCtrlShort	Ctrl
 lDialogEdit	Modifier
 lDialogEditIcon	Modifier la ressources de l'icône
 lDialogEditIconPrompt	Modifiez l'icône de la ressource selon le format "fichier,index" (par exemple, "shell32.dll,2")
+lDialogElevate	Lancer l'application avec des droits d'administration augmentés
 lDialogEndOfMenu	fin du menu
 lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
 lDialogExternalLocation	Emplacement du fichier de configuration de ce menu partagé ; new
@@ -163,9 +170,12 @@ lDialogWinShort	Win
 lDialogWorkingDirLabel	Démarrer dans
 lDonateButton	Soutenez ce gratuiciel!
 lDonateCheckPrompt	Vous aimez ~1~?`n`n~1~ n'est pas seulement GRATUIT mais aussi distribué SANS ces attrapes publicitaires dont on ne sait jamais si elles transportent des virus ou encore des logiciels espions ou malveillants.`n`nCela fait maintenant ~2~ fois que ~1~ est lancé pour faciliter votre travail quotidien. Que diriez-vous de soutenir ce gratuiciel à votre tour?
+lDonateCheckPrompt2	Note: Les utilisateurs qui veulent bien faire un don reçoivent un CODE qui arrêtera ~1~.
+lDonateCheckPrompt3	l'affichage de ce message
+lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
-lDonatePlatformComment1	La façon la plus flexible avec votre compte PayPal ou votre carte de crédit
+lDonatePlatformComment1	Donnez avwec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
 lDonatePlatformComment2	Recevez une facture officielle si vous en avez besoin pour un remboursement
 lDonatePlatformName1	Avec Paypal
 lDonatePlatformName2	Avec Share-it
@@ -297,6 +307,7 @@ lMenuUserFolder	Dossier de l'utilisateur
 lMenuUserPinned	Epinglé par l'utilisateur
 lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1~.
 lNavigateSpecialError	Une erreur s'est produite lors de l'ouverture du dossier spécial #~1~.
+lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter ce dossier au menu":`n`n1) Activez la fenêtre ~1~ contenant le dossier à ajouter au menu.`n2) Ouvrez le menu popup avec ~2~.`n3) Choisissez "Ajouter ce dossier au menu" et enregistrez votre nouveau favori.
 lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
@@ -336,6 +347,7 @@ lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans
 lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
 lOptionsExclusionList	Exclusions
 lOptionsExclusionTitle	Liste d'exclusions pour le bouton de souris [~1~]
+lOptionsExplorerContextMenus	Activer les menus contextuels d'Explorer
 lOptionsFtpEncoding	Encoder le code d'utilisateur et le mot de passe FTP (recommandé)
 lOptionsFtpEncodingTC	Encoder le code d'utilisateur et le mot de passe FTP (déconseillé aux utilisateurs de Total Commander)
 lOptionsGuiTitle	Options - ~1~ ~2~
