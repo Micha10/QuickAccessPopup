@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.3.1 (2016-06-25)
+- adapted icons management to new icon file imageres.dll dated 2015-10-30 in Windows 10
+- adapted QAPupdateIconsWin10 (now v1.1) to new icon file imageres.dll dated 2015-10-30 in Windows 10
+- fix GIT sync error impacting code management
+
 Version: 7.3 (2016-06-22)
  
 Context menus
@@ -1340,11 +1345,7 @@ if (GetOsVersion() = "WIN_10")
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
-<<<<<<< HEAD
-		. "|189|204|209|201"
-=======
-		. "|189|204|209|307" ; iconAddThisFolder icon 307 in an old Win10 file should be 310 in a newer Win10 file :-(
->>>>>>> develop
+		. "|189|204|209|307"
 		. "|4|24|39|46|55"
 		. "|68|87|99|104|110"
 		. "|153|174|176|215|216"
@@ -1382,10 +1383,17 @@ else
 StringSplit, arrIconsFile, strIconsFile, |
 StringSplit, arrIconsIndex, strIconsIndex, |
 
+; icons index over 224 in Win 10 file imageres.dll dated "20151030031815" must be increadesed by 3
+FileGetTime, strWin10ImageresDate, %A_WinDir%\System32\imageres.dll
+
 Loop, Parse, strIconsMenus, |
 {
 	g_objIconsFile[A_LoopField] := A_WinDir . "\System32\" . arrIconsFile%A_Index% . (arrIconsFile%A_Index% = "winver" ? ".exe" : ".dll")
-	g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index%
+	
+	if (GetOsVersion() = "WIN_10") and (arrIconsFile%A_Index% = "imageres") and (arrIconsIndex%A_Index% > 224) and (strWin10ImageresDate = "20151030031815") ; Win 10 "B" -> index +3
+		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index% + 3
+	else ; "shell32" or Win 7 or Win 10 "A" ("20150710070017")
+		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index%
 }
 ; example: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
 
@@ -10997,17 +11005,22 @@ if (A_ThisMenuItem <> lMenuUpdate)
 
 blnSetup := (FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt") = "" ? 0 : 1)
 
+FileGetTime, strShell32Date, %A_WinDir%\System32\shell32.dll
+FileGetTime, strImageresDate, %A_WinDir%\System32\imageres.dll
+
 strLatestVersions := Url2Var(strUrlCheck4Update
 	. "?v=" . g_strCurrentVersion
 	. "&os=" . GetOSVersion()
 	. "&is64=" . A_Is64bitOS
-    . "&setup=" . (blnSetup)
+	. "&setup=" . (blnSetup)
 				+ (2 * (g_blnDonor ? 1 : 0))
 				+ (4 * (g_intActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
 				+ (8 * (g_intActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
 				+ (16 * (g_intActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
-    . "&lsys=" . A_Language
-    . "&lfp=" . g_strLanguageCode)
+	. "&lsys=" . A_Language
+	. "&lfp=" . g_strLanguageCode
+	. "&shd=" . strShell32Date
+	. "&ird=" . strImageresDate)
 if !StrLen(strLatestVersions)
 	if (A_ThisMenuItem = lMenuUpdate)
 	{
@@ -11119,6 +11132,8 @@ strLatestUsedProd := ""
 strLatestUsedBeta := ""
 strLatestUsedAlpha := ""
 intStartups := ""
+strShell32Date := ""
+strImageresDate := ""
 
 return 
 ;------------------------------------------------------------
