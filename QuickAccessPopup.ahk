@@ -35,6 +35,7 @@ Version: 7.3.1 (2016-06-25)
 - adapted icons management to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - adapted QAPupdateIconsWin10 (now v1.1) to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - fix GIT sync error impacting code management
+- fix bug path not saved until reload after changing file manager from/to Directory Opud or Total Commander
 
 Version: 7.3 (2016-06-22)
  
@@ -788,7 +789,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.3
+;@Ahk2Exe-SetVersion 7.3.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -835,7 +836,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.3" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4877,8 +4878,9 @@ if (g_intActiveFileManager = 4) ; QAPconnect
 	IniWrite, %g_strQAPconnectFileManager%, %g_strIniFile%, Global, QAPconnectFileManager
 else if (g_intActiveFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	g_str%strActiveFileManagerSystemName%Path := f_strFileManagerPath
-	IniWrite, % g_str%strActiveFileManagerSystemName%Path, %g_strIniFile%, Global, %strActiveFileManagerSystemName%Path
+	g_str%strClickedFileManagerSystemNames%PathBeforeEnvVars := f_strFileManagerPath
+	g_str%strActiveFileManagerSystemName%Path := EnvVars(f_strFileManagerPath)
+	IniWrite, % g_str%strActiveFileManagerSystemName%PathBeforeEnvVars, %g_strIniFile%, Global, %strActiveFileManagerSystemName%Path
 	
 	g_bln%strActiveFileManagerSystemName%UseTabs := f_blnFileManagerUseTabs
 	IniWrite, % g_bln%strActiveFileManagerSystemName%UseTabs, %g_strIniFile%, Global, %strActiveFileManagerSystemName%UseTabs
