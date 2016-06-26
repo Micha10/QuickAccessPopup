@@ -31,11 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.3.1 (2016-06-25)
+Version: 7.3.1 (2016-06-26)
 - adapted icons management to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - adapted QAPupdateIconsWin10 (now v1.1) to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - fix GIT sync error impacting code management
 - fix bug path not saved until reload after changing file manager from/to Directory Opud or Total Commander
+- fix bug preventing to show QAP menu from context menus when a QAP dialog box is open
 
 Version: 7.3 (2016-06-22)
  
@@ -12786,22 +12787,27 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strNewLocation
 	global g_strFavoriteDialogTitle
 	
-	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
-	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
-		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
-
-	if (blnDialogOpen)
-		return 0xFFFF
-	
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
 	
 	StringSplit, arrData, strCopyOfData, |
+	
+	if SubStr(arrData1, 1, 4) <> "Show"
+	{
+		GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
+		if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
+			blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
+		if (!blnDialogOpen)
+			blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
+		if (!blnDialogOpen)
+			blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
+
+		if (blnDialogOpen)
+			return 0xFFFF
+	}
+	
 	if InStr(arrData1, "AddFolder") and (SubStr(arrData2, -1, 2) = ":""") ; -1 extracts the 2 last characters
+		; exception for drive paths
 		arrData2 := SubStr(arrData2, 1, StrLen(arrData2) - 1) . "\"
 
 	if (arrData2 = "C:""")
