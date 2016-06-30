@@ -164,6 +164,7 @@ global lDialogWindowPositionY := "Top" ; new
 global lDialogWindowsFolderIconCreate := "create" ; new
 global lDialogWindowsFolderIconNoRoot := "The Windows folder icon cannot be set in drive's root directory (~1~)." ; new
 global lDialogWindowsFolderIconPrompt := "This command will ~1~ the system file:`n~2~`n`nThe Windows folder's icon will be set to the icon currently selected for this favorite. Do you want to continue?" ; new
+global lDialogWindowsFolderIconPrompt2 := "Note: It may take 10-15 seconds or up to one minute before Windows shows the new folder icon." ; new
 global lDialogWindowsFolderIconRemove := "Remove Windows folder icon" ; new
 global lDialogWindowsFolderIconRemoveFile := "This command can also DELETE the system file:`n~1~`n`nDo you want to restore this folder to its normal state?" ; new
 global lDialogWindowsFolderIconReset := "The folder's icon will be reset to its default image. `n`nDo you want to continue?" ; new

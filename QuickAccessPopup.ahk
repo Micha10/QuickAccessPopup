@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.3.2 (2016-06-??)
+- add a note to dialog box about Windows delay when changing folder icon with desktop.ini
+
 Version: 7.3.1 (2016-06-26)
 - adapted icons management to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - adapted QAPupdateIconsWin10 (now v1.1) to new icon file imageres.dll dated 2015-10-30 in Windows 10
@@ -1392,7 +1395,7 @@ Loop, Parse, strIconsMenus, |
 {
 	g_objIconsFile[A_LoopField] := A_WinDir . "\System32\" . arrIconsFile%A_Index% . (arrIconsFile%A_Index% = "winver" ? ".exe" : ".dll")
 	
-	if (GetOsVersion() = "WIN_10") and (arrIconsFile%A_Index% = "imageres") and (arrIconsIndex%A_Index% > 224) and (strWin10ImageresDate = "20151030031815") ; Win 10 "B" -> index +3
+	if (GetOsVersion() = "WIN_10") and (arrIconsFile%A_Index% = "imageres") and (arrIconsIndex%A_Index% > 224) and (strWin10ImageresDate > "20151029000000") ; 20151030031815 + is Win 10 "B" -> index +3
 		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index% + 3
 	else ; "shell32" or Win 7 or Win 10 "A" ("20150710070017")
 		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index%
@@ -7016,7 +7019,7 @@ if (blnSet)
 	}
 	
 	strVerb := (blnDesktopIniExist ? lDialogWindowsFolderIconUpdate : lDialogWindowsFolderIconCreate)
-	strMessage := L(lDialogWindowsFolderIconPrompt, strVerb, strFolderDesktopIni)
+	strMessage := L(lDialogWindowsFolderIconPrompt, strVerb, strFolderDesktopIni) . "`n`n" . lDialogWindowsFolderIconPrompt2
 	MsgBox, 4, %g_strAppNameFile%, %strMessage%
 }
 else ; remove
