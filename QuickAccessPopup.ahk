@@ -956,8 +956,8 @@ GetIcon4Location(g_strTempDir . "\default_browser_icon.html", g_strURLIconFile, 
 Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
 
-Gosub, BuildDrivesMenuInit ; show in separate menu until... ##### will be refreshed by a background task and after each popup menu call
-Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... ##### will be refreshed by a background task and after each popup menu call
+Gosub, BuildDrivesMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
+Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
 Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
 
 Gosub, BuildTotalCommanderHotlist
@@ -2887,7 +2887,7 @@ return
 ;------------------------------------------------------------
 SetTimerRefreshDynamicMenus:
 ;------------------------------------------------------------
-; #####
+; ####
 
 ; Do nothing until background tasks is fixed...
 /*
@@ -8984,7 +8984,7 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 	Sleep, 20
 }
 
-; #####
+; ####
 
 ; refresh the five dynamic menus before showing the main menu
 ; in order of estimated avverage time required to refresh
@@ -9659,9 +9659,8 @@ if (g_blnAlternativeMenu)
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
 		g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
-		g_intOriginalMenuPosition := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName ? 0 : 1)
-			+ NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos)
-		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
+		g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
+
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
 		gosub, OpenFavoriteCleanup
@@ -9858,21 +9857,9 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 }
 
 if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavoriteLabel)
-{
-	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
-			+ NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos)
-	g_objThisFavorite := g_objMenusIndex[A_ThisMenu][intMenuItemPos]
-	/*
-	if (g_blnDiagMode)
-	{
-		Diag("strThisMenuItem", strThisMenuItem)
-		Diag("A_ThisMenu", A_ThisMenu)
-		Diag("A_ThisMenuItemPos", A_ThisMenuItemPos)
-		Diag("NumberOfColumnBreaksBeforeThisItem", NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos))
-		Diag("intMenuItemPos", intMenuItemPos)
-	}
-	*/
-}
+	
+	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
+	
 else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	blnLocationFound := false
@@ -10110,16 +10097,33 @@ GetSpecialFolderLocation(ByRef strHokeyTypeDetected, ByRef strTargetName, objFav
 ;------------------------------------------------------------
 
 
+
 ;------------------------------------------------------------
-NumberOfColumnBreaksBeforeThisItem(objMenu, strThisMenuItemPos)
+GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
+	global g_objMenusIndex
+	
+	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
+				+ NumberOfColumnBreaksBeforeThisItem()
+				
+	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumberOfColumnBreaksBeforeThisItem()
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
 	intNumberOfColumnBreaks := 0
 	Loop
 	{
-		if (A_Index - intNumberOfColumnBreaks > strThisMenuItemPos)
+		if (A_Index - intNumberOfColumnBreaks > A_ThisMenuItemPos)
 			break
-		else if (objMenu[A_Index].FavoriteType = "K")
+		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteType = "K")
 			intNumberOfColumnBreaks++
 	}
 	
