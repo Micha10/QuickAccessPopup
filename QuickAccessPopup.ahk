@@ -2410,7 +2410,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2485,6 +2485,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
+		objLoadIniFavorite.FavoriteDisabled := arrThisFavorite14 ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4006,6 +4007,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			and !(objCurrentMenu[A_Index].FavoriteDisabled)
 		{
 			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
 			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
@@ -4046,7 +4048,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
-		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group)
+		else if !(objCurrentMenu[A_Index].FavoriteDisabled) ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group) and it is not disabled
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
@@ -10105,7 +10107,12 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 	global g_objMenusIndex
 	
 	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
-				+ NumberOfColumnBreaksBeforeThisItem()
+		+ NumberOfColumnBreaksBeforeThisItem()
+		+ NumberOfDisabledItemsBeforeThisItem()
+	
+	###_D("", 1)
+	###_V(A_ThisFunc, A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1), NumberOfColumnBreaksBeforeThisItem(), NumberOfDisabledItemsBeforeThisItem())
+	###_O(intMenuItemPos, g_objMenusIndex[A_ThisMenu][intMenuItemPos])
 				
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 }
@@ -10119,15 +10126,36 @@ NumberOfColumnBreaksBeforeThisItem()
 	global g_objMenusIndex
 	
 	intNumberOfColumnBreaks := 0
+	
 	Loop
-	{
 		if (A_Index - intNumberOfColumnBreaks > A_ThisMenuItemPos)
 			break
 		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteType = "K")
 			intNumberOfColumnBreaks++
-	}
 	
 	return intNumberOfColumnBreaks
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumberOfDisabledItemsBeforeThisItem()
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
+	intNumberOfDisabledItems := 0
+	
+	Loop
+	{
+		if (A_Index - intNumberOfDisabledItems > A_ThisMenuItemPos)
+			break
+		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteDisabled)
+			intNumberOfDisabledItems++
+		###_O("A_Index: " . A_Index . " = " . intNumberOfDisabledItems, g_objMenusIndex[A_ThisMenu][A_Index])
+	}	
+	
+	return intNumberOfDisabledItems
 }
 ;------------------------------------------------------------
 
