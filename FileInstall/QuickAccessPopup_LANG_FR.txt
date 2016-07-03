@@ -175,7 +175,7 @@ lDonateCheckPrompt3	l'affichage de ce message
 lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
-lDonatePlatformComment1	Donnez avwec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
+lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
 lDonatePlatformComment2	Recevez une facture officielle si vous en avez besoin pour un remboursement
 lDonatePlatformName1	Avec Paypal
 lDonatePlatformName2	Avec Share-it

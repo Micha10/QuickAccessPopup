@@ -169,9 +169,12 @@ lDialogWinShort	Win
 lDialogWorkingDirLabel	Iniciar em
 lDonateButton	Apoiar o Freeware!
 lDonateCheckPrompt	Você está contente com o ~1~?`n`nO ~1~ não é somente GRATUITO, mas também LIVRE de publicidade desagradável ou adware, que você nunca sabe se carrega spyware ou malware.`n`nAté agora, por ~2~ vezes o ~1~ lhe ajudou no seu trabalho diário. Que tal apoiar este freeware agora?
+lDonateCheckPrompt2	Nota: Os usuários que gentilmente fazerem uma doação receberão um código que fará PARAR de ~1~.
+lDonateCheckPrompt3	exibir esta mensagem
+lDonateCheckPrompt4	exibir lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoiar o Freeware!
-lDonatePlatformComment1	A maneira mais flexível é usando sua conta PayPal ou o seu cartão de crédito
+lDonatePlatformComment1	Doe com seu cartão de crédito (não é necessário uma conta) ou sua conta PayPal
 lDonatePlatformComment2	Receba uma fatura oficial, se você precisar dele para ser reembolsado
 lDonatePlatformName1	Usando Paypal
 lDonatePlatformName2	Usando Share-it
