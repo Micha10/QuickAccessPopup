@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.3.2 (2016-07-03)
+- completely fix bug Directory Opus and Total Commander path not saved to ini file
+- update to Spanish, French, Portuguese and Brazilian Portuguese language files
+
 Version: 7.3.1 (2016-06-26)
 - adapted icons management to new icon file imageres.dll dated 2015-10-30 in Windows 10
 - adapted QAPupdateIconsWin10 (now v1.1) to new icon file imageres.dll dated 2015-10-30 in Windows 10
@@ -790,7 +794,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.3.1
+;@Ahk2Exe-SetVersion 7.3.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -837,7 +841,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
