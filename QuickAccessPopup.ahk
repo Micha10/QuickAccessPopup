@@ -3987,14 +3987,15 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	; but DeleteAll is required later for menu updates
 	try Menu, % objCurrentMenu.MenuPath, DeleteAll
 	
-	intMenuItemsCount := 0
+	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{	
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
 			continue
 		
-		intMenuItemsCount++ ; for objMenuColumnBreak
+		if !(objCurrentMenu[A_Index].FavoriteDisabled)
+			intMenuItemsCount++ ; for objMenuColumnBreak
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteName)
 			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objCurrentMenu[A_Index].FavoriteName
@@ -4090,7 +4091,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteName = lMenuSettings . "...") ; make Settings... menu bold in any menu
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
-	}
+		; else ; this is a disabled item
+	}	;	do nothing
 }
 ;------------------------------------------------------------
 
@@ -10110,10 +10112,6 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 		+ NumberOfColumnBreaksBeforeThisItem()
 		+ NumberOfDisabledItemsBeforeThisItem()
 	
-	###_D("", 1)
-	###_V(A_ThisFunc, A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1), NumberOfColumnBreaksBeforeThisItem(), NumberOfDisabledItemsBeforeThisItem())
-	###_O(intMenuItemPos, g_objMenusIndex[A_ThisMenu][intMenuItemPos])
-				
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 }
 ;------------------------------------------------------------
@@ -10128,7 +10126,7 @@ NumberOfColumnBreaksBeforeThisItem()
 	intNumberOfColumnBreaks := 0
 	
 	Loop
-		if (A_Index - intNumberOfColumnBreaks > A_ThisMenuItemPos)
+		if ((A_Index - intNumberOfColumnBreaks) > A_ThisMenuItemPos)
 			break
 		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteType = "K")
 			intNumberOfColumnBreaks++
@@ -10147,13 +10145,10 @@ NumberOfDisabledItemsBeforeThisItem()
 	intNumberOfDisabledItems := 0
 	
 	Loop
-	{
-		if (A_Index - intNumberOfDisabledItems > A_ThisMenuItemPos)
+		if (A_Index > (A_ThisMenuItemPos + intNumberOfDisabledItems))
 			break
 		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteDisabled)
 			intNumberOfDisabledItems++
-		###_O("A_Index: " . A_Index . " = " . intNumberOfDisabledItems, g_objMenusIndex[A_ThisMenu][A_Index])
-	}	
 	
 	return intNumberOfDisabledItems
 }
