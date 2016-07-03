@@ -33,6 +33,7 @@ HISTORY
 
 Version: 7.3.2 (2016-07-03)
 - completely fix bug Directory Opus and Total Commander path not saved to ini file
+- add a note to dialog box about Windows delay when changing folder icon with desktop.ini
 - update to Spanish, French, Portuguese and Brazilian Portuguese language files
 
 Version: 7.3.1 (2016-06-26)
