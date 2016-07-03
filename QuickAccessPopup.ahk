@@ -4879,7 +4879,7 @@ if (g_intActiveFileManager = 4) ; QAPconnect
 	IniWrite, %g_strQAPconnectFileManager%, %g_strIniFile%, Global, QAPconnectFileManager
 else if (g_intActiveFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	g_str%strClickedFileManagerSystemNames%PathBeforeEnvVars := f_strFileManagerPath
+	g_str%strActiveFileManagerSystemName%PathBeforeEnvVars := f_strFileManagerPath
 	g_str%strActiveFileManagerSystemName%Path := EnvVars(f_strFileManagerPath)
 	IniWrite, % g_str%strActiveFileManagerSystemName%PathBeforeEnvVars, %g_strIniFile%, Global, %strActiveFileManagerSystemName%Path
 	
