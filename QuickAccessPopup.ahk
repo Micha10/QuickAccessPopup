@@ -958,8 +958,8 @@ GetIcon4Location(g_strTempDir . "\default_browser_icon.html", g_strURLIconFile, 
 Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
 
-Gosub, BuildDrivesMenuInit ; show in separate menu until... ##### will be refreshed by a background task and after each popup menu call
-Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... ##### will be refreshed by a background task and after each popup menu call
+Gosub, BuildDrivesMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
+Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
 Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
 
 Gosub, BuildTotalCommanderHotlist
@@ -2412,7 +2412,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2487,6 +2487,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
+		objLoadIniFavorite.FavoriteDisabled := arrThisFavorite14 ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -2889,7 +2890,7 @@ return
 ;------------------------------------------------------------
 SetTimerRefreshDynamicMenus:
 ;------------------------------------------------------------
-; #####
+; ####
 
 ; Do nothing until background tasks is fixed...
 /*
@@ -3988,14 +3989,15 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	; but DeleteAll is required later for menu updates
 	try Menu, % objCurrentMenu.MenuPath, DeleteAll
 	
-	intMenuItemsCount := 0
+	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{	
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
 			continue
 		
-		intMenuItemsCount++ ; for objMenuColumnBreak
+		if !(objCurrentMenu[A_Index].FavoriteDisabled)
+			intMenuItemsCount++ ; for objMenuColumnBreak
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteName)
 			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objCurrentMenu[A_Index].FavoriteName
@@ -4008,6 +4010,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			and !(objCurrentMenu[A_Index].FavoriteDisabled)
 		{
 			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
 			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
@@ -4048,7 +4051,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
-		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group)
+		else if !(objCurrentMenu[A_Index].FavoriteDisabled) ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group) and it is not disabled
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
@@ -4090,7 +4093,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteName = lMenuSettings . "...") ; make Settings... menu bold in any menu
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
-	}
+		; else ; this is a disabled item
+	}	;	do nothing
 }
 ;------------------------------------------------------------
 
@@ -8986,7 +8990,7 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 	Sleep, 20
 }
 
-; #####
+; ####
 
 ; refresh the five dynamic menus before showing the main menu
 ; in order of estimated avverage time required to refresh
@@ -9661,9 +9665,8 @@ if (g_blnAlternativeMenu)
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
 		g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
-		g_intOriginalMenuPosition := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName ? 0 : 1)
-			+ NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos)
-		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
+		g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
+
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
 		gosub, OpenFavoriteCleanup
@@ -9860,21 +9863,9 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 }
 
 if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavoriteLabel)
-{
-	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
-			+ NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos)
-	g_objThisFavorite := g_objMenusIndex[A_ThisMenu][intMenuItemPos]
-	/*
-	if (g_blnDiagMode)
-	{
-		Diag("strThisMenuItem", strThisMenuItem)
-		Diag("A_ThisMenu", A_ThisMenu)
-		Diag("A_ThisMenuItemPos", A_ThisMenuItemPos)
-		Diag("NumberOfColumnBreaksBeforeThisItem", NumberOfColumnBreaksBeforeThisItem(g_objMenusIndex[A_ThisMenu], A_ThisMenuItemPos))
-		Diag("intMenuItemPos", intMenuItemPos)
-	}
-	*/
-}
+	
+	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
+	
 else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	blnLocationFound := false
@@ -10112,20 +10103,56 @@ GetSpecialFolderLocation(ByRef strHokeyTypeDetected, ByRef strTargetName, objFav
 ;------------------------------------------------------------
 
 
+
 ;------------------------------------------------------------
-NumberOfColumnBreaksBeforeThisItem(objMenu, strThisMenuItemPos)
+GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
+	global g_objMenusIndex
+	
+	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
+		+ NumberOfColumnBreaksBeforeThisItem()
+		+ NumberOfDisabledItemsBeforeThisItem()
+	
+	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumberOfColumnBreaksBeforeThisItem()
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
 	intNumberOfColumnBreaks := 0
+	
 	Loop
-	{
-		if (A_Index - intNumberOfColumnBreaks > strThisMenuItemPos)
+		if ((A_Index - intNumberOfColumnBreaks) > A_ThisMenuItemPos)
 			break
-		else if (objMenu[A_Index].FavoriteType = "K")
+		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteType = "K")
 			intNumberOfColumnBreaks++
-	}
 	
 	return intNumberOfColumnBreaks
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumberOfDisabledItemsBeforeThisItem()
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
+	intNumberOfDisabledItems := 0
+	
+	Loop
+		if (A_Index > (A_ThisMenuItemPos + intNumberOfDisabledItems))
+			break
+		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteDisabled)
+			intNumberOfDisabledItems++
+	
+	return intNumberOfDisabledItems
 }
 ;------------------------------------------------------------
 
