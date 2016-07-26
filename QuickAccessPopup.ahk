@@ -3994,10 +3994,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	Loop, % objCurrentMenu.MaxIndex()
 	{	
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
+			or objCurrentMenu[A_Index].FavoriteDisabled
 			continue
 		
-		if !(objCurrentMenu[A_Index].FavoriteDisabled)
-			intMenuItemsCount++ ; for objMenuColumnBreak
+		intMenuItemsCount++ ; for objMenuColumnBreak
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteName)
 			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objCurrentMenu[A_Index].FavoriteName
@@ -4010,7 +4010,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			and !(objCurrentMenu[A_Index].FavoriteDisabled)
 		{
 			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
 			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
@@ -4051,7 +4050,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
-		else if !(objCurrentMenu[A_Index].FavoriteDisabled) ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group) and it is not disabled
+		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
@@ -4093,8 +4092,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteName = lMenuSettings . "...") ; make Settings... menu bold in any menu
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
-		; else ; this is a disabled item
-	}	;	do nothing
+	}
 }
 ;------------------------------------------------------------
 
@@ -5291,7 +5289,10 @@ Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
 Loop, % g_objMenuInGui.MaxIndex()
-
+{
+	strThisType := g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
+	if (g_objMenuInGui[A_Index].FavoriteDisabled)
+		strThisType := "(" . strThisType . ")"
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
 		if (g_objMenuInGui[A_Index].FavoriteType = "Menu")
@@ -5304,8 +5305,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 			else
 				strGuiMenuLocation := lOopsErrorIniFileUnavailable
 			
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
-			, strGuiMenuLocation)
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
@@ -5318,8 +5318,9 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   " , "")
 		
 	else ; this is a folder, document, URL or application
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
+}
 
 LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
@@ -5330,6 +5331,7 @@ GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMe
 GuiControl, Focus, f_lvFavoritesList
 
 strGuiMenuLocation := ""
+strThisType := ""
 
 return
 ;------------------------------------------------------------
@@ -6136,8 +6138,8 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
-		Gui, 2:Add, Text, x20 y+5 vf_lblSnippetHelp w400, %lDialogFavoriteSnippetHelpProcess%`n
-		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
+		Gosub, ProcessEOLTabChanged ; update f_lblSnippetHelp text
 	}
 }
 else ; "Special" or "QAP"
@@ -6199,6 +6201,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
+
+Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : ""), %lDialogFavoriteDisabled%
 
 arrNewFavoriteWindowPosition := ""
 
@@ -6561,7 +6565,7 @@ ProcessEOLTabChanged:
 Gui, 2:Submit, NoHide
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess)
+GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 
 ; encode or decode edit box content according to encoding state
 GuiControl, , f_strFavoriteLocation, % (f_chkProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
@@ -7459,6 +7463,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	g_objEditedFavorite.FavoriteDisabled := f_chkFavoriteDisabled
+
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
 	else
@@ -7533,11 +7539,13 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
-	
+	strThisType := g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType]
+	if (g_objEditedFavorite.FavoriteDisabled)
+		strThisType := "(" . strThisType . ")"
 	if (g_intNewItemPos)
-		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType], strThisLocation)
+		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
 	else
-		LV_Add("Select Focus", g_objEditedFavorite.FavoriteName, g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType], strThisLocation)
+		LV_Add("Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
 
 	LV_Modify(LV_GetNext(), "Vis")
 }
@@ -7566,6 +7574,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave") ; do not execute at each favorite 
 	strDestinationMenu := ""
 	strMenuLocation := ""
 	strThisLocation := ""
+	strThisType := ""
 	strNewFavoriteWindowPosition := ""
 	strMenuPath := ""
 	objMenu := ""
@@ -8274,6 +8283,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
+			strIniLine .= objCurrentMenu[A_Index].FavoriteDisabled . "|" ; 14
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -10109,10 +10119,11 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
-	
+
+	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
+
 	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
-		+ NumberOfColumnBreaksBeforeThisItem()
-		+ NumberOfDisabledItemsBeforeThisItem()
+		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 }
@@ -10120,39 +10131,37 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 
 
 ;------------------------------------------------------------
-NumberOfColumnBreaksBeforeThisItem()
+GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef intDisabledItemsBeforeThisItem)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
 	
-	intNumberOfColumnBreaks := 0
+	intColumnBreaksBeforeThisItem := 0
+	intDisabledItemsBeforeThisItem := 0
+	intMenuObjectItemOffset := (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
 	
 	Loop
-		if ((A_Index - intNumberOfColumnBreaks) > A_ThisMenuItemPos)
+	{
+		if ((A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem) > A_ThisMenuItemPos)
 			break
-		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteType = "K")
-			intNumberOfColumnBreaks++
-	
-	return intNumberOfColumnBreaks
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-NumberOfDisabledItemsBeforeThisItem()
-;------------------------------------------------------------
-{
-	global g_objMenusIndex
-	
-	intNumberOfDisabledItems := 0
-	
-	Loop
-		if (A_Index > (A_ThisMenuItemPos + intNumberOfDisabledItems))
-			break
-		else if (g_objMenusIndex[A_ThisMenu][A_Index].FavoriteDisabled)
-			intNumberOfDisabledItems++
-	
-	return intNumberOfDisabledItems
+		else if (g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteType = "K")
+			intColumnBreaksBeforeThisItem++
+		else if (g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteDisabled)
+			intDisabledItemsBeforeThisItem++
+		/*
+		if !((A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem) > A_ThisMenuItemPos)
+			###_V(A_ThisFunc
+				, A_ThisMenuItemPos
+				, intMenuObjectItemOffset
+				, g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteName . " - " . g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteType
+				, ""
+				, intColumnBreaksBeforeThisItem
+				, intDisabledItemsBeforeThisItem
+				, (A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem)
+				, ""
+				, (A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem + 1) > A_ThisMenuItemPos ? "OUT" : "continue")
+		*/
+	}
 }
 ;------------------------------------------------------------
 

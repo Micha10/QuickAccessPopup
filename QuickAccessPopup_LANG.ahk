@@ -56,6 +56,7 @@ global lDialogErrorMoving := "Unable to resize for favorite:`n""~1~""" ; new
 global lDialogExternalLocation := "Shared menu settings file location" ; changed
 global lDialogExternalLocationIni := "Shared menu settings file must be an .ini file" ; changed
 global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
+global lDialogFavoriteDisabled := "Hide this favorite in menu"
 global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not exist or is not available.`n`nIf this favorite is on a network drive, please try again after network authentification." ; changed
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
 global lDialogFavoriteDropdownEmpty := "Please choose an item in the ~1~ drop-down list." ; new
