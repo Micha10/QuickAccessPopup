@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.3.9.1 (2016-07-26)
+- add favorite option "Hide this favorite in menu" in all types of favorites
+- hidden favorites are displayed in favorites list with type name between parenthesis
+- fix bug when column breaks are inserted in submenus
+
 Version: 7.3.2 (2016-07-03)
 - completely fix bug Directory Opus and Total Commander path not saved to ini file
 - add a note to dialog box about Windows delay when changing folder icon with desktop.ini
@@ -795,7 +800,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.3.2
+;@Ahk2Exe-SetVersion 7.3.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -842,8 +847,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.3.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False

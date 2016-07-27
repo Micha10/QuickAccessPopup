@@ -6,10 +6,10 @@
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
-#define QAPupdateIconsWin10 "QAPupdateIconsWin10-0_1-32-bit.exe"
+#define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 
-#define MyAppVersion "v7.2.3.6 BETA"
-#define MyVersionFileName "7_2_3_6-beta"
+#define MyAppVersion "v7.2.9.1 BETA"
+#define MyVersionFileName "7_2_9_1-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
