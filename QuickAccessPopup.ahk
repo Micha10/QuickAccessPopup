@@ -10833,13 +10833,16 @@ else ; normal folder
 			strTabParameter := "/O /T" ; /O same instance, /T new tab
 	else
 	{
+		; g_strTotalCommanderNewTabOrWindow in ini file should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
 		strTabParameter := g_strTotalCommanderNewTabOrWindow
-		strSideParameter := "L" ; /L= left pane of the new window
+		strSideParameter := ""
 	}
-
-	; g_strTotalCommanderNewTabOrWindow in ini file should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
-	; was Run, %g_strTotalCommanderPath% %strTabParameter% /S "/%strSideParameter%=%g_strFullLocation%"
-	Run, %g_strTotalCommanderPath% %strTabParameter% "/%strSideParameter%=%g_strFullLocation%"
+	
+	if StrLen(strSideParameter)
+		Run, %g_strTotalCommanderPath% %strTabParameter% "/%strSideParameter%=%g_strFullLocation%"
+	else
+		; use active parameter with /S instead of L/R side parameter
+		Run, %g_strTotalCommanderPath% %strTabParameter% /S "%g_strFullLocation%"
 
 	WinWaitActive, ahk_class TTOTAL_CMD, , 10
 }
