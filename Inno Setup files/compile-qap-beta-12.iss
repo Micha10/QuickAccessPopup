@@ -8,8 +8,8 @@
 #define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 
-#define MyAppVersion "v7.2.9.1 BETA"
-#define MyVersionFileName "7_2_9_1-beta"
+#define MyAppVersion "v7.3.9.1 BETA"
+#define MyVersionFileName "7_3_9_1-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -32,7 +32,7 @@ SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
-AppMutex={#MyAppNameNoSpace}Mutex
+; AppMutex={#MyAppNameNoSpace}Mutex -> do not use AppMutex - Use instead automatic closing when install and [Code] section when uninstall
 UsePreviousTasks=yes
 
 [Languages]
@@ -152,3 +152,48 @@ Name: importfpsettings; Description: "Import &Folders Popup settings and favorit
 
 [UninstallDelete]
 Type: files; Name: "{userstartup}\{#MyAppNameLower}.lnk"
+
+[Code]
+function IsProcessRunning(FileName: String): Boolean;
+var
+  objSWbemLocator, objSWbemServices: Variant;
+begin
+  try
+    objSWbemLocator := CreateOleObject('WbemScripting.SWbemLocator');
+  except
+    ShowExceptionMessage;
+    Exit;
+  end;
+  objSWbemServices := objSWbemLocator.ConnectServer();
+  objSWbemServices.Security_.ImpersonationLevel := 3;
+  Result := (objSWbemServices.ExecQuery('SELECT * FROM Win32_Process WHERE Name="' + FileName + '"').Count > 0);
+end;
+
+function InitializeUninstall(): Boolean;
+var
+  ResultCode: Integer;
+begin
+  Result := True;
+  while IsProcessRunning('{#MyAppExeName}') do begin
+    case MsgBox('{#MyAppName} must be closed before uninstall'+#13#13+'Press OK to close it automatically or CANCEL to close it manually.', mbError, MB_OKCANCEL) of
+      IDCANCEL:
+      begin
+        Result := False;
+        Break;
+      end;
+      IDOK:
+      begin
+        Exec(ExpandConstant('{cmd}'), '/C taskkill /im "{#MyAppExeName}" /f', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+        if ResultCode = 0 then
+        begin
+          Result := True;
+        end
+        else
+        begin
+          Result := False;
+          MsgBox('An error occurred while closing {#MyAppExeName} process.', mbError, MB_OK);
+        end;
+      end;
+    end;
+  end;
+end;
