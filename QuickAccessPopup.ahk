@@ -8105,8 +8105,11 @@ for strMenuPath, objMenu in g_objMenusIndex
 		if StrLen(objMenu[A_Index].FavoriteLocation) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
 		{
 			strThisHotkey := (StrLen(g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation] : lDialogNone)
+			strThisType := objMenu[A_Index].FavoriteType
+			if (objMenu[A_Index].FavoriteDisabled)
+				strThisType := "(" . strThisType . ")"
 			LV_Add(, A_Index
-				, strMenuPath, objMenu[A_Index].FavoriteName, objMenu[A_Index].FavoriteType
+				, strMenuPath, objMenu[A_Index].FavoriteName, strThisType
 				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
 				, (objMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objMenu[A_Index].FavoriteLocation, 50) : objMenu[A_Index].FavoriteLocation))
 		}
@@ -8120,6 +8123,8 @@ DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked wi
 
 strMenuPath := ""
 objMenu := ""
+strThisHotkey := ""
+strThisType := ""
 
 return
 ;------------------------------------------------------------
