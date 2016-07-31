@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.3.9.2 (2016-07-29)
+- in hotkeys list, display disabled favorite type between parenthesis
+- make Total commander open folders in new window in the TC active pane instead of always in the left pane
+- close QAP automatically if it is running when updating with setup tool
+- close QAP automatically when uninstalling with setup tool (to prevent restoring the Explorer context menus after uninstall if app is still running)
+
 Version BETA: 7.3.9.1 (2016-07-26)
 - add favorite option "Hide this favorite in menu" in all types of favorites
 - hidden favorites are displayed in favorites list with type name between parenthesis
@@ -800,7 +806,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.3.9.1 BETA
+;@Ahk2Exe-SetVersion 7.3.9.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -847,7 +853,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.3.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.3.9.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
