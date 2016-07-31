@@ -56,6 +56,7 @@ lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
 lDialogExternalLocation	Emplacement du fichier de configuration de ce menu partagé ; new
 lDialogExternalLocationIni	Le fichier de paramètres partagé doit être un fichier .ini.
 lDialogExternalStartingNumber	Numéro du premier favori: ; new
+lDialogFavoriteDisabled	Ne pas afficher ce favori dans le menu
 lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disponible.`n`nSi ce favori réside sur un lecteur réseau, veuillez essayer à nouveau après l'authentification réseau.
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
@@ -160,10 +161,11 @@ lDialogWindowPositionX	Gauche
 lDialogWindowPositionY	Haut
 lDialogWindowsFolderIconCreate	créer
 lDialogWindowsFolderIconNoRoot	Il n'est pas permis de changer l'icône de dossier de Windows dans le dossier racine d'un disque (~1~).
-lDialogWindowsFolderIconPrompt	Cette commande va ~1~ le fichier système:`n~2~`n`nL'icône de dossier de Windows sera celui actuellement sélectionné pour ce favoris. Voulez-vous continuer?
+lDialogWindowsFolderIconPrompt	Cette commande va ~1~ le fichier système:`n~2~`n`nL'icône de dossier de Windows sera celle actuellement sélectionnée pour ce favoris. Voulez-vous continuer?
+lDialogWindowsFolderIconPrompt2	Note: Il peut s'écouler 10-15 secondes ou jusqu'à une minute avant que Windows n'affiche la nouvelle icône de dossier. ; new
 lDialogWindowsFolderIconRemove	Retirer l'icône de dossier de Windows
 lDialogWindowsFolderIconRemoveFile	Cette commande peut aussi SUPPRIMER le fichier système:`n~1~`n`nVoulez-vous redonner à ce dossier son état normal?
-lDialogWindowsFolderIconReset	L'icône de dossier de Windows par défaut sera restauré. `n`nVoulez-vous continuer?
+lDialogWindowsFolderIconReset	L'icône de dossier de Windows par défaut sera restaurée. `n`nVoulez-vous continuer?
 lDialogWindowsFolderIconSet	Changer l'icône de dossier de Windows
 lDialogWindowsFolderIconUpdate	mettre à jour
 lDialogWinShort	Win
@@ -355,7 +357,7 @@ lOptionsHotkeyRemindersFull	Montrer les noms complets
 lOptionsHotkeyRemindersNo	Ne pas afficher
 lOptionsHotkeyRemindersPrompt	Rappel des raccourcis dans les menus:
 lOptionsHotkeyRemindersShort	Afficher les noms abrégés
-lOptionsIconSize	Taille des icones de menu
+lOptionsIconSize	Taille des icônes de menu
 lOptionsLanguage	Langue
 lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié
 lOptionsMenuActiveWindow	Dans la fenêtre active
