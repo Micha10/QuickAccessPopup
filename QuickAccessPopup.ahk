@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.0.1 (2016-08-02)
+- keybord modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
+
 Version: 7.4 (2016-07-31)
 Hidden (disabled) favorites)
 - add favorite option "Hide this favorite in menu" in all types of favorites
@@ -815,7 +818,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.3.4
+;@Ahk2Exe-SetVersion 7.4.0.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -862,8 +865,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.4.0.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -9614,6 +9617,21 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	gosub, OpenFavoriteCleanup
 	return
 }
+
+; process Alternative featrures keyboard modifiers
+if GetKeyState("Shift") or GetKeyState("Control")
+{
+	g_blnAlternativeMenu := true
+	g_strHokeyTypeDetected := "Alternative"
+	
+	if GetKeyState("Shift") and GetKeyState("Control") ; as if user selected lMenuAlternativeEditFavorite in Alternative menu
+		g_strAlternativeMenu := lMenuAlternativeEditFavorite
+	else if GetKeyState("Shift") ; as if user selected lMenuAlternativeNewWindow in Alternative menu
+		g_strAlternativeMenu := lMenuAlternativeNewWindow
+	else ; GetKeyState("Control") as if user selected lMenuCopyLocation in Alternative menu
+		g_strAlternativeMenu := lMenuCopyLocation
+}
+; ###_V(A_ThisLabel, g_strHokeyTypeDetected, g_strAlternativeMenu, g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
