@@ -8,8 +8,8 @@
 #define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 
-#define MyAppVersion "v7.3.2"
-#define MyVersionFileName "7_3_2"
+#define MyAppVersion "v7.4"
+#define MyVersionFileName "7_4"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -146,6 +146,7 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 [Run]
 Filename: "{app}\ImportFPsettings.exe"; Flags: runhidden waituntilterminated; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Flags: waituntilidle postinstall skipifsilent
+Filename: "https://www.generosity.com/fundraisers/stop-malware-false-alerts-against-my-freeware/"; Description: "&HELP me STOP malware false alerts when installing QAP"; Flags: postinstall shellexec
 
 [Tasks]
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: checkedonce unchecked
