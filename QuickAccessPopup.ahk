@@ -5985,7 +5985,8 @@ StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	g_intOriginalMenuPosition := LV_GetNext()
+	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative") ; if from Alternative menu (or menu modifiers) we already have g_intOriginalMenuPosition
+		g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
 	{
@@ -6003,7 +6004,6 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
-	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath, g_objMenuInGui.MenuType, g_objMenuInGui.MenuExternalPath)
 	if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
 	{
 		Oops(lOopsExternalMenuReadOnly)
@@ -9576,6 +9576,9 @@ if (g_blnChangeHotkeyInProgress)
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
+blnShiftPressed := GetKeyState("Shift")
+blnControlPressed := GetKeyState("Control")
+
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	g_strTargetWinId := "" ; forget value from previous open favorite
@@ -9619,16 +9622,16 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 }
 
 ; process Alternative featrures keyboard modifiers
-if GetKeyState("Shift") or GetKeyState("Control")
+if (blnShiftPressed or blnControlPressed)
 {
 	g_blnAlternativeMenu := true
 	g_strHokeyTypeDetected := "Alternative"
 	
-	if GetKeyState("Shift") and GetKeyState("Control") ; as if user selected lMenuAlternativeEditFavorite in Alternative menu
+	if (blnShiftPressed and blnControlPressed) ; as if user selected lMenuAlternativeEditFavorite in Alternative menu
 		g_strAlternativeMenu := lMenuAlternativeEditFavorite
-	else if GetKeyState("Shift") ; as if user selected lMenuAlternativeNewWindow in Alternative menu
+	else if (blnShiftPressed) ; as if user selected lMenuAlternativeNewWindow in Alternative menu
 		g_strAlternativeMenu := lMenuAlternativeNewWindow
-	else ; GetKeyState("Control") as if user selected lMenuCopyLocation in Alternative menu
+	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
 ; ###_V(A_ThisLabel, g_strHokeyTypeDetected, g_strAlternativeMenu, g_blnAlternativeMenu)
