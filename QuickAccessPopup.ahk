@@ -7556,8 +7556,10 @@ if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview i
 if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
 	LV_Modify(0, "-Select")
-	if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
+	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
+	else if (g_objEditedFavorite.FavoriteType = "External")
+		strThisLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
@@ -8233,6 +8235,9 @@ GuiSaveFavorites:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
+blnShiftPressed := GetKeyState("Shift")
+blnControlPressed := GetKeyState("Control")
+blnAltPressed := GetKeyState("Alt")
 
 IniDelete, %g_strIniFile%, Favorites
 
@@ -8263,10 +8268,14 @@ Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favor
 GuiControl, Disable, %lGuiSave%
 GuiControl, , %lGuiCancel%, %lGuiClose%
 
-Gosub, GuiCancel
+if !(blnShiftPressed or blnControlPressed or blnAltPressed)
+	Gosub, GuiCancel
 g_blnMenuReady := true
 
 g_intIniLine := ""
+blnShiftPressed := ""
+blnControlPressed := ""
+blnAltPressed := ""
 
 return
 ;------------------------------------------------------------
@@ -9576,8 +9585,17 @@ if (g_blnChangeHotkeyInProgress)
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
-blnShiftPressed := GetKeyState("Shift")
-blnControlPressed := GetKeyState("Control")
+; avoid conflict with hotkeys and avoid editing menu items not in favorites list
+if InStr("OpenFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+{
+	blnShiftPressed := GetKeyState("Shift")
+	blnControlPressed := GetKeyState("Control")
+}
+else
+{
+	blnShiftPressed := false
+	blnControlPressed := false
+}
 
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
@@ -9755,13 +9773,16 @@ if (g_blnAlternativeMenu)
 if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType))
 {
-	Run, %g_strFullLocation%, , , intPid
-	; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-	if (intPid)
-	{
-		g_strNewWindowId := "ahk_pid " . intPid
-		gosub, OpenFavoriteWindowResize
-	}
+	Run, %g_strFullLocation%, , UseErrorLevel, intPid
+	if (ErrorLevel)
+		Oops(lOopsUnknownTargetAppName)
+	else
+		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
+		if (intPid)
+		{
+			g_strNewWindowId := "ahk_pid " . intPid
+			gosub, OpenFavoriteWindowResize
+		}
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -9840,6 +9861,8 @@ g_arrFavoriteWindowPosition := ""
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
 strTempLocation := ""
+blnShiftPressed := ""
+blnControlPressed := ""
 
 return
 ;------------------------------------------------------------
