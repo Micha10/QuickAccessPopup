@@ -31,8 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.4.0.1 (2016-08-02)
+Version BETA: 7.4.0.1 (2016-08-05)
 - keybord modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
+- save settings without closing window when one of the keys Shift, Control or Alt is pressed when clicking the Save button
+Bug fixes
+- when just added a shared menu, location column in Settings favorites now show  ">>" instead of ">"
+- display proper error message when trying to launch a Link favorite with invalid URL
 
 Version: 7.4 (2016-07-31)
 Hidden (disabled) favorites)
