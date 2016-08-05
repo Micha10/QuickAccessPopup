@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.0.1 (2016-08-02)
+- keybord modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
+
 Version: 7.4 (2016-07-31)
 Hidden (disabled) favorites)
 - add favorite option "Hide this favorite in menu" in all types of favorites
@@ -815,7 +818,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4
+;@Ahk2Exe-SetVersion 7.4.0.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -862,8 +865,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.4.0.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -5982,7 +5985,8 @@ StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	g_intOriginalMenuPosition := LV_GetNext()
+	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative") ; if from Alternative menu (or menu modifiers) we already have g_intOriginalMenuPosition
+		g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
 	{
@@ -6000,7 +6004,6 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
-	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath, g_objMenuInGui.MenuType, g_objMenuInGui.MenuExternalPath)
 	if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
 	{
 		Oops(lOopsExternalMenuReadOnly)
@@ -7553,8 +7556,10 @@ if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview i
 if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
 	LV_Modify(0, "-Select")
-	if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
+	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
+	else if (g_objEditedFavorite.FavoriteType = "External")
+		strThisLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
@@ -8230,6 +8235,9 @@ GuiSaveFavorites:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
+blnShiftPressed := GetKeyState("Shift")
+blnControlPressed := GetKeyState("Control")
+blnAltPressed := GetKeyState("Alt")
 
 IniDelete, %g_strIniFile%, Favorites
 
@@ -8260,10 +8268,14 @@ Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favor
 GuiControl, Disable, %lGuiSave%
 GuiControl, , %lGuiCancel%, %lGuiClose%
 
-Gosub, GuiCancel
+if !(blnShiftPressed or blnControlPressed or blnAltPressed)
+	Gosub, GuiCancel
 g_blnMenuReady := true
 
 g_intIniLine := ""
+blnShiftPressed := ""
+blnControlPressed := ""
+blnAltPressed := ""
 
 return
 ;------------------------------------------------------------
@@ -9573,6 +9585,18 @@ if (g_blnChangeHotkeyInProgress)
 g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
+; avoid conflict with hotkeys and avoid editing menu items not in favorites list
+if InStr("OpenFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+{
+	blnShiftPressed := GetKeyState("Shift")
+	blnControlPressed := GetKeyState("Control")
+}
+else
+{
+	blnShiftPressed := false
+	blnControlPressed := false
+}
+
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	g_strTargetWinId := "" ; forget value from previous open favorite
@@ -9614,6 +9638,21 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	gosub, OpenFavoriteCleanup
 	return
 }
+
+; process Alternative featrures keyboard modifiers
+if (blnShiftPressed or blnControlPressed)
+{
+	g_blnAlternativeMenu := true
+	g_strHokeyTypeDetected := "Alternative"
+	
+	if (blnShiftPressed and blnControlPressed) ; as if user selected lMenuAlternativeEditFavorite in Alternative menu
+		g_strAlternativeMenu := lMenuAlternativeEditFavorite
+	else if (blnShiftPressed) ; as if user selected lMenuAlternativeNewWindow in Alternative menu
+		g_strAlternativeMenu := lMenuAlternativeNewWindow
+	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
+		g_strAlternativeMenu := lMenuCopyLocation
+}
+; ###_V(A_ThisLabel, g_strHokeyTypeDetected, g_strAlternativeMenu, g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -9734,13 +9773,16 @@ if (g_blnAlternativeMenu)
 if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType))
 {
-	Run, %g_strFullLocation%, , , intPid
-	; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-	if (intPid)
-	{
-		g_strNewWindowId := "ahk_pid " . intPid
-		gosub, OpenFavoriteWindowResize
-	}
+	Run, %g_strFullLocation%, , UseErrorLevel, intPid
+	if (ErrorLevel)
+		Oops(lOopsUnknownTargetAppName)
+	else
+		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
+		if (intPid)
+		{
+			g_strNewWindowId := "ahk_pid " . intPid
+			gosub, OpenFavoriteWindowResize
+		}
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -9819,6 +9861,8 @@ g_arrFavoriteWindowPosition := ""
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
 strTempLocation := ""
+blnShiftPressed := ""
+blnControlPressed := ""
 
 return
 ;------------------------------------------------------------
