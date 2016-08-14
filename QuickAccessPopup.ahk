@@ -8312,8 +8312,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			if IsSubmenuToSave(objCurrentMenu[A_Index])
-				strIniLine .= "|" ; do not save menu location to ini file, not required and could be misleading for external menu saved in different locations
+			if InStr("Menu|Group|External", objMenu.FavoriteType, true) ; case sensitive because type X is included in External ...
+				strIniLine .= "|" ; do not save menu or group location to ini file, not required and could be misleading for external menu saved in different locations
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
@@ -8334,7 +8334,11 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			g_intIniLine++
 		}
 
-		if IsSubmenuToSave(objCurrentMenu[A_Index])
+		if (InStr("Menu|Group", objMenu.FavoriteType, true)
+			and !(blnIsBackMenu)
+			or (objMenu.FavoriteType = "External"
+				and !ExternalMenuIsReadOnly(objMenu.FavoriteAppWorkingDir)
+				and objMenu.SubMenu.MenuLoaded)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
@@ -8365,19 +8369,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	g_intIniLine++
 	
 	return
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-IsSubmenuToSave(objMenu)
-;------------------------------------------------------------
-{
-	return (InStr("Menu|Group", objMenu.FavoriteType, true) ; case sensitive because type X is included in External ...
-		and !(blnIsBackMenu))
-		or (objMenu.FavoriteType = "External"
-			and !ExternalMenuIsReadOnly(objMenu.FavoriteAppWorkingDir)
-			and objMenu.SubMenu.MenuLoaded)
 }
 ;------------------------------------------------------------
 
