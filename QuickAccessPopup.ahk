@@ -8334,7 +8334,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			g_intIniLine++
 		}
 
-		if (InStr("Menu|Group", objMenu.FavoriteType, true)
+		if InStr("Menu|Group", objMenu.FavoriteType, true)
 			and !(blnIsBackMenu)
 			or (objMenu.FavoriteType = "External"
 				and !ExternalMenuIsReadOnly(objMenu.FavoriteAppWorkingDir)
