@@ -9642,10 +9642,8 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	return
 }
 
-; before opening the favorite, check if we have this alert to show
-; check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder
-###_O("g_objThisFavorite", g_objThisFavorite)
-if (g_blnShowChangeFolderInDialogAlert)
+; before opening the favorite, check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder or special
+if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavorite.FavoriteType))
 {
 	MsgBox, 52, %g_strAppNameText%, %lOopsChangeFolderInDialogAlert%
 	IfMsgBox, Yes
