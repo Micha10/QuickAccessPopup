@@ -9165,18 +9165,14 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 		or (g_intActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
 		or WindowIsQuickAccessPopup(g_strTargetClass)
 
+	; check if we will show the "change folder alert" before opening the selected favorite, if the favorite is a folder
 	if (!g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
 	{
 		IniRead, blnChangeFolderInDialogAlertRead, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead, 0
-		if (!blnChangeFolderInDialogAlertRead)
-		{
-			MsgBox, 52, %g_strAppNameFile%, %lOopsChangeFolderInDialogAlert%
-			IfMsgBox, Yes
-				gosub, GuiOptions
-			IfMsgBox, No
-				IniWrite, 1, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead
-		}
+		g_blnShowChangeFolderInDialogAlert := !(blnChangeFolderInDialogAlertRead)
 	}
+	else
+		g_blnShowChangeFolderInDialogAlert := false
 	
 	; DiagWindowInfo("CanNavigate End")
 	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
@@ -9645,6 +9641,21 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 {
 	gosub, OpenFavoriteCleanup
 	return
+}
+
+; before opening the favorite, check if we have this alert to show
+; check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder
+###_O("g_objThisFavorite", g_objThisFavorite)
+if (g_blnShowChangeFolderInDialogAlert)
+{
+	MsgBox, 52, %g_strAppNameText%, %lOopsChangeFolderInDialogAlert%
+	IfMsgBox, Yes
+	{
+		gosub, GuiOptions
+		return
+	}
+	IfMsgBox, No
+		IniWrite, 1, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead
 }
 
 ; process Alternative featrures keyboard modifiers
