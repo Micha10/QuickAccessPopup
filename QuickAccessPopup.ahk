@@ -8312,7 +8312,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			if InStr("Menu|Group|External", objMenu.FavoriteType, true) ; case sensitive because type X is included in External ...
+			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; case sensitive because type X is included in External ...
 				strIniLine .= "|" ; do not save menu or group location to ini file, not required and could be misleading for external menu saved in different locations
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
@@ -8334,11 +8334,10 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			g_intIniLine++
 		}
 
-		if InStr("Menu|Group", objMenu.FavoriteType, true)
-			and !(blnIsBackMenu)
-			or (objMenu.FavoriteType = "External"
-				and !ExternalMenuIsReadOnly(objMenu.FavoriteAppWorkingDir)
-				and objMenu.SubMenu.MenuLoaded)
+		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
+			or (objCurrentMenu[A_Index].FavoriteType = "External"
+				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
+				and objCurrentMenu[A_Index].SubMenu.MenuLoaded)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
