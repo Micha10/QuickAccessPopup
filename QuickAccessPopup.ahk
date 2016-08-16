@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.0.2 (2016-08-??)
+- do not save menu location to ini file, not required and could be misleading for external menu saved in different locations
+- show the "change folder in dialog boxes" alert just before opening a favorite (instead of before showing the menu)
+- simplifiy "change folder in dialog boxes" option (no more double checkbox)
+- updated Spanish, French, Italian, Portuguese, Portuguese-Brazilian, German and Sweden language files
+
 Version BETA: 7.4.0.1 (2016-08-05)
 - keybord modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
 - save settings without closing window when one of the keys Shift, Control or Alt is pressed when clicking the Save button
@@ -822,7 +828,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.0.1 BETA
+;@Ahk2Exe-SetVersion 7.4.0.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -869,7 +875,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.0.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.4.0.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4653,7 +4659,7 @@ Gui, 3:Font, s10 w700, Verdana
 Gui, 3:Add, Text, x10 y10 w400, %lOptionsChangeFolderInDialog%
 Gui, 3:Font
 Gui, 3:Add, Text, x10 w400, % L(lOptionsChangeFolderInDialogText , Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4), Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
-Gui, 3:Add, Checkbox, x10 w400 vf_blnUnderstandChangeFoldersInDialogRisk, %lOptionsChangeFolderInDialogCheckbox%
+Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogCheckbox%
 
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
 Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
@@ -4674,7 +4680,7 @@ ChangeFoldersInDialogCancel:
 ;------------------------------------------------------------
 Gui, 3:Submit, NoHide
 
-if (A_ThisLabel = "ChangeFoldersInDialogOK" and f_blnUnderstandChangeFoldersInDialogRisk)
+if (A_ThisLabel = "ChangeFoldersInDialogOK")
 {
 	GuiControl, 2:, f_blnChangeFolderInDialog, 1
 	IniWrite, 1, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk

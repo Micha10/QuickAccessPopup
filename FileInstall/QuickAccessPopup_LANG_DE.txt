@@ -1,6 +1,6 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
 lAboutText2	~1~ wird entwickelt von Jean Lalonde unter`nVerwendung der <a href="http://ahkscript.org/">AutoHotkey</a> Programmiersprache.`n`nDeutsche Übersetzung: Edgar "Fast Edi" Hoffmann`nFranzösische Übersetzung: Jean Lalonde`nHolländische Übersetzung: Pieter Dejonghe`Koreanisch Übersetzung: Om Il-Sung`nSchwedisch Übersetzung: Åke Engelbrektson`nItalienische Übersetzung: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nTraditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nEnglische Gegenleser: (Hilfe willkommen)`n`nIcons von: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramm installieren: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> von jrsoftware.org`nAutoHotkey_L v1.1 Sourcen: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a> ; changed
-lAboutText3	~1~ Jean Lalonde 2013-2014. Freeware.
+lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Support unter <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Über - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Favoriten zum Kopieren auswählen
@@ -299,7 +299,7 @@ lOopsZipFileError	Es scheint, daß ~1~ direkt aus einer .ZIP Datei ausgeführt wir
 lOptionsAlternativeMenuFeatures	Alternative Menü-Hotkeys
 lOptionsAlternativeMenuFeaturesIntro	Verwalten Sie die Shortcuts welche die Funktionen des alternativen Menüs steuern.
 lOptionsChangeFolderInDialog	Change folders in dialog box with main QAP mouse and keyboard hotkeys
-lOptionsChangeFolderInDialogCheckbox	Aktivieren Sie das Kontrollkästchen, daß Sie verstanden haben, welche möglichen Konsequenzen es haben könnte, die Funktion Ordner wechseln in "nicht-Datei" Dialogboxen zu verwenden.
+lOptionsChangeFolderInDialogCheckbox	Aktivieren "OK", daß Sie verstanden haben, welche möglichen Konsequenzen es haben könnte, die Funktion Ordner wechseln in "nicht-Datei" Dialogboxen zu verwenden.
 lOptionsChangeFolderInDialogText	Aktivieren Sie diese Option um die Ordnernavigation in Dialogboxen zu nutzen (Öffnen, Speichern unter, usw.), lesen Sie aber bitte die folgende Warnung.`n`nNutzen Sie diese Funktion AUSSCHLIESSLICH in Dateidialogen. Wenn Sie es in anderen Dialogboxen verwenden, beispielsweise in Optionsdialogen, könnte es ohne Hinweis zu Änderungen in den Dialogboxen kommen.
 lOptionsChangeHotkey	Ändern
 lOptionsCheck4Update	Nach Update suchen
@@ -318,7 +318,7 @@ lOptionsHotkeyRemindersPrompt	Hotkey-Erinnerungen im Menü:
 lOptionsHotkeyRemindersShort	Zeige abgekürzte Namen
 lOptionsIconSize	Symbolgröße im Menü
 lOptionsLanguage	Sprache
-lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch|Traditional Chinese|Portugiesisch|Simplified Chinese
+lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch Portugiesisch|Italienisch|Traditional Chinese|Portugiesisch|Simplified Chinese ; changed
 lOptionsMenuActiveWindow	Im aktiven Fenster
 lOptionsMenuFixPosition	An fester Position
 lOptionsMenuNearMouse	Nahe des Mauszeigers

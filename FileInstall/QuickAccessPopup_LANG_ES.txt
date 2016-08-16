@@ -336,7 +336,7 @@ lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús ; new
 lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
 lOptionsChangeFolderInDialog	Cambiar las carpetas en la caja de diálogo con los principales QAP ratón y teclado teclas de acceso rápido
-lOptionsChangeFolderInDialogCheckbox	Haga clic en esta casilla de verificación para confirmar que usted entiende la posible consecuencia de mal uso de la función de carpeta de cambio en los cuadros de diálogo "no de archivos".
+lOptionsChangeFolderInDialogCheckbox	Haga clic "OK" para confirmar que usted entiende la posible consecuencia de mal uso de la función de carpeta de cambio en los cuadros de diálogo "no de archivos".
 lOptionsChangeFolderInDialogText	Active esta opción para permitir la navegación carpeta en los cuadros de diálogo (Abrir, Guardar como, etc.), pero, por favor, lea las siguientes Atención.`n`nUsted debe utilizar esta función sólo en los cuadros de diálogo "Archivo". Si lo usa en otro tipo de cuadro de diálogo, por ejemplo en un cuadro de diálogo "Opciones", tratando de cambiar la carpeta podría modificar y guardar los valores en el cuadro de diálogo sin ninguna notificación.
 lOptionsChangeHotkey	Modificar
 lOptionsCheck4Update	Compruebe Actualización

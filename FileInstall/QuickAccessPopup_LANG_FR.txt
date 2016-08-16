@@ -339,7 +339,7 @@ lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus ; new
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
 lOptionsChangeFolderInDialog	Change folders in dialog box with main QAP mouse and keyboard hotkeys
-lOptionsChangeFolderInDialogCheckbox	Cliquez cette case à cocher pour confirmer que vous comprenez les conséquences d'essayer de changer de dossier dans une boîte de dialogue inappropriée.
+lOptionsChangeFolderInDialogCheckbox	Cliquez "OK" pour confirmer que vous comprenez les conséquences d'essayer de changer de dossier dans une boîte de dialogue inappropriée.
 lOptionsChangeFolderInDialogText	Activez cette option pour permettre le changement de dossier dans les boîtes de dialogue (Ouvrir, Enregistrer sous, etc.) mais veuillez lire cet avertissement.`n`nVous devez utiliser cette fonction SEULEMENT dans les boîtes de dialogue de sélection de fichier. Si vous l'utilisez dans d'autres types de boîtes de dialogue, par exemple dans une fenêtre "Options", essayer de changer de dossier pourrait modifier et enregistrer des valeurs sans préavis.
 lOptionsChangeHotkey	Modifier
 lOptionsCheck4Update	Vérifier la mise à jour

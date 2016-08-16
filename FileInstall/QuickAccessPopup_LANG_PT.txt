@@ -55,6 +55,7 @@ lDialogEndOfMenu	Fim do menu
 lDialogErrorMoving	Não é possível redimensionar o favorito:`n"~1~"
 lDialogExternalLocation	Localização do ficheiro das definições externas do menu
 lDialogExternalStartingNumber	Número do primeiro favorito:
+lDialogFavoriteDisabled	Ocultar este favorito no menu
 lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está disponível.`n`nSe este favorito está numa unidade de rede, repita depois de autenticar a rede.
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
@@ -160,6 +161,7 @@ lDialogWindowPositionY	Superior
 lDialogWindowsFolderIconCreate	criar
 lDialogWindowsFolderIconNoRoot	O ícone de pasta do Windows não pode ser definido no directório raiz da unidade (~1~).
 lDialogWindowsFolderIconPrompt	Este comando irá ~1~ o ficheiro de sistema:`n~2~`n`nO ícone de pasta do Windows será definido para o ícone actualmente seleccionado para este favorito. Deseja continuar?
+lDialogWindowsFolderIconPrompt2	Nota: Pode demorar 10-15 segundos ou até um minuto até o Windows exiba o ícone da nova pasta. 
 lDialogWindowsFolderIconRemove	Remover o ícone de pasta do Windows
 lDialogWindowsFolderIconRemoveFile	Este comando também pode ELIMINAR o ficheiro de sistema:`n~1~`n`nDeseja restaurar esta pasta para o seu estado normal?
 lDialogWindowsFolderIconReset	O ícone da pasta será reposto para a sua imagem padrão. `n`nDeseja continuar?
@@ -336,7 +338,7 @@ lOptionsAddCloseToDynamicMenus	Adicionar "Fechar" aos menus
 lOptionsAlternativeMenuFeatures	Teclas de Atalho do Menu Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gerir os atalhos que irão dar acesso às funções do menu Alternativo.
 lOptionsChangeFolderInDialog	Alterar pastas na caixa de diálogo com os atalhos de teclado e do rato principais do QAP
-lOptionsChangeFolderInDialogCheckbox	Clique nesta caixa de marcação para confirmar que compreendeu as possíveis consequências do mau uso da função de alterar pasta em caixas de diálogo "não de ficheiro".
+lOptionsChangeFolderInDialogCheckbox	Clique "OK" para confirmar que compreendeu as possíveis consequências do mau uso da função de alterar pasta em caixas de diálogo "não de ficheiro".
 lOptionsChangeFolderInDialogText	Active esta opção para permitir a navegação em pasta em caixas de diálogo (Abrir, Guardar Como, etc.) mas, por favor, leia o seguinte aviso.`n`nDeve utilizar esta função APENAS em caixas de diálogo "ficheiro". Se a usar em outros tipos de caixas de diálogo, por exemplo numa caixa de diálogo das "Opções", tentar alterar a pasta pode modificar e guardar valores na caixa de diálogo, sem qualquer notificação.
 lOptionsChangeHotkey	Alterar
 lOptionsCheck4Update	Procurar actualizações
