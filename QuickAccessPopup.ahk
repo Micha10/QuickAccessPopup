@@ -32,9 +32,10 @@ HISTORY
 =======
 
 Version BETA: 7.4.0.2 (2016-08-16)
-- do not save menu location to ini file, not required and could be misleading for external menu saved in different locations
-- show the "change folder in dialog boxes" alert just before opening a favorite (instead of before showing the menu)
+- show the "change folder in dialog boxes" alert just before opening a favorite instead of before showing the menu
+- show the "change folder in dialog boxes" alert (only) the first time the user selects a favorite folder over a dialog box
 - simplifiy "change folder in dialog boxes" option (no more double checkbox)
+- do not save submenu path to ini file - this is not required and could be misleading when external menu are saved in different locations
 - updated Spanish, French, Italian, Portuguese, Portuguese-Brazilian, German and Sweden language files
 
 Version BETA: 7.4.0.1 (2016-08-05)
