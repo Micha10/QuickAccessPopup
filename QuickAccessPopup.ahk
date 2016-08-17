@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.4.0.2 (2016-08-??)
+Version BETA: 7.4.0.2 (2016-08-16)
 - do not save menu location to ini file, not required and could be misleading for external menu saved in different locations
 - show the "change folder in dialog boxes" alert just before opening a favorite (instead of before showing the menu)
 - simplifiy "change folder in dialog boxes" option (no more double checkbox)
