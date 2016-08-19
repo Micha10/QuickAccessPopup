@@ -6794,8 +6794,11 @@ return
 GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
+###_V("1", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 strExpandedIconRessource := EnvVars(g_strNewFavoriteIconResource)
+###_V("2", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 ParseIconResource(strExpandedIconRessource, strThisIconFile, intThisIconIndex)
+###_V("3", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strThisIconFile%
 GuiControl, % (strExpandedRessourceIcon <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblRemoveIcon
 
@@ -7011,9 +7014,15 @@ return
 GetFolderIcon(strFolderLocation)
 ;------------------------------------------------------------
 {
-	strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
+	###_V(1, strFolderLocation)
+	; was strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
+	strFolderDesktopIni := PathCombine(strFolderLocation, EnvVars(strFolderLocation)) . "\desktop.ini"
+	###_V(2, strFolderLocation, strFolderDesktopIni)
 	
 	IniRead, strDesktopIconFileIndex, %strFolderDesktopIni%, .ShellClassInfo, IconResource, %A_Space%
+	###_V(3, strFolderLocation, strFolderDesktopIni, strDesktopIconFileIndex)
+	strDesktopIconFileIndex := PathCombine(strFolderLocation, EnvVars(strDesktopIconFileIndex))
+	###_V(4, strFolderLocation, strFolderDesktopIni, strDesktopIconFileIndex)
 	
 	if StrLen(strDesktopIconFileIndex)
 	{
