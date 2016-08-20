@@ -6794,11 +6794,8 @@ return
 GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
-###_V("1", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 strExpandedIconRessource := EnvVars(g_strNewFavoriteIconResource)
-###_V("2", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 ParseIconResource(strExpandedIconRessource, strThisIconFile, intThisIconIndex)
-###_V("3", g_strNewFavoriteIconResource, strExpandedIconRessource, strThisIconFile, intThisIconIndex)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strThisIconFile%
 GuiControl, % (strExpandedRessourceIcon <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblRemoveIcon
 
@@ -7014,34 +7011,28 @@ return
 GetFolderIcon(strFolderLocation)
 ;------------------------------------------------------------
 {
-	###_V(1, strFolderLocation)
-	; was strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
-	strFolderDesktopIni := PathCombine(strFolderLocation, EnvVars(strFolderLocation)) . "\desktop.ini"
-	###_V(2, strFolderLocation, strFolderDesktopIni)
+	; if strFolderLocation has a relative path, make it absolute based on the working directry before reading desktop.ini
+	strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
 	
 	IniRead, strDesktopIconFileIndex, %strFolderDesktopIni%, .ShellClassInfo, IconResource, %A_Space%
-	###_V(3, strFolderLocation, strFolderDesktopIni, strDesktopIconFileIndex)
-	strDesktopIconFileIndex := PathCombine(strFolderLocation, EnvVars(strDesktopIconFileIndex))
-	###_V(4, strFolderLocation, strFolderDesktopIni, strDesktopIconFileIndex)
 	
 	if StrLen(strDesktopIconFileIndex)
 	{
 		strDesktopIconFile := SubStr(strDesktopIconFileIndex, 1, InStr(strDesktopIconFileIndex, ",") - 1)
 		intDesktopIconIndex := SubStr(strDesktopIconFileIndex, InStr(strDesktopIconFileIndex, ",") + 1)
-		strDesktopIconFileIndex := strDesktopIconFile . ","
-			. intDesktopIconIndex + (intDesktopIconIndex >= 0 ? 1 : 0) ; adjust index for positive index only (not for negative index)
 	}
 	else
 	{
 		; IconFile and IconIndex are deprecated since Vista but still supported
 		IniRead, strDesktopIconFile, %strFolderDesktopIni%, .ShellClassInfo, IconFile, %A_Space%
 		IniRead, intDesktopIconIndex, %strFolderDesktopIni%, .ShellClassInfo, IconIndex, 0
-		
-		if StrLen(strDesktopIconFile)
-			strDesktopIconFileIndex := strDesktopIconFile . ","
-				. intDesktopIconIndex + (intDesktopIconIndex >= 0 ? 1 : 0) ; adjust index for positive index only (not for negative index)
 	}
 
+	; when retrieving an icon from a desktop.ini file, if the icon resource has relative path make it absolute based on the favorite folder (not the working directory)
+	if StrLen(strDesktopIconFile)
+		strDesktopIconFileIndex := PathCombine(strFolderLocation, EnvVars(strDesktopIconFile)) . ","
+			. intDesktopIconIndex + (intDesktopIconIndex >= 0 ? 1 : 0) ; adjust index for positive index only (not for negative index)
+	
 	return strDesktopIconFileIndex
 }
 ;------------------------------------------------------------
@@ -7073,13 +7064,13 @@ if (blnSet)
 	
 	strVerb := (blnDesktopIniExist ? lDialogWindowsFolderIconUpdate : lDialogWindowsFolderIconCreate)
 	strMessage := L(lDialogWindowsFolderIconPrompt, strVerb, strFolderDesktopIni) . "`n`n" . lDialogWindowsFolderIconPrompt2
-	MsgBox, 4, %g_strAppNameFile%, %strMessage%
+	MsgBox, 4, %g_strAppNameText%, %strMessage%
 }
 else ; remove
 {
 	strMessage := L(lDialogWindowsFolderIconReset)
 	strMessageRemove := L(lDialogWindowsFolderIconRemoveFile, strFolderDesktopIni)
-	MsgBox, 4, %g_strAppNameFile%, %strMessage%
+	MsgBox, 4, %g_strAppNameText%, %strMessage%
 }
 
 IfMsgBox, No
@@ -7088,15 +7079,18 @@ IfMsgBox, No
 	return
 }
 
-if (g_strCurrentBranch <> "prod")
+if (g_strCurrentBranch <> "prod" and blnDesktopIniExist)
 {
-	FileCopy, %strFolderDesktopIni%, %strFolderDesktopIni%-BK, 1 ; overwrite
-	FileSetAttrib, -S-H, %strFolderDesktopIni%-BK ; make it normal file
+	FileCopy, %strFolderDesktopIni%, %strFolderDesktopIni%-BK.txt, 1 ; overwrite
+	FileSetAttrib, -S-H, %strFolderDesktopIni%-BK.txt ; make it normal file
 }
 
-; In any case, if they exist, remove deprecated values IconFile and IconIndex (deprecated after XP)
-IniDelete, %strFolderDesktopIni%, .ShellClassInfo, IconFile
-IniDelete, %strFolderDesktopIni%, .ShellClassInfo, IconIndex
+if (blnDesktopIniExist)
+{
+	; In any case, if they exist, remove deprecated values IconFile and IconIndex (deprecated after XP)
+	IniDelete, %strFolderDesktopIni%, .ShellClassInfo, IconFile
+	IniDelete, %strFolderDesktopIni%, .ShellClassInfo, IconIndex
+}
 
 if (blnSet)
 {
@@ -7104,19 +7098,20 @@ if (blnSet)
  
 	; From: https://msdn.microsoft.com/en-us/library/cc144102.aspx
 	ParseIconResource(g_strNewFavoriteIconResource, strIconFile, intIconIndex)
+	StringReplace, strIconFile, strIconFile, %strFolder%\ ; remove current folder from resource path to make it movable with the folder
 	intIconIndex := (intIconIndex >= 0 ? intIconIndex - 1 : intIconIndex) ; adjust index for positive index only (not for negative index)
 	IniWrite %strIconFile%`,%intIconIndex%, %strFolderDesktopIni%, .ShellClassInfo, IconResource
 	; ConfirmFileOp -> Set this entry to 0 to avoid a "You Are Deleting a System Folder" warning when deleting or moving the folder.
 	IniWrite 0, %strFolderDesktopIni%, .ShellClassInfo, ConfirmFileOp
 
-	if !(blnDesktopIniExist)
+	if !(blnDesktopIniExist) ; the file is new
 		FileSetAttrib, +H+S, %strFolderDesktopIni% ; make it system and hidden
 }
 else ; remove
 {
 	IniDelete, %strFolderDesktopIni%, .ShellClassInfo, IconResource
 
-	MsgBox, 4, %g_strAppNameFile%, % L(strMessageRemove, strFolderDesktopIni)
+	MsgBox, 4, %g_strAppNameText%, % L(strMessageRemove, strFolderDesktopIni)
 	IfMsgBox, Yes
 	{
 		FileSetAttrib, -R, %strFolder%, 2 ; remove read-only (was system) attribute from folder
@@ -12135,6 +12130,8 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 		strIconFile := g_objIconsFile[strDefaultType]
 		intIconIndex := g_objIconsIndex[strDefaultType]
 	}
+	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
+	strIconFile := PathCombine(A_WorkingDir, strIconFile)
 }
 ;------------------------------------------------------------
 
