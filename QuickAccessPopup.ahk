@@ -47,6 +47,7 @@ Language files
 - updated Spanish, French, Italian, Portuguese, Portuguese-Brazilian, German and Sweden language files
  
 Other improvements or bug fixes
+- when using "Add This Folder", still record the current window position but keep the "Use default window position" checked (user must uncheck it to restore window position when opening the favorite folder)
 - simplifiy "Change folder in dialog boxes" option (no more double checkbox)
 - show the "Change folder in dialog boxes" alert just before opening a favorite instead of before showing the menu
 - show the "Change folder in dialog boxes" alert (only) the first time the user selects a favorite folder over a dialog box
