@@ -6083,7 +6083,8 @@ else ; add favorite
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
 		; Boolean,MinMax,Left,Top,Width,Height,Delay (comma delimited)
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height; for example: "1,0,100,50,640,480,200"
-		g_strNewFavoriteWindowPosition := "1," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
+		; record position but keep "use default position"
+		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
 	}
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
@@ -7326,12 +7327,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_chkUseDefaultWindowPosition ? 0 : 1)
-		if (!f_chkUseDefaultWindowPosition)
-			strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
-				. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
-		else
-			strNewFavoriteWindowPosition .= ",,,,,," ; exact number of comas required for RestoreSide
-				
+		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
+			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
+			
 		GuiControlGet, intRadioGroupRestoreSide, , f_intRadioGroupRestoreSide
 		if !(ErrorLevel) ; if errorlevel, control does not exist
 			strNewFavoriteWindowPosition .= "," . (f_intRadioGroupRestoreSide = 1 ? "L" : "R")
