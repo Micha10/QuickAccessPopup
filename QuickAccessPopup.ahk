@@ -33,7 +33,7 @@ HISTORY
 
 Version: 7.4.1 (2016-08-20)
  
-New feature:
+New features:
 - keyboard modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
 - when clicking the "Save" button in the "Settings" window, save the favorites without closing the "Settings" window when one of these keys is pressed: Shift, Control or Alt
  
@@ -47,7 +47,7 @@ Language files
 - updated Spanish, French, Italian, Portuguese, Portuguese-Brazilian, German and Sweden language files
  
 Other improvements or bug fixes
-- when using "Add This Folder", still record the current window position but keep the "Use default window position" checked (user must uncheck it to restore window position when opening the favorite folder)
+- feature change: when using "Add This Folder", QAP still records the current window position but keep the "Use default window position" checked (user must uncheck it to restore window position when opening the favorite folder)
 - simplifiy "Change folder in dialog boxes" option (no more double checkbox)
 - show the "Change folder in dialog boxes" alert just before opening a favorite instead of before showing the menu
 - show the "Change folder in dialog boxes" alert (only) the first time the user selects a favorite folder over a dialog box
@@ -8343,7 +8343,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; case sensitive because type X is included in External ...
+			if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true) ; case sensitive because type X is included in External ...
 				strIniLine .= "|" ; do not save menu or group location to ini file, not required and could be misleading for external menu saved in different locations
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
