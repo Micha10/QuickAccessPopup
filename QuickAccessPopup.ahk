@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.4.1 (2016-08-20)
+Version: 7.4.2 (2016-08-22)
  
 New features:
 - keyboard modifiers when selecting a favorite in the popup menu (Shift for "Open in New Window", Control for "Copy Favorite Location" and Shift+Control for "Edit Favorite")
@@ -52,6 +52,13 @@ Other improvements or bug fixes
 - show the "Change folder in dialog boxes" alert just before opening a favorite instead of before showing the menu
 - show the "Change folder in dialog boxes" alert (only) the first time the user selects a favorite folder over a dialog box
 - display proper error message when trying to launch a Link favorite with invalid URL
+- fix bug check4update prompt not skipped for beta version after user asked to skipped
+- fix bug introduced in v7.4.0.2: save group location to ini file
+- fix a bug in v7.4.1 not showing some icons for favorite of type "Special"
+
+Version: 7.4.1 (2016-08-21)
+Same features as v7.4.2 except:
+- fix a bug in v7.4.1 not showing some icons for favorite of type "Special"
 
 Version BETA: 7.4.0.2 (2016-08-16)
 - show the "change folder in dialog boxes" alert just before opening a favorite instead of before showing the menu
@@ -851,7 +858,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.1
+;@Ahk2Exe-SetVersion 7.4.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -898,7 +905,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.4.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -11238,6 +11245,12 @@ if (strLatestUsedAlpha <> "0.0")
 
 if (strLatestUsedBeta <> "0.0")
 {
+	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
+	{
+		gosub, Check4UpdateCleanup
+		return
+	}
+
 	if FirstVsSecondIs(strLatestVersionBeta, g_strCurrentVersion) = 1
 	{
 		SetTimer, Check4UpdateChangeButtonNames, 50
@@ -12151,7 +12164,7 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 		intIconIndex := g_objIconsIndex[strDefaultType]
 	}
 	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
-	strIconFile := PathCombine(A_WorkingDir, strIconFile)
+	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
 }
 ;------------------------------------------------------------
 
