@@ -69,7 +69,7 @@ lDialogFavoriteNameNotNew	Der Name ~1~ wird bereits in diesem Menü verwendet. Bi
 lDialogFavoriteNameNotNewQAPfeature	Der Name "~1~" wird in diesem Menü bereits verwendet. Bitte benennen Sie den bestehenden Favoriten und versuchen Sie es erneut.
 lDialogFavoriteParentMenu	Favoriten Hauptmenü
 lDialogFavoriteRemoveExternalPrompt	Entfernen des externen Untermenüs "~1~"`n(Externe Einstellungsdatei (.ini) wird NICHT gelöscht)? ; new
-lDialogFavoriteRemovePrompt	Entfernen des Untermenüs "~1~"`nund ALL seines Inhalts (Ordner und Untermenüs)?
+lDialogFavoriteRemovePrompt	Entfernen des Untermenüs "~1~"`nund ALL seiner Inhalte (Ordner und Untermenüs)?
 lDialogFavoriteRemoveTitle	Entfernen des Favoriten - ~1~
 lDialogFavoriteSelectType	Wählen Sie den Typ des hinzuzufügenden Favoriten.`n`nIm nächsten Fenster vergeben Sie Ihrem Favoriten:`n- einen Namen`n- einen Inhalt (abhängig vom Typ)`n- verschiedene Einstellungen (Icon, Kurztaste, usw.)`n`nWählen Sie den Typ des neuen Favoriten und klicken Sie "~1~".
 lDialogFavoriteShortNameLabel	Kurzname für das Menü
@@ -211,7 +211,7 @@ lGuiGroupSaveReplaceWindowsLabel	Ersetze bestehende Fenster
 lGuiGroupSaveRestoreOption	Wenn diese Gruppe wiederhergestellt wird:
 lGuiGroupSaveRestoreWith	Ordner wiederherstellen mit:
 lGuiHelp	Hilfe
-lGuiHotkeysHelp	Favoriten Shortcuts Hilfe
+lGuiHotkeysHelp	Favoriten Tastenkürzel Hilfe
 lGuiHotkeysHelpText	Runter: Nächster Favorit`nRauf: Vorhergehender Favorit`nStrg-N: Neuen Favoriten hinzufügen`nEnter: Favorit bearbeiten`n`nShift-Rauf/Runter: Zusammenhängende Favoriten auswählen`nStrg-Click: Unzusammenhängende Favoriten auswählen`nStrg-A: Alle Favoriten auswählen`n`nStrg-Runter: Favorit(en) nach unten verschieben`nStrg-Hoch: Favorit(en) nach Oben verschieben`nEntf: Favorit(en) entfernen`n`nStrg-Rechts: Untermenü öffnen`nStrg-Links: Elternmenü öffnen
 lGuiLoginName	Login-Name
 lGuiLvFavoritesHeader	Name|Typ|Ort oder Inhalt
@@ -259,15 +259,15 @@ lMenuCache	Cache
 lMenuClipboard	&Zwischenablage
 lMenuCloseThisMenu	Dieses Menü schliessen ; new
 lMenuColumnBreak	Spalte
-lMenuCommonAppData	Standard Anwendungsdaten
-lMenuCommonDesktop	Standard Desktop
-lMenuCommonStartMenu	Standard Startmenü
-lMenuCommonStartupMenu	Standard Startupmenü
+lMenuCommonAppData	Allgemeine Anwendungsdaten
+lMenuCommonDesktop	Allgemeines Desktop
+lMenuCommonStartMenu	Allgemeines Startmenü
+lMenuCommonStartupMenu	Allgemeines Startmenü
 lMenuComputerRestart	Computer neu starten ; new
 lMenuComputerShutdown	Computer herunterfahren ; new
 lMenuCookies	Cookies
 lMenuCopyLocation	Kopieren von Pfad/URL eines Favoriten
-lMenuCurrentFolders	Ordner neu ffnen
+lMenuCurrentFolders	Ordner neu öffnen
 lMenuDesktop	Desktop
 lMenuDownloads	Downloads
 lMenuDrives	Laufwerke
@@ -298,16 +298,16 @@ lMenuRunAtStartup	&Beim Start von Windows ausführen
 lMenuSettings	Einstellungen
 lMenuStartMenu	Startmenü
 lMenuStartup	Startup
-lMenuSuspendHotkeys	Suspend Hotkeys
+lMenuSuspendHotkeys	Tastenkürzel deaktivieren
 lMenuSwitchFolderOrApp	Schalter
-lMenuSystemCertificates	Zertifikate des Systems
+lMenuSystemCertificates	Systemzertifikate
 lMenuTemplates	Vorlagen
 lMenuTemporaryFiles	Temporäre Dateien
 lMenuUpdate	Nach &Update suchen
 lMenuUserFolder	Benutzerordner
-lMenuUserPinned	Benutzer Pinned
+lMenuUserPinned	Benutzer gepinnt
 lNavigateFileError	Beim Öffnen des Ordners `n~1~ trat ein Fehler auf.
-lNavigateSpecialError	Beim Öffnen des Speziellen Ordners #~1~ trat ein Fehler auf.
+lNavigateSpecialError	Beim Öffnen des Systemordners #~1~ trat ein Fehler auf.
 lOopsAddThisFolderTip	Für bessere Ergebnisse mit dem Befehl "Diesen Ordner hinzufügen":`n`n1) Aktivieren Sie das ~1~ Fenster, welches den Ordner beinhaltet, um ihn zum Menü hinzuzufügen.`n2) Öffnen Sie das Popupmenü mit ~2~.`n3) Wählen Sie "Diesen Ordner hinzufügen" und speichern Sie Ihren neuen Favoriten. ; new
 lOopsCannotCopyFavorite	Favoriten des Typs "~1~" können nicht kopiert werden.
 lOopsChangeFolderInDialogAlert	Wollten Sie in dieser Dialogbox in den Ordner wechseln? Um in eine Dialogbox zu navigieren, müssen Sie eine Option einschalten (erste Checkbox auf der Registerkarte "Allgemein").`n`nWollen Sie nun das Einstellungsfenster anzeigen? ; new
@@ -362,7 +362,7 @@ lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilia
 lOptionsMenuActiveWindow	Im aktiven Fenster
 lOptionsMenuFixPosition	An fester Position
 lOptionsMenuNearMouse	Nahe des Mauszeigers
-lOptionsMenuPositionPrompt	Menü aufpoppen:
+lOptionsMenuPositionPrompt	Menü erscheint:
 lOptionsMouseAndKeyboard	Menü Hotkeys
 lOptionsOpenMenuOnTaskbar	Menü in der Taskleiste öffnen
 lOptionsOtherOptions	Allgemein
@@ -376,7 +376,7 @@ lOptionsRememberSettingsPosition	Fensterposition merken
 lOptionsRunAtStartup	Beim Sta&rt ausführen
 lOptionsTabFileManagersIntro	Wählen Sie den Dateimanager für das Öffnen in einem neuen Fenster.
 lOptionsTabMouseAndKeyboardIntro	Legen Sie die Maustasten und Tastaturkürzel für das Auslösen des ~1~ Hauptmenüs.
-lOptionsTabOtherOptionsIntro	Lassen Sie ~1~ funktionieren, wie Sie es wollen!
+lOptionsTabOtherOptionsIntro	Konfigurieren Sie ~1~ nach Ihren Bedürfnissen!
 lOptionsTheme	Thema
 lOptionsThirdParty	Unterstützung anderer Dateimananger
 lOptionsThirdPartyDetail	Wählen Sie die ~1~ Programmdatei (.exe) um die ~1~ Integration einzuschalten.
@@ -385,7 +385,7 @@ lOptionsThirdPartyFileNotFound	~1~ Anwendungsdatei "~2~" nicht gefunden.
 lOptionsThirdPartySelectedHelp	Gewählter Dateimanager: ~1~ (<a href="~2~">~3~</a>)
 lOptionsThirdPartySelectFile	Wählen Sie bitte die ~1~ Anwendungsdatei über die "Auswählen" Schaltfläche
 lOptionsThirdPartyUseTabs	Verwende Registerkarten satt eines neuen Fensters
-lOptionsTrayTip	Beim Start &Tray-Tip anzeigen
+lOptionsTrayTip	Beim Start &Tooltip anzeigen
 lPickIconNoLocation	Bitte zuerst einen Favoriten auswählen, bevor ein Icon gewählt wird.
 lReloadPrompt	~1~  wurde in ~2~ geändert. Wollen Sie jetzt ~3~ in ~2~ neu laden? Ungespeicherte Änderungen am Ordnermenü gehen verloren.
 lTCMenuName	TC Ordner Hotlist ; new
