@@ -8350,10 +8350,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true) ; case sensitive because type X is included in External ...
-				strIniLine .= "|" ; do not save menu or group location to ini file, not required and could be misleading for external menu saved in different locations
-			else
-				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
+			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
