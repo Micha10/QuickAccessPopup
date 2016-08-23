@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.4.3 (2016-08-23)
+Bug fix
+- revert change done in in v7.4.0.2 and save again to settings the path (for example: "> submenu-1 > submenu-2") for favorites of thypes Menu, Group and Shared; this fixes the broken shortcuts for favorite of these types.
+- NOTE for users of Shared menus: favorite shortcuts for items inside shared menus will work only if shared menus has same path from main menu (Main > submenu-1 > submenu-2) on all QAP installations that include this shared menu (this does not impact read-only external menus)
+ 
 Version: 7.4.2 (2016-08-22)
  
 New features:
@@ -57,7 +62,7 @@ Other improvements or bug fixes
 - fix a bug in v7.4.1 not showing some icons for favorite of type "Special"
 
 Version: 7.4.1 (2016-08-21)
-Same features as v7.4.2 except:
+Same features as v7.4.2 minus:
 - fix a bug in v7.4.1 not showing some icons for favorite of type "Special"
 
 Version BETA: 7.4.0.2 (2016-08-16)
@@ -858,7 +863,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.2
+;@Ahk2Exe-SetVersion 7.4.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -905,7 +910,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.4.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
