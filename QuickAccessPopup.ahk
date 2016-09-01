@@ -31,8 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.4.3.1 (2016-09-??)
--
+Version BETA: 7.4.3.1 (2016-09-01)
+- add diagnostic code to test active window when opening a favorite and  context menu messaging
 
 Version: 7.4.3 (2016-08-23)
 Bug fix

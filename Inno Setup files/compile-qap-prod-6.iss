@@ -2,7 +2,7 @@
 #define MyAppNameNoSpace "QuickAccessPopup"
 #define MyAppNameLower "quickaccesspopup"
 #define MyAppPublisher "Jean Lalonde"
-#define MyAppURL "http://wwww.QuickAccessPopup.com"
+#define MyAppURL "http://www.QuickAccessPopup.com"
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
