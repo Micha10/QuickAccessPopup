@@ -299,7 +299,7 @@ lMenuSettings	Einstellungen
 lMenuStartMenu	Startmenü
 lMenuStartup	Startup
 lMenuSuspendHotkeys	Tastenkürzel deaktivieren
-lMenuSwitchFolderOrApp	Schalter
+lMenuSwitchFolderOrApp	Wechseln zu
 lMenuSystemCertificates	Systemzertifikate
 lMenuTemplates	Vorlagen
 lMenuTemporaryFiles	Temporäre Dateien
