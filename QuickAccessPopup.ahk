@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.3.1 (2016-09-??)
+-
+
 Version: 7.4.3 (2016-08-23)
 Bug fix
 - revert change done in in v7.4.0.2 and save again to settings the path (for example: "> submenu-1 > submenu-2") for favorites of thypes Menu, Group and Shared; this fixes the broken shortcuts for favorite of these types.
@@ -863,7 +866,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.3
+;@Ahk2Exe-SetVersion 7.4.3.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -910,8 +913,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.3" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.4.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -5331,7 +5334,7 @@ if !(g_blnDonor)
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
 StringSplit, arrSettingsPosition, strSettingsPosition, |
 
-Diag(A_ThisLabel, "Hide")
+; Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
 	? "center w636 h538"
@@ -9043,7 +9046,7 @@ LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
-; DiagWindowInfo(A_ThisLabel . " Begin")
+DiagWindowInfo(A_ThisLabel . " Begin")
 
 if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
 	return
@@ -9191,7 +9194,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	; DiagWindowInfo("CanNavigate Begin")
+	DiagWindowInfo("CanNavigate Begin")
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
@@ -9213,7 +9216,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	else
 		g_blnShowChangeFolderInDialogAlert := false
 	
-	; DiagWindowInfo("CanNavigate End")
+	DiagWindowInfo("CanNavigate End")
 	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
 	
 	return blnCanNavigate
@@ -9227,7 +9230,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	; DiagWindowInfo("CanLaunch Begin")
+	DiagWindowInfo("CanLaunch")
 	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
@@ -9681,6 +9684,7 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	gosub, OpenFavoriteCleanup
 	return
 }
+Diag(A_ThisLabel . ":g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName)
 
 ; before opening the favorite, check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder or special
 if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavorite.FavoriteType))
@@ -9751,10 +9755,12 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 }
 
 gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
+Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
 ; if (g_blnDiagMode)
 ;	Diag("g_strTargetAppName", g_strTargetAppName)
 
 gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
+Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
 ; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
 ;	Diag("g_strFullLocation", g_strFullLocation)
 
@@ -12949,6 +12955,7 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
+	Diag("REPLY_QAPISRUNNING:wParam/lParam", wParam . "/" . lParam)
 	return true
 } 
 ;------------------------------------------------------------
@@ -12964,8 +12971,10 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strNewLocation
 	global g_strFavoriteDialogTitle
 	
+	Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
+	Diag("RECEIVE_QAPMESSENGER:strCopyOfData", strCopyOfData)
 	
 	StringSplit, arrData, strCopyOfData, |
 	
