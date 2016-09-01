@@ -16,6 +16,10 @@ Called from Explorer context menus to send messages to QAP in order to launch va
 HISTORY
 =======
 
+Version: 1.1 BETA (2016-09-01)
+- addig diagnostic code activated by value DiagMode in section Global of QAP ini file
+- find the working directory to read the QAP ini file and write its diag file to this directory
+
 Version: 1.0 (2016-06-20)
 - small adjustment to prevent the cursor to shortly turn to wait image when showing menu from Desktop background
 
@@ -57,21 +61,42 @@ Version: 0.1 beta (2016-04-25)
 #KeyHistory 0
 ListLines, Off
 
-; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
-;@Ahk2Exe-IgnoreBegin
-; Start of code for development environment only - won't be compiled
-; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
-ListLines, On
-; / End of code for developement enviuronment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
-
 g_strAppNameText := "Quick Access Popup Messenger"
-g_strAppVersion := "1.0"
-g_strAppVersionBranch := "prod"
+g_strAppNameFile := "QAPmessenger"
+g_strAppVersion := "1.1"
+g_strAppVersionBranch := "beta"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
 g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
 g_stTargetAppName := "Quick Access Popup"
+g_strQAPNameFile := "QuickAccessPopup"
+
+gosub, SetQAPWorkingDirectory
+
+; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
+;@Ahk2Exe-IgnoreBegin
+; Start of code for development environment only - won't be compiled
+; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
+SetWorkingDir, %A_ScriptDir%
+ListLines, On
+; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
+; / End of code for developement enviuronment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
+
+g_blnDiagMode := False
+g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
+g_strIniFile := A_WorkingDir . "\" . g_strQAPNameFile . ".ini"
+
+;@Ahk2Exe-IgnoreBegin
+; Start of code for developement environment only - won't be compiled
+if (A_ComputerName = "JEAN-PC") ; for my home PC
+	g_strIniFile := A_WorkingDir . "\" . g_strQAPNameFile . "-HOME.ini"
+else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
+	g_strIniFile := A_WorkingDir . "\" . g_strQAPNameFile . "-WORK.ini"
+; / End of code for developement environment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
+
+IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 
 if QAPisRunning()
 {
@@ -79,16 +104,24 @@ if QAPisRunning()
 	g_strParam0 = %0% ; number of parameters
 	g_strParam1 = %1% ; fisrt parameter, the command name
 	g_strParam2 = %2% ; second parameter, the selected path or filename
+	
+	Diag("g_strParam0", g_strParam0)
 
 	if (g_strParam0 > 0) and StrLen(g_strParam1)
 	{
+		Diag("Send_WM_COPYDATA:Param", g_strParam1 . "|" . g_strParam2)
+		Diag("Send_WM_COPYDATA:g_stTargetAppTitle", g_stTargetAppTitle)
 		; try to send message to compiled QAP
 		intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitle)
 		; returns FAIL or 0 if an error occurred, 0xFFFF if a QAP window is open or 1 if success
+		Diag("Send_WM_COPYDATA (1=OK)", intResult)
 		
 		; if error, check if running in dev
 		if (intResult <> 1) and (intResult <> 0xFFFF)
+		{
 			intResult := Send_WM_COPYDATA(g_strParam1 . "|" . g_strParam2, g_stTargetAppTitleDev)
+			Diag("Send_WM_COPYDATA-DEV:intResult", intResult)
+		}
 		
 		if (intResult = 0xFFFF)
 			Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
@@ -170,10 +203,58 @@ QAPisRunning()
     SetTitleMatchMode, 2
 	
 	SendMessage, 0x2224, , , , Quick Access Popup ahk_class JeanLalonde.ca ; USE v7.2 OR ahk_class JeanLalonde.ca
+	intErrorLevel := ErrorLevel
+	Diag("QAPisRunning:ErrorLevel (1=OK)", intErrorLevel)
     DetectHiddenWindows, %strPrevDetectHiddenWindows%
     SetTitleMatchMode, %intPrevTitleMatchMode%
 	Sleep, -1 ; prevent the cursor to turn to WAIT image for 5 seconds (did not search why) when showing menu from Desktop background
 	
-    return (ErrorLevel = 1) ; QAP reply 1 if it runs, else SendMessage returns "FAIL".
+    return (intErrorLevel = 1) ; QAP reply 1 if it runs, else SendMessage returns "FAIL".
 }
 ;------------------------------------------------------------
+
+
+;-----------------------------------------------------------
+SetQAPWorkingDirectory:
+;-----------------------------------------------------------
+
+; See the same command in QuickAccessPopup0.ahk for explanations
+if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
+{
+	g_blnPortableMode := true ; set this variable for use later during init
+	return
+}
+else
+	g_blnPortableMode := false ; set this variable for use later during init
+
+if (A_WorkingDir = A_ScriptDir) and FileExist(A_WorkingDir . "\_do_not_remove_or_rename.txt")
+	SetWorkingDir, %A_AppDataCommon%\Quick Access Popup
+
+SetWorkingDir, %A_AppData%\Quick Access Popup
+
+return
+;-----------------------------------------------------------
+
+
+;------------------------------------------------
+Diag(strName, strData)
+;------------------------------------------------
+{
+	global g_blnDiagMode
+	global g_strDiagFile
+
+	if !(g_blnDiagMode)
+		return
+
+	FormatTime, strNow, %A_Now%, yyyyMMdd@HH:mm:ss
+	loop
+	{
+		FileAppend, %strNow%.%A_MSec%`t%strName%`t%strData%`n, %g_strDiagFile%
+		if ErrorLevel
+			Sleep, 20
+	}
+	until !ErrorLevel or (A_Index > 50) ; after 1 second (20ms x 50), we have a problem
+}
+;------------------------------------------------
+
+
