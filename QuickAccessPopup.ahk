@@ -11468,7 +11468,6 @@ Gui, ImpExp:New, , % L(lImpExpTitle, g_strAppNameText)
 if (g_blnUseColors)
 	Gui, ImpExp:Color, %g_strGuiWindowColor%
 
-; #####
 Gui, ImpExp:Font, w700
 Gui, ImpExp:Add, Radio, y+20 x10 w130 vf_radImpExpExport gImpExpClicked Checked Group, %lImpExpExport%
 Gui, ImpExp:Add, Radio, x150 yp w130 vf_radImpExpImport gImpExpClicked, %lImpExpImport%
@@ -11553,8 +11552,102 @@ return
 ;------------------------------------------------------------
 ButtonImpExpGo:
 ;------------------------------------------------------------
+Gui, ImpExp:Submit, NoHide
+; #####
+
+strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : f_strImpExpFile)
+strImpExpDestinationFile := (f_radImpExpExport ? f_strImpExpFile : g_strIniFile)
+
+if (f_blnImpExpGlobal)
+{
+	strGlobal := ReadIniSection(strImpExpSourceFile, "Global", lImpExpFileGlobal)
+	if !StrLen(strGlobal)
+	{
+		gosub, ButtonImpExpGoCleanup
+		return
+	}
+	else
+		WriteIniSection(strImpExpDestinationFile, "Global", strGlobal)
+}
+
+if (f_blnImpExpFavorites)
+{
+	intIniLine := 0
+	Loop
+	{
+		IniRead, strFavorite, %strIniFile%, Favorites, Favorite%intIniLine% ; ERROR if not found
+		###_V(A_ThisLabel, strIniFile, intIniLine, strFavorite)
+		if (strLoadIniLine = "ERROR")
+			Break
+	}
+	if !(intIniLine)
+	{
+		Oops(lImpExpFavoritesNotFound, strIniFile)
+		gosub, ButtonImpExpGoCleanup
+		return
+	}
+}
+
+if (f_blnImpExpHotkeys)
+{
+	strLocationHotkeys := ReadIniSection(strImpExpSourceFile, "LocationHotkeys", lImpExpOptionHotkeys)
+	strAlternativeMenuHotkeys := ReadIniSection(strImpExpSourceFile, "AlternativeMenuHotkeys", "")
+	if !StrLen(strLocationHotkeys . strAlternativeMenuHotkeys)
+	{
+		gosub, ButtonImpExpGoCleanup
+		return
+	}
+	else
+	{
+		WriteIniSection(strImpExpDestinationFile, "LocationHotkeys", strLocationHotkeys)
+		WriteIniSection(strImpExpDestinationFile, "AlternativeMenuHotkeys", strAlternativeMenuHotkeys)
+	}
+}
+
+MsgBox, 0, %g_strAppNameText%, % L(lImpExpCompleted, strImpExpSourceFile, strImpExpDestinationFile)
+
+ButtonImpExpGoCleanup:
+strImpExpSourceFile := ""
+strImpExpDestinationFile := ""
+strGlobal := ""
+intIniLine := ""
+strFavorite := ""
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ReadIniSection(strIniFile, strSectionName, strSectionDescription)
+;------------------------------------------------------------
+{
+	IniRead, strIniSection, %strIniFile%, %strSectionName% ; empty if not found
+	if !StrLen(strIniSection) and StrLen(strSectionDescription)
+		Oops(lImpExpSectionNotFound, strIniFile, strSectionName, strSectionDescription)
+
+	return strIniSection
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+WriteIniSection(strIniFile, strSectionName, strContent)
+;------------------------------------------------------------
+{
+	blnReplaceOK := false
+	
+	IniRead, strIniSection, %strIniFile%, %strSectionName% ; empty if not found
+	if StrLen(strIniSection)
+	{
+		MsgBox, 3, %g_strAppNameText%, % L(lImpExpReplaceSection, strIniFile, strSectionName, SubStr(strIniSection, 1, 200) . (StrLen(strIniSection) > 200 ? "`n..." : ""))
+		IfMsgBox, Yes
+			blnReplaceOK := true
+	}
+	if !StrLen(strIniSection) or blnReplaceOK
+		IniWrite, %strContent%, %strIniFile%, %strSectionName%
+
+	return strIniSection
+}
 ;------------------------------------------------------------
 
 
