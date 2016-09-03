@@ -1097,6 +1097,8 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
+gosub, ImportExport
+
 return
 
 
@@ -2938,6 +2940,7 @@ Menu, Tray, Add
 ;@Ahk2Exe-IgnoreEnd
 Menu, Tray, Add, % lMenuSettings . "...", GuiShowFromTray
 Menu, Tray, Add, % L(lMenuEditIniFile, g_strAppNameFile . ".ini"), ShowSettingsIniFile
+Menu, Tray, Add, %lImpExpMenu%, ImportExport
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartup%, RunAtStartup
@@ -11453,6 +11456,114 @@ strChangelog := ""
 strUrlChangeLog := ""
 strUrlDownloadSetup := ""
 strUrlDownloadPortable:= ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ImportExport:
+;------------------------------------------------------------
+Gui, ImpExp:New, , % L(lImpExpTitle, g_strAppNameText)
+if (g_blnUseColors)
+	Gui, ImpExp:Color, %g_strGuiWindowColor%
+
+; #####
+Gui, ImpExp:Font, w700
+Gui, ImpExp:Add, Radio, y+20 x10 w130 vf_radImpExpExport gImpExpClicked Checked Group, %lImpExpExport%
+Gui, ImpExp:Add, Radio, x150 yp w130 vf_radImpExpImport gImpExpClicked, %lImpExpImport%
+
+Gui, ImpExp:Font, w700
+Gui, ImpExp:Add, Text, y+20 x10 w400 vf_lblImpExpFile, % L(lImpExpFile, lImpExpDestination)
+Gui, ImpExp:Font
+Gui, ImpExp:Add, Edit, x10 w320 h20 vf_strImpExpFile
+Gui, ImpExp:Add, Button, x+10 yp vf_btnImpExpFile gButtonImpExpFile, %lDialogBrowseButton%
+
+Gui, ImpExp:Font, w700
+Gui, ImpExp:Add, Text, y+20 x10 w400 vf_lblImpExpOptions, %lImpExpExport%
+Gui, ImpExp:Font
+Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, %lImpExpFileGlobal%
+
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpFavorites gImpExpClicked Checked, %lImpExpOptionFavorites%
+Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpReplaceFavorites Checked Group, % L(lImpExpOptions, lImpExpReplace, lImpExpFavorites)
+Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpAppendFavorites, % L(lImpExpOptions, lImpExpAppend, lImpExpFavorites)
+
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpHotkeys gImpExpClicked Checked, %lImpExpOptionHotkeys%
+Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpReplaceHotkeys Checked Group, % L(lImpExpOptions, lImpExpReplace, lImpExpHotkeys)
+Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpMergeHotkeys, % L(lImpExpOptions, lImpExpMerge, lImpExpHotkeys)
+
+Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo, %lImpExpExport%
+Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpCancel gButtonImpExpCancel, %lDialogCancelButton%
+GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpCancel")
+Gui, ImpExp:Add, Text
+
+; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
+Gui, ImpExp:Show, AutoSize Center
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ImpExpClicked:
+;------------------------------------------------------------
+Gui, ImpExp:Submit, NoHide
+
+GuiControl, , f_lblImpExpFile, % L(lImpExpFile, (f_radImpExpExport ? lImpExpDestination : lImpExpSource))
+GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
+
+GuiControl, % (f_blnImpExpFavorites ? "Enable" : "Disable"), f_radImpExpReplaceFavorites
+GuiControl, % (f_blnImpExpFavorites ? "Enable" : "Disable"), f_radImpExpAppendFavorites
+
+GuiControl, % (f_blnImpExpHotkeys ? "Enable" : "Disable"), f_radImpExpReplaceHotkeys
+GuiControl, % (f_blnImpExpHotkeys ? "Enable" : "Disable"), f_radImpExpMergeHotkeys
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonImpExpFile:
+;------------------------------------------------------------
+Gui, ImpExp:Submit, NoHide
+Gui, ImpExp:+OwnDialogs
+
+strImEx := (f_radImpExpExport ? "Ex" : "Im")
+IniRead, strImpExpFolder, %g_strIniFile%, Global, Last%strImEx%portFolder, %A_WorkingDir%
+
+FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 16 : 3), %strImpExpFolder%, %lDialogAddFolderSelect%, *.ini
+if !(StrLen(strImpExpSelectedFile))
+	return
+
+SplitPath, strImpExpSelectedFile, , strImpExpFolder, strImpExp
+if !StrLen(strImpExp)
+	strImpExpSelectedFile .= ".ini"
+IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
+
+GuiControl, ImpExp:, f_strImpExpFile, %strImpExpSelectedFile%
+
+strImEx := ""
+strImpExpFolder := ""
+strImpExpSelectedFile := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonImpExpGo:
+;------------------------------------------------------------
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonImpExpCancel:
+ImpExpGuiClose:
+;------------------------------------------------------------
+
+Gui, ImpExp:Destroy
 
 return
 ;------------------------------------------------------------
