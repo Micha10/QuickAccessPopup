@@ -124,7 +124,7 @@ if QAPisRunning()
 		}
 		
 		if (intResult = 0xFFFF)
-			Oops("A settings window is open in ~1~ with unsaved changes.`n`nPlease, close settings window before using this context menu.", g_stTargetAppName)
+			Oops("A settings window is open in ~1~, possibly with unsaved changes.`n`nPlease, close the settings windows before using this context menu.", g_stTargetAppName)
 	}
 	else
 		Oops("Do not run ~1~ directly. You can:`n`n- right-click a file or a folder icon in Explorer to add them to the menu`n- right-click Explorer window background to add the current folder`n- right-click the Desktop background to popup the menu.`n`nMake sure ~2~ is launched before using its context menus. See ""Context menus"" checkbox in ~2~ ""Options"" window.", g_strAppNameText, g_stTargetAppName)
