@@ -890,6 +890,8 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
+Gosub, CollectCommandLineParameters
+
 Gosub, SetQAPWorkingDirectory
 
 ; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
@@ -1001,6 +1003,12 @@ else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
 ;@Ahk2Exe-IgnoreEnd
 
 ;---------------------------------
+; Check if we received an alternative settings file in parameter /Settings:
+
+if StrLen(g_strParamSettings)
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_strParamSettings))
+
+;---------------------------------
 ; Init routines
 
 ; Keep gosubs in this order
@@ -1097,8 +1105,6 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
-gosub, ImportExport
-
 return
 
 
@@ -1190,6 +1196,25 @@ return
 ;========================================================================================================================
 !_015_INITIALIZATION_SUBROUTINES:
 ;========================================================================================================================
+
+;-----------------------------------------------------------
+CollectCommandLineParameters:
+;-----------------------------------------------------------
+
+Loop, %0% ; loop each parameter
+{
+    strThisParam := %A_Index%
+	if SubStr(strThisParam, 1, 10) = "/Settings:"
+		StringReplace, g_strParamSettings, strThisParam, % "/Settings:"
+
+	g_strCurrentCommandLineParameters .= strThisParam . " "
+}
+
+strThisParam := ""
+
+return
+;-----------------------------------------------------------
+
 
 ;-----------------------------------------------------------
 SetQAPWorkingDirectory:
@@ -2938,9 +2963,13 @@ Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-Menu, Tray, Add, % lMenuSettings . "...", GuiShowFromTray
-Menu, Tray, Add, % L(lMenuEditIniFile, g_strAppNameFile . ".ini"), ShowSettingsIniFile
-Menu, Tray, Add, %lImpExpMenu%, ImportExport
+Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
+Menu, Tray, Add
+Menu, Tray, Add, %lMenuSwitchSettings%..., SwitchSettings
+SplitPath, g_strIniFile, strIniFileNameExtOnly
+Menu, Tray, Add, % L(lMenuEditIniFile, strIniFileNameExtOnly), ShowSettingsIniFile
+Menu, Tray, Add, %lImpExpMenu%..., ImportExport
+Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartup%, RunAtStartup
@@ -2952,10 +2981,12 @@ Menu, Tray, Add, %lMenuAbout%, GuiAbout
 Menu, Tray, Add, %lDonateMenu%, GuiDonate
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
-Menu, Tray, Default, % lMenuSettings . "..."
+Menu, Tray, Default, %lMenuSettings%...
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButton) ; A_PtrSize * 8 = 32 or 64
+
+strIniFileNameExtOnly := ""
 
 return
 ;------------------------------------------------------------
@@ -3571,10 +3602,14 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 		WinGetTitle, strWindowTitle, % "ahk_id " strWinIDs%A_Index%
 		WinGetClass, strWindowClass, % "ahk_id " strWinIDs%A_Index%
 		WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinIDs%A_Index%
+		WinGet, intExStyle, ExStyle, % "ahk_id " . strWinIDs%A_Index%
 		
 		if !StrLen(strProcessPath)
 			or !(intW * intH)
 			or !StrLen(strWindowTitle)
+			; exclude Extended Window Style WS_EX_NOREDIRECTIONBITMAP (0x00200000) w/o flags
+			; see https://greenshot.atlassian.net/browse/BUG-2017
+			or ((intExStyle & 0xFFFF0000) = 0x00200000)
 			or (strProcessPath = A_WinDir . "\explorer.exe")
 			or (strProcessPath = g_strDirectoryOpusPath) and (g_intActiveFileManager = 2)
 			or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
@@ -3663,6 +3698,7 @@ strProcessPath := ""
 strWindowTitle := ""
 strWindowClass := ""
 strDiagFile := ""
+intExStyle := ""
 
 g_intSwitchReopenMenuTickCount := A_TickCount - intSwitchReopenMenuStartTickCount
 ; TrayTip, SwitchReopen menu refresh, % g_intSwitchReopenMenuTickCount . " ms"
@@ -11092,6 +11128,7 @@ return
 
 ;------------------------------------------------------------
 ReloadQAP:
+ReloadQAPSwitch:
 ;------------------------------------------------------------
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
@@ -11102,10 +11139,16 @@ ReloadQAP:
 ; make sure the default system mouse pointer are reset before reloading QAP
 SetWaitCursor(false)
 
+###_V(A_ThisLabel, g_strCurrentCommandLineParameters, g_strSwitchSettingsFile)
+
+if (A_ThisLabel = "ReloadQAPSwitch")
+	g_strCurrentCommandLineParameters := "/Settings:" . g_strSwitchSettingsFile
+	; review this when parameters other than "/Settings:" is used in the future
+
 if (A_IsCompiled)
-	Run, %A_ScriptFullPath% /restart ; review if parameters are used in the future
+	Run, %A_ScriptFullPath% /restart %g_strCurrentCommandLineParameters%
 else
-	Run, %A_AhkPath% /restart %A_ScriptFullPath% ; review if parameters are used in the future
+	Run, %A_AhkPath% /restart %A_ScriptFullPath% %g_strCurrentCommandLineParameters%
 
 return
 ;------------------------------------------------------------
@@ -11355,7 +11398,7 @@ Check4UpdateChangeButtonNames:
 IfWinNotExist, % l(lUpdateTitle, g_strAppNameText)
     return  ; Keep waiting.
 SetTimer, Check4UpdateChangeButtonNames, Off
-WinActivate 
+WinActivate
 ControlSetText, Button3, %lUpdateButtonRemind%
 
 return
@@ -11462,8 +11505,58 @@ return
 
 
 ;------------------------------------------------------------
+SwitchSettings:
+;------------------------------------------------------------
+
+if SettingsUnsaved()
+{
+	Oops(lImpExpUnsavedSettings)
+	return
+}
+
+IniRead, strSwitchSettingsFolder, %g_strIniFile%, Global, SwitchSettingsFolder, %A_WorkingDir%
+
+FileSelectFile, g_strSwitchSettingsFile, 3, %strSwitchSettingsFolder%, %lDialogSwitchSettings%, *.ini
+if !(StrLen(g_strSwitchSettingsFile))
+	return
+
+SplitPath, g_strSwitchSettingsFile, , strSwitchSettingsFolder, strSwitchSettingsExt
+if !StrLen(strSwitchSettingsExt)
+	g_strSwitchSettingsFile .= ".ini"
+IniWrite, %strSwitchSettingsFolder%, %g_strIniFile%, Global, SwitchSettingsFolder
+
+IniRead, strIniSettingsGlobal, %g_strSwitchSettingsFile%, Global, , %A_Space%
+IniRead, strIniSettingsFavorite1, %g_strSwitchSettingsFile%, Favorites, Favorite1, %A_Space%
+if !StrLen(strIniSettingsGlobal) or !StrLen(strIniSettingsFavorite1)
+{
+	Oops(lDialogSettingsInvalid, "[Global]", "[Favorites]", g_strSwitchSettingsFile)
+	return
+}
+
+MsgBox, 52, %g_strAppNameText%, % L(lDialogSwitchSettingsReady, g_strSwitchSettingsFile, g_strAppNameText)
+IfMsgBox, Yes
+	Gosub, ReloadQAPSwitch
+IfMsgBox, No
+	Oops(lDialogSwitchSettingsCancel, g_strIniFile)
+
+strSwitchSettingsFolder := ""
+strSwitchSettingsExt := ""
+strIniSettingsGlobal := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ImportExport:
 ;------------------------------------------------------------
+
+if SettingsUnsaved()
+{
+	Oops(lImpExpUnsavedSettings)
+	return
+}
+
 Gui, ImpExp:New, , % L(lImpExpTitle, g_strAppNameText)
 if (g_blnUseColors)
 	Gui, ImpExp:Color, %g_strGuiWindowColor%
@@ -11481,17 +11574,14 @@ Gui, ImpExp:Add, Button, x+10 yp vf_btnImpExpFile gButtonImpExpFile, %lDialogBro
 Gui, ImpExp:Font, w700
 Gui, ImpExp:Add, Text, y+20 x10 w400 vf_lblImpExpOptions, %lImpExpExport%
 Gui, ImpExp:Font
+
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpFavorites Checked, %lImpExpOptionFavorites%
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpHotkeys Checked, %lImpExpOptionHotkeys%
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, %lImpExpOptionAlternative%
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, %lImpExpFileGlobal%
+Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, %lImpExpFileThemes%
 
-Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpFavorites gImpExpClicked Checked, %lImpExpOptionFavorites%
-Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpReplaceFavorites Checked Group, % L(lImpExpOptions, lImpExpReplace, lImpExpFavorites)
-Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpAppendFavorites, % L(lImpExpOptions, lImpExpAppend, lImpExpFavorites)
-
-Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpHotkeys gImpExpClicked Checked, %lImpExpOptionHotkeys%
-Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpReplaceHotkeys Checked Group, % L(lImpExpOptions, lImpExpReplace, lImpExpHotkeys)
-Gui, ImpExp:Add, Radio, x30 w350 vf_radImpExpMergeHotkeys, % L(lImpExpOptions, lImpExpMerge, lImpExpHotkeys)
-
-Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo, %lImpExpExport%
+Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExport%
 Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpCancel gButtonImpExpCancel, %lDialogCancelButton%
 GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpCancel")
 Gui, ImpExp:Add, Text
@@ -11510,12 +11600,7 @@ Gui, ImpExp:Submit, NoHide
 
 GuiControl, , f_lblImpExpFile, % L(lImpExpFile, (f_radImpExpExport ? lImpExpDestination : lImpExpSource))
 GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
-
-GuiControl, % (f_blnImpExpFavorites ? "Enable" : "Disable"), f_radImpExpReplaceFavorites
-GuiControl, % (f_blnImpExpFavorites ? "Enable" : "Disable"), f_radImpExpAppendFavorites
-
-GuiControl, % (f_blnImpExpHotkeys ? "Enable" : "Disable"), f_radImpExpReplaceHotkeys
-GuiControl, % (f_blnImpExpHotkeys ? "Enable" : "Disable"), f_radImpExpMergeHotkeys
+GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
 
 return
 ;------------------------------------------------------------
@@ -11530,12 +11615,12 @@ Gui, ImpExp:+OwnDialogs
 strImEx := (f_radImpExpExport ? "Ex" : "Im")
 IniRead, strImpExpFolder, %g_strIniFile%, Global, Last%strImEx%portFolder, %A_WorkingDir%
 
-FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 16 : 3), %strImpExpFolder%, %lDialogAddFolderSelect%, *.ini
+FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 2 : 3), %strImpExpFolder%, %lDialogAddFolderSelect%, *.ini
 if !(StrLen(strImpExpSelectedFile))
 	return
 
-SplitPath, strImpExpSelectedFile, , strImpExpFolder, strImpExp
-if !StrLen(strImpExp)
+SplitPath, strImpExpSelectedFile, , strImpExpFolder, strImpExpExt
+if !StrLen(strImpExpExt)
 	strImpExpSelectedFile .= ".ini"
 IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
 
@@ -11543,6 +11628,7 @@ GuiControl, ImpExp:, f_strImpExpFile, %strImpExpSelectedFile%
 
 strImEx := ""
 strImpExpFolder := ""
+strImpExpExt := ""
 strImpExpSelectedFile := ""
 
 return
@@ -11553,100 +11639,148 @@ return
 ButtonImpExpGo:
 ;------------------------------------------------------------
 Gui, ImpExp:Submit, NoHide
-; #####
 
-strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : f_strImpExpFile)
-strImpExpDestinationFile := (f_radImpExpExport ? f_strImpExpFile : g_strIniFile)
+blnAbort := false
+blnContentTransfered := false
+blnContentIdentical := false
+
+g_strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : f_strImpExpFile)
+g_strImpExpDestinationFile := (f_radImpExpExport ? f_strImpExpFile : g_strIniFile)
+
+if !(blnAbort) and (f_blnImpExpFavorites)
+{
+	blnReplace := false
+	IniRead, strFavorite, %g_strImpExpDestinationFile%, Favorites, Favorite1 ; ERROR if not found
+	if (strFavorite <> "ERROR")
+	{
+		SetTimer, ImpExpChangeButtonNames, 50
+		MsgBox, 3, %lImpExpMenu% %lImpExpFavorites% - %g_strAppNameText%, % L(lImpExpReplaceFavorites, g_strImpExpDestinationFile)
+		IfMsgBox, Yes
+			blnReplace := true
+		IfMsgBox, Cancel
+			return
+
+		if !(blnReplace) ; append
+		{
+			; get last index number
+			Loop
+			{
+				IniRead, strAppendFavorite, %g_strImpExpDestinationFile%, Favorites, Favorite%A_Index%
+				if (strAppendFavorite = "ERROR")
+				{
+					intLastFavorite := A_Index
+					Break
+				}
+			}
+			intLastFavorite -= 2 ; minus one for "ERROR" and mminus one to overwrite "Z" (end of menu) that will be re-inserted in the import
+			intIniLine := 0
+			Loop
+			{
+				intIniLine++
+				IniRead, strAppendFavorite, %g_strImpExpSourceFile%, Favorites, Favorite%intIniLine% ; ERROR if not found
+				if (strAppendFavorite = "ERROR")
+					Break
+				intDestintIniLine := intIniLine + intLastFavorite
+				IniWrite, %strAppendFavorite%, %g_strImpExpDestinationFile%, Favorites, Favorite%intDestintIniLine%
+			}
+			blnContentTransfered := (intIniLine > 0)
+		}
+	}
+	
+	if (strFavorite = "ERROR" or blnReplace)
+		WriteIniSection("Favorites", "", blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
+}
 
 if (f_blnImpExpGlobal)
-{
-	strGlobal := ReadIniSection(strImpExpSourceFile, "Global", lImpExpFileGlobal)
-	if !StrLen(strGlobal)
-	{
-		gosub, ButtonImpExpGoCleanup
-		return
-	}
-	else
-		WriteIniSection(strImpExpDestinationFile, "Global", strGlobal)
-}
-
-if (f_blnImpExpFavorites)
-{
-	intIniLine := 0
-	Loop
-	{
-		IniRead, strFavorite, %strIniFile%, Favorites, Favorite%intIniLine% ; ERROR if not found
-		###_V(A_ThisLabel, strIniFile, intIniLine, strFavorite)
-		if (strLoadIniLine = "ERROR")
-			Break
-	}
-	if !(intIniLine)
-	{
-		Oops(lImpExpFavoritesNotFound, strIniFile)
-		gosub, ButtonImpExpGoCleanup
-		return
-	}
-}
+	WriteIniSection("Global", lImpExpFileGlobal, blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
 
 if (f_blnImpExpHotkeys)
+	WriteIniSection("LocationHotkeys", lImpExpOptionHotkeys, blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
+
+if (f_blnImpExpAlternative)
+	WriteIniSection("AlternativeMenuHotkeys", "", blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
+
+if (f_blnImpExpThemes)
 {
-	strLocationHotkeys := ReadIniSection(strImpExpSourceFile, "LocationHotkeys", lImpExpOptionHotkeys)
-	strAlternativeMenuHotkeys := ReadIniSection(strImpExpSourceFile, "AlternativeMenuHotkeys", "")
-	if !StrLen(strLocationHotkeys . strAlternativeMenuHotkeys)
-	{
-		gosub, ButtonImpExpGoCleanup
-		return
-	}
+	IniRead, strThemesList, %g_strImpExpSourceFile%, Global, AvailableThemes ; ERROR if not found
+	if (strThemesList = "ERROR")
+		Oops(lImpExpNoThemes, "AvailableThemes=", "[Global]", g_strImpExpSourceFile)
+	else
+		Loop, Parse, strThemesList, |
+			WriteIniSection("Gui-" . A_LoopField, "", blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
+}
+
+if (f_radImpExpExport)
+	MsgBox, 0, %g_strAppNameText%
+		, % L(lImpExpFinalReport, (blnAbort or !blnContentTransfered ? lImpExpAborted : lImpExpCompleted) . (blnContentIdentical ? " " . lImpExpOrIdentical : ""), g_strImpExpSourceFile, g_strImpExpDestinationFile)
+else
+{
+	if (blnAbort or !blnContentTransfered)
+		MsgBox, 0, %g_strAppNameText%, % L(lImpExpFinalReport, lImpExpAborted . (blnContentIdentical ? " " . lImpExpOrIdentical : ""), g_strImpExpSourceFile, g_strImpExpDestinationFile)
 	else
 	{
-		WriteIniSection(strImpExpDestinationFile, "LocationHotkeys", strLocationHotkeys)
-		WriteIniSection(strImpExpDestinationFile, "AlternativeMenuHotkeys", strAlternativeMenuHotkeys)
+		MsgBox, 52, %g_strAppNameText%, % L(lImpExpFinalReport, lImpExpCompleted . (blnContentIdentical ? " " . lImpExpOrIdentical : ""), g_strImpExpSourceFile, g_strImpExpDestinationFile)
+			. "`n`n" . L(lImpExpRestartApp, g_strAppNameText)
+		IfMsgBox, Yes
+			Gosub, ReloadQAP
 	}
 }
 
-MsgBox, 0, %g_strAppNameText%, % L(lImpExpCompleted, strImpExpSourceFile, strImpExpDestinationFile)
-
-ButtonImpExpGoCleanup:
-strImpExpSourceFile := ""
-strImpExpDestinationFile := ""
+g_strImpExpSourceFile := ""
+g_strImpExpDestinationFile := ""
 strGlobal := ""
 intIniLine := ""
 strFavorite := ""
+strFavorites := ""
+blnAbort := ""
+blnReplace := ""
+intLastFavorite := ""
+strAppendFavorite := ""
 
 return
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-ReadIniSection(strIniFile, strSectionName, strSectionDescription)
+WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContentTransfered, ByRef blnContentIdentical)
 ;------------------------------------------------------------
 {
-	IniRead, strIniSection, %strIniFile%, %strSectionName% ; empty if not found
-	if !StrLen(strIniSection) and StrLen(strSectionDescription)
-		Oops(lImpExpSectionNotFound, strIniFile, strSectionName, strSectionDescription)
+	global g_strAppNameText
+	global g_strImpExpSourceFile
+	global g_strImpExpDestinationFile
+	
+	if blnAbort
+		return
 
-	return strIniSection
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-WriteIniSection(strIniFile, strSectionName, strContent)
-;------------------------------------------------------------
-{
 	blnReplaceOK := false
 	
-	IniRead, strIniSection, %strIniFile%, %strSectionName% ; empty if not found
-	if StrLen(strIniSection)
+	IniRead, strSourceIniSection, %g_strImpExpSourceFile%, %strSectionName%, , %A_Space% ; empty if not found
+	if !StrLen(strSourceIniSection)
 	{
-		MsgBox, 3, %g_strAppNameText%, % L(lImpExpReplaceSection, strIniFile, strSectionName, SubStr(strIniSection, 1, 200) . (StrLen(strIniSection) > 200 ? "`n..." : ""))
+		if StrLen(strDescription)
+			Oops(lImpExpSectionNotFound, g_strImpExpSourceFile, strSectionName, strDescription)
+		return
+	}
+
+	IniRead, strDestIniSection, %g_strImpExpDestinationFile%, %strSectionName%, , %A_Space% ; empty if not found
+
+	if StrLen(strDestIniSection) and (strSourceIniSection <> strDestIniSection)
+	{
+		MsgBox, 3, %lImpExpMenu% - %g_strAppNameText%, % L(lImpExpReplaceSection, g_strImpExpDestinationFile, strSectionName, SubStr(strDestIniSection, 1, 200) . (StrLen(strDestIniSection) > 200 ? "`n..." : ""))
 		IfMsgBox, Yes
 			blnReplaceOK := true
+		IfMsgBox, Cancel
+			blnAbort := true
 	}
-	if !StrLen(strIniSection) or blnReplaceOK
-		IniWrite, %strContent%, %strIniFile%, %strSectionName%
-
-	return strIniSection
+	
+	if (strSourceIniSection = strDestIniSection)
+		blnContentIdentical := true
+	
+	if (strSourceIniSection <> strDestIniSection) and (!StrLen(strDestIniSection) or blnReplaceOK)
+	{
+		IniWrite, %strSourceIniSection%, %g_strImpExpDestinationFile%, %strSectionName%
+		blnContentTransfered := true
+	}
 }
 ;------------------------------------------------------------
 
@@ -11657,6 +11791,23 @@ ImpExpGuiClose:
 ;------------------------------------------------------------
 
 Gui, ImpExp:Destroy
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ImpExpChangeButtonNames:
+;------------------------------------------------------------
+
+IfWinNotExist, %lImpExpMenu% %lImpExpFavorites% - %g_strAppNameText%
+    return  ; Keep waiting.
+
+SetTimer, ImpExpChangeButtonNames, Off
+WinActivate
+
+ControlSetText, Button1, %lImpExpReplaceAll%
+ControlSetText, Button2, %lImpExpAppend%
 
 return
 ;------------------------------------------------------------
@@ -13070,6 +13221,28 @@ LocationTransformedFromHTTP2UNC(strType, ByRef strLocation)
 	else
 		return false
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SettingsUnsaved()
+;------------------------------------------------------------
+{
+	global
+	
+	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
+
+	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
+		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
+	if (!blnDialogOpen)
+		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
+
+	return blnDialogOpen
+}
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================
@@ -13182,19 +13355,8 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	
 	StringSplit, arrData, strCopyOfData, |
 	
-	if SubStr(arrData1, 1, 4) <> "Show"
-	{
-		GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
-		if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
-			blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
-		if (!blnDialogOpen)
-			blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
-		if (!blnDialogOpen)
-			blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
-
-		if (blnDialogOpen)
-			return 0xFFFF
-	}
+	if SubStr(arrData1, 1, 4) <> "Show" and SettingsUnsaved()
+		return 0xFFFF
 	
 	if InStr(arrData1, "AddFolder") and (SubStr(arrData2, -1, 2) = ":""") ; -1 extracts the 2 last characters
 		; exception for drive paths
