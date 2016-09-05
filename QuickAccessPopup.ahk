@@ -3857,9 +3857,17 @@ AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", fal
 AddCloseMenu(lTCMenuName)
 
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
+if StrLen(g_strWinCmdIniFileExpanded)
+{
+	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
+	if (strAlternativeWinCmdIniFile <> "ERROR")
+		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
+}
 g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
 
 Gosub, RefreshTotalCommanderHotlist
+
+strAlternativeWinCmdIniFile := ""
 
 return
 ;------------------------------------------------------------
@@ -11138,8 +11146,6 @@ ReloadQAPSwitch:
 
 ; make sure the default system mouse pointer are reset before reloading QAP
 SetWaitCursor(false)
-
-###_V(A_ThisLabel, g_strCurrentCommandLineParameters, g_strSwitchSettingsFile)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
 	g_strCurrentCommandLineParameters := "/Settings:" . g_strSwitchSettingsFile
