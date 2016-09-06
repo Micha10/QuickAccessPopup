@@ -5,7 +5,7 @@
 #define MyAppURL "http://www.QuickAccessPopup.com"
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
-#define QAPmessengerVersionFileName "QAPmessenger-1_0-32-bit.exe"
+#define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 
 #define MyAppVersion "v7.4.3"
