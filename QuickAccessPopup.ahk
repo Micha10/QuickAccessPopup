@@ -31,8 +31,31 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.3.2 (2016-09-05)
+ 
+Import/Export Settings:
+- add "Import/Export Settings" menu to Tray menu (right-click QAP icon in Notification zone)
+- choose to import or export any or all of favorites, hotkeys, alternative menu hotkeys, global settings and themes
+- import from any existing .ini file complying with QuickAccessPopup.ini structure
+- export QuickAccessPopup.ini sections to any existing or new Windows configuration (.ini) file
+- replace or append favorites to the destination settings file
+- check for unsaved settings before importing or exporting setings
+- reload QAP after settings import
+ 
+Switch Settings file:
+- add "Switch Settings file" menu to Tray menu (right-click QAP icon in Notification zone)
+- change the settings file (.ini) to any file complying with QuickAccessPopup.ini structure
+- check for unsaved settings before switching settings file
+- reload QAP after switching to a new settings file
+- settings file can be configured from command-line parameter "/Settings:<file>", for example: QuickAccessPopup.exe "/Settings:C:\My Folder\My Settings.ini"
+- fle name can include environment variable and support relative paths based on the QAP working directory
+ 
+Other:
+- Total Commander "TC Hotlist" menu can now read hotlist data when AlternateUserIni parameter is used in [Configuration] section of wincmd.ini
+- QAP feature "Switch" excludes Windows 10 apps auto-loaded from Switch app menu (work in progress)
+
 Version BETA: 7.4.3.1 (2016-09-01)
-- add diagnostic code to test active window when opening a favorite and  context menu messaging
+- add diagnostic code to test active window when opening a favorite and context menu messaging
 
 Version: 7.4.3 (2016-08-23)
 Bug fix
@@ -866,7 +889,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.3.1 BETA
+;@Ahk2Exe-SetVersion 7.4.3.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -915,7 +938,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.3.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.4.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -11152,9 +11175,9 @@ if (A_ThisLabel = "ReloadQAPSwitch")
 	; review this when parameters other than "/Settings:" is used in the future
 
 if (A_IsCompiled)
-	Run, %A_ScriptFullPath% /restart %g_strCurrentCommandLineParameters%
+	Run, %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
 else
-	Run, %A_AhkPath% /restart %A_ScriptFullPath% %g_strCurrentCommandLineParameters%
+	Run, %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
 
 return
 ;------------------------------------------------------------
