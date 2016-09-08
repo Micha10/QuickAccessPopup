@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.4.3.3 (2016-09-08)
+- Add "Import/Export Settings" and "Switch Settings" features to QAP Features list (allowing to insert these features to any menu)
+- Test for code signing certificate
+
 Version BETA: 7.4.3.2 (2016-09-05)
  
 Import/Export Settings:
@@ -889,7 +893,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.3.2 BETA
+;@Ahk2Exe-SetVersion 7.4.3.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -938,7 +942,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.3.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.4.3.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2108,7 +2112,7 @@ InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0,
 InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
 InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconLaunch")
 InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",					0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress . "...", "", "AddThisFolderXpress",		0, "iconAddThisFolder")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",		0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
 InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",							0, "iconHelp")
 InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",	0, "iconHotkeys")
@@ -2120,6 +2124,8 @@ InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownC
 InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",					0, "iconReload")
 InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",						0, "iconReload")
 InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",						0, "iconClose")
+InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
+InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 
 ; Alernative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,	"", "", 1, "iconFolder")
