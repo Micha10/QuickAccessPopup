@@ -2440,7 +2440,7 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
-
+IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
 IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
@@ -5344,7 +5344,7 @@ if (g_blnUseColors)
 ; Order of controls important to avoid drawgins gliches when resizing
 
 Gui, 1:Font, % "s12 w700 " . (g_blnUseColors ? "c" . strTextColor : ""), Verdana
-Gui, 1:Add, Text, vf_lblAppName x0 y0, %g_strAppNameText% %g_strAppVersion% ; Static1
+Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion . (StrLen(g_strUserBanner) ? " " . g_strUserBanner : "") ; Static1
 Gui, 1:Font, s9 w400, Verdana
 Gui, 1:Add, Link, vf_lblAppTagLine, %lAppTagline% ; SysLink1
 
