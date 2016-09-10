@@ -3633,47 +3633,44 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 		WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinIDs%A_Index%
 		WinGet, intExStyle, ExStyle, % "ahk_id " . strWinIDs%A_Index%
 		
-		if ((intExStyle & 0xFFFF0000) = 0x00200000)
-		{
-			SetFormat, IntegerFast, H
-			###_V("", intExStyle, strWindowClass, strWindowTitle, strProcessPath)
-		}
+		; if ((intExStyle & 0xFFFF0000) = 0x00200000)
+		;	###_V("", Format("{1:#x}", intExStyle), strWindowClass, strWindowTitle, strProcessPath, "=", strWinTitlesWinApps)
 		
 		if !StrLen(strProcessPath)
 			or !(intW * intH)
 			or !StrLen(strWindowTitle)
-			; exclude Extended Window Style WS_EX_NOREDIRECTIONBITMAP (0x00200000) w/o flags
-			; see https://greenshot.atlassian.net/browse/BUG-2017
-			or (intExStyle = 0x00200000)
-				; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
-			or (intExStyle = 0x00200100 and InStr(strWinTitlesWinApps, strWindowTitle . "|"))
-				; skip if we previously had a ghost Windows app of same title then this one is also a ghost
 			or (strProcessPath = A_WinDir . "\explorer.exe")
 			or (strProcessPath = g_strDirectoryOpusPath) and (g_intActiveFileManager = 2)
 			or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
-		{
+			
 			; if (g_strCurrentBranch <> "prod")
 			;	FileAppend, NO`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
 			continue
-		}
-		else if (intExStyle = 0x00200000)
+			
+		else if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		{
 			; remember titles of window of intExStyle 0x00200100 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
 			strWinTitlesWinApps .= strWindowTitle . "|"
-
-		; else
-			; if (g_strCurrentBranch <> "prod")
-			;	FileAppend, YES`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
+			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
+			continue
+		}
 
 		intWindowsIdIndex++
 		objFolderOrApp := Object()
 		objFolderOrApp.Name := strWindowTitle
 		objFolderOrApp.LocationURL := strProcessPath
 		objFolderOrApp.WindowId := strWinIDs%A_Index%
+		objFolderOrApp.ExStyle := intExStyle
 		objFolderOrApp.WindowType := "APP"
 
 		objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
 	}
 }
+
+; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
+Loop, % objFoldersAndAppsList.MaxIndex()
+	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
+		objFoldersAndAppsList.Remove(A_Index)
 
 ; Build menu
 
@@ -4190,11 +4187,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
 					, %strThisIconFile%, %intThisIconIndex% , %g_intIconSize%
 				if (ErrorLevel)
-				{
-					strErrorIcon := (objCurrentMenu[A_Index].FavoriteType = "Application" ? "iconApplication" : "iconUnknown")
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, % g_objIconsFile[strErrorIcon], % g_objIconsIndex[strErrorIcon], %g_intIconSize%
-				}
+						, % g_objIconsFile["iconUnknown"], % g_objIconsIndex["iconUnknown"], %g_intIconSize%
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
 		}
@@ -4306,8 +4300,11 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		}
 		Menu, %strMenuName%, Icon, %strMenuItemName%, %strIconFile%, %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
+		{
+			strErrorIcon := (strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown")
 			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, % g_objIconsFile["iconUnknown"], % g_objIconsIndex["iconUnknown"], %g_intIconSize%
+				, % g_objIconsFile[strErrorIcon], % g_objIconsIndex[strErrorIcon], %g_intIconSize%
+		}
 		Menu, %strMenuName%, UseErrorLevel, off
 	}
 	
@@ -6010,7 +6007,7 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h380 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
+Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h400 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
 intTabNumber := 0
 
 blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
@@ -6040,14 +6037,14 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
-	Gui, 2:Add, Button, y400 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopy%
+	Gui, 2:Add, Button, y420 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopy%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogCopy, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
-	Gui, 2:Add, Button, y400 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAdd%
+	Gui, 2:Add, Button, y420 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAdd%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogAdd, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
