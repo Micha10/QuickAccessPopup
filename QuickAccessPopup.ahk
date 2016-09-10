@@ -3633,12 +3633,21 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 		WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinIDs%A_Index%
 		WinGet, intExStyle, ExStyle, % "ahk_id " . strWinIDs%A_Index%
 		
+		if ((intExStyle & 0xFFFF0000) = 0x00200000)
+		{
+			SetFormat, IntegerFast, H
+			###_V("", intExStyle, strWindowClass, strWindowTitle, strProcessPath)
+		}
+		
 		if !StrLen(strProcessPath)
 			or !(intW * intH)
 			or !StrLen(strWindowTitle)
 			; exclude Extended Window Style WS_EX_NOREDIRECTIONBITMAP (0x00200000) w/o flags
 			; see https://greenshot.atlassian.net/browse/BUG-2017
-			or ((intExStyle & 0xFFFF0000) = 0x00200000)
+			or (intExStyle = 0x00200000)
+				; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
+			or (intExStyle = 0x00200100 and InStr(strWinTitlesWinApps, strWindowTitle . "|"))
+				; skip if we previously had a ghost Windows app of same title then this one is also a ghost
 			or (strProcessPath = A_WinDir . "\explorer.exe")
 			or (strProcessPath = g_strDirectoryOpusPath) and (g_intActiveFileManager = 2)
 			or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
@@ -3647,6 +3656,10 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 			;	FileAppend, NO`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
 			continue
 		}
+		else if (intExStyle = 0x00200000)
+			; remember titles of window of intExStyle 0x00200100 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
+			strWinTitlesWinApps .= strWindowTitle . "|"
+
 		; else
 			; if (g_strCurrentBranch <> "prod")
 			;	FileAppend, YES`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
@@ -3728,6 +3741,7 @@ strWindowTitle := ""
 strWindowClass := ""
 strDiagFile := ""
 intExStyle := ""
+strWinTitlesWinApps := ""
 
 g_intSwitchReopenMenuTickCount := A_TickCount - intSwitchReopenMenuStartTickCount
 ; TrayTip, SwitchReopen menu refresh, % g_intSwitchReopenMenuTickCount . " ms"
@@ -4176,8 +4190,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
 					, %strThisIconFile%, %intThisIconIndex% , %g_intIconSize%
 				if (ErrorLevel)
+				{
+					strErrorIcon := (objCurrentMenu[A_Index].FavoriteType = "Application" ? "iconApplication" : "iconUnknown")
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, % g_objIconsFile["iconUnknown"], % g_objIconsIndex["iconUnknown"], %g_intIconSize%
+						, % g_objIconsFile[strErrorIcon], % g_objIconsIndex[strErrorIcon], %g_intIconSize%
+				}
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
 		}
@@ -9800,11 +9817,11 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
-	{
-		gosub, PasteSnippet
-		gosub, OpenFavoriteCleanup
-		return
-	}
+{
+	gosub, PasteSnippet
+	gosub, OpenFavoriteCleanup
+	return
+}
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
