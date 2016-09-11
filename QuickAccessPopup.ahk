@@ -8262,10 +8262,11 @@ for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode
 
 for strMenuPath, objMenu in g_objMenusIndex
 	loop, % objMenu.MaxIndex()
-		if StrLen(objMenu[A_Index].FavoriteLocation) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
+		if !InStr("B|X", objMenu[A_Index].FavoriteType) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
 		{
 			strThisHotkey := (StrLen(g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation] : lDialogNone)
-			strThisType := objMenu[A_Index].FavoriteType
+			strThisType := g_objFavoriteTypesLabels[objMenu[A_Index].FavoriteType]
+			StringReplace, strThisType, strThisType, &
 			if (objMenu[A_Index].FavoriteDisabled)
 				strThisType := "(" . strThisType . ")"
 			LV_Add(, A_Index
