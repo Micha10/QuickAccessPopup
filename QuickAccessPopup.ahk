@@ -31,6 +31,36 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5 (2016-09-11)
+ 
+Import/Export Settings
+- add "Import/Export Settings" menu to Tray menu (right-click QAP icon in Notification zone)
+- add "Import/Export Settings" to QAP Features list allowing to insert this feature to your QAP menu
+- choose to import or export any or all of these settings groups: favorites, hotkeys, alternative menu hotkeys, global settings and themes
+- export QuickAccessPopup.ini sections to any existing or to a new configuration (.ini) file
+- import from any existing .ini file complying with QuickAccessPopup.ini structure
+- replace or append favorites to the destination settings file
+- check for unsaved settings before importing or exporting setings
+- reload QAP after settings import
+ 
+Switch Settings file
+- add "Switch Settings file" menu to Tray menu (right-click QAP icon in Notification zone)
+- add "Switch Settings" feature to QAP Features list allowing to insert this feature to your QAP menu
+- change the settings file (.ini) to any file complying with QuickAccessPopup.ini structure
+- check for unsaved settings before switching settings file
+- reload QAP after switching to a new settings file
+- settings file can be configured from command-line parameter "/Settings:", for example: QuickAccessPopup.exe "/Settings:C:\My Folder\My Settings.ini"
+- settings fle name can include environment variable and support relative paths based on the QAP working directory
+ 
+Other changes or bug fixes
+- Total Commander "TC Hotlist" menu can be updated when AlternateUserIni parameter is used in [Configuration] section of wincmd.ini
+- QAP feature to "Switch" applications now excludes "ghost" Windows 10 apps (pre-loaded by Windows but never used)
+- context menus now use QAPmessenger.exe v1.1 with diagnostic code saved to QAP working directory when debugging is activated
+- addition of xplorer2 (v3.2.0.2) to list of supported alternative file managers in QAPconnect.ini
+- include external menus in hokeys manager list
+- display localized favorite type in hotkeys manager list
+- German language update
+
 Version BETA: 7.4.3.3 (2016-09-08)
 - Add "Import/Export Settings" and "Switch Settings" features to QAP Features list (allowing to insert these features to any menu)
 - Test for code signing certificate
@@ -893,7 +923,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.4.3.3 BETA
+;@Ahk2Exe-SetVersion 7.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -942,8 +972,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.4.3.3" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.5" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
