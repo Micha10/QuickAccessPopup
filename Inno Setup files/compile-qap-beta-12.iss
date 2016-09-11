@@ -144,12 +144,12 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolderXpress ""%V"""
 
 [Run]
-Filename: "{app}\ImportFPsettings.exe"; Flags: runhidden waituntilterminated; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Flags: waituntilidle postinstall skipifsilent
-Filename: "https://www.generosity.com/fundraisers/stop-malware-false-alerts-against-my-freeware/"; Description: "&HELP me STOP malware false alerts when installing QAP"; Flags: postinstall shellexec unchecked
+Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: waituntilidle postinstall skipifsilent
+Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings; Flags: runhidden waituntilterminated
+Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"; Description: "&HELP me pay EXPENSES for making QAP (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
 
 [Tasks]
-Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: checkedonce unchecked
+Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: unchecked
 
 [UninstallDelete]
 Type: files; Name: "{userstartup}\{#MyAppNameLower}.lnk"
