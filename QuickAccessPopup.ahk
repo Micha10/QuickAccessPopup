@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.1 (2016-09-11)
+- fix bug after switching settings hotkeys could not be read and modified in Options
+ 
 Version: 7.5 (2016-09-11)
  
 Import/Export Settings
@@ -923,7 +926,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5
+;@Ahk2Exe-SetVersion 7.5.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -972,7 +975,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2798,7 +2801,7 @@ LoadIniPopupHotkeys:
 ;-----------------------------------------------------------
 
 ; Read the values and set hotkey shortcuts
-loop, % g_arrPopupHotkeyNames%0%
+loop, % g_arrPopupHotkeyNames0
 ; NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard
 {
 	; Prepare global arrays used by SplitHotkey function
@@ -4535,7 +4538,7 @@ Gui, 2:Tab, 2
 Gui, 2:Font
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsTabMouseAndKeyboardIntro, g_strAppNameText)
 
-loop, % g_arrPopupHotkeyNames%0%
+loop, % g_arrPopupHotkeyNames0
 {
 	Gui, 2:Font, s8 w700
 	Gui, 2:Add, Text, x15 y+20 w610, % g_arrOptionsPopupHotkeyTitles%A_Index%
@@ -5035,7 +5038,7 @@ IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 ;---------------------------------------
 ; Save Tab 2: Popup menu hotkeys
 
-loop, % g_arrPopupHotkeyNames%0%
+loop, % g_arrPopupHotkeyNames0
 	if (g_arrPopupHotkeys%A_Index% = "None") ; do not compare with lOptionsMouseNone because it is translated
 		IniWrite, None, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index% ; do not write lOptionsMouseNone because it is translated
 	else
