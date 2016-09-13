@@ -6416,7 +6416,7 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y40 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
+	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : ""), true) . "|"
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
@@ -6589,7 +6589,7 @@ if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuIn
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
-Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath)
+Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, "", true)
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -7750,7 +7750,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	LV_Modify(LV_GetNext(), "Vis")
 }
 
-GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
+GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, "", true) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
 if (strThisLabel <> "GuiMoveOneFavoriteSave")
@@ -12715,7 +12715,7 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 
 
 ;------------------------------------------------------------
-RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "")
+RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "", blnSkipReadOnlyExternalMenu := false)
 ; recursive function
 ;------------------------------------------------------------
 {
@@ -12725,21 +12725,28 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 
 	Loop, % objMenu.MaxIndex()
 	{
-		/*
+		if !InStr("Menu|Group|External", objMenu[A_Index].FavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
+			continue
+		
+		; this object has a .Submenu property
+		
+		; skip to avoid moving a submenu under itself (in GuiEditFavorite)
+		if StrLen(strSkipMenuName) and (objMenu[A_Index].Submenu.MenuPath = strSkipMenuName)
+			continue
+		
 		if (objMenu[A_Index].Submenu.MenuType = "External")
 		{
-			###_O("objMenu[A_Index]", objMenu[A_Index])
-			###_O("objMenu[A_Index].Submenu", objMenu[A_Index].Submenu)
-			###_V(A_ThisFunc, objMenu[A_Index].Submenu.MenuPath, objMenu[A_Index].Submenu.MenuExternalPath, ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath))
+			; skip read-only external menus
+			if (blnSkipReadOnlyExternalMenu) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
+				continue
 			
-			conditon to add below:
-			and !(objMenu[A_Index].Submenu.MenuType = "External" and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath))
+			; skip external menus if not loaded
+			if !(objMenu[A_Index].Submenu.MenuLoaded)
+				continue
 		}
-		*/
-		
-		if InStr("Menu|Group|External", objMenu[A_Index].FavoriteType, true) ; this is a menu or a group
-			if (objMenu[A_Index].Submenu.MenuPath <> strSkipMenuName) ; skip to avoid moving a submenu under itself (in GuiEditFavorite)
-				strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName) ; recursive call
+
+		; if we get here, we keep this menu and recurse in it
+		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName, blnSkipReadOnlyExternalMenu) ; recursive call
 	}
 	return strList
 }
