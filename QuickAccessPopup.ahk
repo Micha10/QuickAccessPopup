@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.2 (2016-09-12)
+- fix bug backup files being deleted/overwritten when the main menu includes a shared menu
+ 
 Version: 7.5.1 (2016-09-11)
 - fix bug after switching settings hotkeys could not be read and modified in Options
  
@@ -926,7 +929,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.1
+;@Ahk2Exe-SetVersion 7.5.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -975,7 +978,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6271,7 +6274,6 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
-strExternalOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -12722,9 +12724,23 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		strList .= "|" ; default value
 
 	Loop, % objMenu.MaxIndex()
+	{
+		/*
+		if (objMenu[A_Index].Submenu.MenuType = "External")
+		{
+			###_O("objMenu[A_Index]", objMenu[A_Index])
+			###_O("objMenu[A_Index].Submenu", objMenu[A_Index].Submenu)
+			###_V(A_ThisFunc, objMenu[A_Index].Submenu.MenuPath, objMenu[A_Index].Submenu.MenuExternalPath, ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath))
+			
+			conditon to add below:
+			and !(objMenu[A_Index].Submenu.MenuType = "External" and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath))
+		}
+		*/
+		
 		if InStr("Menu|Group|External", objMenu[A_Index].FavoriteType, true) ; this is a menu or a group
 			if (objMenu[A_Index].Submenu.MenuPath <> strSkipMenuName) ; skip to avoid moving a submenu under itself (in GuiEditFavorite)
 				strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName) ; recursive call
+	}
 	return strList
 }
 ;------------------------------------------------------------
@@ -13262,6 +13278,7 @@ if !FileExist(strIniBackupFile)
 	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
 
 strIniBackupFile := ""
+strFileList := ""
 
 return
 ;------------------------------------------------------------
