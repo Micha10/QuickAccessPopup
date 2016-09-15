@@ -5675,12 +5675,6 @@ GuiAddFavoriteFromQAP:
 if (A_ThisLabel = "GuiAddFavoriteFromQAP")
 	gosub, GuiShowFromGuiAddFavoriteSelectType
 
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
-
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
@@ -6181,13 +6175,6 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
-	if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-	{
-		Oops(lOopsExternalMenuReadOnly)
-		g_blnAbordEdit := true
-		return
-	}
-	
 	if (g_objEditedFavorite.FavoriteType = "B")
 		g_blnAbordEdit := true
 	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
@@ -6583,12 +6570,6 @@ return
 ;------------------------------------------------------------
 GuiMoveMultipleFavoritesToMenu:
 ;------------------------------------------------------------
-
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
@@ -7927,12 +7908,6 @@ FavoriteNameIsNew(strCandidateName, objMenu)
 GuiRemoveMultipleFavorites:
 ;------------------------------------------------------------
 
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
-
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
@@ -7959,13 +7934,6 @@ GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
 
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
-
-	
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 intItemToRemove := LV_GetNext()
@@ -8029,12 +7997,6 @@ GuiMoveMultipleFavoritesUp:
 GuiMoveMultipleFavoritesDown:
 ;------------------------------------------------------------
 
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
-
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
@@ -8097,12 +8059,6 @@ GuiMoveFavoriteDown:
 GuiMoveOneFavoriteUp:
 GuiMoveOneFavoriteDown:
 ;------------------------------------------------------------
-
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
 
 if !InStr(A_ThisLabel, "One")
 {
@@ -8348,12 +8304,6 @@ return
 GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
-
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuInGui.MenuExternalPath)
-{
-	Oops(lOopsExternalMenuReadOnly)
-	return
-}
 
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
