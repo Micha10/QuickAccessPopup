@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.3 (2016-09-12)
+- block all ways to enter in read-only submenu in Settings or to move items to an external menu
+- backup ini section before delete
+- when using Add this folder, if folder path starts with "ftp://", create an FTP favorite
+
 Version: 7.5.2 (2016-09-12)
 - fix bug backup files being deleted/overwritten when the main menu includes a shared menu
  
@@ -929,7 +934,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.2
+;@Ahk2Exe-SetVersion 7.5.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -978,7 +983,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6234,7 +6239,14 @@ else ; add favorite
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
-		g_objEditedFavorite.FavoriteType := (StrLen(g_strNewLocationSpecialName) ? "Special" : "Folder")
+	{
+		if StrLen(g_strNewLocationSpecialName)
+			g_objEditedFavorite.FavoriteType := "Special"
+		else if SubStr(g_strNewLocation, 1, 6) = "ftp://"
+			g_objEditedFavorite.FavoriteType := "FTP"
+		else
+			g_objEditedFavorite.FavoriteType := "Folder"
+	}
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
 		SplitPath, g_strNewLocation, , , strExtension
