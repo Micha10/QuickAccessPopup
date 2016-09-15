@@ -5497,11 +5497,14 @@ Loop, % g_objMenuInGui.MaxIndex()
 		else if (g_objMenuInGui[A_Index].FavoriteType = "Group")
 			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
-			if (g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
-				strGuiMenuLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
-			else
+		{
+			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
+				strGuiMenuLocation := lDialogReadOnly
+			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
 				strGuiMenuLocation := lOopsErrorIniFileUnavailable
-			
+			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator
+		}
+		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
@@ -6416,7 +6419,7 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y40 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : ""), true) . "|"
+	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
@@ -6589,7 +6592,7 @@ if (g_objMenuInGui.MenuType = "External") and ExternalMenuIsReadOnly(g_objMenuIn
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
-Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, "", true)
+Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath)
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -7081,14 +7084,18 @@ else
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 
-	if (objNewMenuInGui.MenuType <> "External") or (objNewMenuInGui.MenuLoaded)
-		g_objMenuInGui := objNewMenuInGui
-	else
-	{
-		Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
-		gosub, GuiMenusListChangedCleanup
-		return
-	}
+	if (objNewMenuInGui.MenuType = "External")
+		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath)
+		{
+			if !(objNewMenuInGui.MenuLoaded)
+				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
+			else ; read-only
+				Oops(lOopsErrorIniFileReadOnly)
+			gosub, GuiMenusListChangedCleanup
+			return
+		}
+
+	g_objMenuInGui := objNewMenuInGui
 	
 	g_arrSubmenuStackPosition.Insert(1, LV_GetNext("Focused"))
 }
@@ -7750,7 +7757,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	LV_Modify(LV_GetNext(), "Vis")
 }
 
-GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, "", true) . "|" ; required if submenu was added
+GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
 if (strThisLabel <> "GuiMoveOneFavoriteSave")
@@ -8415,6 +8422,8 @@ blnShiftPressed := GetKeyState("Shift")
 blnControlPressed := GetKeyState("Control")
 blnAltPressed := GetKeyState("Alt")
 
+IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
+IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
 g_intIniLine := 1 ; reset counter before saving to another ini file
@@ -8515,12 +8524,17 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
 				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
 				
-				gosub, BackupIniFile ; backup non read-only external settings ini file, if required
-				
-				if !FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
+				if FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
+				{
+					if !ExternalMenuIsReadOnly(g_strIniFile)
+						gosub, BackupIniFile ; backup non read-only external settings ini file, if required
+					
+					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
+					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
+					IniDelete, %g_strIniFile%, Favorites
+				}
+				else
 					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
-				
-				IniDelete, %g_strIniFile%, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -12715,7 +12729,7 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 
 
 ;------------------------------------------------------------
-RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "", blnSkipReadOnlyExternalMenu := false)
+RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "")
 ; recursive function
 ;------------------------------------------------------------
 {
@@ -12737,7 +12751,7 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		if (objMenu[A_Index].Submenu.MenuType = "External")
 		{
 			; skip read-only external menus
-			if (blnSkipReadOnlyExternalMenu) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
+			if ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
 				continue
 			
 			; skip external menus if not loaded
@@ -12746,7 +12760,7 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		}
 
 		; if we get here, we keep this menu and recurse in it
-		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName, blnSkipReadOnlyExternalMenu) ; recursive call
+		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName) ; recursive call
 	}
 	return strList
 }
@@ -13266,7 +13280,7 @@ StringLeftDotDotDot(strText, intMax)
 BackupIniFile:
 ;------------------------------------------------------------
 
-; g_strIniFile contains the basinc QAP ini file or an external menu settings ini file
+; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
 
 ; delete old backup files (keep only 5/10 most recent files)
 StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
