@@ -31,10 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.3 (2016-09-12)
-- block all ways to enter in read-only submenu in Settings or to move items to an external menu
-- backup ini section before delete
-- when using Add this folder, if folder path starts with "ftp://", create an FTP favorite
+Version: 7.5.3 (2016-09-15)
+(release for translators only at this time)
+- block all ways to enter in read-only shared menu in Settings or to move items to a read-only shared menu
+- backup [Favorites] under the name [Favorites-backup] section in settings file before save the new favorites
+- when using Add this folder command, if folder path starts with "ftp://", add an FTP favorite
 
 Version: 7.5.2 (2016-09-12)
 - fix bug backup files being deleted/overwritten when the main menu includes a shared menu

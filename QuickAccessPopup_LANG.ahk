@@ -275,7 +275,6 @@ global lImpExpNoThemes := "No themes list found in value ""~1~"" of section ""~2
 global lImpExpOptionAlternative := "Alternative menus Hotkeys" ; new
 global lImpExpOptionFavorites := "Favorites (excluding their hotkeys)" ; new
 global lImpExpOptionHotkeys := "Favorites Hotkeys" ; new
-global lImpExpOptions := "~1~ existing ~2~" ; new
 global lImpExpOrIdentical := "(or content identical)" ; new
 global lImpExpReplaceAll := "Replace all" ; new
 global lImpExpReplaceFavorites := "There are favorites in the destination file. What do you want to do?`n`n~1~" ; new
