@@ -7,12 +7,12 @@ lAlternativeMenuTrayTipCopyLocation	Favoriten zum Kopieren auswählen
 lAlternativeMenuTrayTipEditFavorite	Favoriten zum Bearbeiten auswählen
 lAlternativeMenuTrayTipNewWindow	Ordner zum Öffnen in neuem Fenster auswählen
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Schnellstart</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Häufig gestellte Fragen</a> • <a href="http://www.quickaccesspopup.com">Support</a>
-lContextAddFile	Datei zum Quick Access Popup Menü hinzufügen ; new
-lContextAddFileXpress	Datei zum Quick Access Popup Menü Express hinzufügen ; new
-lContextAddFolder	Ordner zum Quick Access Popup Menü hinzufügen ; new
-lContextAddFolderXpress	Ordner zum Quick Access Popup Menü Express hinzufügen ; new
-lContextShowMenu	Zeige Quick Access Popup Menü ; new
-lContextShowMenuAternative	Zeige Quick Access Popup Alternativmenü ; new
+lContextAddFile	Datei zum Quick Access Popup Menü hinzufügen
+lContextAddFileXpress	Datei zum Quick Access Popup Menü Express hinzufügen
+lContextAddFolder	Ordner zum Quick Access Popup Menü hinzufügen
+lContextAddFolderXpress	Ordner zum Quick Access Popup Menü Express hinzufügen
+lContextShowMenu	Zeige Quick Access Popup Menü
+lContextShowMenuAternative	Zeige Quick Access Popup Alternativmenü
 lCopyLocationCopiedToClipboard	Pfad oder URL in Zwischenablage kopiert
 lDiagModeCaution	~1~ läuft im Diagnose-Modus.`n`nInformationen über die Anwendungsausführung werden in der Datei:`n~2~`n gesammelt`nEs wird nichts ohne Ihr Einverständnis versendet.`n`nWollen Sie den Diagnose-Modus beibehalten?
 lDiagModeExit	~1~ gesammelte Diagnose-Informationen in Datei ~2~.
@@ -40,7 +40,7 @@ lDialogCancelPrompt	Änderungen verwerfen?
 lDialogCancelTitle	Abbrechen - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Dies ist ein alternatives Tastenkürzel für das Menü.`n`nWollen Sie "~1~" in "~2~" verwalten?
 lDialogChangeHotkeyNote	Hinweis: Der Ort "~1~" wird in allen Menüs mit der neuen Kurztaste verknüpft.
-lDialogChangeHotkeyNoteSnippet	Hinweis: Dieser Schnipsel wird mit dem neuen Hotkey in allen Menüs verlinkt. ; new
+lDialogChangeHotkeyNoteSnippet	Hinweis: Dieser Schnipsel wird mit dem neuen Hotkey in allen Menüs verlinkt.
 lDialogChangeHotkeyPopup	Dies ist ein Tastenkürzel für das popup-Menü.`n`nWollen Sie "~1~" in "~2~" verwalten?
 lDialogChangeHotkeyTitle	Tastenkürzel ändern - ~1~ ~2~
 lDialogContinue	Weiter
@@ -50,16 +50,16 @@ lDialogCtrlShort	Strg
 lDialogEdit	Bearbeiten
 lDialogEditIcon	Icon-Resource bearbeiten`n`nShift-Hoch/Runter
 lDialogEditIconPrompt	Bearbeiten Sie die Icon-Resource im Format "iconfile,index" (Beispiel: "shell32.dll,2"):
-lDialogElevate	Anwendung mit Administratorrechten starten ; new
+lDialogElevate	Anwendung mit Administratorrechten starten
 lDialogEndOfMenu	Ende des Menüs
 lDialogErrorMoving	Kann Größe des Favoriten nicht ändern:`n"~1~"
-lDialogExternalLocation	Dateispeicherort des externen Menüs ; new
-lDialogExternalStartingNumber	Nummer des ersten Favoriten: ; new
-lDialogFavoriteDisabled	Diesen Favoriten im Menü verstecken ; new
+lDialogExternalLocation	Dateispeicherort des externen Menüs
+lDialogExternalStartingNumber	Nummer des ersten Favoriten:
+lDialogFavoriteDisabled	Diesen Favoriten im Menü verstecken
 lDialogFavoriteDoesNotExistPrompt	Der Favorit "~1~"~2~ existiert nicht oder ist nicht verfügbar.`n`nLiegt dieser Favorit auf einer Netzwerkfreigabe, versuchen Sie es nach erfolgter Netzwerk-Autentifizierung erneut.
 lDialogFavoriteDoesNotExistTitle	Favorit existiert nicht - ~1~
 lDialogFavoriteDropdownEmpty	Bitte wählen Sie ein Element in der ~1~ Drop-Down Liste.
-lDialogFavoriteExternalHelpWeb	Siehe <a href="~1~">Hilfe zu Externen Menüs</a> für weitere Informationen. ; new
+lDialogFavoriteExternalHelpWeb	Siehe <a href="~1~">Hilfe zu Externen Menüs</a> für weitere Informationen.
 lDialogFavoriteLocationEmpty	Dieser Ort ist leer. Bitte wählen Sie einen Ort.
 lDialogFavoriteMenuPosition	neuen Favoriten vor diesem Element einfügen
 lDialogFavoriteNameEmpty	Der Name des Favorite ist leer. Bitte wählen Sie einen kurzen Namen.
@@ -68,28 +68,28 @@ lDialogFavoriteNameNotAllowed	Favoriten des Typs "~1~" sind nicht in Gruppen erl
 lDialogFavoriteNameNotNew	Der Name ~1~ wird bereits in diesem Menü verwendet. Bitte wählen Sie einen anderen Namen.
 lDialogFavoriteNameNotNewQAPfeature	Der Name "~1~" wird in diesem Menü bereits verwendet. Bitte benennen Sie den bestehenden Favoriten und versuchen Sie es erneut.
 lDialogFavoriteParentMenu	Favoriten Hauptmenü
-lDialogFavoriteRemoveExternalPrompt	Entfernen des externen Untermenüs "~1~"`n(Externe Einstellungsdatei (.ini) wird NICHT gelöscht)? ; new
+lDialogFavoriteRemoveExternalPrompt	Entfernen des externen Untermenüs "~1~"`n(Externe Einstellungsdatei (.ini) wird NICHT gelöscht)?
 lDialogFavoriteRemovePrompt	Entfernen des Untermenüs "~1~"`nund ALL seiner Inhalte (Ordner und Untermenüs)?
 lDialogFavoriteRemoveTitle	Entfernen des Favoriten - ~1~
 lDialogFavoriteSelectType	Wählen Sie den Typ des hinzuzufügenden Favoriten.`n`nIm nächsten Fenster vergeben Sie Ihrem Favoriten:`n- einen Namen`n- einen Inhalt (abhängig vom Typ)`n- verschiedene Einstellungen (Icon, Kurztaste, usw.)`n`nWählen Sie den Typ des neuen Favoriten und klicken Sie "~1~".
 lDialogFavoriteShortNameLabel	Kurzname für das Menü
-lDialogFavoriteSnippetEmpty	Inhalt ist leer. Bitte geben Sie den Inhalt des Snippets ein. ; new
-lDialogFavoriteSnippetHelpNoProcess	Fügen Sie ``n für Zeilenende und ``t für Tabulator ein. ; new
-lDialogFavoriteSnippetHelpProcess	Benutzen Sie Strg-Tab um Tabulatoren einzufügen und Enter für Zeilenende ; new
+lDialogFavoriteSnippetEmpty	Inhalt ist leer. Bitte geben Sie den Inhalt des Snippets ein.
+lDialogFavoriteSnippetHelpNoProcess	Fügen Sie ``n für Zeilenende und ``t für Tabulator ein.
+lDialogFavoriteSnippetHelpProcess	Benutzen Sie Strg-Tab um Tabulatoren einzufügen und Enter für Zeilenende
 lDialogFavoriteSnippetHelpWeb	Siehe <a href="~1~">Snippets Hilfe</a> für Sondertasten und Befehlskodierungen.
-lDialogFavoriteSnippetProcessEOLTab	Setze Zeilende und Tabulatoren automatisch um ; new
-lDialogFavoriteSnippetPromptLabel	Prompt vor ~1~ dem Snippet ; new
-lDialogFavoriteSnippetPromptLabelLaunching	starten ; new
-lDialogFavoriteSnippetPromptLabelPasting	einfügen ; new
-lDialogFavoriteSnippetPromptNoPipe	Das Pipe-Zeichen (|) sind am Snippet Prompt nicht erlaubt. ; new
-lDialogFavoriteSnippetSendMode	Sende Snippet an aktuelle Anwendung in: ; new
-lDialogFavoriteSnippetSendModeMacro	Makromodus ; new
-lDialogFavoriteSnippetSendModeText	Textmodus ; new
+lDialogFavoriteSnippetProcessEOLTab	Setze Zeilende und Tabulatoren automatisch um
+lDialogFavoriteSnippetPromptLabel	Prompt vor ~1~ dem Snippet
+lDialogFavoriteSnippetPromptLabelLaunching	starten
+lDialogFavoriteSnippetPromptLabelPasting	einfügen
+lDialogFavoriteSnippetPromptNoPipe	Das Pipe-Zeichen (|) sind am Snippet Prompt nicht erlaubt.
+lDialogFavoriteSnippetSendMode	Sende Snippet an aktuelle Anwendung in:
+lDialogFavoriteSnippetSendModeMacro	Makromodus
+lDialogFavoriteSnippetSendModeText	Textmodus
 lDialogFavoritesParentMenuMove	Verschiebe ~1~ Favoriten in dieses Menü
 lDialogFavoriteType	Typ des Favoriten
 lDialogFavoriteTypesHelp1	Erstelle einen Shortcut zu einem häufig genutzten "Ordner".`n`nVergeben Sie den Menünamen, Pfad und verschiedene Menüoptionen.`n`nErweiterte Einstellungen erlauben die Festlegung der Fensterposition und Dateimanager-Optionen.
-lDialogFavoriteTypesHelp13	Erstelle ein "Snippet". Einstellen des Titels für das Menü, dessen Inhalt und verschiedene Menü-Optionen.`n`nIn den fortgeschrittenen Optionen, wählen Sie "Textmodus" um Snippets als Text einzufügen, wie mit der Zwischenablage oder wählen Sie "Makromodus" um Snippets zu senden, als ob Sie mit der Tastatur eingegeben würden (inklusive Sondertasten, siehe Hilfe). ; new
-lDialogFavoriteTypesHelp14	Erstellen Sie ein "Externes Menü" um Favoriten auf verschiedenen Systemen zu verwenden aus der selben Einstellungsdatei an einem gemeinsamen Speicherort.`n`nSetzen Sie den Namen des externen Menüs für das Menü, den Speicherort der Einstellungsdatei sowie verschiedene Optionen.`n`nExterne Menüs können wie normale Menüs bearbeitet werden, es sei denn, sie wurden als "nur-lesen" gesetzt (siehe Hilfe). ; new
+lDialogFavoriteTypesHelp13	Erstelle ein "Snippet". Einstellen des Titels für das Menü, dessen Inhalt und verschiedene Menü-Optionen.`n`nIn den fortgeschrittenen Optionen, wählen Sie "Textmodus" um Snippets als Text einzufügen, wie mit der Zwischenablage oder wählen Sie "Makromodus" um Snippets zu senden, als ob Sie mit der Tastatur eingegeben würden (inklusive Sondertasten, siehe Hilfe).
+lDialogFavoriteTypesHelp14	Erstellen Sie ein "Externes Menü" um Favoriten auf verschiedenen Systemen zu verwenden aus der selben Einstellungsdatei an einem gemeinsamen Speicherort.`n`nSetzen Sie den Namen des externen Menüs für das Menü, den Speicherort der Einstellungsdatei sowie verschiedene Optionen.`n`nExterne Menüs können wie normale Menüs bearbeitet werden, es sei denn, sie wurden als "nur-lesen" gesetzt (siehe Hilfe).
 lDialogFavoriteTypesHelp2	Erstelle einen Shortcut zu einem "Dokument".`n`nVergeben Sie den Menünamen, Pfad und verschiedene Menüoptionen.`n`nErweiterte Einstellungen erlauben die Auswahl einer spezifischen Anwendung um das Dokument zu öffnen, optionale Parameter hinzuzufügen und die Fensterposition zu bestimmen.
 lDialogFavoriteTypesHelp3	Erstelle einen Shortcut zu einer "Anwendung" (Programm, Batchdatei oder Skript).`n`nSuchen Sie die ausführbare Datei oder wählen Sie eines der laufenden Programme. Setzen Sie verschiedene Menüoptionen.`n`nErweiterte Einstellungen erlauben es einen "Startordner" anzugeben, Parameter hinzuzufügen und die Fensterposition zu bestimmen.
 lDialogFavoriteTypesHelp4	Erstelle einen Shortcut zu einem der 50 vordefinierten Windows "Spezialordner" wie: Bibliothek, Eigene Bilder, Papierkorb, Downloads, usw.`n`nSetzen Sie verschiedene Menüoptionen. Erweiterte Einstellungen erlauben es, die Fensterposition und Dateimanager-Optionen zu bestimmen.
@@ -132,18 +132,23 @@ lDialogNormal	Normal
 lDialogOK	OK
 lDialogOpenThisMenu	Dieses Menü öffnen
 lDialogOr	oder
+lDialogReadOnly	Nur-lesen ; new
 lDialogRemoveMultipleFavorites	Wollen Sie wirklich ~1~ entfernen?
 lDialogSelectIcon	Icon auswählen
 lDialogSelectItemToAdd	Wählen Sie das hinzuzufügende Element
 lDialogSelectItemToEdit	Bitte wählen Sie das zu bearbeitende Element.
 lDialogSelectItemToMove	Bitte wählen Sie das zu verschiebende Element.
 lDialogSelectItemToRemove	Bitte wählen Sie das zu entfernende Element.
+lDialogSettingsInvalid	Ungültige Einstellungsdatei.`n`nStellen Sie sicher, daß die Einstellungsdatei die Sektionen ~1~ und ~2~ enthält.`n`nDatei: ~3~ ; new
 lDialogShift	Shift
 lDialogShortcut	Shortcut
 lDialogSpacebarTab	wählen Sie <a id="Space">Leertaste</a> oder <a id="Tab">Tabulator</a>
 lDialogState	Fensterstatus:
 lDialogSubmenuNameEmpty	Kein Name für das Untermenü angegeben. Bitte Namen vergeben.
 lDialogSubmenuParentMenu	Untermenü Elternmenü
+lDialogSwitchSettings	Wählen Sie die zu verwendende Einstellungsdatei ; new
+lDialogSwitchSettingsCancel	Wechsel der Einstellungsdatei abgebrochen...`n`nAktuelle Einstellungsdatei: ~1~ ; new
+lDialogSwitchSettingsReady	~2~ neu laden mit neuer Einstellungsdatei:`n`n~1~ ; new
 lDialogTabNext	Nächste
 lDialogThirdPartyDetected	~1~ hat festgestellt, dass ~2~ auf diesem System installiert ist.`n`nWollen Sie die ~2~ Integration einschalten?
 lDialogTriggerFor	Trigger for:
@@ -161,9 +166,9 @@ lDialogWindowPositionY	Oben
 lDialogWindowsFolderIconCreate	erzeugen
 lDialogWindowsFolderIconNoRoot	Das Windows-Ordner Icon kann nicht im Hauptverzeichnis des Verzeichnisses gesetzt werden (~1~).
 lDialogWindowsFolderIconPrompt	Dieser Befehl wird die Systemdatei ~2~ ~1~`n`nDas Windows-Ordner Icon wird auf das aktuell gewählte Favoritensymbol gesetzt. Wollen Sie fortfahren?
-lDialogWindowsFolderIconPrompt2	Hinweis: Es dauert etwa 10-15 Sekunden oder bis zu einer Minute bevor Windows das neue Ordner-Icon anzeigt. ; new
+lDialogWindowsFolderIconPrompt2	Hinweis: Es dauert etwa 10-15 Sekunden oder bis zu einer Minute bevor Windows das neue Ordner-Icon anzeigt.
 lDialogWindowsFolderIconRemove	Windows-Ordner Icon entfernen
-lDialogWindowsFolderIconRemoveFile	Dieser Befehl kann auch die Systemdatei:`n~1~ LÖSCHEN`n`nWollen Sie diesen Ordner in dessen Ursprungszustand versetzen?
+lDialogWindowsFolderIconRemoveFile	Dieser Befehl kann auch diese Systemdatei LÖSCHEN und den Ordner in den Ursprungszustand zurückversetzen:`n~1~`n`nWollen Sie diese Systemdatei LÖSCHEN? ; changed
 lDialogWindowsFolderIconReset	Das Ordnersymbol wird auf den Standard zurückgesetzt. `n`nWollen Sie fortfahren?
 lDialogWindowsFolderIconSet	Windows-Ordner Icon setzen
 lDialogWindowsFolderIconUpdate	Update
@@ -171,12 +176,12 @@ lDialogWinShort	Win
 lDialogWorkingDirLabel	Starte in
 lDonateButton	Unterstützen Sie Freeware!
 lDonateCheckPrompt	Sind Sie zufrieden mit ~1~?`n`n~1~ ist nicht nur kostenlos, sondern enthält auch keine Werbung, bei der Sie nie wissen, ob diese Spyware oder Schadsoftware enthält.`n`n~2~ mal bisher, hat Ihnen ~1~ bei der täglichen Arbeit geholfen. Wie wär's jetzt mit ein wenig Unterstützung für Freeware?
-lDonateCheckPrompt2	Hinweis: Benutzer, welche freundlicherweise etwas spenden, bekommen einen CODE, welcher ~1~ STOPPT. ; new
-lDonateCheckPrompt3	Diese Nachricht anzeigen ; new
-lDonateCheckPrompt4	Spendenerinnerung anzeigen ; new
+lDonateCheckPrompt2	Hinweis: Benutzer, welche freundlicherweise etwas spenden, bekommen einen CODE, welcher ~1~ STOPPT.
+lDonateCheckPrompt3	Diese Nachricht anzeigen
+lDonateCheckPrompt4	Spendenerinnerung anzeigen
 lDonateCheckTitle	~1~ mal! - ~2~
 lDonateMenu	Unterstützen Sie Freeware!
-lDonatePlatformComment1	Spenden mittels Kreditkarte (kein Account notwendig) oder Ihrem PayPal-Konto ; changed
+lDonatePlatformComment1	Spenden mittels Kreditkarte (kein Account notwendig) oder Ihrem PayPal-Konto
 lDonatePlatformComment2	Sie könen eine offizielle Rechnung für die Steuer bekommen
 lDonatePlatformName1	Mit Paypal
 lDonatePlatformName2	Mit Share-it
@@ -247,24 +252,52 @@ lHelpText44	- Ebenfalls unter "Optionen": wählen Sie die bevorzugte Sprache, die
 lHelpText45	- Nutzer von Directory Opus schauen bitte unter <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">dieser Seite</a> für zusätzliche Informationen.`n- Nutzer von Total Commander schauen bitte unter <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">dieser Seite</a> für weitere Informationen.`n- Nutzer anderer Dateimanager schauen bitte unter <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">dieser Seite</a> für weitere Informationen zu QAPconnect.
 lHelpTextLead	Quick Access Popup ermöglicht es Ihnen, schnell zwischen häufig benutzten Ordnern, Dokumenten und Webseiten zu wechseln!
 lHelpTitle	Hilfe - ~1~ ~2~
+lImpExpAborted	Abgebrochen ; new
+lImpExpAppend	Anhängen ; new
+lImpExpCompleted	Fertiggestellt ; new
+lImpExpDestination	Ziel ; new
+lImpExpExport	Export ; new
+lImpExpFavorites	Favoriten ; new
+lImpExpFavoritesNotFound	Favoriten nicht gefunden in Datei:`n`n~1~ ; new
+lImpExpFile	~1~ Datei ; new
+lImpExpFileGlobal	Globale Einstellungen und Hauptmenü-Hotkeys ; new
+lImpExpFileThemes	Themen ; new
+lImpExpFinalReport	Übertrage ~1~.`n`nQuelle:`n~2~`n`nZiel:`n~3~ ; new
+lImpExpHotkeys	Hotkeys ; new
+lImpExpImport	Import ; new
+lImpExpMenu	Import/Export Einstellungen ; new
+lImpExpMerge	Führe zusammen mit ; new
+lImpExpNoThemes	Keine Liste von Themen im Wert "~1~" von Sektion "~2~" gefunden.`n`nQuelldatei:`n~3~ ; new
+lImpExpOptionAlternative	Alternativmenü Hotkeys ; new
+lImpExpOptionFavorites	Favoriten (exklusive deren Hotkeys) ; new
+lImpExpOptionHotkeys	Favoriten Hotkeys ; new
+lImpExpOrIdentical	(oder Inhalt identisch) ; new
+lImpExpReplaceAll	Alles ersetzen ; new
+lImpExpReplaceFavorites	Es gibt Favoriten in der Zieldatei. Was wollen Sie tun?`n`n~1~ ; new
+lImpExpReplaceSection	Ersetzen (ÜBERSCHREIBEN) der Sektion ~2~ in der bestehenden Datei?`n`n~1~`n`n[~2~]`n~3~ ; new
+lImpExpRestartApp	Wollen Sie ~1~ neu starten und die neuen Einstellungen jetzt laden? ; new
+lImpExpSectionNotFound	Inhalt nicht gefunden in Datei:`n`n~1~`n`nSektion: [~2~]`nBeschreibung: ~3~ ; new
+lImpExpSource	Quelle ; new
+lImpExpTitle	Import/Export Einstellungen - ~1~ ; new
+lImpExpUnsavedSettings	Ein Einstellungsfenster mit möglicherweise ungespeicherten Änderungen ist geöffnet.`n`nBitte schliessen Sie das Einstellungsfenster, bevor Sie Einstellungen Im- oder Exportieren. ; new
 lMainMenuName	Haupt
 lMenuAbout	Ü&ber
 lMenuAddFavorite	Favoriten hinzufügen
 lMenuAddThisFolder	Diesen Ordner hinzufügen
-lMenuAddThisFolderXpress	Diesen Ordner Express hinzufügen ; new
+lMenuAddThisFolderXpress	Diesen Ordner Express hinzufügen
 lMenuAlternativeEditFavorite	Favoriten bearbeiten
 lMenuAlternativeNewWindow	In neuen Fenster öffnen
 lMenuAppData	Anwendungsdaten
 lMenuCache	Cache
 lMenuClipboard	&Zwischenablage
-lMenuCloseThisMenu	Dieses Menü schliessen ; new
+lMenuCloseThisMenu	Dieses Menü schliessen
 lMenuColumnBreak	Spalte
 lMenuCommonAppData	Allgemeine Anwendungsdaten
 lMenuCommonDesktop	Allgemeines Desktop
 lMenuCommonStartMenu	Allgemeines Startmenü
 lMenuCommonStartupMenu	Allgemeines Startmenü
-lMenuComputerRestart	Computer neu starten ; new
-lMenuComputerShutdown	Computer herunterfahren ; new
+lMenuComputerRestart	Computer neu starten
+lMenuComputerShutdown	Computer herunterfahren
 lMenuCookies	Cookies
 lMenuCopyLocation	Kopieren von Pfad/URL eines Favoriten
 lMenuCurrentFolders	Ordner neu öffnen
@@ -293,13 +326,14 @@ lMenuPublicLibraries	Öffentliche Bibliotheken
 lMenuQuickLaunch	Schnellstart
 lMenuRecentFolders	Kürzlich verwendete Ordner
 lMenuRecentItems	Zuletzt verwendet
-lMenuReload	Neustart ~1~ ; new
+lMenuReload	Neustart ~1~
 lMenuRunAtStartup	&Beim Start von Windows ausführen
 lMenuSettings	Einstellungen
 lMenuStartMenu	Startmenü
 lMenuStartup	Startup
 lMenuSuspendHotkeys	Tastenkürzel deaktivieren
 lMenuSwitchFolderOrApp	Wechseln zu
+lMenuSwitchSettings	Einstellungsdatei wechseln ; new
 lMenuSystemCertificates	Systemzertifikate
 lMenuTemplates	Vorlagen
 lMenuTemporaryFiles	Temporäre Dateien
@@ -308,36 +342,37 @@ lMenuUserFolder	Benutzerordner
 lMenuUserPinned	Benutzer gepinnt
 lNavigateFileError	Beim Öffnen des Ordners `n~1~ trat ein Fehler auf.
 lNavigateSpecialError	Beim Öffnen des Systemordners #~1~ trat ein Fehler auf.
-lOopsAddThisFolderTip	Für bessere Ergebnisse mit dem Befehl "Diesen Ordner hinzufügen":`n`n1) Aktivieren Sie das ~1~ Fenster, welches den Ordner beinhaltet, um ihn zum Menü hinzuzufügen.`n2) Öffnen Sie das Popupmenü mit ~2~.`n3) Wählen Sie "Diesen Ordner hinzufügen" und speichern Sie Ihren neuen Favoriten. ; new
+lOopsAddThisFolderTip	Für bessere Ergebnisse mit dem Befehl "Diesen Ordner hinzufügen":`n`n1) Aktivieren Sie das ~1~ Fenster, welches den Ordner beinhaltet, um ihn zum Menü hinzuzufügen.`n2) Öffnen Sie das Popupmenü mit ~2~.`n3) Wählen Sie "Diesen Ordner hinzufügen" und speichern Sie Ihren neuen Favoriten.
 lOopsCannotCopyFavorite	Favoriten des Typs "~1~" können nicht kopiert werden.
-lOopsChangeFolderInDialogAlert	Wollten Sie in dieser Dialogbox in den Ordner wechseln? Um in eine Dialogbox zu navigieren, müssen Sie eine Option einschalten (erste Checkbox auf der Registerkarte "Allgemein").`n`nWollen Sie nun das Einstellungsfenster anzeigen? ; new
+lOopsChangeFolderInDialogAlert	Wollten Sie in dieser Dialogbox in den Ordner wechseln? Um in eine Dialogbox zu navigieren, müssen Sie eine Option einschalten (erste Checkbox auf der Registerkarte "Allgemein").`n`nWollen Sie nun das Einstellungsfenster anzeigen?
 lOopsCouldNotOpenSpecialFolder	~1~ konnte den Systemordner nicht öffnen: "~2~".
 lOopsEmpty	leer
-lOopsErrorIniFileRetry	Falls die Einstellungsdatei auf einem Netzlaufwerk liegt, versuchen Sie ~1~ neu laden, wenn das Netzlaufwerk verfügbar ist. ; new
-lOopsErrorIniFileUnavailable	Diese externe Menü Einstellungsdatei ist nicht verfügbar ; new
-lOopsErrorReadingIniFile	Beim Lesen dieser Einstellungsdatei trat ein Fehler auf: ; new
-lOopsExternalMenuReadOnly	Dieses externe Menü befindet sich im nur-lesen-Modus und kann nicht verändert werden. ; new
+lOopsErrorIniFileReadOnly	Diese geteilte Menüeinstellungsdatei ist SCHREIBGESCHÜTZT. ; new
+lOopsErrorIniFileRetry	Falls die Einstellungsdatei auf einem Netzlaufwerk liegt, versuchen Sie ~1~ neu laden, wenn das Netzlaufwerk verfügbar ist.
+lOopsErrorIniFileUnavailable	Diese externe Menü Einstellungsdatei ist nicht verfügbar
+lOopsErrorReadingIniFile	Beim Lesen dieser Einstellungsdatei trat ein Fehler auf:
+lOopsExternalMenuReadOnly	Dieses externe Menü befindet sich im nur-lesen-Modus und kann nicht verändert werden.
 lOopsFtpLocationProtocol	FTP-Verzeichnis muss mit "ftp://" beginnen.
 lOopsGroup	Gruppe
 lOopsHotkeyAlreadyUsed	Der "~1~" wird bereits für ~2~ verwendet.`n`nBitte verwenden Sie einen anderen Hotkey für ~3~.
 lOopsHotkeyNotInMenus	Fehler: Ort "~1~" für Hotkey "~1~" nicht in den Menüs gefunden.
 lOopsHttpLocationTransformed	Der http Ort (URL Format) wurde aus Kompatibilitätsgründen mit Windows in einen Netzwerkpfad (UNC Format) umgewandelt:`n`n~1~`n~2~
-lOopsInvalidWinCmdIni	Die Einstellungsdatei "wincmd.ini" des Total Commander nicht gefunden.`n`nGeben Sie die Datei in der Registerkarte "Optionen", "Dateimanager" an. ; new
+lOopsInvalidWinCmdIni	Die Einstellungsdatei "wincmd.ini" des Total Commander nicht gefunden.`n`nGeben Sie die Datei in der Registerkarte "Optionen", "Dateimanager" an.
 lOopsInvalidWindowPosition	Ungültige Werte für Fensterposition
 lOopsLaunchWithNotFound	"Mit dieser Anwendung starten" Datei nicht gefunden:`n`n~1~`n`nPrüfen Sie die erweiterten Einstellungen des Favoriten.
 lOopsLocation	Ort
 lOopsOSVerrsionError	~1~ benötigt Window 7 oder ein aktuelleres Betriebssystem. Nutzer von Windows Vista und XP dürfen gerne Folders Popup verwenden.`n`nWollen Sie die Folders Popup Webseite besuchen?
 lOopsQAPfeature	QAP Funktionen
 lOopsTitle	~1~ (~2~)
-lOopsUnknownTargetAppName	Beim Öffnen dieses Favoriten trat ein Fehler auf. Bitte versuchen Sie es nochmals... ; new
+lOopsUnknownTargetAppName	Beim Öffnen dieses Favoriten trat ein Fehler auf. Bitte versuchen Sie es nochmals...
 lOopsWriteProtectedError	Es scheint, daß ~1~ aus einem SCHREIBGESCHÜTZTEN ORDNER heraus ausgeführt wird, in dem die Konfigurationsdatei "~1~.ini" nicht erstellt werden kann.`n`nVerschieben Sie die ~1~ .EXE Datei in einen STANDARD Ordner Ihrer Wahl und führen Sie es daraus nochmals aus.`n`n~1~ wird beendet.
 lOopsWrongThirdPartyPath	Falscher Pfad oder Dateiname für ~1~:`n~2~.`n`nPrüfen Sie die ausgewählte .exe Datei auf ~1~ unter "Optionen", tab "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Falscher Pfad oder Dateiname für QAPconnect Anwendung`n~1~:`n~2~.`n`nPrüfen Sie die Werte für [~1~] in ~3~. Verwenden Sie den Schalter "~4~" in der Registerkarte "Optionen" "~5~".
 lOopsZipFileError	Es scheint, daß ~1~ direkt aus einer .ZIP Datei ausgeführt wird.`n`nSie müssen zuerst die Datei ~1~ .EXE aus dem Archiv in ein Verzeichnis Ihrer Wahl entpacken und dann ausführen.`n`n~1~ wird beendet.
-lOptionsAddCloseToDynamicMenus	Dem Menü "Schliessen" hinzufügen ; new
+lOptionsAddCloseToDynamicMenus	Dem Menü "Schliessen" hinzufügen
 lOptionsAlternativeMenuFeatures	Alternative Menü-Hotkeys
 lOptionsAlternativeMenuFeaturesIntro	Verwalten Sie die Shortcuts welche die Funktionen des alternativen Menüs steuern.
-lOptionsChangeFolderInDialog	Wechseln Sie den Ordner innerhalb einer Dialogbox mit den QAP Maus- und Tastaturkürzeln ; changed
+lOptionsChangeFolderInDialog	Wechseln Sie den Ordner innerhalb einer Dialogbox mit den QAP Maus- und Tastaturkürzeln
 lOptionsChangeFolderInDialogCheckbox	Aktivieren "OK", daß Sie verstanden haben, welche möglichen Konsequenzen es haben könnte, die Funktion Ordner wechseln in "nicht-Datei" Dialogboxen zu verwenden.
 lOptionsChangeFolderInDialogText	Aktivieren Sie diese Option um die Ordnernavigation in Dialogboxen zu nutzen (Öffnen, Speichern unter, usw.), lesen Sie aber bitte die folgende Warnung.`n`nNutzen Sie diese Funktion AUSSCHLIESSLICH in Dateidialogen. Wenn Sie es in anderen Dialogboxen verwenden, beispielsweise in Optionsdialogen, könnte es ohne Hinweis zu Änderungen in den Dialogboxen kommen.
 lOptionsChangeHotkey	Ändern
@@ -348,7 +383,7 @@ lOptionsExclusionDetail1	Um die QAP Mausmenü-Taste [~1~] in einer Anwendung zu b
 lOptionsExclusionDetail2	Der QAP Hotkey wird in diesen Anwendungen deaktiviert und der [~1~] Klick wird an das Zielfenster weitergegeben, so als ob QAP nicht laufen würde. Sie können Fenster auch anhand deren Klasse ausschliessen. Hilfe und Unterstützung für diese Funktion finden Sie unter <a href="~2~">auf der QAP Webseite</a>.
 lOptionsExclusionList	Ausnahmeliste
 lOptionsExclusionTitle	Ausnahmeliste für Maus-Ereignis [~1~]
-lOptionsExplorerContextMenus	Explorer Kontextmenüs aktivieren ; new
+lOptionsExplorerContextMenus	Explorer Kontextmenüs aktivieren
 lOptionsFtpEncoding	Verschlüssle FTP Usernamen und Passwort (empfohlen)
 lOptionsFtpEncodingTC	Verschlüssle FTP Usernamen und Passwort (nicht empfohlen für Total Commander)
 lOptionsGuiTitle	Optionen - ~1~ ~2~
@@ -358,7 +393,7 @@ lOptionsHotkeyRemindersPrompt	Hotkey-Erinnerungen im Menü:
 lOptionsHotkeyRemindersShort	Zeige abgekürzte Namen
 lOptionsIconSize	Symbolgröße im Menü
 lOptionsLanguage	Sprache
-lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch-Portugiesisch|Italienisch|Traditionell Chinesisch
+lOptionsLanguageLabels	Englisch|Französisch|Deutsch|Schwedisch|Spanisch|Brasilianisch-Portugiesisch|Italienisch|Traditionell Chinesisch|Portuguese|Simplified Chinese
 lOptionsMenuActiveWindow	Im aktiven Fenster
 lOptionsMenuFixPosition	An fester Position
 lOptionsMenuNearMouse	Nahe des Mauszeigers
@@ -388,23 +423,23 @@ lOptionsThirdPartyUseTabs	Verwende Registerkarten satt eines neuen Fensters
 lOptionsTrayTip	Beim Start &Tooltip anzeigen
 lPickIconNoLocation	Bitte zuerst einen Favoriten auswählen, bevor ein Icon gewählt wird.
 lReloadPrompt	~1~  wurde in ~2~ geändert. Wollen Sie jetzt ~3~ in ~2~ neu laden? Ungespeicherte Änderungen am Ordnermenü gehen verloren.
-lTCMenuName	TC Ordner Hotlist ; new
-lTCWinCmdLocation	Speicherort der WinCmd.ini ; new
-lTooltipSnippetWait	Wählen Sie den Einfügepunkt und klicken "~1~" um das Snippet einzufügen (~2~ Sekunden warten) ; new
-lTooltipSnippetWaitEnter	Enter ; new
-lTooltipSnippetWaitMacro	Drücken Sie "~1~" um das Makro zu starten (~2~ Sekunden warten) ; new
-lTooltipSnippetWaitText	Wählen Sie den Einfügepunkt und drücken Sie "~1~" um das Snippet einzufügen (~2~ Sekunden warten) ; new
+lTCMenuName	TC Ordner Hotlist
+lTCWinCmdLocation	Speicherort der WinCmd.ini
+lTooltipSnippetWait	Wählen Sie den Einfügepunkt und klicken "~1~" um das Snippet einzufügen (~2~ Sekunden warten)
+lTooltipSnippetWaitEnter	Enter
+lTooltipSnippetWaitMacro	Drücken Sie "~1~" um das Makro zu starten (~2~ Sekunden warten)
+lTooltipSnippetWaitText	Wählen Sie den Einfügepunkt und drücken Sie "~1~" um das Snippet einzufügen (~2~ Sekunden warten)
 lTrayTipInstalledDetail	~1~ um Favoriten zu starten
 lTrayTipInstalledTitle	~1~ ~2~ bereit!
 lTrayTipWorkingDetail	Erzeuge Menüs
 lTrayTipWorkingDetailFinished	Das Menü wurde aktualisiert.
 lTrayTipWorkingTitle	~1~ ~2~ arbeite...
-lUpdateButtonChangeLog	Siehe Changelog ; new
-lUpdateButtonDownloadPortable	Portable zip-Datei herunterladen ; new
-lUpdateButtonDownloadSetup	Setup-Datei herunterladen ; new
+lUpdateButtonChangeLog	Siehe Changelog
+lUpdateButtonDownloadPortable	Portable zip-Datei herunterladen
+lUpdateButtonDownloadSetup	Setup-Datei herunterladen
 lUpdateButtonRemind	Erinnere mich
-lUpdateButtonSkipVersion	Diese Version überspringen ; new
-lUpdateButtonVisit	Webseite besuchen ; new
+lUpdateButtonSkipVersion	Diese Version überspringen
+lUpdateButtonVisit	Webseite besuchen
 lUpdateError	Beim Zugriff auf die letzte Versionsnummer trat ein Fehler auf. Prüfe auf unterbrochene Updates.
 lUpdatePrompt	Update ~1~ von v~2~ auf v~3~?
 lUpdatePromptAlpha	Es gibt eine neue ~1~ ALPHA Version.`n`nUpdate ~1~ von v~2~ auf v~3~?

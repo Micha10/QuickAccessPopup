@@ -132,18 +132,23 @@ lDialogNormal	Normal
 lDialogOK	OK
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
+lDialogReadOnly	Só de leitura
 lDialogRemoveMultipleFavorites	Deseja mesmo remover ~1~ favoritos ou submenus?
 lDialogSelectIcon	Seleccionar ícone
 lDialogSelectItemToAdd	Seleccione o item para adicionar
 lDialogSelectItemToEdit	Por favor, seleccione o item para editar.
 lDialogSelectItemToMove	Por favor, seleccione o item para mover.
 lDialogSelectItemToRemove	Por favor, seleccione o item para remover.
+lDialogSettingsInvalid	Ficheiro de Definições inválido.`n`nCertifique-se que o ficheiro de definições inclui as secções ~1~ e ~2~.`n`nFicheiro: ~3~
 lDialogShift	Shift
 lDialogShortcut	Atalho
 lDialogSpacebarTab	escolha <a id="Space">barra esp.</a> ou <a id="Tab">tab</a>
 lDialogState	Estado da Janela:
 lDialogSubmenuNameEmpty	O nome do submenu está em branco. Por favor, escolha um nome.
 lDialogSubmenuParentMenu	Menu superior do submenu
+lDialogSwitchSettings	Seleccione o ficheiro de Definições a usar
+lDialogSwitchSettingsCancel	Mudança de ficheiro de definições cancelada...`n`nFicheiro de definições actual: ~1~
+lDialogSwitchSettingsReady	Recarregar ~2~ com o novo ficheiro de definições:`n`n~1~
 lDialogTabNext	Próximo
 lDialogThirdPartyDetected	O ~1~ detectou que ~2~ está instalado no seu sistema.`n`nDeseja activar a integração do ~2~?
 lDialogTriggerFor	Desencadeador para:
@@ -163,7 +168,7 @@ lDialogWindowsFolderIconNoRoot	O ícone de pasta do Windows não pode ser definido
 lDialogWindowsFolderIconPrompt	Este comando irá ~1~ o ficheiro de sistema:`n~2~`n`nO ícone de pasta do Windows será definido para o ícone actualmente seleccionado para este favorito. Deseja continuar?
 lDialogWindowsFolderIconPrompt2	Nota: Pode demorar 10-15 segundos ou até um minuto até o Windows exiba o ícone da nova pasta. 
 lDialogWindowsFolderIconRemove	Remover o ícone de pasta do Windows
-lDialogWindowsFolderIconRemoveFile	Este comando também pode ELIMINAR o ficheiro de sistema:`n~1~`n`nDeseja restaurar esta pasta para o seu estado normal?
+lDialogWindowsFolderIconRemoveFile	Este comando também pode ELIMINAR este ficheiro de sistema e restaurar a pasta para o seu estado padrão:`n~1~`n`nDeseja ELIMINAR o ficheiro de sistema? 
 lDialogWindowsFolderIconReset	O ícone da pasta será reposto para a sua imagem padrão. `n`nDeseja continuar?
 lDialogWindowsFolderIconSet	Definir o ícone de pasta Windows
 lDialogWindowsFolderIconUpdate	actualizar
@@ -247,6 +252,34 @@ lHelpText44	- Também nas "Opções": escolha o seu idioma preferido, tamanho dos í
 lHelpText45	- Utilizadores do Directory Opus, ver <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">esta página</a> para mais informações.`n- Utilizadores do Total Commander, ver <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">esta página</a> para mais informações.`n- Utilizadores de outros gestores de ficheiros, ver <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">esta página</a> para mais informações no QAPconnect.
 lHelpTextLead	O Quick Access Popup permite-lhe mover-se rapidamente entre as suas pastas de uso mais frequente, documentos, aplicações, páginas internet e muito mais!
 lHelpTitle	Ajuda - ~1~ ~2~
+lImpExpAborted	abortado
+lImpExpAppend	Anexar
+lImpExpCompleted	Concluído
+lImpExpDestination	Destino
+lImpExpExport	Exportar
+lImpExpFavorites	favoritos
+lImpExpFavoritesNotFound	Não foram encontrados favoritos no ficheiro:`n`n~1~
+lImpExpFile	ficheiro ~1~
+lImpExpFileGlobal	Definições gerais e teclas de atalho do menu principal
+lImpExpFileThemes	Temas
+lImpExpFinalReport	Transferir ~1~.`n`nOrigem:`n~2~`n`nDestino:`n~3~
+lImpExpHotkeys	teclas de atalho
+lImpExpImport	Importar
+lImpExpMenu	Definições de Importação/Exportação
+lImpExpMerge	Misturar com
+lImpExpNoThemes	Nenhuma lista de temas encontrada no valor "~1~" da secção "~2~".`n`nFicheiro de origem:`n~3~
+lImpExpOptionAlternative	Teclas de atalhos dos menus alternativos
+lImpExpOptionFavorites	Favoritos (excluindo as teclas de atalho)
+lImpExpOptionHotkeys	Teclas de atalho dos Favoritos
+lImpExpOrIdentical	(ou conteúdo idêntico)
+lImpExpReplaceAll	Substituir tudo
+lImpExpReplaceFavorites	Existem favoritos no ficheiro de destino. O que pretende fazer?`n`n~1~
+lImpExpReplaceSection	Substituir (SOBRESCREVER) a secção ~2~ no ficheiro existente?`n`n~1~`n`n[~2~]`n~3~
+lImpExpRestartApp	Deseja reiniciar ~1~ e carregar já as novas definições?
+lImpExpSectionNotFound	Conteúdo não encontrado no ficheiro:`n`n~1~`n`nSecção: [~2~]`nDescrição: ~3~
+lImpExpSource	Origem
+lImpExpTitle	Definições de Importação / Exportação - ~1~
+lImpExpUnsavedSettings	Está aberta uma janela de definições, possivelmente com alterações não guardadas.`n`nPEncerre as janelas de definições antes de importar ou exportar definições.
 lMainMenuName	Principal
 lMenuAbout	A&cerca
 lMenuAddFavorite	Adicionar Favorito
@@ -300,6 +333,7 @@ lMenuStartMenu	Menu Iniciar
 lMenuStartup	Arranque
 lMenuSuspendHotkeys	Suspender Teclas de Atalho
 lMenuSwitchFolderOrApp	Mudar
+lMenuSwitchSettings	Mudar de ficheiro de definições
 lMenuSystemCertificates	Certificados do Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheiros Temporários
@@ -313,6 +347,7 @@ lOopsCannotCopyFavorite	Não é possível copiar favoritos do tipo "~1~".
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro desta caixa de diálogo, tem que activar uma opção (1ª caixa de marcação do separador "Geral").`n`nDeseja abrir a janela de Opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não conseguiu abrir a pasta especial: "~2~".
 lOopsEmpty	vazia
+lOopsErrorIniFileReadOnly	Este ficheiro de definições de menu partilhado é SÓ-DE-LEITURA.
 lOopsErrorIniFileRetry	Se o ficheiro de definições estiver numa unidade de rede, tente reiniciar o ~1~ quando a unidade de rede estiver disponível.
 lOopsErrorIniFileUnavailable	Este ficheiro de definições do menu externo, não está disponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao ler este ficheiro de definições:
@@ -358,7 +393,7 @@ lOptionsHotkeyRemindersPrompt	Lembretes de teclas de atalho no menu:
 lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified ; changed
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
 lOptionsMenuFixPosition	Numa posição fixa
 lOptionsMenuNearMouse	Junto ao cursor do rato
