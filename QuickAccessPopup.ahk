@@ -9838,6 +9838,8 @@ strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by
 if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for these favorites, file/folder must exist
 	and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite) ; except if we edit the favorite
 	and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (WebDAV)
+	and !(SubStr(g_objThisFavorite.FavoriteLocation, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
+		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 	; was if !FileExist(PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteLocation)))
@@ -10705,7 +10707,7 @@ else
 		WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 		Sleep, 200
 	}
-	Run, %g_strTotalCommanderPath% /O /S "/L=%g_strFullLocation%" ; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
+	Run, %g_strTotalCommanderPath% /O /S /L="%g_strFullLocation%" ; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
 }
 
 return
@@ -11068,7 +11070,7 @@ else ; normal folder
 	}
 	
 	if StrLen(strSideParameter)
-		Run, %g_strTotalCommanderPath% %strTabParameter% "/%strSideParameter%=%g_strFullLocation%"
+		Run, %g_strTotalCommanderPath% %strTabParameter% /%strSideParameter%="%g_strFullLocation%"
 	else
 		; use active parameter with /S instead of L/R side parameter
 		Run, %g_strTotalCommanderPath% %strTabParameter% /S "%g_strFullLocation%"
