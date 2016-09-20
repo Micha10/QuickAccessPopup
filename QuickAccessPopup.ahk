@@ -5813,95 +5813,9 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 {
-	g_strNewLocation := ""
-
-	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-	{
-		if WindowIsDirectoryOpus(g_strTargetClass)
-		{
-			Gosub, RefreshDOpusListText
-			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-			
-			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-			; Lines will have active_lister="1" if they represent tabs from the active lister.
-			; To get the active tab you want the line with active_lister="1" and tab_state="1".
-			; tab_state="1" means it's the selected tab, on the active side of the lister.
-			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
-			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
-
-			for intIndex, objLister in objDOpusListers
-				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
-				{
-					g_strNewLocation := objLister.LocationURL
-					break
-				}
-		}
-		else ; Explorer, TotalCommander or dialog boxes
-		{
-			objPrevClipboard := ClipboardAll ; Save the entire clipboard
-			ClipBoard := ""
-
-			; Under Windows 7 and 8.1 (not tested with Windows 10)...
-			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
-			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
-			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
-			if (g_strTargetClass = "#32770")
-				intWaitTimeIncrement := 300 ; time allowed for dialog boxes
-			else
-				intWaitTimeIncrement := 150 ; time allowed for Explorer
-
-			if (g_blnDiagMode)
-				intTries := 8
-			else
-				intTries := 3
-
-			strAddThisFolderWindowTitle := ""
-			Loop, %intTries%
-			{
-				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-			} Until (StrLen(strAddThisFolderWindowTitle))
-
-			if WindowIsTotalCommander(g_strTargetClass)
-			{
-				cm_CopySrcPathToClip := 2029
-				SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-			}
-			else ; Explorer or dialog boxes
-			{
-				Loop, %intTries%
-				{
-					Sleep, intWaitTimeIncrement * A_Index
-					SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
-					Sleep, intWaitTimeIncrement * A_Index
-					SendInput, ^c ; Copy
-					Sleep, intWaitTimeIncrement * A_Index
-					WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-					intTriesIndex := A_Index
-				} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
-				if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
-					SendInput, {Esc}
-			}
-
-			g_strNewLocation := ClipBoard
-			Clipboard := objPrevClipboard ; Restore the original clipboard
-			
-			/*
-			if (g_blnDiagMode)
-			{
-				Diag("Menu", A_ThisLabel)
-				Diag("Class", g_strTargetClass)
-				Diag("Tries", intTries)
-				Diag("TriesIndex", intTriesIndex)
-				Diag("AddedFolder", g_strNewLocation)
-			}
-			*/
-		}
-			
-	}
+	Gosub, GetCurrentLocation
+	g_strNewLocation := g_strCurrentLocation
+	
 }
 
 g_strNewLocationSpecialName := ""
@@ -12273,7 +12187,6 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 ;------------------------------------------------------------
 
 
-
 ;========================================================================================================================
 ; END OF THIRD-PARTY
 ;========================================================================================================================
@@ -12281,7 +12194,174 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 
 
 ;========================================================================================================================
-!_090_VARIOUS_FUNCTIONS:
+!_090_VARIOUS_COMMANDS:
+return
+;========================================================================================================================
+
+
+;------------------------------------------------------------
+GetCurrentLocation:
+; update g_strCurrentLocation with current location in Explorer, Directory Opus, Total Commander or file dialog box window
+;------------------------------------------------------------
+
+g_strCurrentLocation := ""
+
+if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+	or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+{
+	if WindowIsDirectoryOpus(g_strTargetClass)
+	{
+		Gosub, RefreshDOpusListText
+		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+		
+		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+		; Lines will have active_lister="1" if they represent tabs from the active lister.
+		; To get the active tab you want the line with active_lister="1" and tab_state="1".
+		; tab_state="1" means it's the selected tab, on the active side of the lister.
+		; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
+		; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
+
+		for intIndex, objLister in objDOpusListers
+			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
+			{
+				g_strCurrentLocation := objLister.LocationURL
+				break
+			}
+	}
+	else ; Explorer, TotalCommander or dialog boxes
+	{
+		objPrevClipboard := ClipboardAll ; Save the entire clipboard
+		ClipBoard := ""
+
+		; Under Windows 7 and 8.1 (not tested with Windows 10)...
+		; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
+		; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
+		; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
+
+		if (g_strTargetClass = "#32770")
+			intWaitTimeIncrement := 300 ; time allowed for dialog boxes
+		else
+			intWaitTimeIncrement := 150 ; time allowed for Explorer
+
+		if (g_blnDiagMode)
+			intTries := 8
+		else
+			intTries := 3
+
+		strAddThisFolderWindowTitle := ""
+		Loop, %intTries%
+		{
+			Sleep, intWaitTimeIncrement * A_Index
+			WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+		} Until (StrLen(strAddThisFolderWindowTitle))
+
+		if WindowIsTotalCommander(g_strTargetClass)
+		{
+			cm_CopySrcPathToClip := 2029
+			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
+			WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+		}
+		else ; Explorer or dialog boxes
+		{
+			Loop, %intTries%
+			{
+				Sleep, intWaitTimeIncrement * A_Index
+				SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
+				Sleep, intWaitTimeIncrement * A_Index
+				SendInput, ^c ; Copy
+				Sleep, intWaitTimeIncrement * A_Index
+				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+				intTriesIndex := A_Index
+			} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
+				SendInput, {Esc}
+		}
+
+		g_strCurrentLocation := ClipBoard
+		Clipboard := objPrevClipboard ; Restore the original clipboard
+		
+		/*
+		if (g_blnDiagMode)
+		{
+			Diag("Menu", A_ThisLabel)
+			Diag("Class", g_strTargetClass)
+			Diag("Tries", intTries)
+			Diag("TriesIndex", intTriesIndex)
+			Diag("AddedFolder", g_strCurrentLocation)
+		}
+		*/
+	}
+		
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+AdjustColumnsWidth:
+;------------------------------------------------------------
+
+Loop, % LV_GetCount("Column")
+	LV_ModifyCol(A_Index, "AutoHdr") ; adjust column width
+
+/*
+FOLLOWING NOT REQUIRED ANYMORE
+when using option AutoHdr ("If applied to the last column, it will be made at least as wide as all the remaining space in the ListView.")
+
+; See http://www.autohotkey.com/board/topic/6073-get-listview-column-width-with-sendmessage/
+Loop, %intNbColAuto%
+{
+	intColZeroBased := A_Index - 1 ; column index, zero-based
+	SendMessage, 0x1000+29, %intColZeroBased%, 0, SysListView321, ahk_id %g_strAppHwnd%
+	intColSum += ErrorLevel ; column width
+}
+
+LV_ModifyCol(intNbColAuto + 1, g_intListW - intColSum - 21) ; adjust column width (-21 is for vertical scroll bar width)
+
+intColSum := ""
+*/
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BackupIniFile:
+;------------------------------------------------------------
+
+; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
+
+; delete old backup files (keep only 5/10 most recent files)
+StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+Loop, %strIniBackupFile%
+	strFileList .= A_LoopFileFullPath . "`n"
+Sort, strFileList, R
+intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
+Loop, Parse, strFileList, `n
+	if (A_Index > intNumberOfBackups)
+		if StrLen(A_LoopField)
+			FileDelete, %A_LoopField%
+
+; create a daily backup of the ini file
+StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
+if !FileExist(strIniBackupFile)
+	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+
+strIniBackupFile := ""
+strFileList := ""
+
+return
+;------------------------------------------------------------
+
+
+;========================================================================================================================
+; END OF VARIOUS COMMANDS
+;========================================================================================================================
+
+
+;========================================================================================================================
+!_095_VARIOUS_FUNCTIONS:
 return
 ;========================================================================================================================
 
@@ -12767,34 +12847,6 @@ GetDeepestMenuPath(strPath)
 
 
 ;------------------------------------------------------------
-AdjustColumnsWidth:
-;------------------------------------------------------------
-
-Loop, % LV_GetCount("Column")
-	LV_ModifyCol(A_Index, "AutoHdr") ; adjust column width
-
-/*
-FOLLOWING NOT REQUIRED ANYMORE
-when using option AutoHdr ("If applied to the last column, it will be made at least as wide as all the remaining space in the ListView.")
-
-; See http://www.autohotkey.com/board/topic/6073-get-listview-column-width-with-sendmessage/
-Loop, %intNbColAuto%
-{
-	intColZeroBased := A_Index - 1 ; column index, zero-based
-	SendMessage, 0x1000+29, %intColZeroBased%, 0, SysListView321, ahk_id %g_strAppHwnd%
-	intColSum += ErrorLevel ; column width
-}
-
-LV_ModifyCol(intNbColAuto + 1, g_intListW - intColSum - 21) ; adjust column width (-21 is for vertical scroll bar width)
-
-intColSum := ""
-*/
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 NextMenuShortcut(ByRef intShortcut)
 ;------------------------------------------------------------
 {
@@ -13238,35 +13290,6 @@ StringLeftDotDotDot(strText, intMax)
 {
 	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? "..." : "")
 }
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-BackupIniFile:
-;------------------------------------------------------------
-
-; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
-
-; delete old backup files (keep only 5/10 most recent files)
-StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
-Loop, %strIniBackupFile%
-	strFileList .= A_LoopFileFullPath . "`n"
-Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
-Loop, Parse, strFileList, `n
-	if (A_Index > intNumberOfBackups)
-		if StrLen(A_LoopField)
-			FileDelete, %A_LoopField%
-
-; create a daily backup of the ini file
-StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
-if !FileExist(strIniBackupFile)
-	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
-
-strIniBackupFile := ""
-strFileList := ""
-
-return
 ;------------------------------------------------------------
 
 
