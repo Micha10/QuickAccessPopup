@@ -31,11 +31,28 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.3 (2016-09-15)
-(release for translators only at this time)
-- block all ways to enter in read-only shared menu in Settings or to move items to a read-only shared menu
+Version: 7.5.4 (2016-09-21)
+ 
+Application favorites
+- in advanced settings, support placeholders {CUR_...} for current location where this favorite is launched: {CUR_LOC} (full folder), {CUR_NAME} (last folder), {CUR_DIR} (folder containing last folder) or {CUR_DRIVE}
+- in advanced settings, add a check box to set the "Start In" directory (working directory) to the current location where this favorite is launched
+ 
+Various bux fixes or little improvements
 - backup [Favorites] under the name [Favorites-backup] section in settings file before save the new favorites
 - when using Add this folder command, if folder path starts with "ftp://", add an FTP favorite
+- in Settings, block backdoors allowing to enter in read-only shared menu or to move items to these menus
+ 
+Total Commander
+- in TC Directory Hotlist, support folders relying on file system plugins like VirtualPanel (stop checking if file exist before launching these folders with TC)
+ 
+Directory Opus
+- fix bug then folder includes special characters (like &apos;) when getting the current lister in DOpus (used in Add this folder and in current location placeholders)
+ 
+Language updates
+- German, Sweeden, Portuguese, Brazilian-Portuguese and Italian
+
+Version: 7.5.3 (2016-09-15)
+(release for translators only)
 
 Version: 7.5.2 (2016-09-12)
 - fix bug backup files being deleted/overwritten when the main menu includes a shared menu
@@ -935,7 +952,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.3
+;@Ahk2Exe-SetVersion 7.5.4
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -984,7 +1001,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.3" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.4" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5815,7 +5832,6 @@ if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFrom
 {
 	Gosub, GetCurrentLocation
 	g_strNewLocation := g_strCurrentLocation
-	
 }
 
 g_strNewLocationSpecialName := ""
@@ -6413,17 +6429,20 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 	if (g_objEditedFavorite.FavoriteType = "Application")
 	{
-		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteElevate, %lDialogElevate%
-		GuiControl, , f_strFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
-		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel1, %lDialogWorkingDirLabel%
+		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_blnFavoriteElevate, %lDialogElevate%
+		GuiControl, , f_blnFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
+		Gui, 2:Add, Text, x20 y+20 w400, %lDialogWorkingDirLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
-		Gui, 2:Add, Button, x+10 yp gButtonSelectWorkingDir, %lDialogBrowseButton%
+		Gui, 2:Add, Button, x+10 yp vf_btnBrowseAppWorkingDir gButtonSelectWorkingDir, %lDialogBrowseButton%
+		Gui, 2:Add, Checkbox, x20 y+5 w500 vf_blnAppWorkingDirCurrent gButtonAppWorkingDirCurrentChanged, %lDialogAppWorkingDirCurrent%.
+		GuiControl, , f_blnAppWorkingDirCurrent, % (g_objEditedFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
+		Gosub, ButtonAppWorkingDirCurrentChanged
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 	{
-		Gui, 2:Add, Text, x20 y+20 vf_AdvancedSettingsLabel2, %lGuiGroupRestoreDelay%
+		Gui, 2:Add, Text, x20 y+20, %lGuiGroupRestoreDelay%
 		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, %g_arrGroupSettingsGui3%
-		Gui, 2:Add, Text, x+10 yp vf_AdvancedSettingsLabel3, %lGuiGroupRestoreDelayMilliseconds%
+		Gui, 2:Add, Text, x+10 yp, %lGuiGroupRestoreDelayMilliseconds%
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
@@ -6450,17 +6469,18 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else
 	{
-		Gui, 2:Add, Text, x20 y+20 w400 vf_AdvancedSettingsLabel4, %lDialogLaunchWith%
+		Gui, 2:Add, Text, x20 y+20 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
 		Gui, 2:Add, Button, x+10 yp gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
 	if !InStr("Group|Snippet|External", g_objEditedFavorite.FavoriteType, true)
 	{
-		Gui, 2:Add, Text, y+20 x20 w400 vf_AdvancedSettingsLabel5, %lDialogArgumentsLabel%
+		Gui, 2:Add, Text, y+20 x20 w400, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
-		Gui, 2:Add, Text, x20 y+5 w500 vf_AdvancedSettingsLabel7, %lDialogArgumentsLabelHelp%
-		Gui, 2:Add, Text, x20 y+5 w500 vf_AdvancedSettingsLabel6, %lDialogArgumentsPlaceholders%
+		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsLabelHelp%
+		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsPlaceholders%.
+		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsPlaceholdersCurrent%.
 		
 		Gui, 2:Add, Text, x20 y+10 w500 vf_PlaceholdersCheckLabel, %lDialogArgumentsPlaceholdersCheckLabel%
 		Gui, 2:Add, Edit, x20 y+5 w500 vf_strPlaceholdersCheck ReadOnly
@@ -6477,6 +6497,19 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 strFavoriteSnippetOptions := ""
 arrFavoriteSnippetOptions := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAppWorkingDirCurrentChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : "")
+GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_strFavoriteAppWorkingDir
+GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_btnBrowseAppWorkingDir
 
 return
 ;------------------------------------------------------------
@@ -6690,7 +6723,7 @@ Gui, 2:Submit, NoHide
 GuiControl, % (InStr(f_strFavoriteArguments, "{") ? "Show" : "Hide"), f_PlaceholdersCheckLabel
 GuiControl, % (InStr(f_strFavoriteArguments, "{") ? "Show" : "Hide"), f_strPlaceholdersCheck
 
-GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation)
+GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample)
 
 return
 ;------------------------------------------------------------
@@ -7583,7 +7616,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	else
 	{
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
-		g_objEditedFavorite.FavoriteElevate := f_strFavoriteElevate
+		g_objEditedFavorite.FavoriteElevate := f_blnFavoriteElevate
 	}
 }
 else ; GuiMoveOneFavoriteSave
@@ -7739,7 +7772,7 @@ f_strFavoriteLocation := ""
 f_strFavoriteLoginName := ""
 f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
-f_strFavoriteElevate := ""
+f_blnFavoriteElevate := ""
 f_strHotkeyText := ""
 
 return
@@ -9884,9 +9917,16 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 
 if (g_objThisFavorite.FavoriteType = "Application")
 {
+	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
+	{
+		Gosub, GetCurrentLocation ; update g_strCurrentLocation
+		strCurrentAppWorkingDir := g_strCurrentLocation
+	}
+	else
+		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
-	Run, % (g_objThisFavorite.FavoriteElevate ? "*RunAs " : "") . g_strFullLocation, % g_objThisFavorite.FavoriteAppWorkingDir, , intPid
+	Run, % (g_objThisFavorite.FavoriteElevate ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, , intPid
 	if (intPid)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
@@ -9944,6 +9984,7 @@ g_strAlternativeMenu := ""
 strTempLocation := ""
 blnShiftPressed := ""
 blnControlPressed := ""
+strCurrentAppWorkingDir := ""
 
 return
 ;------------------------------------------------------------
@@ -10182,7 +10223,13 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
-	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation) ; let user enter double-quotes as required by his arguments
+{
+	if InStr(g_objThisFavorite.FavoriteArguments, "{CUR_")
+		Gosub, GetCurrentLocation ; update g_strCurrentLocation
+	else
+		g_strCurrentLocation := ""
+	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
+}
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -12224,7 +12271,7 @@ if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass
 		for intIndex, objLister in objDOpusListers
 			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
 			{
-				g_strCurrentLocation := objLister.LocationURL
+				g_strCurrentLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
 				break
 			}
 	}
@@ -13078,19 +13125,32 @@ ComUnHTML(html)
 
 
 ;------------------------------------------------------------
-ExpandPlaceholders(strArguments, strLocation)
-; {LOC} (full location), {NAME} (file name), {DIR} (directory), {EXT} (extension), {NOEXT} (file name without extension) or {DRIVE} (drive)
+ExpandPlaceholders(strArguments, strLocation, strCurrentLocation)
+; strLocation: {LOC} (full location), {NAME} (file name), {DIR} (directory), {EXT} (extension), {NOEXT} (file name without extension) or {DRIVE} (drive)
+; or strCurrentLocation: same with prefix "CUR_" like {CUR_LOC} (full current location), {CUR_NAME} (current file name), etc.
 ;------------------------------------------------------------
 {
-	SplitPath, strLocation, strOutFileName, strOutDir, strOutExtension, strOutNameNoExt, strOutDrive
+	strExpanded := ExpandPlaceholdersForThis(strArguments, strLocation, "")
+	strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
+	
+	return strExpanded
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExpandPlaceholdersForThis(strArguments, strThisLocation, strPrefix := "")
+;------------------------------------------------------------
+{
+	SplitPath, strThisLocation, strOutFileName, strOutDir, strOutExtension, strOutNameNoExt, strOutDrive
 	
 	strExpanded := strArguments
-	StringReplace, strExpanded, strExpanded, {LOC}, %strLocation%, All
-	StringReplace, strExpanded, strExpanded, {NAME}, %strOutFileName%, All
-	StringReplace, strExpanded, strExpanded, {DIR}, %strOutDir%, All
-	StringReplace, strExpanded, strExpanded, {EXT}, %strOutExtension%, All
-	StringReplace, strExpanded, strExpanded, {NOEXT}, %strOutNameNoExt%, All
-	StringReplace, strExpanded, strExpanded, {DRIVE}, %strOutDrive%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%LOC}, %strThisLocation%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%NAME}, %strOutFileName%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%DIR}, %strOutDir%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%EXT}, %strOutExtension%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%NOEXT}, %strOutNameNoExt%, All
+	StringReplace, strExpanded, strExpanded, {%strPrefix%DRIVE}, %strOutDrive%, All
 	
 	return strExpanded
 }
