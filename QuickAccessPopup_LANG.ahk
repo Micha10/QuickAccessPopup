@@ -384,6 +384,7 @@ global lOptionsChangeFolderInDialogCheckbox := "Click ""OK"" to confirm that you
 global lOptionsChangeFolderInDialogText := "Turn this option ON to enable folder navigation in dialog boxes (Open, Save As, etc.) but, please, read the following warning.`n`nYou must use this feature ONLY in ""file"" dialog boxes. If you use it in other types of dialog box, for example in an ""Options"" dialog box, trying to change folder could modify and save values in the dialog box without any notification." ; new
 global lOptionsChangeHotkey := "Change"
 global lOptionsCheck4Update := "&Check for update"
+global lOptionsControlDoublePressed := "Open main menu on Ctrl + Ctrl (Left or Right Control key pressed twice)"
 global lOptionsDisplayIcons := "Display Menu &Icons"
 global lOptionsDisplayMenuShortcuts := "Display &Numeric Menu Shortcuts"
 global lOptionsExclusionDetail1 := "To block the QAP mouse menu button [~1~] in an application, enter any part of the application's window title. You can enter multiple exclusions, one per line. For example, to exclude Chrome and Word, enter the following two lines in the exclusion list:`n`nGoogle Chrome`nMicrosoft Word" ; new

@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.4 (2016-09-21)
+Version: 7.5.4 (2016-09-23)
  
 Application favorites
 - in advanced settings, support placeholders {CUR_...} for current location where this favorite is launched: {CUR_LOC} (full folder), {CUR_NAME} (last folder), {CUR_DIR} (folder containing last folder) or {CUR_DRIVE}
@@ -2433,9 +2433,6 @@ IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 
-; ---------------------
-; Load Options Tab 2 Menu Hotkeys
-
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
 	IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk, 0
@@ -2444,6 +2441,12 @@ IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
 	
+; ---------------------
+; Load Options Tab 2 Menu Hotkeys
+
+IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
+IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
+
 ; ---------------------
 ; Load Options Tab 3 Alternative Menu
 
@@ -4473,7 +4476,7 @@ Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Text, x10 y10 w595 center, % L(lOptionsGuiTitle, g_strAppNameText)
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intOptionsTab w620 h400 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
+Gui, 2:Add, Tab2, vf_intOptionsTab w620 h420 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
 
 ;---------------------------------------
 ; Tab 1: General options
@@ -4575,6 +4578,12 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Font, s8 w500
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
+
+Gui, 2:Add, CheckBox, y+25 x15 vf_blnLeftControlDoublePressed, Left ; %lOptionsControlDoublePressed%
+Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, Right ; %lOptionsControlDoublePressed%
+Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
+GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
+GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
 
 ;---------------------------------------
 ; Tab 3: Alternative Menu Features
@@ -5069,6 +5078,11 @@ loop, % g_arrPopupHotkeyNames0
 		IniWrite, None, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index% ; do not write lOptionsMouseNone because it is translated
 	else
 		IniWrite, % g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%
+
+g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
+IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
+g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
+IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
 
 ;---------------------------------------
 ; Save Tab 3: Alternative menu hotkeys
@@ -9086,6 +9100,34 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
+~LCtrl::
+~RCtrl::
+;------------------------------------------------------------
+
+strKeyPressed := A_ThisLabel
+
+if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
+	or ((strKeyPressed = "~RCtrl") and !(g_blnRightControlDoublePressed))
+	return
+
+if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between presses
+{
+	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
+		Gosub, NavigateHotkeyKeyboard
+	else if CanLaunch(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
+		Gosub, LaunchHotkeyKeyboard
+	; else do nothing
+}
+StringTrimLeft, strKeyPressed, strKeyPressed, 1
+KeyWait, %strKeyPressed%
+
+strKeyPressed := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 NavigateFromMsg:			; g_strTargetWinId set here
@@ -10369,7 +10411,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, %g_strAppNameFile% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, Hotkey2Text(g_arrPopupHotkeys1))
+MsgBox, % 64 + 4096, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, Hotkey2Text(g_arrPopupHotkeys1))
 
 return
 ;------------------------------------------------------------
@@ -10382,7 +10424,7 @@ GetWinInfo2Clippoard:
 g_blnGetWinInfo := ""
 WinClose, %g_strAppNameFile% - %lMenuGetWinInfo%
 
-MsgBox, 4, %g_strAppNameFile% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo2Clippoard, g_strTargetWinTitle, g_strTargetClass)
+MsgBox, 4, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo2Clippoard, g_strTargetWinTitle, g_strTargetClass)
 
 IfMsgBox, Yes
 	Clipboard := g_strTargetWinTitle . "`r`n" . g_strTargetClass
