@@ -6514,14 +6514,20 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	
 	if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
 	{
-		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteLiveLevels center hidden, 1 ; #####
-		Gui, 2:Add, Text, x+5 yp w400 vf_intFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (1 = 0 ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh% ; #####
+		strFavoriteFolderLive := g_objEditedFavorite.FavoriteFolderLive
+		StringSplit, arrFavoriteFolderLive, strFavoriteFolderLive, `, ; 1 f_intFavoriteFolderLiveLevels, 2 f_chkFavoriteFolderLiveRefresh 
+		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteFolderLiveLevels center hidden, %arrFavoriteFolderLive1%
+		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
+		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (arrFavoriteFolderLive2 ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
+		
+		gosub, CheckboxFolderLiveClicked
 	}
 }
 
 strFavoriteSnippetOptions := ""
 arrFavoriteSnippetOptions := ""
+strFavoriteFolderLive := ""
+arrFavoriteFolderLive := ""
 
 return
 ;------------------------------------------------------------
@@ -6971,9 +6977,17 @@ CheckboxFolderLiveClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteLiveLevels
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveLevels
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveLevels
+if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
+	GuiControl, , f_intFavoriteFolderLiveLevels, 1
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveRefresh
+
+GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
+
+GuiControl, , f_strFavoriteArguments, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteArguments)
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
 
 return
 ;------------------------------------------------------------
@@ -7648,8 +7662,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 	g_objEditedFavorite.FavoriteDisabled := f_chkFavoriteDisabled
-	; ##### build FavoriteFolderLive coma separated values
-	g_objEditedFavorite.FavoriteFolderLive := f_strFavoriteFolderLive
+	
+	g_objEditedFavorite.FavoriteFolderLive := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels . "," . f_chkFavoriteFolderLiveRefresh : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
