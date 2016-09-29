@@ -11937,7 +11937,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://code.jeanlalonde.ca/support-freeware/")
+Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup.com/why-support-freeware/")
 ; loop, 2
 ; {
 ;	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
@@ -11966,7 +11966,7 @@ loop, 3
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . lDonateReviewNameRight%A_Index% . "</a>"
 
-Gui, 2:Add, Link, y+10 x130, <a href="http://code.jeanlalonde.ca/support-freeware/">%lDonateText5%</a>
+Gui, 2:Add, Link, y+10 x130, <a href="http://www.quickaccesspopup.com/why-support-freeware/">%lDonateText5%</a>
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGui2Close%
