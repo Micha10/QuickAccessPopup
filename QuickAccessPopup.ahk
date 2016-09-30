@@ -2601,7 +2601,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled, 15 FavoriteFolderLive
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
+		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveRefresh
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2677,7 +2678,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
 		objLoadIniFavorite.FavoriteDisabled := arrThisFavorite14 ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
-		objLoadIniFavorite.FavoriteFolderLive := arrThisFavorite15 ; coma separated values for live folders (submenu including subfolders)
+		objLoadIniFavorite.FavoriteFolderLiveLevels := arrThisFavorite15 ; number of subfolders to include in submenu(s), 0 if not a live folder
+		objLoadIniFavorite.FavoriteFolderLiveRefresh := arrThisFavorite16 ; if true refresh every time the menu is displayed
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4231,10 +4233,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			or StrLen(objCurrentMenu[A_Index].FavoriteFolderLive)
+			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 		{
-			if StrLen(objCurrentMenu[A_Index].FavoriteFolderLive)
+			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
+				RecursiveBuildLiveMenu(objCurrentMenu[A_Index])
 				x := 1 ; prepare menu for folder live
 				; build submenu in separate recursive function and populate objCurrentMenu[A_Index].SubMenu.MenuPath
 				; else RecursiveBuildOneMenu
@@ -6356,7 +6359,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 }
 
 if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
-	Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (StrLen(g_objEditedFavorite.FavoriteFolderLive) ? "checked" : ""), %lDialogFavoriteFolderLive%
+	Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
 
 Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : ""), %lDialogFavoriteDisabled%
 
@@ -6522,11 +6525,9 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	
 	if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
 	{
-		strFavoriteFolderLive := g_objEditedFavorite.FavoriteFolderLive
-		StringSplit, arrFavoriteFolderLive, strFavoriteFolderLive, `, ; 1 f_intFavoriteFolderLiveLevels, 2 f_chkFavoriteFolderLiveRefresh 
-		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteFolderLiveLevels center hidden, %arrFavoriteFolderLive1%
+		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteFolderLiveLevels number center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
 		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (arrFavoriteFolderLive2 ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
+		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (g_objEditedFavorite.FavoriteFolderLiveRefresh ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
 		
 		gosub, CheckboxFolderLiveClicked
 	}
@@ -6534,8 +6535,6 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 strFavoriteSnippetOptions := ""
 arrFavoriteSnippetOptions := ""
-strFavoriteFolderLive := ""
-arrFavoriteFolderLive := ""
 
 return
 ;------------------------------------------------------------
@@ -7671,7 +7670,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 	g_objEditedFavorite.FavoriteDisabled := f_chkFavoriteDisabled
 	
-	g_objEditedFavorite.FavoriteFolderLive := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels . "," . f_chkFavoriteFolderLiveRefresh : "")
+	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
+	g_objEditedFavorite.FavoriteFolderLiveRefresh := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveRefresh : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
@@ -8475,7 +8475,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDisabled . "|" ; 14
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLive . "|" ; 15
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveLevels . "|" ; 15
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveRefresh . "|" ; 16
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -13508,7 +13509,7 @@ GetFavoriteTypeForList(objFavorite)
 	global g_objFavoriteTypesShortNames
 	
 	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
-	if StrLen(objFavorite.FavoriteFolderLive)
+	if (objFavorite.FavoriteFolderLiveLevels)
 		strType := "!" . strType . "!"
 	if (objFavorite.FavoriteDisabled)
 		strType := "(" . strType . ")"
