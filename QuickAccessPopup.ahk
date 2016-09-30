@@ -5525,9 +5525,8 @@ LV_Delete()
 
 Loop, % g_objMenuInGui.MaxIndex()
 {
-	strThisType := g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
-	if (g_objMenuInGui[A_Index].FavoriteDisabled)
-		strThisType := "(" . strThisType . ")"
+	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
+	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
 		if (g_objMenuInGui[A_Index].FavoriteType = "Menu")
@@ -7741,9 +7740,9 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
-	strThisType := g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType]
-	if (g_objEditedFavorite.FavoriteDisabled)
-		strThisType := "(" . strThisType . ")"
+	
+	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
+	
 	if (g_intNewItemPos)
 		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
 	else
@@ -8277,10 +8276,7 @@ for strMenuPath, objMenu in g_objMenusIndex
 		if !InStr("B|X", objMenu[A_Index].FavoriteType) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
 		{
 			strThisHotkey := (StrLen(g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation] : lDialogNone)
-			strThisType := g_objFavoriteTypesLabels[objMenu[A_Index].FavoriteType]
-			StringReplace, strThisType, strThisType, &
-			if (objMenu[A_Index].FavoriteDisabled)
-				strThisType := "(" . strThisType . ")"
+			strThisType := GetFavoriteTypeForList(objMenu[A_Index])
 			LV_Add(, A_Index
 				, strMenuPath, objMenu[A_Index].FavoriteName, strThisType
 				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
@@ -13496,6 +13492,23 @@ SettingsUnsaved()
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+GetFavoriteTypeForList(objFavorite)
+;------------------------------------------------------------
+{
+	global g_objFavoriteTypesShortNames
+	
+	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
+	if StrLen(objFavorite.FavoriteFolderLive)
+		strType := "!" . strType . "!"
+	if (objFavorite.FavoriteDisabled)
+		strType := "(" . strType . ")"
+	
+	return strType
+}
+;------------------------------------------------------------
+
+
 
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
@@ -13503,7 +13516,7 @@ SettingsUnsaved()
 
 
 ;========================================================================================================================
-!_095_ONMESSAGE_FUNCTIONS:
+!_098_ONMESSAGE_FUNCTIONS:
 return
 ;========================================================================================================================
 
