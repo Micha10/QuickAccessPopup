@@ -4231,9 +4231,18 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			or StrLen(objCurrentMenu[A_Index].FavoriteFolderLive)
 		{
-			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
-			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
+			if StrLen(objCurrentMenu[A_Index].FavoriteFolderLive)
+			{
+				x := 1 ; prepare menu for folder live
+				; build submenu in separate recursive function and populate objCurrentMenu[A_Index].SubMenu.MenuPath
+				; else RecursiveBuildOneMenu
+				; or fake submenu and always use RecursiveBuildOneMenu? #####
+			}
+			else
+				; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
+				RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 			
 			if (g_blnUseColors)
 				Try Menu, % objCurrentMenu[A_Index].SubMenu.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
