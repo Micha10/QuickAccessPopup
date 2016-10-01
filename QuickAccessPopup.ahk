@@ -4204,6 +4204,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objMenuColumnBreaks
 	global g_intHotkeyReminders
 	global g_objHotkeysByLocation
+	global g_strMenuPathSeparator
+	global g_objMenusIndex
 
 	intShortcut := 0
 	
@@ -4237,11 +4239,17 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
+				###_O("AVANT", objCurrentMenu[A_Index])
+				strMenuPath := objCurrentMenu.MenuPath
+				StringReplace, strMenuPath, strMenuPath, %lMainMenuName%%A_Space% ; menu path without main menu localized name
+				objCurrentMenu[A_Index].FavoriteLocation := strMenuPath . " " . g_strMenuPathSeparator . " "  . objCurrentMenu[A_Index].FavoriteName
+				objCurrentMenu[A_Index].FavoriteType := "Menu"
+				objCurrentMenu[A_Index].MenuType := "Menu"
+				
 				RecursiveBuildLiveMenu(objCurrentMenu[A_Index])
-				x := 1 ; prepare menu for folder live
-				; build submenu in separate recursive function and populate objCurrentMenu[A_Index].SubMenu.MenuPath
-				; else RecursiveBuildOneMenu
-				; or fake submenu and always use RecursiveBuildOneMenu? #####
+				###_V("ADD objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
+				g_objMenusIndex.Insert(objCurrentMenu[A_Index].SubMenu.MenuPath, objCurrentMenu[A_Index].SubMenu) ; add to the menu index
+				###_O("APRÈS", objCurrentMenu[A_Index])
 			}
 			else
 				; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
@@ -4250,6 +4258,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_blnUseColors)
 				Try Menu, % objCurrentMenu[A_Index].SubMenu.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 			
+			###_V("Try Menu Add", objCurrentMenu.MenuPath, strMenuName, ":" . objCurrentMenu[A_Index].SubMenu.MenuPath)
 			Try Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . objCurrentMenu[A_Index].SubMenu.MenuPath
 			catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
@@ -4326,6 +4335,74 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecursiveBuildLiveMenu(objLiveFolder)
+;------------------------------------------------------------
+{
+	global g_strMenuPathSeparator
+	
+	objNewMenu := Object() ; create the submenu object
+	objNewMenu.MenuPath := "Main " . objLiveFolder.FavoriteLocation ; "Main " . strMenuPath . " " . g_strMenuPathSeparator . " " . objLiveFolder.FavoriteName
+	###_V("objNewMenu.MenuPath incluant Main?", objNewMenu.MenuPath)
+	objNewMenu.MenuType := "Menu"
+	
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "Folder"
+	objNewMenuItem.FavoriteName := "Test1"
+	objNewMenuItem.FavoriteLocation := "e:\"
+	objNewMenu.Insert(objNewMenuItem)
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "Folder"
+	objNewMenuItem.FavoriteName := "Test2"
+	objNewMenuItem.FavoriteLocation := "c:\"
+	objNewMenu.Insert(objNewMenuItem)
+	
+	objLiveFolder.SubMenu := objNewMenu
+
+	Menu, % objNewMenu.MenuPath, Add, Test1, OpenFavorite
+	Menu, % objNewMenu.MenuPath, Add, Test2, OpenFavorite
+/*
+		if InStr("Menu|Group|External", arrThisFavorite1, true) ; begin a submenu / case sensitive because type X is included in External ...
+		{
+			objNewMenu := Object() ; create the submenu object
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			objNewMenu.MenuType := arrThisFavorite1
+			if (objNewMenu.MenuType = "External")
+				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
+			
+			; create a navigation entry to navigate to the parent menu
+			objNewMenuBack := Object()
+			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
+			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
+			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
+			objNewMenu.Insert(objNewMenuBack)
+			
+			if (arrThisFavorite1 = "External")
+			{
+				strPreviousIniFile := g_strIniFile
+				intPreviousIniLine := g_intIniLine
+				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
+				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number
+			}
+			
+			; build the submenu
+			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
+			
+			if (arrThisFavorite1 = "External")
+			{
+				g_strIniFile := strPreviousIniFile
+				g_intIniLine := intPreviousIniLine
+			}
+			
+			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+				Return, %strResult%
+		}
+*/
+
 }
 ;------------------------------------------------------------
 
@@ -10410,6 +10487,16 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 
 	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
 		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
+	###_O("g_objMenusIndex", g_objMenusIndex)
+	###_O("g_objMenusIndex[A_ThisMenu]", g_objMenusIndex[A_ThisMenu])
+	###_V(A_ThisFunc
+		, intColumnBreaksBeforeThisItem
+		, intDisabledItemsBeforeThisItem
+		, GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
+		, A_ThisMenuItemPos,
+		, (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
+		, intMenuItemPos,
+		, A_ThisMenu)
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 }
