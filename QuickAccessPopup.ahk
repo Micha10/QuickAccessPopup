@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.5.9.1 (2016-10-02)
+ 
+Live Folder favorites
+- Option in Add favorite dialog box to display a favorite of type Folder as a subfolders menu
+- In Advanced Settings, an option to set the number of subfolders levels included in the Live Folder menu, 1 by default (keep it low for large folders)
+- In Advanced Settings, an option to refresh the Live Folder every time the menu is displayed, off by default (disabled in this version)
+ 
+Other new feature
+- Add left or right Ctrl + Ctrl (press left or right Control twice) to open main QAP menu (enable this in Options, tab 2).
+ 
+Language updates
+- Spanish and French
+
 Version: 7.5.4 (2016-09-23)
  
 Application favorites
@@ -952,7 +965,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.4
+;@Ahk2Exe-SetVersion 7.5.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1001,8 +1014,8 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.4" ; "major.minor.bugs" or "major.minor.beta.release"
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "7.5.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -6574,7 +6587,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteFolderLiveLevels number center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
 		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (g_objEditedFavorite.FavoriteFolderLiveRefresh ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
+		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden disabled " . (g_objEditedFavorite.FavoriteFolderLiveRefresh ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
 		
 		gosub, CheckboxFolderLiveClicked
 	}
