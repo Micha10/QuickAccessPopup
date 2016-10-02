@@ -1026,6 +1026,7 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+g_strFolderLiveIndicator := "!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -1518,7 +1519,7 @@ strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconC
 	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
 	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
 	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose|iconTextDocument"
+	. "|iconClose|iconTextDocument|iconFolderLive"
 
 if (GetOsVersion() = "WIN_10")
 {
@@ -1532,7 +1533,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32"
+		. "|imageres|shell32|imageres"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1543,7 +1544,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|222|240|261|299|300"
 		. "|319|324|1|325|9"
 		. "|7|10|12|13|239"
-		. "|94|71"
+		. "|94|71|176"
 }
 else
 {
@@ -1557,7 +1558,7 @@ else
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32"
+		. "|imageres|shell32|imageres"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1568,7 +1569,7 @@ else
 		. "|222|240|261|297|298"
 		. "|301|304|1|305|9"
 		. "|7|10|12|13|239"
-		. "|94|71"
+		. "|94|71|176"
 }
 
 StringSplit, arrIconsFile, strIconsFile, |
@@ -2601,7 +2602,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled
+		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
+		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveRefresh
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2677,6 +2679,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
 		objLoadIniFavorite.FavoriteDisabled := arrThisFavorite14 ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
+		objLoadIniFavorite.FavoriteFolderLiveLevels := arrThisFavorite15 ; number of subfolders to include in submenu(s), 0 if not a live folder
+		objLoadIniFavorite.FavoriteFolderLiveRefresh := arrThisFavorite16 ; if true refresh every time the menu is displayed
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4201,6 +4205,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objMenuColumnBreaks
 	global g_intHotkeyReminders
 	global g_objHotkeysByLocation
+	global g_strMenuPathSeparator
+	global g_objMenusIndex
 
 	intShortcut := 0
 	
@@ -4212,7 +4218,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	Loop, % objCurrentMenu.MaxIndex()
-	{	
+	{
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
 			or objCurrentMenu[A_Index].FavoriteDisabled
 			continue
@@ -4228,10 +4234,15 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (g_intHotkeyReminders > 1) and g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : Hotkey2Text(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation])) . ")"
 		
-		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			or ((objCurrentMenu[A_Index].FavoriteFolderLiveLevels) and LocationHasSubfolders(objCurrentMenu[A_Index].FavoriteLocation))
 		{
-			; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
+			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
+			{
+				BuildLiveMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath)
+				g_objMenusIndex.Insert(objCurrentMenu[A_Index].SubMenu.MenuPath, objCurrentMenu[A_Index].SubMenu) ; add to the menu index
+			}
+			
 			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 			
 			if (g_blnUseColors)
@@ -4313,6 +4324,55 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildLiveMenu(objLiveFolder, strMenuPath)
+;------------------------------------------------------------
+{
+	global g_strMenuPathSeparator
+	global g_strFolderLiveIndicator
+	
+	objNewMenu := Object() ; create the submenu object
+	objNewMenu.MenuPath := strMenuPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
+	objNewMenu.MenuType := "Menu"
+	
+	; fake back menu
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "B"
+	objNewMenuItem.FavoriteName := ".."
+	objNewMenu.Insert(objNewMenuItem)
+
+	; self Live Folder item
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "Folder"
+	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . objLiveFolder.FavoriteName . " " . g_strFolderLiveIndicator
+	objNewMenuItem.FavoriteLocation := objLiveFolder.FavoriteLocation
+	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
+	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
+	objNewMenu.Insert(objNewMenuItem)
+	
+	; separator
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "X"
+	objNewMenu.Insert(objNewMenuItem)
+
+	; scan folders in live folder
+	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D
+	{
+		objNewMenuItem := Object()
+		objNewMenuItem.FavoriteType := "Folder"
+		objNewMenuItem.FavoriteName := A_LoopFileName
+		objNewMenuItem.FavoriteIconResource := GetFolderIcon(A_LoopFileLongPath)
+		objNewMenuItem.FavoriteLocation := A_LoopFileLongPath
+		objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+		objNewMenu.Insert(objNewMenuItem)
+	}
+	
+	; attach live folder menu to live folder favorite object
+	objLiveFolder.SubMenu := objNewMenu
 }
 ;------------------------------------------------------------
 
@@ -5524,9 +5584,8 @@ LV_Delete()
 
 Loop, % g_objMenuInGui.MaxIndex()
 {
-	strThisType := g_objFavoriteTypesShortNames[g_objMenuInGui[A_Index].FavoriteType]
-	if (g_objMenuInGui[A_Index].FavoriteDisabled)
-		strThisType := "(" . strThisType . ")"
+	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
+	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
 		if (g_objMenuInGui[A_Index].FavoriteType = "Menu")
@@ -6346,6 +6405,9 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
 
+if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
+	Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
+
 Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : ""), %lDialogFavoriteDisabled%
 
 arrNewFavoriteWindowPosition := ""
@@ -6506,6 +6568,15 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (g_intActiveFileManager = 3 ? lOptionsFtpEncodingTC : lOptionsFtpEncoding)
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
+	}
+	
+	if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
+	{
+		Gui, 2:Add, Edit, x20 y+15 w36 h17 vf_intFavoriteFolderLiveLevels number center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
+		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
+		Gui, 2:Add, Checkbox, % "x61 y+8 w400 vf_chkFavoriteFolderLiveRefresh hidden " . (g_objEditedFavorite.FavoriteFolderLiveRefresh ? "checked" : ""), %lDialogFavoriteFolderLiveRefresh%
+		
+		gosub, CheckboxFolderLiveClicked
 	}
 }
 
@@ -6950,6 +7021,27 @@ intThisIconIndex := ""
 strThisFolder := ""
 blnThisDesktopIniExist := ""
 strCurrentDesktopIcon := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CheckboxFolderLiveClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveLevels
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveLevels
+if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
+	GuiControl, , f_intFavoriteFolderLiveLevels, 1
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveRefresh
+
+GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
+
+GuiControl, , f_strFavoriteArguments, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteArguments)
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
 
 return
 ;------------------------------------------------------------
@@ -7624,6 +7716,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 	g_objEditedFavorite.FavoriteDisabled := f_chkFavoriteDisabled
+	
+	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
+	g_objEditedFavorite.FavoriteFolderLiveRefresh := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveRefresh : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
@@ -7701,9 +7796,9 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
-	strThisType := g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType]
-	if (g_objEditedFavorite.FavoriteDisabled)
-		strThisType := "(" . strThisType . ")"
+	
+	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
+	
 	if (g_intNewItemPos)
 		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
 	else
@@ -8237,10 +8332,7 @@ for strMenuPath, objMenu in g_objMenusIndex
 		if !InStr("B|X", objMenu[A_Index].FavoriteType) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
 		{
 			strThisHotkey := (StrLen(g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation] : lDialogNone)
-			strThisType := g_objFavoriteTypesLabels[objMenu[A_Index].FavoriteType]
-			StringReplace, strThisType, strThisType, &
-			if (objMenu[A_Index].FavoriteDisabled)
-				strThisType := "(" . strThisType . ")"
+			strThisType := GetFavoriteTypeForList(objMenu[A_Index])
 			LV_Add(, A_Index
 				, strMenuPath, objMenu[A_Index].FavoriteName, strThisType
 				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
@@ -8430,6 +8522,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDisabled . "|" ; 14
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveLevels . "|" ; 15
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveRefresh . "|" ; 16
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -12912,6 +13006,18 @@ LocationIsDocument(strLocation)
 
 
 ;------------------------------------------------------------
+LocationHasSubfolders(strLocation)
+;------------------------------------------------------------
+{
+	Loop, Files, %strLocation%\*.*, D
+		return true
+	
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GetDeepestFolderName(strLocation)
 ;------------------------------------------------------------
 {
@@ -13455,6 +13561,24 @@ SettingsUnsaved()
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+GetFavoriteTypeForList(objFavorite)
+;------------------------------------------------------------
+{
+	global g_objFavoriteTypesShortNames
+	global g_strFolderLiveIndicator
+	
+	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
+	if (objFavorite.FavoriteFolderLiveLevels)
+		strType := g_strFolderLiveIndicator . strType . g_strFolderLiveIndicator
+	if (objFavorite.FavoriteDisabled)
+		strType := "(" . strType . ")"
+	
+	return strType
+}
+;------------------------------------------------------------
+
+
 
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
@@ -13462,7 +13586,7 @@ SettingsUnsaved()
 
 
 ;========================================================================================================================
-!_095_ONMESSAGE_FUNCTIONS:
+!_098_ONMESSAGE_FUNCTIONS:
 return
 ;========================================================================================================================
 
