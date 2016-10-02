@@ -1026,6 +1026,7 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+g_strFolderLiveIndicator := "!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -4332,6 +4333,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparator
+	global g_strFolderLiveIndicator
 	
 	objNewMenu := Object() ; create the submenu object
 	objNewMenu.MenuPath := strMenuPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
@@ -4346,7 +4348,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 	; self Live Folder item
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := objLiveFolder.FavoriteName
+	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . objLiveFolder.FavoriteName . " " . g_strFolderLiveIndicator
 	objNewMenuItem.FavoriteLocation := objLiveFolder.FavoriteLocation
 	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
@@ -4363,7 +4365,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 		objNewMenuItem := Object()
 		objNewMenuItem.FavoriteType := "Folder"
 		objNewMenuItem.FavoriteName := A_LoopFileName
-		; ##### get folder icon
+		objNewMenuItem.FavoriteIconResource := GetFolderIcon(A_LoopFileLongPath)
 		objNewMenuItem.FavoriteLocation := A_LoopFileLongPath
 		objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
 		objNewMenu.Insert(objNewMenuItem)
@@ -13564,10 +13566,11 @@ GetFavoriteTypeForList(objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objFavoriteTypesShortNames
+	global g_strFolderLiveIndicator
 	
 	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
 	if (objFavorite.FavoriteFolderLiveLevels)
-		strType := "!" . strType . "!"
+		strType := g_strFolderLiveIndicator . strType . g_strFolderLiveIndicator
 	if (objFavorite.FavoriteDisabled)
 		strType := "(" . strType . ")"
 	
