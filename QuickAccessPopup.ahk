@@ -1518,7 +1518,7 @@ strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconC
 	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
 	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
 	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose|iconTextDocument"
+	. "|iconClose|iconTextDocument|iconFolderLive"
 
 if (GetOsVersion() = "WIN_10")
 {
@@ -1532,7 +1532,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32"
+		. "|imageres|shell32|imageres"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1543,7 +1543,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|222|240|261|299|300"
 		. "|319|324|1|325|9"
 		. "|7|10|12|13|239"
-		. "|94|71"
+		. "|94|71|176"
 }
 else
 {
@@ -1557,7 +1557,7 @@ else
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32"
+		. "|imageres|shell32|imageres"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1568,7 +1568,7 @@ else
 		. "|222|240|261|297|298"
 		. "|301|304|1|305|9"
 		. "|7|10|12|13|239"
-		. "|94|71"
+		. "|94|71|176"
 }
 
 StringSplit, arrIconsFile, strIconsFile, |
@@ -4217,7 +4217,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	Loop, % objCurrentMenu.MaxIndex()
-	{	
+	{
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
 			or objCurrentMenu[A_Index].FavoriteDisabled
 			continue
@@ -4233,32 +4233,20 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (g_intHotkeyReminders > 1) and g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : Hotkey2Text(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation])) . ")"
 		
-		; ###_V("objCurrentMenu[A_Index].FavoriteType", objCurrentMenu[A_Index].FavoriteType)
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
+			or ((objCurrentMenu[A_Index].FavoriteFolderLiveLevels) and LocationHasSubfolders(objCurrentMenu[A_Index].FavoriteLocation))
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
-				###_O("AVANT", objCurrentMenu[A_Index])
-				strMenuPath := objCurrentMenu.MenuPath
-				StringReplace, strMenuPath, strMenuPath, %lMainMenuName%%A_Space% ; menu path without main menu localized name
-				objCurrentMenu[A_Index].FavoriteLocation := strMenuPath . " " . g_strMenuPathSeparator . " "  . objCurrentMenu[A_Index].FavoriteName
-				objCurrentMenu[A_Index].FavoriteType := "Menu"
-				objCurrentMenu[A_Index].MenuType := "Menu"
-				
-				RecursiveBuildLiveMenu(objCurrentMenu[A_Index])
-				###_V("ADD objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
+				BuildLiveMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath)
 				g_objMenusIndex.Insert(objCurrentMenu[A_Index].SubMenu.MenuPath, objCurrentMenu[A_Index].SubMenu) ; add to the menu index
-				###_O("APRÈS", objCurrentMenu[A_Index])
 			}
-			else
-				; ###_V("Before Recurse Down - objCurrentMenu[A_Index].SubMenu.MenuPath", objCurrentMenu[A_Index].SubMenu.MenuPath)
-				RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
+			
+			RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 			
 			if (g_blnUseColors)
 				Try Menu, % objCurrentMenu[A_Index].SubMenu.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 			
-			###_V("Try Menu Add", objCurrentMenu.MenuPath, strMenuName, ":" . objCurrentMenu[A_Index].SubMenu.MenuPath)
 			Try Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . objCurrentMenu[A_Index].SubMenu.MenuPath
 			catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
@@ -4340,69 +4328,49 @@ RecursiveBuildOneMenu(objCurrentMenu)
 
 
 ;------------------------------------------------------------
-RecursiveBuildLiveMenu(objLiveFolder)
+BuildLiveMenu(objLiveFolder, strMenuPath)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparator
 	
 	objNewMenu := Object() ; create the submenu object
-	objNewMenu.MenuPath := "Main " . objLiveFolder.FavoriteLocation ; "Main " . strMenuPath . " " . g_strMenuPathSeparator . " " . objLiveFolder.FavoriteName
-	###_V("objNewMenu.MenuPath incluant Main?", objNewMenu.MenuPath)
+	objNewMenu.MenuPath := strMenuPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
 	objNewMenu.MenuType := "Menu"
 	
+	; fake back menu
 	objNewMenuItem := Object()
-	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := "Test1"
-	objNewMenuItem.FavoriteLocation := "e:\"
+	objNewMenuItem.FavoriteType := "B"
+	objNewMenuItem.FavoriteName := ".."
 	objNewMenu.Insert(objNewMenuItem)
+
+	; self Live Folder item
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := "Test2"
-	objNewMenuItem.FavoriteLocation := "c:\"
+	objNewMenuItem.FavoriteName := objLiveFolder.FavoriteName
+	objNewMenuItem.FavoriteLocation := objLiveFolder.FavoriteLocation
+	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
+	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
+	; separator
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "X"
+	objNewMenu.Insert(objNewMenuItem)
+
+	; scan folders in live folder
+	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D
+	{
+		objNewMenuItem := Object()
+		objNewMenuItem.FavoriteType := "Folder"
+		objNewMenuItem.FavoriteName := A_LoopFileName
+		; ##### get folder icon
+		objNewMenuItem.FavoriteLocation := A_LoopFileLongPath
+		objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+		objNewMenu.Insert(objNewMenuItem)
+	}
+	
+	; attach live folder menu to live folder favorite object
 	objLiveFolder.SubMenu := objNewMenu
-
-	Menu, % objNewMenu.MenuPath, Add, Test1, OpenFavorite
-	Menu, % objNewMenu.MenuPath, Add, Test2, OpenFavorite
-/*
-		if InStr("Menu|Group|External", arrThisFavorite1, true) ; begin a submenu / case sensitive because type X is included in External ...
-		{
-			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-			objNewMenu.MenuType := arrThisFavorite1
-			if (objNewMenu.MenuType = "External")
-				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
-			
-			; create a navigation entry to navigate to the parent menu
-			objNewMenuBack := Object()
-			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
-			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
-			objNewMenu.Insert(objNewMenuBack)
-			
-			if (arrThisFavorite1 = "External")
-			{
-				strPreviousIniFile := g_strIniFile
-				intPreviousIniLine := g_intIniLine
-				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
-				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number
-			}
-			
-			; build the submenu
-			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
-			
-			if (arrThisFavorite1 = "External")
-			{
-				g_strIniFile := strPreviousIniFile
-				g_intIniLine := intPreviousIniLine
-			}
-			
-			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
-				Return, %strResult%
-		}
-*/
-
 }
 ;------------------------------------------------------------
 
@@ -10487,16 +10455,6 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 
 	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
 		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
-	###_O("g_objMenusIndex", g_objMenusIndex)
-	###_O("g_objMenusIndex[A_ThisMenu]", g_objMenusIndex[A_ThisMenu])
-	###_V(A_ThisFunc
-		, intColumnBreaksBeforeThisItem
-		, intDisabledItemsBeforeThisItem
-		, GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
-		, A_ThisMenuItemPos,
-		, (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
-		, intMenuItemPos,
-		, A_ThisMenu)
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 }
@@ -13041,6 +12999,18 @@ LocationIsDocument(strLocation)
 {
     FileGetAttrib, strAttributes, %strLocation%
     return !InStr(strAttributes, "D") ; not a folder
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LocationHasSubfolders(strLocation)
+;------------------------------------------------------------
+{
+	Loop, Files, %strLocation%\*.*, D
+		return true
+	
+	return false
 }
 ;------------------------------------------------------------
 
