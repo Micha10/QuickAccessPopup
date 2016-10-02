@@ -29,10 +29,13 @@ lDialogAddFolderManuallyTitle	Ajouter ce dossier - ~1~ ~2~
 lDialogAddFolderSelect	Choisir ou créer ce nouveau dossier:
 lDialogAlt	Alt
 lDialogApplicationLabel	Application
+lDialogAppWorkingDirCurrent	Lancer l'application dans le dossier où le favori a été cliqué
 lDialogArgumentsLabel	Paramètres
 lDialogArgumentsLabelHelp	(mettre chaque paramètre entre guillemets si nécessaire)
 lDialogArgumentsPlaceholders	Vous pouvez insérer l'emplacement de ce favori en tout ou en partie dans les paramètre grâce à ces codes: {LOC} (emplacement complet), {NAME} (nom du fichier), {DIR} (dossier), {EXT} (extension), {NOEXT} (nom du fichier sans extension) or {DRIVE} (lecteur)
 lDialogArgumentsPlaceholdersCheckLabel	Paramètres actuels avec les codes d'emplacement remplacés
+lDialogArgumentsPlaceholdersCurrent	Vous pouvez aussi insérer des codes à remplacer par le dossier où le favori a été cliqué: {CUR_LOC} (emplacement complet), {CUR_NAME} (dernier dossier), {CUR_DIR} (dossier contenant le dernier dossier) or {CUR_DRIVE}
+lDialogArgumentsPlaceholdersCurrentExample	x:\dossier_contenant\dernier_dossier
 lDialogBrowseButton	Parcourir
 lDialogBrowseOrSelectApplication	Parcourir pour sélectionner un fichier exécutable ou`nchoisir une application active dans cette liste
 lDialogCancelButton	Annuler
@@ -61,6 +64,9 @@ lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disp
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
+lDialogFavoriteFolderLive	Dossier Live (menu incluant les sous-dossiers, voir "Paramètres avancés" pour les options)
+lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier Live
+lDialogFavoriteFolderLiveRefresh	Actualiser ce Dossier Live à chaque affichage du menu
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.
@@ -264,8 +270,8 @@ lImpExpFile	Fichier ~1~
 lImpExpFileGlobal	Configuration globale et raccourcis du menu principal
 lImpExpFileThemes	Thèmes
 lImpExpFinalReport	Transfert ~1~.`n`nSource:`n~2~`n`nDestination:`n~3~
-lImpExpHotkeys	raccourcis ; new
-lImpExpImport	Importer ; new
+lImpExpHotkeys	raccourcis
+lImpExpImport	Importer
 lImpExpMenu	Importer/exporter la configuration
 lImpExpMerge	Fusionner avec
 lImpExpNoThemes	Aucune liste de thèmes dans la valeur "~1~" de la section "~2~".`n`nFichier source:`n~3~
@@ -378,6 +384,7 @@ lOptionsChangeFolderInDialogCheckbox	Cliquez "OK" pour confirmer que vous compre
 lOptionsChangeFolderInDialogText	Activez cette option pour permettre le changement de dossier dans les boîtes de dialogue (Ouvrir, Enregistrer sous, etc.) mais veuillez lire cet avertissement.`n`nVous devez utiliser cette fonction SEULEMENT dans les boîtes de dialogue de sélection de fichier. Si vous l'utilisez dans d'autres types de boîtes de dialogue, par exemple dans une fenêtre "Options", essayer de changer de dossier pourrait modifier et enregistrer des valeurs sans préavis.
 lOptionsChangeHotkey	Modifier
 lOptionsCheck4Update	Vérifier la mise à jour
+lOptionsControlDoublePressed	Ouvrir le menu principal avec Ctrl + Ctrl (Contrôle Gauche ou Contrôle Droite pressé à deux reprises)
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
