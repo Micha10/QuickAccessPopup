@@ -8520,11 +8520,13 @@ Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favor
 
 GuiControl, Disable, %lGuiSave%
 GuiControl, , %lGuiCancel%, %lGuiClose%
-
-if !(blnShiftPressed or blnControlPressed or blnAltPressed)
-	Gosub, GuiCancel
 g_blnMenuReady := true
 
+if (blnShiftPressed or blnControlPressed or blnAltPressed)
+	Gosub, GuiShow
+else
+	Gosub, GuiCancel
+	
 g_intIniLine := ""
 blnShiftPressed := ""
 blnControlPressed := ""
