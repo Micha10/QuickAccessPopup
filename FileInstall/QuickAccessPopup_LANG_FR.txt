@@ -65,8 +65,9 @@ lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
 lDialogFavoriteFolderLive	Dossier Live (menu incluant les sous-dossiers, voir "Paramètres avancés" pour les options)
+lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (laisser vide pour pas de colonnes)
 lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier Live
-lDialogFavoriteFolderLiveRefresh	Actualiser ce Dossier Live à chaque affichage du menu
+lDialogFavoriteFolderLiveDocuments	Inclure les documents
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.

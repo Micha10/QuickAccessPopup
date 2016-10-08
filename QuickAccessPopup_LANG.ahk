@@ -65,8 +65,10 @@ global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
 global lDialogFavoriteDropdownEmpty := "Please choose an item in the ~1~ drop-down list." ; new
 global lDialogFavoriteExternalHelpWeb := "See <a href=""~1~"">Shared menus help</a> for more information." ; changed
 global lDialogFavoriteFolderLive := "Live Folder (menu including subfolders, see ""Advanced settings"" for options)" ; new
+global lDialogFavoriteFolderLiveColumns := "Number of items per column (empty for no column)"
+global lDialogFavoriteFolderLiveDocuments := "Include documents"
 global lDialogFavoriteFolderLiveLevels := "Number of subfolders levels to include in Live Folder menu" ; new
-global lDialogFavoriteFolderLiveRefresh := "Refresh this Live Folder every time the menu is displayed"
+global lDialogFavoriteFolderLiveOptions := "Live Folder Options"
 global lDialogFavoriteLocationEmpty := "The location is empty. Please, choose a location."
 global lDialogFavoriteMenuPosition := "Insert the new favorite before this item"
 global lDialogFavoriteNameEmpty := "The favorite name is empty. Please, choose a name."
