@@ -4026,7 +4026,9 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	if (RecursiveLoadTotalCommanderHotlistFromIni(g_objTCMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
 	
+	g_blnWorkingToolTip := True
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
+	Tooltip
 }
 else
 	AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
@@ -4165,12 +4167,7 @@ BuildMainMenu:
 BuildMainMenuWithStatus:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "BuildMainMenuWithStatus")
-{
-	TrayTip, % L(lTrayTipWorkingTitle, g_strAppNameText)
-		, %lTrayTipWorkingDetail%, , 17 ; 1 info icon + 16 no sound
-	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-}
+g_blnWorkingToolTip := (A_ThisLabel = "BuildMainMenuWithStatus")
 
 Menu, %lMainMenuName%, Add
 Menu, %lMainMenuName%, DeleteAll
@@ -4180,6 +4177,8 @@ if (g_blnUseColors)
 g_objMenuColumnBreaks := Object() ; re-init before rebuilding menu
 
 RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
+if (g_blnWorkingToolTip)
+	Tooltip
 
 if !(g_blnDonor)
 {
@@ -4190,13 +4189,6 @@ if !(g_blnDonor)
 }
 
 AddCloseMenu(lMainMenuName)
-
-if (A_ThisLabel = "BuildMainMenuWithStatus")
-{
-	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, %lTrayTipWorkingDetailFinished%, 3, 17 ; tentative for 3 seconds for Win 10 (in Win 7: minimum 10 secs), 1 info icon + 16 no sound
-	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-}
 
 return
 ;------------------------------------------------------------
@@ -4221,6 +4213,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objHotkeysByLocation
 	global g_strMenuPathSeparator
 	global g_objMenusIndex
+	global g_strAppNameText
+	global g_blnWorkingToolTip
 
 	intShortcut := 0
 	
@@ -4231,6 +4225,9 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	
 	intMenuItemsCount := 0 ; counter of items in this menu
 	
+	if (g_blnWorkingToolTip)
+		Tooltip, % L(lTrayTipWorkingTitle, g_strAppNameText) . "`n" . objCurrentMenu.MenuPath
+		
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
@@ -4375,16 +4372,17 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 
 	; scan folders in live folder
 	strFolders := ""
-	strFiles := ""
 	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
 		strFolders .= "Folder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
 	Sort, strFolders
-	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
-		strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
-		; icon resource will be set when building menu
-		; favorite type Document is OK for Application items
+	strFiles := ""
+	if (objLiveFolder.FavoriteFolderLiveDocuments)
+		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
+			strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
+			; icon resource will be set when building menu
+			; favorite type Document is OK for Application items
 	Sort, strFiles
-	strContent := strFolders . "X`n" . strFiles
+	strContent := strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "X`n" : "") . strFiles
 
 	Loop, Parse, strContent, `n
 	{
@@ -4414,6 +4412,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 			{
 				objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
 				objNewMenuItem.FavoriteFolderLiveColumns := objLiveFolder.FavoriteFolderLiveColumns
+				objNewMenuItem.FavoriteFolderLiveDocuments := objLiveFolder.FavoriteFolderLiveDocuments
 			}
 		}
 		objNewMenu.Insert(objNewMenuItem)
@@ -7451,7 +7450,6 @@ Loop
 
 gosub, GuiAddFavoriteSaveCleanup ; clean these variables for next use (multiple move or not)
 
-Gosub, BuildMainMenuWithStatus ; update menus
 Gosub, GuiEditFavoriteCancel
 
 return
@@ -7866,9 +7864,6 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 
 GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
-
-if (strThisLabel <> "GuiMoveOneFavoriteSave")
-	Gosub, BuildMainMenuWithStatus ; update menus but not hotkeys
 
 GuiControl, Enable, f_btnGuiSaveFavorites
 GuiControl, , f_btnGuiCancel, %lDialogCancelButton%
@@ -9098,7 +9093,7 @@ if (blnSaveEnabled)
 		Gosub, RestoreBackupMenusObjects
 
 		; restore popup menu
-		Gosub, BuildMainMenu ; rebuild menus but not hotkeys
+		Gosub, BuildMainMenuWithStatus ; rebuild menus but not hotkeys
 		Gosub, SetTimerRefreshDynamicMenus
 		
 		GuiControl, Disable, f_btnGuiSaveFavorites
