@@ -31,6 +31,23 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.5.9.2 (2016-10-09)
+- Update MANDATORY: risk of data loss!
+- From v7.5.4.1: Fix bug when canceling changes to Favorites list in Settings, that could then potentially cause loss of data if saving new changes to settings file after cancellation
+- Related to this bug: add live folder settings to backup in case user cancels settings changes
+ 
+Live Folders
+- Remove Refresh option
+- Add Documents option to include files in live folders
+- Add Columns option to set the number of items per columns in liove folder menu (empty for no column)
+- Sort live folders content with folders first, then files
+- Replace the "QAP working" rebuild notification with a tooltip displayed at mouse location and listing the updated menus;
+- Stop rebuilding all menus after each add or edit favorite
+- Language for live folder options, English and French
+ 
+Other
+- Fix bug after favorites saved with Shift-Save
+
 Version BETA: 7.5.9.1 (2016-10-02)
  
 Live Folder favorites
@@ -969,7 +986,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.1 BETA
+;@Ahk2Exe-SetVersion 7.5.9.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1018,7 +1035,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.1" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.9.2" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -9192,6 +9209,9 @@ for strMenuPath, objMenuSource in objMenusSource
 		objFavorite.FavoriteFtpEncoding := objMenuSource[A_Index].FavoriteFtpEncoding ; 12
 		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate ; 13
 		objFavorite.FavoriteDisabled := objMenuSource[A_Index].FavoriteDisabled ; 14
+		objFavorite.FavoriteFolderLiveLevels := objMenuSource[A_Index].FavoriteFolderLiveLevels ; 15
+		objFavorite.FavoriteFolderLiveDocuments := objMenuSource[A_Index].FavoriteFolderLiveDocuments ; 16
+		objFavorite.FavoriteFolderLiveColumns := objMenuSource[A_Index].FavoriteFolderLiveColumns ; 17
 		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
 		; after menu/groups objects are recreated during restore
 		objMenuDest.Insert(objFavorite)
