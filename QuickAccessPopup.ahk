@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.4.1 (2016-10-09)
+- Update MANDATORY: risk of data loss!
+- Fix bug when canceling changes to Favorites list in Settings, that could then potentially cause loss of data if saving new changes to settings file after cancellation
+
 Version: 7.5.4 (2016-09-21)
  
 Application favorites
@@ -952,7 +956,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.4
+;@Ahk2Exe-SetVersion 7.5.4.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1001,7 +1005,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.4" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.4.1" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -9010,16 +9014,21 @@ for strMenuPath, objMenuSource in objMenusSource
 	loop, % objMenuSource.MaxIndex()
 	{
 		objFavorite := Object()
-		objFavorite.FavoriteType := objMenuSource[A_Index].FavoriteType
-		objFavorite.FavoriteName := objMenuSource[A_Index].FavoriteName
-		objFavorite.FavoriteLocation := objMenuSource[A_Index].FavoriteLocation
-		objFavorite.FavoriteIconResource := objMenuSource[A_Index].FavoriteIconResource
-		objFavorite.FavoriteArguments := objMenuSource[A_Index].FavoriteArguments
-		objFavorite.FavoriteAppWorkingDir := objMenuSource[A_Index].FavoriteAppWorkingDir
-		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition
+		objFavorite.FavoriteType := objMenuSource[A_Index].FavoriteType ; 1
+		objFavorite.FavoriteName := objMenuSource[A_Index].FavoriteName ; 2
+		objFavorite.FavoriteLocation := objMenuSource[A_Index].FavoriteLocation ; 3
+		objFavorite.FavoriteIconResource := objMenuSource[A_Index].FavoriteIconResource ; 4
+		objFavorite.FavoriteArguments := objMenuSource[A_Index].FavoriteArguments ; 5
+		objFavorite.FavoriteAppWorkingDir := objMenuSource[A_Index].FavoriteAppWorkingDir ; 6
+		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition ; 7
 		; REMOVED objFavorite.FavoriteHotkey := objMenuSource[A_Index].FavoriteHotkey
-		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith
-		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate
+		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith ; 8
+		objFavorite.FavoriteLoginName := objMenuSource[A_Index].FavoriteLoginName ; 9
+		objFavorite.FavoritePassword := objMenuSource[A_Index].FavoritePassword ; 10
+		objFavorite.FavoriteGroupSettings := objMenuSource[A_Index].FavoriteGroupSettings ; 11
+		objFavorite.FavoriteFtpEncoding := objMenuSource[A_Index].FavoriteFtpEncoding ; 12
+		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate ; 13
+		objFavorite.FavoriteDisabled := objMenuSource[A_Index].FavoriteDisabled ; 14
 		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
 		; after menu/groups objects are recreated during restore
 		objMenuDest.Insert(objFavorite)
