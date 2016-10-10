@@ -2637,7 +2637,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
-		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns
+		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -2716,6 +2716,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveLevels := arrThisFavorite15 ; number of subfolders to include in submenu(s), 0 if not a live folder
 		objLoadIniFavorite.FavoriteFolderLiveDocuments := arrThisFavorite16 ; also include documents in live folder
 		objLoadIniFavorite.FavoriteFolderLiveColumns := arrThisFavorite17 ; number of items per columns in live folder menus
+		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
+		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4426,8 +4428,10 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 			if (arrItem1 = "Folder") ; make it a live folder
 			{
 				objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
-				objNewMenuItem.FavoriteFolderLiveColumns := objLiveFolder.FavoriteFolderLiveColumns
 				objNewMenuItem.FavoriteFolderLiveDocuments := objLiveFolder.FavoriteFolderLiveDocuments
+				objNewMenuItem.FavoriteFolderLiveColumns := objLiveFolder.FavoriteFolderLiveColumns
+				objNewMenuItem.FavoriteFolderLiveIncludeExclude := objLiveFolder.FavoriteFolderLiveIncludeExclude
+				objNewMenuItem.FavoriteFolderLiveExtensions := objLiveFolder.FavoriteFolderLiveExtensions
 			}
 		}
 		objNewMenu.Insert(objNewMenuItem)
@@ -6104,7 +6108,9 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd)), g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
+	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
+	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
 Gui, 2:New, , %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
@@ -6123,6 +6129,8 @@ Gosub, GuiFavoriteTabBasic
 Gosub, GuiFavoriteIconDefault ; init default icon now that f_strFavoriteLocation has been set in the Basic tab
 
 Gosub, GuiFavoriteTabMenuOptions
+
+Gosub, GuiFavoriteTabLiveFolderOptions
 
 Gosub, GuiFavoriteTabWindowOptions
 
@@ -6194,6 +6202,8 @@ BuildTabsList(strFavoriteType)
 	; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
 	strTabsList := g_arrFavoriteGuiTabs1 . " | " . g_arrFavoriteGuiTabs2
 	
+	if (strFavoriteType = "Folder")
+		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if InStr(g_strTypesForTabWindowOptions, strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, strFavoriteType)
@@ -6467,9 +6477,6 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
 
-if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
-	Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
-
 Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : ""), %lDialogFavoriteDisabled%
 
 arrNewFavoriteWindowPosition := ""
@@ -6507,6 +6514,38 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
 	Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
 	Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoriteTabLiveFolderOptions:
+;------------------------------------------------------------
+
+Gui, 2:Tab, % ++intTabNumber
+
+if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
+{
+	Gui, 2:Add, Checkbox, % "x20 y40 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
+	
+	Gui, 2:Add, Edit, x20 y+20 w36 h17 vf_intFavoriteFolderLiveLevels number limit1 center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
+	Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
+	Gui, 2:Add, Edit, x20 y+10 w36 h17 vf_intFavoriteFolderLiveColumns number limit3 center hidden, % g_objEditedFavorite.FavoriteFolderLiveColumns
+	Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
+	
+	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_chkFavoriteFolderLiveDocuments hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
+
+	Gui, 2:Add, Radio, % "x20 y+20 vf_chkFavoriteFolderLiveInclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "checked" : ""), %lDialogFavoriteFolderLiveInclude%
+	Gui, 2:Add, Radio, % "x+5 yp vf_chkFavoriteFolderLiveExclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "" : "checked"), %lDialogFavoriteFolderLiveExclude%
+	Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, ... %lDialogFavoriteFolderLiveExtensions%
+	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % (InStr(strGuiFavoriteLabel, "GuiAdd") ? "bak bk" : g_objEditedFavorite.FavoriteFolderLiveExtensions)
+
+	Gui, 2:Add, Text, x20 y+20 w400 vf_lblFavoriteFolderLiveExclude hidden, %lDialogFavoriteFolderLiveExclude%
+	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExclude hidden, % (InStr(strGuiFavoriteLabel, "GuiAdd") ? "bak bk" : g_objEditedFavorite.FavoriteFolderLiveExclude)
+
+	gosub, CheckboxFolderLiveClicked
 }
 
 return
@@ -6630,20 +6669,6 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (g_intActiveFileManager = 3 ? lOptionsFtpEncodingTC : lOptionsFtpEncoding)
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
-	}
-	
-	if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
-	{
-		Gui, 2:Font, w700
-		Gui, 2:Add, Text, x20 y+15 w400 vf_lblFavoriteFolderLiveOptions hidden, %lDialogFavoriteFolderLiveOptions%
-		Gui, 2:Font
-		Gui, 2:Add, Edit, x20 y+8 w36 h17 vf_intFavoriteFolderLiveLevels number center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
-		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-		Gui, 2:Add, Edit, x20 y+8 w36 h17 vf_intFavoriteFolderLiveColumns number center hidden, % g_objEditedFavorite.FavoriteFolderLiveColumns
-		Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
-		Gui, 2:Add, Checkbox, % "x43 y+8 w400 vf_chkFavoriteFolderLiveDocuments hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
-		
-		gosub, CheckboxFolderLiveClicked
 	}
 }
 
@@ -7106,6 +7131,10 @@ if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveDocuments
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveColumns
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveColumns
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveInclude
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveExclude
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveExtensions
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_strFavoriteFolderLiveExtensions
 
 GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
 GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
@@ -7789,6 +7818,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
 	g_objEditedFavorite.FavoriteFolderLiveDocuments := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : "")
 	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveColumns : "")
+	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveInclude : "")
+	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_chkFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
@@ -8594,6 +8625,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveLevels . "|" ; 15
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveDocuments . "|" ; 16
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveColumns . "|" ; 17
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
@@ -9206,6 +9239,8 @@ for strMenuPath, objMenuSource in objMenusSource
 		objFavorite.FavoriteFolderLiveLevels := objMenuSource[A_Index].FavoriteFolderLiveLevels ; 15
 		objFavorite.FavoriteFolderLiveDocuments := objMenuSource[A_Index].FavoriteFolderLiveDocuments ; 16
 		objFavorite.FavoriteFolderLiveColumns := objMenuSource[A_Index].FavoriteFolderLiveColumns ; 17
+		objFavorite.FavoriteFolderLiveIncludeExclude := objMenuSource[A_Index].FavoriteFolderLiveIncludeExclude ; 18
+		objFavorite.FavoriteFolderLiveExtensions := objMenuSource[A_Index].FavoriteFolderLiveExtensions ; 19
 		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
 		; after menu/groups objects are recreated during restore
 		objMenuDest.Insert(objFavorite)
