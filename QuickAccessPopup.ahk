@@ -4266,8 +4266,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (g_intHotkeyReminders > 1) and g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : Hotkey2Text(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation])) . ")"
 		
-		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			or ((objCurrentMenu[A_Index].FavoriteFolderLiveLevels) and LocationHasSubfolders(objCurrentMenu[A_Index].FavoriteLocation))
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true) or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
@@ -4386,11 +4385,6 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
-	; separator
-	objNewMenuItem := Object()
-	objNewMenuItem.FavoriteType := "X"
-	objNewMenu.Insert(objNewMenuItem)
-
 	; scan folders in live folder
 	strFolders := ""
 	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
@@ -4403,7 +4397,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 			; icon resource will be set when building menu
 			; favorite type Document is OK for Application items
 	Sort, strFiles
-	strContent := strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "X`n" : "") . strFiles
+	strContent := (StrLen(strFolders . strFiles) ? "X`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "X`n" : "") . strFiles
 
 	Loop, Parse, strContent, `n
 	{
@@ -13085,18 +13079,6 @@ LocationIsDocument(strLocation)
 {
     FileGetAttrib, strAttributes, %strLocation%
     return !InStr(strAttributes, "D") ; not a folder
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-LocationHasSubfolders(strLocation)
-;------------------------------------------------------------
-{
-	Loop, Files, %strLocation%\*.*, D
-		return true
-	
-	return false
 }
 ;------------------------------------------------------------
 
