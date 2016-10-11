@@ -4392,13 +4392,18 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
 		strFolders .= "Folder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
 	Sort, strFolders
+	
 	strFiles := ""
 	if (objLiveFolder.FavoriteFolderLiveDocuments)
 		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
-			strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
+			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
+				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+				strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
 			; icon resource will be set when building menu
 			; favorite type Document is OK for Application items
 	Sort, strFiles
+	
 	strContent := (StrLen(strFolders . strFiles) ? "X`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "X`n" : "") . strFiles
 
 	Loop, Parse, strContent, `n
@@ -6535,7 +6540,7 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 	Gui, 2:Add, Edit, x20 y+10 w36 h17 vf_intFavoriteFolderLiveColumns number limit3 center hidden, % g_objEditedFavorite.FavoriteFolderLiveColumns
 	Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
 	
-	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_chkFavoriteFolderLiveDocuments hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
+	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_chkFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
 
 	Gui, 2:Add, Radio, % "x20 y+20 vf_chkFavoriteFolderLiveInclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "checked" : ""), %lDialogFavoriteFolderLiveInclude%
 	Gui, 2:Add, Radio, % "x+5 yp vf_chkFavoriteFolderLiveExclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "" : "checked"), %lDialogFavoriteFolderLiveExclude%
@@ -7128,19 +7133,32 @@ GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLi
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveLevels
 if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 	GuiControl, , f_intFavoriteFolderLiveLevels, 1
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveDocuments
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveColumns
 GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveColumns
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveInclude
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveExclude
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveExtensions
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_strFavoriteFolderLiveExtensions
+GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveDocuments
 
 GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
 GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
 
 GuiControl, , f_strFavoriteArguments, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteArguments)
 GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
+
+GuiControl, , f_chkFavoriteFolderLiveDocuments, % (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : false)
+gosub, CheckboxFolderLiveDocumentsClicked
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CheckboxFolderLiveDocumentsClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_chkFavoriteFolderLiveInclude
+GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_chkFavoriteFolderLiveExclude
+GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_lblFavoriteFolderLiveExtensions
+GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_strFavoriteFolderLiveExtensions
 
 return
 ;------------------------------------------------------------
