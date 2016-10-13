@@ -29,10 +29,13 @@ lDialogAddFolderManuallyTitle	Adicionar esta pasta - ~1~ ~2~
 lDialogAddFolderSelect	Seleccionar ou criar uma nova pasta:
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicação
+lDialogAppWorkingDirCurrent	Iniciar o programa na pasta onde este favorito foi aberto
 lDialogArgumentsLabel	Parâmetros
 lDialogArgumentsLabelHelp	(Se for necessário ponha cada parâmetro entre aspas)
 lDialogArgumentsPlaceholders	Pode inserir a localização deste favorito ou de parte dele nos parâmetros usando estes recipientes: {LOC} (localização completa), {NAME} (nome do ficheiro), {DIR} (pasta), {EXT} (extensão), {NOEXT} (ficheiro sem extensão) ou {DRIVE} (unidade)
 lDialogArgumentsPlaceholdersCheckLabel	Parâmetros actuais com recipientes expandidos
+lDialogArgumentsPlaceholdersCurrent	Pode também inserir espaços reservados para a pasta actual onde este favorito foi aberto: {CUR_LOC} (localização completa), {CUR_NAME} (última pasta), {CUR_DIR} (pasta contendo a última pasta) ou {CUR_DRIVE}
+lDialogArgumentsPlaceholdersCurrentExample	x:\pasta_respectiva\última_pasta
 lDialogBrowseButton	Procurar
 lDialogBrowseOrSelectApplication	Procurar um ficheiro executável ou`nseleccionar um programa activo desta lista
 lDialogCancelButton	Cancelar
@@ -60,6 +63,9 @@ lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está dis
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
 lDialogFavoriteExternalHelpWeb	Consulte <a href="~1~">Ajuda menus externos</a> para mais informação.
+lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas, ver "Definições avançadas" para opções)
+lDialogFavoriteFolderLiveColumns	Número de itens por coluna (em branco para sem colunas)
+lDialogFavoriteFolderLiveDocuments	Incluir documentos
 lDialogFavoriteLocationEmpty	A localização está vazia. Por favor, escolha outra.
 lDialogFavoriteMenuPosition	Inserir o novo favorito antes deste item
 lDialogFavoriteNameEmpty	O nome do favorito está em branco. Por favor, escolha um nome.
@@ -377,6 +383,7 @@ lOptionsChangeFolderInDialogCheckbox	Clique "OK" para confirmar que compreendeu 
 lOptionsChangeFolderInDialogText	Active esta opção para permitir a navegação em pasta em caixas de diálogo (Abrir, Guardar Como, etc.) mas, por favor, leia o seguinte aviso.`n`nDeve utilizar esta função APENAS em caixas de diálogo "ficheiro". Se a usar em outros tipos de caixas de diálogo, por exemplo numa caixa de diálogo das "Opções", tentar alterar a pasta pode modificar e guardar valores na caixa de diálogo, sem qualquer notificação.
 lOptionsChangeHotkey	Alterar
 lOptionsCheck4Update	Procurar actualizações
+lOptionsControlDoublePressed	Abrir o menu principal com Ctrl + Ctrl (Tecla da esquerda ou da direita pressionada duas vezes)
 lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
 lOptionsExclusionDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa aplicação, introduza qualquer parte to título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir o Chrome e o Word, introduza as duas seguintes linhas na lista de exclusões:`n`nGoogle Chrome`nMicrosoft Word
