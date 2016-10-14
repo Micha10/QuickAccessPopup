@@ -2702,6 +2702,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteType := arrThisFavorite1 ; see Favorite Types
 		objLoadIniFavorite.FavoriteName := ReplaceAllInString(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
+		; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
 		{
 			strMenuNoMain := objNewMenu.MenuPath
 			StringReplace, strMenuNoMain, strMenuNoMain, % lMainMenuName . " " 
