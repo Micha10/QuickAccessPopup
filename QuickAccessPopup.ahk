@@ -2701,7 +2701,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; this is a regular favorite, add it to the current menu
 		objLoadIniFavorite.FavoriteType := arrThisFavorite1 ; see Favorite Types
 		objLoadIniFavorite.FavoriteName := ReplaceAllInString(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
-		objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
+		if InStr("Menu|Group|External", arrThisFavorite1, true)
+		{
+			strMenuNoMain := objNewMenu.MenuPath
+			StringReplace, strMenuNoMain, strMenuNoMain, % lMainMenuName . " " 
+			objLoadIniFavorite.FavoriteLocation := strMenuNoMain
+		}
+		else
+			objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
 		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex"
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
@@ -2798,6 +2805,7 @@ IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
 g_intNextFavoriteNumber := ""
 strThisMenuName := ""
 strDefaultMenu := ""
+strMenuNoMain := ""
 
 return
 ;------------------------------------------------------------
@@ -9235,6 +9243,8 @@ for strMenuPath, objMenuSource in objMenusSource
 	objMenuDest := Object()
 	objMenuDest.MenuPath := objMenuSource.MenuPath
 	objMenuDest.MenuType := objMenuSource.MenuType
+	objMenuDest.MenuExternalPath := objMenuSource.MenuExternalPath
+	objMenuDest.MenuLoaded := objMenuSource.MenuLoaded
 
 	loop, % objMenuSource.MaxIndex()
 	{
