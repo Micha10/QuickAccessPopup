@@ -2806,7 +2806,6 @@ IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
 g_intNextFavoriteNumber := ""
 strThisMenuName := ""
 strDefaultMenu := ""
-strMenuNoMain := ""
 
 return
 ;------------------------------------------------------------
