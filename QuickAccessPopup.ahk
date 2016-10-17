@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.9.3 (2016-10-??)
+- Merge changes from master version v7.5.4.2
+- 
+
+Version: 7.5.4.2 (2016-10-13)
+- Update RECOMMENDED: improvements against risk of QAP submenus favorites data loss
+- add external menu values external path and loaded in menu object backup;
+- when loading submenu favorite from ini file, recreate menu path in case the value is empty (possible for settings saved with v7.4.0.2 to v7.4.2)
+
 Version BETA: 7.5.9.2 (2016-10-09)
 - Update MANDATORY: risk of data loss!
 - From v7.5.4.1: Fix bug when canceling changes to Favorites list in Settings, that could then potentially cause loss of data if saving new changes to settings file after cancellation
@@ -62,7 +71,6 @@ Language updates
 - Spanish and French
 
 Version: 7.5.4.1 (2016-10-09)
-- Update MANDATORY: risk of data loss!
 - Fix bug when canceling changes to Favorites list in Settings, that could then potentially cause loss of data if saving new changes to settings file after cancellation
 
 Version: 7.5.4 (2016-09-21)
@@ -986,7 +994,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.2 BETA
+;@Ahk2Exe-SetVersion 7.5.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1035,7 +1043,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.9.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
