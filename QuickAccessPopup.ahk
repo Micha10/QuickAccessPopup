@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.9.3 (2016-10-??)
+Version: 7.5.9.3 (2016-10-16)
 - Merge changes from master version v7.5.4.2 (update RECOMMENDED: improvements against risk of QAP submenus favorites data loss)
 - Move live folder settings to a new tab in Add/Edit Favorite folders
 - Add an option in live folder to include or exclude files by extensions
