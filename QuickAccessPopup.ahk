@@ -4388,6 +4388,7 @@ BuildLiveMenu(objLiveFolder, strMenuPath)
 	global g_strFolderLiveIndicator
 	
 	objNewMenu := Object() ; create the submenu object
+	objNewMenu.IsLiveMenu := true
 	objNewMenu.MenuPath := strMenuPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
 	objNewMenu.MenuType := "Menu"
 	
@@ -10141,10 +10142,15 @@ if (g_blnAlternativeMenu)
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
 		g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
-		g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
+		if (g_objMenuInGui.IsLiveMenu) ; items inside live folder cannot be edited (we get here via Alternative menu Edit a favorite)
+			Oops(lOopsCannotEditInLiveFolder)
+		else
+		{
+			g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
 
-		gosub, GuiShowFromAlternative
-		gosub, GuiEditFavoriteFromAlternative
+			gosub, GuiShowFromAlternative
+			gosub, GuiEditFavoriteFromAlternative
+		}
 		gosub, OpenFavoriteCleanup
 		return
 	}
