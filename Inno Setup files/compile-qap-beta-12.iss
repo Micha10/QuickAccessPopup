@@ -33,7 +33,14 @@ Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ; AppMutex={#MyAppNameNoSpace}Mutex -> do not use AppMutex - Use instead automatic closing when install and [Code] section when uninstall
-UsePreviousTasks=yes
+; DisableWelcomePage=yes -> keep default amd display
+; DisableReadyPage=yes -> keep default amd display
+; display Dir page only at first install but show dir on ready page
+DisableDirPage=auto
+AlwaysShowDirOnReadyPage=yes
+; display Group page only at first install but show group on ready page
+DisableProgramGroupPage=auto
+AlwaysShowGroupOnReadyPage=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -88,6 +95,11 @@ Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
+
+; APP PATH
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
+Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueName: "Path"; ValueData: "{app}"; Flags: uninsdeletekey
+
 ; ADD FILE
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Add File to Quick Access Popup menu"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
@@ -155,6 +167,22 @@ Name: importfpsettings; Description: "Import &Folders Popup settings and favorit
 Type: files; Name: "{userstartup}\{#MyAppNameLower}.lnk"
 
 [Code]
+
+function ShouldSkipPage(PageID: Integer): Boolean;
+begin
+  // if the page that is asked to be skipped is the licence page, then...
+  if (PageID = wpLicense) or (PageID = wpSelectTasks) then
+  begin
+    // if the app was already installed, skip the page
+    Result := (Length(WizardForm.PrevAppDir) > 0);
+  end
+  else
+  begin
+    // do not skip other pages (not necessary, but safer)
+    Result := False;
+  end;
+end;
+
 function IsProcessRunning(FileName: String): Boolean;
 var
   objSWbemLocator, objSWbemServices: Variant;
