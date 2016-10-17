@@ -32,8 +32,11 @@ HISTORY
 =======
 
 Version: 7.5.9.3 (2016-10-??)
-- Merge changes from master version v7.5.4.2
-- 
+- Merge changes from master version v7.5.4.2 (update RECOMMENDED: improvements against risk of QAP submenus favorites data loss)
+- Move live folder settings to a new tab in Add/Edit Favorite folders
+- Add an option in live folder to include or exclude files by extensions
+- Italian, Portuguese and Chineese (TW) language updated
+- Reduce the number of pages (clicks) in setup procedure from 7 to 3 when installing an update
 
 Version: 7.5.4.2 (2016-10-13)
 - Update RECOMMENDED: improvements against risk of QAP submenus favorites data loss
