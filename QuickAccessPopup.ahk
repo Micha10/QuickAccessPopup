@@ -6109,6 +6109,8 @@ GuiCopyFavorite:
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
+blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
+
 Gosub, GuiFavoriteInit
 
 if (g_blnAbordEdit)
@@ -6144,8 +6146,6 @@ if (g_blnUseColors)
 
 Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h400 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
 intTabNumber := 0
-
-blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
 
 ; ------ BUILD TABS ------
 
@@ -6227,7 +6227,7 @@ BuildTabsList(strFavoriteType)
 	; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
 	strTabsList := g_arrFavoriteGuiTabs1 . " | " . g_arrFavoriteGuiTabs2
 	
-	if (strFavoriteType = "Folder")
+	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if InStr(g_strTypesForTabWindowOptions, strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
@@ -6549,10 +6549,10 @@ return
 GuiFavoriteTabLiveFolderOptions:
 ;------------------------------------------------------------
 
-Gui, 2:Tab, % ++intTabNumber
-
 if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
 {
+	Gui, 2:Tab, % ++intTabNumber
+
 	Gui, 2:Add, Checkbox, % "x20 y40 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
 	
 	Gui, 2:Add, Edit, x20 y+20 w36 h17 vf_intFavoriteFolderLiveLevels number limit1 center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
