@@ -29,10 +29,13 @@ lDialogAddFolderManuallyTitle	Agregar carpeta - ~1~ ~2~
 lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicación
+lDialogAppWorkingDirCurrent	Iniciar la aplicación en la ubicación de la carpeta en la que se puso en marcha este favorito
 lDialogArgumentsLabel	Ajustes
 lDialogArgumentsLabelHelp	(poner cada elemento entre comillas si es necesario)
 lDialogArgumentsPlaceholders	Puede incluir la ubicación de este favorito en su totalidad o en parte, en el entorno a través de estos códigos: {LOC} (ubicación completa), {NAME} (nombre de la carpeta), {DIR} (carpeta), {EXT} (extensión), {NOEXT} (nombre de la carpeta sin extensión) o {DRIVE} (lector)
 lDialogArgumentsPlaceholdersCheckLabel	Ajustes actuales reemplazados por los códigos de ubicación
+lDialogArgumentsPlaceholdersCurrent	También puede insertar marcadores de posición para la ubicación de la carpeta actual en la que se puso en marcha este favorito: {CUR_LOC} (ubicación completa), {CUR_NAME} (última carpeta), {CUR_DIR} (carpeta contenedora de la última carpeta) o {CUR_DRIVE} 
+lDialogArgumentsPlaceholdersCurrentExample	x:\containing_folder\last_folder ; new
 lDialogBrowseButton	Revisar
 lDialogBrowseOrSelectApplication	Examinar para seleccionar un archivo ejecutable o elegir una aplicación activa en esta lista
 lDialogCancelButton	Anular
@@ -60,6 +63,9 @@ lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponib
 lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
 lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
+lDialogFavoriteFolderLive	Carpeta en Vivo (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones) 
+lDialogFavoriteFolderLiveColumns	Número de objetos por columna (vacío para ninguna columna)
+lDialogFavoriteFolderLiveDocuments	Incluir documentos 
 lDialogFavoriteLocationEmpty	La ubicación está vacía. Quiere indicar la ubicación de la carpeta.
 lDialogFavoriteMenuPosition	Inserte nuevos favoritos antes de este artículo
 lDialogFavoriteNameEmpty	El nombre del favorito está vacio. Quiere indicar un nombre corto para este favorito.
@@ -377,6 +383,7 @@ lOptionsChangeFolderInDialogCheckbox	Haga clic "OK" para confirmar que usted ent
 lOptionsChangeFolderInDialogText	Active esta opción para permitir la navegación carpeta en los cuadros de diálogo (Abrir, Guardar como, etc.), pero, por favor, lea las siguientes Atención.`n`nUsted debe utilizar esta función sólo en los cuadros de diálogo "Archivo". Si lo usa en otro tipo de cuadro de diálogo, por ejemplo en un cuadro de diálogo "Opciones", tratando de cambiar la carpeta podría modificar y guardar los valores en el cuadro de diálogo sin ninguna notificación.
 lOptionsChangeHotkey	Modificar
 lOptionsCheck4Update	Compruebe Actualización
+lOptionsControlDoublePressed	Abrir el menú principal con Ctrl + Ctrl (Izquierda o la tecla de control derecha pulsada dos veces) 
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsExclusionDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
