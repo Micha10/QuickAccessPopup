@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.9.4 (2016-10-18)
+- Avoid editing folder favorite in live folder from Alternative menu
+- Finish move live folder settings to a new tab in Add/Edit Favorite folders
+- Simplified version comparison in Check for updates
+- Spanish and Brazilian Portuguese language updates
+
 Version: 7.5.9.3 (2016-10-16)
 - Merge changes from master version v7.5.4.2 (update RECOMMENDED: improvements against risk of QAP submenus favorites data loss)
 - Move live folder settings to a new tab in Add/Edit Favorite folders
@@ -997,7 +1003,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.3 BETA
+;@Ahk2Exe-SetVersion 7.5.9.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1046,7 +1052,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.3" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.9.4" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -11692,20 +11698,21 @@ return
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
 ;------------------------------------------------------------
 {
-	StringSplit, arrFirstVersion, strFirstVersion, `.
-	StringSplit, arrSecondVersion, strSecondVersion, `.
-	if (arrFirstVersion0 > arrSecondVersion0)
-		intLoop := arrFirstVersion0
-	else
-		intLoop := arrSecondVersion0
+	; To make the two strings comparable by < and > operators 
+	; RegExReplace(..., "[^.]") removes all but dots
+	; StrLen() counts number of dots in version number
+	; the loop add ".0" until we have 4 dots (eg "0.0.0.0.0")
+	loop, % 4 - StrLen(RegExReplace(strFirstVersion, "[^.]"))
+		strFirstVersion .= ".0"
+	loop, % 4 - StrLen(RegExReplace(strSecondVersion, "[^.]"))
+		strSecondVersion .= ".0"
 
-	Loop %intLoop%
-		if (arrFirstVersion%A_index% > arrSecondVersion%A_index%)
-			return 1 ; greater
-		else if (arrFirstVersion%A_index% < arrSecondVersion%A_index%)
-			return -1 ; smaller
-		
-	return 0 ; equal
+	if (strFirstVersion > strSecondVersion)
+		return 1 ; greater
+	else if (strFirstVersion < strSecondVersion)
+		return -1 ; smaller
+	else
+		return 0 ; equal
 }
 ;------------------------------------------------------------
 
