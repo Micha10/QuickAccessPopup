@@ -6715,7 +6715,7 @@ ButtonAppWorkingDirCurrentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : "")
+GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : f_strFavoriteAppWorkingDir)
 GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_strFavoriteAppWorkingDir
 GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_btnBrowseAppWorkingDir
 
