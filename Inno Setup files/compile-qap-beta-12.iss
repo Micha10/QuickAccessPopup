@@ -41,6 +41,7 @@ AlwaysShowDirOnReadyPage=yes
 ; display Group page only at first install but show group on ready page
 DisableProgramGroupPage=auto
 AlwaysShowGroupOnReadyPage=yes
+SignTool=JeanLalondeCustom sign /t http://timestamp.digicert.com /a $f
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
