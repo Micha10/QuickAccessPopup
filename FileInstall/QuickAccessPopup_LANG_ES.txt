@@ -35,7 +35,7 @@ lDialogArgumentsLabelHelp	(poner cada elemento entre comillas si es necesario)
 lDialogArgumentsPlaceholders	Puede incluir la ubicación de este favorito en su totalidad o en parte, en el entorno a través de estos códigos: {LOC} (ubicación completa), {NAME} (nombre de la carpeta), {DIR} (carpeta), {EXT} (extensión), {NOEXT} (nombre de la carpeta sin extensión) o {DRIVE} (lector)
 lDialogArgumentsPlaceholdersCheckLabel	Ajustes actuales reemplazados por los códigos de ubicación
 lDialogArgumentsPlaceholdersCurrent	También puede insertar marcadores de posición para la ubicación de la carpeta actual en la que se puso en marcha este favorito: {CUR_LOC} (ubicación completa), {CUR_NAME} (última carpeta), {CUR_DIR} (carpeta contenedora de la última carpeta) o {CUR_DRIVE} 
-lDialogArgumentsPlaceholdersCurrentExample	x:\containing_folder\last_folder ; new
+lDialogArgumentsPlaceholdersCurrentExample	x:\contenedor_carpeta\última_carpeta
 lDialogBrowseButton	Revisar
 lDialogBrowseOrSelectApplication	Examinar para seleccionar un archivo ejecutable o elegir una aplicación activa en esta lista
 lDialogCancelButton	Anular
