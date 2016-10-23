@@ -2330,7 +2330,8 @@ InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
 ; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",					  25,   84)
 
-InsertGuiControlPos("f_btnGuiSaveFavorites",		   0,  -90, , true)				
+InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -90, , true)
+InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",    0,  -90, , true)
 InsertGuiControlPos("f_btnGuiCancel",				   0,  -90, , true)
 
 InsertGuiControlPos("f_drpMenusList",				  40,   84)
@@ -5637,8 +5638,9 @@ Gui, 1:Add, ListView
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 
 Gui, 1:Font, s9 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveFavorites Disabled Default gGuiSaveFavorites x200 y400 w100 h50, %lGuiSave% ; Button1
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x350 yp w100 h50, %lGuiClose% ; Close until changes occur - Button2
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndClose% ; Button1
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStay% ; Button2
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiClose% ; Close until changes occur - Button3
 
 if !(g_blnDonor)
 {
@@ -5740,7 +5742,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
 g_intListW := A_GuiWidth - 40 - 88
 intListH := A_GuiHeight - 115 - 132
 
-intButtonSpacing := (g_intListW - (100 * 2)) // 3
+intButtonSpacing := (g_intListW - (100 * 3)) // 4
 
 for intIndex, objGuiControl in g_objGuiControls
 {
@@ -5763,10 +5765,12 @@ for intIndex, objGuiControl in g_objGuiControls
 		GuiControlGet, arrPos, Pos, f_lnkGuiDropHelpClicked
 		intX := intX - arrPosW
 	}
-	else if (objGuiControl.Name = "f_btnGuiSaveFavorites")
+	else if (objGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
 		intX := 40 + intButtonSpacing
-	else if (objGuiControl.Name = "f_btnGuiCancel")
+	else if (objGuiControl.Name = "f_btnGuiSaveAndStayFavorites")
 		intX := 40 + (2 * intButtonSpacing) + 100
+	else if (objGuiControl.Name = "f_btnGuiCancel")
+		intX := 40 + (3 * intButtonSpacing) + 200
 		
 	GuiControl, % "1:Move" . (objGuiControl.Draw ? "Draw" : ""), % objGuiControl.Name, % "x" . intX	.  " y" . intY
 		
@@ -6071,7 +6075,7 @@ else
 			
 			Gosub, GuiAddThisFileFromMsgXpress
 		
-		Gosub, GuiSaveFavorites ; for Express save all favorites to ini file
+		Gosub, GuiSaveAndCloseFavorites ; for Express save all favorites to ini file
 	}
 }
 
@@ -7335,18 +7339,11 @@ GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
+GuiShowFromGuiSettings:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-; should not be required but safer
-GuiControlGet, blnSaveEnabled, Enabled, %lGuiSave%
-if (blnSaveEnabled) ; the gui is already open with modified items
-{
-	gosub, GuiShowCleanup
-	return
-}
-
-if (A_ThisLabel <> "GuiShowFromAlternative") ; menu object already set if from Alternative hotkey
+if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set if from Alternative hotkey
 	g_objMenuInGui := g_objMainMenu
 
 Gosub, BackupMenusObjects
@@ -7955,8 +7952,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
-GuiControl, Enable, f_btnGuiSaveFavorites
-GuiControl, , f_btnGuiCancel, %lDialogCancelButton%
+Gosub, EnableSaveAndCancel
 
 g_blnMenuReady := true
 
@@ -8192,8 +8188,7 @@ if (A_ThisLabel = "GuiRemoveFavorite")
 }
 Gosub, AdjustColumnsWidth
 
-GuiControl, Enable, f_btnGuiSaveFavorites
-GuiControl, , f_btnGuiCancel, %lGuiCancel%
+Gosub, EnableSaveAndCancel
 
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
@@ -8310,8 +8305,7 @@ LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), , arrThis1, ar
 if !InStr(A_ThisLabel, "One")
 	LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), "Select Focus Vis")
 
-GuiControl, Enable, f_btnGuiSaveFavorites
-GuiControl, , f_btnGuiCancel, %lGuiCancel%
+Gosub, EnableSaveAndCancel
 
 return
 
@@ -8552,8 +8546,7 @@ else ; GuiAddColumnBreak
 LV_Modify(LV_GetNext(), "Vis")
 Gosub, AdjustColumnsWidth
 
-GuiControl, Enable, f_btnGuiSaveFavorites
-GuiControl, , f_btnGuiCancel, %lGuiCancel%
+Gosub, EnableSaveAndCancel
 
 intInsertPosition := ""
 objNewFavorite := ""
@@ -8572,13 +8565,12 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
-GuiSaveFavorites:
+GuiSaveAndCloseFavorites:
+GuiSaveAndStayFavorites:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
-blnShiftPressed := GetKeyState("Shift")
-blnControlPressed := GetKeyState("Control")
-blnAltPressed := GetKeyState("Alt")
+objSavedMenuInGui := g_objMenuInGui
 
 IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
@@ -8608,19 +8600,21 @@ Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusInd
 Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 
-GuiControl, Disable, %lGuiSave%
-GuiControl, , %lGuiCancel%, %lGuiClose%
+GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
+GuiControl, Disable, f_btnGuiSaveAndStayFavorites
+GuiControl, , f_btnGuiCancel, %lGuiClose%
 g_blnMenuReady := true
 
-if (blnShiftPressed or blnControlPressed or blnAltPressed)
-	Gosub, GuiShow
+if (A_ThisLabel = "GuiSaveAndStayFavorites")
+{
+	g_objMenuInGui := objSavedMenuInGui
+	Gosub, GuiShowFromGuiSettings
+}
 else
 	Gosub, GuiCancel
 	
 g_intIniLine := ""
-blnShiftPressed := ""
-blnControlPressed := ""
-blnAltPressed := ""
+objSavedMenuInGui := ""
 
 return
 ;------------------------------------------------------------
@@ -9002,7 +8996,9 @@ if (g_objHotkeysByLocation[g_objEditedFavorite.FavoriteLocation] <> g_strNewFavo
 
 if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
 {
-	GuiControl, 1:Enable, f_btnGuiSaveFavorites
+	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
+	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
+	; let Cancel button to Close for now because Cancel could not restore changed hotkeys at this time (noted on todo list) #####
 	Gosub, LoadHotkeysManageList
 }
 
@@ -9175,8 +9171,9 @@ return
 GuiCancel:
 ;------------------------------------------------------------
 
-GuiControlGet, blnSaveEnabled, Enabled, f_btnGuiSaveFavorites
-if (blnSaveEnabled)
+GuiControlGet, strCancelLabel, , f_btnGuiCancel
+blnCancelEnabled := (strCancelLabel = lGuiCancel)
+if (blnCancelEnabled)
 {
 	Gui, 1:+OwnDialogs
 	MsgBox, 36, % L(lDialogCancelTitle, g_strAppNameText, g_strAppVersion), %lDialogCancelPrompt%
@@ -9190,7 +9187,8 @@ if (blnSaveEnabled)
 		Gosub, BuildMainMenuWithStatus ; rebuild menus but not hotkeys
 		Gosub, SetTimerRefreshDynamicMenus
 		
-		GuiControl, Disable, f_btnGuiSaveFavorites
+		GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
+		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 		GuiControl, , f_btnGuiCancel, %lGuiClose%
 		g_blnMenuReady := true
 	}
@@ -9203,7 +9201,8 @@ if (blnSaveEnabled)
 Gui, 1:Cancel
 
 GuiCancelCleanup:
-blnSaveEnabled := ""
+blnCancelEnabled := ""
+blnCancelEnabled := ""
 
 return
 ;------------------------------------------------------------
@@ -12703,6 +12702,18 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+EnableSaveAndCancel:
+;------------------------------------------------------------
+
+GuiControl, Enable, f_btnGuiSaveAndCloseFavorites
+GuiControl, Enable, f_btnGuiSaveAndStayFavorites
+GuiControl, , f_btnGuiCancel, %lGuiCancel%
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -13700,7 +13711,7 @@ SettingsUnsaved()
 {
 	global
 	
-	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveFavorites ; check if Settings is open with Save button enabled
+	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
 
 	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
 		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
