@@ -29,10 +29,13 @@ lDialogAddFolderManuallyTitle	Adicionar esta Pasta - ~1~ ~2~
 lDialogAddFolderSelect	Escolha ou crie a nova pasta:
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicativo
+lDialogAppWorkingDirCurrent	Iniciar aplicativo no local da pasta onde seu favorito foi iniciado
 lDialogArgumentsLabel	Parâmetros
 lDialogArgumentsLabelHelp	(coloque cada parâmetro entre aspas, se necessário)
 lDialogArgumentsPlaceholders	Você pode inserir a localização deste favorito ou parte dele nos parâmetros  usando estes marcadores: {LOC} (localização completa), {NAME} (nome do arquivo), {DIR} (pasta), {EXT} (extensão), {NOEXT} (nome do arquivo sem extensão) or {DRIVE} (unidade)
 lDialogArgumentsPlaceholdersCheckLabel	Parâmetros atuais com marcadores expandidos
+lDialogArgumentsPlaceholdersCurrent	Você também pode inserir espaços reservados para o local da pasta atual onde seu favorito foi iniciado: {CUR_LOC} (pasta completa), {CUR_NAME} (última pasta), {CUR_DIR} (pasta contendo última pasta) ou {CUR_DRIVE}
+lDialogArgumentsPlaceholdersCurrentExample	x:\pasta_contendo\última_pasta
 lDialogBrowseButton	Procurar
 lDialogBrowseOrSelectApplication	Procure por um arquivo executável ou`nselecione um aplicativo em execução na lista
 lDialogCancelButton	Cancelar
@@ -60,6 +63,9 @@ lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está dis
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor, escolha um item na lista do menu suspenso ~1~.
 lDialogFavoriteExternalHelpWeb	Veja <a href="~1~">Ajuda para menus externos</a> para maiores informações.
+lDialogFavoriteFolderLive	Pasta Ativa (menu incluindo subpastas, veja "Configurações avançadas" para opções)
+lDialogFavoriteFolderLiveColumns	Número de itens por coluna (vazio para nenhuma coluna)
+lDialogFavoriteFolderLiveDocuments	Incluir documentos
 lDialogFavoriteLocationEmpty	O local está vazio. Por favor, escolha um local.
 lDialogFavoriteMenuPosition	Inserir o novo favorito antes deste item
 lDialogFavoriteNameEmpty	O nome do favorito está vazio. Por favor, escolha um nome.
@@ -98,9 +104,9 @@ lDialogFavoriteTypesHelp6	Crie um atalho para um "Site FTP".`n`nDefina o nome do
 lDialogFavoriteTypesHelp7	Insira em qualquer lugar do seu menu "Recursos do Quick Access Popup" como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados em um "Submenu".`n`nDê um nome para seu submenu e selecione as opções de menu.`n`nAdicione favoritos em seu submenu ou mova-os de outros submenus ou grupos usando o botão "Editar".
 lDialogFavoriteTypesHelp9	Inicie um "Grupo" de favoritos, todos em um atalho!`n`nDê um nome para seu grupo e defina várias opções para seu grupo.`n`nAdicione favoritos em seu grupo ou mova-os de outros submenus ou grupos usando o botão "Editar".`n`nConfigurações avançadas permitem controlar a velocidade de restauração inserindo um atraso entre cada favorito para restaurar.
-lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicativo|Pasta E&special|&Link|Site F&TP|Recurso &QAP|Sub&menu|&Grupo||||Recorte de Te&xto|Menu &Compartilhado 
-lDialogFavoriteTypesLocationLabels	Pasta (caminho)|Documento (caminho e nome do arquivo)|Aplicativo (caminho e nome do arquivo)||Link (URL)|Site FTP(URL)|||||||Conteúdo|Arquivo de configurações externo (caminho)| 
-lDialogFavoriteTypesShortNames	Pasta|Documento|Aplicativo|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Recorte|Compartilhado 
+lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicativo|Pasta E&special|&Link|Site F&TP|Recurso &QAP|Sub&menu|&Grupo||||Recorte de Te&xto|Menu &Compartilhado
+lDialogFavoriteTypesLocationLabels	Pasta (caminho)|Documento (caminho e nome do arquivo)|Aplicativo (caminho e nome do arquivo)||Link (URL)|Site FTP(URL)|||||||Conteúdo|Arquivo de configurações externo (caminho)|
+lDialogFavoriteTypesShortNames	Pasta|Documento|Aplicativo|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Recorte|Compartilhado
 lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
 lDialogGetWinInfo	Para identificar a janela da qual deseja obter título e classe, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
@@ -377,6 +383,7 @@ lOptionsChangeFolderInDialogCheckbox	Clique "OK" para confirmar as possíveis con
 lOptionsChangeFolderInDialogText	ATIVE esta opção para habilitar a navegação por pastas em caixas de diálogo (Abrir, Salvar Como, etc.) mas, por favor, leia o seguinte aviso.`n`nVocê deve usar este recurso SOMENTE em caixas de diálogo de "arquivo". Se você usá-lo em outros tipos de caixas de diálogo, por exemplo, em uma caixa de diálogo "Opções", tentar alterar a pasta pode modificar e salvar valores na caixa de diálogo sem nenhuma notificação.
 lOptionsChangeHotkey	Alterar
 lOptionsCheck4Update	Verificar atualizações
+lOptionsControlDoublePressed	Abrir menu principal com Ctrl + Ctrl (tecla Control Direita ou Esquerda pressionada duas vezes)
 lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
 lOptionsExclusionDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word

@@ -29,10 +29,13 @@ lDialogAddFolderManuallyTitle	Agregar carpeta - ~1~ ~2~
 lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicación
+lDialogAppWorkingDirCurrent	Iniciar la aplicación en la ubicación de la carpeta en la que se puso en marcha este favorito
 lDialogArgumentsLabel	Ajustes
 lDialogArgumentsLabelHelp	(poner cada elemento entre comillas si es necesario)
 lDialogArgumentsPlaceholders	Puede incluir la ubicación de este favorito en su totalidad o en parte, en el entorno a través de estos códigos: {LOC} (ubicación completa), {NAME} (nombre de la carpeta), {DIR} (carpeta), {EXT} (extensión), {NOEXT} (nombre de la carpeta sin extensión) o {DRIVE} (lector)
 lDialogArgumentsPlaceholdersCheckLabel	Ajustes actuales reemplazados por los códigos de ubicación
+lDialogArgumentsPlaceholdersCurrent	También puede insertar marcadores de posición para la ubicación de la carpeta actual en la que se puso en marcha este favorito: {CUR_LOC} (ubicación completa), {CUR_NAME} (última carpeta), {CUR_DIR} (carpeta contenedora de la última carpeta) o {CUR_DRIVE} 
+lDialogArgumentsPlaceholdersCurrentExample	x:\contenedor_carpeta\última_carpeta
 lDialogBrowseButton	Revisar
 lDialogBrowseOrSelectApplication	Examinar para seleccionar un archivo ejecutable o elegir una aplicación activa en esta lista
 lDialogCancelButton	Anular
@@ -40,7 +43,7 @@ lDialogCancelPrompt	Anular los cambios?
 lDialogCancelTitle	Anular - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Se trata de un acceso directo del menú Alternativo.`n`n¿Quiere gestionar? "~1~" in "~2~"?
 lDialogChangeHotkeyNote	Note: La ubicación "~1~" se conectará a este nuevo acceso directo en todos los menús..
-lDialogChangeHotkeyNoteSnippet	Nota: Este fragmento se vinculará a la nueva tecla de acceso directo en todos los menús. ; new
+lDialogChangeHotkeyNoteSnippet	Nota: Este fragmento se vinculará a la nueva tecla de acceso directo en todos los menús.
 lDialogChangeHotkeyPopup	Se trata de un acceso directo del menú emergente.`n`n¿Quiere gestionar? "~1~" in "~2~"?
 lDialogChangeHotkeyTitle	Modificar acceso directo - ~1~ ~2~
 lDialogContinue	Continuar
@@ -53,12 +56,16 @@ lDialogEditIconPrompt	Modificar el icono del recurso en el formato "carpeta, índ
 lDialogElevate	Ejecutar la aplicación con privilegios de administrador
 lDialogEndOfMenu	fin del menú
 lDialogErrorMoving	No es posible cambiar el tamaño del favorito:`n"~1~"
-lDialogExternalLocation	Ubicación ajustes del menú externos para ubicación del archivo ; new
-lDialogExternalStartingNumber	Número del primer favorito: ; new
+lDialogExternalLocation	Ubicación ajustes del menú externos para ubicación del archivo
+lDialogExternalStartingNumber	Número del primer favorito:
+lDialogFavoriteDisabled	No añadir este favorito al menú
 lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponible.`n`nSi este favorito está ubicado en una unidad de red, por favor, inténtalo de nuevo después de la autenticación de red.
 lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
-lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información. ; new
+lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
+lDialogFavoriteFolderLive	Carpeta en Vivo (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones) 
+lDialogFavoriteFolderLiveColumns	Número de objetos por columna (vacío para ninguna columna)
+lDialogFavoriteFolderLiveDocuments	Incluir documentos 
 lDialogFavoriteLocationEmpty	La ubicación está vacía. Quiere indicar la ubicación de la carpeta.
 lDialogFavoriteMenuPosition	Inserte nuevos favoritos antes de este artículo
 lDialogFavoriteNameEmpty	El nombre del favorito está vacio. Quiere indicar un nombre corto para este favorito.
@@ -67,27 +74,27 @@ lDialogFavoriteNameNotAllowed	Tipos de favoritos "~1~" no se pueden añadir a los
 lDialogFavoriteNameNotNew	El nombre "~1~" ya está presente en este menú. Quiere elegir un nuevo nombre.
 lDialogFavoriteNameNotNewQAPfeature	El nombre "~1~" ya está contenido en ese menú. Desea renombrar el favorito existente y probar uno nuevo.
 lDialogFavoriteParentMenu	Inserte nuevos favoritos en este menú
-lDialogFavoriteRemoveExternalPrompt	Borrar el submenú externo "~1~"`n(no se eliminará el archivo de configuración externa)? ; new
+lDialogFavoriteRemoveExternalPrompt	Borrar el submenú externo "~1~"`n(no se eliminará el archivo de configuración externa)?
 lDialogFavoriteRemovePrompt	Suprimir el sub-menú "~1~"`incluyendo todos los contenidos (carpetas y sub-menús)?
 lDialogFavoriteRemoveTitle	Suprimir un favorito - ~1~
 lDialogFavoriteSelectType	Seleccione el tipo de nuevo favorito.`n`nEn la siguiente pantalla, puede:`n- nombrar su favorito`n- determinar contenido personalizado (según el tipo)`n- seleccionar varios ajustes (icono, atajo, etc.)`n`nElija el tipo del nuevo favorito y clique "~1~".
 lDialogFavoriteShortNameLabel	Nombre corto para el menú
-lDialogFavoriteSnippetEmpty	El contenido está vacío. Por favor, introduzca el contenido del fragmento. ; new
-lDialogFavoriteSnippetHelpNoProcess	Introduzca ``n para fin de linea y ``t para una pestaña. ; new
-lDialogFavoriteSnippetHelpProcess	Oprima Ctrl-Tab para insertar pestañas y Enter para insertar fin de linea ; new
+lDialogFavoriteSnippetEmpty	El contenido está vacío. Por favor, introduzca el contenido del fragmento.
+lDialogFavoriteSnippetHelpNoProcess	Introduzca ``n para fin de linea y ``t para una pestaña.
+lDialogFavoriteSnippetHelpProcess	Oprima Ctrl-Tab para insertar pestañas y Enter para insertar fin de linea
 lDialogFavoriteSnippetHelpWeb	Ver <a href="~1~">Ayuda con fragmentos</a> para la codificación de caracteres y comandos especiales.
-lDialogFavoriteSnippetProcessEOLTab	Codificará automáticamente fin de línea y tabuladores ; new
+lDialogFavoriteSnippetProcessEOLTab	Codificará automáticamente fin de línea y tabuladores
 lDialogFavoriteSnippetPromptLabel	Preguntar antes de ~1~ el código 
 lDialogFavoriteSnippetPromptLabelLaunching	lanzando
 lDialogFavoriteSnippetPromptLabelPasting	pegado
 lDialogFavoriteSnippetPromptNoPipe	Carácter de barra vertical (|) no esta permitido en el código
-lDialogFavoriteSnippetSendMode	Enviar fragmento de aplicación actual a: ; new
-lDialogFavoriteSnippetSendModeMacro	Modo macro ; new
-lDialogFavoriteSnippetSendModeText	Modo texto ; new
+lDialogFavoriteSnippetSendMode	Enviar fragmento de aplicación actual a:
+lDialogFavoriteSnippetSendModeMacro	Modo macro
+lDialogFavoriteSnippetSendModeText	Modo texto
 lDialogFavoritesParentMenuMove	Mover ~1~ favoritos hacia este menú
 lDialogFavoriteType	Tipo de favorito
 lDialogFavoriteTypesHelp1	Crear acceso directo sobre "Carpeta" de uso frecuente.`n`nElija el nombre, la ubicación y las diversas opciones al menú.`n`nLas opciones avanzadas permiten definir la posición de la ventana y varias opciones de administración de archivos.
-lDialogFavoriteTypesHelp13	Crear un "Fragmento". Proporcionar el nombre, el contenido y varias opciones.`n`nEn las configuraciones avanzadas, seleccione "Modo de texto" para pegar un trozo de texto al igual que con el portapapeles o elige "Modo macro" para enviar el fragmento como pulsaciones de teclas en el teclado (incluyendo teclas especiales, consulte la Ayuda). ; new
+lDialogFavoriteTypesHelp13	Crear un "Fragmento". Proporcionar el nombre, el contenido y varias opciones.`n`nEn las configuraciones avanzadas, seleccione "Modo de texto" para pegar un trozo de texto al igual que con el portapapeles o elige "Modo macro" para enviar el fragmento como pulsaciones de teclas en el teclado (incluyendo teclas especiales, consulte la Ayuda).
 lDialogFavoriteTypesHelp14	Crear un "Menú compartido" para utilizar el preferido en varios sistemas a partir de un solo archivo de configuración en una ubicación externa.`n`nElegir nombre, la ubicación del archivo de configuración externo y varias opciones.`n`nLos menús compartidos se pueden cambiar como menús normales a menos que estén configurados como de sólo lectura (ver ayuda).
 lDialogFavoriteTypesHelp2	Crear un acceso directo hacia un "Documento".`n`nElegir el nombre, ubicación y diversas opciones para el menú.`n`nLas opciones avanzadas permiten elegir la aplicación que lanzará este documento, añadir parámetros opcionales y definir la posición de la ventana.
 lDialogFavoriteTypesHelp3	Crear un acceso directo a una "Aplicación" (programa, ejecutable o script).`n`nExplore las carpetas para seleccionar el archivo ejecutable o seleccionarlo de la lista desplegable de programas activos. Configurar las diversas opciones para el menú.`n`nLas opciones avanzadas le permiten seleccionar la carpeta de inicio de la aplicación, agregar parámetros opcionales para definir la posición de la ventana.
@@ -97,8 +104,8 @@ lDialogFavoriteTypesHelp6	Crear un acceso directo a un "FTP Sitio".`n`nEstablece
 lDialogFavoriteTypesHelp7	Inserte cualquier lugar en su menú "Quick Access Popup Características" como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados en un "Submenú".`n`nDele a su submenú un nombre y seleccione las opciones de menú.`n`nAñadir favoritos a su submenú o moverlos a otros submenús o grupos utilizando el botón "Editar".
 lDialogFavoriteTypesHelp9	Lance un "grupo" de favoritos, todo en un acceso directo!`n`nDele a su grupo un nombre y configure varias opciones para su grupo.`n`nAñadir favoritos a tu grupo o moverlos a otros submenús o grupos utilizando el botón "Editar".`n`nAjustes avanzados permiten controlar la velocidad de la restauración mediante la inserción de un retardo entre cada favorito para restaurar.
-lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta Especial|&Link|F&TP Sitio|&QAP Característica|Sub&menu|&Grupo||||Texto &Fragmento|&Menú Externo ; changed
-lDialogFavoriteTypesLocationLabels	Carpeta (ubicación)|Documento (ubicación y nombre del archivo)|Applicación (ubicación y el nombre del archivo)||Link (URL)|FTP Sitio (URL)|||||||Contenido|Menú externo (ubicación y nombre del archivo)| ; changed
+lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta Especial|&Link|F&TP Sitio|&QAP Característica|Sub&menu|&Grupo||||Texto &Fragmento|&Menú Externo
+lDialogFavoriteTypesLocationLabels	Carpeta (ubicación)|Documento (ubicación y nombre del archivo)|Applicación (ubicación y el nombre del archivo)||Link (URL)|FTP Sitio (URL)|||||||Contenido|Menú externo (ubicación y nombre del archivo)|
 lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Especial|Enlace|FTP|QAP|Menú|Grupo|Separador|Columna|..|Código|Compartido
 lDialogFileLabel	Documento
 lDialogFolderLabel	Carpeta
@@ -131,18 +138,23 @@ lDialogNormal	Normal
 lDialogOK	Si
 lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
+lDialogReadOnly	Sólo lectura
 lDialogRemoveMultipleFavorites	Realmente quiere suprimir ~1~ favoritos o sub-menús?
 lDialogSelectIcon	Selecionar icono
 lDialogSelectItemToAdd	Seleccione la opción para agregar
 lDialogSelectItemToEdit	Por favor seleccione la parte a editar.
 lDialogSelectItemToMove	Por favor, Seleccione la opción para mover.
 lDialogSelectItemToRemove	Por favor seleccione la parte a suprimir.
+lDialogSettingsInvalid	Archivo de configuración no válido.`n`nPor favor asegúrese de que el archivo de configuración contiene secciones ~1~ y~2~.`n`nArchivo: ~3~
 lDialogShift	Cambio
 lDialogShortcut	Atajo
 lDialogSpacebarTab	elegir <a id="Space">espaciador</a> o <a id="Tab">tabulador</a>
 lDialogState	Posición de la ventana:
 lDialogSubmenuNameEmpty	El nombre del sub-menú está vacio. Porfavor indique un nombre corto para esta carpeta.
 lDialogSubmenuParentMenu	Menú contiene este sub-menú
+lDialogSwitchSettings	Elegir el archivo de configuración a utilizar
+lDialogSwitchSettingsCancel	Cambio de archivo de configuración anulado...`n`nArchivo de configuración actual:`n~1~
+lDialogSwitchSettingsReady	Relanzar ~2~ con el nuevo archivo de configuración:`n`n~1~
 lDialogTabNext	Suite
 lDialogThirdPartyDetected	~1~ hemos detectado que ~2~ está instalado en su ordenador.`n`nPorfavor active la integración con ~2~?
 lDialogTriggerFor	Activar para:
@@ -160,8 +172,9 @@ lDialogWindowPositionY	Arriba
 lDialogWindowsFolderIconCreate	crear
 lDialogWindowsFolderIconNoRoot	El icono de la carpeta de Windows no se puede establecer en el directorio raíz de la unidad (~1~).
 lDialogWindowsFolderIconPrompt	Este comando abrirá ~1~ el sistema de archivos:`n~2~`n`nEl icono de la carpeta de Windows se establecerá en el icono seleccionado para este favorito. ¿Quieres continuar?
+lDialogWindowsFolderIconPrompt2	Nota: Puede transcurrir desde 10-15 segundos o hasta un minuto antes que Windows agregue el nuevo icono de carpeta. 
 lDialogWindowsFolderIconRemove	Eliminar icono de carpeta de Windows
-lDialogWindowsFolderIconRemoveFile	Este comando también puede ELIMINAR el archivo de sistema:`n~1~`n`n¿Quieres restaurar esta carpeta a su estado normal?
+lDialogWindowsFolderIconRemoveFile	Este comando puede también SUPRIMIR el archivo de sistema y restaurar la configuración por defecto del registro:`n~1~`n`nQuiere SUPRIMIR este registro de sistema?
 lDialogWindowsFolderIconReset	El icono de la carpeta se restablecerá a su imagen por defecto. `n`n¿Quieres continuar?
 lDialogWindowsFolderIconSet	Establecer icono carpeta Windows
 lDialogWindowsFolderIconUpdate	actualización
@@ -212,7 +225,7 @@ lGuiHelp	Ayuda
 lGuiHotkeysHelp	Ayuda con atajos favoritos
 lGuiHotkeysHelpText	Abajo: Selecione siguiente favorito`nUp: Seleccione anterior favorito`n`nEnter: Editar favorito`nCtrl-N: Añadir nuevo favorito`nCtrl-C: Copiar un favorito`nDel: Borrar favorito(s)`n`nShift-Up/Down: Seleccionar favorito contiguo`nCtrl-Click: Seleccionar favorito no contiguo`nCtrl-A: Seleccionar todos los favoritos`n`nCtrl-Down: Mover favorito(s) abajo`nCtrl-Up: Mover favorito(s) arriba`n`nCtrl-Right: Abrir menú o grupo seleccionado`nCtrl-Left: Abrir menú principal
 lGuiLoginName	Nombre inicio de sesión
-lGuiLvFavoritesHeader	Nombre|Tipo|Localización o contenido ; changed
+lGuiLvFavoritesHeader	Nombre|Tipo|Localización o contenido
 lGuiMove	Mover
 lGuiOptions	Opciones
 lGuiPassword	Contraseña
@@ -227,7 +240,7 @@ lHelpTabAddingFavorite	Añadiendo favoritos
 lHelpTabGettingStarted	Primer paso
 lHelpTabQAPFeatures	QAP Funciones
 lHelpTabTipsAndTricks	Consejos y trucos
-lHelpText11	Al iniciar FoldersPopup, un icono espera sus órdenes en el área de notificaciones. Cuando se desea abrir uno de sus favoritos CARPETAS, DOCUMENTOS, APLICACIONES, LINKS WEB o SITIOS FTP, Fragmentos de texto favoritos, simplemente pulse la tecla de acceso directo QAP [~1~] ó [~2~] y, en el menú emergente, selecionar el favorito deseado. ; changed
+lHelpText11	Al iniciar FoldersPopup, un icono espera sus órdenes en el área de notificaciones. Cuando se desea abrir uno de sus favoritos CARPETAS, DOCUMENTOS, APLICACIONES, LINKS WEB o SITIOS FTP, Fragmentos de texto favoritos, simplemente pulse la tecla de acceso directo QAP [~1~] ó [~2~] y, en el menú emergente, selecionar el favorito deseado.
 lHelpText12	Cuando se selecciona una carpeta de favoritos en el Explorador de Windows o un cuadro de diálogo de archivo*, Quick Access Popup  instantaneamente "navega" la ventana actual a esta carpeta! * Esta función debe estar habilitada en las Opciones.
 lHelpText13	Para forzar la apertura de la carpeta en una ventana nueva, pulsar las teclas de acceso rápido alternativas [~1~] or [~2~]. En el menú Alternativo, seleccione "Abrir en ventana nueva", a continuación, seleccione la carpeta deseada. El menú Alternativo ofrece varias otras funcionalidades.
 lHelpText14	Elija "Configuración" para personalizar el menú emergente de Quick Access Popup. Puede añadir los favoritos a su menú. Puede mover, renombrar, borrar. Puede también añadir los SUB-MENUS, de los GRUPOS o de los SUB-MENUS COMPARTIDOS. Elija "Menú o grupo para modificar:" en la lista desplegable. Clique en "Guardar" para conservar los cambios.
@@ -245,6 +258,34 @@ lHelpText44	- También en "Opciones": elegir su idioma preferido, el tamaño de lo
 lHelpText45	- Directorio de usuarios de Opus, ver <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">esta página</a> para información adicional.`n- Usuarios de Total Commander, ir a <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">esta página</a> para información adicional.`n- Usuarios de otros administradores de archivos, ver <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">esta página</a> para información adicional en QAPconnect.
 lHelpTextLead	Con Quick Access Popup, podrá navegar de un vistazo por sus archivos, páginas web y documentos favoritos!
 lHelpTitle	Ayuda - ~1~ ~2~
+lImpExpAborted	anulado
+lImpExpAppend	Añadir
+lImpExpCompleted	completado
+lImpExpDestination	Destino
+lImpExpExport	Exportar
+lImpExpFavorites	favoritos
+lImpExpFavoritesNotFound	Los favoritos no se encuentran en el archivo:`n`n~1~
+lImpExpFile	Archivo ~1~
+lImpExpFileGlobal	Configuración global y atajos del menú principal
+lImpExpFileThemes	Temas
+lImpExpFinalReport	Transferido ~1~.`n`nOrigen:`n~2~`n`nDestino:`n~3~
+lImpExpHotkeys	atajos 
+lImpExpImport	Importar 
+lImpExpMenu	Importar/exportar la configuración
+lImpExpMerge	Fusionar con
+lImpExpNoThemes	Alguna lista de temas en el valor "~1~" de la sección "~2~".`n`nArchivo origen:`n~3~
+lImpExpOptionAlternative	Atajos de menú Alternativos
+lImpExpOptionFavorites	Favoritos (incluyendo sus atajos)
+lImpExpOptionHotkeys	Atajos de favoritos
+lImpExpOrIdentical	(o contenido identico)
+lImpExpReplaceAll	Sustituir todo
+lImpExpReplaceFavorites	Hay favoritos en el archivo de destino. Qué desea hacer?`n`n~1~
+lImpExpReplaceSection	Sustituir (COMPRIMIR) la sección ~2~ en la carpeta existente?`n`n~1~`n`n[~2~]`n~3~
+lImpExpRestartApp	Quiere relanzar ~1~ y cargra la nueva configuración ahora?
+lImpExpSectionNotFound	Contenido no encontrado en el archivo:`n`n~1~`n`nSección: [~2~]`nDescripción: ~3~
+lImpExpSource	Origen
+lImpExpTitle	Importar / exportar la configuración - ~1~
+lImpExpUnsavedSettings	Una ventana de configración está abierta, posiblemente con cambios no guardados.`n`nQuiee cerrar las ventanas de configuración antes de importar o exportar la configuración.
 lMainMenuName	Principal
 lMenuAbout	Acerca de
 lMenuAddFavorite	Añadir Favorito
@@ -255,7 +296,7 @@ lMenuAlternativeNewWindow	Abrir en nueva ventana
 lMenuAppData	Datos de la aplicación
 lMenuCache	Cache
 lMenuClipboard	Portapapeles
-lMenuCloseThisMenu	Cerrar este menú ; new
+lMenuCloseThisMenu	Cerrar este menú
 lMenuColumnBreak	columna
 lMenuCommonAppData	Datos de la aplicación (común)
 lMenuCommonDesktop	Oficina (común)
@@ -298,6 +339,7 @@ lMenuStartMenu	Menú de Inicio
 lMenuStartup	Inicio
 lMenuSuspendHotkeys	Suspender atajos de teclado (Hotkeys)
 lMenuSwitchFolderOrApp	Cambiar 
+lMenuSwitchSettings	Changer del archivo de configuración
 lMenuSystemCertificates	Certificados de Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheros temporales
@@ -311,15 +353,16 @@ lOopsCannotCopyFavorite	Tipos de favoritos "~1~" cannot be copied.
 lOopsChangeFolderInDialogAlert	¿Usted desea cambiar la carpeta en este cuadro de diálogo? Para navegar dentro de una caja de diálogo, tiene que habilitar una opción (primera casilla de verificación en la pestaña "General") .`n`nDo desea abrir la ventana Opciones?
 lOopsCouldNotOpenSpecialFolder	~1~ no se puede abrir la carpeta especial: "~2~".
 lOopsEmpty	vacio 
-lOopsErrorIniFileRetry	Si el archivo de configuración externo en una unidad de red, pruebe a reiniciar ~ 1 ~ cuando la unidad de red está disponible. ; new
-lOopsErrorIniFileUnavailable	El archivo de configuración externo no está disponible ; new
-lOopsErrorReadingIniFile	Se ha producido un error al leer el fichero de configuración: ; new
-lOopsExternalMenuReadOnly	Este menú externo es solo de lectura y no se puede cambiar. ; new
+lOopsErrorIniFileReadOnly	Este menú compartido es solamente de lectura.
+lOopsErrorIniFileRetry	Si el archivo de configuración externo en una unidad de red, pruebe a reiniciar ~ 1 ~ cuando la unidad de red está disponible.
+lOopsErrorIniFileUnavailable	El archivo de configuración externo no está disponible
+lOopsErrorReadingIniFile	Se ha producido un error al leer el fichero de configuración:
+lOopsExternalMenuReadOnly	Este menú externo es solo de lectura y no se puede cambiar.
 lOopsFtpLocationProtocol	Ubicación FTP debe comenzar con "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	Este atajo "~1~" ya esta siendo usado por ~2~.`n`nPor favor, elija un nuevo atajo para ~3~.
 lOopsHotkeyNotInMenus	Error: la ubicación "~1~" para la tecla de acceso directo "~1~" no se encuentra en los menús.
-lOopsHttpLocationTransformed	La ubicación HTTP (formato URL) se convirtió en ruta de red (UNC) para ser compatible con Windows ; changed
+lOopsHttpLocationTransformed	La ubicación HTTP (formato URL) se convirtió en ruta de red (UNC) para ser compatible con Windows
 lOopsInvalidWinCmdIni	Archivo de configuración de Total Commander "wincmd.ini" no encontrado.`n`nSeleccione el archivo en "Opciones", "Gestores de archivos" tab. 
 lOopsInvalidWindowPosition	Valor de posición de la ventana no válido (s)
 lOopsLaunchWithNotFound	"Lanzamiento con este archivo de aplicación "no encontrado:` ~1~ `n`nComprobar configuración avanzada del n`n favoritos.
@@ -327,12 +370,12 @@ lOopsLocation	ubicación
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
 lOopsTitle	~1~ (~2~)
-lOopsUnknownTargetAppName	Se ha producido un error durante la apertura de este favorito. Por favor, inténtelo de nuevo... ; new
+lOopsUnknownTargetAppName	Se ha producido un error durante la apertura de este favorito. Por favor, inténtelo de nuevo...
 lOopsWriteProtectedError	Parece ser que ~1~ fué lanzado desde una carpeta SOLO DE ESCRITURA de forma que es imposible crear el archivo de configuración "~1~.ini".`n`nMueva el archivo .EXE de ~1~ a una carpeta REGULAR a vuestra elección, a continuación, ejecute de nuevo la aplicación de esta carpeta.`n`n~1~ estará cerrada.
 lOopsWrongThirdPartyPath	Ruta o nombre de archivo incorrecto para ~1~:`n~2~.`n`nVerifique el archivo .exe seleccionado para ~1~ en las "Opciones", pestaña "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Ruta equivocada o nombre de archivo para QAPconnect application`n ~1~: `n ~2~ .`n`nCompruebe valores para [~1~] en ~3~. Utilice el botón "~4~" en "Opciones", pestaña "~5~".
 lOopsZipFileError	Parece ser que ~1~ se puso en marcha directamente desde un archivo comprimido (ZIP).`n`nDebe extraer el archivo .EXE de ~1~ del comprimido ZIP a una carpeta de su elección, a continuación, ejecute de nuevo la aplicación de esta carpeta.`n`n~1~ será cerrada.
-lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús ; new
+lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús
 lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
 lOptionsChangeFolderInDialog	Cambiar las carpetas en la caja de diálogo con los principales QAP ratón y teclado teclas de acceso rápido
@@ -340,6 +383,7 @@ lOptionsChangeFolderInDialogCheckbox	Haga clic "OK" para confirmar que usted ent
 lOptionsChangeFolderInDialogText	Active esta opción para permitir la navegación carpeta en los cuadros de diálogo (Abrir, Guardar como, etc.), pero, por favor, lea las siguientes Atención.`n`nUsted debe utilizar esta función sólo en los cuadros de diálogo "Archivo". Si lo usa en otro tipo de cuadro de diálogo, por ejemplo en un cuadro de diálogo "Opciones", tratando de cambiar la carpeta podría modificar y guardar los valores en el cuadro de diálogo sin ninguna notificación.
 lOptionsChangeHotkey	Modificar
 lOptionsCheck4Update	Compruebe Actualización
+lOptionsControlDoublePressed	Abrir el menú principal con Ctrl + Ctrl (Izquierda o la tecla de control derecha pulsada dos veces) 
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsExclusionDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
@@ -356,7 +400,7 @@ lOptionsHotkeyRemindersPrompt	Recordatorios teclas de acceso directo en el menú:
 lOptionsHotkeyRemindersShort	Mostrar nombres abreviados
 lOptionsIconSize	Tamaño de iconos del menú
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified ; changed
+lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified
 lOptionsMenuActiveWindow	En la ventana activa
 lOptionsMenuFixPosition	En una posición fija
 lOptionsMenuNearMouse	Cerca del puntero del ratón
@@ -388,8 +432,8 @@ lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar u
 lReloadPrompt	Cambio ~1~ guardado: ~2~. Desea reiniciar ~3~ en ~2~ ahora? Se perderán los cambios no guardados en el menú de carpetas.
 lTCMenuName	TC Lista de sitios Favoritos 
 lTCWinCmdLocation	WinCmd.ini ubicación 
-lTooltipSnippetWait	Seleccione el punto de inserción y la tecla "~1~" para pegar el fragmento (espere ~2~ segundos) ; new
-lTooltipSnippetWaitEnter	Entrar ; new
+lTooltipSnippetWait	Seleccione el punto de inserción y la tecla "~1~" para pegar el fragmento (espere ~2~ segundos)
+lTooltipSnippetWaitEnter	Entrar
 lTooltipSnippetWaitMacro	Haga clic en  "~1~" para lanzar el macro (espere~2~ segundos) 
 lTooltipSnippetWaitText	Seleccione el punto de inserción y haga click"~1~" para pegar el código (espere ~2~ segundos)
 lTrayTipInstalledDetail	~1~ para lanzar favoritos
