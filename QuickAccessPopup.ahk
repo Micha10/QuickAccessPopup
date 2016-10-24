@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.4.3 (2016-10-??)
+- fix bug working directory not being shown in edit fav adv tab for application favorites
+- language update for
+- reduce the number of pages (clicks) in setup procedure from 7 to 3 when installing an update
+
 Version: 7.5.4.2 (2016-10-13)
 - Update RECOMMENDED: improvements against risk of QAP submenus favorites data loss
 - add external menu values external path and loaded in menu object backup;
@@ -6523,7 +6528,7 @@ ButtonAppWorkingDirCurrentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : "")
+GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : f_strFavoriteAppWorkingDir)
 GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_strFavoriteAppWorkingDir
 GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_btnBrowseAppWorkingDir
 
@@ -11421,25 +11426,23 @@ return
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
 ;------------------------------------------------------------
 {
-	StringSplit, arrFirstVersion, strFirstVersion, `.
-	StringSplit, arrSecondVersion, strSecondVersion, `.
-	if (arrFirstVersion0 > arrSecondVersion0)
-		intLoop := arrFirstVersion0
+	; To make the two strings comparable by < and > operators 
+	; RegExReplace(..., "[^.]") removes all but dots
+	; StrLen() counts number of dots in version number
+	; the loop add ".0" until we have 4 dots (eg "0.0.0.0.0")
+	loop, % 4 - StrLen(RegExReplace(strFirstVersion, "[^.]"))
+		strFirstVersion .= ".0"
+	loop, % 4 - StrLen(RegExReplace(strSecondVersion, "[^.]"))
+		strSecondVersion .= ".0"
+
+	if (strFirstVersion > strSecondVersion)
+		return 1 ; greater
+	else if (strFirstVersion < strSecondVersion)
+		return -1 ; smaller
 	else
-		intLoop := arrSecondVersion0
-
-	Loop %intLoop%
-		if (arrFirstVersion%A_index% > arrSecondVersion%A_index%)
-			return 1 ; greater
-		else if (arrFirstVersion%A_index% < arrSecondVersion%A_index%)
-			return -1 ; smaller
-		
-	return 0 ; equal
+		return 0 ; equal
 }
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
+;------------------------------------------------------------;------------------------------------------------------------
 Check4UpdateChangeButtonNames:
 ;------------------------------------------------------------
 
