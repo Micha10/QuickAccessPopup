@@ -32,9 +32,9 @@ HISTORY
 =======
 
 Version: 7.5.4.3 (2016-10-??)
-- fix bug working directory not being shown in edit fav adv tab for application favorites
-- language update for
+- fix bug working directory not being shown in edit favorite advanced tab for application favorites
 - reduce the number of pages (clicks) in setup procedure from 7 to 3 when installing an update
+- language update for German, Spanish, French, Italian, Portuguese, Brazilian-Portuguese and Chineese (TW)
 
 Version: 7.5.4.2 (2016-10-13)
 - Update RECOMMENDED: improvements against risk of QAP submenus favorites data loss
@@ -965,7 +965,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.4.2
+;@Ahk2Exe-SetVersion 7.5.4.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1014,7 +1014,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.4.2" ; "major.minor.bugs" or "major.minor.beta.release"
+g_strCurrentVersion := "7.5.4.3" ; "major.minor.bugs" or "major.minor.beta.release"
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
