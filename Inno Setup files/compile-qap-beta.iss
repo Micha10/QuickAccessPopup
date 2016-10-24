@@ -34,8 +34,9 @@ Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ; AppMutex={#MyAppNameNoSpace}Mutex -> do not use AppMutex - Use instead automatic closing when install and [Code] section when uninstall
-; DisableWelcomePage=yes -> keep default amd display
-; DisableReadyPage=yes -> keep default amd display
+; DisableWelcomePage=yes -> keep default and display (make it is displayed)
+DisableWelcomePage=no
+; DisableReadyPage=yes -> keep default and display
 ; display Dir page only at first install but show dir on ready page
 DisableDirPage=auto
 AlwaysShowDirOnReadyPage=yes
