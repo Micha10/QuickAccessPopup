@@ -23,6 +23,7 @@ lDialogAdd	Ajouter
 lDialogAddEditFavoriteTitle	~1~ un favori - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~ ~2~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
+lDialogAddFavoriteTabsLive	Option de dossier actif
 lDialogAddFileSelect	Choisir un nouveau document:
 lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement le dossier actif dans ce type de fenêtre.`n`nVoulez-vous ajouter un dossier favori manuellement?
 lDialogAddFolderManuallyTitle	Ajouter ce dossier - ~1~ ~2~
@@ -64,10 +65,14 @@ lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disp
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
-lDialogFavoriteFolderLive	Dossier Live (menu incluant les sous-dossiers, voir "Paramètres avancés" pour les options)
-lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (laisser vide pour pas de colonnes)
+lDialogFavoriteFolderLive	Dossier Actif (menu incluant les sous-dossiers)
 lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier Live
+lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (laisser vide pour pas de colonnes)
 lDialogFavoriteFolderLiveDocuments	Inclure les documents
+lDialogFavoriteFolderLiveExclude	Exclure
+lDialogFavoriteFolderLiveExtensions	ces extensions (separées par des espaces)
+lDialogFavoriteFolderLiveInclude	Inclure
+lDialogFavoriteFolderLiveLevels	Nombre de sous-niveaux à inclure dans le menu de ce Dossier actif
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.
@@ -235,6 +240,8 @@ lGuiPasswordNotEncripted	Note: Le mot de passe ne sera PAS encrypté lorsqu'il se
 lGuiRemoveFavorite	Supprimer
 lGuiResetDefault	Restaurer le raccourci par défaut
 lGuiSave	Enregistrer
+lGuiSaveAndClose	&Enregistrer`net fermer
+lGuiSaveAndStay	&Enregistrer`net raffraîchir
 lGuiSaveToUpdateBacklinks	Enregistrer pour mettre à jour les liens de retour
 lGuiSubmenuDropdownLabel	Menu à modifier:
 lGuiTitle	Paramètres - ~1~ ~2~
@@ -352,6 +359,7 @@ lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1
 lNavigateSpecialError	Une erreur s'est produite lors de l'ouverture du dossier spécial #~1~.
 lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter ce dossier au menu":`n`n1) Activez la fenêtre ~1~ contenant le dossier à ajouter au menu.`n2) Ouvrez le menu popup avec ~2~.`n3) Choisissez "Ajouter ce dossier au menu" et enregistrez votre nouveau favori.
 lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
+lOopsCannotEditInLiveFolder	Les favoris dans les dossiers actifs ne peuvent pas être modifiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide

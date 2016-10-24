@@ -31,13 +31,18 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.9.4 (2016-10-18)
+Version BETA: 7.5.9.5 (2016-10-23)
+- add Save & reload button to Settings (this replaces holding a modifier key when clicking the save button)
+- rename existing Save button to Save & Close
+- fix bug working directory not being shown in edit fav adv tab for application favorites
+
+Version BETA: 7.5.9.4 (2016-10-18)
 - Avoid editing folder favorite in live folder from Alternative menu
 - Finish move live folder settings to a new tab in Add/Edit Favorite folders
 - Simplified version comparison in Check for updates
 - Spanish and Brazilian Portuguese language updates
 
-Version: 7.5.9.3 (2016-10-16)
+Version BETA: 7.5.9.3 (2016-10-16)
 - Merge changes from master version v7.5.4.2 (update RECOMMENDED: improvements against risk of QAP submenus favorites data loss)
 - Move live folder settings to a new tab in Add/Edit Favorite folders
 - Add an option in live folder to include or exclude files by extensions
@@ -1003,7 +1008,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.4 BETA
+;@Ahk2Exe-SetVersion 7.5.9.5 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1052,7 +1057,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.5.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
