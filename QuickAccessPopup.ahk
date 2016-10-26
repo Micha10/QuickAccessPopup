@@ -4836,18 +4836,24 @@ ActiveFileManagerClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_radActiveFileManager1 ? "Hide" : "Show"), f_lnkFileManagerHelp
-GuiControl, % (f_radActiveFileManager1 ? "Hide" : "Show"), f_lblFileManagerDetail
-GuiControl, % (f_radActiveFileManager1 ? "Hide" : "Show"), f_lblFileManagerPrompt
-GuiControl, % (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show"), f_strFileManagerPath
-GuiControl, % (!f_radActiveFileManager4 ? "Hide" : "Show"), f_drpQAPconnectFileManager
-GuiControl, % (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show"), f_btnFileManagerPath
-GuiControl, % (!f_radActiveFileManager4 ? "Hide" : "Show"), f_btnQAPconnectEdit
-GuiControl, % (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show"), f_blnFileManagerUseTabs
+strShowHideCommand := (f_radActiveFileManager1 ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_lblFileManagerDetail
+GuiControl, %strShowHideCommand%, f_lblFileManagerPrompt
+GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
 
-GuiControl, % (!f_radActiveFileManager3 ? "Hide" : "Show"), f_lblTotalCommanderWinCmdPrompt
-GuiControl, % (!f_radActiveFileManager3 ? "Hide" : "Show"), f_strTotalCommanderWinCmd
-GuiControl, % (!f_radActiveFileManager3 ? "Hide" : "Show"), f_btnTotalCommanderWinCmd
+strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
+GuiControl, %strShowHideCommand%, f_btnFileManagerPath
+GuiControl, %strShowHideCommand%, f_strFileManagerPath
+
+strShowHideCommand := (!f_radActiveFileManager3 ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_btnTotalCommanderWinCmd
+GuiControl, %strShowHideCommand%, f_lblTotalCommanderWinCmdPrompt
+GuiControl, %strShowHideCommand%, f_strTotalCommanderWinCmd
+
+strShowHideCommand := (!f_radActiveFileManager4 ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_btnQAPconnectEdit
+GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
 
 if (f_radActiveFileManager2) ; DirectoryOpus
 {
@@ -4902,6 +4908,7 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 strClickedFileManagerSystemNames := ""
 strHelpUrl := ""
 strQAPconnectFileManagersList := ""
+strShowHideCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -4912,8 +4919,12 @@ DisplayIconsClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_blnDisplayIcons ? "Enable" : "Disable"), f_drpIconSizeLabel
-GuiControl, % (f_blnDisplayIcons ? "Enable" : "Disable"), f_drpIconSize
+strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
+
+GuiControl, %strEnableDisableCommand%, f_drpIconSizeLabel
+GuiControl, %strEnableDisableCommand%, f_drpIconSize
+
+strEnableDisableCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -4924,10 +4935,14 @@ PopupMenuPositionClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_radPopupMenuPosition3 ? "Enable" : "Disable"), f_lblPopupFixPositionX
-GuiControl, % (f_radPopupMenuPosition3 ? "Enable" : "Disable"), f_strPopupFixPositionX
-GuiControl, % (f_radPopupMenuPosition3 ? "Enable" : "Disable"), f_lblPopupFixPositionY
-GuiControl, % (f_radPopupMenuPosition3 ? "Enable" : "Disable"), f_strPopupFixPositionY
+strEnableDisableCommand := (f_radPopupMenuPosition3 ? "Enable" : "Disable")
+
+GuiControl, %strEnableDisableCommand%, f_lblPopupFixPositionX
+GuiControl, %strEnableDisableCommand%, f_strPopupFixPositionX
+GuiControl, %strEnableDisableCommand%, f_lblPopupFixPositionY
+GuiControl, %strEnableDisableCommand%, f_strPopupFixPositionY
+
+strEnableDisableCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -5642,10 +5657,10 @@ Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 
-Gui, 1:Font, s9 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndClose% ; Button1
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStay% ; Button2
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiClose% ; Close until changes occur - Button3
+Gui, 1:Font, s8 w600, Verdana
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h45, %lGuiSaveAndClose% ; Button1
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h45, %lGuiSaveAndStay% ; Button2
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h45, %lGuiClose% ; Close until changes occur - Button3
 
 if !(g_blnDonor)
 {
@@ -5747,7 +5762,9 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
 g_intListW := A_GuiWidth - 40 - 88
 intListH := A_GuiHeight - 115 - 132
 
-intButtonSpacing := (g_intListW - (100 * 3)) // 4
+; space before, between and after save/reload/close buttons
+; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
+intButtonSpacing := (A_GuiWidth - 100 - 150 - (3 * 100)) // 4
 
 for intIndex, objGuiControl in g_objGuiControls
 {
@@ -5771,11 +5788,11 @@ for intIndex, objGuiControl in g_objGuiControls
 		intX := intX - arrPosW
 	}
 	else if (objGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
-		intX := 40 + intButtonSpacing
+		intX := 100 + intButtonSpacing
 	else if (objGuiControl.Name = "f_btnGuiSaveAndStayFavorites")
-		intX := 40 + (2 * intButtonSpacing) + 100
+		intX := 100 + (2 * intButtonSpacing) + 100
 	else if (objGuiControl.Name = "f_btnGuiCancel")
-		intX := 40 + (3 * intButtonSpacing) + 200
+		intX := 100 + (3 * intButtonSpacing) + 200
 		
 	GuiControl, % "1:Move" . (objGuiControl.Draw ? "Draw" : ""), % objGuiControl.Name, % "x" . intX	.  " y" . intY
 		
@@ -6175,6 +6192,8 @@ Gosub, GuiFavoriteTabLiveFolderOptions
 Gosub, GuiFavoriteTabWindowOptions
 
 Gosub, GuiFavoriteTabAdvancedSettings
+
+Gosub, CheckboxFolderLiveClicked
 
 ; ------ TABS End ------
 
@@ -6584,8 +6603,6 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 
 	Gui, 2:Add, Text, x20 y+20 w400 vf_lblFavoriteFolderLiveExclude hidden, %lDialogFavoriteFolderLiveExclude%
 	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExclude hidden, % (InStr(strGuiFavoriteLabel, "GuiAdd") ? "bak bk" : g_objEditedFavorite.FavoriteFolderLiveExclude)
-
-	gosub, CheckboxFolderLiveClicked
 }
 
 return
@@ -6688,7 +6705,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	{
 		Gui, 2:Add, Text, x20 y+20 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
-		Gui, 2:Add, Button, x+10 yp gButtonSelectLaunchWith, %lDialogBrowseButton%
+		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
 	if !InStr("Group|Snippet|External", g_objEditedFavorite.FavoriteType, true)
@@ -6725,8 +6742,11 @@ ButtonAppWorkingDirCurrentChanged:
 Gui, 2:Submit, NoHide
 
 GuiControl, 2:, f_strFavoriteAppWorkingDir, % (f_blnAppWorkingDirCurrent ? "{CUR_LOC}" : f_strFavoriteAppWorkingDir)
-GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_strFavoriteAppWorkingDir
-GuiControl, % "2:" . (f_blnAppWorkingDirCurrent ? "Disable" : "Enable"), f_btnBrowseAppWorkingDir
+
+strEnableDisableCommand := (f_blnAppWorkingDirCurrent ? "Disable" : "Enable")
+GuiControl, 2:%strEnableDisableCommand%, f_strFavoriteAppWorkingDir
+GuiControl, 2:%strEnableDisableCommand%, f_btnBrowseAppWorkingDir
+strEnableDisableCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -7163,23 +7183,32 @@ CheckboxFolderLiveClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveOptions
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveLevels
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveLevels
+strShowHideCommand := (f_chkFavoriteFolderLive ? "Show" : "Hide")
+
+GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveOptions
+GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveLevels
+GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevels
 if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 	GuiControl, , f_intFavoriteFolderLiveLevels, 1
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_lblFavoriteFolderLiveColumns
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_intFavoriteFolderLiveColumns
-GuiControl, % (f_chkFavoriteFolderLive ? "Show" : "Hide"), f_chkFavoriteFolderLiveDocuments
+GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveColumns
+GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumns
+GuiControl, %strShowHideCommand%, f_chkFavoriteFolderLiveDocuments
+
+; GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_chkUseDefaultWindowPosition
 
 GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
 GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_btnFavoriteLaunchWith
 
 GuiControl, , f_strFavoriteArguments, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteArguments)
 GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
 
 GuiControl, , f_chkFavoriteFolderLiveDocuments, % (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : false)
 gosub, CheckboxFolderLiveDocumentsClicked
+
+gosub, CheckboxFolderLiveChangeWindowPositionTab
+
+strShowHideCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -7190,10 +7219,14 @@ CheckboxFolderLiveDocumentsClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_chkFavoriteFolderLiveInclude
-GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_chkFavoriteFolderLiveExclude
-GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_lblFavoriteFolderLiveExtensions
-GuiControl, % (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide"), f_strFavoriteFolderLiveExtensions
+strShowHideCommand := (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide")
+
+GuiControl, %strShowHideCommand%, f_chkFavoriteFolderLiveInclude
+GuiControl, %strShowHideCommand%, f_chkFavoriteFolderLiveExclude
+GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveExtensions
+GuiControl, %strShowHideCommand%, f_strFavoriteFolderLiveExtensions
+
+strShowHideCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -7202,28 +7235,37 @@ return
 ;------------------------------------------------------------
 CheckboxWindowPositionClicked:
 RadioButtonWindowPositionMinMaxClicked:
+CheckboxFolderLiveChangeWindowPositionTab:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionState
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionMinMax1
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionMinMax2
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionMinMax3
+GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_chkUseDefaultWindowPosition
 
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionDelayLabel
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionDelay
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionMillisecondsLabel
-GuiControl, % (!f_chkUseDefaultWindowPosition ? "Show" : "Hide"), f_lblWindowPositionMayFail
+strShowHideCommand := (!f_chkUseDefaultWindowPosition and (!f_chkFavoriteFolderLive) ? "Show" : "Hide")
 
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_lblWindowPosition
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_lblWindowPositionX
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_intWindowPositionX
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_lblWindowPositionY
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_intWindowPositionY
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_lblWindowPositionW
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_intWindowPositionW
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_lblWindowPositionH
-GuiControl, % (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 ? "Show" : "Hide"), f_intWindowPositionH
+GuiControl, %strShowHideCommand%, f_lblWindowPositionState
+GuiControl, %strShowHideCommand%, f_lblWindowPositionMinMax1
+GuiControl, %strShowHideCommand%, f_lblWindowPositionMinMax2
+GuiControl, %strShowHideCommand%, f_lblWindowPositionMinMax3
+
+GuiControl, %strShowHideCommand%, f_lblWindowPositionDelayLabel
+GuiControl, %strShowHideCommand%, f_lblWindowPositionDelay
+GuiControl, %strShowHideCommand%, f_lblWindowPositionMillisecondsLabel
+GuiControl, %strShowHideCommand%, f_lblWindowPositionMayFail
+
+strShowHideCommand := (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 and !f_chkFavoriteFolderLive ? "Show" : "Hide")
+
+GuiControl, %strShowHideCommand%, f_lblWindowPosition
+GuiControl, %strShowHideCommand%, f_lblWindowPositionX
+GuiControl, %strShowHideCommand%, f_intWindowPositionX
+GuiControl, %strShowHideCommand%, f_lblWindowPositionY
+GuiControl, %strShowHideCommand%, f_intWindowPositionY
+GuiControl, %strShowHideCommand%, f_lblWindowPositionW
+GuiControl, %strShowHideCommand%, f_intWindowPositionW
+GuiControl, %strShowHideCommand%, f_lblWindowPositionH
+GuiControl, %strShowHideCommand%, f_intWindowPositionH
+
+strShowHideCommand := ""
 
 return
 ;------------------------------------------------------------
