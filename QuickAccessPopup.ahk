@@ -1505,7 +1505,7 @@ FileInstall, FileInstall\separator-26.png, %g_strTempDir%\separator-26.png
 FileInstall, FileInstall\column-26.png, %g_strTempDir%\column-26.png
 FileInstall, FileInstall\down_circular-26.png, %g_strTempDir%\down_circular-26.png
 FileInstall, FileInstall\edit_property-48.png, %g_strTempDir%\edit_property-48.png
-FileInstall, FileInstall\generic_sorting2-26-grey.png, %g_strTempDir%\generic_sorting2-26-grey.png
+; FileInstall, FileInstall\generic_sorting2-26-grey.png, %g_strTempDir%\generic_sorting2-26-grey.png
 FileInstall, FileInstall\help-32.png, %g_strTempDir%\help-32.png
 FileInstall, FileInstall\left-12.png, %g_strTempDir%\left-12.png
 FileInstall, FileInstall\settings-32.png, %g_strTempDir%\settings-32.png
@@ -1517,6 +1517,27 @@ FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
 FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
 FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
 FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+
+FileInstall, FileInstall\about-32_c.png, %g_strTempDir%\about-32_c.png
+FileInstall, FileInstall\add_property-48_c.png, %g_strTempDir%\add_property-48_c.png
+FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
+FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
+FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
+FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
+FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
+FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
+FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
+FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
+FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
+FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
+FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
+FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
+
+FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
+FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
+FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
+FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
+FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 
 return
 ;-----------------------------------------------------------
@@ -2572,6 +2593,7 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
+IniRead, g_strSettingsIconsExtension, %g_strIniFile%, Global, SettingsIconsExtension, .png
 
 ; ---------------------
 ; Load favorites
@@ -5619,21 +5641,20 @@ Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersio
 Gui, 1:Font, s9 w400, Verdana
 Gui, 1:Add, Link, vf_lblAppTagLine, %lAppTagline% ; SysLink1
 
-Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48.png ; Static2
-Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48.png ; Static3
-Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48.png ; Static4
-Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48.png ; Static5
-Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48.png ; Static6
-Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32.png ; Static7
-Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12.png ; Static8
-Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12.png ; Static9
-Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26.png ; Static10
-Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26.png ; Static11
-Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26.png ; Static12
-Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26.png ; Static13
-; OUT Gui, 1:Add, Picture, vpicSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting2-26-grey.png ; Static14
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32.png ; Static14
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32.png ; Static15
+Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48%g_strSettingsIconsExtension% ; Static2
+Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%g_strSettingsIconsExtension% ; Static3
+Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%g_strSettingsIconsExtension% ; Static4
+Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%g_strSettingsIconsExtension% ; Static5
+Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%g_strSettingsIconsExtension% ; Static6
+Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%g_strSettingsIconsExtension% ; Static7
+Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%g_strSettingsIconsExtension% ; Static8
+Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12%g_strSettingsIconsExtension% ; Static9
+Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26%g_strSettingsIconsExtension% ; Static10
+Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%g_strSettingsIconsExtension% ; Static11
+Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%g_strSettingsIconsExtension% ; Static12
+Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%g_strSettingsIconsExtension% ; Static13
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%g_strSettingsIconsExtension% ; Static14
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%g_strSettingsIconsExtension% ; Static15
 
 Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static16
@@ -5658,9 +5679,9 @@ Gui, 1:Add, ListView
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h45, %lGuiSaveAndClose% ; Button1
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h45, %lGuiSaveAndStay% ; Button2
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h45, %lGuiClose% ; Close until changes occur - Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndClose% ; Button1
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStay% ; Button2
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiClose% ; Close until changes occur - Button3
 
 if !(g_blnDonor)
 {
@@ -5668,7 +5689,7 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32.png" ; Static25
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . g_strSettingsIconsExtension ; Static25
 	Gui, 1:Font, s8 w400, Arial ; button legend
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static26
 }
