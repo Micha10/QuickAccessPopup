@@ -8,8 +8,8 @@
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 
-#define MyAppVersion "v7.5.4.2"
-#define MyVersionFileName "7_5_4_2"
+#define MyAppVersion "v7.5.4.3"
+#define MyVersionFileName "7_5_4_3"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -34,7 +34,8 @@ Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ; AppMutex={#MyAppNameNoSpace}Mutex -> do not use AppMutex - Use instead automatic closing when install and [Code] section when uninstall
-; DisableWelcomePage=yes -> keep default and display
+; DisableWelcomePage=yes -> keep default and display (make sure it is displayed)
+DisableWelcomePage=no
 ; DisableReadyPage=yes -> keep default and display
 ; display Dir page only at first install but show dir on ready page
 DisableDirPage=auto
@@ -68,7 +69,7 @@ Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-{#MyVersi
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\{#QAPupdateIconsWin10}"; DestDir: "{app}"; DestName: "QAPupdateIconsWin10.exe"; Flags: ignoreversion signonce
-; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"; Flags: ignoreversion
+; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"; Flags: ignoreversion signonce
 ; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build\QuickAccessPopup-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup.ico"; Flags: ignoreversion

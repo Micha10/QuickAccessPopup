@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 7.5.4.3 (2016-10-30)
+- reduce the number of pages (clicks) in setup procedure from 7 to 3 when installing an update
+- language update for German, Spanish, French, Italian, Portuguese, Brazilian-Portuguese and Chineese (TW)
+- fix bug working directory not being shown in edit favorite advanced tab for application favorites
+
 Version BETA: 7.5.9.5 (2016-10-23)
 - add Save & reload button to Settings (this replaces holding a modifier key when clicking the save button)
 - rename existing Save button to Save & Close
@@ -11811,10 +11816,7 @@ FirstVsSecondIs(strFirstVersion, strSecondVersion)
 	else
 		return 0 ; equal
 }
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
+;------------------------------------------------------------;------------------------------------------------------------
 Check4UpdateChangeButtonNames:
 ;------------------------------------------------------------
 
