@@ -1255,7 +1255,7 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanNavigate(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If" confition
+; empty - act as a handle for the "Hotkey, If" condition
 #If
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -1264,7 +1264,7 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanLaunch(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If" confition
+; empty - act as a handle for the "Hotkey, If" condition
 #If
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -9173,8 +9173,6 @@ FormatExistingLocation(strExistingLocation)
 ;------------------------------------------------------------
 LoadFavoriteHotkeys:
 ;------------------------------------------------------------
-
-; RecursiveLoadFavoriteHotkeys(g_objMainMenu) ; recurse for submenus
 
 for strLocation, strHotkey in g_objHotkeysByLocation
 {
