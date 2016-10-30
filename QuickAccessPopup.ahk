@@ -1048,7 +1048,6 @@ ListLines, On
 
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
 
-Gosub, InitFileInstall
 Gosub, InitQAPconnectFile
 
 Gosub, InitLanguageVariables
@@ -1165,6 +1164,8 @@ Gosub, InitGuiControls
 Gosub, LoadIniFile
 ; must be after LoadIniFile
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
+
+Gosub, InitFileInstall
 
 if (g_blnDiagMode)
 {
@@ -1496,48 +1497,53 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAc
 
 FileInstall, FileInstall\default_browser_icon.html, %g_strTempDir%\default_browser_icon.html, 1
 
-FileInstall, FileInstall\about-32.png, %g_strTempDir%\about-32.png
-FileInstall, FileInstall\add_property-48.png, %g_strTempDir%\add_property-48.png
-FileInstall, FileInstall\delete_property-48.png, %g_strTempDir%\delete_property-48.png
-FileInstall, FileInstall\copy-48.png, %g_strTempDir%\copy-48.png
-FileInstall, FileInstall\keyboard-48.png, %g_strTempDir%\keyboard-48.png
-FileInstall, FileInstall\separator-26.png, %g_strTempDir%\separator-26.png
-FileInstall, FileInstall\column-26.png, %g_strTempDir%\column-26.png
-FileInstall, FileInstall\down_circular-26.png, %g_strTempDir%\down_circular-26.png
-FileInstall, FileInstall\edit_property-48.png, %g_strTempDir%\edit_property-48.png
-; FileInstall, FileInstall\generic_sorting2-26-grey.png, %g_strTempDir%\generic_sorting2-26-grey.png
-FileInstall, FileInstall\help-32.png, %g_strTempDir%\help-32.png
-FileInstall, FileInstall\left-12.png, %g_strTempDir%\left-12.png
-FileInstall, FileInstall\settings-32.png, %g_strTempDir%\settings-32.png
-FileInstall, FileInstall\up-12.png, %g_strTempDir%\up-12.png
-FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
+if (g_blnUseClassicButtons)
+{
+	FileInstall, FileInstall\about-32.png, %g_strTempDir%\about-32.png
+	FileInstall, FileInstall\add_property-48.png, %g_strTempDir%\add_property-48.png
+	FileInstall, FileInstall\delete_property-48.png, %g_strTempDir%\delete_property-48.png
+	FileInstall, FileInstall\copy-48.png, %g_strTempDir%\copy-48.png
+	FileInstall, FileInstall\keyboard-48.png, %g_strTempDir%\keyboard-48.png
+	FileInstall, FileInstall\separator-26.png, %g_strTempDir%\separator-26.png
+	FileInstall, FileInstall\column-26.png, %g_strTempDir%\column-26.png
+	FileInstall, FileInstall\down_circular-26.png, %g_strTempDir%\down_circular-26.png
+	FileInstall, FileInstall\edit_property-48.png, %g_strTempDir%\edit_property-48.png
+	; FileInstall, FileInstall\generic_sorting2-26-grey.png, %g_strTempDir%\generic_sorting2-26-grey.png
+	FileInstall, FileInstall\help-32.png, %g_strTempDir%\help-32.png
+	FileInstall, FileInstall\left-12.png, %g_strTempDir%\left-12.png
+	FileInstall, FileInstall\settings-32.png, %g_strTempDir%\settings-32.png
+	FileInstall, FileInstall\up-12.png, %g_strTempDir%\up-12.png
+	FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
 
-FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
-FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
-FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
-FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
-FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+	FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
+	FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
+	FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
+	FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
+	FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+}
+else
+{
+	FileInstall, FileInstall\about-32_c.png, %g_strTempDir%\about-32_c.png
+	FileInstall, FileInstall\add_property-48_c.png, %g_strTempDir%\add_property-48_c.png
+	FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
+	FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
+	FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
+	FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
+	FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
+	FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
+	FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
+	FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
+	FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
+	FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
+	FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
+	FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
 
-FileInstall, FileInstall\about-32_c.png, %g_strTempDir%\about-32_c.png
-FileInstall, FileInstall\add_property-48_c.png, %g_strTempDir%\add_property-48_c.png
-FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
-FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
-FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
-FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
-FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
-FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
-FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
-FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
-FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
-FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
-FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
-FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
-
-FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
-FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
-FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
-FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
-FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
+	FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
+	FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
+	FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
+	FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
+	FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
+}
 
 return
 ;-----------------------------------------------------------
@@ -2511,6 +2517,7 @@ IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicM
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
+IniRead, g_blnUseClassicButtons, %g_strIniFile%, Global, UseClassicButtons, 0
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -2593,7 +2600,6 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
-IniRead, g_strSettingsIconsExtension, %g_strIniFile%, Global, SettingsIconsExtension, .png
 
 ; ---------------------
 ; Load favorites
@@ -4680,10 +4686,6 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsLanguage%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpLanguage Sort, %lOptionsLanguageLabels%
 GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
-Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
-Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
-GuiControl, ChooseString, f_drpTheme, %g_strTheme%
-
 Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
@@ -4705,6 +4707,13 @@ GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
 Gui, 2:Add, Edit, y+5 xs w36 h17 vf_intRecentFoldersMax center, %g_intRecentFoldersMax%
 Gui, 2:Add, Text, yp x+10 w250, %lOptionsRecentFolders%
+
+Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
+Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
+GuiControl, ChooseString, f_drpTheme, %g_strTheme%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnUseClassicButtons, %lOptionsUseClassicButtons%
+GuiControl, , f_blnUseClassicButtons, %g_blnUseClassicButtons%
 
 ; column 2
 
@@ -5270,6 +5279,10 @@ IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 
+strUseClassicButtonsPrev := g_blnUseClassicButtons
+g_blnUseClassicButtons := f_blnUseClassicButtons
+IniWrite, %g_blnUseClassicButtons%, %g_strIniFile%, Global, UseClassicButtons
+
 ;---------------------------------------
 ; Save Tab 2: Popup menu hotkeys
 
@@ -5352,10 +5365,24 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 ; End of tabs
 
 ; if language or theme changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme)
+if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or (strUseClassicButtonsPrev <> g_blnUseClassicButtons)
 {
-	StringReplace, strLanguageNoAmpersand, lOptionsLanguage, &
-	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, (strLanguageCodePrev <> g_strLanguageCode ? strLanguageNoAmpersand : lOptionsTheme), (strLanguageCodePrev <> g_strLanguageCode ? g_strLanguageLabel : g_strTheme), g_strAppNameText)
+	if (strLanguageCodePrev <> g_strLanguageCode)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsLanguage, &
+		strValue := g_strLanguageLabel
+	}
+	else if (strThemePrev <> g_strTheme)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
+		strValue := g_strTheme
+	}
+	else ; (strUseClassicButtonsPrev <> g_blnUseClassicButtons)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsUseClassicButtons, &
+		strValue := (g_blnUseClassicButtons ? lDialogOn : lDialogOff)
+	}
+	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
 }	
@@ -5392,12 +5419,14 @@ g_blnMenuReady := true
 
 strLanguageCodePrev := ""
 strThemePrev := ""
+strUseClassicButtonsPrev := ""
 strActiveFileManagerSystemName := ""
 strActiveFileManagerDisplayName := ""
 blnActiveFileManangerOK := ""
 strExclusionCleanup := ""
 strTempLocation := ""
-strLanguageNoAmpersand := ""
+strOptionNoAmpersand := ""
+strValue := ""
 
 return
 ;------------------------------------------------------------
@@ -5634,6 +5663,8 @@ g_strAppHwnd := WinExist()
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
 
+strSettingsIconsExtension := (g_blnUseClassicButtons ? ".png" : "_c.png")
+
 ; Order of controls important to avoid drawgins gliches when resizing
 
 Gui, 1:Font, % "s12 w700 " . (g_blnUseColors ? "c" . strTextColor : ""), Verdana
@@ -5641,20 +5672,20 @@ Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersio
 Gui, 1:Font, s9 w400, Verdana
 Gui, 1:Add, Link, vf_lblAppTagLine, %lAppTagline% ; SysLink1
 
-Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48%g_strSettingsIconsExtension% ; Static2
-Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%g_strSettingsIconsExtension% ; Static3
-Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%g_strSettingsIconsExtension% ; Static4
-Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%g_strSettingsIconsExtension% ; Static5
-Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%g_strSettingsIconsExtension% ; Static6
-Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%g_strSettingsIconsExtension% ; Static7
-Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%g_strSettingsIconsExtension% ; Static8
-Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12%g_strSettingsIconsExtension% ; Static9
-Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26%g_strSettingsIconsExtension% ; Static10
-Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%g_strSettingsIconsExtension% ; Static11
-Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%g_strSettingsIconsExtension% ; Static12
-Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%g_strSettingsIconsExtension% ; Static13
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%g_strSettingsIconsExtension% ; Static14
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%g_strSettingsIconsExtension% ; Static15
+Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48%strSettingsIconsExtension% ; Static2
+Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%strSettingsIconsExtension% ; Static3
+Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%strSettingsIconsExtension% ; Static4
+Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%strSettingsIconsExtension% ; Static5
+Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
+Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%strSettingsIconsExtension% ; Static7
+Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%strSettingsIconsExtension% ; Static8
+Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12%strSettingsIconsExtension% ; Static9
+Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26%strSettingsIconsExtension% ; Static10
+Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%strSettingsIconsExtension% ; Static11
+Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%strSettingsIconsExtension% ; Static12
+Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static14
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static15
 
 Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static16
@@ -5689,7 +5720,7 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . g_strSettingsIconsExtension ; Static25
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static25
 	Gui, 1:Font, s8 w400, Arial ; button legend
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static26
 }
@@ -5709,6 +5740,7 @@ if (arrSettingsPosition1 <> -1)
 strSettingsPosition := ""
 arrSettingsPosition := ""
 strTextColor := ""
+strSettingsIconsExtension := ""
 
 return
 ;------------------------------------------------------------

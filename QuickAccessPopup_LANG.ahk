@@ -144,7 +144,9 @@ global lDialogMouseCheckLButton := "You can't assign the ""Left Mouse Button"" w
 global lDialogMoveFavoritesTitle := "Move Favorites - ~1~ ~2~"
 global lDialogNone := "None" ; lOptionsMouseNone renamed
 global lDialogNormal := "Normal"
+global lDialogOff := "Off" ; new
 global lDialogOK := "OK" ; new
+global lDialogOn := "On" ; new
 global lDialogOpenThisMenu := "Open this menu"
 global lDialogOr := "or" ; new (lowercase)
 global lDialogReadOnly := "Read-only" ; new
@@ -440,6 +442,7 @@ global lOptionsThirdPartySelectedHelp := "Selected File Manager: ~1~ (<a href=""
 global lOptionsThirdPartySelectFile := "Please, select the ~1~ application file using the ""Browse"" button" ; new
 global lOptionsThirdPartyUseTabs := "Use tabs instead of opening in a new window" ; new
 global lOptionsTrayTip := "&Display Startup Tray Tip"
+global lOptionsUseClassicButtons := "Use classic QAP buttons"
 global lPickIconNoLocation := "First select a favorite before choosing an icon."
 global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ now? Unsaved changes to the folders menu will be lost."
 global lTCMenuName := "TC Directory hotlist" ; new
