@@ -31,10 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 7.5.4.3 (2016-10-??)
-- fix bug working directory not being shown in edit favorite advanced tab for application favorites
+Version: 7.5.4.3 (2016-10-30)
 - reduce the number of pages (clicks) in setup procedure from 7 to 3 when installing an update
 - language update for German, Spanish, French, Italian, Portuguese, Brazilian-Portuguese and Chineese (TW)
+- fix bug working directory not being shown in edit favorite advanced tab for application favorites
 
 Version: 7.5.4.2 (2016-10-13)
 - Update RECOMMENDED: improvements against risk of QAP submenus favorites data loss
