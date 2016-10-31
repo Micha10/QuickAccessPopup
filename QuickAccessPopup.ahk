@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.5.9.7 (2016-11-??)
+- Stop showing the main menu if changes are unsaved in Settings window
+
+
 Version BETA: 7.5.9.6 (2016-10-30)
 - new color buttons for Settings window
 - new option (first tab) to keep classic black & white buttons
@@ -6233,6 +6237,7 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
+; value used by SettingsUnsaved() function
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
@@ -9324,7 +9329,7 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-g_strFavoriteDialogTitle := "" ; empty because checked by RECEIVE_QAPMESSENGER
+g_strFavoriteDialogTitle := "" ; empty because value used by SettingsUnsaved() function
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -9503,6 +9508,12 @@ LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/Alte
 
 DiagWindowInfo(A_ThisLabel . " Begin")
 
+if SettingsUnsaved()
+{
+	WinActivate, %g_strGuiFullTitle%
+	Oops(lOopsUnsavedSettings)
+	return
+}
 if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
 	return
 
@@ -13818,15 +13829,17 @@ SettingsUnsaved()
 ;------------------------------------------------------------
 {
 	global
-	
-	GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
+
+	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
+	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
+	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
 
 	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
 		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
 	if (!blnDialogOpen)
 		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
 	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
+		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)) ; check is Hotkeys dialog list box is open
 
 	return blnDialogOpen
 }
@@ -13953,7 +13966,6 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strAppNameText
 	global g_strAppVersion
 	global g_strNewLocation
-	global g_strFavoriteDialogTitle
 	
 	Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
