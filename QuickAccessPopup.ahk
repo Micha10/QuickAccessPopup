@@ -1178,7 +1178,9 @@ Gosub, InitSpecialFolders
 Gosub, InitQAPFeatures
 Gosub, InitGuiControls
 
-Gosub, LoadIniFile
+Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) location hotkeys and populate g_objHotkeysByLocation, load favorites to menu object
+Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByLocation
+
 ; must be after LoadIniFile
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
@@ -1206,7 +1208,6 @@ Gosub, BuildTotalCommanderHotlist
 
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
-Gosub, LoadFavoriteHotkeys
 Gosub, BuildGui
 Gosub, BuildTrayMenu
 
@@ -2426,7 +2427,7 @@ InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := f
 
 ;-----------------------------------------------------------
 LoadIniFile:
-ReloadIniFile:
+; load options, load/enable popup hotkeys, load (not enable) location hotkeys and populate g_objHotkeysByLocation, load favorites to menu object
 ;-----------------------------------------------------------
 
 Gosub, BackupIniFile
@@ -2510,7 +2511,8 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 		, %g_strIniFile%
 }
 
-Gosub, LoadIniPopupHotkeys
+Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
+Gosub, LoadIniLocationHotkeys ; load (but do not enable) location hotkeys from ini and populate g_objHotkeysByLocation
 
 ; ---------------------
 ; Load Options Tab 1 General
@@ -2621,18 +2623,7 @@ IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefre
 ; ---------------------
 ; Load favorites
 
-IfNotExist, %g_strIniFile%
-{
-	Oops(lOopsWriteProtectedError, g_strAppNameText)
-	ExitApp
-}
-else
-{
-	g_intIniLine := 1
-	
-	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
-		ExitApp
-}
+Gosub, LoadMenuFromIni
 
 arrMainMenu := ""
 strNavigateOrLaunchHotkeyMouseDefault := ""
@@ -2651,6 +2642,27 @@ blnActiveFileManangerOK := ""
 strActiveFileManagerSystemName := ""
 strFileList := ""
 intNumberOfBackups := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadMenuFromIni:
+;------------------------------------------------------------
+
+IfNotExist, %g_strIniFile%
+{
+	Oops(lOopsWriteProtectedError, g_strAppNameText)
+	ExitApp
+}
+else
+{
+	g_intIniLine := 1
+	
+	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
+		ExitApp
+}
 
 return
 ;------------------------------------------------------------
@@ -2944,6 +2956,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 
 ;-----------------------------------------------------------
 LoadIniPopupHotkeys:
+; load from ini file and enable popup hotkeys
 ;-----------------------------------------------------------
 
 ; Read the values and set hotkey shortcuts
@@ -3001,16 +3014,6 @@ if HasHotkey(g_arrPopupHotkeys4)
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsTitles4)
 
-; Load location hotkeys
-Loop
-{
-	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
-	if (strLocationHotkey = "ERROR")
-		break
-	StringSplit, arrLocationHotkey, strLocationHotkey, |
-	g_objHotkeysByLocation.Insert(arrLocationHotkey1, arrLocationHotkey2)
-}
-
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
@@ -3032,6 +3035,27 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 strCode := ""
 objThisQAPFeature := ""
 strHotkey := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadIniLocationHotkeys:
+; load (but do not enable) location hotkeys from ini and populate g_objHotkeysByLocation
+;------------------------------------------------------------
+
+Loop
+{
+	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
+	if (strLocationHotkey = "ERROR")
+		break
+	StringSplit, arrLocationHotkey, strLocationHotkey, |
+	g_objHotkeysByLocation.Insert(arrLocationHotkey1, arrLocationHotkey2)
+}
+
+strLocationHotkey := ""
+arrLocationHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -5324,7 +5348,8 @@ for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
-Gosub, LoadIniPopupHotkeys ; reload ini variables and reset hotkeys
+; After Save Tab 2: Popup menu hotkeys and Save Tab 3: Alternative menu hotkeys
+Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
 
 ;---------------------------------------
 ; Save Tab 4: Exclusion list
@@ -7466,8 +7491,6 @@ if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSe
 
 Gosub, BackupMenusObjects
 
-g_objHotkeysToDisableWhenSave := Object() ; to track hotkeys to turn off when saving favorites with hotkey changed
-
 if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
 else
@@ -8697,11 +8720,6 @@ IniDelete, %g_strIniFile%, Favorites
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 
-Loop, % g_objHotkeysToDisableWhenSave.MaxIndex()
-	Hotkey, % g_objHotkeysToDisableWhenSave[A_Index], , Off UseErrorLevel ; if used elsewhere, will be reloaded by LoadFavoriteHotkeys
-; if (ErrorLevel) do nothing. This can happen when changing a hotkey twice before saving
-g_objHotkeysToDisableWhenSave := ""
-
 ; clean-up unused hotkeys if favorites were deleted
 for strThisLocation, strThisHotkey in g_objHotkeysByLocation
 	if RecursiveHotkeyNotNeeded(strThisLocation, g_objMainMenu)
@@ -8710,10 +8728,11 @@ for strThisLocation, strThisHotkey in g_objHotkeysByLocation
 		Hotkey, %strThisHotkey%, , Off
 	}
 
-Gosub, SaveHotkeysToIni
-	
-Gosub, LoadFavoriteHotkeys
-Gosub, ReloadIniFile
+Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
+Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByLocation
+Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByLocation
+
+Gosub, LoadMenuFromIni ; load favorites to menu object
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
@@ -9101,12 +9120,7 @@ UpdateHotkeyObjectsHotkeysListSave:
 ; if the hotkey changed, add new hotkey and remember the hotkey to turn off
 if (g_objHotkeysByLocation[g_objEditedFavorite.FavoriteLocation] <> g_strNewFavoriteHotkey)
 {
-	if g_objHotkeysByLocation.HasKey(g_objEditedFavorite.FavoriteLocation)
-		; used when favorites are saved, must be before g_objHotkeysByLocation.Insert
-		g_objHotkeysToDisableWhenSave.Insert(g_objHotkeysByLocation[g_objEditedFavorite.FavoriteLocation])
-	
 	if HasHotkey(g_strNewFavoriteHotkey)
-		; must be after g_objHotkeysToDisableWhenSave.Insert
 		g_objHotkeysByLocation.Insert(g_objEditedFavorite.FavoriteLocation, g_strNewFavoriteHotkey)
 	else
 		g_objHotkeysByLocation.Remove(g_objEditedFavorite.FavoriteLocation)
@@ -9189,7 +9203,8 @@ FormatExistingLocation(strExistingLocation)
 
 
 ;------------------------------------------------------------
-LoadFavoriteHotkeys:
+EnableLocationHotkeys:
+; enable location hotkeys from g_objHotkeysByLocation
 ;------------------------------------------------------------
 
 for strLocation, strHotkey in g_objHotkeysByLocation
@@ -9204,7 +9219,29 @@ return
 
 
 ;------------------------------------------------------------
-SaveHotkeysToIni:
+DisablePreviousLocationHotkeys:
+; disable hotkeys found in ini file before updating the ini file
+;------------------------------------------------------------
+
+Loop
+{
+	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
+	if (strLocationHotkey = "ERROR")
+		break
+	StringSplit, arrLocationHotkey, strLocationHotkey, |
+	Hotkey, %arrLocationHotkey2%, , Off
+}
+
+strLocationHotkey := ""
+arrLocationHotkey := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SaveLocationHotkeysToIni:
+; save location hotkeys to ini file from g_objHotkeysByLocation
 ;------------------------------------------------------------
 
 IniDelete, %g_strIniFile%, LocationHotkeys
