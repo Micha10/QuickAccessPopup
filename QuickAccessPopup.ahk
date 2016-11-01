@@ -1168,6 +1168,12 @@ if StrLen(g_strParamSettings)
 	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_strParamSettings))
 
 ;---------------------------------
+; Create temporary folder
+
+g_strTempDir := A_WorkingDir . "\_temp"
+FileCreateDir, %g_strTempDir%
+
+;---------------------------------
 ; Init routines
 
 ; Keep gosubs in this order
@@ -1492,9 +1498,6 @@ return
 ;-----------------------------------------------------------
 InitFileInstall:
 ;-----------------------------------------------------------
-
-g_strTempDir := A_WorkingDir . "\_temp"
-FileCreateDir, %g_strTempDir%
 
 ; Adding a new language:
 ; 1- add the FileInstall line below
