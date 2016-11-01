@@ -2434,11 +2434,6 @@ Gosub, BackupIniFile
 
 ; reinit after Settings save if already exist
 g_objMenuInGui := Object() ; object of menu currently in Gui
-g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
-g_objMainMenu := Object() ; object of menu structure entry point
-g_objMainMenu.MenuPath := lMainMenuName ; localized name of the main menu
-g_objMainMenu.MenuType := "Menu" ; main menu is not a group
 
 IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2QAP.ahk during install
 {
@@ -2658,6 +2653,14 @@ IfNotExist, %g_strIniFile%
 }
 else
 {
+	; reinit after Settings save if already exist
+	g_objMainMenu := Object() ; object of menu structure entry point
+	g_objMainMenu.MenuPath := lMainMenuName ; localized name of the main menu
+	g_objMainMenu.MenuType := "Menu" ; main menu is not a group
+
+	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
+	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
+	
 	g_intIniLine := 1
 	
 	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
@@ -2673,13 +2676,13 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
+	global g_objQAPfeaturesInMenus
 	global g_strIniFile
 	global g_intIniLine
 	global g_strMenuPathSeparator
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	global g_strEscapePipe
-	global g_objQAPfeaturesInMenus
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_strAppNameText
 	
@@ -9117,7 +9120,7 @@ UpdateHotkeyObjectsFavoriteSave:
 UpdateHotkeyObjectsHotkeysListSave:
 ;-----------------------------------------------------------
 
-; if the hotkey changed, add new hotkey and remember the hotkey to turn off
+; if the hotkey changed, add new or remove hotkey from object
 if (g_objHotkeysByLocation[g_objEditedFavorite.FavoriteLocation] <> g_strNewFavoriteHotkey)
 {
 	if HasHotkey(g_strNewFavoriteHotkey)
@@ -9130,7 +9133,8 @@ if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-	; let Cancel button to Close for now because Cancel could not restore changed hotkeys at this time (noted on todo list) #####
+	GuiControl, 1:, f_btnGuiCancel, %lGuiCancel%
+
 	Gosub, LoadHotkeysManageList
 }
 
@@ -10148,6 +10152,12 @@ else
 
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
+	if SettingsUnsaved()
+	{
+		WinActivate, %g_strGuiFullTitle%
+		Oops(lOopsUnsavedSettings)
+		return
+	}
 	g_strTargetWinId := "" ; forget value from previous open favorite
 	Gosub, InsertColumnBreaks
 }
