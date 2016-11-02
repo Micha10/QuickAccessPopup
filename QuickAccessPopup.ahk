@@ -33,7 +33,8 @@ HISTORY
 
 Version BETA: 7.5.9.7 (2016-11-??)
 - Stop showing the main menu if changes are unsaved in Settings window
-
+- Stop launching favorites with hotkeys if changes are unsaved in Settings window
+- 
 
 Version BETA: 7.5.9.6 (2016-10-30)
 - new color buttons for Settings window
