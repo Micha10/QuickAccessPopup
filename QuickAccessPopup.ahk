@@ -32,8 +32,9 @@ HISTORY
 =======
 
 Version BETA: 7.5.9.7 (2016-11-??)
-- Stop showing the main menu if changes are unsaved in Settings window
-
+- stop showing the main menu if changes are unsaved in Settings window
+- fix bug when after creating a menu, saving Settings and stay in Settings, the new menu was not properly reloaded
+- add snippet to type not allowed in groups
 
 Version BETA: 7.5.9.6 (2016-10-30)
 - new color buttons for Settings window
@@ -1025,7 +1026,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.6 BETA
+;@Ahk2Exe-SetVersion 7.5.9.7 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1073,7 +1074,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.5.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
