@@ -7703,7 +7703,7 @@ if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
-if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group|External", g_objEditedFavorite.FavoriteType, true))
+if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group|External|Snippet", g_objEditedFavorite.FavoriteType, true))
 {
 	Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -8139,6 +8139,14 @@ f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
 f_blnFavoriteElevate := ""
 f_strHotkeyText := ""
+f_blnRadioSendModeMacro := ""
+f_strFavoriteSnippetPrompt := ""
+f_chkFavoriteFolderLive := ""
+f_intFavoriteFolderLiveLevels := ""
+f_chkFavoriteFolderLiveDocuments := ""
+f_intFavoriteFolderLiveColumns := ""
+f_chkFavoriteFolderLiveInclude := ""
+f_strFavoriteFolderLiveExtensions := ""
 
 return
 ;------------------------------------------------------------
@@ -8688,7 +8696,7 @@ GuiSaveAndStayFavorites:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
-objSavedMenuInGui := g_objMenuInGui
+strSavedMenuInGui := g_objMenuInGui.MenuPath
 
 IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
@@ -8725,14 +8733,14 @@ g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
 {
-	g_objMenuInGui := objSavedMenuInGui
+	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
 else
 	Gosub, GuiCancel
 	
 g_intIniLine := ""
-objSavedMenuInGui := ""
+strSavedMenuInGui := ""
 
 return
 ;------------------------------------------------------------
