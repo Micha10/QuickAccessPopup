@@ -32,9 +32,12 @@ HISTORY
 =======
 
 Version BETA: 7.5.9.7 (2016-11-??)
-- stop showing the main menu if changes are unsaved in Settings window
-- stop launching favorites with hotkeys if changes are unsaved in Settings window
+- stop showing the main or launching favorites with hotkeys if changes are unsaved in Settings window
+- prevent launching a favorite from a hotkey when changes are not saved
+- append .ini if destination export file has no extension when exporting settings
 - fix bug when after creating a menu, saving Settings and stay in Settings, the new menu was not properly reloaded
+- fix cancel hotkey changes done in Hotkeys list
+- confirm before deleting a group (like Menus)
 
 Version BETA: 7.5.9.6 (2016-10-30)
 - new color buttons for Settings window
@@ -7733,7 +7736,7 @@ if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
-if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group|External|Snippet", g_objEditedFavorite.FavoriteType, true))
+if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("QAP|Menu|Group|External", g_objEditedFavorite.FavoriteType, true))
 {
 	Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -8313,12 +8316,14 @@ if (g_objMenuInGui[intItemToRemove].FavoriteType = "B")
 }
 ; remove favorite in object model (if menu, leaving submenu objects unlinked without releasing them)
 
-blnItemIsMenu := InStr("Menu|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
+blnItemIsMenu := InStr("Menu|Group|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
 
 if (blnItemIsMenu)
 {
 	MsgBox, 52, % L(lDialogFavoriteRemoveTitle, g_strAppNameText)
-		, % L((g_objMenuInGui[intItemToRemove].FavoriteType = "Menu" ? lDialogFavoriteRemovePrompt : lDialogFavoriteRemoveExternalPrompt), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
+		, % L((g_objMenuInGui[intItemToRemove].FavoriteType = "Menu" ? lDialogFavoriteRemovePrompt
+			: (g_objMenuInGui[intItemToRemove].FavoriteType = "External" ? lDialogFavoriteRemoveExternalPrompt
+			: lDialogFavoriteRemoveGroupPrompt)), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
 	IfMsgBox, No
 	{
 		gosub, GuiRemoveFavoriteCleanup
@@ -8511,7 +8516,7 @@ Gui, 2:Add, Text, x10 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, lDialogHo
 Gui, 2:Add, Listview
 	, % "vf_lvHotkeysManageList Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
 	. " gHotkeysManageListEvents x10 y+10 w" . intWidth - 40. " h340"
-	, Position (hidden)|%lDialogHotkeysManageListHeader%
+	, #|%lDialogHotkeysManageListHeader%
 
 Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lDialogHotkeysManageListSeeAllFavorites%
 Gui, 2:Add, Checkbox, x+50 yp vf_blnSeeShortHotkeyNames gCheckboxSeeShortHotkeyNames, %lDialogHotkeysManageListSeeShortHotkeyNames%
@@ -8619,31 +8624,49 @@ for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode
 				, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
 }
 
-for strMenuPath, objMenu in g_objMenusIndex
-	loop, % objMenu.MaxIndex()
-		if !InStr("B|X", objMenu[A_Index].FavoriteType) and (g_objHotkeysByLocation.HasKey(objMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
-		{
-			strThisHotkey := (StrLen(g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objMenu[A_Index].FavoriteLocation] : lDialogNone)
-			strThisType := GetFavoriteTypeForList(objMenu[A_Index])
-			LV_Add(, A_Index
-				, strMenuPath, objMenu[A_Index].FavoriteName, strThisType
-				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
-				, (objMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objMenu[A_Index].FavoriteLocation, 50) : objMenu[A_Index].FavoriteLocation))
-		}
+g_intHotkeyListOrder := 0
+RecursiveLoadMenuHotkeys(g_objMainMenu)
+g_intHotkeyListOrder := ""
 
-LV_ModifyCol(2, "Sort")
-LV_ModifyCol(1, 0)
+LV_ModifyCol(1, "Integer Sort")
 Loop, % LV_GetCount("Column") - 1
 	LV_ModifyCol(A_Index + 1, "AutoHdr")
 
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
-strMenuPath := ""
-objMenu := ""
-strThisHotkey := ""
-strThisType := ""
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecursiveLoadMenuHotkeys(objCurrentMenu)
+;------------------------------------------------------------
+{
+	global g_objHotkeysByLocation
+	global f_blnSeeAllFavorites
+	global f_blnSeeShortHotkeyNames
+	global g_intHotkeyListOrder
+	
+	Loop, % objCurrentMenu.MaxIndex()
+	{
+		if !InStr("B|X", objCurrentMenu[A_Index].FavoriteType)
+			and (g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
+		{
+			strThisHotkey := (StrLen(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : lDialogNone)
+			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
+			g_intHotkeyListOrder++
+			; Position (hidden)|Menu|Favorite Name|Type|Hotkey|Favorite Location
+			LV_Add(, g_intHotkeyListOrder
+				, objCurrentMenu.MenuPath, objCurrentMenu[A_Index].FavoriteName, strThisType
+				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
+				, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation))
+		}
+		
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			RecursiveLoadMenuHotkeys(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+	}
+}
 ;------------------------------------------------------------
 
 
@@ -12085,8 +12108,8 @@ Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, %lImpExpFil
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, %lImpExpFileThemes%
 
 Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExport%
-Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpCancel gButtonImpExpCancel, %lDialogCancelButton%
-GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpCancel")
+Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, %lGui2Close%
+GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpClose")
 Gui, ImpExp:Add, Text
 
 ; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
@@ -12122,10 +12145,9 @@ FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 2 : 3), %strImpExp
 if !(StrLen(strImpExpSelectedFile))
 	return
 
-SplitPath, strImpExpSelectedFile, , strImpExpFolder, strImpExpExt
+SplitPath, strImpExpSelectedFile, , , strImpExpExt
 if !StrLen(strImpExpExt)
 	strImpExpSelectedFile .= ".ini"
-IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
 
 GuiControl, ImpExp:, f_strImpExpFile, %strImpExpSelectedFile%
 
@@ -12149,6 +12171,12 @@ blnContentIdentical := false
 
 g_strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : f_strImpExpFile)
 g_strImpExpDestinationFile := (f_radImpExpExport ? f_strImpExpFile : g_strIniFile)
+
+SplitPath, g_strImpExpDestinationFile, , strImpExpFolder, strImpExpExt
+if !StrLen(strImpExpExt) ; add ini to destination file
+	g_strImpExpDestinationFile .= ".ini"
+strImEx := (f_radImpExpExport ? "Ex" : "Im")
+IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
 
 if !(blnAbort) and (f_blnImpExpFavorites)
 {
@@ -12239,6 +12267,9 @@ blnAbort := ""
 blnReplace := ""
 intLastFavorite := ""
 strAppendFavorite := ""
+strImpExpFolder := ""
+strImpExpExt := ""
+strImEx := ""
 
 return
 ;------------------------------------------------------------
@@ -12289,8 +12320,7 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 
 
 ;------------------------------------------------------------
-ButtonImpExpCancel:
-ImpExpGuiClose:
+ButtonImpExpClose:
 ;------------------------------------------------------------
 
 Gui, ImpExp:Destroy

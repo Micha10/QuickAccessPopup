@@ -81,6 +81,7 @@ global lDialogFavoriteNameNotNew := "The name ""~1~"" is already used in this me
 global lDialogFavoriteNameNotNewQAPfeature := "The name ""~1~"" is already used in this menu. Please, rename the existing favorite and try again." ; new
 global lDialogFavoriteParentMenu := "Favorite parent menu"
 global lDialogFavoriteRemoveExternalPrompt := "Remove the shared submenu ""~1~""`n(external settings ini file will NOT be deleted)?" ; new
+global lDialogFavoriteRemoveGroupPrompt := "Remove the group ""~1~""`n(items in the group will also be deleted)?" ; new
 global lDialogFavoriteRemovePrompt := "Remove the submenu ""~1~""`nand ALL its content (folders and submenus)?"
 global lDialogFavoriteRemoveTitle := "Remove Favorite - ~1~"
 global lDialogFavoriteSelectType := "Select the type of favorite to add.`n`nIn the next window, you will give your favorite:`n- a name`n- a content (depending on the type)`n- various settings (icon, shortcut, etc.)`n`nChoose the new favorite's type and click ""~1~""." ; new
