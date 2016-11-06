@@ -34,7 +34,6 @@ HISTORY
 Version BETA: 7.5.9.8 (2016-11-06)
 Settings window:
 - stop launching favorites with hotkeys if changes are unsaved in Settings window
-- prevent launching a favorite from a hotkey when changes are not saved
 - confirm before deleting a group in Settings
 Hotkeys:
 - changes done in Hotkeys list are now properly cancelled if user cancel changes in settings
@@ -42,7 +41,7 @@ Hotkeys:
 - stop displaying group members in Hotkeys list
 Shared menus:
 - compare last modified date after saving shared settings file and display an error message if date is identical (probably because the target file is read-only)
-- display an error message if a new chared settings file cannot be created (probably because target folder is read-only)
+- display an error message if a new shared settings file cannot be created (probably because target folder is read-only)
 - append .ini extension if destination export file has no extension when exporting settings
 - append .ini extension when browsing/creating a shared settings file
 - stop prompting to create file when selecting shared menu file
