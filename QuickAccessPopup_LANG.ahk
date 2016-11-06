@@ -372,6 +372,7 @@ global lOopsErrorIniFileReadOnly := "This shared menu settings file is READ-ONLY
 global lOopsErrorIniFileRetry := "If the settings file is on a network drive, try reload ~1~ when the network drive will be available." ; new
 global lOopsErrorIniFileUnavailable := "This shared menu settings file is unavailable" ; new
 global lOopsErrorReadingIniFile := "An error occurred while reading this settings file:" ; new
+global lOopsExternalFileWriteError := "An error occurred while writing to the shared menu settings file:`n~1~.`n`nCheck if this file or this folder is read-only." ; new
 global lOopsExternalMenuReadOnly := "This shared menu is in read-only and cannot be modified." ; new
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new

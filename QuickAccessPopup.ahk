@@ -31,13 +31,25 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.5.9.7 (2016-11-??)
-- stop showing the main or launching favorites with hotkeys if changes are unsaved in Settings window
+Version BETA: 7.5.9.8 (2016-11-06)
+Settings window:
+- stop launching favorites with hotkeys if changes are unsaved in Settings window
 - prevent launching a favorite from a hotkey when changes are not saved
-- append .ini if destination export file has no extension when exporting settings
+- confirm before deleting a group in Settings
+Hotkeys:
+- changes done in Hotkeys list are now properly cancelled if user cancel changes in settings
+- display item order column in Hotkeys list and sort initialy on this column following the QAP menu order
+- stop displaying group members in Hotkeys list
+Shared menus:
+- compare last modified date after saving shared settings file and display an error message if date is identical (probably because the target file is read-only)
+- display an error message if a new chared settings file cannot be created (probably because target folder is read-only)
+- append .ini extension if destination export file has no extension when exporting settings
+- append .ini extension when browsing/creating a shared settings file
+- stop prompting to create file when selecting shared menu file
+
+Version BETA: 7.5.9.7 (2016-11-02)
 - fix bug when after creating a menu, saving Settings and stay in Settings, the new menu was not properly reloaded
-- fix cancel hotkey changes done in Hotkeys list
-- confirm before deleting a group (like Menus)
+- stop showing the main menu if changes are unsaved in Settings window
 
 Version BETA: 7.5.9.6 (2016-10-30)
 - new color buttons for Settings window
@@ -1029,7 +1041,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.7 BETA
+;@Ahk2Exe-SetVersion 7.5.9.8 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1077,7 +1089,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.5.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6490,7 +6502,7 @@ else ; add favorite
 	}
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
-		SplitPath, g_strNewLocation, , , strExtension
+		strExtension := GetFileExtension(g_strNewLocation)
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
@@ -7103,8 +7115,12 @@ else if (strType = "File")
 	; do not use option "S" because it gives an error message on read-only supports
 	FileSelectFile, strNewLocation, 3, %strDefault%, %lDialogAddFileSelect%
 else ; IniFile
+{
 	; do not use option "S" because it gives an error message on read-only supports
-	FileSelectFile, strNewLocation, 8, %strDefault%, %lDialogAddFileSelect%, *.ini ; option 8 to prompt to create a new file
+	FileSelectFile, strNewLocation, , %strDefault%, %lDialogAddFileSelect%, *.ini ; removed option 8 to prompt to create a new file because not user friendly
+	if !StrLen(GetFileExtension(strNewLocation))
+		strNewLocation .= ".ini"
+}
 
 if !(StrLen(strNewLocation))
 {
@@ -7829,7 +7845,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 
 	if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		SplitPath, f_strFavoriteAppWorkingDir, , , strExternalSettingsExtension
+		strExternalSettingsExtension := GetFileExtension(f_strFavoriteAppWorkingDir)
 
 		if !StrLen(strExternalSettingsExtension)
 			f_strFavoriteAppWorkingDir .= ".ini"
@@ -8858,23 +8874,30 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
 				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
 				
-				if FileExist(g_strIniFile) ; new external menu file, init MenuReadOnly
+				if FileExist(g_strIniFile)
 				{
-					if !ExternalMenuIsReadOnly(g_strIniFile)
-						gosub, BackupIniFile ; backup non read-only external settings ini file, if required
+					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile)
+					gosub, BackupIniFile ; backup external settings ini file, if required
 					
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
 				}
-				else
+				else ; new external menu file, init MenuReadOnly
+				{
+					strIniDateTimeBefore := ""
 					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+				}
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
 			
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
+				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
+				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
+					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
+					Oops(lOopsExternalFileWriteError, g_strIniFile)
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
 			}
@@ -10652,7 +10675,7 @@ else ; OpenRecentFolder or OpenClipboard
 		strFavoriteType := "URL"
 	else
 	{
-		SplitPath, strThisMenuItem, , , strExtension
+		strExtension := GetFileExtension(strThisMenuItem)
 		if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
 			strFavoriteType := "Application" ; application
 		else
@@ -12145,15 +12168,13 @@ FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 2 : 3), %strImpExp
 if !(StrLen(strImpExpSelectedFile))
 	return
 
-SplitPath, strImpExpSelectedFile, , , strImpExpExt
-if !StrLen(strImpExpExt)
+if !StrLen(GetFileExtension(strImpExpSelectedFile))
 	strImpExpSelectedFile .= ".ini"
 
 GuiControl, ImpExp:, f_strImpExpFile, %strImpExpSelectedFile%
 
 strImEx := ""
 strImpExpFolder := ""
-strImpExpExt := ""
 strImpExpSelectedFile := ""
 
 return
@@ -13269,7 +13290,7 @@ GetIcon4Location(strLocation, ByRef strDefaultIcon, ByRef intDefaultIcon, blnRad
 		return
 	}
 	
-	SplitPath, strLocation, , , strExtension
+	strExtension := GetFileExtension(strLocation)
 	RegRead, strHKeyClassRoot, HKEY_CLASSES_ROOT, .%strExtension%
 	RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\DefaultIcon
 	
@@ -13739,8 +13760,7 @@ WhereIs(strThisFile)
 ; based on work from Skan in https://autohotkey.com/board/topic/20807-fileexist-in-path-environment/
 ;------------------------------------------------------------
 {
-	SplitPath, strThisFile, , , strThisExtension
-	if !StrLen(strThisExtension) ; if file has no extension
+	if !StrLen(GetFileExtension(strThisFile)) ; if file has no extension
 	{
 		; prepare executable extensions list from PATHEXT env variable
 		EnvGet, strExeExtensions, PathExt
@@ -13952,6 +13972,25 @@ GetFavoriteTypeForList(objFavorite)
 }
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+GetModifiedDateTime(strFile)
+;------------------------------------------------------------
+{
+	FileGetTime, strDateTime, %strFile% ; modification by default
+	return strDateTime
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFileExtension(strFile)
+;------------------------------------------------------------
+{
+	SplitPath, strFile, , , strExtension
+	return strExtension
+}
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
