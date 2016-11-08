@@ -8761,6 +8761,7 @@ return
 ;------------------------------------------------------------
 GuiSaveAndCloseFavorites:
 GuiSaveAndStayFavorites:
+GuiSaveAndDoNothing:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
@@ -8800,7 +8801,7 @@ if (A_ThisLabel = "GuiSaveAndStayFavorites")
 	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
-else
+else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
 g_intIniLine := ""
@@ -9607,11 +9608,9 @@ LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/Alte
 DiagWindowInfo(A_ThisLabel . " Begin")
 
 if SettingsUnsaved()
-{
-	WinActivate, %g_strGuiFullTitle%
-	Oops(lOopsUnsavedSettings)
-	return
-}
+	if SettingsNotSavedReturn()
+		return
+
 if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
 	return
 
@@ -10210,11 +10209,9 @@ else
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	if SettingsUnsaved()
-	{
-		WinActivate, %g_strGuiFullTitle%
-		Oops(lOopsUnsavedSettings)
-		return
-	}
+		if SettingsNotSavedReturn()
+			return
+		
 	g_strTargetWinId := "" ; forget value from previous open favorite
 	Gosub, InsertColumnBreaks
 }
@@ -12942,6 +12939,45 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+SettingsNotSavedReturn()
+;------------------------------------------------------------
+{
+	global g_strAppNameText
+	global g_strGuiFullTitle
+	
+	SetTimer, SettingsNotSavedChangeButtonNames, 50
+	MsgBox, 3, % L(lDialogSettingsNotSavedTitle, g_strAppNameText), %lDialogSettingsNotSavedPrompt%
+	IfMsgBox, No ; Settings
+	{
+		WinActivate, %g_strGuiFullTitle%
+		return true
+	}
+	IfMsgBox, Cancel ; Cancel
+		return true
+	
+	; else IfMsgBox, Yes - Save (and continue)
+	gosub, GuiSaveAndDoNothing
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SettingsNotSavedChangeButtonNames:
+;------------------------------------------------------------
+
+IfWinNotExist, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
+    return  ; Keep waiting.
+SetTimer, SettingsNotSavedChangeButtonNames, Off
+WinActivate, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
+ControlSetText, Button1, %lGuiSave%
+ControlSetText, Button2, %lMenuSettings%
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -13941,13 +13977,6 @@ SettingsUnsaved()
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
 	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
-
-	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
-		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)) ; check is Hotkeys dialog list box is open
 
 	return blnDialogOpen
 }

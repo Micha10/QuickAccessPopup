@@ -158,6 +158,8 @@ global lDialogSelectItemToEdit := "Please, select the item to edit."
 global lDialogSelectItemToMove := "Please, select the item to move." ; new
 global lDialogSelectItemToRemove := "Please, select the item to remove."
 global lDialogSettingsInvalid := "Invalid Settings file.`n`nMake sure the Settings file includes sections ~1~ and ~2~.`n`nFile: ~3~" ; new
+global lDialogSettingsNotSavedTitle := "~1~ - Settings not saved"
+global lDialogSettingsNotSavedPrompt := "The Settings window is open with unsaved changes. These changes must be saved or cancelled before executing the requested action.`n`nDo you want to:`n- ""Save"": save your changes and proceed with the requested action`n- ""Settings"": cancel the requested action and return to the Settings window`n- ""Cancel"": just cancel the requested action?" ; new
 global lDialogShift := "Shift" ; renamed
 global lDialogShortcut := "Shortcut" ; new
 global lDialogSpacebarTab := "choose <a id=""Space"">space bar</a> or <a id=""Tab"">tab</a>" ; do NOT translate ID="xxx"
