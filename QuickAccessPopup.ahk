@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.1.1 (2016-11-??)
+
 Version BETA: 7.5.9.8 (2016-11-06)
 Settings window:
 - stop launching favorites with hotkeys if changes are unsaved in Settings window
@@ -1040,7 +1042,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.5.9.8 BETA
+;@Ahk2Exe-SetVersion 7.9.1.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1088,7 +1090,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.5.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1638,7 +1640,7 @@ strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconC
 	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
 	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
 	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose|iconTextDocument|iconFolderLive"
+	. "|iconClose|iconTextDocument|iconFolderLive|iconAddFavorite"
 
 if (GetOsVersion() = "WIN_10")
 {
@@ -1652,7 +1654,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32|imageres"
+		. "|imageres|shell32|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1663,7 +1665,7 @@ if (GetOsVersion() = "WIN_10")
 		. "|222|240|261|299|300"
 		. "|319|324|1|325|9"
 		. "|7|10|12|13|239"
-		. "|94|71|176"
+		. "|94|71|176|215"
 }
 else
 {
@@ -1677,7 +1679,7 @@ else
 		. "|shell32|shell32|shell32|shell32|shell32"
 		. "|shell32|shell32|winver|shell32|shell32"
 		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32|imageres"
+		. "|imageres|shell32|imageres|shell32"
 	strIconsIndex := "23|29|50|68|96"
 		. "|104|105|106|110|113"
 		. "|113|115|176|177|179"
@@ -1688,7 +1690,7 @@ else
 		. "|222|240|261|297|298"
 		. "|301|304|1|305|9"
 		. "|7|10|12|13|239"
-		. "|94|71|176"
+		. "|94|71|176|215"
 }
 
 StringSplit, arrIconsFile, strIconsFile, |
@@ -8761,6 +8763,7 @@ return
 ;------------------------------------------------------------
 GuiSaveAndCloseFavorites:
 GuiSaveAndStayFavorites:
+GuiSaveAndDoNothing:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
@@ -8800,7 +8803,7 @@ if (A_ThisLabel = "GuiSaveAndStayFavorites")
 	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
-else
+else if (A_ThisLabel <>"GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
 g_intIniLine := ""
@@ -9607,11 +9610,9 @@ LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/Alte
 DiagWindowInfo(A_ThisLabel . " Begin")
 
 if SettingsUnsaved()
-{
-	WinActivate, %g_strGuiFullTitle%
-	Oops(lOopsUnsavedSettings)
-	return
-}
+	if SettingsNotSavedReturn()
+		return
+
 if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
 	return
 
@@ -10210,11 +10211,9 @@ else
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	if SettingsUnsaved()
-	{
-		WinActivate, %g_strGuiFullTitle%
-		Oops(lOopsUnsavedSettings)
-		return
-	}
+		if SettingsNotSavedReturn()
+			return
+
 	g_strTargetWinId := "" ; forget value from previous open favorite
 	Gosub, InsertColumnBreaks
 }
@@ -12942,6 +12941,45 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+SettingsNotSavedReturn()
+;------------------------------------------------------------
+{
+	global g_strAppNameText
+	global g_strGuiFullTitle
+	
+	SetTimer, SettingsNotSavedChangeButtonNames, 50
+	MsgBox, 3, % L(lDialogSettingsNotSavedTitle, g_strAppNameText), %lDialogSettingsNotSavedPrompt%
+	IfMsgBox, No ; Settings
+	{
+		WinActivate, %g_strGuiFullTitle%
+		return true
+	}
+	IfMsgBox, Cancel ; Cancel
+		return true
+	
+	; else IfMsgBox, Yes - Save (and continue)
+	gosub, GuiSaveAndDoNothing
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SettingsNotSavedChangeButtonNames:
+;------------------------------------------------------------
+
+IfWinNotExist, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
+    return  ; Keep waiting.
+SetTimer, SettingsNotSavedChangeButtonNames, Off
+WinActivate, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
+ControlSetText, Button1, %lGuiSave%
+ControlSetText, Button2, %lMenuSettings%
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -13941,14 +13979,7 @@ SettingsUnsaved()
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
 	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
-
-	if (!blnDialogOpen) and StrLen(g_strFavoriteDialogTitle)
-		blnDialogOpen := WinExist(g_strFavoriteDialogTitle) ; check if Add/Edit/Copy Favorite dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; check is Options dialog box is open
-	if (!blnDialogOpen)
-		blnDialogOpen := WinExist(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)) ; check is Hotkeys dialog list box is open
-
+	
 	return blnDialogOpen
 }
 ;------------------------------------------------------------
