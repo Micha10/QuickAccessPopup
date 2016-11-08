@@ -8803,7 +8803,7 @@ if (A_ThisLabel = "GuiSaveAndStayFavorites")
 	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
-else if (A_ThisLabel <>"GuiSaveAndDoNothing")
+else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
 g_intIniLine := ""
@@ -10213,7 +10213,11 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	if SettingsUnsaved()
 		if SettingsNotSavedReturn()
 			return
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> develop
 	g_strTargetWinId := "" ; forget value from previous open favorite
 	Gosub, InsertColumnBreaks
 }
@@ -13979,7 +13983,11 @@ SettingsUnsaved()
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
 	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> develop
 	return blnDialogOpen
 }
 ;------------------------------------------------------------
