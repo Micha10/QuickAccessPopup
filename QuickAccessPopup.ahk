@@ -32,6 +32,10 @@ HISTORY
 =======
 
 Version BETA: 7.9.1.1 (2016-11-??)
+-
+
+Version BETA: 7.5.9.9 (2016-11-??)
+- when settings changes are unsaved and menu is called or favorite is launched via hokey, ask user if save settings, go to settings or cancel requested action
 
 Version BETA: 7.5.9.8 (2016-11-06)
 Settings window:
