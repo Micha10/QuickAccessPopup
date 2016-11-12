@@ -6469,7 +6469,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; excludes all ...FromMsg
+		and InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -6505,7 +6505,7 @@ else ; add favorite
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
 		strExtension := GetFileExtension(g_strNewLocation)
-		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
 			g_objEditedFavorite.FavoriteType := "Document"
@@ -9600,8 +9600,8 @@ return
 ;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
-NavigateFromMsg:			; g_strTargetWinId set here
-LaunchFromMsg:				; g_strTargetWinId set here
+NavigateFromMsg:			; g_strTargetWinId set by RECEIVE_QAPMESSENGER
+LaunchFromMsg:				; g_strTargetWinId set by RECEIVE_QAPMESSENGER
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
@@ -9639,10 +9639,7 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
 else if InStr(A_ThisLabel, "FromMsg")
-{
-	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
 	g_strHokeyTypeDetected := (InStr(A_ThisLabel, "Navigate") ? "Navigate" : "Launch")
-}
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
@@ -14125,7 +14122,13 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strAppNameText
 	global g_strAppVersion
 	global g_strNewLocation
+	global g_strTargetClass
+	global g_strTargetWinId
 	
+	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
+	Diag(A_ThisFunc . " - g_strTargetClass", g_strTargetClass)
+	Diag(A_ThisFunc . " - g_strTargetWinId", g_strTargetWinId)
+
 	Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
