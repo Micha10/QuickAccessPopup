@@ -1104,8 +1104,8 @@ g_blnChangeHotkeyInProgress := false
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
 
-g_objIconsFile := Object()
-g_objIconsIndex := Object()
+g_objJLiconsByName := Object()
+g_objJLiconsNames := Object()
 
 g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
 g_strGuiMenuSeparator := "----------------" ;  single-line displayed as line separators, allowed in item names
@@ -1630,85 +1630,26 @@ StringSplit, g_arrMouseButtons, g_strMouseButtons, |
 ; ----------------------
 ; Icon files and index tested on Win 7 and Win 10. Win 8.1 assumed as Win 7.
 
-strIconsMenus := "iconControlPanel|iconNetwork|iconRecycleBin|iconPictures|iconCurrentFolders"
-	. "|iconMyMusic|iconMyComputer|iconDesktop|iconSettings|iconRecentFolders"
-	. "|iconRecentFolders|iconNetworkNeighborhood|iconDownloads|iconChangeFolder|iconMyVideo"
-	. "|iconDocuments|iconSpecialFolders|iconDonate|iconAddThisFolder"
-	. "|iconFolder|iconHelp|iconFonts|iconGroupLoad|iconTemplates"
-	. "|iconEditFavorite|iconFavorites|iconGroup|iconFTP|iconNoContent"
-	. "|iconTemporary|iconHotkeys|iconUnknown|iconLaunch|iconExit"
-	. "|iconAbout|iconHistory|iconClipboard|iconGroupSave|iconSubmenu"
-	. "|iconOptions|iconApplication|iconWinver|iconSwitch|iconDrives"
-	. "|iconRemovable|iconNetwork|iconCDROM|iconRAMDisk|iconReload"
-	. "|iconClose|iconTextDocument|iconFolderLive|iconAddFavorite"
+strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
+	. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
+	. "|iconDesktop|iconDocuments|iconDonate|iconDownloads|iconDrives"
+	. "|iconEditFavorite|iconExit|iconFavorites|iconFolder|iconFonts"
+	. "|iconFTP|iconGroup|iconHelp|iconHistory|iconHotkeys"
+	. "|iconAddFavorite|iconMyComputer|iconMyMusic|iconMyVideo|iconNetwork"
+	. "|iconNetworkNeighborhood|iconNoContent|iconOptions|iconPictures|iconRAMDisk"
+	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
+	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
+	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive"
 
-if (GetOsVersion() = "WIN_10")
+; EXAMPLE
+; g_objJLiconsByName["iconAbout"] -> "file,2"
+; g_objJLiconsNames[2] -> "iconAbout"
+Loop, Parse, strIconsNames, |
 {
-	strIconsFile := "imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|winver|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32|imageres|shell32"
-	strIconsIndex := "23|29|50|68|96"
-		. "|104|105|106|110|113"
-		. "|113|115|176|177|179"
-		. "|189|204|209|307"
-		. "|4|24|39|46|55"
-		. "|68|87|99|104|110"
-		. "|153|174|176|215|216"
-		. "|222|240|261|299|300"
-		. "|319|324|1|325|9"
-		. "|7|10|12|13|239"
-		. "|94|71|176|215"
+	g_objJLiconsNames.Insert(A_LoopField)
+	g_objJLiconsByName[A_LoopField] := A_ScriptDir . "\JLicons.dll," . A_Index ; change file path
 }
-else
-{
-	strIconsFile := "imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres|imageres"
-		. "|imageres|imageres|imageres|imageres"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|shell32|shell32|winver|shell32|shell32"
-		. "|shell32|shell32|shell32|shell32|shell32"
-		. "|imageres|shell32|imageres|shell32"
-	strIconsIndex := "23|29|50|68|96"
-		. "|104|105|106|110|113"
-		. "|113|115|176|177|179"
-		. "|189|203|208|217"
-		. "|4|24|39|46|55"
-		. "|68|87|99|104|110"
-		. "|153|174|176|215|216"
-		. "|222|240|261|297|298"
-		. "|301|304|1|305|9"
-		. "|7|10|12|13|239"
-		. "|94|71|176|215"
-}
-
-StringSplit, arrIconsFile, strIconsFile, |
-StringSplit, arrIconsIndex, strIconsIndex, |
-
-; icons index over 224 in Win 10 file imageres.dll dated "20151030031815" must be increadesed by 3
-FileGetTime, strWin10ImageresDate, %A_WinDir%\System32\imageres.dll
-
-Loop, Parse, strIconsMenus, |
-{
-	g_objIconsFile[A_LoopField] := A_WinDir . "\System32\" . arrIconsFile%A_Index% . (arrIconsFile%A_Index% = "winver" ? ".exe" : ".dll")
-	
-	if (GetOsVersion() = "WIN_10") and (arrIconsFile%A_Index% = "imageres") and (arrIconsIndex%A_Index% > 224) and (strWin10ImageresDate > "20151029000000") ; 20151030031815 + is Win 10 "B" -> index +3
-		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index% + 3
-	else ; "shell32" or Win 7 or Win 10 "A" ("20150710070017")
-		g_objIconsIndex[A_LoopField] := arrIconsIndex%A_Index%
-}
-; example: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
+; BEFORE: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
 
 ; ----------------------
 ; ACTIVE FILE MANAGER
@@ -2150,7 +2091,7 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 
 ; strDefaultName: name for menu if path is used, fallback name if CLSID is used to access localized name
 
-; strDefaultIcon: icon in strIconsMenus if path is used, fallback icon (?) if CLSID returns no icon resource
+; strDefaultIcon: icon in g_objJLiconsByName if path is used, fallback icon (?) if CLSID returns no icon resource
 
 ; Constants for "use" flags:
 ; 		CLS: Class ID
@@ -2187,8 +2128,7 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 
 ;------------------------------------------------------------
 {
-	global g_objIconsFile
-	global g_objIconsIndex
+	global g_objJLiconsByName
 	global g_objClassIdOrPathByDefaultName
 	global g_objSpecialFolders
 	
@@ -2205,10 +2145,10 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 	
 	if (blnIsClsId)
 		strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
-	if !StrLen(strThisDefaultIcon) and StrLen(g_objIconsFile[strDefaultIcon]) and StrLen(g_objIconsIndex[strDefaultIcon])
-		strThisDefaultIcon := g_objIconsFile[strDefaultIcon] . "," . g_objIconsIndex[strDefaultIcon]
+	if !StrLen(strThisDefaultIcon) and StrLen(g_objJLiconsByName[strDefaultIcon])
+		strThisDefaultIcon := g_objJLiconsByName[strDefaultIcon]
 	if !StrLen(strThisDefaultIcon)
-		strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4"
+		strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
 	objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
 
 	objOneSpecialFolder.ShellConstantText := strShellConstantText
@@ -6468,7 +6408,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and (strGuiFavoriteLabel = "GuiAddThisFolder" or strGuiFavoriteLabel = "GuiAddThisFolderXpress") ; excludes all ...FromMsg
+		and InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
@@ -6504,7 +6444,7 @@ else ; add favorite
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
 	{
 		strExtension := GetFileExtension(g_strNewLocation)
-		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs", strExtension)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
 			g_objEditedFavorite.FavoriteType := "Document"
@@ -9599,8 +9539,8 @@ return
 ;------------------------------------------------------------
 NavigateHotkeyMouse:		; g_strTargetWinId set by CanNavigate
 NavigateHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
-NavigateFromMsg:			; g_strTargetWinId set here
-LaunchFromMsg:				; g_strTargetWinId set here
+NavigateFromMsg:			; g_strTargetWinId set by RECEIVE_QAPMESSENGER
+LaunchFromMsg:				; g_strTargetWinId set by RECEIVE_QAPMESSENGER
 LaunchHotkeyMouse:			; g_strTargetWinId set by CanNavigate
 LaunchHotkeyKeyboard:		; g_strTargetWinId set by CanNavigate
 LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
@@ -9638,10 +9578,7 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
 	g_strHokeyTypeDetected := "Alternative"
 else if InStr(A_ThisLabel, "FromMsg")
-{
-	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
 	g_strHokeyTypeDetected := (InStr(A_ThisLabel, "Navigate") ? "Navigate" : "Launch")
-}
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
@@ -10213,11 +10150,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	if SettingsUnsaved()
 		if SettingsNotSavedReturn()
 			return
-<<<<<<< HEAD
 
-=======
-		
->>>>>>> develop
 	g_strTargetWinId := "" ; forget value from previous open favorite
 	Gosub, InsertColumnBreaks
 }
@@ -13983,11 +13916,7 @@ SettingsUnsaved()
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
 	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> develop
 	return blnDialogOpen
 }
 ;------------------------------------------------------------
@@ -14132,7 +14061,13 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strAppNameText
 	global g_strAppVersion
 	global g_strNewLocation
+	global g_strTargetClass
+	global g_strTargetWinId
 	
+	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
+	Diag(A_ThisFunc . " - g_strTargetClass", g_strTargetClass)
+	Diag(A_ThisFunc . " - g_strTargetWinId", g_strTargetWinId)
+
 	Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
