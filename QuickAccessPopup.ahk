@@ -2294,17 +2294,16 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 
 ;------------------------------------------------------------
 {
-	global g_objIconsFile
-	global g_objIconsIndex
 	global g_objQAPFeatures
 	global g_objQAPFeaturesCodeByDefaultName
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_objQAPFeaturesAlternativeCodeByOrder
+	global g_objJLiconsByName
 	
 	objOneQAPFeature := Object()
 	
 	objOneQAPFeature.LocalizedName := strThisLocalizedName
-	objOneQAPFeature.DefaultIcon := g_objIconsFile[strThisDefaultIcon] . "," . g_objIconsIndex[strThisDefaultIcon]
+	objOneQAPFeature.DefaultIcon := g_objJLiconsByName[strThisDefaultIcon]
 	objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
 	objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
 	objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
@@ -2890,11 +2889,10 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 ;------------------------------------------------------------
 {
 	global g_strIniFile
-	global g_objIconsFile
-	global g_objIconsIndex
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
+	global g_objJLiconsByName
 
 	; ###_V("AddToIniOneDefaultMenu", strLocation, strName, strFavoriteType)
 	if (strFavoriteType = "Z")
@@ -2902,7 +2900,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 	else
 	{
 		if (strFavoriteType = "Menu")
-			strIconResource := g_objIconsFile["iconSpecialFolders"] . "," . g_objIconsIndex["iconSpecialFolders"]
+			strIconResource := g_objJLiconsByName["iconSpecialFolders"]
 		else if (strFavoriteType = "Special")
 			strIconResource := g_objSpecialFolders[strLocation].DefaultIcon
 		else
@@ -4294,8 +4292,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_blnDisplayIcons
 	global g_intIconSize
 	global g_strMenuBackgroundColor
-	global g_objIconsFile
-	global g_objIconsIndex
 	global g_blnUseColors
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
@@ -4307,6 +4303,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objMenusIndex
 	global g_strAppNameText
 	global g_blnWorkingToolTip
+	global g_objJLiconsByName
 
 	intShortcut := 0
 	
@@ -4362,8 +4359,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
 					, %strThisIconFile%, %intThisIconIndex% , %g_intIconSize%
 				if (ErrorLevel)
+				{
+					ParseIconResource("iconUnknown", strIconFile, intIconIndex)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, % g_objIconsFile["iconUnknown"], % g_objIconsIndex["iconUnknown"], %g_intIconSize%
+						, %strIconFile%, %intIconIndex%, %g_intIconSize%
+				}
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
 		}
@@ -4417,8 +4417,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				if StrLen(strThisIconFile)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, %g_intIconSize%
 				if (!StrLen(strThisIconFile) or ErrorLevel)
+				{
+					ParseIconResource("iconUnknown", strIconFile, intIconIndex)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, % g_objIconsFile["iconUnknown"], % g_objIconsIndex["iconUnknown"], %g_intIconSize%
+						, %strIconFile%, %intIconIndex%, %g_intIconSize%
+				}
 						
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
@@ -4532,15 +4535,14 @@ AddCloseMenu(strMenuName)
 
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-; strIconValue can be an item from strIconsMenus (eg: "iconFolder") or a "file,index" combo (eg: "imageres.dll,33")
+; strIconValue can be an index from g_objJLiconsByName (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ; strThisDefaultIcon is returned truncated if longer than 260 chars
 ;------------------------------------------------------------
 {
 	global g_intIconSize
 	global g_blnDisplayIcons
-	global g_objIconsFile ; ok
-	global g_objIconsIndex ; ok
 	global g_blnMainIsFirstColumn
+	global g_objJLiconsByName
 
 	if !StrLen(strMenuItemName)
 		return
@@ -4554,19 +4556,13 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		; under Win_XP, display icons in main menu only when in first column (for other menus, this fuction is not called)
 	{
 		Menu, %strMenuName%, UseErrorLevel, on
-		if InStr(strIconValue, ",")
-			ParseIconResource(strIconValue, strIconFile, intIconIndex)
-		else
-		{
-			strIconFile := g_objIconsFile[strIconValue]
-			intIconIndex := g_objIconsIndex[strIconValue]
-		}
+		ParseIconResource(strIconValue, strIconFile, intIconIndex)
 		Menu, %strMenuName%, Icon, %strMenuItemName%, %strIconFile%, %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
 		{
-			strErrorIcon := (strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown")
+			ParseIconResource((strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, % g_objIconsFile[strErrorIcon], % g_objIconsIndex[strErrorIcon], %g_intIconSize%
+				, %strIconFile%, %intIconIndex%, %g_intIconSize%
 		}
 		Menu, %strMenuName%, UseErrorLevel, off
 	}
@@ -7160,13 +7156,13 @@ Gui, 2:Submit, NoHide
 
 if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
 	; default submenu icon
-	g_strDefaultIconResource := g_objIconsFile["iconSubmenu"] . "," . g_objIconsIndex["iconSubmenu"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconSubmenu"]
 else if (g_objEditedFavorite.FavoriteType = "Group")
 	; default group icon
-	g_strDefaultIconResource := g_objIconsFile["iconGroup"] . "," . g_objIconsIndex["iconGroup"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconGroup"]
 else if (g_objEditedFavorite.FavoriteType = "Folder")
 	; default folder icon
-	g_strDefaultIconResource := g_objIconsFile["iconFolder"] . "," . g_objIconsIndex["iconFolder"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconFolder"]
 else if (g_objEditedFavorite.FavoriteType = "URL")
 {
 	; default browser icon
@@ -7176,12 +7172,12 @@ else if (g_objEditedFavorite.FavoriteType = "URL")
 else if (g_objEditedFavorite.FavoriteType = "FTP")
 {
 	; default FTP icon
-	g_strDefaultIconResource := g_objIconsFile["iconFTP"] . "," . g_objIconsIndex["iconFTP"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconFTP"]
 }
 else if (g_objEditedFavorite.FavoriteType = "Snippet")
 {
 	; default Snippet icon
-	g_strDefaultIconResource := g_objIconsFile["iconTextDocument"] . "," . g_objIconsIndex["iconTextDocument"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconTextDocument"]
 }
 else if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and StrLen(f_strFavoriteLocation)
 {
@@ -7194,9 +7190,9 @@ else if (g_objEditedFavorite.FavoriteType = "Special")
 else if (g_objEditedFavorite.FavoriteType = "QAP")
 	g_strDefaultIconResource := g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultIcon
 else ; should not
-	g_strDefaultIconResource := g_objIconsFile["iconUnknown"] . "," . g_objIconsIndex["iconUnknown"]
+	g_strDefaultIconResource := g_objJLiconsByName["iconUnknown"]
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = g_objIconsFile["iconUnknown"] . "," . g_objIconsIndex["iconUnknown"])
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
@@ -12673,8 +12669,7 @@ else ; DirectoryOpus or TotalCommander
 	}
 
 	; additional icon for DirectoryOpus and TotalCommander
-	g_objIconsFile[strActiveFileManagerSystemName] := g_str%strActiveFileManagerSystemName%Path
-	g_objIconsIndex[strActiveFileManagerSystemName] := 1
+	g_objJLiconsByName[strActiveFileManagerSystemName] := g_str%strActiveFileManagerSystemName%Path . ",1"
 }
 
 strActiveFileManagerSystemName := ""
@@ -13215,31 +13210,26 @@ Diag(strName, strData)
 ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDefaultType := "")
 ;------------------------------------------------------------
 {
-	global g_objIconsFile ; ok
-	global g_objIconsIndex ; ok
+	global g_objJLiconsByName
+	
+	###_strIconResourceOriginal := strIconResource
 	
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
+	if !StrLen(strIconResource)
+		strIconResource := g_objJLiconsByName[strDefaultType]
+	If !InStr(strIconResource, ",") ; this is an index from g_objJLiconsByName or the name of a file including icons
+		if StrLen(g_objJLiconsByName[strIconResource]) ; this is an index from g_objJLiconsByName
+			strIconResource := g_objJLiconsByName[strIconResource] ; replace it with file,index format
+		else ; this is the name of a file including icons
+			strIconResource := strIconResource . ",1" ; use its first icon
 	
-	if StrLen(strIconResource)
-		If InStr(strIconResource, ",") ; this is icongroup files
-		{
-			intIconResourceCommaPosition := InStr(strIconResource, ",", , 0) ; search reverse
-			StringLeft, strIconFile, strIconResource, % intIconResourceCommaPosition - 1
-			StringRight, intIconIndex, strIconResource, % StrLen(strIconResource) - intIconResourceCommaPosition
-		}
-		else
-		{
-			strIconFile := strIconResource
-			intIconIndex := 1
-		}
-	else
-	{
-		strIconFile := g_objIconsFile[strDefaultType]
-		intIconIndex := g_objIconsIndex[strDefaultType]
-	}
+	; from here, strIconResource is always of icongroup files format (file,index)
+	StringSplit, arrIconResource, strIconResource, `,
 	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
-	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
+	strIconFile := PathCombine(A_WorkingDir, EnvVars(arrIconResource1))
+	intIconIndex := arrIconResource2
+	###_V(A_ThisFunc, ###_strIconResourceOriginal, strIconResource, strIconFile, intIconIndex, strDefaultType)
 }
 ;------------------------------------------------------------
 
@@ -13250,7 +13240,7 @@ GetIcon4Location(strLocation, ByRef strDefaultIcon, ByRef intDefaultIcon, blnRad
 ;------------------------------------------------------------
 {
 	global g_blnDiagMode
-	global g_objIconsFile
+#####	global g_objIconsFile
 	global g_objIconsIndex
 	
 	blnFileExist := FileExistInPath(strLocation) ; expand strLocation and search in PATH
