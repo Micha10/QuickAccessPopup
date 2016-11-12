@@ -36,6 +36,8 @@ Version BETA: 7.9.1.1 (2016-11-??)
 
 Version BETA: 7.5.9.9 (2016-11-??)
 - when settings changes are unsaved and menu is called or favorite is launched via hokey, ask user if save settings, go to settings or cancel requested action
+- add cmd extension to supported application when adding favorite by drag and drop or using context menu
+- record window position when adding a folder from context menu
 
 Version BETA: 7.5.9.8 (2016-11-06)
 Settings window:
