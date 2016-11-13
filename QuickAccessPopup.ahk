@@ -4103,7 +4103,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	g_objTCMenu.MenuPath := lTCMenuName ; localized name of the TC menu
 	g_objTCMenu.MenuType := "Menu"
 	
-	g_objQAPFeatures["{TC Directory hotlist}"].DefaultIcon := g_objIconsFile["TotalCommander"] . "," . g_objIconsIndex["TotalCommander"]
+	g_objQAPFeatures["{TC Directory hotlist}"].DefaultIcon := g_objJLiconsByName["TotalCommander"]
 
 	g_intIniLine := 1
 	if (RecursiveLoadTotalCommanderHotlistFromIni(g_objTCMenu) <> "EOM") ; build menu tree
