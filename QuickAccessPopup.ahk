@@ -8744,6 +8744,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_strIniFile
 	global g_intIniLine
 	global g_strEscapePipe
+	global g_objJLiconsByName
+	global g_objJLiconsNames
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
@@ -8765,7 +8767,15 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
+			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
+				strIniLine .= g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource] . "|" ; 4
+			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
+			{
+				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
+				strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+			}
+			else ; use icongroup as is
+				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
