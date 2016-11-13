@@ -1224,7 +1224,7 @@ if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
-GetIcon4Location(g_strTempDir . "\default_browser_icon.html", g_strURLIconFile, g_intUrlIconIndex)
+g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
 Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
@@ -3285,17 +3285,10 @@ Loop, parse, Clipboard, `n, `r%A_Space%%A_Tab%/?:*`"><|
 		strContentsInClipboard .= "`n" . A_LoopField
 		
 		if (g_blnDisplayIcons)
-		{
 			if LocationIsDocument(strClipboardLineExpanded)
-			{
-				GetIcon4Location(strClipboardLineExpanded, strThisIconFile, intThisIconIndex)
-				strContentsInClipboard .= "`t" . strThisIconFile . "," . intThisIconIndex
-			}
+				strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
 			else
-			{
 				strContentsInClipboard .= "`t" . "iconFolder"
-			}
-		}
 	}
 
 	; Parse Clipboard line for URLs (anywhere on the line)
@@ -3393,7 +3386,7 @@ StringTrimLeft, strURLSearchString, strURLSearchString, %intCharactersToOmit%
 
 Gosub, GetURLsInClipboardLine ; Recursive call to self (end of loop)
 
-strContentsInClipboard .= "`n" . strURLCleansed . "`t" . g_strURLIconFile . "," . g_intUrlIconIndex
+strContentsInClipboard .= "`n" . strURLCleansed . "`t" . g_strURLIconFileIndex
 
 return
 ;------------------------------------------------------------
@@ -4398,31 +4391,30 @@ RecursiveBuildOneMenu(objCurrentMenu)
 
 			if (g_blnDisplayIcons)
 			{
-				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, on
 				if (objCurrentMenu[A_Index].FavoriteType = "Folder") ; this is a folder
-					ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex, "iconFolder")
+					strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
 				else if (objCurrentMenu[A_Index].FavoriteType = "URL") ; this is an URL
 					if StrLen(objCurrentMenu[A_Index].FavoriteIconResource)
-						ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex)
+						strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
 					else
-						GetIcon4Location(g_strTempDir . "\default_browser_icon.html", strThisIconFile, intThisIconIndex)
+						strThisIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 						; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 				else ; this is a document, application, Special, FTP or QAP
 					if StrLen(objCurrentMenu[A_Index].FavoriteIconResource)
-						ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex)
+						strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
 					else
-						GetIcon4Location(objCurrentMenu[A_Index].FavoriteLocation, strThisIconFile, intThisIconIndex)
-					
+						strThisIconFileIndex := GetIcon4Location(objCurrentMenu[A_Index].FavoriteLocation)
+				ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon (?)
+				
+				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, on
 				ErrorLevel := 0 ; for safety clear in case Menu is not called in next if
-				if StrLen(strThisIconFile)
-					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, %g_intIconSize%
-				if (!StrLen(strThisIconFile) or ErrorLevel)
+				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, %g_intIconSize%
+				if (ErrorLevel)
 				{
 					ParseIconResource("iconUnknown", strIconFile, intIconIndex)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
 						, %strIconFile%, %intIconIndex%, %g_intIconSize%
 				}
-						
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
 			if (objCurrentMenu[A_Index].FavoriteName = lMenuSettings . "...") ; make Settings... menu bold in any menu
@@ -7164,27 +7156,17 @@ else if (g_objEditedFavorite.FavoriteType = "Folder")
 	; default folder icon
 	g_strDefaultIconResource := g_objJLiconsByName["iconFolder"]
 else if (g_objEditedFavorite.FavoriteType = "URL")
-{
 	; default browser icon
-	GetIcon4Location(g_strTempDir . "\default_browser_icon.html", strThisIconFile, intThisIconIndex)
-	g_strDefaultIconResource := strThisIconFile . "," . intThisIconIndex
-}
+	g_strDefaultIconResource := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 else if (g_objEditedFavorite.FavoriteType = "FTP")
-{
 	; default FTP icon
 	g_strDefaultIconResource := g_objJLiconsByName["iconFTP"]
-}
 else if (g_objEditedFavorite.FavoriteType = "Snippet")
-{
 	; default Snippet icon
 	g_strDefaultIconResource := g_objJLiconsByName["iconTextDocument"]
-}
 else if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and StrLen(f_strFavoriteLocation)
-{
 	; default icon for the selected file in add/edit favorite
-	GetIcon4Location(f_strFavoriteLocation, strThisIconFile, intThisIconIndex, blnRadioApplication)
-	g_strDefaultIconResource := strThisIconFile . "," . intThisIconIndex
-}
+	g_strDefaultIconResource := GetIcon4Location(f_strFavoriteLocation, blnRadioApplication)
 else if (g_objEditedFavorite.FavoriteType = "Special")
 	g_strDefaultIconResource := g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultIcon
 else if (g_objEditedFavorite.FavoriteType = "QAP")
@@ -13208,6 +13190,7 @@ Diag(strName, strData)
 
 ;------------------------------------------------------------
 ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDefaultType := "")
+; strIconResource can be a icongroup (file,index) or an index in g_objJLiconsByName
 ;------------------------------------------------------------
 {
 	global g_objJLiconsByName
@@ -13235,66 +13218,36 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 
 ;------------------------------------------------------------
-GetIcon4Location(strLocation, ByRef strDefaultIcon, ByRef intDefaultIcon, blnRadioApplication := false)
+GetIcon4Location(strLocation, blnRadioApplication := false)
+; returns an icon resource in icongroup format (file,index) or an index of g_objJLiconsNames
+; icongroup will be splitted by ParseIconResource before being used by Menu command
+; index of g_objJLiconsNames will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	global g_blnDiagMode
-#####	global g_objIconsFile
-	global g_objIconsIndex
-	
 	blnFileExist := FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
 	{
 		if (blnRadioApplication)
-		{
-			strDefaultIcon := g_objIconsFile["iconApplication"]
-			intDefaultIcon := g_objIconsIndex["iconApplication"]
-		}
+			return "iconApplication"
 		else
-		{
-			strDefaultIcon := g_objIconsFile["iconUnknown"]
-			intDefaultIcon := g_objIconsIndex["iconUnknown"]
-		}
-		return
+			return "iconUnknown"
 	}
 	
 	strExtension := GetFileExtension(strLocation)
 	RegRead, strHKeyClassRoot, HKEY_CLASSES_ROOT, .%strExtension%
-	RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\DefaultIcon
-	
-	/*
-	if (g_blnDiagMode)
-	{
-		Diag("BuildOneMenuIcon", strLocation)
-		Diag("strHKeyClassRoot", strHKeyClassRoot)
-		Diag("strRegistryIconResource", strRegistryIconResource)
-	}
-	*/
-	
-	if (strRegistryIconResource = "%1") ; use the file itself (for executable)
-	{
-		strDefaultIcon := strLocation
-		intDefaultIcon := 1
-		return
-	}
-	
 	if !StrLen(strHKeyClassRoot)
-	{
-		strDefaultIcon := g_objIconsFile["iconUnknown"]
-		intDefaultIcon := g_objIconsIndex["iconUnknown"]
-	}
+		return "iconUnknown"
+	
+	RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\DefaultIcon
+	if (strRegistryIconResource = "%1") ; use the file itself (for executable)
+		return strLocation . ",1"
 	else
-		ParseIconResource(strRegistryIconResource, strDefaultIcon, intDefaultIcon)
-
-	/*
-	if (g_blnDiagMode)
-	{
-		Diag("strDefaultIcon", strDefaultIcon)
-		Diag("intDefaultIcon", intDefaultIcon)
-	}
-	*/
+		if StrLen(strRegistryIconResource)
+			return strRegistryIconResource
+		else
+			return "iconUnknown" ; safety
 }
 ;------------------------------------------------------------
 
