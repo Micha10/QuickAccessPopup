@@ -32,7 +32,8 @@ HISTORY
 =======
 
 Version BETA: 7.9.1.1 (2016-11-??)
--
+- use icons from new JLicons.dll file installed with QAP or included in the portable ZIP file
+- save favorite icons reference in ini file using index name for icons from JLicon.dll
 
 Version BETA: 7.5.9.9 (2016-11-??)
 - when settings changes are unsaved and menu is called or favorite is launched via hokey, ask user if save settings, go to settings or cancel requested action
@@ -13205,8 +13206,6 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 {
 	global g_objJLiconsByName
 	
-	###_strIconResourceOriginal := strIconResource
-	
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
@@ -13222,7 +13221,6 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(arrIconResource1))
 	intIconIndex := arrIconResource2
-	###_V(A_ThisFunc, ###_strIconResourceOriginal, strIconResource, strIconFile, intIconIndex, strDefaultType)
 }
 ;------------------------------------------------------------
 
