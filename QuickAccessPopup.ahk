@@ -3162,6 +3162,11 @@ Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
+IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
+if (strAlternativeTrayIcon <> "ERROR")
+	if FileExist(strAlternativeTrayIcon)
+		Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
+	
 Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuSwitchSettings%..., SwitchSettings
@@ -3186,6 +3191,7 @@ if (g_blnUseColors)
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButton) ; A_PtrSize * 8 = 32 or 64
 
 strIniFileNameExtOnly := ""
+strAlternativeTrayIcon := ""
 
 return
 ;------------------------------------------------------------
