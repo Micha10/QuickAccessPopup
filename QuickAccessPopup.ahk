@@ -31,11 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.1.1 (2016-11-??)
+Version BETA: 7.9.1.1 (2016-11-13)
 - use icons from new JLicons.dll file installed with QAP or included in the portable ZIP file
 - save favorite icons reference in ini file using index name for icons from JLicon.dll
-
-Version BETA: 7.5.9.9 (2016-11-??)
 - when settings changes are unsaved and menu is called or favorite is launched via hokey, ask user if save settings, go to settings or cancel requested action
 - add cmd extension to supported application when adding favorite by drag and drop or using context menu
 - record window position when adding a folder from context menu
@@ -1104,6 +1102,7 @@ g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? "
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
+g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; same folder as QAP exe file or script directory in developement environment
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
@@ -1654,7 +1653,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 Loop, Parse, strIconsNames, |
 {
 	g_objJLiconsNames.Insert(A_LoopField)
-	g_objJLiconsByName[A_LoopField] := A_ScriptDir . "\JLicons.dll," . A_Index ; change file path
+	g_objJLiconsByName[A_LoopField] := g_strJLiconsFile . "," . A_Index ; change file path
 }
 ; BEFORE: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
 

@@ -9,8 +9,8 @@
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 #define JLicons "JLicons-1_0.dll"
 
-#define MyAppVersion "v7.5.9.8 BETA"
-#define MyVersionFileName "7_5_9_8-beta"
+#define MyAppVersion "v7.9.1.1 BETA"
+#define MyVersionFileName "7_9_1_1-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
