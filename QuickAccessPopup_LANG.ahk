@@ -121,6 +121,7 @@ global lDialogFileLabel := "Document"
 global lDialogFolderLabel := "Folder"
 global lDialogGetWinInfo := "To identify the window of which you want to get the title and class, click in the target window with the QAP menu hotkey [~1~]." ; new
 global lDialogGetWInInfo2Clippoard := "Window title:`n""~1~""`n`nClass:`n""~2~""`n`nCopy this info to your Clipboard?" ; new
+global lDialogHotkeyInvisibleKeys := "<a id=""~1~"">space bar</a>, <a id=""~2~"">tab</a>, <a id=""~3~"">enter</a> or <a id=""~4~"">escape</a>"
 global lDialogHotkeys := "Hotkeys" ; new
 global lDialogHotkeysManageAbout := "Shortcuts currently active in ~1~" ; new
 global lDialogHotkeysManageAlternative := "Alternative" ; new
@@ -162,7 +163,6 @@ global lDialogSettingsNotSavedTitle := "~1~ - Settings not saved"
 global lDialogSettingsNotSavedPrompt := "The Settings window is open with unsaved changes. These changes must be saved or cancelled before executing the requested action.`n`nDo you want to:`n- ""Save"": save your changes and proceed with the requested action`n- ""Settings"": cancel the requested action and return to the Settings window`n- ""Cancel"": just cancel the requested action?" ; new
 global lDialogShift := "Shift" ; renamed
 global lDialogShortcut := "Shortcut" ; new
-global lDialogSpacebarTab := "choose <a id=""Space"">space bar</a> or <a id=""Tab"">tab</a>" ; do NOT translate ID="xxx"
 global lDialogState := "Window State:" ; new
 global lDialogSubmenuNameEmpty := "The submenu name is empty. Please, choose a name."
 global lDialogSubmenuParentMenu := "Submenu parent menu"

@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.1.2 (2016-11-??)
+- add ini setting AlternativeTrayIcon in Global section to set a tray icon replacement (file must be .ico)
+- add links allowing to select Enter and Escape as hotkey in the Change hotkey dialog box
+
 Version BETA: 7.9.1.1 (2016-11-13)
 - use icons from new JLicons.dll file installed with QAP or included in the portable ZIP file
 - save favorite icons reference in ini file using index name for icons from JLicon.dll
@@ -8923,11 +8927,11 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	if (intHotkeyType <> 1)
 	{
 		Gui, Add, Text, % "y" . arrTopY + (intHotkeyType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
-		Gui, Add, Hotkey, yp x+10 w130 vf_strHotkeyKey gHotkeyChanged section
+		Gui, Add, Hotkey, yp x+10 w200 vf_strHotkeyKey gHotkeyChanged section
 		GuiControl, , f_strHotkeyKey, %strActualKey%
 	}
 	if (intHotkeyType <> 1)
-		Gui, Add, Link, y+5 xs w130 gHotkeySpaceTabClicked, %lDialogSpacebarTab% ; space or tab
+		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc")
 
 	Gui, Add, Button, % "x10 y" . arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
 	if StrLen(strDefaultHotkey)
@@ -9018,13 +9022,17 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	HotkeySpaceTabClicked:
+	HotkeyInvisibleKeysClicked:
 	;------------------------------------------------------------
 	
 	if (ErrorLevel = "Space")
 		GuiControl, , f_strHotkeyKey, %A_Space%
-	else
+	else if (ErrorLevel = "Tab")
 		GuiControl, , f_strHotkeyKey, %A_Tab%
+	else if (ErrorLevel = "Enter")
+		GuiControl, , f_strHotkeyKey, Enter
+	else ; Esc
+		GuiControl, , f_strHotkeyKey, Escape
 	GuiControl, Choose, f_drpHotkeyMouse, 0
 
 	return
