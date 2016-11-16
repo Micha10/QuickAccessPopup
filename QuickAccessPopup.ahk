@@ -1271,6 +1271,9 @@ if (g_blnDisplayTrayTip)
 
 g_blnMenuReady := true
 
+; #####
+gosub, GuiIconManageFromQAPFeature
+
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
 OnMessage(0x200, "WM_MOUSEMOVE")
@@ -7443,6 +7446,7 @@ GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
+GuiShowFromIconsManage:
 GuiShowFromGuiSettings:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
@@ -8439,7 +8443,7 @@ MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
+;============================================================
 GuiHotkeysManage:
 GuiHotkeysManageFromQAPFeature:
 ;------------------------------------------------------------
@@ -8632,7 +8636,119 @@ return
 ;------------------------------------------------------------
 
 
+;============================================================
+GuiIconsManage:
+GuiIconManageFromQAPFeature:
 ;------------------------------------------------------------
+
+if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
+	Gosub, GuiShowFromIconsManage
+	
+intWidth := 840
+
+g_intGui1WinID := WinExist("A")
+Gui, 1:Submit, NoHide
+
+Gui, 2:New, , % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:+Owner1
+Gui, 2:+OwnDialogs
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+
+Gui, 2:Font, w600
+Gui, 2:Add, Text, x10 y10, % L(lDialogIconsManageAbout, g_strAppNameText)
+Gui, 2:Font
+
+Gui, 2:Add, Text, x10 y+10 w%intWidth%, %lDialogIconsManageIntro%
+
+intIconsManageRows := 6
+intIconsManageRowsHeight := 40
+Loop, %intIconsManageRows%
+{
+	Gui, 2:Add, Text, % "x10 y" . 50 + A_Index * intIconsManageRowsHeight, %A_Index%
+	Gui, 2:Add, Picture, x50 yp w32 h32 vf_picIcon%A_Index% gGuiPickIconDialog
+}
+
+Gui, 2:Add, Button, x+10 y+30 vf_btnIconsManagePrev gLoadIconsManageListPrev h33, Prev ; #####
+Gui, 2:Add, Button, x+10 yp vf_btnIconsManageNext gLoadIconsManageListNext h33, Next ; #####
+Gui, 2:Add, Button, x+10 yp vf_btnIconsManageClose g2GuiClose h33, %lGui2Close%
+; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
+GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnIconsManagePrev", "f_btnIconsManageNext", "f_btnIconsManageClose")
+Gui, 2:Add, Text, x10, %A_Space%
+
+intIconsManageStartingRow := 1
+objIconsManageMenu := g_objMainMenu
+Gosub, LoadIconsManageList
+
+Gui, 2:Show, AutoSize Center
+Gui, 1:+Disabled
+
+intWidth := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadIconsManageList:
+LoadIconsManageListPrev:
+LoadIconsManageListNext:
+;------------------------------------------------------------
+
+if (A_ThisLabel = "LoadIconsManageListNext")
+	intIconsManageStartingRow += intIconsManageRows
+else if (A_ThisLabel = "LoadIconsManageListPrev")
+	intIconsManageStartingRow -= intIconsManageRows
+
+; ###_V("", intIconsManageStartingRow)
+
+Loop, %intIconsManageRows%
+{
+	intThisItemInMenu := A_Index + intIconsManageStartingRow - 1
+	ParseIconResource(objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+	###_V(A_ThisLabel, objIconsManageMenu[intThisItemInMenu].FavoriteType, objIconsManageMenu[intThisItemInMenu].FavoriteName, objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+	if InStr("X|K|B", objIconsManageMenu[intThisItemInMenu].FavoriteType, 1)
+		GuiControl, , f_picIcon%A_Index%
+	else
+		GuiControl, , f_picIcon%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecursiveLoadMenuIcons(objCurrentMenu)
+;------------------------------------------------------------
+{
+	global g_objHotkeysByLocation
+	global f_blnSeeAllFavorites
+	global f_blnSeeShortHotkeyNames
+	global g_intHotkeyListOrder
+	
+	Loop, % objCurrentMenu.MaxIndex()
+	{
+		if !InStr("B|X", objCurrentMenu[A_Index].FavoriteType)
+			and (g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
+		{
+			strThisHotkey := (StrLen(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation]) ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : lDialogNone)
+			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
+			g_intHotkeyListOrder++
+			; Position (hidden)|Menu|Favorite Name|Type|Hotkey|Favorite Location
+			LV_Add(, g_intHotkeyListOrder
+				, objCurrentMenu.MenuPath, objCurrentMenu[A_Index].FavoriteName, strThisType
+				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
+				, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation))
+		}
+		
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			RecursiveLoadMenuHotkeys(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+	}
+}
+;------------------------------------------------------------
+
+
+;============================================================
 GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
