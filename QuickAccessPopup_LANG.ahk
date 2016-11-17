@@ -351,6 +351,7 @@ global lMenuPublicLibraries := "Public Libraries"
 global lMenuQuickLaunch := "Quick Launch"
 global lMenuRecentFolders := "Recent Folders"
 global lMenuRecentItems := "Recent Items"
+global lMenuRefreshMenu := "Refresh QAP menu"
 global lMenuReload := "Restart ~1~" ; new
 global lMenuRunAtStartup := "&Run at Startup"
 global lMenuSettings := "Settings" ; changed

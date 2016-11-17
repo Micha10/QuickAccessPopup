@@ -31,8 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.1.2 (2016-11-??)
+Version BETA: 7.9.1.2 (2016-11-16)
+- in Live folders, stop showing a virtual sub-menu if folder does not contain sub folders or documents of desired extensions
+- add QAP feature Refresh QAP menu (useful when using Live folders - must be added to menu)
 - add ini setting AlternativeTrayIcon in Global section to set a tray icon replacement (file must be .ico)
+- use new QAP icon for QAP exe files and setup file, add new icon file to portable zip file
 - add links allowing to select Enter and Escape as hotkey in the Change hotkey dialog box
 
 Version BETA: 7.9.1.1 (2016-11-13)
@@ -1051,7 +1054,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.1.1 BETA
+;@Ahk2Exe-SetVersion 7.9.1.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1099,7 +1102,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2260,6 +2263,7 @@ InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQA
 InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",						0, "iconClose")
 InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
+InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
 
 ; Alernative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,	"", "", 1, "iconFolder")
@@ -4340,11 +4344,12 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (g_intHotkeyReminders > 1) and g_objHotkeysByLocation.HasKey(objCurrentMenu[A_Index].FavoriteLocation)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation] : Hotkey2Text(g_objHotkeysByLocation[objCurrentMenu[A_Index].FavoriteLocation])) . ")"
 		
-		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true) or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
+		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels and LiveFolderHasContent(objCurrentMenu[A_Index]))
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
-				BuildLiveMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath)
+				BuildLiveFolderMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath)
 				g_objMenusIndex.Insert(objCurrentMenu[A_Index].SubMenu.MenuPath, objCurrentMenu[A_Index].SubMenu) ; add to the menu index
 			}
 			
@@ -4439,7 +4444,26 @@ RecursiveBuildOneMenu(objCurrentMenu)
 
 
 ;------------------------------------------------------------
-BuildLiveMenu(objLiveFolder, strMenuPath)
+LiveFolderHasContent(objLiveFolder)
+;------------------------------------------------------------
+{
+	if (objLiveFolder.FavoriteFolderLiveDocuments)
+		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
+			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
+				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+				return true
+	else
+		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
+			return true
+		
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildLiveFolderMenu(objLiveFolder, strMenuPath)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparator
@@ -4634,6 +4658,18 @@ GetMenuHandle(strMenuName)
 
 	return pMenu
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshQAPMenu:
+;------------------------------------------------------------
+
+Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
+Gosub, SetTimerRefreshDynamicMenus
+Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+
+return
 ;------------------------------------------------------------
 
 

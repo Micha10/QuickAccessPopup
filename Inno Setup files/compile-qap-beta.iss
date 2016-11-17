@@ -9,8 +9,8 @@
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 #define JLicons "JLicons-1_0.dll"
 
-#define MyAppVersion "v7.9.1.1 BETA"
-#define MyVersionFileName "7_9_1_1-beta"
+#define MyAppVersion "v7.9.1.2 BETA"
+#define MyVersionFileName "7_9_1_2-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -30,7 +30,7 @@ LicenseFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Inno Setup files\license.txt
 ; OutputDir=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\
 OutputDir=C:\temp\InnoSetup-OutputDir\
 OutputBaseFilename={#MyAppNameLower}-setup-beta
-SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico
+SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -74,6 +74,7 @@ Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestD
 ; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-BETA.ico"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-v8.ico"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{app}"; DestName: "JLicons.dll"; Flags: sharedfile signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
