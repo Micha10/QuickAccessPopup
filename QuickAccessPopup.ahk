@@ -7149,28 +7149,9 @@ if (A_ThisLabel = "GuiEditIconDialog")
 	; InputBox, g_strNewFavoriteIconResource, title, prompt, hide, width, height, x, y, font, timeout, %g_strNewFavoriteIconResource%
 	InputBox, g_strNewFavoriteIconResource, %g_strAppNameFile% - %lDialogEditIcon%, %lDialogEditIconPrompt%, , 400, 160, , , , , %g_strNewFavoriteIconResource%
 else
-{
-	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
-	VarSetCapacity(strThisIconFile, 1024) ; must be placed before strNewIconFile is initialized because VarSetCapacity erase its content
-	ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
-	blnFileExist := FileExistInPath(strThisIconFile)
-
-	WinGet, hWnd, ID, A
-	if (intThisIconIndex >= 0) ; adjust index for positive index only (not for negative index)
-		intThisIconIndex := intThisIconIndex - 1
-	DllCall("shell32\PickIconDlg", "Uint", hWnd, "str", strThisIconFile, "Uint", 260, "intP", intThisIconIndex)
-	if (intThisIconIndex >= 0) ; adjust index for positive index only (not for negative index)
-		intThisIconIndex := intThisIconIndex + 1
-
-	if StrLen(strThisIconFile)
-		g_strNewFavoriteIconResource := strThisIconFile . "," . intThisIconIndex
-}
+	g_strNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
 
 Gosub, GuiFavoriteIconDisplay
-
-strThisIconFile := ""
-intThisIconIndex := ""
-blnFileExist := ""
 
 return
 ;------------------------------------------------------------
@@ -7195,33 +7176,7 @@ GuiFavoriteIconDefault:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if InStr("Menu|External", g_objEditedFavorite.FavoriteType, true)
-	; default submenu icon
-	g_strDefaultIconResource := g_objJLiconsByName["iconSubmenu"]
-else if (g_objEditedFavorite.FavoriteType = "Group")
-	; default group icon
-	g_strDefaultIconResource := g_objJLiconsByName["iconGroup"]
-else if (g_objEditedFavorite.FavoriteType = "Folder")
-	; default folder icon
-	g_strDefaultIconResource := g_objJLiconsByName["iconFolder"]
-else if (g_objEditedFavorite.FavoriteType = "URL")
-	; default browser icon
-	g_strDefaultIconResource := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-else if (g_objEditedFavorite.FavoriteType = "FTP")
-	; default FTP icon
-	g_strDefaultIconResource := g_objJLiconsByName["iconFTP"]
-else if (g_objEditedFavorite.FavoriteType = "Snippet")
-	; default Snippet icon
-	g_strDefaultIconResource := g_objJLiconsByName["iconTextDocument"]
-else if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and StrLen(f_strFavoriteLocation)
-	; default icon for the selected file in add/edit favorite
-	g_strDefaultIconResource := GetIcon4Location(f_strFavoriteLocation, blnRadioApplication)
-else if (g_objEditedFavorite.FavoriteType = "Special")
-	g_strDefaultIconResource := g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultIcon
-else if (g_objEditedFavorite.FavoriteType = "QAP")
-	g_strDefaultIconResource := g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultIcon
-else ; should not
-	g_strDefaultIconResource := g_objJLiconsByName["iconUnknown"]
+g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite.FavoriteType, g_objEditedFavorite.FavoriteLocation, f_strFavoriteLocation)
 
 if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
@@ -8691,18 +8646,22 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Font, w600
 Gui, 2:Add, Text, x10 y10, % L(lDialogIconsManageAbout, g_strAppNameText)
+
+g_intIconsManageRows := 6
+g_intIconsManageRowsHeight := 40
+
+; ##### add menu path
+Gui, 2:Font, w600
+Gui, 2:Add, Text, x10 y35, Current Icon
+Gui, 2:Add, Text, x120 yp, Default Icon
 Gui, 2:Font
-
-Gui, 2:Add, Text, x10 y+10 w%intWidth%, %lDialogIconsManageIntro%
-
-intIconsManageRows := 6
-intIconsManageRowsHeight := 40
-Loop, %intIconsManageRows%
+Loop, %g_intIconsManageRows%
 {
-	Gui, 2:Add, Text, % "x10 y" . 50 + A_Index * intIconsManageRowsHeight, %A_Index%
-	Gui, 2:Add, Picture, x50 yp w32 h32 vf_picIcon%A_Index% gGuiPickIconDialog
+	Gui, 2:Add, Picture, % "x20 y" . 20 + A_Index * g_intIconsManageRowsHeight . " w32 h32 gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
+	Gui, 2:Add, Picture, x120 yp w32 h32 vf_picIconDefault%A_Index% gIconsManageSetDefault
+	; ##### add favorite name
+	; ##### add hidden text hold current icon ressource
 }
 
 Gui, 2:Add, Button, x+10 y+30 vf_btnIconsManagePrev gLoadIconsManageListPrev h33, Prev ; #####
@@ -8712,7 +8671,7 @@ Gui, 2:Add, Button, x+10 yp vf_btnIconsManageClose g2GuiClose h33, %lGui2Close%
 GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnIconsManagePrev", "f_btnIconsManageNext", "f_btnIconsManageClose")
 Gui, 2:Add, Text, x10, %A_Space%
 
-intIconsManageStartingRow := 1
+g_intIconsManageStartingRow := 1
 objIconsManageMenu := g_objMainMenu
 Gosub, LoadIconsManageList
 
@@ -8726,28 +8685,61 @@ return
 
 
 ;------------------------------------------------------------
+IconsManageSetDefault:
+;------------------------------------------------------------
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+IconsManagePickIconDialog:
+;------------------------------------------------------------
+
+strIconResource := PickIconDialog(#####_name using row number)
+ParseIconResource(strIconResource, strInconFile, intIconIndex)
+; ###_V(A_ThisLabel, A_Index, objIconsManageMenu[intThisItemInMenu].FavoriteType, objIconsManageMenu[intThisItemInMenu].FavoriteName, objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+
+strIconResource := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 LoadIconsManageList:
 LoadIconsManageListPrev:
 LoadIconsManageListNext:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "LoadIconsManageListNext")
-	intIconsManageStartingRow += intIconsManageRows
+	g_intIconsManageStartingRow += g_intIconsManageRows
 else if (A_ThisLabel = "LoadIconsManageListPrev")
-	intIconsManageStartingRow -= intIconsManageRows
+	g_intIconsManageStartingRow -= g_intIconsManageRows
 
-; ###_V("", intIconsManageStartingRow)
+; ###_V("", g_intIconsManageStartingRow)
 
-Loop, %intIconsManageRows%
+Loop, %g_intIconsManageRows%
 {
-	intThisItemInMenu := A_Index + intIconsManageStartingRow - 1
-	ParseIconResource(objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
-	###_V(A_ThisLabel, objIconsManageMenu[intThisItemInMenu].FavoriteType, objIconsManageMenu[intThisItemInMenu].FavoriteName, objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+	intThisItemInMenu := A_Index + g_intIconsManageStartingRow - 1
 	if InStr("X|K|B", objIconsManageMenu[intThisItemInMenu].FavoriteType, 1)
-		GuiControl, , f_picIcon%A_Index%
+		GuiControl, , f_picIconCurrent%A_Index%
 	else
-		GuiControl, , f_picIcon%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+	{
+		ParseIconResource(objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+		; ###_V(A_ThisLabel, A_Index, objIconsManageMenu[intThisItemInMenu].FavoriteType, objIconsManageMenu[intThisItemInMenu].FavoriteName, objIconsManageMenu[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+		GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+		ParseIconResource(GetDefaultIcon4Type(objIconsManageMenu[intThisItemInMenu].FavoriteType
+			, objIconsManageMenu[intThisItemInMenu].FavoriteLocation, objIconsManageMenu[intThisItemInMenu].FavoriteType)
+			, strInconFile, intIconIndex)
+		GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+	}
 }
+
+intThisItemInMenu := ""
+strInconFile := ""
+intIconIndex := ""
 
 return
 ;------------------------------------------------------------
@@ -13391,7 +13383,7 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 
 ;------------------------------------------------------------
-GetIcon4Location(strLocation, blnRadioApplication := false)
+GetIcon4Location(strLocation)
 ; returns an icon resource in icongroup format (file,index) or an index of g_objJLiconsNames
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
 ; index of g_objJLiconsNames will converted to icongroup by ParseIconResource before being splitted
@@ -13401,12 +13393,7 @@ GetIcon4Location(strLocation, blnRadioApplication := false)
 	blnFileExist := FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
-	{
-		if (blnRadioApplication)
-			return "iconApplication"
-		else
-			return "iconUnknown"
-	}
+		return "iconUnknown"
 	
 	strExtension := GetFileExtension(strLocation)
 	RegRead, strHKeyClassRoot, HKEY_CLASSES_ROOT, .%strExtension%
@@ -14078,6 +14065,68 @@ GetFileExtension(strFile)
 {
 	SplitPath, strFile, , , strExtension
 	return strExtension
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetDefaultIcon4Type(strEditedFavoriteType, strEditedFavoriteLocation, strGuiFavoriteLocation)
+;------------------------------------------------------------
+{
+	global g_strTempDir
+	global g_objJLiconsByName
+	global g_objSpecialFolders
+	global g_objQAPFeatures
+
+	if InStr("Menu|External", strEditedFavoriteType, true)
+		; default submenu icon
+		return g_objJLiconsByName["iconSubmenu"]
+	else if (strEditedFavoriteType = "Group")
+		; default group icon
+		return g_objJLiconsByName["iconGroup"]
+	else if (strEditedFavoriteType = "Folder")
+		; default folder icon
+		return g_objJLiconsByName["iconFolder"]
+	else if (strEditedFavoriteType = "URL")
+		; default browser icon
+		return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+	else if (strEditedFavoriteType = "FTP")
+		; default FTP icon
+		return g_objJLiconsByName["iconFTP"]
+	else if (strEditedFavoriteType = "Snippet")
+		; default Snippet icon
+		return g_objJLiconsByName["iconTextDocument"]
+	else if InStr("Document|Application", strEditedFavoriteType) and StrLen(strGuiFavoriteLocation)
+		; default icon for the selected file in add/edit favorite
+		return GetIcon4Location(strGuiFavoriteLocation)
+	else if (strEditedFavoriteType = "Special")
+		return g_objSpecialFolders[strEditedFavoriteLocation].DefaultIcon
+	else if (strEditedFavoriteType = "QAP")
+		return g_objQAPFeatures[strEditedFavoriteLocation].DefaultIcon
+	else ; should not
+		return g_objJLiconsByName["iconUnknown"]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+PickIconDialog(strFavoriteIconResource)
+;------------------------------------------------------------
+{
+	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
+	VarSetCapacity(strIconFile, 1024) ; must be placed before strIconFile is initialized because VarSetCapacity erase its content
+	ParseIconResource(strFavoriteIconResource, strIconFile, intIconIndex)
+	blnFileExist := FileExistInPath(strIconFile)
+
+	WinGet, hWnd, ID, A
+	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
+		intIconIndex := intIconIndex - 1
+	DllCall("shell32\PickIconDlg", "Uint", hWnd, "str", strIconFile, "Uint", 260, "intP", intIconIndex)
+	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
+		intIconIndex := intIconIndex + 1
+
+	if StrLen(strIconFile)
+		return strIconFile . "," . intIconIndex
 }
 ;------------------------------------------------------------
 
