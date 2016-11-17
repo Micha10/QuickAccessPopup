@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.1.3 (2016-11-17)
+- fix bug with language switching
+- fix bug with Live folder filtering
+
 Version BETA: 7.9.1.2 (2016-11-16)
 - in Live folders, stop showing a virtual sub-menu if folder does not contain sub folders or documents of desired extensions
 - add QAP feature Refresh QAP menu (useful when using Live folders - must be added to menu)
@@ -1054,7 +1058,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.1.2 BETA
+;@Ahk2Exe-SetVersion 7.9.1.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1094,21 +1098,45 @@ ListLines, On
 
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
 
-Gosub, InitQAPconnectFile
+;---------------------------------
+; Create temporary folder
 
+g_strTempDir := A_WorkingDir . "\_temp"
+FileCreateDir, %g_strTempDir%
+
+;---------------------------------
+; Init settings file name
+; must be before InitFileInstall because it reads UseClassicButtons setting
+
+g_strAppNameFile := "QuickAccessPopup"
+g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
+
+; Set developement ini file
+
+;@Ahk2Exe-IgnoreBegin
+; Start of code for developement environment only - won't be compiled
+if (A_ComputerName = "JEAN-PC") ; for my home PC
+	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-HOME.ini"
+else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
+	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
+; / End of code for developement environment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
+
+;---------------------------------
+; Init temporary folder and language files
+
+Gosub, InitFileInstall
 Gosub, InitLanguageVariables
 
 ; --- Global variables
 
-g_strAppNameFile := "QuickAccessPopup"
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
-g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
 g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; same folder as QAP exe file or script directory in developement environment
 
 g_blnMenuReady := false
@@ -1180,28 +1208,10 @@ if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is cre
 }
 
 ;---------------------------------
-; Set developement ini file
-
-;@Ahk2Exe-IgnoreBegin
-; Start of code for developement environment only - won't be compiled
-if (A_ComputerName = "JEAN-PC") ; for my home PC
-	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-HOME.ini"
-else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
-	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
-; / End of code for developement environment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
-
-;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
 if StrLen(g_strParamSettings)
 	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_strParamSettings))
-
-;---------------------------------
-; Create temporary folder
-
-g_strTempDir := A_WorkingDir . "\_temp"
-FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
 ; Init routines
@@ -1219,8 +1229,6 @@ Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByLocati
 
 ; must be after LoadIniFile
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
-
-Gosub, InitFileInstall
 
 if (g_blnDiagMode)
 {
@@ -1551,6 +1559,7 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAc
 
 FileInstall, FileInstall\default_browser_icon.html, %g_strTempDir%\default_browser_icon.html, 1
 
+IniRead, g_blnUseClassicButtons, %g_strIniFile%, Global, UseClassicButtons, 0
 if (g_blnUseClassicButtons)
 {
 	FileInstall, FileInstall\about-32.png, %g_strTempDir%\about-32.png
@@ -1598,14 +1607,6 @@ else
 	FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
 	FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 }
-
-return
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-InitQAPconnectFile:
-;-----------------------------------------------------------
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
@@ -2507,7 +2508,6 @@ IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicM
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
-IniRead, g_blnUseClassicButtons, %g_strIniFile%, Global, UseClassicButtons, 0
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -4448,15 +4448,17 @@ LiveFolderHasContent(objLiveFolder)
 ;------------------------------------------------------------
 {
 	if (objLiveFolder.FavoriteFolderLiveDocuments)
+	{
 		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
 			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
 				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
 				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
 				return true
+	}
 	else
 		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
 			return true
-		
+	
 	return false
 }
 ;------------------------------------------------------------
