@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.1.5 (2016-11-19)
+- fix small display bug in Live folder tab of Edit Favorite dialog box
+
+Version BETA: 7.9.1.4 (2016-11-18)
+- fix bug with Live folder filtering
+- stop building live folders if max number exceeded (default 500 menu items)
+- add NbLiveFolderItems setting under [Global] section of QuickAccessPopup ini file
+- display an alert message if Live folders limit is exceeded
+- reset live folder options when Live folder checkbox is turned off
+
 Version BETA: 7.9.1.3 (2016-11-17)
 - fix bug with language switching
 - fix bug with Live folder filtering
@@ -1058,7 +1068,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.1.3 BETA
+;@Ahk2Exe-SetVersion 7.9.1.5 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1131,7 +1141,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -7358,7 +7368,7 @@ GuiControl, %strShowHideCommand%, f_radFavoriteFolderLiveInclude
 GuiControl, %strShowHideCommand%, f_radFavoriteFolderLiveExclude
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveExtensions
 GuiControl, %strShowHideCommand%, f_strFavoriteFolderLiveExtensions
-GuiControl, , f_strFavoriteFolderLiveExtensions
+GuiControl, , % (f_chkFavoriteFolderLiveDocuments ? "" : f_strFavoriteFolderLiveExtensions)
 
 strShowHideCommand := ""
 
