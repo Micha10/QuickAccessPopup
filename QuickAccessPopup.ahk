@@ -1292,9 +1292,6 @@ if (g_blnDisplayTrayTip)
 
 g_blnMenuReady := true
 
-; #####
-gosub, GuiIconManageFromQAPFeature
-
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
 OnMessage(0x200, "WM_MOUSEMOVE")
@@ -1577,6 +1574,7 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\delete_property-48.png, %g_strTempDir%\delete_property-48.png
 	FileInstall, FileInstall\copy-48.png, %g_strTempDir%\copy-48.png
 	FileInstall, FileInstall\keyboard-48.png, %g_strTempDir%\keyboard-48.png
+	FileInstall, FileInstall\details-48.png, %g_strTempDir%\details-48.png
 	FileInstall, FileInstall\separator-26.png, %g_strTempDir%\separator-26.png
 	FileInstall, FileInstall\column-26.png, %g_strTempDir%\column-26.png
 	FileInstall, FileInstall\down_circular-26.png, %g_strTempDir%\down_circular-26.png
@@ -1601,6 +1599,7 @@ else
 	FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
 	FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
 	FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
+	FileInstall, FileInstall\details-48_c.png, %g_strTempDir%\details-48_c.png
 	FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
 	FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
 	FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
@@ -1666,7 +1665,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconNetworkNeighborhood|iconNoContent|iconOptions|iconPictures|iconRAMDisk"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
-	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive"
+	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -2264,6 +2263,7 @@ InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "A
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
 InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",							0, "iconHelp")
 InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",	0, "iconHotkeys")
+InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",		0, "iconIcons")
 InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",			0, "iconOptions")
 InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",					0, "iconSettings", "+^S")
 InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",						0, "iconDonate")
@@ -2354,10 +2354,11 @@ InsertGuiControlPos("f_picGuiAddFavorite",			 -44,  120, true) ; 120
 InsertGuiControlPos("f_picGuiEditFavorite",			 -44,  195, true) ; 190 + 5
 InsertGuiControlPos("f_picGuiRemoveFavorite",		 -44,  270, true) ; 260 + 10
 InsertGuiControlPos("f_picGuiCopyFavorite",			 -44,  345, true) ; 330 + 15
-InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -130, true, true) ; -140 true = center, true = draw
-InsertGuiControlPos("f_picGuiDonate",				  50,  -62, true, true)
-InsertGuiControlPos("f_picGuiHelp",					 -44,  -62, true, true)
-InsertGuiControlPos("f_picGuiAbout",				-104,  -62, true, true)
+InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -148, true, true) ; -140 true = center, true = draw
+InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw #####
+InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
+InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
+InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
 
 InsertGuiControlPos("f_picAddColumnBreak",			  10,  230)
 InsertGuiControlPos("f_picAddSeparator",			  10,  200)
@@ -2367,15 +2368,15 @@ InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
 ; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",					  25,   84)
 
-InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -90, , true)
-InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",    0,  -90, , true)
-InsertGuiControlPos("f_btnGuiCancel",				   0,  -90, , true)
+InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -80, , true)
+InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",    0,  -80, , true)
+InsertGuiControlPos("f_btnGuiCancel",				   0,  -80, , true)
 
 InsertGuiControlPos("f_drpMenusList",				  40,   84)
 
-InsertGuiControlPos("f_lblGuiDonate",				  50,  -27, true)
-InsertGuiControlPos("f_lblGuiAbout",				-104,  -27, true)
-InsertGuiControlPos("f_lblGuiHelp",					 -44,  -27, true)
+InsertGuiControlPos("f_lblGuiDonate",				-124,  -27, true)
+InsertGuiControlPos("f_lblGuiAbout",				  70,  -27, true)
+InsertGuiControlPos("f_lblGuiHelp",					  28,  -27, true)
 InsertGuiControlPos("f_lblAppName",					  10,   10)
 InsertGuiControlPos("f_lblAppTagLine",				  10,   42)
 InsertGuiControlPos("f_lblGuiAddFavorite",			 -44,  168, true) ; 170 - 2
@@ -2384,7 +2385,8 @@ InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
 InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true) ; 310 + 5
 InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true) ; 380 + 10
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
-InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -88, true)
+InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
+InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
 
 InsertGuiControlPos("f_lvFavoritesList",			  40,  115)
 
@@ -5756,7 +5758,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize636x538, %g_strGuiFullTitle%
+Gui, 1:New, +Resize -MinimizeBox +MinSize636x558, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -5787,6 +5789,7 @@ Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static14
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static15
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static#####
 
 Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static16
@@ -5795,6 +5798,7 @@ Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGu
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp, %lGuiRemoveFavorite% ; Static19
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static20
 Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static21
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static21
 Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static22
 Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static23
 
@@ -8681,10 +8685,10 @@ return
 
 ;============================================================
 GuiIconsManage:
-GuiIconManageFromQAPFeature:
+GuiIconsManageFromQAPFeature:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "GuiIconManageFromQAPFeature")
+if (A_ThisLabel = "GuiIconsManageFromQAPFeature")
 	Gosub, GuiShowFromIconsManage
 
 g_objManageIcons := Object()
@@ -8693,16 +8697,17 @@ RecursiveLoadMenuIcons(g_objMainMenu)
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-intIconsManageRowsHeight := 38
+intIconsManageRowsHeight := 100
 SysGet, intMonitorWorkArea, MonitorWorkArea
 g_intIconsManageRows := ((intMonitorWorkAreaBottom - 250) // intIconsManageRowsHeight)
+IniRead, g_intIconsManageRows, %g_strIniFile%, Global, IconsManageRows, %g_intIconsManageRows%
 
 intMarginWidth := 10
 intIconSize := 32
-intCurrentWidth := 50
-intDefaultWidth := 50
+intIconWidth := 50
 intMenuPathWidth := 400
 intFavoriteNameWidth := 300
+intButtonsHeight := 25
 intButtonsWidth := 150
 
 Gui, 2:New, , % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
@@ -8714,24 +8719,41 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y10 w1000, % L(lDialogIconsManageAbout, g_strAppNameText)
 
 Gui, 2:Font, w600
-Gui, 2:Add, Text, % "section x" . intMarginWidth . " y35 w" . intCurrentWidth, %lDialogIconsManageCurrent%
-Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intCurrentWidth . " w" . intDefaultWidth, %lDialogIconsManageDefault%
-Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intDefaultWidth . " w" . intMenuPathWidth, %lDialogFavoriteParentMenu%
+Gui, 2:Add, Text, % "section x" . intMarginWidth . " y35 w" . intIconWidth, %lDialogIconsManageCurrent%
+Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intIconWidth . " w" . intIconWidth, %lDialogIconsManageDefault%
+Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intIconWidth . " w" . intMenuPathWidth, %lDialogFavoriteParentMenu%
 Gui, 2:Add, Text, % "yp xs+" . intMarginWidth + intMenuPathWidth . " w" . intFavoriteNameWidth, %lDialogIconsManageFavoriteName%
 Gui, 2:Font
 
+/*
 Loop, %g_intIconsManageRows%
 {
-	Gui, 2:Add, Picture, % "section x" . (intCurrentWidth - intIconSize) / 2 . " y" . 20 + A_Index * intIconsManageRowsHeight . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
+	Gui, 2:Add, Picture, % "section x" . (intCurrentWidth - intIconSize) / 2 . " y" . 15 + A_Index * intIconsManageRowsHeight . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
 	Gui, 2:Add, Picture, % "section yp xs+" . intCurrentWidth + intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
-	Gui, 2:Add, Text, % "section yp xs+" . intDefaultWidth + intMarginWidth . " w" . intMenuPathWidth . " h" . intIconsManageRowsHeight . " vf_lblMenuPath" . A_Index
-	Gui, 2:Add, Text, % "section yp xs+" . intMenuPathWidth + intMarginWidth . " w" . intFavoriteNameWidth . " h" . intIconsManageRowsHeight . " vf_lblFavoriteName" . A_Index
-	Gui, 2:Add, Button, % "section yp xs+" . intFavoriteNameWidth + intMarginWidth . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, %lDialogSelectIcon%
-	Gui, 2:Add, Button, % "yp xs+" . intButtonsWidth + intMarginWidth . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, %lDialogIconsManageSetDefaultIcon%
+	Gui, 2:Add, Text, % "0x10 x" . 10 + intCurrentWidth + intDefaultWidth + (2 * intMarginWidth) . " ys w" . intMenuPathWidth . " vf_lineMenuPath" . A_Index
+	Gui, 2:Add, Text, % "section ys+5 xs+" . intDefaultWidth + intMarginWidth . " w" . intMenuPathWidth . " h" . intIconsManageRowsHeight . " vf_lblMenuPath" . A_Index
+	Gui, 2:Add, Text, % "0x10 x+" intMarginWidth . " ys-5 w" . intFavoriteNameWidth . " vf_lineFavoriteName" . A_Index
+	Gui, 2:Add, Text, % "section ys xs+" . intMenuPathWidth + intMarginWidth . " w" . intFavoriteNameWidth . " h" . intIconsManageRowsHeight . " vf_lblFavoriteName" . A_Index
+	Gui, 2:Add, Button, % "section yp xs+" . intFavoriteNameWidth + intMarginWidth . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, %lDialogSelectIcon%
+	Gui, 2:Add, Button, % "yp xs+" . intButtonsWidth + intMarginWidth . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, %lDialogIconsManageSetDefaultIcon%
 	Gui, 2:Add, Text, % "hidden yp xs+" . 2 * (intButtonsWidth + intMarginWidth) . " w20 vf_lblFavoriteIndex" . A_Index
+	; Gui, 2:Add, Text, % "0x10 x" . intCurrentWidth + intDefaultWidth + (2 * intMarginWidth) . " y+" . intIconsManageRowsHeight - intButtonsHeight + 8 . " w" . (3 * intMarginWidth) + intMenuPathWidth + intFavoriteNameWidth
+}
+*/
+
+Loop, %g_intIconsManageRows%
+{
+	Gui, 2:Add, Picture, % "section x" . 5 + ((intIconWidth - intIconSize) / 2) . " y" . 15 + (A_Index * intIconsManageRowsHeight) . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
+	Gui, 2:Add, Picture, % "section yp xs+" . intIconWidth + intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
+	Gui, 2:Add, Text, % "0x10 section xs+" . intIconWidth . " ys w" . intMenuPathWidth . " vf_lineMenuPath" . A_Index
+	Gui, 2:Add, Text, % "0x10 xs+" intMarginWidth + intMenuPathWidth . " yp w" . intFavoriteNameWidth . " vf_lineFavoriteName" . A_Index
+	Gui, 2:Add, Text, % "ys+15 xs w" . intMenuPathWidth . " h" . intIconsManageRowsHeight . " vf_lblMenuPath" . A_Index
 }
 
-Gui, 2:Add, Button, x10 y+30 vf_btnIconsManagePrev gLoadIconsManageListPrev h33, %lDialogIconsManagePrevious%
+Gui, 2:Add, Text, % "0x10 x" . 10 + (2 * (intIconWidth + intMarginWidth)) . " ys+" . intIconsManageRowsHeight . " w" . intMenuPathWidth
+Gui, 2:Add, Text, % "0x10 x+" intMarginWidth . " yp w" . intFavoriteNameWidth
+
+Gui, 2:Add, Button, x10 y+10 vf_btnIconsManagePrev gLoadIconsManageListPrev h33, %lDialogIconsManagePrevious%
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext h33, %lDialogIconsManageNext%
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose h33, %lGui2Close%
 Gui, 2:Add, Text, x10, %A_Space%
@@ -8753,6 +8775,7 @@ intDefaultWidth := ""
 intMenuPathWidth := ""
 intFavoriteNameWidth := ""
 intButtonsWidth := ""
+intButtonsHeight := ""
 
 return
 ;------------------------------------------------------------
@@ -8776,6 +8799,7 @@ strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
 ParseIconResource(strIconResource, strInconFile, intIconIndex)
 GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . strInconFile
 
+g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
 g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath][g_objManageIcons[intManageIconsIndex].FavoriteIndex].FavoriteIconResource := strIconResource
 Gosub, EnableSaveAndCancel
 
@@ -8807,10 +8831,17 @@ Loop, %g_intIconsManageRows%
 		GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
 		ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
 		GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-		if (A_Index = 1 or  g_objManageIcons[intThisItemInMenu].MenuPath <> strPreviousMenuPath)
+		if (1 or (A_Index = 1 or  g_objManageIcons[intThisItemInMenu].MenuPath <> strPreviousMenuPath))
+		{
 			GuiControl, , f_lblMenuPath%A_Index%, % g_objManageIcons[intThisItemInMenu].MenuPath
+			GuiControl, , f_lineMenuPath%A_Index%, , 0x10
+			; GuiControl, Show, f_lineMenuPath%A_Index%
+		}
 		else
+		{
 			GuiControl, , f_lblMenuPath%A_Index%
+			; GuiControl, Hide, f_lineMenuPath%A_Index%
+		}
 		GuiControl, , f_lblFavoriteName%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteName
 		GuiControl, , f_lblFavoriteIndex%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteIndex
 		strPreviousMenuPath := g_objManageIcons[intThisItemInMenu].MenuPath
