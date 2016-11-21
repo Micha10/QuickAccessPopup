@@ -7,7 +7,7 @@
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
-#define JLicons "JLicons-1_0.dll"
+#define JLicons "JLicons-1_1.dll"
 
 #define MyAppVersion "v7.9.1.5 BETA"
 #define MyVersionFileName "7_9_1_5-beta"
