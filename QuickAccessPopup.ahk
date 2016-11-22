@@ -8636,6 +8636,7 @@ Loop, % LV_GetCount("Column") - 1
 
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
+intHotkeysManageListWinID := ""
 
 return
 ;------------------------------------------------------------
@@ -8697,17 +8698,16 @@ RecursiveLoadMenuIcons(g_objMainMenu)
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-intIconsManageRowsHeight := 100
+intIconsManageRowsHeight := 44
 SysGet, intMonitorWorkArea, MonitorWorkArea
 g_intIconsManageRows := ((intMonitorWorkAreaBottom - 250) // intIconsManageRowsHeight)
 IniRead, g_intIconsManageRows, %g_strIniFile%, Global, IconsManageRows, %g_intIconsManageRows%
 
 intMarginWidth := 10
 intIconSize := 32
-intIconWidth := 50
 intMenuPathWidth := 400
 intFavoriteNameWidth := 300
-intButtonsHeight := 25
+intButtonsHeight := 20
 intButtonsWidth := 150
 
 Gui, 2:New, , % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
@@ -8719,46 +8719,28 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y10 w1000, % L(lDialogIconsManageAbout, g_strAppNameText)
 
 Gui, 2:Font, w600
-Gui, 2:Add, Text, % "section x" . intMarginWidth . " y35 w" . intIconWidth, %lDialogIconsManageCurrent%
-Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intIconWidth . " w" . intIconWidth, %lDialogIconsManageDefault%
-Gui, 2:Add, Text, % "section yp xs+" . intMarginWidth + intIconWidth . " w" . intMenuPathWidth, %lDialogFavoriteParentMenu%
-Gui, 2:Add, Text, % "yp xs+" . intMarginWidth + intMenuPathWidth . " w" . intFavoriteNameWidth, %lDialogIconsManageFavoriteName%
+Gui, 2:Add, Edit, % "readonly center x" . intMarginWidth . " w" . intMenuPathWidth, %lDialogFavoriteParentMenu%
+Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intFavoriteNameWidth, %lDialogIconsManageFavoriteNamelDialogFavoriteParentMenu%
+Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intButtonsWidth + intIconSize + (intMarginWidth // 2), %lDialogIconsManageCurrent%
+Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intButtonsWidth + intIconSize + (intMarginWidth // 2), %lDialogIconsManageDefault%
 Gui, 2:Font
 
-/*
 Loop, %g_intIconsManageRows%
 {
-	Gui, 2:Add, Picture, % "section x" . (intCurrentWidth - intIconSize) / 2 . " y" . 15 + A_Index * intIconsManageRowsHeight . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
-	Gui, 2:Add, Picture, % "section yp xs+" . intCurrentWidth + intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
-	Gui, 2:Add, Text, % "0x10 x" . 10 + intCurrentWidth + intDefaultWidth + (2 * intMarginWidth) . " ys w" . intMenuPathWidth . " vf_lineMenuPath" . A_Index
-	Gui, 2:Add, Text, % "section ys+5 xs+" . intDefaultWidth + intMarginWidth . " w" . intMenuPathWidth . " h" . intIconsManageRowsHeight . " vf_lblMenuPath" . A_Index
-	Gui, 2:Add, Text, % "0x10 x+" intMarginWidth . " ys-5 w" . intFavoriteNameWidth . " vf_lineFavoriteName" . A_Index
-	Gui, 2:Add, Text, % "section ys xs+" . intMenuPathWidth + intMarginWidth . " w" . intFavoriteNameWidth . " h" . intIconsManageRowsHeight . " vf_lblFavoriteName" . A_Index
-	Gui, 2:Add, Button, % "section yp xs+" . intFavoriteNameWidth + intMarginWidth . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, %lDialogSelectIcon%
-	Gui, 2:Add, Button, % "yp xs+" . intButtonsWidth + intMarginWidth . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, %lDialogIconsManageSetDefaultIcon%
-	Gui, 2:Add, Text, % "hidden yp xs+" . 2 * (intButtonsWidth + intMarginWidth) . " w20 vf_lblFavoriteIndex" . A_Index
-	; Gui, 2:Add, Text, % "0x10 x" . intCurrentWidth + intDefaultWidth + (2 * intMarginWidth) . " y+" . intIconsManageRowsHeight - intButtonsHeight + 8 . " w" . (3 * intMarginWidth) + intMenuPathWidth + intFavoriteNameWidth
-}
-*/
-
-Loop, %g_intIconsManageRows%
-{
-	Gui, 2:Add, Picture, % "section x" . 5 + ((intIconWidth - intIconSize) / 2) . " y" . 15 + (A_Index * intIconsManageRowsHeight) . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
-	Gui, 2:Add, Picture, % "section yp xs+" . intIconWidth + intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
-	Gui, 2:Add, Text, % "0x10 section xs+" . intIconWidth . " ys w" . intMenuPathWidth . " vf_lineMenuPath" . A_Index
-	Gui, 2:Add, Text, % "0x10 xs+" intMarginWidth + intMenuPathWidth . " yp w" . intFavoriteNameWidth . " vf_lineFavoriteName" . A_Index
-	Gui, 2:Add, Text, % "ys+15 xs w" . intMenuPathWidth . " h" . intIconsManageRowsHeight . " vf_lblMenuPath" . A_Index
+	Gui, 2:Add, Edit, % "readonly -vscroll x" . intMarginWidth . " y" . 15 + (A_Index * intIconsManageRowsHeight) . " w" . intMenuPathWidth . " h" . intIconsManageRowsHeight - 5 . " vf_lblMenuPath" . A_Index
+	Gui, 2:Add, Edit, % "readonly -vscroll yp x+" . intMarginWidth . " w" . intFavoriteNameWidth . " h" . intIconsManageRowsHeight - 5 . " vf_lblFavoriteName" . A_Index
+	Gui, 2:Add, Picture, % "yp x+" . intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
+	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, %lDialogSelectIcon%
+	Gui, 2:Add, Picture, % "yp-7 x+" . intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
+	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, %lDialogIconsManageSetDefaultIcon%
+	Gui, 2:Add, Text, % "hidden yp x+" . intMarginWidth . " w20 vf_lblFavoriteIndex" . A_Index
 }
 
-Gui, 2:Add, Text, % "0x10 x" . 10 + (2 * (intIconWidth + intMarginWidth)) . " ys+" . intIconsManageRowsHeight . " w" . intMenuPathWidth
-Gui, 2:Add, Text, % "0x10 x+" intMarginWidth . " yp w" . intFavoriteNameWidth
-
-Gui, 2:Add, Button, x10 y+10 vf_btnIconsManagePrev gLoadIconsManageListPrev h33, %lDialogIconsManagePrevious%
+Gui, 2:Add, Button, % "x10 y+" . intIconsManageRowsHeight . " vf_btnIconsManagePrev gLoadIconsManageListPrev h33", %lDialogIconsManagePrevious%
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext h33, %lDialogIconsManageNext%
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose h33, %lGui2Close%
 Gui, 2:Add, Text, x10, %A_Space%
 
-g_intIconsManageStartingRow := 1
 Gosub, LoadIconsManageList
 
 ; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
@@ -8782,80 +8764,57 @@ return
 
 
 ;------------------------------------------------------------
-IconsManagePickIconDialog:
-IconsManageSetDefault:
-;------------------------------------------------------------
-
-intIconRow := A_GuiControl
-StringReplace, intIconRow, intIconRow, f_picIconCurrent
-StringReplace, intIconRow, intIconRow, f_picIconDefault
-StringReplace, intIconRow, intIconRow, f_btnPickDialog
-StringReplace, intIconRow, intIconRow, f_btnSetDefault
-intManageIconsIndex := g_intIconsManageStartingRow + intIconRow - 1
-
-strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
-	? PickIconDialog(g_objManageIcons[intManageIconsIndex].FavoriteIconResource) 
-	: g_objManageIcons[intManageIconsIndex].FavoriteDefaultIconResource)
-ParseIconResource(strIconResource, strInconFile, intIconIndex)
-GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . strInconFile
-
-g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
-g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath][g_objManageIcons[intManageIconsIndex].FavoriteIndex].FavoriteIconResource := strIconResource
-Gosub, EnableSaveAndCancel
-
-intIconRow := ""
-strIconResource := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 LoadIconsManageList:
 LoadIconsManageListPrev:
 LoadIconsManageListNext:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "LoadIconsManageListNext" and (g_intIconsManageStartingRow + g_intIconsManageRows) < g_objManageIcons.MaxIndex())
+intIconsManageListWinID := WinExist("A")
+if not DllCall("LockWindowUpdate", Uint, intIconsManageListWinID)
+	Oops("An error occured while locking window display in`n" . L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion))
+
+if (A_ThisLabel = "LoadIconsManageListNext")
 	g_intIconsManageStartingRow += g_intIconsManageRows
-else if (A_ThisLabel = "LoadIconsManageListPrev" and g_intIconsManageStartingRow > 1)
+else if (A_ThisLabel = "LoadIconsManageListPrev")
 	g_intIconsManageStartingRow -= g_intIconsManageRows
+else ; LoadIconsManageList
+	g_intIconsManageStartingRow := 1
 
 Loop, %g_intIconsManageRows%
 {
 	intThisItemInMenu := A_Index + g_intIconsManageStartingRow - 1
 	
-	if (intThisItemInMenu <= g_objManageIcons.MaxIndex())
-	{
-		ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
-		GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-		ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
-		GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-		if (1 or (A_Index = 1 or  g_objManageIcons[intThisItemInMenu].MenuPath <> strPreviousMenuPath))
-		{
-			GuiControl, , f_lblMenuPath%A_Index%, % g_objManageIcons[intThisItemInMenu].MenuPath
-			GuiControl, , f_lineMenuPath%A_Index%, , 0x10
-			; GuiControl, Show, f_lineMenuPath%A_Index%
-		}
-		else
-		{
-			GuiControl, , f_lblMenuPath%A_Index%
-			; GuiControl, Hide, f_lineMenuPath%A_Index%
-		}
-		GuiControl, , f_lblFavoriteName%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteName
-		GuiControl, , f_lblFavoriteIndex%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteIndex
-		strPreviousMenuPath := g_objManageIcons[intThisItemInMenu].MenuPath
-	}
-	else
-	{
-		GuiControl, , f_picIconCurrent%A_Index%
-		GuiControl, , f_picIconDefault%A_Index%
-		GuiControl, , f_lblMenuPath%A_Index%
-		GuiControl, , f_lblFavoriteName%A_Index%
-		GuiControl, , f_lblFavoriteIndex%A_Index%
-	}
+	strShowHide := (intThisItemInMenu <= g_objManageIcons.MaxIndex() ? "Show" : "Hide")
+	GuiControl, %strShowHide%, f_picIconCurrent%A_Index%
+	GuiControl, %strShowHide%, f_btnPickDialog%A_Index%
+	GuiControl, %strShowHide%, f_picIconDefault%A_Index%
+	GuiControl, %strShowHide%, f_btnSetDefault%A_Index%
+	GuiControl, %strShowHide%, f_lblFavoriteName%A_Index%
+	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
+	; GuiControl, %strShowHide%, f_lblFavoriteIndex%A_Index%
+	
+	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
+	GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
+	strShowHide := (A_Index = 1 or (g_objManageIcons[intThisItemInMenu].MenuPath <> strPreviousMenuPath and intThisItemInMenu <= g_objManageIcons.MaxIndex()) ? "Show" : "Hide")
+	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
+
+	GuiControl, , f_lblFavoriteName%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteName
+	GuiControl, , f_lblMenuPath%A_Index%, % g_objManageIcons[intThisItemInMenu].MenuPath
+	GuiControl, , f_lblFavoriteIndex%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteIndex
+	strPreviousMenuPath := g_objManageIcons[intThisItemInMenu].MenuPath
 }
 
+; ###_V("", g_intIconsManageStartingRow, g_intIconsManageRows, g_objManageIcons.MaxIndex(), "", (g_intIconsManageStartingRow + g_intIconsManageRows) < g_objManageIcons.MaxIndex(), g_intIconsManageStartingRow > 1)
+GuiControl, % ((g_intIconsManageStartingRow + g_intIconsManageRows) < g_objManageIcons.MaxIndex() ? "Enable" : "Disable"), f_btnIconsManageNext
+GuiControl, % (g_intIconsManageStartingRow > 1 ? "Enable" : "Disable"), f_btnIconsManagePrev
+GuiControl, Focus, f_btnIconsManageClose
+
+DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
+
+intIconsManageListWinID := ""
+strShowHide := ""
 intThisItemInMenu := ""
 strInconFile := ""
 intIconIndex := ""
@@ -8891,6 +8850,38 @@ RecursiveLoadMenuIcons(objCurrentMenu)
 			RecursiveLoadMenuIcons(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
 	}
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+IconsManagePickIconDialog:
+IconsManageSetDefault:
+;------------------------------------------------------------
+
+intIconRow := A_GuiControl
+StringReplace, intIconRow, intIconRow, f_picIconCurrent
+StringReplace, intIconRow, intIconRow, f_picIconDefault
+StringReplace, intIconRow, intIconRow, f_btnPickDialog
+StringReplace, intIconRow, intIconRow, f_btnSetDefault
+intManageIconsIndex := g_intIconsManageStartingRow + intIconRow - 1
+
+strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
+	? PickIconDialog(g_objManageIcons[intManageIconsIndex].FavoriteIconResource) 
+	: g_objManageIcons[intManageIconsIndex].FavoriteDefaultIconResource)
+ParseIconResource(strIconResource, strInconFile, intIconIndex)
+GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . strInconFile
+
+if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
+{
+	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
+	g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath][g_objManageIcons[intManageIconsIndex].FavoriteIndex].FavoriteIconResource := strIconResource
+	Gosub, EnableSaveAndCancel
+}
+
+intIconRow := ""
+strIconResource := ""
+
+return
 ;------------------------------------------------------------
 
 
