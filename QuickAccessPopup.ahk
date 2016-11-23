@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.1.6 (2016-11-21)
+- add Manage Icons dialog box giving an overview of current icons of favorites with buttons to pick a new icon of set the default icon for each favorite
+- add Manage icons button in Settings window and rearrange buttons layout in Settings
+- add Manage icons QAP feature allowing to add the feature to QAP menu
+- new JLicons.dll version 1.1
+
 Version BETA: 7.9.1.5 (2016-11-19)
 - fix small display bug in Live folder tab of Edit Favorite dialog box
 
@@ -1068,7 +1074,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.1.5 BETA
+;@Ahk2Exe-SetVersion 7.9.1.6 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1141,7 +1147,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.1.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4438,7 +4444,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 						strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
 					else
 						strThisIconFileIndex := GetIcon4Location(objCurrentMenu[A_Index].FavoriteLocation)
-				ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon (?)
+				ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon
 				
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, on
 				ErrorLevel := 0 ; for safety clear in case Menu is not called in next if
@@ -8793,7 +8799,7 @@ Loop, %g_intIconsManageRows%
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 	; GuiControl, %strShowHide%, f_lblFavoriteIndex%A_Index%
 	
-	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex)
+	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
 	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
 	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
 	GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile

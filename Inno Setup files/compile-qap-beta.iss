@@ -9,8 +9,8 @@
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 #define JLicons "JLicons-1_1.dll"
 
-#define MyAppVersion "v7.9.1.5 BETA"
-#define MyVersionFileName "7_9_1_5-beta"
+#define MyAppVersion "v7.9.1.6 BETA"
+#define MyVersionFileName "7_9_1_6-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -75,7 +75,7 @@ Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestD
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-BETA.ico"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-v8.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{app}"; DestName: "JLicons.dll"; Flags: sharedfile signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{app}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
