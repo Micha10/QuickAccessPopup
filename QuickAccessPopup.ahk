@@ -31,11 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.2.1 (2016-11-??)
+- fix icon for Add Favorite QAP feature
+- change approach to getting screen height for Manage Icons window
+
 Version BETA: 7.9.2 (2016-11-24)
 - add Manage Icons dialog box giving an overview of current icons of favorites with buttons to pick a new icon of set the default icon for each favorite
 - add Manage icons button in Settings window and rearrange buttons layout in Settings
 - add Manage icons QAP feature allowing to add the feature to QAP menu
-- new JLicons.dll version 1.1
+- new JLicons.dll version 1.1, moved to shared app folder in setup mode
 
 Version BETA: 7.9.1.5 (2016-11-19)
 - fix small display bug in Live folder tab of Edit Favorite dialog box
@@ -2267,7 +2271,7 @@ InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0,
 
 ; Command features
 InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconLaunch")
+InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconAddFavorite")
 InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",					0, "iconAddThisFolder", "+^A")
 InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",		0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
@@ -8713,8 +8717,9 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 intIconsManageRowsHeight := 44
-SysGet, intMonitorWorkArea, MonitorWorkArea
-g_intIconsManageRows := ((intMonitorWorkAreaBottom - 250) // intIconsManageRowsHeight)
+ActiveMonitorInfo(intTemp, intTemp, intTemp, intMonitorHeight)
+
+g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
 IniRead, g_intIconsManageRows, %g_strIniFile%, Global, IconsManageRows, %g_intIconsManageRows%
 
 intMarginWidth := 10
@@ -8762,7 +8767,8 @@ GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 
 Gui, 2:Show, AutoSize Center
 Gui, 1:+Disabled
 
-intMonitorWorkArea := ""
+intTemp := ""
+intMonitorHeight := ""
 intIconsManageRowsHeight := ""
 intMarginWidth := ""
 intIconSize := ""
@@ -14246,6 +14252,32 @@ PickIconDialog(strFavoriteIconResource)
 
 	if StrLen(strIconFile)
 		return strIconFile . "," . intIconIndex
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
+; From Bluesmaster - retrieves the size of the monitor under the mouse
+; from https://autohotkey.com/board/topic/111638-activemonitorinfo-get-monitor-resolution-and-origin-from-of-monitor-with-mouse-on/
+;------------------------------------------------------------
+{ 
+	CoordMode, Mouse, Screen
+	MouseGetPos, intMouseX, intMouseY
+	SysGet, intMonitorsCount, MonitorCount
+	Loop %intMonitorsCount%
+    {
+		SysGet, arrCurrentMonitor, Monitor, %A_Index%
+		if (intMouseX >= arrCurrentMonitorLeft and intMouseX <= arrCurrentMonitorRight and intMouseY >= arrCurrentMonitorTop and intMouseY <= arrCurrentMonitorBottom )
+		{
+			intTop := arrCurrentMonitorTop
+			intLeft := arrCurrentMonitorLeft
+			intHeight := arrCurrentMonitorBottom - arrCurrentMonitorTop
+			intWidth := arrCurrentMonitorRight  - arrCurrentMonitorLeft
+			
+			return
+		}
+	}
 }
 ;------------------------------------------------------------
 
