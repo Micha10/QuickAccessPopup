@@ -7,6 +7,7 @@
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
+#define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_1.dll"
 
 #define MyAppVersion "v7.9.2 BETA"
@@ -75,7 +76,7 @@ Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestD
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-BETA.ico"; Flags: ignoreversion
 Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-v8.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{app}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]

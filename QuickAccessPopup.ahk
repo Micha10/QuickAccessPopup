@@ -1153,7 +1153,11 @@ g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? "
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
-g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; same folder as QAP exe file or script directory in developement environment
+
+if (g_blnPortableMode)
+	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
+else ; setup mode
+	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
@@ -2923,6 +2927,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
 	global g_objJLiconsByName
+	global lMenuMyQAPMenu
 
 	; ###_V("AddToIniOneDefaultMenu", strLocation, strName, strFavoriteType)
 	if (strFavoriteType = "Z")
@@ -2930,7 +2935,10 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 	else
 	{
 		if (strFavoriteType = "Menu")
-			strIconResource := "iconApplication"
+			if (strName = lMenuMyQAPMenu)
+				strIconResource := "iconApplication"
+			else ; lMenuMySpecialMenu
+				strIconResource := "iconSpecialFolders"
 		else if (strFavoriteType = "Special")
 			strIconResource := g_objSpecialFolders[strLocation].DefaultIcon
 		else
