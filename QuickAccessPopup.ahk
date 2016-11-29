@@ -1,3 +1,6 @@
+Various
+- revert AddAutoAtBottom to AddAutoAtTop
+
 ;===============================================
 /*
 
@@ -2519,6 +2522,7 @@ if !(g_blnPortableMode)
 	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
+IniRead, g_blnAddAutoAtBottom, %g_strIniFile%, Global, AddAutoAtBottom, 1
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -4547,7 +4551,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuPath)
 	
 	; scan folders in live folder
 	strFolders := ""
-	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; direcrtories
+	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; directories
 	{
 		g_intNbLiveFolderItems++
 		if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
@@ -4814,6 +4818,9 @@ if !(g_blnPortableMode)
 	Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
 	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
 }
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddAutoAtBottom, %lOptionsAddAutoAtBottom%
+GuiControl, , f_blnAddAutoAtBottom, %g_blnAddAutoAtBottom%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
@@ -5343,6 +5350,8 @@ if !(g_blnPortableMode)
 	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
 }
 
+g_blnAddAutoAtBottom := f_blnAddAutoAtBottom
+IniWrite, %g_blnAddAutoAtBottom%, %g_strIniFile%, Global, AddAutoAtBottom
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
@@ -6241,7 +6250,8 @@ else
 {
 	if !InStr(A_ThisLabel, "Xpress") ; NOT Xpress
 	{
-		g_intOriginalMenuPosition := 0xFFFF ; add item at the end of menu in GUI
+		; initialy position new entry at top or bottom of menu
+		g_intOriginalMenuPosition := (g_blnAddAutoAtBottom ? 0xFFFF : 1)
 		
 		Gosub, GuiShowFromAddThisFolder ; except for Express add, show Settings window
 		
@@ -6259,8 +6269,8 @@ else
 	}
 	else ; AddThisFolderXpress, AddThisFolderFromMsgXpress or AddThisFileFromMsgXpress
 	{
-		g_intOriginalMenuPosition := 1 ; add item at the top of menu without GUI
-	
+		; in Express mode, g_intOriginalMenuPosition will be set in GuiAddFavoriteSaveXpress
+
 		if (A_ThisLabel = "AddThisFolderXpress")
 			
 			Gosub, GuiAddThisFolderXpress
@@ -6588,7 +6598,7 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
-
+	
 return
 ;------------------------------------------------------------
 
@@ -7740,7 +7750,9 @@ if (A_ThisLabel = "GuiAddFavoriteSaveXpress")
 	
 	; add new favorite in first position of Main menu
 	strDestinationMenu := lMainMenuName
-	g_intNewItemPos := 1
+	###_V("g_objMenusIndex[strDestinationMenu]", g_objMenusIndex[strDestinationMenu].MenuPath, g_objMenusIndex[strDestinationMenu].MaxIndex())
+	###_O("g_objMenusIndex[strDestinationMenu]", g_objMenusIndex[strDestinationMenu], "FavoriteName")
+	g_intNewItemPos := (g_blnAddAutoAtBottom ? g_objMenusIndex[strDestinationMenu].MaxIndex() + 1 : 1)
 }
 else
 {
