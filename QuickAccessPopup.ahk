@@ -1,6 +1,3 @@
-Various
-- revert AddAutoAtBottom to AddAutoAtTop
-
 ;===============================================
 /*
 
@@ -1081,7 +1078,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.2 BETA
+;@Ahk2Exe-SetVersion 7.9.2.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1154,7 +1151,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2522,7 +2519,7 @@ if !(g_blnPortableMode)
 	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
-IniRead, g_blnAddAutoAtBottom, %g_strIniFile%, Global, AddAutoAtBottom, 1
+IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -4819,8 +4816,8 @@ if !(g_blnPortableMode)
 	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
 }
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddAutoAtBottom, %lOptionsAddAutoAtBottom%
-GuiControl, , f_blnAddAutoAtBottom, %g_blnAddAutoAtBottom%
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddAutoAtTop, %lOptionsAddAutoAtTop%
+GuiControl, , f_blnAddAutoAtTop, %g_blnAddAutoAtTop%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
@@ -5350,8 +5347,8 @@ if !(g_blnPortableMode)
 	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
 }
 
-g_blnAddAutoAtBottom := f_blnAddAutoAtBottom
-IniWrite, %g_blnAddAutoAtBottom%, %g_strIniFile%, Global, AddAutoAtBottom
+g_blnAddAutoAtTop := f_blnAddAutoAtTop
+IniWrite, %g_blnAddAutoAtTop%, %g_strIniFile%, Global, AddAutoAtTop
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
@@ -6251,7 +6248,7 @@ else
 	if !InStr(A_ThisLabel, "Xpress") ; NOT Xpress
 	{
 		; initialy position new entry at top or bottom of menu
-		g_intOriginalMenuPosition := (g_blnAddAutoAtBottom ? 0xFFFF : 1)
+		g_intOriginalMenuPosition := (g_blnAddAutoAtTop ? 1 : 0xFFFF)
 		
 		Gosub, GuiShowFromAddThisFolder ; except for Express add, show Settings window
 		
@@ -7734,7 +7731,7 @@ Gui, 2:+OwnDialogs
 strThisLabel := A_ThisLabel
 
 ; original and destination menus values
-if InStr("GuiAddFavoriteSave|GuiCopyFavoriteSave", strThisLabel)
+if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strThisLabel)
 {
 	strOriginalMenu := ""
 	g_intOriginalMenuPosition := 0
@@ -7750,9 +7747,7 @@ if (A_ThisLabel = "GuiAddFavoriteSaveXpress")
 	
 	; add new favorite in first position of Main menu
 	strDestinationMenu := lMainMenuName
-	###_V("g_objMenusIndex[strDestinationMenu]", g_objMenusIndex[strDestinationMenu].MenuPath, g_objMenusIndex[strDestinationMenu].MaxIndex())
-	###_O("g_objMenusIndex[strDestinationMenu]", g_objMenusIndex[strDestinationMenu], "FavoriteName")
-	g_intNewItemPos := (g_blnAddAutoAtBottom ? g_objMenusIndex[strDestinationMenu].MaxIndex() + 1 : 1)
+	g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
 }
 else
 {
