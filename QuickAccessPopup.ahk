@@ -31,9 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.2.1 (2016-11-??)
+Version BETA: 7.9.2.1 (2016-11-29)
+- add option to add folder automatically at top or bottom of main menu (default at top) when added with Add this folder, Add this folder Express and Add favorite from Explorer context menus
 - fix icon for Add Favorite QAP feature
 - change approach to getting screen height for Manage Icons window
+- add diagnostic code for screen height detection in Manage Icons
 
 Version BETA: 7.9.2 (2016-11-24)
 - add Manage Icons dialog box giving an overview of current icons of favorites with buttons to pick a new icon of set the default icon for each favorite
@@ -8724,9 +8726,10 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 intIconsManageRowsHeight := 44
-ActiveMonitorInfo(intTemp, intTemp, intTemp, intMonitorHeight)
+ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
 
 g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
+Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
 IniRead, g_intIconsManageRows, %g_strIniFile%, Global, IconsManageRows, %g_intIconsManageRows%
 
 intMarginWidth := 10
@@ -8774,7 +8777,9 @@ GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 
 Gui, 2:Show, AutoSize Center
 Gui, 1:+Disabled
 
-intTemp := ""
+intTop := ""
+intLeft := ""
+intWidth := ""
 intMonitorHeight := ""
 intIconsManageRowsHeight := ""
 intMarginWidth := ""
@@ -9831,7 +9836,7 @@ LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
-DiagWindowInfo(A_ThisLabel . " Begin")
+; DiagWindowInfo(A_ThisLabel . " Begin")
 
 if SettingsUnsaved()
 	if SettingsNotSavedReturn()
@@ -9980,7 +9985,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	DiagWindowInfo("CanNavigate Begin")
+	; DiagWindowInfo("CanNavigate Begin")
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
@@ -10002,7 +10007,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	else
 		g_blnShowChangeFolderInDialogAlert := false
 	
-	DiagWindowInfo("CanNavigate End")
+	; DiagWindowInfo("CanNavigate End")
 	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
 	
 	return blnCanNavigate
@@ -10016,7 +10021,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	DiagWindowInfo("CanLaunch")
+	; DiagWindowInfo("CanLaunch")
 	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
@@ -14272,6 +14277,7 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 	CoordMode, Mouse, Screen
 	MouseGetPos, intMouseX, intMouseY
 	SysGet, intMonitorsCount, MonitorCount
+	Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
 	Loop %intMonitorsCount%
     {
 		SysGet, arrCurrentMonitor, Monitor, %A_Index%
@@ -14281,6 +14287,9 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			intLeft := arrCurrentMonitorLeft
 			intHeight := arrCurrentMonitorBottom - arrCurrentMonitorTop
 			intWidth := arrCurrentMonitorRight  - arrCurrentMonitorLeft
+			Diag("ActiveMonitorInfo - Monitor Index", A_Index)
+			Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
+			Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
 			
 			return
 		}
