@@ -8,7 +8,7 @@
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 #define JLdir "JeanLalonde"
-#define JLicons "JLicons-1_1.dll"
+#define JLicons "JLicons-1_2.dll"
 
 #define MyAppVersion "v7.9.2.1 BETA"
 #define MyVersionFileName "7_9_2_1-beta"
