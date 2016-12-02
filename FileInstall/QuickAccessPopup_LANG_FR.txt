@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduction française: Jean Lalonde`nTraduction allemande: Edgar "Fast Edi" Hoffmann`nTraduction suédoise: Åke Engelbrektson`nTraduction italienne: Riccardo Leone`nTraduction espagnole: kiketrucker`nTraduction en portugais brésilien: Igor Ruckert`nTraduction en chinois simplifié et traditionel: Jess Yang`nTraduction en portuguais: Luis Never`nRévision anglaise: (aide bienvenue)`n`nIcônes par: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstallateur: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> par jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduction française: Jean Lalonde`nTraduction allemande: Edgar "Fast Edi" Hoffmann`nTraduction suédoise: Åke Engelbrektson`nTraduction italienne: Riccardo Leone`nTraduction espagnole: kiketrucker`nTraduction en portugais brésilien: Igor Ruckert`nTraduction en chinois simplifié et traditionel: Jess Yang`nTraduction en portuguais: Luis Never`nRévision anglaise: (aide bienvenue)`n`nIcônes par: <a href="https://icons8.com/">Icons8</a>`nInstallateur: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> par jrsoftware.org`nSources AutoHotkey_L v1.1: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soutien en ligne: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	À propos - ~1~ ~2~
@@ -23,7 +23,7 @@ lDialogAdd	Ajouter
 lDialogAddEditFavoriteTitle	~1~ un favori - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~ ~2~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
-lDialogAddFavoriteTabsLive	Option de dossier actif
+lDialogAddFavoriteTabsLive	Options de dossier actif
 lDialogAddFileSelect	Choisir un nouveau document:
 lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement le dossier actif dans ce type de fenêtre.`n`nVoulez-vous ajouter un dossier favori manuellement?
 lDialogAddFolderManuallyTitle	Ajouter ce dossier - ~1~ ~2~
@@ -65,14 +65,14 @@ lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disp
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
-lDialogFavoriteFolderLive	Dossier Actif (menu incluant les sous-dossiers)
+lDialogFavoriteFolderLive	Dossier actif (menu incluant les sous-dossiers)
 lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier Live
 lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (laisser vide pour pas de colonnes)
 lDialogFavoriteFolderLiveDocuments	Inclure les documents
 lDialogFavoriteFolderLiveExclude	Exclure
-lDialogFavoriteFolderLiveExtensions	ces extensions (separées par des espaces)
+lDialogFavoriteFolderLiveExtensions	ces extensions (separées par des espaces, par exemple "bak bk")
 lDialogFavoriteFolderLiveInclude	Inclure
-lDialogFavoriteFolderLiveLevels	Nombre de sous-niveaux à inclure dans le menu de ce Dossier actif
+lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier actif
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.
@@ -82,6 +82,7 @@ lDialogFavoriteNameNotNew	Le nom "~1~" est déjà présent dans ce menu. Veuillez c
 lDialogFavoriteNameNotNewQAPfeature	Le nom "~1~" est déjà présent dans ce menu. Veuillez renommer le favori existant et essayez à nouveau.
 lDialogFavoriteParentMenu	Insérer le nouveau favori dans ce menu
 lDialogFavoriteRemoveExternalPrompt	Supprimer le menu partagé "~1~"`n(le fichier de configuration partagé ne sera PAS supprimé)?
+lDialogFavoriteRemoveGroupPrompt	Retirer le groupe "~1~"`n(les items dans ce groupe seront aussi supprimés)? ; new
 lDialogFavoriteRemovePrompt	Supprimer le sous-menu "~1~"`net TOUT son contenu (dossiers et sous-menus)?
 lDialogFavoriteRemoveTitle	Supprimer un favori - ~1~
 lDialogFavoriteSelectType	Sélectionnez le type du nouveau favori.`n`nDans l'écran suivant, vous pourrez:`n- nommer votre favori`n- déterminer le contenu visé (selon le type)`n- choisir divers réglages (icône, raccourci, etc.)`n`nChoisissez le type du nouveau favori et cliquez "~1~".
@@ -118,6 +119,7 @@ lDialogFileLabel	Document
 lDialogFolderLabel	Dossier
 lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
+lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a> or <a id="~4~">échappement</a> ; new
 lDialogHotkeys	Raccourcis
 lDialogHotkeysManageAbout	Raccourcis actuellement actifs dans ~1~
 lDialogHotkeysManageAlternative	Alternatif
@@ -129,6 +131,16 @@ lDialogHotkeysManageListSeeShortHotkeyNames	Voir les noms abrégés des raccourcis
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gérer les raccourcis - ~1~ ~2~
 lDialogIcon	Icône
+lDialogIconsManage	Icônes ; new
+lDialogIconsManageAbout	Choisissez de nouveaux icônes pour vos favoris ou rétablissez l'icône par défaut selon le type de favori. N'oubliez pas d'enregistrer vos changements dans la fenêtre Paramètres. ; new
+lDialogIconsManageCurrent	Icône actuel ; new
+lDialogIconsManageDefault	Icône par défaut ; new
+lDialogIconsManageFavoriteName	Nom du favori ; new
+lDialogIconsManageNext	Suivant ; new
+lDialogIconsManageParentMenu	Menu contenant ce favori ; new
+lDialogIconsManagePrevious	Précédant ; new
+lDialogIconsManageSetDefaultIcon	Icône par défaut ; new
+lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~ ; new
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
 lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour l'emplacement "~2~".`n`nVeuillez choisir une autre touche de raccourci pour l'emplacement "~2~".
 lDialogKeyboard	Clavier
@@ -142,7 +154,9 @@ lDialogMouseCheckLButton	Vous ne pouvez pas attribuer le "Bouton de gauche de la
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
 lDialogNone	Aucun
 lDialogNormal	Normal
+lDialogOff	Inactif ; new
 lDialogOK	OK
+lDialogOn	Actif ; new
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogReadOnly	Lecture seulement
@@ -153,9 +167,10 @@ lDialogSelectItemToEdit	Veuillez sélectionner l'item à modifier.
 lDialogSelectItemToMove	Veuillez sélectionner l'item à déplacer.
 lDialogSelectItemToRemove	Veuillez sélectionner l'item à supprimer.
 lDialogSettingsInvalid	Fichier de configuration invalide.`n`nVeuillez vous assurer que le fichier de configuration contient les sections ~1~ et ~2~.`n`nFichier: ~3~
+lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont pas été enregistrés. Ces changements doivent être enregistrés ou annulés afin de permettre l'exécution de l'action demandée.`n`nVoulez-vous:`n- "Enregistrer": enregistrer vos changements et exécuter l'action demandée`n- "Paramètres": annuler l'action demandée et afficher la fenêtre Paramètres`n- "Annuler": seulement annuler l'action demandée? ; new
+lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés ; new
 lDialogShift	Maj
 lDialogShortcut	Raccourci
-lDialogSpacebarTab	choisissez <a id="Space">Espace</a> ou <a id="Tab">tab</a>
 lDialogState	État de la fenêtre:
 lDialogSubmenuNameEmpty	Le nom du sous-menu est vide. Veuillez indiquer un nom court pour ce menu.
 lDialogSubmenuParentMenu	Menu contenant ce sous-menu
@@ -341,6 +356,7 @@ lMenuPublicLibraries	Bibliothèques (public)
 lMenuQuickLaunch	Lancement rapide
 lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
+lMenuRefreshMenu	Recharger le menu de QAP ; new
 lMenuReload	Redémarrer ~1~
 lMenuRunAtStartup	Exécuter au démarrage
 lMenuSettings	Paramètres
@@ -367,6 +383,7 @@ lOopsErrorIniFileReadOnly	Ce menu partagé est en lecture seulement.
 lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible.
 lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas disponible
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
+lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture. ; new
 lOopsExternalMenuReadOnly	Ce menu partagé est en lecture seulement et ne peut être modifié.
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
@@ -377,6 +394,7 @@ lOopsInvalidWinCmdIni	Le fichier des paramêtres "wincmd.ini" de Total Commander 
 lOopsInvalidWindowPosition	Valeur(s) de position de la fenêtre invalide
 lOopsLaunchWithNotFound	Le fichier de l'application "Lancer avec cette application" est introuvable:`n`n~1~`n`nVérifiez les réglages avancés ce ce favori.
 lOopsLocation	emplacement
+lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dépassé. Veuillez réduire le nombre de niveaux de ce Dossier actif.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inatendus. Modifiez la valeur "NbLiveFolderItemsMax" sous la rubrique [Global] du fichier de paramètres (QuickAccessPop.ini).
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
 lOopsTitle	~1~ (~2~)
@@ -385,6 +403,7 @@ lOopsWriteProtectedError	Il semble que ~1~ a été lancé depuis un dossier en ÉCRI
 lOopsWrongThirdPartyPath	Chemin ou nom de fichier incorrect pour ~1~:`n~2~.`n`nVérifiez le fichier .exe sélectionné pour ~1~ dans les "Options", onglet "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Fichier de l'application invalide dans QAPconnect`n~1~:`n~2~.`n`nVérifiez les valeurs pour [~1~] dans ~3~. Utilisez le bouton "~4~" dans "Options", onglet "~5~".
 lOopsZipFileError	Il semble que ~1~ a été lancé directement depuis un fichier compressé (ZIP).`n`nVous devez extraire le fichier .EXE de ~1~ du fichier ZIP dans un dossier de votre choix, puis exécuter l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
+lOptionsAddAutoAtTop	Ajouter automatiquement au début du menu ; new
 lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
@@ -438,6 +457,7 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
+lOptionsUseClassicButtons	Afficher les boutons QAP classiques ; new
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu des dossiers seront perdus.
 lTCMenuName	TC Directory Hotlist
