@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.2.2 (2016-12-??)
+- in Manage Icons, display default icon as current when current icon is empty in Settings
+- fix favorite name header in Manage Icons window
+- make bold the parent menu column header in manage icons
+- add Paste and Paste Special icons and use the as default icons for text and macro Snippet favorites
+- add to Options a numeric value to set the Manage Icons number of rows (in case the number calculated automatically is wrong)
+- allow to edit a live folder favorite using Alternative menu or Shift+Ctrl menu modifiers by selecting any item in a live folder
+- add up/down buttons to numeric values in options and edit favorite windows
+
 Version BETA: 7.9.2.1 (2016-11-29)
 - add option to add folder automatically at top or bottom of main menu (default at top) when added with Add this folder, Add this folder Express and Add favorite from Explorer context menus
 - fix icon for Add Favorite QAP feature
@@ -1682,6 +1691,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
+	. "|iconPaste|iconPasteSpecial"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -2537,6 +2547,7 @@ IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicM
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
+IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -4386,7 +4397,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
-				BuildLiveFolderMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath)
+				BuildLiveFolderMenu(objCurrentMenu[A_Index], objCurrentMenu.MenuPath, A_Index)
 				g_objMenusIndex.Insert(objCurrentMenu[A_Index].SubMenu.MenuPath, objCurrentMenu[A_Index].SubMenu) ; add to the menu index
 			}
 			
@@ -4520,7 +4531,7 @@ LiveFolderHasContent(objLiveFolder)
 
 
 ;------------------------------------------------------------
-BuildLiveFolderMenu(objLiveFolder, strMenuPath)
+BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparator
@@ -4530,7 +4541,9 @@ BuildLiveFolderMenu(objLiveFolder, strMenuPath)
 	
 	objNewMenu := Object() ; create the submenu object
 	objNewMenu.IsLiveMenu := true
-	objNewMenu.MenuPath := strMenuPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
+	objNewMenu.LiveMenuParentPath := strMenuParentPath
+	objNewMenu.LiveMenuParentPosition := intMenuParentPosition
+	objNewMenu.MenuPath := strMenuParentPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
 	objNewMenu.MenuType := "Menu"
 	
 	; fake back menu
@@ -4831,8 +4844,9 @@ Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsReme
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
-Gui, 2:Add, Edit, y+5 xs w36 h17 vf_intRecentFoldersMax center, %g_intRecentFoldersMax%
-Gui, 2:Add, Text, yp x+10 w250, %lOptionsRecentFolders%
+Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
+Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
+Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 
 Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
@@ -4850,9 +4864,11 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition2 gPopupMenuPositionCli
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (g_intPopupMenuPosition = 3 ? "Checked" : ""), %lOptionsMenuFixPosition%
 
 Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionX%
-Gui, 2:Add, Edit, % "yp x+5 w36 h17 vf_strPopupFixPositionX center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %g_arrPopupFixPosition1%
-Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionY%
-Gui, 2:Add, Edit, % "yp x+5 w36 h17 vf_strPopupFixPositionY center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %g_arrPopupFixPosition2%
+Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, %g_arrPopupFixPosition1%
+Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, %g_arrPopupFixPosition2%
 
 Gui, 2:Add, Text, y+10 xs w300, %lOptionsHotkeyRemindersPrompt%
 
@@ -4878,6 +4894,10 @@ if !OSVersionIsWorkstation()
 Gui, 2:Add, Text, % "y+10 xs vf_drpIconSizeLabel " . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconSize%
 Gui, 2:Add, DropDownList, % "yp x+10 w40 vf_drpIconSize Sort " . (g_blnDisplayIcons ? "" : "Disabled"), 16|24|32|48|64
 GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
+
+Gui, 2:Add, Edit, % "y+5 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
+Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
+Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
 
 ;---------------------------------------
 ; Tab 2: Popup menu hotkeys
@@ -5080,6 +5100,8 @@ strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
 
 GuiControl, %strEnableDisableCommand%, f_drpIconSizeLabel
 GuiControl, %strEnableDisableCommand%, f_drpIconSize
+GuiControl, %strEnableDisableCommand%, f_intIconsManageRows
+GuiControl, %strEnableDisableCommand%, f_lblIconsManageRows
 
 strEnableDisableCommand := ""
 
@@ -5095,9 +5117,11 @@ Gui, 2:Submit, NoHide
 strEnableDisableCommand := (f_radPopupMenuPosition3 ? "Enable" : "Disable")
 
 GuiControl, %strEnableDisableCommand%, f_lblPopupFixPositionX
-GuiControl, %strEnableDisableCommand%, f_strPopupFixPositionX
+GuiControl, %strEnableDisableCommand%, f_intPopupFixPositionXEdit
+GuiControl, %strEnableDisableCommand%, f_intPopupFixPositionX
 GuiControl, %strEnableDisableCommand%, f_lblPopupFixPositionY
-GuiControl, %strEnableDisableCommand%, f_strPopupFixPositionY
+GuiControl, %strEnableDisableCommand%, f_intPopupFixPositionYEdit
+GuiControl, %strEnableDisableCommand%, f_intPopupFixPositionY
 
 strEnableDisableCommand := ""
 
@@ -5378,8 +5402,8 @@ else
 	g_intPopupMenuPosition := 3
 IniWrite, %g_intPopupMenuPosition%, %g_strIniFile%, Global, PopupMenuPosition
 
-g_arrPopupFixPosition1 := f_strPopupFixPositionX
-g_arrPopupFixPosition2 := f_strPopupFixPositionY
+g_arrPopupFixPosition1 := f_intPopupFixPositionX
+g_arrPopupFixPosition2 := f_intPopupFixPositionY
 IniWrite, %g_arrPopupFixPosition1%`,%g_arrPopupFixPosition2%, %g_strIniFile%, Global, PopupFixPosition
 
 if (f_radHotkeyReminders1)
@@ -5406,6 +5430,9 @@ IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 
 g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
+
+g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
+IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
 
 strUseClassicButtonsPrev := g_blnUseClassicButtons
 g_blnUseClassicButtons := f_blnUseClassicButtons
@@ -6362,7 +6389,7 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h400 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
+Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h420 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
@@ -6387,21 +6414,21 @@ Gui, 2:Tab
 
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
-	Gui, 2:Add, Button, y420 vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOK%
+	Gui, 2:Add, Button, y440 vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOK%
 	Gui, 2:Add, Button, yp vf_btnEditFavoriteCancel gGuiEditFavoriteCancel, %lGuiCancel%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnEditFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
-	Gui, 2:Add, Button, y420 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopy%
+	Gui, 2:Add, Button, y440 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopy%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogCopy, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
-	Gui, 2:Add, Button, y420 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAdd%
+	Gui, 2:Add, Button, y440 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAdd%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogAdd, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
@@ -6609,7 +6636,7 @@ GuiFavoriteTabBasic:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Font, w700
-Gui, 2:Add, Text, x20 y40 w500, % lDialogFavoriteType . ": " . g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType]
+Gui, 2:Add, Text, x20 y50 w500, % lDialogFavoriteType . ": " . g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType]
 Gui, 2:Font
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
@@ -6736,7 +6763,7 @@ GuiFavoriteTabMenuOptions:
 
 Gui, 2:Tab, % ++intTabNumber
 
-Gui, 2:Add, Text, x20 y40 vf_lblFavoriteParentMenu
+Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
 	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
@@ -6773,12 +6800,14 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	Gui, 2:Add, Checkbox, % "x20 y40 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
+	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
 	
-	Gui, 2:Add, Edit, x20 y+20 w36 h17 vf_intFavoriteFolderLiveLevels number limit1 center hidden, % g_objEditedFavorite.FavoriteFolderLiveLevels
-	Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-	Gui, 2:Add, Edit, x20 y+10 w36 h17 vf_intFavoriteFolderLiveColumns number limit3 center hidden, % g_objEditedFavorite.FavoriteFolderLiveColumns
-	Gui, 2:Add, Text, x+5 yp w400 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
+	Gui, 2:Add, Edit, x20 y+20 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
+	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % g_objEditedFavorite.FavoriteFolderLiveLevels
+	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
+	Gui, 2:Add, Edit, x20 y+10 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
+	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % g_objEditedFavorite.FavoriteFolderLiveColumns
+	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
 	
 	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_chkFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
 
@@ -6803,7 +6832,7 @@ if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
 	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
-	Gui, 2:Add, Checkbox, % "x20 y40 section vf_chkUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
+	Gui, 2:Add, Checkbox, % "x20 y50 section vf_chkUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
 	
 	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogState%
 	
@@ -6846,7 +6875,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 	if (g_objEditedFavorite.FavoriteType = "Application")
 	{
-		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_blnFavoriteElevate, %lDialogElevate%
+		Gui, 2:Add, Checkbox, x20 y50 w400 vf_blnFavoriteElevate, %lDialogElevate%
 		GuiControl, , f_blnFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
 		Gui, 2:Add, Text, x20 y+20 w400, %lDialogWorkingDirLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
@@ -6857,7 +6886,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 	{
-		Gui, 2:Add, Text, x20 y+20, %lGuiGroupRestoreDelay%
+		Gui, 2:Add, Text, x20 y50, %lGuiGroupRestoreDelay%
 		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, %g_arrGroupSettingsGui3%
 		Gui, 2:Add, Text, x+10 yp, %lGuiGroupRestoreDelayMilliseconds%
 	}
@@ -6868,7 +6897,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		; 2 prompt (pause prompt before pasting/launching the snippet)
 		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 		
-		Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteSnippetSendMode%
+		Gui, 2:Add, Text, x20 y50, %lDialogFavoriteSnippetSendMode%
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
 		
@@ -6879,14 +6908,14 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		Gui, 2:Add, Text, x20 y+20, %lDialogExternalStartingNumber%
+		Gui, 2:Add, Text, x20 y50, %lDialogExternalStartingNumber%
 		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
 			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 	}
 	else
 	{
-		Gui, 2:Add, Text, x20 y+20 w400, %lDialogLaunchWith%
+		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
 		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
@@ -7257,7 +7286,7 @@ GuiFavoriteIconDefault:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite.FavoriteType, g_objEditedFavorite.FavoriteLocation, f_strFavoriteLocation)
+g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
 if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
@@ -7319,10 +7348,12 @@ strShowHideCommand := (f_chkFavoriteFolderLive ? "Show" : "Hide")
 
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveOptions
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveLevels
+GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevelsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevels
 if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 	GuiControl, , f_intFavoriteFolderLiveLevels, 1
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveColumns
+GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumnsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumns
 GuiControl, %strShowHideCommand%, f_chkFavoriteFolderLiveDocuments
 
@@ -8037,7 +8068,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
 	g_objEditedFavorite.FavoriteFolderLiveDocuments := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : "")
-	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveColumns : "")
+	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_chkFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
 	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_chkFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
 	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_chkFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
@@ -8720,17 +8751,20 @@ if (A_ThisLabel = "GuiIconsManageFromQAPFeature")
 	Gosub, GuiShowFromIconsManage
 
 g_objManageIcons := Object()
-RecursiveLoadMenuIcons(g_objMainMenu)
+RecursiveLoadMenuIconsManage(g_objMainMenu)
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 intIconsManageRowsHeight := 44
-ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
-
-g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
-Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
-IniRead, g_intIconsManageRows, %g_strIniFile%, Global, IconsManageRows, %g_intIconsManageRows%
+if !(g_intIconsManageRowsSettings)
+{
+	ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
+	g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
+	Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
+}
+else
+	g_intIconsManageRows:= g_intIconsManageRowsSettings
 
 intMarginWidth := 10
 intIconSize := 32
@@ -8748,15 +8782,17 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y10 w1000, % L(lDialogIconsManageAbout, g_strAppNameText)
 
 Gui, 2:Font, w600
-Gui, 2:Add, Edit, % "readonly center x" . intMarginWidth . " w" . intMenuPathWidth, %lDialogFavoriteParentMenu%
-Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intFavoriteNameWidth, %lDialogIconsManageFavoriteNamelDialogFavoriteParentMenu%
+Gui, 2:Add, Edit, % "readonly center x" . intMarginWidth . " w" . intMenuPathWidth, %lDialogIconsManageParentMenu%
+Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intFavoriteNameWidth, %lDialogIconsManageFavoriteName%
 Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intButtonsWidth + intIconSize + (intMarginWidth // 2), %lDialogIconsManageCurrent%
 Gui, 2:Add, Edit, % "readonly center yp x+" . intMarginWidth . " w" . intButtonsWidth + intIconSize + (intMarginWidth // 2), %lDialogIconsManageDefault%
 Gui, 2:Font
 
 Loop, %g_intIconsManageRows%
 {
+	Gui, 2:Font, w600
 	Gui, 2:Add, Edit, % "readonly -vscroll x" . intMarginWidth . " y" . 15 + (A_Index * intIconsManageRowsHeight) . " w" . intMenuPathWidth . " h" . intIconsManageRowsHeight - 5 . " vf_lblMenuPath" . A_Index
+	Gui, 2:Font
 	Gui, 2:Add, Edit, % "readonly -vscroll yp x+" . intMarginWidth . " w" . intFavoriteNameWidth . " h" . intIconsManageRowsHeight - 5 . " vf_lblFavoriteName" . A_Index
 	Gui, 2:Add, Picture, % "yp x+" . intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManagePickIconDialog vf_picIconCurrent" . A_Index
 	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, %lDialogSelectIcon%
@@ -8825,6 +8861,8 @@ Loop, %g_intIconsManageRows%
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 	; GuiControl, %strShowHide%, f_lblFavoriteIndex%A_Index%
 	
+	if !StrLen(g_objManageIcons[intThisItemInMenu].FavoriteIconResource)
+		g_objManageIcons[intThisItemInMenu].FavoriteIconResource := g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource
 	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
 	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
 	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
@@ -8857,7 +8895,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuIcons(objCurrentMenu)
+RecursiveLoadMenuIconsManage(objCurrentMenu)
 ;------------------------------------------------------------
 {
 	global g_objManageIcons
@@ -8873,13 +8911,12 @@ RecursiveLoadMenuIcons(objCurrentMenu)
 			objThisFavorite.FavoriteName := objCurrentMenu[A_Index].FavoriteName
 			objThisFavorite.FavoriteLocation := objCurrentMenu[A_Index].FavoriteLocation
 			objThisFavorite.FavoriteIconResource := objCurrentMenu[A_Index].FavoriteIconResource
-			objThisFavorite.FavoriteDefaultIconResource := GetDefaultIcon4Type(objCurrentMenu[A_Index].FavoriteType
-				, objCurrentMenu[A_Index].FavoriteLocation, objCurrentMenu[A_Index].FavoriteLocation)
+			objThisFavorite.FavoriteDefaultIconResource := GetDefaultIcon4Type(objCurrentMenu[A_Index], objCurrentMenu[A_Index].FavoriteLocation)
 			g_objManageIcons.Insert(objThisFavorite)
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadMenuIcons(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+			RecursiveLoadMenuIconsManage(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
 	}
 }
 ;------------------------------------------------------------
@@ -10597,17 +10634,25 @@ if (g_blnAlternativeMenu)
 {
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
-		g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
-		if (g_objMenuInGui.IsLiveMenu) ; items inside live folder cannot be edited (we get here via Alternative menu Edit a favorite)
-			Oops(lOopsCannotEditInLiveFolder)
+		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
+		
+		if (g_objMenusIndex[A_ThisMenu].IsLiveMenu)
+		{
+			; trying to edit items inside live folder leads to edit the parent live folder favorite
+			; no need to consider column breaks, disabled items and back link because already taken into account in .LiveMenuParentPosition
+			g_intOriginalMenuPosition := g_objMenusIndex[A_ThisMenu].LiveMenuParentPosition
+			g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition]
+			g_objMenuInGui := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath]
+		}
 		else
 		{
+			g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 			g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
-
-			gosub, GuiShowFromAlternative
-			gosub, GuiEditFavoriteFromAlternative
 		}
+		gosub, GuiShowFromAlternative
+		gosub, GuiEditFavoriteFromAlternative
 		gosub, OpenFavoriteCleanup
+		
 		return
 	}
 	
@@ -11095,19 +11140,6 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 			intColumnBreaksBeforeThisItem++
 		else if (g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteDisabled)
 			intDisabledItemsBeforeThisItem++
-		/*
-		if !((A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem) > A_ThisMenuItemPos)
-			###_V(A_ThisFunc
-				, A_ThisMenuItemPos
-				, intMenuObjectItemOffset
-				, g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteName . " - " . g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteType
-				, ""
-				, intColumnBreaksBeforeThisItem
-				, intDisabledItemsBeforeThisItem
-				, (A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem)
-				, ""
-				, (A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem + 1) > A_ThisMenuItemPos ? "OUT" : "continue")
-		*/
 	}
 }
 ;------------------------------------------------------------
@@ -14207,7 +14239,7 @@ GetFileExtension(strFile)
 
 
 ;------------------------------------------------------------
-GetDefaultIcon4Type(strEditedFavoriteType, strEditedFavoriteLocation, strGuiFavoriteLocation)
+GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 ;------------------------------------------------------------
 {
 	global g_strTempDir
@@ -14215,31 +14247,43 @@ GetDefaultIcon4Type(strEditedFavoriteType, strEditedFavoriteLocation, strGuiFavo
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 
-	if InStr("Menu|External", strEditedFavoriteType, true)
+	if InStr("Menu|External", objFavorite.FavoriteType, true)
 		; default submenu icon
 		return g_objJLiconsByName["iconSubmenu"]
-	else if (strEditedFavoriteType = "Group")
+	else if (objFavorite.FavoriteType = "Group")
 		; default group icon
 		return g_objJLiconsByName["iconGroup"]
-	else if (strEditedFavoriteType = "Folder")
-		; default folder icon
-		return g_objJLiconsByName["iconFolder"]
-	else if (strEditedFavoriteType = "URL")
+	else if (objFavorite.FavoriteType = "Folder")
+		if (objFavorite.FavoriteFolderLiveLevels)
+			; default live folder icon
+			return g_objJLiconsByName["iconFolderLive"]
+		else
+			; default folder icon
+			return g_objJLiconsByName["iconFolder"]
+	else if (objFavorite.FavoriteType = "URL")
 		; default browser icon
 		return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-	else if (strEditedFavoriteType = "FTP")
+	else if (objFavorite.FavoriteType = "FTP")
 		; default FTP icon
 		return g_objJLiconsByName["iconFTP"]
-	else if (strEditedFavoriteType = "Snippet")
-		; default Snippet icon
-		return g_objJLiconsByName["iconTextDocument"]
-	else if InStr("Document|Application", strEditedFavoriteType) and StrLen(strGuiFavoriteLocation)
+	else if (objFavorite.FavoriteType = "Snippet")
+	{
+		strSnippetProperties := objFavorite.FavoriteLaunchWith
+		StringSplit, arrSnippetProperties, strSnippetProperties, `;
+		if (arrSnippetProperties1)
+			; default macro Snippet icon
+			return g_objJLiconsByName["iconPasteSpecial"]
+		else
+			; default text Snippet icon
+			return g_objJLiconsByName["iconPaste"]
+	}
+	else if InStr("Document|Application", objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
 		; default icon for the selected file in add/edit favorite
 		return GetIcon4Location(strGuiFavoriteLocation)
-	else if (strEditedFavoriteType = "Special")
-		return g_objSpecialFolders[strEditedFavoriteLocation].DefaultIcon
-	else if (strEditedFavoriteType = "QAP")
-		return g_objQAPFeatures[strEditedFavoriteLocation].DefaultIcon
+	else if (objFavorite.FavoriteType = "Special")
+		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
+	else if (objFavorite.FavoriteType = "QAP")
+		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
 	else ; should not
 		return g_objJLiconsByName["iconUnknown"]
 }
