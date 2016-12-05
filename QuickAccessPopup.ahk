@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.2.2 (2016-12-??)
+Version BETA: 7.9.2.2 (2016-12-04)
 - in Manage Icons, display default icon as current when current icon is empty in Settings
 - fix favorite name header in Manage Icons window
 - make bold the parent menu column header in manage icons
@@ -39,6 +39,7 @@ Version BETA: 7.9.2.2 (2016-12-??)
 - add to Options a numeric value to set the Manage Icons number of rows (in case the number calculated automatically is wrong)
 - allow to edit a live folder favorite using Alternative menu or Shift+Ctrl menu modifiers by selecting any item in a live folder
 - add up/down buttons to numeric values in options and edit favorite windows
+- fix old bug when edit a QAP or Special folder favorite from Alternative menu, QAP feature or Special folders drop down list is now correctly initialized
 
 Version BETA: 7.9.2.1 (2016-11-29)
 - add option to add folder automatically at top or bottom of main menu (default at top) when added with Add this folder, Add this folder Express and Add favorite from Explorer context menus
@@ -1089,7 +1090,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.2.1 BETA
+;@Ahk2Exe-SetVersion 7.9.2.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1162,7 +1163,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6697,7 +6698,7 @@ else ; "Special" or "QAP"
 	Gui, 2:Add, DropDownList
 		, % "x20 y+10 w400 vf_drp" . g_objEditedFavorite.FavoriteType . " gDropdown" . g_objEditedFavorite.FavoriteType . "Changed"
 		, % lDialogSelectItemToAdd . "...||" . (g_objEditedFavorite.FavoriteType = "Special" ? g_strSpecialFoldersList : g_strQAPFeaturesList)
-	if InStr("GuiEditFavorite|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
+	if InStr("GuiEditFavorite|GuiEditFavoriteFromAlternative|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
 		if (g_objEditedFavorite.FavoriteType = "Special")
 			GuiControl, ChooseString, f_drpSpecial, % g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName
 		else ; QAP
