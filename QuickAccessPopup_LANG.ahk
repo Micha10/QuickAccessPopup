@@ -119,6 +119,7 @@ global lDialogFavoriteTypesLocationLabels := "Folder (path)|Document (path and f
 global lDialogFavoriteTypesShortNames := "Folder|Doc|App|Special|Link|FTP|QAP|Menu|Group|Separator|Column Break|..|Snippet|Shared" ; changed
 global lDialogFileLabel := "Document"
 global lDialogFolderLabel := "Folder"
+global lDialogFoldersPlaceholders := "You can insert the placeholder {CUR_LOC} to insert the location where this favorite is launched" ; new
 global lDialogGetWinInfo := "To identify the window of which you want to get the title and class, click in the target window with the QAP menu hotkey [~1~]." ; new
 global lDialogGetWInInfo2Clippoard := "Window title:`n""~1~""`n`nClass:`n""~2~""`n`nCopy this info to your Clipboard?" ; new
 global lDialogHotkeyInvisibleKeys := "<a id=""~1~"">space bar</a>, <a id=""~2~"">tab</a>, <a id=""~3~"">enter</a> or <a id=""~4~"">escape</a>"

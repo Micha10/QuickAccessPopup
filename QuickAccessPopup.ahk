@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.2.3 (2016-12-??)
+- support {CUR_LOC} placeholder for favorite, document and application favorites
+
 Version BETA: 7.9.2.2 (2016-12-04)
 - in Manage Icons, display default icon as current when current icon is empty in Settings
 - fix favorite name header in Manage Icons window
@@ -6670,19 +6673,22 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
+		if (g_objEditedFavorite.FavoriteType = "Application")
+		{
+			Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, %lDialogBrowseOrSelectApplication%
+			Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
+				, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
+			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
+			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+		}
+		else
+			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
+			; {CUR_ placeholders are also supported for applications but we don't have enough room show this tip
+		
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
 			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
 	}
 	
-	if (g_objEditedFavorite.FavoriteType = "Application")
-	{
-		Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, %lDialogBrowseOrSelectApplication%
-		Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
-			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
-		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
-		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
-	}
-
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
@@ -10570,6 +10576,12 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 	and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (WebDAV)
 	and !(SubStr(g_objThisFavorite.FavoriteLocation, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
+{	
+	if InStr(strTempLocation, "{CUR_")
+	{
+		Gosub, GetCurrentLocation ; update g_strCurrentLocation
+		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
+	}
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 	; was if !FileExist(PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteLocation)))
@@ -10581,6 +10593,7 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 		gosub, OpenFavoriteCleanup
 		return
 	}
+}
 
 ; preparation for Alternative menu features before setting the full location
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
@@ -11000,10 +11013,16 @@ if (g_objThisFavorite.FavoriteType = "FTP")
 else
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; not for URL, Special Folder and others
 		and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (like WebDAV)
+	{
+		if InStr(g_strFullLocation, "{CUR_")
+			; g_strCurrentLocation already set in OpenFavorite
+			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation, g_strCurrentLocation)
+		
 		; expand system variables
 		; make the location absolute based on the current working directory
 		blnFileExist := FileExistInPath(g_strFullLocation) ; return g_strFullLocation with expanded relative path and envvars, and absolute location if in PATH
 		; was g_strFullLocation := PathCombine(A_WorkingDir, EnvVars(g_strFullLocation))
+	}
 	else if (g_objThisFavorite.FavoriteType = "Special")
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
