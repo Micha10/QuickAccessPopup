@@ -11,4 +11,8 @@ FileInstall/*-BK-*.txt
 QAPconnect-default.ini
 debug.txt
 QuickAccessPopup-DIAG.txt
-! todo.txt
+??todo.txt
+ScreenCaptures/
+_temp/
+*.ini
+*.ico
