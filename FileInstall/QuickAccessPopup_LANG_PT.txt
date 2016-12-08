@@ -148,7 +148,6 @@ lDialogSelectItemToRemove	Por favor, seleccione o item para remover.
 lDialogSettingsInvalid	Ficheiro de Definições inválido.`n`nCertifique-se que o ficheiro de definições inclui as secções ~1~ e ~2~.`n`nFicheiro: ~3~
 lDialogShift	Shift
 lDialogShortcut	Atalho
-lDialogSpacebarTab	escolha <a id="Space">barra esp.</a> ou <a id="Tab">tab</a>
 lDialogState	Estado da Janela:
 lDialogSubmenuNameEmpty	O nome do submenu está em branco. Por favor, escolha um nome.
 lDialogSubmenuParentMenu	Menu superior do submenu
