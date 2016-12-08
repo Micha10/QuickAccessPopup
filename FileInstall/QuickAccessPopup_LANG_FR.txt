@@ -82,7 +82,7 @@ lDialogFavoriteNameNotNew	Le nom "~1~" est déjà présent dans ce menu. Veuillez c
 lDialogFavoriteNameNotNewQAPfeature	Le nom "~1~" est déjà présent dans ce menu. Veuillez renommer le favori existant et essayez à nouveau.
 lDialogFavoriteParentMenu	Insérer le nouveau favori dans ce menu
 lDialogFavoriteRemoveExternalPrompt	Supprimer le menu partagé "~1~"`n(le fichier de configuration partagé ne sera PAS supprimé)?
-lDialogFavoriteRemoveGroupPrompt	Retirer le groupe "~1~"`n(les items dans ce groupe seront aussi supprimés)? ; new
+lDialogFavoriteRemoveGroupPrompt	Retirer le groupe "~1~"`n(les items dans ce groupe seront aussi supprimés)?
 lDialogFavoriteRemovePrompt	Supprimer le sous-menu "~1~"`net TOUT son contenu (dossiers et sous-menus)?
 lDialogFavoriteRemoveTitle	Supprimer un favori - ~1~
 lDialogFavoriteSelectType	Sélectionnez le type du nouveau favori.`n`nDans l'écran suivant, vous pourrez:`n- nommer votre favori`n- déterminer le contenu visé (selon le type)`n- choisir divers réglages (icône, raccourci, etc.)`n`nChoisissez le type du nouveau favori et cliquez "~1~".
@@ -119,7 +119,7 @@ lDialogFileLabel	Document
 lDialogFolderLabel	Dossier
 lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
-lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a> or <a id="~4~">échappement</a> ; new
+lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a> or <a id="~4~">échappement</a>
 lDialogHotkeys	Raccourcis
 lDialogHotkeysManageAbout	Raccourcis actuellement actifs dans ~1~
 lDialogHotkeysManageAlternative	Alternatif
@@ -131,16 +131,16 @@ lDialogHotkeysManageListSeeShortHotkeyNames	Voir les noms abrégés des raccourcis
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gérer les raccourcis - ~1~ ~2~
 lDialogIcon	Icône
-lDialogIconsManage	Icônes ; new
-lDialogIconsManageAbout	Choisissez de nouveaux icônes pour vos favoris ou rétablissez l'icône par défaut selon le type de favori. N'oubliez pas d'enregistrer vos changements dans la fenêtre Paramètres. ; new
-lDialogIconsManageCurrent	Icône actuel ; new
-lDialogIconsManageDefault	Icône par défaut ; new
-lDialogIconsManageFavoriteName	Nom du favori ; new
-lDialogIconsManageNext	Suivant ; new
-lDialogIconsManageParentMenu	Menu contenant ce favori ; new
-lDialogIconsManagePrevious	Précédant ; new
-lDialogIconsManageSetDefaultIcon	Icône par défaut ; new
-lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~ ; new
+lDialogIconsManage	Icônes
+lDialogIconsManageAbout	Choisissez de nouveaux icônes pour vos favoris ou rétablissez l'icône par défaut selon le type de favori. N'oubliez pas d'enregistrer vos changements dans la fenêtre Paramètres.
+lDialogIconsManageCurrent	Icône actuel
+lDialogIconsManageDefault	Icône par défaut
+lDialogIconsManageFavoriteName	Nom du favori
+lDialogIconsManageNext	Suivant
+lDialogIconsManageParentMenu	Menu contenant ce favori
+lDialogIconsManagePrevious	Précédant
+lDialogIconsManageSetDefaultIcon	Icône par défaut
+lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
 lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour l'emplacement "~2~".`n`nVeuillez choisir une autre touche de raccourci pour l'emplacement "~2~".
 lDialogKeyboard	Clavier
@@ -154,9 +154,9 @@ lDialogMouseCheckLButton	Vous ne pouvez pas attribuer le "Bouton de gauche de la
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
 lDialogNone	Aucun
 lDialogNormal	Normal
-lDialogOff	Inactif ; new
+lDialogOff	Inactif
 lDialogOK	OK
-lDialogOn	Actif ; new
+lDialogOn	Actif
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogReadOnly	Lecture seulement
@@ -167,8 +167,8 @@ lDialogSelectItemToEdit	Veuillez sélectionner l'item à modifier.
 lDialogSelectItemToMove	Veuillez sélectionner l'item à déplacer.
 lDialogSelectItemToRemove	Veuillez sélectionner l'item à supprimer.
 lDialogSettingsInvalid	Fichier de configuration invalide.`n`nVeuillez vous assurer que le fichier de configuration contient les sections ~1~ et ~2~.`n`nFichier: ~3~
-lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont pas été enregistrés. Ces changements doivent être enregistrés ou annulés afin de permettre l'exécution de l'action demandée.`n`nVoulez-vous:`n- "Enregistrer": enregistrer vos changements et exécuter l'action demandée`n- "Paramètres": annuler l'action demandée et afficher la fenêtre Paramètres`n- "Annuler": seulement annuler l'action demandée? ; new
-lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés ; new
+lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont pas été enregistrés. Ces changements doivent être enregistrés ou annulés afin de permettre l'exécution de l'action demandée.`n`nVoulez-vous:`n- "Enregistrer": enregistrer vos changements et exécuter l'action demandée`n- "Paramètres": annuler l'action demandée et afficher la fenêtre Paramètres`n- "Annuler": seulement annuler l'action demandée?
+lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés
 lDialogShift	Maj
 lDialogShortcut	Raccourci
 lDialogState	État de la fenêtre:
@@ -356,7 +356,7 @@ lMenuPublicLibraries	Bibliothèques (public)
 lMenuQuickLaunch	Lancement rapide
 lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
-lMenuRefreshMenu	Recharger le menu de QAP ; new
+lMenuRefreshMenu	Recharger le menu de QAP
 lMenuReload	Redémarrer ~1~
 lMenuRunAtStartup	Exécuter au démarrage
 lMenuSettings	Paramètres
@@ -375,7 +375,6 @@ lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1
 lNavigateSpecialError	Une erreur s'est produite lors de l'ouverture du dossier spécial #~1~.
 lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter ce dossier au menu":`n`n1) Activez la fenêtre ~1~ contenant le dossier à ajouter au menu.`n2) Ouvrez le menu popup avec ~2~.`n3) Choisissez "Ajouter ce dossier au menu" et enregistrez votre nouveau favori.
 lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
-lOopsCannotEditInLiveFolder	Les favoris dans les dossiers actifs ne peuvent pas être modifiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide
@@ -383,7 +382,7 @@ lOopsErrorIniFileReadOnly	Ce menu partagé est en lecture seulement.
 lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible.
 lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas disponible
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
-lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture. ; new
+lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture.
 lOopsExternalMenuReadOnly	Ce menu partagé est en lecture seulement et ne peut être modifié.
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
@@ -403,7 +402,7 @@ lOopsWriteProtectedError	Il semble que ~1~ a été lancé depuis un dossier en ÉCRI
 lOopsWrongThirdPartyPath	Chemin ou nom de fichier incorrect pour ~1~:`n~2~.`n`nVérifiez le fichier .exe sélectionné pour ~1~ dans les "Options", onglet "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Fichier de l'application invalide dans QAPconnect`n~1~:`n~2~.`n`nVérifiez les valeurs pour [~1~] dans ~3~. Utilisez le bouton "~4~" dans "Options", onglet "~5~".
 lOopsZipFileError	Il semble que ~1~ a été lancé directement depuis un fichier compressé (ZIP).`n`nVous devez extraire le fichier .EXE de ~1~ du fichier ZIP dans un dossier de votre choix, puis exécuter l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
-lOptionsAddAutoAtTop	Ajouter automatiquement au début du menu ; new
+lOptionsAddAutoAtTop	Ajouter automatiquement au début du menu
 lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
@@ -457,7 +456,7 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
-lOptionsUseClassicButtons	Afficher les boutons QAP classiques ; new
+lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu des dossiers seront perdus.
 lTCMenuName	TC Directory Hotlist

@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
-lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v1.1 (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v1.1 (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Supporto:  <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Crediti - ~1~ ~2~
@@ -23,19 +23,20 @@ lDialogAdd	Aggiungi
 lDialogAddEditFavoriteTitle	~1~ Favorite: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Aggiungi un Preferito - ~1~ ~2~
 lDialogAddFavoriteTabs	Impostazioni di base|Menù Opzioni|Finestra Opzioni|Impostazioni Avanzate
+lDialogAddFavoriteTabsLive	Opzioni Cartella Live
 lDialogAddFileSelect	Scegli il nuovo Documento:
 lDialogAddFolderManuallyPrompt	Spiacente, ma non riesco a intercettare la cartella corrente in questo tipo di finestra.`n`nVuoi aggiungere adesso, manualmente, una cartella come Preferito?
 lDialogAddFolderManuallyTitle	Aggiungi Questa Cartella - ~1~ ~2~
 lDialogAddFolderSelect	Scegli o crea una nuova Cartella:
 lDialogAlt	Alt
 lDialogApplicationLabel	Applicazione
-lDialogAppWorkingDirCurrent	Esegui l'applicazione nella cartella in cui questo preferito è stato avviato ; new
+lDialogAppWorkingDirCurrent	Esegui l'applicazione nella cartella in cui questo preferito è stato avviato
 lDialogArgumentsLabel	Parametri
 lDialogArgumentsLabelHelp	(racchiudi ciascun parametro fra doppi apici, se richiesto)
 lDialogArgumentsPlaceholders	Puoi inserire la destinazione completa di questo preferito (o solo parzialmente) nei parametri, usando questi segnaposto: {LOC} (destinazione completa), {NAME} (nome del file), {DIR} (cartella), {EXT} (estensione), {NOEXT} (nome del file senza estensione) o {DRIVE} (unità disco)
 lDialogArgumentsPlaceholdersCheckLabel	Parametri correnti con segnaposto estesi
-lDialogArgumentsPlaceholdersCurrent	Puoi anche inserire dei segnaposto per la cartella corrente in cui questo preferito è stato avviato: {CUR_LOC} (cartella completa), {CUR_NAME} (ultima cartella), {CUR_DIR} (cartella contenente l'ultima cartella) o {CUR_DRIVE} ; new
-lDialogArgumentsPlaceholdersCurrentExample	x:\cartella_contenitore\ultima_cartella ; new
+lDialogArgumentsPlaceholdersCurrent	Puoi anche inserire dei segnaposto per la cartella corrente in cui questo preferito è stato avviato: {CUR_LOC} (cartella completa), {CUR_NAME} (ultima cartella), {CUR_DIR} (cartella contenente l'ultima cartella) o {CUR_DRIVE}
+lDialogArgumentsPlaceholdersCurrentExample	x:\cartella_contenitore\ultima_cartella
 lDialogBrowseButton	Sfoglia
 lDialogBrowseOrSelectApplication	Ricerca un file eseguibile o`nseleziona una applicazione in esecuzione in questo elenco
 lDialogCancelButton	Annulla
@@ -63,9 +64,13 @@ lDialogFavoriteDoesNotExistPrompt	Il preferito "~1~"~2~ non esiste o non è dispo
 lDialogFavoriteDoesNotExistTitle	Il Preferito non esiste - ~1~
 lDialogFavoriteDropdownEmpty	Per favore scegli un oggetto nel menù a discesa ~1~ .
 lDialogFavoriteExternalHelpWeb	Vedi  <a href="~1~">Aiuto per i menù esterni</a> per maggiori informazioni.
-lDialogFavoriteFolderLive	Cartella Live (menù con incluse sottocartelle, vedi "Impostazioni avanzate" per opzioni) ; new
-lDialogFavoriteFolderLiveColumns	Numero di oggetti per colonna (vuoto se non ci sono colonne) ; new
-lDialogFavoriteFolderLiveDocuments	Includi documenti ; new
+lDialogFavoriteFolderLive	Cartella Live (menù con incluse sottocartelle)
+lDialogFavoriteFolderLiveColumns	Numero di oggetti per colonna (vuoto se non ci sono colonne)
+lDialogFavoriteFolderLiveDocuments	Includi documenti
+lDialogFavoriteFolderLiveExclude	Escludi
+lDialogFavoriteFolderLiveExtensions	queste estensioni (separa le estensioni con spazi, per esempio "bak bk")
+lDialogFavoriteFolderLiveInclude	Includi
+lDialogFavoriteFolderLiveLevels	Numero di livelli di sottocartelle da includere nel menù della Cartella Live
 lDialogFavoriteLocationEmpty	La destinazione è vuota. Si prega di riprovare: scegli una destinazione non vuota.
 lDialogFavoriteMenuPosition	Inserisci il nuovo Preferito prima di questo elemento
 lDialogFavoriteNameEmpty	Il nome del Preferito non può essere vuoto. Per favore, scegli un nome.
@@ -75,6 +80,7 @@ lDialogFavoriteNameNotNew	Il nome "~1~" è già in uso in questo menù. Si prega di
 lDialogFavoriteNameNotNewQAPfeature	Il nome "~1~" è già in uso in questo menù. Per favore, rinomina il Preferito esistente e prova di nuovo.
 lDialogFavoriteParentMenu	Scegli il menù in cui inserirlo
 lDialogFavoriteRemoveExternalPrompt	Vuoi eliminare il sottomenù esterno "~1~"?`n(il file .ini delle impostazioni "esterne" NON verrà cancellato)
+lDialogFavoriteRemoveGroupPrompt	Rimuovere il gruppo "~1~"`n(anche gli elementi del gruppo verranno cancellati)?
 lDialogFavoriteRemovePrompt	Eliminare il sottomenù "~1~"`ne TUTTO il contenuto (cartelle e sottomenù)?
 lDialogFavoriteRemoveTitle	Elimina il Preferito - ~1~
 lDialogFavoriteSelectType	Seleziona il tipo di Preferito da aggiungere.`n`nNella finestra seguente, darai al Preferito:`n- un nome`n- un contenuto (a seconda del tipo)`n- vari attributi (icona, scorciatotia, ecc.)`n`nScegli il nuovo nome del Preferito e clicca "~1~".
@@ -111,6 +117,7 @@ lDialogFileLabel	Documento
 lDialogFolderLabel	Cartella
 lDialogGetWinInfo	Per identificare la finestra di cui vuoi trovare titolo e classe, clicca sulla finestra desiderata premendo la scorciatoia del menù QAP [~1~].
 lDialogGetWInInfo2Clippoard	Titolo della Finestra:`n"~1~"`n`nClasse:`n"~2~"`n`nVuoi copiare queste informazioni negli Appunti?
+lDialogHotkeyInvisibleKeys	<a id="~1~">Barra spaziatrice</a>, <a id="~2~">Tab</a>, <a id="~3~">Enter</a> o <a id="~4~">Esc</a>
 lDialogHotkeys	Scorciatoie
 lDialogHotkeysManageAbout	Scorciatoie attualmente attive in ~1~
 lDialogHotkeysManageAlternative	Alternativo
@@ -122,6 +129,16 @@ lDialogHotkeysManageListSeeShortHotkeyNames	Visualizza i nomi abbreviati delle s
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gestione Scorciatoie - ~1~ ~2~
 lDialogIcon	Icona del Preferito
+lDialogIconsManage	Icone
+lDialogIconsManageAbout	Seleziona nuove icone per i tuoi preferiti o assegnagli l'icona di default per il loro tipo. Non dimenticare di salvare le modifiche nella finestra delle Impostazioni.
+lDialogIconsManageCurrent	Icona corrente
+lDialogIconsManageDefault	Icona di default
+lDialogIconsManageFavoriteName	Nome del Preferito
+lDialogIconsManageNext	Successivo
+lDialogIconsManageParentMenu	Menù superiore del Preferito
+lDialogIconsManagePrevious	Precedente
+lDialogIconsManageSetDefaultIcon	Assegna l'icona di default
+lDialogIconsManageTitle	Gestione Icone - ~1~ ~2~
 lDialogInvalidHotkey	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: tasto scelto non valido).`n`nPer favore, apri la finestra "~2~ Impostazioni" dal menù dell'icona nell'area notifiche e clicca: "Opzioni". In questa casella di dialogo, scegli un altro shortcut per "~3~".
 lDialogInvalidHotkeyFavorite	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per la destinazione del Preferito"~2~".
 lDialogKeyboard	Tastiera
@@ -135,7 +152,9 @@ lDialogMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza 
 lDialogMoveFavoritesTitle	Sposta i Preferiti - ~1~ ~2~
 lDialogNone	Nessuno
 lDialogNormal	Normale
+lDialogOff	Assente
 lDialogOK	OK
+lDialogOn	Presente
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogReadOnly	Sola-Lettura
@@ -146,9 +165,10 @@ lDialogSelectItemToEdit	Per favore, seleziona la voce da modificare.
 lDialogSelectItemToMove	Per favore, seleziona l'oggetto da spostare
 lDialogSelectItemToRemove	Per favore, seleziona la voce da eliminare.
 lDialogSettingsInvalid	File delle Impostazioni invalido.`n`nAssicurati che il file delle Impostazioni includa le sezioni ~1~ e ~2~.`n`nFile: ~3~
+lDialogSettingsNotSavedPrompt	La finestra delle Impostazioni è aperta con modifiche non ancora salvate. Questi cambiamenti devono essere salvati o annullate prima di eseguire l'azione richiesta.`n`nVuoi:`n- "Salvare": salva le modifiche e procedi con l'azione richiesta`n- "Impostazioni": annulla l'azione richiesta e torna alla finestra delle Impostazioni`n- "Annulla": preferisci semplicemente annullare l'azione richiesta?
+lDialogSettingsNotSavedTitle	~1~ - Impostazioni non salvate
 lDialogShift	Shift
 lDialogShortcut	Scorciatoia
-lDialogSpacebarTab	scegli <a id="Space">barra spaziatrice</a> o <a id="Tab">tab</a>
 lDialogState	Stato della Finestra:
 lDialogSubmenuNameEmpty	Il nome del sottomenù non può essere vuoto. Si prega di inserire un nome.
 lDialogSubmenuParentMenu	Scegli il menù in cui inserirlo
@@ -228,11 +248,12 @@ lGuiLoginName	Nome di Login
 lGuiLvFavoritesHeader	Nome|Tipo|Locazionen o contenuto
 lGuiMove	Sposta
 lGuiOptions	Opzioni
-lGuiPassword	Password
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
 lGuiResetDefault	Ripristina hotkey predefinito
 lGuiSave	&Salva
+lGuiSaveAndClose	&Salva`n&& Chiudi
+lGuiSaveAndStay	Salva`n&& &Ricarica
 lGuiSaveToUpdateBacklinks	Salva per aggiornare back links
 lGuiSubmenuDropdownLabel	Menù o gruppo da modificare:
 lGuiTitle	Impostazioni - ~1~ ~2~
@@ -332,6 +353,7 @@ lMenuPublicLibraries	Raccolte Pubbliche
 lMenuQuickLaunch	Avvio veloce
 lMenuRecentFolders	Cartelle Recenti
 lMenuRecentItems	Oggetti Recenti
+lMenuRefreshMenu	Aggiorna il menù QAP
 lMenuReload	Riavvia ~1~
 lMenuRunAtStartup	&Esegui all'Avvio
 lMenuSettings	Impostazioni
@@ -357,6 +379,7 @@ lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso è in
 lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di rete, prova a ricaricare ~1~ quando il disco di rete sarà disponibile.
 lOopsErrorIniFileUnavailable	Questo file di impostazioni del menù esterno non è disponibile
 lOopsErrorReadingIniFile	C'è stato un errore leggendo questo file di impostazioni:
+lOopsExternalFileWriteError	Si è verificato un errore scrivendo nel file delle impostazioni del menù condiviso:`n~1~.`n`nAssicurati che tale file (o la sua cartella) non sia di sola lettura.
 lOopsExternalMenuReadOnly	Questo menù esterno è impostato in sola-lettura e pertanto non può essere modificato.
 lOopsFtpLocationProtocol	L'indirizzo di un sito FTP deve iniziare con "ftp://".
 lOopsGroup	Gruppo
@@ -367,6 +390,7 @@ lOopsInvalidWinCmdIni	File delle impostazioni di Total Commander ("wincmd.ini") 
 lOopsInvalidWindowPosition	Valori non validi per la posizione della finestra
 lOopsLaunchWithNotFound	File dell'applicazione non trovato per "Esegui con questa applicazione":`n`n~1~`n`nControlla le impostazioni avanzate del Preferito.
 lOopsLocation	Destinazione
+lOopsMaxLiveFolder	Il massimo numero di elementi nelle Cartelle Live (~1~) è stato superato. Per favore, riduci il numero di livelli di cartelle live.`n`nPotresti anche aumentare tale limite ma fai attenzione: un numero troppo alto può comportare effetti non prevedibili. Edita il valore "NbLiveFolderItemsMax" nella sezione [Global] del file di impostazioni (QuickAccessPop.ini).
 lOopsOSVerrsionError	~1~ richiede Window 7 o un sistema operativo più recente. Windows Vista e utenti XP sono invitati ad usare il Folders Popup che è compatibile con queste versioni.`n`nVuoi visitare il sito web di Folders Popup?
 lOopsQAPfeature	Funzionalità di QAP
 lOopsTitle	~1~ (~2~)
@@ -375,6 +399,7 @@ lOopsWriteProtectedError	Sembra che ~1~ sia eseguito da una cartella PROTETTA-IN
 lOopsWrongThirdPartyPath	Nome del file o percorso sbagliato per ~1~:`n~2~.`n`nControlla il file .exe selezionato per ~1~ nelle "Opzioni", tab "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Wrong percorso o nome del file per l'applicazione di QAPconnect`n~1~:`n~2~.`n`nControlla i valori per [~1~] in ~3~. Clicca su "~4~" in "Opzioni", tab "~5~".
 lOopsZipFileError	Sembra che ~1~ sia stato eseguito direttamente da un archivio .ZIP .`n`nE' necessario dapprima estrarre il file ~1~ .EXE dall'archivio .ZIP in una cartella di tua scelta prima di eseguirlo.`n`n~1~ verrà chiuso.
+lOptionsAddAutoAtTop	Aggiungi automaticamente in cima al menù
 lOptionsAddCloseToDynamicMenus	Aggiungi "Chiudi" ai menù
 lOptionsAlternativeMenuFeatures	Combinazioni di tasti per il Menù Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gestisci le scorciatoie che lanciano le funzionalità del Menù Alternativo.
@@ -383,7 +408,7 @@ lOptionsChangeFolderInDialogCheckbox	Clic "OK" per confermare che capisci le pos
 lOptionsChangeFolderInDialogText	Attiva questa opzione per abilitare la navigazione delle cartelle in caselle di dialogo (Apri, Salva come, ecc.) ma sei pregato di leggere il seguente avvertimento.`n`nDevi usare questa funzione SOLTANTO in caselle di dialogo per "file". Se la usi in altri tipi di caselle di dialogo, per esempio in una casella di dialogo "Impostazioni", provare a cambiare cartella potrebbe modificare e salvare valori nella casella di dialogo senza alcun preavviso.
 lOptionsChangeHotkey	Cambia
 lOptionsCheck4Update	Cerca Aggiornamenti
-lOptionsControlDoublePressed	Apri il menù principale con Ctrl + Ctrl (tasto CTRL Sinistro o Destro premuto due volte) ; new
+lOptionsControlDoublePressed	Apri il menù principale con Ctrl + Ctrl (tasto CTRL Sinistro o Destro premuto due volte)
 lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsExclusionDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
@@ -428,6 +453,7 @@ lOptionsThirdPartySelectedHelp	File Manager selezionato: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Puoi selezionare il file dell'applicazione di ~1~ usando il tasto "Sfoglia"
 lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
+lOptionsUseClassicButtons	Usa i pulsanti classici di QAP
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù delle cartelle verranno perse.
 lTCMenuName	Hotlist Cartelle di TC

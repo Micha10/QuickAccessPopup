@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ ha sido desarrollado por Jean Lalonde usando la plataforma`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradducción al Alemán: Edgar "Fast Edi" Hoffmann`nTraducción al Francés: Jean Lalonde`nTraducción al sueco:Åke Engelbrektson`nTraducción al italiano: Riccardo Leone`nTraducción al español: kiketrucker`nTraducción al brasileño y portugues: Igor Ruckert`nTraducción al chino tradicional: Jess Yang`nOtras traducciones: (ayuda es bienvenida)`nComprobación de Inglés: (ayuda es bienvenida)`n`nIconos por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstalador del programa: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	 ~1~ ha sido desarrollado por Jean Lalonde usando la plataforma`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al Alemán: Edgar "Fast Edi" Hoffmann`nTraducción al Francés: Jean Lalonde`nTraducción al sueco:Åke Engelbrektson`nTraducción al italiano: Riccardo Leone`nTraducción al español: Kiketrucker (AccionglobalXSoft)`nTraducción al brasileño y portugues: Igor Ruckert`nTraducción al chino tradicional: Jess Yang`nOtras traducciones: (tu ayuda es bienvenida)`nComprobación de Inglés: (tu ayuda es bienvenida)`n`nIconos por: <a href="https://icons8.com/">Icons8</a>`nInstalador del programa: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>  
 lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soporte en línea: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca de - ~1~ ~2~
@@ -23,6 +23,7 @@ lDialogAdd	Añadir
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Añadir Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Ajustes básicos|Menú de Opciones|Opciones de ventana|Ajustes avanzados
+lDialogAddFavoriteTabsLive	Opciones de carpeta dinámica
 lDialogAddFileSelect	elegir un nuevo documento:
 lDialogAddFolderManuallyPrompt	Lo sentimos, no podemos detectar la carpeta actual en este tipo de ventana.`n`n¿Quiere añadir una carpeta favorita ahora manualmente?
 lDialogAddFolderManuallyTitle	Agregar carpeta - ~1~ ~2~
@@ -63,9 +64,13 @@ lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponib
 lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
 lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
-lDialogFavoriteFolderLive	Carpeta en Vivo (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones) 
+lDialogFavoriteFolderLive	Carpeta dinámica (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones)   
 lDialogFavoriteFolderLiveColumns	Número de objetos por columna (vacío para ninguna columna)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos 
+lDialogFavoriteFolderLiveExclude	Excluir
+lDialogFavoriteFolderLiveExtensions	estas extensiones (extensiones separadas con espacios, por ejemplo "bak bk")
+lDialogFavoriteFolderLiveInclude	Incluir
+lDialogFavoriteFolderLiveLevels	Número de niveles de subcarpetas a incluir en el menú Carpeta dinámica 
 lDialogFavoriteLocationEmpty	La ubicación está vacía. Quiere indicar la ubicación de la carpeta.
 lDialogFavoriteMenuPosition	Inserte nuevos favoritos antes de este artículo
 lDialogFavoriteNameEmpty	El nombre del favorito está vacio. Quiere indicar un nombre corto para este favorito.
@@ -75,6 +80,7 @@ lDialogFavoriteNameNotNew	El nombre "~1~" ya está presente en este menú. Quiere 
 lDialogFavoriteNameNotNewQAPfeature	El nombre "~1~" ya está contenido en ese menú. Desea renombrar el favorito existente y probar uno nuevo.
 lDialogFavoriteParentMenu	Inserte nuevos favoritos en este menú
 lDialogFavoriteRemoveExternalPrompt	Borrar el submenú externo "~1~"`n(no se eliminará el archivo de configuración externa)?
+lDialogFavoriteRemoveGroupPrompt	Borrar grupo "~1~"`n(los elementos del grupo también se eliminarán)? 
 lDialogFavoriteRemovePrompt	Suprimir el sub-menú "~1~"`incluyendo todos los contenidos (carpetas y sub-menús)?
 lDialogFavoriteRemoveTitle	Suprimir un favorito - ~1~
 lDialogFavoriteSelectType	Seleccione el tipo de nuevo favorito.`n`nEn la siguiente pantalla, puede:`n- nombrar su favorito`n- determinar contenido personalizado (según el tipo)`n- seleccionar varios ajustes (icono, atajo, etc.)`n`nElija el tipo del nuevo favorito y clique "~1~".
@@ -111,6 +117,7 @@ lDialogFileLabel	Documento
 lDialogFolderLabel	Carpeta
 lDialogGetWinInfo	Para identificar la ventana de la cual desea obtener el título y la categoría, haga clic en la ventana de destino con el menú de teclas rápidas QAP [~1~].
 lDialogGetWInInfo2Clippoard	Ventana title:`n"~1~"`n`nClass:`n"~2~"`n`nCopiar esta info al Portapapeles?
+lDialogHotkeyInvisibleKeys	<a id="~1~">barra espaciadora</a>, <a id="~2~">tabulador</a>, <a id="~3~">intro</a> or <a id="~4~">escape</a> 
 lDialogHotkeys	Atajos de teclado
 lDialogHotkeysManageAbout	Accesos directos activos actualmente en ~1~
 lDialogHotkeysManageAlternative	Alternativa
@@ -122,6 +129,16 @@ lDialogHotkeysManageListSeeShortHotkeyNames	Ver nombres de atajos de teclado
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gestionar atajos de teclado - ~1~ ~2~
 lDialogIcon	Icono Favorito
+lDialogIconsManage	Iconos 
+lDialogIconsManageAbout	Seleccione los iconos nuevos para sus favoritos o establezca el icono predeterminado para su tipo. No olvide guardar los cambios en la ventana Configuración. 
+lDialogIconsManageCurrent	Icono actual 
+lDialogIconsManageDefault	Icono por defecto 
+lDialogIconsManageFavoriteName	Nombre favorito 
+lDialogIconsManageNext	Siguiente 
+lDialogIconsManageParentMenu	Menú principal favorito
+lDialogIconsManagePrevious	Anterior 
+lDialogIconsManageSetDefaultIcon	Establecer icono predeterminado
+lDialogIconsManageTitle	Administrar iconos - ~1~ ~2~ 
 lDialogInvalidHotkey	Con la configuración actual de la tecla de acceso directo del teclado "~1~" no se puede utilizar como un disparador para el menú emergente.`n`nPor favor, abra la "Configuración ~2~" en el área de notificación y haga clic en "Opciones". En este cuadro de diálogo, elija otra tecla de acceso directo a"~3~".
 lDialogInvalidHotkeyFavorite	Con su diseño de teclado actual sistema, la tecla de acceso directo "~1~" no podría ser utilizado como un disparador para la ubicación "~2~" (nombre de la tecla no es válido).`n`nPor favor, elija otro acceso directo para la ubicación "~2~".
 lDialogKeyboard	Teclado
@@ -135,7 +152,9 @@ lDialogMouseCheckLButton	No se puede asignar el "botón izquierdo del ratón", sin
 lDialogMoveFavoritesTitle	Mueva los favoritos - ~1~ ~2~
 lDialogNone	Ninguno
 lDialogNormal	Normal
+lDialogOff	Apagado
 lDialogOK	Si
+lDialogOn	Encendido
 lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
 lDialogReadOnly	Sólo lectura
@@ -146,9 +165,10 @@ lDialogSelectItemToEdit	Por favor seleccione la parte a editar.
 lDialogSelectItemToMove	Por favor, Seleccione la opción para mover.
 lDialogSelectItemToRemove	Por favor seleccione la parte a suprimir.
 lDialogSettingsInvalid	Archivo de configuración no válido.`n`nPor favor asegúrese de que el archivo de configuración contiene secciones ~1~ y~2~.`n`nArchivo: ~3~
+lDialogSettingsNotSavedPrompt	La ventana Configuración está abierta con cambios no guardados. Estos cambios deben guardarse o cancelarse antes de ejecutar la acción solicitada.`n`nQuieres:`n- "Guardar": Guardar los cambios y continuar con la acción solicitada`n- "Configuración": Cancelar la acción solicitada y regresar a la ventana Configuración`n- "Cancelar": solo cancela la acción solicitada? 
+lDialogSettingsNotSavedTitle	~1~ - Configuración no guardada
 lDialogShift	Cambio
 lDialogShortcut	Atajo
-lDialogSpacebarTab	elegir <a id="Space">espaciador</a> o <a id="Tab">tabulador</a>
 lDialogState	Posición de la ventana:
 lDialogSubmenuNameEmpty	El nombre del sub-menú está vacio. Porfavor indique un nombre corto para esta carpeta.
 lDialogSubmenuParentMenu	Menú contiene este sub-menú
@@ -233,6 +253,8 @@ lGuiPasswordNotEncripted	Nota: La contraseña no será encriptada cuando se envía 
 lGuiRemoveFavorite	Suprimir
 lGuiResetDefault	Restaurar el lanzador por defecto
 lGuiSave	Guardar
+lGuiSaveAndClose	&Guardar`n&& Cerrar
+lGuiSaveAndStay	Guardar`n&& &Recargar
 lGuiSaveToUpdateBacklinks	Guardar para actualizar los vínculos de retroceso 
 lGuiSubmenuDropdownLabel	Menú o grupo a editar:
 lGuiTitle	Configuración - ~1~ ~2~
@@ -332,6 +354,7 @@ lMenuPublicLibraries	Bibliotecas (publico)
 lMenuQuickLaunch	Lanzador rápido
 lMenuRecentFolders	Ubicaciones recientes
 lMenuRecentItems	Documentos recientes
+lMenuRefreshMenu	Refrescar QAP menú 
 lMenuReload	Reiniciar ~1~ 
 lMenuRunAtStartup	Ejecutar al Inicio
 lMenuSettings	Configuración
@@ -357,6 +380,7 @@ lOopsErrorIniFileReadOnly	Este menú compartido es solamente de lectura.
 lOopsErrorIniFileRetry	Si el archivo de configuración externo en una unidad de red, pruebe a reiniciar ~ 1 ~ cuando la unidad de red está disponible.
 lOopsErrorIniFileUnavailable	El archivo de configuración externo no está disponible
 lOopsErrorReadingIniFile	Se ha producido un error al leer el fichero de configuración:
+lOopsExternalFileWriteError	Se ha producido un error al escribir en el archivo de configuración del menú compartido:`n~1~.`n`nCompruebe si este archivo o esta carpeta es de sólo lectura. 
 lOopsExternalMenuReadOnly	Este menú externo es solo de lectura y no se puede cambiar.
 lOopsFtpLocationProtocol	Ubicación FTP debe comenzar con "ftp://".
 lOopsGroup	grupo
@@ -367,6 +391,7 @@ lOopsInvalidWinCmdIni	Archivo de configuración de Total Commander "wincmd.ini" n
 lOopsInvalidWindowPosition	Valor de posición de la ventana no válido (s)
 lOopsLaunchWithNotFound	"Lanzamiento con este archivo de aplicación "no encontrado:` ~1~ `n`nComprobar configuración avanzada del n`n favoritos.
 lOopsLocation	ubicación
+lOopsMaxLiveFolder	El número máximo de elementos en las carpetas dinámicas (~1~) ha sido excedido. Por favor, reduzca el número de niveles de carpetas dinámicas.`n`nTambién podría aumentar este límite, pero tenga cuidado: un número demasiado grande puede producir resultados impredecibles. Edite el valor "NbLiveFolderItemsMax" en [Global] del archivo de configuración(QuickAccessPop.ini). 
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
 lOopsTitle	~1~ (~2~)
@@ -375,6 +400,7 @@ lOopsWriteProtectedError	Parece ser que ~1~ fué lanzado desde una carpeta SOLO D
 lOopsWrongThirdPartyPath	Ruta o nombre de archivo incorrecto para ~1~:`n~2~.`n`nVerifique el archivo .exe seleccionado para ~1~ en las "Opciones", pestaña "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Ruta equivocada o nombre de archivo para QAPconnect application`n ~1~: `n ~2~ .`n`nCompruebe valores para [~1~] en ~3~. Utilice el botón "~4~" en "Opciones", pestaña "~5~".
 lOopsZipFileError	Parece ser que ~1~ se puso en marcha directamente desde un archivo comprimido (ZIP).`n`nDebe extraer el archivo .EXE de ~1~ del comprimido ZIP a una carpeta de su elección, a continuación, ejecute de nuevo la aplicación de esta carpeta.`n`n~1~ será cerrada.
+lOptionsAddAutoAtTop	Añadir automáticamente en la parte superior del menú 
 lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús
 lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
@@ -428,6 +454,7 @@ lOptionsThirdPartySelectedHelp	Seleccionado el Administrador de archivos: ~1~ (<
 lOptionsThirdPartySelectFile	Por favor, seleccione el ~1~ archivo de la aplicación mediante el botón "Examinar"
 lOptionsThirdPartyUseTabs	Utilice las pestañas en lugar de abrir una nueva ventana
 lOptionsTrayTip	Mostrar notificación al inicio
+lOptionsUseClassicButtons	Usar botones clásicos de QAP 
 lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar un icono.
 lReloadPrompt	Cambio ~1~ guardado: ~2~. Desea reiniciar ~3~ en ~2~ ahora? Se perderán los cambios no guardados en el menú de carpetas.
 lTCMenuName	TC Lista de sitios Favoritos 
