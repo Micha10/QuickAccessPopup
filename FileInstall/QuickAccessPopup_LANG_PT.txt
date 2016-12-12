@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Sueca:Åke Engelbrektson`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Sueca:Åke Engelbrektson`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="https://icons8.com/">Icons8</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Suporte em <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca do - ~1~ ~2~
@@ -23,6 +23,7 @@ lDialogAdd	Adicionar
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Adicionar Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Definições Básicas|Opções de Menu|Opções de Janela|Definições Avançadas
+lDialogAddFavoriteTabsLive	Opções Pasta Live
 lDialogAddFileSelect	Escolher um novo documento:
 lDialogAddFolderManuallyPrompt	Lamentamos, não é possível detectar a pasta actual neste tipo de janela.`n`nDeseja adicionar uma pasta favoritos manualmente?
 lDialogAddFolderManuallyTitle	Adicionar esta pasta - ~1~ ~2~
@@ -63,9 +64,12 @@ lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está dis
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
 lDialogFavoriteExternalHelpWeb	Consulte <a href="~1~">Ajuda menus externos</a> para mais informação.
-lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas, ver "Definições avançadas" para opções)
-lDialogFavoriteFolderLiveColumns	Número de itens por coluna (em branco para sem colunas)
+lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos
+lDialogFavoriteFolderLiveExclude	Excluir
+lDialogFavoriteFolderLiveExtensions	estas extensões (separar as extensões com espaços, por exemplo "bak bk")
+lDialogFavoriteFolderLiveInclude	Incluir
+lDialogFavoriteFolderLiveLevels	Número de níveis de subpastas a incluir no menu Pasta Live
 lDialogFavoriteLocationEmpty	A localização está vazia. Por favor, escolha outra.
 lDialogFavoriteMenuPosition	Inserir o novo favorito antes deste item
 lDialogFavoriteNameEmpty	O nome do favorito está em branco. Por favor, escolha um nome.
@@ -75,6 +79,7 @@ lDialogFavoriteNameNotNew	O nome "~1~" já é usado neste menu. Por favor, escolha
 lDialogFavoriteNameNotNewQAPfeature	O nome "~1~" já é usado neste menu. Por favor, mude o nome do favorito existente e tente de novo.
 lDialogFavoriteParentMenu	Menu superior do Favorito
 lDialogFavoriteRemoveExternalPrompt	Remover o submenu externo "~1~"`n(o ficheiro ini das definições externas NÃO será eliminado)?
+lDialogFavoriteRemoveGroupPrompt	Remover o grupo "~1~"`n(os itens do grupo também serão eliminados)?
 lDialogFavoriteRemovePrompt	Remover o submenu "~1~"`ne TODO o seu conteúdo (pastas e submenus)?
 lDialogFavoriteRemoveTitle	Remover Favorito - ~1~
 lDialogFavoriteSelectType	Seleccione o tipo de favorito a adicionar.`n`nNa janela seguinte, irá dar ao favorito:`n- um nome`n- um conteúdo (dependendo do tipo)`n- várias definições (ícone, atalho, etc.)`n`nEscolha o tipo do novo favorito e clique "~1~".
@@ -111,6 +116,7 @@ lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
 lDialogGetWinInfo	Para identificar a janela da qual pretende obter o título e classe, clique na janela alvo com a tecla de atalho [~1~] do menu QAP.
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar esta informação para a Área de transferência?
+lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaços</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
 lDialogHotkeys	Teclas de Atalho
 lDialogHotkeysManageAbout	Atalhos actualmente activos no ~1~
 lDialogHotkeysManageAlternative	Alternativo
@@ -122,6 +128,16 @@ lDialogHotkeysManageListSeeShortHotkeyNames	Ver nomes abreviados das teclas de a
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gerir Teclas de atalho - ~1~ ~2~
 lDialogIcon	Ícone do Favorito
+lDialogIconsManage	Ícones
+lDialogIconsManageAbout	Seleccione novos ícones para os seus favoritos ou defina-os para o ícone padrão do seu tipo. Não se esqueça de guardar as alterações na janela Definições.
+lDialogIconsManageCurrent	Ícone actual
+lDialogIconsManageDefault	Ícone padrão
+lDialogIconsManageFavoriteName	Nome do favorito
+lDialogIconsManageNext	Seguinte
+lDialogIconsManageParentMenu	Menu principal do Favorito
+lDialogIconsManagePrevious	Anterior
+lDialogIconsManageSetDefaultIcon	Definir ícone padrão
+lDialogIconsManageTitle	Gerir Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora do menu emergente (erro de nome de tecla inválido).`n`nPor favor, abra a janela "Definições" do menu da Barra de notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~2~".
 lDialogInvalidHotkeyFavorite	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora para a localização "~2~" (erro de nome de tecla inválido).`n`nPor favor, escolha outro atalho para a localização "~2~".
 lDialogKeyboard	Teclado
@@ -135,7 +151,9 @@ lDialogMouseCheckLButton	Não pode atribuir o "Botão Esquerdo" sem um modificador
 lDialogMoveFavoritesTitle	Mover Favoritos - ~1~ ~2~
 lDialogNone	Nenhum
 lDialogNormal	Normal
+lDialogOff	Desligado
 lDialogOK	OK
+lDialogOn	Ligado
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
 lDialogReadOnly	Só de leitura
@@ -146,6 +164,8 @@ lDialogSelectItemToEdit	Por favor, seleccione o item para editar.
 lDialogSelectItemToMove	Por favor, seleccione o item para mover.
 lDialogSelectItemToRemove	Por favor, seleccione o item para remover.
 lDialogSettingsInvalid	Ficheiro de Definições inválido.`n`nCertifique-se que o ficheiro de definições inclui as secções ~1~ e ~2~.`n`nFicheiro: ~3~
+lDialogSettingsNotSavedPrompt	A janela Definições está aberta com alterações não guardadas. Essas alterações devem ser guardadas ou canceladas antes de executar acção seleccionada.`n`nDeseja:`n- "Guardar": guardar as alterações e executar a acção seleccionada`n- "Definições": cancelar a acção seleccionada e voltar à janela Definições`n- "Cancelar": cancelar a acção seleccionada?
+lDialogSettingsNotSavedTitle	~1~ - Definições não guardadas
 lDialogShift	Shift
 lDialogShortcut	Atalho
 lDialogState	Estado da Janela:
@@ -232,6 +252,8 @@ lGuiPasswordNotEncripted	Nota: a palavra-passe NÃO será encriptada ao ser enviad
 lGuiRemoveFavorite	Remover
 lGuiResetDefault	Repor tecla de atalho padrão
 lGuiSave	&Guardar
+lGuiSaveAndClose	&Guardar`n&& Fechar
+lGuiSaveAndStay	Guardar`n&& &Recarregar
 lGuiSaveToUpdateBacklinks	Guardar para actualizar ligações de retorno
 lGuiSubmenuDropdownLabel	Menu ou grupo para editar:
 lGuiTitle	Definições - ~1~ ~2~
@@ -331,6 +353,7 @@ lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
+lMenuRefreshMenu	Actualizar o menu QAP
 lMenuReload	Reiniciar ~1~
 lMenuRunAtStartup	Executa&r no Arranque
 lMenuSettings	Definições
@@ -356,6 +379,7 @@ lOopsErrorIniFileReadOnly	Este ficheiro de definições de menu partilhado é SÓ-DE
 lOopsErrorIniFileRetry	Se o ficheiro de definições estiver numa unidade de rede, tente reiniciar o ~1~ quando a unidade de rede estiver disponível.
 lOopsErrorIniFileUnavailable	Este ficheiro de definições do menu externo, não está disponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao ler este ficheiro de definições:
+lOopsExternalFileWriteError	Ocorreu um erro ao escrever para o ficheiro de definições do menu partilhado:`n~1~.`n`nVerifique se este ficheiro ou pasta é só de leitura.
 lOopsExternalMenuReadOnly	Este menu externo é só de leitura e não pode ser modificado.
 lOopsFtpLocationProtocol	A localização FTP deve começar com "ftp://".
 lOopsGroup	grupo
@@ -366,6 +390,7 @@ lOopsInvalidWinCmdIni	Não foi encontrado o ficheiro de definições do Total Comma
 lOopsInvalidWindowPosition	Valor(es) de posição da janela inválido(s)
 lOopsLaunchWithNotFound	"Abrir com esta aplicação" ficheiro não encontrado:`n`n~1~`n`nVerifique as definições avançadas dos favorito.
 lOopsLocation	localização
+lOopsMaxLiveFolder	O número máximo de itens permitido em pastas Live (~1~) foi excedido. Por favor, reduza o número de níveis de pastas Live.`n`nTambém pode aumentar este limite mas tenha cuidado: um número demasiado elevado pode provocar resultados imprevisíveis. Edite o valor "NbLiveFolderItemsMax" na secção [Global] do ficheiro de definições (QuickAccessPop.ini).
 lOopsOSVerrsionError	O ~1~ requer o Window 7 ou mais recente. Os utilizadores do Windows Vista e XP users devem usar o Folders Popup que é compatível com essas versões.`n`nDeseja visitar o site do Folders Popup?
 lOopsQAPfeature	Função QAP
 lOopsTitle	~1~ (~2~)
@@ -374,6 +399,7 @@ lOopsWriteProtectedError	Parece que o ~1~ está a ser executado de uma pasta PROT
 lOopsWrongThirdPartyPath	Atalho ou nome de ficheiro errados para ~1~:`n~2~.`n`nVerifique o ficheiro .exe seleccionado para ~1~ em "Opções", separador "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Atalho ou nome de ficheiro errados para a aplicação QAPconnect`n~1~:`n~2~.`n`nVerifique os valores para [~1~] em ~3~. Utilize o botão "~4~" em "Opções", separador "~5~".
 lOopsZipFileError	Parece que o ~1~ está a ser executado directamente de um ficheiro .ZIP.`n`nDeve extrair o ficheiro ~1~ .EXE do ficheiro .ZIP para uma pasta à sua escolha, antes de o executar.`n`nO ~1~ vai ser encerrado.
+lOptionsAddAutoAtTop	Adicionar automaticamente no início do menu
 lOptionsAddCloseToDynamicMenus	Adicionar "Fechar" aos menus
 lOptionsAlternativeMenuFeatures	Teclas de Atalho do Menu Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gerir os atalhos que irão dar acesso às funções do menu Alternativo.
@@ -427,6 +453,7 @@ lOptionsThirdPartySelectedHelp	Gestor de Ficheiros Seleccionado: ~1~ (<a href="~
 lOptionsThirdPartySelectFile	Por favor, seleccione o ficheiro da aplicação ~1~ utilizando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Usar separadores em vez de abrir numa nova janela
 lOptionsTrayTip	&Exibir Dica da Área de Notificação
+lOptionsUseClassicButtons	Usar botões clássicos do QAP
 lPickIconNoLocation	Escolha primeiro um favorito antes de escolher um ícone.
 lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~? As alterações não guardadas no menu pasta serão perdidas.
 lTCMenuName	Lista de Pasta Favoritas do TC
