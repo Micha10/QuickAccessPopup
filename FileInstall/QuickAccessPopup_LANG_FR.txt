@@ -66,8 +66,7 @@ lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
 lDialogFavoriteFolderLive	Dossier actif (menu incluant les sous-dossiers)
-lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier Live
-lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (laisser vide pour pas de colonnes)
+lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (0 pour pas de colonnes)
 lDialogFavoriteFolderLiveDocuments	Inclure les documents
 lDialogFavoriteFolderLiveExclude	Exclure
 lDialogFavoriteFolderLiveExtensions	ces extensions (separées par des espaces, par exemple "bak bk")
@@ -117,6 +116,7 @@ lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement e
 lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..|Fragment|Partagé
 lDialogFileLabel	Document
 lDialogFolderLabel	Dossier
+lDialogFoldersPlaceholders	Vous pouvez insérer l'emplacement d'où ce favori est lancé en insérant le code {CUR_LOC}
 lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
 lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a> or <a id="~4~">échappement</a>
@@ -427,6 +427,7 @@ lOptionsHotkeyRemindersNo	Ne pas afficher
 lOptionsHotkeyRemindersPrompt	Rappel des raccourcis dans les menus:
 lOptionsHotkeyRemindersShort	Afficher les noms abrégés
 lOptionsIconSize	Taille des icônes de menu
+lOptionsIconsManageRows	Nombre de rangées de la fenêtre Gérer les icônes`n(0 pour le maximum disponible)
 lOptionsLanguage	Langue
 lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié
 lOptionsMenuActiveWindow	Dans la fenêtre active
