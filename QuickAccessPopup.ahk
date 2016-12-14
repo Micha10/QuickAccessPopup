@@ -31,8 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.2.3 (2016-12-??)
-- support {CUR_LOC} placeholder for favorite, document and application favorites
+Version BETA: 7.9.2.3 (2016-12-12)
+- support {CUR_LOC} placeholder for folder, document and application favorites
+- update to PT, ES, FR, IT, PT-BR language files
 
 Version BETA: 7.9.2.2 (2016-12-04)
 - in Manage Icons, display default icon as current when current icon is empty in Settings
@@ -1093,7 +1094,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.2.2 BETA
+;@Ahk2Exe-SetVersion 7.9.2.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1166,7 +1167,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.2.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 

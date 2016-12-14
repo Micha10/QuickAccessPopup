@@ -10,8 +10,8 @@
 #define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_2.dll"
 
-#define MyAppVersion "v7.9.2.2 BETA"
-#define MyVersionFileName "7_9_2_2-beta"
+#define MyAppVersion "v7.9.2.3 BETA"
+#define MyVersionFileName "7_9_2_3-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
