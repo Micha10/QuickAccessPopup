@@ -65,7 +65,7 @@ lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor, escolha um item na lista do menu suspenso ~1~.
 lDialogFavoriteExternalHelpWeb	Veja <a href="~1~">Ajuda para menus externos</a> para maiores informações.
 lDialogFavoriteFolderLive	Pasta Ativa (menu incluindo subpastas)
-lDialogFavoriteFolderLiveColumns	Número de itens por coluna (vazio para nenhuma coluna)
+lDialogFavoriteFolderLiveColumns	Número de itens por coluna (0 para sem quebra de coluna)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos
 lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensões (separe as extensões com espaços, por exemplo: "bak bk")
@@ -115,6 +115,7 @@ lDialogFavoriteTypesLocationLabels	Pasta (caminho)|Documento (caminho e nome do 
 lDialogFavoriteTypesShortNames	Pasta|Documento|Aplicativo|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Recorte|Compartilhado
 lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
+lDialogFoldersPlaceholders	Você pode inserir o marcador de posição {CUR_LOC} para inserir o local de onde este favorito é iniciado
 lDialogGetWinInfo	Para identificar a janela da qual deseja obter título e classe, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar informações para a Área de Transferência?
 lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaço</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
@@ -425,6 +426,7 @@ lOptionsHotkeyRemindersNo	Não exibir
 lOptionsHotkeyRemindersPrompt	Lembretes de tecla de atalho no menu:
 lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones no menu
+lOptionsIconsManageRows	Linhas da janela 'Gerenciar Ícones'`n(0 para espaço máximo disponível)
 lOptionsLanguage	Idioma
 lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Português (Brasil)|Italiano|Chinês Tradicional|Português|Chinês Simplified
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela ativa

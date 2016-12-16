@@ -58,6 +58,7 @@ lDialogElevate	Executar o programa com previlégios de administrador
 lDialogEndOfMenu	Fim do menu
 lDialogErrorMoving	Não é possível redimensionar o favorito:`n"~1~"
 lDialogExternalLocation	Localização do ficheiro das definições externas do menu
+lDialogExternalLocationIni	O ficheiro de definições do menu partilhado tem que ser um ficheiro .ini
 lDialogExternalStartingNumber	Número do primeiro favorito:
 lDialogFavoriteDisabled	Ocultar este favorito no menu
 lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está disponível.`n`nSe este favorito está numa unidade de rede, repita depois de autenticar a rede.
@@ -65,6 +66,7 @@ lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
 lDialogFavoriteExternalHelpWeb	Consulte <a href="~1~">Ajuda menus externos</a> para mais informação.
 lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas)
+lDialogFavoriteFolderLiveColumns	Número de itens por coluna (0 para sem quebra de coluna)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos
 lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensões (separar as extensões com espaços, por exemplo "bak bk")
@@ -114,6 +116,7 @@ lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de fi
 lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Mudança de Coluna|..|Snippet|Partilhado
 lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
+lDialogFoldersPlaceholders	Pode incluir o caractere de preenchimento {CUR_LOC} para inserir a  localização deste favorito
 lDialogGetWinInfo	Para identificar a janela da qual pretende obter o título e classe, clique na janela alvo com a tecla de atalho [~1~] do menu QAP.
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar esta informação para a Área de transferência?
 lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaços</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
@@ -424,6 +427,7 @@ lOptionsHotkeyRemindersNo	Não exibir
 lOptionsHotkeyRemindersPrompt	Lembretes de teclas de atalho no menu:
 lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
+lOptionsIconsManageRows	Gerir linhas da janela de ícones`n(0 para espaço máx. disponível)
 lOptionsLanguage	Idioma
 lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
@@ -458,6 +462,7 @@ lPickIconNoLocation	Escolha primeiro um favorito antes de escolher um ícone.
 lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~? As alterações não guardadas no menu pasta serão perdidas.
 lTCMenuName	Lista de Pasta Favoritas do TC
 lTCWinCmdLocation	Localização do WinCmd.ini
+lTooltipSnippetKeyWait	Pressione {~1~} para continuar...
 lTooltipSnippetWait	Seleccione o ponto de inserção e prima "~1~" para colar a amostra (aguardar ~2~ segundos)
 lTooltipSnippetWaitEnter	Enter
 lTooltipSnippetWaitMacro	Pressione "~1~" para iniciar a macro (aguardar ~2~ segundos)
