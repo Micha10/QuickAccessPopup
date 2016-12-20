@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 7.9.2.4 (2016-12-??)
+- translate Left and Right words for Ctrl-Ctrl option in Options 2nd tab
+
 Version BETA: 7.9.2.3 (2016-12-12)
 - support {CUR_LOC} placeholder for folder, document and application favorites
 - update to PT, ES, FR, IT, PT-BR language files
@@ -1094,7 +1097,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.2.3 BETA
+;@Ahk2Exe-SetVersion 7.9.2.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1167,7 +1170,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.2.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "7.9.2.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4924,8 +4927,8 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
 
-Gui, 2:Add, CheckBox, y+25 x15 vf_blnLeftControlDoublePressed, Left ; %lOptionsControlDoublePressed%
-Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, Right ; %lOptionsControlDoublePressed%
+Gui, 2:Add, CheckBox, y+25 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
+Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
 Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
 GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
 GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
