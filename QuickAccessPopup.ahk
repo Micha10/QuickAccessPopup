@@ -34,6 +34,7 @@ HISTORY
 Version BETA: 7.9.2.4 (2017-01-02)
 - re-enable menu icons on Windows Server versions
 - translate Left and Right words for Ctrl-Ctrl option in Options 2nd tab
+- rework compile and setup tools, change beta app icon
 
 Version BETA: 7.9.2.3 (2016-12-12)
 - support {CUR_LOC} placeholder for folder, document and application favorites
