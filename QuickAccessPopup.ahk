@@ -31,7 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 7.9.2.4 (2016-12-??)
+Version BETA: 7.9.2.4 (2017-01-02)
+- re-enable menu icons on Windows Server versions
 - translate Left and Right words for Ctrl-Ctrl option in Options 2nd tab
 
 Version BETA: 7.9.2.3 (2016-12-12)
@@ -1184,6 +1185,7 @@ else ; setup mode
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
+g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -2553,7 +2555,6 @@ IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortc
 IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
 IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
-g_blnDisplayIcons := (g_blnDisplayIcons and OSVersionIsWorkstation())
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
 
@@ -4180,7 +4181,6 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
 	
 	g_blnWorkingToolTip := True
-	g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
 	Tooltip
 }
@@ -4894,10 +4894,7 @@ Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddCloseToDynamicMenus, %lOptionsAddClo
 GuiControl, , f_blnAddCloseToDynamicMenus, %g_blnAddCloseToDynamicMenus%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayIcons gDisplayIconsClicked, %lOptionsDisplayIcons%
-GuiControl, , f_blnDisplayIcons, % (OSVersionIsWorkstation() ? g_blnDisplayIcons : false) 
-; on server
-if !OSVersionIsWorkstation()
-	GuiControl, Disable, f_blnDisplayIcons
+GuiControl, , f_blnDisplayIcons, %g_blnDisplayIcons%
 
 Gui, 2:Add, Text, % "y+10 xs vf_drpIconSizeLabel " . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconSize%
 Gui, 2:Add, DropDownList, % "yp x+10 w40 vf_drpIconSize Sort " . (g_blnDisplayIcons ? "" : "Disabled"), 16|24|32|48|64
@@ -6784,15 +6781,12 @@ Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
 
 if !(blnIsGroupMember)
 {
-	if OSVersionIsWorkstation()
-	{
-		Gui, 2:Add, Text, x20 y+20 gGuiPickIconDialog section, %lDialogIcon%
-		Gui, 2:Add, Picture, x20 y+5 w32 h32 vf_picIcon gGuiPickIconDialog
-		Gui, 2:Add, Text, x+5 yp vf_lblRemoveIcon gGuiRemoveIcon, X
-		Gui, 2:Add, Link, x20 ys+57 w240 gGuiPickIconDialog, <a>%lDialogSelectIcon%</a>
-		Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
-		Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
-	}
+	Gui, 2:Add, Text, x20 y+20 gGuiPickIconDialog section, %lDialogIcon%
+	Gui, 2:Add, Picture, x20 y+5 w32 h32 vf_picIcon gGuiPickIconDialog
+	Gui, 2:Add, Text, x+5 yp vf_lblRemoveIcon gGuiRemoveIcon, X
+	Gui, 2:Add, Link, x20 ys+57 w240 gGuiPickIconDialog, <a>%lDialogSelectIcon%</a>
+	Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
+	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
 
 	Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
 	Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
@@ -13309,15 +13303,6 @@ GetOSVersion()
 		return "WIN_10"
 	else
 		return A_OSVersion
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OSVersionIsWorkstation()
-;------------------------------------------------------------
-{
-	return (GetOSVersionInfo() and (GetOSVersionInfo().ProductType = 1))
 }
 ;------------------------------------------------------------
 
