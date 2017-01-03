@@ -31,6 +31,73 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8 (2017-01-03)
+
+Live Folder options
+- To enable a Live Folder favorite, add or edit a Folder favorite and go to the new tab "Live Folders Options". In this tab you can select:
+  - the checkbox "Live Folder" to transform this favorite into a menu (and submenus) refreshed with the current content of the folder (and its subfolders)
+  - an option to set the "Number of subfolders levels to include in the Live Folder menu" (1 by default - keep it low for large folders)
+  - an option to "Include Documents" in the Live Folder
+  - an option to "Include" or "Exclude" documents by file extensions
+  - an option to split Live Folder menu in columns of a given "Number of items per column (0 for no column break)"
+- Add the new QAP Feature "Refresh Live Folders menus" to your menu to refresh Live Folder on-demand (normally, Live Folder menus are refreshed when you launch QAP of when you save changes in Settings)
+- QAP adds items to Live Folders up to a maximum of 500 items; if this number is exceeded, it displays an alert message
+- You can edit a Live Folder favorite in the "Settings" window or using the Alternative menu "Edit a Favorite" (Shift+Middle Mouse Button or Shift+Win+W) and also by clicking any item in a Live Folder menu with Shift+Ctrl menu modifiers pressed
+- More info: http://www.quickaccesspopup.com/can-a-menu-be-updated-as-the-content-of-a-folder-changes/
+
+New menu icons
+- QAP now uses new color icons from the shared file JLicons.dll installed with QAP
+- In "Easy Setup" mode, this file JLicons.dll is saved in the shared applications folder "C:\ProgramData\JeanLalonde"
+- In "Portable" mode, the file JLicons.dll is included in the portable ZIP file and must be kept in the same folder as QAP executable file
+- This change frees QAP from its dependency on Windows files shell32.dll and imageres.dll
+- Using this icons library, menu icons can now be enabled on Windows Server versions.
+- Icons from: www.icons8.com
+
+Manage Icons
+- The new "Manage Icons" dialog box gives an overview of your current favorites menu icons with buttons to pick a new icon or reset the default icon for each favorite
+- Click the new button "Icons" in the Settings window (lower right) or add to your menu the QAP Feature named "Icons"
+- In Options (General tab), the numeric value "Manage Icons window rows" alloow to set the height of the window in case the height is calculated based on inaccurate info returned by Windows (this happens sometimes)
+
+Various improvements
+
+Settings window
+- New color buttons in Settings window and a new option (first tab) to "Use  classic QAP buttons" (black & white) if you prefer the old style buttons
+- Stop rebuilding all menus after each add or edit favorite
+- Replace the "Save" button in Settings with two buttons: "Save & Close" and "Save & Reload", the latter keeping the Settings window open after reloading the menu (this replaces holding the Shift or Alt modifier keys when clicking the Save button in previous versions)
+- When changes are unsaved in the Settings window, if the QAP menu is called or if a favorite is launched via hokey, QAP will prompt user for one of these actions: "Save" - save settings, "Settings" - go to settings or "Cancel" - just cancel the requested action
+- Add a confirmation prompt before deleting a group in Settings
+
+Manage Hotkeys window
+- New item order column in Hotkeys list to sort initialy favorites with hotkeys following the QAP menu order
+- Stop displaying group members in Hotkeys list (this was useless since hotkeys could not be assigned to individual group members)
+- In the "Change hotkey" dialog box, new links "Enter" and "Escape" allow to select Enter or Escape as hotkey (idealy associated with keyboard modifiers like Shift, Alt or Ctrl)
+
+Shared menus
+- When saving a Shared menu settings file, compare the last modified date after saving and display an error message if the date was not updated (probably because the target file is read-only)
+- Display an error message if a new Shared menu settings file cannot be created (probably because the target folder is read-only)
+- Automatically append the .ini extension when selecting a Shared menu settings file
+- Note that Quick Access Popup still does not manage conflicts if a Shared menu is modified by different users at the same time (see Shared menu help page for more info)
+
+Other improvements
+- New option in Options window (Menu hotkeys tab) to enable left or right double Ctrl hotkey (press left or right Control key twice) to open main QAP menu
+- Add .cmd extension to the list of supported application extensions (with .exe, .com, .bat, .ahk and .vbs) when adding a favorite by drag and drop or using Explorer context menus
+- Append .ini extension if destination export file has no extension when exporting settings
+- Replace the "QAP working" notification when rebuilding menu with a small popup message listing the updated menus, close to mouse cursor location
+- Record Windows Explorer window position when adding a folder from Windows Explorer context menu (allowing to restore this window position in the "Window Options" tab when launching the folder)
+- Add to QuickAccessPopup.ini the setting "AlternativeTrayIcon" under "[Global]" section to set a tray icon replacement (replacement file must be an .ico file)
+- In Options, General tab, the new checkbox "Add automatically at the top of menu" makes sure favorites added automatically with "Add this folder", "Add this folder Express" or "Add favorite" from Windows Explorer context menus are added at the top of main menu (by default they are added at the top and, if unchecked, they are added at the bottom)
+- Support the new placeholder "{CUR_LOC}" in folder, document and application favorites locations allowing to create favorite with a location relative to the folder where the QAP menu is opened
+- Add up/down buttons to numeric values in various settings in Options and Add/Edit favorite windows
+- When installing an update with the "Easy Setup" mode, reduce the number of pages (clicks) in setup procedure from 7 to 3
+
+Bug fixes
+- Fix bug working directory not being shown in edit favorite advanced setting tab for application favorites
+- Changes made in Hotkeys list window are now properly cancelled if user cancels changes in Settings window
+- Fix bug when editing a QAP Feature or Special folder favorite from Alternative menu, QAP Feature or Special folders drop down list is now correctly initialized
+
+Language updates
+- Update to Spanish, French, Italian, Portuguese, Chineese (TW), Brazilian-Portuguese and German language files
+
 Version BETA: 7.9.2.4 (2017-01-02)
 - re-enable menu icons on Windows Server versions
 - translate Left and Right words for Ctrl-Ctrl option in Options 2nd tab
@@ -1099,7 +1166,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 7.9.2.4 BETA
+;@Ahk2Exe-SetVersion 8
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1172,8 +1239,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "7.9.2.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False

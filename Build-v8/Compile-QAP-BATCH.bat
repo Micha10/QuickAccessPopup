@@ -1,6 +1,6 @@
 @ECHO OFF
 rem
-rem Set environment variables for Inno Setup and this batch
+rem Set environment variables for Inno Setup and the batch Compile-QAP-v8.bat
 SET QAPBETAPROD=
 SET QAPVERSIONTEXT=v8
 SET QAPVERSION=8
