@@ -5,8 +5,8 @@
 ;
 
 #define MyBetaProd GetEnv('QAPBETAPROD')
-#define MyAppVersion GetEnv('QAPBETATEXT') ; exemple "v1.2.3.4 BETA"
-#define MyVersionFileName GetEnv('QAPVERSIONFILE') ; exemple "1_2_3_4{#MyBetaProd}"
+#define MyAppVersion GetEnv('QAPVERSIONTEXT') ; exemple "v1.2.3.4 BETA"
+#define MyVersionFileName GetEnv('QAPVERSIONFILE') ; exemple "1_2_3_4 ou 1_2_3_4-beta"
 
 #define MyAppName "Quick Access Popup"
 #define MyAppNameNoSpace "QuickAccessPopup"
