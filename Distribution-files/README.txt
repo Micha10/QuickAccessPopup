@@ -18,14 +18,9 @@ need to unzip a file.
 Note: It is recommended not to install Quick Access Popup in system-protected folders like those
 under “C:\Program Files”. This could prevent QAP from saving your configuration.
 
-3) Run the .EXE file from this folder (choose the 32-bits or 64-bits version depending on your
-system). Quick Access Popup will create and update the quickaccesspopup.ini file in this folder.
-See Quick Access Popup is a Portable App, below.
-
-Note: If an anti-virus or protection software reports Quick Access Popup as a potential threat,
-this is not the case. Please read this post: How to stop Anti-virus blocking Folders Popup
-(http://code.jeanlalonde.ca/stop-anti-virus-blocking-folders-popup/). This page will later be
-adapted to Quick Access Popup but its content is still valid for QAP.
+3) Run the .EXE file from this folder (choose the file QuickAccessPopup-32-bit.exe or
+QuickAccessPopup-64-bit.exe depending on your system). Quick Access Popup will create and update
+the quickaccesspopup.ini file in this folder. See Quick Access Popup is a Portable App, below.
 
 4) At your convenience, create a shortcut on your Desktop or your Start menu or select
 "Run at startup" in the Tray menu to launch Quick Access Popup automatically at startup.
@@ -67,7 +62,7 @@ instructions within.
 For more info, see the page http://www.quickaccesspopup.com/explorer-context-menus-help/
 
 
-Quick Access Popup – Copyright (C) 2013-2016 Jean Lalonde
+Quick Access Popup – Copyright (C) 2013-2017 Jean Lalonde
 ---------------------------------------------------------
 
 Quick Access Popup can be freely distributed over the internet in an unchanged form.

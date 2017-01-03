@@ -1,4 +1,4 @@
-Quick Access Popup – Copyright (C) 2013-2016 Jean Lalonde
+Quick Access Popup – Copyright (C) 2013-2017 Jean Lalonde
 ---------------------------------------------------------
 
 Quick Access Popup can be freely distributed over the internet in an unchanged form.
