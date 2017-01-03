@@ -1,3 +1,13 @@
+;
+; DO NOT RUN FROM INNO SETUP EDITOR
+; THIS SCRIPT REQUIRES ENVIRONMENT VARIABLES FROM BATCH
+; C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-v8.bat
+;
+
+#define MyBetaProd GetEnv('QAPBETAPROD')
+#define MyAppVersion GetEnv('QAPBETATEXT') ; exemple "v1.2.3.4 BETA"
+#define MyVersionFileName GetEnv('QAPVERSIONFILE') ; exemple "1_2_3_4{#MyBetaProd}"
+
 #define MyAppName "Quick Access Popup"
 #define MyAppNameNoSpace "QuickAccessPopup"
 #define MyAppNameLower "quickaccesspopup"
@@ -6,12 +16,8 @@
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
-#define QAPupdateIconsWin10 "QAPupdateIconsWin10-1_1-32-bit.exe"
 #define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_2.dll"
-
-#define MyAppVersion "v7.9.2.3 BETA"
-#define MyVersionFileName "7_9_2_3-beta"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -27,11 +33,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Inno Setup files\license.txt
-; OutputDir=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\
+LicenseFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\license.txt
 OutputDir=C:\temp\InnoSetup-OutputDir\
-OutputBaseFilename={#MyAppNameLower}-setup-beta
-SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico
+OutputBaseFilename={#MyAppNameLower}-setup{#MyBetaProd}
+SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\iconQAP{#MyBetaProd}.ico
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -66,17 +71,13 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "{commonappdata}\{#MyAppName}" 
 
 [Files]
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-{#MyVersionFileName}-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#QAPupdateIconsWin10}"; DestDir: "{app}"; DestName: "QAPupdateIconsWin10.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\OSVersion.exe"; DestDir: "{app}"; DestName: "OSVersion.exe"; Flags: ignoreversion signonce
-; Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QAPconnect.ini"; DestDir: "{commonappdata}\{#MyAppName}"; DestName: "QAPconnect.ini" -> now created by QAP from a default template
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\QuickAccessPopup-BETA-green-512.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-BETA.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup-v8.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-beta\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-v8{#MyBetaProd}\QuickAccessPopup-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-v8{#MyBetaProd}\QuickAccessPopup-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup.ico"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
@@ -96,8 +97,6 @@ Filename: "{commonappdata}\{#MyAppName}\{#MyAppNameLower}-setup.ini"; Section: "
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"
 Name: "{group}\Import Folders Popup Settings"; Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"
-Name: "{group}\Update QAP Icons from Window 7 to Windows 10"; Filename: "{app}\QAPupdateIconsWin10.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"
-Name: "{group}\OS Version Info"; Filename: "{app}\OSVersion.exe"
 Name: "{group}\{cm:ProgramOnTheWeb,{#MyAppName}}"; Filename: "{#MyAppURL}";
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
@@ -165,6 +164,7 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: waituntilidle postinstall skipifsilent
 Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings; Flags: runhidden waituntilterminated
 Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"; Description: "&HELP me pay EXPENSES for making QAP (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
+Filename: "https://www.patreon.com/JeanLalonde"; Description: "&SUPPORT my work with monthly PATRONS micro-donations (starting à $1)"; Flags: postinstall shellexec unchecked
 
 [Tasks]
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: unchecked
