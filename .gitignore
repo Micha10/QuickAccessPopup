@@ -1,11 +1,7 @@
 *.PRJ
-img/
-PAD/
 quickaccesspopup*.ini
 Divers/
 BK/
-FPconnect/
-Inno Setup files/OLD/
 Language/
 FileInstall/*-BK-*.txt
 QAPconnect-default.ini
@@ -16,3 +12,21 @@ ScreenCaptures/
 _temp/
 *.ini
 *.ico
+Setup Script files/OLD/
+Build/
+Build-beta/
+Build-v8-beta/QAP-v*.txt
+Build-v8-beta/quickaccesspopup-*.zip
+Build-v8/QAP-v*.txt
+Build-v8/quickaccesspopup.zip
+Setup Script files/Ahk2Exe-Custom/Ahk2Exe.ahk
+Setup Script files/Ahk2Exe-Custom/COPYING
+Setup Script files/Ahk2Exe-Custom/Compiler.ahk
+Setup Script files/Ahk2Exe-Custom/Directives.ahk
+Setup Script files/Ahk2Exe-Custom/ErrorCodes.md
+Setup Script files/Ahk2Exe-Custom/IconChanger.ahk
+Setup Script files/Ahk2Exe-Custom/README.md
+Setup Script files/Ahk2Exe-Custom/ScriptParser.ahk
+Setup Script files/Ahk2Exe-Custom/logo.png
+Setup Script files/Ahk2Exe-Custom/Lib/
+Setup Script files/Ahk2Exe-Custom/.gitignore
