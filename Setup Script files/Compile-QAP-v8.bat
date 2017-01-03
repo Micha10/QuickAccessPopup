@@ -7,9 +7,9 @@ IF EXIST "QAP-v%QAPVERSIONFILE%.txt" ECHO MAIS QAP-v%QAPVERSIONFILE%.txt EXISTE 
 IF NOT EXIST "QAP-v%QAPVERSIONPREV%.txt" PAUSE
 rem Compile exe files
 ECHO Ahk2Exe-QAP-v8.ahk 32 %QAPBETAPROD%
-"C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 32 %QAPBETAPROD%
+"C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 32 %QAPBETAPROD%
 ECHO Ahk2Exe-QAP-v8.ahk 64 %QAPBETAPROD%
-"C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 64 %QAPBETAPROD%
+"C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 64 %QAPBETAPROD%
 rem Compile Setup file
 ECHO Inno Setup Compile-QAP-v8.iss
 "C:\Program Files (x86)\Inno Setup 5\compil32" /cc "C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-QAP-v8.iss"
