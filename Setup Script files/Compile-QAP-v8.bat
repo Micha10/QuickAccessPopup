@@ -1,6 +1,11 @@
 rem Set current directory
 C:
 CD \Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%QAPBETAPROD%\
+rem Create or update version variables
+SET QAPVERSIONPREV=%QAPVERSIONPREV%%QAPBETAPROD%
+SET QAPVERSIONFILE=%QAPVERSION%%QAPBETAPROD%
+SET QAPZIPFILE=quickaccesspopup%QAPBETAPROD%
+SET QAPZIPFILEVERSION=quickaccesspopup-%QAPVERSIONFILE%
 rem Check current version file
 IF NOT EXIST "QAP-v%QAPVERSIONPREV%.txt" ECHO QAP-v%QAPVERSIONPREV%.txt INTROUVABLE...
 IF EXIST "QAP-v%QAPVERSIONFILE%.txt" ECHO MAIS QAP-v%QAPVERSIONFILE%.txt EXISTE - OK!
@@ -20,14 +25,15 @@ ECHO Copy quickaccesspopup-setup%QAPBETAPROD%.exe
 COPY "C:\temp\InnoSetup-OutputDir\quickaccesspopup-setup%QAPBETAPROD%.exe"
 rem Update version file
 IF NOT EXIST "QAP-v%QAPVERSIONFILE%.txt" REN "QAP-v%QAPVERSIONPREV%.txt" "QAP-v%QAPVERSIONFILE%.txt"
-rem Remove previous version and executable files from zip file
 ECHO Remove previous version and executable files from zip file
 7z d -bso0 "%QAPZIPFILE%.zip" QAP-v*.txt QuickAccessPopup-??-bit.exe
-rem Add new version and executable files to zip file
 ECHO Add new version and executable files to zip file
 7z a -bso0 "%QAPZIPFILE%.zip" QAP-v%QAPVERSIONFILE%.txt QuickAccessPopup-??-bit.exe
-IF %QAPBETAPROD% EQU -beta ECHO Copy %QAPZIPFILE%.zip to %QAPZIPFILEVERSION%.zip
-IF EXIST %QAPZIPFILEVERSION%.zip DEL %QAPZIPFILEVERSION%.zip
-IF %QAPBETAPROD% EQU -beta COPY %QAPZIPFILE%.zip %QAPZIPFILEVERSION%.zip
+IF [%QAPBETAPROD%] == [] GOTO:finish
+ECHO Copy %QAPZIPFILE%.zip to %QAPZIPFILEVERSION%.zip
+COPY %QAPZIPFILE%.zip %QAPZIPFILEVERSION%.zip
+ECHO Delete previous ZIP file quickaccesspopup-%QAPVERSIONPREV%.zip
+IF EXIST quickaccesspopup-%QAPVERSIONPREV%.zip DEL quickaccesspopup-%QAPVERSIONPREV%.zip
+:finish
 ECHO TERMINE DE v%QAPVERSIONPREV% A v%QAPVERSIONFILE% AVEC SUCCES
 PAUSE

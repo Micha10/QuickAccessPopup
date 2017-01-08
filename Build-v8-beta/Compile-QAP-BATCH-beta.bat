@@ -1,12 +1,8 @@
 @ECHO OFF
-rem
 rem Set environment variables for Inno Setup and this batch
-SET QAPBETAPROD=-beta
-SET QAPVERSIONTEXT=v7.9.2.4 BETA
+SET QAPVERSIONPREV=0
 SET QAPVERSION=7_9_2_4
-SET QAPVERSIONPREV=0%QAPBETAPROD%
-SET QAPVERSIONFILE=%QAPVERSION%%QAPBETAPROD%
-SET QAPZIPFILE=quickaccesspopup%QAPBETAPROD%
-SET QAPZIPFILEVERSION=quickaccesspopup-%QAPVERSIONFILE%
+SET QAPVERSIONTEXT=v7.9.2.4 BETA
+SET QAPBETAPROD=-beta
 rem Call Compile batch
 CALL "C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-QAP-v8.bat"

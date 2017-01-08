@@ -13,8 +13,6 @@ _temp/
 *.ini
 *.ico
 Setup Script files/OLD/
-Build/
-Build-beta/
 Build-v8-beta/QAP-v*.txt
 Build-v8-beta/quickaccesspopup-*.zip
 Build-v8/QAP-v*.txt
@@ -30,3 +28,6 @@ Setup Script files/Ahk2Exe-Custom/ScriptParser.ahk
 Setup Script files/Ahk2Exe-Custom/logo.png
 Setup Script files/Ahk2Exe-Custom/Lib/
 Setup Script files/Ahk2Exe-Custom/.gitignore
+Build-beta-old/
+Build-old/
+Inno Setup files/OLD/
