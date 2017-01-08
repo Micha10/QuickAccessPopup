@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.0.1 (2017-01-07)
+- add NbLiveFolderItemsMax default value to QuickAccessPopup.ini to make it easier to change this value
+- links updated in Support freeware dialog box
+
 Version: 8 (2017-01-03)
 
 Live Folder options
@@ -1166,7 +1170,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8
+;@Ahk2Exe-SetVersion 8.0.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1239,7 +1243,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2707,7 +2711,12 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
-IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax, 500 ; default 500
+IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
+if (g_intNbLiveFolderItemsMax = "ERROR")
+{
+	g_intNbLiveFolderItemsMax := 500
+	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
+}
 
 ; ---------------------
 ; Load favorites
@@ -12772,7 +12781,9 @@ Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup
 ;	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
 ;	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
 ; }
-Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate1, %lDonatePlatformName1%
+Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, %lDonatePlatformName2%
+Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment2%
+Gui, 2:Add, Button, y+10 Default xm w150 gButtonDonate1, %lDonatePlatformName1%
 Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment1%
 
 Gui, 2:Add, Link, xm y+10 w420, % L(lDonateCheckPrompt2, lDonateCheckPrompt4)
@@ -12782,12 +12793,12 @@ Gui, 2:Add, Link, xm y+20 w420, %lDonateText3%
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, xm y+10 w420 Section, % L(lDonateText4, g_strAppNameText)
 
-strDonateReviewUrlLeft1 := "http://download.cnet.com/FoldersPopup/3000-2344_4-76062382.html"
-strDonateReviewUrlLeft2 := "http://www.portablefreeware.com/index.php?id=2557"
+strDonateReviewUrlLeft1 := "http://download.cnet.com/Quick-Access-Popup/3000-2344_4-76475848.html"
+strDonateReviewUrlLeft2 := "http://www.portablefreeware.com/index.php?id=2765"
 strDonateReviewUrlLeft3 := "http://www.softpedia.com/get/System/OS-Enhancements/FoldersPopup.shtml"
-strDonateReviewUrlRight1 := "http://fileforum.betanews.com/detail/Folders-Popup/1385175626/1"
-strDonateReviewUrlRight2 := "http://www.filecluster.com/System-Utilities/Other-Utilities/Download-FoldersPopup.html"
-strDonateReviewUrlRight3 := "http://freewares-tutos.blogspot.fr/2013/12/folders-popup-un-logiciel-portable-pour.html"
+strDonateReviewUrlRight1 := "http://fileforum.betanews.com/detail/Quick-Access-Popup/1455462511/1"
+strDonateReviewUrlRight2 := "http://www.filecluster.com/System-Utilities/Launchers-Task-Manager-Utilities/Download-Quick-Access-Popup.html"
+strDonateReviewUrlRight3 := "http://freewares-tutos.blogspot.ca/2016/05/quick-access-popup-accedez-rapidement.html"
 
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x25 w150", % "<a href=""" . strDonateReviewUrlLeft%A_Index% . """>" . lDonateReviewNameLeft%A_Index% . "</a>"
@@ -12823,8 +12834,8 @@ ButtonDonate3:
 ;------------------------------------------------------------
 
 strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"
-strDonatePlatformUrl2 := "http://www.shareit.com/product.html?productid=300628012"
-strDonatePlatformUrl3 := "http://code.jeanlalonde.ca/?flattrss_redirect&id=19&md5=e1767c143c9bde02b4e7f8d9eb362b71"
+strDonatePlatformUrl2 := "https://www.patreon.com/JeanLalonde"
+strDonatePlatformUrl3 := ""
 
 StringReplace, intButton, A_ThisLabel, ButtonDonate
 Run, % strDonatePlatformUrl%intButton%
