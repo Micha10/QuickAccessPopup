@@ -1,6 +1,6 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
 lAboutText2	 ~1~ ha sido desarrollado por Jean Lalonde usando la plataforma`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al Alemán: Edgar "Fast Edi" Hoffmann`nTraducción al Francés: Jean Lalonde`nTraducción al sueco:Åke Engelbrektson`nTraducción al italiano: Riccardo Leone`nTraducción al español: Kiketrucker (AccionglobalXSoft)`nTraducción al brasileño y portugues: Igor Ruckert`nTraducción al chino tradicional: Jess Yang`nOtras traducciones: (tu ayuda es bienvenida)`nComprobación de Inglés: (tu ayuda es bienvenida)`n`nIconos por: <a href="https://icons8.com/">Icons8</a>`nInstalador del programa: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>  
-lAboutText3	~1~ Jean Lalonde 2013-2016`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
+lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soporte en línea: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca de - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Seleccionar favorito para copiar 
@@ -65,7 +65,7 @@ lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
 lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
 lDialogFavoriteFolderLive	Carpeta dinámica (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones)   
-lDialogFavoriteFolderLiveColumns	Número de objetos por columna (vacío para ninguna columna)
+lDialogFavoriteFolderLiveColumns	Número de objetos por columna  (0 si no hay columnas) 
 lDialogFavoriteFolderLiveDocuments	Incluir documentos 
 lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensiones (extensiones separadas con espacios, por ejemplo "bak bk")
@@ -115,6 +115,7 @@ lDialogFavoriteTypesLocationLabels	Carpeta (ubicación)|Documento (ubicación y no
 lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Especial|Enlace|FTP|QAP|Menú|Grupo|Separador|Columna|..|Código|Compartido
 lDialogFileLabel	Documento
 lDialogFolderLabel	Carpeta
+lDialogFoldersPlaceholders	Puede insertar el marcador de posición {CUR_LOC} para insertar la ubicación donde se ha lanzado este favorito
 lDialogGetWinInfo	Para identificar la ventana de la cual desea obtener el título y la categoría, haga clic en la ventana de destino con el menú de teclas rápidas QAP [~1~].
 lDialogGetWInInfo2Clippoard	Ventana title:`n"~1~"`n`nClass:`n"~2~"`n`nCopiar esta info al Portapapeles?
 lDialogHotkeyInvisibleKeys	<a id="~1~">barra espaciadora</a>, <a id="~2~">tabulador</a>, <a id="~3~">intro</a> or <a id="~4~">escape</a> 
@@ -425,6 +426,7 @@ lOptionsHotkeyRemindersNo	No mostrar
 lOptionsHotkeyRemindersPrompt	Recordatorios teclas de acceso directo en el menú:
 lOptionsHotkeyRemindersShort	Mostrar nombres abreviados
 lOptionsIconSize	Tamaño de iconos del menú
+lOptionsIconsManageRows	Gestión de filas Iconos de la ventana`n(0 para máximo disponible) 
 lOptionsLanguage	Idioma
 lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified
 lOptionsMenuActiveWindow	En la ventana activa
