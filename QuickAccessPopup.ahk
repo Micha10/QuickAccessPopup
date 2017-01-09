@@ -1175,7 +1175,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.1
+;@Ahk2Exe-SetVersion 8.0.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1248,7 +1248,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -12204,10 +12204,12 @@ if (strLatestUsedAlpha <> "0.0")
 	}
 }
 
+; ###_V(strLatestVersions, g_strCurrentVersion, strLatestUsedBeta, strLatestSkippedBeta, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
 if (strLatestUsedBeta <> "0.0")
 {
 	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
 	{
+		; ###_D("out1")
 		gosub, Check4UpdateCleanup
 		return
 	}
@@ -12232,6 +12234,7 @@ if (strLatestUsedBeta <> "0.0")
 	}
 }
 
+; ###_V(strLatestVersions, g_strCurrentVersion, strLatestSkippedProd, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
 if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
 {
 	gosub, Check4UpdateCleanup
@@ -12280,6 +12283,7 @@ return
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
 ;------------------------------------------------------------
 {
+	###_V(A_ThisFunc, strFirstVersion, strSecondVersion)
 	; To make the two strings comparable by < and > operators 
 	; RegExReplace(..., "[^.]") removes all but dots
 	; StrLen() counts number of dots in version number
@@ -13906,6 +13910,7 @@ ReplaceAllInString(strThis, strFrom, strTo)
 Url2Var(strUrl)
 ;------------------------------------------------------------
 {
+	###_V("", strUrl)
 	objWebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	/*
 	if (A_LastError)
