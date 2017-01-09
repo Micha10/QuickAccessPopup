@@ -12283,7 +12283,7 @@ return
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
 ;------------------------------------------------------------
 {
-	###_V(A_ThisFunc, strFirstVersion, strSecondVersion)
+	; ###_V(A_ThisFunc, strFirstVersion, strSecondVersion)
 	; To make the two strings comparable by < and > operators 
 	; RegExReplace(..., "[^.]") removes all but dots
 	; StrLen() counts number of dots in version number
