@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.0.2 (2017-01-08)
+- fix Settings dialog box issue with Chinese translation
+- update current year in About dialog box
+- update to Sweeden, Italian, Portuguese, French and Spanish language files
+
 Version: 8.0.1 (2017-01-07)
 - add NbLiveFolderItemsMax default value to QuickAccessPopup.ini to make it easier to change this value
 - links updated in Support freeware dialog box
@@ -12744,7 +12749,8 @@ Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w380, % L(lAboutText1, g_strAppNameText, g_strAppVersion, A_PtrSize * 8) ;  ; A_PtrSize * 8 = 32 or 64
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
-Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169))
+FormatTime, strYear, , yyyy ; current time
+Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
 Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText4)
 Gui, 2:Font, s8 w400, Verdana
@@ -12756,6 +12762,8 @@ GuiCenterButtons(L(lAboutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "
 GuiControl, Focus, f_btnAboutClose
 Gui, 2:Show, AutoSize Center
 Gui, 1:+Disabled
+
+strYear := ""
 
 return
 ;------------------------------------------------------------
