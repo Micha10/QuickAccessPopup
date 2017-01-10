@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.0.3 (2017-01-09)
+- fix small issue with check for update command
+
 Version: 8.0.2 (2017-01-08)
 - fix Settings dialog box issue with Chinese translation
 - update current year in About dialog box
@@ -1175,7 +1178,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.2
+;@Ahk2Exe-SetVersion 8.0.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1248,7 +1251,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -12182,6 +12185,7 @@ strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
 strLatestVersionAlpha := arrLatestVersions3
 
+/*
 if (strLatestUsedAlpha <> "0.0")
 {
 	if FirstVsSecondIs(strLatestVersionAlpha, g_strCurrentVersion) = 1
@@ -12203,13 +12207,13 @@ if (strLatestUsedAlpha <> "0.0")
 		}
 	}
 }
+*/
 
 ; ###_V(strLatestVersions, g_strCurrentVersion, strLatestUsedBeta, strLatestSkippedBeta, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
 if (strLatestUsedBeta <> "0.0")
 {
 	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
 	{
-		; ###_D("out1")
 		gosub, Check4UpdateCleanup
 		return
 	}
@@ -13910,7 +13914,6 @@ ReplaceAllInString(strThis, strFrom, strTo)
 Url2Var(strUrl)
 ;------------------------------------------------------------
 {
-	###_V("", strUrl)
 	objWebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	/*
 	if (A_LastError)
