@@ -209,9 +209,9 @@ lDonateCheckPrompt4	visualizza promemoria della donazione
 lDonateCheckTitle	~1~ volte! - ~2~
 lDonateMenu	Supporta il Freeware!
 lDonatePlatformComment1	Puoi inviare donazioni con carta di credito (senza necessità di disporre di un conto) o dal tuo conto PayPal
-lDonatePlatformComment2	Ricevi un invio ufficiale, se ne hai bisogno per fartelo rimborsare.
+lDonatePlatformComment2	Supporta il mio lavoro con una donazione periodica a partire da 1$ al mese (carta di credito o Paypal)
 lDonatePlatformName1	Usando Paypal
-lDonatePlatformName2	Usando Share-it
+lDonatePlatformName2	Micro-donazione mensile
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -354,7 +354,7 @@ lMenuPublicLibraries	Raccolte Pubbliche
 lMenuQuickLaunch	Avvio veloce
 lMenuRecentFolders	Cartelle Recenti
 lMenuRecentItems	Oggetti Recenti
-lMenuRefreshMenu	Aggiorna il menù QAP
+lMenuRefreshMenu	Aggiorna i menù delle Cartelle Live
 lMenuReload	Riavvia ~1~
 lMenuRunAtStartup	&Esegui all'Avvio
 lMenuSettings	Impostazioni
@@ -372,6 +372,7 @@ lMenuUserPinned	Collegamenti evidenziati dall'utente
 lNavigateFileError	C'è stato un errore nell'aprire la cartella:`n~1~.
 lNavigateSpecialError	C'è stato un errore nell'aprire la cartella speciale #~1~.
 lOopsAddThisFolderTip	Per ottenere un risultato migliore dal comando "Aggiungi Questa Cartella":`n`n1) Attiva la finestra ~1~ contenente la cartella da aggiungere al menù.`n2) Apri il menù popup ussando ~2~.`n3) Seleziona "Aggiungi Questa Cartella" e salva il nuovo Preferito.
+lOopsAmpersandInName	L'ampersand "&" viene riservato per assegnare scorciatoie da tastiera nei nomi dei menù di Windows. Per visualizzare un ampersand nel nome di un menù, inseriscilo così: "&&".`n`nPer maggiori informazioni, cerca "ampersand" nelle FAQ del sito web di QAP.
 lOopsCannotCopyFavorite	Preferiti di tipo "~1~" non possono essere copiati.
 lOopsChangeFolderInDialogAlert	Hai intenzione di cambiare cartella in questa casella di dialogo? Per poter navigare da una casella di dialogo, è necessario abilitare un'opzione (prima casella di selezione nel tab "Generale").`n`nVuoi aprire la finestra delle Opzioni?
 lOopsCouldNotOpenSpecialFolder	~1~ non è riuscito ad aprire la Cartella Speciale: "~2~".
