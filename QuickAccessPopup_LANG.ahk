@@ -377,6 +377,7 @@ global lMenuUserPinned := "User Pinned"
 global lNavigateFileError := "An error occurred while opening the folder:`n~1~."
 global lNavigateSpecialError := "An error occurred while opening the special folder #~1~."
 global lOopsAddThisFolderTip := "For better results with the ""Add This Folder"" command:`n`n1) Activate the ~1~ window containing the folder to add to your menu.`n2) Open the popup menu using ~2~.`n3) Select ""Add This Folder"" and save your new favorite."
+global lOopsAmpersandInName := "The ampersand ""&"" in Windows menu names is used to set keyboard shortcuts. To display an ampersand in a menu name, enter ""&&"".`n`nFor more info, search for ""ampersand"" in the FAQ on QAP's website."
 global lOopsCannotCopyFavorite := "Favorites of type ""~1~"" cannot be copied." ; new
 global lOopsChangeFolderInDialogAlert := "Did you want to change folder in this dialog box? In order to navigate inside a dialog box, you have to enable an option (first checkbox in the ""General"" tab).`n`nDo you want to open the Options window?" ; new
 global lOopsCouldNotOpenSpecialFolder := "~1~ could not open the special folder: ""~2~""."

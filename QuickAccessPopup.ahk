@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.0.4 (2017-01-11)
+- fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
+- alert about menu shortcuts to user when inserting ampersand (&) in short name for the menu
+- update to Chinese and French language file
+
 Version: 8.0.3 (2017-01-09)
 - fix small issue with check for update command
 
@@ -7958,6 +7963,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
+	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
+		Oops(lOopsAmpersandInName)
+	
 	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_chkUseDefaultWindowPosition ? 0 : 1)
@@ -8666,7 +8674,7 @@ Gui, 2:Add, Text, x10 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, lDialogHo
 Gui, 2:Add, Listview
 	, % "vf_lvHotkeysManageList Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
 	. " gHotkeysManageListEvents x10 y+10 w" . intWidth - 40. " h340"
-	, #|%lDialogHotkeysManageListHeader%
+	, #|%lDialogHotkeysManageListHeader%|Object Position (hidden)
 
 Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lDialogHotkeysManageListSeeAllFavorites%
 Gui, 2:Add, Checkbox, x+50 yp vf_blnSeeShortHotkeyNames gCheckboxSeeShortHotkeyNames, %lDialogHotkeysManageListSeeShortHotkeyNames%
@@ -8696,7 +8704,7 @@ Gui, 2:ListView, f_lvHotkeysList
 if (A_GuiEvent = "DoubleClick")
 {
 	intItemPosition := LV_GetNext()
-	LV_GetText(strFavoritePosition, intItemPosition, 1)
+	LV_GetText(strFavoritePosition, intItemPosition, 7)
 	LV_GetText(strMenuPath, intItemPosition, 2)
 	LV_GetText(strHotkeyType, intItemPosition, 4)
 	
@@ -8781,6 +8789,7 @@ g_intHotkeyListOrder := ""
 LV_ModifyCol(1, "Integer Sort")
 Loop, % LV_GetCount("Column") - 1
 	LV_ModifyCol(A_Index + 1, "AutoHdr")
+LV_ModifyCol(7, 0)
 
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
@@ -8811,7 +8820,8 @@ RecursiveLoadMenuHotkeys(objCurrentMenu)
 			LV_Add(, g_intHotkeyListOrder
 				, objCurrentMenu.MenuPath, objCurrentMenu[A_Index].FavoriteName, strThisType
 				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
-				, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation))
+				, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
+				, A_Index)
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)

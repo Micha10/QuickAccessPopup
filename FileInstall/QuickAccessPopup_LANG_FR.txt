@@ -210,9 +210,9 @@ lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
-lDonatePlatformComment2	Recevez une facture officielle si vous en avez besoin pour un remboursement
+lDonatePlatformComment2	Soutenez mon travail de façon régulière à partir de 1 $ par mois (carte de crédit ou Paypal)
 lDonatePlatformName1	Avec Paypal
-lDonatePlatformName2	Avec Share-it
+lDonatePlatformName2	Micro-dons mensuels
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -356,7 +356,7 @@ lMenuPublicLibraries	Bibliothèques (public)
 lMenuQuickLaunch	Lancement rapide
 lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
-lMenuRefreshMenu	Recharger le menu de QAP
+lMenuRefreshMenu	Actualiser les Dossiers actifs
 lMenuReload	Redémarrer ~1~
 lMenuRunAtStartup	Exécuter au démarrage
 lMenuSettings	Paramètres
@@ -374,6 +374,7 @@ lMenuUserPinned	Epinglé par l'utilisateur
 lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1~.
 lNavigateSpecialError	Une erreur s'est produite lors de l'ouverture du dossier spécial #~1~.
 lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter ce dossier au menu":`n`n1) Activez la fenêtre ~1~ contenant le dossier à ajouter au menu.`n2) Ouvrez le menu popup avec ~2~.`n3) Choisissez "Ajouter ce dossier au menu" et enregistrez votre nouveau favori.
+lOopsAmpersandInName	L'esperluette "&" dans les noms de menus de Windows est utilisée pour définir des raccourcis clavier. Pour afficher une esperluette dans un nom de menu, entrez "&&". `n`nPour plus d'informations, recherchez "ampersand" dans la FAQ du site Web de QAP.
 lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
