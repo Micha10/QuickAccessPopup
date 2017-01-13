@@ -210,9 +210,7 @@ lDonateCheckPrompt4	a exibição de lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoie o Freeware!
 lDonatePlatformComment1	Doe com cartão de crédito (não é necessário criar uma conta) ou com a sua conta PayPal
-lDonatePlatformComment2	Receba uma factura oficial se necessita de ser reembolsado
 lDonatePlatformName1	Usando Paypal
-lDonatePlatformName2	Usando Share-it
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -356,7 +354,6 @@ lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
-lMenuRefreshMenu	Actualizar o menu QAP
 lMenuReload	Reiniciar ~1~
 lMenuRunAtStartup	Executa&r no Arranque
 lMenuSettings	Definições
