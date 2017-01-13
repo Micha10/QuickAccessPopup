@@ -209,9 +209,9 @@ lDonateCheckPrompt4	mostrar recordatorios de conación
 lDonateCheckTitle	~1~ vez! - ~2~
 lDonateMenu	Apoyar este programa gratuito!
 lDonatePlatformComment1	Donar con su tarjeta de crédito (No es necesario crear una cuenta) o con su cuenta de PayPal
-lDonatePlatformComment2	Reciba una factura oficial, si lo necesita para un reembolso
+lDonatePlatformComment2	Contribuye a mi trabajo con donaciones regulares a partir de $ 1 por mes (tarjeta de crédito o Paypal)
 lDonatePlatformName1	Con Paypal
-lDonatePlatformName2	Con Share-it
+lDonatePlatformName2	Micro-donación mensual
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -355,7 +355,7 @@ lMenuPublicLibraries	Bibliotecas (publico)
 lMenuQuickLaunch	Lanzador rápido
 lMenuRecentFolders	Ubicaciones recientes
 lMenuRecentItems	Documentos recientes
-lMenuRefreshMenu	Refrescar QAP menú 
+lMenuRefreshMenu	Actualizar menús de carpetas activas
 lMenuReload	Reiniciar ~1~ 
 lMenuRunAtStartup	Ejecutar al Inicio
 lMenuSettings	Configuración
@@ -373,6 +373,7 @@ lMenuUserPinned	Adherido al Usuario
 lNavigateFileError	Se produjo un error al abrir la carpeta:`n~1~.
 lNavigateSpecialError	Se produjo un error al abrir la carpeta especial #~1~.
 lOopsAddThisFolderTip	Para obtener mejores resultados con el comando "Añadir esta carpeta al menú" :`n`n1) Activar la ventana ~1~que contiene la carpeta para añadir a su menú.`n2) Abra el menú emergente usando ~2~.`n3) Selecione "Añadir esta carpeta al menú" y guarde su nuevo favorito.
+lOopsAmpersandInName	El signo "&" en los nombres de menús de Windows se utiliza para establecer atajos de teclado. Para mostrar un símbolo de unión en un nombre de menú, introduzca "&&".`n`nPara más información, buscar "ampersand" en FAQ del sitio web de QAP's.
 lOopsCannotCopyFavorite	Tipos de favoritos "~1~" cannot be copied.
 lOopsChangeFolderInDialogAlert	¿Usted desea cambiar la carpeta en este cuadro de diálogo? Para navegar dentro de una caja de diálogo, tiene que habilitar una opción (primera casilla de verificación en la pestaña "General") .`n`nDo desea abrir la ventana Opciones?
 lOopsCouldNotOpenSpecialFolder	~1~ no se puede abrir la carpeta especial: "~2~".
