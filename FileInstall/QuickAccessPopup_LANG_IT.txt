@@ -20,6 +20,7 @@ lDiagModeIntro	Invia questo file a: ahk@jeanlalonde.ca con una descrizione della
 lDiagModeSee	Vuoi visualizzare il file con le informazioni per il debug?
 lDialogActivateAlreadyRunning	Se l'applicazione è già in esecuzione, viene resa attiva invece di eseguirla`n(se la destinazione è identica)
 lDialogAdd	Aggiungi
+lDialogAddAmpersand	&Aggiungi
 lDialogAddEditFavoriteTitle	~1~ Favorite: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Aggiungi un Preferito - ~1~ ~2~
 lDialogAddFavoriteTabs	Impostazioni di base|Menù Opzioni|Finestra Opzioni|Impostazioni Avanzate
@@ -48,7 +49,9 @@ lDialogChangeHotkeyNoteSnippet	Nota: Questo frammento (o snippet) verrà associat
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
 lDialogContinue	Continua
+lDialogContinueAmpersand	C&ontinua
 lDialogCopy	Copia
+lDialogCopyAmpersand	C&opia
 lDialogCtrl	Control
 lDialogCtrlShort	Ctrl
 lDialogEdit	Modifica
@@ -100,7 +103,7 @@ lDialogFavoriteSnippetSendModeText	Modalità Testo
 lDialogFavoritesParentMenuMove	Sposta i preferiti di ~1~ in questo menù.
 lDialogFavoriteType	Favorite Tipo
 lDialogFavoriteTypesHelp1	Crea una scorciatoia per una "Cartella" usata di frequente.`n`nAssegna il nome del menù del Preferito, il percorso e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare la posizione della finestra e impostazioni del file manager.
-lDialogFavoriteTypesHelp13	Crea uno "Snippet testuale". Assegna il titolo dello snippet per il menù, il suo contenuto e varie opzioni del menù.`n`nIn Opzioni Avanzate, scegli "Modalità Testo" per incollare snippet di testo come faresti con gli Appunti o scegli "Modalità macro" per inviare snippet come se premessi dei tasti (inclusi tasti speciali, vedi Aiuto).
+lDialogFavoriteTypesHelp13	Crea uno "Snippet". Assegna il titolo dello snippet per il menù, il suo contenuto e varie opzioni del menù.`n`nIn Opzioni Avanzate, scegli "Modalità Testo" per incollare snippet di testo come faresti con gli Appunti o scegli "Modalità macro" per inviare snippet come se premessi dei tasti (inclusi tasti speciali, vedi Aiuto).
 lDialogFavoriteTypesHelp14	Crea un "Menù Condiviso" per usare Preferiti su sistemi differenti usando uno stesso file di impostazioni posto in una posizione esterna.`n`nAssegna il nome del menù condiviso, la posizione del file delle impostazioni "esterne" e varie opzioni.`n`nI Menù Condivisi possono essere editati come i normali menù, a meno che non siano impostati in sola-lettura (vedi aiuto).
 lDialogFavoriteTypesHelp2	Crea una scorciatoia per un "Documento".`n`nAssegna il nome del menù del Preferito, il percorso e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare una specifica applicazione per aprire il documento, aggiungere parametri opzionali e assegnare la posizione della finestra.
 lDialogFavoriteTypesHelp3	Crea una scorciatoia per una "Applicazione" (programma, file batch o script).`n`nRicerca il file eseguibile o seleziona uno dei programmi attualmente in esecuzione. Seleziona varie impostazioni del menù.`n`nLe impostazioni avanzate permettono di selezionare una "cartella di partenza", aggiungere parametri opzionali e assegnare la posizione della finestra.
@@ -110,7 +113,7 @@ lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il 
 lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- ecc.
 lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù o spostali da altri sottomenù o gruppi cliccando su "Edit".
 lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo gruppo o spostali da altri sottomenù o gruppi cliccando su "Edit".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciacuno Preferito da ripristinare.
-lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|&Cartella Speciale|&Link|Sito F&TP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso
+lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso
 lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Contenuto|File Impostazioni "esterne" (percorso)|
 lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Interruzione Colonna|..|Snippet|Condiviso
 lDialogFileLabel	Documento
@@ -155,6 +158,7 @@ lDialogNone	Nessuno
 lDialogNormal	Normale
 lDialogOff	Assente
 lDialogOK	OK
+lDialogOKAmpersand	&OK
 lDialogOn	Presente
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
@@ -228,8 +232,10 @@ lDonateTitle	Supporta il freeware! - ~1~ ~2~
 lGui2Close	Chiudi
 lGuiAbout	Crediti
 lGuiAddFavorite	Aggiungi
-lGuiCancel	&Annulla
-lGuiClose	&Chiudi
+lGuiCancel	Annulla
+lGuiCancelAmpersand	&Annulla
+lGuiClose	Chiudi
+lGuiCloseAmpersand	&Chiudi
 lGuiDonate	Supporto
 lGuiDropFilesHelp	Drag and Drop (promemoria)
 lGuiDropFilesIncentive	Puoi trascinare i seguenti tipi di preferiti`nsulla finestra ~1~:`n`n- ~2~`n- ~3~`n- ~4~
@@ -248,13 +254,15 @@ lGuiHotkeysHelpText	Giù: Seleziona il Preferito successivo`nSu: Seleziona Prefer
 lGuiLoginName	Nome di Login
 lGuiLvFavoritesHeader	Nome|Tipo|Locazionen o contenuto
 lGuiMove	Sposta
+lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
 lGuiResetDefault	Ripristina hotkey predefinito
-lGuiSave	&Salva
-lGuiSaveAndClose	&Salva`n&& Chiudi
-lGuiSaveAndStay	Salva`n&& &Ricarica
+lGuiSave	Salva
+lGuiSaveAmpersand	&Salva
+lGuiSaveAndCloseAmpersand	&Salva`n&& Chiudi
+lGuiSaveAndStayAmpersand	Salva`n&& &Ricarica
 lGuiSaveToUpdateBacklinks	Salva per aggiornare back links
 lGuiSubmenuDropdownLabel	Menù o gruppo da modificare:
 lGuiTitle	Impostazioni - ~1~ ~2~
@@ -262,7 +270,7 @@ lHelpTabAddingFavorite	Aggiungere Preferiti
 lHelpTabGettingStarted	Per Cominciare
 lHelpTabQAPFeatures	Funzionalità di QAP
 lHelpTabTipsAndTricks	Trucchi e suggerimenti
-lHelpText11	Appena lanciato, QAP  (Quick Access Popup) aggiunge un'icona nell'area notifiche e resta in attesa dei tuoi comandi. Quando vuoi aprire una delle tue CARTELLE, DOCUMENTI, APPLICAZIONI, LINK WEB, siti FTP o SNIPPET di testo preferiti, semplicemente premi il tasto dedicato per QAP [~1~] o [~2~] e, nel menù popup, seleziona il Preferito desiderato.
+lHelpText11	Appena lanciato, QAP  (Quick Access Popup) aggiunge un'icona nell'area notifiche e resta in attesa dei tuoi comandi. Quando vuoi aprire una delle tue CARTELLE, DOCUMENTI, APPLICAZIONI, LINK WEB, siti FTP o SNIPPET preferiti, semplicemente premi il tasto dedicato per QAP [~1~] o [~2~] e, nel menù popup, seleziona il Preferito desiderato.
 lHelpText12	Quando selezioni una CARTELLA preferita in Windows Explorer o in una finestra di dialogo per file*, Quick Access Popup istantaneamente "navigherà" dalla finestra attuale a tale cartella! * Questa funzionalità deve essere abilitata in Opzioni.
 lHelpText13	Per forzare l'apertura della cartella in una nuova finestra, premi i tasti Alternativi [~1~] o [~2~]. Nel menù Alternativo, seleziona "Apri in una nuova finestra", poi seleziona la cartella voluta. Il Menù Alternativo offre diverse altre funzionalità.
 lHelpText14	Scegli "Impostazioni" per personalizzare il tuo menù di Quick Access Popup. Puoi aggiungere Preferiti al tuo Menù. Puoi spostarli, rinominarli o eliminarli. Puoi anche aggiungere SOTTOMENU, GRUPPI o MENU' CONDIVISI. Scegli il "Menù o gruppo da editare:" nell'elenco a discesa. Clicca "Salva" per mantenere le modifiche.
@@ -309,7 +317,7 @@ lImpExpSource	Sorgente
 lImpExpTitle	Impostazioni per Importare / Esportare - ~1~
 lImpExpUnsavedSettings	Una finestra delle impostazioni è già aperta, senza aver salvato eventuali cambiamenti.`n`nPer favore, chiudi le finestre delle impostazioni prima di importarle o esportarle.
 lMainMenuName	Principale
-lMenuAbout	C&rediti
+lMenuAboutAmpersand	C&rediti
 lMenuAddFavorite	Aggiungi Preferito
 lMenuAddThisFolder	Aggiungi Questa Cartella
 lMenuAddThisFolderXpress	Aggiungi questa Cartella Express
@@ -356,7 +364,7 @@ lMenuRecentFolders	Cartelle Recenti
 lMenuRecentItems	Oggetti Recenti
 lMenuRefreshMenu	Aggiorna i menù delle Cartelle Live
 lMenuReload	Riavvia ~1~
-lMenuRunAtStartup	&Esegui all'Avvio
+lMenuRunAtStartupAmpersand	&Esegui all'Avvio
 lMenuSettings	Impostazioni
 lMenuStartMenu	Menù Avvio
 lMenuStartup	Esecuzione Automatica
@@ -366,7 +374,7 @@ lMenuSwitchSettings	Cambiare il file delle Impostazioni
 lMenuSystemCertificates	Certificati di Sistema
 lMenuTemplates	Modelli
 lMenuTemporaryFiles	File temporanei
-lMenuUpdate	Cerca &Aggiornamenti
+lMenuUpdateAmpersand	Cerca &Aggiornamenti
 lMenuUserFolder	Cartella Utente
 lMenuUserPinned	Collegamenti evidenziati dall'utente
 lNavigateFileError	C'è stato un errore nell'aprire la cartella:`n~1~.

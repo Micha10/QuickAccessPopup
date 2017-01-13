@@ -20,6 +20,7 @@ lDiagModeIntro	Envoyez ce fichier à ahk@jeanlalonde.ca avec une description de l
 lDiagModeSee	Voulez-vous consulter le fichier de diagnostique?
 lDialogActivateAlreadyRunning	Si l'application est déjà lancée, l'activer au lieu de la relancer`n(l'application doit avoir exactement le même emplacement)
 lDialogAdd	Ajouter
+lDialogAddAmpersand	&Ajouter
 lDialogAddEditFavoriteTitle	~1~ un favori - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~ ~2~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
@@ -48,7 +49,9 @@ lDialogChangeHotkeyNoteSnippet	Note: Le fragment sera relié à ce nouveau raccour
 lDialogChangeHotkeyPopup	Ceci est un raccourci de menu popup.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyTitle	Modifier le raccourci - ~1~ ~2~
 lDialogContinue	Poursuivre
+lDialogContinueAmpersand	&Poursuivre
 lDialogCopy	Copier
+lDialogCopyAmpersand	C&opier
 lDialogCtrl	Contrôle
 lDialogCtrlShort	Ctrl
 lDialogEdit	Modifier
@@ -156,6 +159,7 @@ lDialogNone	Aucun
 lDialogNormal	Normal
 lDialogOff	Inactif
 lDialogOK	OK
+lDialogOKAmpersand	&OK
 lDialogOn	Actif
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
@@ -230,7 +234,9 @@ lGui2Close	Fermer
 lGuiAbout	À propos
 lGuiAddFavorite	Ajouter
 lGuiCancel	Annuler
+lGuiCancelAmpersand	&Annuler
 lGuiClose	Fermer
+lGuiCloseAmpersand	&Fermer
 lGuiDonate	Soutien
 lGuiDropFilesHelp	Aide glisser-déposer
 lGuiDropFilesIncentive	Vous pouvez "glisser-déposer" les types de favoris`nsuivants sur la fenêtre de ~1~:`n`n- ~2~`n- ~3~`n- ~4~
@@ -249,14 +255,16 @@ lGuiHotkeysHelpText	Flèche Bas: Sélectioner le prochain favori`nFlèche Haut: Sél
 lGuiLoginName	Code d'utilisateur
 lGuiLvFavoritesHeader	Nom|Type|Emplacement ou contenu
 lGuiMove	Déplacer
+lGuiMoveAmpersand	&Déplacer
 lGuiOptions	Options
 lGuiPassword	Mot de passe
 lGuiPasswordNotEncripted	Note: Le mot de passe ne sera PAS encrypté lorsqu'il sera transmis sur Internet.
 lGuiRemoveFavorite	Supprimer
 lGuiResetDefault	Restaurer le raccourci par défaut
 lGuiSave	Enregistrer
-lGuiSaveAndClose	&Enregistrer`net fermer
-lGuiSaveAndStay	&Enregistrer`net raffraîchir
+lGuiSaveAmpersand	&Enregistrer
+lGuiSaveAndCloseAmpersand	&Enregistrer`net fermer
+lGuiSaveAndStayAmpersand	Enregistrer`net &raffraîchir
 lGuiSaveToUpdateBacklinks	Enregistrer pour mettre à jour les liens de retour
 lGuiSubmenuDropdownLabel	Menu à modifier:
 lGuiTitle	Paramètres - ~1~ ~2~
@@ -311,7 +319,7 @@ lImpExpSource	Source
 lImpExpTitle	Importer / exporter la configuration - ~1~
 lImpExpUnsavedSettings	Une fenêtre de configuration est ouverte, peut-être avec des changements non sauvegardés.`n`nVeuillez fermer les fenêtres de configuration avant d'importer ou d'exporter la configuration.
 lMainMenuName	Principal
-lMenuAbout	À propos
+lMenuAboutAmpersand	À &propos
 lMenuAddFavorite	Ajouter un favori
 lMenuAddThisFolder	Ajouter ce dossier au menu
 lMenuAddThisFolderXpress	Ajouter ce dossier Express
@@ -358,7 +366,7 @@ lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
 lMenuRefreshMenu	Actualiser les Dossiers actifs
 lMenuReload	Redémarrer ~1~
-lMenuRunAtStartup	Exécuter au démarrage
+lMenuRunAtStartupAmpersand	&Exécuter au démarrage
 lMenuSettings	Paramètres
 lMenuStartMenu	Menu Démarrer
 lMenuStartup	Démarrage
@@ -368,7 +376,7 @@ lMenuSwitchSettings	Changer de fichier de configuration
 lMenuSystemCertificates	Certificats système
 lMenuTemplates	Modèles
 lMenuTemporaryFiles	Fichiers temporaires
-lMenuUpdate	Vérifier la mise à jour
+lMenuUpdateAmpersand	&Vérifier la mise à jour
 lMenuUserFolder	Dossier de l'utilisateur
 lMenuUserPinned	Epinglé par l'utilisateur
 lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1~.

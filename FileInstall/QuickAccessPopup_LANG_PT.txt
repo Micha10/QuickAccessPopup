@@ -20,6 +20,7 @@ lDiagModeIntro	Enviar este ficheiro para ahk@jeanlalonde.ca com a descrição da s
 lDiagModeSee	Deseja ver o ficheiro de diagnóstico?
 lDialogActivateAlreadyRunning	Se o programa estiver em execução, activar em vez de iniciar`n(o programa deve estar exactamente no mesmo lugar)
 lDialogAdd	Adicionar
+lDialogAddAmpersand	&Adicionar
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Adicionar Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Definições Básicas|Opções de Menu|Opções de Janela|Definições Avançadas
@@ -48,7 +49,9 @@ lDialogChangeHotkeyNoteSnippet	Nota: Esta amostra será associada à nova tecla de
 lDialogChangeHotkeyPopup	Trata-se de uma tecla de atalho do menu emergente.`n`nDeseja manusear "~1~" em "~2~"?
 lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
+lDialogContinueAmpersand	C&ontinuar
 lDialogCopy	Copiar
+lDialogCopyAmpersand	C&opiar
 lDialogCtrl	Controlo
 lDialogCtrlShort	Ctrl
 lDialogEdit	Editar
@@ -156,6 +159,7 @@ lDialogNone	Nenhum
 lDialogNormal	Normal
 lDialogOff	Desligado
 lDialogOK	OK
+lDialogOKAmpersand	&OK
 lDialogOn	Ligado
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
@@ -227,8 +231,10 @@ lDonateTitle	Apoie o freeware! - ~1~ ~2~
 lGui2Close	Fechar
 lGuiAbout	Acerca
 lGuiAddFavorite	Adicionar
-lGuiCancel	&Cancelar
-lGuiClose	Fe&char
+lGuiCancel	Cancelar
+lGuiCancelAmpersand	&Cancelar
+lGuiClose	Fechar
+lGuiCloseAmpersand	Fe&char
 lGuiDonate	Doar
 lGuiDropFilesHelp	Ajuda Arrastar && Largar
 lGuiDropFilesIncentive	Pode Arrastar & Largar os seguintes tipos de favoritos`nna janela ~1~:`n`n- ~2~`n- ~3~`n- ~4~
@@ -247,14 +253,16 @@ lGuiHotkeysHelpText	Baixo: Selecciona o próximo favorito`nCima: Selecciona o ant
 lGuiLoginName	Nome de Utilizador
 lGuiLvFavoritesHeader	Nome|Tipo|Localização ou conteúdo
 lGuiMove	Mover
+lGuiMoveAmpersand	&Mover
 lGuiOptions	Opções
 lGuiPassword	Palavra-passe
 lGuiPasswordNotEncripted	Nota: a palavra-passe NÃO será encriptada ao ser enviada para a Internet.
 lGuiRemoveFavorite	Remover
 lGuiResetDefault	Repor tecla de atalho padrão
-lGuiSave	&Guardar
-lGuiSaveAndClose	&Guardar`n&& Fechar
-lGuiSaveAndStay	Guardar`n&& &Recarregar
+lGuiSave	Guardar
+lGuiSaveAmpersand	&Guardar
+lGuiSaveAndCloseAmpersand	&Guardar`n&& Fechar
+lGuiSaveAndStayAmpersand	Guardar`n&& &Recarregar
 lGuiSaveToUpdateBacklinks	Guardar para actualizar ligações de retorno
 lGuiSubmenuDropdownLabel	Menu ou grupo para editar:
 lGuiTitle	Definições - ~1~ ~2~
@@ -309,7 +317,7 @@ lImpExpSource	Origem
 lImpExpTitle	Definições de Importação / Exportação - ~1~
 lImpExpUnsavedSettings	Está aberta uma janela de definições, possivelmente com alterações não guardadas.`n`nPEncerre as janelas de definições antes de importar ou exportar definições.
 lMainMenuName	Principal
-lMenuAbout	A&cerca
+lMenuAboutAmpersand	A&cerca
 lMenuAddFavorite	Adicionar Favorito
 lMenuAddThisFolder	Adicionar Esta Pasta
 lMenuAddThisFolderXpress	Adicionar Esta Pasta Expresso
@@ -355,7 +363,7 @@ lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
 lMenuReload	Reiniciar ~1~
-lMenuRunAtStartup	Executa&r no Arranque
+lMenuRunAtStartupAmpersand	Executa&r no Arranque
 lMenuSettings	Definições
 lMenuStartMenu	Menu Iniciar
 lMenuStartup	Arranque
@@ -365,7 +373,7 @@ lMenuSwitchSettings	Mudar de ficheiro de definições
 lMenuSystemCertificates	Certificados do Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheiros Temporários
-lMenuUpdate	Procurar act&ualizações
+lMenuUpdateAmpersand	Procurar act&ualizações
 lMenuUserFolder	Pasta do Utilizador
 lMenuUserPinned	Fixado pelo Utilizador
 lNavigateFileError	Ocorreu um erro ao abrir a pasta:`n~1~.

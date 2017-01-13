@@ -20,6 +20,7 @@ lDiagModeIntro	Enviar este fichero a ahk@jeanlalonde.ca con una descripción de l
 lDiagModeSee	Quiere consultar el fichero de diagnóstico?
 lDialogActivateAlreadyRunning	Si la aplicación ya está en marcha, activarla en lugar de lanzar`n(aplicación debe estar exactamente en el mismo lugar) 
 lDialogAdd	Añadir
+lDialogAddAmpersand	&Añadir
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Añadir Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Ajustes básicos|Menú de Opciones|Opciones de ventana|Ajustes avanzados
@@ -48,7 +49,9 @@ lDialogChangeHotkeyNoteSnippet	Nota: Este fragmento se vinculará a la nueva tecl
 lDialogChangeHotkeyPopup	Se trata de un acceso directo del menú emergente.`n`n¿Quiere gestionar? "~1~" in "~2~"?
 lDialogChangeHotkeyTitle	Modificar acceso directo - ~1~ ~2~
 lDialogContinue	Continuar
+lDialogContinueAmpersand	C&ontinuar
 lDialogCopy	Copiar
+lDialogCopyAmpersand	C&opiar
 lDialogCtrl	Control
 lDialogCtrlShort	Ctrl
 lDialogEdit	Modificar
@@ -110,7 +113,7 @@ lDialogFavoriteTypesHelp6	Crear un acceso directo a un "FTP Sitio".`n`nEstablece
 lDialogFavoriteTypesHelp7	Inserte cualquier lugar en su menú "Quick Access Popup Características" como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados en un "Submenú".`n`nDele a su submenú un nombre y seleccione las opciones de menú.`n`nAñadir favoritos a su submenú o moverlos a otros submenús o grupos utilizando el botón "Editar".
 lDialogFavoriteTypesHelp9	Lance un "grupo" de favoritos, todo en un acceso directo!`n`nDele a su grupo un nombre y configure varias opciones para su grupo.`n`nAñadir favoritos a tu grupo o moverlos a otros submenús o grupos utilizando el botón "Editar".`n`nAjustes avanzados permiten controlar la velocidad de la restauración mediante la inserción de un retardo entre cada favorito para restaurar.
-lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta Especial|&Link|F&TP Sitio|&QAP Característica|Sub&menu|&Grupo||||Texto &Fragmento|&Menú Externo
+lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|Ca&rpeta Especial|&Link|&FTP Sitio|&QAP Característica|&Submenu|&Grupo||||Fragm&ento|&Menú Externo
 lDialogFavoriteTypesLocationLabels	Carpeta (ubicación)|Documento (ubicación y nombre del archivo)|Applicación (ubicación y el nombre del archivo)||Link (URL)|FTP Sitio (URL)|||||||Contenido|Menú externo (ubicación y nombre del archivo)|
 lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Especial|Enlace|FTP|QAP|Menú|Grupo|Separador|Columna|..|Código|Compartido
 lDialogFileLabel	Documento
@@ -155,6 +158,7 @@ lDialogNone	Ninguno
 lDialogNormal	Normal
 lDialogOff	Apagado
 lDialogOK	Si
+lDialogOKAmpersand	&Si
 lDialogOn	Encendido
 lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
@@ -229,7 +233,9 @@ lGui2Close	Cerrar
 lGuiAbout	Acerca de
 lGuiAddFavorite	Añadir
 lGuiCancel	Anular
+lGuiCancelAmpersand	&Anular
 lGuiClose	Cerrar
+lGuiCloseAmpersand	&Cerrar
 lGuiDonate	Donar
 lGuiDropFilesHelp	Uso de arrastrar y soltar
 lGuiDropFilesIncentive	Puede arrastrar y soltar los tipos de favoritos`nsiguiente en la ventana ~1~:`n`n- ~2~`n- ~3~`n- ~4~
@@ -248,14 +254,16 @@ lGuiHotkeysHelpText	Abajo: Selecione siguiente favorito`nUp: Seleccione anterior
 lGuiLoginName	Nombre inicio de sesión
 lGuiLvFavoritesHeader	Nombre|Tipo|Localización o contenido
 lGuiMove	Mover
+lGuiMoveAmpersand	&Mover
 lGuiOptions	Opciones
 lGuiPassword	Contraseña
 lGuiPasswordNotEncripted	Nota: La contraseña no será encriptada cuando se envía por Internet.
 lGuiRemoveFavorite	Suprimir
 lGuiResetDefault	Restaurar el lanzador por defecto
 lGuiSave	Guardar
-lGuiSaveAndClose	&Guardar`n&& Cerrar
-lGuiSaveAndStay	Guardar`n&& &Recargar
+lGuiSaveAmpersand	&Guardar
+lGuiSaveAndCloseAmpersand	&Guardar`n&& Cerrar
+lGuiSaveAndStayAmpersand	Guardar`n&& &Recargar
 lGuiSaveToUpdateBacklinks	Guardar para actualizar los vínculos de retroceso 
 lGuiSubmenuDropdownLabel	Menú o grupo a editar:
 lGuiTitle	Configuración - ~1~ ~2~
@@ -263,7 +271,7 @@ lHelpTabAddingFavorite	Añadiendo favoritos
 lHelpTabGettingStarted	Primer paso
 lHelpTabQAPFeatures	QAP Funciones
 lHelpTabTipsAndTricks	Consejos y trucos
-lHelpText11	Al iniciar FoldersPopup, un icono espera sus órdenes en el área de notificaciones. Cuando se desea abrir uno de sus favoritos CARPETAS, DOCUMENTOS, APLICACIONES, LINKS WEB o SITIOS FTP, Fragmentos de texto favoritos, simplemente pulse la tecla de acceso directo QAP [~1~] ó [~2~] y, en el menú emergente, selecionar el favorito deseado.
+lHelpText11	Al iniciar FoldersPopup, un icono espera sus órdenes en el área de notificaciones. Cuando se desea abrir uno de sus favoritos CARPETAS, DOCUMENTOS, APLICACIONES, LINKS WEB, SITIOS FTP o FRAGMENTOS favoritos, simplemente pulse la tecla de acceso directo QAP [~1~] ó [~2~] y, en el menú emergente, selecionar el favorito deseado.
 lHelpText12	Cuando se selecciona una carpeta de favoritos en el Explorador de Windows o un cuadro de diálogo de archivo*, Quick Access Popup  instantaneamente "navega" la ventana actual a esta carpeta! * Esta función debe estar habilitada en las Opciones.
 lHelpText13	Para forzar la apertura de la carpeta en una ventana nueva, pulsar las teclas de acceso rápido alternativas [~1~] or [~2~]. En el menú Alternativo, seleccione "Abrir en ventana nueva", a continuación, seleccione la carpeta deseada. El menú Alternativo ofrece varias otras funcionalidades.
 lHelpText14	Elija "Configuración" para personalizar el menú emergente de Quick Access Popup. Puede añadir los favoritos a su menú. Puede mover, renombrar, borrar. Puede también añadir los SUB-MENUS, de los GRUPOS o de los SUB-MENUS COMPARTIDOS. Elija "Menú o grupo para modificar:" en la lista desplegable. Clique en "Guardar" para conservar los cambios.
@@ -310,7 +318,7 @@ lImpExpSource	Origen
 lImpExpTitle	Importar / exportar la configuración - ~1~
 lImpExpUnsavedSettings	Una ventana de configración está abierta, posiblemente con cambios no guardados.`n`nQuiee cerrar las ventanas de configuración antes de importar o exportar la configuración.
 lMainMenuName	Principal
-lMenuAbout	Acerca de
+lMenuAboutAmpersand	&Acerca de
 lMenuAddFavorite	Añadir Favorito
 lMenuAddThisFolder	Añadir esta carpeta al menú
 lMenuAddThisFolderXpress	Añadir esta carpeta Express 
@@ -357,7 +365,7 @@ lMenuRecentFolders	Ubicaciones recientes
 lMenuRecentItems	Documentos recientes
 lMenuRefreshMenu	Actualizar menús de carpetas activas
 lMenuReload	Reiniciar ~1~ 
-lMenuRunAtStartup	Ejecutar al Inicio
+lMenuRunAtStartupAmpersand	&Ejecutar al Inicio
 lMenuSettings	Configuración
 lMenuStartMenu	Menú de Inicio
 lMenuStartup	Inicio
@@ -367,7 +375,7 @@ lMenuSwitchSettings	Changer del archivo de configuración
 lMenuSystemCertificates	Certificados de Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheros temporales
-lMenuUpdate	Compruebe Actualización
+lMenuUpdateAmpersand	&Compruebe Actualización
 lMenuUserFolder	Carpeta de Usuario
 lMenuUserPinned	Adherido al Usuario
 lNavigateFileError	Se produjo un error al abrir la carpeta:`n~1~.
