@@ -1394,7 +1394,7 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	; if the startup shortcut exists, update it at each execution in case the exe filename changed
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-	Menu, Tray, Check, %lMenuRunAtStartup%
+	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
 }
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
@@ -3331,12 +3331,12 @@ Menu, Tray, Add, %lImpExpMenu%..., ImportExport
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
-Menu, Tray, Add, %lMenuRunAtStartup%, RunAtStartup
+Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
 Menu, Tray, Add
-Menu, Tray, Add, %lMenuUpdate%, Check4Update
+Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
-Menu, Tray, Add, %lMenuAbout%, GuiAbout
+Menu, Tray, Add, %lMenuAboutAmpersand%, GuiAbout
 Menu, Tray, Add, %lDonateMenu%, GuiDonate
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
@@ -5088,8 +5088,8 @@ Gui, 2:Tab
 
 GuiControlGet, arrTabPos, Pos, f_intOptionsTab
 
-Gui, 2:Add, Button, % "y" . arrTabPosY + arrTabPosH + 10 . " x10 vf_btnOptionsSave gButtonOptionsSave Default", %lGuiSave%
-Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, %lGuiCancel%
+Gui, 2:Add, Button, % "y" . arrTabPosY + arrTabPosH + 10 . " x10 vf_btnOptionsSave gButtonOptionsSave Default", %lGuiSaveAmpersand%
+Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, %lGuiCancelAmpersand%
 Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, %lDonateButton%
 GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
 
@@ -5311,8 +5311,8 @@ Gui, 3:Font
 Gui, 3:Add, Text, x10 w400, % L(lOptionsChangeFolderInDialogText , Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4), Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
 Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogCheckbox%
 
-Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOK%
-Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancel%
+Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOKAmpersand%
+Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancelAmpersand%
 	
 GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
@@ -5454,7 +5454,7 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 if (f_blnOptionsRunAtStartup)
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartup%
+Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 if !(g_blnPortableMode)
 {
@@ -5963,9 +5963,9 @@ Gui, 1:Add, ListView
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndClose% ; Button1
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStay% ; Button2
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiClose% ; Close until changes occur - Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button1
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button2
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button3
 
 if !(g_blnDonor)
 {
@@ -6222,8 +6222,8 @@ Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioB
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["External"]
 
-Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinue%
-Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancel%
+Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
+Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h200, % L(lDialogFavoriteSelectType, lDialogContinue)
 
@@ -6509,22 +6509,22 @@ Gui, 2:Tab
 
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
-	Gui, 2:Add, Button, y440 vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOK%
-	Gui, 2:Add, Button, yp vf_btnEditFavoriteCancel gGuiEditFavoriteCancel, %lGuiCancel%
+	Gui, 2:Add, Button, y440 vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
+	Gui, 2:Add, Button, yp vf_btnEditFavoriteCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnEditFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
-	Gui, 2:Add, Button, y440 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopy%
-	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
+	Gui, 2:Add, Button, y440 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopyAmpersand%
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogCopy, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
-	Gui, 2:Add, Button, y440 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAdd%
-	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancel%
+	Gui, 2:Add, Button, y440 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAddAmpersand%
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogAdd, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
 }
@@ -7082,8 +7082,8 @@ Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
 
-Gui, 2:Add, Button, y+20 vf_btnMoveFavoritesSave gGuiMoveMultipleFavoritesSave, %lGuiMove%
-Gui, 2:Add, Button, yp vf_btnMoveFavoritesCancel gGuiEditFavoriteCancel, %lGuiCancel%
+Gui, 2:Add, Button, y+20 vf_btnMoveFavoritesSave gGuiMoveMultipleFavoritesSave, %lGuiMoveAmpersand%
+Gui, 2:Add, Button, yp vf_btnMoveFavoritesCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 GuiCenterButtons(L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnMoveFavoritesSave", "f_btnMoveFavoritesCancel")
 
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
@@ -9151,7 +9151,7 @@ Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favor
 
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
-GuiControl, , f_btnGuiCancel, %lGuiClose%
+GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
 g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
@@ -9369,8 +9369,8 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	if StrLen(strFavoriteLocation)
 		Gui, Add, Text, x50 y+25 w400 center, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
 		
-	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOK%
-	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancel%
+	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
+	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotkeyOK", "f_btnChangeHotkeyCancel")
 
@@ -9563,7 +9563,7 @@ if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-	GuiControl, 1:, f_btnGuiCancel, %lGuiCancel%
+	GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
 
 	Gosub, LoadHotkeysManageList
 }
@@ -9759,7 +9759,7 @@ GuiCancel:
 ;------------------------------------------------------------
 
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
-blnCancelEnabled := (strCancelLabel = lGuiCancel)
+blnCancelEnabled := (strCancelLabel = lGuiCancelAmpersand)
 if (blnCancelEnabled)
 {
 	Gui, 1:+OwnDialogs
@@ -9772,7 +9772,7 @@ if (blnCancelEnabled)
 		
 		GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
-		GuiControl, , f_btnGuiCancel, %lGuiClose%
+		GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
 		g_blnMenuReady := true
 	}
 	IfMsgBox, No
@@ -12092,7 +12092,7 @@ RunAtStartup:
 ;------------------------------------------------------------
 ; Startup code adapted from Avi Aryan Ryan in Clipjump
 
-Menu, Tray, Togglecheck, %lMenuRunAtStartup%
+Menu, Tray, Togglecheck, %lMenuRunAtStartupAmpersand%
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 else
@@ -12135,7 +12135,7 @@ IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
 
 IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
 
-if (A_ThisMenuItem <> lMenuUpdate)
+if (A_ThisMenuItem <> lMenuUpdateAmpersand)
 {
 	if Time2Donate(intStartups, g_blnDonor)
 	{
@@ -12166,7 +12166,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&shd=" . strShell32Date
 	. "&ird=" . strImageresDate)
 if !StrLen(strLatestVersions)
-	if (A_ThisMenuItem = lMenuUpdate)
+	if (A_ThisMenuItem = lMenuUpdateAmpersand)
 	{
 		Oops(lUpdateError)
 		gosub, Check4UpdateCleanup
@@ -12178,7 +12178,7 @@ strLatestVersions := SubStr(strLatestVersions, 1, InStr(strLatestVersions, "]]")
 strLatestVersions := Trim(strLatestVersions, "`n`l") ; remove en-of-line if present
 Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only contain digits, dots and one pipe (|) between prod and beta versions
 	; if we get here, the content returned by the URL above is wrong
-	if (A_ThisMenuItem <> lMenuUpdate)
+	if (A_ThisMenuItem <> lMenuUpdateAmpersand)
 	{
 		gosub, Check4UpdateCleanup
 		return ; return silently
@@ -12222,7 +12222,7 @@ if (strLatestUsedAlpha <> "0.0")
 ; ###_V(strLatestVersions, g_strCurrentVersion, strLatestUsedBeta, strLatestSkippedBeta, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
 if (strLatestUsedBeta <> "0.0")
 {
-	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
+	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdateAmpersand))
 	{
 		gosub, Check4UpdateCleanup
 		return
@@ -12249,7 +12249,7 @@ if (strLatestUsedBeta <> "0.0")
 }
 
 ; ###_V(strLatestVersions, g_strCurrentVersion, strLatestSkippedProd, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
-if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdate))
+if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdateAmpersand))
 {
 	gosub, Check4UpdateCleanup
 	return
@@ -12272,7 +12272,7 @@ if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
 */
 	gosub, Check4UpdateDialogProd
 	
-else if (A_ThisMenuItem = lMenuUpdate)
+else if (A_ThisMenuItem = lMenuUpdateAmpersand)
 {
 	MsgBox, 4, % l(lUpdateTitle, g_strAppNameText), % l(lUpdateYouHaveLatest, g_strAppVersion, g_strAppNameText)
 	IfMsgBox, Yes
@@ -13315,7 +13315,7 @@ EnableSaveAndCancel:
 
 GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-GuiControl, 1:, f_btnGuiCancel, %lGuiCancel%
+GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
 
 return
 ;------------------------------------------------------------
@@ -13353,7 +13353,7 @@ IfWinNotExist, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
     return  ; Keep waiting.
 SetTimer, SettingsNotSavedChangeButtonNames, Off
 WinActivate, % L(lDialogSettingsNotSavedTitle, g_strAppNameText)
-ControlSetText, Button1, %lGuiSave%
+ControlSetText, Button1, %lGuiSaveAmpersand%
 ControlSetText, Button2, %lMenuSettings%
 
 return
@@ -14306,7 +14306,7 @@ SettingsUnsaved()
 	global
 
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
-	blnDialogOpen := (strCancelButtonLabel = lGuiCancel) ; Settings open with changes to save if Cancel button label is "Cancel"
+	blnDialogOpen := (strCancelButtonLabel = lGuiCancelAmpersand) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
 
 	return blnDialogOpen
