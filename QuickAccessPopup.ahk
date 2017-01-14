@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.0.5 (2017-01-??)
+- update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
+
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
 - alert about menu shortcuts to user when inserting ampersand (&) in short name for the menu
@@ -1183,7 +1186,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.4
+;@Ahk2Exe-SetVersion 8.0.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1256,7 +1259,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3343,7 +3346,7 @@ Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
 Menu, Tray, Default, %lMenuSettings%...
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
-Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButton) ; A_PtrSize * 8 = 32 or 64
+Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButtonAmpersand) ; A_PtrSize * 8 = 32 or 64
 
 strIniFileNameExtOnly := ""
 strAlternativeTrayIcon := ""
@@ -5090,7 +5093,7 @@ GuiControlGet, arrTabPos, Pos, f_intOptionsTab
 
 Gui, 2:Add, Button, % "y" . arrTabPosY + arrTabPosH + 10 . " x10 vf_btnOptionsSave gButtonOptionsSave Default", %lGuiSaveAmpersand%
 Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, %lGuiCancelAmpersand%
-Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, %lDonateButton%
+Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, %lDonateButtonAmpersand%
 GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
 
 Gui, 2:Add, Text
@@ -8682,7 +8685,7 @@ GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no na
 
 Gosub, LoadHotkeysManageList
 
-Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGui2Close%
+Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
 Gui, 2:Add, Text, x10, %A_Space%
 
@@ -8903,7 +8906,7 @@ Loop, %g_intIconsManageRows%
 
 Gui, 2:Add, Button, % "x10 y+" . intIconsManageRowsHeight . " vf_btnIconsManagePrev gLoadIconsManageListPrev h33", %lDialogIconsManagePrevious%
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext h33, %lDialogIconsManageNext%
-Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose h33, %lGui2Close%
+Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose h33, %lGuiCloseAmpersand%
 Gui, 2:Add, Text, x10, %A_Space%
 
 Gosub, LoadIconsManageList
@@ -12504,8 +12507,8 @@ Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, %lImpE
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, %lImpExpFileGlobal%
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, %lImpExpFileThemes%
 
-Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExport%
-Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, %lGui2Close%
+Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExportAmpersand%
+Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpClose")
 Gui, ImpExp:Add, Text
 
@@ -12523,7 +12526,7 @@ Gui, ImpExp:Submit, NoHide
 
 GuiControl, , f_lblImpExpFile, % L(lImpExpFile, (f_radImpExpExport ? lImpExpDestination : lImpExpSource))
 GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
-GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
+GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExportAmpersand : lImpExpImportAmpersand)
 
 return
 ;------------------------------------------------------------
@@ -12773,8 +12776,8 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText4)
 Gui, 2:Font, s8 w400, Verdana
 
-Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, %lDonateButton%
-Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, %lGui2Close%
+Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, %lDonateButtonAmpersand%
+Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lAboutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAboutDonate", "f_btnAboutClose")
 
 GuiControl, Focus, f_btnAboutClose
@@ -12835,7 +12838,7 @@ loop, 3
 Gui, 2:Add, Link, y+10 x130, <a href="http://www.quickaccesspopup.com/why-support-freeware/">%lDonateText5%</a>
 
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGui2Close%
+Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDonateTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnDonateClose")
 
 GuiControl, Focus, btnDonateDefault
@@ -12923,8 +12926,8 @@ Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText45
 
 Gui, 2:Tab
 GuiControlGet, arrTabPos, Pos, f_intHelpTab
-Gui, 2:Add, Button, % "x180 y" . arrTabPosY + arrTabPosH + 10. " vf_btnHelpDonate gGuiDonate", %lDonateButton%
-Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, %lGui2Close%
+Gui, 2:Add, Button, % "x180 y" . arrTabPosY + arrTabPosH + 10. " vf_btnHelpDonate gGuiDonate", %lDonateButtonAmpersand%
+Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
 
 GuiControl, Focus, btnHelpClose
