@@ -138,9 +138,9 @@ lDialogIconsManageAbout	Seleziona nuove icone per i tuoi preferiti o assegnagli 
 lDialogIconsManageCurrent	Icona corrente
 lDialogIconsManageDefault	Icona di default
 lDialogIconsManageFavoriteName	Nome del Preferito
-lDialogIconsManageNext	Successivo
+lDialogIconsManageNext	&Successivo
 lDialogIconsManageParentMenu	Menù superiore del Preferito
-lDialogIconsManagePrevious	Precedente
+lDialogIconsManagePrevious	&Precedente
 lDialogIconsManageSetDefaultIcon	Assegna l'icona di default
 lDialogIconsManageTitle	Gestione Icone - ~1~ ~2~
 lDialogInvalidHotkey	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: tasto scelto non valido).`n`nPer favore, apri la finestra "~2~ Impostazioni" dal menù dell'icona nell'area notifiche e clicca: "Opzioni". In questa casella di dialogo, scegli un altro shortcut per "~3~".
@@ -205,7 +205,7 @@ lDialogWindowsFolderIconSet	Set Icona della cartella di Windows
 lDialogWindowsFolderIconUpdate	Aggiorna
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Avvia in
-lDonateButton	Supporta il Freeware!
+lDonateButtonAmpersand	Supporta il &Freeware!
 lDonateCheckPrompt	Sei soddisfatto di ~1~?`n`n~1~ non solo è GRATUITO ma anche PRIVO di fastidiosi annunci o adware, che non si è mai sicuri che non nascondano spyware o malware.`n`nAl momento, per ~2~ volte ~1~ ti ha aiutato nelle tue attività quotidiane. Che ne diresti adesso di fare un'offerta a titolo di supporto del programma?
 lDonateCheckPrompt2	Nota: Agli Utenti che generosamente fanno una donazione sarà dato un CODICE che BLOCCA ~1~.
 lDonateCheckPrompt3	mostra questo messaggio
@@ -229,7 +229,6 @@ lDonateText4	Fai una recensione positiva di ~1~ su:
 lDonateText5	Mandami il tuo link
 lDonateThankyou	Grazie di supportare il freeware!
 lDonateTitle	Supporta il freeware! - ~1~ ~2~
-lGui2Close	Chiudi
 lGuiAbout	Crediti
 lGuiAddFavorite	Aggiungi
 lGuiCancel	Annulla
@@ -293,6 +292,7 @@ lImpExpAppend	Accodare
 lImpExpCompleted	completato
 lImpExpDestination	Destinazione
 lImpExpExport	Esportare
+lImpExpExportAmpersand	&Esportare
 lImpExpFavorites	Preferiti
 lImpExpFavoritesNotFound	Preferiti non presenti nel file:`n`n~1~
 lImpExpFile	file ~1~
@@ -301,6 +301,7 @@ lImpExpFileThemes	Temi
 lImpExpFinalReport	Trasferimento di ~1~.`n`nSorgente:`n~2~`n`nDestinazione:`n~3~
 lImpExpHotkeys	Scorciatoie
 lImpExpImport	Importare
+lImpExpImportAmpersand	&Importare
 lImpExpMenu	Impostazioni per Importare/Esportare
 lImpExpMerge	Unire a
 lImpExpNoThemes	Non trovo nessun elenco di Temi nel valore "~1~" della sezione "~2~".`n`nFile sorgente:`n~3~

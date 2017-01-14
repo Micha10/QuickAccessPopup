@@ -138,9 +138,9 @@ lDialogIconsManageAbout	Seleccione los iconos nuevos para sus favoritos o establ
 lDialogIconsManageCurrent	Icono actual 
 lDialogIconsManageDefault	Icono por defecto 
 lDialogIconsManageFavoriteName	Nombre favorito 
-lDialogIconsManageNext	Siguiente 
+lDialogIconsManageNext	&Siguiente 
 lDialogIconsManageParentMenu	Menú principal favorito
-lDialogIconsManagePrevious	Anterior 
+lDialogIconsManagePrevious	&Anterior 
 lDialogIconsManageSetDefaultIcon	Establecer icono predeterminado
 lDialogIconsManageTitle	Administrar iconos - ~1~ ~2~ 
 lDialogInvalidHotkey	Con la configuración actual de la tecla de acceso directo del teclado "~1~" no se puede utilizar como un disparador para el menú emergente.`n`nPor favor, abra la "Configuración ~2~" en el área de notificación y haga clic en "Opciones". En este cuadro de diálogo, elija otra tecla de acceso directo a"~3~".
@@ -205,7 +205,7 @@ lDialogWindowsFolderIconSet	Establecer icono carpeta Windows
 lDialogWindowsFolderIconUpdate	actualización
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Empezar con
-lDonateButton	Apoyar este programa gratuito!
+lDonateButtonAmpersand	Apoyar este programa &gratuito!
 lDonateCheckPrompt	Es de su agrado ~1~?`n`n~1~ no sólo es gratuito, sino que también se distribuye sin basura publicitaria que nunca se sabe si son portadores de virus o spyware o malware.`n`nEs por esto ~2~ que ~1~ esta hecho para facilitar su trabajo diario. Que te parecería apoyar nuestro proyecto?
 lDonateCheckPrompt2	Nota: Los usuarios que amablemente hagan una donación recibirán un CODIGO sin FIN ~1~.
 lDonateCheckPrompt3	mostrar este mensaje 
@@ -229,7 +229,6 @@ lDonateText4	Escribe una opinión a favor ~1~ a :
 lDonateText5	Enviadme vuestro link
 lDonateThankyou	Gracias por esta señal de aprecio!
 lDonateTitle	Donar! - ~1~ ~2~
-lGui2Close	Cerrar
 lGuiAbout	Acerca de
 lGuiAddFavorite	Añadir
 lGuiCancel	Anular
@@ -294,6 +293,7 @@ lImpExpAppend	Añadir
 lImpExpCompleted	completado
 lImpExpDestination	Destino
 lImpExpExport	Exportar
+lImpExpExportAmpersand	&Exportar
 lImpExpFavorites	favoritos
 lImpExpFavoritesNotFound	Los favoritos no se encuentran en el archivo:`n`n~1~
 lImpExpFile	Archivo ~1~
@@ -302,6 +302,7 @@ lImpExpFileThemes	Temas
 lImpExpFinalReport	Transferido ~1~.`n`nOrigen:`n~2~`n`nDestino:`n~3~
 lImpExpHotkeys	atajos 
 lImpExpImport	Importar 
+lImpExpImportAmpersand	&Importar 
 lImpExpMenu	Importar/exportar la configuración
 lImpExpMerge	Fusionar con
 lImpExpNoThemes	Alguna lista de temas en el valor "~1~" de la sección "~2~".`n`nArchivo origen:`n~3~

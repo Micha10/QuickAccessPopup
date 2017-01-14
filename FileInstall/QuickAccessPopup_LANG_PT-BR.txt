@@ -138,9 +138,9 @@ lDialogIconsManageAbout	Selecione novos ícones para seus favoritos ou defina o í
 lDialogIconsManageCurrent	Ícone atual
 lDialogIconsManageDefault	Ícone padrão
 lDialogIconsManageFavoriteName	Nome do favorito
-lDialogIconsManageNext	Próximo
+lDialogIconsManageNext	&Próximo
 lDialogIconsManageParentMenu	Menu principal do favorito
-lDialogIconsManagePrevious	Anterior
+lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerenciar Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com o layout de teclado atual do sistema, a tecla de atalho "~1~" não pode ser usada como disparador para o menu popup  (erro 'não é uma tecla válida').`n`nPor favor, abra as configurações do "~2~ pelo menu da Área de Notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~3~".
@@ -205,7 +205,7 @@ lDialogWindowsFolderIconSet	Definir ícone da pasta do Windows
 lDialogWindowsFolderIconUpdate	atualizar
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Iniciar em
-lDonateButton	Apoiar o Freeware!
+lDonateButtonAmpersand	Apoiar o &Freeware!
 lDonateCheckPrompt	Você está contente com o ~1~?`n`nO ~1~ não é somente GRATUITO, mas também LIVRE de publicidade desagradável ou adware, que você nunca sabe se carrega spyware ou malware.`n`nAté agora, por ~2~ vezes o ~1~ lhe ajudou no seu trabalho diário. Que tal apoiar este freeware agora?
 lDonateCheckPrompt2	Nota: Os usuários que gentilmente fazerem uma doação receberão um código que fará PARAR de ~1~.
 lDonateCheckPrompt3	exibir esta mensagem
@@ -227,7 +227,6 @@ lDonateText4	Dê uma crítica favorável para o ~1~ em:
 lDonateText5	Envie-me seu link
 lDonateThankyou	Obrigado por apoiar o freeware!
 lDonateTitle	Apoiar o freeware! - ~1~ ~2~
-lGui2Close	Fechar
 lGuiAbout	Sobre
 lGuiAddFavorite	Adicionar
 lGuiCancel	Cancelar
@@ -292,6 +291,7 @@ lImpExpAppend	Anexar
 lImpExpCompleted	concluído
 lImpExpDestination	Destino
 lImpExpExport	Exportar
+lImpExpExportAmpersand	&Exportar
 lImpExpFavorites	favoritos
 lImpExpFavoritesNotFound	Favoritos não encontrados no arquivo:`n`n~1~
 lImpExpFile	Arquivo ~1~
@@ -300,6 +300,7 @@ lImpExpFileThemes	Temas
 lImpExpFinalReport	Transferir ~1~.`n`nOrigem:`n~2~`n`nDestino:`n~3~
 lImpExpHotkeys	teclas de atalho
 lImpExpImport	Importar
+lImpExpImportAmpersand	&Importar
 lImpExpMenu	Importar/Exportar Configurações
 lImpExpMerge	Mesclar com
 lImpExpNoThemes	Nenhuma lista de temas encontrado no valor "~1~" da seção "~2~".`n`nArquivo de origem:`n~3~

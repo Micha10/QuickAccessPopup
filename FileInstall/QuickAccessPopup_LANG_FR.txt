@@ -139,9 +139,9 @@ lDialogIconsManageAbout	Choisissez de nouveaux icônes pour vos favoris ou rétabl
 lDialogIconsManageCurrent	Icône actuel
 lDialogIconsManageDefault	Icône par défaut
 lDialogIconsManageFavoriteName	Nom du favori
-lDialogIconsManageNext	Suivant
+lDialogIconsManageNext	&Suivant
 lDialogIconsManageParentMenu	Menu contenant ce favori
-lDialogIconsManagePrevious	Précédant
+lDialogIconsManagePrevious	&Précédant
 lDialogIconsManageSetDefaultIcon	Icône par défaut
 lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
@@ -206,7 +206,7 @@ lDialogWindowsFolderIconSet	Changer l'icône de dossier de Windows
 lDialogWindowsFolderIconUpdate	mettre à jour
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Démarrer dans
-lDonateButton	Soutenez ce gratuiciel!
+lDonateButtonAmpersand	Soutenez ce &gratuiciel!
 lDonateCheckPrompt	Vous aimez ~1~?`n`n~1~ n'est pas seulement GRATUIT mais aussi distribué SANS ces attrapes publicitaires dont on ne sait jamais si elles transportent des virus ou encore des logiciels espions ou malveillants.`n`nCela fait maintenant ~2~ fois que ~1~ est lancé pour faciliter votre travail quotidien. Que diriez-vous de soutenir ce gratuiciel à votre tour?
 lDonateCheckPrompt2	Note: Les utilisateurs qui veulent bien faire un don reçoivent un CODE qui arrêtera ~1~.
 lDonateCheckPrompt3	l'affichage de ce message
@@ -230,7 +230,6 @@ lDonateText4	Rédigez un avis favorable à ~1~ sur :
 lDonateText5	Envoyez-moi votre lien
 lDonateThankyou	Merci pour cette marque d'appréciation!
 lDonateTitle	Soutenez ce gratuiciel! - ~1~ ~2~
-lGui2Close	Fermer
 lGuiAbout	À propos
 lGuiAddFavorite	Ajouter
 lGuiCancel	Annuler
@@ -295,6 +294,7 @@ lImpExpAppend	Ajouter
 lImpExpCompleted	complété
 lImpExpDestination	Destination
 lImpExpExport	Exporter
+lImpExpExportAmpersand	&Exporter
 lImpExpFavorites	favoris
 lImpExpFavoritesNotFound	Favoris introuvables dans le fichier:`n`n~1~
 lImpExpFile	Fichier ~1~
@@ -303,6 +303,7 @@ lImpExpFileThemes	Thèmes
 lImpExpFinalReport	Transfert ~1~.`n`nSource:`n~2~`n`nDestination:`n~3~
 lImpExpHotkeys	raccourcis
 lImpExpImport	Importer
+lImpExpImportAmpersand	&Importer
 lImpExpMenu	Importer/exporter la configuration
 lImpExpMerge	Fusionner avec
 lImpExpNoThemes	Aucune liste de thèmes dans la valeur "~1~" de la section "~2~".`n`nFichier source:`n~3~
