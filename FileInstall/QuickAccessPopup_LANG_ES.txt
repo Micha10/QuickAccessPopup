@@ -205,7 +205,7 @@ lDialogWindowsFolderIconSet	Establecer icono carpeta Windows
 lDialogWindowsFolderIconUpdate	actualización
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Empezar con
-lDonateButtonAmpersand	Apoyar este programa &gratuito!
+lDonateButtonAmpersand	Apoyar este &programa gratuito!
 lDonateCheckPrompt	Es de su agrado ~1~?`n`n~1~ no sólo es gratuito, sino que también se distribuye sin basura publicitaria que nunca se sabe si son portadores de virus o spyware o malware.`n`nEs por esto ~2~ que ~1~ esta hecho para facilitar su trabajo diario. Que te parecería apoyar nuestro proyecto?
 lDonateCheckPrompt2	Nota: Los usuarios que amablemente hagan una donación recibirán un CODIGO sin FIN ~1~.
 lDonateCheckPrompt3	mostrar este mensaje 

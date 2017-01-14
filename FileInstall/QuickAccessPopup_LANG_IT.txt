@@ -232,7 +232,7 @@ lDonateTitle	Supporta il freeware! - ~1~ ~2~
 lGuiAbout	Crediti
 lGuiAddFavorite	Aggiungi
 lGuiCancel	Annulla
-lGuiCancelAmpersand	&Annulla
+lGuiCancelAmpersand	A&nnulla
 lGuiClose	Chiudi
 lGuiCloseAmpersand	&Chiudi
 lGuiDonate	Supporto
