@@ -33,6 +33,7 @@ HISTORY
 
 Version: 8.0.5 (2017-01-??)
 - update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
+- fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -13471,7 +13472,10 @@ SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton, B
 			StringReplace, strMouseButtonsWithDefault, lDialogMouseButtonsText, % GetText4MouseButton(strMouseButton) . "|", % GetText4MouseButton(strMouseButton) . "||" ; with default value
 		}
 		else ; we have a key
+		{
+			strMouseButton := ""
 			strMouseButtonsWithDefault := lDialogMouseButtonsText ; no default value
+		}
 	}
 }
 ;------------------------------------------------------------
