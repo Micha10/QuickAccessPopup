@@ -33,10 +33,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\license.txt
+LicenseFile=C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\license.txt
 OutputDir=C:\temp\InnoSetup-OutputDir\
 OutputBaseFilename={#MyAppNameLower}-setup{#MyBetaProd}
-SetupIconFile=C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\iconQAP{#MyBetaProd}.ico
+SetupIconFile=C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}{#MyBetaProd}.ico
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -71,13 +71,13 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "{commonappdata}\{#MyAppName}" 
 
 [Files]
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-v8{#MyBetaProd}\QuickAccessPopup-64-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\build-v8{#MyBetaProd}\QuickAccessPopup-32-bit.exe"; DestDir: "{app}"; DestName: "QuickAccessPopup.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\iconQAP.ico"; DestDir: "{app}"; DestName: "QuickAccessPopup.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-64-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-32-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}.ico"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.ico"; Flags: ignoreversion
+Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
@@ -107,56 +107,56 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#MyApp
 
 ; ADD FILE
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Add File to Quick Access Popup menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFile ""%1"""
 
 ; ADD FILE EXPRESS
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu Express"; ValueType: string; ValueName: ""; ValueData: "Add File to Quick Access Popup menu Express"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu Express"; ValueType: string; ValueName: "Extended"; ValueData: ""
 Root: HKCR; Subkey: "*\shell\Add File to Quick Access Popup menu Express\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFileXpress ""%1"""
 
 ; ADD FOLDER
 Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Add Folder to Quick Access Popup menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolder ""%1"""
 
 ; ADD FOLDER EXPRESS
 Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: ""; ValueData: "Add Folder to Quick Access Popup menu Express"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Extended"; ValueData: ""
 Root: HKCR; Subkey: "Folder\shell\Add Folder to Quick Access Popup menu Express\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolderXpress ""%1"""
 
 ; DESKTOP SHOW MENU 
 Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Show Quick Access Popup menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: "{app}\QAPmessenger.exe ShowMenuLaunch"
 
 ; DESKTOP SHOW ALTERNATIVE MENU
 Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: ""; ValueData: "Show Quick Access Popup Alternative menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Extended"; ValueData: ""
 Root: HKCR; Subkey: "DesktopBackground\shell\Show Quick Access Popup Alternative menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" ShowMenuAlternative"
 
 ; FOLDER BACKGROUND SHOW MENU
 Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Show Quick Access Popup menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" ShowMenuNavigate"
 
 ; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
 Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: ""; ValueData: "Show Quick Access Popup Alternative menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup Alternative menu"; ValueType: string; ValueName: "Extended"; ValueData: ""
 Root: HKCR; Subkey: "Directory\Background\shell\Show Quick Access Popup Alternative menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" ShowMenuAlternative"
 
 ; FOLDER BACKGROUND ADD FOLDER
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Add Folder to Quick Access Popup menu"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolder ""%V"""
 
 ; FOLDER BACKGROUND ADD FOLDER EXPRESS
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: ""; ValueData: "Add Folder to Quick Access Popup menu Express"; Flags: uninsdeletekey
-Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\QuickAccessPopup.exe"""
+Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Extended"; ValueData: ""
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolderXpress ""%V"""
 
