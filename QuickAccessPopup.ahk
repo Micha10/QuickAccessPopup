@@ -36,6 +36,7 @@ Version: 8.0.5 (2017-01-??)
 - fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
 - new batch file to install/uninstall Windows Explorer context menus registry keys, working with setup and portable version, not needing editing for portable version users
 - for portable users, renamed the icon file iconQAP.ico to QuickAccessPopup.ico making the context menu batch work with the same file name for both portable and setup versions
+- cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -13695,11 +13696,11 @@ GetIcon4Location(strLocation)
 	RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\DefaultIcon
 	if (strRegistryIconResource = "%1") ; use the file itself (for executable)
 		return strLocation . ",1"
+	else if InStr(strRegistryIconResource, """") ; for badly set icon in registry including double-quote (only one situation seen)
+		or !StrLen(strRegistryIconResource) ; empty result
+		return "iconUnknown"
 	else
-		if StrLen(strRegistryIconResource)
-			return strRegistryIconResource
-		else
-			return "iconUnknown" ; safety
+		return strRegistryIconResource
 }
 ;------------------------------------------------------------
 
