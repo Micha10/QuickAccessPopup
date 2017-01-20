@@ -47,6 +47,9 @@ global lDialogChangeHotkeyAlternative := "This is an Alternative menu hotkey.`n`
 global lDialogChangeHotkeyNote := "Note: The location ""~1~"" will be linked to the new hotkey in all menus." ; new
 global lDialogChangeHotkeyNoteSnippet := "Note: This snippet will be linked to the new hotkey in all menus." ; new
 global lDialogChangeHotkeyPopup := "This is a popup menu hotkey.`n`nDo you want to manage ""~1~"" in ""~2~""?" ; new
+global lDialogChangeHotkeyShowAdvSetting := "Show advanced settings when closing dialog box"
+global lDialogChangeHotkeyShowAdvSettingIntro := "Enter the hotkey following AHK syntax and rules:"
+global lDialogChangeHotkeyShowAdvSettingLink := "This is a <a href=""~1~"">link</a>"
 global lDialogChangeHotkeyTitle := "Change hotkey - ~1~ ~2~" ; lOptionsChangeHotkeyTitle renamed
 global lDialogContinue := "Continue" ; added
 global lDialogContinueAmpersand := "C&ontinue" ; added

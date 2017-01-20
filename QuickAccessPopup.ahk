@@ -34,8 +34,8 @@ HISTORY
 Version: 8.0.5 (2017-01-??)
 - update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
 - fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
-- new batch file to install/uninstall Windows Explorer context menus registry keys, working with setup and portable version, not needing editing for portable version users
-- for portable users, renamed the icon file iconQAP.ico to QuickAccessPopup.ico making the context menu batch work with the same file name for both portable and setup versions
+- new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
+- renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -9308,34 +9308,13 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	global
 
 	g_blnChangeHotkeyInProgress := true
+	blnThisIsAdvancedSetting := false
 	
 	SplitHotkey(strActualHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
 
 	intGui2WinID := WinExist("A")
 
-	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
-	Gui, 3:Default
-	Gui, +Owner2
-	Gui, +OwnDialogs
-	
-	if (g_blnUseColors)
-		Gui, Color, %g_strGuiWindowColor%
-	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
-	Gui, Font
-
-	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
-	Gui, Font, s8 w700
-	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
-	Gui, Font
-	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
-	if StrLen(strDescription)
-	{
-		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
-		StringReplace, strDescription, strDescription, </A>
-		Gui, Add, Text, xs y+5 w300, %strDescription%
-	}
+	gosub, CreateChangeHotkeyGuiTop
 
 	Gui, Add, CheckBox, y+20 x50 vf_blnShift, %lDialogShift%
 	GuiControlGet, arrTop, Pos, f_blnShift
@@ -9372,26 +9351,80 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		Gui, Add, Text, % "x10 y" . arrTopY + 100
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
 	}
+	
+	Gui, Add, Checkbox, x50 y+25 w400 vf_chkAdvSelectHotkey, %lDialogChangeHotkeyShowAdvSetting%
+	
+	gosub, CreateChangeHotkeyGuiBottom
+	
+	if (blnAdvSelectHotkey)
+	{
+		blnThisIsAdvancedSetting := true
+		gosub, CreateChangeHotkeyGuiTop
+
+		Gui, Add, Text, y+20 x50 w400, %lDialogChangeHotkeyShowAdvSettingIntro%
+		Gui, Font, , Courier
+		Gui, Add, Edit, y+10 x50 w200 vf_strAdvHotkey, %strNewHotkey%
+		Gui, Font
+		Gui, Add, Link, y+10 x50 w400, % L(lDialogChangeHotkeyShowAdvSettingLink, "http://www.google.com")
+		
+		gosub, CreateChangeHotkeyGuiBottom
+	}
+
+	if (strNewHotkey <> strActualHotkey)
+		strNewHotkey := HotkeyIfAvailable(strNewHotkey, (StrLen(strFavoriteLocation) ? strFavoriteLocation : strFavoriteName))
+	
+	; ###_V("strNewHotkey", strNewHotkey)
+	return strNewHotkey ; returning value
+	
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	CreateChangeHotkeyGuiTop:
+	;------------------------------------------------------------
+	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:Default
+	Gui, +Owner2
+	Gui, +OwnDialogs
+	
+	if (g_blnUseColors)
+		Gui, Color, %g_strGuiWindowColor%
+	Gui, Font, s10 w700, Verdana
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
+	Gui, Font
+
+	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
+	Gui, Font, s8 w700
+	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
+	Gui, Font
 	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, x50 y+25 w400 center, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
+		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
+	if StrLen(strDescription)
+	{
+		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
+		StringReplace, strDescription, strDescription, </A>
+		Gui, Add, Text, xs y+5 w300, %strDescription%
+	}
+	return
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	CreateChangeHotkeyGuiBottom:
+	;------------------------------------------------------------
+	if StrLen(strFavoriteLocation)
+		Gui, Add, Text, x50 y+25 w400 center vf_ChangeHotkeyNote, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
 		
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotkeyOK", "f_btnChangeHotkeyCancel")
 
-	Gui, Add, Text
+	Gui, Add, Text, vf_txtChangeHotkeyBottomMargin
 	GuiControl, Focus, f_btnChangeHotkeyOK
 	Gui, Show, AutoSize Center
 
 	Gui, 2:+Disabled
 	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
-
-	if (strNewHotkey <> strActualHotkey)
-		strNewHotkey := HotkeyIfAvailable(strNewHotkey, (StrLen(strFavoriteLocation) ? strFavoriteLocation : strFavoriteName))
-	
-	return strNewHotkey ; returning value
-	
+	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
@@ -9493,17 +9526,49 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	ButtonChangeHotkeyOK:
 	;------------------------------------------------------------
 	
+	if(blnThisIsAdvancedSetting)
+		GuiControlGet, strNewHotkey, , f_strAdvHotkey
+	else
+		gosub, ConcatNewHotkey
+
+	if (strNewHotkey = "LButton")
+	{
+		Oops(lDialogMouseCheckLButton, lDialogShift, lDialogCtrl, lDialogAlt, lDialogWin)
+		strNewHotkey := ""
+		return
+	}
+	
+	g_blnChangeHotkeyInProgress := false
+	Gosub, 3GuiClose
+	
+	return
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	ButtonChangeHotkeyCancel:
+	;------------------------------------------------------------
+	
+	strNewHotkey := ""
+
+	g_blnChangeHotkeyInProgress := false
+	Gosub, 3GuiClose
+  
+	return
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	ConcatNewHotkey:
+	;------------------------------------------------------------
 	GuiControlGet, strMouse, , f_drpHotkeyMouse
 	GuiControlGet, strKey, , f_strHotkeyKey
 	GuiControlGet, blnWin , ,f_blnWin
 	GuiControlGet, blnAlt, , f_blnAlt
 	GuiControlGet, blnCtrl, , f_blnCtrl
 	GuiControlGet, blnShift, , f_blnShift
+	GuiControlGet, blnAdvSelectHotkey, , f_chkAdvSelectHotkey
 
 	if StrLen(strMouse)
 		strMouse := GetMouseButton4Text(strMouse) ; get mouse button system name from dropdown localized text
-	; else ???
-	;	strMouseButton%intIndex% := "" ;  empty mouse button text
 	
 	strNewHotkey := Trim(strKey . (strMouse = "None" ? "" : strMouse))
 	if !StrLen(strNewHotkey)
@@ -9520,30 +9585,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 			strNewHotkey := "^" . strNewHotkey
 		if (blnShift)
 			strNewHotkey := "+" . strNewHotkey
-
-		if (strNewHotkey = "LButton")
-		{
-			Oops(lDialogMouseCheckLButton, lDialogShift, lDialogCtrl, lDialogAlt, lDialogWin)
-			strNewHotkey := ""
-			return
-		}
 	}
-
-	g_blnChangeHotkeyInProgress := false
-	Gosub, 3GuiClose
-	
-	return
-	;------------------------------------------------------------
-
-	;------------------------------------------------------------
-	ButtonChangeHotkeyCancel:
-	;------------------------------------------------------------
-	
-	strNewHotkey := ""
-
-	g_blnChangeHotkeyInProgress := false
-	Gosub, 3GuiClose
-  
 	return
 	;------------------------------------------------------------
 
