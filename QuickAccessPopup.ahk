@@ -37,6 +37,7 @@ Version: 8.0.5 (2017-01-??)
 - new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
 - renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
 - cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
+- fix bug double-click on empty line in Hotkeys list stop opening an empty Change hotkey dialog box
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -8711,9 +8712,14 @@ Gui, 2:ListView, f_lvHotkeysList
 if (A_GuiEvent = "DoubleClick")
 {
 	intItemPosition := LV_GetNext()
+	LV_GetText(strHotkeyType, intItemPosition, 4)
+	if !StrLen(strHotkeyType)
+	{
+		gosub, HotkeysManageListEventsCleanup
+		return
+	}
 	LV_GetText(strFavoritePosition, intItemPosition, 7)
 	LV_GetText(strMenuPath, intItemPosition, 2)
-	LV_GetText(strHotkeyType, intItemPosition, 4)
 	
 	if (strHotkeyType = lDialogHotkeysManagePopup) ; this is a popup menu hotkey, go to Options, Menu hotkeys
 	{
@@ -8753,7 +8759,9 @@ if (A_GuiEvent = "DoubleClick")
 	}
 }
 
+HotkeysManageListEventsCleanup:
 intItemPosition := ""
+strHotkeyType := ""
 strMenuPath := ""
 strFavoritePosition := ""
 strNewHotkey := ""
