@@ -34,8 +34,8 @@ HISTORY
 Version: 8.0.5 (2017-01-??)
 - update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
 - fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
-- new batch file to install/uninstall Windows Explorer context menus registry keys, working with setup and portable version, not needing editing for portable version users
-- for portable users, renamed the icon file iconQAP.ico to QuickAccessPopup.ico making the context menu batch work with the same file name for both portable and setup versions
+- new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
+- renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
 - cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
 
 Version: 8.0.4 (2017-01-11)
