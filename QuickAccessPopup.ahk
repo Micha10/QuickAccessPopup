@@ -9308,19 +9308,43 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	global
 
 	g_blnChangeHotkeyInProgress := true
-	blnThisIsAdvancedSetting := false
+	blnAdvancedSelectHotkey := InStr(strActualHotkey, "<") or InStr(strActualHotkey, ">")
+	strModifiersLabels := "Shift|Ctrl|Alt|Win"
 	
 	SplitHotkey(strActualHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
 
 	intGui2WinID := WinExist("A")
 
-	gosub, CreateChangeHotkeyGuiTop
+	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:Default
+	Gui, +Owner2
+	Gui, +OwnDialogs
+	
+	if (g_blnUseColors)
+		Gui, Color, %g_strGuiWindowColor%
+	Gui, Font, s10 w700, Verdana
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
+	Gui, Font
 
-	Gui, Add, CheckBox, y+20 x50 vf_blnShift, %lDialogShift%
-	GuiControlGet, arrTop, Pos, f_blnShift
-	Gui, Add, CheckBox, y+10 x50 vf_blnCtrl, %lDialogCtrl%
-	Gui, Add, CheckBox, y+10 x50 vf_blnAlt, %lDialogAlt%
-	Gui, Add, CheckBox, y+10 x50 vf_blnWin, %lDialogWin%
+	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
+	Gui, Font, s8 w700
+	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
+	Gui, Font
+	if StrLen(strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
+	if StrLen(strDescription)
+	{
+		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
+		StringReplace, strDescription, strDescription, </A>
+		Gui, Add, Text, xs y+5 w300, %strDescription%
+	}
+
+	Loop, Parse, strModifiersLabels, |
+	{
+		Gui, Add, CheckBox, % "y+" (A_LoopField = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . A_LoopField, % lDialog%A_LoopField%
+		if (A_LoopField = "Shift")
+			GuiControlGet, arrTop, Pos, f_blnShift
+	}
 	Gosub, SetModifiersCheckBox
 
 	if (intHotkeyType = 1)
@@ -9352,64 +9376,12 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
 	}
 	
-	Gui, Add, Checkbox, x50 y+25 w400 vf_chkAdvSelectHotkey, %lDialogChangeHotkeyShowAdvSetting%
+	Gui, Add, Checkbox, x50 y+25 w400 vf_chkAdvancedSelectHotkey gAdvancedSelectHotkeyCheckboxChanged, %lDialogChangeHotkeyShowAdvanced%
+	GuiControl, , f_chkAdvancedSelectHotkey, %blnAdvancedSelectHotkey%
 	
-	gosub, CreateChangeHotkeyGuiBottom
-	
-	if (blnAdvSelectHotkey)
-	{
-		blnThisIsAdvancedSetting := true
-		gosub, CreateChangeHotkeyGuiTop
+	blnAdvancedSelectHotkey := true ; ###
+	Gosub, SelectHotkeyAdvanced
 
-		Gui, Add, Text, y+20 x50 w400, %lDialogChangeHotkeyShowAdvSettingIntro%
-		Gui, Font, , Courier
-		Gui, Add, Edit, y+10 x50 w200 vf_strAdvHotkey, %strNewHotkey%
-		Gui, Font
-		Gui, Add, Link, y+10 x50 w400, % L(lDialogChangeHotkeyShowAdvSettingLink, "http://www.google.com")
-		
-		gosub, CreateChangeHotkeyGuiBottom
-	}
-
-	if (strNewHotkey <> strActualHotkey)
-		strNewHotkey := HotkeyIfAvailable(strNewHotkey, (StrLen(strFavoriteLocation) ? strFavoriteLocation : strFavoriteName))
-	
-	; ###_V("strNewHotkey", strNewHotkey)
-	return strNewHotkey ; returning value
-	
-	;------------------------------------------------------------
-
-	;------------------------------------------------------------
-	CreateChangeHotkeyGuiTop:
-	;------------------------------------------------------------
-	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
-	Gui, 3:Default
-	Gui, +Owner2
-	Gui, +OwnDialogs
-	
-	if (g_blnUseColors)
-		Gui, Color, %g_strGuiWindowColor%
-	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
-	Gui, Font
-
-	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
-	Gui, Font, s8 w700
-	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
-	Gui, Font
-	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
-	if StrLen(strDescription)
-	{
-		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
-		StringReplace, strDescription, strDescription, </A>
-		Gui, Add, Text, xs y+5 w300, %strDescription%
-	}
-	return
-	;------------------------------------------------------------
-
-	;------------------------------------------------------------
-	CreateChangeHotkeyGuiBottom:
-	;------------------------------------------------------------
 	if StrLen(strFavoriteLocation)
 		Gui, Add, Text, x50 y+25 w400 center vf_ChangeHotkeyNote, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
 		
@@ -9424,6 +9396,47 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 
 	Gui, 2:+Disabled
 	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	
+	if (strNewHotkey <> strActualHotkey)
+		strNewHotkey := HotkeyIfAvailable(strNewHotkey, (StrLen(strFavoriteLocation) ? strFavoriteLocation : strFavoriteName))
+	
+	; ###_V("strNewHotkey", strNewHotkey)
+	return strNewHotkey ; returning value
+	
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	SelectHotkeyAdvanced:
+	;------------------------------------------------------------
+	Loop, Parse, strModifiersLabels, |
+	{
+		GuiControlGet, blnEnable, , f_bln%A_LoopField%
+		Gui, Add, Text, % "y+10 x50 w60 " . (blnAdvancedSelectHotkey ? "" : "hide"), % lDialog%A_LoopField%
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnLeft" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionLeft%
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnAny" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogChangeHotkeyShowAdvancedAny%
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnRight" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionRight%
+	}
+
+	return
+	;------------------------------------------------------------
+	
+	;------------------------------------------------------------
+	ModifierClicked:
+	;------------------------------------------------------------
+	Loop, Parse, strModifiersLabels, |
+	{
+		GuiControlGet, blnThisModifierOn, , f_bln%A_LoopField%
+		GuiControl, Enable%blnThisModifierOn%, % "f_blnLeft" . A_LoopField
+		GuiControl, Enable%blnThisModifierOn%, % "f_blnAny" . A_LoopField
+		GuiControl, Enable%blnThisModifierOn%, % "f_blnRight" . A_LoopField
+	}
+	return
+	;------------------------------------------------------------
+	
+	;------------------------------------------------------------
+	AdvancedSelectHotkeyCheckboxChanged:
+	;------------------------------------------------------------
+	
 	return
 	;------------------------------------------------------------
 
@@ -9518,6 +9531,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	GuiControl, , f_blnCtrl, % InStr(strActualModifiers, "^") ? 1 : 0
 	GuiControl, , f_blnAlt, % InStr(strActualModifiers, "!") ? 1 : 0
 	GuiControl, , f_blnWin, % InStr(strActualModifiers, "#") ? 1 : 0
+	gosub, 	ModifierClicked
 	
 	return
 	;------------------------------------------------------------
@@ -9565,7 +9579,6 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	GuiControlGet, blnAlt, , f_blnAlt
 	GuiControlGet, blnCtrl, , f_blnCtrl
 	GuiControlGet, blnShift, , f_blnShift
-	GuiControlGet, blnAdvSelectHotkey, , f_chkAdvSelectHotkey
 
 	if StrLen(strMouse)
 		strMouse := GetMouseButton4Text(strMouse) ; get mouse button system name from dropdown localized text
