@@ -9308,8 +9308,10 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	global
 
 	g_blnChangeHotkeyInProgress := true
-	blnAdvancedSelectHotkey := InStr(strActualHotkey, "<") or InStr(strActualHotkey, ">")
 	strModifiersLabels := "Shift|Ctrl|Alt|Win"
+	StringSplit, arrModifiersLabels, strModifiersLabels, |
+	strModifiersSymbols := "+|^|!|#"
+	StringSplit, arrModifiersSymbols, strModifiersSymbols, |
 	
 	SplitHotkey(strActualHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
 
@@ -9331,7 +9333,7 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
 	Gui, Font
 	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
 	if StrLen(strDescription)
 	{
 		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
@@ -9339,13 +9341,13 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		Gui, Add, Text, xs y+5 w300, %strDescription%
 	}
 
-	Loop, Parse, strModifiersLabels, |
+	Loop, 4 ; for each modifier add a checkbox
 	{
-		Gui, Add, CheckBox, % "y+" (A_LoopField = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . A_LoopField, % lDialog%A_LoopField%
-		if (A_LoopField = "Shift")
+		Gui, Add, CheckBox, % "y+" (arrModifiersLabels%A_Index% = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . arrModifiersLabels%A_Index%, % lDialog . arrModifiersLabels%A_Index%
+		if (arrModifiersLabels%A_Index% = "Shift")
 			GuiControlGet, arrTop, Pos, f_blnShift
 	}
-	Gosub, SetModifiersCheckBox
+	Gosub, SetModifiersCheckBox ; set checkboxes accorging to strActualModifiers
 
 	if (intHotkeyType = 1)
 		Gui, Add, DropDownList, % "y" . arrTopY . " x150 w200 vf_drpHotkeyMouse gMouseChanged", %strActualMouseButtonsWithDefault%
@@ -9376,21 +9378,28 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
 	}
 	
-	Gui, Add, Checkbox, x50 y+25 w400 vf_chkAdvancedSelectHotkey gAdvancedSelectHotkeyCheckboxChanged, %lDialogChangeHotkeyShowAdvanced%
-	GuiControl, , f_chkAdvancedSelectHotkey, %blnAdvancedSelectHotkey%
-	
-	blnAdvancedSelectHotkey := true ; ###
-	Gosub, SelectHotkeyAdvanced
+	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
+	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
+	{
+		GuiControlGet, blnEnable, , % f_bln . arrModifiersLabels%A_Index% ; enable according to modifier's checkbox
+		Gui, Font, w700
+		Gui, Add, Text, y+10 x50 w60 right, % lDialog . arrModifiersLabels%A_Index%
+		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
+		Gui, Font
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnLeft" . arrModifiersLabels%A_Index% . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionLeft%
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnAny" . arrModifiersLabels%A_Index% . " " . (blnEnable ? "" : "Disabled"), %lDialogChangeHotkeyAny%
+		Gui, Add, Radio, % "yp x+10 w80 vf_blnRight" . arrModifiersLabels%A_Index% . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionRight%
+	}
 
 	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, x50 y+25 w400 center vf_ChangeHotkeyNote, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
+		Gui, Add, Text, x10 y+25 w400 left vf_ChangeHotkeyNote, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
 		
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotkeyOK", "f_btnChangeHotkeyCancel")
 
-	Gui, Add, Text, vf_txtChangeHotkeyBottomMargin
+	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeHotkeyOK
 	Gui, Show, AutoSize Center
 
@@ -9406,41 +9415,6 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	SelectHotkeyAdvanced:
-	;------------------------------------------------------------
-	Loop, Parse, strModifiersLabels, |
-	{
-		GuiControlGet, blnEnable, , f_bln%A_LoopField%
-		Gui, Add, Text, % "y+10 x50 w60 " . (blnAdvancedSelectHotkey ? "" : "hide"), % lDialog%A_LoopField%
-		Gui, Add, Radio, % "yp x+10 w80 vf_blnLeft" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionLeft%
-		Gui, Add, Radio, % "yp x+10 w80 vf_blnAny" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogChangeHotkeyShowAdvancedAny%
-		Gui, Add, Radio, % "yp x+10 w80 vf_blnRight" . A_LoopField . " " . (blnEnable ? "" : "Disabled"), %lDialogWindowPositionRight%
-	}
-
-	return
-	;------------------------------------------------------------
-	
-	;------------------------------------------------------------
-	ModifierClicked:
-	;------------------------------------------------------------
-	Loop, Parse, strModifiersLabels, |
-	{
-		GuiControlGet, blnThisModifierOn, , f_bln%A_LoopField%
-		GuiControl, Enable%blnThisModifierOn%, % "f_blnLeft" . A_LoopField
-		GuiControl, Enable%blnThisModifierOn%, % "f_blnAny" . A_LoopField
-		GuiControl, Enable%blnThisModifierOn%, % "f_blnRight" . A_LoopField
-	}
-	return
-	;------------------------------------------------------------
-	
-	;------------------------------------------------------------
-	AdvancedSelectHotkeyCheckboxChanged:
-	;------------------------------------------------------------
-	
-	return
-	;------------------------------------------------------------
-
-	;------------------------------------------------------------
 	MouseChanged:
 	;------------------------------------------------------------
 
@@ -9449,10 +9423,9 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 
 	if (strMouseValue = lDialogNone) ; this is the translated "None"
 	{
-		GuiControl, , f_blnShift, 0
-		GuiControl, , f_blnCtrl, 0
-		GuiControl, , f_blnAlt, 0
-		GuiControl, , f_blnWin, 0
+		loop, 4 ; uncheck modifiers checkbox
+			GuiControl, , % f_bln . arrModifiersLabels%A_Index%, 0
+		gosub, ModifierClicked
 	}
 
 	if (intHotkeyType = 3) ; both keyboard and mouse options are available
@@ -9527,15 +9500,27 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	;------------------------------------------------------------
 	SetModifiersCheckBox:
 	;------------------------------------------------------------
-	GuiControl, , f_blnShift, % InStr(strActualModifiers, "+") ? 1 : 0
-	GuiControl, , f_blnCtrl, % InStr(strActualModifiers, "^") ? 1 : 0
-	GuiControl, , f_blnAlt, % InStr(strActualModifiers, "!") ? 1 : 0
-	GuiControl, , f_blnWin, % InStr(strActualModifiers, "#") ? 1 : 0
+	loop, 4 ; set modifiers checkboxes according to strActualModifiers
+		GuiControl, , % "f_bln" . arrModifiersLabels%A_Index%, % InStr(strActualModifiers, arrModifiersSymbols%A_Index%) ? 1 : 0
 	gosub, 	ModifierClicked
 	
 	return
 	;------------------------------------------------------------
 
+	;------------------------------------------------------------
+	ModifierClicked:
+	;------------------------------------------------------------
+	Loop, 4 ; enable/disable modifiers radio buttons groups for each modifier
+	{
+		strThisLabel := arrModifiersLabels%A_Index%
+		GuiControlGet, blnThisModifierOn, , % f_bln . arrModifiersLabels%A_Index%
+		GuiControl, Enable%blnThisModifierOn%, f_blnLeft%strThisLabel%
+		GuiControl, Enable%blnThisModifierOn%, f_blnAny%strThisLabel%
+		GuiControl, Enable%blnThisModifierOn%, f_blnRight%strThisLabel%
+	}
+	return
+	;------------------------------------------------------------
+	
 	;------------------------------------------------------------
 	ButtonChangeHotkeyOK:
 	;------------------------------------------------------------
