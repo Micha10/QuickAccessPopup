@@ -36,6 +36,8 @@ Version: 8.0.5 (2017-01-??)
 - fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
 - new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
 - renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
+- fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
+- in favoriote shortcuts, support left only or right only keyboard modifiers for Shift, Alt, Ctrl and Win keys
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
