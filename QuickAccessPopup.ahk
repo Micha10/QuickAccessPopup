@@ -39,6 +39,8 @@ Version: 8.0.5 (2017-01-??)
 - cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
 - fix bug double-click on empty line in Hotkeys list stop opening an empty Change hotkey dialog box
 - add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
+- fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
+- in favorites shortcuts, support left only or right only keyboard modifiers for Shift, Alt, Ctrl and Win keys
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -5308,7 +5310,7 @@ if !(f_blnChangeFolderInDialog)
 	return
 GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
-intGui2WinID := WinExist("A")
+g_intGui2WinID := WinExist("A")
 
 Gui, 3:New, , %lOptionsChangeFolderInDialog%
 Gui, 3:+Owner2
@@ -8756,8 +8758,9 @@ if (A_GuiEvent = "DoubleClick")
 		; returns the new hotkey, "None" if no hotkey or empty string if cancel
 		if !StrLen(g_strNewFavoriteHotkey)
 			g_strNewFavoriteHotkey := strBackupFavoriteHotkey
-		
-		Gosub, UpdateHotkeyObjectsHotkeysListSave
+		else
+			if (g_strNewFavoriteHotkey <> strBackupFavoriteHotkey)
+				Gosub, UpdateHotkeyObjectsHotkeysListSave
 	}
 }
 
@@ -9310,19 +9313,25 @@ return
 ; Gui in function, see from daniel2 http://www.autohotkey.com/board/topic/19880-help-making-gui-work-inside-a-function/#entry130557
 
 ;------------------------------------------------------------
-SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultHotkey := "", strDescription := "")
-; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
+SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_intHotkeyType, P_strDefaultHotkey := "", P_strDescription := "")
+; P_intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 ; returns the new hotkey, "None" if no hotkey or empty string if cancel
 ;------------------------------------------------------------
 {
-	; safer than declaring individual variables (see "Common source of confusion" in https://www.autohotkey.com/docs/Functions.htm#Locals)
+	; To create a global variable inside a function without knowing in advance what the variable's name is, the function must be assume-global. (Lexikos)
+	; (https://autohotkey.com/board/topic/84822-error-when-creating-gui-with-global-var-as-a-name/#entry540615)
+	; Use SH_ prefix in local variable names to avoid conflicts outside the function and empty these variable because the function will not do it.
 	global
 
 	g_blnChangeHotkeyInProgress := true
+	SH_strModifiersLabels := "Shift|Ctrl|Alt|Win"
+	StringSplit, SH_arrModifiersLabels, SH_strModifiersLabels, |
+	SH_strModifiersSymbols := "+|^|!|#"
+	StringSplit, SH_arrModifiersSymbols, SH_strModifiersSymbols, |
 	
-	SplitHotkey(strActualHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
+	SplitHotkey(P_strActualHotkey, SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
 
-	intGui2WinID := WinExist("A")
+	g_intGui2WinID := WinExist("A")
 
 	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
 	Gui, 3:Default
@@ -9337,54 +9346,68 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 
 	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
 	Gui, Font, s8 w700
-	Gui, Add, Text, x+5 yp w300 section, % strFavoriteName . (StrLen(strFavoriteType) ? " (" . strFavoriteType . ")" : "")
+	Gui, Add, Text, x+5 yp w300 section, % P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : "")
 	Gui, Font
-	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w400, % (strFavoriteType = "Snippet" ? StringLeftDotDotDot(strFavoriteLocation, 150) : strFavoriteLocation)
-	if StrLen(strDescription)
+	if StrLen(P_strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
+	if StrLen(P_strDescription)
 	{
-		StringReplace, strDescription, strDescription, <A> ; remove links from description (already displayed in previous dialog box)
-		StringReplace, strDescription, strDescription, </A>
-		Gui, Add, Text, xs y+5 w300, %strDescription%
+		StringReplace, P_strDescription, P_strDescription, <A> ; remove links from description (already displayed in previous dialog box)
+		StringReplace, P_strDescription, P_strDescription, </A>
+		Gui, Add, Text, xs y+5 w300, %P_strDescription%
 	}
 
-	Gui, Add, CheckBox, y+20 x50 vf_blnShift, %lDialogShift%
-	GuiControlGet, arrTop, Pos, f_blnShift
-	Gui, Add, CheckBox, y+10 x50 vf_blnCtrl, %lDialogCtrl%
-	Gui, Add, CheckBox, y+10 x50 vf_blnAlt, %lDialogAlt%
-	Gui, Add, CheckBox, y+10 x50 vf_blnWin, %lDialogWin%
-	Gosub, SetModifiersCheckBox
-
-	if (intHotkeyType = 1)
-		Gui, Add, DropDownList, % "y" . arrTopY . " x150 w200 vf_drpHotkeyMouse gMouseChanged", %strActualMouseButtonsWithDefault%
-	if (intHotkeyType = 3)
+	Loop, 4 ; for each modifier add a checkbox
 	{
-		Gui, Add, Text, % "y" . arrTopY . " x150 w60", %lDialogMouse%
-		Gui, Add, DropDownList, yp x+10 w200 vf_drpHotkeyMouse gMouseChanged, %strActualMouseButtonsWithDefault%
-		Gui, Add, Text, % "y" . arrTopY + 20 . " x150", %lDialogOr%
+		Gui, Add, CheckBox, % "y+" (SH_arrModifiersLabels%A_Index% = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SH_arrModifiersLabels%A_Index%, % lDialog . SH_arrModifiersLabels%A_Index%
+		if (SH_arrModifiersLabels%A_Index% = "Shift")
+			GuiControlGet, SH_arrTop, Pos, f_blnShift
 	}
-	if (intHotkeyType <> 1)
+
+	if (P_intHotkeyType = 1)
+		Gui, Add, DropDownList, % "y" . SH_arrTopY . " x150 w200 vf_drpHotkeyMouse gMouseChanged", %SH_strActualMouseButtonsWithDefault%
+	if (P_intHotkeyType = 3)
 	{
-		Gui, Add, Text, % "y" . arrTopY + (intHotkeyType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
+		Gui, Add, Text, % "y" . SH_arrTopY . " x150 w60", %lDialogMouse%
+		Gui, Add, DropDownList, yp x+10 w200 vf_drpHotkeyMouse gMouseChanged, %SH_strActualMouseButtonsWithDefault%
+		Gui, Add, Text, % "y" . SH_arrTopY + 20 . " x150", %lDialogOr%
+	}
+	if (P_intHotkeyType <> 1)
+	{
+		Gui, Add, Text, % "y" . SH_arrTopY + (P_intHotkeyType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
 		Gui, Add, Hotkey, yp x+10 w200 vf_strHotkeyKey gHotkeyChanged section
-		GuiControl, , f_strHotkeyKey, %strActualKey%
+		GuiControl, , f_strHotkeyKey, %SH_strActualKey%
 	}
-	if (intHotkeyType <> 1)
+	if (P_intHotkeyType <> 1)
 		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc")
 
-	Gui, Add, Button, % "x10 y" . arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
-	if StrLen(strDefaultHotkey)
+	Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
+	if StrLen(P_strDefaultHotkey)
 	{
-		Gui, Add, Button, % "x10 y" . arrTopY + 100 . " vf_btnResetHotkey gButtonResetHotkey", %lGuiResetDefault%
+		Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnResetHotkey gButtonResetHotkey", %lGuiResetDefault%
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey", "f_btnResetHotkey")
 	}
 	else
 	{
-		Gui, Add, Text, % "x10 y" . arrTopY + 100
+		Gui, Add, Text, % "x10 y" . SH_arrTopY + 100
 		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
 	}
-	if StrLen(strFavoriteLocation)
-		Gui, Add, Text, x50 y+25 w400 center, % (strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, strFavoriteLocation))
+	
+	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
+	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
+	{
+		Gui, Add, Text, y+10 x50 w60 right, % lDialog . SH_arrModifiersLabels%A_Index%
+		Gui, Font, w700
+		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
+		Gui, Font
+		Gui, Add, Radio, % "yp x+10 w80 vf_radLeft" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionLeft%
+		Gui, Add, Radio, % "yp x+10 w80 vf_radAny" . SH_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
+		Gui, Add, Radio, % "yp x+10 w80 vf_radRight" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
+	}
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
+
+	if StrLen(P_strFavoriteLocation)
+		Gui, Add, Text, x10 y+25 w400 left vf_ChangeHotkeyNote, % (P_strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, P_strFavoriteLocation))
 		
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
@@ -9397,11 +9420,39 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 
 	Gui, 2:+Disabled
 	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
-
-	if (strNewHotkey <> strActualHotkey)
-		strNewHotkey := HotkeyIfAvailable(strNewHotkey, (StrLen(strFavoriteLocation) ? strFavoriteLocation : strFavoriteName))
 	
-	return strNewHotkey ; returning value
+	if (SH_strNewHotkey <> P_strActualHotkey)
+		SH_strNewHotkey := HotkeyIfAvailable(SH_strNewHotkey, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
+
+	; Clean-up function global variables
+	SH_arrModifiersLabels := ""
+	SH_arrModifiersSymbols := ""
+	SH_arrTop := ""
+	SH_blnAlt := ""
+	SH_blnCtrl := ""
+	SH_blnShift := ""
+	SH_blnThisLeft := ""
+	SH_blnThisModifierOn := ""
+	SH_blnThisRight := ""
+	SH_blnWin := ""
+	SH_intReverseIndex := ""
+	SH_strActualKey := ""
+	SH_strActualModifiers := ""
+	SH_strActualMouseButton := ""
+	SH_strActualMouseButtonsWithDefault := ""
+	SH_strHotkeyControl := ""
+	SH_strHotkeyControlKey := ""
+	SH_strHotkeyControlModifiers := ""
+	SH_strKey := ""
+	SH_strModifiersLabels := ""
+	SH_strModifiersSymbols := ""
+	SH_strMouse := ""
+	SH_strMouseControl := ""
+	SH_strMouseValue := ""
+	SH_strThisLabel := ""
+	SH_strThisSymbol := ""
+
+	return SH_strNewHotkey ; returning value
 	
 	;------------------------------------------------------------
 
@@ -9409,18 +9460,17 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	MouseChanged:
 	;------------------------------------------------------------
 
-	strMouseControl := A_GuiControl ; hotkey var name
-	GuiControlGet, strMouseValue, , %strMouseControl%
+	SH_strMouseControl := A_GuiControl ; hotkey var name
+	GuiControlGet, SH_strMouseValue, , %SH_strMouseControl%
 
-	if (strMouseValue = lDialogNone) ; this is the translated "None"
+	if (SH_strMouseValue = lDialogNone) ; this is the translated "None"
 	{
-		GuiControl, , f_blnShift, 0
-		GuiControl, , f_blnCtrl, 0
-		GuiControl, , f_blnAlt, 0
-		GuiControl, , f_blnWin, 0
+		loop, 4 ; uncheck modifiers checkbox
+			GuiControl, , % f_bln . SH_arrModifiersLabels%A_Index%, 0
+		gosub, ModifierClicked
 	}
 
-	if (intHotkeyType = 3) ; both keyboard and mouse options are available
+	if (P_intHotkeyType = 3) ; both keyboard and mouse options are available
 		; we have a mouse button, empty the hotkey control
 		GuiControl, , f_strHotkeyKey, None
 
@@ -9430,15 +9480,15 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	;------------------------------------------------------------
 	HotkeyChanged:
 	;------------------------------------------------------------
-	strHotkeyControl := A_GuiControl ; hotkey var name
-	strHotkeyChanged := %strHotkeyControl% ; hotkey content
+	SH_strHotkeyControl := A_GuiControl ; hotkey var name
+	SH_strHotkeyControl := %SH_strHotkeyControl% ; hotkey content
 
-	if !StrLen(strHotkeyChanged)
+	if !StrLen(SH_strHotkeyControl)
 		return
 
-	SplitModifiersFromKey(strHotkeyChanged, strHotkeyChangedModifiers, strHotkeyChangedKey)
+	SplitModifiersFromKey(SH_strHotkeyControl, SH_strHotkeyControlModifiers, SH_strHotkeyControlKey)
 
-	if StrLen(strHotkeyChangedModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
+	if StrLen(SH_strHotkeyControlModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
 		GuiControl, , %A_GuiControl%, None
 	else ; we have a valid key, empty the mouse dropdown and return
 		GuiControl, Choose, f_drpHotkeyMouse, 0
@@ -9452,10 +9502,8 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 
 	GuiControl, , f_strHotkeyKey, %lDialogNone%
 	GuiControl, Choose, f_drpHotkeyMouse, %lDialogNone%
-	SplitHotkey("None", strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
-	Gosub, SetModifiersCheckBox
-
-	; OUT OK? strModifiers := ""
+	SplitHotkey("None", SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
 
 	return
 	;------------------------------------------------------------
@@ -9481,65 +9529,95 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	ButtonResetHotkey:
 	;------------------------------------------------------------
 
-	SplitHotkey(strDefaultHotkey, strActualModifiers, strActualKey, strActualMouseButton, strActualMouseButtonsWithDefault)
-	GuiControl, , f_strHotkeyKey, %strActualKey%
-	GuiControl, Choose, f_drpHotkeyMouse, % GetText4MouseButton(strActualMouseButton)
-	Gosub, SetModifiersCheckBox
+	SplitHotkey(P_strDefaultHotkey, SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
+	GuiControl, , f_strHotkeyKey, %SH_strActualKey%
+	GuiControl, Choose, f_drpHotkeyMouse, % GetText4MouseButton(SH_strActualMouseButton)
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
 	
 	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	SetModifiersCheckBox:
+	SetModifiersCheckBoxAndRadio:
 	;------------------------------------------------------------
-	GuiControl, , f_blnShift, % InStr(strActualModifiers, "+") ? 1 : 0
-	GuiControl, , f_blnCtrl, % InStr(strActualModifiers, "^") ? 1 : 0
-	GuiControl, , f_blnAlt, % InStr(strActualModifiers, "!") ? 1 : 0
-	GuiControl, , f_blnWin, % InStr(strActualModifiers, "#") ? 1 : 0
+	loop, 4 ; set modifiers checkboxes according to SH_strActualModifiers
+	{
+		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
+		strThisSymbol := SH_arrModifiersSymbols%A_Index%
+		
+		GuiControl, , % "f_bln" . SH_strThisLabel, % InStr(SH_strActualModifiers, strThisSymbol) ? 1 : 0
+		
+		GuiControl, , f_radLeft%SH_strThisLabel%, % InStr(SH_strActualModifiers, "<" . strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
+		GuiControl, , f_radAny%SH_strThisLabel%, % !InStr(SH_strActualModifiers, "<" . strThisSymbol) and !InStr(P_strActualHotkey, ">" . strThisSymbol)
+		GuiControl, , f_radRight%SH_strThisLabel%, % InStr(SH_strActualModifiers, ">" . strThisSymbol) > 0
+	}
+	gosub, ModifierClicked
 	
 	return
 	;------------------------------------------------------------
 
+	;------------------------------------------------------------
+	ModifierClicked:
+	;------------------------------------------------------------
+	Loop, 4 ; enable/disable modifiers radio buttons groups for each modifier
+	{
+		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
+		SH_strThisSymbol := SH_arrModifiersSymbols%A_Index%
+		
+		GuiControlGet, SH_blnThisModifierOn, , % f_bln . SH_arrModifiersLabels%A_Index%
+		GuiControl, Enable%SH_blnThisModifierOn%, f_radLeft%SH_strThisLabel%
+		GuiControl, Enable%SH_blnThisModifierOn%, f_radAny%SH_strThisLabel%
+		GuiControl, Enable%SH_blnThisModifierOn%, f_radRight%SH_strThisLabel%
+	}
+	return
+	;------------------------------------------------------------
+	
 	;------------------------------------------------------------
 	ButtonChangeHotkeyOK:
 	;------------------------------------------------------------
 	
-	GuiControlGet, strMouse, , f_drpHotkeyMouse
-	GuiControlGet, strKey, , f_strHotkeyKey
-	GuiControlGet, blnWin , ,f_blnWin
-	GuiControlGet, blnAlt, , f_blnAlt
-	GuiControlGet, blnCtrl, , f_blnCtrl
-	GuiControlGet, blnShift, , f_blnShift
+	GuiControlGet, SH_strMouse, , f_drpHotkeyMouse
+	GuiControlGet, SH_strKey, , f_strHotkeyKey
+	GuiControlGet, SH_blnWin , ,f_blnWin
+	GuiControlGet, SH_blnAlt, , f_blnAlt
+	GuiControlGet, SH_blnCtrl, , f_blnCtrl
+	GuiControlGet, SH_blnShift, , f_blnShift
 
-	if StrLen(strMouse)
-		strMouse := GetMouseButton4Text(strMouse) ; get mouse button system name from dropdown localized text
-	; else ???
-	;	strMouseButton%intIndex% := "" ;  empty mouse button text
+	if StrLen(SH_strMouse)
+		SH_strMouse := GetMouseButton4Text(SH_strMouse) ; get mouse button system name from dropdown localized text
 	
-	strNewHotkey := Trim(strKey . (strMouse = "None" ? "" : strMouse))
-	if !StrLen(strNewHotkey)
-		strNewHotkey := "None"
+	SH_strNewHotkey := Trim(SH_strKey . (SH_strMouse = "None" ? "" : SH_strMouse))
+	if !StrLen(SH_strNewHotkey)
+		SH_strNewHotkey := "None"
 	
-	if HasHotkey(strNewHotkey)
-	{
-		; Order of modifiers important to keep modifiers labels in correct order
-		if (blnWin)
-			strNewHotkey := "#" . strNewHotkey
-		if (blnAlt)
-			strNewHotkey := "!" . strNewHotkey
-		if (blnCtrl)
-			strNewHotkey := "^" . strNewHotkey
-		if (blnShift)
-			strNewHotkey := "+" . strNewHotkey
-
-		if (strNewHotkey = "LButton")
+	if HasHotkey(SH_strNewHotkey)
+		Loop, 4
 		{
-			Oops(lDialogMouseCheckLButton, lDialogShift, lDialogCtrl, lDialogAlt, lDialogWin)
-			strNewHotkey := ""
-			return
+			SH_intReverseIndex := -(A_Index-5) ; reverse order of modifiers important to keep modifiers labels in correct order
+			SH_strThisLabel := SH_arrModifiersLabels%SH_intReverseIndex%
+			SH_strThisSymbol := SH_arrModifiersSymbols%SH_intReverseIndex%
+			if (SH_bln%SH_strThisLabel%)
+			{
+				GuiControlGet, SH_blnThisLeft, , f_radLeft%SH_strThisLabel%
+				GuiControlGet, SH_blnThisRight, , f_radRight%SH_strThisLabel%
+				SH_strNewHotkey := (SH_blnThisLeft ? "<" : "") . (SH_blnThisRight ? ">" : "") . SH_strThisSymbol . SH_strNewHotkey
+			}
 		}
-	}
 
+	; ###_V(A_ThisLabel, SH_strNewHotkey)
+	
+	if (SH_strNewHotkey = "LButton")
+	{
+		Oops(lDialogChangeHotkeyMouseCheckLButton, lDialogShift, lDialogCtrl, lDialogAlt, lDialogWin)
+		SH_strNewHotkey := ""
+		return
+	}
+	else if (SH_blnWin or SH_blnAlt or SH_blnCtrl or SH_blnShift) and (SH_strNewHotkey = "None")
+	{
+		Oops(lDialogChangeHotkeyModifierAndNone)
+		SH_strNewHotkey := ""
+		return
+	}	
 	g_blnChangeHotkeyInProgress := false
 	Gosub, 3GuiClose
 	
@@ -9550,14 +9628,13 @@ SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocat
 	ButtonChangeHotkeyCancel:
 	;------------------------------------------------------------
 	
-	strNewHotkey := ""
+	SH_strNewHotkey := ""
 
 	g_blnChangeHotkeyInProgress := false
 	Gosub, 3GuiClose
   
 	return
 	;------------------------------------------------------------
-
 }
 ;------------------------------------------------------------
 
@@ -9832,7 +9909,7 @@ return
 Gui, 2:-Disabled
 Gui, 3:Destroy
 if (g_intGui2WinID <> A_ScriptHwnd)
-	WinActivate, ahk_id %intGui2WinID%
+	WinActivate, ahk_id %g_intGui2WinID%
 
 return
 ;------------------------------------------------------------
@@ -13551,13 +13628,13 @@ HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 		loop, parse, strModifiers
 		{
 			if (A_LoopField = "!")
-				str := str . lDialogAlt . "+"
+				str := str . (InStr(strModifiers, "<!") ? "<" : InStr(strModifiers, ">!") ? ">" : "") . lDialogAlt . "+"
 			if (A_LoopField = "^")
-				str := str . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
+				str := str . (InStr(strModifiers, "<^") ? "<" : InStr(strModifiers, ">^") ? ">" : "") . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
 			if (A_LoopField = "+")
-				str := str . lDialogShift . "+"
+				str := str . (InStr(strModifiers, "<+") ? "<" : InStr(strModifiers, ">+") ? ">" : "") . lDialogShift . "+"
 			if (A_LoopField = "#")
-				str := str . (blnShort ? lDialogWinShort : lDialogWin) . "+"
+				str := str . (InStr(strModifiers, "<#") ? "<" : InStr(strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
 		}
 		if StrLen(strMouseButton)
 			str := str . GetText4MouseButton(strMouseButton)
@@ -13621,8 +13698,8 @@ GetFirstNotModifier(strHotkey)
 {
 	intPos := 0
 	loop, Parse, strHotkey
-		if (A_LoopField = "^") or (A_LoopField = "!") or (A_LoopField = "+") or (A_LoopField = "#")
-			intPos := intPos + 1
+		if InStr("^!+#<>", A_LoopField)
+			intPos++
 		else
 			return intPos
 	return intPos
