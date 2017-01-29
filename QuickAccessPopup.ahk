@@ -38,6 +38,7 @@ Version: 8.0.5 (2017-01-??)
 - renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
 - cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
 - fix bug double-click on empty line in Hotkeys list stop opening an empty Change hotkey dialog box
+- add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -2406,9 +2407,10 @@ InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "Switch
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
 
 ; Alernative Menu features
-InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,	"", "", 1, "iconFolder")
+InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,		"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,	"", "", 3, "iconEditFavorite")
-InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,		"", "", 5, "iconClipboard", "+^V")
+InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,				"", "", 5, "iconClipboard", "+^V")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,			"", "", 6, "iconApplication")
 
 ;--------------------------------
 ; Build folders list for dropdown
@@ -10420,6 +10422,8 @@ else if (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 	strMessage := lAlternativeMenuTrayTipNewWindow
 else if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	strMessage := lAlternativeMenuTrayTipEditFavorite
+else if (g_strAlternativeMenu = lMenuAlternativeRunAs)
+	strMessage := lAlternativeMenuTrayTipRunAs
 else
 	strMessage := ""
 
@@ -10805,7 +10809,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 	or (StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType))
 {
 	Run, %g_strFullLocation%, , UseErrorLevel, intPid
-	if (ErrorLevel)
+	if (ErrorLevel = "ERROR")
 		Oops(lOopsUnknownTargetAppName)
 	else
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
@@ -10843,12 +10847,20 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
-	Run, % (g_objThisFavorite.FavoriteElevate ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, , intPid
-	if (intPid)
+	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, UseErrorLevel, intPid
+	if (ErrorLevel = "ERROR")
 	{
-		g_strNewWindowId := "ahk_pid " . intPid
-		gosub, OpenFavoriteWindowResize
+		if (A_LastError <> 1223)
+			Oops(lOopsUnknownTargetAppName)
+		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
+	else
+		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
+		if (intPid)
+		{
+			g_strNewWindowId := "ahk_pid " . intPid
+			gosub, OpenFavoriteWindowResize
+		}
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -12017,8 +12029,9 @@ OpenFavoriteWindowResize:
 if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode
-	SetTitleMatchMode, RegEx ; with RegEx: for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere (because by default, regular expressions find a match anywhere in the target string).
-	; ###_V(A_ThisLabel, g_strNewWindowId, g_arrFavoriteWindowPosition1, g_arrFavoriteWindowPosition2, g_arrFavoriteWindowPosition3, g_arrFavoriteWindowPosition4, g_arrFavoriteWindowPosition5, g_arrFavoriteWindowPosition6, g_arrFavoriteWindowPosition7)
+	; with RegEx: for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
+	; (because by default, regular expressions find a match anywhere in the target string).
+	SetTitleMatchMode, RegEx
 	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstItemOfGroup ? 2 : 1)
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
