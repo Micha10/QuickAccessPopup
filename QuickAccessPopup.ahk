@@ -4499,10 +4499,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
 		
-		if (g_intHotkeyReminders > 1) and g_objHotkeysByNameLocation.HasKey(objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation)
+		if (g_intHotkeyReminders > 1) and g_objHotkeysByNameLocation.HasKey(FavoriteNameLocationFromObject(objCurrentMenu[A_Index]))
 			strMenuName .= " (" . (g_intHotkeyReminders = 2
-				? g_objHotkeysByNameLocation[objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation] 
-				: Hotkey2Text(g_objHotkeysByNameLocation[objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation])) . ")"
+				? g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])] 
+				: Hotkey2Text(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])])) . ")"
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
 			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels and LiveFolderHasContent(objCurrentMenu[A_Index])) and !(g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
@@ -6657,7 +6657,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	if (strGuiFavoriteLabel = "GuiCopyFavorite")
 		g_strNewFavoriteHotkey := "None" ; copied favorite has no hotkey
 	else
-		g_strNewFavoriteHotkey := g_objHotkeysByNameLocation[g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation]
+		g_strNewFavoriteHotkey := g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(g_objEditedFavorite)]
 
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -8121,9 +8121,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	; before updating g_objEditedFavorite.FavoriteLocation, check if location was changed and update hotkeys objects
 	if StrLen(g_objEditedFavorite.FavoriteLocation) and (g_objEditedFavorite.FavoriteLocation <> strNewFavoriteLocation)
 	{
-		g_objHotkeysByNameLocation.Remove(g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation)
+		g_objHotkeysByNameLocation.Remove(FavoriteNameLocationFromObject(g_objEditedFavorite))
 		if StrLen(strNewFavoriteLocation) and HasHotkey(g_strNewFavoriteHotkey)
-			g_objHotkeysByNameLocation.Insert(strNewFavoriteShortName . "|" . strNewFavoriteLocation, g_strNewFavoriteHotkey) ; if the key already exists, its value is overwritten
+			g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : strNewFavoriteShortName) ; QAP features name must be empty
+				. "|" . strNewFavoriteLocation, g_strNewFavoriteHotkey) ; if the key already exists, its value is overwritten
 	}
 	
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
@@ -8196,7 +8197,7 @@ else ; GuiMoveOneFavoriteSave
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	; for Menu and Group in multiple moved, update the .FavoriteLocation in favorite object and update menus and hotkeys index objects
 	{
-		strPreviousName := g_objEditedFavorite.FavoriteName ; save it to be able to remove hotkey if there is one for this location
+		strPreviousName := (g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName) ; save it to be able to remove hotkey if there is one for this location
 		strPreviousLocation := g_objEditedFavorite.FavoriteLocation ; save it to be able to remove hotkey if there is one for this location
 		
 		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . g_objEditedFavorite.FavoriteName
@@ -8206,7 +8207,8 @@ else ; GuiMoveOneFavoriteSave
 		if g_objHotkeysByNameLocation.HasKey(strPreviousName . "|" . strPreviousLocation)
 		{
 			StringReplace, strMenuLocation, strMenuLocation, %lMainMenuName%%A_Space% ; menu path without main menu localized name
-			g_objHotkeysByNameLocation.Insert(g_objEditedFavorite.FavoriteName . "|" . strMenuLocation, g_objHotkeysByNameLocation[strPreviousName . "|" . strPreviousLocation])
+			g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName)
+				. "|" . strMenuLocation, g_objHotkeysByNameLocation[strPreviousName . "|" . strPreviousLocation])
 			g_objHotkeysByNameLocation.Remove(strPreviousName . "|" . strPreviousLocation) ; must be after the g_objHotkeysByNameLocation.Insert
 		}
 		
@@ -8751,8 +8753,8 @@ if (A_GuiEvent = "DoubleClick")
 	{
 		g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
 		
-		strBackupFavoriteHotkey := g_objHotkeysByNameLocation[g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation]
-		g_strNewFavoriteHotkey := SelectHotkey(g_objHotkeysByNameLocation[g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation]
+		strBackupFavoriteHotkey := g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(g_objEditedFavorite)]
+		g_strNewFavoriteHotkey := SelectHotkey(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(g_objEditedFavorite)]
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation, 3
@@ -8835,10 +8837,10 @@ RecursiveLoadMenuHotkeys(objCurrentMenu)
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if !InStr("B|X", objCurrentMenu[A_Index].FavoriteType)
-			and (g_objHotkeysByNameLocation.HasKey(objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation) or f_blnSeeAllFavorites)
+			and (g_objHotkeysByNameLocation.HasKey(FavoriteNameLocationFromObject(objCurrentMenu[A_Index])) or f_blnSeeAllFavorites)
 		{
-			strThisHotkey := (StrLen(g_objHotkeysByNameLocation[objCurrentMenu[A_Index].FavoriteName . objCurrentMenu[A_Index].FavoriteLocation])
-				? g_objHotkeysByNameLocation[objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation] : lDialogNone)
+			strThisHotkey := (StrLen(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])])
+				? g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])] : lDialogNone)
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			g_intHotkeyListOrder++
 			; Position (hidden)|Menu|Favorite Name|Type|Hotkey|Favorite Location
@@ -9650,12 +9652,12 @@ UpdateHotkeyObjectsHotkeysListSave:
 ;-----------------------------------------------------------
 
 ; if the hotkey changed, add new or remove hotkey from object
-if (g_objHotkeysByNameLocation[g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation] <> g_strNewFavoriteHotkey)
+if (g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(g_objEditedFavorite)] <> g_strNewFavoriteHotkey)
 {
 	if HasHotkey(g_strNewFavoriteHotkey)
-		g_objHotkeysByNameLocation.Insert(g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation, g_strNewFavoriteHotkey)
+		g_objHotkeysByNameLocation.Insert(FavoriteNameLocationFromObject(g_objEditedFavorite), g_strNewFavoriteHotkey)
 	else
-		g_objHotkeysByNameLocation.Remove(g_objEditedFavorite.FavoriteName . "|" . g_objEditedFavorite.FavoriteLocation)
+		g_objHotkeysByNameLocation.Remove(FavoriteNameLocationFromObject(g_objEditedFavorite))
 }
 
 if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
@@ -14582,6 +14584,15 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			return
 		}
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FavoriteNameLocationFromObject(objFavorite)
+;------------------------------------------------------------
+{
+	return (objFavorite.FavoriteType = "QAP" ? "" : objFavorite.FavoriteName) . "|" . objFavorite.FavoriteLocation
 }
 ;------------------------------------------------------------
 
