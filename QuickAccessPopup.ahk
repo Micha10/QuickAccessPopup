@@ -2624,7 +2624,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Hotkey2=|{Current Folders}|+^F
 			Hotkey3=|{Recent Folders}|+^R
 			Hotkey4=|{Clipboard}|+^C
-			Hotkey4=|{Switch Folder or App}|+^W
+			Hotkey5=|{Switch Folder or App}|+^W
 
 )
 		, %g_strIniFile%
@@ -9841,8 +9841,9 @@ RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu)
 			if !(blnHotkeyNotNeeded)
 				return false ; we need this hotkey, stop recursion
 		}
-			
-		if (objCurrentMenu[A_Index].FavoriteName . "|" . objCurrentMenu[A_Index].FavoriteLocation = strHotkeyNameLocation)
+		
+		strTempName := (objCurrentMenu[A_Index].FavoriteType = "QAP" ? "" : objCurrentMenu[A_Index].FavoriteName)
+		if (strTempName . "|" . objCurrentMenu[A_Index].FavoriteLocation = strHotkeyNameLocation)
 			return false
 	}
 	
