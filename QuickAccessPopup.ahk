@@ -41,6 +41,7 @@ Version: 8.0.5 (2017-01-??)
 - add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
 - fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
 - in favorites shortcuts, support left only or right only keyboard modifiers for Shift, Alt, Ctrl and Win keys
+- support different hotkeys for favorites of the same location with different options; hotkeys are now linked to "name + location"
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -2579,6 +2580,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
+			HotkeysUpgradedToNameLocation=1
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -3179,14 +3181,29 @@ LoadIniLocationHotkeys:
 ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
 ;------------------------------------------------------------
 
+; check if location hotkeys need to be converted to v8.1 "name|location|hotkey" format
+IniRead, blnHotkeysUpgradedToNameLocation, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation, 0 ; default false
+
 Loop
 {
 	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
 	if (strLocationHotkey = "ERROR")
 		break
-	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey
+	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
+	if !(blnHotkeysUpgradedToNameLocation)
+	; convert format from pre-v8.1 "location|hotkey" to "name|location|hotkey", using the name of the first favorite found for location
+	; (if other favorites have the same location, their hotkey is lost and will have to be recreated by user)
+	{
+		arrLocationHotkey3 := arrLocationHotkey2 ; in this order, move hotkey to 3rd position
+		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
+		arrLocationHotkey1 := GetFirstName4Location(arrLocationHotkey2) ; get name of first favorite for this location (searching in order of favorites in ini file)
+		IniWrite, %arrLocationHotkey1%|%arrLocationHotkey2%|%arrLocationHotkey3%, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index% ; update ini file value
+	}
 	g_objHotkeysByNameLocation.Insert(arrLocationHotkey1 . "|" . arrLocationHotkey2, arrLocationHotkey3)
 }
+
+if !(blnHotkeysUpgradedToNameLocation) ; flag tha convertion to v8.1 has been made
+	IniWrite, 1, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation
 
 strLocationHotkey := ""
 arrLocationHotkey := ""
@@ -9703,7 +9720,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	; check favorites hotkeys
 	if !StrLen(strExistingLocation)
 	{
-		strExistingNameLocation := GetHotkeyLocation(strHotkey)
+		strExistingNameLocation := GetHotkeyNameLocation(strHotkey)
 		StringSplit, arrExistingNameLocation, strExistingNameLocation, |
 		strExistingLocation := arrExistingNameLocation2
 	}
@@ -9752,7 +9769,10 @@ for strNameLocation, strHotkey in g_objHotkeysByNameLocation
 	if (ErrorLevel)
 	{
 		StringSplit, arrNameLocation, strNameLocation, | ; name|location
-		Oops(lDialogInvalidHotkeyFavorite, strHotkey, arrNameLocation1, arrNameLocation2) ; ##### cover case where arrNameLocation1 is empty -> QAP feature
+		if StrLen(arrNameLocation1)
+			Oops(lDialogInvalidHotkeyFavorite, strHotkey, arrNameLocation1, arrNameLocation2)
+		else ; for QAP feature arrNameLocation1 is empty
+			Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, arrNameLocation2)
 	}
 }
 
@@ -9829,20 +9849,6 @@ RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu)
 	return true
 }
 ;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetHotkeyLocation(strHotkey)
-;------------------------------------------------------------
-{
-	global g_objHotkeysByNameLocation
-	
-	for strNameLocation, strThisHotkey in g_objHotkeysByNameLocation
-		if (strHotkey = strThisHotkey)
-			return strNameLocation
-	
-	return ""
-}
 
 
 ;========================================================================================================================
@@ -11094,7 +11100,7 @@ if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavorite
 else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 {
 	blnLocationFound := false
-	strThisNameLocation := GetHotkeyLocation(A_ThisHotkey)
+	strThisNameLocation := GetHotkeyNameLocation(A_ThisHotkey)
 	StringSplit, arrThisNameLocation, strThisNameLocation, |
 
 	for strMenuPath, objMenu in g_objMenusIndex
@@ -11109,6 +11115,14 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 				break, 2
 			}
 		}
+	}
+	
+	if !(blnLocationFound) ; should not happen
+	{
+		Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
+		
+		gosub, OpenFavoriteGetFavoriteObjectCleanup
+		return
 	}
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
@@ -11132,13 +11146,6 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		}
 	}
 
-	if !(blnLocationFound) ; should not happen
-	{
-		Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
-		
-		gosub, OpenFavoriteGetFavoriteObjectCleanup
-		return
-	}
 	; DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
 	if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
 		g_strHokeyTypeDetected := "Navigate"
@@ -13568,6 +13575,42 @@ GetOSVersionInfo()
 		Ver.EasyVersion       := Ver.MajorVersion . "." . Ver.MinorVersion . "." . Ver.BuildNumber
 	}
 	return Ver
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFirstName4Location(strLocation)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+
+	Loop
+	{
+		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
+		if (strLoadIniLine = "ERROR")
+			break
+		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
+		StringSplit, arrThisFavorite, strLoadIniLine, |
+		if (arrThisFavorite3 = strLocation)
+			return arrThisFavorite2
+	}
+	; else function returns ""
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetHotkeyNameLocation(strHotkey)
+;------------------------------------------------------------
+{
+	global g_objHotkeysByNameLocation
+	
+	for strNameLocation, strThisHotkey in g_objHotkeysByNameLocation
+		if (strHotkey = strThisHotkey)
+			return strNameLocation
+	
+	return ""
 }
 ;------------------------------------------------------------
 
