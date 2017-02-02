@@ -6041,6 +6041,7 @@ LV_Delete()
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
+	strThisHotkey := Hotkey2Text(g_objHotkeysByNameLocation[g_objMenuInGui[A_Index].FavoriteName . "|" . g_objMenuInGui[A_Index].FavoriteLocation])
 	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
@@ -6057,20 +6058,20 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator
 		}
 		
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strGuiMenuLocation)
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
-		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
+		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, "", g_strGuiMenuSeparator . g_strGuiMenuSeparator)
 	
 	else if (g_objMenuInGui[A_Index].FavoriteType = "K") ; this is a column break
 		LV_Add(, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine
-		, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
+		, g_strGuiDoubleLine, "", g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
 		
 	else if (g_objMenuInGui[A_Index].FavoriteType = "B") ; this is a back link
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   " , "")
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a folder, document, URL or application
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
@@ -6084,6 +6085,7 @@ GuiControl, Focus, f_lvFavoritesList
 
 strGuiMenuLocation := ""
 strThisType := ""
+strThisHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -8284,9 +8286,9 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	
 	if (g_intNewItemPos)
-		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
+		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
 	else
-		LV_Add("Select Focus", g_objEditedFavorite.FavoriteName, strThisType, strThisLocation)
+		LV_Add("Select Focus", g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
 
 	LV_Modify(LV_GetNext(), "Vis")
 }
@@ -8646,15 +8648,15 @@ MoveFavoriteInMenuObject(g_objMenuInGui, g_intSelectedRow, (InStr(A_ThisLabel, "
 
 ; --- move in Gui ---
 
-Loop, 3
+Loop, 4
 	LV_GetText(arrThis%A_Index%, g_intSelectedRow, A_Index)
 
-Loop, 3
+Loop, 4
 	LV_GetText(arrOther%A_Index%, g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), A_Index)
 
 LV_Modify(g_intSelectedRow, "-Select")
-LV_Modify(g_intSelectedRow, "", arrOther1, arrOther2, arrOther3)
-LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), , arrThis1, arrThis2, arrThis3)
+LV_Modify(g_intSelectedRow, "", arrOther1, arrOther2, arrOther3, arrOther4)
+LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), , arrThis1, arrThis2, arrThis3, arrThis4)
 
 if !InStr(A_ThisLabel, "One")
 	LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), "Select Focus Vis")
