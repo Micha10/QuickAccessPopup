@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.0.5 (2017-01-??)
+Version BETA: 8.0.9.1 (2017-02-03)
 - update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
 - fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
 - new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
@@ -1195,7 +1195,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.5
+;@Ahk2Exe-SetVersion 8.0.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1254,7 +1254,7 @@ g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
 ; Start of code for developement environment only - won't be compiled
 if (A_ComputerName = "JEAN-PC") ; for my home PC
 	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-HOME.ini"
-else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
+else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
@@ -1268,8 +1268,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.0.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -6041,7 +6041,8 @@ LV_Delete()
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
-	strThisHotkey := Hotkey2Text(g_objHotkeysByNameLocation[g_objMenuInGui[A_Index].FavoriteName . "|" . g_objMenuInGui[A_Index].FavoriteLocation])
+	strThisHotkey := Hotkey2Text(g_objHotkeysByNameLocation[(g_objMenuInGui[A_Index].FavoriteType = "QAP" ? "" : g_objMenuInGui[A_Index].FavoriteName) 
+		. "|" . g_objMenuInGui[A_Index].FavoriteLocation])
 	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
@@ -9422,18 +9423,18 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
 	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
 	{
-		Gui, Add, Text, y+10 x50 w60 right, % lDialog . SH_arrModifiersLabels%A_Index%
+		Gui, Add, Text, y+10 x10 w60 right, % lDialog . SH_arrModifiersLabels%A_Index%
 		Gui, Font, w700
 		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
 		Gui, Font
-		Gui, Add, Radio, % "yp x+10 w80 vf_radLeft" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionLeft%
-		Gui, Add, Radio, % "yp x+10 w80 vf_radAny" . SH_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
-		Gui, Add, Radio, % "yp x+10 w80 vf_radRight" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radLeft" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionLeft%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SH_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
 	}
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
 
 	if StrLen(P_strFavoriteLocation)
-		Gui, Add, Text, x10 y+25 w400 left vf_ChangeHotkeyNote, % (P_strFavoriteType = "Snippet" ? lDialogChangeHotkeyNoteSnippet : L(lDialogChangeHotkeyNote, P_strFavoriteLocation))
+		Gui, Add, Text, x10 y+25 w400 left vf_ChangeHotkeyNote, % (P_strFavoriteType = "Snippet" ? L(lDialogChangeHotkeyNoteSnippet, P_strFavoriteName) : L(lDialogChangeHotkeyNote, P_strFavoriteLocation, P_strFavoriteName))
 		
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
@@ -9492,7 +9493,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 	if (SH_strMouseValue = lDialogNone) ; this is the translated "None"
 	{
 		loop, 4 ; uncheck modifiers checkbox
-			GuiControl, , % f_bln . SH_arrModifiersLabels%A_Index%, 0
+			GuiControl, , % "f_bln" . SH_arrModifiersLabels%A_Index%, 0
 		gosub, ModifierClicked
 	}
 
@@ -9569,13 +9570,13 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 	loop, 4 ; set modifiers checkboxes according to SH_strActualModifiers
 	{
 		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
-		strThisSymbol := SH_arrModifiersSymbols%A_Index%
+		SH_strThisSymbol := SH_arrModifiersSymbols%A_Index%
 		
-		GuiControl, , % "f_bln" . SH_strThisLabel, % InStr(SH_strActualModifiers, strThisSymbol) ? 1 : 0
+		GuiControl, , % "f_bln" . SH_strThisLabel, % InStr(SH_strActualModifiers, SH_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
 		
-		GuiControl, , f_radLeft%SH_strThisLabel%, % InStr(SH_strActualModifiers, "<" . strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
-		GuiControl, , f_radAny%SH_strThisLabel%, % !InStr(SH_strActualModifiers, "<" . strThisSymbol) and !InStr(P_strActualHotkey, ">" . strThisSymbol)
-		GuiControl, , f_radRight%SH_strThisLabel%, % InStr(SH_strActualModifiers, ">" . strThisSymbol) > 0
+		GuiControl, , f_radLeft%SH_strThisLabel%, % InStr(SH_strActualModifiers, "<" . SH_strThisSymbol) > 0
+		GuiControl, , f_radAny%SH_strThisLabel%, % !InStr(SH_strActualModifiers, "<" . SH_strThisSymbol) and !InStr(P_strActualHotkey, ">" . SH_strThisSymbol)
+		GuiControl, , f_radRight%SH_strThisLabel%, % InStr(SH_strActualModifiers, ">" . SH_strThisSymbol) > 0
 	}
 	gosub, ModifierClicked
 	
@@ -9590,7 +9591,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
 		SH_strThisSymbol := SH_arrModifiersSymbols%A_Index%
 		
-		GuiControlGet, SH_blnThisModifierOn, , % f_bln . SH_arrModifiersLabels%A_Index%
+		GuiControlGet, SH_blnThisModifierOn, , % "f_bln" . SH_arrModifiersLabels%A_Index%
 		GuiControl, Enable%SH_blnThisModifierOn%, f_radLeft%SH_strThisLabel%
 		GuiControl, Enable%SH_blnThisModifierOn%, f_radAny%SH_strThisLabel%
 		GuiControl, Enable%SH_blnThisModifierOn%, f_radRight%SH_strThisLabel%
