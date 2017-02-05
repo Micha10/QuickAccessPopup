@@ -6,6 +6,7 @@ lAboutTitle	À propos - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Choisissez le favori à copier
 lAlternativeMenuTrayTipEditFavorite	Choisissez le favori à modifier
 lAlternativeMenuTrayTipNewWindow	Choisissez le dossier à ouvrir dans une nouvelle fenêtre
+lAlternativeMenuTrayTipRunAs	Sélectionnez l'application à exécuter en tant qu'administrateur
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Initiation rapide</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Foire aux questions</a> • <a href="http://www.quickaccesspopup.com">Soutien en ligne</a> (anglais)
 lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
 lContextAddFileXpress	Ajouter ce fichier au menu Quick Access Popup (Express)
@@ -44,8 +45,12 @@ lDialogCancelButton	Annuler
 lDialogCancelPrompt	Annuler les changements?
 lDialogCancelTitle	Annuler - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Ceci est un raccourci du menu Alternatif.`n`nVoulez-vous gérer "~1~" dans "~2~"?
-lDialogChangeHotkeyNote	Note: L'emplacement "~1~" sera relié à ce nouveau raccourci dans tous les menus.
-lDialogChangeHotkeyNoteSnippet	Note: Le fragment sera relié à ce nouveau raccourci dans tous les menus.
+lDialogChangeHotkeyAny	N'importe quelle
+lDialogChangeHotkeyLeftAnyRight	Chaque touche spéciale peut être liée à seulement la touche de "Gauche", seulement celle de "Droite" ou à "N'importe quelle".
+lDialogChangeHotkeyModifierAndNone	Les touches spéciales comme "Alt" ou "Control" ne peuvent pas être sélectionnées seules. Choisissez aussi un bouton de la souris ou une touche du clavier dans la section de droite.
+lDialogChangeHotkeyMouseCheckLButton	Vous ne pouvez pas affecter le "Bouton gauche de la souris" sans touche spéciale `n(comme les touches ~1~, ~2~, ~3~ or ~4~).
+lDialogChangeHotkeyNote	Note: Tous les favoris nommée "~2~" avec l'emplacement "~1~" seront reliés à ce nouveau raccourci.
+lDialogChangeHotkeyNoteSnippet	Note: Tous les fragments nommés "~1~ avec le même contenu seront reliés à ce nouveau raccourci.
 lDialogChangeHotkeyPopup	Ceci est un raccourci de menu popup.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyTitle	Modifier le raccourci - ~1~ ~2~
 lDialogContinue	Poursuivre
@@ -145,7 +150,8 @@ lDialogIconsManagePrevious	&Précédant
 lDialogIconsManageSetDefaultIcon	Icône par défaut
 lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
-lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour l'emplacement "~2~".`n`nVeuillez choisir une autre touche de raccourci pour l'emplacement "~2~".
+lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour ce favori.`n`nVeuillez choisir une autre touche de raccourci pour le favori "~2~" et l'emplacement "~3~".
+lDialogInvalidHotkeyQAPFeature	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour cette fonctionnalité QAP.`n`nVeuillez choisir une autre touche de raccourci pour la fonctionnalité QAP "~2~".
 lDialogKeyboard	Clavier
 lDialogLaunchWith	Lancer avec cette application
 lDialogMaximized	Maximisée
@@ -252,7 +258,7 @@ lGuiHelp	Aide
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
 lGuiHotkeysHelpText	Flèche Bas: Sélectioner le prochain favori`nFlèche Haut: Sélectioner le favori précédent`n`nEntrée: Modifier un favori`nCtrl-N: Ajouter un favori`nCtrl-C: Copier un favori`nSuppr: Supprimer un ou des favoris`n`nMaj-Haut/Bas: Sélectionner des favori contigus`nCtrl-Clic: Sélectionner des favoris non-contigus`nCtrl-A: Sélectionner tous les favoris`n`nCtrl-Bas: Déplacer un ou des favoris vers le bas`nCtrl-Haut: Déplacer un ou des favoris vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu`nCtrl-Gauche: Ouvrir le sous-menu contenant ce menu
 lGuiLoginName	Code d'utilisateur
-lGuiLvFavoritesHeader	Nom|Type|Emplacement ou contenu
+lGuiLvFavoritesHeader	Nom|Type|Raccourci|Emplacement ou contenu
 lGuiMove	Déplacer
 lGuiMoveAmpersand	&Déplacer
 lGuiOptions	Options
@@ -326,6 +332,7 @@ lMenuAddThisFolder	Ajouter ce dossier au menu
 lMenuAddThisFolderXpress	Ajouter ce dossier Express
 lMenuAlternativeEditFavorite	Modifier un favori
 lMenuAlternativeNewWindow	Ouvrir dans une nouvelle fenêtre
+lMenuAlternativeRunAs	Exécuter en tant qu'administrateur
 lMenuAppData	Application Data
 lMenuCache	Cache
 lMenuClipboard	Presse-papiers

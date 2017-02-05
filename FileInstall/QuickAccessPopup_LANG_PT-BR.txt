@@ -44,8 +44,6 @@ lDialogCancelButton	Cancelar
 lDialogCancelPrompt	Descartar alterações?
 lDialogCancelTitle	Cancelar - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Esta é a tecla de atalho do menu Alternativo.`n`nDeseja gerenciar "~1~" em "~2~"?
-lDialogChangeHotkeyNote	Nota: O local "~1~" será vinculado à nova tecla de atalho em todos os menus.
-lDialogChangeHotkeyNoteSnippet	Nota: Este recorte será vinculado à nova tecla de atalho em todos os menus.
 lDialogChangeHotkeyPopup	Esta é a tecla de atalho do menu popup.`n`nDeseja gerenciar "~1~" em "~2~"?
 lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
@@ -144,7 +142,6 @@ lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerenciar Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com o layout de teclado atual do sistema, a tecla de atalho "~1~" não pode ser usada como disparador para o menu popup  (erro 'não é uma tecla válida').`n`nPor favor, abra as configurações do "~2~ pelo menu da Área de Notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~3~".
-lDialogInvalidHotkeyFavorite	Com o layout atual do seu teclado, a tecla de atalho "~1~" não pode ser usada como disparador para o local "~2~" (erro de nome inválido de tecla).`n`nPor favor, escolha outro atalho para o local "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Iniciar com este aplicativo
 lDialogMaximized	Maximizado
@@ -213,7 +210,9 @@ lDonateCheckPrompt4	exibir lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoiar o Freeware!
 lDonatePlatformComment1	Doe com seu cartão de crédito (não é necessário uma conta) ou sua conta PayPal
+lDonatePlatformComment2	Apoie meu trabalho com doações regulares iniciando com $1 por mês (cartão de crédito ou PayPal)
 lDonatePlatformName1	Usando Paypal
+lDonatePlatformName2	Pequena doação mensal
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -249,7 +248,7 @@ lGuiHelp	Ajuda
 lGuiHotkeysHelp	Ajuda de Atalhos para Favoritos
 lGuiHotkeysHelpText	Seta para baixo: Selecionar próximo favorito`nSeta para cima: Selecionar favorito anterior`n`nEnter: Editar favorito`nCtrl-N: Adicionar novo favorito`nCtrl-C: Copiar favorito`nDel: Remover favorito(s)`n`nShift-Seta para cima/baixo: Selecionar favoritos contínuos`nCtrl-Clique: Selecionar favoritos não-contínuos`nCtrl-A: Selecionar todos os favorites`n`nCtrl-Seta para baixo: Mover favorito(s) para baixo`nCtrl-Seta para cima: Mover favorito(s) para cima`n`nCtrl-Seta direita: Abrir submenu ou grupo selecionado`nCtrl-Seta esquerda: Abrir menu pai
 lGuiLoginName	Nome de login
-lGuiLvFavoritesHeader	Nome|Tipo|Local ou conteúdo
+lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Local ou conteúdo
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opções
@@ -362,6 +361,7 @@ lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
+lMenuRefreshMenu	Atualizar menus das Pastas Ativas
 lMenuReload	Reiniciar
 lMenuRunAtStartupAmpersand	Executa&r na Inicialização
 lMenuSettings	Configurações
@@ -379,6 +379,7 @@ lMenuUserPinned	Fixado pelo Usuário
 lNavigateFileError	Ocorreu um erro ao abrir a pasta:`n~1~.
 lNavigateSpecialError	Ocorreu um erro ao abrir a pasta especial #~1~.
 lOopsAddThisFolderTip	Para melhores resultados com o comando "Adicionar esta Pasta":`n`n1) Ative a janela ~1~ contendo a pasta para adicionar ao seu menu.`n2) Abra o menu popup menu usando ~2~.`n3) Selecione "Adicionar esta Pasta" e salve seu novo favorito.
+lOopsAmpersandInName	O 'e' comercial "&" em nomes do menu do Windows é usado para definir atalhos de teclado. Para exibir um 'e' comercial no nome do menu, entre "&&".`n`nPara mais informações, pesquise "ampersand" no FAQ do site do QAP.
 lOopsCannotCopyFavorite	Favoritos do tipo "~1~" não podem ser copiados.
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro de uma caixa de diálogo, você precisa habilitar esta opção (primeira caixa de seleção na aba "Geral").`n`nDeseja abrir a janela de opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não pôde abrir a pasta especial: "~2~".

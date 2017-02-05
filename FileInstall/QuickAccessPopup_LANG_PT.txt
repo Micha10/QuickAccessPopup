@@ -44,8 +44,6 @@ lDialogCancelButton	Cancelar
 lDialogCancelPrompt	Descartar alteração?
 lDialogCancelTitle	Cancelar - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Trata-se de uma tecla de atalho ao menu Alternativo.`n`nDeseja manusear "~1~" em "~2~"?
-lDialogChangeHotkeyNote	Nota: A localização "~1~" será associada à nova tecla de atalho em todos os menus.
-lDialogChangeHotkeyNoteSnippet	Nota: Esta amostra será associada à nova tecla de atalho em todos os menus.
 lDialogChangeHotkeyPopup	Trata-se de uma tecla de atalho do menu emergente.`n`nDeseja manusear "~1~" em "~2~"?
 lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
@@ -145,7 +143,6 @@ lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerir Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora do menu emergente (erro de nome de tecla inválido).`n`nPor favor, abra a janela "Definições" do menu da Barra de notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~2~".
-lDialogInvalidHotkeyFavorite	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora para a localização "~2~" (erro de nome de tecla inválido).`n`nPor favor, escolha outro atalho para a localização "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Abrir com esta aplicação
 lDialogMaximized	Maximizado
@@ -250,7 +247,7 @@ lGuiHelp	Ajuda
 lGuiHotkeysHelp	Ajuda Atalhos dos Favoritos
 lGuiHotkeysHelpText	Baixo: Selecciona o próximo favorito`nCima: Selecciona o anterior favorito`n`nEnter: Edita o favorito`nCtrl-N: Adiciona um novo favorito`nCtrl-C: Copia um favorito`nDel: Remove favorito(s)`n`nShift-Cima/Baixo: Selecciona favoritos contíguos`nCtrl-Clique: Selecciona favoritos não contíguos`nCtrl-A: Selecciona todos os favoritos`n`nCtrl-Baixo: Move favorito(s) para baixo`nCtrl-Cima: Move favorito(s) para cima`n`nCtrl-Direita: Abre o submenu ou grupo seleccionado`nCtrl-Esquerda: Abre o menu superior
 lGuiLoginName	Nome de Utilizador
-lGuiLvFavoritesHeader	Nome|Tipo|Localização ou conteúdo
+lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Localização ou conteúdo
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opções

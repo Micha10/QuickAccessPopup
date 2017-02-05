@@ -44,8 +44,6 @@ lDialogCancelButton	Anular
 lDialogCancelPrompt	Anular los cambios?
 lDialogCancelTitle	Anular - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Se trata de un acceso directo del menú Alternativo.`n`n¿Quiere gestionar? "~1~" in "~2~"?
-lDialogChangeHotkeyNote	Note: La ubicación "~1~" se conectará a este nuevo acceso directo en todos los menús..
-lDialogChangeHotkeyNoteSnippet	Nota: Este fragmento se vinculará a la nueva tecla de acceso directo en todos los menús.
 lDialogChangeHotkeyPopup	Se trata de un acceso directo del menú emergente.`n`n¿Quiere gestionar? "~1~" in "~2~"?
 lDialogChangeHotkeyTitle	Modificar acceso directo - ~1~ ~2~
 lDialogContinue	Continuar
@@ -144,7 +142,6 @@ lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Establecer icono predeterminado
 lDialogIconsManageTitle	Administrar iconos - ~1~ ~2~ 
 lDialogInvalidHotkey	Con la configuración actual de la tecla de acceso directo del teclado "~1~" no se puede utilizar como un disparador para el menú emergente.`n`nPor favor, abra la "Configuración ~2~" en el área de notificación y haga clic en "Opciones". En este cuadro de diálogo, elija otra tecla de acceso directo a"~3~".
-lDialogInvalidHotkeyFavorite	Con su diseño de teclado actual sistema, la tecla de acceso directo "~1~" no podría ser utilizado como un disparador para la ubicación "~2~" (nombre de la tecla no es válido).`n`nPor favor, elija otro acceso directo para la ubicación "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Lanzar con esta aplicación
 lDialogMaximized	Maximizado
@@ -251,7 +248,7 @@ lGuiHelp	Ayuda
 lGuiHotkeysHelp	Ayuda con atajos favoritos
 lGuiHotkeysHelpText	Abajo: Selecione siguiente favorito`nUp: Seleccione anterior favorito`n`nEnter: Editar favorito`nCtrl-N: Añadir nuevo favorito`nCtrl-C: Copiar un favorito`nDel: Borrar favorito(s)`n`nShift-Up/Down: Seleccionar favorito contiguo`nCtrl-Click: Seleccionar favorito no contiguo`nCtrl-A: Seleccionar todos los favoritos`n`nCtrl-Down: Mover favorito(s) abajo`nCtrl-Up: Mover favorito(s) arriba`n`nCtrl-Right: Abrir menú o grupo seleccionado`nCtrl-Left: Abrir menú principal
 lGuiLoginName	Nombre inicio de sesión
-lGuiLvFavoritesHeader	Nombre|Tipo|Localización o contenido
+lGuiLvFavoritesHeader	Nombre|Tipo|Atajo de teclado|Localización o contenido
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opciones

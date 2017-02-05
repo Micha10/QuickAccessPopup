@@ -6,6 +6,7 @@ lAboutTitle	Crediti - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Seleziona il Preferito da copiare
 lAlternativeMenuTrayTipEditFavorite	Seleziona il Preferito da modificare
 lAlternativeMenuTrayTipNewWindow	Seleziona la cartella da aprire in una nuova finestra
+lAlternativeMenuTrayTipRunAs	Seleziona l'applicazione da eseguire con privilegi elevati (amministratore)
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Avvio Rapido</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Domande frequenti</a> • <a href="http://www.quickaccesspopup.com">Supporto</a> (English)
 lContextAddFile	Aggiungi un File al menù Quick Access Popup
 lContextAddFileXpress	Aggiungi un File al menù Express
@@ -44,8 +45,10 @@ lDialogCancelButton	Annulla
 lDialogCancelPrompt	Vuoi scartare le modifiche?
 lDialogCancelTitle	Annulla - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Questa è una scorciatoia alternativa per il menù.`n`nVuoi controllare "~1~" con "~2~"?
-lDialogChangeHotkeyNote	Note: La destinazione "~1~" sarà linkata alla nuova scorciatoia in tutti i menù.
-lDialogChangeHotkeyNoteSnippet	Nota: Questo frammento (o snippet) verrà associato alla nuova scorciatoia in tutti i menù.
+lDialogChangeHotkeyAny	Qualunque
+lDialogChangeHotkeyLeftAnyRight	Ciascun modificatore di tasti può essere vincolato al solo tasto "Sinistra", al solo tasto "Destra"  o a "Qualunque" di loro.
+lDialogChangeHotkeyModifierAndNone	Modificatori come "Alt" o "Control" non possono essere selezionati da soli. Inoltre, seleziona anche un hotkey per mouse o tastiera nella sezione appropriata.
+lDialogChangeHotkeyMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
 lDialogContinue	Continua
@@ -144,7 +147,8 @@ lDialogIconsManagePrevious	&Precedente
 lDialogIconsManageSetDefaultIcon	Assegna l'icona di default
 lDialogIconsManageTitle	Gestione Icone - ~1~ ~2~
 lDialogInvalidHotkey	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: tasto scelto non valido).`n`nPer favore, apri la finestra "~2~ Impostazioni" dal menù dell'icona nell'area notifiche e clicca: "Opzioni". In questa casella di dialogo, scegli un altro shortcut per "~3~".
-lDialogInvalidHotkeyFavorite	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per la destinazione del Preferito"~2~".
+lDialogInvalidHotkeyFavorite	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire questo preferito (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per il Preferito"~2~" e la destinazione "~3~".
+lDialogInvalidHotkeyQAPFeature	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per lanciare questa funzione di QAP (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per la funzione "~2~" di QAP.
 lDialogKeyboard	Tastiera
 lDialogLaunchWith	Esegui con questa applicazione
 lDialogMaximized	Massimizzata
@@ -251,7 +255,7 @@ lGuiHelp	Aiuto
 lGuiHotkeysHelp	Organizzazione Preferiti (scorciatoie)
 lGuiHotkeysHelpText	Giù: Seleziona il Preferito successivo`nSu: Seleziona Preferito precedente`n`nEnter: Modifica il Preferito`nCtrl-N: Aggiungi un nuovo Preferito`nCtrl-C: Copia un Preferito`nDel: Rimuovi Preferito/i`n`nShift-Su/Giù: Seleziona Preferiti contigui`nCtrl-Click: Seleziona Preferiti non contigui`nCtrl-A: Seleziona tutti i Preferiti`n`nCtrl-Giù: Sposta Preferito/i giù`nCtrl-Su: Sposta Preferito/i su`n`nCtrl-Destra: Apri il sottomenù o gruppo selezionato`nCtrl-Sinistra: Apri menù superioreOpen parent menu
 lGuiLoginName	Nome di Login
-lGuiLvFavoritesHeader	Nome|Tipo|Locazionen o contenuto
+lGuiLvFavoritesHeader	Nome|Tipo|Scorciatoia|Locazionen o contenuto
 lGuiMove	Sposta
 lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
@@ -324,6 +328,7 @@ lMenuAddThisFolder	Aggiungi Questa Cartella
 lMenuAddThisFolderXpress	Aggiungi questa Cartella Express
 lMenuAlternativeEditFavorite	Modifica un Preferito
 lMenuAlternativeNewWindow	Apri in una nuova finestra
+lMenuAlternativeRunAs	Esegui come Amministratore
 lMenuAppData	Dati Applicazioni
 lMenuCache	Cache
 lMenuClipboard	Appunti di Windows
