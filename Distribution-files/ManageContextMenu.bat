@@ -1,4 +1,4 @@
-:: -----------------------------------------------------------------------
+﻿:: -----------------------------------------------------------------------
 :: Quick Access Popup Context Menu Manager
 :: by Doğan Çelik https://github.com/dogancelik/qap-utils
 ::
@@ -10,8 +10,8 @@
 ::
 :: INSTRUCTIONS
 :: ------------
-:: 1) Make sure this file is unzipped and saved saved in the same folder
-::    as the unzipped files QAPmessenger.exe and QuickAccessPopup.ico.
+:: 1) Make sure this file is unzipped and saved in the same folder as
+::    the unzipped files QAPmessenger.exe and QuickAccessPopup.ico.
 ::
 :: 2) You will need ADMINISTRATOR PRIVILEGES to execute this command. To run
 ::    this batch file as administrator, in Windows Explorer, RIGHT-CLICK its
