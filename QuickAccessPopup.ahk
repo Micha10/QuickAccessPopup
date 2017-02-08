@@ -31,17 +31,22 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.0.9.1 (2017-02-03)
-- update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
-- fix bug in SplitHotkey when Menu hotkey in Options is changed from None to a keyboard shortcut
-- new batch file from Dogan Çelik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
-- renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
-- cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
-- fix bug double-click on empty line in Hotkeys list stop opening an empty Change hotkey dialog box
+Version BETA: 8.0.9.2 (2017-02-??)
+- add delay in navigate dialog box to solve (partly) intermittent issue in Firefox (and other?) dialog box, add delay variable to ini file
+- add separator before RunAs in Alternative menu
+
+Version BETA: 8.0.9.1 (2017-02-05)
 - add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
-- fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
+- display shortcuts in a new column in the Settings
 - in favorites shortcuts, support left only or right only keyboard modifiers for Shift, Alt, Ctrl and Win keys
-- support different hotkeys for favorites of the same location with different options; hotkeys are now linked to "name + location"
+- support different shortcuts for favorites with the same location with different options, if they have different names (hotkeys are now linked to "name + location")
+- update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
+- new batch file from Dogan Celik to install/uninstall Windows Explorer context menus registry keys, working with portable version without editing
+- renamed the icon file iconQAP.ico to QuickAccessPopup.ico using this ico file for context menu registry keys in app, setup and portable batch
+- fix bug double-click on empty line in Hotkeys list stop opening an empty Change hotkey dialog box
+- fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
+- fix bug when Menu hotkey in Options is changed from None to a keyboard shortcut
+- cover exceptional situation where icon file,index for an extension is badly encoded in registry (including ")
 
 Version: 8.0.4 (2017-01-11)
 - fix bug in Manage Hotkeys list not retrieving correct favorite on double-click
@@ -1195,7 +1200,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.9.1 BETA
+;@Ahk2Exe-SetVersion 8.0.9.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1268,7 +1273,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.0.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2413,7 +2418,7 @@ InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,		"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,	"", "", 3, "iconEditFavorite")
 InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,				"", "", 5, "iconClipboard", "+^V")
-InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,			"", "", 6, "iconApplication")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,			"", "", 7, "iconApplication")
 
 ;--------------------------------
 ; Build folders list for dropdown
@@ -2728,7 +2733,7 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 	}
 
 ; ---------------------
-; Load internal flags
+; Load internal flags and various values
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
@@ -2744,6 +2749,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 	g_intNbLiveFolderItemsMax := 500
 	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
 }
+IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
 
 ; ---------------------
 ; Load favorites
@@ -11780,15 +11786,19 @@ if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped ou
 
 ;=== Avoid accidental hotkey & hotstring triggereing while doing SendInput - can be done simply by #UseHook, but do it if user doesn't have #UseHook in the script ===
 
+Sleep, %g_intWaitDelayInDialogBox% ; give some time to control before sending {Enter} to it
 If (A_IsSuspended)
 	blnWasSuspended := True
 if (!blnWasSuspended)
 	Suspend, On
-SendInput, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
+; Changed from SendInput to SendEvent in v8.0.9.2 to introduce a key delay to solve issue with Firefox dialog box
+; SendInput, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
+SetKeyDelay, %g_intWaitDelayInDialogBox%
+SendEvent, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
 if (!blnWasSuspended)
 	Suspend, Off
 
-Sleep, 100 ; give some time to control after sending {Enter} to it
+Sleep, %g_intWaitDelayInDialogBox% ; give some time to control after sending {Enter} to it
 ControlGetText, strControlTextAfterNavigation, %strEditControl%, ahk_id %g_strTargetWinId% ; sometimes controls automatically restore their initial text
 if (strControlTextAfterNavigation <> strPrevControlText)
 	ControlSetTextR(strEditControl, strPrevControlText, "ahk_id " . g_strTargetWinId) ; we'll set control's text to its initial text
