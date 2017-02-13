@@ -6887,7 +6887,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : ""), %lDialogFavoriteDisabled%
+Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 arrNewFavoriteWindowPosition := ""
 
@@ -10573,7 +10574,8 @@ loop, % objThisGroupFavoritesList.MaxIndex() - 1 ; skip first item backlink
 	
 	g_blnFirstItemOfGroup := (A_Index = 1)
 
-	gosub, OpenFavoriteFromGroup
+	if !(g_objThisFavorite.FavoriteDisabled)
+		gosub, OpenFavoriteFromGroup
 }
 
 OpenGroupOfFavoritesCleanup:
