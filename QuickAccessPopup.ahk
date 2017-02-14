@@ -34,6 +34,7 @@ HISTORY
 Version BETA: 8.0.9.2 (2017-02-??)
 - add delay in navigate dialog box to solve (partly) intermittent issue in Firefox (and other?) dialog box, add delay variable to ini file
 - add separator before RunAs in Alternative menu
+- group members can now be disabled (same as favorites being hidden in menu), change checkbox label for group members
 
 Version BETA: 8.0.9.1 (2017-02-05)
 - add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
@@ -6822,7 +6823,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_chkProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
 		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
 		Gosub, ProcessEOLTabChanged ; update f_lblSnippetHelp text
 	}
@@ -6887,7 +6888,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_chkFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 arrNewFavoriteWindowPosition := ""
@@ -6936,7 +6937,7 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_chkFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
+	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
 	
 	Gui, 2:Add, Edit, x20 y+20 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
 	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % g_objEditedFavorite.FavoriteFolderLiveLevels
@@ -6945,7 +6946,7 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % g_objEditedFavorite.FavoriteFolderLiveColumns
 	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
 	
-	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_chkFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
+	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : ""), %lDialogFavoriteFolderLiveDocuments%
 
 	Gui, 2:Add, Radio, % "x20 y+20 vf_radFavoriteFolderLiveInclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "checked" : ""), %lDialogFavoriteFolderLiveInclude%
 	Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "" : "checked"), %lDialogFavoriteFolderLiveExclude%
@@ -6968,7 +6969,7 @@ if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
 	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
-	Gui, 2:Add, Checkbox, % "x20 y50 section vf_chkUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
+	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
 	
 	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogState%
 	
@@ -7291,10 +7292,10 @@ ProcessEOLTabChanged:
 Gui, 2:Submit, NoHide
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_chkProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 
 ; encode or decode edit box content according to encoding state
-GuiControl, , f_strFavoriteLocation, % (f_chkProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
+GuiControl, , f_strFavoriteLocation, % (f_blnProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
 	
 return
 ;------------------------------------------------------------
@@ -7480,29 +7481,29 @@ CheckboxFolderLiveClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strShowHideCommand := (f_chkFavoriteFolderLive ? "Show" : "Hide")
+strShowHideCommand := (f_blnFavoriteFolderLive ? "Show" : "Hide")
 
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveOptions
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveLevels
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevelsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevels
-if (f_chkFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
+if (f_blnFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 	GuiControl, , f_intFavoriteFolderLiveLevels, 1
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveColumns
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumnsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumns
-GuiControl, %strShowHideCommand%, f_chkFavoriteFolderLiveDocuments
+GuiControl, %strShowHideCommand%, f_blnFavoriteFolderLiveDocuments
 
-; GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_chkUseDefaultWindowPosition
+; GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_blnUseDefaultWindowPosition
 
-GuiControl, , f_strFavoriteLaunchWith, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
-GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
-GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_btnFavoriteLaunchWith
+GuiControl, , f_strFavoriteLaunchWith, % (f_blnFavoriteFolderLive ? "" : f_strFavoriteLaunchWith)
+GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteLaunchWith
+GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_btnFavoriteLaunchWith
 
-GuiControl, , f_strFavoriteArguments, % (f_chkFavoriteFolderLive ? "" : f_strFavoriteArguments)
-GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
+GuiControl, , f_strFavoriteArguments, % (f_blnFavoriteFolderLive ? "" : f_strFavoriteArguments)
+GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
 
-GuiControl, , f_chkFavoriteFolderLiveDocuments, % (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : false)
+GuiControl, , f_blnFavoriteFolderLiveDocuments, % (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : false)
 gosub, CheckboxFolderLiveDocumentsClicked
 
 gosub, CheckboxFolderLiveChangeWindowPositionTab
@@ -7518,13 +7519,13 @@ CheckboxFolderLiveDocumentsClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strShowHideCommand := (f_chkFavoriteFolderLiveDocuments ? "Show" : "Hide")
+strShowHideCommand := (f_blnFavoriteFolderLiveDocuments ? "Show" : "Hide")
 
 GuiControl, %strShowHideCommand%, f_radFavoriteFolderLiveInclude
 GuiControl, %strShowHideCommand%, f_radFavoriteFolderLiveExclude
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveExtensions
 GuiControl, %strShowHideCommand%, f_strFavoriteFolderLiveExtensions
-GuiControl, , % (f_chkFavoriteFolderLiveDocuments ? "" : f_strFavoriteFolderLiveExtensions)
+GuiControl, , % (f_blnFavoriteFolderLiveDocuments ? "" : f_strFavoriteFolderLiveExtensions)
 
 strShowHideCommand := ""
 
@@ -7539,9 +7540,9 @@ CheckboxFolderLiveChangeWindowPositionTab:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (f_chkFavoriteFolderLive ? "Disable" : "Enable"), f_chkUseDefaultWindowPosition
+GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_blnUseDefaultWindowPosition
 
-strShowHideCommand := (!f_chkUseDefaultWindowPosition and (!f_chkFavoriteFolderLive) ? "Show" : "Hide")
+strShowHideCommand := (!f_blnUseDefaultWindowPosition and (!f_blnFavoriteFolderLive) ? "Show" : "Hide")
 
 GuiControl, %strShowHideCommand%, f_lblWindowPositionState
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMinMax1
@@ -7553,7 +7554,7 @@ GuiControl, %strShowHideCommand%, f_lblWindowPositionDelay
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMillisecondsLabel
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMayFail
 
-strShowHideCommand := (!f_chkUseDefaultWindowPosition and f_lblWindowPositionMinMax1 and !f_chkFavoriteFolderLive ? "Show" : "Hide")
+strShowHideCommand := (!f_blnUseDefaultWindowPosition and f_lblWindowPositionMinMax1 and !f_blnFavoriteFolderLive ? "Show" : "Hide")
 
 GuiControl, %strShowHideCommand%, f_lblWindowPosition
 GuiControl, %strShowHideCommand%, f_lblWindowPositionX
@@ -7973,7 +7974,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 			return
 		}
 		else
-			strNewFavoriteLocation := (f_chkProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+			strNewFavoriteLocation := (f_blnProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
 	}
 
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
@@ -8009,7 +8010,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
-		strNewFavoriteWindowPosition := (f_chkUseDefaultWindowPosition ? 0 : 1)
+		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
 		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
 			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
 			
@@ -8204,13 +8205,13 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
 	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
-	g_objEditedFavorite.FavoriteDisabled := f_chkFavoriteDisabled
+	g_objEditedFavorite.FavoriteDisabled := f_blnFavoriteDisabled
 	
-	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_chkFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
-	g_objEditedFavorite.FavoriteFolderLiveDocuments := (f_chkFavoriteFolderLive ? f_chkFavoriteFolderLiveDocuments : "")
-	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_chkFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
-	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_chkFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
-	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_chkFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
+	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
+	g_objEditedFavorite.FavoriteFolderLiveDocuments := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : "")
+	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_blnFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
+	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
+	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
@@ -8352,7 +8353,7 @@ f_blnRadioGroupAdd := ""
 f_blnRadioGroupReplace := ""
 f_blnRadioGroupRestoreWithExplorer := ""
 f_blnRadioGroupRestoreWithOther := ""
-f_chkUseDefaultWindowPosition := ""
+f_blnUseDefaultWindowPosition := ""
 f_drpParentMenu := ""
 f_drpParentMenuItems := ""
 f_drpQAP := ""
@@ -8376,9 +8377,9 @@ f_blnFavoriteElevate := ""
 f_strHotkeyText := ""
 f_blnRadioSendModeMacro := ""
 f_strFavoriteSnippetPrompt := ""
-f_chkFavoriteFolderLive := ""
+f_blnFavoriteFolderLive := ""
 f_intFavoriteFolderLiveLevels := ""
-f_chkFavoriteFolderLiveDocuments := ""
+f_blnFavoriteFolderLiveDocuments := ""
 f_intFavoriteFolderLiveColumns := ""
 f_radFavoriteFolderLiveInclude := ""
 f_radFavoriteFolderLiveExclude := ""
