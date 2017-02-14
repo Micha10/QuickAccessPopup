@@ -428,7 +428,7 @@ lOptionsControlDoublePressed	Apri il menù principale con Ctrl + Ctrl (tasto CTRL
 lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsExclusionDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	La combinazione per QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra di destinazione come se QAP non fosse in esecuzione. Puoi anche escludere finestre attraverso il loro nome di classe. Trovi aiuto e supporto per questa funzionalità <a href="~2~">sul sito web QAP</a>.
+lOptionsExclusionDetail2	La combinazione per QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra di destinazione come se QAP non fosse in esecuzione. Puoi anche escludere finestre attraverso il loro nome di classe. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Trovi aiuto e supporto per questa funzionalità <a href="~2~">sul sito web QAP</a>.
 lOptionsExclusionList	Lista delle esclusioni
 lOptionsExclusionTitle	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
 lOptionsExplorerContextMenus	Abilita i menù contestuali di Esplora File (Explorer)

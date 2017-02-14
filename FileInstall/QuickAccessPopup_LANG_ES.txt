@@ -421,7 +421,7 @@ lOptionsControlDoublePressed	Abrir el menú principal con Ctrl + Ctrl (Izquierda 
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsExclusionDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y de la [~1~] click será enviado a la ventana de destino como si QAP no se estuviese ejecutando. También puede excluir ventanas por su nombre de clase. Usted puede encontrar ayuda y apoyo en esta función <a href="~2~">en el sitio  de QAP</a>.
+lOptionsExclusionDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y de la [~1~] click será enviado a la ventana de destino como si QAP no se estuviese ejecutando. También puede excluir ventanas por su nombre de clase. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Usted puede encontrar ayuda y apoyo en esta función <a href="~2~">en el sitio  de QAP</a>.
 lOptionsExclusionList	Lista de exclusiones
 lOptionsExclusionTitle	Lista de Exclusiones de ratón del disparador [~1~]
 lOptionsExplorerContextMenus	Activar Menús Contextuales de Explorer 

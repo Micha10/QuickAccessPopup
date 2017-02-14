@@ -31,7 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.0.9.2 (2017-02-??)
+Version BETA: 8.0.9.2 (2017-02-14)
+- exclude QAP mouse hotkey in dialog boxes based on name or class of parent window, title or class of excluded app must prefixed with "*" to exclude also app's dialog box
 - add delay in navigate dialog box to solve (partly) intermittent issue in Firefox (and other?) dialog box, add delay variable to ini file
 - add separator before RunAs in Alternative menu
 - group members can now be disabled (same as favorites being hidden in menu), change checkbox label for group members
@@ -2684,6 +2685,7 @@ IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDou
 ; Options Tab 4 Exclusion List
 
 IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
+SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 ; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
 
 ; ---------------------
@@ -5608,6 +5610,7 @@ Loop, Parse, strExclusionCleanup, |
 		g_strExclusionMouseList .= Trim(A_LoopField) . "|"
 StringTrimRight, g_strExclusionMouseList, g_strExclusionMouseList, 1 ; remove last |
 IniWrite, %g_strExclusionMouseList%, %g_strIniFile%, Global, ExclusionMouseList
+SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 
 ;---------------------------------------
 ; Save Tab 5: File Managers
@@ -10259,7 +10262,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	; Diag("CanNavigate Begin - g_strTargetClass", g_strTargetClass)
 	
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
-		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
+		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
 		or (g_intActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
 		or (g_intActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
 		or (g_intActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
@@ -10292,7 +10295,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
-		Loop, Parse, g_strExclusionMouseList, |
+		Loop, Parse, g_strExclusionMouseListApp, |
 			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
 				return false
 
@@ -10306,9 +10309,37 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	if WindowIsTreeview(g_strTargetWinId)
 		return false
 	
+	if WindowIsDialog(g_strTargetClass, g_strTargetWinId) and DialogBoxParentExcluded(g_strTargetWinId)
+		return false
+	
 	; else we can launch
 
 	return true
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DialogBoxParentExcluded(strTargetWinId)
+;------------------------------------------------------------
+{
+	global g_strExclusionMouseListDialog
+	
+	; get specified window's parent ID
+	; from SKAN https://autohotkey.com/board/topic/27295-getting-id-or-class-for-parent-window/#entry175515
+	strParentTargetWinId := DllCall("GetParent", UInt,strTargetWinId)
+	strParentTargetWinId := (!strParentTargetWinId ? strTargetWinId : strParentTargetWinId)
+	
+	; get parent window's class and title
+	WinGetClass, strParentClass, ahk_id %strParentTargetWinId%
+	WinGetTitle, strParentTitle, ahk_id %strParentTargetWinId%
+
+	; check for class or title in dialog's parent exclusion list
+	Loop, Parse, g_strExclusionMouseListDialog, |
+		if StrLen(A_Loopfield) and (InStr(strParentClass, A_LoopField) or InStr(strParentTitle, A_LoopField))
+			return true
+
+	return false
 }
 ;------------------------------------------------------------
 
@@ -14653,6 +14684,27 @@ FavoriteNameLocationFromObject(objFavorite)
 ;------------------------------------------------------------
 {
 	return (objFavorite.FavoriteType = "QAP" ? "" : objFavorite.FavoriteName) . "|" . objFavorite.FavoriteLocation
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SplitExclusionList(strExclusionMouseList, ByRef g_strExclusionMouseListApp, ByRef g_strExclusionMouseListDialog)
+;------------------------------------------------------------
+{
+	g_strExclusionMouseListApp := ""
+	g_strExclusionMouseListDialog := ""
+	
+	Loop, Parse, strExclusionMouseList, |
+		if (SubStr(A_LoopField, 1, 1) = "*") and (StrLen(A_LoopField) > 2)
+		; "*" tells to check this exclusion also in app's dialog boxes, and we have something after the "*"
+		{
+			g_strExclusionMouseListApp .= Trim(SubStr(A_LoopField, 2)) . "|"
+			g_strExclusionMouseListDialog .= Trim(SubStr(A_LoopField, 2)) . "|"
+		}
+		else if StrLen(A_LoopField)
+			g_strExclusionMouseListApp .= Trim(A_LoopField) . "|"
+
 }
 ;------------------------------------------------------------
 
