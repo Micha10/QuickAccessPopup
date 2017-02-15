@@ -32,10 +32,10 @@ HISTORY
 =======
 
 Version BETA: 8.0.9.2 (2017-02-14)
-- exclude QAP mouse hotkey in dialog boxes based on name or class of parent window, title or class of excluded app must prefixed with "*" to exclude also app's dialog box
-- add delay in navigate dialog box to solve (partly) intermittent issue in Firefox (and other?) dialog box, add delay variable to ini file
+- exclude QAP mouse hotkey in dialog boxes based on the title or the class name of the dialog boxes parent window; for title or class prefixed with "*" in exclusion list, QAP will also exclude app's dialog box
+- group members can now be disabled (same as favorites being hidden in menu), change disable checkbox label for group members
+- add delay in navigate dialog box to solve (partly?) an intermittent issue in Firefox (and other apps?) dialog box; store delay in ini file variable WaitDelayInDialogBox (default 100 ms)
 - add separator before RunAs in Alternative menu
-- group members can now be disabled (same as favorites being hidden in menu), change checkbox label for group members
 
 Version BETA: 8.0.9.1 (2017-02-05)
 - add the Run as administrator command to the Alternative menu (Shift + MMB or Shift + Windows + W)
