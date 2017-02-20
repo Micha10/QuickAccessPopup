@@ -31,6 +31,28 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.1 (2017-02-20)
+ 
+Shortcuts
+- display favorites shortcuts in a new column in the Settings
+- when creating a favorites shortcut, support left only or right only keyboard modifiers for Shift, Alt, Ctrl and Win keys
+- support different shortcuts for favorites with the same location (if they have different names), allowing them to have different options (in other words, favorite shortcuts are now linked to "name + location")
+- update menu and dialog box labels to include menu shortcuts (underlined character, using the & special character)
+ 
+Various
+- in QAP Mouse Hotkey exclusion list, also exclude hotkey in app's dialog boxes when the app's title or class name is prefix an asterisk (*)
+- add the QAP Features "Run as administrator" to the Alternative menu (Shift + Middle mouse button or Shift + Windows + W)
+- new batch file from Dogan Celik to install/uninstall Windows Explorer context menus registry keys, working as-is with portable version (see instructions in batch file)
+- group members can now be disabled (same as favorites being hidden in menu), change disable checkbox label for group members
+- renamed the icon file iconQAP.ico to QuickAccessPopup.ico using the same ico file name for context menu registry keys in app, setup and portable batch
+ 
+Bug fixes
+- cover exceptional situation where icon "file,index" for an extension is badly encoded in registry (including ")
+- fix bug when double-clicking on empty line in Hotkeys list
+- fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
+- fix bug when Menu hotkey in Options is changed from None to a keyboard shortcut
+- add delay when changing folder in dialog box to help with an intermittent issue in in some apps like Firefox (delay in milliseconds stored in quickaccesspopup.ini [Global] variable WaitDelayInDialogBox with default 100)
+
 Version BETA: 8.0.9.2 (2017-02-14)
 - exclude QAP mouse hotkey in dialog boxes based on the title or the class name of the dialog boxes parent window; for title or class prefixed with "*" in exclusion list, QAP will also exclude app's dialog box
 - group members can now be disabled (same as favorites being hidden in menu), change disable checkbox label for group members
@@ -1202,7 +1224,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.0.9.2 BETA
+;@Ahk2Exe-SetVersion 8.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1275,8 +1297,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.0.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
