@@ -33,6 +33,7 @@ HISTORY
 
 Version: 8.1.1 (2017-02-??)
 - grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
+- in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
 
 Version: 8.1 (2017-02-20)
  
