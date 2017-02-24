@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.1.1 (2017-02-??)
+- grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
+
 Version: 8.1 (2017-02-20)
  
 Shortcuts
@@ -51,7 +54,7 @@ Bug fixes
 - fix bug when double-clicking on empty line in Hotkeys list
 - fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
 - fix bug when Menu hotkey in Options is changed from None to a keyboard shortcut
-- add delay when changing folder in dialog box to help with an intermittent issue in in some apps like Firefox (delay in milliseconds stored in quickaccesspopup.ini [Global] variable WaitDelayInDialogBox with default 100)
+- add delay when changing folder in dialog box to help with an intermittent issue in in some apps like Firefox (delay in milliseconds stored in quickaccesspopup.ini "[Global]" variable "WaitDelayInDialogBox" with default 100)
 
 Version BETA: 8.0.9.2 (2017-02-14)
 - exclude QAP mouse hotkey in dialog boxes based on the title or the class name of the dialog boxes parent window; for title or class prefixed with "*" in exclusion list, QAP will also exclude app's dialog box
@@ -193,7 +196,7 @@ Version BETA: 7.9.1.5 (2016-11-19)
 Version BETA: 7.9.1.4 (2016-11-18)
 - fix bug with Live folder filtering
 - stop building live folders if max number exceeded (default 500 menu items)
-- add NbLiveFolderItems setting under [Global] section of QuickAccessPopup ini file
+- add "NbLiveFolderItems" setting under "[Global]" section of QuickAccessPopup ini file
 - display an alert message if Live folders limit is exceeded
 - reset live folder options when Live folder checkbox is turned off
 
@@ -597,7 +600,7 @@ SNIPPETS
 EXTERNAL MENUS
 - add "External menu" favorite type allowing to load favorites from a shared .ini file
 - external menu can be modified as regular submenus
-- external menu can be made read-only by adding the value "MenuReadOnly=1" in the ini file [Global] section
+- external menu can be made read-only by adding the value "MenuReadOnly=1" in the ini file "[Global]" section
 - first favorite number in external settings file can be configured in "Advanced settings"
 - external menu settings file path supports relative paths, environment variables, UNC and HTTP paths
 - if external menu settings file cannot be loaded properly, give an error message, display menu as unavailable in Settings favorites list and block menu editing
@@ -657,7 +660,7 @@ External menu:
 - save external menu to external settings ini file
 - adapt Add/Edit favorite dialog box to external menus
 - adapt settings window to manage external menus (listview, buttons, etc.)
-- items in external menu with [Global] value MenuReadOnly=1 cannot be modified
+- items in external menu with "[Global]" value "MenuReadOnly=1" cannot be modified
 - init read-only value to 0 in new external menu settings file
 - removing external menu (does not delete the external menu settings file)
 - build menu including external menu
@@ -14513,9 +14516,19 @@ ExternalMenuIsReadOnly(strFile)
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	
 	if StrLen(strFile)
+	{
 		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
-	else
-		return false
+		if (blnExternalMenuReadOnly)
+		{
+			IniRead, strWriteAccess, %strFile%, Global, WriteAccess, %A_Space% ; empty by default
+			loop, Parse, strWriteAccess, `,
+				if (A_LoopField = A_UserName)
+				{
+					blnExternalMenuReadOnly := false
+					break
+				}
+		}
+	}
 
 	return blnExternalMenuReadOnly
 }
