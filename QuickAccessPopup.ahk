@@ -4728,10 +4728,12 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		g_intNbLiveFolderItems++
 		if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 			Break
-		strFolders .= "Folder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
+		if !InStr(A_LoopFileAttrib, "H")
+			strFolders .= "Folder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
 	}
 	Sort, strFolders
 	
+	; scan files in live folder
 	strFiles := ""
 	if (objLiveFolder.FavoriteFolderLiveDocuments)
 		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
