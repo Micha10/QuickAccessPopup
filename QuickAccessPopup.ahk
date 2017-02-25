@@ -34,7 +34,9 @@ HISTORY
 Version: 8.1.1 (2017-02-??)
 - grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
-
+- in Import/Export Settings, save source/destination file to quickaccesspopup.ini when importing/exporting and restore last used file name in import/export dialog dox
+- in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
+ 
 Version: 8.1 (2017-02-20)
  
 Shortcuts
@@ -12722,6 +12724,7 @@ GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", 
 Gui, ImpExp:Add, Text
 
 ; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
+gosub, ImpExpClicked
 Gui, ImpExp:Show, AutoSize Center
 
 return
@@ -12737,6 +12740,9 @@ GuiControl, , f_lblImpExpFile, % L(lImpExpFile, (f_radImpExpExport ? lImpExpDest
 GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
 GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExportAmpersand : lImpExpImportAmpersand)
 
+IniRead, strImpExpFile, %g_strIniFile%, Global, % "Last" . (f_radImpExpExport ? "Ex" : "Im") . "portFile", %A_Space% ; empty if not found
+GuiControl, , f_strImpExpFile, %strImpExpFile%
+
 return
 ;------------------------------------------------------------
 
@@ -12747,8 +12753,7 @@ ButtonImpExpFile:
 Gui, ImpExp:Submit, NoHide
 Gui, ImpExp:+OwnDialogs
 
-strImEx := (f_radImpExpExport ? "Ex" : "Im")
-IniRead, strImpExpFolder, %g_strIniFile%, Global, Last%strImEx%portFolder, %A_WorkingDir%
+IniRead, strImpExpFolder, %g_strIniFile%, Global, % "Last" . (f_radImpExpExport ? "Ex" : "Im") . "portFolder", %A_WorkingDir%
 
 FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 2 : 3), %strImpExpFolder%, %lDialogAddFolderSelect%, *.ini
 if !(StrLen(strImpExpSelectedFile))
@@ -12759,7 +12764,6 @@ if !StrLen(GetFileExtension(strImpExpSelectedFile))
 
 GuiControl, ImpExp:, f_strImpExpFile, %strImpExpSelectedFile%
 
-strImEx := ""
 strImpExpFolder := ""
 strImpExpSelectedFile := ""
 
@@ -12776,14 +12780,23 @@ blnAbort := false
 blnContentTransfered := false
 blnContentIdentical := false
 
-g_strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : f_strImpExpFile)
-g_strImpExpDestinationFile := (f_radImpExpExport ? f_strImpExpFile : g_strIniFile)
+if (f_radImpExpExport)
+{
+	StringReplace, strImpExpFile, f_strImpExpFile, % "%A_Now%", %A_Now%
+	StringReplace, strImpExpFile, strImpExpFile, % "%A_NowUTC%", %A_NowUTC%
+}
+else
+	strImpExpFile := f_strImpExpFile
+
+g_strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : strImpExpFile)
+g_strImpExpDestinationFile := (f_radImpExpExport ? strImpExpFile : g_strIniFile)
 
 SplitPath, g_strImpExpDestinationFile, , strImpExpFolder, strImpExpExt
 if !StrLen(strImpExpExt) ; add ini to destination file
 	g_strImpExpDestinationFile .= ".ini"
 strImEx := (f_radImpExpExport ? "Ex" : "Im")
 IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
+IniWrite, % f_strImpExpFile, %g_strIniFile%, Global, Last%strImEx%portFile ; store f_strImpExpFile, not strImpExpFile that may contain current time
 
 if !(blnAbort) and (f_blnImpExpFavorites)
 {
@@ -12866,15 +12879,14 @@ else
 
 g_strImpExpSourceFile := ""
 g_strImpExpDestinationFile := ""
-strGlobal := ""
 intIniLine := ""
 strFavorite := ""
-strFavorites := ""
 blnAbort := ""
 blnReplace := ""
 intLastFavorite := ""
 strAppendFavorite := ""
 strImpExpFolder := ""
+strImpExpFile := ""
 strImpExpExt := ""
 strImEx := ""
 
