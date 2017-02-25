@@ -31,12 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.1.1 (2017-02-??)
+Version: 8.2? (2017-02-??)
 - grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
 - in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
- 
+- new Alternative menu QAP features to open the folder containing the selected document, favorite or folder favorite in the current window or in a new window
+
 Version: 8.1 (2017-02-20)
  
 Shortcuts
@@ -2445,10 +2446,12 @@ InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "Switch
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
 
 ; Alernative Menu features
-InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,		"", "", 1, "iconFolder")
-InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,	"", "", 3, "iconEditFavorite")
-InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,				"", "", 5, "iconClipboard", "+^V")
-InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,			"", "", 7, "iconApplication")
+InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
+InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
+InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard", "+^V")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconApplication")
+InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
+InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
 
 ;--------------------------------
 ; Build folders list for dropdown
@@ -4814,7 +4817,10 @@ AddCloseMenu(strMenuName)
 	global g_blnAddCloseToDynamicMenus
 	
 	if (g_blnAddCloseToDynamicMenus)
+	{
+		Menu, %strMenuName%, Add
 		AddMenuIcon(strMenuName, lMenuCloseThisMenu, "DoNothing", "iconClose")
+	}
 }
 ;------------------------------------------------------------
 
@@ -10598,6 +10604,8 @@ else if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	strMessage := lAlternativeMenuTrayTipEditFavorite
 else if (g_strAlternativeMenu = lMenuAlternativeRunAs)
 	strMessage := lAlternativeMenuTrayTipRunAs
+else if (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent) or (g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
+	strMessage := lAlternativeMenuTrayTipOpenContaining
 else
 	strMessage := ""
 
@@ -10810,7 +10818,7 @@ if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	gosub, OpenFavoriteCleanup
 	return
 }
-Diag(A_ThisLabel . ":g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName)
+; Diag(A_ThisLabel . ":g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName)
 
 ; before opening the favorite, check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder or special
 if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavorite.FavoriteType))
@@ -10889,13 +10897,38 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 	g_strHokeyTypeDetected := "Launch"
 }
 
+
+if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent or g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
+{
+	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType)
+	{
+		objContainingFavorite := Object() ; build a replacement favorite object
+		objContainingFavorite.FavoriteType := "Folder"
+		objContainingFavorite.FavoriteName := "Containing Folder" ; not shown
+		strContainingFolder := g_objThisFavorite.FavoriteLocation
+		SplitPath, strContainingFolder, , strContainingFolder
+		objContainingFavorite.FavoriteLocation := strContainingFolder . "\"
+		g_objThisFavorite := objContainingFavorite ; replace the current favorite object
+
+		if (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent) and CanNavigate(A_ThisHotkey)
+			g_strHokeyTypeDetected := "Navigate"
+		else
+			g_strHokeyTypeDetected := "Launch"
+	}
+	else
+	{
+		gosub, OpenFavoriteCleanup
+		return
+	}
+}
+
 gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
 Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
 ; if (g_blnDiagMode)
 ;	Diag("g_strTargetAppName", g_strTargetAppName)
 
 gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
-Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
 ; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
 ;	Diag("g_strFullLocation", g_strFullLocation)
 
@@ -11089,6 +11122,8 @@ strTempLocation := ""
 blnShiftPressed := ""
 blnControlPressed := ""
 strCurrentAppWorkingDir := ""
+objContainingFavorite := ""
+strContainingFolder := ""
 
 return
 ;------------------------------------------------------------

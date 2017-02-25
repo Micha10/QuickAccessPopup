@@ -6,6 +6,7 @@ global lAboutTitle := "About - ~1~ ~2~"
 global lAlternativeMenuTrayTipCopyLocation := "Select the favorite to copy" ; new
 global lAlternativeMenuTrayTipEditFavorite := "Select the favorite to edit" ; new
 global lAlternativeMenuTrayTipNewWindow := "Select the folder to open in a new window" ; new
+global lAlternativeMenuTrayTipOpenContaining := "Select the document, application or folder favorite whose parent folder you want to open"
 global lAlternativeMenuTrayTipRunAs := "Select the application to run in elevated mode" ; new
 global lAppTagline :=  "<a href=""http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/"">Quick Start</a> • <a href=""http://www.quickaccesspopup.com/frequently-asked-questions/"">Frequently asked questions</a> • <a href=""http://www.quickaccesspopup.com"">Support</a>" ; new
 global lContextAddFile := "Add File to Quick Access Popup menu"
@@ -334,6 +335,8 @@ global lMenuAddThisFolder := "Add This Folder"
 global lMenuAddThisFolderXpress := "Add This Folder Express" ; new
 global lMenuAlternativeEditFavorite := "Edit a Favorite" ; new
 global lMenuAlternativeNewWindow := "Open in new window" ; new
+global lMenuAlternativeOpenContainingCurrent := "Open the Containing Folder in the Current Window"
+global lMenuAlternativeOpenContainingNew := "Open the Containing Folder in a New Window"
 global lMenuAlternativeRunAs := "Run as administrator"
 global lMenuAppData := "Application Data"
 global lMenuCache := "Cache"
