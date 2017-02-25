@@ -34,7 +34,7 @@ HISTORY
 Version: 8.1.1 (2017-02-??)
 - grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
-- in Import/Export Settings, save source/destination file to quickaccesspopup.ini when importing/exporting and restore last used file name in import/export dialog dox
+- in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
  
 Version: 8.1 (2017-02-20)
@@ -12740,7 +12740,10 @@ GuiControl, , f_lblImpExpFile, % L(lImpExpFile, (f_radImpExpExport ? lImpExpDest
 GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpExpImport)
 GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExportAmpersand : lImpExpImportAmpersand)
 
-IniRead, strImpExpFile, %g_strIniFile%, Global, % "Last" . (f_radImpExpExport ? "Ex" : "Im") . "portFile", %A_Space% ; empty if not found
+if (f_radImpExpExport)
+	IniRead, strImpExpFile, %g_strIniFile%, Global, LastExportFile, %A_Space% ; empty if not found
+else
+	strImpExpFile := ""
 GuiControl, , f_strImpExpFile, %strImpExpFile%
 
 return
@@ -12796,7 +12799,8 @@ if !StrLen(strImpExpExt) ; add ini to destination file
 	g_strImpExpDestinationFile .= ".ini"
 strImEx := (f_radImpExpExport ? "Ex" : "Im")
 IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
-IniWrite, % f_strImpExpFile, %g_strIniFile%, Global, Last%strImEx%portFile ; store f_strImpExpFile, not strImpExpFile that may contain current time
+if (f_radImpExpExport)
+	IniWrite, % f_strImpExpFile, %g_strIniFile%, Global, LastExportFile ; store f_strImpExpFile, not strImpExpFile that may contain current time
 
 if !(blnAbort) and (f_blnImpExpFavorites)
 {
