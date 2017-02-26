@@ -38,6 +38,7 @@ Version: 8.2? (2017-02-??)
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
 - new Alternative menu QAP features to open the folder containing the selected document, favorite or folder favorite in the current window or in a new window
 - display SharedMenuName and WriteAccessMessage in oops dialog box when user wants to edit a read-only shared menu
+- display SharedMenuName in content column of shared menu entries in Settings
 
 Version: 8.1 (2017-02-20)
  
@@ -6103,7 +6104,10 @@ Loop, % g_objMenuInGui.MaxIndex()
 				strGuiMenuLocation := lDialogReadOnly
 			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
 				strGuiMenuLocation := lOopsErrorIniFileUnavailable
-			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator
+			else
+				strGuiMenuLocation := ""
+			IniRead, strSharedMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
+			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strSharedMenuName
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
@@ -6134,6 +6138,7 @@ GuiControl, Focus, f_lvFavoritesList
 strGuiMenuLocation := ""
 strThisType := ""
 strThisHotkey := ""
+strSharedMenuName := ""
 
 return
 ;------------------------------------------------------------
