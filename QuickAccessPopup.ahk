@@ -37,6 +37,7 @@ Version: 8.2? (2017-02-??)
 - in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
 - new Alternative menu QAP features to open the folder containing the selected document, favorite or folder favorite in the current window or in a new window
+- display SharedMenuName and WriteAccessMessage in oops dialog box when user wants to edit a read-only shared menu
 
 Version: 8.1 (2017-02-20)
  
@@ -7671,7 +7672,11 @@ else
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
 			else ; read-only
-				Oops(lOopsErrorIniFileReadOnly)
+			{
+				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
+				IniRead, strSharedMenuName, % objNewMenuInGui.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
+				Oops(lOopsErrorIniFileReadOnly . (StrLen(strSharedMenuName) ? "`n`n" . strSharedMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
+			}
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
@@ -7699,6 +7704,8 @@ GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
 strNewDropdownMenu := ""
 objNewMenuInGui := ""
+strWriteAccessMessage := ""
+strSharedMenuName := ""
 
 return
 ;------------------------------------------------------------
