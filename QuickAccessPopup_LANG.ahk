@@ -79,7 +79,7 @@ global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not ex
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
 global lDialogFavoriteDropdownEmpty := "Please choose an item in the ~1~ drop-down list." ; new
 global lDialogFavoriteExternalHelpWeb := "See <a href=""~1~"">Shared menus help</a> for more information." ; changed
-global lDialogFavoriteExternalSaveNote := "These values will be saved to the shared menu as soon as you you click OK."
+global lDialogFavoriteExternalSaveNote := "Note: These values will be saved to the shared menu as soon as you you click OK."
 global lDialogFavoriteFolderLive := "Live Folder (menu including subfolders)" ; changed
 global lDialogFavoriteFolderLiveColumns := "Number of items per column (0 for no column break)" ; changed
 global lDialogFavoriteFolderLiveDocuments := "Include documents"

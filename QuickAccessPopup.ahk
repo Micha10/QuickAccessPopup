@@ -6103,13 +6103,13 @@ Loop, % g_objMenuInGui.MaxIndex()
 		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
 		{
 			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
-				strGuiMenuLocation := lDialogReadOnly
+				strGuiMenuLocation := lDialogReadOnly . " "
 			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
-				strGuiMenuLocation := lOopsErrorIniFileUnavailable
+				strGuiMenuLocation := lOopsErrorIniFileUnavailable . " "
 			else
 				strGuiMenuLocation := ""
-			IniRead, strExternalMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
-			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
+			IniRead, strExternalMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
+			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
@@ -7092,7 +7092,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly, %lDialogReadOnly%
+		Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, %lDialogReadOnly%
 		Gui, 2:Add, Text, x20 y+15, %lDialogExternalMenuName%
 		Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
 		Gui, 2:Add, Text, x20 y+15, %lDialogExternalWriteAccessUsers%
@@ -7102,11 +7102,11 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		; Gui, 2:Add, Text, x20 y+15, %lDialogExternalStartingNumber% ; DEPRECATED since v8.1.9.1
 		; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
 		; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
-		if (blnExternalMenuEditable)
-			Gui, 2:Add, Text, x20 y+15 w500, %lDialogFavoriteExternalSaveNote%
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 		gosub, LoadExternalFileGlobalValues
 		gosub, LoadExternalFileGlobalReadOnly
+		if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
+			Gui, 2:Add, Text, x20 y+15 w500, %lDialogFavoriteExternalSaveNote%
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 	}
 	else ; Folder, Document, Special, URL and FTP 
 	{
@@ -7139,6 +7139,19 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 strFavoriteSnippetOptions := ""
 arrFavoriteSnippetOptions := ""
 
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuReadOnlyClicked:
+;------------------------------------------------------------
+
+if ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
+{
+	GuiControl, , f_blnExternalMenuReadOnly, % 1
+	Oops(lOopsErrorIniFileReadOnly . (StrLen(f_strExternalMenuName) ? "`n`n" . f_strExternalMenuName : "") . (StrLen(f_strExternalWriteAccessMessage) ? "`n`n" . f_strExternalWriteAccessMessage : ""))
+}
 return
 ;------------------------------------------------------------
 
@@ -7949,10 +7962,9 @@ return
 LoadExternalFileGlobalReadOnly:
 ;------------------------------------------------------------
 
-; read-only menu can be blnExternalMenuEditable if user is in ExternalWriteAccessUsers
+; read-only menu can be editable if user is in ExternalWriteAccessUsers
 strReadOnlyPrefix := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? "+" : "-")
 
-GuiControl, 2:%strReadOnlyPrefix%Disabled, f_blnExternalMenuReadOnly
 GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalMenuName
 GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessUsers
 GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessMessage
@@ -8416,12 +8428,13 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "External")
-		strThisLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
+		strThisLocation := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? lDialogReadOnly . " " : "")
+			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . f_strExternalMenuName
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
-	
+
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	
 	if (g_intNewItemPos)
