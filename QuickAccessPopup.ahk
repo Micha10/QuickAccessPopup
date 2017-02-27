@@ -7092,21 +7092,21 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		blnExternalMenuEditable := !ExternalMenuIsReadOnly(g_objEditedFavorite.SubMenu.MenuExternalPath) ; flag if current user can change values (including read-only value)
-		Gui, 2:Add, Checkbox, % "x20 y50 vf_blnExternalMenuReadOnly " . (blnExternalMenuEditable ? "" : "Disabled"), %lDialogReadOnly%
+		Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly, %lDialogReadOnly%
 		Gui, 2:Add, Text, x20 y+15, %lDialogExternalMenuName%
-		Gui, 2:Add, Edit, % "x20 y+5 w400 vf_strExternalMenuName " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalMenuName%
+		Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
 		Gui, 2:Add, Text, x20 y+15, %lDialogExternalWriteAccessUsers%
-		Gui, 2:Add, Edit, % "x20 y+5 w400 vf_strExternalWriteAccessUsers " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalWriteAccessUsers%
+		Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalWriteAccessUsers
 		Gui, 2:Add, Text, x20 y+15, %lDialogExternalWriteAccessMessage%
-		Gui, 2:Add, Edit, % "x20 y+5 w400 r7 vf_strExternalWriteAccessMessage " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalWriteAccessMessage%
+		Gui, 2:Add, Edit, x20 y+5 w400 r7 vf_strExternalWriteAccessMessage
 		; Gui, 2:Add, Text, x20 y+15, %lDialogExternalStartingNumber% ; DEPRECATED since v8.1.9.1
 		; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
 		; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
 		if (blnExternalMenuEditable)
 			Gui, 2:Add, Text, x20 y+15 w500, %lDialogFavoriteExternalSaveNote%
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
-		g_blnExternalLocationChanged := true ; to make sure external menu values are set by GuiAddFavoriteTabChanged
+		gosub, LoadExternalFileGlobalValues
+		gosub, LoadExternalFileGlobalReadOnly
 	}
 	else ; Folder, Document, Special, URL and FTP 
 	{
@@ -7222,7 +7222,7 @@ return
 GuiAddFavoriteTabChanged:
 ;------------------------------------------------------------
 
-if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon
+if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon and external menu values
 {
 	Gui, 2:Submit, NoHide
 
@@ -7238,6 +7238,8 @@ if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon
 		g_blnExternalLocationChanged := false
 	}
 }
+; normally this should be called only if g_blnExternalLocationChanged but it need to run at each tab change to keep control's r-o option, do not know why
+gosub, LoadExternalFileGlobalReadOnly
 
 return
 ;------------------------------------------------------------
@@ -7924,10 +7926,13 @@ LoadExternalFileGlobalValues:
 
 IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found
 GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
+
 IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
 GuiControl, , f_strExternalMenuName, %strExternalMenuName%
+
 IniRead, strExternalWriteAccessUsers, %f_strFavoriteAppWorkingDir%, Global, WriteAccessUsers, %A_Space% ; empty if not found
 GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
+
 IniRead, strExternalWriteAccessMessage, %f_strFavoriteAppWorkingDir%, Global, WriteAccessMessage, %A_Space% ; empty if not found
 GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
 
@@ -7935,6 +7940,24 @@ blnExternalMenuReadOnly := ""
 strExternalMenuName := ""
 strExternalWriteAccessUsers := ""
 strExternalWriteAccessMessage := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadExternalFileGlobalReadOnly:
+;------------------------------------------------------------
+
+; read-only menu can be blnExternalMenuEditable if user is in ExternalWriteAccessUsers
+strReadOnlyPrefix := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? "+" : "-")
+
+GuiControl, 2:%strReadOnlyPrefix%Disabled, f_blnExternalMenuReadOnly
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalMenuName
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessUsers
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessMessage
+
+strReadOnlyPrefix := ""
 
 return
 ;------------------------------------------------------------
@@ -8236,10 +8259,14 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	; if external settings file is not read-only, write [Global] values to external settings file
 	if !ExternalMenuIsReadOnly(strExternalMenuPath)
 	{
-		IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly
-		IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
-		IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
-		IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+		if !(g_blnExternalLocationChanged)
+		{
+			IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly
+			IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
+			IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
+			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+		}
+		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 	}
 }
 
@@ -13110,6 +13137,7 @@ Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
 FormatTime, strYear, , yyyy ; current time
 Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
+Gui, 2:Add, Text, w380, % L(lAboutUsername, A_UserName)
 Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText4)
 Gui, 2:Font, s8 w400, Verdana

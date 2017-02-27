@@ -3,6 +3,7 @@ global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http:
 global lAboutText3 := "~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the ""License""). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an ""AS IS"" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License." ; changed
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
+global lAboutUsername = "User: ~1~"
 global lAlternativeMenuTrayTipCopyLocation := "Select the favorite to copy" ; new
 global lAlternativeMenuTrayTipEditFavorite := "Select the favorite to edit" ; new
 global lAlternativeMenuTrayTipNewWindow := "Select the folder to open in a new window" ; new
