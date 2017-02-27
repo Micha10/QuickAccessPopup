@@ -68,13 +68,17 @@ global lDialogEndOfMenu := "end of menu"
 global lDialogErrorMoving := "Unable to resize for favorite:`n""~1~""" ; new
 global lDialogExternalLocation := "Shared menu settings file location" ; changed
 global lDialogExternalLocationIni := "Shared menu settings file must be an .ini file" ; changed
+global lDialogExternalMenuName := "Shared menu name"
 global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
+global lDialogExternalWriteAccessMessage := "Shared menu write access message"
+global lDialogExternalWriteAccessUsers := "Users with write access to this shared menu"
 global lDialogFavoriteDisabled := "Hide this favorite in menu"
 global lDialogFavoriteDisabledGroupMember := "Disable this item in group"
 global lDialogFavoriteDoesNotExistPrompt := "The favorite ""~1~""~2~ does not exist or is not available.`n`nIf this favorite is on a network drive, please try again after network authentification." ; changed
 global lDialogFavoriteDoesNotExistTitle := "Favorite does not exist - ~1~"
 global lDialogFavoriteDropdownEmpty := "Please choose an item in the ~1~ drop-down list." ; new
 global lDialogFavoriteExternalHelpWeb := "See <a href=""~1~"">Shared menus help</a> for more information." ; changed
+global lDialogFavoriteExternalSaveNote := "These values will be saved to the shared menu as soon as you you click OK."
 global lDialogFavoriteFolderLive := "Live Folder (menu including subfolders)" ; changed
 global lDialogFavoriteFolderLiveColumns := "Number of items per column (0 for no column break)" ; changed
 global lDialogFavoriteFolderLiveDocuments := "Include documents"

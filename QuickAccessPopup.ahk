@@ -31,14 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.2? (2017-02-??)
-- grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccess"
+Version BETA: 8.1.9.1 (2017-02-??)
+- grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccessUsers"
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
 - in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
 - new Alternative menu QAP features to open the folder containing the selected document, favorite or folder favorite in the current window or in a new window
-- display SharedMenuName and WriteAccessMessage in oops dialog box when user wants to edit a read-only shared menu
-- display SharedMenuName in content column of shared menu entries in Settings
+- display MenuName and WriteAccessMessage in oops dialog box when user wants to edit a read-only shared menu
+- display MenuName in content column of shared menu entries in Settings
 
 Version: 8.1 (2017-02-20)
  
@@ -1233,7 +1233,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1
+;@Ahk2Exe-SetVersion 8.1.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1306,8 +1306,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -2922,7 +2922,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
 				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
-				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number
+				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+				if !StrLen(g_intIniLine)
+					g_intIniLine := 1 ; always 1 for menu added since v8.1.9.1
 			}
 			
 			; build the submenu
@@ -6106,8 +6108,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 				strGuiMenuLocation := lOopsErrorIniFileUnavailable
 			else
 				strGuiMenuLocation := ""
-			IniRead, strSharedMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
-			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strSharedMenuName
+			IniRead, strExternalMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
+			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
@@ -6138,7 +6140,7 @@ GuiControl, Focus, f_lvFavoritesList
 strGuiMenuLocation := ""
 strThisType := ""
 strThisHotkey := ""
-strSharedMenuName := ""
+strExternalMenuName := ""
 
 return
 ;------------------------------------------------------------
@@ -6836,7 +6838,7 @@ else
 		, % g_objEditedFavorite.FavoriteName
 }
 
-if (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
+if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, %lDialogOpenThisMenu%
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
@@ -7090,12 +7092,23 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		Gui, 2:Add, Text, x20 y50, %lDialogExternalStartingNumber%
-		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
-			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
+		blnExternalMenuEditable := !ExternalMenuIsReadOnly(g_objEditedFavorite.SubMenu.MenuExternalPath) ; flag if current user can change values (including read-only value)
+		Gui, 2:Add, Checkbox, % "x20 y50 vf_blnExternalMenuReadOnly " . (blnExternalMenuEditable ? "" : "Disabled"), %lDialogReadOnly%
+		Gui, 2:Add, Text, x20 y+15, %lDialogExternalMenuName%
+		Gui, 2:Add, Edit, % "x20 y+5 w400 vf_strExternalMenuName " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalMenuName%
+		Gui, 2:Add, Text, x20 y+15, %lDialogExternalWriteAccessUsers%
+		Gui, 2:Add, Edit, % "x20 y+5 w400 vf_strExternalWriteAccessUsers " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalWriteAccessUsers%
+		Gui, 2:Add, Text, x20 y+15, %lDialogExternalWriteAccessMessage%
+		Gui, 2:Add, Edit, % "x20 y+5 w400 r7 vf_strExternalWriteAccessMessage " . (blnExternalMenuEditable ? "" : "ReadOnly") ; , %strExternalWriteAccessMessage%
+		; Gui, 2:Add, Text, x20 y+15, %lDialogExternalStartingNumber% ; DEPRECATED since v8.1.9.1
+		; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
+		; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
+		if (blnExternalMenuEditable)
+			Gui, 2:Add, Text, x20 y+15 w500, %lDialogFavoriteExternalSaveNote%
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
+		g_blnExternalLocationChanged := true ; to make sure external menu values are set by GuiAddFavoriteTabChanged
 	}
-	else
+	else ; Folder, Document, Special, URL and FTP 
 	{
 		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
@@ -7218,6 +7231,12 @@ if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon
 	
 	Gosub, GuiFavoriteIconDefault
 	Gosub, GuiFavoriteIconDisplay
+
+	if (g_blnExternalLocationChanged)
+	{
+		gosub, LoadExternalFileGlobalValues
+		g_blnExternalLocationChanged := false
+	}
 }
 
 return
@@ -7327,6 +7346,9 @@ if !StrLen(f_strFavoriteShortName)
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
 
+if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
+	g_blnExternalLocationChanged := true
+	
 return
 ;------------------------------------------------------------
 
@@ -7679,8 +7701,8 @@ else
 			else ; read-only
 			{
 				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
-				IniRead, strSharedMenuName, % objNewMenuInGui.MenuExternalPath, Global, SharedMenuName, %A_Space% ; empty if not found
-				Oops(lOopsErrorIniFileReadOnly . (StrLen(strSharedMenuName) ? "`n`n" . strSharedMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
+				IniRead, strExternalMenuName, % objNewMenuInGui.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
+				Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . strExternalMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
 			}
 			gosub, GuiMenusListChangedCleanup
 			return
@@ -7710,7 +7732,7 @@ intCurrentLastPosition := ""
 strNewDropdownMenu := ""
 objNewMenuInGui := ""
 strWriteAccessMessage := ""
-strSharedMenuName := ""
+strExternalMenuName := ""
 
 return
 ;------------------------------------------------------------
@@ -7891,6 +7913,28 @@ strVerb := ""
 strMessageRemove := ""
 strIconFile := ""
 intIconIndex := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadExternalFileGlobalValues:
+;------------------------------------------------------------
+
+IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found
+GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
+IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+GuiControl, , f_strExternalMenuName, %strExternalMenuName%
+IniRead, strExternalWriteAccessUsers, %f_strFavoriteAppWorkingDir%, Global, WriteAccessUsers, %A_Space% ; empty if not found
+GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
+IniRead, strExternalWriteAccessMessage, %f_strFavoriteAppWorkingDir%, Global, WriteAccessMessage, %A_Space% ; empty if not found
+GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
+
+blnExternalMenuReadOnly := ""
+strExternalMenuName := ""
+strExternalWriteAccessUsers := ""
+strExternalWriteAccessMessage := ""
 
 return
 ;------------------------------------------------------------
@@ -8165,31 +8209,39 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 
 ; if external menu file exists, load the submenu from the external settings ini file
 	
-; ###_O("AVANT objNewMenu", objNewMenu, "FavoriteLocation")
-; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
-
-if (g_objEditedFavorite.FavoriteType = "External") and FileExist(PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir))) ; settings file path
+if (g_objEditedFavorite.FavoriteType = "External")
 {
-	; remove existing menu entries but keep entry #1 (back menu)
-	loop, % objNewMenu.MaxIndex() -  1
-		objNewMenu.Delete(objNewMenu.MaxIndex()) ; do ot use .RemoveAt() because all keys in object are not numeric - risk of side effects
-	; ###_O("PENDANT objNewMenu", objNewMenu, "FavoriteLocation")
-	; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
+	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; settings file path
+	if FileExist(strExternalMenuPath) ; file path exists
+	{
+		; load the external menu to menu object objNewMenu created earlier
+		; remove existing menu entries but keep entry #1 (back menu)
+		loop, % objNewMenu.MaxIndex() -  1
+			objNewMenu.Delete(objNewMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
+		
+		strPreviousIniFile := g_strIniFile
+		intPreviousIniLine := g_intIniLine
+		g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+		g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
+		; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
+		
+		strResult := RecursiveLoadMenuFromIni(objNewMenu)
+		
+		g_strIniFile := strPreviousIniFile
+		g_intIniLine := intPreviousIniLine
+	}
+	else ; if external settings file does not exist, create empty [Favorites] section
+		IniWrite, Z, %strExternalMenuPath%, Favorites, Favorite1
 	
-	strPreviousIniFile := g_strIniFile
-	intPreviousIniLine := g_intIniLine
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
-	g_intIniLine := f_intExternalStartingNumber ; starting number
-	
-	strResult := RecursiveLoadMenuFromIni(objNewMenu)
-	; ###_V("RecursiveLoadMenuFromIni - strResult", strResult)
-	
-	g_strIniFile := strPreviousIniFile
-	g_intIniLine := intPreviousIniLine
+	; if external settings file is not read-only, write [Global] values to external settings file
+	if !ExternalMenuIsReadOnly(strExternalMenuPath)
+	{
+		IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly
+		IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
+		IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
+		IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+	}
 }
-
-; ###_O("APRÈS objNewMenu", objNewMenu, "FavoriteLocation")
-; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
 
 ; update menu object and hotkeys object except if we move favorites
 
@@ -8386,6 +8438,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave") ; do not execute at each favorite 
 	strPreviousLocation := ""
 	strNewFavoriteShortName := ""
 	strNewFavoriteLocation := ""
+	strExternalMenuPath := ""
 
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
@@ -9346,7 +9399,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strPreviousIniFile := g_strIniFile
 				intPreviousIniLine := g_intIniLine
 				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
-				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number
+				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number - DEPRECATED since v8.1.9.1
+				if !StrLen(g_intIniLine)
+					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
 				if FileExist(g_strIniFile)
 				{
@@ -9357,10 +9412,21 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
 				}
-				else ; new external menu file, init MenuReadOnly
+				else ; new external menu file, init external menu values
 				{
 					strIniDateTimeBefore := ""
-					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+                    ; IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly - DEPRECATED since v8.1.9.1
+					/*
+					IniWrite, % objCurrentMenu[A_Index].FavoriteName, %g_strIniFile%, Global, SharedMenuName
+					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly ; default false
+					IniWrite, % "", %g_strIniFile%, Global, WriteAccessUsers ; default empty
+					IniWrite, % "", %g_strIniFile%, Global, WriteAccessMessage ; default empty
+					###_V(A_ThisLabel, g_strIniFile, f_strExternalMenuName)
+					IniWrite, %f_blnExternalMenuReadOnly%, %g_strIniFile%, Global, MenuReadOnly
+					IniWrite, %f_strExternalMenuName%, %g_strIniFile%, Global, MenuName
+					IniWrite, %f_strExternalWriteAccessUsers%, %g_strIniFile%, Global, WriteAccessUsers
+					IniWrite, %f_strExternalWriteAccessMessage%, %g_strIniFile%, Global, WriteAccessMessage
+					*/
 				}
 			}
 			
@@ -14584,8 +14650,8 @@ ExternalMenuIsReadOnly(strFile)
 		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
 		if (blnExternalMenuReadOnly)
 		{
-			IniRead, strWriteAccess, %strFile%, Global, WriteAccess, %A_Space% ; empty by default
-			loop, Parse, strWriteAccess, `,
+			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
+			loop, Parse, strWriteAccessUsers, `,
 				if (A_LoopField = A_UserName)
 				{
 					blnExternalMenuReadOnly := false
