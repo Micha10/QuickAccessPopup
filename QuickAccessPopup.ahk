@@ -32,13 +32,26 @@ HISTORY
 =======
 
 Version BETA: 8.1.9.1 (2017-02-??)
-- grant write access to read-only external menu for users having their Windows logon name in the "[Global]" variable "WriteAccessUsers"
-- in Live folders, exclude folders with the Hidden (H) attribute (keeping those wha have System without the Hidden attribute)
+ 
+Shared menus
+- in Advanced settings tab, add "Read-only" checkbox and text boxes for "Shared menu name", "Users with write access to this shared menu" (coma separated list) and "Shared menu write access message"
+- saving these values to shared menu ini file as soon as user click OK in "Add/Edit favorite" dialog box (not waiting for when user saves the favorites)
+- values are saved in "[Global]" section under "MenuName", "WriteAccessUsers" and "WriteAccessMessage"
+- grant write access to read-only shared menu to users having their Windows logon name in the "Users with write access to this shared menu" text box
+- display shared menu name and write access message in error message when user tries to edit a read-only shared menu
+- display shared menu name in content column of shared menu entries in Settings
+- deprecate first line number value in external menu files, now always starting at 1 (starting number in old menu still supported; please advise me if this cause issue)
+ 
+Import/Export
 - in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
-- in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time, using "YYYYMMDDHH24MISS" format
-- new Alternative menu QAP features to open the folder containing the selected document, favorite or folder favorite in the current window or in a new window
-- display MenuName and WriteAccessMessage in oops dialog box when user wants to edit a read-only shared menu
-- display MenuName in content column of shared menu entries in Settings
+- in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time (based on computer time), using "YYYYMMDDHH24MISS" format
+ 
+Alternative menu
+- new Alternative menu QAP features to open the folder containing the selected document, application  or folder favorite in the current window or in a new window
+ 
+Bug fixes and improvements
+- in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
+- fix bug add missing Open button for shared menus in Edit Favorite dialog box
 
 Version: 8.1 (2017-02-20)
  
