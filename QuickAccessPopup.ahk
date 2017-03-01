@@ -7375,8 +7375,17 @@ if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
-	g_blnExternalLocationChanged := true
-	
+{
+	g_blnExternalLocationChanged := true ; will update external menu values in advanced tab when GuiAddFavoriteTabChanged
+
+	if !StrLen(f_strFavoriteShortName) and FileExist(f_strFavoriteAppWorkingDir)
+	{
+		IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+		if StrLen(strExternalMenuName)
+			GuiControl, 2:, f_strFavoriteShortName, %strExternalMenuName%
+	}
+}
+
 return
 ;------------------------------------------------------------
 
