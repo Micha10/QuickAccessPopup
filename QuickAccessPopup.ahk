@@ -2542,7 +2542,7 @@ InsertGuiControlPos("f_picGuiEditFavorite",			 -44,  195, true) ; 190 + 5
 InsertGuiControlPos("f_picGuiRemoveFavorite",		 -44,  270, true) ; 260 + 10
 InsertGuiControlPos("f_picGuiCopyFavorite",			 -44,  345, true) ; 330 + 15
 InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -148, true, true) ; -140 true = center, true = draw
-InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw #####
+InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw
 InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
 InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
@@ -2709,6 +2709,7 @@ IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicM
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
+IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -5046,6 +5047,9 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnUseClassicButtons, %lOptionsUseClassicButtons%
 GuiControl, , f_blnUseClassicButtons, %g_blnUseClassicButtons%
 
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogue gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
+GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+
 ; column 2
 
 Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsMenuPositionPrompt%
@@ -5436,6 +5440,30 @@ return
 
 
 ;------------------------------------------------------------
+EnableSharedMenuCatalogueClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+IniRead, blnExternalMenusCataloguePathReadOnly, %g_strIniFile%, Global, ExternalMenusCataloguePathReadOnly, 0 ; false if not found
+if (blnExternalMenusCataloguePathReadOnly)
+{
+	GuiControl, , f_blnEnableSharedMenuCatalogue, % !f_blnEnableSharedMenuCatalogue
+	Oops(lOopsExternalCatalogueReadOnly)
+	return
+}
+
+if (f_blnEnableSharedMenuCatalogue)
+	FileSelectFolder, g_strExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
+else
+	g_strExternalMenusCataloguePath := ""
+
+blnExternalMenusCataloguePathReadOnly := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonSelectFileManagerPath:
 ;------------------------------------------------------------
 Gui, 2:+OwnDialogs
@@ -5625,6 +5653,8 @@ IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRow
 strUseClassicButtonsPrev := g_blnUseClassicButtons
 g_blnUseClassicButtons := f_blnUseClassicButtons
 IniWrite, %g_blnUseClassicButtons%, %g_strIniFile%, Global, UseClassicButtons
+
+IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
 
 ;---------------------------------------
 ; Save Tab 2: Popup menu hotkeys
@@ -6781,7 +6811,29 @@ else ; add favorite
 	g_strNewFavoriteHotkey := "None" ; internal name
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
+	{
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
+		
+		if (g_strAddFavoriteType = "External") and FileExist(g_strExternalMenusCataloguePath)
+		{
+			MsgBox, 4, %g_strAppNameText%, %lDialogExternalAddFromCatalogue%
+			IfMsgBox, Yes
+			{
+				FileSelectFile, g_strNewLocation, S1, %g_strExternalMenusCataloguePath%, %lDialogExternalSelectFromCatalogue%
+				if StrLen(g_strNewLocation)
+				{
+					g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
+					IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space% ; empty if not found
+					g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(f_strFavoriteAppWorkingDir))
+				}
+				else
+				{
+					g_blnAbordEdit := true
+					return
+				}
+			}
+		}
+	}
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 	{
 		if StrLen(g_strNewLocationSpecialName)
@@ -6820,7 +6872,8 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
-	
+strExternalMenuName := ""
+
 return
 ;------------------------------------------------------------
 
@@ -7375,8 +7428,17 @@ if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
-	g_blnExternalLocationChanged := true
-	
+{
+	g_blnExternalLocationChanged := true ; will update external menu values in advanced tab when GuiAddFavoriteTabChanged
+
+	if !StrLen(f_strFavoriteShortName) and FileExist(f_strFavoriteAppWorkingDir)
+	{
+		IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+		if StrLen(strExternalMenuName)
+			GuiControl, 2:, f_strFavoriteShortName, %strExternalMenuName%
+	}
+}
+
 return
 ;------------------------------------------------------------
 
@@ -8052,7 +8114,7 @@ if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strT
 else ; GuiEditFavoriteSave or GuiMoveOneFavoriteSave
 	strOriginalMenu := g_objMenuInGui.MenuPath
 
-if (A_ThisLabel = "GuiAddFavoriteSaveXpress")
+if (strThisLabel = "GuiAddFavoriteSaveXpress")
 {
 	strNewFavoriteShortName := g_objEditedFavorite.FavoriteName
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
