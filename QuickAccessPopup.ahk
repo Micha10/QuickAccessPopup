@@ -11034,7 +11034,7 @@ if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavo
 		IniWrite, 1, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead
 }
 
-; process Alternative featrures keyboard modifiers
+; process Alternative features keyboard modifiers
 if (blnShiftPressed or blnControlPressed)
 {
 	g_blnAlternativeMenu := true
@@ -11061,6 +11061,13 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet
+	gosub, OpenFavoriteCleanup
+	return
+}
+
+if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
+{
+	Oops(lOopsErrorIniFileReadOnly)
 	gosub, OpenFavoriteCleanup
 	return
 }
