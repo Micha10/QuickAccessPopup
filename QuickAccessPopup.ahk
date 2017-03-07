@@ -2930,7 +2930,12 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			objNewMenu.MenuType := arrThisFavorite1
 			if (objNewMenu.MenuType = "External")
+			{
 				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
+				FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
+				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+				objNewMenu.MenuExternalLastModifiedNow := strLastModified
+			}
 			
 			; create a navigation entry to navigate to the parent menu
 			objNewMenuBack := Object()
@@ -7790,9 +7795,12 @@ else
 		objNewMenuInGui := g_objMenuInGui[1].SubMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
-
+	
+	ExternalMenuRefreshLastModified(objNewMenuInGui)
+	###_O("objNewMenuInGui", objNewMenuInGui)
+	###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
 	if (objNewMenuInGui.MenuType = "External")
-		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath)
+		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) or  ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
 		{
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
@@ -14792,6 +14800,28 @@ ExternalMenuIsReadOnly(strFile)
 	}
 
 	return blnExternalMenuReadOnly
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuModifiedSinceLoaded(objMenu)
+;------------------------------------------------------------
+{
+	FileGetTime, strLastModified, % objMenu.MenuExternalPath, M
+	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	return (strLastModified > objMenu.MenuExternalLastModifiedWhenLoaded)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuRefreshLastModified(objMenu)
+;------------------------------------------------------------
+{
+	FileGetTime, strLastModified, % objMenu.MenuExternalPath, M
+	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	objMenu.MenuExternalLastModifiedNow := strLastModified
 }
 ;------------------------------------------------------------
 
