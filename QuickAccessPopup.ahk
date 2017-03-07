@@ -13282,17 +13282,17 @@ Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup.com/why-support-freeware/")
-; loop, 2
-; {
-;	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
-;	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
-; }
-Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, %lDonatePlatformName2%
-Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment2%
-Gui, 2:Add, Button, y+10 Default xm w150 gButtonDonate1, %lDonatePlatformName1%
-Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment1%
+loop, 3
+{
+	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
+	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
+}
+; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, %lDonatePlatformName2% ; Patreon out
+; Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment2% ; Patreon out
+; Gui, 2:Add, Button, y+10 Default xm w150 gButtonDonate1, %lDonatePlatformName1%
+; Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment1%
 
-Gui, 2:Add, Link, xm y+10 w420, % L(lDonateCheckPrompt2, lDonateCheckPrompt4)
+Gui, 2:Add, Link, xm y+15 w420, % L(lDonateCheckPrompt2, lDonateCheckPrompt4)
 
 Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Link, xm y+20 w420, %lDonateText3%
@@ -13340,8 +13340,8 @@ ButtonDonate3:
 ;------------------------------------------------------------
 
 strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"
-strDonatePlatformUrl2 := "https://www.patreon.com/JeanLalonde"
-strDonatePlatformUrl3 := ""
+strDonatePlatformUrl2 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"
+strDonatePlatformUrl3 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"
 
 StringReplace, intButton, A_ThisLabel, ButtonDonate
 Run, % strDonatePlatformUrl%intButton%
