@@ -1381,6 +1381,8 @@ g_strQAPFeaturesList := ""
 
 g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated with "|" pipe separator)
 
+g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
+
 g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 g_strQAPconnectFileManager := ""
 g_strQAPconnectAppFilename := ""
@@ -3350,7 +3352,7 @@ return
 ;========================================================================================================================
 
 ;-----------------------------------------------------------
-ExitApp:
+ExitApp: ; should not be called
 TrayMenuExitApp:
 ;-----------------------------------------------------------
 
@@ -3375,6 +3377,8 @@ if (g_blnRememberSettingsPosition)
 IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
+
+Gosub, ExternalMenusRelease ; release reserved external menus
 
 if (g_blnDiagMode)
 {
@@ -7031,11 +7035,11 @@ Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
-Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpParentMenu gDropdownParentMenuChanged
+Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
 	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
-Gui, 2:Add, DropDownList, x20 y+5 w390 vf_drpParentMenuItems AltSubmit
+Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenuItems AltSubmit
 
 if !(blnIsGroupMember)
 {
@@ -7796,22 +7800,44 @@ else
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 	
-	ExternalMenuRefreshLastModified(objNewMenuInGui)
-	###_O("objNewMenuInGui", objNewMenuInGui)
-	###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
+	; ###_O("objNewMenuInGui", objNewMenuInGui)
+	; ###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
 	if (objNewMenuInGui.MenuType = "External")
-		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) or  ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
+		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) or ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
 		{
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
-			else ; read-only
+			else if ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) ; read-only
 			{
 				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
 				IniRead, strExternalMenuName, % objNewMenuInGui.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
 				Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . strExternalMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
 			}
+			else ; modified
+			{
+				MsgBox, 52, %g_strAppNameText%, %lOopsErrorIniFileModified%
+				IfMsgBox, Yes
+					Gosub, ReloadQAP
+			}
 			gosub, GuiMenusListChangedCleanup
 			return
+		}
+		else
+		{
+			IniRead, strExternalMenuReservedBy, % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
+			if StrLen(strExternalMenuReservedBy)
+			{
+				Oops(lOopsErrorIniFileReservedBy, strExternalMenuReservedBy)
+				gosub, GuiMenusListChangedCleanup
+				return
+			}
+			else
+			{
+				IniWrite, % (StrLen(A_UserName) ? A_UserName : "Unknown"), % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy
+				; remember to free when saving or canceling
+				g_objExternaleMenuToRelease.Insert(objNewMenuInGui.MenuExternalPath)
+				###_O("g_objExternaleMenuToRelease", g_objExternaleMenuToRelease)
+			}
 		}
 
 	g_objMenuInGui := objNewMenuInGui
@@ -9438,6 +9464,7 @@ Gosub, LoadMenuFromIni ; load favorites to menu object
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+Gosub, ExternalMenusRelease ; release reserved external menus
 
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
@@ -10159,6 +10186,8 @@ if (blnCancelEnabled)
 		return
 	}
 }
+Gosub, ExternalMenusRelease ; release cancel enabled or not
+
 Gui, 1:Cancel
 
 GuiCancelCleanup:
@@ -10301,6 +10330,21 @@ strThisHotkey := ""
 return
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+ExternalMenusRelease:
+;------------------------------------------------------------
+
+###_V(A_ThisLabel, g_objExternaleMenuToRelease.MaxIndex())
+loop, % g_objExternaleMenuToRelease.MaxIndex()
+{
+	###_V(g_objExternaleMenuToRelease[1])
+	IniWrite, % "", % g_objExternaleMenuToRelease[1], Global, MenuReservedBy
+	g_objExternaleMenuToRelease.Remove(1)
+}
+
+return
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
@@ -14809,19 +14853,9 @@ ExternalMenuModifiedSinceLoaded(objMenu)
 ;------------------------------------------------------------
 {
 	FileGetTime, strLastModified, % objMenu.MenuExternalPath, M
-	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
-	return (strLastModified > objMenu.MenuExternalLastModifiedWhenLoaded)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ExternalMenuRefreshLastModified(objMenu)
-;------------------------------------------------------------
-{
-	FileGetTime, strLastModified, % objMenu.MenuExternalPath, M
-	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
 	objMenu.MenuExternalLastModifiedNow := strLastModified
+;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
 }
 ;------------------------------------------------------------
 
