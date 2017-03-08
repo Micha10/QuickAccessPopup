@@ -2934,7 +2934,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			if (objNewMenu.MenuType = "External")
 			{
 				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
-				FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
+				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
+				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
+				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
 			}
@@ -7833,10 +7835,10 @@ else
 			}
 			else
 			{
-				IniWrite, % (StrLen(A_UserName) ? A_UserName : "Unknown"), % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy
+				IniWrite, % (StrLen(A_UserName) ? A_UserName : "Unknown"), % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
 				; remember to free when saving or canceling
 				g_objExternaleMenuToRelease.Insert(objNewMenuInGui.MenuExternalPath)
-				###_O("g_objExternaleMenuToRelease", g_objExternaleMenuToRelease)
+				; ###_O("g_objExternaleMenuToRelease", g_objExternaleMenuToRelease)
 			}
 		}
 
@@ -8394,6 +8396,12 @@ if (g_objEditedFavorite.FavoriteType = "External")
 			IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
 			IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
 			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+			; update last modified value in ini file because values requiring update by other users were changed
+			strLastModified := GetModifiedDateTime(strExternalMenuPath)
+			IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
+			###_O("g_objEditedFavorite.SubMenu", g_objEditedFavorite.SubMenu)
 		}
 		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 	}
@@ -9596,6 +9604,11 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
 					Oops(lOopsExternalFileWriteError, g_strIniFile)
+					
+				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
+				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
+				IniWrite, %strIniDateTimeAfter%, %g_strIniFile%, Global, LastModified
+
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
 			}
@@ -10335,11 +10348,11 @@ return
 ExternalMenusRelease:
 ;------------------------------------------------------------
 
-###_V(A_ThisLabel, g_objExternaleMenuToRelease.MaxIndex())
+; dialog box could hang exit ###_V(A_ThisLabel, g_objExternaleMenuToRelease.MaxIndex())
 loop, % g_objExternaleMenuToRelease.MaxIndex()
 {
-	###_V(g_objExternaleMenuToRelease[1])
-	IniWrite, % "", % g_objExternaleMenuToRelease[1], Global, MenuReservedBy
+	; dialog box could hang ExitApp ###_V(g_objExternaleMenuToRelease[1])
+	IniWrite, % "", % g_objExternaleMenuToRelease[1], Global, MenuReservedBy ; no need to update LastModified for this change
 	g_objExternaleMenuToRelease.Remove(1)
 }
 
@@ -14852,7 +14865,7 @@ ExternalMenuIsReadOnly(strFile)
 ExternalMenuModifiedSinceLoaded(objMenu)
 ;------------------------------------------------------------
 {
-	FileGetTime, strLastModified, % objMenu.MenuExternalPath, M
+	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
 	objMenu.MenuExternalLastModifiedNow := strLastModified
 ;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
 	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
