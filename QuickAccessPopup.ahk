@@ -7346,7 +7346,20 @@ return
 ;------------------------------------------------------------
 DropdownParentMenuChanged:
 ;------------------------------------------------------------
+strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to cancel
 Gui, 2:Submit, NoHide
+
+if (g_objMenusIndex[f_drpParentMenu].MenuType = "External")
+	if ExternalMenuModifiedSinceLoaded(g_objMenusIndex[f_drpParentMenu])
+	{
+		gosub, ExternalMenuModifiedPromptForReload
+		; else set menu dropdown to previous menu and return
+		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu%
+		return
+	}
+	else if !ExternalMenuReserved(g_objMenusIndex[f_drpParentMenu]) ; check if we can reserve external menu
+		return ; external menu was already reserved
+	; else external menu is reserved
 
 Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
 {
@@ -7805,42 +7818,33 @@ else
 	; ###_O("objNewMenuInGui", objNewMenuInGui)
 	; ###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
 	if (objNewMenuInGui.MenuType = "External")
-		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) or ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
+		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath)
 		{
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
-			else if ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) ; read-only
+			else ; read-only
 			{
 				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
 				IniRead, strExternalMenuName, % objNewMenuInGui.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
 				Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . strExternalMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
 			}
-			else ; modified
-			{
-				MsgBox, 52, %g_strAppNameText%, %lOopsErrorIniFileModified%
-				IfMsgBox, Yes
-					Gosub, ReloadQAP
-			}
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
-		else
+		else if ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
 		{
-			IniRead, strExternalMenuReservedBy, % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
-			if StrLen(strExternalMenuReservedBy)
-			{
-				Oops(lOopsErrorIniFileReservedBy, strExternalMenuReservedBy)
-				gosub, GuiMenusListChangedCleanup
-				return
-			}
-			else
-			{
-				IniWrite, % (StrLen(A_UserName) ? A_UserName : "Unknown"), % objNewMenuInGui.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
-				; remember to free when saving or canceling
-				g_objExternaleMenuToRelease.Insert(objNewMenuInGui.MenuExternalPath)
-				; ###_O("g_objExternaleMenuToRelease", g_objExternaleMenuToRelease)
-			}
+			gosub, ExternalMenuModifiedPromptForReload
+			; else return to stay in current menu
+			gosub, GuiMenusListChangedCleanup
+			return
 		}
+		else if !ExternalMenuReserved(objNewMenuInGui) ; check if we can reserve external menu
+		{
+			; external menu was already reserved
+			gosub, GuiMenusListChangedCleanup
+			return
+		}
+		; else external menu is reserved
 
 	g_objMenuInGui := objNewMenuInGui
 	
@@ -8091,6 +8095,44 @@ GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessMessage
 strReadOnlyPrefix := ""
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuModifiedPromptForReload:
+;------------------------------------------------------------
+
+MsgBox, 52, %g_strAppNameText%, %lOopsErrorIniFileModified%
+IfMsgBox, Yes
+	Gosub, ReloadQAP
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuReserved(objMenu)
+;------------------------------------------------------------
+{
+	global g_objExternaleMenuToRelease
+	
+	; ###_O("objMenu", objMenu)
+	IniRead, strExternalMenuReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
+	if StrLen(strExternalMenuReservedBy) and (strExternalMenuReservedBy <> A_UserName)
+	{
+		Oops(lOopsErrorIniFileReservedBy, strExternalMenuReservedBy)
+		; ##### gosub, GuiMenusListChangedCleanup
+		return false
+	}
+	else
+	{
+		IniWrite, % (StrLen(A_UserName) ? A_UserName : "Unknown"), % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
+		; remember to free when saving or canceling
+		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
+		; ###_O("g_objExternaleMenuToRelease", g_objExternaleMenuToRelease)
+		return true
+	}
+}
 ;------------------------------------------------------------
 
 
@@ -8401,7 +8443,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 			IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
-			###_O("g_objEditedFavorite.SubMenu", g_objEditedFavorite.SubMenu)
+			; ###_O("g_objEditedFavorite.SubMenu", g_objEditedFavorite.SubMenu)
 		}
 		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 	}
@@ -9481,7 +9523,10 @@ g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
 {
-	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
+	if (g_objMenusIndex[strSavedMenuInGui].MenuType = "External")
+		g_objMenuInGui := g_objMenusIndex[lMainMenuName]
+	else
+		g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
