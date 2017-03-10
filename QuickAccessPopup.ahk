@@ -7272,8 +7272,14 @@ return
 ;------------------------------------------------------------
 GuiMoveMultipleFavoritesToMenu:
 ;------------------------------------------------------------
+g_intGui1WinID := WinExist("A")
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:+Owner1
+Gui, 2:+OwnDialogs
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath)
 
