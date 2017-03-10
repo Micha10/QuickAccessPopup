@@ -31,12 +31,28 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.1.9.3 (2017-03-10)
+ 
+Shared menus (see updated FAQ page http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/)
+- error message when user tries to load an external menu that was modified based on file last modified date-time
+- store and read last modified date of external file in ini file and update it only when favorites or external menu properties are changed, not when only reserved without changes
+- update the last modified date-time of external ini file and in external menu object when user save changes
+- reserve external menu when user loads the external menu in Settings or when user selects parent menu menu in add/edit favorite or move dialog boxes
+- track user reserving an external menu writing his username in variable MenuReservedBy
+- block external menu editing if menu is reserved except if reserved by current user
+- release reserved external menus when user saves or cancels settings changes or quits QAP
+- fix bug prevent editing favorites in read-only external menu from the Edit Favorite Alternative menu
+ 
+Other changes
+- enlarge submenus dropdown lists to 500 px in Add/Edit Favorite dialog box
+- remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+
 Version BETA: 8.1.9.2 (2017-02-28)
  
 Shared menus
 - add to Options general tab the "Enable Shared Menu Satalogue" checkbox and prompt user for catalogue root when enabling
-- add "ExternalMenusCataloguePathReadOnly" varibale to QAP ini file to prevent user from changing the catalogue root and display an error message if user tries to change rthe root when read-only
-- when user adds a favorite of type Shared menu and Shared Menu Catalogue root exists, give user the option to select the Shared menu from the catalogue (using file select dialog box at this time - to be inproved)
+- add "ExternalMenusCataloguePathReadOnly" variable to QAP ini file to prevent user from changing the catalogue root and display an error message if user tries to change rthe root when read-only
+- when user adds a favorite of type Shared menu and Shared Menu Catalogue root exists, give user the option to select the Shared menu from the catalogue (using file select dialog box at this time - to be improved)
 - when adding a Shared menu, get the favorite name from the shared menu file if variable "MenuName" exists
  
 Version BETA: 8.1.9.1 (2017-02-28)
@@ -1254,7 +1270,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1.9.2 BETA
+;@Ahk2Exe-SetVersion 8.1.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1327,7 +1343,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.1.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8105,10 +8121,22 @@ return
 
 
 ;------------------------------------------------------------
+ExternalMenuModifiedSinceLoaded(objMenu)
+;------------------------------------------------------------
+{
+	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
+	objMenu.MenuExternalLastModifiedNow := strLastModified
+;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ExternalMenuModifiedPromptForReload:
 ;------------------------------------------------------------
 
-MsgBox, 52, %g_strAppNameText%, %lOopsErrorIniFileModified%
+MsgBox, 52, %g_strAppNameText% - %g_strAppVersion%, %lOopsErrorIniFileModified%
 IfMsgBox, Yes
 	Gosub, ReloadQAP
 
@@ -14908,18 +14936,6 @@ ExternalMenuIsReadOnly(strFile)
 	}
 
 	return blnExternalMenuReadOnly
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ExternalMenuModifiedSinceLoaded(objMenu)
-;------------------------------------------------------------
-{
-	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
-	objMenu.MenuExternalLastModifiedNow := strLastModified
-;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
-	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
 }
 ;------------------------------------------------------------
 
