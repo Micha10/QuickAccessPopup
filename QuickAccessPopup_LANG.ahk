@@ -178,6 +178,7 @@ global lDialogOff := "Off" ; new
 global lDialogOK := "OK" ; new
 global lDialogOKAmpersand := "&OK" ; new
 global lDialogOn := "On" ; new
+global lDialogOpenThisGroup := "Open this group"
 global lDialogOpenThisMenu := "Open this menu"
 global lDialogOr := "or" ; new (lowercase)
 global lDialogReadOnly := "Read-only" ; new

@@ -19,6 +19,9 @@
 #define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_2.dll"
 
+[CustomMessages]
+HelpMePayExpenses=&HELP me pay EXPENSES for making QAP%n
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -163,8 +166,9 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 [Run]
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: waituntilidle postinstall skipifsilent
 Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings; Flags: runhidden waituntilterminated
-Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"; Description: "&HELP me pay EXPENSES for making QAP (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
-Filename: "https://www.patreon.com/JeanLalonde"; Description: "&PATRON my work with monthly micro-donations (starting at only $1)"; Flags: postinstall shellexec unchecked
+Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"; Description: "{cm:HelpMePayExpenses}US $ (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
+Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"; Description: "Euros (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
+Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"; Description: "CDN $ (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
 
 [Tasks]
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: unchecked

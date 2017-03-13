@@ -65,6 +65,8 @@ Shared menus
 - display shared menu name and write access message in error message when user tries to edit a read-only shared menu
 - display shared menu name in content column of shared menu entries in Settings
 - deprecate first line number value in external menu files, now always starting at 1 (starting number in old menu still supported; please advise me if this cause issue)
+
+Version: 8.1.1 (2017-03-??)
  
 Import/Export
 - in Import/Export Settings, save destination file to quickaccesspopup.ini when exporting and restore last used file name in Export dialog dox
@@ -76,6 +78,15 @@ Alternative menu
 Bug fixes and improvements
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
 - fix bug add missing Open button for shared menus in Edit Favorite dialog box
+- new Alternative menu QAP features to open the folder containing the selected document, application or folder favorite in the current window or in a new window
+ 
+Bug fixes and various improvements
+- support relative paths and environment variables in Live Folders
+- in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
+- in Edit Favorite dialog box for a favorite of type Group, add a button to open the group in the Settings window
+- enlarge submenus dropdown lists to 500 px in Add/Edit Favorite dialog box
+- fix bug prevent editing favorites in read-only external menu from the Edit Favorite Alternative menu
+- remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
 
 Version: 8.1 (2017-02-20)
  
@@ -2486,7 +2497,7 @@ InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
 
-; Alernative Menu features
+; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
 InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard", "+^V")
@@ -4718,9 +4729,10 @@ LiveFolderHasContent(objLiveFolder)
 ;------------------------------------------------------------
 {
 ;	###_O(objLiveFolder.FavoriteLocation, objLiveFolder)
+	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(objLiveFolder.FavoriteLocation))
 	if (objLiveFolder.FavoriteFolderLiveDocuments)
 	{
-		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
+		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
 			/*
 			###_V("Conditions"
@@ -4740,7 +4752,7 @@ LiveFolderHasContent(objLiveFolder)
 		}
 	;	###_D("No document")
 	}
-	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; directories
+	Loop, Files, %strExpandedLocation%\*.*, D ; directories
 	{
 	;	###_V("YES FOLDER", A_LoopFileFullPath)
 		return true
@@ -4761,6 +4773,8 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	
+	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(objLiveFolder.FavoriteLocation))
+	
 	objNewMenu := Object() ; create the submenu object
 	objNewMenu.IsLiveMenu := true
 	objNewMenu.LiveMenuParentPath := strMenuParentPath
@@ -4778,14 +4792,14 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
 	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . objLiveFolder.FavoriteName . " " . g_strFolderLiveIndicator
-	objNewMenuItem.FavoriteLocation := objLiveFolder.FavoriteLocation
+	objNewMenuItem.FavoriteLocation := strExpandedLocation
 	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
 	; scan folders in live folder
 	strFolders := ""
-	Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", D ; directories
+	Loop, Files, %strExpandedLocation%\*.*, D ; directories
 	{
 		g_intNbLiveFolderItems++
 		if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
@@ -4798,7 +4812,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	; scan files in live folder
 	strFiles := ""
 	if (objLiveFolder.FavoriteFolderLiveDocuments)
-		Loop, Files, % objLiveFolder.FavoriteLocation . "\*.*", F ; files
+		Loop, Files, %strExpandedLocation%\*.*, F ; files
 			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
 				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
 				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
@@ -6940,7 +6954,7 @@ else
 }
 
 if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
-	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, %lDialogOpenThisMenu%
+	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (g_objEditedFavorite.FavoriteType = "Group" ? lDialogOpenThisGroup : lDialogOpenThisMenu)
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
@@ -7289,6 +7303,12 @@ return
 GuiMoveMultipleFavoritesToMenu:
 ;------------------------------------------------------------
 g_intGui1WinID := WinExist("A")
+
+Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:+Owner1
+Gui, 2:+OwnDialogs
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
@@ -11249,7 +11269,6 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 	g_strHokeyTypeDetected := "Launch"
 }
 
-
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent or g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
 {
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType)
@@ -11275,7 +11294,7 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 }
 
 gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
-Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
+; Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
 ; if (g_blnDiagMode)
 ;	Diag("g_strTargetAppName", g_strTargetAppName)
 
