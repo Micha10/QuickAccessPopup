@@ -8458,10 +8458,10 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 }
 
 ; if external menu file exists, load the submenu from the external settings ini file
-	
+
 if (g_objEditedFavorite.FavoriteType = "External")
 {
-	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; settings file path
+	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 	if FileExist(strExternalMenuPath) ; file path exists
 	{
 		; load the external menu to menu object objNewMenu created earlier
@@ -8471,7 +8471,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 		
 		strPreviousIniFile := g_strIniFile
 		intPreviousIniLine := g_intIniLine
-		g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+		g_strIniFile := strExternalMenuPath ; FavoriteAppWorkingDir, settings file path
 		g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
 		; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
 		
