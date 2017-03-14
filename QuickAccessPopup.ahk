@@ -13063,7 +13063,7 @@ Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
 FormatTime, strYear, , yyyy ; current time
 Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
-Gui, 2:Add, Text, w380, % L(lAboutUsername, A_UserName)
+Gui, 2:Add, Text, w380, % L(lAboutUserComputerName, A_UserName, A_ComputerName)
 Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(lAboutText4)
 Gui, 2:Font, s8 w400, Verdana
