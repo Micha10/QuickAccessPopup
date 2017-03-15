@@ -447,6 +447,8 @@ global lOptionsAddAutoAtTop := "Add automatically at the top of menu" ; new
 global lOptionsAddCloseToDynamicMenus := "&Add ""Close"" to menus"
 global lOptionsAlternativeMenuFeatures := "Alternative Menu Hotkeys" ; new
 global lOptionsAlternativeMenuFeaturesIntro := "Manage the shortcuts that will trigger the Alternative menu features." ; new
+global lOptionsCatalogueHelp := "Shared Menu Catalogue (<a href=""~1~"">~2~</a>)"
+global lOptionsCataloguePath := "Catalogue root folder"
 global lOptionsChangeFolderInDialog := "Change &folders in dialog box with main QAP mouse and keyboard hotkeys" ; changed
 global lOptionsChangeFolderInDialogCheckbox := "Click ""OK"" to confirm that you understand the possible consequence of misusing the change folder feature in ""non-file"" dialog boxes." ; changed
 global lOptionsChangeFolderInDialogText := "Turn this option ON to enable folder navigation in dialog boxes (Open, Save As, etc.) but, please, read the following warning.`n`nYou must use this feature ONLY in ""file"" dialog boxes. If you use it in other types of dialog box, for example in an ""Options"" dialog box, trying to change folder could modify and save values in the dialog box without any notification." ; new
@@ -455,7 +457,7 @@ global lOptionsCheck4Update := "&Check for update"
 global lOptionsControlDoublePressed := "Open main menu on Ctrl + Ctrl (Left or Right Control key pressed twice)"
 global lOptionsDisplayIcons := "Display Menu &Icons"
 global lOptionsDisplayMenuShortcuts := "Display &Numeric Menu Shortcuts"
-global lOptionsEnableSharedMenuCatalogue := "Enable Shared Menus Catalogue"
+global lOptionsEnableExternalMenusCatalogue := "Enable Shared Menus Catalogue"
 global lOptionsExclusionDetail1 := "To block the QAP mouse menu button [~1~] in an application, enter any part of the application's window title. You can enter multiple exclusions, one per line. For example, to exclude Chrome and Word, enter the following two lines in the exclusion list:`n`nGoogle Chrome`nMicrosoft Word" ; new
 global lOptionsExclusionDetail2 := "The QAP hotkey will be disabled in these apps and the [~1~] click will be sent to the target window as if QAP was not running. You can also exclude windows by their class name. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. You can find help and support on this feature <a href=""~2~"">on the QAP website</a>." ; new
 global lOptionsExclusionList := "Exclusions list" ; new

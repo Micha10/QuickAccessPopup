@@ -31,15 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.1.9.4 (2017-03-??)
+Version BETA: 8.1.9.4 (2017-03-15)
  
 Shared Menus
 - in Add/Edit Favorite for external menus, replace the "Advanced Settings" tab with "Shared Menu" tab
-- in "Shared Menu" tab, add radio buttons for external menu types 1) Personal, 2) Collaborative (show menu name only) or 3) Centralized (show menu name, write access users and message)
+- in the "Shared Menu" tab, add radio buttons for external menu types 1) Personal, 2) Collaborative (show menu name only) or 3) Centralized (show menu name, write access users and message)
 - display alert message about write access when user change type for type 3
 - store external menu type in external menu [Global] value "MenuType"
 - for collaborative external menu, save "MenuReservedBy" value as "user (computer)" and prevent access if reserved
 - for personal external menu, save "MenuReservedBy" value as "computer (user)" and display only alert and allow access if reserved
+- in Options, improve Shared Menu Catalogue root path selection with text box and browse button
 - in About, display user name and computer name
 
 Version BETA: 8.1.9.3 (2017-03-10)
@@ -5083,6 +5084,22 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
 GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 
+; Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogueOUT gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
+; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y+25 xs w500, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
+Gui, 2:Font
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
+GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+
+Gui, 2:Add, Text, y+10 xs vf_lblExternalMenusCataloguePathPrompt hidden, %lOptionsCataloguePath%:
+Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strExternalMenusCataloguePath hidden
+Gui, 2:Add, Button, x+10 yp vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
+GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
+Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
+
+
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
@@ -5099,9 +5116,6 @@ GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
-
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogue gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
-GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
 ;---------------------------------------
 ; Tab 2: Popup menu options
@@ -5512,24 +5526,45 @@ return
 
 
 ;------------------------------------------------------------
-EnableSharedMenuCatalogueClicked:
+EnableExternalMenusCatalogueClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
 IniRead, blnExternalMenusCataloguePathReadOnly, %g_strIniFile%, Global, ExternalMenusCataloguePathReadOnly, 0 ; false if not found
-if (blnExternalMenusCataloguePathReadOnly)
-{
-	GuiControl, , f_blnEnableSharedMenuCatalogue, % !f_blnEnableSharedMenuCatalogue
-	Oops(lOopsExternalCatalogueReadOnly)
-	return
-}
+strEnableCommand := (blnExternalMenusCataloguePathReadOnly ? "Disable" : "Enable")
+GuiControl, 2:%strEnableCommand%, f_blnEnableExternalMenusCatalogue
+GuiControl, 2:%strEnableCommand%, f_strExternalMenusCataloguePath
+GuiControl, 2:%strEnableCommand%, f_btnExternalMenusCataloguePath
 
-if (f_blnEnableSharedMenuCatalogue)
-	FileSelectFolder, g_strExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
-else
-	g_strExternalMenusCataloguePath := ""
+if !(f_blnEnableExternalMenusCatalogue)
+	GuiControl, 2:, f_strExternalMenusCataloguePath
+
+strShowHideCommand := (f_blnEnableExternalMenusCatalogue ? "Show" : "Hide")
+GuiControl, %strShowHideCommand%, f_lblExternalMenusCataloguePathPrompt
+GuiControl, %strShowHideCommand%, f_strExternalMenusCataloguePath
+GuiControl, %strShowHideCommand%, f_btnExternalMenusCataloguePath
 
 blnExternalMenusCataloguePathReadOnly := ""
+strEnableCommand := ""
+strShowHideCommand := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonExternalMenuSelectCataloguePath:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+FileSelectFolder, strNewExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
+if !StrLen(strNewExternalMenusCataloguePath)
+	return
+; else continue
+
+GuiControl, 2:, f_strExternalMenusCataloguePath, %strNewExternalMenusCataloguePath%
+
+strNewExternalMenusCataloguePath := ""
 
 return
 ;------------------------------------------------------------
@@ -5673,6 +5708,9 @@ IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
 strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
 IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
+
+g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
+IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
 
 ; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
 ; strUseClassicButtonsPrev := g_blnUseClassicButtons
