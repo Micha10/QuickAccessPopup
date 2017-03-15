@@ -91,13 +91,17 @@ Bug fixes and improvements
 - fix bug add missing Open button for shared menus in Edit Favorite dialog box
 - new Alternative menu QAP features to open the folder containing the selected document, application or folder favorite in the current window or in a new window
  
-Bug fixes and various improvements
-- support relative paths and environment variables in Live Folders
+Various improvements
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
 - in Edit Favorite dialog box for a favorite of type Group, add a button to open the group in the Settings window
 - enlarge submenus dropdown lists to 500 px in Add/Edit Favorite dialog box
-- fix bug prevent editing favorites in read-only external menu from the Edit Favorite Alternative menu
+- split Options dialog box first tab in two tabls (General and Menu options) to make some room for future options
+- remove "Use Classic buttons" option in General tab ([Global] value "UseClassicButtons" still supported if present in ini file)
 - remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+ 
+Bug fixes
+- support relative paths and environment variables in Live Folders
+- fix bug prevent editing favorites in read-only external menu from the Edit Favorite Alternative menu
 
 Version: 8.1 (2017-02-20)
  
@@ -5055,7 +5059,7 @@ Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Text, x10 y10 w595 center, % L(lOptionsGuiTitle, g_strAppNameText)
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intOptionsTab w620 h420 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
+Gui, 2:Add, Tab2, vf_intOptionsTab w620 h420 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMenuOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
 
 ;---------------------------------------
 ; Tab 1: General options
@@ -5074,14 +5078,14 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsLanguage%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpLanguage Sort, %lOptionsLanguageLabels%
 GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
-Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
-GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
+Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
+Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
+GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 
-if !(g_blnPortableMode)
-{
-	Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
-	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
-}
+; column 2
+
+Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
+GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddAutoAtTop, %lOptionsAddAutoAtTop%
 GuiControl, , f_blnAddAutoAtTop, %g_blnAddAutoAtTop%
@@ -5095,24 +5099,18 @@ GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
-Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
-Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
-Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
-Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
-
-Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
-Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
-GuiControl, ChooseString, f_drpTheme, %g_strTheme%
-
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnUseClassicButtons, %lOptionsUseClassicButtons%
-GuiControl, , f_blnUseClassicButtons, %g_blnUseClassicButtons%
-
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogue gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
 GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
-; column 2
+;---------------------------------------
+; Tab 2: Popup menu options
 
-Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsMenuPositionPrompt%
+Gui, 2:Tab, 2
+
+Gui, 2:Font
+Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsTabMenuOptionsIntro, g_strAppNameText)
+
+Gui, 2:Add, Text, y+15 x15 w300 Section, %lOptionsMenuPositionPrompt%
 
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (g_intPopupMenuPosition = 1 ? "Checked" : ""), %lOptionsMenuNearMouse%
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (g_intPopupMenuPosition = 2 ? "Checked" : ""), %lOptionsMenuActiveWindow%
@@ -5131,7 +5129,20 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders1 Group " . (g_intHotkeyR
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders2 " . (g_intHotkeyReminders = 2 ? "Checked" : ""), %lOptionsHotkeyRemindersShort%
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (g_intHotkeyReminders = 3 ? "Checked" : ""), %lOptionsHotkeyRemindersFull%
 
-Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
+if !(g_blnPortableMode)
+{
+	Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+}
+
+Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
+Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
+Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
+Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
+
+; column 2
+
+Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
 GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
@@ -5147,14 +5158,14 @@ Gui, 2:Add, Text, % "y+10 xs vf_drpIconSizeLabel " . (g_blnDisplayIcons ? "" : "
 Gui, 2:Add, DropDownList, % "yp x+10 w40 vf_drpIconSize Sort " . (g_blnDisplayIcons ? "" : "Disabled"), 16|24|32|48|64
 GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
 
-Gui, 2:Add, Edit, % "y+5 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
+Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
 Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
 
 ;---------------------------------------
-; Tab 2: Popup menu hotkeys
+; Tab 3: Popup menu hotkeys
 
-Gui, 2:Tab, 2
+Gui, 2:Tab, 3
 
 Gui, 2:Font
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsTabMouseAndKeyboardIntro, g_strAppNameText)
@@ -5178,9 +5189,9 @@ GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
 GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
 
 ;---------------------------------------
-; Tab 3: Alternative Menu Features
+; Tab 4: Alternative Menu Features
 
-Gui, 2:Tab, 3
+Gui, 2:Tab, 4
 
 Gui, 2:Font
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsAlternativeMenuFeaturesIntro, Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4))
@@ -5197,9 +5208,9 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 }
 
 ;---------------------------------------
-; Tab 4: Exclusion list
+; Tab 5: Exclusion list
 
-Gui, 2:Tab, 4
+Gui, 2:Tab, 5
 Gui, 2:Font
 
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsExclusionTitle, Hotkey2Text(g_arrPopupHotkeys1))
@@ -5211,9 +5222,9 @@ Gui, 2:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, %lMenuGetWinInfo%
 GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnGetWinInfo")
 
 ;---------------------------------------
-; Tab 5: File Managers
+; Tab 6: File Managers
 
-Gui, 2:Tab, 5
+Gui, 2:Tab, 6
 
 Gui, 2:Add, Text, x10 y+10 w595 center, %lOptionsTabFileManagersIntro%
 
@@ -5637,6 +5648,39 @@ if (f_blnOptionsRunAtStartup)
 	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
+g_blnAddAutoAtTop := f_blnAddAutoAtTop
+IniWrite, %g_blnAddAutoAtTop%, %g_strIniFile%, Global, AddAutoAtTop
+g_blnDisplayTrayTip := f_blnDisplayTrayTip
+IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
+g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
+IniWrite, %g_blnChangeFolderInDialog%, %g_strIniFile%, Global, ChangeFolderInDialog
+g_blnCheck4Update := f_blnCheck4Update
+IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
+g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
+IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+
+strLanguageCodePrev := g_strLanguageCode
+g_strLanguageLabel := f_drpLanguage
+loop, %g_arrOptionsLanguageLabels0%
+	if (g_arrOptionsLanguageLabels%A_Index% = g_strLanguageLabel)
+		{
+			g_strLanguageCode := g_arrOptionsLanguageCodes%A_Index%
+			break
+		}
+IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
+
+strThemePrev := g_strTheme
+g_strTheme := f_drpTheme
+IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
+
+; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
+; strUseClassicButtonsPrev := g_blnUseClassicButtons
+; g_blnUseClassicButtons := f_blnUseClassicButtons
+; IniWrite, %g_blnUseClassicButtons%, %g_strIniFile%, Global, UseClassicButtons
+
+;---------------------------------------
+; Save Tab 2: Menu options
+
 if !(g_blnPortableMode)
 {
 	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
@@ -5649,26 +5693,16 @@ if !(g_blnPortableMode)
 	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
 }
 
-g_blnAddAutoAtTop := f_blnAddAutoAtTop
-IniWrite, %g_blnAddAutoAtTop%, %g_strIniFile%, Global, AddAutoAtTop
-g_blnDisplayTrayTip := f_blnDisplayTrayTip
-IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
-g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
-IniWrite, %g_blnChangeFolderInDialog%, %g_strIniFile%, Global, ChangeFolderInDialog
-g_blnDisplayIcons := f_blnDisplayIcons
-IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
 g_intRecentFoldersMax := f_intRecentFoldersMax
 IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
+g_blnDisplayIcons := f_blnDisplayIcons
+IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
 g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
 IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
-g_blnCheck4Update := f_blnCheck4Update
-IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
 g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
 IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
-g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
-IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
 
 if (f_radPopupMenuPosition1)
 	g_intPopupMenuPosition := 1
@@ -5690,34 +5724,14 @@ else
 	g_intHotkeyReminders := 3
 IniWrite, %g_intHotkeyReminders%, %g_strIniFile%, Global, HotkeyReminders
 
-strLanguageCodePrev := g_strLanguageCode
-g_strLanguageLabel := f_drpLanguage
-loop, %g_arrOptionsLanguageLabels0%
-	if (g_arrOptionsLanguageLabels%A_Index% = g_strLanguageLabel)
-		{
-			g_strLanguageCode := g_arrOptionsLanguageCodes%A_Index%
-			break
-		}
-IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
-
-strThemePrev := g_strTheme
-g_strTheme := f_drpTheme
-IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
-
 g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
 
-strUseClassicButtonsPrev := g_blnUseClassicButtons
-g_blnUseClassicButtons := f_blnUseClassicButtons
-IniWrite, %g_blnUseClassicButtons%, %g_strIniFile%, Global, UseClassicButtons
-
-IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
-
 ;---------------------------------------
-; Save Tab 2: Popup menu hotkeys
+; Save Tab 3: Popup menu hotkeys
 
 loop, % g_arrPopupHotkeyNames0
 	if (g_arrPopupHotkeys%A_Index% = "None") ; do not compare with lOptionsMouseNone because it is translated
@@ -5731,7 +5745,7 @@ g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
 IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
 
 ;---------------------------------------
-; Save Tab 3: Alternative menu hotkeys
+; Save Tab 4: Alternative menu hotkeys
 
 IniDelete, %g_strIniFile%, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
@@ -5744,7 +5758,7 @@ for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
 Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
 
 ;---------------------------------------
-; Save Tab 4: Exclusion list
+; Save Tab 5: Exclusion list
 
 strExclusionCleanup := ReplaceAllInString(f_strExclusionMouseList, "`n", "|")
 g_strExclusionMouseList := ""
@@ -5756,7 +5770,7 @@ IniWrite, %g_strExclusionMouseList%, %g_strIniFile%, Global, ExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 
 ;---------------------------------------
-; Save Tab 5: File Managers
+; Save Tab 6: File Managers
 
 g_intActiveFileManager := g_intClickedFileManager
 IniWrite, %g_intActiveFileManager%, %g_strIniFile%, Global, ActiveFileManager
@@ -5800,22 +5814,17 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 ; End of tabs
 
 ; if language or theme changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or (strUseClassicButtonsPrev <> g_blnUseClassicButtons)
+if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme)
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsLanguage, &
 		strValue := g_strLanguageLabel
 	}
-	else if (strThemePrev <> g_strTheme)
+	else ; (strThemePrev <> g_strTheme)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
 		strValue := g_strTheme
-	}
-	else ; (strUseClassicButtonsPrev <> g_blnUseClassicButtons)
-	{
-		StringReplace, strOptionNoAmpersand, lOptionsUseClassicButtons, &
-		strValue := (g_blnUseClassicButtons ? lDialogOn : lDialogOff)
 	}
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
@@ -5854,7 +5863,6 @@ g_blnMenuReady := true
 
 strLanguageCodePrev := ""
 strThemePrev := ""
-strUseClassicButtonsPrev := ""
 strActiveFileManagerSystemName := ""
 strActiveFileManagerDisplayName := ""
 blnActiveFileManangerOK := ""
