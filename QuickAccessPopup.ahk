@@ -7451,15 +7451,18 @@ strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to c
 Gui, 2:Submit, NoHide
 
 if (g_objMenusIndex[f_drpParentMenu].MenuType = "External")
-	if ExternalMenuModifiedSinceLoaded(g_objMenusIndex[f_drpParentMenu])
+	if !ExternalMenuReserved(g_objMenusIndex[f_drpParentMenu]) ; check if we can reserve external menu
+	{
+		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu% ; reset previous menu in dropdown
+		return ; external menu is reserved by another user
+	}
+	else if ExternalMenuModifiedSinceLoaded(g_objMenusIndex[f_drpParentMenu])
 	{
 		gosub, ExternalMenuModifiedPromptForReload
 		; else set menu dropdown to previous menu and return
-		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu%
+		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu% ; reset previous menu in dropdown
 		return
 	}
-	else if !ExternalMenuReserved(g_objMenusIndex[f_drpParentMenu]) ; check if we can reserve external menu
-		return ; external menu was already reserved
 	; else external menu is reserved
 
 Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
@@ -7932,16 +7935,16 @@ else
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
+		else if !ExternalMenuReserved(objNewMenuInGui) ; check if we can reserve external menu
+		{
+			; external menu was already reserved
+			gosub, GuiMenusListChangedCleanup
+			return
+		}
 		else if ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
 		{
 			gosub, ExternalMenuModifiedPromptForReload
 			; else return to stay in current menu
-			gosub, GuiMenusListChangedCleanup
-			return
-		}
-		else if !ExternalMenuReserved(objNewMenuInGui) ; check if we can reserve external menu
-		{
-			; external menu was already reserved
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
@@ -8237,10 +8240,10 @@ ExternalMenuReserved(objMenu)
 	IniRead, intMenuExternalType, % objMenu.MenuExternalPath, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
 	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
 	
-	if (intMenuExternalType = 2 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_UserName . " (" . A_ComputerName . ")")
-	; collaborative menu is reserved by another user
+	if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_UserName . " (" . A_ComputerName . ")")
+	; collaborative or centralized menu is reserved by another user
 	{
-		Oops(lOopsMenuExternalCollaborativeReservedBy, strMenuExternalReservedBy)
+		Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
 		return false
 	}
 	else
@@ -8249,7 +8252,7 @@ ExternalMenuReserved(objMenu)
 			; personal menu is changed on another system
 			Oops(lOopsMenuExternalCollaborativeChangedBy, strMenuExternalReservedBy)
 		
-		; in personal menu save "computer (user)", on collaborative menu save "user (computer)"
+		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
 		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
 			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
 		; remember to free when saving or canceling
