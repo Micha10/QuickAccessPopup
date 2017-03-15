@@ -98,6 +98,7 @@ Various improvements
 - split Options dialog box first tab in two tabls (General and Menu options) to make some room for future options
 - remove "Use Classic buttons" option in General tab ([Global] value "UseClassicButtons" still supported if present in ini file)
 - remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+- animated "Saving..." label for Cancel button in Settings during save execution
  
 Bug fixes
 - support relative paths and environment variables in Live Folders
@@ -9630,12 +9631,17 @@ GuiSaveAndDoNothing:
 g_blnMenuReady := false
 strSavedMenuInGui := g_objMenuInGui.MenuPath
 
+GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
+GuiControl, Disable, f_btnGuiSaveAndStayFavorites
+GuiControl, , f_btnGuiCancel, %lGuiSaving% ; animated label
+
 IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
+GuiControl, , f_btnGuiCancel, %lGuiSaving%. ; animated label
 
 ; clean-up unused hotkeys if favorites were deleted
 for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
@@ -9648,15 +9654,16 @@ for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
 Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
 Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByNameLocation
 Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByNameLocation
+GuiControl, , f_btnGuiCancel, %lGuiSaving%.. ; animated label
 
 Gosub, LoadMenuFromIni ; load favorites to menu object
+GuiControl, , f_btnGuiCancel, %lGuiSaving%... ; animated label
+
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
-GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
 g_blnMenuReady := true
 

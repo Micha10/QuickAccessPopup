@@ -286,6 +286,7 @@ global lGuiSaveAmpersand := "&Save"
 global lGuiSaveAndCloseAmpersand := "&Save`n&& Close"
 global lGuiSaveAndStayAmpersand := "Save`n&& &Reload"
 global lGuiSaveToUpdateBacklinks := "Save to update back links" ; new
+global lGuiSaving := "Saving"
 global lGuiSubmenuDropdownLabel := "Menu or group to edit:" ; changed
 global lGuiTitle := "Settings - ~1~ ~2~"
 global lHelpTabAddingFavorite := "Adding Favorites" ; changed
