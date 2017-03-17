@@ -220,9 +220,6 @@ lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
-lDonatePlatformComment2	Soutenez mon travail de façon régulière à partir de 1 $ par mois (carte de crédit ou Paypal)
-lDonatePlatformName1	Avec Paypal
-lDonatePlatformName2	Micro-dons mensuels
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -475,7 +472,6 @@ lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvell
 lOptionsTrayTip	Afficher la notification au démarrage
 lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
-lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu des dossiers seront perdus.
 lTCMenuName	TC Directory Hotlist
 lTCWinCmdLocation	Emplacement de WinCmd.ini
 lTooltipSnippetKeyWait	Appuyez sur {~1~} pour continuer…

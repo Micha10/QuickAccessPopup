@@ -49,6 +49,8 @@ lDialogChangeHotkeyAny	Qualunque
 lDialogChangeHotkeyLeftAnyRight	Ciascun modificatore di tasti può essere vincolato al solo tasto "Sinistra", al solo tasto "Destra"  o a "Qualunque" di loro.
 lDialogChangeHotkeyModifierAndNone	Modificatori come "Alt" o "Control" non possono essere selezionati da soli. Inoltre, seleziona anche un hotkey per mouse o tastiera nella sezione appropriata.
 lDialogChangeHotkeyMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
+lDialogChangeHotkeyNote	Nota: Tutti i preferiti denominati "~2~" che si trovano in  "~1~" saranno associati alla nuova scorciatoia.
+lDialogChangeHotkeyNoteSnippet	Nota: Tutti i frammenti (snippet) denominati "~1~" con il medesimo contenuto saranno associati alla nuova scorciatoia.
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
 lDialogContinue	Continua
@@ -217,9 +219,6 @@ lDonateCheckPrompt4	visualizza promemoria della donazione
 lDonateCheckTitle	~1~ volte! - ~2~
 lDonateMenu	Supporta il Freeware!
 lDonatePlatformComment1	Puoi inviare donazioni con carta di credito (senza necessità di disporre di un conto) o dal tuo conto PayPal
-lDonatePlatformComment2	Supporta il mio lavoro con una donazione periodica a partire da 1$ al mese (carta di credito o Paypal)
-lDonatePlatformName1	Usando Paypal
-lDonatePlatformName2	Micro-donazione mensile
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -396,7 +395,6 @@ lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di ret
 lOopsErrorIniFileUnavailable	Questo file di impostazioni del menù esterno non è disponibile
 lOopsErrorReadingIniFile	C'è stato un errore leggendo questo file di impostazioni:
 lOopsExternalFileWriteError	Si è verificato un errore scrivendo nel file delle impostazioni del menù condiviso:`n~1~.`n`nAssicurati che tale file (o la sua cartella) non sia di sola lettura.
-lOopsExternalMenuReadOnly	Questo menù esterno è impostato in sola-lettura e pertanto non può essere modificato.
 lOopsFtpLocationProtocol	L'indirizzo di un sito FTP deve iniziare con "ftp://".
 lOopsGroup	Gruppo
 lOopsHotkeyAlreadyUsed	La combinazione di tasti "~1~" è già usata per ~2~.`n`nE' necessario scegliere un altra combinazione per ~3~.
@@ -472,7 +470,6 @@ lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
 lOptionsUseClassicButtons	Usa i pulsanti classici di QAP
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
-lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù delle cartelle verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
 lTooltipSnippetWait	Seleziona il punto di inserimento e premi "~1~" per incollare lo snippet (aspettando ~2~ secondi)

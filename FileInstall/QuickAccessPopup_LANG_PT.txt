@@ -6,6 +6,7 @@ lAboutTitle	Acerca do - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Seleccionar o favorito a copiar
 lAlternativeMenuTrayTipEditFavorite	Seleccionar o favorito a editar
 lAlternativeMenuTrayTipNewWindow	Seleccionar a pasta a abrir numa nova janela
+lAlternativeMenuTrayTipRunAs	Seleccione o programa para executar em modo elevado
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Primeiros Passos</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Perguntas mais frequentes</a> • <a href="http://www.quickaccesspopup.com">Suporte</a>
 lContextAddFile	Adicionar Ficheiro ao menu do Quick Access Popup
 lContextAddFileXpress	Adicionar Ficheiro ao menu do Quick Access Popup (Expresso)
@@ -44,6 +45,12 @@ lDialogCancelButton	Cancelar
 lDialogCancelPrompt	Descartar alteração?
 lDialogCancelTitle	Cancelar - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Trata-se de uma tecla de atalho ao menu Alternativo.`n`nDeseja manusear "~1~" em "~2~"?
+lDialogChangeHotkeyAny	Qualquer uma
+lDialogChangeHotkeyLeftAnyRight	A combinação de teclas pode ser associada só à tecla "Esquerda", só à "Direita" ou a "Qualquer uma" delas.
+lDialogChangeHotkeyModifierAndNone	Modificadores como "Alt" ou "Control" não podem usados sozinhos. Seleccione também um atalho de teclado ou de rato na secção à direita.
+lDialogChangeHotkeyMouseCheckLButton	Não pode atribuir o "Botão Esquerdo do Rato" sem um modificador`n(como as teclas ~1~, ~2~, ~3~ ou ~4~).
+lDialogChangeHotkeyNote	Note: Todos os favoritos com o nome "~2~" e localização "~1~" serão associados com a nova tecla de atalho.
+lDialogChangeHotkeyNoteSnippet	Nota: Todas as amostras com o nome "~1~" com o mesmo conteúdo serão associadas com a nova tecla de atalho.
 lDialogChangeHotkeyPopup	Trata-se de uma tecla de atalho do menu emergente.`n`nDeseja manusear "~1~" em "~2~"?
 lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
@@ -143,6 +150,8 @@ lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerir Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora do menu emergente (erro de nome de tecla inválido).`n`nPor favor, abra a janela "Definições" do menu da Barra de notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~2~".
+lDialogInvalidHotkeyFavorite	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora para este favorito (erro de nome de tecla inválido).`n`nPor favor, escolha outro atalho para o favorito "~2~" e localização "~3~".
+lDialogInvalidHotkeyQAPFeature	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora para esta funç~so do QAP (erro de nome de tecla inválido).`n`nPor favor, escolha outro atalho para a função QAP "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Abrir com esta aplicação
 lDialogMaximized	Maximizado
@@ -211,7 +220,8 @@ lDonateCheckPrompt4	a exibição de lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoie o Freeware!
 lDonatePlatformComment1	Doe com cartão de crédito (não é necessário criar uma conta) ou com a sua conta PayPal
-lDonatePlatformName1	Usando Paypal
+lDonatePlatformComment2	Apoie o meu trabalho com donativos regulares a partir de $1 por mÃªs (cartÃ£o de crÃ©dito ou Paypal)
+lDonatePlatformName2	Micro-donativo mensal
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -321,6 +331,7 @@ lMenuAddThisFolder	Adicionar Esta Pasta
 lMenuAddThisFolderXpress	Adicionar Esta Pasta Expresso
 lMenuAlternativeEditFavorite	Editar um Favorito
 lMenuAlternativeNewWindow	Abrir em nova janela
+lMenuAlternativeRunAs	Executar como administrador
 lMenuAppData	Dados de Aplicações
 lMenuCache	Cache
 lMenuClipboard	Área de Transferência
@@ -360,6 +371,7 @@ lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
+lMenuRefreshMenu	Actualizar menus Pastas Live
 lMenuReload	Reiniciar ~1~
 lMenuRunAtStartupAmpersand	Executa&r no Arranque
 lMenuSettings	Definições
@@ -377,6 +389,7 @@ lMenuUserPinned	Fixado pelo Utilizador
 lNavigateFileError	Ocorreu um erro ao abrir a pasta:`n~1~.
 lNavigateSpecialError	Ocorreu um erro ao abrir a pasta especial #~1~.
 lOopsAddThisFolderTip	Para melhores resultados com o comando "Adicionar Esta Pasta":`n`n1) Active a janela ~1~ contendo a pasta a adicionar ao seu menu.`n2) Abra o menu emergente usando ~2~.`n3) Seleccione "Adicionar Esta Pasta" e guarde o seu novo favorito.
+lOopsAmpersandInName	O sÃ­mbolo "&" Ã© utilizado para definir teclas de atalho nos menus do Windows. Para exibir o sÃ­mbolo num nome de menu, digite "&&".`n`nPara mais informaÃ§Ã£o, procure por "ampersand" nas FAQ na pÃ¡gina do QAP.
 lOopsCannotCopyFavorite	Não é possível copiar favoritos do tipo "~1~".
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro desta caixa de diálogo, tem que activar uma opção (1ª caixa de marcação do separador "Geral").`n`nDeseja abrir a janela de Opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não conseguiu abrir a pasta especial: "~2~".
@@ -386,7 +399,6 @@ lOopsErrorIniFileRetry	Se o ficheiro de definições estiver numa unidade de rede,
 lOopsErrorIniFileUnavailable	Este ficheiro de definições do menu externo, não está disponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao ler este ficheiro de definições:
 lOopsExternalFileWriteError	Ocorreu um erro ao escrever para o ficheiro de definições do menu partilhado:`n~1~.`n`nVerifique se este ficheiro ou pasta é só de leitura.
-lOopsExternalMenuReadOnly	Este menu externo é só de leitura e não pode ser modificado.
 lOopsFtpLocationProtocol	A localização FTP deve começar com "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	A tecla de atalho "~1~" já está em uso para ~2~.`n`nPlor favor, escolha outra tecla de atalho para ~3~.
@@ -462,7 +474,6 @@ lOptionsThirdPartyUseTabs	Usar separadores em vez de abrir numa nova janela
 lOptionsTrayTip	&Exibir Dica da Área de Notificação
 lOptionsUseClassicButtons	Usar botões clássicos do QAP
 lPickIconNoLocation	Escolha primeiro um favorito antes de escolher um ícone.
-lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~? As alterações não guardadas no menu pasta serão perdidas.
 lTCMenuName	Lista de Pasta Favoritas do TC
 lTCWinCmdLocation	Localização do WinCmd.ini
 lTooltipSnippetKeyWait	Pressione {~1~} para continuar...
