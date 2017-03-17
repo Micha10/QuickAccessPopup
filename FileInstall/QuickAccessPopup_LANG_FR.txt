@@ -220,9 +220,6 @@ lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
-lDonatePlatformComment2	Soutenez mon travail de façon régulière à partir de 1 $ par mois (carte de crédit ou Paypal)
-lDonatePlatformName1	Avec Paypal
-lDonatePlatformName2	Micro-dons mensuels
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -400,7 +397,6 @@ lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur
 lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas disponible
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
 lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture.
-lOopsExternalMenuReadOnly	Ce menu partagé est en lecture seulement et ne peut être modifié.
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
 lOopsHotkeyAlreadyUsed	Le raccourci "~1~" est déjà utilisé pour l'emplacement ~2~.`n`nVeuillez choisis un autre raccourci pour ~3~.
@@ -463,7 +459,7 @@ lOptionsRecentFoldersPrompt	Emplacements récents:
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
 lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
-lOptionsTabMouseAndKeyboardIntro	Choisir les boutons de la souris et les raccourcis du clavier déclenchant le menu principal de ~1~.
+lOptionsTabMouseAndKeyboardIntro	Choisissez les boutons de la souris et les raccourcis du clavier déclenchant le menu principal de ~1~.
 lOptionsTabOtherOptionsIntro	Adaptez ~1~ à vos préférences!
 lOptionsTheme	Thème
 lOptionsThirdParty	Gestionnaires de fichiers
@@ -476,7 +472,6 @@ lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvell
 lOptionsTrayTip	Afficher la notification au démarrage
 lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
-lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu des dossiers seront perdus.
 lTCMenuName	TC Directory Hotlist
 lTCWinCmdLocation	Emplacement de WinCmd.ini
 lTooltipSnippetKeyWait	Appuyez sur {~1~} pour continuer…

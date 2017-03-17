@@ -210,9 +210,6 @@ lDonateCheckPrompt4	exibir lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoiar o Freeware!
 lDonatePlatformComment1	Doe com seu cartão de crédito (não é necessário uma conta) ou sua conta PayPal
-lDonatePlatformComment2	Apoie meu trabalho com doações regulares iniciando com $1 por mês (cartão de crédito ou PayPal)
-lDonatePlatformName1	Usando Paypal
-lDonatePlatformName2	Pequena doação mensal
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -389,7 +386,6 @@ lOopsErrorIniFileRetry	Se o arquivo de configurações está em uma unidade de rede
 lOopsErrorIniFileUnavailable	Este arquivo de configurações do menu externo está indisponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao tentar ler o arquivo de configurações:
 lOopsExternalFileWriteError	Ocorreu um erro ao tentar acessar o arquivo de configurações do menu compartilhado:`n~1~.`n`nVerifique se este arquivo ou pasta é somente leitura.
-lOopsExternalMenuReadOnly	Este menu externo é somente leitura e não pode ser modificado.
 lOopsFtpLocationProtocol	O local FTP deve começar com "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	A tecla de atalho "~1~" já está em uso por ~2~.`n`nPor favor, escolha outra tecla para ~3~.
@@ -465,7 +461,6 @@ lOptionsThirdPartyUseTabs	Use abas em vez de abrir em uma nova janela
 lOptionsTrayTip	Exibir &Dicas na Inicialização
 lOptionsUseClassicButtons	Usar botões clássicos do QAP
 lPickIconNoLocation	Selecione primeiro um favorito antes de escolher um ícone.
-lReloadPrompt	~1~ foi alterado para ~2~. Deseja reiniciar ~3~ em ~2~ agora? Alterações não salvas no menu de pastas serão perdidas.
 lTCMenuName	Lista de Acesso de Pastas do TC
 lTCWinCmdLocation	Local do WinCmd.ini
 lTooltipSnippetWait	Selecione o ponto de inserção e pressione "~1~" para colar o recorte (aguardando ~2~ segundos)
