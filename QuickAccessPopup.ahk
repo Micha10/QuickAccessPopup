@@ -87,11 +87,6 @@ Import/Export
 Alternative menu
 - new Alternative menu QAP features to open the folder containing the selected document, application  or folder favorite in the current window or in a new window
  
-Bug fixes and improvements
-- in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
-- fix bug add missing Open button for shared menus in Edit Favorite dialog box
-- new Alternative menu QAP features to open the folder containing the selected document, application or folder favorite in the current window or in a new window
- 
 Various improvements
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
 - in Edit Favorite dialog box for a favorite of type Group, add a button to open the group in the Settings window

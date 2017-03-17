@@ -163,7 +163,7 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 [Run]
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: waituntilidle postinstall skipifsilent
 Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings; Flags: runhidden waituntilterminated
-Filename: "http://www.quickaccesspopup.com/why-support-freeware/"; Description: "&HELP me pay EXPENSES for making QAP"; Flags: postinstall shellexec unchecked
+Filename: "http://www.quickaccesspopup.com/why-support-freeware/"; Description: "&HELP me pay EXPENSES for making Quick Access Popup"; Flags: postinstall shellexec unchecked
 
 [Tasks]
 Name: importfpsettings; Description: "Import &Folders Popup settings and favorites"; Flags: unchecked
