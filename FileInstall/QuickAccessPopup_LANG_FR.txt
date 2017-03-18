@@ -6,6 +6,7 @@ lAboutTitle	À propos - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Choisissez le favori à copier
 lAlternativeMenuTrayTipEditFavorite	Choisissez le favori à modifier
 lAlternativeMenuTrayTipNewWindow	Choisissez le dossier à ouvrir dans une nouvelle fenêtre
+lAlternativeMenuTrayTipOpenContaining	Choisissez le document. l'application ou le dossier favori dont vous voulez ouvrir le dossier parent
 lAlternativeMenuTrayTipRunAs	Sélectionnez l'application à exécuter en tant qu'administrateur
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Initiation rapide</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Foire aux questions</a> • <a href="http://www.quickaccesspopup.com">Soutien en ligne</a> (anglais)
 lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
@@ -25,6 +26,7 @@ lDialogAddAmpersand	&Ajouter
 lDialogAddEditFavoriteTitle	~1~ un favori - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~ ~2~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
+lDialogAddFavoriteTabsExternal	Menu partagé
 lDialogAddFavoriteTabsLive	Options de dossier actif
 lDialogAddFileSelect	Choisir un nouveau document:
 lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement le dossier actif dans ce type de fenêtre.`n`nVoulez-vous ajouter un dossier favori manuellement?
@@ -65,14 +67,22 @@ lDialogEditIconPrompt	Modifiez l'icône de la ressource selon le format "fichier,
 lDialogElevate	Lancer l'application avec des droits d'administration augmentés
 lDialogEndOfMenu	fin du menu
 lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
+lDialogExternalAddFromCatalogue	Voulez-vous ajouter un menu externe du Catalogue des menus partagés?
 lDialogExternalLocation	Emplacement du fichier de configuration de ce menu partagé
 lDialogExternalLocationIni	Le fichier de paramètres partagé doit être un fichier .ini.
+lDialogExternalMenuName	Nom du menu partagé
+lDialogExternalSelectFromCatalogue	Choisissez le Menu partagé à ajouter à votre menu
 lDialogExternalStartingNumber	Numéro du premier favori:
+lDialogExternalTypes	Personnel (menu partagé sur différents ordinateurs pour le même utilisateur)|Collaboratif (menu sur un disque partagé pour une équipe ou un groupe de travail)|Centralisé (menu sur un disque partagé géré par un administrateur de menu)
+lDialogExternalWriteAccessMessage	Message sur l'accès en écriture du menu partagé
+lDialogExternalWriteAccessUsers	Utilisateurs avec les droits d'écriture pour ce menu
 lDialogFavoriteDisabled	Ne pas afficher ce favori dans le menu
+lDialogFavoriteDisabledGroupMember	Désactiver cet item dans le groupe
 lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disponible.`n`nSi ce favori réside sur un lecteur réseau, veuillez essayer à nouveau après l'authentification réseau.
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
+lDialogFavoriteExternalSaveNote	Note: Les valeurs dans cet onglet sont enregistrées dans le menu partagé dès que vous cliquez OK.
 lDialogFavoriteFolderLive	Dossier actif (menu incluant les sous-dossiers)
 lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (0 pour pas de colonnes)
 lDialogFavoriteFolderLiveDocuments	Inclure les documents
@@ -167,6 +177,7 @@ lDialogOff	Inactif
 lDialogOK	OK
 lDialogOKAmpersand	&OK
 lDialogOn	Actif
+lDialogOpenThisGroup	Ouvrir ce groupe
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogReadOnly	Lecture seulement
@@ -220,6 +231,11 @@ lDonateCheckPrompt4	l'affichage des rappels à propos des dons
 lDonateCheckTitle	~1~ fois! - ~2~
 lDonateMenu	Soutenez ce gratuiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
+lDonatePlatformComment2	Pour les donateurs Européens
+lDonatePlatformComment3	Pour les donateurs Canadiens
+lDonatePlatformName1	Avec Paypal en US $
+lDonatePlatformName2	Avec Paypal en Euros
+lDonatePlatformName3	Avec Paypal en CAD $
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -268,6 +284,7 @@ lGuiSaveAmpersand	&Enregistrer
 lGuiSaveAndCloseAmpersand	&Enregistrer`net fermer
 lGuiSaveAndStayAmpersand	Enregistrer`net &raffraîchir
 lGuiSaveToUpdateBacklinks	Enregistrer pour mettre à jour les liens de retour
+lGuiSaving	Enregistre
 lGuiSubmenuDropdownLabel	Menu à modifier:
 lGuiTitle	Paramètres - ~1~ ~2~
 lHelpTabAddingFavorite	Ajouter des favoris
@@ -329,6 +346,8 @@ lMenuAddThisFolder	Ajouter ce dossier au menu
 lMenuAddThisFolderXpress	Ajouter ce dossier Express
 lMenuAlternativeEditFavorite	Modifier un favori
 lMenuAlternativeNewWindow	Ouvrir dans une nouvelle fenêtre
+lMenuAlternativeOpenContainingCurrent	Ouvrir le dossier parent dans la fenêtre actuelle
+lMenuAlternativeOpenContainingNew	Ouvrir le dossier parent dans une nouvelle fenêtre
 lMenuAlternativeRunAs	Exécuter en tant qu'administrateur
 lMenuAppData	Application Data
 lMenuCache	Cache
@@ -392,11 +411,14 @@ lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide
+lOopsErrorIniFileModified	Ce menu partagé a été modifié depuis que vous avec lancé QAP. Pour éditer ce menu, veuillez redémarrer QAP.`n`nRedémarrer maintenant? Vos modifications non sauvegardées seront perdues.
 lOopsErrorIniFileReadOnly	Ce menu partagé est en lecture seulement.
 lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible.
 lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas disponible
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
+lOopsExternalCatalogueReadOnly	Ce menu partagé est en lecture seulement. Veuillez communiquer avec votre administrateur de système.
 lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture.
+lOopsExternalReadOnlyAlert	Les menus partagés de type "Centralisé" ne peuvent être modifiés can only be edited par les utilisateur(s) identifiés dans la zone "~1~" (ou en ouvrant le fichier ini sur le disque partagé avec un éditeur de texte).`n`nVotre nom d'utilisateur est: "~2~".`nVotre ordinateur est: "~3~".
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
 lOopsHotkeyAlreadyUsed	Le raccourci "~1~" est déjà utilisé pour l'emplacement ~2~.`n`nVeuillez choisis un autre raccourci pour ~3~.
@@ -407,6 +429,9 @@ lOopsInvalidWindowPosition	Valeur(s) de position de la fenêtre invalide
 lOopsLaunchWithNotFound	Le fichier de l'application "Lancer avec cette application" est introuvable:`n`n~1~`n`nVérifiez les réglages avancés ce ce favori.
 lOopsLocation	emplacement
 lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dépassé. Veuillez réduire le nombre de niveaux de ce Dossier actif.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inatendus. Modifiez la valeur "NbLiveFolderItemsMax" sous la rubrique [Global] du fichier de paramètres (QuickAccessPop.ini).
+lOopsMenuExternalCentralized	menu partagé centralisé
+lOopsMenuExternalCollaborative	menu partagé collaboratif
+lOopsMenuExternalReservedBy	Ce ~1~ est RÉSERVÉ par l'utilisateur: ~2~.`n`nAttendez que cet utilisateur libère le menu ou contactez votre administrateur de système.
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
 lOopsTitle	~1~ (~2~)
@@ -419,6 +444,8 @@ lOptionsAddAutoAtTop	Ajouter automatiquement au début du menu
 lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
+lOptionsCatalogueHelp	Catalogue des menus partagés (<a href="~1~">~2~</a>)
+lOptionsCataloguePath	Dossier racine du catalogue
 lOptionsChangeFolderInDialog	Changer de dossier dans les boîtes de dialogue avec le bouton de souris ou le raccourcis clavier du menu principal de QAP
 lOptionsChangeFolderInDialogCheckbox	Cliquez "OK" pour confirmer que vous comprenez les conséquences d'essayer de changer de dossier dans une boîte de dialogue inappropriée.
 lOptionsChangeFolderInDialogText	Activez cette option pour permettre le changement de dossier dans les boîtes de dialogue (Ouvrir, Enregistrer sous, etc.) mais veuillez lire cet avertissement.`n`nVous devez utiliser cette fonction SEULEMENT dans les boîtes de dialogue de sélection de fichier. Si vous l'utilisez dans d'autres types de boîtes de dialogue, par exemple dans une fenêtre "Options", essayer de changer de dossier pourrait modifier et enregistrer des valeurs sans préavis.
@@ -427,6 +454,7 @@ lOptionsCheck4Update	Vérifier la mise à jour
 lOptionsControlDoublePressed	Ouvrir le menu principal avec Ctrl + Ctrl (Contrôle Gauche ou Contrôle Droite pressé à deux reprises)
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
+lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
 lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
 lOptionsExclusionList	Exclusions
@@ -446,6 +474,7 @@ lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brés
 lOptionsMenuActiveWindow	Dans la fenêtre active
 lOptionsMenuFixPosition	À une position fixe
 lOptionsMenuNearMouse	Près du pointeur de la souris
+lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu sur la barre des tâches
@@ -458,11 +487,13 @@ lOptionsRecentFolders	Nombre d'emplacements récents dans le menu
 lOptionsRecentFoldersPrompt	Emplacements récents:
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
 lOptionsRunAtStartup	Exécuter au démarrage
+lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
+lOptionsTabMenuOptionsIntro	Affichez le menu comme vous le préférez
 lOptionsTabMouseAndKeyboardIntro	Choisissez les boutons de la souris et les raccourcis du clavier déclenchant le menu principal de ~1~.
 lOptionsTabOtherOptionsIntro	Adaptez ~1~ à vos préférences!
 lOptionsTheme	Thème
-lOptionsThirdParty	Gestionnaires de fichiers
+lOptionsThirdParty	Gestionnaires
 lOptionsThirdPartyDetail	Pour activer l'intégration avec ~1~, localisez le programme .exe sous votre dossier Program Files.
 lOptionsThirdPartyDetailQAPconnect	Sélectionnez votre gestionnaire de fichiers (ou modifiez ~1~ pour l'ajouter - voir l'aide)
 lOptionsThirdPartyFileNotFound	Le fichier de l'application ~1~ est introuvable: "~2~".
@@ -472,6 +503,7 @@ lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvell
 lOptionsTrayTip	Afficher la notification au démarrage
 lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
+lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
 lTCMenuName	TC Directory Hotlist
 lTCWinCmdLocation	Emplacement de WinCmd.ini
 lTooltipSnippetKeyWait	Appuyez sur {~1~} pour continuer…

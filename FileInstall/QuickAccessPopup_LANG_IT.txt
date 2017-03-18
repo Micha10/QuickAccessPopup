@@ -6,6 +6,7 @@ lAboutTitle	Crediti - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Seleziona il Preferito da copiare
 lAlternativeMenuTrayTipEditFavorite	Seleziona il Preferito da modificare
 lAlternativeMenuTrayTipNewWindow	Seleziona la cartella da aprire in una nuova finestra
+lAlternativeMenuTrayTipOpenContaining	Seleziona il Preferito (documento, appplicazione o cartella) di cui vuoi aprire la cartella superiore
 lAlternativeMenuTrayTipRunAs	Seleziona l'applicazione da eseguire con privilegi elevati (amministratore)
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Avvio Rapido</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Domande frequenti</a> • <a href="http://www.quickaccesspopup.com">Supporto</a> (English)
 lContextAddFile	Aggiungi un File al menù Quick Access Popup
@@ -25,6 +26,7 @@ lDialogAddAmpersand	&Aggiungi
 lDialogAddEditFavoriteTitle	~1~ Favorite: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Aggiungi un Preferito - ~1~ ~2~
 lDialogAddFavoriteTabs	Impostazioni di base|Menù Opzioni|Finestra Opzioni|Impostazioni Avanzate
+lDialogAddFavoriteTabsExternal	Menù condiviso
 lDialogAddFavoriteTabsLive	Opzioni Cartella Live
 lDialogAddFileSelect	Scegli il nuovo Documento:
 lDialogAddFolderManuallyPrompt	Spiacente, ma non riesco a intercettare la cartella corrente in questo tipo di finestra.`n`nVuoi aggiungere adesso, manualmente, una cartella come Preferito?
@@ -65,13 +67,21 @@ lDialogEditIconPrompt	Modifica l'icona della risorsa nel formato "fileicona,indi
 lDialogElevate	Esegui l'applicazione con privilegi di Amministratore
 lDialogEndOfMenu	Fine del menù
 lDialogErrorMoving	Non è possibile spostare il preferito:`n"~1~"
+lDialogExternalAddFromCatalogue	Vuoi aggiungere un menù esterno dal Catalogo dei Menù condivisi?
 lDialogExternalLocation	Impostazioni nel menù esterno per la destinazione del file
+lDialogExternalMenuName	Nome del menù condiviso
+lDialogExternalSelectFromCatalogue	Seleziona il Menù condiviso da aggiungere al tuo menù
 lDialogExternalStartingNumber	Numero del primo preferito:
+lDialogExternalTypes	Personale (menù condiviso su computer differenti per lo stesso utente)|Collaborativo (menù su disco condiviso per team o gruppi di lavoro)|Centralizzato (menù su un disco condiviso gestito da un amministratore del menù)
+lDialogExternalWriteAccessMessage	Messaggio di accesso in scrittura sul menù condiviso
+lDialogExternalWriteAccessUsers	Utenti con accesso in scrittura a questo menù
 lDialogFavoriteDisabled	Nascondi questo Preferito nel menù
+lDialogFavoriteDisabledGroupMember	Disabilita questo oggetto nel gruppo
 lDialogFavoriteDoesNotExistPrompt	Il preferito "~1~"~2~ non esiste o non è disponibile.`n`nSe questo Preferito è su un disco di rete, per favore prova di nuovo dopo esserti autenticato sulla rete.
 lDialogFavoriteDoesNotExistTitle	Il Preferito non esiste - ~1~
 lDialogFavoriteDropdownEmpty	Per favore scegli un oggetto nel menù a discesa ~1~ .
 lDialogFavoriteExternalHelpWeb	Vedi  <a href="~1~">Aiuto per i menù esterni</a> per maggiori informazioni.
+lDialogFavoriteExternalSaveNote	Nota: I valori in questa scheda vengono salvati immediatamente nel menù condiviso premendo OK.
 lDialogFavoriteFolderLive	Cartella Live (menù con incluse sottocartelle)
 lDialogFavoriteFolderLiveColumns	Numero di oggetti per colonna (0 per non usare separatori di colonna)
 lDialogFavoriteFolderLiveDocuments	Includi documenti
@@ -166,6 +176,7 @@ lDialogOff	Assente
 lDialogOK	OK
 lDialogOKAmpersand	&OK
 lDialogOn	Presente
+lDialogOpenThisGroup	Apri questo gruppo
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogReadOnly	Sola-Lettura
@@ -219,6 +230,11 @@ lDonateCheckPrompt4	visualizza promemoria della donazione
 lDonateCheckTitle	~1~ volte! - ~2~
 lDonateMenu	Supporta il Freeware!
 lDonatePlatformComment1	Puoi inviare donazioni con carta di credito (senza necessità di disporre di un conto) o dal tuo conto PayPal
+lDonatePlatformComment2	Per donatori europei
+lDonatePlatformComment3	Per donatori canadesi
+lDonatePlatformName1	Usando Paypal in $ (USA)
+lDonatePlatformName2	Usando Paypal in $ (USA)
+lDonatePlatformName3	Usando Paypal in $ (CAN)
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -266,6 +282,7 @@ lGuiSaveAmpersand	&Salva
 lGuiSaveAndCloseAmpersand	&Salva`n&& Chiudi
 lGuiSaveAndStayAmpersand	Salva`n&& &Ricarica
 lGuiSaveToUpdateBacklinks	Salva per aggiornare back links
+lGuiSaving	Salvataggio
 lGuiSubmenuDropdownLabel	Menù o gruppo da modificare:
 lGuiTitle	Impostazioni - ~1~ ~2~
 lHelpTabAddingFavorite	Aggiungere Preferiti
@@ -327,6 +344,8 @@ lMenuAddThisFolder	Aggiungi Questa Cartella
 lMenuAddThisFolderXpress	Aggiungi questa Cartella Express
 lMenuAlternativeEditFavorite	Modifica un Preferito
 lMenuAlternativeNewWindow	Apri in una nuova finestra
+lMenuAlternativeOpenContainingCurrent	Apri la Cartella che lo contiene nella Finestra Corrente
+lMenuAlternativeOpenContainingNew	Apri la Cartella che lo contiene in una Nuova Finestra
 lMenuAlternativeRunAs	Esegui come Amministratore
 lMenuAppData	Dati Applicazioni
 lMenuCache	Cache
@@ -390,11 +409,14 @@ lOopsCannotCopyFavorite	Preferiti di tipo "~1~" non possono essere copiati.
 lOopsChangeFolderInDialogAlert	Hai intenzione di cambiare cartella in questa casella di dialogo? Per poter navigare da una casella di dialogo, è necessario abilitare un'opzione (prima casella di selezione nel tab "Generale").`n`nVuoi aprire la finestra delle Opzioni?
 lOopsCouldNotOpenSpecialFolder	~1~ non è riuscito ad aprire la Cartella Speciale: "~2~".
 lOopsEmpty	vuoto
+lOopsErrorIniFileModified	Questo menù condiviso è stato modificato dopo l'avvio di QAP. Per modificare questo menù dovresti riavviare QAP.`n`nRiavvio adesso? Le modifiche al menù non ancora salvate verranno perse.
 lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso è in SOLA-LETTURA.
 lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di rete, prova a ricaricare ~1~ quando il disco di rete sarà disponibile.
 lOopsErrorIniFileUnavailable	Questo file di impostazioni del menù esterno non è disponibile
 lOopsErrorReadingIniFile	C'è stato un errore leggendo questo file di impostazioni:
+lOopsExternalCatalogueReadOnly	L'opzione Catalogo Menù Condivisi è di sola-lettura. Sei pregato di contattare l'amministratore di sistema.
 lOopsExternalFileWriteError	Si è verificato un errore scrivendo nel file delle impostazioni del menù condiviso:`n~1~.`n`nAssicurati che tale file (o la sua cartella) non sia di sola lettura.
+lOopsExternalReadOnlyAlert	Menù condivisi di tipo "Centralizzato" possono essere modificati soltanto da utente(i) nel campo "~1~" (o aprendo il file ini sul disco condiviso usando un editor di testo).`n`nIl tuo nome utente è: "~2~".`nIl nome del tuo computer è: "~3~".
 lOopsFtpLocationProtocol	L'indirizzo di un sito FTP deve iniziare con "ftp://".
 lOopsGroup	Gruppo
 lOopsHotkeyAlreadyUsed	La combinazione di tasti "~1~" è già usata per ~2~.`n`nE' necessario scegliere un altra combinazione per ~3~.
@@ -405,6 +427,9 @@ lOopsInvalidWindowPosition	Valori non validi per la posizione della finestra
 lOopsLaunchWithNotFound	File dell'applicazione non trovato per "Esegui con questa applicazione":`n`n~1~`n`nControlla le impostazioni avanzate del Preferito.
 lOopsLocation	Destinazione
 lOopsMaxLiveFolder	Il massimo numero di elementi nelle Cartelle Live (~1~) è stato superato. Per favore, riduci il numero di livelli di cartelle live.`n`nPotresti anche aumentare tale limite ma fai attenzione: un numero troppo alto può comportare effetti non prevedibili. Edita il valore "NbLiveFolderItemsMax" nella sezione [Global] del file di impostazioni (QuickAccessPop.ini).
+lOopsMenuExternalCentralized	menù condiviso centralizzato
+lOopsMenuExternalCollaborative	menù condiviso collaborativo
+lOopsMenuExternalReservedBy	Questo ~1~ è RISERVATO dall'utente: ~2~.`n`nAspetta che tale utente rilasci il menù condiviso o contatta l'amministratore di sistema.
 lOopsOSVerrsionError	~1~ richiede Window 7 o un sistema operativo più recente. Windows Vista e utenti XP sono invitati ad usare il Folders Popup che è compatibile con queste versioni.`n`nVuoi visitare il sito web di Folders Popup?
 lOopsQAPfeature	Funzionalità di QAP
 lOopsTitle	~1~ (~2~)
@@ -417,6 +442,8 @@ lOptionsAddAutoAtTop	Aggiungi automaticamente in cima al menù
 lOptionsAddCloseToDynamicMenus	Aggiungi "Chiudi" ai menù
 lOptionsAlternativeMenuFeatures	Combinazioni di tasti per il Menù Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gestisci le scorciatoie che lanciano le funzionalità del Menù Alternativo.
+lOptionsCatalogueHelp	Catalogo del Menù Condiviso (<a href="~1~">~2~</a>)
+lOptionsCataloguePath	Cartella radice del catalogo
 lOptionsChangeFolderInDialog	Cambia cartella da casella di dialogo con gli hotkeys principali di QAP (mouse e tastiera)
 lOptionsChangeFolderInDialogCheckbox	Clic "OK" per confermare che capisci le possibili conseguenze di usare erroneamente la funzionalità per cambiare cartella da caselle di dialogo non di tipo "file".
 lOptionsChangeFolderInDialogText	Attiva questa opzione per abilitare la navigazione delle cartelle in caselle di dialogo (Apri, Salva come, ecc.) ma sei pregato di leggere il seguente avvertimento.`n`nDevi usare questa funzione SOLTANTO in caselle di dialogo per "file". Se la usi in altri tipi di caselle di dialogo, per esempio in una casella di dialogo "Impostazioni", provare a cambiare cartella potrebbe modificare e salvare valori nella casella di dialogo senza alcun preavviso.
@@ -425,6 +452,7 @@ lOptionsCheck4Update	Cerca Aggiornamenti
 lOptionsControlDoublePressed	Apri il menù principale con Ctrl + Ctrl (tasto CTRL Sinistro o Destro premuto due volte)
 lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
+lOptionsEnableExternalMenusCatalogue	Abilita il Catalogo del Menù Condiviso
 lOptionsExclusionDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionDetail2	La combinazione per QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra di destinazione come se QAP non fosse in esecuzione. Puoi anche escludere finestre attraverso il loro nome di classe. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Trovi aiuto e supporto per questa funzionalità <a href="~2~">sul sito web QAP</a>.
 lOptionsExclusionList	Lista delle esclusioni
@@ -444,6 +472,7 @@ lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)
 lOptionsMenuActiveWindow	In alto a sinistra della finestra attiva
 lOptionsMenuFixPosition	In posizione prefissata
 lOptionsMenuNearMouse	Vicino al puntatore del mouse
+lOptionsMenuOptions	Menù opzioni
 lOptionsMenuPositionPrompt	Apri il menù popup:
 lOptionsMouseAndKeyboard	Menù scorciatoie
 lOptionsOpenMenuOnTaskbar	Apri il menù nella barra delle applicazioni
@@ -456,7 +485,9 @@ lOptionsRecentFolders	Numero di cartelle nel Menù
 lOptionsRecentFoldersPrompt	Cartelle recenti:
 lOptionsRememberSettingsPosition	Ricorda la posizione della finestra
 lOptionsRunAtStartup	&Esegui all'avvio
+lOptionsSelectCatalogueRoot	Seleziona la cartella radice del Catalogo dei Menù Condivisi
 lOptionsTabFileManagersIntro	Seleziona il file manager da usare per aprire le cartelle in una nuova finestra.
+lOptionsTabMenuOptionsIntro	Personalizza il menù popup come preferisci !
 lOptionsTabMouseAndKeyboardIntro	Assegna i tasti del mouse e le combinazioni di tasti che aprono il menù principale di ~1~ .
 lOptionsTabOtherOptionsIntro	Adatta le funzioni di Quick Access Popup alle tue esigenze!
 lOptionsTheme	Tema
@@ -470,6 +501,7 @@ lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
 lOptionsUseClassicButtons	Usa i pulsanti classici di QAP
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
+lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
 lTooltipSnippetWait	Seleziona il punto di inserimento e premi "~1~" per incollare lo snippet (aspettando ~2~ secondi)
