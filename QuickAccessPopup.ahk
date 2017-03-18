@@ -9972,6 +9972,10 @@ GuiCancel:
 ;------------------------------------------------------------
 
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
+
+if InStr(strCancelLabel, lGuiSaving) ; disable button while saving
+	return
+
 blnCancelEnabled := (strCancelLabel = lGuiCancelAmpersand)
 if (blnCancelEnabled)
 {
