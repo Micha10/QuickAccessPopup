@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.1.9.5 (2017-03-??)
+ 
+
 Version BETA: 8.1.9.4 (2017-03-15)
  
 Shared Menus
@@ -1293,7 +1296,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1.9.4 BETA
+;@Ahk2Exe-SetVersion 8.1.9.5 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1366,7 +1369,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.1.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8292,7 +8295,7 @@ ExternalMenuReserved(objMenu)
 	{
 		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
 			; personal menu is changed on another system
-			Oops(lOopsMenuExternalCollaborativeChangedBy, strMenuExternalReservedBy)
+			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
 		
 		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
 		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
