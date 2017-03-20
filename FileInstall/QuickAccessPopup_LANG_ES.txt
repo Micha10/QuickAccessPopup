@@ -6,6 +6,7 @@ lAboutTitle	Acerca de - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Seleccionar favorito para copiar 
 lAlternativeMenuTrayTipEditFavorite	Seleccionar favorito para editar 
 lAlternativeMenuTrayTipNewWindow	Selecionar una carpeta para abrir en nueva ventana 
+lAlternativeMenuTrayTipOpenContaining	Elija el documento. aplicación favorita o la carpeta del cual desea abrir la carpeta principal
 lAlternativeMenuTrayTipRunAs	Select the application to run in elevated mode
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Quick Start</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Preguntas frecuentes</a> • <a href="http://www.quickaccesspopup.com">Soporte</a> (Inglés) 
 lContextAddFile	Añadir este archivo al menú de Quick Access Popup
@@ -25,6 +26,7 @@ lDialogAddAmpersand	&Añadir
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Añadir Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Ajustes básicos|Menú de Opciones|Opciones de ventana|Ajustes avanzados
+lDialogAddFavoriteTabsExternal	Menú compartido
 lDialogAddFavoriteTabsLive	Opciones de carpeta dinámica
 lDialogAddFileSelect	elegir un nuevo documento:
 lDialogAddFolderManuallyPrompt	Lo sentimos, no podemos detectar la carpeta actual en este tipo de ventana.`n`n¿Quiere añadir una carpeta favorita ahora manualmente?
@@ -65,13 +67,21 @@ lDialogEditIconPrompt	Modificar el icono del recurso en el formato "carpeta, índ
 lDialogElevate	Ejecutar la aplicación con privilegios de administrador
 lDialogEndOfMenu	fin del menú
 lDialogErrorMoving	No es posible cambiar el tamaño del favorito:`n"~1~"
+lDialogExternalAddFromCatalogue	¿Quieres añadir un menú externo de Catálogo de los menús compartidos?
 lDialogExternalLocation	Ubicación ajustes del menú externos para ubicación del archivo
+lDialogExternalMenuName	Nombre del menú compartido
+lDialogExternalSelectFromCatalogue	Elige el Menú compartido para añadir a tu menú
 lDialogExternalStartingNumber	Número del primer favorito:
+lDialogExternalTypes	Personnel (Menú compartido en equipos diferentes para el mismo usuario)|Colaborativo (menú en una unidad compartida de un equipo o grupo de trabajo)|Centralizado (menú en una unidad compartida gestionada por un administrador del menú)
+lDialogExternalWriteAccessMessage	Mensaje sobre el permiso de escritura en el menú compartido
+lDialogExternalWriteAccessUsers	Los usuarios con permiso de escritura a este menú
 lDialogFavoriteDisabled	No añadir este favorito al menú
+lDialogFavoriteDisabledGroupMember	Desactivar este elemento en el grupo
 lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponible.`n`nSi este favorito está ubicado en una unidad de red, por favor, inténtalo de nuevo después de la autenticación de red.
 lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
 lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
+lDialogFavoriteExternalSaveNote	Nota: Los valores de esta ficha se almacenan en el menú compartido cuando se hace clic en OK.
 lDialogFavoriteFolderLive	Carpeta dinámica (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones)   
 lDialogFavoriteFolderLiveColumns	Número de objetos por columna  (0 si no hay columnas) 
 lDialogFavoriteFolderLiveDocuments	Incluir documentos 
@@ -166,6 +176,7 @@ lDialogOff	Apagado
 lDialogOK	Si
 lDialogOKAmpersand	&Si
 lDialogOn	Encendido
+lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
 lDialogReadOnly	Sólo lectura
@@ -219,6 +230,11 @@ lDonateCheckPrompt4	mostrar recordatorios de conación
 lDonateCheckTitle	~1~ vez! - ~2~
 lDonateMenu	Apoyar este programa gratuito!
 lDonatePlatformComment1	Donar con su tarjeta de crédito (No es necesario crear una cuenta) o con su cuenta de PayPal
+lDonatePlatformComment2	Para los donantes Europeos
+lDonatePlatformComment3	Para los donantes Canadienses
+lDonatePlatformName1	Con Paypal en US $
+lDonatePlatformName2	Con Paypal en Euros
+lDonatePlatformName3	Con Paypal en CAD $
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -267,6 +283,7 @@ lGuiSaveAmpersand	&Guardar
 lGuiSaveAndCloseAmpersand	&Guardar`n&& Cerrar
 lGuiSaveAndStayAmpersand	Guardar`n&& &Recargar
 lGuiSaveToUpdateBacklinks	Guardar para actualizar los vínculos de retroceso 
+lGuiSaving	Enregistre
 lGuiSubmenuDropdownLabel	Menú o grupo a editar:
 lGuiTitle	Configuración - ~1~ ~2~
 lHelpTabAddingFavorite	Añadiendo favoritos
@@ -328,6 +345,8 @@ lMenuAddThisFolder	Añadir esta carpeta al menú
 lMenuAddThisFolderXpress	Añadir esta carpeta Express 
 lMenuAlternativeEditFavorite	Editar un Favorito
 lMenuAlternativeNewWindow	Abrir en nueva ventana
+lMenuAlternativeOpenContainingCurrent	Abrir la carpeta principal en la ventana actual
+lMenuAlternativeOpenContainingNew	Abrir la carpeta principal en una nueva ventana
 lMenuAlternativeRunAs	Run as administrator
 lMenuAppData	Datos de la aplicación
 lMenuCache	Cache
@@ -391,11 +410,14 @@ lOopsCannotCopyFavorite	Tipos de favoritos "~1~" cannot be copied.
 lOopsChangeFolderInDialogAlert	¿Usted desea cambiar la carpeta en este cuadro de diálogo? Para navegar dentro de una caja de diálogo, tiene que habilitar una opción (primera casilla de verificación en la pestaña "General") .`n`nDo desea abrir la ventana Opciones?
 lOopsCouldNotOpenSpecialFolder	~1~ no se puede abrir la carpeta especial: "~2~".
 lOopsEmpty	vacio 
+lOopsErrorIniFileModified	Este menú compartido ha cambiado desde que comenzó con QAP. Para editar este menú, reinicie QAP.`n`nReiniciar ahora? Los cambios no guardados se perderán.
 lOopsErrorIniFileReadOnly	Este menú compartido es solamente de lectura.
 lOopsErrorIniFileRetry	Si el archivo de configuración externo en una unidad de red, pruebe a reiniciar ~ 1 ~ cuando la unidad de red está disponible.
 lOopsErrorIniFileUnavailable	El archivo de configuración externo no está disponible
 lOopsErrorReadingIniFile	Se ha producido un error al leer el fichero de configuración:
+lOopsExternalCatalogueReadOnly	Este menú compartido es de lectura solamente. Quieres comunicar con tu administrador de sistema.
 lOopsExternalFileWriteError	Se ha producido un error al escribir en el archivo de configuración del menú compartido:`n~1~.`n`nCompruebe si este archivo o esta carpeta es de sólo lectura. 
+lOopsExternalReadOnlyAlert	Los menús compartidos de tipo "Centralizado" no se puede cambiar solo se puede modificar por el usuario(s) identificados en la zona "~1~" (o abrir el archivo ini en la unidad compartida con un editor de texto).`n`nTu nombre de usuario es: "~2~".`nTu ordenador es: "~3~".
 lOopsFtpLocationProtocol	Ubicación FTP debe comenzar con "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	Este atajo "~1~" ya esta siendo usado por ~2~.`n`nPor favor, elija un nuevo atajo para ~3~.
@@ -406,6 +428,10 @@ lOopsInvalidWindowPosition	Valor de posición de la ventana no válido (s)
 lOopsLaunchWithNotFound	"Lanzamiento con este archivo de aplicación "no encontrado:` ~1~ `n`nComprobar configuración avanzada del n`n favoritos.
 lOopsLocation	ubicación
 lOopsMaxLiveFolder	El número máximo de elementos en las carpetas dinámicas (~1~) ha sido excedido. Por favor, reduzca el número de niveles de carpetas dinámicas.`n`nTambién podría aumentar este límite, pero tenga cuidado: un número demasiado grande puede producir resultados impredecibles. Edite el valor "NbLiveFolderItemsMax" en [Global] del archivo de configuración(QuickAccessPop.ini). 
+lOopsMenuExternalCentralized	menú compartido centralizado
+lOopsMenuExternalCollaborative	menú compartido colaborativo
+lOopsMenuExternalPersonalChangedBy	Este menú compartido personal ha sido MODIFICADO o contiene modificaciones NO guardadas en el ordenador: ~1~.`n`nSi guardas los cambios en este menú ahora se perderán los cambios no guardados en otro ordenador y tendrás que cancelar tus cambios en este equipo cuando vuelvas.
+lOopsMenuExternalReservedBy	Este ~1~ esta RESERVADO para el usuario: ~2~.`n`nEspera que este usuario libere el menú o contacta con tu administrador de sistema.
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
 lOopsTitle	~1~ (~2~)
@@ -418,6 +444,8 @@ lOptionsAddAutoAtTop	Añadir automáticamente en la parte superior del menú
 lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús
 lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
+lOptionsCatalogueHelp	Catálogo de los menús compartidos (<a href="~1~">~2~</a>)
+lOptionsCataloguePath	Carpeta principal del catálogo
 lOptionsChangeFolderInDialog	Cambiar las carpetas en la caja de diálogo con los principales QAP ratón y teclado teclas de acceso rápido
 lOptionsChangeFolderInDialogCheckbox	Haga clic "OK" para confirmar que usted entiende la posible consecuencia de mal uso de la función de carpeta de cambio en los cuadros de diálogo "no de archivos".
 lOptionsChangeFolderInDialogText	Active esta opción para permitir la navegación carpeta en los cuadros de diálogo (Abrir, Guardar como, etc.), pero, por favor, lea las siguientes Atención.`n`nUsted debe utilizar esta función sólo en los cuadros de diálogo "Archivo". Si lo usa en otro tipo de cuadro de diálogo, por ejemplo en un cuadro de diálogo "Opciones", tratando de cambiar la carpeta podría modificar y guardar los valores en el cuadro de diálogo sin ninguna notificación.
@@ -426,6 +454,7 @@ lOptionsCheck4Update	Compruebe Actualización
 lOptionsControlDoublePressed	Abrir el menú principal con Ctrl + Ctrl (Izquierda o la tecla de control derecha pulsada dos veces) 
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
+lOptionsEnableExternalMenusCatalogue	Activar el Catálogo de los menús compartidos
 lOptionsExclusionDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y de la [~1~] click será enviado a la ventana de destino como si QAP no se estuviese ejecutando. También puede excluir ventanas por su nombre de clase. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Usted puede encontrar ayuda y apoyo en esta función <a href="~2~">en el sitio  de QAP</a>.
 lOptionsExclusionList	Lista de exclusiones
@@ -445,6 +474,7 @@ lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|I
 lOptionsMenuActiveWindow	En la ventana activa
 lOptionsMenuFixPosition	En una posición fija
 lOptionsMenuNearMouse	Cerca del puntero del ratón
+lOptionsMenuOptions	Opciones del menú
 lOptionsMenuPositionPrompt	Mostrar el menú popup:
 lOptionsMouseAndKeyboard	Lanzadores de menú
 lOptionsOpenMenuOnTaskbar	Abrir el menú en la barra de tareas
@@ -457,7 +487,9 @@ lOptionsRecentFolders	Número de carpetas en el menú
 lOptionsRecentFoldersPrompt	Carpetas recientes:
 lOptionsRememberSettingsPosition	Memorizar la posición de la ventana
 lOptionsRunAtStartup	Ejecutar al inicio
+lOptionsSelectCatalogueRoot	Elije la carpeta principal del Catálogo de los menús compartidos
 lOptionsTabFileManagersIntro	Seleccione el administrador de archivos para utilizar para abrir carpetas en una ventana nueva.
+lOptionsTabMenuOptionsIntro	Visualizar el menú según sus preferencias
 lOptionsTabMouseAndKeyboardIntro	Definir los botones del ratón y las teclas de acceso rápido de teclado que activarán el menú principal ~1~.
 lOptionsTabOtherOptionsIntro	Adaptar ~1~ a sus preferencias!
 lOptionsTheme	Tema
@@ -471,6 +503,7 @@ lOptionsThirdPartyUseTabs	Utilice las pestañas en lugar de abrir una nueva venta
 lOptionsTrayTip	Mostrar notificación al inicio
 lOptionsUseClassicButtons	Usar botones clásicos de QAP 
 lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar un icono.
+lReloadPrompt	Cambio de ~1~ guardado: ~2~. Quieres relanzar ~3~ en ~2~ ahora? Los cambios no guardados en el menú se perderán.
 lTCMenuName	TC Lista de sitios Favoritos 
 lTCWinCmdLocation	WinCmd.ini ubicación 
 lTooltipSnippetWait	Seleccione el punto de inserción y la tecla "~1~" para pegar el fragmento (espere ~2~ segundos)
