@@ -6679,8 +6679,9 @@ GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
+GuiAddExternalXpress:
+GuiAddExternalOtherExternal:
 ;------------------------------------------------------------
-
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
@@ -6700,7 +6701,10 @@ g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|
 
 if InStr(strGuiFavoriteLabel, "Xpress")
 {
-	gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
+	if (strGuiFavoriteLabel = "GuiAddExternalXpress")
+		gosub, GuiAddFavoriteSaveExternalXpress ; save this external menu from catalogue and return
+	else
+		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -6909,13 +6913,30 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
+	if (strGuiFavoriteLabel = "GuiAddExternalOtherExternal")
+	{
+		strGuiFavoriteLabel := "GuiAddFavorite"
+		blnNoExternalMenusCatalogue := true
+	}
+	else
+		blnNoExternalMenusCatalogue := false
+	
 	if (strGuiFavoriteLabel <> "GuiAddFavorite")
 	; includes GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
-	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles
+	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles, GuiAddExternalXpress
 	{
-		; g_strNewLocation is received from AddThisFolder (etc.) or GuiDropFiles
-		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
-		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+		; g_strNewLocation is received from AddThisFolder (etc.), GuiDropFiles or ButtonAddExternalMenusFromCatalogue
+		if (strGuiFavoriteLabel = "GuiAddExternalXpress")
+		{
+			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
+			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
+			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(g_strNewLocation))
+		}
+		else ; all other labels
+		{
+			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
+			g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+		}
 	}
 	g_strNewFavoriteHotkey := "None" ; internal name
 
@@ -6923,24 +6944,11 @@ else ; add favorite
 	{
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
 		
-		if (g_strAddFavoriteType = "External") and FileExist(g_strExternalMenusCataloguePath)
+		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(g_strExternalMenusCataloguePath)
 		{
-			MsgBox, 4, %g_strAppNameText%, %lDialogExternalAddFromCatalogue%
-			IfMsgBox, Yes
-			{
-				FileSelectFile, g_strNewLocation, S1, %g_strExternalMenusCataloguePath%, %lDialogExternalSelectFromCatalogue%
-				if StrLen(g_strNewLocation)
-				{
-					g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
-					IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space% ; empty if not found
-					g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(f_strFavoriteAppWorkingDir))
-				}
-				else
-				{
-					g_blnAbordEdit := true
-					return
-				}
-			}
+			Gosub, AddExternalMenusFromCatalogue
+			g_blnAbordEdit := true
+			return
 		}
 	}
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
@@ -6962,6 +6970,8 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 	}
+	else if (strGuiFavoriteLabel = "GuiAddExternalXpress")
+		g_objEditedFavorite.FavoriteType := "External"
 	
 	if (g_strAddFavoriteType = "FTP")
 		g_blnNewFavoriteFtpEncoding := (g_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
@@ -8309,6 +8319,131 @@ ExternalMenuReserved(objMenu)
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+AddExternalMenusFromCatalogue:
+;------------------------------------------------------------
+
+; ###### neet to set window owner?
+; ###### name Cal: ok?
+
+Gui, Cat:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+Gui, Cat:Add, Text, , % L(lDialogExternalMenuSelectFromCatalogue, lDialogExternalMenuAdd)
+Gui, Cat:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
+	. " gExternalMenusCatalogueListEvents x10 y+10 w640 h340 AltSubmit", %lDialogExternalMenuAddHeader%
+
+Gui, Cat:Add, Text
+Gui, Cat:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue, %lDialogExternalMenuAdd%
+Gui, Cat:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
+Gui, Cat:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btrAddExternalMenusFromCatalogueClose, %lGuiClose%
+Gui, Cat:Add, Text
+	
+strExpandedPath := PathCombine(A_WorkingDir, EnvVars(g_strExternalMenusCataloguePath))
+
+Loop, Files, %strExpandedPath%\*.ini, R
+{
+	if InStr(A_LoopFileFullPath, "-backup-20") ; if include "-backup-YYYYMMDD"
+		Continue
+	IniRead, strName, %A_LoopFileFullPath%, Global, MenuName, %A_Space%
+	LV_Add("", strName, A_LoopFileFullPath)
+}
+LV_ModifyCol(, "")
+
+; ###### make default button bold
+; ###### make buttons larger
+GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), , , , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
+
+Gui, Cat:Show
+
+strExpandedPath := ""
+strName := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenusCatalogueListEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent = "DoubleClick")
+{
+	LV_GetText(strFile, A_EventInfo, 2)
+	IniRead, strValue, %strFile%, Global, MenuName, %A_Space%
+	strTitle := lDialogAddFavoriteTabsExternal . " - " . strValue
+	strMessage := lDialogExternalMenuName . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, MenuType, %A_Space%
+	StringSplit, arrExternalTypes, lDialogExternalTypes, |
+	strMessage .= lDialogExternalTypesLabel . ":`n" . (StrLen(strValue) ? arrExternalTypes%strValue% . " (" . strValue . ")": lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, WriteAccessUsers, %A_Space%
+	strMessage .= lDialogExternalWriteAccessUsers . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, WriteAccessMessage, %A_Space%
+	strMessage .= lDialogExternalWriteAccessMessage . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	blnReadOnly := ExternalMenuIsReadOnly(strFile)
+	MsgBox, % (blnReadOnly ? "0" : "4"), %strTitle%, % strMessage . (blnReadOnly ? "" : "`n`n" . lDialogExternalMenuOpen)
+	IfMsgBox, Yes
+		Run, %strFile%
+}
+
+strFile := ""
+strValue := ""
+strTitle := ""
+arrExternalTypes := ""
+strMessage := ""
+blnReadOnly := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusFromCatalogue:
+;------------------------------------------------------------
+; ######
+
+intCatalogueRow := 0  ; This causes the first loop iteration to start the search at the top of the list.
+Loop
+{
+	Gui, Cat:Default
+	GuiControl, Cat:Focus, f_lvExternalMenusCatalogue
+	Gui, Cat:ListView, f_lvExternalMenusCatalogue
+    intCatalogueRow := LV_GetNext(intCatalogueRow, "Checked")  ; Resume the search at the row after that found by the previous iteration.
+    if !(intCatalogueRow)  ; The above returned zero, so there are no more selected rows.
+        break
+    LV_GetText(strFile, intCatalogueRow, 2)
+	g_strNewLocation := strFile
+    ; ###_V(A_ThisLabel, intCatalogueRow, g_strNewLocation)
+	Gosub, GuiAddExternalXpress
+}
+; ###### finish feedback dialog box
+MsgBox, 0, title, % (LV_GetNext(0, "Checked") ? "added" : "none added")
+
+Gui, Cat:Destroy
+
+; ACTIVER Gosub, GuiSaveAndCloseFavorites ; for Express save all favorites to ini file
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusNotFromCatalogue:
+;------------------------------------------------------------
+
+Gosub, GuiAddExternalOtherExternal
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusFromCatalogueClose:
+;------------------------------------------------------------
+
+###_D("close")
+
+return
+;------------------------------------------------------------
+
 ;========================================================================================================================
 ; END OF FAVORITE_GUI
 ;========================================================================================================================
@@ -8377,6 +8512,7 @@ if (strThisLabel = "GuiAddFavoriteSaveXpress")
 {
 	strNewFavoriteShortName := g_objEditedFavorite.FavoriteName
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
+	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for External menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 	
 	; add new favorite in first position of Main menu
