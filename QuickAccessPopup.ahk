@@ -6679,7 +6679,7 @@ GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
-GuiAddExternalXpress:
+GuiAddExternalFromCatalogue:
 GuiAddExternalOtherExternal:
 ;------------------------------------------------------------
 strGuiFavoriteLabel := A_ThisLabel
@@ -6699,12 +6699,8 @@ if (g_blnAbordEdit)
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
 g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
 
-if InStr(strGuiFavoriteLabel, "Xpress")
+if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
-	if (strGuiFavoriteLabel = "GuiAddExternalXpress")
-		gosub, GuiAddFavoriteSaveExternalXpress ; save this external menu from catalogue and return
-	else
-		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -6923,10 +6919,10 @@ else ; add favorite
 	
 	if (strGuiFavoriteLabel <> "GuiAddFavorite")
 	; includes GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
-	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles, GuiAddExternalXpress
+	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles, GuiAddExternalFromCatalogue
 	{
 		; g_strNewLocation is received from AddThisFolder (etc.), GuiDropFiles or ButtonAddExternalMenusFromCatalogue
-		if (strGuiFavoriteLabel = "GuiAddExternalXpress")
+		if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 		{
 			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
 			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
@@ -6970,7 +6966,7 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 	}
-	else if (strGuiFavoriteLabel = "GuiAddExternalXpress")
+	else if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 		g_objEditedFavorite.FavoriteType := "External"
 	
 	if (g_strAddFavoriteType = "FTP")
@@ -7417,12 +7413,6 @@ return
 GuiMoveMultipleFavoritesToMenu:
 ;------------------------------------------------------------
 g_intGui1WinID := WinExist("A")
-
-Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:+Owner1
-Gui, 2:+OwnDialogs
-if (g_blnUseColors)
-	Gui, 2:Color, %g_strGuiWindowColor%
 
 Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
@@ -8323,19 +8313,25 @@ ExternalMenuReserved(objMenu)
 AddExternalMenusFromCatalogue:
 ;------------------------------------------------------------
 
-; ###### neet to set window owner?
-; ###### name Cal: ok?
+Gosub, 2GuiClose
 
-Gui, Cat:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
-Gui, Cat:Add, Text, , % L(lDialogExternalMenuSelectFromCatalogue, lDialogExternalMenuAdd)
-Gui, Cat:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
+g_intGui1WinID := WinExist("A")
+
+Gui, 2:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+Gui, 2:+Owner1
+Gui, 2:+OwnDialogs
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+
+Gui, 2:Add, Text, , % L(lDialogExternalMenuSelectFromCatalogue, lDialogExternalMenuAdd)
+Gui, 2:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
 	. " gExternalMenusCatalogueListEvents x10 y+10 w640 h340 AltSubmit", %lDialogExternalMenuAddHeader%
 
-Gui, Cat:Add, Text
-Gui, Cat:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue, %lDialogExternalMenuAdd%
-Gui, Cat:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
-Gui, Cat:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btrAddExternalMenusFromCatalogueClose, %lGuiClose%
-Gui, Cat:Add, Text
+Gui, 2:Add, Text
+Gui, 2:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue default, %lDialogExternalMenuAdd%
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btrAddExternalMenusFromCatalogueClose, %lGuiClose%
+Gui, 2:Add, Text
 	
 strExpandedPath := PathCombine(A_WorkingDir, EnvVars(g_strExternalMenusCataloguePath))
 
@@ -8348,11 +8344,11 @@ Loop, Files, %strExpandedPath%\*.ini, R
 }
 LV_ModifyCol(, "")
 
-; ###### make default button bold
-; ###### make buttons larger
-GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), , , , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
+; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
+GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
 
-Gui, Cat:Show
+Gui, 2:Show, AutoSize Center
+Gui, 1:+Disabled
 
 strExpandedPath := ""
 strName := ""
@@ -8403,21 +8399,23 @@ ButtonAddExternalMenusFromCatalogue:
 intCatalogueRow := 0  ; This causes the first loop iteration to start the search at the top of the list.
 Loop
 {
-	Gui, Cat:Default
-	GuiControl, Cat:Focus, f_lvExternalMenusCatalogue
-	Gui, Cat:ListView, f_lvExternalMenusCatalogue
+	Gui, 2:Default
+	GuiControl, 2:Focus, f_lvExternalMenusCatalogue
+	Gui, 2:ListView, f_lvExternalMenusCatalogue
     intCatalogueRow := LV_GetNext(intCatalogueRow, "Checked")  ; Resume the search at the row after that found by the previous iteration.
     if !(intCatalogueRow)  ; The above returned zero, so there are no more selected rows.
         break
     LV_GetText(strFile, intCatalogueRow, 2)
 	g_strNewLocation := strFile
     ; ###_V(A_ThisLabel, intCatalogueRow, g_strNewLocation)
-	Gosub, GuiAddExternalXpress
+	; g_intOriginalMenuPosition := 0
+	Gosub, GuiAddExternalFromCatalogue
+	Gosub, GuiAddExternalSave
 }
 ; ###### finish feedback dialog box
 MsgBox, 0, title, % (LV_GetNext(0, "Checked") ? "added" : "none added")
 
-Gui, Cat:Destroy
+Gosub, 2GuiClose
 
 ; ACTIVER Gosub, GuiSaveAndCloseFavorites ; for Express save all favorites to ini file
 
@@ -8439,7 +8437,7 @@ return
 ButtonAddExternalMenusFromCatalogueClose:
 ;------------------------------------------------------------
 
-###_D("close")
+Gosub, 2GuiClose
 
 return
 ;------------------------------------------------------------
@@ -8493,6 +8491,7 @@ GuiAddFavoriteSaveXpress:
 GuiEditFavoriteSave:
 GuiMoveOneFavoriteSave:
 GuiCopyFavoriteSave:
+GuiAddExternalSave:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
@@ -8500,7 +8499,7 @@ Gui, 2:+OwnDialogs
 strThisLabel := A_ThisLabel
 
 ; original and destination menus values
-if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strThisLabel)
+if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiAddExternalSave|", strThisLabel . "|")
 {
 	strOriginalMenu := ""
 	g_intOriginalMenuPosition := 0
@@ -8508,7 +8507,7 @@ if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strT
 else ; GuiEditFavoriteSave or GuiMoveOneFavoriteSave
 	strOriginalMenu := g_objMenuInGui.MenuPath
 
-if (strThisLabel = "GuiAddFavoriteSaveXpress")
+if inStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
 	strNewFavoriteShortName := g_objEditedFavorite.FavoriteName
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
@@ -8523,6 +8522,7 @@ else
 {
 	strNewFavoriteShortName := f_strFavoriteShortName
 	strNewFavoriteLocation := f_strFavoriteLocation
+	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
@@ -8628,10 +8628,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 
 	if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		strExternalSettingsExtension := GetFileExtension(f_strFavoriteAppWorkingDir)
+		strExternalSettingsExtension := GetFileExtension(strFavoriteAppWorkingDir)
 
 		if !StrLen(strExternalSettingsExtension)
-			f_strFavoriteAppWorkingDir .= ".ini"
+			strFavoriteAppWorkingDir .= ".ini"
 		else if (strExternalSettingsExtension <> "ini")
 		{
 			Oops(lDialogExternalLocationIni)
@@ -8640,8 +8640,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		}
 	}
 	
-	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
-		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
+	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
 	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !g_blnWinCmdIniFileExist)
 	{
@@ -8689,8 +8689,10 @@ if (InStr(strDestinationMenu, strOriginalMenu . " " . g_strMenuPathSeparator " "
 
 ; if adding menu or group, create submenu object
 
-if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (strThisLabel = "GuiAddFavoriteSave"))
+if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
+	###_O("g_objEditedFavorite", g_objEditedFavorite)
+	###_V(A_ThisLabel, strNewFavoriteShortName, strNewFavoriteLocation, strFavoriteAppWorkingDir)
 	objNewMenu := Object() ; object for the new menu or group
 	objNewMenu.MenuPath := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
@@ -8710,13 +8712,15 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 	
 	g_objMenusIndex.Insert(objNewMenu.MenuPath, objNewMenu)
 	g_objEditedFavorite.Submenu := objNewMenu
+	###_O("objNewMenu", objNewMenu)
+	###_O("objNewMenuBack", objNewMenuBack)
 }
 
 ; if external menu file exists, load the submenu from the external settings ini file
 
 if (g_objEditedFavorite.FavoriteType = "External")
 {
-	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 	if FileExist(strExternalMenuPath) ; file path exists
 	{
 		; load the external menu to menu object objNewMenu created earlier
@@ -8741,7 +8745,10 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	; if external settings file is not read-only, write [Global] values to external settings file
 	if !ExternalMenuIsReadOnly(strExternalMenuPath)
 	{
-		if !(g_blnExternalLocationChanged)
+		; ######
+		strLastModified := GetModifiedDateTime(strExternalMenuPath)
+		
+		if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
 		{
 			intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
 			IniWrite, %intMenuExternalType%, %strExternalMenuPath%, Global, MenuType
@@ -8750,13 +8757,14 @@ if (g_objEditedFavorite.FavoriteType = "External")
 			IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
 			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
 			; update last modified value in ini file because values requiring update by other users were changed
-			strLastModified := GetModifiedDateTime(strExternalMenuPath)
 			IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
 			; ###_O("g_objEditedFavorite.SubMenu", g_objEditedFavorite.SubMenu)
 		}
 		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
+
+		; update object's last modified dates anyway
+		g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+		g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
 	}
 }
 
@@ -8824,7 +8832,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
 	
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
-	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	g_objEditedFavorite.FavoriteAppWorkingDir := strFavoriteAppWorkingDir
 	g_objEditedFavorite.FavoriteDisabled := f_blnFavoriteDisabled
 	
 	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
@@ -8890,8 +8898,10 @@ else
 	g_objMenusIndex[strDestinationMenu].Insert(g_objEditedFavorite) ; if no item is selected, add to the end of menu
 
 ; updating listview
+###_V("g_intNewItemPos", g_intNewItemPos, g_intOriginalMenuPosition, strDestinationMenu, strOriginalMenu, g_objMenuInGui.MenuPath)
 
-Gosub, 2GuiClose
+if (strThisLabel <> "GuiAddExternalSave")
+	Gosub, 2GuiClose
 
 Gui, 1:Default
 GuiControl, 1:Focus, lvFavoritesList
