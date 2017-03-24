@@ -6,6 +6,8 @@ lAboutTitle	Sobre - ~1~ ~2~
 lAlternativeMenuTrayTipCopyLocation	Selecione o favorito para copiar
 lAlternativeMenuTrayTipEditFavorite	Selecione o favorito para editar
 lAlternativeMenuTrayTipNewWindow	Selecione a pasta para abrir em uma nova janela
+lAlternativeMenuTrayTipOpenContaining	Selecione o documento, aplicativo ou pasta favorita cuja pasta pai você deseja abrir
+lAlternativeMenuTrayTipRunAs	Selecione o aplicativo para executar em modo elevado
 lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Início Rápido</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Perguntas Frequentes</a> • <a href="http://www.quickaccesspopup.com">Suporte</a> (Inglês)
 lContextAddFile	Adicionar Arquivo ao menu do Quick Access Popup
 lContextAddFileXpress	Adicionar Arquivo ao menu Expresso do Quick Access Popup
@@ -24,6 +26,7 @@ lDialogAddAmpersand	&Adicionar
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Adicionar Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Configurações Básicas|Opções do Menu|Opções da Janela|Configurações Avançadas
+lDialogAddFavoriteTabsExternal	Menu Compartilhado
 lDialogAddFavoriteTabsLive	Opções da Pasta Ativa
 lDialogAddFileSelect	Escolha o novo documento:
 lDialogAddFolderManuallyPrompt	Desculpe, não detectamos a pasta atual neste tipo de janela.`n`nDeseja adicionar uma pasta favorita manualmenet agora?
@@ -44,6 +47,12 @@ lDialogCancelButton	Cancelar
 lDialogCancelPrompt	Descartar alterações?
 lDialogCancelTitle	Cancelar - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Esta é a tecla de atalho do menu Alternativo.`n`nDeseja gerenciar "~1~" em "~2~"?
+lDialogChangeHotkeyAny	Qualquer uma
+lDialogChangeHotkeyLeftAnyRight	Cada modificador de teclado pode ser vinculado a apenas a tecla "Esquerda", apenas a tecla "Direita" ou "Qualquer uma" delas.
+lDialogChangeHotkeyModifierAndNone	Modificadores como "Alt" ou "Control" não podem ser selecionados sozinhos. Selecione também uma tecla de atalho do mouse ou teclado na seção à direita.
+lDialogChangeHotkeyMouseCheckLButton	Você não pode atribuir o "Botão Esquerdo do Mouse" sem um modificador`n(como teclas ~1~, ~2~, ~3~ ou ~4~). lOptionsMouseCheckLButton renomeado
+lDialogChangeHotkeyNote	Nota: Todos os favoritos com o  nome "~2~" com local "~1~" serão vinculados à nova tecla de atalho.
+lDialogChangeHotkeyNoteSnippet	Nota: Todos os recortes com o nome "~1~" com o mesmo conteúdo serão vinculados à nova tecla de atalho.
 lDialogChangeHotkeyPopup	Esta é a tecla de atalho do menu popup.`n`nDeseja gerenciar "~1~" em "~2~"?
 lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
@@ -58,13 +67,21 @@ lDialogEditIconPrompt	Edite o ícone no formato "arquivo de ícone,índice" (por ex
 lDialogElevate	Execute o aplicativo com privilégios de Administrador
 lDialogEndOfMenu	final do menu
 lDialogErrorMoving	Não foi possível redimensionar o favorito:`n"~1~"
+lDialogExternalAddFromCatalogue	Deseja adicionar um menu externo a partir do Catálogo de Menus Compartilhados?
 lDialogExternalLocation	Local do arquivo de configurações do menu externo
+lDialogExternalMenuName	Nome do menu compartilhado
+lDialogExternalSelectFromCatalogue	Selecione o menu Compartilhado para adicionar ao seu menu
 lDialogExternalStartingNumber	Número do primeiro favorito
+lDialogExternalTypes	Pessoal (menu compartilhado em diferentes computadores com o mesmo usuário)|Colaborativo (menu em um disco compartilhado com uma equipe ou grupo de trabalho)|Centralizado (menu em um disco compartilhado mantido pelo administrador do menu)
+lDialogExternalWriteAccessMessage	Mensagem de acesso de escrita do menu compartilhado
+lDialogExternalWriteAccessUsers	Usuários com acesso de escrita neste menu compartilhado
 lDialogFavoriteDisabled	Ocultar este favorito do menu
+lDialogFavoriteDisabledGroupMember	Desativar este item no grupo
 lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está disponível.`n`nSe este favorito está em uma unidade de rede, tente novamente depois da autenticação de rede.
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor, escolha um item na lista do menu suspenso ~1~.
 lDialogFavoriteExternalHelpWeb	Veja <a href="~1~">Ajuda para menus externos</a> para maiores informações.
+lDialogFavoriteExternalSaveNote	Nota: Valores nesta aba são salvos no menu compartilhado assim que você clicar em OK.
 lDialogFavoriteFolderLive	Pasta Ativa (menu incluindo subpastas)
 lDialogFavoriteFolderLiveColumns	Número de itens por coluna (0 para sem quebra de coluna)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos
@@ -142,6 +159,8 @@ lDialogIconsManagePrevious	&Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerenciar Ícones - ~1~ ~2~
 lDialogInvalidHotkey	Com o layout de teclado atual do sistema, a tecla de atalho "~1~" não pode ser usada como disparador para o menu popup  (erro 'não é uma tecla válida').`n`nPor favor, abra as configurações do "~2~ pelo menu da Área de Notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~3~".
+lDialogInvalidHotkeyFavorite	Com o layout atual do seu teclado, a tecla de atalho "~1~" não pode ser usada como disparador para este favorito (erro de nome inválido de tecla).`n`nPor favor, escolha outro atalho para o favorito "~2~" e local "~3~".
+lDialogInvalidHotkeyQAPFeature	Com o layout atual do seu teclado, a tecla de atalho "~1~" não pode ser usada como disparador para este recurso do QAP (erro de nome inválido de tecla).`n`nPor favor, escolha outro atalho para o recurso do QAP "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Iniciar com este aplicativo
 lDialogMaximized	Maximizado
@@ -157,6 +176,7 @@ lDialogOff	Desligado
 lDialogOK	OK
 lDialogOKAmpersand	&OK
 lDialogOn	Ligado
+lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
 lDialogReadOnly	Somente leitura
@@ -210,6 +230,11 @@ lDonateCheckPrompt4	exibir lembretes de doação
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Apoiar o Freeware!
 lDonatePlatformComment1	Doe com seu cartão de crédito (não é necessário uma conta) ou sua conta PayPal
+lDonatePlatformComment2	Para doadores da Europa
+lDonatePlatformComment3	Para doadores do Canadá
+lDonatePlatformName1	Usando Paypal em Dólar Americano
+lDonatePlatformName2	Usando Paypal em Euro
+lDonatePlatformName3	Usando Paypal em Dólar Canadense
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -258,6 +283,7 @@ lGuiSaveAmpersand	&Salvar
 lGuiSaveAndCloseAmpersand	&Salvar`n&& Fechar
 lGuiSaveAndStayAmpersand	Salvar`n&& &Recarregar
 lGuiSaveToUpdateBacklinks	Salvar para atualizar links
+lGuiSaving	Salvando
 lGuiSubmenuDropdownLabel	Menu ou grupo para editar:
 lGuiTitle	Configurações - ~1~ ~2~
 lHelpTabAddingFavorite	Adicionando Favoritos
@@ -319,6 +345,9 @@ lMenuAddThisFolder	Adicionar esta Pasta
 lMenuAddThisFolderXpress	Adicionar Esta Pasta Expressa
 lMenuAlternativeEditFavorite	Editar um Favorito
 lMenuAlternativeNewWindow	Abrir em uma nova janela
+lMenuAlternativeOpenContainingCurrent	Abrir Pasta na Janela Atual
+lMenuAlternativeOpenContainingNew	Abrir Pasta em uma Nova Janela
+lMenuAlternativeRunAs	Executar como Administrador
 lMenuAppData	Dados de Aplicativos
 lMenuCache	Cache
 lMenuClipboard	Área de Transferência
@@ -381,11 +410,14 @@ lOopsCannotCopyFavorite	Favoritos do tipo "~1~" não podem ser copiados.
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro de uma caixa de diálogo, você precisa habilitar esta opção (primeira caixa de seleção na aba "Geral").`n`nDeseja abrir a janela de opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não pôde abrir a pasta especial: "~2~".
 lOopsEmpty	vazio
+lOopsErrorIniFileModified	Este menu compartilhado foi modificado desde que você abriu o QAP. Para editar este menu, recarregue o QAP.`n`nRecarregar agora? Alterações não salvas no menu serão perdidas.
 lOopsErrorIniFileReadOnly	Este arquivo de configurações de menu compartilhado é SOMENTE LEITURA.
 lOopsErrorIniFileRetry	Se o arquivo de configurações está em uma unidade de rede, tente recarregar o ~1~ quando a unidade de rede estiver disponível.
 lOopsErrorIniFileUnavailable	Este arquivo de configurações do menu externo está indisponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao tentar ler o arquivo de configurações:
+lOopsExternalCatalogueReadOnly	A opção 'Catálogo de Menus Compartilhados' é somente leitura. Por favor, contate o administrador do sistema.
 lOopsExternalFileWriteError	Ocorreu um erro ao tentar acessar o arquivo de configurações do menu compartilhado:`n~1~.`n`nVerifique se este arquivo ou pasta é somente leitura.
+lOopsExternalReadOnlyAlert	Menus compartilhados do tipo "Centralizado" somente podem ser editados pelo(s) usuário(s) no campo "~1~" (ou abrindo o arquivo ini no disco compartilhado usando um editor de texto).`n`nSeu nome de usuário é: "~2~".`nO nome do computador é: "~3~".
 lOopsFtpLocationProtocol	O local FTP deve começar com "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	A tecla de atalho "~1~" já está em uso por ~2~.`n`nPor favor, escolha outra tecla para ~3~.
@@ -396,6 +428,10 @@ lOopsInvalidWindowPosition	Valor(es) inválido(s) da posição da janela
 lOopsLaunchWithNotFound	Arquivo "Iniciar com este aplicativo" não encontrado:`n`n~1~`n`nVerifique as configurações avançadas do favorito.
 lOopsLocation	local
 lOopsMaxLiveFolder	O número máximo de itens em pastas Ativas (~1~) foi excedido. Por favor, diminua o número de níveis de pastas Ativas.`n`nVocê também pode atingir este limite, mas seja cuidadoso: um número muito grande pode ocasionar resultados imprevistos. Edite o valor "NbLiveFolderItemsMax" na seção [Global] do arquivo de configurações (QuickAccessPop.ini).
+lOopsMenuExternalCentralized	menu compartilhado centralizado
+lOopsMenuExternalCollaborative	menu compartilhado colaborativo
+lOopsMenuExternalPersonalChangedBy	Este menu compartilhado pessoal está sendo EDITADO ou possui alterações NÃO SALVAS no computador: ~1~.`n`nSe você salvar alterações neste menu aqui, as alterações não salvas no  outro computador serão perdidas e pode deve cancelar estas alterações ao retornar para aquele computador.
+lOopsMenuExternalReservedBy	Este ~1~ está RESERVADO pelo usuário: ~2~.`n`nAguarde este usuário liberar o menu compartilhado ou contate o administrador do sistema.
 lOopsOSVerrsionError	O ~1~ necessita do Window 7 ou sistema operacional mais recente. Usuários do Windows Vista e XP podem usar o Folders Popup, que é compatível com estas versões.`n`nDeseja visitar o site do Folders Popup?
 lOopsQAPfeature	Recurso do QAP
 lOopsTitle	~1~ (~2~)
@@ -408,6 +444,8 @@ lOptionsAddAutoAtTop	Automaticamente adicionar no topo do menu
 lOptionsAddCloseToDynamicMenus	Adicionar "Fechar" aos menus
 lOptionsAlternativeMenuFeatures	Teclas de Atalho do Menu Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gerencie os atalhos que irão disparar os recursos do menu Alternativo.
+lOptionsCatalogueHelp	Catálogo de Menus Compartilhados (<a href="~1~">~2~</a>)
+lOptionsCataloguePath	Pasta raiz do catálogo
 lOptionsChangeFolderInDialog	Altere as pastas na caixa de diálogo com as teclas de atalho principais do mouse e teclado do QAP
 lOptionsChangeFolderInDialogCheckbox	Clique "OK" para confirmar as possíveis consequências do mau uso do recurso 'alterar pasta' nas caixas de diálogo "não-arquivo".
 lOptionsChangeFolderInDialogText	ATIVE esta opção para habilitar a navegação por pastas em caixas de diálogo (Abrir, Salvar Como, etc.) mas, por favor, leia o seguinte aviso.`n`nVocê deve usar este recurso SOMENTE em caixas de diálogo de "arquivo". Se você usá-lo em outros tipos de caixas de diálogo, por exemplo, em uma caixa de diálogo "Opções", tentar alterar a pasta pode modificar e salvar valores na caixa de diálogo sem nenhuma notificação.
@@ -416,6 +454,7 @@ lOptionsCheck4Update	Verificar atualizações
 lOptionsControlDoublePressed	Abrir menu principal com Ctrl + Ctrl (tecla Control Direita ou Esquerda pressionada duas vezes)
 lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
+lOptionsEnableExternalMenusCatalogue	Habilitar o Catálogo de Menus Compartilhados
 lOptionsExclusionDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionDetail2	A tecla de atalho do QAP será desativada nestes aplicativos e o clique [~1~] será enviado para a janela de destino se o QAP não estiver em execução. Você também pode excluir janelas pelo nome da sua classe. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Você pode encontrar ajuda e suporte deste recurso no <a href="~2~">site do QAP</a>.
 lOptionsExclusionList	Lista de exclusões
@@ -435,6 +474,7 @@ lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Português (Brasil)|I
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela ativa
 lOptionsMenuFixPosition	Em uma posição fixa
 lOptionsMenuNearMouse	Próximo do ponteiro do mouse
+lOptionsMenuOptions	Opções do menu
 lOptionsMenuPositionPrompt	Abrir o menu:
 lOptionsMouseAndKeyboard	Teclas de atalho do menu
 lOptionsOpenMenuOnTaskbar	Abrir menu na barra de tarefas
@@ -447,7 +487,9 @@ lOptionsRecentFolders	Número de pastas no menu
 lOptionsRecentFoldersPrompt	Pastas Recentes
 lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAtStartup	Executa&r na Inicialização
+lOptionsSelectCatalogueRoot	Selecione a pasta raiz do Catálogo de Menus Compartilhados
 lOptionsTabFileManagersIntro	Selecione o gerenciador de arquivos para abrir pastas em uma nova janela.
+lOptionsTabMenuOptionsIntro	Faça o menu popup aparecer da maneira que quiser!
 lOptionsTabMouseAndKeyboardIntro	Defina os botões do mouse e teclas de atalho do teclado que irão disparar o menu principal do ~1~.
 lOptionsTabOtherOptionsIntro	Faça o ~1~ funcionar do jeito que você gosta!
 lOptionsTheme	Tema
@@ -461,6 +503,7 @@ lOptionsThirdPartyUseTabs	Use abas em vez de abrir em uma nova janela
 lOptionsTrayTip	Exibir &Dicas na Inicialização
 lOptionsUseClassicButtons	Usar botões clássicos do QAP
 lPickIconNoLocation	Selecione primeiro um favorito antes de escolher um ícone.
+lReloadPrompt	~1~ foi alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? Alterações não salvas no menu serão perdidas.
 lTCMenuName	Lista de Acesso de Pastas do TC
 lTCWinCmdLocation	Local do WinCmd.ini
 lTooltipSnippetWait	Selecione o ponto de inserção e pressione "~1~" para colar o recorte (aguardando ~2~ segundos)
