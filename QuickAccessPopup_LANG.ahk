@@ -426,6 +426,7 @@ global lOopsErrorIniFileUnavailable := "This shared menu settings file is unavai
 global lOopsErrorReadingIniFile := "An error occurred while reading this settings file:" ; new
 global lOopsExternalCatalogueReadOnly := "The Shared Menus Catalogue option is read-only. Please, contact your system administrator."
 global lOopsExternalFileWriteError := "An error occurred while writing to the shared menu settings file:`n~1~.`n`nCheck if this file or this folder is read-only." ; new
+global lOopsExternalMenusAdded := "~1~ shared menu(s) added."
 global lOopsExternalReadOnlyAlert := "Shared menus of type ""Centralized"" can only be edited by user(s) in the ""~1~"" field (or by opening the ini file on the shared drive using a text editor).`n`nYour user name is: ""~2~"".`nYour computer name is: ""~3~""."
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new

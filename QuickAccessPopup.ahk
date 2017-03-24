@@ -6701,6 +6701,8 @@ g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|
 
 if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
+	if InStr(strGuiFavoriteLabel, "Xpress")
+		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -6988,6 +6990,7 @@ intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
 strExternalMenuName := ""
+blnNoExternalMenusCatalogue := ""
 
 return
 ;------------------------------------------------------------
@@ -8344,7 +8347,6 @@ Loop, Files, %strExpandedPath%\*.ini, R
 }
 LV_ModifyCol(, "")
 
-; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
 GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
 
 Gui, 2:Show, AutoSize Center
@@ -8394,9 +8396,9 @@ return
 ;------------------------------------------------------------
 ButtonAddExternalMenusFromCatalogue:
 ;------------------------------------------------------------
-; ######
 
 intCatalogueRow := 0  ; This causes the first loop iteration to start the search at the top of the list.
+intNbMenusAdded := 0
 Loop
 {
 	Gui, 2:Default
@@ -8407,17 +8409,16 @@ Loop
         break
     LV_GetText(strFile, intCatalogueRow, 2)
 	g_strNewLocation := strFile
-    ; ###_V(A_ThisLabel, intCatalogueRow, g_strNewLocation)
-	; g_intOriginalMenuPosition := 0
+	
 	Gosub, GuiAddExternalFromCatalogue
 	Gosub, GuiAddExternalSave
+	intNbMenusAdded++
 }
-; ###### finish feedback dialog box
-MsgBox, 0, title, % (LV_GetNext(0, "Checked") ? "added" : "none added")
+Oops(lOopsExternalMenusAdded, intNbMenusAdded)
 
 Gosub, 2GuiClose
 
-; ACTIVER Gosub, GuiSaveAndCloseFavorites ; for Express save all favorites to ini file
+intNbMenusAdded := ""
 
 return
 ;------------------------------------------------------------
@@ -8514,7 +8515,7 @@ if inStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
 	strNewFavoriteShortName := (StrLen(g_objEditedFavorite.FavoriteName) ? g_objEditedFavorite.FavoriteName : strExternalMenuName)
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
-	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for External menu from catalogue
+	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for external menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 	
 	; add new favorite in first position of Main menu
@@ -8700,7 +8701,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
 	{
-		objNewMenu.MenuExternalPath := strFavoriteAppWorkingDir ; not g_objEditedFavorite.FavoriteAppWorkingDir
+		objNewMenu.MenuExternalPath := strFavoriteAppWorkingDir
 		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
 	}
 
@@ -8744,7 +8745,6 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	; if external settings file is not read-only, write [Global] values to external settings file
 	if !ExternalMenuIsReadOnly(strExternalMenuPath)
 	{
-		; ######
 		strLastModified := GetModifiedDateTime(strExternalMenuPath)
 		
 		if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
@@ -8757,7 +8757,6 @@ if (g_objEditedFavorite.FavoriteType = "External")
 			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
 			; update last modified value in ini file because values requiring update by other users were changed
 			IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
-			; ###_O("g_objEditedFavorite.SubMenu", g_objEditedFavorite.SubMenu)
 		}
 		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 
