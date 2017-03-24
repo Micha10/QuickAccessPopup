@@ -8507,9 +8507,12 @@ if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiAdd
 else ; GuiEditFavoriteSave or GuiMoveOneFavoriteSave
 	strOriginalMenu := g_objMenuInGui.MenuPath
 
+if (strThisLabel = "GuiAddExternalSave")
+	IniRead, strExternalMenuName, % g_objEditedFavorite.FavoriteAppWorkingDir, Global, MenuName, %A_Space% ; empty if not found
+
 if inStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
-	strNewFavoriteShortName := g_objEditedFavorite.FavoriteName
+	strNewFavoriteShortName := (StrLen(g_objEditedFavorite.FavoriteName) ? g_objEditedFavorite.FavoriteName : strExternalMenuName)
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
 	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for External menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
@@ -8691,15 +8694,13 @@ if (InStr(strDestinationMenu, strOriginalMenu . " " . g_strMenuPathSeparator " "
 
 if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
-	###_O("g_objEditedFavorite", g_objEditedFavorite)
-	###_V(A_ThisLabel, strNewFavoriteShortName, strNewFavoriteLocation, strFavoriteAppWorkingDir)
 	objNewMenu := Object() ; object for the new menu or group
 	objNewMenu.MenuPath := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
 	{
-		objNewMenu.MenuExternalPath := g_objEditedFavorite.FavoriteAppWorkingDir
+		objNewMenu.MenuExternalPath := strFavoriteAppWorkingDir ; not g_objEditedFavorite.FavoriteAppWorkingDir
 		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
 	}
 
@@ -8712,8 +8713,6 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	
 	g_objMenusIndex.Insert(objNewMenu.MenuPath, objNewMenu)
 	g_objEditedFavorite.Submenu := objNewMenu
-	###_O("objNewMenu", objNewMenu)
-	###_O("objNewMenuBack", objNewMenuBack)
 }
 
 ; if external menu file exists, load the submenu from the external settings ini file
@@ -8898,7 +8897,6 @@ else
 	g_objMenusIndex[strDestinationMenu].Insert(g_objEditedFavorite) ; if no item is selected, add to the end of menu
 
 ; updating listview
-###_V("g_intNewItemPos", g_intNewItemPos, g_intOriginalMenuPosition, strDestinationMenu, strOriginalMenu, g_objMenuInGui.MenuPath)
 
 if (strThisLabel <> "GuiAddExternalSave")
 	Gosub, 2GuiClose
@@ -8917,7 +8915,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "External")
 		strThisLocation := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? lDialogReadOnly . " " : "")
-			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . f_strExternalMenuName
+			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
@@ -9976,6 +9974,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
+				Sleep, 0 ; give time to file system to write the modified date (not sure if required but safer, or not sure if 0 is enough)
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
