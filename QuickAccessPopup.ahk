@@ -8370,6 +8370,7 @@ ExternalMenusCatalogueListEvents:
 
 if (A_GuiEvent = "DoubleClick")
 {
+	Gui, 2:+OwnDialogs
 	LV_GetText(strFile, A_EventInfo, 2)
 	IniRead, strValue, %strFile%, Global, MenuName, %A_Space%
 	strTitle := lDialogAddFavoriteTabsExternal . " - " . strValue
@@ -8683,14 +8684,14 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 }
 
-loop ; loop for Add this Folder Express - if name is not new, add " [!]")
+loop ; loop for Add this Folder Express and GuiAddExternalSave (from Catalogue) - if name is not new, add " [!]")
 	if !FavoriteNameIsNew((strThisLabel = "GuiMoveOneFavoriteSave" ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 		; we have the same name in the destination menu
 		; if this is the same menu and the same name, this is OK
 		if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (A_ThisLabel = "GuiAddFavoriteSaveXpress")
 		{
-			if (A_ThisLabel = "GuiAddFavoriteSaveXpress")
+			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 				strNewFavoriteShortName .= " [!]" ; and loop
 			else
 			{
