@@ -32,7 +32,12 @@ HISTORY
 =======
 
 Version BETA: 8.1.9.5 (2017-03-??)
- 
+- when Shared Menu Catalogue root path set in Options, display the Catalogue when user add Shares menu
+- list all shared menu under the root path (excluding backups) to the Catalogue dialog box with shared menu names, shared menu paths and checkboxes to select shared menu to add to current menu at the current position in favorites list
+- button Add selected shared menus
+- button Add another shared menu to browse the file system for any shared menu settings file
+- respond to double-click on a share menu row by showing share menu info and a button to open the shared menu settings file if it is not read-only
+- update to Spanish, Portuguese and Brazilian Portuguese language files
 
 Version BETA: 8.1.9.4 (2017-03-15)
  
@@ -8518,9 +8523,20 @@ if inStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for external menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 	
-	; add new favorite in first position of Main menu
-	strDestinationMenu := lMainMenuName
-	g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
+	if (strThisLabel = "GuiAddFavoriteSaveXpress")
+	{
+		; add new favorite in first position of Main menu
+		strDestinationMenu := lMainMenuName
+		g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
+	}
+	else ; GuiAddExternalSave
+	{
+		; add new shared menu in current Main menu
+		Gui, 1:Default
+		Gui, 1:ListView, f_lvFavoritesList
+		g_intNewItemPos := LV_GetNext()
+		strDestinationMenu := g_objMenuInGui.MenuPath
+	}
 }
 else
 {
@@ -8532,7 +8548,7 @@ else
 	strDestinationMenu := f_drpParentMenu
 }
 
-if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress g_intNewItemPos may be already set
+if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave g_intNewItemPos may be already set
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
@@ -9945,6 +9961,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if FileExist(g_strIniFile)
 				{
 					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile)
+					Sleep, 200 ; make sure we will have a different timestamp when checking the modified date (not sure what optimal delay would be - 150 ms is not always enough)
+
 					gosub, BackupIniFile ; backup external settings ini file, if required
 					
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
@@ -9973,7 +9991,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
-				Sleep, 0 ; give time to file system to write the modified date (not sure if required but safer, or not sure if 0 is enough)
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
