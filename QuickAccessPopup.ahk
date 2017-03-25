@@ -8415,15 +8415,26 @@ Loop
     LV_GetText(strFile, intCatalogueRow, 2)
 	g_strNewLocation := strFile
 	
+	g_blnExternalMenusAdded := false ; will be set true by GuiAddExternalSave
 	Gosub, GuiAddExternalFromCatalogue
 	Gosub, GuiAddExternalSave
-	intNbMenusAdded++
+	if (g_blnExternalMenusAdded)
+	{
+		intNbMenusAdded++
+		Gui, 1:Default
+		Gui, 1:ListView, f_lvFavoritesList
+		intListviewRow := LV_GetNext() + 1
+		LV_Modify(0, "-Select")
+		LV_Modify(intListviewRow, "Select")
+	}
 }
-Oops(lOopsExternalMenusAdded, intNbMenusAdded)
+MsgBox, 0, %g_strAppNameText%, % L(lDialogExternalMenusAdded, intNbMenusAdded)
 
 Gosub, 2GuiClose
 
 intNbMenusAdded := ""
+intListviewRow := ""
+g_blnExternalMenusAdded := ""
 
 return
 ;------------------------------------------------------------
@@ -8915,6 +8926,8 @@ else
 
 if (strThisLabel <> "GuiAddExternalSave")
 	Gosub, 2GuiClose
+else ; GuiAddExternalSave
+	g_blnExternalMenusAdded := true
 
 Gui, 1:Default
 GuiControl, 1:Focus, lvFavoritesList
