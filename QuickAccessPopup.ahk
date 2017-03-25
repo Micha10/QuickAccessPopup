@@ -8220,8 +8220,8 @@ LoadExternalFileGlobalValues:
 IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized
 GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, 1
 
-IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found
-GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
+IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found, deprecated since v8.1.1 but still supported ix exists in ini file
+; GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
 
 IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
 GuiControl, , f_strExternalMenuName, %strExternalMenuName%
@@ -8779,7 +8779,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 		{
 			intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
 			IniWrite, %intMenuExternalType%, %strExternalMenuPath%, Global, MenuType
-			IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly
+			; IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly ; deprecated since v8.1.1 but still supported ix exists in ini file
 			IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
 			IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
 			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
@@ -8995,6 +8995,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave") ; do not execute at each favorite 
 	strNewFavoriteLocation := ""
 	strExternalMenuPath := ""
 	intMenuExternalType := ""
+	strLastModified := ""
 
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
@@ -9850,6 +9851,7 @@ IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
+g_objFilesLastModifiedDateTime := Object() ; re-init list of files already checked
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 ToolTip, %lGuiSaving%. ; animated tooltip
@@ -9974,14 +9976,14 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				
 				if FileExist(g_strIniFile)
 				{
-					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile)
-					Sleep, 200 ; make sure we will have a different timestamp when checking the modified date (not sure what optimal delay would be - 150 ms is not always enough)
+					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile, true) ; true to track if file was already checked
 
 					gosub, BackupIniFile ; backup external settings ini file, if required
 					
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
+					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore, strIniDateTimeTest1)
 				}
 				else ; new external menu file, init external menu values
 				{
@@ -10006,6 +10008,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
+				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter)
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
 					Oops(lOopsExternalFileWriteError, g_strIniFile)
@@ -15248,7 +15251,7 @@ ExternalMenuIsReadOnly(strFile)
 	
 	if StrLen(strFile)
 	{
-		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
+		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
 		IniRead, intMenuExternalType, %strFile%, Global, MenuType
 		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3)
 		if (blnExternalMenuReadOnly)
@@ -15326,11 +15329,25 @@ GetFavoriteTypeForList(objFavorite)
 
 
 ;------------------------------------------------------------
-GetModifiedDateTime(strFile)
+GetModifiedDateTime(strFile, blnTrackIfAlreadyChecked := false)
+; when blnTrackIfAlreadyChecked is true, if an external menu settings file is used twice in a menu,
+; track the last modified date-time of file only for the first occurence
 ;------------------------------------------------------------
 {
-	FileGetTime, strDateTime, %strFile% ; modification by default
-	return strDateTime
+	global g_objFilesLastModifiedDateTime
+	; ###_O("TOP " . A_ThisFunc . "`n" . strFile . "`n" . (blnTrackIfAlreadyChecked ? "TRACK" : "no track"), g_objFilesLastModifiedDateTime)
+	
+	if (blnTrackIfAlreadyChecked) and g_objFilesLastModifiedDateTime.HasKey(strFile)
+		; ###_O("TRACK LOAD" . "`n" . strFile, g_objFilesLastModifiedDateTime)
+		return g_objFilesLastModifiedDateTime[strFile]
+	else
+	{
+		FileGetTime, strDateTime, %strFile% ; modification by default
+		if (blnTrackIfAlreadyChecked)
+			; ###_O("TRACK SAVE" . "`n" . strFile . "`n" . strDateTime, g_objFilesLastModifiedDateTime)
+			g_objFilesLastModifiedDateTime[strFile] := strDateTime
+		return strDateTime
+	}
 }
 ;------------------------------------------------------------
 
