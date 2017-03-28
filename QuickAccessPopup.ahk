@@ -32,11 +32,11 @@ HISTORY
 =======
 
 Version BETA: 8.1.9.5 (2017-03-??)
-- when Shared Menu Catalogue root path set in Options, display the Catalogue when user add Shares menu
+- when Shared Menu Catalogue root path is set in Options, display the Catalogue when user add Shared menu
 - list all shared menu under the root path (excluding backups) to the Catalogue dialog box with shared menu names, shared menu paths and checkboxes to select shared menu to add to current menu at the current position in favorites list
 - button Add selected shared menus
 - button Add another shared menu to browse the file system for any shared menu settings file
-- respond to double-click on a share menu row by showing share menu info and a button to open the shared menu settings file if it is not read-only
+- respond to double-click on a shared menu row by showing shared menu info with a button to open the shared menu settings file if it is not read-only
 - update to Spanish, Portuguese and Brazilian Portuguese language files
 
 Version BETA: 8.1.9.4 (2017-03-15)
@@ -8531,7 +8531,7 @@ else ; GuiEditFavoriteSave or GuiMoveOneFavoriteSave
 if (strThisLabel = "GuiAddExternalSave")
 	IniRead, strExternalMenuName, % g_objEditedFavorite.FavoriteAppWorkingDir, Global, MenuName, %A_Space% ; empty if not found
 
-if inStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
+if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
 	strNewFavoriteShortName := (StrLen(g_objEditedFavorite.FavoriteName) ? g_objEditedFavorite.FavoriteName : strExternalMenuName)
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
@@ -8687,7 +8687,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 }
 
-loop ; loop for Add this Folder Express and GuiAddExternalSave (from Catalogue) - if name is not new, add " [!]")
+loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
 	if !FavoriteNameIsNew((strThisLabel = "GuiMoveOneFavoriteSave" ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 		; we have the same name in the destination menu
@@ -8747,60 +8747,60 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	g_objEditedFavorite.Submenu := objNewMenu
 }
 
-; if external menu file exists, load the submenu from the external settings ini file
-
-if (g_objEditedFavorite.FavoriteType = "External")
-{
-	strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
-	if FileExist(strExternalMenuPath) ; file path exists
-	{
-		; load the external menu to menu object objNewMenu created earlier
-		; remove existing menu entries but keep entry #1 (back menu)
-		loop, % objNewMenu.MaxIndex() -  1
-			objNewMenu.Delete(objNewMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
-		
-		strPreviousIniFile := g_strIniFile
-		intPreviousIniLine := g_intIniLine
-		g_strIniFile := strExternalMenuPath ; FavoriteAppWorkingDir, settings file path
-		g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
-		; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
-		
-		strResult := RecursiveLoadMenuFromIni(objNewMenu)
-		
-		g_strIniFile := strPreviousIniFile
-		g_intIniLine := intPreviousIniLine
-	}
-	else ; if external settings file does not exist, create empty [Favorites] section
-		IniWrite, Z, %strExternalMenuPath%, Favorites, Favorite1
-	
-	; if external settings file is not read-only, write [Global] values to external settings file
-	if !ExternalMenuIsReadOnly(strExternalMenuPath)
-	{
-		strLastModified := GetModifiedDateTime(strExternalMenuPath)
-		
-		if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
-		{
-			intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
-			IniWrite, %intMenuExternalType%, %strExternalMenuPath%, Global, MenuType
-			; IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly ; deprecated since v8.1.1 but still supported ix exists in ini file
-			IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
-			IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
-			IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
-			; update last modified value in ini file because values requiring update by other users were changed
-			IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
-		}
-		; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
-
-		; update object's last modified dates anyway
-		g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
-		g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
-	}
-}
-
 ; update menu object and hotkeys object except if we move favorites
 
 if (strThisLabel <> "GuiMoveOneFavoriteSave")
 {
+	; if external menu file exists, load the submenu from the external settings ini file
+
+	if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+		if FileExist(strExternalMenuPath) ; file path exists
+		{
+			; load the external menu to menu object objNewMenu created earlier
+			; remove existing menu entries but keep entry #1 (back menu)
+			loop, % objNewMenu.MaxIndex() -  1
+				objNewMenu.Delete(objNewMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
+			
+			strPreviousIniFile := g_strIniFile
+			intPreviousIniLine := g_intIniLine
+			g_strIniFile := strExternalMenuPath ; FavoriteAppWorkingDir, settings file path
+			g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
+			; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
+			
+			strResult := RecursiveLoadMenuFromIni(objNewMenu)
+			
+			g_strIniFile := strPreviousIniFile
+			g_intIniLine := intPreviousIniLine
+		}
+		else ; if external settings file does not exist, create empty [Favorites] section
+			IniWrite, Z, %strExternalMenuPath%, Favorites, Favorite1
+		
+		; if external settings file is not read-only, write [Global] values to external settings file
+		if !ExternalMenuIsReadOnly(strExternalMenuPath)
+		{
+			strLastModified := GetModifiedDateTime(strExternalMenuPath)
+			
+			if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
+			{
+				intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
+				IniWrite, %intMenuExternalType%, %strExternalMenuPath%, Global, MenuType
+				; IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly ; deprecated since v8.1.1 but still supported ix exists in ini file
+				IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
+				IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
+				IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+				; update last modified value in ini file because values requiring update by other users were changed
+				IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
+			}
+			; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
+
+			; update object's last modified dates anyway
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
+		}
+	}
+
 	g_objEditedFavorite.FavoriteName := strNewFavoriteShortName
 	
 	; before updating g_objEditedFavorite.FavoriteLocation, check if location was changed and update hotkeys objects
