@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.1.9.5 (2017-03-??)
+Version BETA: 8.1.9.5 (2017-03-28)
 - when Shared Menu Catalogue root path is set in Options, display the Catalogue when user add Shared menu
 - list all shared menu under the root path (excluding backups) to the Catalogue dialog box with shared menu names, shared menu paths and checkboxes to select shared menu to add to current menu at the current position in favorites list
 - button Add selected shared menus
