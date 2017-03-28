@@ -6490,10 +6490,12 @@ loop, %g_arrFavoriteTypes0%
 	if (blnThisType)
 	{
 		if (g_arrFavoriteTypes%A_Index% = "QAP")
-			GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+			strThisTypeHelp := L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
 		else
-			GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+		GuiControl, , f_lblAddFavoriteTypeHelp, %strThisTypeHelp%
 		g_strAddFavoriteType := g_arrFavoriteTypes%A_Index%
+		break
 	}
 }
 
@@ -6501,6 +6503,7 @@ if (A_GuiEvent = "DoubleClick")
 	Gosub, GuiAddFavoriteSelectTypeContinue
 
 blnThisType := ""
+strThisTypeHelp := ""
 
 return
 ;------------------------------------------------------------
