@@ -1013,7 +1013,7 @@ Version: 6.1.5 alpha (2015-11-01)
 - add a function to return OS version up to WIN_10
 - update some menu icons for Windows 10
 - update special folders initialization for Windows 10
-- adaptation for the new approach implemented setup program using the common AppData folder as repository allowing system admin to setup QAP pour end users
+- adaptation for the new approach implemented setup program using the common AppData folder as repository allowing system admin to setup QAP for end users
 - fix bug locations with system variable (like %APPDATA%) not being expanded before sent to Explorer 
 
 Version: 6.1.4 alpha (2015-10-18)
@@ -1642,7 +1642,7 @@ instead of using the Start menu or Startup shortcuts. In this situation, we know
 We change it to "{commonappdata}\Quick Access Popup".
 
 In "{commonappdata}\Quick Access Popup", setup program created or saved the file:
-- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language, and flag to enable Explorer context menus)
+- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language)
 
 If, during setup, the user selected the "Import Folders Popup settings and favorites" option, the setup program will import the FP settings
 and create the file "quickaccesspopup.ini" in "{commonappdata}\Quick Access Popup". An administrator could also create this file that will
@@ -1652,8 +1652,8 @@ Normally, when the user starts QAP with the Start Group shortcut, A_WorkingDir i
 If not, keep the A_WorkingDir set by the user and return.
 
 If A_WorkingDir is "{commonappdata}\Quick Access Popup", check if "{userappdata}\Quick Access Popup" exists. If not, create it.
-If the files "quickaccesspopup-setup.ini" and "quickaccesspopup.ini" do not exist in "{userappdata}\Quick Access Popup", copy them
-from "{commonappdata}\Quick Access Popup".
+If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup", copy them
+from "{commonappdata}\Quick Access Popup" if they exist.
 
 Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
 
@@ -1661,12 +1661,13 @@ AFTER A_WORKINGDIR IS SET (PORTABLE OR SETUP)
 
 - QAP copy the FileInstall temporary icon and localisation files.
 
-- QAP check if QAPconnect.ini exists in A_WorkingDir. If not, it creates a fresh one from the FileInstall file QAPconnect-default.ini.
+- QAP checks if QAPconnect.ini exists in A_WorkingDir. If not, it creates a fresh one from the FileInstall file QAPconnect-default.ini.
 If QAPconnect.ini already exists, it is not overwritten. Instead, a fresh copy of FileInstall file QAPconnect-default.ini is written to
 A_WorkingDir where user can check if new file managers are supported.
 
-- QAP check if quickaccesspopup.ini exists in A_WorkingDir. If not, it creates a new one, etc. (as in previous versions of FP and QAP).
-If yes, it continues initialization with this file.
+- QAP checks if quickaccesspopup.ini exists in A_WorkingDir. If not, it creates a new one from an internal template.
+
+Then, it continues initialization with quickaccesspopup.ini.
 
 STARTUP SHORTCUT
 
@@ -1711,12 +1712,14 @@ if (A_WorkingDir <> A_AppDataCommon . "\Quick Access Popup")
 if !FileExist(A_AppData . "\Quick Access Popup")
 	FileCreateDir, %A_AppData%\Quick Access Popup
 
-; If the files "quickaccesspopup-setup.ini" and "quickaccesspopup.ini" do not exist in "{userappdata}\Quick Access Popup",
-; copy them from "{commonappdata}\Quick Access Popup".
+; If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup",
+; copy them from "{commonappdata}\Quick Access Popup" if they exist.
 if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup-setup.ini")
 	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %A_AppData%\Quick Access Popup
 if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup.ini")
 	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup.ini, %A_AppData%\Quick Access Popup
+if !FileExist(A_AppData . "\Quick Access Popup\QAPconnect.ini")
+	FileCopy, %A_AppDataCommon%\Quick Access Popup\QAPconnect.ini, %A_AppData%\Quick Access Popup
 
 ; Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
 
