@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.1.9.6 (2017-04-01)
+- in add/edit favorite, shared menu tab, change external type only if a value exists in external file loaded (no more default to type 1)
+- adapt Shared menu note depending if we are in Add or Edit dialog box
+- during saving settings, do nothing if user tries to open the popup menu
+- fix bug in Setup program when updating QAP causing QAP Explorer context menus to be re-enabled even if user turned them off in settings
+
 Version BETA: 8.1.9.5 (2017-03-28)
 - when Shared Menu Catalogue root path is set in Options, display the Catalogue when user add Shared menu
 - list all shared menu under the root path (excluding backups) to the Catalogue dialog box with shared menu names, shared menu paths and checkboxes to select shared menu to add to current menu at the current position in favorites list
@@ -1301,7 +1307,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1.9.5 BETA
+;@Ahk2Exe-SetVersion 8.1.9.6 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1374,7 +1380,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.1.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6723,7 +6729,6 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-; value used by SettingsUnsaved() function
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
@@ -7334,7 +7339,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 		Gui, 2:Add, Radio, % (A_Index = 1 ? "x20 y50 checked" : "x20 y+5") . " gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index%
 
 	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
-		Gui, 2:Add, Text, x20 y+15 w500, %lDialogFavoriteExternalSaveNote%
+		Gui, 2:Add, Text, x20 y+15 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
 	
 	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, %lDialogReadOnly%
@@ -7352,9 +7357,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
 	gosub, LoadExternalFileGlobalValues
 	gosub, LoadExternalFileGlobalReadOnly
+	gosub, RadioButtonExternalMenuInit
 }
-
-gosub, RadioButtonExternalMenuInit
 
 arrExternalTypes := ""
 
@@ -8223,8 +8227,9 @@ return
 LoadExternalFileGlobalValues:
 ;------------------------------------------------------------
 
-IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized
-GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, 1
+IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType ; 1 Personal, 2 Collaborative or 3 Centralized (no default)
+if (intMenuExternalType <> "ERROR")
+	GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, 1
 
 IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found, deprecated since v8.1.1 but still supported ix exists in ini file
 ; GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
@@ -10631,7 +10636,7 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-g_strFavoriteDialogTitle := "" ; empty because value used by SettingsUnsaved() function
+g_strFavoriteDialogTitle := ""
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -14279,6 +14284,10 @@ SettingsNotSavedReturn()
 	global g_strAppNameText
 	global g_strGuiFullTitle
 	
+	GuiControlGet, blnCancelButtonEnabled, 1:Enabled, f_btnGuiCancel ; get Settings Cancel button enabled
+	if !(blnCancelButtonEnabled) ; if not enabled, QAP is currently saving, return true to cancel menu display
+		return true
+		
 	SetTimer, SettingsNotSavedChangeButtonNames, 50
 	MsgBox, 3, % L(lDialogSettingsNotSavedTitle, g_strAppNameText), %lDialogSettingsNotSavedPrompt%
 	IfMsgBox, No ; Settings
