@@ -31,6 +31,111 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.2 (2017-05-14)
+ 
+Shared menus revamped
+- three type of Shared menus
+  1) Personal: menu shared on different computers by the same user
+  2) Collaborative: menu on a shared drive for a team or a workgroup (every member can edit the menu)
+  3) Centralized: menu on a shared drive maintained by one or more menu administrator(s)
+- new "Shared menu" tab in shared menu favorites to select shared menu type (radio buttons), name and options
+- options for "Centralized" shared menus: list of users with right to edit the shared menu (coma separated list), message about shared menu access shown to users without access
+- Shared menu options are saved in the "[Global]" section of the share menu ini file, in variables "MenuName", "WriteAccessUsers", "WriteAccessMessage" and "MenuType"
+- in favorites list, display Shared menu name and display "Read-only" if current user does not have write access to the centralized menu
+- when adding a Shared menu, get the favorite name from the menu ini file if the variable "MenuName" exists
+- deprecate the option "Number of the first favorite" in shared menu files (now favorites always starting at 1 but starting number in old menu are still supported)
+ 
+Shared menus catalogue
+- new option in "General" tab to "Enable Shared Menu Catalogue" and select the "Catalogue root folder"
+- when user adds a Shared menu and when the catalogue is enabled, give user the option to select the Shared menu from a dialog box
+- new Shared menu dialog box containing the shared menu files under the catalogue root with menu names, paths and checkboxes to select menu(s) to add to QAP popup menu
+- in Shared menu dialog box, button "Add selected shared menu(s)" to add selected menu(s) from catalogue to the QAP menu at the current menu and position in favorites list
+- in Shared menu dialog box, button "Add another shared menu" to browse the file system for any Shared menu settings file and add it to current position in favorites list
+- in Shared menu dialog box, respond to double-click on a row by showing Shared menu info and a button to open the settings file in a text editor if it is not read-only
+- new "ExternalMenusCataloguePathReadOnly" variable (in QAP ini file only) to prevent user from changing the catalogue root folder when value is 1, and display an error message if user tries to change the root if read-only
+ 
+Shared menus mutli-user edition
+- alert message when user tries to edit an external menu that was modified by another user or on another computer, based on last modification date-time
+- reserve external menu when user loads a Shared menu in Settings or when user add or move favorites to a Shared menu, user and computer name are savec in the Shared menu variable "MenuReservedBy"
+- release Shared menu reservation when user saves or cancels settings changes or quits QAP
+- store and read last modified date in Shared menu ini file and update it only when favorites or external menu properties are changed, not when only reserved without changes
+- in "About" dialog box, display user name and computer name
+ 
+Other changes
+- new Alternative menu QAP features "Open the Containing Folder in the Current Window" and "Open the Containing Folder in a New Window" to open the folder containing the selected document, application  or folder favorite in the current window or in a new window
+- in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time (based on computer time), using "YYYYMMDDHH24MISS" format
+- in "Import/Export Settings", remember lats destination file in quickaccesspopup.ini when exporting and restore last used file name in when exporting settings
+- in "Live folders", exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
+- enlarge submenus dropdown lists to 500 px in "Add/Edit Favorite" dialog box
+- disable the popup menu during settings saving
+- remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+- update to Spanish, Portuguese and Brazilian Portuguese language files
+ 
+Bug fixes and improvements
+- fix bug in Setup program when updating QAP causing QAP Explorer context menus to be re-enabled even if user turned them off in Settings
+- fix bug "Open this menu" button missing in "Edit favorite" dialog box for Shared menus favorites
+
+Version BETA: 8.1.9.6 (2017-04-01)
+- in add/edit favorite, shared menu tab, change external type only if a value exists in external file loaded (no more default to type 1)
+- adapt Shared menu note depending if we are in Add or Edit dialog box
+- during saving settings, do nothing if user tries to open the popup menu
+- fix bug in Setup program when updating QAP causing QAP Explorer context menus to be re-enabled even if user turned them off in settings
+
+Version BETA: 8.1.9.5 (2017-03-28)
+- when Shared Menu Catalogue root path is set in Options, display the Catalogue when user add Shared menu
+- list all shared menu under the root path (excluding backups) to the Catalogue dialog box with shared menu names, shared menu paths and checkboxes to select shared menu to add to current menu at the current position in favorites list
+- button Add selected shared menus
+- button Add another shared menu to browse the file system for any shared menu settings file
+- respond to double-click on a shared menu row by showing shared menu info with a button to open the shared menu settings file if it is not read-only
+- update to Spanish, Portuguese and Brazilian Portuguese language files
+
+Version BETA: 8.1.9.4 (2017-03-15)
+ 
+Shared Menus
+- in Add/Edit Favorite for external menus, replace the "Advanced Settings" tab with "Shared Menu" tab
+- in the "Shared Menu" tab, add radio buttons for external menu types 1) Personal, 2) Collaborative (show menu name only) or 3) Centralized (show menu name, write access users and message)
+- display alert message about write access when user change type for type 3
+- store external menu type in external menu [Global] value "MenuType"
+- for collaborative external menu, save "MenuReservedBy" value as "user (computer)" and prevent access if reserved
+- for personal external menu, save "MenuReservedBy" value as "computer (user)" and display only alert and allow access if reserved
+- in Options, improve Shared Menu Catalogue root path selection with text box and browse button
+- in About, display user name and computer name
+
+Version BETA: 8.1.9.3 (2017-03-10)
+ 
+Shared menus (see updated FAQ page http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/)
+- error message when user tries to load an external menu that was modified based on file last modified date-time
+- store and read last modified date of external file in ini file and update it only when favorites or external menu properties are changed, not when only reserved without changes
+- update the last modified date-time of external ini file and in external menu object when user save changes
+- reserve external menu when user loads the external menu in Settings or when user selects parent menu menu in add/edit favorite or move dialog boxes
+- track user reserving an external menu writing his username in variable MenuReservedBy
+- block external menu editing if menu is reserved except if reserved by current user
+- release reserved external menus when user saves or cancels settings changes or quits QAP
+- fix bug prevent editing favorites in read-only external menu from the Edit Favorite Alternative menu
+ 
+Other changes
+- enlarge submenus dropdown lists to 500 px in Add/Edit Favorite dialog box
+- remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+
+Version BETA: 8.1.9.2 (2017-02-28)
+ 
+Shared menus
+- add to Options general tab the "Enable Shared Menu Satalogue" checkbox and prompt user for catalogue root when enabling
+- add "ExternalMenusCataloguePathReadOnly" variable to QAP ini file to prevent user from changing the catalogue root and display an error message if user tries to change rthe root when read-only
+- when user adds a favorite of type Shared menu and Shared Menu Catalogue root exists, give user the option to select the Shared menu from the catalogue (using file select dialog box at this time - to be improved)
+- when adding a Shared menu, get the favorite name from the shared menu file if variable "MenuName" exists
+ 
+Version BETA: 8.1.9.1 (2017-02-28)
+ 
+Shared menus
+- in Advanced settings tab, add "Read-only" checkbox and text boxes for "Shared menu name", "Users with write access to this shared menu" (coma separated list) and "Shared menu write access message"
+- saving these values to shared menu ini file as soon as user click OK in "Add/Edit favorite" dialog box (not waiting for when user saves the favorites)
+- values are saved in "[Global]" section under "MenuName", "WriteAccessUsers" and "WriteAccessMessage"
+- grant write access to read-only shared menu to users having their Windows logon name in the "Users with write access to this shared menu" text box
+- display shared menu name and write access message in error message when user tries to edit a read-only shared menu
+- display shared menu name in content column of shared menu entries in Settings
+- deprecate first line number value in external menu files, now always starting at 1 (starting number in old menu still supported; please advise me if this cause issue)
+
 Version: 8.1.1 (2017-03-19)
  
 Import/Export
@@ -38,7 +143,7 @@ Import/Export
 - in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time (based on computer time), using "YYYYMMDDHH24MISS" format
  
 Alternative menu
-- new Alternative menu QAP features to open the folder containing the selected document, application or folder favorite in the current window or in a new window
+- new Alternative menu QAP features to open the folder containing the selected document, application  or folder favorite in the current window or in a new window
  
 Various improvements
 - in Live folders, exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
@@ -73,7 +178,7 @@ Bug fixes
 - fix bug when double-clicking on empty line in Hotkeys list
 - fix bug in Hotkeys list, when change hotkey, enable save button only if a hotkey was changed
 - fix bug when Menu hotkey in Options is changed from None to a keyboard shortcut
-- add delay when changing folder in dialog box to help with an intermittent issue in in some apps like Firefox (delay in milliseconds stored in quickaccesspopup.ini "[Global]" variable"WaitDelayInDialogBox" with default 100)
+- add delay when changing folder in dialog box to help with an intermittent issue in in some apps like Firefox (delay in milliseconds stored in quickaccesspopup.ini "[Global]" variable "WaitDelayInDialogBox" with default 100)
 
 Version BETA: 8.0.9.2 (2017-02-14)
 - exclude QAP mouse hotkey in dialog boxes based on the title or the class name of the dialog boxes parent window; for title or class prefixed with "*" in exclusion list, QAP will also exclude app's dialog box
@@ -1013,7 +1118,7 @@ Version: 6.1.5 alpha (2015-11-01)
 - add a function to return OS version up to WIN_10
 - update some menu icons for Windows 10
 - update special folders initialization for Windows 10
-- adaptation for the new approach implemented setup program using the common AppData folder as repository allowing system admin to setup QAP pour end users
+- adaptation for the new approach implemented setup program using the common AppData folder as repository allowing system admin to setup QAP for end users
 - fix bug locations with system variable (like %APPDATA%) not being expanded before sent to Explorer 
 
 Version: 6.1.4 alpha (2015-10-18)
@@ -1246,7 +1351,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1.1
+;@Ahk2Exe-SetVersion 8.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1319,7 +1424,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1372,6 +1477,8 @@ g_objQAPFeaturesAlternativeCodeByOrder := Object()
 g_strQAPFeaturesList := ""
 
 g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated with "|" pipe separator)
+
+g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 
 g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 g_strQAPconnectFileManager := ""
@@ -1642,7 +1749,7 @@ instead of using the Start menu or Startup shortcuts. In this situation, we know
 We change it to "{commonappdata}\Quick Access Popup".
 
 In "{commonappdata}\Quick Access Popup", setup program created or saved the file:
-- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language, and flag to enable Explorer context menus)
+- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language)
 
 If, during setup, the user selected the "Import Folders Popup settings and favorites" option, the setup program will import the FP settings
 and create the file "quickaccesspopup.ini" in "{commonappdata}\Quick Access Popup". An administrator could also create this file that will
@@ -1652,8 +1759,8 @@ Normally, when the user starts QAP with the Start Group shortcut, A_WorkingDir i
 If not, keep the A_WorkingDir set by the user and return.
 
 If A_WorkingDir is "{commonappdata}\Quick Access Popup", check if "{userappdata}\Quick Access Popup" exists. If not, create it.
-If the files "quickaccesspopup-setup.ini" and "quickaccesspopup.ini" do not exist in "{userappdata}\Quick Access Popup", copy them
-from "{commonappdata}\Quick Access Popup".
+If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup", copy them
+from "{commonappdata}\Quick Access Popup" if they exist.
 
 Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
 
@@ -1661,12 +1768,13 @@ AFTER A_WORKINGDIR IS SET (PORTABLE OR SETUP)
 
 - QAP copy the FileInstall temporary icon and localisation files.
 
-- QAP check if QAPconnect.ini exists in A_WorkingDir. If not, it creates a fresh one from the FileInstall file QAPconnect-default.ini.
+- QAP checks if QAPconnect.ini exists in A_WorkingDir. If not, it creates a fresh one from the FileInstall file QAPconnect-default.ini.
 If QAPconnect.ini already exists, it is not overwritten. Instead, a fresh copy of FileInstall file QAPconnect-default.ini is written to
 A_WorkingDir where user can check if new file managers are supported.
 
-- QAP check if quickaccesspopup.ini exists in A_WorkingDir. If not, it creates a new one, etc. (as in previous versions of FP and QAP).
-If yes, it continues initialization with this file.
+- QAP checks if quickaccesspopup.ini exists in A_WorkingDir. If not, it creates a new one from an internal template.
+
+Then, it continues initialization with quickaccesspopup.ini.
 
 STARTUP SHORTCUT
 
@@ -1711,12 +1819,14 @@ if (A_WorkingDir <> A_AppDataCommon . "\Quick Access Popup")
 if !FileExist(A_AppData . "\Quick Access Popup")
 	FileCreateDir, %A_AppData%\Quick Access Popup
 
-; If the files "quickaccesspopup-setup.ini" and "quickaccesspopup.ini" do not exist in "{userappdata}\Quick Access Popup",
-; copy them from "{commonappdata}\Quick Access Popup".
+; If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup",
+; copy them from "{commonappdata}\Quick Access Popup" if they exist.
 if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup-setup.ini")
 	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %A_AppData%\Quick Access Popup
 if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup.ini")
 	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup.ini, %A_AppData%\Quick Access Popup
+if !FileExist(A_AppData . "\Quick Access Popup\QAPconnect.ini")
+	FileCopy, %A_AppDataCommon%\Quick Access Popup\QAPconnect.ini, %A_AppData%\Quick Access Popup
 
 ; Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
 
@@ -2709,6 +2819,7 @@ IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicM
 IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
+IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -2921,7 +3032,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			objNewMenu.MenuType := arrThisFavorite1
 			if (objNewMenu.MenuType = "External")
+			{
 				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
+				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
+				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
+				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
+				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+				objNewMenu.MenuExternalLastModifiedNow := strLastModified
+			}
 			
 			; create a navigation entry to navigate to the parent menu
 			objNewMenuBack := Object()
@@ -3336,7 +3454,7 @@ return
 ;========================================================================================================================
 
 ;-----------------------------------------------------------
-ExitApp:
+ExitApp: ; should not be called
 TrayMenuExitApp:
 ;-----------------------------------------------------------
 
@@ -3361,6 +3479,8 @@ if (g_blnRememberSettingsPosition)
 IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
+
+Gosub, ExternalMenusRelease ; release reserved external menus
 
 if (g_blnDiagMode)
 {
@@ -5020,6 +5140,22 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
 GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 
+; Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogueOUT gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
+; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y+25 xs w500, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
+Gui, 2:Font
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
+GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+
+Gui, 2:Add, Text, y+10 xs vf_lblExternalMenusCataloguePathPrompt hidden, %lOptionsCataloguePath%:
+Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strExternalMenusCataloguePath hidden
+Gui, 2:Add, Button, x+10 yp vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
+GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
+Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
+
+
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
@@ -5044,8 +5180,6 @@ Gui, 2:Tab, 2
 
 Gui, 2:Font
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsTabMenuOptionsIntro, g_strAppNameText)
-
-; column 1
 
 Gui, 2:Add, Text, y+15 x15 w300 Section, %lOptionsMenuPositionPrompt%
 
@@ -5448,6 +5582,51 @@ return
 
 
 ;------------------------------------------------------------
+EnableExternalMenusCatalogueClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+IniRead, blnExternalMenusCataloguePathReadOnly, %g_strIniFile%, Global, ExternalMenusCataloguePathReadOnly, 0 ; false if not found
+strEnableCommand := (blnExternalMenusCataloguePathReadOnly ? "Disable" : "Enable")
+GuiControl, 2:%strEnableCommand%, f_blnEnableExternalMenusCatalogue
+GuiControl, 2:%strEnableCommand%, f_strExternalMenusCataloguePath
+GuiControl, 2:%strEnableCommand%, f_btnExternalMenusCataloguePath
+
+if !(f_blnEnableExternalMenusCatalogue)
+	GuiControl, 2:, f_strExternalMenusCataloguePath
+
+strShowHideCommand := (f_blnEnableExternalMenusCatalogue ? "Show" : "Hide")
+GuiControl, %strShowHideCommand%, f_lblExternalMenusCataloguePathPrompt
+GuiControl, %strShowHideCommand%, f_strExternalMenusCataloguePath
+GuiControl, %strShowHideCommand%, f_btnExternalMenusCataloguePath
+
+blnExternalMenusCataloguePathReadOnly := ""
+strEnableCommand := ""
+strShowHideCommand := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonExternalMenuSelectCataloguePath:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+FileSelectFolder, strNewExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
+if !StrLen(strNewExternalMenusCataloguePath)
+	return
+; else continue
+
+GuiControl, 2:, f_strExternalMenusCataloguePath, %strNewExternalMenusCataloguePath%
+
+strNewExternalMenusCataloguePath := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonSelectFileManagerPath:
 ;------------------------------------------------------------
 Gui, 2:+OwnDialogs
@@ -5585,6 +5764,9 @@ IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
 strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
 IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
+
+g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
+IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
 
 ; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
 ; strUseClassicButtonsPrev := g_blnUseClassicButtons
@@ -6127,10 +6309,13 @@ Loop, % g_objMenuInGui.MaxIndex()
 		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
 		{
 			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
-				strGuiMenuLocation := lDialogReadOnly
+				strGuiMenuLocation := lDialogReadOnly . " "
 			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
-				strGuiMenuLocation := lOopsErrorIniFileUnavailable
-			strGuiMenuLocation .= " " . g_strMenuPathSeparator . g_strMenuPathSeparator
+				strGuiMenuLocation := lOopsErrorIniFileUnavailable . " "
+			else
+				strGuiMenuLocation := ""
+			IniRead, strExternalMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
+			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
@@ -6161,6 +6346,7 @@ GuiControl, Focus, f_lvFavoritesList
 strGuiMenuLocation := ""
 strThisType := ""
 strThisHotkey := ""
+strExternalMenuName := ""
 
 return
 ;------------------------------------------------------------
@@ -6357,10 +6543,12 @@ loop, %g_arrFavoriteTypes0%
 	if (blnThisType)
 	{
 		if (g_arrFavoriteTypes%A_Index% = "QAP")
-			GuiControl, , f_lblAddFavoriteTypeHelp, % L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+			strThisTypeHelp := L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
 		else
-			GuiControl, , f_lblAddFavoriteTypeHelp, % g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
+		GuiControl, , f_lblAddFavoriteTypeHelp, %strThisTypeHelp%
 		g_strAddFavoriteType := g_arrFavoriteTypes%A_Index%
+		break
 	}
 }
 
@@ -6368,6 +6556,7 @@ if (A_GuiEvent = "DoubleClick")
 	Gosub, GuiAddFavoriteSelectTypeContinue
 
 blnThisType := ""
+strThisTypeHelp := ""
 
 return
 ;------------------------------------------------------------
@@ -6551,8 +6740,9 @@ GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
+GuiAddExternalFromCatalogue:
+GuiAddExternalOtherExternal:
 ;------------------------------------------------------------
-
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
@@ -6568,11 +6758,12 @@ if (g_blnAbordEdit)
 
 ; must be before GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group|External"
+g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
 
-if InStr(strGuiFavoriteLabel, "Xpress")
+if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
-	gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
+	if InStr(strGuiFavoriteLabel, "Xpress")
+		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
 	gosub, GuiAddFavoriteCleanup
 	return
 }
@@ -6582,7 +6773,6 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-; value used by SettingsUnsaved() function
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
@@ -6608,6 +6798,8 @@ Gosub, GuiFavoriteTabLiveFolderOptions
 Gosub, GuiFavoriteTabWindowOptions
 
 Gosub, GuiFavoriteTabAdvancedSettings
+
+Gosub, GuiFavoriteTabExternal
 
 Gosub, CheckboxFolderLiveClicked
 
@@ -6683,6 +6875,8 @@ BuildTabsList(strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
+	if (strFavoriteType = "External")
+		strTabsList .= " | " . lDialogAddFavoriteTabsExternal
 	
 	strTabsList .= " "
 	
@@ -6777,18 +6971,44 @@ else ; add favorite
 	else
 		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
 
+	if (strGuiFavoriteLabel = "GuiAddExternalOtherExternal")
+	{
+		strGuiFavoriteLabel := "GuiAddFavorite"
+		blnNoExternalMenusCatalogue := true
+	}
+	else
+		blnNoExternalMenusCatalogue := false
+	
 	if (strGuiFavoriteLabel <> "GuiAddFavorite")
 	; includes GuiAddThisFolder, GuiAddThisFolderXpress, GuiAddThisFolderFromMsg, GuiAddThisFolderFromMsgXpress,
-	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles
+	; GuiAddThisFileFromMsg, GuiAddThisFileFromMsgXpress, GuiAddFromDropFiles, GuiAddExternalFromCatalogue
 	{
-		; g_strNewLocation is received from AddThisFolder (etc.) or GuiDropFiles
-		g_objEditedFavorite.FavoriteLocation := g_strNewLocation
-		g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+		; g_strNewLocation is received from AddThisFolder (etc.), GuiDropFiles or ButtonAddExternalMenusFromCatalogue
+		if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
+		{
+			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
+			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
+			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(g_strNewLocation))
+		}
+		else ; all other labels
+		{
+			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
+			g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+		}
 	}
 	g_strNewFavoriteHotkey := "None" ; internal name
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
+	{
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
+		
+		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(g_strExternalMenusCataloguePath)
+		{
+			Gosub, AddExternalMenusFromCatalogue
+			g_blnAbordEdit := true
+			return
+		}
+	}
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 	{
 		if StrLen(g_strNewLocationSpecialName)
@@ -6808,6 +7028,8 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 	}
+	else if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
+		g_objEditedFavorite.FavoriteType := "External"
 	
 	if (g_strAddFavoriteType = "FTP")
 		g_blnNewFavoriteFtpEncoding := (g_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
@@ -6827,7 +7049,9 @@ intWidth := ""
 intHeight := ""
 intMinMax := ""
 strGroupSettings := ""
-	
+strExternalMenuName := ""
+blnNoExternalMenusCatalogue := ""
+
 return
 ;------------------------------------------------------------
 
@@ -7110,13 +7334,6 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
 	}
-	else if (g_objEditedFavorite.FavoriteType = "External")
-	{
-		Gui, 2:Add, Text, x20 y50, %lDialogExternalStartingNumber%
-		Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "ReadOnly" : "")
-			, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1)
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
-	}
 	else ; Folder, Document, Special, URL and FTP 
 	{
 		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
@@ -7124,7 +7341,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
-	if !InStr("Group|Snippet|External", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType, true)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
@@ -7147,6 +7364,80 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 
 strFavoriteSnippetOptions := ""
 arrFavoriteSnippetOptions := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoriteTabExternal:
+;------------------------------------------------------------
+
+if (g_objEditedFavorite.FavoriteType = "External")
+{
+	StringSplit, arrExternalTypes, lDialogExternalTypes, |
+	
+	Gui, 2:Tab, % ++intTabNumber
+
+	Loop, 3
+		Gui, 2:Add, Radio, % (A_Index = 1 ? "x20 y50 checked" : "x20 y+5") . " gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index%
+
+	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
+		Gui, 2:Add, Text, x20 y+15 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
+	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
+	
+	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, %lDialogReadOnly%
+	Gui, 2:Add, Text, x20 y+15 vf_lblExternalMenuName, %lDialogExternalMenuName%
+	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
+	
+	Gui, 2:Add, Text, x20 y+15 vf_lblExternalWriteAccessUsers, %lDialogExternalWriteAccessUsers%
+	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalWriteAccessUsers
+	
+	Gui, 2:Add, Text, x20 y+15 vf_lblExternalWriteAccessMessage, %lDialogExternalWriteAccessMessage%
+	Gui, 2:Add, Edit, x20 y+5 w400 r7 vf_strExternalWriteAccessMessage
+	
+	; Gui, 2:Add, Text, x20 y+15, %lDialogExternalStartingNumber% ; DEPRECATED since v8.1.9.1
+	; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
+	; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
+	gosub, LoadExternalFileGlobalValues
+	gosub, LoadExternalFileGlobalReadOnly
+	gosub, RadioButtonExternalMenuInit
+}
+
+arrExternalTypes := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RadioButtonExternalMenuInit:
+RadioButtonExternalMenuClicked:
+;------------------------------------------------------------
+
+blnType3Before := f_radExternalMenuType3
+Gui, 2:Submit, NoHide
+
+if (A_ThisLabel = "RadioButtonExternalMenuClicked" and !blnType3Before and f_radExternalMenuType3)
+	Oops(lOopsExternalReadOnlyAlert, lDialogExternalWriteAccessUsers, A_UserName, A_ComputerName)
+
+if (A_ThisLabel = "RadioButtonExternalMenuClicked" and ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir))
+{
+	GuiControl, , f_radExternalMenuType3, % 1
+	Oops(lOopsErrorIniFileReadOnly . (StrLen(f_strExternalMenuName) ? "`n`n" . f_strExternalMenuName : "") . (StrLen(f_strExternalWriteAccessMessage) ? "`n`n" . f_strExternalWriteAccessMessage : ""))
+	return
+}
+
+GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalMenuName
+GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_strExternalMenuName
+
+GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalWriteAccessUsers
+GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_strExternalWriteAccessUsers
+
+GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalWriteAccessMessage
+GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_strExternalWriteAccessMessage
+
+blnType3Before := ""
 
 return
 ;------------------------------------------------------------
@@ -7191,7 +7482,6 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:New, , % L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath)
 
@@ -7238,7 +7528,7 @@ return
 GuiAddFavoriteTabChanged:
 ;------------------------------------------------------------
 
-if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon
+if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon and external menu values
 {
 	Gui, 2:Submit, NoHide
 
@@ -7247,7 +7537,15 @@ if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon
 	
 	Gosub, GuiFavoriteIconDefault
 	Gosub, GuiFavoriteIconDisplay
+
+	if (g_blnExternalLocationChanged)
+	{
+		gosub, LoadExternalFileGlobalValues
+		g_blnExternalLocationChanged := false
+	}
 }
+; normally this should be called only if g_blnExternalLocationChanged but it need to run at each tab change to keep control's r-o option, do not know why
+gosub, LoadExternalFileGlobalReadOnly
 
 return
 ;------------------------------------------------------------
@@ -7256,7 +7554,23 @@ return
 ;------------------------------------------------------------
 DropdownParentMenuChanged:
 ;------------------------------------------------------------
+strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to cancel
 Gui, 2:Submit, NoHide
+
+if (g_objMenusIndex[f_drpParentMenu].MenuType = "External")
+	if !ExternalMenuReserved(g_objMenusIndex[f_drpParentMenu]) ; check if we can reserve external menu
+	{
+		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu% ; reset previous menu in dropdown
+		return ; external menu is reserved by another user
+	}
+	else if ExternalMenuModifiedSinceLoaded(g_objMenusIndex[f_drpParentMenu])
+	{
+		gosub, ExternalMenuModifiedPromptForReload
+		; else set menu dropdown to previous menu and return
+		GuiControl, ChooseString, f_drpParentMenu, %strPrevParentMenu% ; reset previous menu in dropdown
+		return
+	}
+	; else external menu is reserved
 
 Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
 {
@@ -7355,6 +7669,18 @@ if !StrLen(f_strFavoriteShortName)
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
+
+if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
+{
+	g_blnExternalLocationChanged := true ; will update external menu values in advanced tab when GuiAddFavoriteTabChanged
+
+	if !StrLen(f_strFavoriteShortName) and FileExist(f_strFavoriteAppWorkingDir)
+	{
+		IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+		if StrLen(strExternalMenuName)
+			GuiControl, 2:, f_strFavoriteShortName, %strExternalMenuName%
+	}
+}
 
 return
 ;------------------------------------------------------------
@@ -7699,17 +8025,37 @@ else
 		objNewMenuInGui := g_objMenuInGui[1].SubMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
-
+	
+	; ###_O("objNewMenuInGui", objNewMenuInGui)
+	; ###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
 	if (objNewMenuInGui.MenuType = "External")
 		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath)
 		{
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
 			else ; read-only
-				Oops(lOopsErrorIniFileReadOnly)
+			{
+				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
+				IniRead, strExternalMenuName, % objNewMenuInGui.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
+				Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . strExternalMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
+			}
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
+		else if !ExternalMenuReserved(objNewMenuInGui) ; check if we can reserve external menu
+		{
+			; external menu was already reserved
+			gosub, GuiMenusListChangedCleanup
+			return
+		}
+		else if ExternalMenuModifiedSinceLoaded(objNewMenuInGui)
+		{
+			gosub, ExternalMenuModifiedPromptForReload
+			; else return to stay in current menu
+			gosub, GuiMenusListChangedCleanup
+			return
+		}
+		; else external menu is reserved
 
 	g_objMenuInGui := objNewMenuInGui
 	
@@ -7734,6 +8080,8 @@ GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
 strNewDropdownMenu := ""
 objNewMenuInGui := ""
+strWriteAccessMessage := ""
+strExternalMenuName := ""
 
 return
 ;------------------------------------------------------------
@@ -7919,6 +8267,254 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+LoadExternalFileGlobalValues:
+;------------------------------------------------------------
+
+IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType ; 1 Personal, 2 Collaborative or 3 Centralized (no default)
+if (intMenuExternalType <> "ERROR")
+	GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, 1
+
+IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found, deprecated since v8.1.1 but still supported ix exists in ini file
+; GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
+
+IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+GuiControl, , f_strExternalMenuName, %strExternalMenuName%
+
+IniRead, strExternalWriteAccessUsers, %f_strFavoriteAppWorkingDir%, Global, WriteAccessUsers, %A_Space% ; empty if not found
+GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
+
+IniRead, strExternalWriteAccessMessage, %f_strFavoriteAppWorkingDir%, Global, WriteAccessMessage, %A_Space% ; empty if not found
+GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
+
+blnExternalMenuReadOnly := ""
+strExternalMenuName := ""
+strExternalWriteAccessUsers := ""
+strExternalWriteAccessMessage := ""
+intMenuExternalType := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadExternalFileGlobalReadOnly:
+;------------------------------------------------------------
+
+; read-only menu can be editable if user is in ExternalWriteAccessUsers
+strReadOnlyPrefix := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? "+" : "-")
+
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalMenuName
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessUsers
+GuiControl, 2:%strReadOnlyPrefix%ReadOnly, f_strExternalWriteAccessMessage
+
+strReadOnlyPrefix := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuModifiedSinceLoaded(objMenu)
+;------------------------------------------------------------
+{
+	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
+	objMenu.MenuExternalLastModifiedNow := strLastModified
+;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuModifiedPromptForReload:
+;------------------------------------------------------------
+
+MsgBox, 52, %g_strAppNameText% - %g_strAppVersion%, %lOopsErrorIniFileModified%
+IfMsgBox, Yes
+	Gosub, ReloadQAP
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuReserved(objMenu)
+;------------------------------------------------------------
+{
+	global g_objExternaleMenuToRelease
+	
+	; ###_O("objMenu", objMenu)
+	IniRead, intMenuExternalType, % objMenu.MenuExternalPath, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
+	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
+	
+	if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_UserName . " (" . A_ComputerName . ")")
+	; collaborative or centralized menu is reserved by another user
+	{
+		Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
+		return false
+	}
+	else
+	{
+		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
+			; personal menu is changed on another system
+			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
+		
+		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
+		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
+			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
+		; remember to free when saving or canceling
+		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
+
+		return true
+	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+AddExternalMenusFromCatalogue:
+;------------------------------------------------------------
+
+Gosub, 2GuiClose
+
+g_intGui1WinID := WinExist("A")
+
+Gui, 2:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+Gui, 2:+Owner1
+Gui, 2:+OwnDialogs
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+
+Gui, 2:Add, Text, , % L(lDialogExternalMenuSelectFromCatalogue, lDialogExternalMenuAdd)
+Gui, 2:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
+	. " gExternalMenusCatalogueListEvents x10 y+10 w640 h340 AltSubmit", %lDialogExternalMenuAddHeader%
+
+Gui, 2:Add, Text
+Gui, 2:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue default, %lDialogExternalMenuAdd%
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btrAddExternalMenusFromCatalogueClose, %lGuiClose%
+Gui, 2:Add, Text
+	
+strExpandedPath := PathCombine(A_WorkingDir, EnvVars(g_strExternalMenusCataloguePath))
+
+Loop, Files, %strExpandedPath%\*.ini, R
+{
+	if InStr(A_LoopFileFullPath, "-backup-20") ; if include "-backup-YYYYMMDD"
+		Continue
+	IniRead, strName, %A_LoopFileFullPath%, Global, MenuName, %A_Space%
+	LV_Add("", strName, A_LoopFileFullPath)
+}
+LV_ModifyCol(, "")
+
+GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
+
+Gui, 2:Show, AutoSize Center
+Gui, 1:+Disabled
+
+strExpandedPath := ""
+strName := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenusCatalogueListEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent = "DoubleClick")
+{
+	Gui, 2:+OwnDialogs
+	LV_GetText(strFile, A_EventInfo, 2)
+	IniRead, strValue, %strFile%, Global, MenuName, %A_Space%
+	strTitle := lDialogAddFavoriteTabsExternal . " - " . strValue
+	strMessage := lDialogExternalMenuName . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, MenuType, %A_Space%
+	StringSplit, arrExternalTypes, lDialogExternalTypes, |
+	strMessage .= lDialogExternalTypesLabel . ":`n" . (StrLen(strValue) ? arrExternalTypes%strValue% . " (" . strValue . ")": lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, WriteAccessUsers, %A_Space%
+	strMessage .= lDialogExternalWriteAccessUsers . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	IniRead, strValue, %strFile%, Global, WriteAccessMessage, %A_Space%
+	strMessage .= lDialogExternalWriteAccessMessage . ":`n" . (StrLen(strValue) ? strValue : lDialogNone) . "`n`n"
+	blnReadOnly := ExternalMenuIsReadOnly(strFile)
+	MsgBox, % (blnReadOnly ? "0" : "4"), %strTitle%, % strMessage . (blnReadOnly ? "" : "`n`n" . lDialogExternalMenuOpen)
+	IfMsgBox, Yes
+		Run, %strFile%
+}
+
+strFile := ""
+strValue := ""
+strTitle := ""
+arrExternalTypes := ""
+strMessage := ""
+blnReadOnly := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusFromCatalogue:
+;------------------------------------------------------------
+
+intCatalogueRow := 0  ; This causes the first loop iteration to start the search at the top of the list.
+intNbMenusAdded := 0
+Loop
+{
+	Gui, 2:Default
+	GuiControl, 2:Focus, f_lvExternalMenusCatalogue
+	Gui, 2:ListView, f_lvExternalMenusCatalogue
+    intCatalogueRow := LV_GetNext(intCatalogueRow, "Checked")  ; Resume the search at the row after that found by the previous iteration.
+    if !(intCatalogueRow)  ; The above returned zero, so there are no more selected rows.
+        break
+    LV_GetText(strFile, intCatalogueRow, 2)
+	g_strNewLocation := strFile
+	
+	g_blnExternalMenusAdded := false ; will be set true by GuiAddExternalSave
+	Gosub, GuiAddExternalFromCatalogue
+	Gosub, GuiAddExternalSave
+	if (g_blnExternalMenusAdded)
+	{
+		intNbMenusAdded++
+		Gui, 1:Default
+		Gui, 1:ListView, f_lvFavoritesList
+		intListviewRow := LV_GetNext() + 1
+		LV_Modify(0, "-Select")
+		LV_Modify(intListviewRow, "Select")
+	}
+}
+MsgBox, 0, %g_strAppNameText%, % L(lDialogExternalMenusAdded, intNbMenusAdded)
+
+Gosub, 2GuiClose
+
+intNbMenusAdded := ""
+intListviewRow := ""
+g_blnExternalMenusAdded := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusNotFromCatalogue:
+;------------------------------------------------------------
+
+Gosub, GuiAddExternalOtherExternal
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonAddExternalMenusFromCatalogueClose:
+;------------------------------------------------------------
+
+Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
 ;========================================================================================================================
 ; END OF FAVORITE_GUI
 ;========================================================================================================================
@@ -7968,6 +8564,7 @@ GuiAddFavoriteSaveXpress:
 GuiEditFavoriteSave:
 GuiMoveOneFavoriteSave:
 GuiCopyFavoriteSave:
+GuiAddExternalSave:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
@@ -7975,7 +8572,7 @@ Gui, 2:+OwnDialogs
 strThisLabel := A_ThisLabel
 
 ; original and destination menus values
-if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strThisLabel)
+if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiAddExternalSave|", strThisLabel . "|")
 {
 	strOriginalMenu := ""
 	g_intOriginalMenuPosition := 0
@@ -7983,26 +8580,42 @@ if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave", strT
 else ; GuiEditFavoriteSave or GuiMoveOneFavoriteSave
 	strOriginalMenu := g_objMenuInGui.MenuPath
 
-if (strThisLabel = "GuiAddFavoriteSaveXpress")
+if (strThisLabel = "GuiAddExternalSave")
+	IniRead, strExternalMenuName, % g_objEditedFavorite.FavoriteAppWorkingDir, Global, MenuName, %A_Space% ; empty if not found
+
+if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
-	strNewFavoriteShortName := g_objEditedFavorite.FavoriteName
+	strNewFavoriteShortName := (StrLen(g_objEditedFavorite.FavoriteName) ? g_objEditedFavorite.FavoriteName : strExternalMenuName)
 	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
+	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for external menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 	
-	; add new favorite in first position of Main menu
-	strDestinationMenu := lMainMenuName
-	g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
+	if (strThisLabel = "GuiAddFavoriteSaveXpress")
+	{
+		; add new favorite in first position of Main menu
+		strDestinationMenu := lMainMenuName
+		g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
+	}
+	else ; GuiAddExternalSave
+	{
+		; add new shared menu in current Main menu
+		Gui, 1:Default
+		Gui, 1:ListView, f_lvFavoritesList
+		g_intNewItemPos := LV_GetNext()
+		strDestinationMenu := g_objMenuInGui.MenuPath
+	}
 }
 else
 {
 	strNewFavoriteShortName := f_strFavoriteShortName
 	strNewFavoriteLocation := f_strFavoriteLocation
+	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
 }
 
-if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave or GuiAddFavoriteSaveXpress g_intNewItemPos may be already set
+if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave g_intNewItemPos may be already set
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
@@ -8102,10 +8715,10 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 
 	if (g_objEditedFavorite.FavoriteType = "External")
 	{
-		strExternalSettingsExtension := GetFileExtension(f_strFavoriteAppWorkingDir)
+		strExternalSettingsExtension := GetFileExtension(strFavoriteAppWorkingDir)
 
 		if !StrLen(strExternalSettingsExtension)
-			f_strFavoriteAppWorkingDir .= ".ini"
+			strFavoriteAppWorkingDir .= ".ini"
 		else if (strExternalSettingsExtension <> "ini")
 		{
 			Oops(lDialogExternalLocationIni)
@@ -8114,8 +8727,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		}
 	}
 	
-	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
-		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? f_strFavoriteAppWorkingDir : strNewFavoriteLocation))
+	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		Oops(lOopsHttpLocationTransformed, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
 	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !g_blnWinCmdIniFileExist)
 	{
@@ -8126,14 +8739,14 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	
 }
 
-loop ; loop for Add this Folder Express - if name is not new, add " [!]")
+loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
 	if !FavoriteNameIsNew((strThisLabel = "GuiMoveOneFavoriteSave" ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 		; we have the same name in the destination menu
 		; if this is the same menu and the same name, this is OK
 		if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (A_ThisLabel = "GuiAddFavoriteSaveXpress")
 		{
-			if (A_ThisLabel = "GuiAddFavoriteSaveXpress")
+			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 				strNewFavoriteShortName .= " [!]" ; and loop
 			else
 			{
@@ -8163,7 +8776,7 @@ if (InStr(strDestinationMenu, strOriginalMenu . " " . g_strMenuPathSeparator " "
 
 ; if adding menu or group, create submenu object
 
-if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (strThisLabel = "GuiAddFavoriteSave"))
+if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
 	objNewMenu := Object() ; object for the new menu or group
 	objNewMenu.MenuPath := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
@@ -8171,7 +8784,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
 	{
-		objNewMenu.MenuExternalPath := g_objEditedFavorite.FavoriteAppWorkingDir
+		objNewMenu.MenuExternalPath := strFavoriteAppWorkingDir
 		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
 	}
 
@@ -8186,39 +8799,60 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and (st
 	g_objEditedFavorite.Submenu := objNewMenu
 }
 
-; if external menu file exists, load the submenu from the external settings ini file
-	
-; ###_O("AVANT objNewMenu", objNewMenu, "FavoriteLocation")
-; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
-
-if (g_objEditedFavorite.FavoriteType = "External") and FileExist(PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir))) ; settings file path
-{
-	; remove existing menu entries but keep entry #1 (back menu)
-	loop, % objNewMenu.MaxIndex() -  1
-		objNewMenu.Delete(objNewMenu.MaxIndex()) ; do ot use .RemoveAt() because all keys in object are not numeric - risk of side effects
-	; ###_O("PENDANT objNewMenu", objNewMenu, "FavoriteLocation")
-	; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
-	
-	strPreviousIniFile := g_strIniFile
-	intPreviousIniLine := g_intIniLine
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
-	g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
-	; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
-	
-	strResult := RecursiveLoadMenuFromIni(objNewMenu)
-	; ###_V("RecursiveLoadMenuFromIni - strResult", strResult)
-	
-	g_strIniFile := strPreviousIniFile
-	g_intIniLine := intPreviousIniLine
-}
-
-; ###_O("APRÈS objNewMenu", objNewMenu, "FavoriteLocation")
-; ###_V("objNewMenu.MaxIndex()", objNewMenu.MaxIndex())
-
 ; update menu object and hotkeys object except if we move favorites
 
 if (strThisLabel <> "GuiMoveOneFavoriteSave")
 {
+	; if external menu file exists, load the submenu from the external settings ini file
+
+	if (g_objEditedFavorite.FavoriteType = "External")
+	{
+		strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
+		if FileExist(strExternalMenuPath) ; file path exists
+		{
+			; load the external menu to menu object objNewMenu created earlier
+			; remove existing menu entries but keep entry #1 (back menu)
+			loop, % objNewMenu.MaxIndex() -  1
+				objNewMenu.Delete(objNewMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
+			
+			strPreviousIniFile := g_strIniFile
+			intPreviousIniLine := g_intIniLine
+			g_strIniFile := strExternalMenuPath ; FavoriteAppWorkingDir, settings file path
+			g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
+			; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
+			
+			strResult := RecursiveLoadMenuFromIni(objNewMenu)
+			
+			g_strIniFile := strPreviousIniFile
+			g_intIniLine := intPreviousIniLine
+		}
+		else ; if external settings file does not exist, create empty [Favorites] section
+			IniWrite, Z, %strExternalMenuPath%, Favorites, Favorite1
+		
+		; if external settings file is not read-only, write [Global] values to external settings file
+		if !ExternalMenuIsReadOnly(strExternalMenuPath)
+		{
+			strLastModified := GetModifiedDateTime(strExternalMenuPath)
+			
+			if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
+			{
+				intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
+				IniWrite, %intMenuExternalType%, %strExternalMenuPath%, Global, MenuType
+				; IniWrite, %f_blnExternalMenuReadOnly%, %strExternalMenuPath%, Global, MenuReadOnly ; deprecated since v8.1.1 but still supported ix exists in ini file
+				IniWrite, %f_strExternalMenuName%, %strExternalMenuPath%, Global, MenuName
+				IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
+				IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
+				; update last modified value in ini file because values requiring update by other users were changed
+				IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
+			}
+			; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
+
+			; update object's last modified dates anyway
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
+		}
+	}
+
 	g_objEditedFavorite.FavoriteName := strNewFavoriteShortName
 	
 	; before updating g_objEditedFavorite.FavoriteLocation, check if location was changed and update hotkeys objects
@@ -8279,7 +8913,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
 	
 	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
-	g_objEditedFavorite.FavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	g_objEditedFavorite.FavoriteAppWorkingDir := strFavoriteAppWorkingDir
 	g_objEditedFavorite.FavoriteDisabled := f_blnFavoriteDisabled
 	
 	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
@@ -8346,7 +8980,10 @@ else
 
 ; updating listview
 
-Gosub, 2GuiClose
+if (strThisLabel <> "GuiAddExternalSave")
+	Gosub, 2GuiClose
+else ; GuiAddExternalSave
+	g_blnExternalMenusAdded := true
 
 Gui, 1:Default
 GuiControl, 1:Focus, lvFavoritesList
@@ -8361,12 +8998,13 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "External")
-		strThisLocation := g_strMenuPathSeparator . g_strMenuPathSeparator
+		strThisLocation := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? lDialogReadOnly . " " : "")
+			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
-	
+
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	
 	if (g_intNewItemPos)
@@ -8410,6 +9048,9 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave") ; do not execute at each favorite 
 	strPreviousLocation := ""
 	strNewFavoriteShortName := ""
 	strNewFavoriteLocation := ""
+	strExternalMenuPath := ""
+	intMenuExternalType := ""
+	strLastModified := ""
 
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
@@ -9265,6 +9906,7 @@ IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
+g_objFilesLastModifiedDateTime := Object() ; re-init list of files already checked
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 ToolTip, %lGuiSaving%. ; animated tooltip
@@ -9288,6 +9930,7 @@ ToolTip, %lGuiSaving%... ; animated tooltip
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+Gosub, ExternalMenusRelease ; release reserved external menus
 
 GuiControl, Enable, f_btnGuiCancel
 GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
@@ -9295,7 +9938,10 @@ g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
 {
-	g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
+	if (g_objMenusIndex[strSavedMenuInGui].MenuType = "External")
+		g_objMenuInGui := g_objMenusIndex[lMainMenuName]
+	else
+		g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
 	Gosub, GuiShowFromGuiSettings
 }
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
@@ -9385,17 +10031,30 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				
 				if FileExist(g_strIniFile)
 				{
-					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile)
+					strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile, true) ; true to track if file was already checked
+
 					gosub, BackupIniFile ; backup external settings ini file, if required
 					
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
+					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore, strIniDateTimeTest1)
 				}
-				else ; new external menu file, init MenuReadOnly
+				else ; new external menu file, init external menu values
 				{
 					strIniDateTimeBefore := ""
-					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly
+                    ; IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly - DEPRECATED since v8.1.9.1
+					/*
+					IniWrite, % objCurrentMenu[A_Index].FavoriteName, %g_strIniFile%, Global, SharedMenuName
+					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly ; default false
+					IniWrite, % "", %g_strIniFile%, Global, WriteAccessUsers ; default empty
+					IniWrite, % "", %g_strIniFile%, Global, WriteAccessMessage ; default empty
+					###_V(A_ThisLabel, g_strIniFile, f_strExternalMenuName)
+					IniWrite, %f_blnExternalMenuReadOnly%, %g_strIniFile%, Global, MenuReadOnly
+					IniWrite, %f_strExternalMenuName%, %g_strIniFile%, Global, MenuName
+					IniWrite, %f_strExternalWriteAccessUsers%, %g_strIniFile%, Global, WriteAccessUsers
+					IniWrite, %f_strExternalWriteAccessMessage%, %g_strIniFile%, Global, WriteAccessMessage
+					*/
 				}
 			}
 			
@@ -9404,9 +10063,15 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
+				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter)
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
 					Oops(lOopsExternalFileWriteError, g_strIniFile)
+					
+				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
+				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
+				IniWrite, %strIniDateTimeAfter%, %g_strIniFile%, Global, LastModified
+
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
 			}
@@ -9998,6 +10663,8 @@ if (blnCancelEnabled)
 		return
 	}
 }
+Gosub, ExternalMenusRelease ; release cancel enabled or not
+
 Gui, 1:Cancel
 
 GuiCancelCleanup:
@@ -10013,7 +10680,7 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-g_strFavoriteDialogTitle := "" ; empty because value used by SettingsUnsaved() function
+g_strFavoriteDialogTitle := ""
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -10140,6 +10807,21 @@ strThisHotkey := ""
 return
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+ExternalMenusRelease:
+;------------------------------------------------------------
+
+; dialog box could hang exit ###_V(A_ThisLabel, g_objExternaleMenuToRelease.MaxIndex())
+loop, % g_objExternaleMenuToRelease.MaxIndex()
+{
+	; dialog box could hang ExitApp ###_V(g_objExternaleMenuToRelease[1])
+	IniWrite, % "", % g_objExternaleMenuToRelease[1], Global, MenuReservedBy ; no need to update LastModified for this change
+	g_objExternaleMenuToRelease.Remove(1)
+}
+
+return
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
@@ -13121,11 +13803,9 @@ Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup.com/why-support-freeware/")
 loop, 3
-
 {
 	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
 	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
-
 }
 ; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, %lDonatePlatformName2% ; Patreon out
 ; Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment2% ; Patreon out
@@ -13648,6 +14328,10 @@ SettingsNotSavedReturn()
 	global g_strAppNameText
 	global g_strGuiFullTitle
 	
+	GuiControlGet, blnCancelButtonEnabled, 1:Enabled, f_btnGuiCancel ; get Settings Cancel button enabled
+	if !(blnCancelButtonEnabled) ; if not enabled, QAP is currently saving, return true to cancel menu display
+		return true
+		
 	SetTimer, SettingsNotSavedChangeButtonNames, 50
 	MsgBox, 3, % L(lDialogSettingsNotSavedTitle, g_strAppNameText), %lDialogSettingsNotSavedPrompt%
 	IfMsgBox, No ; Settings
@@ -14625,9 +15309,21 @@ ExternalMenuIsReadOnly(strFile)
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	
 	if StrLen(strFile)
-		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0
-	else
-		return false
+	{
+		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
+		IniRead, intMenuExternalType, %strFile%, Global, MenuType
+		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3)
+		if (blnExternalMenuReadOnly)
+		{
+			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
+			loop, Parse, strWriteAccessUsers, `,
+				if (A_LoopField = A_UserName)
+				{
+					blnExternalMenuReadOnly := false
+					break
+				}
+		}
+	}
 
 	return blnExternalMenuReadOnly
 }
@@ -14692,11 +15388,25 @@ GetFavoriteTypeForList(objFavorite)
 
 
 ;------------------------------------------------------------
-GetModifiedDateTime(strFile)
+GetModifiedDateTime(strFile, blnTrackIfAlreadyChecked := false)
+; when blnTrackIfAlreadyChecked is true, if an external menu settings file is used twice in a menu,
+; track the last modified date-time of file only for the first occurence
 ;------------------------------------------------------------
 {
-	FileGetTime, strDateTime, %strFile% ; modification by default
-	return strDateTime
+	global g_objFilesLastModifiedDateTime
+	; ###_O("TOP " . A_ThisFunc . "`n" . strFile . "`n" . (blnTrackIfAlreadyChecked ? "TRACK" : "no track"), g_objFilesLastModifiedDateTime)
+	
+	if (blnTrackIfAlreadyChecked) and g_objFilesLastModifiedDateTime.HasKey(strFile)
+		; ###_O("TRACK LOAD" . "`n" . strFile, g_objFilesLastModifiedDateTime)
+		return g_objFilesLastModifiedDateTime[strFile]
+	else
+	{
+		FileGetTime, strDateTime, %strFile% ; modification by default
+		if (blnTrackIfAlreadyChecked)
+			; ###_O("TRACK SAVE" . "`n" . strFile . "`n" . strDateTime, g_objFilesLastModifiedDateTime)
+			g_objFilesLastModifiedDateTime[strFile] := strDateTime
+		return strDateTime
+	}
 }
 ;------------------------------------------------------------
 
