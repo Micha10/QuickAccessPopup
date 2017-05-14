@@ -31,6 +31,50 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.2 (2017-05-14)
+ 
+Shared menus revamped
+- three type of Shared menus
+  1) Personal: menu shared on different computers by the same user
+  2) Collaborative: menu on a shared drive for a team or a workgroup (every member can edit the menu)
+  3) Centralized: menu on a shared drive maintained by one or more menu administrator(s)
+- new "Shared menu" tab in shared menu favorites to select shared menu type (radio buttons), name and options
+- options for "Centralized" shared menus: list of users with right to edit the shared menu (coma separated list), message about shared menu access shown to users without access
+- Shared menu options are saved in the "[Global]" section of the share menu ini file, in variables "MenuName", "WriteAccessUsers", "WriteAccessMessage" and "MenuType"
+- in favorites list, display Shared menu name and display "Read-only" if current user does not have write access to the centralized menu
+- when adding a Shared menu, get the favorite name from the menu ini file if the variable "MenuName" exists
+- deprecate the option "Number of the first favorite" in shared menu files (now favorites always starting at 1 but starting number in old menu are still supported)
+ 
+Shared menus catalogue
+- new option in "General" tab to "Enable Shared Menu Catalogue" and select the "Catalogue root folder"
+- when user adds a Shared menu and when the catalogue is enabled, give user the option to select the Shared menu from a dialog box
+- new Shared menu dialog box containing the shared menu files under the catalogue root with menu names, paths and checkboxes to select menu(s) to add to QAP popup menu
+- in Shared menu dialog box, button "Add selected shared menu(s)" to add selected menu(s) from catalogue to the QAP menu at the current menu and position in favorites list
+- in Shared menu dialog box, button "Add another shared menu" to browse the file system for any Shared menu settings file and add it to current position in favorites list
+- in Shared menu dialog box, respond to double-click on a row by showing Shared menu info and a button to open the settings file in a text editor if it is not read-only
+- new "ExternalMenusCataloguePathReadOnly" variable (in QAP ini file only) to prevent user from changing the catalogue root folder when value is 1, and display an error message if user tries to change the root if read-only
+ 
+Shared menus mutli-user edition
+- alert message when user tries to edit an external menu that was modified by another user or on another computer, based on last modification date-time
+- reserve external menu when user loads a Shared menu in Settings or when user add or move favorites to a Shared menu, user and computer name are savec in the Shared menu variable "MenuReservedBy"
+- release Shared menu reservation when user saves or cancels settings changes or quits QAP
+- store and read last modified date in Shared menu ini file and update it only when favorites or external menu properties are changed, not when only reserved without changes
+- in "About" dialog box, display user name and computer name
+ 
+Other changes
+- new Alternative menu QAP features "Open the Containing Folder in the Current Window" and "Open the Containing Folder in a New Window" to open the folder containing the selected document, application  or folder favorite in the current window or in a new window
+- in Export file name, translate placeholder "%A_Now%" to current local date-time and "%A_NowUTC%" to current Coordinated Universal Time (based on computer time), using "YYYYMMDDHH24MISS" format
+- in "Import/Export Settings", remember lats destination file in quickaccesspopup.ini when exporting and restore last used file name in when exporting settings
+- in "Live folders", exclude folders with the Hidden (H) attribute (keeping those having System attribute without the Hidden attribute)
+- enlarge submenus dropdown lists to 500 px in "Add/Edit Favorite" dialog box
+- disable the popup menu during settings saving
+- remove Patreon donation option; add Paypal links to make donations in EUR and CAD funds
+- update to Spanish, Portuguese and Brazilian Portuguese language files
+ 
+Bug fixes and improvements
+- fix bug in Setup program when updating QAP causing QAP Explorer context menus to be re-enabled even if user turned them off in Settings
+- fix bug "Open this menu" button missing in "Edit favorite" dialog box for Shared menus favorites
+
 Version BETA: 8.1.9.6 (2017-04-01)
 - in add/edit favorite, shared menu tab, change external type only if a value exists in external file loaded (no more default to type 1)
 - adapt Shared menu note depending if we are in Add or Edit dialog box
@@ -1307,7 +1351,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.1.9.6 BETA
+;@Ahk2Exe-SetVersion 8.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1380,8 +1424,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.1.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
