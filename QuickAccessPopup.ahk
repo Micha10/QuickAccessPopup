@@ -7422,6 +7422,7 @@ return
 RadioButtonExternalMenuInit:
 RadioButtonExternalMenuClicked:
 ;------------------------------------------------------------
+###_V(A_ThisLabel, f_strFavoriteAppWorkingDir)
 
 blnType3Before := f_radExternalMenuType3
 Gui, 2:Submit, NoHide
@@ -7757,7 +7758,7 @@ else ; IniFile
 {
 	; do not use option "S" because it gives an error message on read-only supports
 	FileSelectFile, strNewLocation, , %strDefault%, %lDialogAddFileSelect%, *.ini ; removed option 8 to prompt to create a new file because not user friendly
-	if !StrLen(GetFileExtension(strNewLocation))
+	if StrLen(strNewLocation) and !StrLen(GetFileExtension(strNewLocation))
 		strNewLocation .= ".ini"
 }
 
@@ -8281,8 +8282,14 @@ LoadExternalFileGlobalValues:
 ;------------------------------------------------------------
 
 IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType ; 1 Personal, 2 Collaborative or 3 Centralized (no default)
+
 if (intMenuExternalType <> "ERROR")
-	GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, 1
+	GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, % 1
+else
+{
+	intMenuExternalType := ""
+	return
+}
 
 IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found, deprecated since v8.1.1 but still supported ix exists in ini file
 ; GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
@@ -8648,6 +8655,7 @@ if (g_objEditedFavorite.FavoriteType = "External" and (f_radExternalMenuType1 + 
 {
 	Oops(lOopsExternalSelectType)
 	GuiControl, ChooseString, f_intAddFavoriteTab, % " " . lDialogAddFavoriteTabsExternal ; space (only) before tab name
+	g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
 	gosub, GuiAddFavoriteSaveCleanup
 	return
 }
