@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.2.1 (2017-05-??)
+- Multi-user change collision bug fixed (menu loaded on machine A; menu loaded on machine B; shared menu edited and saved on machine B; menu other than the shared menu edited on machine A
+  -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
+- when create Shared menu, force to select shared menu type
+- add QAP feature to get direct access to the catalogue (Add a Shared menu from the catalogue)
+
 Version: 8.2 (2017-05-14)
  
 Shared menus revamped
@@ -1351,7 +1357,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2
+;@Ahk2Exe-SetVersion 8.2.1 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1424,8 +1430,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -2553,7 +2559,7 @@ InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0,
 InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
 InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconAddFavorite")
 InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",					0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",		0, "iconAddThisFolder")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",				0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
 InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",							0, "iconHelp")
 InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",	0, "iconHotkeys")
@@ -2569,6 +2575,7 @@ InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",					
 InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
+InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, "", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
@@ -7379,8 +7386,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	
 	Gui, 2:Tab, % ++intTabNumber
 
-	Loop, 3
-		Gui, 2:Add, Radio, % (A_Index = 1 ? "x20 y50 checked" : "x20 y+5") . " gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index%
+	Loop, 3 ; no default type
+		Gui, 2:Add, Radio, % (A_Index = 1 ? "x20 y50" : "x20 y+5") . " gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index%
 
 	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
 		Gui, 2:Add, Text, x20 y+15 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
@@ -8111,6 +8118,7 @@ GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
 GuiShowFromIconsManage:
 GuiShowFromGuiSettings:
+GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
@@ -8365,6 +8373,7 @@ ExternalMenuReserved(objMenu)
 			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
 		; remember to free when saving or canceling
 		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
+		objMenu.NeedSave := true
 
 		return true
 	}
@@ -8374,9 +8383,13 @@ ExternalMenuReserved(objMenu)
 
 ;------------------------------------------------------------
 AddExternalMenusFromCatalogue:
+AddExternalCatalogueFromQAPFeature:
 ;------------------------------------------------------------
 
-Gosub, 2GuiClose
+if (A_ThisLabel = "AddExternalCatalogueFromQAPFeature")
+	gosub, GuiShowFromExternalCatalogue
+else
+	gosub, 2GuiClose
 
 g_intGui1WinID := WinExist("A")
 
@@ -8624,6 +8637,15 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
 		g_intOriginalMenuPosition++
+	gosub, GuiAddFavoriteSaveCleanup
+	return
+}
+
+; validation to make sure the user selected the type of the new external menu
+if (g_objEditedFavorite.FavoriteType = "External" and (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0))
+{
+	Oops(lOopsExternalSelectType)
+	GuiControl, ChooseString, f_intAddFavoriteTab, % " " . lDialogAddFavoriteTabsExternal ; space (only) before tab name
 	gosub, GuiAddFavoriteSaveCleanup
 	return
 }
@@ -10018,7 +10040,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
 				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
-				and objCurrentMenu[A_Index].SubMenu.MenuLoaded)
+				and objCurrentMenu[A_Index].SubMenu.MenuLoaded
+				and objCurrentMenu[A_Index].SubMenu.NeedSave)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
@@ -10070,6 +10093,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
+				objCurrentMenu[A_Index].SubMenu.NeedSave := false
 				IniWrite, %strIniDateTimeAfter%, %g_strIniFile%, Global, LastModified
 
 				g_strIniFile := strPreviousIniFile
