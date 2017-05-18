@@ -36,7 +36,8 @@ Version: 8.2.1 (2017-05-??)
   -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
 - when create Shared menu, force to select shared menu type
 - add QAP feature to get direct access to the catalogue (Add a Shared menu from the catalogue)
-- tip below catalogue list about double-click on a line to view the clicked shared menu info
+- add tip below Shared menu catalogue list about double-click on a line to view the shared menu info
+- fix bug when Add/Edit Favorite of type Shared menu, browse for external file and cancel browse
 
 Version: 8.2 (2017-05-14)
  
@@ -7422,7 +7423,6 @@ return
 RadioButtonExternalMenuInit:
 RadioButtonExternalMenuClicked:
 ;------------------------------------------------------------
-###_V(A_ThisLabel, f_strFavoriteAppWorkingDir)
 
 blnType3Before := f_radExternalMenuType3
 Gui, 2:Submit, NoHide
