@@ -80,6 +80,7 @@ global lDialogExternalMenuOpen := "Open shared menu file?"
 global lDialogExternalMenusAdded := "~1~ shared menu(s) added."
 global lDialogExternalMenuSelectFromCatalogue := "Select one or more shared menu to add to your menu and click ~1~"
 global lDialogExternalStartingNumber := "Number of the first favorite:" ; new
+global lDialogExternalTip := "Double-click on a line to view the Shared menu info."
 global lDialogExternalTypes := "Personal (menu shared on different computers for the same user)|Collaborative (menu on a shared drive for team or workgroup)|Centralized (menu on a shared drive maintained by a menu administrator)"
 global lDialogExternalTypesLabel := "Shared Menu Type"
 global lDialogExternalWriteAccessMessage := "Shared menu write access message"

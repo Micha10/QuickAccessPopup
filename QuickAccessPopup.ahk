@@ -36,6 +36,7 @@ Version: 8.2.1 (2017-05-??)
   -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
 - when create Shared menu, force to select shared menu type
 - add QAP feature to get direct access to the catalogue (Add a Shared menu from the catalogue)
+- tip below catalogue list about double-click on a line to view the clicked shared menu info
 
 Version: 8.2 (2017-05-14)
  
@@ -8403,6 +8404,7 @@ Gui, 2:Add, Text, , % L(lDialogExternalMenuSelectFromCatalogue, lDialogExternalM
 Gui, 2:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
 	. " gExternalMenusCatalogueListEvents x10 y+10 w640 h340 AltSubmit", %lDialogExternalMenuAddHeader%
 
+Gui, 2:Add, Text, x10 w640 center, %lDialogExternalTip%
 Gui, 2:Add, Text
 Gui, 2:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue default, %lDialogExternalMenuAdd%
 Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
