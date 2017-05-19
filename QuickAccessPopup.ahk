@@ -35,9 +35,10 @@ Version: 8.2.1 (2017-05-??)
 - Multi-user change collision bug fixed (menu loaded on machine A; menu loaded on machine B; shared menu edited and saved on machine B; menu other than the shared menu edited on machine A
   -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
 - when create Shared menu, force to select shared menu type
+- support relative paths and environmenet variables for external menu file path
+- fix bug when Add/Edit Favorite of type Shared menu, browse for external file and cancel browse
 - add QAP feature to get direct access to the catalogue (Add a Shared menu from the catalogue)
 - add tip below Shared menu catalogue list about double-click on a line to view the shared menu info
-- fix bug when Add/Edit Favorite of type Shared menu, browse for external file and cancel browse
 
 Version: 8.2 (2017-05-14)
  
@@ -8281,26 +8282,34 @@ return
 LoadExternalFileGlobalValues:
 ;------------------------------------------------------------
 
-IniRead, intMenuExternalType, %f_strFavoriteAppWorkingDir%, Global, MenuType ; 1 Personal, 2 Collaborative or 3 Centralized (no default)
+strExternalExpandedFileName := PathCombine(A_WorkingDir, EnvVars(f_strFavoriteAppWorkingDir))
+if StrLen(GetFileExtension(strExternalExpandedFileName)) = 0
+	strExternalExpandedFileName .= ".ini"
+
+IniRead, intMenuExternalType, %strExternalExpandedFileName%, Global, MenuType ; 1 Personal, 2 Collaborative or 3 Centralized (no default)
 
 if (intMenuExternalType <> "ERROR")
+{
 	GuiControl, , % "f_radExternalMenuType" . intMenuExternalType, % 1
+	gosub, RadioButtonExternalMenuInit
+}
 else
 {
 	intMenuExternalType := ""
 	return
 }
 
-IniRead, blnExternalMenuReadOnly, %f_strFavoriteAppWorkingDir%, Global, MenuReadOnly, 0 ; false if not found, deprecated since v8.1.1 but still supported ix exists in ini file
+IniRead, blnExternalMenuReadOnly, %strExternalExpandedFileName%, Global, MenuReadOnly, 0 ; false if not found
+; deprecated since v8.1.1 but still supported ix exists in ini file
 ; GuiControl, , f_blnExternalMenuReadOnly, %blnExternalMenuReadOnly%
 
-IniRead, strExternalMenuName, %f_strFavoriteAppWorkingDir%, Global, MenuName, %A_Space% ; empty if not found
+IniRead, strExternalMenuName, %strExternalExpandedFileName%, Global, MenuName, %A_Space% ; empty if not found
 GuiControl, , f_strExternalMenuName, %strExternalMenuName%
 
-IniRead, strExternalWriteAccessUsers, %f_strFavoriteAppWorkingDir%, Global, WriteAccessUsers, %A_Space% ; empty if not found
+IniRead, strExternalWriteAccessUsers, %strExternalExpandedFileName%, Global, WriteAccessUsers, %A_Space% ; empty if not found
 GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
 
-IniRead, strExternalWriteAccessMessage, %f_strFavoriteAppWorkingDir%, Global, WriteAccessMessage, %A_Space% ; empty if not found
+IniRead, strExternalWriteAccessMessage, %strExternalExpandedFileName%, Global, WriteAccessMessage, %A_Space% ; empty if not found
 GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
 
 blnExternalMenuReadOnly := ""
@@ -8308,6 +8317,7 @@ strExternalMenuName := ""
 strExternalWriteAccessUsers := ""
 strExternalWriteAccessMessage := ""
 intMenuExternalType := ""
+strExternalExpandedName := ""
 
 return
 ;------------------------------------------------------------
@@ -8651,13 +8661,22 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 }
 
 ; validation to make sure the user selected the type of the new external menu
-if (g_objEditedFavorite.FavoriteType = "External" and (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0))
+if (g_objEditedFavorite.FavoriteType = "External")
 {
-	Oops(lOopsExternalSelectType)
-	GuiControl, ChooseString, f_intAddFavoriteTab, % " " . lDialogAddFavoriteTabsExternal ; space (only) before tab name
-	g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
-	gosub, GuiAddFavoriteSaveCleanup
-	return
+	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
+	{
+		gosub, LoadExternalFileGlobalValues ; load values if file exists
+		Gui, 2:Submit, NoHide
+	}
+	
+	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
+	{
+		Oops(lOopsExternalSelectType)
+		GuiControl, ChooseString, f_intAddFavoriteTab, % " " . lDialogAddFavoriteTabsExternal ; space (only) before tab name
+		g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
+		gosub, GuiAddFavoriteSaveCleanup
+		return
+	}
 }
 
 ; validation (not required for GuiMoveOneFavoriteSave because info in g_objEditedFavorite is not changed)
