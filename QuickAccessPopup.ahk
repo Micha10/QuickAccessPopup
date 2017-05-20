@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.2.1 (2017-05-??)
+Version: 8.2.1 (2017-05-19)
 - Multi-user change collision bug fixed (menu loaded on machine A; menu loaded on machine B; shared menu edited and saved on machine B; menu other than the shared menu edited on machine A
   -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
 - when create Shared menu, force to select shared menu type
@@ -1360,7 +1360,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.1 beta
+;@Ahk2Exe-SetVersion 8.2.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1434,7 +1434,7 @@ Gosub, InitLanguageVariables
 
 g_strAppNameText := "Quick Access Popup"
 g_strCurrentVersion := "8.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
