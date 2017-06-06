@@ -32,9 +32,10 @@ HISTORY
 =======
 
 Version: 8.2.2 (2017-06-??)
-- In the Add Favorite dialog box, add info about Live Folder Options in Folder tip
+- Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
 - In Shared Menus Catalogue, replace "&&" in menu names with single "&"
 - Change QAP feature label "Add shared favorites menu from catalogue"
+- In the Add Favorite dialog box, add info about Live Folder Options in Folder tip
 - Fix display bug in Settings, change cursor to hand when mouse over some icons and labels
 
 Version: 8.2.1 (2017-05-19)
@@ -8388,7 +8389,18 @@ ExternalMenuReserved(objMenu)
 	}
 	else
 	{
-;		#####
+		; Test if user can write to external ini file
+		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random variable number
+		IniWrite, % A_Space, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom%
+		Sleep, 20 ; for safety
+		IniRead, strRead, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom% ; ERROR if not found
+		IniDelete, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom% ; clear test variable
+		if (strRead = "ERROR")
+		{
+			Oops(lOopsExternalFileWriteErrorCollaborative) ; this should occur only when user try to open a Collaborative external menu without having write access
+			return false
+		}
+		
 		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
 			; personal menu is changed on another system
 			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
