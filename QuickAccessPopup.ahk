@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.2.2 (2017-06-08)
+- Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
+- In Shared Menus Catalogue, replace "&&" in menu names with single "&"
+- Change QAP feature label "Add shared favorites menu from catalogue"
+- In the Add Favorite dialog box, add info about Live Folder Options in Folder tip
+- Fix display bug in Settings, change cursor to hand when mouse over some icons and labels
+
 Version: 8.2.1 (2017-05-19)
 - Multi-user change collision bug fixed (menu loaded on machine A; menu loaded on machine B; shared menu edited and saved on machine B; menu other than the shared menu edited on machine A
   -> BUG: machine A overwrites changes done on machine B; shared menu are now saved only if changes were done to the menu)
@@ -1360,7 +1367,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.1
+;@Ahk2Exe-SetVersion 8.2.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1433,7 +1440,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6234,25 +6241,25 @@ Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static14
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static15
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static#####
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static16
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static16
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static17
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static18, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp, %lGuiRemoveFavorite% ; Static19
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static20
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static21
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static21
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static22
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static23
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static17
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static18
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static19, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp, %lGuiRemoveFavorite% ; Static20
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static21
+Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static22
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static23
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static24
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static25
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static24
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static26
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, ListView
@@ -6270,9 +6277,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static25
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static27
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static26
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static28
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -8382,6 +8389,13 @@ ExternalMenuReserved(objMenu)
 	}
 	else
 	{
+		; Test if user can write to external ini file
+		if !ExternalSettingsUserCanWriteFile(objMenu.MenuExternalPath)
+		{
+			Oops(lOopsExternalFileWriteErrorCollaborative) ; this should occur only when user try to open a Collaborative external menu without having write access
+			return false
+		}
+		
 		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
 			; personal menu is changed on another system
 			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
@@ -8435,6 +8449,7 @@ Loop, Files, %strExpandedPath%\*.ini, R
 	if InStr(A_LoopFileFullPath, "-backup-20") ; if include "-backup-YYYYMMDD"
 		Continue
 	IniRead, strName, %A_LoopFileFullPath%, Global, MenuName, %A_Space%
+	StringReplace, strName, strName, &&, &, All
 	LV_Add("", strName, A_LoopFileFullPath)
 }
 LV_ModifyCol(, "")
@@ -10068,7 +10083,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
-				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
+				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir, true) ; true for blnDoNotCheckCanWriteFile to preserve the file date time
 				and objCurrentMenu[A_Index].SubMenu.MenuLoaded
 				and objCurrentMenu[A_Index].SubMenu.NeedSave)
 		{
@@ -10090,7 +10105,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
-					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore, strIniDateTimeTest1)
+					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore)
 				}
 				else ; new external menu file, init external menu values
 				{
@@ -10115,7 +10130,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
-				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter)
+				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter, !StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter), StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter))
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
 					Oops(lOopsExternalFileWriteError, g_strIniFile)
@@ -11647,7 +11662,12 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	return
 }
 
-if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
+if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and FavoriteIsUnderExternalMenuReadOnly(g_objMenusIndex[A_ThisMenu]))
+{
+	gosub, OpenFavoriteCleanup
+	return
+}
+if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and StrLen(g_objMenusIndex[A_ThisMenu].MenuExternalPath) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
 {
 	Oops(lOopsErrorIniFileReadOnly)
 	gosub, OpenFavoriteCleanup
@@ -15356,16 +15376,17 @@ StringLeftDotDotDot(strText, intMax)
 
 
 ;------------------------------------------------------------
-ExternalMenuIsReadOnly(strFile)
+ExternalMenuIsReadOnly(strFile, blnDoNotCheckCanWriteFile := 0)
+; Check if external settings file is Read-only (deprecated) or Centralized
 ;------------------------------------------------------------
 {
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	
-	if StrLen(strFile)
+	if StrLen(strFile) and FileExist(strFile)
 	{
 		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
 		IniRead, intMenuExternalType, %strFile%, Global, MenuType
-		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3)
+		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
 		if (blnExternalMenuReadOnly)
 		{
 			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
@@ -15378,7 +15399,60 @@ ExternalMenuIsReadOnly(strFile)
 		}
 	}
 
-	return blnExternalMenuReadOnly
+	if (blnDoNotCheckCanWriteFile)
+		return blnExternalMenuReadOnly
+	else
+		return blnExternalMenuReadOnly or !ExternalSettingsUserCanWriteFile(strFile)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalSettingsUserCanWriteFile(strFile)
+; Test if user can write to external ini file
+;------------------------------------------------------------
+{
+	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	
+	if StrLen(strFile) and FileExist(strFile)
+	{
+		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random variable number
+		IniWrite, % A_Space, %strFile%, Global, WriteTestValue%intRandom%
+		Sleep, 20 ; for safety
+		IniRead, strRead, %strFile%, Global, WriteTestValue%intRandom% ; ERROR if not found
+		
+		if (strRead <> "ERROR")
+			IniDelete, %strFile%, Global, WriteTestValue%intRandom% ; clear test variable
+		
+		return (strRead <> "ERROR")
+	}
+	else
+		return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FavoriteIsUnderExternalMenuReadOnly(objMenu)
+;------------------------------------------------------------
+{
+	Loop
+	{
+		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
+		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
+		if (objMenu.MenuType = "External")
+			if !ExternalMenuReserved(objMenu) ; check if we can reserve external menu
+				return true ; External menu reserved by another user
+			else
+				return false ; External menu already or newly reserved for user
+		else if (objMenu.IsLiveMenu) or (objMenu.MenuPath = lMainMenuName)
+			return false ; Live Folder Menu or up to Main menu, no External menu
+		else
+			if !(objMenu[1].HasKey("SubMenu"))
+				return false ; should no occur, no parent menu
+			else
+				objMenu := objMenu[1].SubMenu ; up one level and loop
+	}
 }
 ;------------------------------------------------------------
 
@@ -15637,8 +15711,8 @@ WM_MOUSEMOVE(wParam, lParam)
 	if InStr(strControl, "Static")
 	{
 		StringReplace, intControl, strControl, Static
-		; 2-23/25-26
-		if (intControl < 2) or (intControl = 24) or (intControl > 26)
+		; 2-28 sauf 26
+		if (intControl < 2) or (intControl = 26) or (intControl > 28)
 			return
 	}
 	else if !InStr(strControl, "Button")
