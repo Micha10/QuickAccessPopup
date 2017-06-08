@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.2.2 (2017-06-??)
+Version: 8.2.2 (2017-06-08)
 - Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
 - In Shared Menus Catalogue, replace "&&" in menu names with single "&"
 - Change QAP feature label "Add shared favorites menu from catalogue"
