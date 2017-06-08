@@ -8390,12 +8390,7 @@ ExternalMenuReserved(objMenu)
 	else
 	{
 		; Test if user can write to external ini file
-		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random variable number
-		IniWrite, % A_Space, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom%
-		Sleep, 20 ; for safety
-		IniRead, strRead, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom% ; ERROR if not found
-		IniDelete, % objMenu.MenuExternalPath, Global, WriteTestValue%intRandom% ; clear test variable
-		if (strRead = "ERROR")
+		if !ExternalSettingsUserCanWriteFile(objMenu.MenuExternalPath)
 		{
 			Oops(lOopsExternalFileWriteErrorCollaborative) ; this should occur only when user try to open a Collaborative external menu without having write access
 			return false
@@ -10088,7 +10083,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
-				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
+				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir, true) ; true for blnDoNotCheckCanWriteFile to preserve the file date time
 				and objCurrentMenu[A_Index].SubMenu.MenuLoaded
 				and objCurrentMenu[A_Index].SubMenu.NeedSave)
 		{
@@ -10110,7 +10105,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 					IniDelete, %g_strIniFile%, Favorites
-					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore, strIniDateTimeTest1)
+					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore)
 				}
 				else ; new external menu file, init external menu values
 				{
@@ -10135,7 +10130,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
-				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter)
+				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeBefore, strIniDateTimeAfter, !StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter), StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter))
 				if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
 					or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
 					Oops(lOopsExternalFileWriteError, g_strIniFile)
@@ -11667,7 +11662,12 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	return
 }
 
-if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
+if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and FavoriteIsUnderExternalMenuReadOnly(g_objMenusIndex[A_ThisMenu]))
+{
+	gosub, OpenFavoriteCleanup
+	return
+}
+if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and StrLen(g_objMenusIndex[A_ThisMenu].MenuExternalPath) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
 {
 	Oops(lOopsErrorIniFileReadOnly)
 	gosub, OpenFavoriteCleanup
@@ -15376,16 +15376,17 @@ StringLeftDotDotDot(strText, intMax)
 
 
 ;------------------------------------------------------------
-ExternalMenuIsReadOnly(strFile)
+ExternalMenuIsReadOnly(strFile, blnDoNotCheckCanWriteFile := 0)
+; Check if external settings file is Read-only (deprecated) or Centralized
 ;------------------------------------------------------------
 {
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	
-	if StrLen(strFile)
+	if StrLen(strFile) and FileExist(strFile)
 	{
 		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
 		IniRead, intMenuExternalType, %strFile%, Global, MenuType
-		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3)
+		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
 		if (blnExternalMenuReadOnly)
 		{
 			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
@@ -15398,7 +15399,60 @@ ExternalMenuIsReadOnly(strFile)
 		}
 	}
 
-	return blnExternalMenuReadOnly
+	if (blnDoNotCheckCanWriteFile)
+		return blnExternalMenuReadOnly
+	else
+		return blnExternalMenuReadOnly or !ExternalSettingsUserCanWriteFile(strFile)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalSettingsUserCanWriteFile(strFile)
+; Test if user can write to external ini file
+;------------------------------------------------------------
+{
+	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	
+	if StrLen(strFile) and FileExist(strFile)
+	{
+		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random variable number
+		IniWrite, % A_Space, %strFile%, Global, WriteTestValue%intRandom%
+		Sleep, 20 ; for safety
+		IniRead, strRead, %strFile%, Global, WriteTestValue%intRandom% ; ERROR if not found
+		
+		if (strRead <> "ERROR")
+			IniDelete, %strFile%, Global, WriteTestValue%intRandom% ; clear test variable
+		
+		return (strRead <> "ERROR")
+	}
+	else
+		return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FavoriteIsUnderExternalMenuReadOnly(objMenu)
+;------------------------------------------------------------
+{
+	Loop
+	{
+		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
+		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
+		if (objMenu.MenuType = "External")
+			if !ExternalMenuReserved(objMenu) ; check if we can reserve external menu
+				return true ; External menu reserved by another user
+			else
+				return false ; External menu already or newly reserved for user
+		else if (objMenu.IsLiveMenu) or (objMenu.MenuPath = lMainMenuName)
+			return false ; Live Folder Menu or up to Main menu, no External menu
+		else
+			if !(objMenu[1].HasKey("SubMenu"))
+				return false ; should no occur, no parent menu
+			else
+				objMenu := objMenu[1].SubMenu ; up one level and loop
+	}
 }
 ;------------------------------------------------------------
 
