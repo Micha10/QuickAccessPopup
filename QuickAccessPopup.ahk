@@ -8327,7 +8327,7 @@ return
 
 /*
 ;------------------------------------------------------------
-ExternalMenuReserved_OUT(objMenu) ; ##### OUT
+ExternalMenuReserved_OUT(objMenu)
 ;------------------------------------------------------------
 {
 	global g_objExternaleMenuToRelease
@@ -8573,11 +8573,6 @@ Gui, 2:+OwnDialogs
 
 strThisLabel := A_ThisLabel
 
-if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
-; ##### g_objMenuInGui or another value if user save in another menu?
-; if this is an external menu that cannot be locked, user received an error message, then abort save
-	return
-
 ; original and destination menus values
 if InStr("GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiAddExternalSave|", strThisLabel . "|")
 {
@@ -8621,6 +8616,15 @@ else
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
 }
+
+; now that we know original and destination menus, check if we need to lock them
+if !ExternalMenuAvailableForLock(g_objMenusIndex[strDestinationMenu], true) ; blnLockItForMe
+; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
+	return
+if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
+	if !ExternalMenuAvailableForLock(g_objMenusIndex[strOriginalMenu], true) ; blnLockItForMe
+	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
+		return
 
 if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave g_intNewItemPos may be already set
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
@@ -9049,10 +9053,12 @@ Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
 
-; if favorite is in an external settings file, flag that this file need to be saved
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
-	; ##### maybe it is not g_objMenuInGui if user chenged menu from dialog box - check what value to use for menu object
+; if favorite's original or destination menu are in an external settings file, flag that they need to be saved
+if FavoriteIsUnderExternalMenu(g_objMenusIndex[strDestinationMenu], objExternalMenu)
 	objExternalMenu.NeedSave := true
+if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
+	if FavoriteIsUnderExternalMenu(g_objMenusIndex[strOriginalMenu], objExternalMenu)
+		objExternalMenu.NeedSave := true
 
 g_blnMenuReady := true
 
@@ -9254,6 +9260,10 @@ GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
 
+if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
+; if the menu is an external menu that cannot be locked, user received an error message, then abort
+	return
+
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 intItemToRemove := LV_GetNext()
@@ -9305,9 +9315,14 @@ Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
 
+; if favorite's menu is in an external settings file, flag that it needs to be saved
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
+	objExternalMenu.NeedSave := true
+
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
 blnItemIsMenu := ""
+objExternalMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -9427,6 +9442,12 @@ if !InStr(A_ThisLabel, "One")
 	LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), "Select Focus Vis")
 
 Gosub, EnableSaveAndCancel
+
+; if favorite's menu is in an external settings file, flag that it needs to be saved
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
+	objExternalMenu.NeedSave := true
+
+objExternalMenu := ""
 
 return
 
@@ -9870,6 +9891,10 @@ GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
 
+if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
+; if the menu is an external menu that cannot be locked, user received an error message, then abort
+	return
+
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
@@ -9910,6 +9935,10 @@ LV_Modify(LV_GetNext(), "Vis")
 Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
+
+; if favorite's menu is in an external settings file, flag that it needs to be saved
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
+	objExternalMenu.NeedSave := true
 
 intInsertPosition := ""
 objNewFavorite := ""
@@ -11637,7 +11666,7 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 }
 
 ; ##### remove this when check that edit from alternative menu is handled OK
-; if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and FavoriteIsUnderExternalMenuReadOnly_OUT(g_objMenusIndex[A_ThisMenu])) ; #####
+; if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and FavoriteIsUnderExternalMenuReadOnly_OUT(g_objMenusIndex[A_ThisMenu]))
 ; {
 ; 	gosub, OpenFavoriteCleanup
 ; 	return
@@ -15414,7 +15443,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 
 /*
 ;------------------------------------------------------------
-FavoriteIsUnderExternalMenuReadOnly_OUT(objMenu) ; #####
+FavoriteIsUnderExternalMenuReadOnly_OUT(objMenu)
 ;------------------------------------------------------------
 {
 	Loop
@@ -15422,10 +15451,10 @@ FavoriteIsUnderExternalMenuReadOnly_OUT(objMenu) ; #####
 		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
 		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
 		if (objMenu.MenuType = "External")
-; #####			if !ExternalMenuReserved(objMenu) ; check if we can reserve external menu
+			if !ExternalMenuReserved(objMenu) ; check if we can reserve external menu
 				return true ; External menu reserved by another user
-; #####			else
-; #####				return false ; External menu already or newly reserved for user
+			else
+				return false ; External menu already or newly reserved for user
 		else if (objMenu.IsLiveMenu) or (objMenu.MenuPath = lMainMenuName)
 			return false ; Live Folder Menu or up to Main menu, no External menu
 		else
@@ -15497,7 +15526,7 @@ GetFavoriteTypeForList(objFavorite)
 
 
 ;------------------------------------------------------------
-GetModifiedDateTime(strFile, blnTrackIfAlreadyChecked := false) ; ##### blnTrackIfAlreadyChecked not required?
+GetModifiedDateTime(strFile, blnTrackIfAlreadyChecked := false) ; ##### blnTrackIfAlreadyChecked still required?
 ; when blnTrackIfAlreadyChecked is true, if an external menu settings file is used twice in a menu,
 ; track the last modified date-time of file only for the first occurence
 ;------------------------------------------------------------
@@ -15716,7 +15745,6 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 				, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
 			; remember to free when saving or canceling
 			g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-			; objMenu.NeedSave := true ; ##### ne pas oublier de mettre .NeedSave dans save favorite
 			###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
 		}
 
