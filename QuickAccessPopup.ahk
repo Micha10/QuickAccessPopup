@@ -6508,6 +6508,12 @@ GuiAddFavoriteSelectType:
 GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
 
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+; this favorite could not be added because it is in an external menu locked by another user,
+; or because external settings file is in a read-only folder, or because external files was modified 
+; by another user since it was loaded in QAP by this user
+	return
+	
 if (A_ThisLabel = "GuiAddFavoriteFromQAP")
 	gosub, GuiShowFromGuiAddFavoriteSelectType
 
@@ -6541,6 +6547,8 @@ Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h200, % L(lDialogFavo
 GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
 Gui, 2:Show, AutoSize Center
 Gui, 1:+Disabled
+
+objExternalMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -8035,10 +8043,11 @@ else
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 	
+/*
 	; ###_O("objNewMenuInGui", objNewMenuInGui)
 	; ###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
 	if (objNewMenuInGui.MenuType = "External")
-		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath)
+		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) ; #####
 		{
 			if !(objNewMenuInGui.MenuLoaded)
 				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
@@ -8051,6 +8060,7 @@ else
 			gosub, GuiMenusListChangedCleanup
 			return
 		}
+*/
 
 	g_objMenuInGui := objNewMenuInGui
 	
@@ -9396,7 +9406,7 @@ GuiMoveOneFavoriteUp:
 GuiMoveOneFavoriteDown:
 ;------------------------------------------------------------
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 {
 	objExternalMenu := ""
 	return
@@ -15406,7 +15416,7 @@ ExternalMenuIsReadOnly(strFile, blnDoNotCheckCanWriteFile := 0)
 	if (blnDoNotCheckCanWriteFile)
 		return blnExternalMenuReadOnly
 	else
-		return blnExternalMenuReadOnly or !ExternalSettingsUserCanWriteFolder(strFile)
+		return blnExternalMenuReadOnly or !ExternalSettingsUserCanWriteFolder(strFile) ; ##### reduce write check
 }
 ;------------------------------------------------------------
 
@@ -15699,8 +15709,10 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 ;------------------------------------------------------------
 {
 	global g_objExternaleMenuToRelease
+	global g_strAppNameText
+	global g_strAppVersion
 
-	###_O(A_ThisFunc . " - objMenu", objMenu)
+	; ###_O(A_ThisFunc . " - objMenu", objMenu)
 	if (objMenu.MenuType <> "External")
 	; not an external menu, checking lock is not required, return true
 		return true
@@ -15708,16 +15720,30 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	IniRead, intMenuExternalType, % objMenu.MenuExternalPath, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
 	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
 	
-	if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_UserName . " (" . A_ComputerName . ")")
-	; collaborative or centralized menu is reserved by another user, return false
+	###_V(A_ThisFunc, objMenu.MenuExternalPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
+	if (intMenuExternalType = 3 and ExternalMenuCentralReadOnly(objMenu.MenuExternalPath))
 	{
-		Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
-		return false
+		IniRead, strWriteAccessMessage, % objMenu.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
+		IniRead, strExternalMenuName, % objMenu.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
+		Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . lDialogExternalMenuName . ":`n" . strExternalMenuName : "")
+			. (StrLen(strWriteAccessMessage) ? "`n`n" . lDialogExternalWriteAccessMessage . ":`n" . strWriteAccessMessage : ""))
+		return
 	}
-	else if !ExternalSettingsUserCanWriteFolder(objMenu.MenuExternalPath)
-	; user cannot write to external ini file, could not lock it, return false
+	else if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy))
+		; the collaborative or centralized menu is reserved...
+		if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+			; ... already reserved for this user, return true
+			return true
+		else
+			; ... reserved by another user, return false
+		{
+			Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
+			return false
+		}
+	else if (intMenuExternalType = 2 and !ExternalSettingsUserCanWriteFolder(objMenu.MenuExternalPath))
+	; user cannot write to collaborative external ini file, could not lock it, return false
 	{
-		Oops(lOopsExternalFileWriteErrorCollaborative) ; this should occur only when user try to open a Collaborative external menu without having write access
+		Oops(lOopsExternalFileWriteErrorCollaborative)
 		return false
 	}
 	else if ExternalMenuModifiedSinceLoaded(objMenu)
@@ -15734,7 +15760,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	; lock is allowed, return true
 	{
 		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
-			; personal menu is changed on another system - only inform user, lock is allowed
+			; personal menu is changed on another system - only inform user, lock overwriting is allowed
 			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
 		
 		if (blnLockItForMe)
@@ -15755,12 +15781,43 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 
 
 ;------------------------------------------------------------
+ExternalMenuCentralReadOnly(strFile)
+; Check if external settings file is Read-only (deprecated) or Centralized and if it can be edit by current user
+;------------------------------------------------------------
+{
+	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	
+	if StrLen(strFile) and FileExist(strFile)
+	{
+		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
+		IniRead, intMenuExternalType, %strFile%, Global, MenuType
+		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
+		if (blnExternalMenuReadOnly)
+		{
+			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
+			loop, Parse, strWriteAccessUsers, `,
+				if (A_LoopField = A_UserName)
+				{
+					blnExternalMenuReadOnly := false
+					break
+				}
+		}
+	}
+
+	return blnExternalMenuReadOnly
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ExternalMenuModifiedSinceLoaded(objMenu)
 ;------------------------------------------------------------
 {
 	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
 	objMenu.MenuExternalLastModifiedNow := strLastModified
-;	###_V(A_ThisFunc, strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	if (!StrLen(objMenu.MenuExternalLastModifiedWhenLoaded) or !StrLen(objMenu.MenuExternalLastModifiedNow))
+		###_V(A_ThisFunc . " !!!!!", strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	###_V(A_ThisFunc . " MODIFIED?", (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded), strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
 	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
 }
 ;------------------------------------------------------------
@@ -15774,17 +15831,41 @@ ExternalSettingsUserCanWriteFolder(strFile)
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	SplitPath, strFile, , strFolder
 	Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random file number and variable number
-	strRandomFile := strFolder . "\" . intRandom . ".ini"
+	strRandomFile := strFolder . "\~$_QAP_Test_file_" . intRandom . ".ini" ; Dropbox doe nos syn files starting with ~$
 	
-	IniWrite, %intRandom%, %strRandomFile%, Global, WriteTestValue%intRandom%
+	IniWrite, %A_UserName% on %A_ComputerName% at %A_Now%, %strRandomFile%, Global, WriteAccessTest
 	Sleep, 20 ; for safety
-	IniRead, strRead, %strRandomFile%, Global, WriteTestValue%intRandom% ; ERROR if not found
-	Sleep, 20 ; for safety (required)
-	if (strRead <> "ERROR")
-		FileDelete, %strRandomFile% ; remove test file
-		
-	; ###_V(A_ThisFunc, strFile, strFolder, intRandom, strRandomFile, strRead)
-	return (strRead <> "ERROR")
+	IniRead, strRead, %strRandomFile%, Global, WriteAccessTest ; ERROR if not found
+	
+	if (strRead <> "ERROR") ; the ini file was created, now delete it
+	{
+		intSleepDelay := 20
+		Loop
+		{
+			sleep, %intSleepDelay%
+			FileDelete, %strRandomFile% ; remove test file
+			if (ErrorLevel) ; error 32 (file used by another process) frequent on synced platforms like Dropbox
+			{
+				intSleepDelay *= 2 ; double the delay
+				if (intSleepDelay > 320) ; after 5 tries
+				{
+					###_V(A_ThisFunc . " ERROR DELETING TEST FILE", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+					break
+				}
+			}
+			else
+			{
+				###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+				break
+			}
+		}
+		return true
+	}
+	else
+	{
+		###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
+		return false
+	}
 }
 ;------------------------------------------------------------
 
