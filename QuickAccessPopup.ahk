@@ -1495,6 +1495,7 @@ g_strQAPFeaturesList := ""
 g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated with "|" pipe separator)
 
 g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
+g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
 
 g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 g_strQAPconnectFileManager := ""
@@ -8043,25 +8044,6 @@ else
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 	
-/*
-	; ###_O("objNewMenuInGui", objNewMenuInGui)
-	; ###_V("ExternalMenuModifiedSinceLoaded(objNewMenuInGui)", ExternalMenuModifiedSinceLoaded(objNewMenuInGui))
-	if (objNewMenuInGui.MenuType = "External")
-		if !(objNewMenuInGui.MenuLoaded) or ExternalMenuIsReadOnly(objNewMenuInGui.MenuExternalPath) ; #####
-		{
-			if !(objNewMenuInGui.MenuLoaded)
-				Oops(lOopsErrorIniFileUnavailable . ":`n`n" . objNewMenuInGui.MenuExternalPath . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
-			else ; read-only
-			{
-				IniRead, strWriteAccessMessage, % objNewMenuInGui.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
-				IniRead, strExternalMenuName, % objNewMenuInGui.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
-				Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . strExternalMenuName : "") . (StrLen(strWriteAccessMessage) ? "`n`n" . strWriteAccessMessage : ""))
-			}
-			gosub, GuiMenusListChangedCleanup
-			return
-		}
-*/
-
 	g_objMenuInGui := objNewMenuInGui
 	
 	g_arrSubmenuStackPosition.Insert(1, LV_GetNext("Focused"))
@@ -10096,7 +10078,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
-				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir, true) ; true for blnDoNotCheckCanWriteFile to preserve the file date time
+				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
 				and objCurrentMenu[A_Index].SubMenu.MenuLoaded
 				and objCurrentMenu[A_Index].SubMenu.NeedSave)
 		{
@@ -11681,12 +11663,6 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 ; 	gosub, OpenFavoriteCleanup
 ; 	return
 ; }
-if (g_strAlternativeMenu = lMenuAlternativeEditFavorite) and StrLen(g_objMenusIndex[A_ThisMenu].MenuExternalPath) and ExternalMenuIsReadOnly(g_objMenusIndex[A_ThisMenu].MenuExternalPath)
-{
-	Oops(lOopsErrorIniFileReadOnly)
-	gosub, OpenFavoriteCleanup
-	return
-}
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
@@ -15390,38 +15366,6 @@ StringLeftDotDotDot(strText, intMax)
 
 
 ;------------------------------------------------------------
-ExternalMenuIsReadOnly(strFile, blnDoNotCheckCanWriteFile := 0)
-; Check if external settings file is Read-only (deprecated) or Centralized
-;------------------------------------------------------------
-{
-	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
-	
-	if StrLen(strFile) and FileExist(strFile)
-	{
-		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
-		IniRead, intMenuExternalType, %strFile%, Global, MenuType
-		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
-		if (blnExternalMenuReadOnly)
-		{
-			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
-			loop, Parse, strWriteAccessUsers, `,
-				if (A_LoopField = A_UserName)
-				{
-					blnExternalMenuReadOnly := false
-					break
-				}
-		}
-	}
-
-	if (blnDoNotCheckCanWriteFile)
-		return blnExternalMenuReadOnly
-	else
-		return blnExternalMenuReadOnly or !ExternalSettingsUserCanWriteFolder(strFile) ; ##### reduce write check
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 ; return true if objMenu is an external menu or is under an external menu
 ; objExternalMenu returns the parent external menu object (equal to objMenu if objMenu is an external menu itself)
@@ -15721,7 +15665,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
 	
 	###_V(A_ThisFunc, objMenu.MenuExternalPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
-	if (intMenuExternalType = 3 and ExternalMenuCentralReadOnly(objMenu.MenuExternalPath))
+	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalPath))
 	{
 		IniRead, strWriteAccessMessage, % objMenu.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
 		IniRead, strExternalMenuName, % objMenu.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
@@ -15740,7 +15684,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 			Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
 			return false
 		}
-	else if (intMenuExternalType = 2 and !ExternalSettingsUserCanWriteFolder(objMenu.MenuExternalPath))
+	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalPath))
 	; user cannot write to collaborative external ini file, could not lock it, return false
 	{
 		Oops(lOopsExternalFileWriteErrorCollaborative)
@@ -15781,27 +15725,28 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 
 
 ;------------------------------------------------------------
-ExternalMenuCentralReadOnly(strFile)
-; Check if external settings file is Read-only (deprecated) or Centralized and if it can be edit by current user
+ExternalMenuIsReadOnly(strFile)
+; Check if external settings file is Read-only (deprecated) or if it is a Centralized and current user cannot edit it
 ;------------------------------------------------------------
 {
+	if ExternalMenuFolderIsReadOnly(strFile)
+		return true
+	; else check if user is allowed to edit Centralized file
+
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
+	IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
+	IniRead, intMenuExternalType, %strFile%, Global, MenuType
+	blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
 	
-	if StrLen(strFile) and FileExist(strFile)
+	if (blnExternalMenuReadOnly)
 	{
-		IniRead, blnExternalMenuReadOnly, %strFile%, Global, MenuReadOnly, 0 ; deprecated since v8.1.1 but still supported ix exists in ini file
-		IniRead, intMenuExternalType, %strFile%, Global, MenuType
-		blnExternalMenuReadOnly := (blnExternalMenuReadOnly or intMenuExternalType = 3) ; 3 = Centralized
-		if (blnExternalMenuReadOnly)
-		{
-			IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
-			loop, Parse, strWriteAccessUsers, `,
-				if (A_LoopField = A_UserName)
-				{
-					blnExternalMenuReadOnly := false
-					break
-				}
-		}
+		IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
+		loop, Parse, strWriteAccessUsers, `,
+			if (A_LoopField = A_UserName)
+			{
+				blnExternalMenuReadOnly := false
+				break
+			}
 	}
 
 	return blnExternalMenuReadOnly
@@ -15824,48 +15769,57 @@ ExternalMenuModifiedSinceLoaded(objMenu)
 
 
 ;------------------------------------------------------------
-ExternalSettingsUserCanWriteFolder(strFile)
-; Test if user can write to folder containing an external ini file
+ExternalMenuFolderIsReadOnly(strFile)
+; Test if user can write to folder containing an external ini file, returns true if file is in a read-only folder, false if it is not read-only
+; add folder to object g_objExternalMenuFolderReadOnly to avoid checking same folder again (refreshed only when QAP is restarted)
 ;------------------------------------------------------------
 {
+	global g_objExternalMenuFolderReadOnly
+	
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	SplitPath, strFile, , strFolder
-	Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random file number and variable number
-	strRandomFile := strFolder . "\~$_QAP_Test_file_" . intRandom . ".ini" ; Dropbox doe nos syn files starting with ~$
 	
-	IniWrite, %A_UserName% on %A_ComputerName% at %A_Now%, %strRandomFile%, Global, WriteAccessTest
-	Sleep, 20 ; for safety
-	IniRead, strRead, %strRandomFile%, Global, WriteAccessTest ; ERROR if not found
-	
-	if (strRead <> "ERROR") ; the ini file was created, now delete it
+	if !g_objExternalMenuFolderReadOnly.HasKey(strFolder) ; if folder of file was not already checked
 	{
-		intSleepDelay := 20
-		Loop
+		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random file number and variable number
+		strRandomFile := strFolder . "\~$_QAP_Test_file_" . intRandom . ".ini" ; Dropbox does not syn files starting with ~$
+		
+		IniWrite, %A_UserName% on %A_ComputerName% at %A_Now%, %strRandomFile%, Global, WriteAccessTest
+		Sleep, 20 ; for safety
+		IniRead, strRead, %strRandomFile%, Global, WriteAccessTest ; ERROR if not found
+		
+		if (strRead <> "ERROR") ; the ini file was created, now delete it
 		{
-			sleep, %intSleepDelay%
-			FileDelete, %strRandomFile% ; remove test file
-			if (ErrorLevel) ; error 32 (file used by another process) frequent on synced platforms like Dropbox
+			intSleepDelay := 20
+			Loop
 			{
-				intSleepDelay *= 2 ; double the delay
-				if (intSleepDelay > 320) ; after 5 tries
+				sleep, %intSleepDelay%
+				FileDelete, %strRandomFile% ; remove test file
+				if (ErrorLevel) ; error 32 (file used by another process) frequent on synced platforms like Dropbox
 				{
-					###_V(A_ThisFunc . " ERROR DELETING TEST FILE", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+					intSleepDelay *= 2 ; double the delay
+					if (intSleepDelay > 320) ; after 5 tries
+					{
+						###_V(A_ThisFunc . " ERROR DELETING TEST FILE", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+						break
+					}
+				}
+				else
+				{
+					###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
 					break
 				}
 			}
-			else
-			{
-				###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
-				break
-			}
+			g_objExternalMenuFolderReadOnly[strFolder] := false ; folder is not read-only
 		}
-		return true
+		else
+		{
+			###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
+			g_objExternalMenuFolderReadOnly[strFolder] := true ; folder is read-only
+		}
 	}
-	else
-	{
-		###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
-		return false
-	}
+
+	return g_objExternalMenuFolderReadOnly[strFolder]
 }
 ;------------------------------------------------------------
 
