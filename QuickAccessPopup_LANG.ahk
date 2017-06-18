@@ -431,6 +431,7 @@ global lOopsExternalCatalogueReadOnly := "The Shared Menus Catalogue option is r
 global lOopsExternalFileWriteError := "An error occurred while writing to the shared menu settings file:`n~1~.`n`nCheck if this file or this folder is read-only." ; new
 global lOopsExternalFileWriteErrorCollaborative := "You can't edit the content of this Shared menu. If you think you should have access, please contact your system administrator."
 global lOopsExternalReadOnlyAlert := "Shared menus of type ""Centralized"" can only be edited by user(s) in the ""~1~"" field (or by opening the ini file on the shared drive using a text editor).`n`nYour user name is: ""~2~"".`nYour computer name is: ""~3~""."
+global lOopsExternalReadOnlyAlertUsernameAdded := "Your user name was automatically added to the ""Users with write access"" list."
 global lOopsExternalSelectType := "Please select the Shared menu type in the ""Shared menu"" tab."
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new

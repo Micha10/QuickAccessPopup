@@ -7452,7 +7452,11 @@ blnType3Before := f_radExternalMenuType3
 Gui, 2:Submit, NoHide
 
 if (A_ThisLabel = "RadioButtonExternalMenuClicked" and !blnType3Before and f_radExternalMenuType3)
-	Oops(lOopsExternalReadOnlyAlert, lDialogExternalWriteAccessUsers, A_UserName, A_ComputerName)
+{
+	Oops(lOopsExternalReadOnlyAlert . "`n`n" . lOopsExternalReadOnlyAlertUsernameAdded, lDialogExternalWriteAccessUsers, A_UserName, A_ComputerName)
+	if !InStr(f_strExternalWriteAccessUsers, A_UserName)
+		GuiControl, , f_strExternalWriteAccessUsers, % f_strExternalWriteAccessUsers . (StrLen(f_strExternalWriteAccessUsers) ? ";" : "") . A_UserName
+}
 
 if (A_ThisLabel = "RadioButtonExternalMenuClicked" and ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir))
 {
@@ -15644,7 +15648,7 @@ ExternalMenuIsReadOnly(strFile)
 	if (blnExternalMenuReadOnly)
 	{
 		IniRead, strWriteAccessUsers, %strFile%, Global, WriteAccessUsers, %A_Space% ; empty by default
-		loop, Parse, strWriteAccessUsers, `,
+		loop, Parse, strWriteAccessUsers, `,`; ; official delimiter is comma, semicolon also supported
 			if (A_LoopField = A_UserName)
 			{
 				blnExternalMenuReadOnly := false
