@@ -8317,49 +8317,6 @@ return
 ;------------------------------------------------------------
 
 
-/*
-;------------------------------------------------------------
-ExternalMenuReserved_OUT(objMenu)
-;------------------------------------------------------------
-{
-	global g_objExternaleMenuToRelease
-	
-	; ###_O("objMenu", objMenu)
-	IniRead, intMenuExternalType, % objMenu.MenuExternalPath, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
-	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
-	
-	if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_UserName . " (" . A_ComputerName . ")")
-	; collaborative or centralized menu is reserved by another user
-	{
-		Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
-		return false
-	}
-	else
-	{
-		; Test if user can write to external ini file
-		if !ExternalSettingsUserCanWriteFolder(objMenu.MenuExternalPath)
-		{
-			Oops(lOopsExternalFileWriteErrorCollaborative) ; this should occur only when user try to open a Collaborative external menu without having write access
-			return false
-		}
-		
-		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
-			; personal menu is changed on another system
-			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
-		
-		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
-		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
-			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
-		; remember to free when saving or canceling
-		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-		objMenu.NeedSave := true
-
-		return true
-	}
-}
-;------------------------------------------------------------
-*/
-
 ;------------------------------------------------------------
 AddExternalMenusFromCatalogue:
 AddExternalCatalogueFromQAPFeature:
@@ -9967,7 +9924,6 @@ IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
-g_objFilesLastModifiedDateTime := Object() ; re-init list of files already checked
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 ToolTip, %lGuiSaving%. ; animated tooltip
@@ -10093,8 +10049,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				
 				if FileExist(g_strIniFile)
 				{
-					; not required - strIniDateTimeBefore := GetModifiedDateTime(g_strIniFile, true) ; true to track if file was already checked
-
 					gosub, BackupIniFile ; backup external settings ini file, if required
 					
 					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
@@ -10126,14 +10080,11 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			{
 				Sleep, 20 ; for safety
 				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
-				; not required - if (!StrLen(strIniDateTimeBefore) and !StrLen(strIniDateTimeAfter)) ; the file did not exist before (new) and does not exist after (not created)
-				; not required - 	or (StrLen(strIniDateTimeBefore) and (strIniDateTimeBefore = strIniDateTimeAfter)) ; the file was not changed
-				; not required - 	Oops(lOopsExternalFileWriteError, g_strIniFile)
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.NeedSave := false
 				IniWrite, %strIniDateTimeAfter%, %g_strIniFile%, Global, LastModified
-				###_V("DateTime AFTER", g_strIniFile, strIniDateTimeAfter)
+				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeAfter)
 					
 				g_strIniFile := strPreviousIniFile
 				g_intIniLine := intPreviousIniLine
@@ -11656,13 +11607,6 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	gosub, OpenFavoriteCleanup
 	return
 }
-
-; ##### remove this when check that edit from alternative menu is handled OK
-; if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and FavoriteIsUnderExternalMenuReadOnly_OUT(g_objMenusIndex[A_ThisMenu]))
-; {
-; 	gosub, OpenFavoriteCleanup
-; 	return
-; }
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
 
@@ -15373,8 +15317,8 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 {
 	Loop
 	{
-		###_V(A_ThisFunc, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-			, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
+		; ###_V(A_ThisFunc, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
+		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
 			objExternalMenu := objMenu
@@ -15393,33 +15337,6 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 	}
 }
 ;------------------------------------------------------------
-
-
-/*
-;------------------------------------------------------------
-FavoriteIsUnderExternalMenuReadOnly_OUT(objMenu)
-;------------------------------------------------------------
-{
-	Loop
-	{
-		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
-		if (objMenu.MenuType = "External")
-			if !ExternalMenuReserved(objMenu) ; check if we can reserve external menu
-				return true ; External menu reserved by another user
-			else
-				return false ; External menu already or newly reserved for user
-		else if (objMenu.IsLiveMenu) or (objMenu.MenuPath = lMainMenuName)
-			return false ; Live Folder Menu or up to Main menu, no External menu
-		else
-			if !(objMenu[1].HasKey("SubMenu"))
-				return false ; should no occur, no parent menu
-			else
-				objMenu := objMenu[1].SubMenu ; up one level and loop
-	}
-}
-;------------------------------------------------------------
-*/
 
 
 ;------------------------------------------------------------
@@ -15480,26 +15397,12 @@ GetFavoriteTypeForList(objFavorite)
 
 
 ;------------------------------------------------------------
-GetModifiedDateTime(strFile, blnTrackIfAlreadyChecked := false) ; ##### blnTrackIfAlreadyChecked still required?
-; when blnTrackIfAlreadyChecked is true, if an external menu settings file is used twice in a menu,
-; track the last modified date-time of file only for the first occurence
+GetModifiedDateTime(strFile)
+; returns the last modified file system date-time of file
 ;------------------------------------------------------------
 {
-	global g_objFilesLastModifiedDateTime
-	; ###_O("TOP " . A_ThisFunc . "`n" . strFile . "`n" . (blnTrackIfAlreadyChecked ? "TRACK" : "no track"), g_objFilesLastModifiedDateTime)
-	
-	if (blnTrackIfAlreadyChecked) and g_objFilesLastModifiedDateTime.HasKey(strFile)
-		; ###_O("TRACK LOAD" . "`n" . strFile, g_objFilesLastModifiedDateTime)
-		return g_objFilesLastModifiedDateTime[strFile]
-	else
-	{
-		FileGetTime, strDateTime, %strFile% ; modification by default
-		if (blnTrackIfAlreadyChecked)
-			; ###_O("TRACK SAVE" . "`n" . strFile . "`n" . strDateTime, g_objFilesLastModifiedDateTime)
-			g_objFilesLastModifiedDateTime[strFile] := strDateTime
-		###_V(A_ThisFunc, strFile, strDateTime)
-		return strDateTime
-	}
+	FileGetTime, strDateTime, %strFile% ; modification date-time by default
+	return strDateTime
 }
 ;------------------------------------------------------------
 
@@ -15664,7 +15567,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	IniRead, intMenuExternalType, % objMenu.MenuExternalPath, Global, MenuType, 1 ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
 	IniRead, strMenuExternalReservedBy, % objMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space% ; empty if not found
 	
-	###_V(A_ThisFunc, objMenu.MenuExternalPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
+	; ###_V(A_ThisFunc, objMenu.MenuExternalPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
 	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalPath))
 	{
 		IniRead, strWriteAccessMessage, % objMenu.MenuExternalPath, Global, WriteAccessMessage, %A_Space% ; empty if not found
@@ -15715,7 +15618,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 				, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
 			; remember to free when saving or canceling
 			g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-			###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
+			; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
 		}
 
 		return true
@@ -15760,9 +15663,9 @@ ExternalMenuModifiedSinceLoaded(objMenu)
 {
 	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
 	objMenu.MenuExternalLastModifiedNow := strLastModified
-	if (!StrLen(objMenu.MenuExternalLastModifiedWhenLoaded) or !StrLen(objMenu.MenuExternalLastModifiedNow))
-		###_V(A_ThisFunc . " !!!!!", strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
-	###_V(A_ThisFunc . " MODIFIED?", (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded), strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	; if (!StrLen(objMenu.MenuExternalLastModifiedWhenLoaded) or !StrLen(objMenu.MenuExternalLastModifiedNow))
+	;	###_V(A_ThisFunc . " !!!!!", strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	; ###_V(A_ThisFunc . " MODIFIED?", (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded), strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
 	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
 }
 ;------------------------------------------------------------
@@ -15799,24 +15702,18 @@ ExternalMenuFolderIsReadOnly(strFile)
 				{
 					intSleepDelay *= 2 ; double the delay
 					if (intSleepDelay > 320) ; after 5 tries
-					{
-						###_V(A_ThisFunc . " ERROR DELETING TEST FILE", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+						; ###_V(A_ThisFunc . " ERROR DELETING TEST FILE", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
 						break
-					}
 				}
 				else
-				{
-					###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
+					; ###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
 					break
-				}
 			}
 			g_objExternalMenuFolderReadOnly[strFolder] := false ; folder is not read-only
 		}
 		else
-		{
-			###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
+			; ###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
 			g_objExternalMenuFolderReadOnly[strFolder] := true ; folder is read-only
-		}
 	}
 
 	return g_objExternalMenuFolderReadOnly[strFolder]
