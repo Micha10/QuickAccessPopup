@@ -8583,9 +8583,14 @@ if (!g_intNewItemPos) ; if in GuiMoveOneFavoriteSave, GuiAddFavoriteSaveXpress o
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
+; validation to avoid external settings file under another external settings file
 if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true))
+	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and g_objEditedFavorite.FavoriteType = "External")
 {
-	Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
+	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
+		Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
+	else
+		Oops(lOopsExternalNotAllowedUnderExternal)
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
 		g_intOriginalMenuPosition++
 	gosub, GuiAddFavoriteSaveCleanup
@@ -9827,13 +9832,22 @@ GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . str
 
 if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
 {
+	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+	; this favorite could not be edited because it is in an external menu locked by another user,
+	; or because external settings file is in a read-only folder, or because external files was modified 
+	; by another user since it was loaded in QAP by this user
+		goto, IconsManagePickIconDialogCleanup
+	; else continue
+
 	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
 	g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath][g_objManageIcons[intManageIconsIndex].FavoriteIndex].FavoriteIconResource := strIconResource
 	Gosub, EnableSaveAndCancel
 }
 
+IconsManagePickIconDialogCleanup:
 intIconRow := ""
 strIconResource := ""
+objExternalMenu := ""
 
 return
 ;------------------------------------------------------------
