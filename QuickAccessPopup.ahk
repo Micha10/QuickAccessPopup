@@ -31,6 +31,21 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.2.9 (2017-06-19)
+- complete rewrite of Shared menus file locking (reservation to avoid conflicutal changes by simulatneous users)
+- when opening the add/edit favorite dialog box, QAP checks if the favorites belongs to a Shared menu and displays a message if the menu is read-only, locked (reserved) by another user or if it was changed since QAP was launched
+- when saving a new or edited favorite (or when moving a favorite using arrows in Settings, or when adding a separator or a column break), QAP checks if the favorites belongs to a Shared menu and, if yes, checks if the shared menu was locked or modified since the dialog box was opened and, if yes, displays a message
+- after the new or edited favorite in a shared menu is saved in QAP "internal" memory, QAP locks (reserves) the shared menu file until the changes in shared menu are actualy saved to its settings file, preventing other users to edit this shared menu
+- QAP handles scenarios where the parent menu in the favorites dialog box "Menu Options" tab is changed, handling file locking if one or both menus are shared menus
+- QAP display "Read-only" in the Settings window's content column and prevent opening this menu in the Settings window if it is saved in a folder where the user has no write access and for shared menus of type "Centralized" where user does not appear in the write-access users list
+- QAP checks if a shared menu is in a read-only folder by attempting to create a temporary settings file in this folder, test filename being "~$_QAP_Test_file_nnn.ini", where "nnn" is a random number (by convention file sync tools like Dropbox ignore file starting with "~$")
+- QAP checks if folders containing Shared menus files are read-only only once in a session; if the read-only setting of a folder is changed during QAP is running, QAP will consider it can be written to until QAP is restarted (this could cause a file write error, visible or not)
+- when creating a Shared menu of type "Centralized", QAP automatically adds the current username to the write-access list (preventing the user to be locked out of its own new menu)
+- in "Centralized" Shared menus write-access list, names can also be separated by semicolon (in addition to comma)
+- QAP checks that an external settings file cannot be added under another external settings file (this is not supported in current version)
+- QAP now supports Shared menu file locking in the "Manage icons" window (in previous QAP versions, this window was not properly handling shared menu file locking)
+- in Settings window's "Content" column, QAP now displays the Shared menu settings file location
+
 Version: 8.2.2 (2017-06-08)
 - Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
 - In Shared Menus Catalogue, replace "&&" in menu names with single "&"
@@ -1367,7 +1382,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.2
+;@Ahk2Exe-SetVersion 8.2.9 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1440,8 +1455,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -3395,11 +3410,12 @@ Loop
 	g_objHotkeysByNameLocation.Insert(arrLocationHotkey1 . "|" . arrLocationHotkey2, arrLocationHotkey3)
 }
 
-if !(blnHotkeysUpgradedToNameLocation) ; flag tha convertion to v8.1 has been made
+if !(blnHotkeysUpgradedToNameLocation) ; flag that the convertion to v8.1 has been made
 	IniWrite, 1, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation
 
 strLocationHotkey := ""
 arrLocationHotkey := ""
+blnHotkeysUpgradedToNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -11986,7 +12002,9 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 		}
 	}
 	
-	if !(blnLocationFound) ; should not happen
+	if !(blnLocationFound)
+	; could happen if hotkey was linked to a favorite in external menu that was changed or removed
+	; orphan hotkeys will be removed next time favorites are saved
 	{
 		Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
 		
