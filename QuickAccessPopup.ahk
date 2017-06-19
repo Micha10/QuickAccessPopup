@@ -6332,8 +6332,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 				strGuiMenuLocation := lOopsErrorIniFileUnavailable . " "
 			else
 				strGuiMenuLocation := ""
-			IniRead, strExternalMenuName, % g_objMenuInGui[A_Index].SubMenu.MenuExternalPath, Global, MenuName, %A_Space% ; empty if not found
-			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
+			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalPath
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
@@ -8989,8 +8988,8 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "External")
-		strThisLocation := (ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir) ? lDialogReadOnly . " " : "")
-			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strExternalMenuName
+		strThisLocation := (ExternalMenuIsReadOnly(strFavoriteAppWorkingDir) ? lDialogReadOnly . " " : "")
+			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strFavoriteAppWorkingDir
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
