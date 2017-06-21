@@ -282,6 +282,7 @@ global lGuiGroupSaveRestoreWith := "Restore folders with:" ; new
 global lGuiHelp := "Help"
 global lGuiHotkeysHelp := "Favorites Shortcuts Help"
 global lGuiHotkeysHelpText := "Down: Select next favorite`nUp: Select previous favorite`n`nEnter: Edit favorite`nCtrl-N: Add a new favorite`nCtrl-C: Copy a favorite`nDel: Remove favorite(s)`n`nShift-Up/Down: Select contiguous favorites`nCtrl-Click: Select non-contiguous favorites`nCtrl-A: Select all favorites`n`nCtrl-Down: Move favorite(s) down`nCtrl-Up: Move favorite(s) up`n`nCtrl-Right: Open selected submenu or group`nCtrl-Left: Open parent menu" ; order changed and lines added
+global lGuiHotkeysHelpText2 := "F1: Display the Help window`nCtrl-F: Select the Search box`nCtrl-H: Display this window"
 global lGuiLoginName := "Login name" ; new
 global lGuiLvFavoritesHeader := "Name|Type|Hotkey|Location or content"
 global lGuiLvFavoritesHeaderFiltered := "Name|Menu|Type|Hotkey|Location or content"
