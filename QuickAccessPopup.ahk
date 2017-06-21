@@ -1675,6 +1675,9 @@ return
 #If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 
 ^Up::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesUp
 else
@@ -1682,6 +1685,9 @@ else
 return
 
 ^Down::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesDown
 else
@@ -1689,24 +1695,40 @@ else
 return
 
 ^Right::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 Gosub, HotkeyChangeMenu
 return
 
 ^Left::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 GuiControlGet, blnUpMenuVisible, Visible, f_picUpMenu
 if (blnUpMenuVisible)
 	Gosub, GuiGotoPreviousMenu
 return
 
 ^A::
-LV_Modify(0, "Select")
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, ^a ; select all search control
+else
+	LV_Modify(0, "Select") ; select all in listview
 return
 
 ^N::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 Gosub, GuiAddFavoriteSelectType
 return
 
 Enter::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesToMenu
 else
@@ -1714,14 +1736,43 @@ else
 return
 
 Del::
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiRemoveMultipleFavorites
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, {Del}
 else
-	Gosub, GuiRemoveFavorite
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiRemoveMultipleFavorites
+	else
+		Gosub, GuiRemoveFavorite
 return
 
 ^C::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, ^c
+else
 	Gosub, GuiCopyFavorite
+return
+
+^F::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiFocusFilter
+return
+
+^H::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiHotkeysHelpClicked
+return
+
+F1::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiHelp
 return
 
 #If
@@ -6228,6 +6279,8 @@ return
 BuildGui:
 ;------------------------------------------------------------
 
+g_blnFavoritesListFilterNeverFocused := true
+
 IniRead, strTextColor, %g_strIniFile%, Gui-%g_strTheme%, TextColor, 000000
 IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewBackground, FFFFFF
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
@@ -6292,7 +6345,7 @@ Gui, 1:Add, ListView
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
-	, %lGuiLvFavoritesHeaderFiltered% ; SysHeader321 / SysListView321
+	, %lGuiLvFavoritesHeaderFiltered%|Object Position (hidden) ; SysHeader321 / SysListView321
 
 
 Gui, 1:Font, s8 w600, Verdana
@@ -6335,6 +6388,7 @@ return
 ;------------------------------------------------------------
 LoadMenuInGui:
 LoadMenuInGuiFromAlternative:
+LoadMenuInGuiFromGuiSearch:
 ;------------------------------------------------------------
 
 Gui, 1:ListView, f_lvFavoritesList
@@ -6380,7 +6434,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
-LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
+; keep original position from LoadMenuInGuiFromAlternative or LoadMenuInGuiFromGuiSearch
+LV_Modify((InStr("LoadMenuInGuiFromAlternative|LoadMenuInGuiFromGuiSearch", A_ThisLabel) ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
 Gosub, AdjustColumnsWidth
 
@@ -6402,6 +6457,11 @@ LoadMenuInGuiFiltered:
 ;------------------------------------------------------------
 Gui, 1:Submit, NoHide
 
+; often fail
+; intListFilteredWinID := WinExist("A")
+; if not DllCall("LockWindowUpdate", Uint, intListFilteredWinID)
+;	Oops("An error occured while locking window display", g_strAppNameText, g_strAppVersion)
+
 strFavoritesListFilter := f_strFavoritesListFilter
 if !StrLen(strFavoritesListFilter)
 {
@@ -6415,13 +6475,15 @@ GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
 Gui, 1:ListView, f_lvFavoritesListFiltered
 LV_Delete()
+LV_ModifyCol(6, 0) ; do early to avoid flash
 
 RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter)
 
 LV_Modify(1, "Select Focus") 
-Gosub, AdjustColumnsWidth
+Loop, % LV_GetCount("Column") - 1
+	LV_ModifyCol(A_Index, "AutoHdr")
 
-; NO focus on Edit GuiControl, Focus, f_lvFavoritesListFiltered
+; DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
 strGuiMenuLocation := ""
 strThisType := ""
@@ -6466,11 +6528,12 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . objCurrentMenu[A_Index].SubMenu.MenuExternalPath
 				}
 				
-				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey, strGuiMenuLocation)
+				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey, strGuiMenuLocation, A_Index)
 			}
 			else ; this is a folder, document, etc.
 				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey
-					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 250) : objCurrentMenu[A_Index].FavoriteLocation))
+					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 250) : objCurrentMenu[A_Index].FavoriteLocation)
+					, A_Index)
 		}
 		
 		if InStr("Menu|External|Group", objCurrentMenu[A_Index].FavoriteType, true)
@@ -6551,7 +6614,7 @@ GuiHotkeysHelpClicked:
 Gui, 1:+OwnDialogs
 
 MsgBox, 0, %g_strAppNameText% - %lGuiHotkeysHelp%
-	, %lGuiHotkeysHelpText%
+	, %lGuiHotkeysHelpText%`n`n%lGuiHotkeysHelpText2%
 
 return
 ;------------------------------------------------------------
@@ -6620,46 +6683,32 @@ return
 GuiFavoritesListFilteredEvents:
 ;------------------------------------------------------------
 
-Gui, 1:ListView, f_lvFavoritesListFiltered
-
-/*
 if (A_GuiEvent = "DoubleClick")
 {
-	g_intOriginalMenuPosition := LV_GetNext()
-	if StrLen(g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType) and InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
-		Gosub, OpenMenuFromGuiHotkey
-	else if (g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType = "B")
-		Gosub, GuiGotoUpMenu
+	Gui, 1:ListView, f_lvFavoritesListFiltered
+
+	intItemPosition := LV_GetNext()
+	LV_GetText(strMenuPath, intItemPosition, 2)
+	LV_GetText(strHotkeyType, intItemPosition, 3)
+	LV_GetText(strFavoritePosition, intItemPosition, 6)
+
+	g_intOriginalMenuPosition := strFavoritePosition
+	g_objMenuInGui := g_objMenusIndex[strMenuPath]
+	; ###_V(A_ThisLabel, intItemPosition, strMenuPath, strHotkeyType, strFavoritePosition, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
+	
+	gosub, GuiFavoritesListFilterEmpty ; display regular favorites list
+	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
+
+	if InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
+		gosub, OpenMenuFromGuiHotkey ; open the submenu favorite
 	else
-		gosub, GuiEditFavorite
+		gosub, GuiEditFavoriteFromGuiSearch ;  open the edit favorite dialog box
+
+	intItemPosition := ""
+	strMenuPath := ""
+	strHotkeyType := ""
+	strFavoritePosition := ""
 }
-else if (A_GuiEvent = "I") ; Item changed, change Edit button label
-{
-	g_intFavoriteSelected := LV_GetCount("Selected")
-	if (g_intFavoriteSelected > 1)
-	{
-		GuiControl, , f_lblGuiEditFavorite, % lGuiMove . " (" . g_intFavoriteSelected . ")"
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_lblGuiEditFavorite
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_picGuiEditFavorite
-		GuiControl, , f_lblGuiRemoveFavorite, % lGuiRemoveFavorite . " (" . g_intFavoriteSelected . ")"
-		GuiControl, +gGuiRemoveMultipleFavorites, f_lblGuiRemoveFavorite
-		GuiControl, +gGuiRemoveMultipleFavorites, f_picGuiRemoveFavorite
-		GuiControl, +gGuiMoveMultipleFavoritesUp, f_picMoveFavoriteUp
-		GuiControl, +gGuiMoveMultipleFavoritesDown, f_picMoveFavoriteDown
-	}
-	else
-	{
-		GuiControl, , f_lblGuiEditFavorite, %lGuiEditFavorite%
-		GuiControl, +gGuiEditFavorite, f_lblGuiEditFavorite
-		GuiControl, +gGuiEditFavorite, f_picGuiEditFavorite
-		GuiControl, , f_lblGuiRemoveFavorite, %lGuiRemoveFavorite%
-		GuiControl, +gGuiRemoveFavorite, f_lblGuiRemoveFavorite
-		GuiControl, +gGuiRemoveFavorite, f_picGuiRemoveFavorite
-		GuiControl, +gGuiMoveFavoriteUp, f_picMoveFavoriteUp
-		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
-	}
-}
-*/
 
 return
 ;------------------------------------------------------------
@@ -6939,6 +6988,7 @@ GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
 GuiAddExternalFromCatalogue:
 GuiAddExternalOtherExternal:
+GuiEditFavoriteFromGuiSearch:
 ;------------------------------------------------------------
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
@@ -7110,7 +7160,7 @@ blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative") ; if from Alternative menu (or menu modifiers) we already have g_intOriginalMenuPosition
+	if !InStr("GuiEditFavoriteFromAlternative|GuiEditFavoriteFromGuiSearch", strGuiFavoriteLabel) ; if from Alternative menu (or menu modifiers) or search we already have g_intOriginalMenuPosition
 		g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
@@ -8186,6 +8236,7 @@ GuiGotoUpMenu:
 GuiGotoPreviousMenu:
 OpenMenuFromEditForm:
 OpenMenuFromGuiHotkey:
+OpenMenuFromGuiSearch:
 ;------------------------------------------------------------
 intCurrentLastPosition := 0
 
@@ -8218,6 +8269,8 @@ else
 		objNewMenuInGui := g_objMenuInGui[1].SubMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
+	else if (A_ThisLabel = "OpenMenuFromGuiSearch")
+		objNewMenuInGui := g_objMenuInGui ;  we already have the menu object in g_objMenuInGui from the search event
 	
 	g_objMenuInGui := objNewMenuInGui
 	
@@ -8227,7 +8280,10 @@ else
 GuiControl, % (g_arrSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
 GuiControl, % (g_objMenuInGui.MenuPath <> lMainMenuName ? "Show" : "Hide"), f_picUpMenu
 
-Gosub, LoadMenuInGui
+if (A_ThisLabel = "OpenMenuFromGuiSearch")
+	Gosub, LoadMenuInGuiFromGuiSearch
+else
+	Gosub, LoadMenuInGui
 
 if (intCurrentLastPosition) ; we went to a previous menu
 {
@@ -8256,6 +8312,21 @@ GuiEditFavoriteCancel:
 
 Gosub, GuiAddFavoriteFlush
 Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFocusFilter:
+;------------------------------------------------------------
+
+GuiControl, Focus, f_strFavoritesListFilter
+if (g_blnFavoritesListFilterNeverFocused)
+{
+	GuiControl, , f_strFavoritesListFilter, % ""
+	g_blnFavoritesListFilterNeverFocused := false
+}
 
 return
 ;------------------------------------------------------------
@@ -15929,14 +16000,19 @@ WM_MOUSEMOVE(wParam, lParam)
 ; see http://www.autohotkey.com/board/topic/70261-gui-buttons-hover-cant-change-cursor-to-hand/
 ;------------------------------------------------
 {
-	Global g_objHandCursor
-	Global g_strGuiFullTitle
+	global g_objHandCursor
+	global g_strGuiFullTitle
+	global g_blnFavoritesListFilterNeverFocused
 
 	; empty Search box when it receives focus and contains the "Search" prompt
 	GuiControlGet, strFocusedControl, FocusV
 	GuiControlGet, strFocusedControlText, , f_strFavoritesListFilter
-	if (strFocusedControl = "f_strFavoritesListFilter" and strFocusedControlText = lDialogSearch)
-		GuiControl, , f_strFavoritesListFilter, % ""
+	if (strFocusedControl = "f_strFavoritesListFilter")
+		if (g_blnFavoritesListFilterNeverFocused)
+		{
+			GuiControl, , f_strFavoritesListFilter, % ""
+			g_blnFavoritesListFilterNeverFocused := false
+		}
 	
 	WinGetTitle, strCurrentWindow, A
 
