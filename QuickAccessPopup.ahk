@@ -2773,7 +2773,7 @@ InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
 
 InsertGuiControlPos("f_strFavoritesListFilter",		  40,  115)
-InsertGuiControlPos("f_btnFavoritesListNoFilter",	-110,  115) ; ##### adjust left
+InsertGuiControlPos("f_btnFavoritesListNoFilter",	-110,  115)
 InsertGuiControlPos("f_lvFavoritesList",			  40,  140)
 InsertGuiControlPos("f_lvFavoritesListFiltered",	  40,  140)
 
@@ -6338,7 +6338,7 @@ Gui, 1:Font, s8 w400 normal, Verdana
 Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static26
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
-Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadMenuInGuiFiltered, %lDialogSearch%
+Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch%
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; ##### review Static numbers
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
@@ -6435,7 +6435,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 }
 
 ; keep original position from LoadMenuInGuiFromAlternative or LoadMenuInGuiFromGuiSearch
-LV_Modify((InStr("LoadMenuInGuiFromAlternative|LoadMenuInGuiFromGuiSearch", A_ThisLabel) ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
+; do NOT use InStr because "LoadMenuInGui" is included in "LoadMenuInGuiFromAlternative" and "LoadMenuInGuiFromGuiSearch"
+LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
 Gosub, AdjustColumnsWidth
 
@@ -6453,7 +6454,7 @@ return
 
 
 ;------------------------------------------------------------
-LoadMenuInGuiFiltered:
+LoadFavoritesInGuiFiltered:
 ;------------------------------------------------------------
 Gui, 1:Submit, NoHide
 
@@ -6685,41 +6686,9 @@ GuiFavoritesListFilteredEvents:
 
 if (A_GuiEvent = "DoubleClick")
 {
-	Gui, 1:ListView, f_lvFavoritesListFiltered
-
-	intItemPosition := LV_GetNext()
-	LV_GetText(strMenuPath, intItemPosition, 2)
-	LV_GetText(strHotkeyType, intItemPosition, 3)
-	LV_GetText(strFavoritePosition, intItemPosition, 6)
-
-	g_intOriginalMenuPosition := strFavoritePosition
-	g_objMenuInGui := g_objMenusIndex[strMenuPath]
-	; ###_V(A_ThisLabel, intItemPosition, strMenuPath, strHotkeyType, strFavoritePosition, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
-	
-	gosub, GuiFavoritesListFilterEmpty ; display regular favorites list
-	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
-
-	if InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
-		gosub, OpenMenuFromGuiHotkey ; open the submenu favorite
-	else
-		gosub, GuiEditFavoriteFromGuiSearch ;  open the edit favorite dialog box
-
-	intItemPosition := ""
-	strMenuPath := ""
-	strHotkeyType := ""
-	strFavoritePosition := ""
+	g_blnOpenFromDoubleClick := true
+	gosub, GuiEditFavorite
 }
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GuiFavoritesListFilterEmpty:
-;------------------------------------------------------------
-
-GuiControl, , f_strFavoritesListFilter, % ""
-
 return
 ;------------------------------------------------------------
 
@@ -6728,6 +6697,8 @@ return
 GuiAddFavoriteSelectType:
 GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
+
+gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added because it is in an external menu locked by another user,
@@ -6740,6 +6711,7 @@ if (A_ThisLabel = "GuiAddFavoriteFromQAP")
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
+Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered already but seems not to be?
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
 Gui, 2:New, , % L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
@@ -6988,7 +6960,6 @@ GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
 GuiAddExternalFromCatalogue:
 GuiAddExternalOtherExternal:
-GuiEditFavoriteFromGuiSearch:
 ;------------------------------------------------------------
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
@@ -7149,6 +7120,35 @@ GuiFavoriteInit:
 ; when edit favorite, keep original values in g_objEditedFavorite
 ; when add favorite, put initial or default values in g_objEditedFavorite and update them when gui save
 
+blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+; ###_V(A_ThisLabel, blnFavoriteFromSearch, GetFavoritesListFilter())
+if (blnFavoriteFromSearch)
+{
+	Gui, 1:ListView, f_lvFavoritesListFiltered
+
+	intItemPosition := LV_GetNext()
+	LV_GetText(strMenuPath, intItemPosition, 2)
+	LV_GetText(strFavoritePosition, intItemPosition, 6)
+
+	g_intOriginalMenuPosition := strFavoritePosition
+	g_objMenuInGui := g_objMenusIndex[strMenuPath]
+	; ###_V(A_ThisLabel, strGuiFavoriteLabel, blnFavoriteFromSearch, intItemPosition, strMenuPath, strFavoritePosition, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
+
+	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
+	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
+
+	if (InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true) and g_blnOpenFromDoubleClick)
+	{
+		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
+		g_blnOpenFromDoubleClick := false ; reset value
+		g_blnAbordEdit := true
+	}
+
+	intItemPosition := ""
+	strMenuPath := ""
+	strFavoritePosition := ""
+}
+
 g_objEditedFavorite := Object()
 g_strDefaultIconResource := ""
 g_strNewFavoriteIconResource := ""
@@ -7160,7 +7160,7 @@ blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	if !InStr("GuiEditFavoriteFromAlternative|GuiEditFavoriteFromGuiSearch", strGuiFavoriteLabel) ; if from Alternative menu (or menu modifiers) or search we already have g_intOriginalMenuPosition
+	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative" or blnFavoriteFromSearch) ; if from Alternative menu or from Search we already have g_intOriginalMenuPosition
 		g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
@@ -8711,6 +8711,28 @@ Gosub, 2GuiClose
 
 return
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFavoritesListFilter()
+;------------------------------------------------------------
+{
+	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
+
+	return (strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused ? "" : strFilter)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoritesListFilterEmpty:
+;------------------------------------------------------------
+
+GuiControl, , f_strFavoritesListFilter, % ""
+
+return
+;------------------------------------------------------------
+
 
 ;========================================================================================================================
 ; END OF FAVORITE_GUI
