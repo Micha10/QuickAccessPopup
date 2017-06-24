@@ -2766,8 +2766,8 @@ InsertGuiControlPos("f_lblAppTagLine",				  10,   42)
 InsertGuiControlPos("f_lblGuiAddFavorite",			 -44,  168, true) ; 170 - 2
 InsertGuiControlPos("f_lblGuiEditFavorite",			 -44,  243, true) ; 240 + 5 - 2
 InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
-InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true) ; 310 + 5
-InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true) ; 380 + 10
+InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
 InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
@@ -6323,7 +6323,7 @@ Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static17
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static18
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static19, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp, %lGuiRemoveFavorite% ; Static20
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static20
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static21
 Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static22
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static23
