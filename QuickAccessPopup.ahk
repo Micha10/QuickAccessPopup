@@ -6344,7 +6344,7 @@ Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 Gui, 1:Add, ListView
-	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
+	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
 	, %lGuiLvFavoritesHeaderFiltered%|Object Position (hidden) ; SysHeader321 / SysListView321
 
 
@@ -6463,14 +6463,26 @@ Gui, 1:Submit, NoHide
 ; if not DllCall("LockWindowUpdate", Uint, intListFilteredWinID)
 ;	Oops("An error occured while locking window display", g_strAppNameText, g_strAppVersion)
 
+Critical, On ; prevents the current thread from being interrupted by other threads
+
 strFavoritesListFilter := f_strFavoritesListFilter
 if !StrLen(strFavoritesListFilter)
 {
+	GuiControl, Show, f_picMoveFavoriteUp
+	GuiControl, Show, f_picMoveFavoriteDown
+	GuiControl, Show, f_picAddSeparator
+	GuiControl, Show, f_picAddColumnBreak
+
 	GuiControl, Hide, f_lvFavoritesListFiltered
 	GuiControl, Show, f_lvFavoritesList
 	Gui, 1:ListView, f_lvFavoritesList
 	return
 }
+
+GuiControl, Hide, f_picMoveFavoriteUp
+GuiControl, Hide, f_picMoveFavoriteDown
+GuiControl, Hide, f_picAddSeparator
+GuiControl, Hide, f_picAddColumnBreak
 
 GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
@@ -6483,6 +6495,8 @@ RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter)
 LV_Modify(1, "Select Focus") 
 Loop, % LV_GetCount("Column") - 1
 	LV_ModifyCol(A_Index, "AutoHdr")
+
+Critical, Off ; enables the current thread to be interrupted
 
 ; DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
@@ -6689,6 +6703,7 @@ if (A_GuiEvent = "DoubleClick")
 	g_blnOpenFromDoubleClick := true
 	gosub, GuiEditFavorite
 }
+
 return
 ;------------------------------------------------------------
 
@@ -7122,17 +7137,11 @@ GuiFavoriteInit:
 
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 ; ###_V(A_ThisLabel, blnFavoriteFromSearch, GetFavoritesListFilter())
+
 if (blnFavoriteFromSearch)
 {
-	Gui, 1:ListView, f_lvFavoritesListFiltered
-
-	intItemPosition := LV_GetNext()
-	LV_GetText(strMenuPath, intItemPosition, 2)
-	LV_GetText(strFavoritePosition, intItemPosition, 6)
-
-	g_intOriginalMenuPosition := strFavoritePosition
-	g_objMenuInGui := g_objMenusIndex[strMenuPath]
-	; ###_V(A_ThisLabel, strGuiFavoriteLabel, blnFavoriteFromSearch, intItemPosition, strMenuPath, strFavoritePosition, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
+	g_objMenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
+	; ###_V(A_ThisLabel, strGuiFavoriteLabel, g_blnFavoriteFromSearch, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
 
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
@@ -8263,6 +8272,9 @@ else
 {
 	g_arrSubmenuStack.Insert(1, g_objMenuInGui.MenuPath) ; push the current menu to the left arrow stack
 	
+	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath)
+	; ###_O("g_objMenuInGui", g_objMenuInGui, "FavoriteName")
+	; ###_O("g_objMenuInGui[1]", g_objMenuInGui[1])
 	if (A_ThisLabel = "GuiMenusListChanged")
 		objNewMenuInGui := g_objMenusIndex[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
@@ -8708,27 +8720,6 @@ ButtonAddExternalMenusFromCatalogueClose:
 ;------------------------------------------------------------
 
 Gosub, 2GuiClose
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetFavoritesListFilter()
-;------------------------------------------------------------
-{
-	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
-
-	return (strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused ? "" : strFilter)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GuiFavoritesListFilterEmpty:
-;------------------------------------------------------------
-
-GuiControl, , f_strFavoritesListFilter, % ""
 
 return
 ;------------------------------------------------------------
@@ -10173,6 +10164,54 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 
 intInsertPosition := ""
 objNewFavorite := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
+	Gui, 1:ListView, f_lvFavoritesListFiltered
+
+	intPositionInListView := LV_GetNext()
+	; ###_V(A_ThisFunc, intPositionInListView)
+	if !(intPositionInListView)
+	{
+		intPositionInMenuForGui := 0
+		return % "" ; empty
+	}
+	
+	LV_GetText(strMenuPath, intPositionInListView, 2)
+	LV_GetText(intPositionInMenuForGui, intPositionInListView, 6)
+	
+	return g_objMenusIndex[strMenuPath]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFavoritesListFilter()
+;------------------------------------------------------------
+{
+	global g_blnFavoritesListFilterNeverFocused
+	
+	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
+
+	return (strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused ? "" : strFilter)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoritesListFilterEmpty:
+;------------------------------------------------------------
+
+GuiControl, , f_strFavoritesListFilter, % ""
+gosub, LoadMenuInGui
 
 return
 ;------------------------------------------------------------
@@ -15083,9 +15122,10 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		
 		if (objMenu[A_Index].Submenu.MenuType = "External")
 		{
+			; #### stop removing but validate if try to save in r-o menu
 			; skip read-only external menus
-			if ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
-				continue
+			; if ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
+			;	continue
 			
 			; skip external menus if not loaded
 			if !(objMenu[A_Index].Submenu.MenuLoaded)
