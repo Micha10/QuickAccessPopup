@@ -6979,13 +6979,8 @@ GuiAddExternalOtherExternal:
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
-; this favorite could not be added or edited because it is in an external menu locked by another user,
-; or because external settings file is in a read-only folder, or because external files was modified 
-; by another user since it was loaded in QAP by this user
-	g_blnAbordEdit := true
-else
-	Gosub, GuiFavoriteInit
+Gosub, GuiFavoriteInit
+; ###_V(A_ThisLabel, "g_objMenuInGui.MenuPath", g_objMenuInGui.MenuPath, "objExternalMenu.MenuPath", objExternalMenu.MenuPath, g_blnAbordEdit)
 
 if (g_blnAbordEdit)
 {
@@ -7139,10 +7134,19 @@ blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 ; ###_V(A_ThisLabel, blnFavoriteFromSearch, GetFavoritesListFilter())
 
 if (blnFavoriteFromSearch)
-{
 	g_objMenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
-	; ###_V(A_ThisLabel, strGuiFavoriteLabel, g_blnFavoriteFromSearch, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, g_objMenuInGui[g_intOriginalMenuPosition].FavoriteName)
 
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+; this favorite could not be added or edited because it is in an external menu locked by another user,
+; or because external settings file is in a read-only folder, or because external files was modified 
+; by another user since it was loaded in QAP by this user
+{
+	g_blnAbordEdit := true
+	return
+}
+
+if (blnFavoriteFromSearch)
+{
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
 
@@ -7151,11 +7155,8 @@ if (blnFavoriteFromSearch)
 		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
 		g_blnOpenFromDoubleClick := false ; reset value
 		g_blnAbordEdit := true
+		return
 	}
-
-	intItemPosition := ""
-	strMenuPath := ""
-	strFavoritePosition := ""
 }
 
 g_objEditedFavorite := Object()
@@ -9472,6 +9473,13 @@ return
 GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
+
+g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+if (g_blnFavoriteFromSearch)
+{
+	Oops("Remove from filtered list non available...")
+	return
+}
 
 if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
 ; if the menu is an external menu that cannot be locked, user received an error message, then abort
