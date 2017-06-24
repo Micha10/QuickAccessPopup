@@ -6490,6 +6490,11 @@ GuiControl, Hide, f_picAddColumnBreak
 
 GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
+
+Gui, 1:ListView, f_lvFavoritesList
+if (LV_GetCount("Selected") > 1) ; if multiple select in list
+	LV_Modify(0, "-Select") ; reset "Move n" and "Remove n" labels to "Edit" and "Remove"
+
 Gui, 1:ListView, f_lvFavoritesListFiltered
 LV_Delete()
 LV_ModifyCol(6, 0) ; do early to avoid flash
@@ -8254,6 +8259,7 @@ OpenMenuFromEditForm:
 OpenMenuFromGuiHotkey:
 OpenMenuFromGuiSearch:
 ;------------------------------------------------------------
+
 intCurrentLastPosition := 0
 
 if (A_ThisLabel = "GuiMenusListChanged")
@@ -8299,7 +8305,9 @@ else
 GuiControl, % (g_arrSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
 GuiControl, % (g_objMenuInGui.MenuPath <> lMainMenuName ? "Show" : "Hide"), f_picUpMenu
 
-if (A_ThisLabel = "OpenMenuFromGuiSearch")
+if StrLen(GetFavoritesListFilter())
+	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with g_objMenuInGui
+else if (A_ThisLabel = "OpenMenuFromGuiSearch")
 	Gosub, LoadMenuInGuiFromGuiSearch
 else
 	Gosub, LoadMenuInGui
