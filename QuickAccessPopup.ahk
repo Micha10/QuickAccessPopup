@@ -50,6 +50,10 @@ Version BETA: 8.2.9 (2017-06-19)
 - QAP now supports Shared menu file locking in the "Manage icons" window (in previous QAP versions, this window was not properly handling shared menu file locking)
 - in Settings window's "Content" column, QAP now displays the Shared menu settings file location
 
+Version: 8.2.3 (2017-06-24)
+- fix bug blocking removal of multiple favorites when user answers no when asked to confirm removal of a submenu
+- fix label display bug under Remove button preventing showing the number of selected favorites
+
 Version: 8.2.2 (2017-06-08)
 - Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
 - In Shared Menus Catalogue, replace "&&" in menu names with single "&"
@@ -6268,7 +6272,7 @@ Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static17
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static18
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static19, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp, %lGuiRemoveFavorite% ; Static20
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static20
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static21
 Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static22
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static23
@@ -9270,6 +9274,8 @@ if (blnItemIsMenu)
 			: lDialogFavoriteRemoveGroupPrompt)), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
 	IfMsgBox, No
 	{
+		if (A_ThisLabel = "GuiRemoveOneFavorite")
+			LV_Modify(LV_GetNext(), "-Select")
 		gosub, GuiRemoveFavoriteCleanup
 		return
 	}
