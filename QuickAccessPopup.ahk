@@ -6570,7 +6570,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
     return
 
 g_intListW := A_GuiWidth - 40 - 88
-intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9)
+intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9.2)
 
 ; space before, between and after save/reload/close buttons
 ; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
@@ -6609,7 +6609,7 @@ for intIndex, objGuiControl in g_objGuiControls
 }
 
 GuiControl, 1:Move, f_drpMenusList, w%g_intListW%
-GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9)
+GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9.2)
 GuiControl, 1:Move, f_lvFavoritesList, w%g_intListW% h%intListH%
 GuiControl, 1:Move, f_lvFavoritesListFiltered, w%g_intListW% h%intListH%
 
