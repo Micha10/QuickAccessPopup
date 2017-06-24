@@ -1386,7 +1386,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.9 beta
+;@Ahk2Exe-SetVersion 8.2.9.1 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1459,7 +1459,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6570,7 +6570,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
     return
 
 g_intListW := A_GuiWidth - 40 - 88
-intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9.1)
+intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9)
 
 ; space before, between and after save/reload/close buttons
 ; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
@@ -6609,7 +6609,7 @@ for intIndex, objGuiControl in g_objGuiControls
 }
 
 GuiControl, 1:Move, f_drpMenusList, w%g_intListW%
-GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9.1)
+GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9)
 GuiControl, 1:Move, f_lvFavoritesList, w%g_intListW% h%intListH%
 GuiControl, 1:Move, f_lvFavoritesListFiltered, w%g_intListW% h%intListH%
 
