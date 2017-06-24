@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.2.9.1 (2017-06-24)
+- include read-only external menu in menus dropdown list in Settings for navigation (not in the same list when in Add/Edit favorite or move favorites)
+- fix bug declare a menu read-only when menu is under a read-only shared menu, in save favorite, remove favorite, add separator or column
+
 Version BETA: 8.2.9 (2017-06-19)
 - complete rewrite of Shared menus file locking (reservation to avoid conflicutal changes by simulatneous users)
 - when opening the add/edit favorite dialog box, QAP checks if the favorites belongs to a Shared menu and displays a message if the menu is read-only, locked (reserved) by another user or if it was changed since QAP was launched
@@ -7461,7 +7465,9 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuParentMenu : lDialogFavoriteParentMenu)
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "")) . "|"
+	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath
+		, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lMainMenuName . " " . g_objEditedFavorite.FavoriteLocation : "") ; exclude self
+		, true) . "|" ; exclude read-only external menus
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenuItems AltSubmit
@@ -7751,7 +7757,7 @@ if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
 Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L(lDialogFavoritesParentMenuMove, g_intFavoriteSelected)
-Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath)
+Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, , true) ; include self but exclude read-only external
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -8827,11 +8833,11 @@ else
 }
 
 ; now that we know original and destination menus, check if we need to lock them
-if !ExternalMenuAvailableForLock(g_objMenusIndex[strDestinationMenu], true) ; blnLockItForMe
+if FavoriteIsUnderExternalMenu(g_objMenusIndex[strDestinationMenu], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 ; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
 	return
 if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
-	if !ExternalMenuAvailableForLock(g_objMenusIndex[strOriginalMenu], true) ; blnLockItForMe
+	if FavoriteIsUnderExternalMenu(g_objMenusIndex[strOriginalMenu], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
 		return
 
@@ -9354,6 +9360,7 @@ f_intFavoriteFolderLiveColumns := ""
 f_radFavoriteFolderLiveInclude := ""
 f_radFavoriteFolderLiveExclude := ""
 f_strFavoriteFolderLiveExtensions := ""
+objExternalMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -9481,7 +9488,7 @@ if (g_blnFavoriteFromSearch)
 	return
 }
 
-if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 ; if the menu is an external menu that cannot be locked, user received an error message, then abort
 	return
 
@@ -10121,7 +10128,7 @@ GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
 
-if !ExternalMenuAvailableForLock(g_objMenuInGui, true) ; blnLockItForMe
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 ; if the menu is an external menu that cannot be locked, user received an error message, then abort
 	return
 
@@ -10172,6 +10179,7 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 
 intInsertPosition := ""
 objNewFavorite := ""
+objExternalMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -15109,7 +15117,7 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 
 
 ;------------------------------------------------------------
-RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "")
+RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "", blnExcludeReadonly := false)
 ; recursive function
 ;------------------------------------------------------------
 {
@@ -15132,8 +15140,8 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		{
 			; #### stop removing but validate if try to save in r-o menu
 			; skip read-only external menus
-			; if ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
-			;	continue
+			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
+				continue
 			
 			; skip external menus if not loaded
 			if !(objMenu[A_Index].Submenu.MenuLoaded)
@@ -15141,7 +15149,7 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		}
 
 		; if we get here, we keep this menu and recurse in it
-		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName) ; recursive call
+		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
 	}
 	return strList
 }
