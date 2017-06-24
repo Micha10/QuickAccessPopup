@@ -50,6 +50,10 @@ Version BETA: 8.2.9 (2017-06-19)
 - QAP now supports Shared menu file locking in the "Manage icons" window (in previous QAP versions, this window was not properly handling shared menu file locking)
 - in Settings window's "Content" column, QAP now displays the Shared menu settings file location
 
+Version: 8.2.3 (2017-06-24)
+- fix bug blocking removal of multiple favorites when user answers no when asked to confirm removal of a submenu
+- fix label display bug under Remove button preventing showing the number of selected favorites
+
 Version: 8.2.2 (2017-06-08)
 - Test if user has write access when opening a collaborative Shared menu in Settings and give appropriate error message if user has no access
 - In Shared Menus Catalogue, replace "&&" in menu names with single "&"
@@ -9526,6 +9530,8 @@ if (blnItemIsMenu)
 			: lDialogFavoriteRemoveGroupPrompt)), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
 	IfMsgBox, No
 	{
+		if (A_ThisLabel = "GuiRemoveOneFavorite")
+			LV_Modify(LV_GetNext(), "-Select")
 		gosub, GuiRemoveFavoriteCleanup
 		return
 	}
