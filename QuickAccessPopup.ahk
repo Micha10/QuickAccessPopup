@@ -3143,7 +3143,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			objNewMenuBack := Object()
 			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
 			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
-			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
+			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
 			if (arrThisFavorite1 = "External")
@@ -4629,7 +4629,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			objNewMenuBack := Object()
 			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
 			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
-			objNewMenuBack.SubMenu := objCurrentMenu ; this is the link to the parent menu
+			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
 			; build the submenu
@@ -8296,7 +8296,7 @@ else
 	if (A_ThisLabel = "GuiMenusListChanged")
 		objNewMenuInGui := g_objMenusIndex[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		objNewMenuInGui := g_objMenuInGui[1].SubMenu
+		objNewMenuInGui := g_objMenuInGui[1].ParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
 	else if (A_ThisLabel = "OpenMenuFromGuiSearch")
@@ -9055,7 +9055,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	objNewMenuBack := Object()
 	objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
 	objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(strDestinationMenu) . ")"
-	objNewMenuBack.SubMenu := g_objMenusIndex[strDestinationMenu] ; this is the link to the parent menu
+	objNewMenuBack.ParentMenu := g_objMenusIndex[strDestinationMenu] ; this is the link to the parent menu
 	objNewMenu.Insert(objNewMenuBack)
 	
 	g_objMenusIndex.Insert(objNewMenu.MenuPath, objNewMenu)
@@ -11107,6 +11107,8 @@ for strMenuPath, objMenuSource in objMenusSource
 	objMenuDest.MenuType := objMenuSource.MenuType
 	objMenuDest.MenuExternalPath := objMenuSource.MenuExternalPath
 	objMenuDest.MenuLoaded := objMenuSource.MenuLoaded
+	objMenuDest.MenuExternalLastModifiedNow := objMenuSource.MenuExternalLastModifiedNow
+	objMenuDest.MenuExternalLastModifiedWhenLoaded := objMenuSource.MenuExternalLastModifiedWhenLoaded
 
 	loop, % objMenuSource.MaxIndex()
 	{
@@ -11146,6 +11148,15 @@ if (A_ThisLabel = "RestoreBackupMenusObjects")
 {
 	g_objMainMenu := g_objMenusIndex[lMainMenuName] ; re-connect main menu
 	for strMenuPath, objMenuDest in g_objMenusIndex
+	{
+		; reconnect parent menu
+		if (objMenuDest.MenuPath <> lMainMenuName)
+		{
+			intInStr := InStr(objMenuDest.MenuPath, " > ", , 0)	; search from end
+			strParentPath := SubStr(objMenuDest.MenuPath, 1, intInStr - 1) ; strip the last submenu
+			objParentMenu := g_objMenusIndex[strParentPath]
+			objMenuDest[1].ParentMenu := objParentMenu
+		}
 		loop, % objMenuDest.MaxIndex()
 			if InStr("Menu|Group|External", objMenuDest[A_Index].FavoriteType, true)
 			{
@@ -11154,6 +11165,7 @@ if (A_ThisLabel = "RestoreBackupMenusObjects")
 				objSubMenu.MenuType := objMenuDest[A_Index].FavoriteType
 				objMenuDest[A_Index].SubMenu := g_objMenusIndex[objSubMenu.MenuPath] ; re-connect sub menu
 			}
+	}
 
 	g_objMenusBK := ""
 }
@@ -11181,6 +11193,9 @@ objFavorite := ""
 objSubMenu := ""
 strThisLocation := ""
 strThisHotkey := ""
+intInStr := ""
+strParentPath := ""
+objParentMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -15684,8 +15699,8 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 {
 	Loop
 	{
-		; ###_V(A_ThisFunc, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].SubMenu.MenuPath, objMenu[1].SubMenu.MenuType)
+		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
+		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
 			objExternalMenu := objMenu
@@ -15700,7 +15715,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 				return false ; should not occur, no parent menu
 			}
 			else
-				objMenu := objMenu[1].SubMenu ; up one level and loop
+				objMenu := objMenu[1].ParentMenu ; up one level and loop
 	}
 }
 ;------------------------------------------------------------
