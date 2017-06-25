@@ -6517,6 +6517,7 @@ strGuiMenuLocation := ""
 strThisType := ""
 strThisHotkey := ""
 strExternalMenuName := ""
+strFavoritesListFilter := ""
 
 return
 ;------------------------------------------------------------
@@ -9492,32 +9493,41 @@ return
 GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
+; #####
 
 g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 if (g_blnFavoriteFromSearch)
+	g_objMenuInGui := GetMenuForGuiFiltered(intItemToRemove)
+else
 {
-	Oops("Remove from filtered list non available...")
-	return
+	GuiControl, Focus, f_lvFavoritesList
+	Gui, 1:ListView, f_lvFavoritesList
+	intItemToRemove := LV_GetNext()
 }
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
-; if the menu is an external menu that cannot be locked, user received an error message, then abort
-	return
-
-GuiControl, Focus, f_lvFavoritesList
-Gui, 1:ListView, f_lvFavoritesList
-intItemToRemove := LV_GetNext()
 if !(intItemToRemove)
 {
 	Oops(lDialogSelectItemToRemove)
 	gosub, GuiRemoveFavoriteCleanup
 	return
 }
-if (g_objMenuInGui[intItemToRemove].FavoriteType = "B")
+
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+; if the menu is an external menu that cannot be locked, user received an error message, then abort
 {
+	if (A_ThisLabel = "GuiRemoveOneFavorite")
+		LV_Modify(LV_GetNext(), "-Select")
 	gosub, GuiRemoveFavoriteCleanup
 	return
 }
+
+if (g_objMenuInGui[intItemToRemove].FavoriteType = "B") ; cannot occur from filtered list
+{
+	if (A_ThisLabel = "GuiRemoveOneFavorite")
+		LV_Modify(LV_GetNext(), "-Select")
+	return
+}
+
 ; remove favorite in object model (if menu, leaving submenu objects unlinked without releasing them)
 
 blnItemIsMenu := InStr("Menu|Group|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
@@ -9544,12 +9554,10 @@ g_objMenuInGui.Remove(intItemToRemove)
 if (blnItemIsMenu)
 	GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|"
 
-; remove favorite in gui
-
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
 {
-	LV_Modify(intItemToRemove, "Select Focus")
+	LV_Modify(intItemToRemove, "Select Focus") ; select item next to deleted one
 	if !LV_GetNext() ; if last item was deleted, select the new last item
 		LV_Modify(LV_GetCount(), "Select Focus")
 }
@@ -9560,6 +9568,11 @@ Gosub, EnableSaveAndCancel
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 	objExternalMenu.NeedSave := true
+
+if (g_blnFavoriteFromSearch)
+	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
+;	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
+
 
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
