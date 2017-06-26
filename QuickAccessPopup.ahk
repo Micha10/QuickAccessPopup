@@ -6346,8 +6346,8 @@ Gui, 1:Font, s8 w400 normal, Verdana
 Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static26
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
-Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch%
-Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; ##### review Static numbers
+Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
+Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
@@ -6357,9 +6357,9 @@ Gui, 1:Add, ListView
 
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button1
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button2
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button2
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button3
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button4
 
 if !(g_blnDonor)
 {
@@ -8353,10 +8353,10 @@ return
 GuiFocusFilter:
 ;------------------------------------------------------------
 
-GuiControl, Focus, f_strFavoritesListFilter
+GuiControl, 1:Focus, f_strFavoritesListFilter
 if (g_blnFavoritesListFilterNeverFocused)
 {
-	GuiControl, , f_strFavoritesListFilter, % ""
+	GuiControl, 1:, f_strFavoritesListFilter, % ""
 	g_blnFavoritesListFilterNeverFocused := false
 }
 
@@ -10253,7 +10253,7 @@ GetFavoritesListFilter()
 GuiFavoritesListFilterEmpty:
 ;------------------------------------------------------------
 
-GuiControl, , f_strFavoritesListFilter, % ""
+GuiControl, 1:, f_strFavoritesListFilter, % ""
 gosub, LoadMenuInGui
 
 return
@@ -11016,6 +11016,8 @@ return
 ;------------------------------------------------------------
 GuiCancel:
 ;------------------------------------------------------------
+
+GuiControl, 1:, f_strFavoritesListFilter, % "" ; empty filter will hide filtered list and show regular list
 
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
