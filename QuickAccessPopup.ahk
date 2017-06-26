@@ -31,6 +31,32 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.2.9.2 (2017-06-26)
+ 
+Search in Settings
+- add search text box to Settings window above favorites list with an x button to empty the filter text box
+- add a filtered favorites list shown automatically over the regular favorites list when text is typed in the filter text box and hidden when the search text box is emptied
+- filtering is done based on the existence of the search string in the name (only) of favorites in all menus and submenus, starting from top main menu
+- in filtered favorites list, show the same columns as in the regular list plus the menu path in second column, after favorite name
+- Edit button, Enter key or double-click in the filtered list open the edit favorite dialog box with the selected favorite, except if it is a menu where the double-click will open the submenu
+- when edited favorites is saved (or cancelled), the regular favorites list is restored in the location of the edited favorite
+- Remove button or Delete key removes a favorite from the filtered list (with confirmation before deleting a menu and its submenus); after deletion, the filtered list remains active
+- in filtered list, only single selection is available, allowinf edit or deletion of only one favorite at a time (support for multiple deletion or multiple move could be added but requires more work)
+- disable left columns move and separator buttons (and associated hotkeys) in Settings when filtered list is active
+- in filtered list, the Add button (and its associated hotkey Ctrl-N) adds a new favorite at the top of the main menu
+- hide filtered list anjd restore regular favorite list, when changing menu using the dropdown list or back or top arrows in Settings, and when closing and re-opening the Settings window
+- add Settings shortcut Ctrl-F to move the cursor to search box
+ 
+Other
+- add Settings shortcuts F1 to open Help window
+- add Settings shortcut Ctrl-H to display the Favorites Shortcuts Help window
+- update the Favorites Shortcuts Help window
+- fix bugs having various side effects after user made changes to Settings and cancelled these changes (with the Cancel button), breaking the backlinks ("..") to parent menu, breaking the check for shared menus changes in since menu was loaded
+ 
+Bug fixes from master branch v8.2.3
+- fix bug blocking removal of multiple favorites when user answers no when asked to confirm removal of a submenu
+- fix label display bug under Remove button preventing showing the number of selected favorites
+
 Version BETA: 8.2.9.1 (2017-06-24)
 - include read-only external menu in menus dropdown list in Settings for navigation (not in the same list when in Add/Edit favorite or move favorites)
 - fix bug declare a menu read-only when menu is under a read-only shared menu, in save favorite, remove favorite, add separator or column
@@ -1390,7 +1416,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.9.1 beta
+;@Ahk2Exe-SetVersion 8.2.9.2 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1463,7 +1489,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1621,9 +1647,6 @@ if (g_blnDisplayTrayTip)
 }
 
 g_blnMenuReady := true
-
-; #####
-gosub, GuiShow
 
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
@@ -9493,7 +9516,6 @@ return
 GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
-; #####
 
 g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 if (g_blnFavoriteFromSearch)
@@ -15182,7 +15204,6 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		
 		if (objMenu[A_Index].Submenu.MenuType = "External")
 		{
-			; #### stop removing but validate if try to save in r-o menu
 			; skip read-only external menus
 			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
 				continue
@@ -15702,7 +15723,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 	Loop
 	{
 		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
+		;	, objMenu[1].HasKey("ParentMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
 			objExternalMenu := objMenu
@@ -15711,7 +15732,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 		else if (objMenu.MenuPath = lMainMenuName)
 			return false ; up to Main menu, no External menu
 		else
-			if !(objMenu[1].HasKey("SubMenu"))
+			if !(objMenu[1].HasKey("ParentMenu"))
 			{
 				Oops(A_ThisFunc . ": ERROR no parent menu")
 				return false ; should not occur, no parent menu
