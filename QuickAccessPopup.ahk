@@ -31,6 +31,32 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.2.9.2 (2017-06-26)
+ 
+Search in Settings
+- add search text box to Settings window above favorites list with an x button to empty the filter text box
+- add a filtered favorites list shown automatically over the regular favorites list when text is typed in the filter text box and hidden when the search text box is emptied
+- filtering is done based on the existence of the search string in the name (only) of favorites in all menus and submenus, starting from top main menu
+- in filtered favorites list, show the same columns as in the regular list plus the menu path in second column, after favorite name
+- Edit button, Enter key or double-click in the filtered list open the edit favorite dialog box with the selected favorite, except if it is a menu where the double-click will open the submenu
+- when edited favorites is saved (or cancelled), the regular favorites list is restored in the location of the edited favorite
+- Remove button or Delete key removes a favorite from the filtered list (with confirmation before deleting a menu and its submenus); after deletion, the filtered list remains active
+- in filtered list, only single selection is available, allowinf edit or deletion of only one favorite at a time (support for multiple deletion or multiple move could be added but requires more work)
+- disable left columns move and separator buttons (and associated hotkeys) in Settings when filtered list is active
+- in filtered list, the Add button (and its associated hotkey Ctrl-N) adds a new favorite at the top of the main menu
+- hide filtered list anjd restore regular favorite list, when changing menu using the dropdown list or back or top arrows in Settings, and when closing and re-opening the Settings window
+- add Settings shortcut Ctrl-F to move the cursor to search box
+ 
+Other
+- add Settings shortcuts F1 to open Help window
+- add Settings shortcut Ctrl-H to display the Favorites Shortcuts Help window
+- update the Favorites Shortcuts Help window
+- fix bugs having various side effects after user made changes to Settings and cancelled these changes (with the Cancel button), breaking the backlinks ("..") to parent menu, breaking the check for shared menus changes in since menu was loaded
+ 
+Bug fixes from master branch v8.2.3
+- fix bug blocking removal of multiple favorites when user answers no when asked to confirm removal of a submenu
+- fix label display bug under Remove button preventing showing the number of selected favorites
+
 Version BETA: 8.2.9.1 (2017-06-24)
 - include read-only external menu in menus dropdown list in Settings for navigation (not in the same list when in Add/Edit favorite or move favorites)
 - fix bug declare a menu read-only when menu is under a read-only shared menu, in save favorite, remove favorite, add separator or column
@@ -1390,7 +1416,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.9.1 beta
+;@Ahk2Exe-SetVersion 8.2.9.2 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1463,7 +1489,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1680,6 +1706,9 @@ return
 #If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 
 ^Up::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesUp
 else
@@ -1687,6 +1716,9 @@ else
 return
 
 ^Down::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesDown
 else
@@ -1694,24 +1726,40 @@ else
 return
 
 ^Right::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 Gosub, HotkeyChangeMenu
 return
 
 ^Left::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 GuiControlGet, blnUpMenuVisible, Visible, f_picUpMenu
 if (blnUpMenuVisible)
 	Gosub, GuiGotoPreviousMenu
 return
 
 ^A::
-LV_Modify(0, "Select")
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, ^a ; select all search control
+else
+	LV_Modify(0, "Select") ; select all in listview
 return
 
 ^N::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 Gosub, GuiAddFavoriteSelectType
 return
 
 Enter::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesToMenu
 else
@@ -1719,14 +1767,43 @@ else
 return
 
 Del::
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiRemoveMultipleFavorites
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, {Del}
 else
-	Gosub, GuiRemoveFavorite
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiRemoveMultipleFavorites
+	else
+		Gosub, GuiRemoveFavorite
 return
 
 ^C::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	Send, ^c
+else
 	Gosub, GuiCopyFavorite
+return
+
+^F::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiFocusFilter
+return
+
+^H::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiHotkeysHelpClicked
+return
+
+F1::
+GuiControlGet, strFocusedControl, FocusV
+if (strFocusedControl = "f_strFavoritesListFilter")
+	return
+Gosub, GuiHelp
 return
 
 #If
@@ -2698,10 +2775,10 @@ InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
 InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
 
-InsertGuiControlPos("f_picAddColumnBreak",			  10,  230)
-InsertGuiControlPos("f_picAddSeparator",			  10,  200)
-InsertGuiControlPos("f_picMoveFavoriteDown",		  10,  170)
-InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  140)
+InsertGuiControlPos("f_picAddColumnBreak",			  10,  255) ; +25 for Search box
+InsertGuiControlPos("f_picAddSeparator",			  10,  225)
+InsertGuiControlPos("f_picMoveFavoriteDown",		  10,  195)
+InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
 ; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",					  25,   84)
@@ -2720,13 +2797,16 @@ InsertGuiControlPos("f_lblAppTagLine",				  10,   42)
 InsertGuiControlPos("f_lblGuiAddFavorite",			 -44,  168, true) ; 170 - 2
 InsertGuiControlPos("f_lblGuiEditFavorite",			 -44,  243, true) ; 240 + 5 - 2
 InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
-InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true) ; 310 + 5
-InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true) ; 380 + 10
+InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
 InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
 
-InsertGuiControlPos("f_lvFavoritesList",			  40,  115)
+InsertGuiControlPos("f_strFavoritesListFilter",		  40,  115)
+InsertGuiControlPos("f_btnFavoritesListNoFilter",	-110,  115)
+InsertGuiControlPos("f_lvFavoritesList",			  40,  140)
+InsertGuiControlPos("f_lvFavoritesListFiltered",	  40,  140)
 
 return
 ;------------------------------------------------------------
@@ -6230,6 +6310,8 @@ return
 BuildGui:
 ;------------------------------------------------------------
 
+g_blnFavoritesListFilterNeverFocused := true
+
 IniRead, strTextColor, %g_strIniFile%, Gui-%g_strTheme%, TextColor, 000000
 IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewBackground, FFFFFF
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
@@ -6287,14 +6369,20 @@ Gui, 1:Font, s8 w400 normal, Verdana
 Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static26
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
+Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
+Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
+Gui, 1:Add, ListView
+	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
+	, %lGuiLvFavoritesHeaderFiltered%|Object Position (hidden) ; SysHeader321 / SysListView321
+
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button1
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button2
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button2
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button3
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button4
 
 if !(g_blnDonor)
 {
@@ -6331,6 +6419,7 @@ return
 ;------------------------------------------------------------
 LoadMenuInGui:
 LoadMenuInGuiFromAlternative:
+LoadMenuInGuiFromGuiSearch:
 ;------------------------------------------------------------
 
 Gui, 1:ListView, f_lvFavoritesList
@@ -6376,7 +6465,9 @@ Loop, % g_objMenuInGui.MaxIndex()
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
-LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
+; keep original position from LoadMenuInGuiFromAlternative or LoadMenuInGuiFromGuiSearch
+; do NOT use InStr because "LoadMenuInGui" is included in "LoadMenuInGuiFromAlternative" and "LoadMenuInGuiFromGuiSearch"
+LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
 Gosub, AdjustColumnsWidth
 
@@ -6394,6 +6485,117 @@ return
 
 
 ;------------------------------------------------------------
+LoadFavoritesInGuiFiltered:
+;------------------------------------------------------------
+Gui, 1:Submit, NoHide
+
+; often fail
+; intListFilteredWinID := WinExist("A")
+; if not DllCall("LockWindowUpdate", Uint, intListFilteredWinID)
+;	Oops("An error occured while locking window display", g_strAppNameText, g_strAppVersion)
+
+Critical, On ; prevents the current thread from being interrupted by other threads
+
+strFavoritesListFilter := f_strFavoritesListFilter
+if !StrLen(strFavoritesListFilter)
+{
+	GuiControl, Show, f_picMoveFavoriteUp
+	GuiControl, Show, f_picMoveFavoriteDown
+	GuiControl, Show, f_picAddSeparator
+	GuiControl, Show, f_picAddColumnBreak
+
+	GuiControl, Hide, f_lvFavoritesListFiltered
+	GuiControl, Show, f_lvFavoritesList
+	Gui, 1:ListView, f_lvFavoritesList
+	return
+}
+
+GuiControl, Hide, f_picMoveFavoriteUp
+GuiControl, Hide, f_picMoveFavoriteDown
+GuiControl, Hide, f_picAddSeparator
+GuiControl, Hide, f_picAddColumnBreak
+
+GuiControl, Hide, f_lvFavoritesList
+GuiControl, Show, f_lvFavoritesListFiltered
+
+Gui, 1:ListView, f_lvFavoritesList
+if (LV_GetCount("Selected") > 1) ; if multiple select in list
+	LV_Modify(0, "-Select") ; reset "Move n" and "Remove n" labels to "Edit" and "Remove"
+
+Gui, 1:ListView, f_lvFavoritesListFiltered
+LV_Delete()
+LV_ModifyCol(6, 0) ; do early to avoid flash
+
+RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter)
+
+LV_Modify(1, "Select Focus") 
+Loop, % LV_GetCount("Column") - 1
+	LV_ModifyCol(A_Index, "AutoHdr")
+
+Critical, Off ; enables the current thread to be interrupted
+
+; DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
+
+strGuiMenuLocation := ""
+strThisType := ""
+strThisHotkey := ""
+strExternalMenuName := ""
+strFavoritesListFilter := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
+;------------------------------------------------------------
+{
+	global g_objHotkeysByNameLocation
+	global g_strMenuPathSeparator
+	global g_strGroupIndicatorPrefix
+	
+	Loop, % objCurrentMenu.MaxIndex()
+	{
+		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
+			and InStr(objCurrentMenu[A_Index].FavoriteName, strFilter)
+		{
+			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
+			strThisHotkey := Hotkey2Text(g_objHotkeysByNameLocation[(objCurrentMenu[A_Index].FavoriteType = "QAP" ? "" : objCurrentMenu[A_Index].FavoriteName) 
+				. "|" . objCurrentMenu[A_Index].FavoriteLocation])
+				
+			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
+			{
+				if (objCurrentMenu[A_Index].FavoriteType = "Menu")
+					strGuiMenuLocation := g_strMenuPathSeparator
+				else if (objCurrentMenu[A_Index].FavoriteType = "Group")
+					strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+				else ; objCurrentMenu[A_Index].FavoriteType = "External"
+				{
+					if ExternalMenuIsReadOnly(objCurrentMenu[A_Index].SubMenu.MenuExternalPath)
+						strGuiMenuLocation := lDialogReadOnly . " "
+					else if !(objCurrentMenu[A_Index].SubMenu.MenuLoaded)
+						strGuiMenuLocation := lOopsErrorIniFileUnavailable . " "
+					else
+						strGuiMenuLocation := ""
+					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . objCurrentMenu[A_Index].SubMenu.MenuExternalPath
+				}
+				
+				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey, strGuiMenuLocation, A_Index)
+			}
+			else ; this is a folder, document, etc.
+				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey
+					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 250) : objCurrentMenu[A_Index].FavoriteLocation)
+					, A_Index)
+		}
+		
+		if InStr("Menu|External|Group", objCurrentMenu[A_Index].FavoriteType, true)
+			RecursiveLoadFavoritesListFiltered(objCurrentMenu[A_Index].SubMenu, strFilter) ; RECURSIVE
+	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiSize:
 ;------------------------------------------------------------
 
@@ -6401,7 +6603,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
     return
 
 g_intListW := A_GuiWidth - 40 - 88
-intListH := A_GuiHeight - 115 - 132
+intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9.2)
 
 ; space before, between and after save/reload/close buttons
 ; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
@@ -6440,7 +6642,9 @@ for intIndex, objGuiControl in g_objGuiControls
 }
 
 GuiControl, 1:Move, f_drpMenusList, w%g_intListW%
+GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9.2)
 GuiControl, 1:Move, f_lvFavoritesList, w%g_intListW% h%intListH%
+GuiControl, 1:Move, f_lvFavoritesListFiltered, w%g_intListW% h%intListH%
 
 Gosub, AdjustColumnsWidth
 
@@ -6462,7 +6666,7 @@ GuiHotkeysHelpClicked:
 Gui, 1:+OwnDialogs
 
 MsgBox, 0, %g_strAppNameText% - %lGuiHotkeysHelp%
-	, %lGuiHotkeysHelpText%
+	, %lGuiHotkeysHelpText%`n`n%lGuiHotkeysHelpText2%
 
 return
 ;------------------------------------------------------------
@@ -6528,9 +6732,25 @@ return
 
 
 ;------------------------------------------------------------
+GuiFavoritesListFilteredEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent = "DoubleClick")
+{
+	g_blnOpenFromDoubleClick := true
+	gosub, GuiEditFavorite
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiAddFavoriteSelectType:
 GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
+
+gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added because it is in an external menu locked by another user,
@@ -6543,6 +6763,7 @@ if (A_ThisLabel = "GuiAddFavoriteFromQAP")
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
+Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered already but seems not to be?
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
 Gui, 2:New, , % L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
@@ -6795,13 +7016,8 @@ GuiAddExternalOtherExternal:
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
-; this favorite could not be added or edited because it is in an external menu locked by another user,
-; or because external settings file is in a read-only folder, or because external files was modified 
-; by another user since it was loaded in QAP by this user
-	g_blnAbordEdit := true
-else
-	Gosub, GuiFavoriteInit
+Gosub, GuiFavoriteInit
+; ###_V(A_ThisLabel, "g_objMenuInGui.MenuPath", g_objMenuInGui.MenuPath, "objExternalMenu.MenuPath", objExternalMenu.MenuPath, g_blnAbordEdit)
 
 if (g_blnAbordEdit)
 {
@@ -6951,6 +7167,35 @@ GuiFavoriteInit:
 ; when edit favorite, keep original values in g_objEditedFavorite
 ; when add favorite, put initial or default values in g_objEditedFavorite and update them when gui save
 
+blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+; ###_V(A_ThisLabel, blnFavoriteFromSearch, GetFavoritesListFilter())
+
+if (blnFavoriteFromSearch)
+	g_objMenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
+
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+; this favorite could not be added or edited because it is in an external menu locked by another user,
+; or because external settings file is in a read-only folder, or because external files was modified 
+; by another user since it was loaded in QAP by this user
+{
+	g_blnAbordEdit := true
+	return
+}
+
+if (blnFavoriteFromSearch)
+{
+	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
+	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
+
+	if (InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true) and g_blnOpenFromDoubleClick)
+	{
+		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
+		g_blnOpenFromDoubleClick := false ; reset value
+		g_blnAbordEdit := true
+		return
+	}
+}
+
 g_objEditedFavorite := Object()
 g_strDefaultIconResource := ""
 g_strNewFavoriteIconResource := ""
@@ -6962,7 +7207,7 @@ blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative") ; if from Alternative menu (or menu modifiers) we already have g_intOriginalMenuPosition
+	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative" or blnFavoriteFromSearch) ; if from Alternative menu or from Search we already have g_intOriginalMenuPosition
 		g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
@@ -8040,7 +8285,9 @@ GuiGotoUpMenu:
 GuiGotoPreviousMenu:
 OpenMenuFromEditForm:
 OpenMenuFromGuiHotkey:
+OpenMenuFromGuiSearch:
 ;------------------------------------------------------------
+
 intCurrentLastPosition := 0
 
 if (A_ThisLabel = "GuiMenusListChanged")
@@ -8066,12 +8313,17 @@ else
 {
 	g_arrSubmenuStack.Insert(1, g_objMenuInGui.MenuPath) ; push the current menu to the left arrow stack
 	
+	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath)
+	; ###_O("g_objMenuInGui", g_objMenuInGui, "FavoriteName")
+	; ###_O("g_objMenuInGui[1]", g_objMenuInGui[1])
 	if (A_ThisLabel = "GuiMenusListChanged")
 		objNewMenuInGui := g_objMenusIndex[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
 		objNewMenuInGui := g_objMenuInGui[1].ParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
+	else if (A_ThisLabel = "OpenMenuFromGuiSearch")
+		objNewMenuInGui := g_objMenuInGui ;  we already have the menu object in g_objMenuInGui from the search event
 	
 	g_objMenuInGui := objNewMenuInGui
 	
@@ -8081,7 +8333,12 @@ else
 GuiControl, % (g_arrSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
 GuiControl, % (g_objMenuInGui.MenuPath <> lMainMenuName ? "Show" : "Hide"), f_picUpMenu
 
-Gosub, LoadMenuInGui
+if StrLen(GetFavoritesListFilter())
+	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with g_objMenuInGui
+else if (A_ThisLabel = "OpenMenuFromGuiSearch")
+	Gosub, LoadMenuInGuiFromGuiSearch
+else
+	Gosub, LoadMenuInGui
 
 if (intCurrentLastPosition) ; we went to a previous menu
 {
@@ -8110,6 +8367,21 @@ GuiEditFavoriteCancel:
 
 Gosub, GuiAddFavoriteFlush
 Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFocusFilter:
+;------------------------------------------------------------
+
+GuiControl, 1:Focus, f_strFavoritesListFilter
+if (g_blnFavoritesListFilterNeverFocused)
+{
+	GuiControl, 1:, f_strFavoritesListFilter, % ""
+	g_blnFavoritesListFilterNeverFocused := false
+}
 
 return
 ;------------------------------------------------------------
@@ -8494,6 +8766,7 @@ Gosub, 2GuiClose
 
 return
 ;------------------------------------------------------------
+
 
 ;========================================================================================================================
 ; END OF FAVORITE_GUI
@@ -9244,24 +9517,39 @@ GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
-; if the menu is an external menu that cannot be locked, user received an error message, then abort
-	return
+g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+if (g_blnFavoriteFromSearch)
+	g_objMenuInGui := GetMenuForGuiFiltered(intItemToRemove)
+else
+{
+	GuiControl, Focus, f_lvFavoritesList
+	Gui, 1:ListView, f_lvFavoritesList
+	intItemToRemove := LV_GetNext()
+}
 
-GuiControl, Focus, f_lvFavoritesList
-Gui, 1:ListView, f_lvFavoritesList
-intItemToRemove := LV_GetNext()
 if !(intItemToRemove)
 {
 	Oops(lDialogSelectItemToRemove)
 	gosub, GuiRemoveFavoriteCleanup
 	return
 }
-if (g_objMenuInGui[intItemToRemove].FavoriteType = "B")
+
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+; if the menu is an external menu that cannot be locked, user received an error message, then abort
 {
+	if (A_ThisLabel = "GuiRemoveOneFavorite")
+		LV_Modify(LV_GetNext(), "-Select")
 	gosub, GuiRemoveFavoriteCleanup
 	return
 }
+
+if (g_objMenuInGui[intItemToRemove].FavoriteType = "B") ; cannot occur from filtered list
+{
+	if (A_ThisLabel = "GuiRemoveOneFavorite")
+		LV_Modify(LV_GetNext(), "-Select")
+	return
+}
+
 ; remove favorite in object model (if menu, leaving submenu objects unlinked without releasing them)
 
 blnItemIsMenu := InStr("Menu|Group|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
@@ -9288,12 +9576,10 @@ g_objMenuInGui.Remove(intItemToRemove)
 if (blnItemIsMenu)
 	GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|"
 
-; remove favorite in gui
-
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
 {
-	LV_Modify(intItemToRemove, "Select Focus")
+	LV_Modify(intItemToRemove, "Select Focus") ; select item next to deleted one
 	if !LV_GetNext() ; if last item was deleted, select the new last item
 		LV_Modify(LV_GetCount(), "Select Focus")
 }
@@ -9304,6 +9590,11 @@ Gosub, EnableSaveAndCancel
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 	objExternalMenu.NeedSave := true
+
+if (g_blnFavoriteFromSearch)
+	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
+;	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
+
 
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
@@ -9938,6 +10229,54 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 intInsertPosition := ""
 objNewFavorite := ""
 objExternalMenu := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	
+	Gui, 1:ListView, f_lvFavoritesListFiltered
+
+	intPositionInListView := LV_GetNext()
+	; ###_V(A_ThisFunc, intPositionInListView)
+	if !(intPositionInListView)
+	{
+		intPositionInMenuForGui := 0
+		return % "" ; empty
+	}
+	
+	LV_GetText(strMenuPath, intPositionInListView, 2)
+	LV_GetText(intPositionInMenuForGui, intPositionInListView, 6)
+	
+	return g_objMenusIndex[strMenuPath]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFavoritesListFilter()
+;------------------------------------------------------------
+{
+	global g_blnFavoritesListFilterNeverFocused
+	
+	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
+
+	return (strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused ? "" : strFilter)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoritesListFilterEmpty:
+;------------------------------------------------------------
+
+GuiControl, 1:, f_strFavoritesListFilter, % ""
+gosub, LoadMenuInGui
 
 return
 ;------------------------------------------------------------
@@ -10699,6 +11038,8 @@ return
 ;------------------------------------------------------------
 GuiCancel:
 ;------------------------------------------------------------
+
+GuiControl, 1:, f_strFavoritesListFilter, % "" ; empty filter will hide filtered list and show regular list
 
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
@@ -15382,7 +15723,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 	Loop
 	{
 		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-		;	, objMenu[1].HasKey("SubMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
+		;	, objMenu[1].HasKey("ParentMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
 			objExternalMenu := objMenu
@@ -15391,7 +15732,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 		else if (objMenu.MenuPath = lMainMenuName)
 			return false ; up to Main menu, no External menu
 		else
-			if !(objMenu[1].HasKey("SubMenu"))
+			if !(objMenu[1].HasKey("ParentMenu"))
 			{
 				Oops(A_ThisFunc . ": ERROR no parent menu")
 				return false ; should not occur, no parent menu
@@ -15802,9 +16143,20 @@ WM_MOUSEMOVE(wParam, lParam)
 ; see http://www.autohotkey.com/board/topic/70261-gui-buttons-hover-cant-change-cursor-to-hand/
 ;------------------------------------------------
 {
-	Global g_objHandCursor
-	Global g_strGuiFullTitle
+	global g_objHandCursor
+	global g_strGuiFullTitle
+	global g_blnFavoritesListFilterNeverFocused
 
+	; empty Search box when it receives focus and contains the "Search" prompt
+	GuiControlGet, strFocusedControl, FocusV
+	GuiControlGet, strFocusedControlText, , f_strFavoritesListFilter
+	if (strFocusedControl = "f_strFavoritesListFilter")
+		if (g_blnFavoritesListFilterNeverFocused)
+		{
+			GuiControl, , f_strFavoritesListFilter, % ""
+			g_blnFavoritesListFilterNeverFocused := false
+		}
+	
 	WinGetTitle, strCurrentWindow, A
 
 	if (strCurrentWindow <> g_strGuiFullTitle)
