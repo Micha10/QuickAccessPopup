@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.2.9.3 (2017-07-11)
+- Import Windows shortcuts (.lnk files) from Explorer context menu to QAP favorites
+ 
 Version BETA: 8.2.9.2 (2017-06-26)
  
 Search in Settings
@@ -1416,7 +1419,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.9.2 beta
+;@Ahk2Exe-SetVersion 8.2.9.3 beta
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1489,7 +1492,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.2.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6246,6 +6249,18 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
 			;--------------------------------------
 
+
+			;--------------------------------------
+			; ADD SHORTCUT
+			;--------------------------------------
+			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu]
+			@="%lContextAddShortcut%"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
+
+			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu\command]
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddShortcut \"`%1\""
+			;--------------------------------------
+
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
@@ -6274,6 +6289,7 @@ else ; DisableExplorerContextMenus
 			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu" /f
 			:: BATCH END
 
 )
@@ -6873,6 +6889,7 @@ AddThisFolderFromMsg:
 AddThisFolderFromMsgXpress:
 AddThisFileFromMsg:
 AddThisFileFromMsgXpress:
+AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
@@ -6954,11 +6971,15 @@ else
 		else if (A_ThisLabel = "AddThisFileFromMsg")
 			
 			Gosub, GuiAddThisFileFromMsg
+			
+		else if (A_ThisLabel = "AddThisShortcutFromMsg")
+			
+			Gosub, GuiAddShortcutFromMsg
+			
 	}
 	else ; AddThisFolderXpress, AddThisFolderFromMsgXpress or AddThisFileFromMsgXpress
 	{
 		; in Express mode, g_intOriginalMenuPosition will be set in GuiAddFavoriteSaveXpress
-
 		if (A_ThisLabel = "AddThisFolderXpress")
 			
 			Gosub, GuiAddThisFolderXpress
@@ -7006,6 +7027,7 @@ GuiAddThisFolderFromMsg:
 GuiAddThisFolderFromMsgXpress:
 GuiAddThisFileFromMsg:
 GuiAddThisFileFromMsgXpress:
+GuiAddShortcutFromMsg:
 GuiAddFromDropFiles:
 GuiEditFavorite:
 GuiEditFavoriteFromAlternative:
@@ -7319,8 +7341,12 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 	}
-	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress", strGuiFavoriteLabel)
+	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress|GuiAddShortcutFromMsg", strGuiFavoriteLabel)
 	{
+		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg")
+			; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+			FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
+		
 		strExtension := GetFileExtension(g_strNewLocation)
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
@@ -7328,6 +7354,24 @@ else ; add favorite
 			g_objEditedFavorite.FavoriteType := "Document"
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
+		
+		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg")
+		{
+			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
+			g_objEditedFavorite.FavoriteAppWorkingDir := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutWorkingDir : "")
+			g_objEditedFavorite.FavoriteArguments := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutArgs : "")
+			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? strShortcutIconFile . "," . strShortcutIconIndex : "")
+			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+			if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
+			{
+				; before: intShortcutRunState = Shortcut RunState -> 1 Normal / 3 Maximized / 7 Minimized
+				intShortcutRunState := (intShortcutRunState = 3 ? 1 : (intShortcutRunState = 7 ? -1 : 0))
+				; after: intShortcutRunState = QAP RunState -> -1 Minimized / 0 Normal / 1 Maximized
+				g_strNewFavoriteWindowPosition :=  (intShortcutRunState <> 0 ? "1" : "0") . "," . intShortcutRunState ; if state is not normal enable Windows options for Min or Max
+			}
+			; else g_strNewFavoriteWindowPosition keeps ",,,,,,,"
+			g_objEditedFavorite.FavoriteWindowPosition := g_strNewFavoriteWindowPosition
+		}
 	}
 	else if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 		g_objEditedFavorite.FavoriteType := "External"
@@ -7335,7 +7379,7 @@ else ; add favorite
 	if (g_strAddFavoriteType = "FTP")
 		g_blnNewFavoriteFtpEncoding := (g_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
 
-	if (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(g_objEditedFavorite.FavoriteLocation)
+	if (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(g_objEditedFavorite.FavoriteLocation) and !StrLen(g_strNewFavoriteIconResource)
 	{
 		g_strNewFavoriteIconResource := GetFolderIcon(g_objEditedFavorite.FavoriteLocation)
 		g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
@@ -7352,6 +7396,11 @@ intMinMax := ""
 strGroupSettings := ""
 strExternalMenuName := ""
 blnNoExternalMenusCatalogue := ""
+strShortcutWorkingDir := ""
+strShortcutArgs := ""
+strShortcutIconFile := ""
+strShortcutIconIndex := ""
+intShortcutRunState := ""
 
 return
 ;------------------------------------------------------------
@@ -16281,6 +16330,11 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	{
 		g_strNewLocation := arrData2
 		Gosub, AddThisFileFromMsgXpress
+	}
+	else if (arrData1 = "AddShortcut")
+	{
+		g_strNewLocation := arrData2
+		Gosub, AddThisShortcutFromMsg
 	}
 	else if (arrData1 = "ShowMenuNavigate")
 
