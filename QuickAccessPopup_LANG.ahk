@@ -14,6 +14,7 @@ global lContextAddFile := "Add File to Quick Access Popup menu"
 global lContextAddFileXpress := "Add File to Quick Access Popup menu Express"
 global lContextAddFolder := "Add Folder to Quick Access Popup menu"
 global lContextAddFolderXpress := "Add Folder to Quick Access Popup menu Express"
+global lContextAddShortcut := "Import Windows shortcut to Quick Access Popup menu"
 global lContextShowMenu := "Show Quick Access Popup menu"
 global lContextShowMenuAternative := "Show Quick Access Popup Alternative menu"
 global lCopyLocationCopiedToClipboard := "Path or URL copied to the Clipboard" ; new

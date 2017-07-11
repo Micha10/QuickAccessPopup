@@ -163,6 +163,11 @@ Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express"; ValueType: string; ValueName: "Extended"; ValueData: ""; Check: SetupExplorerContextMenus()
 Root: HKCR; Subkey: "Directory\Background\shell\Add Folder to Quick Access Popup menu Express\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddFolderXpress ""%V"""; Check: SetupExplorerContextMenus()
 
+; ADD SHORTCUT
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu"; ValueType: string; ValueName: ""; ValueData: "Import Windows shortcut to Quick Access Popup menu"; Flags: uninsdeletekey; Check: SetupExplorerContextMenus()
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu"; ValueType: string; ValueName: "Icon"; ValueData: """{app}\{#MyAppNameNoSpace}.ico"""; Check: SetupExplorerContextMenus()
+Root: HKLM; Subkey: "Software\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu\command"; ValueType: string; ValueName: ""; ValueData: """{app}\QAPmessenger.exe"" AddShortcut ""%1"""; Check: SetupExplorerContextMenus()
+
 [Run]
 Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: waituntilidle postinstall skipifsilent
 Filename: "{app}\ImportFPsettings.exe"; WorkingDir: "{commonappdata}\{#MyAppName}"; Parameters: "/calledfromsetup"; Tasks: importfpsettings; Flags: runhidden waituntilterminated
