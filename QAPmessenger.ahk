@@ -12,11 +12,15 @@ Called from Explorer context menus to send messages to QAP in order to launch va
 - add the selected file to favorites (message "AddFile")
 - add the selected folder to favorites in express mode (message "AddFolderXpress")
 - add the selected file tofavorites in express mode (message "AddFileXpress")
+See RECEIVE_QAPMESSENGER function in QuickAccessPopup.ahk for details.
 
 HISTORY
 =======
 
-Version: 1.1 BETA (2016-09-01)
+Version: 1.1.1 BETA (2017-07-??)
+- add action to import ,lnk files (Windows shortcuts)
+
+Version: 1.1 (2016-09-01)
 - addig diagnostic code activated by value DiagMode in section Global of QAP ini file
 - find the working directory to read the QAP ini file and write its diag file to this directory
 
@@ -48,7 +52,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 1.0
+;@Ahk2Exe-SetVersion 1.1.1 BETA
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -63,7 +67,7 @@ ListLines, Off
 
 g_strAppNameText := "Quick Access Popup Messenger"
 g_strAppNameFile := "QAPmessenger"
-g_strAppVersion := "1.1"
+g_strAppVersion := "1.1.1"
 g_strAppVersionBranch := "beta"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
@@ -72,16 +76,6 @@ g_stTargetAppName := "Quick Access Popup"
 g_strQAPNameFile := "QuickAccessPopup"
 
 gosub, SetQAPWorkingDirectory
-
-; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
-;@Ahk2Exe-IgnoreBegin
-; Start of code for development environment only - won't be compiled
-; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
-SetWorkingDir, %A_ScriptDir%
-ListLines, On
-; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
-; / End of code for developement enviuronment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
@@ -98,6 +92,7 @@ else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 
+; ###_V("QAP diag mode:", A_ComputerName, A_WorkingDir, A_ScriptDir, g_strIniFile, g_blnDiagMode)
 if QAPisRunning()
 {
 	; Use traditional method, not expression
@@ -218,7 +213,7 @@ QAPisRunning()
 SetQAPWorkingDirectory:
 ;-----------------------------------------------------------
 
-; See the same command in QuickAccessPopup0.ahk for explanations
+; See the same command in QuickAccessPopup.ahk for explanations
 if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
 {
 	g_blnPortableMode := true ; set this variable for use later during init
