@@ -33,6 +33,7 @@ HISTORY
 
 Version BETA: 8.2.9.3 (2017-07-11)
 - Import Windows shortcuts (.lnk files) from Explorer context menu to QAP favorites
+- fix bug when opening a folder and active window is QAP Settings window
  
 Version BETA: 8.2.9.2 (2017-06-26)
  
@@ -12347,6 +12348,7 @@ else if WindowIsTotalCommander(g_strTargetClass) and (g_intActiveFileManager = 3
 else if WindowIsQAPconnect(g_strTargetWinId) and (g_intActiveFileManager = 4)
 	g_strTargetAppName := "QAPconnect"
 else if WindowIsQuickAccessPopup(g_strTargetClass)
+{
 	if (g_intActiveFileManager = 2)
 		g_strTargetAppName := "DirectoryOpus"
 	else if (g_intActiveFileManager = 3)
@@ -12355,6 +12357,8 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 		g_strTargetAppName := "QAPconnect"
 	else
 		g_strTargetAppName := "Explorer"
+	g_strHokeyTypeDetected := "Launch"
+}
 else
 	g_strTargetAppName := "Unknown"
 
