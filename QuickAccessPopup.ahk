@@ -6327,8 +6327,6 @@ return
 BuildGui:
 ;------------------------------------------------------------
 
-g_blnFavoritesListFilterNeverFocused := true
-
 IniRead, strTextColor, %g_strIniFile%, Gui-%g_strTheme%, TextColor, 000000
 IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewBackground, FFFFFF
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
@@ -6514,6 +6512,9 @@ Gui, 1:Submit, NoHide
 Critical, On ; prevents the current thread from being interrupted by other threads
 
 strFavoritesListFilter := f_strFavoritesListFilter
+if (strFavoritesListFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused)
+	return
+
 if !StrLen(strFavoritesListFilter)
 {
 	GuiControl, Show, f_picMoveFavoriteUp
@@ -6767,6 +6768,9 @@ GuiAddFavoriteSelectType:
 GuiAddFavoriteFromQAP:
 ;------------------------------------------------------------
 
+if (A_ThisLabel = "GuiAddFavoriteFromQAP")
+	gosub, GuiShowFromGuiAddFavoriteSelectType
+
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
@@ -6775,9 +6779,6 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMen
 ; by another user since it was loaded in QAP by this user
 	return
 	
-if (A_ThisLabel = "GuiAddFavoriteFromQAP")
-	gosub, GuiShowFromGuiAddFavoriteSelectType
-
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered already but seems not to be?
@@ -8462,6 +8463,10 @@ if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
 else
 	Gosub, LoadMenuInGui
+
+g_blnFavoritesListFilterNeverFocused := true
+GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
+
 ; Diag(A_ThisLabel, "")
 Gui, 1:Show
 
@@ -10325,7 +10330,11 @@ GetFavoritesListFilter()
 GuiFavoritesListFilterEmpty:
 ;------------------------------------------------------------
 
-GuiControl, 1:, f_strFavoritesListFilter, % ""
+if !(g_blnFavoritesListFilterNeverFocused)
+{
+	GuiControl, 1:, f_strFavoritesListFilter, % ""
+	g_blnFavoritesListFilterNeverFocused := false
+}
 gosub, LoadMenuInGui
 
 return
@@ -11089,8 +11098,11 @@ return
 GuiCancel:
 ;------------------------------------------------------------
 
-GuiControl, 1:, f_strFavoritesListFilter, % "" ; empty filter will hide filtered list and show regular list
-
+if !(g_blnFavoritesListFilterNeverFocused)
+{
+	GuiControl, 1:, f_strFavoritesListFilter, % "" ; empty filter will hide filtered list and show regular list
+	g_blnFavoritesListFilterNeverFocused := false
+}
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
 blnCancelEnabled := (strCancelLabel = lGuiCancelAmpersand)
