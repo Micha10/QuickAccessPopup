@@ -31,8 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.2.9.3 (2017-07-11)
-- Import Windows shortcuts (.lnk files) from Explorer context menu to QAP favorites
+Version BETA: 8.2.9.3 (2017-07-15)
+- add Explorer context menu labeled "Import Windows shortcut to Quick Access Popup menu" to import .lnk files to QAP favorites
+- import following settings from Windows shortcut: working directory (for application favorites), window state (for folder favorites) and icon settings (for any type)
+- reset Search label in empty search box when Settings is shown
+- fix bug with search filter when showing the gui from add favorite QAP feature
+- fix bug when add favorite from QAP showing shared menu error at fresh start only
 - fix bug when opening a folder and active window is QAP Settings window
  
 Version BETA: 8.2.9.2 (2017-06-26)
@@ -15785,23 +15789,23 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 ; objExternalMenu returns the parent external menu object (equal to objMenu if objMenu is an external menu itself)
 ;------------------------------------------------------------
 {
+	if !IsObject(objMenu)
+		return false
+	
 	Loop
 	{
 		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
 		;	, objMenu[1].HasKey("ParentMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
-			objExternalMenu := objMenu
+			objExternalMenu := objMenu ; return the top level external menu object
 			return true
 		}
 		else if (objMenu.MenuPath = lMainMenuName)
 			return false ; up to Main menu, no External menu
 		else
 			if !(objMenu[1].HasKey("ParentMenu"))
-			{
-				Oops(A_ThisFunc . ": ERROR no parent menu")
 				return false ; should not occur, no parent menu
-			}
 			else
 				objMenu := objMenu[1].ParentMenu ; up one level and loop
 	}
