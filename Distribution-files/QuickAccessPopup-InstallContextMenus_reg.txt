@@ -156,3 +156,15 @@ Windows Registry Editor Version 5.00
 ;--------------------------------------
 
 
+;--------------------------------------
+; ADD SHORTCUT
+;--------------------------------------
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu]
+@="Import Windows shortcut to Quick Access Popup menu"
+"Icon"="\"C:\\Program Files\\Quick Access Popup\\QuickAccessPopup.exe\""
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu\command]
+@="\"C:\\Program Files\\Quick Access Popup\\QAPmessenger.exe\" AddShortcut \"%1\""
+;--------------------------------------
+
+

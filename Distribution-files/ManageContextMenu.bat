@@ -1,4 +1,4 @@
-﻿:: -----------------------------------------------------------------------
+:: -----------------------------------------------------------------------
 :: Quick Access Popup Context Menu Manager
 :: by Doğan Çelik https://github.com/dogancelik/qap-utils
 ::
@@ -10,14 +10,18 @@
 ::
 :: INSTRUCTIONS
 :: ------------
-:: 1) Make sure this file is unzipped and saved in the same folder as
-::    the unzipped files QAPmessenger.exe and QuickAccessPopup.ico.
+:: 1) Make sure this file is unzipped and saved saved in the same folder
+::    as the unzipped files QAPmessenger.exe and QuickAccessPopup.ico.
 ::
 :: 2) You will need ADMINISTRATOR PRIVILEGES to execute this command. To run
 ::    this batch file as administrator, in Windows Explorer, RIGHT-CLICK its
 ::    icon and select "Run as administrator".
 ::
 :: 3) In the menu, select "1) Install..." or "2) Uninstall..."
+::
+:: HISTORY
+:: 2017-01-17 Initial release
+:: 2017-07-15 Add the context menu "Import Windows shortcut to Quick Access Popup menu"
 ::
 :: -----------------------------------------------------------------------
 :: 
@@ -27,6 +31,7 @@ set "reg_wildcard=HKEY_CLASSES_ROOT\*\shell\"
 set "reg_desktop_bg=HKEY_CLASSES_ROOT\DesktopBackground\Shell\"
 set "reg_dir_bg=HKEY_CLASSES_ROOT\Directory\Background\shell\"
 set "reg_folder=HKEY_CLASSES_ROOT\Folder\shell\"
+set "reg_lnkfile=HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\"
 
 set "reg1=Add File to Quick Access Popup menu"
 set "reg2=Add File to Quick Access Popup menu Express"
@@ -34,6 +39,7 @@ set "reg3=Show Quick Access Popup menu"
 set "reg4=Show Quick Access Popup Alternative menu"
 set "reg5=Add Folder to Quick Access Popup menu"
 set "reg6=Add Folder to Quick Access Popup menu Express"
+set "reg7=Import Windows shortcut to Quick Access Popup menu"
 
 set "sep=========================="
 
@@ -73,6 +79,8 @@ call :regadd "%reg_dir_bg%" "%reg4%" "ShowMenuAlternative" 1 2
 call :regadd "%reg_dir_bg%" "%reg5%" "AddFolder" 0 1
 call :regadd "%reg_dir_bg%" "%reg6%" "AddFolderXpress" 1 1
 
+call :regadd "%reg_lnkfile%" "%reg7%" "AddShortcut" 0 0
+
 echo Installed QAP context menu items
 goto end
 
@@ -88,6 +96,7 @@ reg delete "%reg_dir_bg%%reg3%" /f
 reg delete "%reg_dir_bg%%reg4%" /f
 reg delete "%reg_dir_bg%%reg5%" /f
 reg delete "%reg_dir_bg%%reg6%" /f
+reg delete "%reg_lnkfile%%reg7%" /f
 
 echo Uninstalled QAP context menu items
 goto end
