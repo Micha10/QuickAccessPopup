@@ -8388,9 +8388,9 @@ else
 GuiControl, % (g_arrSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
 GuiControl, % (g_objMenuInGui.MenuPath <> lMainMenuName ? "Show" : "Hide"), f_picUpMenu
 
-if StrLen(GetFavoritesListFilter())
-	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with g_objMenuInGui
-else if (A_ThisLabel = "OpenMenuFromGuiSearch")
+gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with g_objMenuInGui
+
+if (A_ThisLabel = "OpenMenuFromGuiSearch")
 	Gosub, LoadMenuInGuiFromGuiSearch
 else
 	Gosub, LoadMenuInGui
@@ -9652,7 +9652,6 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
 
 if (g_blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
-;	gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
 
 GuiRemoveFavoriteCleanup:
@@ -10333,6 +10332,9 @@ GetFavoritesListFilter()
 ;------------------------------------------------------------
 GuiFavoritesListFilterEmpty:
 ;------------------------------------------------------------
+
+if !StrLen(GetFavoritesListFilter())
+	return
 
 if !(g_blnFavoritesListFilterNeverFocused)
 {
