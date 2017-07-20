@@ -31,6 +31,55 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.3 (2017-07-20)
+  
+Changes already published in beta version v8.2.9 to v8.2.9.4.
+  
+Search
+- add search text box to filter favorites in all submenus in Settings window
+- add an X button to empty the filter text box and restore the full favorites list
+- filtering is done based on the existence of the search string in the favorites name (only) in all menus and submenus
+- filtering is case insensitive
+- filtered favorites are displayed in the order they were found, starting from top main menu
+- in filtered favorites list, the Edit button, Enter key or double-click open the edit favorite dialog box with the selected favorite
+- double-clicking a menu favorite in filtered favorites list opens this menu unfiltered
+- after edition of a favorite, the regular favorites list is restored in the location of the edited favorite
+- the Remove button or Delete key removes a favorite from the filtered list (with confirmation before deleting a menu and its submenus); after deletion, the filtered list remains active
+- in filtered list, only single selection is available, allowing edition or deletion of only one favorite at a time
+- left columns buttons to move favorites or insert separator buttons (and their associated hotkeys) are disabled in filtered list
+- in filtered list, the Add button (and its associated hotkey Ctrl-N) adds a new favorite at the top of the main menu
+- changing menu using the dropdown list, using back or top arrows and closing and re-opening the Settings window restore the regular unfiltered list
+- in Settings window, the new shortcut Ctrl-F moves the cursor to search box
+  
+Shared menus
+- complete rewrite of Shared menus file locking (reservation to avoid conflictual changes by simulatneous users)
+- when opening the add/edit favorite dialog box, QAP checks if the favorites belongs to a Shared menu and displays a message if the menu is read-only, locked (reserved) by another user or if it was changed since QAP was launched
+- when saving a favorite (or when moving a favorite using arrows in Settings, or when adding a separator or a column break), QAP checks if the favorites belongs to a Shared menu and, if yes, checks if the shared menu was locked or modified since the dialog box was opened and, if yes, displays a message
+- after a favorite in a shared menu is saved in QAP "internal" memory, QAP locks (reserves) the shared menu file until the changes in shared menu are actualy saved to the settings file QuickAccessPopup.ini, preventing other users from editing this shared menu
+- QAP display "Read-only" in the Settings window's content column and prevent opening this menu in the Settings window if it is saved in a folder where the user has no write access and for shared menus of type "Centralized" where user does not have write-access for this menu
+- when creating a Shared menu of type "Centralized", QAP automatically adds the current username to the write-access list (preventing the user to be locked out of its own new menu)
+- in "Centralized" Shared menus write-access list, names can also be separated by semicolon (in addition to comma)
+- a shared menu cannot be added under another shared menu
+- QAP now supports Shared menu file locking when changes are done using the "Manage icons" window
+- in Settings window column labeled "Content", QAP now displays the Shared menu settings file location
+  
+New Explorer Context menu for Windows shortcuts
+- add an Explorer context menu for Windows shortcuts file (.lnk files) labeled "Import Windows shortcut to Quick Access Popup menu" to import shortcut settings to QAP favorites
+- QAP imports the following settings from Windows shortcut: working directory (for application favorites), window state (for folder favorites) and icon settings (for any type of favorites)
+- note for user of portable version: the file ManageContextMenu.bat has been updated to include the new context menu "Import Windows shortcut to Quick Access Popup menu"
+  
+Various
+- add Settings shortcut F1 to open the Help window
+- add Settings shortcut Ctrl-H to display the Favorites Shortcuts Help window
+- update the Favorites Shortcuts Help window
+  
+Bug fixes
+- fix bug having various side effects after user made changes to Settings and cancelled these changes with the Cancel button
+- fix bug when opening a folder and active window is QAP Settings window
+
+Version BETA: 8.2.9.4 (2017-07-20)
+- fix bug losing current position in favorites list when adding a favorite in Settings window
+
 Version BETA: 8.2.9.3 (2017-07-15)
 - add Explorer context menu labeled "Import Windows shortcut to Quick Access Popup menu" to import .lnk files to QAP favorites
 - import following settings from Windows shortcut: working directory (for application favorites), window state (for folder favorites) and icon settings (for any type)
@@ -1424,7 +1473,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.2.9.3 beta
+;@Ahk2Exe-SetVersion 8.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1458,6 +1507,7 @@ Gosub, SetQAPWorkingDirectory
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
 ListLines, On
+BuildUserAhkApi(A_ScriptFullPath,1)
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
@@ -1497,8 +1547,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.2.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -2236,7 +2286,6 @@ arrFavoriteTypesLabels := ""
 arrFavoriteTypesLocationLabels := ""
 arrFavoriteTypesHelp := ""
 arrFavoriteTypesShortNames := ""
-
 
 return
 ;------------------------------------------------------------
