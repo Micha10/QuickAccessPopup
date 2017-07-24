@@ -3,13 +3,13 @@ global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http:
 global lAboutText3 := "~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the ""License""). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an ""AS IS"" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License." ; changed
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
-global lAboutUserComputerName = "User name: ~1~`nComputer: ~2~"
+global lAboutUserComputerName := "User name: ~1~`nComputer: ~2~"
 global lAlternativeMenuTrayTipCopyLocation := "Select the favorite to copy" ; new
 global lAlternativeMenuTrayTipEditFavorite := "Select the favorite to edit" ; new
 global lAlternativeMenuTrayTipNewWindow := "Select the folder to open in a new window" ; new
 global lAlternativeMenuTrayTipOpenContaining := "Select the document, application or folder favorite whose parent folder you want to open"
 global lAlternativeMenuTrayTipRunAs := "Select the application to run in elevated mode" ; new
-global lAppTagline :=  "<a href=""http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/"">Quick Start</a> • <a href=""http://www.quickaccesspopup.com/frequently-asked-questions/"">Frequently asked questions</a> • <a href=""http://www.quickaccesspopup.com"">Support</a>" ; new
+global lAppTagline := "<a href=""http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/"">Quick Start</a> • <a href=""http://www.quickaccesspopup.com/frequently-asked-questions/"">Frequently asked questions</a> • <a href=""http://www.quickaccesspopup.com"">Support</a>" ; new
 global lContextAddFile := "Add File to Quick Access Popup menu"
 global lContextAddFileXpress := "Add File to Quick Access Popup menu Express"
 global lContextAddFolder := "Add Folder to Quick Access Popup menu"
@@ -42,7 +42,7 @@ global lDialogArgumentsLabelHelp := "(enclose each parameter in double-quotes if
 global lDialogArgumentsPlaceholders := "You can insert the location of this favorite or part of it in the parameters using these placeholders: {LOC} (full location), {NAME} (file name), {DIR} (directory), {EXT} (extension), {NOEXT} (file name without extension) or {DRIVE} (drive)" ; new
 global lDialogArgumentsPlaceholdersCheckLabel := "Current parameters with expanded placeholders" ; new
 global lDialogArgumentsPlaceholdersCurrent := "You can also insert placeholders for the current folder location where this favorite is launched: {CUR_LOC} (full folder), {CUR_NAME} (last folder), {CUR_DIR} (folder containing last folder) or {CUR_DRIVE}" ; new
-global lDialogArgumentsPlaceholdersCurrentExample :=  "x:\containing_folder\last_folder" ; you can translate "containing_folder" and "last_folder"
+global lDialogArgumentsPlaceholdersCurrentExample := "x:\containing_folder\last_folder" ; you can translate "containing_folder" and "last_folder"
 global lDialogBrowseButton := "Browse"
 global lDialogBrowseOrSelectApplication := "Browse for an executable file or`nselect a running application in this list" ; new
 global lDialogCancelButton := "Cancel"
