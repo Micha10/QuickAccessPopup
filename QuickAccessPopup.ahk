@@ -6924,6 +6924,8 @@ return
 GuiDropFiles:
 ;------------------------------------------------------------
 
+gosub, GetTargetWinIdWhenNoPopup
+	
 Loop, parse, A_GuiEvent, `n
 {
     g_strNewLocation = %A_LoopField%
@@ -6948,24 +6950,7 @@ AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
-{
-	DetectHiddenWindows, Off
-	Winget, strIDs, list
-	DetectHiddenWindows, On ; revert to app default
-	
-	Loop, %strIDs%
-	{
-		WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
-		if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-			or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		{
-			WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-			WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
-			g_strTargetWinId := strIDs%A_Index%
-			break
-		}
-	}
-}
+	gosub, GetTargetWinIdWhenNoPopup
 	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
@@ -7061,6 +7046,33 @@ strIDs := ""
 strMouseHotkey := ""
 strKeyboardHotkey := ""
 
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetTargetWinIdWhenNoPopup:
+; put the current window ID in g_strTargetWinId
+; used when it is not done when invoking the popup menu
+;------------------------------------------------------------
+
+DetectHiddenWindows, Off
+Winget, strIDs, list
+DetectHiddenWindows, On ; revert to app default
+
+Loop, %strIDs%
+{
+	WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
+	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+	{
+		WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+		WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+		g_strTargetWinId := strIDs%A_Index%
+		break
+	}
+}
+	
 return
 ;------------------------------------------------------------
 
@@ -7337,7 +7349,8 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 else ; add favorite
 {
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-		and InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
+		and (InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
+			or (strGuiFavoriteLabel = "GuiAddFromDropFiles"))
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
