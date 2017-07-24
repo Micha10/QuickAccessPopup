@@ -1735,6 +1735,9 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
+; #####
+gosub, GuiShow
+
 return
 
 
@@ -2053,6 +2056,8 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\settings-32.png, %g_strTempDir%\settings-32.png
 	FileInstall, FileInstall\up-12.png, %g_strTempDir%\up-12.png
 	FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
+	FileInstall, FileInstall\QAP-pin-off-26.png, %g_strTempDir%\QAP-pin-off-26.png
+	FileInstall, FileInstall\QAP-pin-on-26.png, %g_strTempDir%\QAP-pin-on-26.png
 
 	FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
 	FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
@@ -2077,6 +2082,8 @@ else
 	FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
 	FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
 	FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
+	FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
+	FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
 
 	FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
 	FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
@@ -2839,6 +2846,8 @@ InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
 ; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",					  25,   84)
+InsertGuiControlPos("f_picGuiAlwaysOnTop",			  10,  -165)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",		  10,  -165)
 
 InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -80, , true)
 InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",    0,  -80, , true)
@@ -5514,8 +5523,7 @@ GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 return
 ;------------------------------------------------------------
@@ -6414,6 +6422,8 @@ Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempD
 Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%strSettingsIconsExtension% ; Static11
 Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%strSettingsIconsExtension% ; Static12
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTop gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static7 #####
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTopOff x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static7 #####
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static14
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static15
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static16
@@ -6744,12 +6754,26 @@ return
 
 
 ;------------------------------------------------------------
+GuiAlwaysOnTop:
+GuiAlwaysOnTopOff:
+;------------------------------------------------------------
+
+g_Gui1AlwaysOnTop := !g_Gui1AlwaysOnTop
+WinSet, AlwaysOnTop, % (g_Gui1AlwaysOnTop ? "On" : "Off"), % L(lGuiTitle, g_strAppNameText, g_strAppVersion) ; do not use default Toogle for safety
+GuiControl, % (g_Gui1AlwaysOnTop ? "Show" : "Hide"), f_picGuiAlwaysOnTop
+GuiControl, % (g_Gui1AlwaysOnTop ? "Hide" : "Show"), f_picGuiAlwaysOnTopOff
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiDropFilesHelpClicked:
 ;------------------------------------------------------------
 Gui, 1:+OwnDialogs
 
 MsgBox, 0, %g_strAppNameText% - %lGuiDropFilesHelp%
-	, % L(lGuiDropFilesIncentive, g_strAppNameText, lDialogFolderLabel, lDialogFileLabel, lDialogApplicationLabel)
+	, % L(lGuiDropFilesIncentive, g_strAppNameText, lDialogFolderLabel, lDialogFileLabel, lDialogApplicationLabel) . "`n`n" . lGuiDropFilesIncentive2
 
 return
 ;------------------------------------------------------------
@@ -6861,8 +6885,7 @@ Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h200, % L(lDialogFavoriteSelectType, lDialogContinue)
 
 GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 objExternalMenu := ""
 
@@ -7192,8 +7215,7 @@ else
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
@@ -7906,8 +7928,7 @@ GuiCenterButtons(L(lDialogMoveFavoritesTitle, g_strAppNameText, g_strAppVersion)
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 return
 ;------------------------------------------------------------
@@ -8769,8 +8790,7 @@ LV_ModifyCol(, "")
 
 GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
 
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 strExpandedPath := ""
 strName := ""
@@ -9893,8 +9913,7 @@ Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGuiClos
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
 Gui, 2:Add, Text, x10, %A_Space%
 
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 intWidth := ""
 
@@ -10126,8 +10145,7 @@ Gosub, LoadIconsManageList
 
 ; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
 GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 20, 10, 40, "f_btnIconsManagePrev", "f_btnIconsManageNext", "f_btnIconsManageClose")
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 intTop := ""
 intLeft := ""
@@ -11139,6 +11157,19 @@ RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu)
 
 
 ;------------------------------------------------------------
+ShowGui2AndDisableGui1:
+;------------------------------------------------------------
+
+Gui, 2:Show, AutoSize Center
+Gui, 1:+Disabled
+if (g_Gui1AlwaysOnTop)
+	WinSet, AlwaysOnTop, Off, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiClose:
 GuiEscape:
 ;------------------------------------------------------------
@@ -11205,6 +11236,9 @@ Gui, 1:-Disabled
 Gui, 2:Destroy
 if (g_intGui1WinID <> A_ScriptHwnd)
 	WinActivate, ahk_id %g_intGui1WinID%
+
+if (g_Gui1AlwaysOnTop)
+	WinSet, AlwaysOnTop, On, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
 
 return
 ;------------------------------------------------------------
@@ -14310,8 +14344,7 @@ Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lAboutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAboutDonate", "f_btnAboutClose")
 
 GuiControl, Focus, f_btnAboutClose
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 strYear := ""
 
@@ -14371,8 +14404,7 @@ Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDonateTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnDonateClose")
 
 GuiControl, Focus, btnDonateDefault
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 strDonateReviewUrlLeft1 := ""
 strDonateReviewUrlLeft2 := ""
@@ -14460,8 +14492,7 @@ Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
 
 GuiControl, Focus, btnHelpClose
-Gui, 2:Show, AutoSize Center
-Gui, 1:+Disabled
+Gosub, ShowGui2AndDisableGui1
 
 return
 ;------------------------------------------------------------
