@@ -1604,6 +1604,8 @@ g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated 
 g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
 
+g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
+
 g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 g_strQAPconnectFileManager := ""
 g_strQAPconnectAppFilename := ""
@@ -1710,14 +1712,6 @@ g_blnMenuReady := true
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
 OnMessage(0x200, "WM_MOUSEMOVE")
 
-; Stop changing mouse cursor to hand over buttons in Settings when running uncompiled
-;@Ahk2Exe-IgnoreBegin
-; Start of code for development environment only - won't be compiled
-; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
-OnMessage(0x200, "")
-; / End of code for developement enviuronment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
-
 ; To prevent double-click on image static controls to copy their path to the clipboard - See WM_LBUTTONDBLCLK function below
 ; see http://www.autohotkey.com/board/topic/94962-doubleclick-on-gui-pictures-puts-their-path-in-your-clipboard/#entry682595
 OnMessage(0x203, "WM_LBUTTONDBLCLK")
@@ -1734,9 +1728,6 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
-
-; #####
-gosub, GuiShow
 
 return
 
@@ -2846,7 +2837,7 @@ InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
 ; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",					  25,   84)
-InsertGuiControlPos("f_picGuiAlwaysOnTop",			  10,  -165)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",		  10,  -165)
 InsertGuiControlPos("f_picGuiAlwaysOnTopOff",		  10,  -165)
 
 InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -80, , true)
@@ -6417,34 +6408,42 @@ Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDi
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
 Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%strSettingsIconsExtension% ; Static7
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%strSettingsIconsExtension% ; Static8
+g_objToolTipsMessages["Static8"] := lControlToolTipPreviousMenu
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12%strSettingsIconsExtension% ; Static9
+g_objToolTipsMessages["Static9"] := lControlToolTipParentMenu
 Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26%strSettingsIconsExtension% ; Static10
+g_objToolTipsMessages["Static10"] := lControlToolTipMoveUp
 Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%strSettingsIconsExtension% ; Static11
+g_objToolTipsMessages["Static11"] := lControlToolTipMoveDown
 Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%strSettingsIconsExtension% ; Static12
+g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTop gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static7 #####
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTopOff x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static7 #####
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static14
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static15
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static16
+g_objToolTipsMessages["Static13"] := lControlToolTipColunmnBreak
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static14
+g_objToolTipsMessages["Static14"] := lControlToolTipAlwaysOnTopOn
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static15
+g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOff
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static16
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static17
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static18
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static17
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static18
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static19, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static20
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static21
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static22
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static23
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static24
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static25
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static19
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static20
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static21, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static22
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static23
+Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static24
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static25
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static26
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static27
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static26
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static28
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
@@ -6468,9 +6467,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static27
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static29
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static28
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static30
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -6755,12 +6754,11 @@ return
 
 ;------------------------------------------------------------
 GuiAlwaysOnTop:
-GuiAlwaysOnTopOff:
 ;------------------------------------------------------------
 
 g_Gui1AlwaysOnTop := !g_Gui1AlwaysOnTop
 WinSet, AlwaysOnTop, % (g_Gui1AlwaysOnTop ? "On" : "Off"), % L(lGuiTitle, g_strAppNameText, g_strAppVersion) ; do not use default Toogle for safety
-GuiControl, % (g_Gui1AlwaysOnTop ? "Show" : "Hide"), f_picGuiAlwaysOnTop
+GuiControl, % (g_Gui1AlwaysOnTop ? "Show" : "Hide"), f_picGuiAlwaysOnTopOn
 GuiControl, % (g_Gui1AlwaysOnTop ? "Hide" : "Show"), f_picGuiAlwaysOnTopOff
 
 return
@@ -16303,13 +16301,22 @@ return
 
 ;------------------------------------------------
 WM_MOUSEMOVE(wParam, lParam)
-; "hook" for image buttons cursor
+; "hook" for image buttons cursor and buttons tooltips
 ; see http://www.autohotkey.com/board/topic/70261-gui-buttons-hover-cant-change-cursor-to-hand/
+; and https://autohotkey.com/board/topic/83045-solved-onmessage-gui-tooltips-issues/#entry528803
 ;------------------------------------------------
 {
+	static strControl, strControlPrev
+	
 	global g_objHandCursor
 	global g_strGuiFullTitle
 	global g_blnFavoritesListFilterNeverFocused
+	global g_objToolTipsMessages
+
+	; get window's titte and exit if it is not the Settings window
+	WinGetTitle, strCurrentWindow, A
+	if (strCurrentWindow <> g_strGuiFullTitle)
+		return
 
 	; empty Search box when it receives focus and contains the "Search" prompt
 	GuiControlGet, strFocusedControl, FocusV
@@ -16320,27 +16327,48 @@ WM_MOUSEMOVE(wParam, lParam)
 			GuiControl, , f_strFavoritesListFilter, % ""
 			g_blnFavoritesListFilterNeverFocused := false
 		}
-	
-	WinGetTitle, strCurrentWindow, A
 
-	if (strCurrentWindow <> g_strGuiFullTitle)
-		return
-
+	; get hover control name and Static control number
+	strControlPrev := strControl
 	MouseGetPos, , , , strControl ; Static1, StaticN, Button1, ButtonN
+	StringReplace, intControl, strControl, Static
+	
+	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
 	{
-		StringReplace, intControl, strControl, Static
 		; 2-28 sauf 26
-		if (intControl < 2) or (intControl = 26) or (intControl > 28)
+		if (intControl < 2) or (intControl = 28) or (intControl > 30)
 			return
 	}
 	else if !InStr(strControl, "Button")
+	{
+		ToolTip ; turn ToolTip off
 		return
-
+	}
 	DllCall("SetCursor", "UInt", g_objHandCursor)
+	
+	; display tooltip for selected buttons
+	if (strControl <> strControlPrev) ;  prevent flicker caused by repeating tooltip when mouse moving over the same control
+		and StrLen(g_objToolTipsMessages[strControl])
+	{
+		ToolTip, % g_objToolTipsMessages[strControl] ; display tooltip or remove tooltip if no message for this control
+		if StrLen(g_objToolTipsMessages[strControl])
+			SetTimer, RemoveToolTip, 2500 ; will remove tooltip if not removed by mouse going hovering elsewhere (required if window become inactive)
+	}
 
 	return
 }
+;------------------------------------------------
+
+
+;------------------------------------------------
+RemoveToolTip:
+;------------------------------------------------
+
+SetTimer, RemoveToolTip, Off
+ToolTip
+
+return
 ;------------------------------------------------
 
 
