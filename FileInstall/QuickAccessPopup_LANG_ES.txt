@@ -13,6 +13,7 @@ lContextAddFile	Añadir este archivo al menú de Quick Access Popup
 lContextAddFileXpress	Añadir este archivo al menú de Quick Access Popup Express 
 lContextAddFolder	Añadir esta carpeta al menú de Quick Access Popup 
 lContextAddFolderXpress	Añadir esta carpeta al menú de Quick Access Popup Express 
+lContextAddShortcut	Importar accesos directos de Windows al menú de Quick Access Popup 
 lContextShowMenu	Mostrar el menú de Quick Access Popup 
 lContextShowMenuAternative	Mostrar menú Alternativo de Quick Access Popup 
 lCopyLocationCopiedToClipboard	Ruta o URL copiada en el portapapeles 
@@ -69,10 +70,19 @@ lDialogEndOfMenu	fin del menú
 lDialogErrorMoving	No es posible cambiar el tamaño del favorito:`n"~1~"
 lDialogExternalAddFromCatalogue	¿Quieres añadir un menú externo de Catálogo de los menús compartidos?
 lDialogExternalLocation	Ubicación ajustes del menú externos para ubicación del archivo
+lDialogExternalMenuAdd	Agregar menú(s) compartido seleccionado
+lDialogExternalMenuAddFromCatalogue	 Añadir menús compartidos del catálogo - ~1~ ~2~
+lDialogExternalMenuAddHeader	Nombre del Menú Compartido | Archivo de configuración de los Menús Compartidos
+lDialogExternalMenuAddNotFromCatalogue	Añadir otro menú compartido...
 lDialogExternalMenuName	Nombre del menú compartido
+lDialogExternalMenuOpen	Abrir archivo de menú compartido?
+lDialogExternalMenusAdded	~1~ menú(s) compartido añadido.
+lDialogExternalMenuSelectFromCatalogue	Seleccione uno o más menús compartidos para agregar a su menú y haga clic en ellos ~1~
 lDialogExternalSelectFromCatalogue	Elige el Menú compartido para añadir a tu menú
 lDialogExternalStartingNumber	Número del primer favorito:
+lDialogExternalTip	Doble-click en una linea para ver la info del menú Compartido.
 lDialogExternalTypes	Personnel (Menú compartido en equipos diferentes para el mismo usuario)|Colaborativo (menú en una unidad compartida de un equipo o grupo de trabajo)|Centralizado (menú en una unidad compartida gestionada por un administrador del menú)
+lDialogExternalTypesLabel	Tipo de Menú Compartido
 lDialogExternalWriteAccessMessage	Mensaje sobre el permiso de escritura en el menú compartido
 lDialogExternalWriteAccessUsers	Los usuarios con permiso de escritura a este menú
 lDialogFavoriteDisabled	No añadir este favorito al menú
@@ -81,7 +91,7 @@ lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponib
 lDialogFavoriteDoesNotExistTitle	Favorito no encontrado - ~1~
 lDialogFavoriteDropdownEmpty	Por Favor seleccione un elemento ~1~ en la lista desplegable.
 lDialogFavoriteExternalHelpWeb	Ver <a href="~1~">Ayuda para menús externos</a> para más información.
-lDialogFavoriteExternalSaveNote	Nota: Los valores de esta ficha se almacenan en el menú compartido cuando se hace clic en OK.
+lDialogFavoriteExternalSaveNote	Nota: Los valores de esta pestaña se guardan en el menú compartido tan pronto como haga clic "~1~".
 lDialogFavoriteFolderLive	Carpeta dinámica (menú que incluye subcarpetas, ver "Configuración avanzada" para las opciones)   
 lDialogFavoriteFolderLiveColumns	Número de objetos por columna  (0 si no hay columnas) 
 lDialogFavoriteFolderLiveDocuments	Incluir documentos 
@@ -117,9 +127,9 @@ lDialogFavoriteSnippetSendModeMacro	Modo macro
 lDialogFavoriteSnippetSendModeText	Modo texto
 lDialogFavoritesParentMenuMove	Mover ~1~ favoritos hacia este menú
 lDialogFavoriteType	Tipo de favorito
-lDialogFavoriteTypesHelp1	Crear acceso directo sobre "Carpeta" de uso frecuente.`n`nElija el nombre, la ubicación y las diversas opciones al menú.`n`nLas opciones avanzadas permiten definir la posición de la ventana y varias opciones de administración de archivos.
+lDialogFavoriteTypesHelp1	Crear un acceso directo a "Carpeta" de uso frecuente.`n`nEstablecer el nombre del menú favorito, ruta de acceso y varias opciones de menú.`n`nOpciones de Live Folder permite actualizar el contenido del menú con el contenido actual de la carpeta.`n`nLa configuración avanzada permite definir la posición de la ventana y las opciones del gestor de archivos. 
 lDialogFavoriteTypesHelp13	Crear un "Fragmento". Proporcionar el nombre, el contenido y varias opciones.`n`nEn las configuraciones avanzadas, seleccione "Modo de texto" para pegar un trozo de texto al igual que con el portapapeles o elige "Modo macro" para enviar el fragmento como pulsaciones de teclas en el teclado (incluyendo teclas especiales, consulte la Ayuda).
-lDialogFavoriteTypesHelp14	Crear un "Menú compartido" para utilizar el preferido en varios sistemas a partir de un solo archivo de configuración en una ubicación externa.`n`nElegir nombre, la ubicación del archivo de configuración externo y varias opciones.`n`nLos menús compartidos se pueden cambiar como menús normales a menos que estén configurados como de sólo lectura (ver ayuda).
+lDialogFavoriteTypesHelp14	Crear un "Menú compartido" para utilizar favoritos en varios sistemas desde el mismo archivo de configuración en una ubicación externa. Defina el nombre del menú compartido para el menú, la ubicación del archivo de configuración externa y varias opciones.`n`nLos menús compartidos se pueden utilizar en los modos "Personal", "Colaborativo" o "Centralizado". Se puede configurar un Catálogo de Menús Compartidos en la pestaña Opciones "General" para facilitar las adiciones de Menús Compartidos.`n`nLos menús compartidos se pueden editar como menús normales. Sólo los usuarios seleccionados pueden editar menús compartidos Centralizados. Consulte las FAQ del sitio web para obtener más ayuda.
 lDialogFavoriteTypesHelp2	Crear un acceso directo hacia un "Documento".`n`nElegir el nombre, ubicación y diversas opciones para el menú.`n`nLas opciones avanzadas permiten elegir la aplicación que lanzará este documento, añadir parámetros opcionales y definir la posición de la ventana.
 lDialogFavoriteTypesHelp3	Crear un acceso directo a una "Aplicación" (programa, ejecutable o script).`n`nExplore las carpetas para seleccionar el archivo ejecutable o seleccionarlo de la lista desplegable de programas activos. Configurar las diversas opciones para el menú.`n`nLas opciones avanzadas le permiten seleccionar la carpeta de inicio de la aplicación, agregar parámetros opcionales para definir la posición de la ventana.
 lDialogFavoriteTypesHelp4	Crear un atajo hacia una de las 50 "Carpetas especiales" de Windows tales como: Bibliotecas, Mis Imágenes, Papelera, Descargas, etc.`n`nConfigure las diferentes opciones del menú. Ajustes avanzados permiten configurar las opciones de posición de la ventana y del gestor de archivos.
@@ -181,6 +191,7 @@ lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
 lDialogReadOnly	Sólo lectura
 lDialogRemoveMultipleFavorites	Realmente quiere suprimir ~1~ favoritos o sub-menús?
+lDialogSearch	Búsqueda
 lDialogSelectIcon	Selecionar icono
 lDialogSelectItemToAdd	Seleccione la opción para agregar
 lDialogSelectItemToEdit	Por favor seleccione la parte a editar.
@@ -269,8 +280,10 @@ lGuiGroupSaveRestoreWith	Restaurar carpetas con:
 lGuiHelp	Ayuda
 lGuiHotkeysHelp	Ayuda con atajos favoritos
 lGuiHotkeysHelpText	Abajo: Selecione siguiente favorito`nUp: Seleccione anterior favorito`n`nEnter: Editar favorito`nCtrl-N: Añadir nuevo favorito`nCtrl-C: Copiar un favorito`nDel: Borrar favorito(s)`n`nShift-Up/Down: Seleccionar favorito contiguo`nCtrl-Click: Seleccionar favorito no contiguo`nCtrl-A: Seleccionar todos los favoritos`n`nCtrl-Down: Mover favorito(s) abajo`nCtrl-Up: Mover favorito(s) arriba`n`nCtrl-Right: Abrir menú o grupo seleccionado`nCtrl-Left: Abrir menú principal
+lGuiHotkeysHelpText2	F1: Mostrar la ventana de Ayuda`nCtrl-F: Seleccione la búsqueda box`nCtrl-H: Mostrar esta ventana
 lGuiLoginName	Nombre inicio de sesión
 lGuiLvFavoritesHeader	Nombre|Tipo|Atajo de teclado|Localización o contenido
+lGuiLvFavoritesHeaderFiltered	Name|Menú|Tipo|Atajo|Ubicación o contenido
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opciones
@@ -368,6 +381,7 @@ lMenuDrives	Unidades de disco
 lMenuDrivesSpace	(~1~ GB libre / ~2~ GB) 
 lMenuEditIniFile	Editar ~1~
 lMenuExitApp	Cerrar ~1~
+lMenuExternalCatalogue	Agregar menú de favoritos compartidos del catálogo...
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fuentes
 lMenuGetWinInfo	Obtener ventana Título y Clase
@@ -417,7 +431,11 @@ lOopsErrorIniFileUnavailable	El archivo de configuración externo no está disponi
 lOopsErrorReadingIniFile	Se ha producido un error al leer el fichero de configuración:
 lOopsExternalCatalogueReadOnly	Este menú compartido es de lectura solamente. Quieres comunicar con tu administrador de sistema.
 lOopsExternalFileWriteError	Se ha producido un error al escribir en el archivo de configuración del menú compartido:`n~1~.`n`nCompruebe si este archivo o esta carpeta es de sólo lectura. 
+lOopsExternalFileWriteErrorCollaborative	Usted no puede editar el contenido de este menú Compartido. Si cree que debe tener acceso, póngase en contacto con el administrador del sistema.
+lOopsExternalNotAllowedUnderExternal	No se permiten menús compartidos dentro de otros menús compartidos. Por favor, seleccione otro menú principal en la ficha "Opciones de Menú".
 lOopsExternalReadOnlyAlert	Los menús compartidos de tipo "Centralizado" no se puede cambiar solo se puede modificar por el usuario(s) identificados en la zona "~1~" (o abrir el archivo ini en la unidad compartida con un editor de texto).`n`nTu nombre de usuario es: "~2~".`nTu ordenador es: "~3~".
+lOopsExternalReadOnlyAlertUsernameAdded	Su nombre de usuario se agregó automáticamente a la lista "usuarios con acceso de escritura".
+lOopsExternalSelectType	Seleccione el tipo de Menú Compartido en la ficha "Menú Compartido".
 lOopsFtpLocationProtocol	Ubicación FTP debe comenzar con "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	Este atajo "~1~" ya esta siendo usado por ~2~.`n`nPor favor, elija un nuevo atajo para ~3~.
@@ -456,7 +474,7 @@ lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsEnableExternalMenusCatalogue	Activar el Catálogo de los menús compartidos
 lOptionsExclusionDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y de la [~1~] click será enviado a la ventana de destino como si QAP no se estuviese ejecutando. También puede excluir ventanas por su nombre de clase. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Usted puede encontrar ayuda y apoyo en esta función <a href="~2~">en el sitio  de QAP</a>.
+lOptionsExclusionDetail2	La tecla de acceso rápido QAP se desactivará en estas aplicaciones y al [~ 1 ~] hacer clic se enviará a la ventana de destino como si QAP no se estuviera ejecutando. También puede excluir ventanas por su nombre de clase. Anteponer el título o la clase con * (asterisco) para excluir también los cuadros de diálogo de la aplicación. Puede encontrar ayuda y soporte en esta función <a href="~2~">en el sitio web de QAP</a>.
 lOptionsExclusionList	Lista de exclusiones
 lOptionsExclusionTitle	Lista de Exclusiones de ratón del disparador [~1~]
 lOptionsExplorerContextMenus	Activar Menús Contextuales de Explorer 

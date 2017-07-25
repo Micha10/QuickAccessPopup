@@ -13,6 +13,7 @@ lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
 lContextAddFileXpress	Ajouter ce fichier au menu Quick Access Popup (Express)
 lContextAddFolder	Ajouter ce dossier au menu Quick Access Popup
 lContextAddFolderXpress	Ajouter ce dossier au menu Quick Access Popup (Express)
+lContextAddShortcut	Importer le Raccourci Windows dans le menu Quick Access Popup
 lContextShowMenu	Afficher le menu de Quick Access Popup
 lContextShowMenuAternative	Afficher le menu Alternatif de Quick Access Popup
 lCopyLocationCopiedToClipboard	Emplacement copié dans le Presse-papiers
@@ -70,10 +71,19 @@ lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
 lDialogExternalAddFromCatalogue	Voulez-vous ajouter un menu externe du Catalogue des menus partagés?
 lDialogExternalLocation	Emplacement du fichier de configuration de ce menu partagé
 lDialogExternalLocationIni	Le fichier de paramètres partagé doit être un fichier .ini.
+lDialogExternalMenuAdd	Ajouter le(s) menu(s) sélectionnés
+lDialogExternalMenuAddFromCatalogue	Ajouter des menus partagés du catalogue - ~1~ ~2~
+lDialogExternalMenuAddHeader	Nom du menu partgé|Fichier de configuration du menu partagé
+lDialogExternalMenuAddNotFromCatalogue	Ajouter un autre menu partagé...
 lDialogExternalMenuName	Nom du menu partagé
+lDialogExternalMenuOpen	Ouvrir le fichier du menu partagé?
+lDialogExternalMenusAdded	~1~ menu(s) partagé(s) ajoutés.
+lDialogExternalMenuSelectFromCatalogue	Sélectionnez un ou plusieurs menus partagés à ajouter à votre menu et cliquez ~1~
 lDialogExternalSelectFromCatalogue	Choisissez le Menu partagé à ajouter à votre menu
 lDialogExternalStartingNumber	Numéro du premier favori:
+lDialogExternalTip	Faites double-clic sur une ligne pour voir l'information sur le menu partagé
 lDialogExternalTypes	Personnel (menu partagé sur différents ordinateurs pour le même utilisateur)|Collaboratif (menu sur un disque partagé pour une équipe ou un groupe de travail)|Centralisé (menu sur un disque partagé géré par un administrateur de menu)
+lDialogExternalTypesLabel	Type de menu partagé
 lDialogExternalWriteAccessMessage	Message sur l'accès en écriture du menu partagé
 lDialogExternalWriteAccessUsers	Utilisateurs avec les droits d'écriture pour ce menu
 lDialogFavoriteDisabled	Ne pas afficher ce favori dans le menu
@@ -82,7 +92,7 @@ lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disp
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
 lDialogFavoriteExternalHelpWeb	Voir l'<a href="~1~">aide sur le menus partagés</a> (anglais)  pour plus de renseignements.
-lDialogFavoriteExternalSaveNote	Note: Les valeurs dans cet onglet sont enregistrées dans le menu partagé dès que vous cliquez OK.
+lDialogFavoriteExternalSaveNote	Note: Les valeurs dans cet onglet sont enregistrées dans le menu partagé dès que vous cliquez "~1~".
 lDialogFavoriteFolderLive	Dossier actif (menu incluant les sous-dossiers)
 lDialogFavoriteFolderLiveColumns	Nombre d'items par colonne (0 pour pas de colonnes)
 lDialogFavoriteFolderLiveDocuments	Inclure les documents
@@ -118,9 +128,9 @@ lDialogFavoriteSnippetSendModeMacro	Mode macro
 lDialogFavoriteSnippetSendModeText	Mode texte
 lDialogFavoritesParentMenuMove	Déplacer ~1~ favori vers ce menu
 lDialogFavoriteType	Type de favori
-lDialogFavoriteTypesHelp1	Créez un raccourci vers un "Dossier" souvent consulté.`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
+lDialogFavoriteTypesHelp1	Créez un raccourci vers un "Dossier" souvent consulté.`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes options de "Dossier actif" permettent de raffraîchir le menu selon le contenu actuel du dossier.`n`nLes réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
 lDialogFavoriteTypesHelp13	Créez un "Fragment de texte". Indiquez le nom, le contenu et diverses options.`n`nDans les réglages avancés, choisissez "Mode texte" pour coller un fragment de texte comme avec le Presse-papiers ou choisissez "Mode macro" pour envoyer le frangment comme des touches frappées au clavier (incluant les touches spéciales, voir l'aide).
-lDialogFavoriteTypesHelp14	Créez un "Menu partagé" pour utiliser des favoris sur divers systèmes à partir d'un même fichier de configuration dans un emplacement externe.`n`nChoisissez le nom, l'emplacement du fichier externe de configuration et diverses options.`n`nLes menus partagés peuvent être modifiés comme des menus réguliers sauf s'ils sont configurés en lecture seule (voir l'aide).
+lDialogFavoriteTypesHelp14	Créez un "Menu partagé" pour utiliser des favoris sur divers systèmes à partir d'un même fichier de configuration dans un emplacement externe. Choisissez le nom, l'emplacement du fichier externe de configuration et diverses options.`n`nLes menus partagés peuvent être de types "Personnel", "Collaboratif" ou "Centralisé". Un Catalogue des menus partagés peut être sélectionné dans les Options, onglet "Général", pour faciliter l'ajout de menus partagés.`n`nLes menus partagés peuvent être modifiés comme des menus réguliers. Seuls les utilisateurs désignés peuvent modifier les menus partagés de type "Centralisé". Voir la foire aux questions (FAQ) du site web pour plus de détails.
 lDialogFavoriteTypesHelp2	Créez un raccourci vers un "Document".`n`nChoisissez le nom, l'emplacement et diverses options pour le menu.`n`nLes réglages avancés permettent de choisir l'application qui lancera ce document, d'ajouter des paramètres optionels et de définir la position de la fenêtre.
 lDialogFavoriteTypesHelp3	Créez un raccourci vers une "Appplication" (programme, batch ou script).`n`nParcourez les dossiers pour choisir le fichier exécutable ou choisissez-le dans la liste déroulante des programmes actifs. Réglez diverses options pour le menu.`n`nLes réglages avancés permettent de choisir le dossier de démarrage de l'application, d'ajouter des paramètres optionels et de définir la position de la fenêtre.
 lDialogFavoriteTypesHelp4	Créez un raccourci vers l'un des 50 "Dossiers spéciaux" de Windows tel que: Bibliothèque, Mes Images, Corbeille, Téléchargements, etc.`n`nRéglez diverses options pour le menu. Les réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
@@ -182,6 +192,7 @@ lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogReadOnly	Lecture seulement
 lDialogRemoveMultipleFavorites	Voulez-vous vraiement supprimer ~1~ favoris ou sous-menus?
+lDialogSearch	Rechercher
 lDialogSelectIcon	Sélectionnez l'icône
 lDialogSelectItemToAdd	Sélectionnez l'item à ajouter
 lDialogSelectItemToEdit	Veuillez sélectionner l'item à modifier.
@@ -270,8 +281,10 @@ lGuiGroupSaveRestoreWith	Restaurer les dossier avec:
 lGuiHelp	Aide
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
 lGuiHotkeysHelpText	Flèche Bas: Sélectioner le prochain favori`nFlèche Haut: Sélectioner le favori précédent`n`nEntrée: Modifier un favori`nCtrl-N: Ajouter un favori`nCtrl-C: Copier un favori`nSuppr: Supprimer un ou des favoris`n`nMaj-Haut/Bas: Sélectionner des favori contigus`nCtrl-Clic: Sélectionner des favoris non-contigus`nCtrl-A: Sélectionner tous les favoris`n`nCtrl-Bas: Déplacer un ou des favoris vers le bas`nCtrl-Haut: Déplacer un ou des favoris vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu`nCtrl-Gauche: Ouvrir le sous-menu contenant ce menu
+lGuiHotkeysHelpText2	F1: Afficher la fenêtre d'aide`nCtrl-F: Sélectionner la boîte de recherche`nCtrl-H: Afficher cette fenêtre
 lGuiLoginName	Code d'utilisateur
 lGuiLvFavoritesHeader	Nom|Type|Raccourci|Emplacement ou contenu
+lGuiLvFavoritesHeaderFiltered	Nom|Menu|Type|Raccourci|Emplacement ou contenu
 lGuiMove	Déplacer
 lGuiMoveAmpersand	&Déplacer
 lGuiOptions	Options
@@ -369,6 +382,7 @@ lMenuDrives	Disques
 lMenuDrivesSpace	(~1~ GB libres / ~2~ GB)
 lMenuEditIniFile	Modifier ~1~
 lMenuExitApp	Quitter ~1~
+lMenuExternalCatalogue	Ajouter un menu partagé du catalogue...
 lMenuFavoritesInternet	Favoris (Internet)
 lMenuFonts	Polices
 lMenuGetWinInfo	Lire le titre et la classe d'une fenêtre
@@ -418,7 +432,11 @@ lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas dispo
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
 lOopsExternalCatalogueReadOnly	Ce menu partagé est en lecture seulement. Veuillez communiquer avec votre administrateur de système.
 lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture.
+lOopsExternalFileWriteErrorCollaborative	Vous ne pouvez pas modifier le contenu de ce menu partagé. Si vous croyez que vous devriez y avoir accès, veuillez communiquer avec votre administrateur de système.
+lOopsExternalNotAllowedUnderExternal	On ne peut ajouter un menu partagé à l'intérieur d'un autre menu partagé. Veuillez sélectionner autre menu parent dans l'onglet "Options du menu".
 lOopsExternalReadOnlyAlert	Les menus partagés de type "Centralisé" ne peuvent être modifiés can only be edited par les utilisateur(s) identifiés dans la zone "~1~" (ou en ouvrant le fichier ini sur le disque partagé avec un éditeur de texte).`n`nVotre nom d'utilisateur est: "~2~".`nVotre ordinateur est: "~3~".
+lOopsExternalReadOnlyAlertUsernameAdded	Votre nom d'utilisateur a été ajouté automatiquement dans la liste "Utilisateurs avec les droits d'écriture pour ce menu".
+lOopsExternalSelectType	Veuillez sélectionner le type de menu partagé dans l'onglet "Menu partagé".
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
 lOopsHotkeyAlreadyUsed	Le raccourci "~1~" est déjà utilisé pour l'emplacement ~2~.`n`nVeuillez choisis un autre raccourci pour ~3~.
