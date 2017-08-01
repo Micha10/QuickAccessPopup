@@ -5646,7 +5646,7 @@ OptionsTitlesSubClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, Choose, f_intOptionsTab, 4
+GuiControl, Choose, f_intOptionsTab, 5
 
 return
 ;------------------------------------------------------------
@@ -9956,7 +9956,7 @@ if (A_GuiEvent = "DoubleClick")
 		IfMsgBox, Yes
 		{
 			Gosub, GuiOptions
-			GuiControl, Choose, f_intOptionsTab, 2
+			GuiControl, Choose, f_intOptionsTab, 3
 		}
 	}
 	else if (strHotkeyType = lDialogHotkeysManageAlternative) ; this is Alternative menu feature, go to Options, Menu hotkeys
@@ -9965,7 +9965,7 @@ if (A_GuiEvent = "DoubleClick")
 		IfMsgBox, Yes
 		{
 			Gosub, GuiOptions
-			GuiControl, Choose, f_intOptionsTab, 3
+			GuiControl, Choose, f_intOptionsTab, 4
 		}
 	}
 	else
