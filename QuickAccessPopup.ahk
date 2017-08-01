@@ -7614,7 +7614,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Text, x20 y+10, %lDialogExternalLocation% *
 	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
 	Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
-	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
+	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
 Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
@@ -7824,7 +7824,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 
 	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
 		Gui, 2:Add, Text, x20 y+15 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
-	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/external-menus-help/")
+	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 	
 	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, %lDialogReadOnly%
 	Gui, 2:Add, Text, x20 y+15 vf_lblExternalMenuName, %lDialogExternalMenuName%
@@ -14463,7 +14463,7 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, x10 w%intWidth%, %lHelpTextLead%
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, %A_Space%%lHelpTabGettingStarted% | %lHelpTabAddingFavorite% | %lHelpTabQAPFeatures% | %lHelpTabTipsAndTricks%%A_Space%
+Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, %A_Space%%lHelpTabGettingStarted% | %lHelpTabAddingFavorite% | %lHelpTabQAPFeatures% | %lHelpTabSharedMenus% | %lHelpTabTipsAndTricks%%A_Space%
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Tab, 1
@@ -14489,7 +14489,19 @@ Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(g_objHotkeysByNa
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext3")
 
-Gui, 2:Tab, 4
+Gui, 2:Tab, 4 ; has text numbered 51, 52, etc.
+Gui, 2:Add, Link, w%intWidth%, % lHelpText51
+StringSplit, arrSharedMenuTypes, lDialogExternalTypes, |
+Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes1%
+Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes2%
+Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes3%
+Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText52
+Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText53
+Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText54
+Gui, 2:Add, Button, y+25 vf_btnNext4 gNextHelpButtonClicked, %lDialogTabNext%
+GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext4")
+
+Gui, 2:Tab, 5 ; has text numbered 41, 42, etc.
 Gui, 2:Add, Link, w%intWidth%, % lHelpText41
 Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText42
 Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText43
@@ -14504,6 +14516,8 @@ GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f
 
 GuiControl, Focus, btnHelpClose
 Gosub, ShowGui2AndDisableGui1
+
+arrSharedMenuTypes := ""
 
 return
 ;------------------------------------------------------------
