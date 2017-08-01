@@ -15273,11 +15273,13 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 		else ; this is the name of a file including icons
 			strIconResource := strIconResource . ",1" ; use its first icon
 	
-	; from here, strIconResource is always of icongroup files format (file,index)
-	StringSplit, arrIconResource, strIconResource, `,
+	; from here, strIconResource is always of icongroup files format ("file,index")
+	intComaPos := InStr(strIconResource, ",", , 0) - 1 ; search from the end because filename could also include a coma (ex.: "file,name.ico,1")
+	StringLeft, strIconFile, strIconResource, intComaPos
+	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
 	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
-	strIconFile := PathCombine(A_WorkingDir, EnvVars(arrIconResource1))
-	intIconIndex := arrIconResource2
+	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
+	; ###_V(A_ThisFuync, "*strIconResource", strIconResource, "*intComaPos", intComaPos, "*strIconFile", strIconFile, "*intIconIndex", intIconIndex)
 }
 ;------------------------------------------------------------
 
