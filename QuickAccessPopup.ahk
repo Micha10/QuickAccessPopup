@@ -6952,7 +6952,7 @@ return
 GuiDropFiles:
 ;------------------------------------------------------------
 
-gosub, GetTargetWinIdWhenNoPopup
+g_strTargetWinId := GetTargetWinId() ; updates g_strTargetClass and returns the current window ID
 	
 Loop, parse, A_GuiEvent, `n
 {
@@ -6978,7 +6978,8 @@ AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
-	gosub, GetTargetWinIdWhenNoPopup
+	; updates g_strTargetClass and returns the current window ID, and re-activate the last active file manager window
+	g_strTargetWinId := GetTargetWinId(true)
 	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
@@ -7081,29 +7082,36 @@ return
 
 
 ;------------------------------------------------------------
-GetTargetWinIdWhenNoPopup:
-; put the current window ID in g_strTargetWinId
-; used when it is not done when invoking the popup menu
+GetTargetWinId(blnActivate := false)
+; updates g_strTargetClass and returns the current window ID
+; used when these variables are not updated when invoking the popup menu
+; with blnActivate true when add folder from QAP tray icon
 ;------------------------------------------------------------
-
-DetectHiddenWindows, Off
-Winget, strIDs, list
-DetectHiddenWindows, On ; revert to app default
-
-Loop, %strIDs%
 {
-	WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
-	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-	{
-		WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-		WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
-		g_strTargetWinId := strIDs%A_Index%
-		break
-	}
-}
+	global g_strTargetClass
 	
-return
+	DetectHiddenWindows, Off
+	Winget, strIDs, list
+	DetectHiddenWindows, On ; revert to app default
+
+	Loop, %strIDs%
+	{
+		WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
+		if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
+			or WindowIsDialog(g_strTargetClass, strIDs%A_Index%)
+		{
+			if (blnActivate)
+			{
+				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+			}
+			strTargetWinId := strIDs%A_Index%
+			break
+		}
+	}
+	
+	return strTargetWinId
+}
 ;------------------------------------------------------------
 
 
@@ -12593,11 +12601,13 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	}
 	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
-;~ else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
-;~ {
+else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
+{
+	g_strTargetWinId := GetTargetWinId() ; updates g_strTargetClass and return current window ID
+	###_V(A_ThisLabel, "*g_strTargetClass", g_strTargetClass, "*g_strTargetWinId", g_strTargetWinId)
 	;~ gosub, GetCurrentFileManagerLocation
 	;~ strThisMenuItem := g_strCurrentLocation
-;~ }
+}
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
 	If (InStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
