@@ -401,6 +401,7 @@ global lMenuExternalCatalogue := "Add shared favorites menu from catalogue..."
 global lMenuFavoritesInternet := "Favorites (Internet)"
 global lMenuFonts := "Fonts"
 global lMenuGetWinInfo := "Get window Title and Class" ; new
+global lMenuReopenCurrentFolder := "Reopen Current Folder"
 global lMenuHelp := "Help"
 global lMenuHistory := "History"
 global lMenuMenu := "Menu"

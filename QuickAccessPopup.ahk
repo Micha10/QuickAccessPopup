@@ -2751,7 +2751,8 @@ InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",					
 InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
-InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, "", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
+InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
+InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
@@ -4584,11 +4585,7 @@ CollectExplorers(pExplorers)
 			else
 			{
 				objExplorer.LocationURL := pExplorer.LocationURL
-				strLocationName :=  UriDecode(pExplorer.LocationURL)
-				StringReplace, strLocationName, strLocationName, file:///
-				StringReplace, strLocationName, strLocationName, file: ; for network drives starting with file:\\, keep only \\
-				StringReplace, strLocationName, strLocationName, /, \, A
-				objExplorer.LocationName := strLocationName
+				objExplorer.LocationName :=  UriDecode(pExplorer.LocationURL)
 			}
 			
 			objExplorer.WindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
@@ -7001,7 +6998,7 @@ if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
 
 If !StrLen(g_strNewLocation)
 	or !(InStr(g_strNewLocation, ":") or InStr(g_strNewLocation, "\\") or  InStr(g_strNewLocation, "{"))
-	or (strAddThisFolderWindowTitle <> strWindowActiveTitle)
+	or (g_strAddThisFolderWindowTitle <> g_strWindowActiveTitle)
 {
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
@@ -7067,9 +7064,11 @@ else
 	}
 }
 
+g_strAddThisFolderWindowTitle := ""
+g_strWindowActiveTitle := ""
+
 objDOpusListers := ""
 objPrevClipboard := ""
-strAddThisFolderWindowTitle := ""
 intWaitTimeIncrement := ""
 intTries := ""
 intTriesIndex := ""
@@ -12072,6 +12071,7 @@ OpenReopenFolder:
 OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
+OpenReopenCurrentFolder:
 ;------------------------------------------------------------
 
 if (g_blnChangeHotkeyInProgress)
@@ -12593,7 +12593,12 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	}
 	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
-else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
+;~ else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
+;~ {
+	;~ gosub, GetCurrentFileManagerLocation
+	;~ strThisMenuItem := g_strCurrentLocation
+;~ }
+else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
 	If (InStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
 	{
@@ -14782,6 +14787,7 @@ if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass
 	}
 	else ; Explorer, TotalCommander or dialog boxes
 	{
+		; use the clipblard to memorize the current location and copy it to g_strCurrentLocation at the end
 		objPrevClipboard := ClipboardAll ; Save the entire clipboard
 		ClipBoard := ""
 
@@ -14800,20 +14806,30 @@ if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass
 		else
 			intTries := 3
 
-		strAddThisFolderWindowTitle := ""
+		g_strAddThisFolderWindowTitle := ""
 		Loop, %intTries%
 		{
 			Sleep, intWaitTimeIncrement * A_Index
-			WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-		} Until (StrLen(strAddThisFolderWindowTitle))
+			WinGetTitle, g_strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+		} Until (StrLen(g_strAddThisFolderWindowTitle))
 
+		WinGetTitle, g_strWindowActiveTitle, A ; to check if the window was closed unexpectedly
 		if WindowIsTotalCommander(g_strTargetClass)
 		{
 			cm_CopySrcPathToClip := 2029
 			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-			WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
 		}
-		else ; Explorer or dialog boxes
+		else if WindowIsExplorer(g_strTargetClass)
+		{
+			; Gets the active IE or Explorer window
+			for objExplorer in ComObjCreate("Shell.Application").Windows
+				if (objExplorer.HWND = g_strTargetWinId)
+				{
+					ClipBoard :=  UriDecode(objExplorer.LocationURL)
+					Break
+				}
+		}
+		else ; dialog boxes
 		{
 			Loop, %intTries%
 			{
@@ -14822,9 +14838,9 @@ if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass
 				Sleep, intWaitTimeIncrement * A_Index
 				SendInput, ^c ; Copy
 				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+				WinGetTitle, g_strWindowActiveTitle, A ; to check if the window was closed unexpectedly
 				intTriesIndex := A_Index
-			} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+			} Until (StrLen(ClipBoard) or (g_strAddThisFolderWindowTitle <> g_strWindowActiveTitle))
 			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
 				SendInput, {Esc}
 		}
@@ -15614,6 +15630,12 @@ UriDecode(str)
 			StringReplace, str, str, `%%hex%, % Chr("0x" . hex), All
 		Else
 			Break
+
+	; added by JL
+	StringReplace, str, str, file:///
+	StringReplace, str, str, file: ; for network drives starting with file:\\, keep only \\
+	StringReplace, str, str, /, \, A
+
 	return str
 }
 ;------------------------------------------------
