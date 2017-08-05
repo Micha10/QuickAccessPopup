@@ -1571,7 +1571,6 @@ else ; setup mode
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
-g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -4815,6 +4814,7 @@ if (g_blnUseColors)
 
 g_objMenuColumnBreaks := Object() ; re-init before rebuilding menu
 
+g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
 if (g_blnWorkingToolTip)
 	Tooltip
@@ -4996,14 +4996,14 @@ LiveFolderHasContent(objLiveFolder)
 	{
 		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
-			/*
-			###_V("Conditions"
-				, A_LoopFileFullPath
-				, !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
-				, (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				, (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				, "-")
-			*/
+			;~ ###_V("Conditions"
+				;~ , A_LoopFileFullPath
+				;~ , A_LoopFileExt
+				;~ , objLiveFolder.FavoriteFolderLiveExtensions
+				;~ , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
+				;~ , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				;~ , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				;~ , "-")
 			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
 				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
 				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
@@ -5099,6 +5099,9 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 
 	Loop, Parse, strContent, `n
 	{
+		if !StrLen(A_LoopField)
+			break
+		
 		; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders only)
 		StringSplit, arrItem, A_LoopField, `t
 		
