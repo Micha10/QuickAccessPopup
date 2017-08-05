@@ -33,7 +33,7 @@ HISTORY
 
 Version BETA: 8.4.9 (2017-08-05)
 - new QAP feature "Reopen Current Folder" allowing to reopen the current location in the last active file manager (Windows Explorer or, if enabled, Directory Opus/Total Commander), most useful in file dialog boxes Open, Save As, etc.
-- rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); pontieal impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
+- rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); potential impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
 
 Version: 8.4.1 (2017-08-05)
 - fix bug maximum of Live Folders items exceeded (500 items limit) by error
@@ -1491,7 +1491,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4.1
+;@Ahk2Exe-SetVersion 8.4.9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1565,8 +1565,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.4.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
