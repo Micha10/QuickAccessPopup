@@ -1,3 +1,6 @@
+rem Check if Language files are available
+ECHO Checking language files...
+C:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
 rem Set current directory
 C:
 CD \Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%QAPBETAPROD%\
