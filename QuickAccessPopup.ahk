@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.4.9 (2017-08-05)
+- new QAP feature "Reopen Current Folder" allowing to reopen the current location in the last active file manager (Windows Explorer or, if enabled, Directory Opus/Total Commander), most useful in file dialog boxes Open, Save As, etc.
+- rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); pontieal impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
+
 Version: 8.4.1 (2017-08-05)
 - fix bug maximum of Live Folders items exceeded (500 items limit) by error
 - fix bug last Live folder item duplicated when numeric shortcuts are enabled
@@ -12594,10 +12598,9 @@ else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
 {
 	; GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
 	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
-	###_V(A_ThisLabel, "*g_strTargetWinId", g_strTargetWinId, "*g_strTargetClass", g_strTargetClass, "*strReopenWindowsID", strReopenWindowsID, "*strReopenWindowClass", strReopenWindowClass)
 	
 	g_objThisFavorite := Object() ; temporary favorite object
-	g_objThisFavorite.FavoriteName :=  "#####"
+	; g_objThisFavorite.FavoriteName not needed because menu object never used for menu building
 	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
 	g_objThisFavorite.FavoriteType := "Folder"
 }
