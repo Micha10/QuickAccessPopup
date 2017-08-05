@@ -6952,7 +6952,7 @@ return
 GuiDropFiles:
 ;------------------------------------------------------------
 
-g_strTargetWinId := GetTargetWinId() ; updates g_strTargetClass and returns the current window ID
+GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
 	
 Loop, parse, A_GuiEvent, `n
 {
@@ -6978,16 +6978,13 @@ AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
-	; updates g_strTargetClass and returns the current window ID, and re-activate the last active file manager window
-	g_strTargetWinId := GetTargetWinId(true)
+	; returns current or latest file manager window ID and Window class, and re-activate the last active file manager window
+	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true)
 	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
-{
-	Gosub, GetCurrentLocation
-	g_strNewLocation := g_strCurrentLocation
-}
+	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 
 g_strNewLocationSpecialName := ""
 if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
@@ -6999,7 +6996,6 @@ if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
 
 If !StrLen(g_strNewLocation)
 	or !(InStr(g_strNewLocation, ":") or InStr(g_strNewLocation, "\\") or  InStr(g_strNewLocation, "{"))
-	or (g_strAddThisFolderWindowTitle <> g_strWindowActiveTitle)
 {
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
@@ -7065,14 +7061,8 @@ else
 	}
 }
 
-g_strAddThisFolderWindowTitle := ""
-g_strWindowActiveTitle := ""
-
 objDOpusListers := ""
 objPrevClipboard := ""
-intWaitTimeIncrement := ""
-intTries := ""
-intTriesIndex := ""
 strIDs := ""
 strMouseHotkey := ""
 strKeyboardHotkey := ""
@@ -7082,35 +7072,32 @@ return
 
 
 ;------------------------------------------------------------
-GetTargetWinId(blnActivate := false)
-; updates g_strTargetClass and returns the current window ID
-; used when these variables are not updated when invoking the popup menu
+GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false)
+; return ByRef parameters for g_strTargetWinId and g_strTargetClass (or current file manager ID and class if called to reopen current location)
+; called when g_strTargetWinId and g_strTargetClass are not updated when invoking the popup menu
 ; with blnActivate true when add folder from QAP tray icon
+; with blnExcludeDialogBox true when reopen file manager current location in dialog box
 ;------------------------------------------------------------
 {
-	global g_strTargetClass
-	
 	DetectHiddenWindows, Off
 	Winget, strIDs, list
 	DetectHiddenWindows, On ; revert to app default
 
 	Loop, %strIDs%
 	{
-		WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
-		if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-			or WindowIsDialog(g_strTargetClass, strIDs%A_Index%)
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
+			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
 			{
 				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
 				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
 			}
-			strTargetWinId := strIDs%A_Index%
+			strThisId := strIDs%A_Index%
 			break
 		}
 	}
-	
-	return strTargetWinId
 }
 ;------------------------------------------------------------
 
@@ -12200,10 +12187,8 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 {	
 	if InStr(strTempLocation, "{CUR_")
-	{
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
-	}
+		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation
+			, GetCurrentLocation(g_strTargetClass, g_strTargetWinId)) ; let user enter double-quotes as required by his arguments
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 	; was if !FileExist(PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteLocation)))
@@ -12373,10 +12358,7 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 if (g_objThisFavorite.FavoriteType = "Application")
 {
 	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
-	{
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-		strCurrentAppWorkingDir := g_strCurrentLocation
-	}
+		strCurrentAppWorkingDir := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 	else
 		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
@@ -12603,10 +12585,14 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
 {
-	g_strTargetWinId := GetTargetWinId() ; updates g_strTargetClass and return current window ID
-	###_V(A_ThisLabel, "*g_strTargetClass", g_strTargetClass, "*g_strTargetWinId", g_strTargetWinId)
-	;~ gosub, GetCurrentFileManagerLocation
-	;~ strThisMenuItem := g_strCurrentLocation
+	; GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
+	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
+	###_V(A_ThisLabel, "*g_strTargetWinId", g_strTargetWinId, "*g_strTargetClass", g_strTargetClass, "*strReopenWindowsID", strReopenWindowsID, "*strReopenWindowClass", strReopenWindowClass)
+	
+	g_objThisFavorite := Object() ; temporary favorite object
+	g_objThisFavorite.FavoriteName :=  "#####"
+	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
+	g_objThisFavorite.FavoriteType := "Folder"
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
@@ -12654,6 +12640,8 @@ arrThisNameLocation := ""
 strTempName := ""
 strMenuPath := ""
 objMenu := ""
+strReopenWindowsID := ""
+strReopenWindowClass := ""
 
 return
 ;------------------------------------------------------------
@@ -12690,8 +12678,8 @@ else
 		and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (like WebDAV)
 	{
 		if InStr(g_strFullLocation, "{CUR_")
-			; g_strCurrentLocation already set in OpenFavorite
-			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation, g_strCurrentLocation)
+			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation
+				, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
 		
 		; expand system variables
 		; make the location absolute based on the current working directory
@@ -12713,13 +12701,9 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
-{
-	if InStr(g_objThisFavorite.FavoriteArguments, "{CUR_")
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-	else
-		g_strCurrentLocation := ""
-	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
-}
+	; let user enter double-quotes as required by his arguments
+	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : ""))
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -14767,112 +14751,99 @@ return
 
 
 ;------------------------------------------------------------
-GetCurrentLocation:
-; update g_strCurrentLocation with current location in Explorer, Directory Opus, Total Commander or file dialog box window
+GetCurrentLocation(strClass, strWinID)
+; return current location in in Explorer, Directory Opus, Total Commander or file dialog box window identified by class and windows ID
 ;------------------------------------------------------------
-
-g_strCurrentLocation := ""
-
-if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-	or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 {
-	if WindowIsDirectoryOpus(g_strTargetClass)
+	global g_strDOpusListText
+
+	strLocation := ""
+	
+	if WindowIsExplorer(strClass) or WindowIsTotalCommander(strClass) or WindowIsDirectoryOpus(strClass)
+		or WindowIsDialog(strClass, strWinID)
 	{
-		Gosub, RefreshDOpusListText
-		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-		
-		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-		; Lines will have active_lister="1" if they represent tabs from the active lister.
-		; To get the active tab you want the line with active_lister="1" and tab_state="1".
-		; tab_state="1" means it's the selected tab, on the active side of the lister.
-		; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
-		; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
-
-		for intIndex, objLister in objDOpusListers
-			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
-			{
-				g_strCurrentLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
-				break
-			}
-	}
-	else ; Explorer, TotalCommander or dialog boxes
-	{
-		; use the clipblard to memorize the current location and copy it to g_strCurrentLocation at the end
-		objPrevClipboard := ClipboardAll ; Save the entire clipboard
-		ClipBoard := ""
-
-		; Under Windows 7 and 8.1 (not tested with Windows 10)...
-		; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
-		; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
-		; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
-		if (g_strTargetClass = "#32770")
-			intWaitTimeIncrement := 300 ; time allowed for dialog boxes
-		else
-			intWaitTimeIncrement := 150 ; time allowed for Explorer
-
-		if (g_blnDiagMode)
-			intTries := 8
-		else
-			intTries := 3
-
-		g_strAddThisFolderWindowTitle := ""
-		Loop, %intTries%
+		if WindowIsDirectoryOpus(strClass)
 		{
-			Sleep, intWaitTimeIncrement * A_Index
-			WinGetTitle, g_strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-		} Until (StrLen(g_strAddThisFolderWindowTitle))
+			Gosub, RefreshDOpusListText
+			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+			
+			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+			; Lines will have active_lister="1" if they represent tabs from the active lister.
+			; To get the active tab you want the line with active_lister="1" and tab_state="1".
+			; tab_state="1" means it's the selected tab, on the active side of the lister.
+			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
+			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
 
-		WinGetTitle, g_strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-		if WindowIsTotalCommander(g_strTargetClass)
-		{
-			cm_CopySrcPathToClip := 2029
-			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-		}
-		else if WindowIsExplorer(g_strTargetClass)
-		{
-			; Gets the active IE or Explorer window
-			for objExplorer in ComObjCreate("Shell.Application").Windows
-				if (objExplorer.HWND = g_strTargetWinId)
+			for intIndex, objLister in objDOpusListers
+				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
 				{
-					ClipBoard :=  UriDecode(objExplorer.LocationURL)
-					Break
+					strLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
+					break
 				}
 		}
-		else ; dialog boxes
+		else ; Explorer, TotalCommander or dialog boxes
 		{
+			; use the clipblard to get the current location from dialog box or Total Commander
+			objPrevClipboard := ClipboardAll ; Save the entire clipboard
+			ClipBoard := ""
+
+			; Obsolete notes (since Shell.Application is used to get Explore current location) - but keep here anyway
+			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
+			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
+			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
+
+
+			intTries := 3
+			intWaitTimeIncrement := 150 ; time allowed to get title
+			strAddThisFolderWindowTitle := ""
 			Loop, %intTries%
 			{
 				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
-				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, ^c ; Copy
-				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, g_strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-				intTriesIndex := A_Index
-			} Until (StrLen(ClipBoard) or (g_strAddThisFolderWindowTitle <> g_strWindowActiveTitle))
-			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
-				SendInput, {Esc}
-		}
+				WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+			} Until (StrLen(strAddThisFolderWindowTitle))
+			strWindowActiveTitle := strAddThisFolderWindowTitle ; now these are the same... check later if the window was closed unexpectedly
+			
+			if WindowIsTotalCommander(strClass)
+			{
+				cm_CopySrcPathToClip := 2029
+				SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; put current locatin in Clipboard
+				ClipWait, 1
+				strLocation := Clipboard
+			}
+			else if WindowIsExplorer(strClass)
+			{
+				; Gets the active IE or Explorer window
+				for objExplorer in ComObjCreate("Shell.Application").Windows
+					if (objExplorer.HWND = strWinID)
+					{
+						strLocation :=  UriDecode(objExplorer.LocationURL)
+						Break
+					}
+			}
+			else ; dialog boxes
+			{
+				intTries := 3
+				intWaitTimeIncrement := 300 ; time allowed for dialog boxes
+				Loop, %intTries%
+				{
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, ^c ; Copy
+					Sleep, intWaitTimeIncrement * A_Index
+					WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+				} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+				if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
+					SendInput, {Esc}
+				strLocation := Clipboard
+			}
 
-		g_strCurrentLocation := ClipBoard
-		Clipboard := objPrevClipboard ; Restore the original clipboard
-		
-		/*
-		if (g_blnDiagMode)
-		{
-			Diag("Menu", A_ThisLabel)
-			Diag("Class", g_strTargetClass)
-			Diag("Tries", intTries)
-			Diag("TriesIndex", intTriesIndex)
-			Diag("AddedFolder", g_strCurrentLocation)
+			Clipboard := objPrevClipboard ; Restore the original clipboard
 		}
-		*/
 	}
-		
-}
 
-return
+	return strLocation
+}
 ;------------------------------------------------------------
 
 
