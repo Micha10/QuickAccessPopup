@@ -2727,7 +2727,7 @@ InitQAPFeatures:
 ; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey)
 
 ; Submenus features
-InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^C")
+InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuReopenFolder",		"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
@@ -2759,7 +2759,7 @@ InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
-InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder")
+InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
