@@ -5001,14 +5001,14 @@ LiveFolderHasContent(objLiveFolder)
 	{
 		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
-			;~ ###_V("Conditions"
-				;~ , A_LoopFileFullPath
-				;~ , A_LoopFileExt
-				;~ , objLiveFolder.FavoriteFolderLiveExtensions
-				;~ , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
-				;~ , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				;~ , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				;~ , "-")
+			; ###_V("Conditions"
+				; , A_LoopFileFullPath
+				; , A_LoopFileExt
+				; , objLiveFolder.FavoriteFolderLiveExtensions
+				; , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
+				; , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				; , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				; , "-")
 			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
 				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
 				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
@@ -10122,7 +10122,7 @@ if !(g_intIconsManageRowsSettings)
 {
 	ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
 	g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
-	Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
+	; Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
 }
 else
 	g_intIconsManageRows:= g_intIconsManageRowsSettings
@@ -16106,7 +16106,7 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 	CoordMode, Mouse, Screen
 	MouseGetPos, intMouseX, intMouseY
 	SysGet, intMonitorsCount, MonitorCount
-	Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
+	; Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
 	Loop %intMonitorsCount%
     {
 		SysGet, arrCurrentMonitor, Monitor, %A_Index%
@@ -16116,9 +16116,9 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			intLeft := arrCurrentMonitorLeft
 			intHeight := arrCurrentMonitorBottom - arrCurrentMonitorTop
 			intWidth := arrCurrentMonitorRight  - arrCurrentMonitorLeft
-			Diag("ActiveMonitorInfo - Monitor Index", A_Index)
-			Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
-			Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
+			; Diag("ActiveMonitorInfo - Monitor Index", A_Index)
+			; Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
+			; Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
 			
 			return
 		}
