@@ -3030,6 +3030,7 @@ g_blnUseColors := (g_strTheme <> "Windows")
 
 IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
 IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
+IniRead, g_blnMenuKeyPressed, %g_strIniFile%, Global, MenuKeyPressed, 0
 
 ; ---------------------
 ; Load Options Tab 3 Alternative Menu
@@ -5454,12 +5455,6 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
 
-Gui, 2:Add, CheckBox, y+25 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
-Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
-Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
-GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
-GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
-
 ;---------------------------------------
 ; Tab 4: Alternative Menu Features
 
@@ -5478,6 +5473,17 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, %lOptionsChangeHotkey%
 }
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Text, x10 y+20 w610, %lDialogOtherHotkeys%
+Gui, 2:Font
+Gui, 2:Add, CheckBox, y+10 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
+Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
+Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
+Gui, 2:Add, CheckBox, y+10 x15 vf_blnMenuKeyPressed, %lDialogMenuKey%
+GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
+GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
+GuiControl, , f_blnMenuKeyPressed, %g_blnMenuKeyPressed%
 
 ;---------------------------------------
 ; Tab 5: Exclusion list
@@ -6034,11 +6040,6 @@ loop, % g_arrPopupHotkeyNames0
 	else
 		IniWrite, % g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%
 
-g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
-IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
-g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
-IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
-
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
 
@@ -6049,7 +6050,14 @@ for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
-; After Save Tab 2: Popup menu hotkeys and Save Tab 3: Alternative menu hotkeys
+g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
+IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
+g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
+IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
+g_blnMenuKeyPressed := f_blnMenuKeyPressed
+IniWrite, %g_blnMenuKeyPressed%, %g_strIniFile%, Global, MenuKeyPressed
+
+; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
 
 ;---------------------------------------
@@ -11432,17 +11440,20 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
-~LCtrl::
-~RCtrl::
+~LCtrl:: ; use ~ to allow detecting double keypress
+~RCtrl:: ; use ~ to allow detecting double keypress
+AppsKey::
 ;------------------------------------------------------------
 
 strKeyPressed := A_ThisLabel
 
 if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
 	or ((strKeyPressed = "~RCtrl") and !(g_blnRightControlDoublePressed))
+	or ((strKeyPressed = "~AppsKey") and !(g_blnMenuKeyPressed))
 	return
 
-if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between presses
+if (strKeyPressed = "AppsKey")
+	or (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
 	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
