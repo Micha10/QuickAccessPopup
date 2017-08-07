@@ -3663,6 +3663,9 @@ ExitApp
 CleanUpBeforeExit:
 ;-----------------------------------------------------------
 
+if (g_blnDiagMode)
+	Diag("ListLines", ScriptInfo("ListLines"))
+
 strSettingsPosition := "-1" ; center at minimal size
 if (g_blnRememberSettingsPosition)
 {
@@ -3679,7 +3682,7 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-if (g_blnDiagMode)
+if (g_blnDiagMode) and 0 ; disable viewing log temporarily #####
 {
 	MsgBox, 52, %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
 	IfMsgBox, Yes
@@ -5366,6 +5369,7 @@ GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
 GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
+Gui, 2:Add, Link, y+3 xs+16 w300 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
@@ -13700,6 +13704,7 @@ return
 
 ;------------------------------------------------------------
 Check4Update:
+Check4UpdateNow:
 ;------------------------------------------------------------
 
 strUrlCheck4Update := "http://quickaccesspopup.com/latest/latest-version-4.php"
@@ -13853,7 +13858,7 @@ if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
 */
 	gosub, Check4UpdateDialogProd
 	
-else if (A_ThisMenuItem = lMenuUpdateAmpersand)
+else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateNow")
 {
 	MsgBox, 4, % l(lUpdateTitle, g_strAppNameText), % l(lUpdateYouHaveLatest, g_strAppVersion, g_strAppNameText)
 	IfMsgBox, Yes
@@ -16323,6 +16328,51 @@ ExternalMenuFolderIsReadOnly(strFile)
 	}
 
 	return g_objExternalMenuFolderReadOnly[strFolder]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ScriptInfo(Command)
+; From Lexikos (https://autohotkey.com/boards/viewtopic.php?t=9656)
+; Returns the text that would have been shown in AutoHotkey's main window if you had called Command
+; Used to retreive last Lines excuted when exiting if diag mode Enabled
+; Test script (retain About 400 last Lines fo code):
+	; #InstallKeybdHook
+	; Loop, 1000
+		; A := A_Index
+	; Clipboard := ScriptInfo("ListLines")
+	; ExitApp
+;------------------------------------------------------------
+{
+    static hEdit := 0, pfn, bkp
+    if !hEdit {
+        hEdit := DllCall("GetWindow", "ptr", A_ScriptHwnd, "uint", 5, "ptr")
+        user32 := DllCall("GetModuleHandle", "str", "user32.dll", "ptr")
+        pfn := [], bkp := []
+        for i, fn in ["SetForegroundWindow", "ShowWindow"] {
+            pfn[i] := DllCall("GetProcAddress", "ptr", user32, "astr", fn, "ptr")
+            DllCall("VirtualProtect", "ptr", pfn[i], "ptr", 8, "uint", 0x40, "uint*", 0)
+            bkp[i] := NumGet(pfn[i], 0, "int64")
+        }
+    }
+ 
+    if (A_PtrSize=8) {  ; Disable SetForegroundWindow and ShowWindow.
+        NumPut(0x0000C300000001B8, pfn[1], 0, "int64")  ; return TRUE
+        NumPut(0x0000C300000001B8, pfn[2], 0, "int64")  ; return TRUE
+    } else {
+        NumPut(0x0004C200000001B8, pfn[1], 0, "int64")  ; return TRUE
+        NumPut(0x0008C200000001B8, pfn[2], 0, "int64")  ; return TRUE
+    }
+ 
+    static cmds := {ListLines:65406, ListVars:65407, ListHotkeys:65408, KeyHistory:65409}
+    cmds[Command] ? DllCall("SendMessage", "ptr", A_ScriptHwnd, "uint", 0x111, "ptr", cmds[Command], "ptr", 0) : 0
+ 
+    NumPut(bkp[1], pfn[1], 0, "int64")  ; Enable SetForegroundWindow.
+    NumPut(bkp[2], pfn[2], 0, "int64")  ; Enable ShowWindow.
+ 
+    ControlGetText, text,, ahk_id %hEdit%
+    return text
 }
 ;------------------------------------------------------------
 

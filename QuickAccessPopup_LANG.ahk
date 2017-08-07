@@ -486,6 +486,7 @@ global lOptionsChangeFolderInDialogCheckbox := "Click ""OK"" to confirm that you
 global lOptionsChangeFolderInDialogText := "Turn this option ON to enable folder navigation in dialog boxes (Open, Save As, etc.) but, please, read the following warning.`n`nYou must use this feature ONLY in ""file"" dialog boxes. If you use it in other types of dialog box, for example in an ""Options"" dialog box, trying to change folder could modify and save values in the dialog box without any notification." ; new
 global lOptionsChangeHotkey := "Change"
 global lOptionsCheck4Update := "&Check for update"
+global lOptionsCheck4UpdateNow := "check now"
 global lOptionsControlDoublePressed := "Open main menu on Ctrl + Ctrl (Left or Right Control key pressed twice)"
 global lOptionsDisplayIcons := "Display Menu &Icons"
 global lOptionsDisplayMenuShortcuts := "Display &Numeric Menu Shortcuts"
