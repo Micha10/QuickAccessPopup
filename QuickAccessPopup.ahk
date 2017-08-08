@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.4.9.1 (2017-08-07)
+- set QAP feature default hotkeys for "Reopen Current Folder" to Shift + Ctrl + C
+- change QAP feature "Clipboard" default hotkeys from Shift + Ctrl + C to Shift + Ctrl + V
+- add a link beside "Check for update" checkbox in the Options dialog box to check for update now
+- add an option to use "Menu key" (aka Context menu key or AppsKey) to open the QAP pop menu
+- move "Ctrl + Ctrl" and "Menu key" options to tab Alternative menu tab in Options dialog box
+- check if the "Start in" folder location exists and do not open the favorite if location is not found
+- when favorite's location, "Launch with" application location or "Start in" folder location not found, edit the favorite if user answers yes when prompted
+- add diagnostic code to track the "71 hotkeys limit" bug
+
 Version BETA: 8.4.9 (2017-08-05)
 - new QAP feature "Reopen Current Folder" allowing to reopen the current location in the last active file manager (Windows Explorer or, if enabled, Directory Opus/Total Commander), most useful in file dialog boxes Open, Save As, etc.
 - rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); potential impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
@@ -1491,7 +1501,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4.9
+;@Ahk2Exe-SetVersion 8.4.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1565,7 +1575,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
