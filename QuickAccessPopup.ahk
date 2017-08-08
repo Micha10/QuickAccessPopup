@@ -12217,14 +12217,22 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 			, GetCurrentLocation(g_strTargetClass, g_strTargetWinId)) ; let user enter double-quotes as required by his arguments
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
-	; was if !FileExist(PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteLocation)))
+		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
-		MsgBox, 0, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
+		MsgBox, 4, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
 			, % L(lDialogFavoriteDoesNotExistPrompt, g_objThisFavorite.FavoriteLocation
-				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : ""))
-		gosub, OpenFavoriteCleanup
-		return
+				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : "")) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else
+		{
+			gosub, OpenFavoriteCleanup
+			return
+		}
 	}
 }
 
@@ -12233,6 +12241,29 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 {
 	g_strTargetWinId := "" ; never use target window when launched from alternative menu with new window
 	g_strHokeyTypeDetected := "Launch"
+}
+
+if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
+{
+	strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
+	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
+		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
+	{
+		Gui, 1:+OwnDialogs
+		MsgBox, 4, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
+			, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, strTempLocation) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else
+		{
+			gosub, OpenFavoriteCleanup
+			return
+		}
+	}
+
 }
 
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent or g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
@@ -12303,6 +12334,11 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
 if (g_blnAlternativeMenu)
 {
+	; ###_V(A_ThisLabel, "*g_strFullLocation", g_strFullLocation
+		; , "*g_objMenusIndex[A_ThisMenu].MenuPath", g_objMenusIndex[A_ThisMenu].MenuPath
+		; , "*g_intOriginalMenuPosition", g_intOriginalMenuPosition
+		; , "*GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition)", GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition).FavoriteName
+		; , "")
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
 		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
@@ -12720,7 +12756,17 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 	strFullLaunchWith := g_objThisFavorite.FavoriteLaunchWith
 	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
 	if !(blnFileExist) and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
-		Oops(lOopsLaunchWithNotFound, strFullLaunchWith) ; leave g_strFullLocation as-is
+	{
+		Gui, 1:+OwnDialogs
+		MsgBox, 4, %g_strAppNameText%, % L(lOopsLaunchWithNotFound, strFullLaunchWith) . " " . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else 
+			g_strFullLocation := ""
+	}
 	else
 		g_strFullLocation := strFullLaunchWith . " """ . g_strFullLocation . """" ; enclose document path in double-quotes
 }
