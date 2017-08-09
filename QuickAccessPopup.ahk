@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.4.9.2 (2017-08-09)
+- Menu key hotkey now removed properly checkbox is turned off
+- Menu key now navigate in active Explorer or open in a new window as would do the regular keyboard hotkey
+
 Version BETA: 8.4.9.1 (2017-08-07)
 - set QAP feature default hotkeys for "Reopen Current Folder" to Shift + Ctrl + C
 - change QAP feature "Clipboard" default hotkeys from Shift + Ctrl + C to Shift + Ctrl + V
@@ -1501,7 +1505,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4.9.1
+;@Ahk2Exe-SetVersion v8.4.9.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1575,7 +1579,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
