@@ -3532,6 +3532,28 @@ if HasHotkey(g_arrPopupHotkeys4)
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsTitles4)
 
+; ###_V(A_ThisLabel, "*A_ThisHotkey", A_ThisHotkey, "*g_blnMenuKeyPressedPrevious", g_blnMenuKeyPressedPrevious, "*g_blnMenuKeyPressed", g_blnMenuKeyPressed)
+; First, if we can, navigate with AppsKey
+Hotkey, If, CanNavigate(A_ThisHotkey)
+	if (g_blnMenuKeyPressedPrevious)
+		Hotkey, AppsKey, , Off
+	if (g_blnMenuKeyPressed)
+		Hotkey, AppsKey, NavigateHotkeyKeyboard, On UseErrorLevel
+	if (ErrorLevel)
+		Oops(lDialogInvalidHotkey, lDialogMenuKey, lDialogMenuKey) ; ##### other error message, "uncheck Menu key(?)"
+Hotkey, If
+
+; Second, if we can't navigate with AppsKey but can launch, launch with with AppsKey
+Hotkey, If, CanLaunch(A_ThisHotkey)
+	if (g_blnMenuKeyPressedPrevious)
+		Hotkey, AppsKey, , Off
+	if (g_blnMenuKeyPressed)
+		Hotkey, AppsKey, LaunchHotkeyKeyboard, On UseErrorLevel
+	if (ErrorLevel)
+		Oops(lDialogInvalidHotkey, lDialogMenuKey, lDialogMenuKey)
+Hotkey, If
+
+
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
@@ -5308,6 +5330,7 @@ if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 g_intGui1WinID := WinExist("A")
 loop, 4
 	g_arrPopupHotkeysPrevious%A_Index% := g_arrPopupHotkeys%A_Index% ; allow to turn off changed hotkeys and to revert g_arrPopupHotkeys if cancel
+g_blnMenuKeyPressedPrevious := g_blnMenuKeyPressed ; allow to turn off changed hotkeys AppsKey and to revert g_arrPopupHotkeys if cancel
 
 g_objQAPFeaturesNewHotkeys := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -5490,7 +5513,7 @@ Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
 Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
 Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
-Gui, 2:Add, CheckBox, y+10 x15 vf_blnMenuKeyPressed, %lDialogMenuKey%
+Gui, 2:Add, CheckBox, y+10 x15 vf_blnMenuKeyPressed, %lDialogMenuKey% (%lDialogMenuKeyNote%)
 GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
 GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
 GuiControl, , f_blnMenuKeyPressed, %g_blnMenuKeyPressed%
@@ -11452,20 +11475,17 @@ return
 ;------------------------------------------------------------
 ~LCtrl:: ; use ~ to allow detecting double keypress
 ~RCtrl:: ; use ~ to allow detecting double keypress
-AppsKey::
 ;------------------------------------------------------------
 
 strKeyPressed := A_ThisLabel
 
 if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
 	or ((strKeyPressed = "~RCtrl") and !(g_blnRightControlDoublePressed))
-	or ((strKeyPressed = "~AppsKey") and !(g_blnMenuKeyPressed))
 	return
 
-if (strKeyPressed = "AppsKey")
-	or (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
+if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
+	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
 	else if CanLaunch(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
