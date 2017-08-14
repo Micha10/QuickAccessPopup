@@ -6837,7 +6837,7 @@ GuiDropFilesHelpClicked:
 ;------------------------------------------------------------
 Gui, 1:+OwnDialogs
 
-MsgBox, 0, %g_strAppNameText% - %lGuiDropFilesHelp%
+MsgBox, 0, % g_strAppNameText . " - " . ReplaceAllInString(lGuiDropFilesHelp, "&&", "&")
 	, % L(lGuiDropFilesIncentive, g_strAppNameText, lDialogFolderLabel, lDialogFileLabel, lDialogApplicationLabel) . "`n`n" . lGuiDropFilesIncentive2
 
 return
@@ -12188,6 +12188,7 @@ if (g_blnDiagMode)
 */
 
 if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
+	or (g_objThisFavorite.FavoriteType = "Folder") and !StrLen(g_objThisFavorite.FavoriteLocation) ; no current location found
 {
 	gosub, OpenFavoriteCleanup
 	return
