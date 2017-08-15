@@ -8144,7 +8144,12 @@ g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultNa
 g_strDefaultIconResource := g_strNewFavoriteIconResource 
 
 g_strNewFavoriteHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
+; check if hotkey is already used, if yes empty default new hotkey
+g_strNewFavoriteHotkey := (StrLen(GetHotkeyLocation(g_strNewFavoriteHotkey)) ? "" : g_strNewFavoriteHotkey)
+
 GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteHotkey)
+
+strExistingNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -11088,11 +11093,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	
 	; check favorites hotkeys
 	if !StrLen(strExistingLocation)
-	{
-		strExistingNameLocation := GetHotkeyNameLocation(strHotkey)
-		StringSplit, arrExistingNameLocation, strExistingNameLocation, |
-		strExistingLocation := arrExistingNameLocation2
-	}
+		strExistingLocation := GetHotkeyLocation(strHotkey)
 	
 	if StrLen(strExistingLocation)
 	{
@@ -15166,6 +15167,18 @@ GetFirstName4Location(strLocation)
 			return arrThisFavorite2
 	}
 	; else function returns ""
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetHotkeyLocation(strHotkey)
+;------------------------------------------------------------
+{
+	strNameLocation := GetHotkeyNameLocation(strHotkey)
+	StringSplit, arrNameLocation, strNameLocation, |
+	
+	return arrNameLocation2
 }
 ;------------------------------------------------------------
 
