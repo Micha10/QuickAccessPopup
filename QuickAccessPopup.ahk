@@ -12976,8 +12976,6 @@ return
 PasteSnippet:
 ;------------------------------------------------------------
 
-strWaitKey := "Enter"
-strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
 strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith . ";;;" ; safety
@@ -12993,20 +12991,15 @@ WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
 	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
-		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), strWaitKeyText, strWaitTime)
-	; Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
-	KeyWait, %strWaitKey%, D T%strWaitTime%
-	intErrorLevel := ErrorLevel
+		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), lTooltipSnippetWaitEnter, lTooltipSnippetWaitSpace, strWaitTime)
+	Input, strTemp, T%strWaitTime%, {Enter}{Space}
+	strErrorLevel := ErrorLevel
 	ToolTip
-	; Diag("KeyWait After - intErrorLevel", intErrorLevel)
-	if (intErrorLevel)
+	if !InStr(strErrorLevel, "EndKey:")
 	{
 		Gosub, PasteSnippetCleanup
 		return
 	}
-	; not required if keywait for Modifier keys (Alt, Control, etc.)
-	else
-		SendEvent, {Backspace} ; revert the Enter key press
 }
 else
 	WinActivate, ahk_id %g_strTargetWinId%
@@ -13114,9 +13107,7 @@ else ; snippet of type Macro
 }
 
 PasteSnippetCleanup:
-strWaitKey := ""
-strWaitKeyText := ""
-strWaitTim := ""
+strWaitTime := ""
 intErrorLevel := ""
 blnTextSnippet := ""
 objPrevClipboard := ""
