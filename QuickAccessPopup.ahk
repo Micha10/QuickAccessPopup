@@ -31,9 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.4.1 (2017-08-17)
-- remove Windows Shortcuts context menu (.lnk files) because of potential security issue
-
+Version: 8.4.1 (2017-08-05)
+- fix bug maximum of Live Folders items exceeded (500 items limit) by error
+- fix bug last Live folder item duplicated when numeric shortcuts are enabled
+ 
 Version: 8.4 (2017-08-01)
 - add "Always on top" option to Settings window to ease drag and drop
 - update drag & drop help message
