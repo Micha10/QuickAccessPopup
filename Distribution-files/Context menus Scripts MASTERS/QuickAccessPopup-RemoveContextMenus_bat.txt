@@ -28,6 +28,5 @@ REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup
 REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
 REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
 REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
-REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu" /f
 ::
 :: BATCH END

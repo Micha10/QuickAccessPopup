@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.4.1 (2017-08-17)
+- remove Windows Shortcuts context menu (.lnk files) because of potential security issue
+
 Version: 8.4 (2017-08-01)
 - add "Always on top" option to Settings window to ease drag and drop
 - update drag & drop help message
@@ -1483,7 +1486,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4
+;@Ahk2Exe-SetVersion 8.4.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1557,7 +1560,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6315,18 +6318,6 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
 			;--------------------------------------
 
-
-			;--------------------------------------
-			; ADD SHORTCUT
-			;--------------------------------------
-			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu]
-			@="%lContextAddShortcut%"
-			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
-
-			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddShortcut \"`%1\""
-			;--------------------------------------
-
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
@@ -6355,7 +6346,6 @@ else ; DisableExplorerContextMenus
 			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
-			REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu" /f
 			:: BATCH END
 
 )
