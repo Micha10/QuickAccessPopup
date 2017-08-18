@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.4.2 (2017-08-18)
+- stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
+- if you need to remove this context menu see the FAQ (http://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
+
 Version: 8.4.1 (2017-08-05)
 - fix bug maximum of Live Folders items exceeded (500 items limit) by error
 - fix bug last Live folder item duplicated when numeric shortcuts are enabled
@@ -1487,7 +1491,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4.1
+;@Ahk2Exe-SetVersion 8.4.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1561,7 +1565,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
