@@ -161,7 +161,7 @@ global lDialogFolderLabel := "Folder"
 global lDialogFoldersPlaceholders := "You can insert the placeholder {CUR_LOC} to insert the location where this favorite is launched" ; new
 global lDialogGetWinInfo := "To identify the window of which you want to get the title and class, click in the target window with the QAP menu hotkey [~1~]." ; new
 global lDialogGetWInInfo2Clippoard := "Window title:`n""~1~""`n`nClass:`n""~2~""`n`nCopy this info to your Clipboard?" ; new
-global lDialogHotkeyInvisibleKeys := "<a id=""~1~"">space bar</a>, <a id=""~2~"">tab</a>, <a id=""~3~"">enter</a> or <a id=""~4~"">escape</a>"
+global lDialogHotkeyInvisibleKeys := "<a id=""~1~"">space bar</a>, <a id=""~2~"">tab</a>, <a id=""~3~"">enter</a>, <a id=""~4~"">escape</a>`nor <a id=""~5~"">menu key (application)</a>"
 global lDialogHotkeys := "Hotkeys" ; new
 global lDialogHotkeysManageAbout := "Shortcuts currently active in ~1~" ; new
 global lDialogHotkeysManageAlternative := "Alternative" ; new
