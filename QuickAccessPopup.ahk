@@ -3044,7 +3044,6 @@ g_blnUseColors := (g_strTheme <> "Windows")
 
 IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
 IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
-IniRead, g_blnMenuKeyPressed, %g_strIniFile%, Global, MenuKeyPressed, 0
 
 ; ---------------------
 ; Load Options Tab 3 Alternative Menu
@@ -3536,28 +3535,6 @@ if HasHotkey(g_arrPopupHotkeys4)
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsTitles4)
 
-; ###_V(A_ThisLabel, "*A_ThisHotkey", A_ThisHotkey, "*g_blnMenuKeyPressedPrevious", g_blnMenuKeyPressedPrevious, "*g_blnMenuKeyPressed", g_blnMenuKeyPressed)
-; First, if we can, navigate with AppsKey
-Hotkey, If, CanNavigate(A_ThisHotkey)
-	if (g_blnMenuKeyPressedPrevious)
-		Hotkey, AppsKey, , Off
-	if (g_blnMenuKeyPressed)
-		Hotkey, AppsKey, NavigateHotkeyKeyboard, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, lDialogMenuKey, lDialogMenuKey) ; ##### other error message, "uncheck Menu key(?)"
-Hotkey, If
-
-; Second, if we can't navigate with AppsKey but can launch, launch with with AppsKey
-Hotkey, If, CanLaunch(A_ThisHotkey)
-	if (g_blnMenuKeyPressedPrevious)
-		Hotkey, AppsKey, , Off
-	if (g_blnMenuKeyPressed)
-		Hotkey, AppsKey, LaunchHotkeyKeyboard, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, lDialogMenuKey, lDialogMenuKey)
-Hotkey, If
-
-
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
@@ -3719,7 +3696,7 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-if (g_blnDiagMode) and 0 ; disable viewing log temporarily #####
+if (g_blnDiagMode)
 {
 	MsgBox, 52, %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
 	IfMsgBox, Yes
@@ -5334,7 +5311,6 @@ if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 g_intGui1WinID := WinExist("A")
 loop, 4
 	g_arrPopupHotkeysPrevious%A_Index% := g_arrPopupHotkeys%A_Index% ; allow to turn off changed hotkeys and to revert g_arrPopupHotkeys if cancel
-g_blnMenuKeyPressedPrevious := g_blnMenuKeyPressed ; allow to turn off changed hotkeys AppsKey and to revert g_arrPopupHotkeys if cancel
 
 g_objQAPFeaturesNewHotkeys := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -5517,10 +5493,8 @@ Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
 Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
 Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
-Gui, 2:Add, CheckBox, y+10 x15 vf_blnMenuKeyPressed, %lDialogMenuKey% (%lDialogMenuKeyNote%)
 GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
 GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
-GuiControl, , f_blnMenuKeyPressed, %g_blnMenuKeyPressed%
 
 ;---------------------------------------
 ; Tab 5: Exclusion list
@@ -6091,8 +6065,6 @@ g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
 IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
 g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
 IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
-g_blnMenuKeyPressed := f_blnMenuKeyPressed
-IniWrite, %g_blnMenuKeyPressed%, %g_strIniFile%, Global, MenuKeyPressed
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
@@ -6369,18 +6341,6 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
 			;--------------------------------------
 
-
-			;--------------------------------------
-			; ADD SHORTCUT
-			;--------------------------------------
-			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu]
-			@="%lContextAddShortcut%"
-			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
-
-			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu\command]
-			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddShortcut \"`%1\""
-			;--------------------------------------
-
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
@@ -6409,7 +6369,6 @@ else ; DisableExplorerContextMenus
 			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
-			REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Windows shortcut to Quick Access Popup menu" /f
 			:: BATCH END
 
 )
@@ -10777,7 +10736,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 		GuiControl, , f_strHotkeyKey, %SH_strActualKey%
 	}
 	if (P_intHotkeyType <> 1)
-		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc")
+		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc", "Menu")
 
 	Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
 	if StrLen(P_strDefaultHotkey)
@@ -10916,8 +10875,10 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 		GuiControl, , f_strHotkeyKey, %A_Tab%
 	else if (ErrorLevel = "Enter")
 		GuiControl, , f_strHotkeyKey, Enter
-	else ; Esc
+	else if (ErrorLevel = "Esc")
 		GuiControl, , f_strHotkeyKey, Escape
+	else ; Menu
+		GuiControl, , f_strHotkeyKey, AppsKey
 	GuiControl, Choose, f_drpHotkeyMouse, 0
 
 	return
@@ -11669,6 +11630,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
+	; Diag("CanNavigate Begin - strMouseOrKeyboard", strMouseOrKeyboard)
 	; Diag("CanNavigate Begin - g_strTargetClass", g_strTargetClass)
 	
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
@@ -15249,9 +15211,9 @@ GetHotkeysText(ByRef strMouseHotkey, ByRef strKeyboardHotkey)
 Hotkey2Text(strHotkey, blnShort := false)
 ;------------------------------------------------------------
 {
-	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButto, strMouseButtonsWithDefault)
+	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButton, strMouseButtonsWithDefault)
 
-	return HotkeySections2Text(strModifiers, strMouseButto, strOptionsKey, blnShort)
+	return HotkeySections2Text(strModifiers, strMouseButton, strOptionsKey, blnShort)
 }
 ;------------------------------------------------------------
 
@@ -15260,6 +15222,9 @@ Hotkey2Text(strHotkey, blnShort := false)
 HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 ;------------------------------------------------------------
 {
+	if (strKey = "sc15D")
+		strKey := lDialogMenuKey
+	
 	if (strMouseButton = "None") ; do not compare with lDialogNone because it is translated
 		or !StrLen(strModifiers . strMouseButton . strKey) ; if all parameters are empty
 		str := lDialogNone ; use lDialogNone because this is displayed

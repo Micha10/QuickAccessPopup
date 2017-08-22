@@ -39,7 +39,6 @@ set "reg3=Show Quick Access Popup menu"
 set "reg4=Show Quick Access Popup Alternative menu"
 set "reg5=Add Folder to Quick Access Popup menu"
 set "reg6=Add Folder to Quick Access Popup menu Express"
-set "reg7=Import Windows shortcut to Quick Access Popup menu"
 
 set "sep=========================="
 
@@ -79,8 +78,6 @@ call :regadd "%reg_dir_bg%" "%reg4%" "ShowMenuAlternative" 1 2
 call :regadd "%reg_dir_bg%" "%reg5%" "AddFolder" 0 1
 call :regadd "%reg_dir_bg%" "%reg6%" "AddFolderXpress" 1 1
 
-call :regadd "%reg_lnkfile%" "%reg7%" "AddShortcut" 0 0
-
 echo Installed QAP context menu items
 goto end
 
@@ -96,7 +93,6 @@ reg delete "%reg_dir_bg%%reg3%" /f
 reg delete "%reg_dir_bg%%reg4%" /f
 reg delete "%reg_dir_bg%%reg5%" /f
 reg delete "%reg_dir_bg%%reg6%" /f
-reg delete "%reg_lnkfile%%reg7%" /f
 
 echo Uninstalled QAP context menu items
 goto end
