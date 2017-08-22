@@ -3696,7 +3696,7 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-if (g_blnDiagMode) and 0 ; disable viewing log temporarily #####
+if (g_blnDiagMode)
 {
 	MsgBox, 52, %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
 	IfMsgBox, Yes
