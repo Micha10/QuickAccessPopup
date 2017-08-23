@@ -124,7 +124,7 @@ global lDialogFavoriteRemoveTitle := "Remove Favorite - ~1~"
 global lDialogFavoriteSelectType := "Select the type of favorite to add.`n`nIn the next window, you will give your favorite:`n- a name`n- a content (depending on the type)`n- various settings (icon, shortcut, etc.)`n`nChoose the new favorite's type and click ""~1~""." ; new
 global lDialogFavoriteShortNameLabel := "Short name for menu" ; new
 global lDialogFavoriteSnippetEmpty := "The content is empty. Please, enter the snippet's content." ; new
-global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab."
+global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab. Insert ```` (double backtick) for backtick."
 global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
 global lDialogFavoriteSnippetHelpWeb := "See <a href=""~1~"">Snippets help</a> for special characters and commands encoding."
 global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"

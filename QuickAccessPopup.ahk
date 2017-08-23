@@ -7553,7 +7553,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
 			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
-			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? DecodeSnippet(g_objEditedFavorite.FavoriteLocation) : g_objEditedFavorite.FavoriteLocation)
+			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? g_objEditedFavorite.FavoriteLocation : g_objEditedFavorite.FavoriteLocation)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
@@ -7795,7 +7795,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 		
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 	}
 	else ; Folder, Document, Special, URL and FTP 
 	{
@@ -8148,11 +8148,11 @@ ProcessEOLTabChanged:
 Gui, 2:Submit, NoHide
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 
 ; encode or decode edit box content according to encoding state
 GuiControl, , f_strFavoriteLocation, % (f_blnProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
-	
+
 return
 ;------------------------------------------------------------
 
@@ -15600,12 +15600,9 @@ No need to process:
 - | (pipe) used as separator in favorites lines in ini file are already replaced with the escape sequence "Ð¡þ€"
 */
 {
-	; loop, Parse, strSnippet
-	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
-	StringReplace, strSnippet, strSnippet, ``, ````, A
-	StringReplace, strSnippet, strSnippet, `n, ``n, A
-	StringReplace, strSnippet, strSnippet, `t, ``t, A
-	; ###_V("After Encode", strSnippet)
+	StringReplace, strSnippet, strSnippet, ``, ````, A ;  replace backticks with double-backticks
+	StringReplace, strSnippet, strSnippet, `n, ``n, A  ; encode end-of-lines
+	StringReplace, strSnippet, strSnippet, `t, ``t, A  ; encode tabs
 	
 	return strSnippet
 }
@@ -15616,10 +15613,10 @@ No need to process:
 DecodeSnippet(strSnippet)
 ;------------------------------------------------------------
 {
-	StringReplace, strSnippet, strSnippet, ````, ``, A
-	StringReplace, strSnippet, strSnippet, ``n, `r`n, A
-	StringReplace, strSnippet, strSnippet, ``t, `t, A
-	; ###_V("After Decode", strSnippet)
+	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A ; preserve double-backticks
+	StringReplace, strSnippet, strSnippet, ``n, `r`n, A          ; decode end-of-lines
+	StringReplace, strSnippet, strSnippet, ``t, `t, A            ; decode tabs
+	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A   ; restore double-backticks
 	
 	return strSnippet
 }
