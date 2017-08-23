@@ -31,6 +31,31 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.4.9.3 (2017-08-23)
+ 
+Snippets
+- fix bug with processing of backtick in snippets and add help about backticks in add/edit dialog box
+- change method to kick-off a snippet when the "Prompt before pasting" option is used (using the Input command instead of KeyWait)
+- also accept Space to kick-off a snippet (in addition to Enter)
+- change help link to new FAQ page about snippets (see imprioved FAQ content about Snippets)
+ 
+Menu key
+- new approach for menu key, more integrated with existing hotkey management, menu key can now be used with modifiers
+- in select hotkey dialog box, add "menu key (application)" to options for invisible characters
+- when displaying hotkey as text, replace "sc15D" (keyboard scan code for Menu key) with "Menu key"
+ 
+Various
+- renamed menu label "Reopen Current Folder" to "Reopen Current Folder in Dialog Box" (because it is of use only in dialog boxes)
+- fix bug in "Reopen Current Folder in Dialog Box" if no file manager is running
+- fix bug && displayed in Drag & Drop help window title instead of &
+- fix bug when adding a QAP feature and its default hotkey is already in use for another favorite
+- merge change from v8.4.2 about Explorer context menu for Windows Shortcuts (see change log)
+- German translation update for v8.0.4 to v8.3
+
+Version: 8.4.2 (2017-08-18)
+- stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
+- if you need to remove this context menu see the FAQ (http://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
+
 Version BETA: 8.4.9.2 (2017-08-09)
 - Menu key hotkey now removed properly checkbox is turned off
 - Menu key now navigate in active Explorer or open in a new window as would do the regular keyboard hotkey
@@ -1505,7 +1530,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.4.9.2 BETA
+;@Ahk2Exe-SetVersion v8.4.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1579,7 +1604,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
