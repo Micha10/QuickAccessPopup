@@ -1,5 +1,5 @@
 global lAboutText1 := "~1~ ~2~ (~3~ bits)"
-global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nSimplified and Traditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""https://icons8.com/"">Icons8</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
+global lAboutText2 := "~1~ is written by Jean Lalonde using the`n<a href=""http://ahkscript.org/"">AutoHotkey</a> programming language.`n`nGerman translation: Edgar ""Fast Edi"" Hoffmann`nFrench translation: Jean Lalonde`nSwedish translation:Åke Engelbrektson`nItalian translation: Riccardo Leone`nSpanish translation: kiketrucker`nBrazilian Portuguese translation: Igor Ruckert`nSimplified and Traditional Chinese translation: Jess Yang`nPortuguese translation: Luis Neves`nDutch translation: Ric Roggeveen`nOther languages translation: (help welcomed)`nEnglish proof checking: (help welcomed)`n`nIcons by: <a href=""https://icons8.com/"">Icons8</a>`nInstall program: <a href=""http://www.jrsoftware.org/isinfo.php"">Inno Setup</a> by jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href=""https://github.com/JnLlnd/QuickAccessPopup"">GitHub</a>"
 global lAboutText3 := "~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the ""License""). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an ""AS IS"" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License." ; changed
 global lAboutText4 := "Support on <a href=""http://www.quickaccesspopup.com"">www.quickaccesspopup.com</a>"
 global lAboutTitle := "About - ~1~ ~2~"
@@ -124,6 +124,8 @@ global lDialogFavoriteRemoveTitle := "Remove Favorite - ~1~"
 global lDialogFavoriteSelectType := "Select the type of favorite to add.`n`nIn the next window, you will give your favorite:`n- a name`n- a content (depending on the type)`n- various settings (icon, shortcut, etc.)`n`nChoose the new favorite's type and click ""~1~""." ; new
 global lDialogFavoriteShortNameLabel := "Short name for menu" ; new
 global lDialogFavoriteSnippetEmpty := "The content is empty. Please, enter the snippet's content." ; new
+global lDialogFavoriteSnippetFixedFont := "Fixed width font"
+global lDialogFavoriteSnippetFontSize := "Font size"
 global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab. Insert ```` (double backtick) for backtick."
 global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
 global lDialogFavoriteSnippetHelpWeb := "See <a href=""~1~"">Snippets help</a> for special characters and commands encoding."
@@ -154,8 +156,8 @@ global lDialogFavoriteTypesHelp9 := "Launch a ""Group"" of favorites, all in one
 global lDialogFavoriteTypesLabels := "&Folder|&Document|&Application|&Special Folder|&Link|F&TP Site|&QAP Feature|Sub&menu|&Group||||S&nippet|S&hared Menu" ; changed
 global lDialogFavoriteTypesLocationLabels := "Folder (path)|Document (path and file name)|Application (path and file name)||Link (URL)|FTP Site (URL)|||||||Content|External settings file (path)|" ; changed
 global lDialogFavoriteTypesShortNames := "Folder|Doc|App|Special|Link|FTP|QAP|Menu|Group|Separator|Column Break|..|Snippet|Shared" ; changed
-global lDialogFavoriteWorkingDirNotFoundTitle := "Start in parameter not found - ~1~"
 global lDialogFavoriteWorkingDirNotFoundPrompt := "The advanced setting ""Start in"" of favorite ""~1~"" is not found:`n~2~"
+global lDialogFavoriteWorkingDirNotFoundTitle := "Start in parameter not found - ~1~"
 global lDialogFileLabel := "Document"
 global lDialogFolderLabel := "Folder"
 global lDialogFoldersPlaceholders := "You can insert the placeholder {CUR_LOC} to insert the location where this favorite is launched" ; new
@@ -407,7 +409,6 @@ global lMenuExternalCatalogue := "Add shared favorites menu from catalogue..."
 global lMenuFavoritesInternet := "Favorites (Internet)"
 global lMenuFonts := "Fonts"
 global lMenuGetWinInfo := "Get window Title and Class" ; new
-global lMenuReopenCurrentFolder := "Reopen Current Folder in Dialog Box"
 global lMenuHelp := "Help"
 global lMenuHistory := "History"
 global lMenuMenu := "Menu"
@@ -426,6 +427,7 @@ global lMenuRecentFolders := "Recent Folders"
 global lMenuRecentItems := "Recent Items"
 global lMenuRefreshMenu := "Refresh Live Folders menus"
 global lMenuReload := "Restart ~1~" ; new
+global lMenuReopenCurrentFolder := "Reopen Current Folder in Dialog Box"
 global lMenuRunAtStartupAmpersand := "&Run at Startup"
 global lMenuSettings := "Settings" ; changed
 global lMenuStartMenu := "Start Menu"

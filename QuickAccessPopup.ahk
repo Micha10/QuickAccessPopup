@@ -7576,9 +7576,30 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
+		
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		{
+			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
+			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
+			; 2 prompt (text) pause prompt before pasting/launching the snippet
+			; 3 encode (boolean) true: automatically encode / false: do not encode
+			; 4 fixed width (boolean) true: fixed width / false: proportional width
+			; 5 font size (integer)
+			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+			
+			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
+			Gui, 2:Add, Edit, x+20 yp w40 vf_intFontSize gContentEditFontChanged
+			Gui, 2:Add, UpDown, Range6-18, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : "10")
+			Gui, 2:Add, Text, x+5 yp , %lDialogFavoriteSnippetFontSize%
+		}
+		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
 			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
-			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? g_objEditedFavorite.FavoriteLocation : g_objEditedFavorite.FavoriteLocation)
+			, % g_objEditedFavorite.FavoriteLocation ; do not process snippet according to f_blnProcessEOLTab here
+			
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+			gosub, ContentEditFontChanged
+			
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
@@ -7600,9 +7621,10 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
+		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
+		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 = 1 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
 		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
-		Gosub, ProcessEOLTabChanged ; update f_lblSnippetHelp text
+		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
 }
 else ; "Special" or "QAP"
@@ -7808,11 +7830,6 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;" ; safety
-		; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
-		; 2 prompt (pause prompt before pasting/launching the snippet)
-		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
-		
 		Gui, 2:Add, Text, x20 y50, %lDialogFavoriteSnippetSendMode%
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
@@ -7958,6 +7975,25 @@ Gui, 2:Submit, NoHide
 
 ; change snippet prompt label according to snippet type
 GuiControl, 2:, f_lblSnippetPrompt, % L(lDialogFavoriteSnippetPromptLabel, (f_blnRadioSendModeMacro = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ContentEditFontChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+g_blnContentEditFixedFont := f_blnFixedFont
+g_blnContentEditFontSize := f_intFontSize
+
+if (g_blnContentEditFixedFont)
+	Gui, 2:Font, % "s" . g_blnContentEditFontSize, Courier New
+else
+	Gui, 2:Font, % "s" . g_blnContentEditFontSize
+GuiControl, Font, f_strFavoriteLocation
+Gui, 2:Font
 
 return
 ;------------------------------------------------------------
@@ -8172,11 +8208,24 @@ ProcessEOLTabChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+strSnippetFormatBefore := g_strSnippetFormat
+if (strSnippetFormatBefore = "raw" and f_blnProcessEOLTab)
+{
+	; DecodeSnippet: convert from "raw" content (as from ini file) to "display" format (when f_blnProcessEOLTab is true)
+	GuiControl, , f_strFavoriteLocation, % DecodeSnippet(f_strFavoriteLocation)
+	g_strSnippetFormat := "display"
+}
+if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
+{
+	; EncodeSnippet: convert from "display" format (when in gui f_blnProcessEOLTab was true) to "raw" content (when f_blnProcessEOLTab is false), ready for saving to in file
+	GuiControl, , f_strFavoriteLocation, % EncodeSnippet(f_strFavoriteLocation)
+	g_strSnippetFormat := "raw"
+}
+
 ; change help text according to encoding state
 GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 
-; encode or decode edit box content according to encoding state
-GuiControl, , f_strFavoriteLocation, % (f_blnProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
+strSnippetFormatBefore := ""
 
 return
 ;------------------------------------------------------------
@@ -9139,7 +9188,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 			return
 		}
 		else
-			strNewFavoriteLocation := (f_blnProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+			; if content of gui is "display", encode it to make it ready for saving to ini file
+			strNewFavoriteLocation := (g_strSnippetFormat = "display" ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
 	}
 
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
@@ -9404,7 +9454,12 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
-		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
+		; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
+		; 2 prompt (text) pause prompt before pasting/launching the snippet
+		; 3 encode (boolean) true: automatically encode / false: do not encode
+		; 4 fixed width (boolean) true: fixed width / false: proportional width
+		; 5 font size (integer)
+		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt . ";" . f_blnProcessEOLTab . ";" . f_blnFixedFont . ";" . f_intFontSize
 	else
 	{
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
@@ -13000,6 +13055,7 @@ if (blnTextSnippet)
 	Sleep, 100 ; safety delay
 	ClipBoard := ""
 	Sleep, 100 ; safety delay
+	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
@@ -13022,6 +13078,7 @@ if (blnTextSnippet)
 }
 else ; snippet of type Macro
 {
+	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 
@@ -15598,6 +15655,7 @@ CollectRunningApplications(strDefaultPath)
 
 ;------------------------------------------------------------
 EncodeSnippet(strSnippet)
+; convert from display format (when f_blnProcessEOLTab is true) to raw content, ready for saving to in file
 ;------------------------------------------------------------
 /*
 https://rosettacode.org/wiki/Special_characters#AutoHotkey
@@ -15636,6 +15694,7 @@ No need to process:
 
 ;------------------------------------------------------------
 DecodeSnippet(strSnippet)
+; convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 ;------------------------------------------------------------
 {
 	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A ; preserve double-backticks
