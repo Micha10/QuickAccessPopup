@@ -7555,13 +7555,19 @@ Gui, 2:Font
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Text, x20 y+10 w500, % ReplaceAllInString(L(g_objFavoriteTypesHelp["QAP"], lMenuRecentFolders, lMenuCurrentFolders, lMenuAddThisFolder, lMenuSettings, lGuiOptions), "`n`n", "`n")
 else
-	Gui, 2:Add, Text, x20 y+10 w500, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
+	Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
+
+if (g_objEditedFavorite.FavoriteType = "Snippet")
+{
+	GuiControlGet, arrPosTypeHelp, Pos, f_TypeHelp
+	g_intTypeHelpY := arrPosTypeHelpY
+}
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+0 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteShortNameLabel% *
+	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, %lDialogFavoriteShortNameLabel% *
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -7575,10 +7581,14 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
 	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
-		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+			Gui, Font, w700
+			
+		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
 		
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 		{
+			Gui, Font
 			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
 			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
 			; 2 prompt (text) pause prompt before pasting/launching the snippet
@@ -7588,14 +7598,35 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 			
 			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
-			Gui, 2:Add, Edit, x+20 yp w40 vf_intFontSize gContentEditFontChanged
-			Gui, 2:Add, UpDown, Range6-18, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : "10")
-			Gui, 2:Add, Text, x+5 yp , %lDialogFavoriteSnippetFontSize%
+			GuiControlGet, arrPosFixedFont, Pos, f_blnFixedFont
+			g_intContentLabelY := arrPosFixedFontY
+			Gui, 2:Add, Text, x+20 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
+			GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
+			Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
+			GuiControlGet, arrPosFontSize, Pos, f_intFontSize
+			Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : "10")
+			GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
+			Gui, Font, w700
+			Gui, 2:Add, Button, x+20 yp vf_btnEnlarge gEnlargeSnippetContent, +
+			Gui, Font
+			GuiControlGet, arrPosEnlarge, Pos, f_btnEnlarge
+			
+			intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
+			GuiControl, Move, f_blnFixedFont, % "x" . arrPosFixedFontX + intMoveRight
+			GuiControl, Move, f_intFontSize, % "x" . arrPosFontSizeX + intMoveRight
+			GuiControl, Move, f_intFontUpDown, % "x" . arrPosUpDownX + intMoveRight
+			GuiControl, Move, f_lblFontSize, % "x" . arrPosFontSizeLabelX + intMoveRight
+			GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
 		}
 		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
 			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
 			, % g_objEditedFavorite.FavoriteLocation ; do not process snippet according to f_blnProcessEOLTab here
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		{
+			GuiControlGet, arrPosSnippetContent, Pos, f_strFavoriteLocation
+			g_intSnippetContentH := arrPosSnippetContentH
+		}
 			
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 			gosub, ContentEditFontChanged
@@ -7611,7 +7642,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
 		}
-		else
+		else if (g_objEditedFavorite.FavoriteType <> "Snippet")
 			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
 			; {CUR_ placeholders are also supported for applications but we don't have enough room show this tip
 		
@@ -7622,7 +7653,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
-		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 = 1 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
 		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
@@ -7691,6 +7722,37 @@ Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_blnFavoriteDisabled " . (g_objEditedFa
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 arrNewFavoriteWindowPosition := ""
+arrPosTypeHelp := ""
+arrPosFixedFont := ""
+arrPosFixedFont := ""
+arrPosFontSizeLabel := ""
+arrPosEnlarge := ""
+arrPosSnippetContent := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EnlargeSnippetContent:
+;------------------------------------------------------------
+GuiControlGet, strEnlargeLabel, , f_btnEnlarge
+
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_ShortNameLabel
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_strFavoriteShortName
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_TypeHelp
+
+GuiControl, Move, f_strFavoriteLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY) + 30
+	. " h" . (strEnlargeLabel = "+" ? g_intSnippetContentH + (g_intContentLabelY - g_intTypeHelpY) : g_intSnippetContentH)
+
+GuiControl, Move, f_lblLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_blnFixedFont, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_intFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_intFontUpDown, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_lblFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_btnEnlarge, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+
+GuiControl, , f_btnEnlarge, % (strEnlargeLabel = "+" ? "-" : "+")
 
 return
 ;------------------------------------------------------------
