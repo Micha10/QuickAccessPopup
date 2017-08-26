@@ -14,7 +14,7 @@ http://www.autohotkey.com/docs/scripts/FavoriteFolders.htm
 or Rexx version Folder Menu
 http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-change-your-folders/
 
-Copyright 2013-2016 Jean Lalonde
+Copyright 2013-2017 Jean Lalonde
 --------------------------------
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,16 @@ limitations under the License.
 
 HISTORY
 =======
+
+Version BETA: 8.4.9.4 (2017-08-26)
+- add button in snippet add/edit favorite dialog box to enlarge or restore the initial size of the snippet content text box
+- default snippet to automatically encode
+- save encoding preference for each snippet
+- add fixed font and font size options and save preference for each snippet
+- add default snippet encode, fixed font, font size and macro mode default values to options General tab, save and retrieve values to ini file
+- allow favorite location to be a UNC path (like \\127.0.0.1\ or \\MyDomain) assuming the location exists (if network location is offline, it could give an error or open the default Document folder)
+- remove tip about {CUR_LOC} in Add/Edit dialog box for snippets because this option is irrelevent for this type of favorite
+- Dutch translation (thanks to Ric Roggeveen!)
 
 Version BETA: 8.4.9.3 (2017-08-23)
  
@@ -1530,7 +1540,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.4.9.3 BETA
+;@Ahk2Exe-SetVersion v8.4.9.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1604,7 +1614,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.4.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3055,6 +3065,11 @@ IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+
+IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
+IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
+IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
+IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -5383,14 +5398,14 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 ; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 xs w500, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
 GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
 Gui, 2:Add, Text, y+10 xs vf_lblExternalMenusCataloguePathPrompt hidden, %lOptionsCataloguePath%:
-Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strExternalMenusCataloguePath hidden
-Gui, 2:Add, Button, x+10 yp vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strExternalMenusCataloguePath hidden
+Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
 GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
 Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
 
@@ -5412,6 +5427,23 @@ Gui, 2:Add, Link, y+3 xs+16 w300 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
+Gui, 2:Font
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultProcessEOLTab, %lDialogFavoriteSnippetProcessEOLTab%
+GuiControl, , f_blnSnippetDefaultProcessEOLTab, %g_blnSnippetDefaultProcessEOLTab%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultFixedFont, %lDialogFavoriteSnippetFixedFont%
+GuiControl, , f_blnSnippetDefaultFixedFont, %g_blnSnippetDefaultFixedFont%
+
+Gui, 2:Add, Text, y+10 xs, %lDialogFavoriteSnippetFontSize%
+Gui, 2:Add, Edit, x+5 yp w52 vf_intSnippetDefaultFontSize, %lDialogFavoriteSnippetFontSize%
+Gui, 2:Add, UpDown, Range6-18, %g_intSnippetDefaultFontSize%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultMacro, %lDialogFavoriteSnippetSendModeMacro%
+GuiControl, , f_blnOptionsSnippetDefaultMacro, %g_blnSnippetDefaultMacro%
 
 ;---------------------------------------
 ; Tab 2: Popup menu options
@@ -6009,6 +6041,15 @@ IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
+
+g_blnSnippetDefaultProcessEOLTab := f_blnSnippetDefaultProcessEOLTab
+IniWrite, %g_blnSnippetDefaultProcessEOLTab%, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab
+g_blnSnippetDefaultFixedFont := f_blnSnippetDefaultFixedFont
+IniWrite, %g_blnSnippetDefaultFixedFont%, %g_strIniFile%, Global, SnippetDefaultFixedFont
+g_intSnippetDefaultFontSize := f_intSnippetDefaultFontSize
+IniWrite, %g_intSnippetDefaultFontSize%, %g_strIniFile%, Global, SnippetDefaultFontSize
+g_blnSnippetDefaultMacro := f_blnSnippetDefaultMacro
+IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacro
 
 ; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
 ; strUseClassicButtonsPrev := g_blnUseClassicButtons
@@ -7588,7 +7629,9 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 		{
-			Gui, Font
+			if !StrLen(g_objEditedFavorite.FavoriteLaunchWith)
+				g_objEditedFavorite.FavoriteLaunchWith := g_blnSnippetDefaultMacro . ";;" . g_blnSnippetDefaultProcessEOLTab . ";" . g_blnSnippetDefaultFixedFont . ";" g_intSnippetDefaultFontSize ; default values
+			
 			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
 			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
 			; 2 prompt (text) pause prompt before pasting/launching the snippet
@@ -7597,6 +7640,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			; 5 font size (integer)
 			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 			
+			Gui, Font
 			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
 			GuiControlGet, arrPosFixedFont, Pos, f_blnFixedFont
 			g_intContentLabelY := arrPosFixedFontY
@@ -7604,7 +7648,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
 			Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
 			GuiControlGet, arrPosFontSize, Pos, f_intFontSize
-			Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : "10")
+            Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
 			GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
 			Gui, Font, w700
 			Gui, 2:Add, Button, x+20 yp vf_btnEnlarge gEnlargeSnippetContent, +

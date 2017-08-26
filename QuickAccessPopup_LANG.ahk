@@ -137,7 +137,6 @@ global lDialogFavoriteSnippetPromptNoPipe := "Pipe character (|) are not allowed
 global lDialogFavoriteSnippetSendMode := "Send snippet to current application in:"
 global lDialogFavoriteSnippetSendMode := "Send snippet to current application in:"
 global lDialogFavoriteSnippetSendModeMacro := "Macro mode"
-global lDialogFavoriteSnippetSendModeMacro := "Macro mode"
 global lDialogFavoriteSnippetSendModeText := "Text mode"
 global lDialogFavoriteSnippetSendModeText := "Text mode"
 global lDialogFavoritesParentMenuMove := "Move ~1~ favorites to this menu"
@@ -532,6 +531,7 @@ global lOptionsRecentFoldersPrompt := "Recent Folders:" ; new
 global lOptionsRememberSettingsPosition := "Remember &window position"
 global lOptionsRunAtStartup := "&Run at Startup"
 global lOptionsSelectCatalogueRoot := "Select Shared Menus Catalogue root folder"
+global lOptionsSnippetsHelp := "Snippets defaults (<a href=""~1~"">~2~</a>)"
 global lOptionsTabFileManagersIntro := "Select the file manager to use to open folders in a new window." ; changed
 global lOptionsTabMenuOptionsIntro := "Make the popup menu appear as you like !"
 global lOptionsTabMouseAndKeyboardIntro := "Define the mouse buttons and keyboard hotkeys that will trigger the ~1~ main menu." ; changed
