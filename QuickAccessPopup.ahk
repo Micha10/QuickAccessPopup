@@ -15975,11 +15975,20 @@ FileExistInPath(ByRef strFile)
 		return, False
 	
 	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%
-	
 	if !InStr(strFile, "\") ; if no path in filename
 		strFile := WhereIs(strFile) ; search if file exists in path env variable or registry app paths
 	else
 		strFile := PathCombine(A_WorkingDir, strFile) ; make relative path absolute
+	
+	if (SubStr(strFile, 1, 2) = "\\") ; this is an UNC path
+	; check if it is the UNC root - if yes, return true without confirming if path exist because FileExist bug(?) with UNC root path
+	{
+		intPos := InStr(strFile, "\", false, 3)
+		if !(intPos) ; there is no "\" after the domain or IP address, this is the UNC root
+			return true
+		if !StrLen(strTemp) ; there is nothing after the "\" following the domain or IP address, this is the UNC root
+			return true
+	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
 }
