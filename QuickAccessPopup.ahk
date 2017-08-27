@@ -32,11 +32,15 @@ HISTORY
 =======
 
 Version BETA: 8.4.9.4 (2017-08-26)
+ 
+Snippets
 - add button in snippet add/edit favorite dialog box to enlarge or restore the initial size of the snippet content text box
 - default snippet to automatically encode
-- save encoding preference for each snippet
-- add fixed font and font size options and save preference for each snippet
+- save encode value for each snippet
+- add fixed font and font size options and save value for each snippet
 - add default snippet encode, fixed font, font size and macro mode default values to options General tab, save and retrieve values to ini file
+ 
+Various
 - allow favorite location to be a UNC path (like \\127.0.0.1\ or \\MyDomain) assuming the location exists (if network location is offline, it could give an error or open the default Document folder)
 - remove tip about {CUR_LOC} in Add/Edit dialog box for snippets because this option is irrelevent for this type of favorite
 - Dutch translation (thanks to Ric Roggeveen!)
@@ -2089,7 +2093,7 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAcces
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-TW.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-TW.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_PT.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-CN.txt, 1
-; FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
+FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_KO.txt, %g_strTempDir%\QuickAccessPopup_LANG_KO.txt, 1
 
 FileInstall, FileInstall\default_browser_icon.html, %g_strTempDir%\default_browser_icon.html, 1
@@ -2302,7 +2306,7 @@ InitLanguageArrays:
 ; ----------------------
 ; OPTIONS
 StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
-strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
+strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL" ; removed KO - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 

@@ -178,7 +178,6 @@ lDialogMenuNotMoveUnderItself	El menú "~1~" no se pueden mover sobre sí mismo.
 lDialogMinimized	Minimizado
 lDialogMouse	Ratón
 lDialogMouseButtonsText	Botón izquierdo del ratón|Botón central del ratón|Botón derecho del ratón|Botón especial del ratón 1|Botón especial del ratón 2|Rueda hacia arriba|Rueda hacia abajo|Rueda Izquierda|Rueda Derecha|
-lDialogMouseCheckLButton	No se puede asignar el "botón izquierdo del ratón", sin un modificador`n(like ~1~, ~2~, ~3~ or ~4~ keys).
 lDialogMoveFavoritesTitle	Mueva los favoritos - ~1~ ~2~
 lDialogNone	Ninguno
 lDialogNormal	Normal
@@ -291,7 +290,6 @@ lGuiPassword	Contraseña
 lGuiPasswordNotEncripted	Nota: La contraseña no será encriptada cuando se envía por Internet.
 lGuiRemoveFavorite	Suprimir
 lGuiResetDefault	Restaurar el lanzador por defecto
-lGuiSave	Guardar
 lGuiSaveAmpersand	&Guardar
 lGuiSaveAndCloseAmpersand	&Guardar`n&& Cerrar
 lGuiSaveAndStayAmpersand	Guardar`n&& &Recargar
@@ -488,7 +486,7 @@ lOptionsHotkeyRemindersShort	Mostrar nombres abreviados
 lOptionsIconSize	Tamaño de iconos del menú
 lOptionsIconsManageRows	Gestión de filas Iconos de la ventana`n(0 para máximo disponible) 
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified
+lOptionsLanguageLabels	Inglés|Francés|Alemán|Sueco|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified|Holandés
 lOptionsMenuActiveWindow	En la ventana activa
 lOptionsMenuFixPosition	En una posición fija
 lOptionsMenuNearMouse	Cerca del puntero del ratón
@@ -524,7 +522,6 @@ lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar u
 lReloadPrompt	Cambio de ~1~ guardado: ~2~. Quieres relanzar ~3~ en ~2~ ahora? Los cambios no guardados en el menú se perderán.
 lTCMenuName	TC Lista de sitios Favoritos 
 lTCWinCmdLocation	WinCmd.ini ubicación 
-lTooltipSnippetWait	Seleccione el punto de inserción y la tecla "~1~" para pegar el fragmento (espere ~2~ segundos)
 lTooltipSnippetWaitEnter	Entrar
 lTooltipSnippetWaitMacro	Haga clic en  "~1~" para lanzar el macro (espere~2~ segundos) 
 lTooltipSnippetWaitText	Seleccione el punto de inserción y haga click"~1~" para pegar el código (espere ~2~ segundos)

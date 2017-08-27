@@ -486,7 +486,7 @@ lOptionsHotkeyRemindersShort	Afficher les noms abrégés
 lOptionsIconSize	Taille des icônes de menu
 lOptionsIconsManageRows	Nombre de rangées de la fenêtre Gérer les icônes`n(0 pour le maximum disponible)
 lOptionsLanguage	Langue
-lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié
+lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié|Néerlandais
 lOptionsMenuActiveWindow	Dans la fenêtre active
 lOptionsMenuFixPosition	À une position fixe
 lOptionsMenuNearMouse	Près du pointeur de la souris

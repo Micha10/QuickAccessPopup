@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
-lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v1.1 (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nDutch translation: Ric Roggeveen`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v1.1 (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Supporto:  <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Crediti - ~1~ ~2~
@@ -178,7 +178,6 @@ lDialogMenuNotMoveUnderItself	Il menù "~1~" non può essere posizionato sotto se 
 lDialogMinimized	Minimizzato
 lDialogMouse	Mouse
 lDialogMouseButtonsText	Tasto Sinistro del Mouse|Tasto Centrale del Mouse|Tasto destro del Mouse|Tasto Speciale 1 del Mouse|Tasto Speciale 2 del Mouse|Rotellina Su|Rotellina Giù|Rotellina Sinistra|Rotellina Destra|
-lDialogMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
 lDialogMoveFavoritesTitle	Sposta i Preferiti - ~1~ ~2~
 lDialogNone	Nessuno
 lDialogNormal	Normale
@@ -290,7 +289,6 @@ lGuiOptions	Opzioni
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
 lGuiResetDefault	Ripristina hotkey predefinito
-lGuiSave	Salva
 lGuiSaveAmpersand	&Salva
 lGuiSaveAndCloseAmpersand	&Salva`n&& Chiudi
 lGuiSaveAndStayAmpersand	Salva`n&& &Ricarica
@@ -487,7 +485,7 @@ lOptionsHotkeyRemindersShort	Mostra nomi abbreviati
 lOptionsIconSize	Dimensione delle icone
 lOptionsIconsManageRows	Righe della finestra Gestione Icone`n(0 per usare tutto lo spazio disponibile)
 lOptionsLanguage	Lingua
-lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese|Cinese Simplified
+lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese|Cinese Simplified|Olandese
 lOptionsMenuActiveWindow	In alto a sinistra della finestra attiva
 lOptionsMenuFixPosition	In posizione prefissata
 lOptionsMenuNearMouse	Vicino al puntatore del mouse
@@ -523,7 +521,6 @@ lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
-lTooltipSnippetWait	Seleziona il punto di inserimento e premi "~1~" per incollare lo snippet (aspettando ~2~ secondi)
 lTooltipSnippetWaitEnter	Invio
 lTooltipSnippetWaitMacro	Premi "~1~" per eseguire la macro (aspettando ~2~ secondi)
 lTooltipSnippetWaitText	Seleziona il punto di inserimento e premi "~1~" per incollare lo snippet (aspettando ~2~ secondi)

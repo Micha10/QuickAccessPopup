@@ -487,7 +487,7 @@ lOptionsHotkeyRemindersShort	A&fgekorte namen weergeven
 lOptionsIconSize	Pictogramgrootte
 lOptionsIconsManageRows	Beheer de pictogramvenster-regels`n(0 voor maximaal beschikbare ruimte)
 lOptionsLanguage	&Taal
-lOptionsLanguageLabels	Chinese (Simplified)|Chinese (Traditional)|Deutch|English|Español|Français|Italiano|Português|Português do Brasil|Nederlands|Svenska
+lOptionsLanguageLabels	English|Français|Deutch|Svenska|Español|Português do Brasil|Italiano|Chinese (Traditional)|Português|Chinese (Simplified)|Nederlands
 lOptionsMenuActiveWindow	&Linksboven van het actieve venster
 lOptionsMenuFixPosition	Op een v&aste plaats
 lOptionsMenuNearMouse	In de buurt van de muispi&jl
