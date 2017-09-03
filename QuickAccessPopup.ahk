@@ -2817,7 +2817,7 @@ InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "Ope
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
-InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard", "+^V")
+InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard")
 InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconApplication")
 InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
@@ -3582,7 +3582,8 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
-		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off
+		; use error level in case the hotkey does not exist yet when adding a new alternative hotkey
+		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -5792,15 +5793,21 @@ StringReplace, intAlternativeOrder, intAlternativeOrder, f_btnChangeAlternativeH
 
 strThisAlternativeCode := g_objQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
 objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
+strAlternativeHotkeysBackup := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
+
 g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := SelectHotkey(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultHotkey)
+objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
 
 if StrLen(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
 	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
-	
+else
+	g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := strAlternativeHotkeysBackup
+
 ; strPopupHotkeysBackup := ""
 intAlternativeOrder := ""
 strThisAlternativeCode := ""
+strAlternativeHotkeysBackup := ""
 
 return
 ;------------------------------------------------------------
