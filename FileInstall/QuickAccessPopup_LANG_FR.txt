@@ -3,6 +3,7 @@ lAboutText2	~1~ est développé par Jean Lalonde`nsur la plateforme <a href="http:
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soutien en ligne: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	À propos - ~1~ ~2~
+lAboutUserComputerName	Utilisateur: ~1~`nOrdinateur: ~2~
 lAlternativeMenuTrayTipCopyLocation	Choisissez le favori à copier
 lAlternativeMenuTrayTipEditFavorite	Choisissez le favori à modifier
 lAlternativeMenuTrayTipNewWindow	Choisissez le dossier à ouvrir dans une nouvelle fenêtre
@@ -16,6 +17,13 @@ lContextAddFolderXpress	Ajouter ce dossier au menu Quick Access Popup (Express)
 lContextAddShortcut	Importer le Raccourci Windows dans le menu Quick Access Popup
 lContextShowMenu	Afficher le menu de Quick Access Popup
 lContextShowMenuAternative	Afficher le menu Alternatif de Quick Access Popup
+lControlToolTipAlwaysOnTopOff	Garder cette fenêtre toujours visible
+lControlToolTipAlwaysOnTopOn	Arrêter de garder cette fenêtre toujours visible
+lControlToolTipMoveDown	Déplacer le(s) favori(s) vers le haut
+lControlToolTipMoveUp	Déplacer le(s) favori(s) vers le bas
+lControlToolTipParentMenu	Aller au menu parent
+lControlToolTipPreviousMenu	Retourner au menu précédent
+lControlToolTipSeparator	Insérer une ligne de séparation à la position actuelle du menu
 lCopyLocationCopiedToClipboard	Emplacement copié dans le Presse-papiers
 lDiagModeCaution	~1~ roule en mode de diagnostique.`n`nDes renseignements à propos de l'exécution de cette application seront colligées dans le fichier:`n~2~`n`nAucune information ne sera transmise sans votre consentement.`n`nVoulez-vous rester en mode diagnostique?
 lDiagModeExit	~1~ a colligé des renseignements à des fins de diagnostique dans le fichier ~2~.
@@ -88,6 +96,7 @@ lDialogExternalWriteAccessMessage	Message sur l'accès en écriture du menu partag
 lDialogExternalWriteAccessUsers	Utilisateurs avec les droits d'écriture pour ce menu
 lDialogFavoriteDisabled	Ne pas afficher ce favori dans le menu
 lDialogFavoriteDisabledGroupMember	Désactiver cet item dans le groupe
+lDialogFavoriteDoesNotExistEdit	Voulez-vous modifier ce favori?
 lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disponible.`n`nSi ce favori réside sur un lecteur réseau, veuillez essayer à nouveau après l'authentification réseau.
 lDialogFavoriteDoesNotExistTitle	Favori introuvable - ~1~
 lDialogFavoriteDropdownEmpty	Veuillez choisir un item dans la liste déroulante ~1~.
@@ -115,7 +124,9 @@ lDialogFavoriteRemoveTitle	Supprimer un favori - ~1~
 lDialogFavoriteSelectType	Sélectionnez le type du nouveau favori.`n`nDans l'écran suivant, vous pourrez:`n- nommer votre favori`n- déterminer le contenu visé (selon le type)`n- choisir divers réglages (icône, raccourci, etc.)`n`nChoisissez le type du nouveau favori et cliquez "~1~".
 lDialogFavoriteShortNameLabel	Nom court pour le menu
 lDialogFavoriteSnippetEmpty	Le contenu est vide. Veuillez entrer le contenu du fragment.
-lDialogFavoriteSnippetHelpNoProcess	Insérez ``n pour une fin de ligne et ``t pour une tabulation.
+lDialogFavoriteSnippetFixedFont	Police à largeur fixe
+lDialogFavoriteSnippetFontSize	Taille de la police
+lDialogFavoriteSnippetHelpNoProcess	Insérez `` n pour une fin de ligne et ``t pour une tabulation. Insérez `` (double accent grave) pour un accent grave.
 lDialogFavoriteSnippetHelpProcess	Pressez Ctrl-Tab pour insérer une tabulation et Entrée pour insérer une fin de ligne
 lDialogFavoriteSnippetHelpWeb	Voir l'<a href="~1~">aide sur les fragments</a> (anglais) pour les caractères spéciaux et l'encodage des commandes.
 lDialogFavoriteSnippetProcessEOLTab	Encoder automatiquement les fins de ligne et les tabulations
@@ -142,12 +153,14 @@ lDialogFavoriteTypesHelp9	Lancez un "Groupe" de favoris en un seul raccourci.`n`
 lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|M&enu partagé
 lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier||Lien (URL)|Site FTP (URL)|||||||Contenu|Menu externe (emplacement et nom du fichier)|
 lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..|Fragment|Partagé
+lDialogFavoriteWorkingDirNotFoundPrompt	Le dossier "Démarrer dans" du favori "~1~" est introuvable:`n~2~
+lDialogFavoriteWorkingDirNotFoundTitle	Paramètre Démarrer dans introuvable - ~1~
 lDialogFileLabel	Document
 lDialogFolderLabel	Dossier
 lDialogFoldersPlaceholders	Vous pouvez insérer l'emplacement d'où ce favori est lancé en insérant le code {CUR_LOC}
 lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
-lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a> or <a id="~4~">échappement</a>
+lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a>, <a id="~4~">échappement</a>`nou <a id="~5~">touche menu (application)</a>
 lDialogHotkeys	Raccourcis
 lDialogHotkeysManageAbout	Raccourcis actuellement actifs dans ~1~
 lDialogHotkeysManageAlternative	Alternatif
@@ -175,6 +188,7 @@ lDialogInvalidHotkeyQAPFeature	Avec votre configuration actuelle de clavier, la 
 lDialogKeyboard	Clavier
 lDialogLaunchWith	Lancer avec cette application
 lDialogMaximized	Maximisée
+lDialogMenuKey	Touche Menu
 lDialogMenuNotMoveUnderItself	Le menu "~1~" ne peut être déplacé sous lui-même.
 lDialogMinimized	Minimisée
 lDialogMouse	Souris
@@ -189,6 +203,7 @@ lDialogOn	Actif
 lDialogOpenThisGroup	Ouvrir ce groupe
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
+lDialogOtherHotkeys	Autres raccourcis pour le menu principal
 lDialogReadOnly	Lecture seulement
 lDialogRemoveMultipleFavorites	Voulez-vous vraiement supprimer ~1~ favoris ou sous-menus?
 lDialogSearch	Rechercher
@@ -267,7 +282,8 @@ lGuiClose	Fermer
 lGuiCloseAmpersand	&Fermer
 lGuiDonate	Soutien
 lGuiDropFilesHelp	Aide glisser-déposer
-lGuiDropFilesIncentive	Vous pouvez "glisser-déposer" les types de favoris`nsuivants sur la fenêtre de ~1~:`n`n- ~2~`n- ~3~`n- ~4~
+lGuiDropFilesIncentive	Vous pouvez "glisser-déposer" les types de favoris suivants sur la fenêtre de ~1~:`n`n- ~2~`n- ~3~`n- ~4~
+lGuiDropFilesIncentive2	Pour "glisser-déposer" un ou plusieurs fichier plus facilement, activez l'option "toujours visible" en cliquant sur l'icône de punaise à la gauche de la fenêtre.
 lGuiEditFavorite	Modifier
 lGuiGroupClosing	Fermeture des fenêtres de l'Explorateur
 lGuiGroupRestoreDelay	Délai entre la restauration des favoris:
@@ -301,6 +317,7 @@ lGuiTitle	Paramètres - ~1~ ~2~
 lHelpTabAddingFavorite	Ajouter des favoris
 lHelpTabGettingStarted	Premier pas
 lHelpTabQAPFeatures	Fonctionnalités QAP
+lHelpTabSharedMenus	Menus partagés
 lHelpTabTipsAndTricks	Trucs et astuces
 lHelpText11	Au lancement de Quick Access Popup, une icône attend vos ordres dans la zone de Notifications. Lorsque vous voudrez ouvrir une de vos DOSSIERS, DOCUMENTS, APPLICATIONS, SITES WEB, SITES FTP ou FRAGMENTS favoris, appuyez sur les raccourcis QAP [~1~] ou [~2~] pour qu'un menu popup affiche vos favoris.
 lHelpText12	Lorsque vous sélectionnez un DOSSIER favori dans l'Explorateur de fichiers ou une boîte de dialogue*, Quick Access Popup vous y mène instantanément! * Cette fonctionnalité doit être activée dans les  Options.
@@ -318,6 +335,10 @@ lHelpText42	- Dans la zone de Notifications, cliquez sur l'icône de Quick Access
 lHelpText43	- Configurez les déclencheurs du menu popup de Quick Access Popup: choisissez votre bouton de souris préféré ou votre raccourci clavier dans les "Réglages, Options, Déclencheurs".
 lHelpText44	- Aussi dans les "Options": choisissez votre langue d'utilisation, la taille des icônes de menu, les couleurs des fenêtres. Décidez du nombre des "Emplacements récents" à afficher, de l'affiche des raccourcis clavier numériques ou des rappels des raccourcis de favoris. Fixez le menu popup à une position de votre choix ou mémorisez la position de la fenêtre des "Réglages".
 lHelpText45	- Utilisateurs de Directory Opus, consultez <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">cette page</a> (en anglais) pour des renseignements additionnels.`n-Utilisateurs de Total Commander, consultez <a href="">cette page</a> (en anglais) pour plus de renseignements. Utilisateurs d'autres gestionnaires de fichiers, consultez <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">cette page</a> pour des renseignements sur QAPconnect.
+lHelpText51	Les "menus partagés" permettent d'enregistrer des favoris dans des fichiers .ini qui peuvent être partagés entre plusieurs utilisateurs ou utilisés par un même utilisateur sur divers ordinateurs. Il y a trois types de menus partagés:
+lHelpText52	Les menus partagés peuvent contenir tout type de favori, sauf d'autres Menus partagés. Les fichiers .ini des menus partagés sont enregistrés sur des lecteurs réseau ou des disques partagés (comme Dropbox) et uitilisés sur divers PCs. QAP permet un travail collaboratif en évitant les conflits de modification.
+lHelpText53	Pour créer un menu partagé, dans la boîte de dialogue "Ajouter un favori", choisissez "Menu partagé" et cliquez Poursuivre. Dans la configuration du menu partagé, entrez les dossier et nom du fichier de configuration. L'extension du fichier doit être ".ini". Si le fichier existe déjà, son contenu sera ajouté à votre menu. Sinon, un menu partagé vide sera créé.
+lHelpText54	Configurez un Catalogue de menus partagés dans les Options (onglet "Général") pour faciliter l'ajout de menus partagés par vos utilisateurs.
 lHelpTextLead	Avec Quick Access Popup, navigez en un clin d'oeil parmi vos dossiers, pages web et documents favoris!
 lHelpTitle	Aide - ~1~ ~2~
 lImpExpAborted	annulé
@@ -402,6 +423,7 @@ lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
 lMenuRefreshMenu	Actualiser les Dossiers actifs
 lMenuReload	Redémarrer ~1~
+lMenuReopenCurrentFolder	Réouvrir le dossier actif dans une boîte de dialogue
 lMenuRunAtStartupAmpersand	&Exécuter au démarrage
 lMenuSettings	Paramètres
 lMenuStartMenu	Menu Démarrer
@@ -467,6 +489,7 @@ lOptionsChangeFolderInDialogCheckbox	Cliquez "OK" pour confirmer que vous compre
 lOptionsChangeFolderInDialogText	Activez cette option pour permettre le changement de dossier dans les boîtes de dialogue (Ouvrir, Enregistrer sous, etc.) mais veuillez lire cet avertissement.`n`nVous devez utiliser cette fonction SEULEMENT dans les boîtes de dialogue de sélection de fichier. Si vous l'utilisez dans d'autres types de boîtes de dialogue, par exemple dans une fenêtre "Options", essayer de changer de dossier pourrait modifier et enregistrer des valeurs sans préavis.
 lOptionsChangeHotkey	Modifier
 lOptionsCheck4Update	Vérifier la mise à jour
+lOptionsCheck4UpdateNow	vérifier maintenant
 lOptionsControlDoublePressed	Ouvrir le menu principal avec Ctrl + Ctrl (Contrôle Gauche ou Contrôle Droite pressé à deux reprises)
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
@@ -504,6 +527,7 @@ lOptionsRecentFoldersPrompt	Emplacements récents:
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
 lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
+lOptionsSnippetsHelp	Valeurs par défaut pour les fragments de texte (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
 lOptionsTabMenuOptionsIntro	Affichez le menu comme vous le préférez
 lOptionsTabMouseAndKeyboardIntro	Choisissez les boutons de la souris et les raccourcis du clavier déclenchant le menu principal de ~1~.
@@ -524,8 +548,9 @@ lTCMenuName	TC Directory Hotlist
 lTCWinCmdLocation	Emplacement de WinCmd.ini
 lTooltipSnippetKeyWait	Appuyez sur {~1~} pour continuer…
 lTooltipSnippetWaitEnter	Entrée
-lTooltipSnippetWaitMacro	Appuyez sur "~1~" pour lancer la macro (attente de ~2~ secondes)
-lTooltipSnippetWaitText	Sélectionnez le point d'insertion et appuyez sur "~1~" pour coller le fragment (attente de ~2~ secondes)
+lTooltipSnippetWaitMacro	Appuyez sur "~1~" ou "~2~" pour lancer la macro (attente de ~3~ secondes)
+lTooltipSnippetWaitSpace	Espace
+lTooltipSnippetWaitText	Sélectionnez le point d'insertion et appuyez sur "~1~" ou "~2~" pour coller le fragment (attente de ~3~ secondes)
 lTrayTipInstalledDetail	~1~ pour lancer vos favoris
 lTrayTipInstalledTitle	~1~ ~2~ est prêt!
 lTrayTipWorkingDetail	Préparation des menus

@@ -115,7 +115,6 @@ lDialogFavoriteRemoveTitle	Verwijder favoriet - ~1~
 lDialogFavoriteSelectType	Selecteer het type favoriet om toe te voegen`n`nIn het volgende scherm kunt u het volgende definieren:`n- Naam`n- Inhoud (afhankelijk van het geselecteerde type)`n- Instellingen (zoals pictogram, sneltoets, etc.)`n`nKies uw gewenste favorietentype en druk op "~1~".
 lDialogFavoriteShortNameLabel	Afkortingsnaam voor dit menu
 lDialogFavoriteSnippetEmpty	Er is geen inhoud beschikbaar voor dit fragment, voer alstublieft inhoud in.
-lDialogFavoriteSnippetHelpNoProcess	Gebruik "``n" voor het einde van de zin, en "''t" voor een tab
 lDialogFavoriteSnippetHelpProcess	Gebruik "Ctrl-Tab" om tabs in te voegen en "Enter" voor een nieuwe regel
 lDialogFavoriteSnippetHelpWeb	Navigeer naar <a href="~1~">Hulp voor fragmenten</a> voor speciale karakters en commando's.
 lDialogFavoriteSnippetProcessEOLTab	Configureer Einde-van-de-Zin en Tabs automatisch
@@ -147,7 +146,6 @@ lDialogFolderLabel	Map
 lDialogFoldersPlaceholders	Accolades {HUIDIG_LOC} kan gebruikt worden om de locatie toe te voegen waar deze favoriet wordt gestart
 lDialogGetWinInfo	Klik in het doelvenster met de QAP-menusneltoets [~1~] om de titel en klasse van het venster te identificeren.
 lDialogGetWInInfo2Clippoard	Venstertitel: `n"~1~"`n`nKlasse:`n"~2~"`n`nDeze informatie naar het klembord kopiëren?
-lDialogHotkeyInvisibleKeys	<a id="~1~">Spatiebalk</a>, <a id="~2~">Tab</a>, <a id="~3~">Enter</a> of <a id="~4~">Escape</a>
 lDialogHotkeys	Sneltoetsen
 lDialogHotkeysManageAbout	Sneltoetsen welke momenteel actief zijn in ~1~
 lDialogHotkeysManageAlternative	Alternatief
@@ -267,7 +265,6 @@ lGuiClose	Sluiten
 lGuiCloseAmpersand	&Sluiten
 lGuiDonate	Doneer
 lGuiDropFilesHelp	Hulp voor Slepen && Neerzetten
-lGuiDropFilesIncentive	U kunt de volgende type favorieten Slepen & Neerzetten naar het ~1~ venster:`n`n- ~2~`n- ~3~`n- ~4~
 lGuiEditFavorite	Wijzigen
 lGuiGroupClosing	Windows Explorer sluiten
 lGuiGroupRestoreDelay	Herstelvertraging tussen favorieten:
@@ -525,8 +522,6 @@ lTCMenuName	TC map hotlist
 lTCWinCmdLocation	WinCmd.ini locatie
 lTooltipSnippetKeyWait	Druk op {~1~} om door te gaan...
 lTooltipSnippetWaitEnter	Enter
-lTooltipSnippetWaitMacro	Druk op "~1~" voor het starten van de makro (wacht ~2~ seconde(n) alstublieft)
-lTooltipSnippetWaitText	Selecteer de locatie om te plakken en druk op "~1~" om het fragment te in te voegen (wacht ~2~ seconde(n) alstublieft...)
 lTrayTipInstalledDetail	~1~ om favorieten te starten
 lTrayTipInstalledTitle	~1~ gereed!
 lTrayTipWorkingDetail	Menu's aan het opbouwen
