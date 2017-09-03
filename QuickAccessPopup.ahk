@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.4.9.5 (2017-09-03)
+- fix bug Alternative menu hotkey reappearing after delete and returning to Options dialog box
+- make backup of Alternative menu hotkey when opening Options dialog box in case user chancels changes
+- remove default hotkey +^V for Alternative menu Copy Favorite Location
+- update to Spanish, Italian, Dutch and French language files
+
 Version BETA: 8.4.9.4 (2017-08-26)
  
 Snippets
@@ -5414,7 +5420,6 @@ Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalM
 GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
 Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
 
-
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
@@ -5444,8 +5449,8 @@ Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultFixedFont, %lDialogFavori
 GuiControl, , f_blnSnippetDefaultFixedFont, %g_blnSnippetDefaultFixedFont%
 
 Gui, 2:Add, Text, y+10 xs, %lDialogFavoriteSnippetFontSize%
-Gui, 2:Add, Edit, x+5 yp w52 vf_intSnippetDefaultFontSize, %lDialogFavoriteSnippetFontSize%
-Gui, 2:Add, UpDown, Range6-18, %g_intSnippetDefaultFontSize%
+Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, %lDialogFavoriteSnippetFontSize%
+Gui, 2:Add, UpDown, Range6-18 h20, %g_intSnippetDefaultFontSize%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultMacro, %lDialogFavoriteSnippetSendModeMacro%
 GuiControl, , f_blnOptionsSnippetDefaultMacro, %g_blnSnippetDefaultMacro%
@@ -6983,7 +6988,7 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioBu
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 Gui, Add, Text
-Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h200, % L(lDialogFavoriteSelectType, lDialogContinue)
+Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h230, % L(lDialogFavoriteSelectType, lDialogContinue)
 
 GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
 Gosub, ShowGui2AndDisableGui1
