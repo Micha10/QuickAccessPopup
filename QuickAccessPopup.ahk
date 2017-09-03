@@ -3402,7 +3402,9 @@ AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
 AddToIniOneDefaultMenu("{Switch Folder or App}", lMenuSwitchFolderOrApp . "...", "QAP")
 AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", lMenuReopenCurrentFolder . "...", "QAP")
 AddToIniOneDefaultMenu("{Current Folders}", lMenuCurrentFolders . "...", "QAP")
+AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Recent Folders}", lMenuRecentFolders . "...", "QAP")
 AddToIniOneDefaultMenu("{Clipboard}", lMenuClipboard . "...", "QAP")
 AddToIniOneDefaultMenu("", "", "X")
@@ -5555,11 +5557,11 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 }
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Text, x10 y+20 w610, %lDialogOtherHotkeys%
+Gui, 2:Add, Text, x10 y+25 w610, %lDialogOtherHotkeys%
 Gui, 2:Font
-Gui, 2:Add, CheckBox, y+10 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
-Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
-Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
+Gui, 2:Add, Text, y+10 x15, %lOptionsControlDoublePressed%
+Gui, 2:Add, CheckBox, y+5 x15 vf_blnLeftControlDoublePressed, %lOptionsControlDoublePressedLeft%
+Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lOptionsControlDoublePressedRight%
 GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
 GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
 
