@@ -191,7 +191,6 @@ global lDialogKeyboard := "Keyboard" ; lOptionsKeyboard renamed
 global lDialogLaunchWith := "Launch with this application" ; new
 global lDialogMaximized := "Maximized"
 global lDialogMenuKey := "Menu key"
-global lDialogMenuKeyNote := "used alone to open the QAP menu"
 global lDialogMenuNotMoveUnderItself := "Menu ""~1~"" cannot be moved under itself"
 global lDialogMinimized := "Minimized"
 global lDialogMouse := "Mouse" ; lOptionsMouse renamed
