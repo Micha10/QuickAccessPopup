@@ -31,6 +31,53 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.5 (2017-09-04)
+  
+Menu key
+- you can now use the Menu key (also called Context menu key or Application key) to pop up the QAP menu or launch any favorite
+- to select the Menu key, in the "Select Hotkey" dialog box, click on the "menu key (application)" link below the hotkey selector
+- this hotkey can be combined with any modifiers (Shift, Alt, Ctrl or Win)
+  
+Snippets
+- major improvements to make Snippets easier to create and edit
+- a button in snippet add/edit favorite dialog box to enlarge the snippet content text box
+- font size selector for snippet text box
+- check box to display a snippet with fixed font (useful for code snippets)
+- display preferences saved with each snippet
+- default preferences for snippets can be selected in Options, General tab
+- when launching a snippet with the "Prompt before" option, QAP also accepts Space to kick-off a snippet (in addition to Enter)
+- change help link to new FAQ page about snippets (see improved FAQ content about Snippets)
+  
+Reopen Current Folder in dialog box
+- a feature I should have included much earlier... Warning: to take advantage of it, existing users must add themselves this new feature to their menu
+- new QAP feature "Reopen Current Folder in dialog box" allowing to reopen in a dialog box the current location in Windows Explorer
+- the current location is the folder currently displayed in the active (or in the last active) Windows Explorer window
+- current location is also detected in Directory Opus or Total Commander if one of these file magagers is enabled
+  
+Hotkeys
+- set QAP feature default hotkeys for "Reopen Current Folder" to Shift+Ctrl+C  (of course, you can change it at any time)
+- change QAP feature "Clipboard" default hotkeys from Shift+Ctrl+C to Shift+Ctrl+V
+- this change is only for new installations - exising users must do this change themselves, if they wish
+  
+Various
+- the "Ctrl + Ctrl" option has been moved to the "Alternative menu" tab in Options dialog box, and its presentation has been improved
+- add a link beside the "Check for update" checkbox in the Options dialog box to check for update immediately
+- check if the "Start in" folder location exists before launching a favorite and do not launch it if the location is not found
+- offer to edit the favorite when one of these folder locations is not found: folder, document or application location, "Launch with" application location or "Start in" folder location
+  
+Language
+- new! Dutch language is now available, thanks to Ric Roggeveen
+- German translation update for changes since v8
+- updates for Spanish, Italian and French language files, thanks to translators
+  
+Bug fixes
+- fix an error in QAP 32-bit executable file preventing the Windows Explorer context menus to work with QAP installed in portable mode
+- allow favorite location to be a UNC root path (like \\127.0.0.1\ or \\MyDomain\) assuming the location is online because Windows does not allow to check if an UNC root location is available (on my system, Windows 10 defaults to the "Documents" folder if the UNC drive is not mounted)
+- fix bug when adding a QAP feature and when its default hotkey is already in use for another favorite
+- fix bug when processing backtick (accent grave) in snippets (used for code snippets) and add help about backticks in add/edit dialog box
+- fix bug && displayed in Drag & Drop help window title instead of &
+- add diagnostic code to track the "71 hotkeys limit" bug - if someone encounter this error message, please contact me
+
 Version BETA: 8.4.9.5 (2017-09-03)
 - fix bug Alternative menu hotkey reappearing after delete and returning to Options dialog box
 - make backup of Alternative menu hotkey when opening Options dialog box in case user chancels changes
@@ -1552,7 +1599,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.4.9.5 BETA
+;@Ahk2Exe-SetVersion v8.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1626,8 +1673,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
