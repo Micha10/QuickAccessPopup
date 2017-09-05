@@ -1,3 +1,8 @@
+rem Check if version number is OK in source file
+>nul find "%QAPVERSIONTEXT%" ..\QuickAccessPopup.ahk && (echo FOUND) || (echo %QAPVERSIONTEXT% = NOT FOUND IN QuickAccessPopup.ahk & pause & exit)
+rem Check if Language files are available
+ECHO Checking language files...
+C:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
 rem Set current directory
 C:
 CD \Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%QAPBETAPROD%\

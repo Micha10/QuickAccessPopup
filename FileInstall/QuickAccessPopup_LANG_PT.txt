@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Sueca:Åke Engelbrektson`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="https://icons8.com/">Icons8</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Sueca:Åke Engelbrektson`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nDutch translation: Ric Roggeveen`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="https://icons8.com/">Icons8</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v1.1 sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Suporte em <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca do - ~1~ ~2~
@@ -82,7 +82,6 @@ lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está dis
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
 lDialogFavoriteExternalHelpWeb	Consulte <a href="~1~">Ajuda menus externos</a> para mais informação.
-lDialogFavoriteExternalSaveNote	Nota: Os valores deste separador são guardados no menu partilhado quando clicar em OK.
 lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas)
 lDialogFavoriteFolderLiveColumns	Número de itens por coluna (0 para sem quebra de colunas)
 lDialogFavoriteFolderLiveDocuments	Incluir documentos
@@ -118,9 +117,7 @@ lDialogFavoriteSnippetSendModeMacro	Modo Macro
 lDialogFavoriteSnippetSendModeText	Modo Texto
 lDialogFavoritesParentMenuMove	Mover ~1~ favoritos para este menu
 lDialogFavoriteType	Tipo de Favorito
-lDialogFavoriteTypesHelp1	Criar um atalho para uma "Pasta" utilizada com frequência.`n`nDefina o nome do menu do favorito, atalho e diversas opções do menu.`n`nAs definições avançadas permitem ajustar a posição da janela e opções de gestão de ficheiros.
 lDialogFavoriteTypesHelp13	Criar uma "Amostra de Texto". Defina o título para o menu, o seu conteúdo e diversas opções do menu.`n`nNas opções avançadas, escolha "Modo Texto" para colar pedaços de texto como faria da área de transferência ou escolha "Modo Macro" para enviar fragmentos como se digitasse teclas (incluindo teclas especiais, consulte a ajuda).
-lDialogFavoriteTypesHelp14	Criar um "Menu Partilhado" para usar os favoritos em vários sistemas a partir do mesmo ficheiro de definições numa localização externa.`n`nDefina o nome para o menu partilhado, a localização do ficheiro de definições externas e diversas opções.`n`nOs menus partilhados podem ser editados as regular menus como os normais excepto se estiverem definidos como só de leitura (consulte a ajuda).
 lDialogFavoriteTypesHelp2	Criar um atalho para um "Documento".`n`nDefina o nome do menu do favorito, atalho e diversas opções do menu.`n`nAs definições avançadas permitem escolhar uma aplicação específica para abrir o documento, adicionar parâmetros opcionais e definir a posição da janela.
 lDialogFavoriteTypesHelp3	Criar um atalho para uma "Aplicação" (programa, batch ou script).`n`nLocalize o ficheiro executável ou seleccione um dos programas em execução. Defina diversas opções do menu.`n`nAs definições avançadas permitem escolher uma pasta "Iniciar Em", adicionar parâmetros e definir a posição da janela.
 lDialogFavoriteTypesHelp4	Criar um atalho para uma das 50 "Pastas Especiais" predefinidas do Windows, tais como: Bibliotecas, As Minhas Imagens, Reciclagem, Transferências, etc.`n`nDefina diversas opções do menu. As definições avançadas permitem definir a posição da janela e opções de gestão de ficheiros.
@@ -169,7 +166,6 @@ lDialogMenuNotMoveUnderItself	O menu "~1~" não pode ser movido para si próprio
 lDialogMinimized	Minimizado
 lDialogMouse	Rato
 lDialogMouseButtonsText	Botão Esquerdo do Rato|Botão do Meio do Rato|Botão Direito do Rato|Botão Especial 1|Botão Especial 2|Roda p/Cima|Roda p/Baixo|Roda p/Esq.|Roda p/Dir.|
-lDialogMouseCheckLButton	Não pode atribuir o "Botão Esquerdo" sem um modificador`n(como as teclas ~1~, ~2~, ~3~ ou ~4~).
 lDialogMoveFavoritesTitle	Mover Favoritos - ~1~ ~2~
 lDialogNone	Nenhum
 lDialogNormal	Normal
@@ -279,7 +275,6 @@ lGuiPassword	Palavra-passe
 lGuiPasswordNotEncripted	Nota: a palavra-passe NÃO será encriptada ao ser enviada para a Internet.
 lGuiRemoveFavorite	Remover
 lGuiResetDefault	Repor tecla de atalho padrão
-lGuiSave	Guardar
 lGuiSaveAmpersand	&Guardar
 lGuiSaveAndCloseAmpersand	&Guardar`n&& Fechar
 lGuiSaveAndStayAmpersand	Guardar`n&& &Recarregar
@@ -457,7 +452,6 @@ lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
 lOptionsEnableExternalMenusCatalogue	Activar Catálogo de Menus Partilhados
 lOptionsExclusionDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa aplicação, introduza qualquer parte to título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir o Chrome e o Word, introduza as duas seguintes linhas na lista de exclusões:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	A tecla de atalho do QAP será desactivada nestas aplicações e o clique [~1~] será enviado para a janela alvo como se o QAP não estivesse a ser executado. Pode também excluir janelas pelo nome da sua classe. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. Pode encontrar ajuda para esta função <a href="~2~">no site do QAP</a>.
 lOptionsExclusionList	Lista de Exclusões
 lOptionsExclusionTitle	Lista de Exclusões para desencadeador do Rato [~1~]
 lOptionsExplorerContextMenus	Activar os Menus de Contexto do Explorador
@@ -471,7 +465,7 @@ lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
 lOptionsIconsManageRows	Manage Linhas da janela de ícones`n(0 máx. espaço disponível)
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified|Holandês
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
 lOptionsMenuFixPosition	Numa posição fixa
 lOptionsMenuNearMouse	Junto ao cursor do rato
@@ -508,7 +502,6 @@ lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? As alte
 lTCMenuName	Lista de Pasta Favoritas do TC
 lTCWinCmdLocation	Localização do WinCmd.ini
 lTooltipSnippetKeyWait	Pressione {~1~} para continuar...
-lTooltipSnippetWait	Seleccione o ponto de inserção e prima "~1~" para colar a amostra (aguardar ~2~ segundos)
 lTooltipSnippetWaitEnter	Enter
 lTooltipSnippetWaitMacro	Pressione "~1~" para iniciar a macro (aguardar ~2~ segundos)
 lTooltipSnippetWaitText	Seleccione o ponto de inserção e pressione "~1~" para colar o snippet (aguardar ~2~ segundos)

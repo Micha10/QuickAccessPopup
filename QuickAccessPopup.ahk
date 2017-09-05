@@ -14,7 +14,7 @@ http://www.autohotkey.com/docs/scripts/FavoriteFolders.htm
 or Rexx version Folder Menu
 http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-change-your-folders/
 
-Copyright 2013-2016 Jean Lalonde
+Copyright 2013-2017 Jean Lalonde
 --------------------------------
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,114 @@ limitations under the License.
 
 HISTORY
 =======
+
+Version: 8.5 (2017-09-04)
+  
+Menu key
+- you can now use the Menu key (also called Context menu key or Application key) to pop up the QAP menu or launch any favorite
+- to select the Menu key, in the "Select Hotkey" dialog box, click on the "menu key (application)" link below the hotkey selector
+- this hotkey can be combined with any modifiers (Shift, Alt, Ctrl or Win)
+  
+Snippets
+- major improvements to make Snippets easier to create and edit
+- a button in snippet add/edit favorite dialog box to enlarge the snippet content text box
+- font size selector for snippet text box
+- check box to display a snippet with fixed font (useful for code snippets)
+- display preferences saved with each snippet
+- default preferences for snippets can be selected in Options, General tab
+- when launching a snippet with the "Prompt before" option, QAP also accepts Space to kick-off a snippet (in addition to Enter)
+- change help link to new FAQ page about snippets (see improved FAQ content about Snippets)
+  
+Reopen Current Folder in dialog box
+- a feature I should have included much earlier... Warning: to take advantage of it, existing users must add themselves this new feature to their menu
+- new QAP feature "Reopen Current Folder in dialog box" allowing to reopen in a dialog box the current location in Windows Explorer
+- the current location is the folder currently displayed in the active (or in the last active) Windows Explorer window
+- current location is also detected in Directory Opus or Total Commander if one of these file magagers is enabled
+  
+Hotkeys
+- set QAP feature default hotkeys for "Reopen Current Folder" to Shift+Ctrl+C  (of course, you can change it at any time)
+- change QAP feature "Clipboard" default hotkeys from Shift+Ctrl+C to Shift+Ctrl+V
+- this change is only for new installations - exising users must do this change themselves, if they wish
+  
+Various
+- the "Ctrl + Ctrl" option has been moved to the "Alternative menu" tab in Options dialog box, and its presentation has been improved
+- add a link beside the "Check for update" checkbox in the Options dialog box to check for update immediately
+- check if the "Start in" folder location exists before launching a favorite and do not launch it if the location is not found
+- offer to edit the favorite when one of these folder locations is not found: folder, document or application location, "Launch with" application location or "Start in" folder location
+  
+Language
+- new! Dutch language is now available, thanks to Ric Roggeveen
+- German translation update for changes since v8
+- updates for Spanish, Italian and French language files, thanks to translators
+  
+Bug fixes
+- fix an error in QAP 32-bit executable file preventing the Windows Explorer context menus to work with QAP installed in portable mode
+- allow favorite location to be a UNC root path (like \\127.0.0.1\ or \\MyDomain\) assuming the location is online because Windows does not allow to check if an UNC root location is available (on my system, Windows 10 defaults to the "Documents" folder if the UNC drive is not mounted)
+- fix bug when adding a QAP feature and when its default hotkey is already in use for another favorite
+- fix bug when processing backtick (accent grave) in snippets (used for code snippets) and add help about backticks in add/edit dialog box
+- fix bug && displayed in Drag & Drop help window title instead of &
+- add diagnostic code to track the "71 hotkeys limit" bug - if someone encounter this error message, please contact me
+
+Version BETA: 8.4.9.5 (2017-09-03)
+- fix bug Alternative menu hotkey reappearing after delete and returning to Options dialog box
+- make backup of Alternative menu hotkey when opening Options dialog box in case user chancels changes
+- add to default My Essentials menu the QAP feature "Reopen current folder in dialog box"
+- Ctrl+Ctrl option presentation improved in Options diaolog box
+- remove default hotkey +^V for Alternative menu Copy Favorite Location
+- update to Spanish, Italian, Dutch and French language files
+
+Version BETA: 8.4.9.4 (2017-08-26)
+ 
+Snippets
+- add button in snippet add/edit favorite dialog box to enlarge or restore the initial size of the snippet content text box
+- default snippet to automatically encode
+- save encode value for each snippet
+- add fixed font and font size options and save value for each snippet
+- add default snippet encode, fixed font, font size and macro mode default values to options General tab, save and retrieve values to ini file
+ 
+Various
+- allow favorite location to be a UNC path (like \\127.0.0.1\ or \\MyDomain) assuming the location exists (if network location is offline, it could give an error or open the default Document folder)
+- remove tip about {CUR_LOC} in Add/Edit dialog box for snippets because this option is irrelevent for this type of favorite
+- Dutch translation (thanks to Ric Roggeveen!)
+
+Version BETA: 8.4.9.3 (2017-08-23)
+ 
+Snippets
+- fix bug with processing of backtick in snippets and add help about backticks in add/edit dialog box
+- change method to kick-off a snippet when the "Prompt before pasting" option is used (using the Input command instead of KeyWait)
+- also accept Space to kick-off a snippet (in addition to Enter)
+- change help link to new FAQ page about snippets (see imprioved FAQ content about Snippets)
+ 
+Menu key
+- new approach for menu key, more integrated with existing hotkey management, menu key can now be used with modifiers
+- in select hotkey dialog box, add "menu key (application)" to options for invisible characters
+- when displaying hotkey as text, replace "sc15D" (keyboard scan code for Menu key) with "Menu key"
+ 
+Various
+- renamed menu label "Reopen Current Folder" to "Reopen Current Folder in Dialog Box" (because it is of use only in dialog boxes)
+- fix bug in "Reopen Current Folder in Dialog Box" if no file manager is running
+- fix bug && displayed in Drag & Drop help window title instead of &
+- fix bug when adding a QAP feature and its default hotkey is already in use for another favorite
+- merge change from v8.4.2 about Explorer context menu for Windows Shortcuts (see change log)
+- German translation update for v8.0.4 to v8.3
+
+Version BETA: 8.4.9.2 (2017-08-09)
+- Menu key hotkey now removed properly checkbox is turned off
+- Menu key now navigate in active Explorer or open in a new window as would do the regular keyboard hotkey
+
+Version BETA: 8.4.9.1 (2017-08-07)
+- set QAP feature default hotkeys for "Reopen Current Folder" to Shift + Ctrl + C
+- change QAP feature "Clipboard" default hotkeys from Shift + Ctrl + C to Shift + Ctrl + V
+- add a link beside "Check for update" checkbox in the Options dialog box to check for update now
+- add an option to use "Menu key" (aka Context menu key or AppsKey) to open the QAP pop menu
+- move "Ctrl + Ctrl" and "Menu key" options to tab Alternative menu tab in Options dialog box
+- check if the "Start in" folder location exists and do not open the favorite if location is not found
+- when favorite's location, "Launch with" application location or "Start in" folder location not found, edit the favorite if user answers yes when prompted
+- add diagnostic code to track the "71 hotkeys limit" bug
+
+Version BETA: 8.4.9 (2017-08-05)
+- new QAP feature "Reopen Current Folder" allowing to reopen the current location in the last active file manager (Windows Explorer or, if enabled, Directory Opus/Total Commander), most useful in file dialog boxes Open, Save As, etc.
+- rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); potential impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
 
 Version: 8.4.2 (2017-08-18)
 - stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
@@ -1491,7 +1599,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.4.2
+;@Ahk2Exe-SetVersion v8.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1565,7 +1673,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.4.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2040,7 +2148,7 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAcces
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-TW.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-TW.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_PT.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-CN.txt, 1
-; FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
+FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
 ; FileInstall, FileInstall\QuickAccessPopup_LANG_KO.txt, %g_strTempDir%\QuickAccessPopup_LANG_KO.txt, 1
 
 FileInstall, FileInstall\default_browser_icon.html, %g_strTempDir%\default_browser_icon.html, 1
@@ -2253,7 +2361,7 @@ InitLanguageArrays:
 ; ----------------------
 ; OPTIONS
 StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
-strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN" ; removed NL and KO - edit lOptionsLanguageLabels in all languages
+strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL" ; removed KO - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 
@@ -2727,7 +2835,7 @@ InitQAPFeatures:
 ; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey)
 
 ; Submenus features
-InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^C")
+InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuReopenFolder",		"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
@@ -2758,12 +2866,13 @@ InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",					
 InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
 InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
-InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, "", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
+InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
+InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
-InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard", "+^V")
+InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard")
 InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconApplication")
 InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
@@ -3015,6 +3124,11 @@ IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+
+IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
+IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
+IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
+IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
 
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
@@ -3337,7 +3451,9 @@ AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
 AddToIniOneDefaultMenu("{Switch Folder or App}", lMenuSwitchFolderOrApp . "...", "QAP")
 AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", lMenuReopenCurrentFolder . "...", "QAP")
 AddToIniOneDefaultMenu("{Current Folders}", lMenuCurrentFolders . "...", "QAP")
+AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Recent Folders}", lMenuRecentFolders . "...", "QAP")
 AddToIniOneDefaultMenu("{Clipboard}", lMenuClipboard . "...", "QAP")
 AddToIniOneDefaultMenu("", "", "X")
@@ -3523,7 +3639,8 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
-		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off
+		; use error level in case the hotkey does not exist yet when adding a new alternative hotkey
+		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -3661,6 +3778,9 @@ ExitApp
 ;-----------------------------------------------------------
 CleanUpBeforeExit:
 ;-----------------------------------------------------------
+
+if (g_blnDiagMode)
+	Diag("ListLines", ScriptInfo("ListLines"))
 
 strSettingsPosition := "-1" ; center at minimal size
 if (g_blnRememberSettingsPosition)
@@ -4591,11 +4711,7 @@ CollectExplorers(pExplorers)
 			else
 			{
 				objExplorer.LocationURL := pExplorer.LocationURL
-				strLocationName :=  UriDecode(pExplorer.LocationURL)
-				StringReplace, strLocationName, strLocationName, file:///
-				StringReplace, strLocationName, strLocationName, file: ; for network drives starting with file:\\, keep only \\
-				StringReplace, strLocationName, strLocationName, /, \, A
-				objExplorer.LocationName := strLocationName
+				objExplorer.LocationName :=  UriDecode(pExplorer.LocationURL)
 			}
 			
 			objExplorer.WindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
@@ -5004,14 +5120,14 @@ LiveFolderHasContent(objLiveFolder)
 	{
 		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
-			;~ ###_V("Conditions"
-				;~ , A_LoopFileFullPath
-				;~ , A_LoopFileExt
-				;~ , objLiveFolder.FavoriteFolderLiveExtensions
-				;~ , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
-				;~ , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				;~ , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				;~ , "-")
+			; ###_V("Conditions"
+				; , A_LoopFileFullPath
+				; , A_LoopFileExt
+				; , objLiveFolder.FavoriteFolderLiveExtensions
+				; , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
+				; , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				; , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
+				; , "-")
 			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
 				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
 				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
@@ -5344,17 +5460,16 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 ; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 xs w500, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
 GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
 
 Gui, 2:Add, Text, y+10 xs vf_lblExternalMenusCataloguePathPrompt hidden, %lOptionsCataloguePath%:
-Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strExternalMenusCataloguePath hidden
-Gui, 2:Add, Button, x+10 yp vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strExternalMenusCataloguePath hidden
+Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
 GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
 Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
-
 
 ; column 2
 
@@ -5369,9 +5484,27 @@ GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
 GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
+Gui, 2:Add, Link, y+3 xs+16 w300 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
+Gui, 2:Font
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultProcessEOLTab, %lDialogFavoriteSnippetProcessEOLTab%
+GuiControl, , f_blnSnippetDefaultProcessEOLTab, %g_blnSnippetDefaultProcessEOLTab%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultFixedFont, %lDialogFavoriteSnippetFixedFont%
+GuiControl, , f_blnSnippetDefaultFixedFont, %g_blnSnippetDefaultFixedFont%
+
+Gui, 2:Add, Text, y+10 xs, %lDialogFavoriteSnippetFontSize%
+Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, %lDialogFavoriteSnippetFontSize%
+Gui, 2:Add, UpDown, Range6-18 h20, %g_intSnippetDefaultFontSize%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultMacro, %lDialogFavoriteSnippetSendModeMacro%
+GuiControl, , f_blnOptionsSnippetDefaultMacro, %g_blnSnippetDefaultMacro%
 
 ;---------------------------------------
 ; Tab 2: Popup menu options
@@ -5453,12 +5586,6 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
 
-Gui, 2:Add, CheckBox, y+25 x15 vf_blnLeftControlDoublePressed, %lDialogWindowPositionLeft%
-Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lDialogWindowPositionRight%
-Gui, 2:Add, Text, yp x+5, %lOptionsControlDoublePressed%
-GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
-GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
-
 ;---------------------------------------
 ; Tab 4: Alternative Menu Features
 
@@ -5477,6 +5604,15 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, %lOptionsChangeHotkey%
 }
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Text, x10 y+25 w610, %lDialogOtherHotkeys%
+Gui, 2:Font
+Gui, 2:Add, Text, y+10 x15, %lOptionsControlDoublePressed%
+Gui, 2:Add, CheckBox, y+5 x15 vf_blnLeftControlDoublePressed, %lOptionsControlDoublePressedLeft%
+Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lOptionsControlDoublePressedRight%
+GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
+GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
 
 ;---------------------------------------
 ; Tab 5: Exclusion list
@@ -5713,15 +5849,21 @@ StringReplace, intAlternativeOrder, intAlternativeOrder, f_btnChangeAlternativeH
 
 strThisAlternativeCode := g_objQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
 objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
+strAlternativeHotkeysBackup := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
+
 g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := SelectHotkey(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultHotkey)
+objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
 
 if StrLen(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
 	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
-	
+else
+	g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := strAlternativeHotkeysBackup
+
 ; strPopupHotkeysBackup := ""
 intAlternativeOrder := ""
 strThisAlternativeCode := ""
+strAlternativeHotkeysBackup := ""
 
 return
 ;------------------------------------------------------------
@@ -5967,6 +6109,15 @@ IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
 
+g_blnSnippetDefaultProcessEOLTab := f_blnSnippetDefaultProcessEOLTab
+IniWrite, %g_blnSnippetDefaultProcessEOLTab%, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab
+g_blnSnippetDefaultFixedFont := f_blnSnippetDefaultFixedFont
+IniWrite, %g_blnSnippetDefaultFixedFont%, %g_strIniFile%, Global, SnippetDefaultFixedFont
+g_intSnippetDefaultFontSize := f_intSnippetDefaultFontSize
+IniWrite, %g_intSnippetDefaultFontSize%, %g_strIniFile%, Global, SnippetDefaultFontSize
+g_blnSnippetDefaultMacro := f_blnSnippetDefaultMacro
+IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacro
+
 ; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
 ; strUseClassicButtonsPrev := g_blnUseClassicButtons
 ; g_blnUseClassicButtons := f_blnUseClassicButtons
@@ -6033,11 +6184,6 @@ loop, % g_arrPopupHotkeyNames0
 	else
 		IniWrite, % g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%
 
-g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
-IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
-g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
-IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
-
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
 
@@ -6048,7 +6194,12 @@ for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
-; After Save Tab 2: Popup menu hotkeys and Save Tab 3: Alternative menu hotkeys
+g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
+IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
+g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
+IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
+
+; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
 
 ;---------------------------------------
@@ -6778,7 +6929,7 @@ GuiDropFilesHelpClicked:
 ;------------------------------------------------------------
 Gui, 1:+OwnDialogs
 
-MsgBox, 0, %g_strAppNameText% - %lGuiDropFilesHelp%
+MsgBox, 0, % g_strAppNameText . " - " . ReplaceAllInString(lGuiDropFilesHelp, "&&", "&")
 	, % L(lGuiDropFilesIncentive, g_strAppNameText, lDialogFolderLabel, lDialogFileLabel, lDialogApplicationLabel) . "`n`n" . lGuiDropFilesIncentive2
 
 return
@@ -6888,7 +7039,7 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioBu
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 Gui, Add, Text
-Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h200, % L(lDialogFavoriteSelectType, lDialogContinue)
+Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h230, % L(lDialogFavoriteSelectType, lDialogContinue)
 
 GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
 Gosub, ShowGui2AndDisableGui1
@@ -6953,7 +7104,7 @@ return
 GuiDropFiles:
 ;------------------------------------------------------------
 
-gosub, GetTargetWinIdWhenNoPopup
+GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
 	
 Loop, parse, A_GuiEvent, `n
 {
@@ -6979,15 +7130,13 @@ AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
-	gosub, GetTargetWinIdWhenNoPopup
+	; returns current or latest file manager window ID and Window class, and re-activate the last active file manager window
+	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true)
 	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
-{
-	Gosub, GetCurrentLocation
-	g_strNewLocation := g_strCurrentLocation
-}
+	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 
 g_strNewLocationSpecialName := ""
 if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
@@ -6999,7 +7148,6 @@ if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
 
 If !StrLen(g_strNewLocation)
 	or !(InStr(g_strNewLocation, ":") or InStr(g_strNewLocation, "\\") or  InStr(g_strNewLocation, "{"))
-	or (strAddThisFolderWindowTitle <> strWindowActiveTitle)
 {
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
@@ -7067,10 +7215,6 @@ else
 
 objDOpusListers := ""
 objPrevClipboard := ""
-strAddThisFolderWindowTitle := ""
-intWaitTimeIncrement := ""
-intTries := ""
-intTriesIndex := ""
 strIDs := ""
 strMouseHotkey := ""
 strKeyboardHotkey := ""
@@ -7080,29 +7224,33 @@ return
 
 
 ;------------------------------------------------------------
-GetTargetWinIdWhenNoPopup:
-; put the current window ID in g_strTargetWinId
-; used when it is not done when invoking the popup menu
+GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false)
+; return ByRef parameters for g_strTargetWinId and g_strTargetClass (or current file manager ID and class if called to reopen current location)
+; called when g_strTargetWinId and g_strTargetClass are not updated when invoking the popup menu
+; with blnActivate true when add folder from QAP tray icon
+; with blnExcludeDialogBox true when reopen file manager current location in dialog box
 ;------------------------------------------------------------
-
-DetectHiddenWindows, Off
-Winget, strIDs, list
-DetectHiddenWindows, On ; revert to app default
-
-Loop, %strIDs%
 {
-	WinGetClass, g_strTargetClass, % "ahk_id " . strIDs%A_Index%
-	if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-		or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+	DetectHiddenWindows, Off
+	Winget, strIDs, list
+	DetectHiddenWindows, On ; revert to app default
+
+	Loop, %strIDs%
 	{
-		WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-		WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
-		g_strTargetWinId := strIDs%A_Index%
-		break
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
+			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
+		{
+			if (blnActivate)
+			{
+				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+			}
+			strThisId := strIDs%A_Index%
+			break
+		}
 	}
 }
-	
-return
 ;------------------------------------------------------------
 
 
@@ -7515,13 +7663,19 @@ Gui, 2:Font
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Text, x20 y+10 w500, % ReplaceAllInString(L(g_objFavoriteTypesHelp["QAP"], lMenuRecentFolders, lMenuCurrentFolders, lMenuAddThisFolder, lMenuSettings, lGuiOptions), "`n`n", "`n")
 else
-	Gui, 2:Add, Text, x20 y+10 w500, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
+	Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
+
+if (g_objEditedFavorite.FavoriteType = "Snippet")
+{
+	GuiControlGet, arrPosTypeHelp, Pos, f_TypeHelp
+	g_intTypeHelpY := arrPosTypeHelpY
+}
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+0 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, x20 y+20, %lDialogFavoriteShortNameLabel% *
+	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, %lDialogFavoriteShortNameLabel% *
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -7535,10 +7689,59 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
 	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
-		Gui, 2:Add, Text, x20 y+10, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+			Gui, Font, w700
+			
+		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
+		
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		{
+			if !StrLen(g_objEditedFavorite.FavoriteLaunchWith)
+				g_objEditedFavorite.FavoriteLaunchWith := g_blnSnippetDefaultMacro . ";;" . g_blnSnippetDefaultProcessEOLTab . ";" . g_blnSnippetDefaultFixedFont . ";" g_intSnippetDefaultFontSize ; default values
+			
+			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
+			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
+			; 2 prompt (text) pause prompt before pasting/launching the snippet
+			; 3 encode (boolean) true: automatically encode / false: do not encode
+			; 4 fixed width (boolean) true: fixed width / false: proportional width
+			; 5 font size (integer)
+			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+			
+			Gui, Font
+			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
+			GuiControlGet, arrPosFixedFont, Pos, f_blnFixedFont
+			g_intContentLabelY := arrPosFixedFontY
+			Gui, 2:Add, Text, x+20 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
+			GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
+			Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
+			GuiControlGet, arrPosFontSize, Pos, f_intFontSize
+            Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
+			GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
+			Gui, Font, w700
+			Gui, 2:Add, Button, x+20 yp vf_btnEnlarge gEnlargeSnippetContent, +
+			Gui, Font
+			GuiControlGet, arrPosEnlarge, Pos, f_btnEnlarge
+			
+			intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
+			GuiControl, Move, f_blnFixedFont, % "x" . arrPosFixedFontX + intMoveRight
+			GuiControl, Move, f_intFontSize, % "x" . arrPosFontSizeX + intMoveRight
+			GuiControl, Move, f_intFontUpDown, % "x" . arrPosUpDownX + intMoveRight
+			GuiControl, Move, f_lblFontSize, % "x" . arrPosFontSizeLabelX + intMoveRight
+			GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
+		}
+		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
 			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
-			, % (g_objEditedFavorite.FavoriteType = "Snippet" ? DecodeSnippet(g_objEditedFavorite.FavoriteLocation) : g_objEditedFavorite.FavoriteLocation)
+			, % g_objEditedFavorite.FavoriteLocation ; do not process snippet according to f_blnProcessEOLTab here
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		{
+			GuiControlGet, arrPosSnippetContent, Pos, f_strFavoriteLocation
+			g_intSnippetContentH := arrPosSnippetContentH
+		}
+			
+		if (g_objEditedFavorite.FavoriteType = "Snippet")
+			gosub, ContentEditFontChanged
+			
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
@@ -7550,7 +7753,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
 		}
-		else
+		else if (g_objEditedFavorite.FavoriteType <> "Snippet")
 			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
 			; {CUR_ placeholders are also supported for applications but we don't have enough room show this tip
 		
@@ -7560,9 +7763,10 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 	
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		Gui, 2:Add, Checkbox, x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged Checked, %lDialogFavoriteSnippetProcessEOLTab%
+		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
+		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
 		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
-		Gosub, ProcessEOLTabChanged ; update f_lblSnippetHelp text
+		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
 }
 else ; "Special" or "QAP"
@@ -7629,6 +7833,37 @@ Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_blnFavoriteDisabled " . (g_objEditedFa
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 arrNewFavoriteWindowPosition := ""
+arrPosTypeHelp := ""
+arrPosFixedFont := ""
+arrPosFixedFont := ""
+arrPosFontSizeLabel := ""
+arrPosEnlarge := ""
+arrPosSnippetContent := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EnlargeSnippetContent:
+;------------------------------------------------------------
+GuiControlGet, strEnlargeLabel, , f_btnEnlarge
+
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_ShortNameLabel
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_strFavoriteShortName
+GuiControl, % (strEnlargeLabel = "+" ? "Hide" : "Show"), f_TypeHelp
+
+GuiControl, Move, f_strFavoriteLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY) + 30
+	. " h" . (strEnlargeLabel = "+" ? g_intSnippetContentH + (g_intContentLabelY - g_intTypeHelpY) : g_intSnippetContentH)
+
+GuiControl, Move, f_lblLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_blnFixedFont, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_intFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_intFontUpDown, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_lblFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+GuiControl, Move, f_btnEnlarge, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
+
+GuiControl, , f_btnEnlarge, % (strEnlargeLabel = "+" ? "-" : "+")
 
 return
 ;------------------------------------------------------------
@@ -7768,11 +8003,6 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;" ; safety
-		; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
-		; 2 prompt (pause prompt before pasting/launching the snippet)
-		StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
-		
 		Gui, 2:Add, Text, x20 y50, %lDialogFavoriteSnippetSendMode%
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeText%
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), %lDialogFavoriteSnippetSendModeMacro%
@@ -7780,7 +8010,7 @@ if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 		
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 	}
 	else ; Folder, Document, Special, URL and FTP 
 	{
@@ -7918,6 +8148,25 @@ Gui, 2:Submit, NoHide
 
 ; change snippet prompt label according to snippet type
 GuiControl, 2:, f_lblSnippetPrompt, % L(lDialogFavoriteSnippetPromptLabel, (f_blnRadioSendModeMacro = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ContentEditFontChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+g_blnContentEditFixedFont := f_blnFixedFont
+g_blnContentEditFontSize := f_intFontSize
+
+if (g_blnContentEditFixedFont)
+	Gui, 2:Font, % "s" . g_blnContentEditFontSize, Courier New
+else
+	Gui, 2:Font, % "s" . g_blnContentEditFontSize
+GuiControl, Font, f_strFavoriteLocation
+Gui, 2:Font
 
 return
 ;------------------------------------------------------------
@@ -8088,7 +8337,12 @@ g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultNa
 g_strDefaultIconResource := g_strNewFavoriteIconResource 
 
 g_strNewFavoriteHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
+; check if hotkey is already used, if yes empty default new hotkey
+g_strNewFavoriteHotkey := (StrLen(GetHotkeyLocation(g_strNewFavoriteHotkey)) ? "" : g_strNewFavoriteHotkey)
+
 GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteHotkey)
+
+strExistingNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -8127,12 +8381,25 @@ ProcessEOLTabChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/snippets-help/")
+strSnippetFormatBefore := g_strSnippetFormat
+if (strSnippetFormatBefore = "raw" and f_blnProcessEOLTab)
+{
+	; DecodeSnippet: convert from "raw" content (as from ini file) to "display" format (when f_blnProcessEOLTab is true)
+	GuiControl, , f_strFavoriteLocation, % DecodeSnippet(f_strFavoriteLocation)
+	g_strSnippetFormat := "display"
+}
+if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
+{
+	; EncodeSnippet: convert from "display" format (when in gui f_blnProcessEOLTab was true) to "raw" content (when f_blnProcessEOLTab is false), ready for saving to in file
+	GuiControl, , f_strFavoriteLocation, % EncodeSnippet(f_strFavoriteLocation)
+	g_strSnippetFormat := "raw"
+}
 
-; encode or decode edit box content according to encoding state
-GuiControl, , f_strFavoriteLocation, % (f_blnProcessEOLTab ? DecodeSnippet(f_strFavoriteLocation) : EncodeSnippet(f_strFavoriteLocation))
-	
+; change help text according to encoding state
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
+
+strSnippetFormatBefore := ""
+
 return
 ;------------------------------------------------------------
 
@@ -9094,7 +9361,8 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 			return
 		}
 		else
-			strNewFavoriteLocation := (f_blnProcessEOLTab ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+			; if content of gui is "display", encode it to make it ready for saving to ini file
+			strNewFavoriteLocation := (g_strSnippetFormat = "display" ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
 	}
 
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
@@ -9359,7 +9627,12 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
-		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt
+		; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
+		; 2 prompt (text) pause prompt before pasting/launching the snippet
+		; 3 encode (boolean) true: automatically encode / false: do not encode
+		; 4 fixed width (boolean) true: fixed width / false: proportional width
+		; 5 font size (integer)
+		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt . ";" . f_blnProcessEOLTab . ";" . f_blnFixedFont . ";" . f_intFontSize
 	else
 	{
 		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
@@ -10115,7 +10388,7 @@ if !(g_intIconsManageRowsSettings)
 {
 	ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
 	g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
-	Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
+	; Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
 }
 else
 	g_intIconsManageRows:= g_intIconsManageRowsSettings
@@ -10716,7 +10989,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 		GuiControl, , f_strHotkeyKey, %SH_strActualKey%
 	}
 	if (P_intHotkeyType <> 1)
-		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc")
+		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc", "Menu")
 
 	Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
 	if StrLen(P_strDefaultHotkey)
@@ -10855,8 +11128,10 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 		GuiControl, , f_strHotkeyKey, %A_Tab%
 	else if (ErrorLevel = "Enter")
 		GuiControl, , f_strHotkeyKey, Enter
-	else ; Esc
+	else if (ErrorLevel = "Esc")
 		GuiControl, , f_strHotkeyKey, Escape
+	else ; Menu
+		GuiControl, , f_strHotkeyKey, AppsKey
 	GuiControl, Choose, f_drpHotkeyMouse, 0
 
 	return
@@ -11032,11 +11307,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	
 	; check favorites hotkeys
 	if !StrLen(strExistingLocation)
-	{
-		strExistingNameLocation := GetHotkeyNameLocation(strHotkey)
-		StringSplit, arrExistingNameLocation, strExistingNameLocation, |
-		strExistingLocation := arrExistingNameLocation2
-	}
+		strExistingLocation := GetHotkeyLocation(strHotkey)
 	
 	if StrLen(strExistingLocation)
 	{
@@ -11421,8 +11692,8 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
-~LCtrl::
-~RCtrl::
+~LCtrl:: ; use ~ to allow detecting double keypress
+~RCtrl:: ; use ~ to allow detecting double keypress
 ;------------------------------------------------------------
 
 strKeyPressed := A_ThisLabel
@@ -11431,9 +11702,9 @@ if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
 	or ((strKeyPressed = "~RCtrl") and !(g_blnRightControlDoublePressed))
 	return
 
-if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between presses
+if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
+	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
 	else if CanLaunch(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
@@ -11612,6 +11883,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
+	; Diag("CanNavigate Begin - strMouseOrKeyboard", strMouseOrKeyboard)
 	; Diag("CanNavigate Begin - g_strTargetClass", g_strTargetClass)
 	
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
@@ -12070,6 +12342,7 @@ OpenReopenFolder:
 OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
+OpenReopenCurrentFolder:
 ;------------------------------------------------------------
 
 if (g_blnChangeHotkeyInProgress)
@@ -12131,6 +12404,7 @@ if (g_blnDiagMode)
 */
 
 if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
+	or (g_objThisFavorite.FavoriteType = "Folder") and !StrLen(g_objThisFavorite.FavoriteLocation) ; no current location found
 {
 	gosub, OpenFavoriteCleanup
 	return
@@ -12190,20 +12464,26 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 {	
 	if InStr(strTempLocation, "{CUR_")
-	{
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
-	}
+		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation
+			, GetCurrentLocation(g_strTargetClass, g_strTargetWinId)) ; let user enter double-quotes as required by his arguments
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
-	; was if !FileExist(PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteLocation)))
+		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
-		MsgBox, 0, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
+		MsgBox, 4, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
 			, % L(lDialogFavoriteDoesNotExistPrompt, g_objThisFavorite.FavoriteLocation
-				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : ""))
-		gosub, OpenFavoriteCleanup
-		return
+				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : "")) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else
+		{
+			gosub, OpenFavoriteCleanup
+			return
+		}
 	}
 }
 
@@ -12212,6 +12492,29 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 {
 	g_strTargetWinId := "" ; never use target window when launched from alternative menu with new window
 	g_strHokeyTypeDetected := "Launch"
+}
+
+if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
+{
+	strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
+	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
+		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
+	{
+		Gui, 1:+OwnDialogs
+		MsgBox, 4, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
+			, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, strTempLocation) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else
+		{
+			gosub, OpenFavoriteCleanup
+			return
+		}
+	}
+
 }
 
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent or g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
@@ -12282,6 +12585,11 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
 if (g_blnAlternativeMenu)
 {
+	; ###_V(A_ThisLabel, "*g_strFullLocation", g_strFullLocation
+		; , "*g_objMenusIndex[A_ThisMenu].MenuPath", g_objMenusIndex[A_ThisMenu].MenuPath
+		; , "*g_intOriginalMenuPosition", g_intOriginalMenuPosition
+		; , "*GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition)", GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition).FavoriteName
+		; , "")
 	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
 	{
 		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
@@ -12363,10 +12671,7 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 if (g_objThisFavorite.FavoriteType = "Application")
 {
 	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
-	{
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-		strCurrentAppWorkingDir := g_strCurrentLocation
-	}
+		strCurrentAppWorkingDir := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 	else
 		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
@@ -12591,7 +12896,17 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 	}
 	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
-else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
+else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
+{
+	; GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
+	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
+	
+	g_objThisFavorite := Object() ; temporary favorite object
+	; g_objThisFavorite.FavoriteName not needed because menu object never used for menu building
+	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
+	g_objThisFavorite.FavoriteType := "Folder"
+}
+else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
 	If (InStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
 	{
@@ -12637,6 +12952,8 @@ arrThisNameLocation := ""
 strTempName := ""
 strMenuPath := ""
 objMenu := ""
+strReopenWindowsID := ""
+strReopenWindowClass := ""
 
 return
 ;------------------------------------------------------------
@@ -12673,8 +12990,8 @@ else
 		and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (like WebDAV)
 	{
 		if InStr(g_strFullLocation, "{CUR_")
-			; g_strCurrentLocation already set in OpenFavorite
-			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation, g_strCurrentLocation)
+			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation
+				, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
 		
 		; expand system variables
 		; make the location absolute based on the current working directory
@@ -12690,19 +13007,25 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 	strFullLaunchWith := g_objThisFavorite.FavoriteLaunchWith
 	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
 	if !(blnFileExist) and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
-		Oops(lOopsLaunchWithNotFound, strFullLaunchWith) ; leave g_strFullLocation as-is
+	{
+		Gui, 1:+OwnDialogs
+		MsgBox, 4, %g_strAppNameText%, % L(lOopsLaunchWithNotFound, strFullLaunchWith) . " " . lDialogFavoriteDoesNotExistEdit
+		IfMsgBox, Yes
+		{
+			g_blnAlternativeMenu := true
+			g_strAlternativeMenu := lMenuAlternativeEditFavorite
+		}
+		else 
+			g_strFullLocation := ""
+	}
 	else
 		g_strFullLocation := strFullLaunchWith . " """ . g_strFullLocation . """" ; enclose document path in double-quotes
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
-{
-	if InStr(g_objThisFavorite.FavoriteArguments, "{CUR_")
-		Gosub, GetCurrentLocation ; update g_strCurrentLocation
-	else
-		g_strCurrentLocation := ""
-	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, g_strCurrentLocation) ; let user enter double-quotes as required by his arguments
-}
+	; let user enter double-quotes as required by his arguments
+	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : ""))
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -12868,8 +13191,6 @@ return
 PasteSnippet:
 ;------------------------------------------------------------
 
-strWaitKey := "Enter"
-strWaitKeyText := lTooltipSnippetWaitEnter
 strWaitTime := 10
 
 strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith . ";;;" ; safety
@@ -12885,20 +13206,15 @@ WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
 	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
-		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), strWaitKeyText, strWaitTime)
-	; Diag("KeyWait Before - strWaitKey / strWaitTime", strWaitKey . " / " . strWaitTime)
-	KeyWait, %strWaitKey%, D T%strWaitTime%
-	intErrorLevel := ErrorLevel
+		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), lTooltipSnippetWaitEnter, lTooltipSnippetWaitSpace, strWaitTime)
+	Input, strTemp, T%strWaitTime%, {Enter}{Space}
+	strErrorLevel := ErrorLevel
 	ToolTip
-	; Diag("KeyWait After - intErrorLevel", intErrorLevel)
-	if (intErrorLevel)
+	if !InStr(strErrorLevel, "EndKey:")
 	{
 		Gosub, PasteSnippetCleanup
 		return
 	}
-	; not required if keywait for Modifier keys (Alt, Control, etc.)
-	else
-		SendEvent, {Backspace} ; revert the Enter key press
 }
 else
 	WinActivate, ahk_id %g_strTargetWinId%
@@ -12912,6 +13228,7 @@ if (blnTextSnippet)
 	Sleep, 100 ; safety delay
 	ClipBoard := ""
 	Sleep, 100 ; safety delay
+	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
@@ -12934,6 +13251,7 @@ if (blnTextSnippet)
 }
 else ; snippet of type Macro
 {
+	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 
@@ -13006,9 +13324,7 @@ else ; snippet of type Macro
 }
 
 PasteSnippetCleanup:
-strWaitKey := ""
-strWaitKeyText := ""
-strWaitTim := ""
+strWaitTime := ""
 intErrorLevel := ""
 blnTextSnippet := ""
 objPrevClipboard := ""
@@ -13689,6 +14005,7 @@ return
 
 ;------------------------------------------------------------
 Check4Update:
+Check4UpdateNow:
 ;------------------------------------------------------------
 
 strUrlCheck4Update := "http://quickaccesspopup.com/latest/latest-version-4.php"
@@ -13842,7 +14159,7 @@ if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
 */
 	gosub, Check4UpdateDialogProd
 	
-else if (A_ThisMenuItem = lMenuUpdateAmpersand)
+else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateNow")
 {
 	MsgBox, 4, % l(lUpdateTitle, g_strAppNameText), % l(lUpdateYouHaveLatest, g_strAppVersion, g_strAppNameText)
 	IfMsgBox, Yes
@@ -14750,101 +15067,99 @@ return
 
 
 ;------------------------------------------------------------
-GetCurrentLocation:
-; update g_strCurrentLocation with current location in Explorer, Directory Opus, Total Commander or file dialog box window
+GetCurrentLocation(strClass, strWinID)
+; return current location in in Explorer, Directory Opus, Total Commander or file dialog box window identified by class and windows ID
 ;------------------------------------------------------------
-
-g_strCurrentLocation := ""
-
-if WindowIsExplorer(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass)
-	or WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 {
-	if WindowIsDirectoryOpus(g_strTargetClass)
+	global g_strDOpusListText
+
+	strLocation := ""
+	
+	if WindowIsExplorer(strClass) or WindowIsTotalCommander(strClass) or WindowIsDirectoryOpus(strClass)
+		or WindowIsDialog(strClass, strWinID)
 	{
-		Gosub, RefreshDOpusListText
-		objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-		
-		; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-		; Lines will have active_lister="1" if they represent tabs from the active lister.
-		; To get the active tab you want the line with active_lister="1" and tab_state="1".
-		; tab_state="1" means it's the selected tab, on the active side of the lister.
-		; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
-		; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
-
-		for intIndex, objLister in objDOpusListers
-			if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
-			{
-				g_strCurrentLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
-				break
-			}
-	}
-	else ; Explorer, TotalCommander or dialog boxes
-	{
-		objPrevClipboard := ClipboardAll ; Save the entire clipboard
-		ClipBoard := ""
-
-		; Under Windows 7 and 8.1 (not tested with Windows 10)...
-		; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
-		; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
-		; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
-		if (g_strTargetClass = "#32770")
-			intWaitTimeIncrement := 300 ; time allowed for dialog boxes
-		else
-			intWaitTimeIncrement := 150 ; time allowed for Explorer
-
-		if (g_blnDiagMode)
-			intTries := 8
-		else
-			intTries := 3
-
-		strAddThisFolderWindowTitle := ""
-		Loop, %intTries%
+		if WindowIsDirectoryOpus(strClass)
 		{
-			Sleep, intWaitTimeIncrement * A_Index
-			WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
-		} Until (StrLen(strAddThisFolderWindowTitle))
+			Gosub, RefreshDOpusListText
+			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+			
+			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+			; Lines will have active_lister="1" if they represent tabs from the active lister.
+			; To get the active tab you want the line with active_lister="1" and tab_state="1".
+			; tab_state="1" means it's the selected tab, on the active side of the lister.
+			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
+			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
 
-		if WindowIsTotalCommander(g_strTargetClass)
-		{
-			cm_CopySrcPathToClip := 2029
-			SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; 
-			WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+			for intIndex, objLister in objDOpusListers
+				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
+				{
+					strLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
+					break
+				}
 		}
-		else ; Explorer or dialog boxes
+		else ; Explorer, TotalCommander or dialog boxes
 		{
+			; use the clipblard to get the current location from dialog box or Total Commander
+			objPrevClipboard := ClipboardAll ; Save the entire clipboard
+			ClipBoard := ""
+
+			; Obsolete notes (since Shell.Application is used to get Explore current location) - but keep here anyway
+			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
+			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
+			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
+
+
+			intTries := 3
+			intWaitTimeIncrement := 150 ; time allowed to get title
+			strAddThisFolderWindowTitle := ""
 			Loop, %intTries%
 			{
 				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
-				Sleep, intWaitTimeIncrement * A_Index
-				SendInput, ^c ; Copy
-				Sleep, intWaitTimeIncrement * A_Index
-				WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
-				intTriesIndex := A_Index
-			} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
-			if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
-				SendInput, {Esc}
-		}
+				WinGetTitle, strAddThisFolderWindowTitle, A ; to check later if this window is closed unexpectedly
+			} Until (StrLen(strAddThisFolderWindowTitle))
+			strWindowActiveTitle := strAddThisFolderWindowTitle ; now these are the same... check later if the window was closed unexpectedly
+			
+			if WindowIsTotalCommander(strClass)
+			{
+				cm_CopySrcPathToClip := 2029
+				SendMessage, 0x433, %cm_CopySrcPathToClip%, , , ahk_class TTOTAL_CMD ; put current locatin in Clipboard
+				ClipWait, 1
+				strLocation := Clipboard
+			}
+			else if WindowIsExplorer(strClass)
+			{
+				; Gets the active IE or Explorer window
+				for objExplorer in ComObjCreate("Shell.Application").Windows
+					if (objExplorer.HWND = strWinID)
+					{
+						strLocation :=  UriDecode(objExplorer.LocationURL)
+						Break
+					}
+			}
+			else ; dialog boxes
+			{
+				intTries := 3
+				intWaitTimeIncrement := 300 ; time allowed for dialog boxes
+				Loop, %intTries%
+				{
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, {F4}{Esc} ; F4 move the caret the "Go To A Different Folder box" and {Esc} select it content ({Esc} could be replaced by ^a to Select All)
+					Sleep, intWaitTimeIncrement * A_Index
+					SendInput, ^c ; Copy
+					Sleep, intWaitTimeIncrement * A_Index
+					WinGetTitle, strWindowActiveTitle, A ; to check if the window was closed unexpectedly
+				} Until (StrLen(ClipBoard) or (strAddThisFolderWindowTitle <> strWindowActiveTitle))
+				if (A_ThisLabel = "AddThisFolderXpress") ; escape from address bar
+					SendInput, {Esc}
+				strLocation := Clipboard
+			}
 
-		g_strCurrentLocation := ClipBoard
-		Clipboard := objPrevClipboard ; Restore the original clipboard
-		
-		/*
-		if (g_blnDiagMode)
-		{
-			Diag("Menu", A_ThisLabel)
-			Diag("Class", g_strTargetClass)
-			Diag("Tries", intTries)
-			Diag("TriesIndex", intTriesIndex)
-			Diag("AddedFolder", g_strCurrentLocation)
+			Clipboard := objPrevClipboard ; Restore the original clipboard
 		}
-		*/
 	}
-		
-}
 
-return
+	return strLocation
+}
 ;------------------------------------------------------------
 
 
@@ -15065,6 +15380,18 @@ GetFirstName4Location(strLocation)
 
 
 ;------------------------------------------------------------
+GetHotkeyLocation(strHotkey)
+;------------------------------------------------------------
+{
+	strNameLocation := GetHotkeyNameLocation(strHotkey)
+	StringSplit, arrNameLocation, strNameLocation, |
+	
+	return arrNameLocation2
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GetHotkeyNameLocation(strHotkey)
 ;------------------------------------------------------------
 {
@@ -15139,9 +15466,9 @@ GetHotkeysText(ByRef strMouseHotkey, ByRef strKeyboardHotkey)
 Hotkey2Text(strHotkey, blnShort := false)
 ;------------------------------------------------------------
 {
-	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButto, strMouseButtonsWithDefault)
+	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButton, strMouseButtonsWithDefault)
 
-	return HotkeySections2Text(strModifiers, strMouseButto, strOptionsKey, blnShort)
+	return HotkeySections2Text(strModifiers, strMouseButton, strOptionsKey, blnShort)
 }
 ;------------------------------------------------------------
 
@@ -15150,6 +15477,9 @@ Hotkey2Text(strHotkey, blnShort := false)
 HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 ;------------------------------------------------------------
 {
+	if (strKey = "sc15D")
+		strKey := lDialogMenuKey
+	
 	if (strMouseButton = "None") ; do not compare with lDialogNone because it is translated
 		or !StrLen(strModifiers . strMouseButton . strKey) ; if all parameters are empty
 		str := lDialogNone ; use lDialogNone because this is displayed
@@ -15498,6 +15828,7 @@ CollectRunningApplications(strDefaultPath)
 
 ;------------------------------------------------------------
 EncodeSnippet(strSnippet)
+; convert from display format (when f_blnProcessEOLTab is true) to raw content, ready for saving to in file
 ;------------------------------------------------------------
 /*
 https://rosettacode.org/wiki/Special_characters#AutoHotkey
@@ -15525,12 +15856,9 @@ No need to process:
 - | (pipe) used as separator in favorites lines in ini file are already replaced with the escape sequence "Ð¡þ€"
 */
 {
-	; loop, Parse, strSnippet
-	;	###_V(A_Index, A_LoopField, Asc(A_LoopField))
-	StringReplace, strSnippet, strSnippet, ``, ````, A
-	StringReplace, strSnippet, strSnippet, `n, ``n, A
-	StringReplace, strSnippet, strSnippet, `t, ``t, A
-	; ###_V("After Encode", strSnippet)
+	StringReplace, strSnippet, strSnippet, ``, ````, A ;  replace backticks with double-backticks
+	StringReplace, strSnippet, strSnippet, `n, ``n, A  ; encode end-of-lines
+	StringReplace, strSnippet, strSnippet, `t, ``t, A  ; encode tabs
 	
 	return strSnippet
 }
@@ -15539,12 +15867,13 @@ No need to process:
 
 ;------------------------------------------------------------
 DecodeSnippet(strSnippet)
+; convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 ;------------------------------------------------------------
 {
-	StringReplace, strSnippet, strSnippet, ````, ``, A
-	StringReplace, strSnippet, strSnippet, ``n, `r`n, A
-	StringReplace, strSnippet, strSnippet, ``t, `t, A
-	; ###_V("After Decode", strSnippet)
+	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A ; preserve double-backticks
+	StringReplace, strSnippet, strSnippet, ``n, `r`n, A          ; decode end-of-lines
+	StringReplace, strSnippet, strSnippet, ``t, `t, A            ; decode tabs
+	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A   ; restore double-backticks
 	
 	return strSnippet
 }
@@ -15612,6 +15941,12 @@ UriDecode(str)
 			StringReplace, str, str, `%%hex%, % Chr("0x" . hex), All
 		Else
 			Break
+
+	; added by JL
+	StringReplace, str, str, file:///
+	StringReplace, str, str, file: ; for network drives starting with file:\\, keep only \\
+	StringReplace, str, str, /, \, A
+
 	return str
 }
 ;------------------------------------------------
@@ -15751,11 +16086,20 @@ FileExistInPath(ByRef strFile)
 		return, False
 	
 	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%
-	
 	if !InStr(strFile, "\") ; if no path in filename
 		strFile := WhereIs(strFile) ; search if file exists in path env variable or registry app paths
 	else
 		strFile := PathCombine(A_WorkingDir, strFile) ; make relative path absolute
+	
+	if (SubStr(strFile, 1, 2) = "\\") ; this is an UNC path
+	; check if it is the UNC root - if yes, return true without confirming if path exist because FileExist bug(?) with UNC root path
+	{
+		intPos := InStr(strFile, "\", false, 3)
+		if !(intPos) ; there is no "\" after the domain or IP address, this is the UNC root
+			return true
+		if !StrLen(strTemp) ; there is nothing after the "\" following the domain or IP address, this is the UNC root
+			return true
+	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
 }
@@ -16091,7 +16435,7 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 	CoordMode, Mouse, Screen
 	MouseGetPos, intMouseX, intMouseY
 	SysGet, intMonitorsCount, MonitorCount
-	Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
+	; Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
 	Loop %intMonitorsCount%
     {
 		SysGet, arrCurrentMonitor, Monitor, %A_Index%
@@ -16101,9 +16445,9 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			intLeft := arrCurrentMonitorLeft
 			intHeight := arrCurrentMonitorBottom - arrCurrentMonitorTop
 			intWidth := arrCurrentMonitorRight  - arrCurrentMonitorLeft
-			Diag("ActiveMonitorInfo - Monitor Index", A_Index)
-			Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
-			Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
+			; Diag("ActiveMonitorInfo - Monitor Index", A_Index)
+			; Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
+			; Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
 			
 			return
 		}
@@ -16308,6 +16652,51 @@ ExternalMenuFolderIsReadOnly(strFile)
 	}
 
 	return g_objExternalMenuFolderReadOnly[strFolder]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ScriptInfo(Command)
+; From Lexikos (https://autohotkey.com/boards/viewtopic.php?t=9656)
+; Returns the text that would have been shown in AutoHotkey's main window if you had called Command
+; Used to retreive last Lines excuted when exiting if diag mode Enabled
+; Test script (retain About 400 last Lines fo code):
+	; #InstallKeybdHook
+	; Loop, 1000
+		; A := A_Index
+	; Clipboard := ScriptInfo("ListLines")
+	; ExitApp
+;------------------------------------------------------------
+{
+    static hEdit := 0, pfn, bkp
+    if !hEdit {
+        hEdit := DllCall("GetWindow", "ptr", A_ScriptHwnd, "uint", 5, "ptr")
+        user32 := DllCall("GetModuleHandle", "str", "user32.dll", "ptr")
+        pfn := [], bkp := []
+        for i, fn in ["SetForegroundWindow", "ShowWindow"] {
+            pfn[i] := DllCall("GetProcAddress", "ptr", user32, "astr", fn, "ptr")
+            DllCall("VirtualProtect", "ptr", pfn[i], "ptr", 8, "uint", 0x40, "uint*", 0)
+            bkp[i] := NumGet(pfn[i], 0, "int64")
+        }
+    }
+ 
+    if (A_PtrSize=8) {  ; Disable SetForegroundWindow and ShowWindow.
+        NumPut(0x0000C300000001B8, pfn[1], 0, "int64")  ; return TRUE
+        NumPut(0x0000C300000001B8, pfn[2], 0, "int64")  ; return TRUE
+    } else {
+        NumPut(0x0004C200000001B8, pfn[1], 0, "int64")  ; return TRUE
+        NumPut(0x0008C200000001B8, pfn[2], 0, "int64")  ; return TRUE
+    }
+ 
+    static cmds := {ListLines:65406, ListVars:65407, ListHotkeys:65408, KeyHistory:65409}
+    cmds[Command] ? DllCall("SendMessage", "ptr", A_ScriptHwnd, "uint", 0x111, "ptr", cmds[Command], "ptr", 0) : 0
+ 
+    NumPut(bkp[1], pfn[1], 0, "int64")  ; Enable SetForegroundWindow.
+    NumPut(bkp[2], pfn[2], 0, "int64")  ; Enable ShowWindow.
+ 
+    ControlGetText, text,, ahk_id %hEdit%
+    return text
 }
 ;------------------------------------------------------------
 
