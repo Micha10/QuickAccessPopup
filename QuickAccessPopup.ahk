@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.5.1 (2017-09-07)
+- create new settings file QuickAccessPopup.ini with  Unicode encoding; this change allows the use of extended characters in favorite's name, location or content
+- at QAP startup, check if QuickAccessPopup.ini encoding is ANSI and, if yes, convert it to Unicode encoding and inform user
+- fix bug expand placeholder {CUR_LOC} in application favorite's working directory before checking if directory exists
+
 Version: 8.5 (2017-09-04)
   
 Menu key
@@ -75,6 +80,7 @@ Bug fixes
 - allow favorite location to be a UNC root path (like \\127.0.0.1\ or \\MyDomain\) assuming the location is online because Windows does not allow to check if an UNC root location is available (on my system, Windows 10 defaults to the "Documents" folder if the UNC drive is not mounted)
 - fix bug when adding a QAP feature and when its default hotkey is already in use for another favorite
 - fix bug when processing backtick (accent grave) in snippets (used for code snippets) and add help about backticks in add/edit dialog box
+- fix bug Alternative menu hotkey reappearing after delete when returning to Options dialog box until QAP is restarted
 - fix bug && displayed in Drag & Drop help window title instead of &
 - add diagnostic code to track the "71 hotkeys limit" bug - if someone encounter this error message, please contact me
 
@@ -1599,7 +1605,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.5
+;@Ahk2Exe-SetVersion v8.5.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1673,7 +1679,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.5.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3094,7 +3100,23 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Hotkey5=|{Switch Folder or App}|+^W
 
 )
-		, %g_strIniFile%
+		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
+}
+else
+{
+	; check if the ini file is Unicode
+	objIniFile := FileOpen(g_strIniFile, "r") ; open the file read-only
+	strFileEncoding := (InStr(objIniFile.Encoding, "UTF-") ? objIniFile.Encoding : "")
+	objIniFile.Close()
+	if !StrLen(strFileEncoding) ; this is an ANSI file
+	{
+		FileCopy, %g_strIniFile%, %g_strIniFile%-ANSI-BK, 1 ; the backup file should not exist but, in case, overwrite it
+		FileRead, strIniFileContent, %g_strIniFile% ; read the actual ANSI file
+		FileDelete, %g_strIniFile% ; delete the ini file
+		Sleep, 20 ; safety
+		FileAppend, %strIniFileContent%, %g_strIniFile%, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
+		MsgBox, 0, % L(lOopsTitle, g_strAppNameText, g_strAppVersion), %lDialogIniConvertedToUnicode%
+	}
 }
 
 Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
@@ -3242,6 +3264,9 @@ blnActiveFileManangerOK := ""
 strActiveFileManagerSystemName := ""
 strFileList := ""
 intNumberOfBackups := ""
+objIniFile := ""
+strFileEncoding := ""
+strIniFileContent := ""
 
 return
 ;------------------------------------------------------------
@@ -12496,7 +12521,10 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 
 if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
 {
-	strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
+	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
+		strTempLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
+	else
+		strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{

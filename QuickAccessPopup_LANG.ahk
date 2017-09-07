@@ -184,6 +184,7 @@ global lDialogIconsManageParentMenu := "Favorite parent menu" ; new
 global lDialogIconsManagePrevious := "&Previous" ; new
 global lDialogIconsManageSetDefaultIcon := "Set default icon" ; new
 global lDialogIconsManageTitle := "Manage Icons - ~1~ ~2~" ; new
+global lDialogIniConvertedToUnicode := "Your settings file has been converted to the Unicode encoding.`n`nThis change allows the use of extended characters in favorite's name, location or content."
 global lDialogInvalidHotkey := "With your current system keyboard layout, the hotkey ""~1~"" could not be used as a trigger for the popup menu (not a valid key name error).`n`nPlease, open the ""Settings"" window from the Tray menu and click ""Options"". In this dialog box, choose another shortcut for ""~2~""."
 global lDialogInvalidHotkeyFavorite := "With your current system keyboard layout, the hotkey ""~1~"" could not be used as a trigger for this favorite (not a valid key name error).`n`nPlease, choose another shortcut for favorite ""~2~"" and location ""~3~""." ; new
 global lDialogInvalidHotkeyQAPFeature := "With your current system keyboard layout, the hotkey ""~1~"" could not be used as a trigger for this QAP feature (not a valid key name error).`n`nPlease, choose another shortcut for QAP feature ""~2~""." ; new
