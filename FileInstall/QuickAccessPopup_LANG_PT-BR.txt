@@ -3,6 +3,7 @@ lAboutText2	O ~1~ é escrito por Jean Lalonde usando a linguagem de programação`n
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Suporte em <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Sobre - ~1~ ~2~
+lAboutUserComputerName	Nome de usuário: ~1~`nComputador: ~2~
 lAlternativeMenuTrayTipCopyLocation	Selecione o favorito para copiar
 lAlternativeMenuTrayTipEditFavorite	Selecione o favorito para editar
 lAlternativeMenuTrayTipNewWindow	Selecione a pasta para abrir em uma nova janela
@@ -16,6 +17,13 @@ lContextAddFolderXpress	Adicionar Pasta ao menu Expresso do Quick Access Popup
 lContextAddShortcut	Importar atalho do Windows para o menu do Quick Access Popup
 lContextShowMenu	Exibir menu do Quick Access Popup
 lContextShowMenuAternative	Exibir menu Alternativo do Quick Access Popup
+lControlToolTipAlwaysOnTopOff	Manter esta janela visível sempre no topo
+lControlToolTipAlwaysOnTopOn	Parar de manter esta janela sempre no topo
+lControlToolTipMoveDown	Mover favorito(s) selecionado(s) para baixo
+lControlToolTipMoveUp	Mover favorito(s) selecionado(s) para cima
+lControlToolTipParentMenu	Ir para o menu principal
+lControlToolTipPreviousMenu	Voltar para o menu anterior
+lControlToolTipSeparator	Inserir um separador na posição atual do menu
 lCopyLocationCopiedToClipboard	Caminho ou URL copiada para a Área de Transferência
 lDiagModeCaution	O ~1~ está sendo executado no modo de diagnóstico.`n`nSerão coletadas informações sobre a execução do aplicativo para o arquivo:`n~2~`n`nNada será enviado sem o seu consentimento.`n`nDeseja manter o modo de diagnóstico ATIVADO?
 lDiagModeExit	O ~1~ coletou informações de diagnóstico para o arquivo ~2~.
@@ -87,6 +95,7 @@ lDialogExternalWriteAccessMessage	Mensagem de acesso de escrita do menu comparti
 lDialogExternalWriteAccessUsers	Usuários com acesso de escrita neste menu compartilhado
 lDialogFavoriteDisabled	Ocultar este favorito do menu
 lDialogFavoriteDisabledGroupMember	Desativar este item no grupo
+lDialogFavoriteDoesNotExistEdit	Você deseja editar este favorito?
 lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está disponível.`n`nSe este favorito está em uma unidade de rede, tente novamente depois da autenticação de rede.
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
 lDialogFavoriteDropdownEmpty	Por favor, escolha um item na lista do menu suspenso ~1~.
@@ -114,7 +123,9 @@ lDialogFavoriteRemoveTitle	Remover Favorito - ~1~
 lDialogFavoriteSelectType	Selecione o tipo de favorito para adicionar.`n`nNa próxima janela, você dará ao seu favorito:`n- um nome`n- um conteúdo (dependendo do tipo)`n- várias configurações (ícone, atalho, etc.)`n`nEscolha o tipo do novo favorito e clique "~1~".
 lDialogFavoriteShortNameLabel	Nome curto para o menu
 lDialogFavoriteSnippetEmpty	O conteúdo está vazio. Por favor, entre o conteúdo recortado.
-lDialogFavoriteSnippetHelpNoProcess	Insira ``n para final da linha e ``t para tabulação.
+lDialogFavoriteSnippetFixedFont	Fonte com largura fixa
+lDialogFavoriteSnippetFontSize	Tamanho da fonte
+lDialogFavoriteSnippetHelpNoProcess	Insira ``n para final da linha e ``t para tabulação. Insira ```` (aspas invertidas duplas) para aspas invertidas.
 lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações e Enter para inserir finais de linhas
 lDialogFavoriteSnippetHelpWeb	Veja <a href="~1~">Ajuda para Recortes</a> para codificação de caracteres especiais e comandos.
 lDialogFavoriteSnippetProcessEOLTab	Automaticamente codificar finais de linhas e tabulações
@@ -141,12 +152,14 @@ lDialogFavoriteTypesHelp9	Inicie um "Grupo" de favoritos, todos em um atalho!`n`
 lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicativo|Pasta E&special|&Link|Site F&TP|Recurso &QAP|Sub&menu|&Grupo||||Recorte|Menu &Compartilhado
 lDialogFavoriteTypesLocationLabels	Pasta (caminho)|Documento (caminho e nome do arquivo)|Aplicativo (caminho e nome do arquivo)||Link (URL)|Site FTP(URL)|||||||Conteúdo|Arquivo de configurações externo (caminho)|
 lDialogFavoriteTypesShortNames	Pasta|Documento|Aplicativo|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Recorte|Compartilhado
+lDialogFavoriteWorkingDirNotFoundPrompt	A configuração avançada "Iniciar em" do favorito "~1~" não foi encontrada:`n~2~
+lDialogFavoriteWorkingDirNotFoundTitle	Parâmetro 'Iniciar em' não encontrado - ~1~
 lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
 lDialogFoldersPlaceholders	Você pode inserir o marcador de posição {CUR_LOC} para inserir o local de onde este favorito é iniciado
 lDialogGetWinInfo	Para identificar a janela da qual deseja obter título e classe, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar informações para a Área de Transferência?
-lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaço</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
+lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaço</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a>, <a id="~4~">escape</a>`nor <a id="~5~">tecla menu (aplicativo)</a>
 lDialogHotkeys	Teclas de Atalho
 lDialogHotkeysManageAbout	Atalhos atualmente ativos em ~1~
 lDialogHotkeysManageAlternative	Alternativo
@@ -174,6 +187,7 @@ lDialogInvalidHotkeyQAPFeature	Com o layout atual do seu teclado, a tecla de ata
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Iniciar com este aplicativo
 lDialogMaximized	Maximizado
+lDialogMenuKey	Tecla Menu
 lDialogMenuNotMoveUnderItself	O menu "~1~" não pode ser movido abaixo de si mesmo
 lDialogMinimized	Minimizado
 lDialogMouse	Mouse
@@ -188,6 +202,7 @@ lDialogOn	Ligado
 lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
+lDialogOtherHotkeys	Outras teclas de atalho para o menu principal
 lDialogReadOnly	Somente leitura
 lDialogRemoveMultipleFavorites	Deseja realmente remover favoritos do ~1~ ou submenus?
 lDialogSearch	Pesquisar
@@ -266,7 +281,8 @@ lGuiClose	Fechar
 lGuiCloseAmpersand	&Fechar
 lGuiDonate	Suporte
 lGuiDropFilesHelp	Ajuda Arrastar && Soltar
-lGuiDropFilesIncentive	Você pode arrastar & soltar os seguintes tipos de favoritos`nna janela do ~1~:`n`n- ~2~`n- ~3~`n- ~4~
+lGuiDropFilesIncentive	Você pode arrastar & soltar os seguintes tipos de favoritos na janela do ~1~:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
+lGuiDropFilesIncentive2	Para lhe ajudar a arrastar um ou mais arquivos, você pode fazer com que a janela de Configurações fique "sempre no topo", clicando no ícone de fixar do lado esquerdo da janela.
 lGuiEditFavorite	Editar
 lGuiGroupClosing	Fechando janelas do Explorer
 lGuiGroupRestoreDelay	Atraso entre a restauração de favoritos
@@ -300,6 +316,7 @@ lGuiTitle	Configurações - ~1~ ~2~
 lHelpTabAddingFavorite	Adicionando Favoritos
 lHelpTabGettingStarted	Começando
 lHelpTabQAPFeatures	Recursos do QAP
+lHelpTabSharedMenus	Menus Compartilhados
 lHelpTabTipsAndTricks	Dicas e Truques
 lHelpText11	Ao ser iniciado, o Quick Access Popup adiciona um ícone na Área de Notificação e aguarda pelos comandos. Quando você quiser iniciar uma das suas PASTAS, DOCUMENTOS, APLICATIVOS, LINKS DA WEB, SITE FTP ou RECORTE preferidas, aperte a tecla de atalho do QAP [~1~] ou [~2~] e, no menu popup, selecione o favorito desejado.
 lHelpText12	Quando você selecionar uma PASTA favorita no Windows Explorer ou uma caixa de diálogo de arquivo*, o Quick Access Popup instantaneamente "navega" a janela atual até esta pasta! *Este recurso deve ser ativado em Opções.
@@ -317,6 +334,10 @@ lHelpText42	- No menu da Área de Notificação, clique direito no ícone do Quick A
 lHelpText43	- Configure os disparadores de menu do Quick Access Popup: escolha os botões preferidos do mouse ou atalhos de teclado em "Configurações > Opções > Teclas de atalho do menu".
 lHelpText44	- Também em "Opções": escolha o idioma preferido, tamanho dos ícones do menu, cores das janelas. Selecione o número de pastas recentes para exibir, adicione atalhos numéricos do teclado ao menu de pastas ou lembretes de atalhos. Fixe o menu popup em uma posição ou lembre a posição da janela de Configurações.
 lHelpText45	- Usuários do Directory Opus, veja <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">esta página</a> para informações adicionais.`n- Usuários do Total Commander, veja <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">esta página</a> para informações adicionais.`n- Usuários de outros gerenciadores de arquivos, vejam <ahref="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">esta página</a> para informações adicionais em QAPconnect.
+lHelpText51	Os menus compartilhados permitem gerenciar os favoritos em um arquivo de configuração que pode ser compartilhado por usuários diferentes ou usado pelo mesmo usuário em computadores diferentes. Há 3 tipos de menus Compartilhados:
+lHelpText52	Os menus Compartilhados podem conter quaisquer tipos de favoritos, exceto outros menus Compartilhados. O arquivo de configurações do menu Compartilhado pode ser salvo em uma unidade de rede ou uma pasta compartilhada (como o Dropbox) e usado em PCs diferentes. O QAP suporta totalmente o trabalho colaborativo evitando conflitos de modificação.
+lHelpText53	Para criar ou adicionar um menu compartilhado, na caixa de diálogo Adicionar Favorito, selecione Menu Compartilhado e pressione Continuar. No local do arquivo de configurações do menu Compartilhado, entre o caminho e o nome do arquivo de configurações externo. A extensão do arquivo deve ser .ini. Se o arquivo de configurações já existir, o seu conteúdo será adicionado em seu menu popup. Se ele não existir, ele será criado como um submenu em branco.
+lHelpText54	Configure um Catálogo de Menus Compartilhados em Opções (aba "Geral") para tornar mais fácil para seus usuários inscreverem-se em menus Compartilhados.
 lHelpTextLead	O Quick Access Popup lhe permite mover rapidamente entre suas pastas, documentos e páginas da web mais usadas com frequência!
 lHelpTitle	Ajuda - ~1~ ~2~
 lImpExpAborted	abortado
@@ -401,6 +422,7 @@ lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
 lMenuRefreshMenu	Atualizar menus das Pastas Ativas
 lMenuReload	Reiniciar
+lMenuReopenCurrentFolder	Reabrir Pasta Atual na Caixa de Diálogo
 lMenuRunAtStartupAmpersand	Executa&r na Inicialização
 lMenuSettings	Configurações
 lMenuStartMenu	Menu Iniciar
@@ -467,6 +489,7 @@ lOptionsChangeFolderInDialogCheckbox	Clique "OK" para confirmar as possíveis con
 lOptionsChangeFolderInDialogText	ATIVE esta opção para habilitar a navegação por pastas em caixas de diálogo (Abrir, Salvar Como, etc.) mas, por favor, leia o seguinte aviso.`n`nVocê deve usar este recurso SOMENTE em caixas de diálogo de "arquivo". Se você usá-lo em outros tipos de caixas de diálogo, por exemplo, em uma caixa de diálogo "Opções", tentar alterar a pasta pode modificar e salvar valores na caixa de diálogo sem nenhuma notificação.
 lOptionsChangeHotkey	Alterar
 lOptionsCheck4Update	Verificar atualizações
+lOptionsCheck4UpdateNow	verificar agora
 lOptionsControlDoublePressed	Abrir menu principal com Ctrl + Ctrl (tecla Control Direita ou Esquerda pressionada duas vezes)
 lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
@@ -504,6 +527,7 @@ lOptionsRecentFoldersPrompt	Pastas Recentes
 lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAtStartup	Executa&r na Inicialização
 lOptionsSelectCatalogueRoot	Selecione a pasta raiz do Catálogo de Menus Compartilhados
+lOptionsSnippetsHelp	Padrões de recortes (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Selecione o gerenciador de arquivos para abrir pastas em uma nova janela.
 lOptionsTabMenuOptionsIntro	Faça o menu popup aparecer da maneira que quiser!
 lOptionsTabMouseAndKeyboardIntro	Defina os botões do mouse e teclas de atalho do teclado que irão disparar o menu principal do ~1~.
@@ -523,8 +547,9 @@ lReloadPrompt	~1~ foi alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? Alt
 lTCMenuName	Lista de Acesso de Pastas do TC
 lTCWinCmdLocation	Local do WinCmd.ini
 lTooltipSnippetWaitEnter	Enter
-lTooltipSnippetWaitMacro	Aperte "~1~" para executar o macro (aguardando ~2~ segundos)
-lTooltipSnippetWaitText	Selecione o ponto de inserção e aperte "~1~" para colar o recorte (aguardando ~2~ segundos)
+lTooltipSnippetWaitMacro	Aperte "~1~" ou "~2~" para executar o macro (aguardando ~3~ segundos)
+lTooltipSnippetWaitSpace	Espaço
+lTooltipSnippetWaitText	Selecione o ponto de inserção e aperte "~1~" ou "~2~" para colar o recorte (aguardando ~3~ segundos)
 lTrayTipInstalledDetail	~1~ para iniciar favoritos
 lTrayTipInstalledTitle	~1~ ~2~ pronto!
 lTrayTipWorkingDetail	Criando menus
