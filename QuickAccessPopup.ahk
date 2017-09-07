@@ -35,6 +35,7 @@ Version: 8.5.1 (2017-09-07)
 - create new settings file QuickAccessPopup.ini with  Unicode encoding; this change allows the use of extended characters in favorite's name, location or content
 - at QAP startup, check if QuickAccessPopup.ini encoding is ANSI and, if yes, convert it to Unicode encoding and inform user
 - fix bug expand placeholder {CUR_LOC} in application favorite's working directory before checking if directory exists
+- fix bug display "Reset default hotkey" in "Select hotkey" dialog box when there is no default
 
 Version: 8.5 (2017-09-04)
   
@@ -8242,7 +8243,7 @@ if StrLen(g_strNewFavoriteHotkey)
 else
 	g_strNewFavoriteHotkey := strBackupFavoriteHotkey
 
-strQAPDefaultHotkey = ""
+strQAPDefaultHotkey := ""
 strBackupFavoriteHotkey := ""
 
 return
