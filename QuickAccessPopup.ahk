@@ -7595,14 +7595,7 @@ else ; add favorite
 			if LocationIsHttp(g_strNewLocation)
 			{
 				g_objEditedFavorite.FavoriteType := "URL"
-				strHTML := Url2Var(g_strNewLocation)
-				RegExMatch(strHTML, "is)<title>(.*?)</title>", strTitle)
-				StringReplace, strTitle, strTitle, <title>
-				StringReplace, strTitle, strTitle, </title>
-				StringReplace, strTitle, strTitle, `r, , A
-				StringReplace, strTitle, strTitle, `t, %A_Space%, A
-				StringReplace, strTitle, strTitle, `n, %A_Space%, A
-				g_objEditedFavorite.FavoriteName := strTitle
+				g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
 			}
 			else
 				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
@@ -7691,8 +7684,6 @@ strShortcutArgs := ""
 strShortcutIconFile := ""
 strShortcutIconIndex := ""
 intShortcutRunState := ""
-strHTML := ""
-strTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -7732,6 +7723,8 @@ else
 
 if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (g_objEditedFavorite.FavoriteType = "Group" ? lDialogOpenThisGroup : lDialogOpenThisMenu)
+else if (g_objEditedFavorite.FavoriteType = "URL")
+	Gui, 2:Add, Button, x+10 yp gGuiGetWebPageTitle, %lDialogGetWebPageTitle%
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
@@ -8359,6 +8352,20 @@ return
 
 
 ;------------------------------------------------------------
+GuiGetWebPageTitle:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+if StrLen(f_strFavoriteLocation)
+	GuiControl, , f_strFavoriteShortName, % GetWebPageTitle(f_strFavoriteLocation)
+else
+	Oops(lOopsFirstEnterUrl, g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType])
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 DropdownSpecialChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -8401,6 +8408,9 @@ EditFavoriteLocationChanged:
 EditFavoriteExternalLocationChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if (g_objEditedFavorite.FavoriteType = "URL")
+	return
 
 if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
@@ -15949,6 +15959,24 @@ ReplaceAllInString(strThis, strFrom, strTo)
 
 
 ;------------------------------------------------------------
+GetWebPageTitle(strLocation)
+;------------------------------------------------------------
+{
+	strHTML := Url2Var(strLocation)
+	RegExMatch(strHTML, "is)<title>(.*?)</title>", strTitle)
+	
+	StringReplace, strTitle, strTitle, <title>
+	StringReplace, strTitle, strTitle, </title>
+	StringReplace, strTitle, strTitle, `r, , A
+	StringReplace, strTitle, strTitle, `t, %A_Space%, A
+	StringReplace, strTitle, strTitle, `n, %A_Space%, A
+	
+	return NumDecode(Trim(strTitle, Chr(160))) ; Chr(160) to also trim non-breaking spaces
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 Url2Var(strUrl)
 ;------------------------------------------------------------
 {
@@ -16033,6 +16061,25 @@ UriEncode(str)
    }   
    SetFormat,Integer,%b_format% 
    return s 
+} 
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumDecode(str)
+; Extracted from Dec_XML() https://autohotkey.com/board/topic/29866-encoding-and-decoding-functions-v11/
+; converts "&#233;" or "&#xE9;" to "é"
+;------------------------------------------------------------
+{
+	Loop
+		If RegexMatch(str, "S)(&#(\d+);)", dec) ; matches: &#[dec];
+			StringReplace, str, str, %dec1%, % Chr(dec2), All
+		Else If RegexMatch(str, "Si)(&#x([\da-f]+);)", hex) ; matches: &#x[hex];
+			StringReplace, str, str, %hex1%, % Chr("0x" . hex2), All
+		Else
+			Break
+	
+	return str
 } 
 ;------------------------------------------------------------
 

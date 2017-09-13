@@ -160,6 +160,7 @@ global lDialogFavoriteWorkingDirNotFoundTitle := "Start in parameter not found -
 global lDialogFileLabel := "Document"
 global lDialogFolderLabel := "Folder"
 global lDialogFoldersPlaceholders := "You can insert the placeholder {CUR_LOC} to insert the location where this favorite is launched" ; new
+global lDialogGetWebPageTitle := "Get title"
 global lDialogGetWinInfo := "To identify the window of which you want to get the title and class, click in the target window with the QAP menu hotkey [~1~]." ; new
 global lDialogGetWInInfo2Clippoard := "Window title:`n""~1~""`n`nClass:`n""~2~""`n`nCopy this info to your Clipboard?" ; new
 global lDialogHotkeyInvisibleKeys := "<a id=""~1~"">space bar</a>, <a id=""~2~"">tab</a>, <a id=""~3~"">enter</a>, <a id=""~4~"">escape</a>`nor <a id=""~5~"">menu key (application)</a>"
@@ -460,6 +461,7 @@ global lOopsExternalNotAllowedUnderExternal := "Shared menus are not allowed ins
 global lOopsExternalReadOnlyAlert := "Shared menus of type ""Centralized"" can only be edited by user(s) in the ""~1~"" field (or by opening the ini file on the shared drive using a text editor).`n`nYour user name is: ""~2~"".`nYour computer name is: ""~3~""."
 global lOopsExternalReadOnlyAlertUsernameAdded := "Your user name was automatically added to the ""Users with write access"" list."
 global lOopsExternalSelectType := "Please select the Shared menu type in the ""Shared menu"" tab."
+global lOopsFirstEnterUrl := "First, enter an address in the ""~1~"" field."
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new
 global lOopsHotkeyAlreadyUsed := "The hotkey ""~1~"" is already used for ~2~.`n`nPlease, choose another hotkey for ~3~." ; new
