@@ -12532,7 +12532,7 @@ if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite
 		strTempLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 	else
 		strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
-	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
+	if StrLen(strTempLocation) and !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
