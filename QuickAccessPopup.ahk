@@ -2269,7 +2269,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -2279,7 +2279,6 @@ Loop, Parse, strIconsNames, |
 	g_objJLiconsNames.Insert(A_LoopField)
 	g_objJLiconsByName[A_LoopField] := g_strJLiconsFile . "," . A_Index ; change file path
 }
-; BEFORE: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
 
 ; ----------------------
 ; ACTIVE FILE MANAGER
@@ -2934,7 +2933,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	objOneQAPFeature := Object()
 	
 	objOneQAPFeature.LocalizedName := strThisLocalizedName
-	objOneQAPFeature.DefaultIcon := g_objJLiconsByName[strThisDefaultIcon]
+	objOneQAPFeature.DefaultIcon := strThisDefaultIcon
 	objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
 	objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
 	objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
@@ -5063,7 +5062,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
 			Menu, % objCurrentMenu.MenuPath, % (objCurrentMenu[A_Index].SubMenu.MaxIndex() > 1 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains only the back .. item
-			if (g_blnDisplayIcons)
+			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
 				
@@ -5111,7 +5110,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 					: "OpenFavorite"))
 			}
 
-			if (g_blnDisplayIcons)
+			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Folder") ; this is a folder
 					strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
@@ -5321,7 +5320,6 @@ AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
 ; strIconValue can be an index from g_objJLiconsByName (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
-; strThisDefaultIcon is returned truncated if longer than 260 chars
 ;------------------------------------------------------------
 {
 	global g_intIconSize
@@ -5337,17 +5335,16 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-)
 	
 	Menu, %strMenuName%, Add, %strMenuItemName%, %strLabel%
-	if (g_blnDisplayIcons)
-		; under Win_XP, display icons in main menu only when in first column (for other menus, this fuction is not called)
+	if (g_blnDisplayIcons) and (strIconValue <> "iconNoIcon")
 	{
 		Menu, %strMenuName%, UseErrorLevel, on
 		ParseIconResource(strIconValue, strIconFile, intIconIndex)
-		Menu, %strMenuName%, Icon, %strMenuItemName%, %strIconFile%, %intIconIndex%, %g_intIconSize%
+		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
 		{
 			ParseIconResource((strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, %strIconFile%, %intIconIndex%, %g_intIconSize%
+				, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		}
 		Menu, %strMenuName%, UseErrorLevel, off
 	}
@@ -8399,7 +8396,7 @@ Gui, 2:Submit, NoHide
 if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
-if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
+if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
@@ -8581,28 +8578,29 @@ return
 GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
-strExpandedIconRessource := EnvVars(g_strNewFavoriteIconResource)
-ParseIconResource(strExpandedIconRessource, strThisIconFile, intThisIconIndex)
-GuiControl, , f_picIcon, *icon%intThisIconIndex% %strThisIconFile%
-GuiControl, % (strExpandedRessourceIcon <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblRemoveIcon
+ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
+strExpandedIconFile := EnvVars(strThisIconFile)
+GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
+###_V("g_strNewFavoriteIconResource <> g_strDefaultIconResource", g_strNewFavoriteIconResource, g_strDefaultIconResource)
+GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
 
 strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
 blnThisDesktopIniExist := (StrLen(strThisFolder) ? FileExist(strThisFolder . "\desktop.ini") : false)
 strCurrentDesktopIcon := (StrLen(strThisFolder) ? GetFolderIcon(strThisFolder) : "")
 
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconRessource <> EnvVars(g_strDefaultIconResource)
+GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and g_strNewFavoriteIconResource <> g_strDefaultIconResource
 	or (blnThisDesktopIniExist) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
 
 ; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
 GuiControl, , f_lblSetWindowsFolderIcon
 	, % "<a>"
-	. (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = EnvVars(g_strNewFavoriteIconResource)
-		or (blnThisDesktopIniExist and g_strNewFavoriteIconResource = g_strDefaultIconResource)
+	. (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = strExpandedIconFile . "," . intThisIconIndex
+		or (blnThisDesktopIniExist and (g_strNewFavoriteIconResource = g_strDefaultIconResource))
 	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet)
 	. "</a>"
 
 /* BK
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconRessource <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
+GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconResource <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
 strCurrentDesktopIcon := GetFolderIcon(f_strFavoriteLocation)
 ; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
 GuiControl, , f_lblSetWindowsFolderIcon
@@ -8610,7 +8608,7 @@ GuiControl, , f_lblSetWindowsFolderIcon
 	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet) . "</a>"
 */
 
-strExpandedRessourceIcon := ""
+strExpandedIconFile := ""
 strThisIconFile := ""
 intThisIconIndex := ""
 strThisFolder := ""
@@ -10868,6 +10866,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
+			; if (objCurrentMenu[A_Index].FavoriteType = "T") and (objCurrentMenu[A_Index].FavoriteIconResource = "iconNoIcon")
+				; strIniLine .= "iconNoIcon" ; 4
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource] . "|" ; 4
 			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
@@ -10877,6 +10877,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			}
 			else ; use icongroup as is
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
+			###_V(A_ThisFunc . " g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource], objCurrentMenu[A_Index].FavoriteIconResource], strIniLine)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
@@ -15689,7 +15690,7 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	intComaPos := InStr(strIconResource, ",", , 0) - 1 ; search from the end because filename could also include a coma (ex.: "file,name.ico,1")
 	StringLeft, strIconFile, strIconResource, intComaPos
 	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
-	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
+	; if strExpandedIconResource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
 	; ###_V(A_ThisFuync, "*strIconResource", strIconResource, "*intComaPos", intComaPos, "*strIconFile", strIconFile, "*intIconIndex", intIconIndex)
 }
@@ -16421,45 +16422,47 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 
-	if InStr("Menu|External", objFavorite.FavoriteType, true)
+	if InStr("|Menu|External", "|" . objFavorite.FavoriteType, true)
 		; default submenu icon
-		return g_objJLiconsByName["iconSubmenu"]
+		return "iconSubmenu"
 	else if (objFavorite.FavoriteType = "Group")
 		; default group icon
-		return g_objJLiconsByName["iconGroup"]
+		return "iconGroup"
 	else if (objFavorite.FavoriteType = "Folder")
 		if (objFavorite.FavoriteFolderLiveLevels)
 			; default live folder icon
-			return g_objJLiconsByName["iconFolderLive"]
+			return ["iconFolderLive"
 		else
 			; default folder icon
-			return g_objJLiconsByName["iconFolder"]
+			return "iconFolder"
 	else if (objFavorite.FavoriteType = "URL")
 		; default browser icon
 		return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 	else if (objFavorite.FavoriteType = "FTP")
 		; default FTP icon
-		return g_objJLiconsByName["iconFTP"]
+		return "iconFTP"
 	else if (objFavorite.FavoriteType = "Snippet")
 	{
 		strSnippetProperties := objFavorite.FavoriteLaunchWith
 		StringSplit, arrSnippetProperties, strSnippetProperties, `;
 		if (arrSnippetProperties1)
 			; default macro Snippet icon
-			return g_objJLiconsByName["iconPasteSpecial"]
+			return "iconPasteSpecial"
 		else
 			; default text Snippet icon
-			return g_objJLiconsByName["iconPaste"]
+			return "iconPaste"
 	}
-	else if InStr("Document|Application", objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
+	else if InStr("|Document|Application", "|" . objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
 		; default icon for the selected file in add/edit favorite
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
 		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
+	else if (objFavorite.FavoriteType = "T")
+		return "iconNoIcon"
 	else ; should not
-		return g_objJLiconsByName["iconUnknown"]
+		return "iconUnknown"
 }
 ;------------------------------------------------------------
 
