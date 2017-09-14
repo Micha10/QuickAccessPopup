@@ -2186,6 +2186,7 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
 	FileInstall, FileInstall\QAP-pin-off-26.png, %g_strTempDir%\QAP-pin-off-26.png
 	FileInstall, FileInstall\QAP-pin-on-26.png, %g_strTempDir%\QAP-pin-on-26.png
+	FileInstall, FileInstall\text-26.png, %g_strTempDir%\text-26.png
 
 	FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
 	FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
@@ -2212,6 +2213,7 @@ else
 	FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
 	FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
 	FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
+	FileInstall, FileInstall\text-26_c.png, %g_strTempDir%\text-26_c.png
 
 	FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
 	FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
@@ -2968,7 +2970,7 @@ InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
 InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
 
-InsertGuiControlPos("f_picAddTextSeparator",		  10,  285) ; +25 for Search box
+InsertGuiControlPos("f_picAddTextSeparator",		  10,  290) ; +25 for Search box
 InsertGuiControlPos("f_picAddColumnBreak",			  10,  255)
 InsertGuiControlPos("f_picAddSeparator",			  10,  225)
 InsertGuiControlPos("f_picMoveFavoriteDown",		  10,  195)
@@ -6612,33 +6614,33 @@ Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\
 g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
 g_objToolTipsMessages["Static13"] := lControlToolTipColunmnBreak
-Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13 #####
-g_objToolTipsMessages["Static13"] := lControlToolTipColunmnBreak ; #####
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static14
-g_objToolTipsMessages["Static14"] := lControlToolTipAlwaysOnTopOn
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static15
-g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOff
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static16
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static17
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static18
+Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26%strSettingsIconsExtension% ; Static14
+g_objToolTipsMessages["Static14"] := lControlToolTipTextSeparator
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static15
+g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOn
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static16
+g_objToolTipsMessages["Static16"] := lControlToolTipAlwaysOnTopOff
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static17
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static18
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static19
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static19
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static20
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static21, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static22
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static23
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static24
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static25
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static26
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static27
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static20
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static21
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static24
+Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static25
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static28
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static29
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
@@ -6662,9 +6664,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static29
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static30
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static30
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static31
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -16819,8 +16821,8 @@ WM_MOUSEMOVE(wParam, lParam)
 	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
 	{
-		; 2-28 sauf 26
-		if (intControl < 2) or (intControl = 28) or (intControl > 30)
+		; 2-29 sauf 27
+		if (intControl < 2) or (intControl = 29) or (intControl > 30)
 			return
 	}
 	else if !InStr(strControl, "Button")
