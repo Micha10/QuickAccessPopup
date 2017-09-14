@@ -3440,7 +3440,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		}
 		else
 			objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
-		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex"
+		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
 		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
@@ -8540,6 +8540,7 @@ if (A_ThisLabel = "GuiEditIconDialog")
 else
 	g_strNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
 
+; ###_V(A_ThisLabel . " g_strNewFavoriteIconResource", g_strNewFavoriteIconResource)
 Gosub, GuiFavoriteIconDisplay
 
 return
@@ -10869,7 +10870,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			; if (objCurrentMenu[A_Index].FavoriteType = "T") and (objCurrentMenu[A_Index].FavoriteIconResource = "iconNoIcon")
 				; strIniLine .= "iconNoIcon" ; 4
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
-				strIniLine .= g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource] . "|" ; 4
+				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
@@ -10877,7 +10878,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			}
 			else ; use icongroup as is
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
-			###_V(A_ThisFunc . " g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource], objCurrentMenu[A_Index].FavoriteIconResource], strIniLine)
+			; ###_V(A_ThisFunc . " g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource], objCurrentMenu[A_Index].FavoriteIconResource, strIniLine)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
@@ -16431,7 +16432,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Folder")
 		if (objFavorite.FavoriteFolderLiveLevels)
 			; default live folder icon
-			return ["iconFolderLive"
+			return "iconFolderLive"
 		else
 			; default folder icon
 			return "iconFolder"
@@ -16471,6 +16472,9 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 PickIconDialog(strFavoriteIconResource)
 ;------------------------------------------------------------
 {
+	global g_objJLiconsNames
+	global g_strJLiconsFile
+	
 	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
 	VarSetCapacity(strIconFile, 1024) ; must be placed before strIconFile is initialized because VarSetCapacity erase its content
 	ParseIconResource(strFavoriteIconResource, strIconFile, intIconIndex)
@@ -16483,7 +16487,10 @@ PickIconDialog(strFavoriteIconResource)
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex + 1
 
-	if StrLen(strIconFile)
+	; ###_V(A_ThisLabel, strIconFile, g_strJLiconsFile)
+	if (strIconFile = g_strJLiconsFile)
+		return g_objJLiconsNames[intIconIndex] ; JLicons index "iconXYZ"
+	else if StrLen(strIconFile)
 		return strIconFile . "," . intIconIndex
 }
 ;------------------------------------------------------------
