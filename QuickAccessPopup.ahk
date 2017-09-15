@@ -2393,7 +2393,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|T"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -5096,7 +5096,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
-		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or T)
+		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
@@ -5108,7 +5108,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				blnIsTotalCommanderHotlist := (SubStr(objCurrentMenu.MenuPath, 1, StrLen(lTCMenuName)) = lTCMenuName)
 				Menu, % objCurrentMenu.MenuPath, Add
 					, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" 
-					: (objCurrentMenu[A_Index].FavoriteType = "T" ? "DoNothing" 
+					: (objCurrentMenu[A_Index].FavoriteType = "Text" ? "OpenFavorite"
 					: "OpenFavorite"))
 			}
 
@@ -7065,10 +7065,11 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
-; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|T
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|Text
 loop, 6
 	Gui, 2:Add, Radio, % (A_Index = 1 ? " yp " : "") . "vf_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index% . " xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
@@ -7713,7 +7714,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+0 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "T" ? g_objFavoriteTypesLocationLabels["T"] : lDialogFavoriteShortNameLabel) . " *"
+	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -7725,7 +7726,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
-	if !InStr("Menu|Group|External|T", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("Menu|Group|External|Text", g_objEditedFavorite.FavoriteType, true)
 	{
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 			Gui, Font, w700
@@ -7932,7 +7933,7 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
 	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
 
-	if (g_objEditedFavorite.FavoriteType <> "T")
+	if (g_objEditedFavorite.FavoriteType <> "Text")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
@@ -8584,7 +8585,6 @@ GuiFavoriteIconDisplay:
 ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 strExpandedIconFile := EnvVars(strThisIconFile)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
-###_V("g_strNewFavoriteIconResource <> g_strDefaultIconResource", g_strNewFavoriteIconResource, g_strDefaultIconResource)
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
 
 strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
@@ -10702,7 +10702,7 @@ Gui, 1:Submit, NoHide
 Gui, 1:ListView, f_lvFavoritesList
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
-g_strAddFavoriteType := "T"
+g_strAddFavoriteType := "Text"
 gosub, GuiAddFavorite
 
 return
@@ -10869,8 +10869,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			; if (objCurrentMenu[A_Index].FavoriteType = "T") and (objCurrentMenu[A_Index].FavoriteIconResource = "iconNoIcon")
-				; strIniLine .= "iconNoIcon" ; 4
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
@@ -12498,7 +12496,6 @@ if (blnShiftPressed or blnControlPressed)
 	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
-; ###_V(A_ThisLabel, g_strHokeyTypeDetected, g_strAlternativeMenu, g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -12610,15 +12607,18 @@ gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetecte
 ; if (g_blnDiagMode)
 ;	Diag("g_strTargetAppName", g_strTargetAppName)
 
-gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
-; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
-;	Diag("g_strFullLocation", g_strFullLocation)
-
-if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 {
-	gosub, OpenFavoriteCleanup
-	return
+	gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
+	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+	; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
+	;	Diag("g_strFullLocation", g_strFullLocation)
+
+	if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+	{
+		gosub, OpenFavoriteCleanup
+		return
+	}
 }
 
 if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
@@ -12696,6 +12696,13 @@ if (g_blnAlternativeMenu)
 		gosub, OpenFavoriteCleanup
 		return
 	}
+}
+
+if (g_objThisFavorite.FavoriteType = "Text")
+; if we did not have to edit a Text Separator, we must stop here
+{
+	gosub, OpenFavoriteCleanup
+	return
 }
 
 ; --- Document or Link ---
@@ -16462,7 +16469,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
-	else if (objFavorite.FavoriteType = "T")
+	else if (objFavorite.FavoriteType = "Text")
 		return "iconNoIcon"
 	else ; should not
 		return "iconUnknown"
