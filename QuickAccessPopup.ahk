@@ -5106,10 +5106,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			else
 			{
 				blnIsTotalCommanderHotlist := (SubStr(objCurrentMenu.MenuPath, 1, StrLen(lTCMenuName)) = lTCMenuName)
-				Menu, % objCurrentMenu.MenuPath, Add
-					, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" 
-					: (objCurrentMenu[A_Index].FavoriteType = "Text" ? "OpenFavorite"
-					: "OpenFavorite"))
+				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" : "OpenFavorite")
 			}
 
 			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
@@ -7726,7 +7723,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
-	if !InStr("Menu|Group|External|Text", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("|Menu|Group|External|Text", "|" . g_objEditedFavorite.FavoriteType, true)
 	{
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 			Gui, Font, w700
@@ -8531,6 +8528,7 @@ GuiEditIconDialog:
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
 
+###_V(A_ThisLabel . " 1", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
 {
 	Oops(lPickIconNoLocation)
@@ -8543,8 +8541,8 @@ if (A_ThisLabel = "GuiEditIconDialog")
 else
 	g_strNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
 
-; ###_V(A_ThisLabel . " g_strNewFavoriteIconResource", g_strNewFavoriteIconResource)
 Gosub, GuiFavoriteIconDisplay
+###_V(A_ThisLabel . " 2", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 
 return
 ;------------------------------------------------------------
@@ -8583,6 +8581,7 @@ GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
 ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
+###_V(A_ThisLabel . " 1", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 strExpandedIconFile := EnvVars(strThisIconFile)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
@@ -8610,6 +8609,7 @@ GuiControl, , f_lblSetWindowsFolderIcon
 	, % "<a>" . (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = EnvVars(g_strNewFavoriteIconResource) 
 	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet) . "</a>"
 */
+###_V(A_ThisLabel . " 2", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 
 strExpandedIconFile := ""
 strThisIconFile := ""
@@ -10848,6 +10848,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_strEscapePipe
 	global g_objJLiconsByName
 	global g_objJLiconsNames
+	global g_strJLiconsFile
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
@@ -10869,16 +10870,20 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
+			###_V(A_ThisFunc . " 1", "*g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]
+				, "*objCurrentMenu[A_Index].FavoriteIconResource", objCurrentMenu[A_Index].FavoriteIconResource, "*strIniLine", strIniLine)
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
-			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
+			else
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
-				strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+				if (strIconFile = g_strJLiconsFile) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
+					strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+				else ; use icongroup as is
+					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			}
-			else ; use icongroup as is
-				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
-			; ###_V(A_ThisFunc . " g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource], objCurrentMenu[A_Index].FavoriteIconResource, strIniLine)
+			###_V(A_ThisFunc . " 2", "*g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]
+				, "*objCurrentMenu[A_Index].FavoriteIconResource", objCurrentMenu[A_Index].FavoriteIconResource, "*strIniLine", strIniLine)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
@@ -10897,7 +10902,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
-			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
 			g_intIniLine++
 		}
 
@@ -16496,7 +16500,6 @@ PickIconDialog(strFavoriteIconResource)
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex + 1
 
-	; ###_V(A_ThisLabel, strIconFile, g_strJLiconsFile)
 	if (strIconFile = g_strJLiconsFile)
 		return g_objJLiconsNames[intIconIndex] ; JLicons index "iconXYZ"
 	else if StrLen(strIconFile)
