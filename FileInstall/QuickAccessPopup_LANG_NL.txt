@@ -75,7 +75,7 @@ lDialogEditIcon	Wijzig pictogrambronlocatie
 lDialogEditIconPrompt	Wijzig pictogrambronlocatie in het formaat "pictomgrambestand,index" (als voorbeeld, "shell32.dll,2"):
 lDialogElevate	Applicatie als administrator uitvoeren
 lDialogEndOfMenu	Einde van het menu
-lDialogErrorMoving	Het is niet mogelijk om favoriet te herschalen:`n"~1~"
+lDialogErrorMoving	Het is niet mogelijk om de favoriet te herschalen:`n"~1~"
 lDialogExternalAddFromCatalogue	Wilt u een extern menu toevoegen vanuit de openbare menucatalogus?
 lDialogExternalLocation	Bestandslocatie voor openbare menuinstellingen
 lDialogExternalLocationIni	Het openbare menuinstellingenbestand dient een .ini-bestand te zijn
@@ -146,7 +146,7 @@ lDialogFavoriteTypesHelp3	Creër een snelkoppeling naar een "Applicatie" (program
 lDialogFavoriteTypesHelp4	Creër een snelkoppeling naar een van de 50 voorgedefineërde Windows Speciale mappen zoals Bibliotheken, Mijn afbeeldingen, Prullenbak, Downloads, etc.`n`nConfigureer de naam van het favoriet en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de bestandsbeheerder, optionele instellingen en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp5	Creër een "Link" naar een website.`n`nConfigureer de naam van het favoriet, website's adres (URL) en de verschillende opties.`n`nGeavanceerde Opties laten u de webbrowser selecteren waar de link wordt gestart, en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de naam van het favoriet, FTP-adres (URL), loginnaam, wachtwoord en de verschillende opties.`n`nGeavanceerde Opties laten u de FTP-Client selecteren waarin de FTP-link wordt gestart, optionele parameters, en de locatie van het venster op het scherm.`n`nNB. Wachtwoorden worden NIET versleuteld over het internet verstuurd!
-lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Features" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
+lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en select menu opties.`n`nVoeg favorieten toe aan uw submenu of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favoreiten uit, allen in 1 enkele snelkoppeling!1n1nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.`n`nIn Geavanceerde Opties kunt u bijvoorbeeld bepalen wat de tijd tussen het starten van de verschillende favorieten dient te worden.
 lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link|F&TP Site|&QAP Feature|Sub&menu|&Groep||||&Fragment|&Openbaar Menu
@@ -238,7 +238,7 @@ lDialogWindowPositionX	Links
 lDialogWindowPositionY	Top
 lDialogWindowsFolderIconCreate	maken
 lDialogWindowsFolderIconNoRoot	Het Windows-map pictogram kan niet ingesteld worden in het stations hoofdmap.
-lDialogWindowsFolderIconPrompt	Dit commando zal ~1~ het systeembestand:`n~2~`n`nDe Windows-map pictogram zal aangepast worden door de huidig geselecteerde pictogram voor deze favoriet. Wilt u doorgaan?
+lDialogWindowsFolderIconPrompt	Dit commando zal het systeembestand ~1~:`n~2~`n`nHet pictogram van de map: "Windows" zal aangepast worden door het huidig geselecteerde pictogram. Wilt u doorgaan?
 lDialogWindowsFolderIconPrompt2	nb: Het kan ongeveer 10-15 seconden tot 1 minuut duren totdat Windows het nieuwe pictogram weergeeft.
 lDialogWindowsFolderIconRemove	Verwijder het Windows-map pictogram
 lDialogWindowsFolderIconRemoveFile	Dit commando kan ook het systeembestand verwijderen en de map herstellen naar de standaardinstellingen:`n~1~`n`nWilt u het systeembestand verwijderen?
@@ -309,13 +309,13 @@ lGuiResetDefault	Standaard sneltoets herstellen
 lGuiSaveAmpersand	&Opslaan
 lGuiSaveAndCloseAmpersand	O&pslaan &&`n Sluiten
 lGuiSaveAndStayAmpersand	Opslaan &&`n &Herladen
-lGuiSaveToUpdateBacklinks	Opslaan om backlinks te updaten
+lGuiSaveToUpdateBacklinks	Opslaan om de backlinks te updaten
 lGuiSaving	Bezig met opslaan
 lGuiSubmenuDropdownLabel	Menu of groep om te wijzigen:
 lGuiTitle	Instellingen - ~1~ ~2~
 lHelpTabAddingFavorite	Favorieten toevoegen
 lHelpTabGettingStarted	Om te beginnen
-lHelpTabQAPFeatures	QAP-features
+lHelpTabQAPFeatures	QAP functies
 lHelpTabSharedMenus	Openbaar menu
 lHelpTabTipsAndTricks	Tips and Trucs
 lHelpText11	Wanneer Quick Access Popup laadt, geeft het een pictogram weer in het systeemvak en zal wachten op uw orders.  Wanneer u 1 van uw geprefereerde MAPPEN, APPLICATIE'S, WEB LINKS, FTP SITE of FRAGMENTEN wilt starten, gebruik dan de sneltoets [~1~] of [~2~] en selecteer uw gewenste favoriet in het popupmenu.
@@ -327,7 +327,7 @@ lHelpText22	In de 4 tabs van het venster "Toevoegen Favoriet" kunnen de "Basis O
 lHelpText23	VOEG DEZE MAP TOE`nOm snel een nieuwe MAP toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map`n2) Klik op de QAP-sneltoets [~1~] of [~2~] en kies "Voeg deze map toe"`n3) Geef de favoriet een verkorte naam en klik op Toevoegen`n4) Sla uw wijzigingen op.
 lHelpText31	In het "Mijn QAP Essentials"-menu:
 lHelpText32	- Gebruik "Schakelen..." in het menu om te schakelen tussen openstaande vensters zoals Windows Verkenners of andere applicaties.`n- Gebruik "Een map openen..." om snel te schakelen naar een openstaande map (erg handig in dialoogboxen)`n- Gebruik "Recent bezochte mappen..." voor een geüpdatet lijst van recent bezochte mappen`n- Gebruik de functie "Klembord" in het menu om informatie opgeslagen in het geheugen op te roepen en te gebruiken`n- En tot slot het menu "Stations" voor een lijst van bekende stations op deze computer met informatie over de vrije ruimte.
-lHelpText33	PAS UW QAP FEATURES MENU AAN
+lHelpText33	PAS UW QAP FUNCTIES MENU AAN
 lHelpText34	Als volgt kunt u "Mijn QAP Essentials" menu-items verplaatsen naar het hoofdmenu of naar andere submenu's:`n1) Selecteer het "Instellingen"-menu (of maak gebruik van sneltoets: [~1~])`n2) Selecteer onder "Menu of groep om te wijzigen" het QAP Essentials menu`n    (Hoofdmenu -> Mijn QAP Essentials)`n3) Selecteer de QAP feature om te verplaatsen en klik op "Wijzigen"`n4) Selecteer in de tab "Menu Opties" de nieuwe locatie onder "Favoriete hoofdmenu"`n5) Sla uw wijzigingen op.
 lHelpText41	- Gebruik het pictogram van Quick Access Popup in het systeemvak (bij de klok) op de volgende 3 methodes:`n1) Klik met de linkermuistoets op het pictogram om het QAP-Menu te openen`n2) Klik met de rechtermuistoets op het pictogram om het QAP-systeemmenu te openen`n3) Dubbelklik op het pictogram om het "Instellingen"-menu te openen.
 lHelpText42	- In het systeemvak, klik rechts op het Quick Access Popup pictogram en zet: "Uitboeren bij opstarten" aan om Quick Access Popup op automaisch op te starten bij het opstarten van Windows.
@@ -420,7 +420,7 @@ lMenuPublicLibraries	Openbare Bibliotheken
 lMenuQuickLaunch	Snelstarten
 lMenuRecentFolders	Recent bezochte mappen
 lMenuRecentItems	Onlangs geopend
-lMenuRefreshMenu	Ververs openstaande mappen menu's
+lMenuRefreshMenu	Ververs Live-mappen menu's
 lMenuReload	~1~ opnieuw laden
 lMenuReopenCurrentFolder	Heropen de huidige map in een dialogbox
 lMenuRunAtStartupAmpersand	&Uitvoeren bij opstarten
@@ -471,7 +471,7 @@ lOopsMenuExternalCollaborative	openbaar team menu
 lOopsMenuExternalPersonalChangedBy	Dit persoonlijke Openbare menu wordt GEWIJZIGD of heeft onopgeslagen wijzigingen op computer: ~1~.`n`nAls u uw wijzigingen opslaat zullen de onopgeslagen wijzigingen van de andere computer verloren gaan, daarnaast zult u de wijzigingen op die computer moeten annuleren.
 lOopsMenuExternalReservedBy	Deze sessie van ~1~ is GERESERVEERD door gebruiker: ~2~.`n`nWacht alstublieft totdat deze gebruiker het Openbare menu afsluit of neem contact op met de systeembeheerder.
 lOopsOSVerrsionError	~1~ kan worden uitgevoerd op Windows 7 of een recentere versie van Windows. Windows Vista en XP gebruikers zijn uitgenodigd om "Folders Popup" te downloaden, dit programma is geschikt voor oudere versies van Windows.`n`nWilt u de website bezoeken van Folders Popup?
-lOopsQAPfeature	QAP feature
+lOopsQAPfeature	QAP functies
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Er is een fout opgetreden tijdens het openen van deze favoriet, probeer het alstublieft opnieuw...
 lOopsWriteProtectedError	Het lijkt erop dat ~1~ uitgevoerd wordt in een SCHRIJF-BEVEILIGDE map waar het bestand "~1~.ini" niet aangemaakt kan worden.`n`nVerplaats het ~1~ .EXE bestand naar een locatie met SCHRIJF-RECHTEN van uw keuze en start ~1~ opnieuw.`n`n~1~ wordt nu afgesloten.
@@ -509,7 +509,7 @@ lOptionsHotkeyRemindersShort	A&fgekorte namen weergeven
 lOptionsIconSize	Pictogramgrootte
 lOptionsIconsManageRows	Beheer de pictogramvenster-regels`n(0 voor maximaal beschikbare ruimte)
 lOptionsLanguage	&Taal
-lOptionsLanguageLabels	English|Français|Deutch|Svenska|Español|Português do Brasil|Italiano|Chinese (Traditional)|Português|Chinese (Simplified)|Nederlands
+lOptionsLanguageLabels	Engels|Frans|Duits|Sweeds|Spaans|Braziliaans Portugees|Italiaans|Traditioneel Chinees|Portugees|Manderijns|Nederlands
 lOptionsMenuActiveWindow	&Linksboven van het actieve venster
 lOptionsMenuFixPosition	Op een v&aste plaats
 lOptionsMenuNearMouse	In de buurt van de muispi&jl
@@ -544,7 +544,7 @@ lOptionsTrayTip	"Tips tijdens opstarten" in Systeembalk weergeven
 lOptionsUseClassicButtons	Gebruik de klassieke QAP-muistoetsen
 lPickIconNoLocation	Selecteer eerst een favoriet alvorens een pictogram te kiezen.
 lReloadPrompt	~1~ gewijzigd in ~2~. Wilt u ~3~ herladen naar ~2~? Niet opgeslagen wijzigingen gaan verloren.
-lTCMenuName	TC map hotlist
+lTCMenuName	TC Directory hotlist
 lTCWinCmdLocation	WinCmd.ini locatie
 lTooltipSnippetKeyWait	Druk op {~1~} om door te gaan...
 lTooltipSnippetWaitEnter	Enter
