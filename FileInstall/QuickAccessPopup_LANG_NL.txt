@@ -435,7 +435,7 @@ lMenuTemplates	Sjablonen
 lMenuTemporaryFiles	Tijdelijke bestanden
 lMenuUpdateAmpersand	&Controleren op nieuwe versies
 lMenuUserFolder	Gebruikersmap
-lMenuUserPinned	Vastleggen Gebruiker
+lMenuUserPinned	User Pinned
 lNavigateFileError	Er is een fout opgetreden tijdens het openen van deze map:`n~1~.
 lNavigateSpecialError	Er is een fout opgetreden tijdens het openen van deze speciale map:`n#~1~.
 lOopsAddThisFolderTip	Voor betere resultaten van het "Voeg deze map toe" commando:`n`n1)Activeer het ~1~ venster met de map om toe te voegen aan het menu.`n2)Open het popup-menu gebruikmakend van ~2~.`n3)Selecteer "Voeg deze map toe" and sla de wijzigingen op.
