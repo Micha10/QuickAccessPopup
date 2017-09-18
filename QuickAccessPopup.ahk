@@ -8528,7 +8528,6 @@ GuiEditIconDialog:
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
 
-###_V(A_ThisLabel . " 1", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
 {
 	Oops(lPickIconNoLocation)
@@ -8542,7 +8541,6 @@ else
 	g_strNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
 
 Gosub, GuiFavoriteIconDisplay
-###_V(A_ThisLabel . " 2", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 
 return
 ;------------------------------------------------------------
@@ -8581,7 +8579,6 @@ GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
 ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
-###_V(A_ThisLabel . " 1", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 strExpandedIconFile := EnvVars(strThisIconFile)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
@@ -8600,16 +8597,6 @@ GuiControl, , f_lblSetWindowsFolderIcon
 		or (blnThisDesktopIniExist and (g_strNewFavoriteIconResource = g_strDefaultIconResource))
 	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet)
 	. "</a>"
-
-/* BK
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconResource <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
-strCurrentDesktopIcon := GetFolderIcon(f_strFavoriteLocation)
-; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
-GuiControl, , f_lblSetWindowsFolderIcon
-	, % "<a>" . (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = EnvVars(g_strNewFavoriteIconResource) 
-	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet) . "</a>"
-*/
-###_V(A_ThisLabel . " 2", g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
 
 strExpandedIconFile := ""
 strThisIconFile := ""
@@ -10870,8 +10857,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			###_V(A_ThisFunc . " 1", "*g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]
-				, "*objCurrentMenu[A_Index].FavoriteIconResource", objCurrentMenu[A_Index].FavoriteIconResource, "*strIniLine", strIniLine)
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
@@ -10882,8 +10867,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				else ; use icongroup as is
 					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			}
-			###_V(A_ThisFunc . " 2", "*g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]", g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]
-				, "*objCurrentMenu[A_Index].FavoriteIconResource", objCurrentMenu[A_Index].FavoriteIconResource, "*strIniLine", strIniLine)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
