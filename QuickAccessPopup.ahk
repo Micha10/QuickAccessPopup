@@ -2186,6 +2186,7 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
 	FileInstall, FileInstall\QAP-pin-off-26.png, %g_strTempDir%\QAP-pin-off-26.png
 	FileInstall, FileInstall\QAP-pin-on-26.png, %g_strTempDir%\QAP-pin-on-26.png
+	FileInstall, FileInstall\text-26.png, %g_strTempDir%\text-26.png
 
 	FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
 	FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
@@ -2212,6 +2213,7 @@ else
 	FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
 	FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
 	FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
+	FileInstall, FileInstall\text-26_c.png, %g_strTempDir%\text-26_c.png
 
 	FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
 	FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
@@ -2269,7 +2271,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -2279,7 +2281,6 @@ Loop, Parse, strIconsNames, |
 	g_objJLiconsNames.Insert(A_LoopField)
 	g_objJLiconsByName[A_LoopField] := g_strJLiconsFile . "," . A_Index ; change file path
 }
-; BEFORE: g_objIconsFile["iconPictures"] and g_objIconsIndex["iconPictures"]
 
 ; ----------------------
 ; ACTIVE FILE MANAGER
@@ -2392,7 +2393,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -2403,6 +2404,7 @@ Loop, 9 ; excluding X, K and B
 	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
 arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
 arrFavoriteTypesHelp14 := lDialogFavoriteTypesHelp14
+arrFavoriteTypesHelp15 := lDialogFavoriteTypesHelp15
 g_objFavoriteTypesHelp := Object()
 StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
 g_objFavoriteTypesShortNames := Object()
@@ -2933,7 +2935,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	objOneQAPFeature := Object()
 	
 	objOneQAPFeature.LocalizedName := strThisLocalizedName
-	objOneQAPFeature.DefaultIcon := g_objJLiconsByName[strThisDefaultIcon]
+	objOneQAPFeature.DefaultIcon := strThisDefaultIcon
 	objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
 	objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
 	objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
@@ -2968,7 +2970,8 @@ InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
 InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
 
-InsertGuiControlPos("f_picAddColumnBreak",			  10,  255) ; +25 for Search box
+InsertGuiControlPos("f_picAddTextSeparator",		  10,  290) ; +25 for Search box
+InsertGuiControlPos("f_picAddColumnBreak",			  10,  255)
 InsertGuiControlPos("f_picAddSeparator",			  10,  225)
 InsertGuiControlPos("f_picMoveFavoriteDown",		  10,  195)
 InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  165)
@@ -3490,7 +3493,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		}
 		else
 			objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
-		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex"
+		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
 		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
@@ -5112,7 +5115,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
 			Menu, % objCurrentMenu.MenuPath, % (objCurrentMenu[A_Index].SubMenu.MaxIndex() > 1 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains only the back .. item
-			if (g_blnDisplayIcons)
+			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
 				
@@ -5144,7 +5147,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (objCurrentMenu.MenuPath <> lMainMenuName ? 1 : 0)
 			g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
 		}
-		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP or Group)
+		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
@@ -5157,7 +5160,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" : "OpenFavorite")
 			}
 
-			if (g_blnDisplayIcons)
+			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Folder") ; this is a folder
 					strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
@@ -5367,7 +5370,6 @@ AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
 ; strIconValue can be an index from g_objJLiconsByName (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
-; strThisDefaultIcon is returned truncated if longer than 260 chars
 ;------------------------------------------------------------
 {
 	global g_intIconSize
@@ -5383,17 +5385,16 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-)
 	
 	Menu, %strMenuName%, Add, %strMenuItemName%, %strLabel%
-	if (g_blnDisplayIcons)
-		; under Win_XP, display icons in main menu only when in first column (for other menus, this fuction is not called)
+	if (g_blnDisplayIcons) and (strIconValue <> "iconNoIcon")
 	{
 		Menu, %strMenuName%, UseErrorLevel, on
 		ParseIconResource(strIconValue, strIconFile, intIconIndex)
-		Menu, %strMenuName%, Icon, %strMenuItemName%, %strIconFile%, %intIconIndex%, %g_intIconSize%
+		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
 		{
 			ParseIconResource((strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, %strIconFile%, %intIconIndex%, %g_intIconSize%
+				, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		}
 		Menu, %strMenuName%, UseErrorLevel, off
 	}
@@ -6661,31 +6662,33 @@ Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\
 g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
 g_objToolTipsMessages["Static13"] := lControlToolTipColunmnBreak
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static14
-g_objToolTipsMessages["Static14"] := lControlToolTipAlwaysOnTopOn
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static15
-g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOff
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static16
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static17
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static18
+Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26%strSettingsIconsExtension% ; Static14
+g_objToolTipsMessages["Static14"] := lControlToolTipTextSeparator
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static15
+g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOn
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static16
+g_objToolTipsMessages["Static16"] := lControlToolTipAlwaysOnTopOff
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static17
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static18
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static19
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static19
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static20
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static21, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static22
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static23
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static24
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static25
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static26
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static27
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static20
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static21
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp, %lDialogCopy% ; Static24
+Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static25
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static28
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static29
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
@@ -6709,9 +6712,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	Random, intDonateButton, 1, 5
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static29
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static30
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static30
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static31
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -7110,10 +7113,11 @@ if (g_blnUseColors)
 Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
-; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|Text
 loop, 6
 	Gui, 2:Add, Radio, % (A_Index = 1 ? " yp " : "") . "vf_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index% . " xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
@@ -7375,8 +7379,8 @@ if (g_blnAbordEdit)
 }
 
 ; must be before GuiAddFavoriteSaveXpress
-g_strTypesForTabWindowOptions := "Folder|Special|FTP"
-g_strTypesForTabAdvancedOptions := "Folder|Document|Application|Special|URL|FTP|Snippet|Group"
+g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
+g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|Group" ; must start with "|"
 
 if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
@@ -7489,9 +7493,9 @@ BuildTabsList(strFavoriteType)
 	
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
-	if InStr(g_strTypesForTabWindowOptions, strFavoriteType)
+	if InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
-	if InStr(g_strTypesForTabAdvancedOptions, strFavoriteType)
+	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
 	if (strFavoriteType = "External")
 		strTabsList .= " | " . lDialogAddFavoriteTabsExternal
@@ -7696,7 +7700,7 @@ else ; add favorite
 			g_objEditedFavorite.FavoriteArguments := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutArgs : "")
 			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? strShortcutIconFile . "," . strShortcutIconIndex : "")
 			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
-			if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
+			if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 			{
 				; before: intShortcutRunState = Shortcut RunState -> 1 Normal / 3 Maximized / 7 Minimized
 				intShortcutRunState := (intShortcutRunState = 3 ? 1 : (intShortcutRunState = 7 ? -1 : 0))
@@ -7765,7 +7769,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+0 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, %lDialogFavoriteShortNameLabel% *
+	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -7779,7 +7783,7 @@ else if (g_objEditedFavorite.FavoriteType = "URL")
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
-	if !InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("|Menu|Group|External|Text", "|" . g_objEditedFavorite.FavoriteType, true)
 	{
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 			Gui, Font, w700
@@ -7986,9 +7990,12 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
 	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
 
-	Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
-	Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
-	Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
+	if (g_objEditedFavorite.FavoriteType <> "Text")
+	{
+		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
+		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
+		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
+	}
 }
 
 return
@@ -8028,7 +8035,7 @@ return
 GuiFavoriteTabWindowOptions:
 ;------------------------------------------------------------
 
-if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType)
+if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -8072,7 +8079,7 @@ return
 GuiFavoriteTabAdvancedSettings:
 ;------------------------------------------------------------
 
-if InStr(g_strTypesForTabAdvancedOptions, g_objEditedFavorite.FavoriteType)
+if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -8466,7 +8473,7 @@ if (g_objEditedFavorite.FavoriteType = "URL")
 if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
-if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
+if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
 	g_strNewFavoriteIconResource := ""
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
@@ -8598,7 +8605,7 @@ GuiEditIconDialog:
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
 
-if InStr("Document|Application", g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
+if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
 {
 	Oops(lPickIconNoLocation)
 	return
@@ -8648,36 +8655,27 @@ return
 GuiFavoriteIconDisplay:
 ;------------------------------------------------------------
 
-strExpandedIconRessource := EnvVars(g_strNewFavoriteIconResource)
-ParseIconResource(strExpandedIconRessource, strThisIconFile, intThisIconIndex)
-GuiControl, , f_picIcon, *icon%intThisIconIndex% %strThisIconFile%
-GuiControl, % (strExpandedRessourceIcon <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblRemoveIcon
+ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconIndex)
+strExpandedIconFile := EnvVars(strThisIconFile)
+GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
+GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
 
 strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
 blnThisDesktopIniExist := (StrLen(strThisFolder) ? FileExist(strThisFolder . "\desktop.ini") : false)
 strCurrentDesktopIcon := (StrLen(strThisFolder) ? GetFolderIcon(strThisFolder) : "")
 
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconRessource <> EnvVars(g_strDefaultIconResource)
+GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and g_strNewFavoriteIconResource <> g_strDefaultIconResource
 	or (blnThisDesktopIniExist) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
 
 ; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
 GuiControl, , f_lblSetWindowsFolderIcon
 	, % "<a>"
-	. (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = EnvVars(g_strNewFavoriteIconResource)
-		or (blnThisDesktopIniExist and g_strNewFavoriteIconResource = g_strDefaultIconResource)
+	. (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = strExpandedIconFile . "," . intThisIconIndex
+		or (blnThisDesktopIniExist and (g_strNewFavoriteIconResource = g_strDefaultIconResource))
 	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet)
 	. "</a>"
 
-/* BK
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and strExpandedIconRessource <> EnvVars(g_strDefaultIconResource) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
-strCurrentDesktopIcon := GetFolderIcon(f_strFavoriteLocation)
-; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
-GuiControl, , f_lblSetWindowsFolderIcon
-	, % "<a>" . (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = EnvVars(g_strNewFavoriteIconResource) 
-	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet) . "</a>"
-*/
-
-strExpandedRessourceIcon := ""
+strExpandedIconFile := ""
 strThisIconFile := ""
 intThisIconIndex := ""
 strThisFolder := ""
@@ -9448,7 +9446,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
-	if  InStr("Folder|Document|Application|URL|FTP", g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
+	if  InStr("|Folder|Document|Application|URL|FTP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
 		Oops(lDialogFavoriteLocationEmpty)
 		gosub, GuiAddFavoriteSaveCleanup
@@ -9481,14 +9479,14 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 		return
 	}
 
-	if  InStr("Special|QAP", g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
+	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
 		Oops(lDialogFavoriteDropdownEmpty, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
-	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
+	if InStr("|Menu|Group|External", "|" . g_objEditedFavorite.FavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
 	{
 		Oops(L(lDialogFavoriteNameNoSeparator, g_strMenuPathSeparator))
 		gosub, GuiAddFavoriteSaveCleanup
@@ -9505,7 +9503,7 @@ if (strThisLabel <> "GuiMoveOneFavoriteSave")
 	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
 		Oops(lOopsAmpersandInName)
 	
-	if InStr(g_strTypesForTabWindowOptions, g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
+	if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
 		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
@@ -10761,6 +10759,21 @@ return
 
 
 ;------------------------------------------------------------
+GuiAddTextSeparator:
+;------------------------------------------------------------
+Gui, 1:Submit, NoHide
+
+Gui, 1:ListView, f_lvFavoritesList
+g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
+
+g_strAddFavoriteType := "Text"
+gosub, GuiAddFavorite
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 ;------------------------------------------------------------
 {
@@ -10899,6 +10912,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_strEscapePipe
 	global g_objJLiconsByName
 	global g_objJLiconsNames
+	global g_strJLiconsFile
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
@@ -10921,14 +10935,15 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
-				strIniLine .= g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource] . "|" ; 4
-			else if InStr(objCurrentMenu[A_Index].FavoriteIconResource, "JLicons.dll") ; get index of g_objJLiconsByName by index number
+				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
+			else
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
-				strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+				if (strIconFile = g_strJLiconsFile) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
+					strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+				else ; use icongroup as is
+					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			}
-			else ; use icongroup as is
-				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
@@ -10947,7 +10962,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
-			; ###_V("Loop After Write", g_strIniFile, g_intIniLine, strIniLine)
 			g_intIniLine++
 		}
 
@@ -12546,7 +12560,6 @@ if (blnShiftPressed or blnControlPressed)
 	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
-; ###_V(A_ThisLabel, g_strHokeyTypeDetected, g_strAlternativeMenu, g_blnAlternativeMenu)
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -12658,15 +12671,18 @@ gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetecte
 ; if (g_blnDiagMode)
 ;	Diag("g_strTargetAppName", g_strTargetAppName)
 
-gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
-; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
-;	Diag("g_strFullLocation", g_strFullLocation)
-
-if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 {
-	gosub, OpenFavoriteCleanup
-	return
+	gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
+	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+	; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
+	;	Diag("g_strFullLocation", g_strFullLocation)
+
+	if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+	{
+		gosub, OpenFavoriteCleanup
+		return
+	}
 }
 
 if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
@@ -12744,6 +12760,13 @@ if (g_blnAlternativeMenu)
 		gosub, OpenFavoriteCleanup
 		return
 	}
+}
+
+if (g_objThisFavorite.FavoriteType = "Text")
+; if we did not have to edit a Text Separator, we must stop here
+{
+	gosub, OpenFavoriteCleanup
+	return
 }
 
 ; --- Document or Link ---
@@ -15748,7 +15771,7 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	intComaPos := InStr(strIconResource, ",", , 0) - 1 ; search from the end because filename could also include a coma (ex.: "file,name.ico,1")
 	StringLeft, strIconFile, strIconResource, intComaPos
 	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
-	; if strExpandedIconRessource has a relative path, make it absolute based on the QAP working directory
+	; if strExpandedIconResource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
 	; ###_V(A_ThisFuync, "*strIconResource", strIconResource, "*intComaPos", intComaPos, "*strIconFile", strIconFile, "*intIconIndex", intIconIndex)
 }
@@ -16517,45 +16540,47 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 
-	if InStr("Menu|External", objFavorite.FavoriteType, true)
+	if InStr("|Menu|External", "|" . objFavorite.FavoriteType, true)
 		; default submenu icon
-		return g_objJLiconsByName["iconSubmenu"]
+		return "iconSubmenu"
 	else if (objFavorite.FavoriteType = "Group")
 		; default group icon
-		return g_objJLiconsByName["iconGroup"]
+		return "iconGroup"
 	else if (objFavorite.FavoriteType = "Folder")
 		if (objFavorite.FavoriteFolderLiveLevels)
 			; default live folder icon
-			return g_objJLiconsByName["iconFolderLive"]
+			return "iconFolderLive"
 		else
 			; default folder icon
-			return g_objJLiconsByName["iconFolder"]
+			return "iconFolder"
 	else if (objFavorite.FavoriteType = "URL")
 		; default browser icon
 		return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 	else if (objFavorite.FavoriteType = "FTP")
 		; default FTP icon
-		return g_objJLiconsByName["iconFTP"]
+		return "iconFTP"
 	else if (objFavorite.FavoriteType = "Snippet")
 	{
 		strSnippetProperties := objFavorite.FavoriteLaunchWith
 		StringSplit, arrSnippetProperties, strSnippetProperties, `;
 		if (arrSnippetProperties1)
 			; default macro Snippet icon
-			return g_objJLiconsByName["iconPasteSpecial"]
+			return "iconPasteSpecial"
 		else
 			; default text Snippet icon
-			return g_objJLiconsByName["iconPaste"]
+			return "iconPaste"
 	}
-	else if InStr("Document|Application", objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
+	else if InStr("|Document|Application", "|" . objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
 		; default icon for the selected file in add/edit favorite
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
 		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
+	else if (objFavorite.FavoriteType = "Text")
+		return "iconNoIcon"
 	else ; should not
-		return g_objJLiconsByName["iconUnknown"]
+		return "iconUnknown"
 }
 ;------------------------------------------------------------
 
@@ -16564,6 +16589,9 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 PickIconDialog(strFavoriteIconResource)
 ;------------------------------------------------------------
 {
+	global g_objJLiconsNames
+	global g_strJLiconsFile
+	
 	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
 	VarSetCapacity(strIconFile, 1024) ; must be placed before strIconFile is initialized because VarSetCapacity erase its content
 	ParseIconResource(strFavoriteIconResource, strIconFile, intIconIndex)
@@ -16576,7 +16604,9 @@ PickIconDialog(strFavoriteIconResource)
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex + 1
 
-	if StrLen(strIconFile)
+	if (strIconFile = g_strJLiconsFile)
+		return g_objJLiconsNames[intIconIndex] ; JLicons index "iconXYZ"
+	else if StrLen(strIconFile)
 		return strIconFile . "," . intIconIndex
 }
 ;------------------------------------------------------------
@@ -17061,8 +17091,8 @@ WM_MOUSEMOVE(wParam, lParam)
 	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
 	{
-		; 2-28 sauf 26
-		if (intControl < 2) or (intControl = 28) or (intControl > 30)
+		; 2-29 sauf 27
+		if (intControl < 2) or (intControl = 29) or (intControl > 30)
 			return
 	}
 	else if !InStr(strControl, "Button")
