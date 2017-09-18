@@ -31,6 +31,33 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.5.9.1 (2017-09-18)
+ 
+Text Separators
+- new favorite type Text Separator allowing to insert text entries in the menu
+- new "T" icon in the left column of Settings window to add Text Separators
+- by default, Text Separators have no icon but you can select one in the "Menu Options" tab
+ 
+Support no icon for all favorites
+- a new icon in the icons file file used to ; add iconNoIcon icon index value; do not add icon if icon index is iconNoIcon; expand only icon file in add fav icon display; default icons returned as JL index iconXYZ if applicable;
+- save and load to/from ini JLicons icons as index like iconXYZ; pick dialog JLicons icons saved as index like iconXYZ
+- JLicons.dll v1.3 including iconNoIcon
+- debug converting JLicon icons resource from file,index to JLicon index; in progress
+ 
+Add this Link
+- rename QAP Feature "Add This Folder" to "Add this Folder or Link" and adapt other help or dialog; add this folder add detect URL location; get web page title for URL add this folder; in Url2Var if status is not OK return empty
+- refactor get web page title in a function; add a get title button in add/edit link favorite; top auto fill the name field for link favorites; trim and decode numeric codes in web page title
+ 
+Unicode conversion
+- remove "one-time" language related to Unicode encoding, text in English only in main code
+- if settings file is ANSI, create GUI to ask user to convert to Unicode, not convert (setting ini value DoNotConvertSettingsToUnicode to 1) or do nothing now; gui includes alink to FAQ page for help
+ 
+Various
+- fix bug when opening an app favorite with {CUR_LOC} and location is empty
+- option label updated; NL language file updated
+
+
+
 Version: 8.5.2/8.5.3 (2017-09-08)
 - v8.5.3 fixes a comment typo in v8.5.2 preventing the app to load
 - reverting change from v8.5.1 causing issues for users having special characters in their favorites paths : at QAP startup, STOPS converting QuickAccessPopup.ini to Unicode encoding if it is is ANSI (until more tests are done)
@@ -1611,7 +1638,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.5.3
+;@Ahk2Exe-SetVersion v8.5.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1685,8 +1712,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.5.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.5.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -7986,9 +8013,11 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Text, x20 y+20 gGuiPickIconDialog section, %lDialogIcon%
 	Gui, 2:Add, Picture, x20 y+5 w32 h32 vf_picIcon gGuiPickIconDialog
 	Gui, 2:Add, Text, x+5 yp vf_lblRemoveIcon gGuiRemoveIcon, X
-	Gui, 2:Add, Link, x20 ys+57 w240 gGuiPickIconDialog, <a>%lDialogSelectIcon%</a>
+	Gui, 2:Add, Link, x20 ys+57 gGuiPickIconDialog, <a>%lDialogSelectIcon%</a>
+	Gui, 2:Add, Link, x+20 yp gGuiPickIconDialogNo, <a>%lDialogSelectIconNo%</a>
 	Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
 	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
+	Gui, 2:Add, Link, x20 ys+91 w240 gGuiPickIconDialogJL vf_lblSelectIconJL, <a>%lDialogSelectIconJL%</a>
 
 	if (g_objEditedFavorite.FavoriteType <> "Text")
 	{
@@ -8600,6 +8629,8 @@ return
 
 ;------------------------------------------------------------
 GuiPickIconDialog:
+GuiPickIconDialogJL:
+GuiPickIconDialogNo:
 GuiEditIconDialog:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -8612,12 +8643,19 @@ if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !S
 }
 
 if (A_ThisLabel = "GuiEditIconDialog")
-	; InputBox, g_strNewFavoriteIconResource, title, prompt, hide, width, height, x, y, font, timeout, %g_strNewFavoriteIconResource%
-	InputBox, g_strNewFavoriteIconResource, %g_strAppNameFile% - %lDialogEditIcon%, %lDialogEditIconPrompt%, , 400, 160, , , , , %g_strNewFavoriteIconResource%
-else
-	g_strNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
+	; InputBox, outVar, title, prompt, hide, width, height, x, y, font, timeout, %g_strNewFavoriteIconResource%
+	InputBox, strTempNewFavoriteIconResource, %g_strAppNameFile% - %lDialogEditIcon%, %lDialogEditIconPrompt%, , 400, 160, , , , , %g_strNewFavoriteIconResource%
+else if (A_ThisLabel = "GuiPickIconDialog")
+	strTempNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
+else if (A_ThisLabel = "GuiPickIconDialogJl")
+	strTempNewFavoriteIconResource := PickIconDialog(g_strJLiconsFile)
+else if (A_ThisLabel = "GuiPickIconDialogNo")
+	strTempNewFavoriteIconResource := "iconNoIcon"
+g_strNewFavoriteIconResource := (StrLen(strTempNewFavoriteIconResource) ? strTempNewFavoriteIconResource : g_strNewFavoriteIconResource)
 
 Gosub, GuiFavoriteIconDisplay
+
+strTempNewFavoriteIconResource := ""
 
 return
 ;------------------------------------------------------------
@@ -8659,21 +8697,28 @@ ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconInde
 strExpandedIconFile := EnvVars(strThisIconFile)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
+GuiControl, % (strThisIconFile <> g_strJLiconsFile ? "Show" : "Hide"), f_lblSelectIconJL
 
 strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
 blnThisDesktopIniExist := (StrLen(strThisFolder) ? FileExist(strThisFolder . "\desktop.ini") : false)
 strCurrentDesktopIcon := (StrLen(strThisFolder) ? GetFolderIcon(strThisFolder) : "")
 
-GuiControl, % (g_objEditedFavorite.FavoriteType = "Folder" and g_strNewFavoriteIconResource <> g_strDefaultIconResource
-	or (blnThisDesktopIniExist) ? "Show" : "Hide"), f_lblSetWindowsFolderIcon
+if (g_objEditedFavorite.FavoriteType = "Folder")
+{
+	GuiControl, % ((blnThisDesktopIniExist) ; desktop.ini exists
+		or (g_strNewFavoriteIconResource <> g_strDefaultIconResource ; or icon is not default
+		and (!blnThisDesktopIniExist) and g_strNewFavoriteIconResource <> "iconNoIcon") ; but not if no icon and desktop does not exist
+		? "Show" : "Hide")
+		, f_lblSetWindowsFolderIcon
 
-; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
-GuiControl, , f_lblSetWindowsFolderIcon
-	, % "<a>"
-	. (strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = strExpandedIconFile . "," . intThisIconIndex
-		or (blnThisDesktopIniExist and (g_strNewFavoriteIconResource = g_strDefaultIconResource))
-	? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet)
-	. "</a>"
+	; compare g_strNewFavoriteIconResource expanded and not expanded because if could be expanded or not in desktop.ini
+	GuiControl, , f_lblSetWindowsFolderIcon
+		, % "<a>"
+		. ((strCurrentDesktopIcon = g_strNewFavoriteIconResource or strCurrentDesktopIcon = strExpandedIconFile . "," . intThisIconIndex) ; desktop icon is same as favorite
+			or (blnThisDesktopIniExist and (g_strNewFavoriteIconResource = g_strDefaultIconResource or g_strNewFavoriteIconResource = "iconNoIcon")) ; or desktop icon exists and it is the default or no icon
+		? lDialogWindowsFolderIconRemove : lDialogWindowsFolderIconSet)
+		. "</a>"
+}
 
 strExpandedIconFile := ""
 strThisIconFile := ""
@@ -16600,13 +16645,16 @@ PickIconDialog(strFavoriteIconResource)
 	WinGet, hWnd, ID, A
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex - 1
-	DllCall("shell32\PickIconDlg", "Uint", hWnd, "str", strIconFile, "Uint", 260, "intP", intIconIndex)
+	
+	if !DllCall("shell32\PickIconDlg", "Uint", hWnd, "str", strIconFile, "Uint", 260, "intP", intIconIndex)
+		return ; return empty if user cancelled
+	
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex + 1
 
 	if (strIconFile = g_strJLiconsFile)
 		return g_objJLiconsNames[intIconIndex] ; JLicons index "iconXYZ"
-	else if StrLen(strIconFile)
+	else
 		return strIconFile . "," . intIconIndex
 }
 ;------------------------------------------------------------
