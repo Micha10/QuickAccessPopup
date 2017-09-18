@@ -3108,23 +3108,42 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 }
-; change from v8.5.1 removed in v8.5.2 after issue reported when user has special characters in their paths
-; else
-; {
-;	check if the ini file is Unicode
-	; objIniFile := FileOpen(g_strIniFile, "r") ; open the file read-only
-	; strFileEncoding := (InStr(objIniFile.Encoding, "UTF-") ? objIniFile.Encoding : "")
-	; objIniFile.Close()
-	; if !StrLen(strFileEncoding) ; this is an ANSI file
-	; {
-		; FileCopy, %g_strIniFile%, %g_strIniFile%-ANSI-BK, 1 ; the backup file should not exist but, in case, overwrite it
-		; FileRead, strIniFileContent, %g_strIniFile% ; read the actual ANSI file
-		; FileDelete, %g_strIniFile% ; delete the ini file
-		; Sleep, 20 ; safety
-		; FileAppend, %strIniFileContent%, %g_strIniFile%, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
-		; MsgBox, 0, % L(lOopsTitle, g_strAppNameText, g_strAppVersion), %lDialogIniConvertedToUnicode%
-	; }
-; }
+else
+{
+	IniRead, blnDoNotConvertSettingsToUnicode, %g_strIniFile%, Global, DoNotConvertSettingsToUnicode, 0
+	if !(blnDoNotConvertSettingsToUnicode)
+	{
+		; check if the ini file is Unicode
+		objIniFile := FileOpen(g_strIniFile, "r") ; open the file read-only
+		strFileEncoding := (InStr(objIniFile.Encoding, "UTF-") ? objIniFile.Encoding : "")
+		objIniFile.Close()
+		if !StrLen(strFileEncoding) ; this is an ANSI file
+		{
+			g_strConvertSettingsEncodingYes := "Yes convert to Unicode"
+			g_strConvertSettingsEncodingNo := "No keep to ANSI"
+			g_strConvertSettingsEncodingLater := "Ask me next time"
+			Gui, New, , %g_strAppNameText% %g_strAppVersion%
+			Gui, Color, White
+			Gui, Font, w700 s9, Segoe UI
+			Gui, Add, Text, w500 , % L("~1~ ""one-time"" maintenance", g_strAppNameText)
+			Gui, Font, w400 s9, Segoe UI
+			Gui, Add, Text, w500 , % L("~1~ is about to convert your settings file`n~2~`nfrom ANSI to Unicode encoding."
+				, g_strAppNameText, g_strIniFile)
+			Gui, Add, Text, w500 , This change will allow the use of extended characters in favorite's name, location or content, etc.
+			Gui, Add, Text, w500 , If you encounter issues with special characters in your menu after the conversion, you can revert to the previous file.
+			Gui, Add, Link, w500 , % L("See this <a href=""~1~"">FAQ page</a> for help now. Or search the <a href=""~1~"">FAQ</a> for ""Unicode"" later."
+				, "http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-what-to-do-if-i-encounter-issues-after-conversion/"
+				, "http://www.quickaccesspopup.com/frequently-asked-questions/")
+			Gui, Font
+			Gui, Add, Button, y+20 gConvertSettingsEncoding vf_btnConvertSettingsEncodingYes, %g_strConvertSettingsEncodingYes%
+			Gui, Add, Button, yp x+10 gConvertSettingsEncoding vf_btnConvertSettingsEncodingNo, %g_strConvertSettingsEncodingNo%
+			Gui, Add, Button, yp x+10 gConvertSettingsEncoding vf_btnConvertSettingsEncodingLater default, %g_strConvertSettingsEncodingLater%
+			Gui, Add, Text
+			GuiCenterButtons(g_strAppNameText . " " . g_strAppVersion, 10, 5, 20, "f_btnConvertSettingsEncodingYes", "f_btnConvertSettingsEncodingNo", "f_btnConvertSettingsEncodingLater")
+			Gui, Show, AutoSize Center
+		}
+	}
+}
 
 Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
 Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
@@ -3274,6 +3293,38 @@ intNumberOfBackups := ""
 objIniFile := ""
 strFileEncoding := ""
 strIniFileContent := ""
+blnDoNotConvertSettingsToUnicode := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ConvertSettingsEncoding:
+;------------------------------------------------------------
+
+if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
+{
+	FileCopy, %g_strIniFile%, %g_strIniFile%-ANSI-BK, 1 ; the backup file should not exist but, in case, overwrite it
+	FileRead, strIniFileContent, %g_strIniFile% ; read the actual ANSI file
+	FileDelete, %g_strIniFile% ; delete the ini file
+	Sleep, 20 ; safety
+	FileAppend, %strIniFileContent%, %g_strIniFile%, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
+	
+	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion)
+		, % "Your settings file has been converted to the Unicode encoding.`n`n"
+		. "This change allows the use of extended characters in favorite's name, location or content.`n`n"
+		. L("You must restart ~1~ and load the new settings now.", g_strAppNameText)
+		
+	Gosub, ReloadQAP
+}
+else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
+	
+	IniWrite, 1, %g_strIniFile%, Global, DoNotConvertSettingsToUnicode
+	
+; else do nothing
+
+Gui, Destroy
 
 return
 ;------------------------------------------------------------
