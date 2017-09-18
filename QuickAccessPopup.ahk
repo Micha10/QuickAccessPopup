@@ -7643,7 +7643,13 @@ else ; add favorite
 		else ; all other labels
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
-			g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+			if LocationIsHttp(g_strNewLocation)
+			{
+				g_objEditedFavorite.FavoriteType := "URL"
+				g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
+			}
+			else
+				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 		}
 	}
 	g_strNewFavoriteHotkey := "None" ; internal name
@@ -7661,12 +7667,13 @@ else ; add favorite
 	}
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 	{
-		if StrLen(g_strNewLocationSpecialName)
-			g_objEditedFavorite.FavoriteType := "Special"
-		else if SubStr(g_strNewLocation, 1, 6) = "ftp://"
-			g_objEditedFavorite.FavoriteType := "FTP"
-		else
-			g_objEditedFavorite.FavoriteType := "Folder"
+		if !StrLen(g_objEditedFavorite.FavoriteType) ; exclude case where FavoriteType was set earlier
+			if StrLen(g_strNewLocationSpecialName)
+				g_objEditedFavorite.FavoriteType := "Special"
+			else if SubStr(g_strNewLocation, 1, 6) = "ftp://"
+				g_objEditedFavorite.FavoriteType := "FTP"
+			else
+				g_objEditedFavorite.FavoriteType := "Folder"
 	}
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress|GuiAddShortcutFromMsg", strGuiFavoriteLabel)
 	{
@@ -7767,6 +7774,8 @@ else
 
 if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (g_objEditedFavorite.FavoriteType = "Group" ? lDialogOpenThisGroup : lDialogOpenThisMenu)
+else if (g_objEditedFavorite.FavoriteType = "URL")
+	Gui, 2:Add, Button, x+10 yp gGuiGetWebPageTitle, %lDialogGetWebPageTitle%
 
 if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 {
@@ -8394,6 +8403,20 @@ return
 
 
 ;------------------------------------------------------------
+GuiGetWebPageTitle:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+if StrLen(f_strFavoriteLocation)
+	GuiControl, , f_strFavoriteShortName, % GetWebPageTitle(f_strFavoriteLocation)
+else
+	Oops(lOopsFirstEnterUrl, g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType])
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 DropdownSpecialChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -8436,6 +8459,9 @@ EditFavoriteLocationChanged:
 EditFavoriteExternalLocationChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if (g_objEditedFavorite.FavoriteType = "URL")
+	return
 
 if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
@@ -14316,10 +14342,13 @@ Check4UpdateDialogProd:
 
 strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
 
-intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ")
-strChangeLog := SubStr(strChangeLog, intPos)
-intPos := InStr(strChangeLog, "`n`n")
-strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
+if StrLen(strChangeLog)
+{
+	intPos := InStr(strChangeLog, "Version: " . strLatestVersionProd . " ")
+	strChangeLog := SubStr(strChangeLog, intPos)
+	intPos := InStr(strChangeLog, "`n`n")
+	strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
+}
 
 Gui, Update:New, , % L(lUpdateTitle, g_strAppNameText)
 ; Do not use g_strMenuBackgroundColor here because it is not set yet
@@ -15243,6 +15272,10 @@ GetCurrentLocation(strClass, strWinID)
 			Clipboard := objPrevClipboard ; Restore the original clipboard
 		}
 	}
+	else if InStr("ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1", strClass) ; ModernBrowsers
+		strLocation := GetCurrentUrlAcc(strClass)
+	else if InStr("IEFrame,OperaWindowClass,MozillaWindowClass", strClass) ; LegacyBrowsers (as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752)
+		strLocation := GetCurrentUrlDDE(strClass) ; empty string if DDE not supported (or not a browser)
 
 	return strLocation
 }
@@ -15977,6 +16010,24 @@ ReplaceAllInString(strThis, strFrom, strTo)
 
 
 ;------------------------------------------------------------
+GetWebPageTitle(strLocation)
+;------------------------------------------------------------
+{
+	strHTML := Url2Var(strLocation)
+	RegExMatch(strHTML, "is)<title>(.*?)</title>", strTitle)
+	
+	StringReplace, strTitle, strTitle, <title>
+	StringReplace, strTitle, strTitle, </title>
+	StringReplace, strTitle, strTitle, `r, , A
+	StringReplace, strTitle, strTitle, `t, %A_Space%, A
+	StringReplace, strTitle, strTitle, `n, %A_Space%, A
+	
+	return NumDecode(Trim(strTitle, Chr(160))) ; Chr(160) to also trim non-breaking spaces
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 Url2Var(strUrl)
 ;------------------------------------------------------------
 {
@@ -15989,7 +16040,7 @@ Url2Var(strUrl)
 	objWebRequest.Open("GET", strUrl)
 	objWebRequest.Send()
 
-	return objWebRequest.ResponseText()
+	return (objWebRequest.StatusText() = "OK" ? objWebRequest.ResponseText() : "")
 }
 ;------------------------------------------------------------
 
@@ -16061,6 +16112,25 @@ UriEncode(str)
    }   
    SetFormat,Integer,%b_format% 
    return s 
+} 
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+NumDecode(str)
+; Extracted from Dec_XML() https://autohotkey.com/board/topic/29866-encoding-and-decoding-functions-v11/
+; converts "&#233;" or "&#xE9;" to "é"
+;------------------------------------------------------------
+{
+	Loop
+		If RegexMatch(str, "S)(&#(\d+);)", dec) ; matches: &#[dec];
+			StringReplace, str, str, %dec1%, % Chr(dec2), All
+		Else If RegexMatch(str, "Si)(&#x([\da-f]+);)", hex) ; matches: &#x[hex];
+			StringReplace, str, str, %hex1%, % Chr("0x" . hex2), All
+		Else
+			Break
+	
+	return str
 } 
 ;------------------------------------------------------------
 
@@ -16783,6 +16853,162 @@ ScriptInfo(Command)
  
     ControlGetText, text,, ahk_id %hEdit%
     return text
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlDDE(strClass)
+; "GetCurrentUrlDDE" adapted from DDE code by Sean, (AHK_L version by maraskan_user) (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/17633-/?p=434518
+;------------------------------------------------------------
+{
+	WinGet, strServer, ProcessName, % "ahk_class " . strClass
+	StringTrimRight, strServer, strServer, 4
+	intCodePage := (A_IsUnicode ? 0x04B0 : 0x03EC) ; 0x04B0 = CP_WINUNICODE, 0x03EC = CP_WINANSI
+	
+	DllCall("DdeInitialize", "UPtrP", idInst, "Uint", 0, "Uint", 0, "Uint", 0)
+	
+	hServer := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", strServer, "int", intCodePage)
+	hTopic := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", "WWW_GetWindowInfo", "int", intCodePage)
+	hItem := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", "0xFFFFFFFF", "int", intCodePage)
+	hConv := DllCall("DdeConnect", "UPtr", idInst, "UPtr", hServer, "UPtr", hTopic, "Uint", 0)
+	hData := DllCall("DdeClientTransaction", "Uint", 0, "Uint", 0, "UPtr", hConv, "UPtr", hItem, "UInt", 1, "Uint", 0x20B0, "Uint", 10000, "UPtrP", nResult) ; 0x20B0 = XTYP_REQUEST, 10000 = 10s timeout
+	sData := DllCall("DdeAccessData", "Uint", hData, "Uint", 0, "Str")
+	
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hServer)
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hTopic)
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hItem)
+	DllCall("DdeUnaccessData", "UPtr", hData)
+	DllCall("DdeFreeDataHandle", "UPtr", hData)
+	DllCall("DdeDisconnect", "UPtr", hConv)
+	DllCall("DdeUninitialize", "UPtr", idInst)
+	
+	csvWindowInfo := StrGet(&sData, "CP0")
+	StringSplit, strWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
+	
+	Return strWindowInfo2
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlAcc(strClass)
+; Found at http://autohotkey.com/board/topic/17633-/?p=434518 (via Joe Glines)
+;------------------------------------------------------------
+{
+	global nWindow
+	global accAddressBar
+	
+	If (nWindow != WinExist("ahk_class " strClass)) ; reuses accAddressBar if it's the same window
+	{
+		nWindow := WinExist("ahk_class " strClass)
+		accAddressBar := GetAddressBar(GetCurrentUrlAccObjectFromWindow(nWindow))
+	}
+	Try sURL := accAddressBar.accValue(0)
+		If (sURL == "")
+		{
+			WinGet, nWindows, List, % "ahk_class " strClass ; In case of a nested browser window as in the old CoolNovo (TO DO: check if still needed)
+			If (nWindows > 1)
+			{
+				accAddressBar := GetAddressBar(GetCurrentUrlAccObjectFromWindow(nWindows2))
+				Try sURL := accAddressBar.accValue(0)
+			}
+		}
+	If ((sURL != "") and (SubStr(sURL, 1, 4) != "http")) ; Modern browsers omit "http://"
+		sURL := "http://" . sURL
+	If (sURL == "")
+		nWindow := -1 ; Don't remember the window if there is no URL
+	Return sURL
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetAddressBar(accObj)
+; "GetAddressBar" based in code by uname (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/103178-/?p=637687
+; IsUrl in this functions above replaced by my own code LocationIsHttp
+;------------------------------------------------------------
+{
+	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
+		Return accObj
+	Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+		Return accObj
+	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
+		If IsObject(accAddressBar := GetAddressBar(accChild))
+			Return accAddressBar
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlAccInit()
+; Part of the Acc.ahk Standard Library by Sean (updated by jethrow) (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/77303-/?p=491516
+;------------------------------------------------------------
+{
+	static h
+	If Not h
+		h := DllCall("LoadLibrary", "Str", "oleacc", "Ptr")
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlAccObjectFromWindow(hWnd, idObject = 0)
+; Part of the Acc.ahk Standard Library by Sean (updated by jethrow) (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/77303-/?p=491516
+;------------------------------------------------------------
+{
+	GetCurrentUrlAccInit()
+	If DllCall("oleacc\AccessibleObjectFromWindow", "Ptr", hWnd, "UInt", idObject&=0xFFFFFFFF, "Ptr"
+		, -VarSetCapacity(IID, 16) + NumPut(idObject == 0xFFFFFFF0 ? 0x46000000000000C0 : 0x719B3800AA000C81
+		, NumPut(idObject == 0xFFFFFFF0 ? 0x0000000000020400 : 0x11CF3C3D618736E0, IID, "Int64"), "Int64"), "Ptr*", pacc) = 0
+		Return ComObjEnwrap(9, pacc, 1)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlAccQuery(objAcc)
+; Part of the Acc.ahk Standard Library by Sean (updated by jethrow) (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/77303-/?p=491516
+;------------------------------------------------------------
+{
+	Try Return ComObj(9, ComObjQuery(objAcc, "{618736e0-3c3d-11cf-810c-00aa00389b71}"), 1)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetCurrentUrlAccChildren(objAcc)
+; Part of the Acc.ahk Standard Library by Sean (updated by jethrow) (via Joe Glines)
+; Found at http://autohotkey.com/board/topic/77303-/?p=491516
+;------------------------------------------------------------
+{
+	If ComObjType(objAcc,"Name") != "IAccessible"
+		ErrorLevel := "Invalid IAccessible Object"
+	Else
+	{
+		GetCurrentUrlAccInit()
+		cChildren := objAcc.accChildCount
+		Children := []
+		If DllCall("oleacc\AccessibleChildren", "Ptr", ComObjValue(objAcc), "Int", 0, "Int", cChildren, "Ptr"
+			, VarSetCapacity(varChildren, cChildren * (8 + 2 * A_PtrSize), 0) * 0 + &varChildren, "Int*", cChildren) = 0
+		{
+			Loop, %cChildren%
+			{
+				i := (A_Index - 1) * (A_PtrSize * 2 + 8) + 8
+				child := NumGet(varChildren, i)
+				Children.Insert(NumGet(varChildren, i - 8) = 9 ? GetCurrentUrlAccQuery(child) : child)
+				(NumGet(varChildren, i - 8) = 9 ? ObjRelease(child) : "")
+			}
+			Return (Children.MaxIndex() ? Children : "")
+		}
+		Else
+			ErrorLevel := "AccessibleChildren DllCall Failed"
+	}
 }
 ;------------------------------------------------------------
 
