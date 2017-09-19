@@ -31,32 +31,38 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.5.9.1 (2017-09-18)
+Version BETA: 8.5.9.1 (2017-09-19)
  
 Text Separators
-- new favorite type Text Separator allowing to insert text entries in the menu
+- new favorite type "Text Separator" allowing to insert text entries as headers in the QAP menu (selecting these entries does just nothing)
 - new "T" icon in the left column of Settings window to add Text Separators
 - by default, Text Separators have no icon but you can select one in the "Menu Options" tab
  
-Support no icon for all favorites
-- a new icon in the icons file file used to ; add iconNoIcon icon index value; do not add icon if icon index is iconNoIcon; expand only icon file in add fav icon display; default icons returned as JL index iconXYZ if applicable;
-- save and load to/from ini JLicons icons as index like iconXYZ; pick dialog JLicons icons saved as index like iconXYZ
-- JLicons.dll v1.3 including iconNoIcon
-- debug converting JLicon icons resource from file,index to JLicon index; in progress
+Favorites icons management 
+- allow favorites to have "no icon"
+- new link labeled "no icon" in add/edit favorite dialog box, "Menu Options", selecting the "no icon" pseudo-icon (the "forbidden" sign with a diagonal bar) for this favorite
+- the "no icon" icon can also be selected in the JLicons.dll file
+- the icons from JLicons.dll are now saved in the settings file by their name (e.g. "iconFolder") instead of the "file,index" format used for icons from other files
+- current icons from JLindex.dll in the settings file will be converted from "file,index" format to names (e.g. "iconFolder") next time you save your settings
+- new link labeled "select in JLicons.dll" in add/edit favorite dialog box, "Menu Options", shown only if current icon is not already picked from this file
+- new JLicons.dll v1.3 including iconNoIcon will automatically replace the current JLicons.dll file for Setup users (user preferinf portable installation, make sure you unzip and update this file)
  
 Add this Link
-- rename QAP Feature "Add This Folder" to "Add this Folder or Link" and adapt other help or dialog; add this folder add detect URL location; get web page title for URL add this folder; in Url2Var if status is not OK return empty
-- refactor get web page title in a function; add a get title button in add/edit link favorite; top auto fill the name field for link favorites; trim and decode numeric codes in web page title
+- rename QAP Feature "Add This Folder" to "Add this Folder or Link" and detect URL location as well as folder location
+- when using "Add this Folder or Link" to add a link, retrieve the web page title automatically as default favorite name; it the URL returns an error (this can happen even for valid pages), leave the favorite name empty
+- when adding or editing a favorite link, add a button to get the page title from the we page and put it as default for the favorite name
  
 Unicode conversion
-- remove "one-time" language related to Unicode encoding, text in English only in main code
-- if settings file is ANSI, create GUI to ask user to convert to Unicode, not convert (setting ini value DoNotConvertSettingsToUnicode to 1) or do nothing now; gui includes alink to FAQ page for help
+- if QAP settings file (QuickAccessPopup.ini) is encoded using ANSI standard, display a dialog box offering the user to:
+  1) convert its settings file to Unicode (for better int'l and special characters support);
+  2) not convert (value DoNotConvertSettingsToUnicode=1 is added to settings to remember this choice);
+  3) or ask user next startup.
+- dialog box includes a link to a FAQ web page for explanation and help (http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
  
 Various
-- fix bug when opening an app favorite with {CUR_LOC} and location is empty
-- option label updated; NL language file updated
-
-
+- fix bug when opening an application favorite with {CUR_LOC} and when location is empty (when the current window is not an Explorer window)
+- fix bug when user cancel the pick icon dialog box, now it always keep the selected icon
+- Duth language file updated
 
 Version: 8.5.2/8.5.3 (2017-09-08)
 - v8.5.3 fixes a comment typo in v8.5.2 preventing the app to load
@@ -3150,7 +3156,7 @@ else
 		if !StrLen(strFileEncoding) ; this is an ANSI file
 		{
 			g_strConvertSettingsEncodingYes := "Yes convert to Unicode"
-			g_strConvertSettingsEncodingNo := "No keep to ANSI"
+			g_strConvertSettingsEncodingNo := "No keep ANSI encoding"
 			g_strConvertSettingsEncodingLater := "Ask me next time"
 			Gui, New, , %g_strAppNameText% %g_strAppVersion%
 			Gui, Color, White
@@ -3162,7 +3168,7 @@ else
 			Gui, Add, Text, w500 , This change will allow the use of extended characters in favorite's name, location or content, etc.
 			Gui, Add, Text, w500 , If you encounter issues with special characters in your menu after the conversion, you can revert to the previous file.
 			Gui, Add, Link, w500 , % L("See this <a href=""~1~"">FAQ page</a> for help now. Or search the <a href=""~1~"">FAQ</a> for ""Unicode"" later."
-				, "http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-what-to-do-if-i-encounter-issues-after-conversion/"
+				, "http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/"
 				, "http://www.quickaccesspopup.com/frequently-asked-questions/")
 			Gui, Font
 			Gui, Add, Button, y+20 gConvertSettingsEncoding vf_btnConvertSettingsEncodingYes, %g_strConvertSettingsEncodingYes%
