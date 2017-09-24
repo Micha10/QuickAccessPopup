@@ -16121,7 +16121,10 @@ ReplaceAllInString(strThis, strFrom, strTo)
 GetWebPageTitle(strLocation)
 ;------------------------------------------------------------
 {
+	ToolTip, %lToolTipRetrievingWebPageTitle%
 	strHTML := Url2Var(strLocation)
+	ToolTip
+	
 	RegExMatch(strHTML, "is)<title>(.*?)</title>", strTitle)
 	
 	StringReplace, strTitle, strTitle, <title>

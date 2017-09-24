@@ -557,6 +557,7 @@ global lPickIconNoLocation := "First select a favorite before choosing an icon."
 global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ now? Unsaved changes to the menu will be lost."
 global lTCMenuName := "TC Directory hotlist" ; new
 global lTCWinCmdLocation := "WinCmd.ini location" ; new
+global lToolTipRetrievingWebPageTitle := "Retrieving web page title..."
 global lTooltipSnippetKeyWait := "Press {~1~} to continue..."
 global lTooltipSnippetWaitEnter := "Enter"
 global lTooltipSnippetWaitMacro := "Hit ""~1~"" or ""~2~"" to launch the macro (waiting ~3~ seconds)" ; new
