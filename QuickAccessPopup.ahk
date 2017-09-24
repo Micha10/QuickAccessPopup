@@ -5664,7 +5664,8 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (g_intHotkeyReminde
 
 if !(g_blnPortableMode)
 {
-	Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+	Gui, 2:Add, Text, y+15 xs w300, %lOptionsExplorerContextMenusHeader%
+	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
 	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
 }
 
