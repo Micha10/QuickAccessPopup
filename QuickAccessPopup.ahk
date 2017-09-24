@@ -1785,6 +1785,9 @@ g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
+g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+
 ;---------------------------------
 ; Initial validation
 
@@ -3075,6 +3078,7 @@ g_objMenuInGui := Object() ; object of menu currently in Gui
 
 IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2QAP.ahk during install
 {
+	g_strIniBefore := "NEW"
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
 	if !(g_blnPortableMode)
 		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
@@ -3146,6 +3150,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 }
 else
 {
+	g_strIniBefore := "DONT"
 	IniRead, blnDoNotConvertSettingsToUnicode, %g_strIniFile%, Global, DoNotConvertSettingsToUnicode, 0
 	if !(blnDoNotConvertSettingsToUnicode)
 	{
@@ -3153,6 +3158,7 @@ else
 		objIniFile := FileOpen(g_strIniFile, "r") ; open the file read-only
 		strFileEncoding := (InStr(objIniFile.Encoding, "UTF-") ? objIniFile.Encoding : "")
 		objIniFile.Close()
+		g_strIniBefore := strFileEncoding
 		if !StrLen(strFileEncoding) ; this is an ANSI file
 		{
 			g_strConvertSettingsEncodingYes := "Yes convert to Unicode"
@@ -3352,6 +3358,7 @@ if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 		. "This change allows the use of extended characters in favorite's name, location or content.`n`n"
 		. L("You must restart ~1~ and load the new settings now.", g_strAppNameText)
 		
+	g_strIniAfter := "DONE"
 	Gosub, ReloadQAP
 }
 else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
@@ -3360,6 +3367,7 @@ else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
 	
 ; else do nothing
 
+g_strIniAfter := "SKIP"
 Gui, Destroy
 
 return
@@ -7250,8 +7258,9 @@ AddThisShortcutFromMsg:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
-	; returns current or latest file manager window ID and Window class, and re-activate the last active file manager window
-	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true)
+	; returns current or latest file manager window ID and Window class (including dialog boxes), and re-activate the last active file manager window
+	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
+	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, false, true)
 	
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
@@ -7344,17 +7353,22 @@ return
 
 
 ;------------------------------------------------------------
-GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false)
+GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 ; return ByRef parameters for g_strTargetWinId and g_strTargetClass (or current file manager ID and class if called to reopen current location)
 ; called when g_strTargetWinId and g_strTargetClass are not updated when invoking the popup menu
 ; with blnActivate true when add folder from QAP tray icon
 ; with blnExcludeDialogBox true when reopen file manager current location in dialog box
 ;------------------------------------------------------------
 {
+	global g_strModernBrowsers
+	global g_strLegacyBrowsers
+	
 	DetectHiddenWindows, Off
 	Winget, strIDs, list
 	DetectHiddenWindows, On ; revert to app default
 
+	strBrowsersClass := g_strModernBrowsers . "," . g_strLegacyBrowsers
+	
 	Loop, %strIDs%
 	{
 		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
@@ -7369,6 +7383,18 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 			strThisId := strIDs%A_Index%
 			break
 		}
+		else if (blnIncludeBrowsers)
+			loop, parse, strBrowsersClass, `,
+				if (A_LoopField = strThisClass)
+				{
+					if (blnActivate)
+					{
+						WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+						WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+					}
+					strThisId := strIDs%A_Index%
+					break, 2
+				}
 	}
 }
 ;------------------------------------------------------------
@@ -13084,7 +13110,8 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
 {
-	; GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass) ; returns current or latest file manager window ID and Window class
+	; returns current or latest file manager window ID and Window class, excluding dialog boxes
+	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
 	
 	g_objThisFavorite := Object() ; temporary favorite object
@@ -14237,7 +14264,9 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&lsys=" . A_Language
 	. "&lfp=" . g_strLanguageCode
 	. "&shd=" . strShell32Date
-	. "&ird=" . strImageresDate)
+	. "&ird=" . strImageresDate
+	. "&ini1=" . g_strIniBefore
+	. "&ini2=" . g_strIniAfter)
 if !StrLen(strLatestVersions)
 	if (A_ThisMenuItem = lMenuUpdateAmpersand)
 	{
@@ -15261,6 +15290,8 @@ GetCurrentLocation(strClass, strWinID)
 ;------------------------------------------------------------
 {
 	global g_strDOpusListText
+	global g_strModernBrowsers
+	global g_strLegacyBrowsers
 
 	strLocation := ""
 	
@@ -15296,7 +15327,6 @@ GetCurrentLocation(strClass, strWinID)
 			; With Explorer, the key sequence {F4}{Esc} selects the current location of the window.
 			; With dialog boxes, the key sequence {F4}{Esc} generally selects the current location of the window. But, in some
 			; dialog boxes, the {Esc} key closes the dialog box. We will check window title to detect this behavior.
-
 
 			intTries := 3
 			intWaitTimeIncrement := 150 ; time allowed to get title
@@ -15346,9 +15376,9 @@ GetCurrentLocation(strClass, strWinID)
 			Clipboard := objPrevClipboard ; Restore the original clipboard
 		}
 	}
-	else if InStr("ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1", strClass) ; ModernBrowsers
+	else if InStr(g_strModernBrowsers, strClass)
 		strLocation := GetCurrentUrlAcc(strClass)
-	else if InStr("IEFrame,OperaWindowClass,MozillaWindowClass", strClass) ; LegacyBrowsers (as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752)
+	else if InStr(g_strLegacyBrowsers, strClass) ; LegacyBrowsers (as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752)
 		strLocation := GetCurrentUrlDDE(strClass) ; empty string if DDE not supported (or not a browser)
 
 	return strLocation
