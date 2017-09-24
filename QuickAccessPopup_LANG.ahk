@@ -511,6 +511,7 @@ global lOptionsExclusionList := "Exclusions" ; new
 global lOptionsExclusionTitle := "Exclusions list for Mouse trigger [~1~]" ; new
 global lOptionsExplorerContextMenus := "Enable context menus"
 global lOptionsExplorerContextMenusHeader := "Windows Explorer Context Menus:"
+global lOptionsFileManagerAlwaysNavigate := "Always open folders in current file manager window"
 global lOptionsFtpEncoding := "Encode FTP username and password (recommended)" ; new
 global lOptionsFtpEncodingTC := "Encode FTP username and password (not recommended for Total Commander)" ; new
 global lOptionsGuiTitle := "Options - ~1~ ~2~" ; new
@@ -541,6 +542,8 @@ global lOptionsRunAtStartup := "&Run at Startup"
 global lOptionsSelectCatalogueRoot := "Select Shared Menus Catalogue root folder"
 global lOptionsSnippetsHelp := "Snippets defaults (<a href=""~1~"">~2~</a>)"
 global lOptionsTabFileManagersIntro := "Select the file manager to use to open folders in a new window." ; changed
+global lOptionsTabFileManagersPreferred := "Preferred file manager"
+global lOptionsTabFileManagersPreferences := "File manager preferences"
 global lOptionsTabMenuOptionsIntro := "Make the popup menu appear as you like !"
 global lOptionsTabMouseAndKeyboardIntro := "Define the mouse buttons and keyboard hotkeys that will trigger the ~1~ main menu." ; changed
 global lOptionsTabOtherOptionsIntro := "Make ~1~ work the way you like!"

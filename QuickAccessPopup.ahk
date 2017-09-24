@@ -3268,6 +3268,8 @@ g_strTotalCommanderPath := EnvVars(g_strTotalCommanderPathBeforeEnvVars)
 IniRead, g_blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
 IniRead, g_strWinCmdIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
 
+IniRead, g_blnFileManagerAlwaysNavigate, %g_strIniFile%, Global, FileManagerAlwaysNavigate, 0
+
 strActiveFileManagerSystemName := g_arrActiveFileManagerSystemNames%g_intActiveFileManager%
 if (g_intActiveFileManager = 4) ; QAPconnect connected File Manager
 {
@@ -5765,9 +5767,10 @@ Gui, 2:Tab, 6
 
 Gui, 2:Add, Text, x10 y+10 w595 center, %lOptionsTabFileManagersIntro%
 
+Gui, 2:Add, Text, y+15 x10 w300 Section, %lOptionsTabFileManagersPreferred%
 loop, %g_arrActiveFileManagerSystemNames0%
 	Gui, 2:Add, Radio, % "y+10 x15 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (g_intActiveFileManager = A_Index ? " checked" : ""), % g_arrActiveFileManagerDisplayNames%A_Index%
-	
+
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp hidden
 Gui, 2:Font
@@ -5783,6 +5786,10 @@ Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % 
 Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, %lTCWinCmdLocation%
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, %lDialogBrowseButton%
+
+Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsTabFileManagersPreferences%
+Gui, 2:Add, Checkbox, y+10 x320 w300 vf_blnFileManagerAlwaysNavigate, %lOptionsFileManagerAlwaysNavigate%
+GuiControl, , f_blnFileManagerAlwaysNavigate, %g_blnFileManagerAlwaysNavigate%
 
 Gosub, ActiveFileManagerClicked ; init visible fields
 
@@ -6384,6 +6391,9 @@ else if (g_intActiveFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 }
 if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconnect
 	Gosub, SetActiveFileManager
+
+g_blnFileManagerAlwaysNavigate := f_blnFileManagerAlwaysNavigate
+IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
 
 ;---------------------------------------
 ; End of tabs
@@ -11961,6 +11971,7 @@ if !(g_blnAlternativeMenu)
 if (A_ThisLabel = "LaunchFromTrayIcon")
 {
 	g_strTargetWinId := "" ; never use target window when launched from the tray icon
+	g_strTargetClass := "" ;  re-init for safety
 	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
@@ -12657,6 +12668,15 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	gosub, PasteSnippet
 	gosub, OpenFavoriteCleanup
 	return
+}
+
+if (g_blnFileManagerAlwaysNavigate and (g_strAlternativeMenu <> lMenuAlternativeNewWindow)
+	and InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
+	and !WindowIsDialog(g_strTargetClass, g_strTargetWinId))
+{
+	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
+	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, true) ; get and activate last used file manager
+	g_strHokeyTypeDetected := "Navigate"
 }
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
