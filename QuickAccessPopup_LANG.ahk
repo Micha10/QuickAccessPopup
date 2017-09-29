@@ -469,6 +469,7 @@ global lOopsExternalNotAllowedUnderExternal := "Shared menus are not allowed ins
 global lOopsExternalReadOnlyAlert := "Shared menus of type ""Centralized"" can only be edited by user(s) in the ""~1~"" field (or by opening the ini file on the shared drive using a text editor).`n`nYour user name is: ""~2~"".`nYour computer name is: ""~3~""."
 global lOopsExternalReadOnlyAlertUsernameAdded := "Your user name was automatically added to the ""Users with write access"" list."
 global lOopsExternalSelectType := "Please select the Shared menu type in the ""Shared menu"" tab."
+global lOopsFavoritesCopied := "~1~ favorites copied."
 global lOopsFirstEnterUrl := "First, enter an address in the ""~1~"" field."
 global lOopsFtpLocationProtocol := "FTP location must start with ""ftp://""." ; new
 global lOopsGroup := "group" ; new

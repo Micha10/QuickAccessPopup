@@ -7659,11 +7659,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	}
 	
 	if (strGuiFavoriteLabel = "GuiCopyFavorite")
-	{
-		g_objEditedFavorite := Object()
-		for strKey, strValue in g_objMenuInGui[g_intOriginalMenuPosition]
-			g_objEditedFavorite[strKey] := strValue
-	}
+		g_objEditedFavorite := CopyFavoriteObject(g_objMenuInGui[g_intOriginalMenuPosition])
 	else
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	
@@ -9451,16 +9447,22 @@ if (!blnMove) ; multiple copy not supported for menus, external and groups
 }
 
 g_intOriginalMenuPosition := 0
+intNbFavoritesCopied := 0
 Loop
 {
 	g_intOriginalMenuPosition := LV_GetNext(g_intOriginalMenuPosition)
 	if (!g_intOriginalMenuPosition)
         break
 	if (g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType = "B") ; skip back menu for move and copy
-		or (!blnMove and InStr("|Menu|Group", "|" . g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)) ; skip menus and groups for copy
+		or (!blnMove and InStr("|Menu|Group|External", "|" . g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)) ; skip menus and groups for copy
 		continue
 
-	g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
+
+	if (blnMove)
+		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
+	else
+		g_objEditedFavorite := CopyFavoriteObject(g_objMenuInGui[g_intOriginalMenuPosition])
+	; ###_V(A_ThisLabel, g_intOriginalMenuPosition, g_objEditedFavorite.FavoriteName)
 
 	if (blnMove)
 	{
@@ -9469,16 +9471,27 @@ Loop
 	}
 	else
 	{
+		if (f_drpParentMenu = g_objMenuInGui.MenuPath)
+			###_V("AVANT", "*g_intOriginalMenuPosition", g_intOriginalMenuPosition, "*g_intNewItemPos", g_intNewItemPos)
 		Gosub, GuiCopyOneFavoriteSave
+		intNbFavoritesCopied++
 		; ##### if source = dest and position est avant source, augmenter g_intOriginalMenuPosition +=  1 ; because GuiCopyOneFavoriteSave added a favorite before the source
+		if (f_drpParentMenu = g_objMenuInGui.MenuPath)
+			###_V("APRES", "*g_intOriginalMenuPosition", g_intOriginalMenuPosition, "*g_intNewItemPos", g_intNewItemPos)
+
+		; ###_V(A_ThisLabel . " g_intOriginalMenuPosition APRÈS", g_intOriginalMenuPosition)
 	}
 }
 
-gosub, GuiAddFavoriteSaveCleanup ; clean these variables for next use (multiple move or not)
+if (intNbFavoritesCopied)
+	Oops(lOopsFavoritesCopied, intNbFavoritesCopied)
+
+gosub, GuiAddFavoriteSaveCleanup ; clean these variables for next multiple move or copy
 
 Gosub, GuiEditFavoriteCancel
 
 blnMove := ""
+intNbFavoritesCopied := ""
 
 return
 ;------------------------------------------------------------
@@ -9488,8 +9501,8 @@ return
 GuiAddFavoriteSave:
 GuiAddFavoriteSaveXpress:
 GuiEditFavoriteSave:
-GuiMoveOneFavoriteSave:
 GuiCopyOneFavoriteSave:
+GuiMoveOneFavoriteSave:
 GuiCopyFavoriteSave:
 GuiAddExternalSave:
 ;------------------------------------------------------------
@@ -9504,8 +9517,9 @@ if InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
 	strOriginalMenu := g_objMenuInGui.MenuPath
 else ; GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiCopyOneFavoriteSave|GuiAddExternalSave|
 {
-	strOriginalMenu := ""
-	g_intOriginalMenuPosition := 0
+	strOriginalMenu := "" ; no change required in original menu
+	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; but keep original menu position for multiple copy
+		g_intOriginalMenuPosition := 0
 }
 
 if (strThisLabel = "GuiAddExternalSave")
@@ -9554,6 +9568,7 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 
 if (!g_intNewItemPos) ; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave
 	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
+; ###_V(A_ThisLabel, strOriginalMenu, g_intOriginalMenuPosition, g_objEditedFavorite.FavoriteName, strDestinationMenu, g_intNewItemPos)
 
 ; validation to avoid unauthorized favorite types in groups
 ; validation to avoid external settings file under another external settings file
@@ -9716,9 +9731,12 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
 		{
 			; ##### decide if for all??? - not QAP menus that cannot have different name?
-			; if 1 or InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
-			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
-				strNewFavoriteShortName .= " [!]" ; and loop
+			if 1 or InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
+			; if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+					g_objEditedFavorite.FavoriteName .= " [!]" ; and loop
+				else
+					strNewFavoriteShortName .= " [!]" ; and loop
 			else
 			{
 				if (g_objEditedFavorite.FavoriteType = "QAP")
@@ -9730,6 +9748,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 				gosub, GuiAddFavoriteSaveCleanup
 				return
 			}
+			; ###_V("strNewFavoriteShortName / g_objEditedFavorite.FavoriteName", strNewFavoriteShortName, g_objEditedFavorite.FavoriteName, "*strThisLabel", strThisLabel)
 		}
 		else
 			break ; name is not new but is OK - exit loop
@@ -9776,7 +9795,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 
 ; update menu object and hotkeys object except if we multiple move or copy favorites
 
-if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	; if external menu file exists, load the submenu from the external settings ini file
 
@@ -9953,16 +9972,17 @@ else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because 
 	}
 
 ; updating original and destination menu objects (these can be the same)
-##### TBC
+
+###_O("AVANT g_objMenusIndex[strDestinationMenu]`ng_intOriginalMenuPosition: " . g_intOriginalMenuPosition . "`ng_intNewItemPos: " . g_intNewItemPos, g_objMenusIndex[strDestinationMenu], "FavoriteName")
 if (strOriginalMenu <> "")
 	g_objMenusIndex[strOriginalMenu].Remove(g_intOriginalMenuPosition)
 if (g_intNewItemPos)
 	g_objMenusIndex[strDestinationMenu].Insert(g_intNewItemPos, g_objEditedFavorite)
 else
 	g_objMenusIndex[strDestinationMenu].Insert(g_objEditedFavorite) ; if no item is selected, add to the end of menu
+###_O("APRES g_objMenusIndex[strDestinationMenu]`ng_intOriginalMenuPosition: " . g_intOriginalMenuPosition . "`ng_intNewItemPos: " . g_intNewItemPos, g_objMenusIndex[strDestinationMenu], "FavoriteName")
 
 ; updating listview
-
 if (strThisLabel <> "GuiAddExternalSave")
 	Gosub, 2GuiClose
 else ; GuiAddExternalSave
@@ -9974,6 +9994,7 @@ Gui, 1:ListView, lvFavoritesList
 
 if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview if original in Gui (can be replaced with modified)
 	LV_Delete(g_intOriginalMenuPosition)
+###_V("g_intOriginalMenuPosition", g_intOriginalMenuPosition)
 
 if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
@@ -10013,13 +10034,16 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 g_blnMenuReady := true
 
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+{
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
+	###_V("INC g_intNewItemPos HERE", g_intNewItemPos)
+}
 else
 	g_intNewItemPos := "" ; delete it for next use
 
 GuiAddFavoriteSaveCleanup:
-if (strThisLabel <> "GuiMoveOneFavoriteSave") ; do not execute at each favorite when moving multiple favorites
-	or (A_ThisLabel = "GuiAddFavoriteSaveCleanup") ; but executed it when called at the end of GuiMoveMultipleFavoritesSave
+if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; do not execute at each favorite when moving multiple favorites
+	or (A_ThisLabel = "GuiAddFavoriteSaveCleanup") ; but executed it when called at the end of GuiMoveMultipleFavoritesSave/GuiCopyMultipleFavoritesSave
 {
 	strOriginalMenu := ""
 	strDestinationMenu := ""
@@ -17228,6 +17252,20 @@ GetCurrentUrlAccChildren(objAcc)
 	}
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CopyFavoriteObject(objSourceFavorite)
+;------------------------------------------------------------
+{
+	objDestFavorite := Object()
+	for strKey, strValue in objSourceFavorite
+		objDestFavorite[strKey] := strValue
+	
+	return objDestFavorite
+}
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================
