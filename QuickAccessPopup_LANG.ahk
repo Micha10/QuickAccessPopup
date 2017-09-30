@@ -455,6 +455,7 @@ global lOopsCannotCopyFavorite := "Favorites of type ""~1~"" cannot be copied." 
 global lOopsChangeFolderInDialogAlert := "Did you want to change folder in this dialog box? In order to navigate inside a dialog box, you have to enable an option (first checkbox in the ""General"" tab).`n`nDo you want to open the Options window?" ; new
 global lCopyFavoritesToMenuOrGroup := "Menus and groups cannot be copied.`n`nDo you want to continue without copying menus and groups?"
 global lCopyFavoritesToSelf := "Do you want to duplicate these favorites in their actual location?`n`nDestination menu: ~1~"
+global lOopsCannotCopyMoveToSelf := "You cannot move or copy favorites to their actual location. Please, select another destination."
 global lOopsCouldNotOpenSpecialFolder := "~1~ could not open the special folder: ""~2~""."
 global lOopsEmpty := "empty" ; new (no capital)
 global lOopsErrorIniFileModified := "This shared menu was modified since you loaded QAP. To edit this menu, please reload QAP.`n`nReload now? Unsaved changes to the menu will be lost."

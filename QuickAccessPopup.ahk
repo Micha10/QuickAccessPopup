@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.5.9.3 (2017-09-30)
+- add option "Always open folders in current file manager window" in Options, file managers tab, to allow always change folder in the current file manager (Explorer, Total Commander or Directory Opus) for favorites of types Folder, Special and FTP (except when using the Alternative menu "Open in new window")
+- support copy multiple favorites (excluding menus and groups)
+- multiple copy stops when a favorite has the same name in the destination menu (as for multiple move in previsous versions)
+- error message when user ask to move or copy multiople favorites to their actual location
+- add tooltip when retrieving web page title (in case fetching the tile takes time)
+- improve visibility for Explorer context menu option in Menu tab
+
 Version BETA: 8.5.9.2 (2017-09-24)
 - Add this Folder or Link now works for links when called from the menu in the Notification zone (Tray icon)
 - add diagnostic code
@@ -1648,7 +1656,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.5.9.2 BETA
+;@Ahk2Exe-SetVersion v8.5.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1722,7 +1730,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.5.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.5.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -9419,14 +9427,20 @@ Gui, 2:+OwnDialogs
 blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesSave")
 
 if (f_drpParentMenu = g_objMenuInGui.MenuPath)
-	if (blnMove)
-		return
-	else ; copy
-	{
-		MsgBox, 4, %g_strAppNameText%, % L(lCopyFavoritesToSelf, g_objMenuInGui.MenuPath)
-		IfMsgBox, No
-			return
-	}
+{
+	Oops(lOopsCannotCopyMoveToSelf)
+	return
+	
+	; ##### removed for when supporting multiple copy to same folder
+	; if (blnMove)
+		; return
+	; else ; copy
+	; {
+		; MsgBox, 4, %g_strAppNameText%, % L(lCopyFavoritesToSelf, g_objMenuInGui.MenuPath)
+		; IfMsgBox, No
+			; return
+	; }
+}
 
 ; check if favorites to copy include menus or groups
 Gui, 1:Default
