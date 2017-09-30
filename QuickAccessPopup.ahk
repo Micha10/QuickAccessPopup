@@ -9450,6 +9450,8 @@ if (!blnMove) ; multiple copy not supported for menus, external and groups
 
 g_intOriginalMenuPosition := 0
 intNbFavoritesCopied := 0
+g_blnMulipleMoveOrCopyAborted := false
+
 Loop
 {
 	g_intOriginalMenuPosition := LV_GetNext(g_intOriginalMenuPosition)
@@ -9473,10 +9475,14 @@ Loop
 	else
 	{
 		Gosub, GuiCopyOneFavoriteSave
-		intNbFavoritesCopied++
+		if !(g_blnMulipleMoveOrCopyAborted)
+			intNbFavoritesCopied++
 		if (f_drpParentMenu = g_objMenuInGui.MenuPath) and (g_intOriginalMenuPosition >= g_intNewItemPos) ; copied items are inserted before selected, increment selected
 			g_intOriginalMenuPosition++
 	}
+	
+	if (g_blnMulipleMoveOrCopyAborted)
+		break
 }
 
 if (intNbFavoritesCopied)
@@ -9719,7 +9725,6 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 	if !FavoriteNameIsNew((InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)  ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
 		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
 	{
-		; ##### TEST
 		; ###_V("if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (strThisLabel = ""GuiAddFavoriteSaveXpress"")"
 			; , if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (strThisLabel = "GuiAddFavoriteSaveXpress")
 			; , strDestinationMenu, strOriginalMenu, strNewFavoriteShortName, g_objEditedFavorite.FavoriteName, strThisLabel)
@@ -9729,10 +9734,10 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 			or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) ; when the name has been edited from another menu
 			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
 		{
-			; ##### decide if for all??? - not QAP menus that cannot have different name?
-			if 1 or InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
-			; if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|GuiCopyOneFavoriteSave", strThisLabel . "|")
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+			; ##### decide if we allow automatic rename, or after confirmation
+			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
+				and (g_objEditedFavorite.FavoriteType <> "QAP")
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
 					g_objEditedFavorite.FavoriteName .= " [!]" ; and loop
 				else
 					strNewFavoriteShortName .= " [!]" ; and loop
@@ -9742,9 +9747,11 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 					Oops(lDialogFavoriteNameNotNewQAPfeature, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
 				else
 					Oops(lDialogFavoriteNameNotNew, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
 					g_intOriginalMenuPosition++
 				gosub, GuiAddFavoriteSaveCleanup
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+					g_blnMulipleMoveOrCopyAborted := true
 				return
 			}
 			; ###_V("strNewFavoriteShortName / g_objEditedFavorite.FavoriteName", strNewFavoriteShortName, g_objEditedFavorite.FavoriteName, "*strThisLabel", strThisLabel)
