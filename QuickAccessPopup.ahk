@@ -8378,11 +8378,13 @@ Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
+GuiControl, 2:, f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . lDialogEndOfMenu . " " . g_strGuiDoubleLine
 
-Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? lGuiMoveAmpersand : lGuiCopyAmpersand)
+Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? lGuiMoveAmpersand : lGuiCopyAmpersand)
 Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 GuiCenterButtons(L(L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion), g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnMoveOrCopyFavoritesSave", "f_btnMoveOrCopyFavoritesCancel")
 
+g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
@@ -9429,14 +9431,14 @@ if (f_drpParentMenu = g_objMenuInGui.MenuPath)
 ; check if favorites to copy include menus or groups
 Gui, 1:Default
 Gui, ListView, f_lvFavoritesList
-g_intOriginalMenuPosition := 0
+intTempMenuPosition := 0
 if (!blnMove) ; multiple copy not supported for menus, external and groups
 	Loop
 	{
-		g_intOriginalMenuPosition := LV_GetNext(g_intOriginalMenuPosition)
-		if (!g_intOriginalMenuPosition)
+		intTempMenuPosition := LV_GetNext(intTempMenuPosition)
+		if (!intTempMenuPosition)
 			break
-		if InStr("|Menu|Group|External", "|" . g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)
+		if InStr("|Menu|Group|External", "|" . g_objMenuInGui[intTempMenuPosition].FavoriteType)
 		{
 			MsgBox, 4, %g_strAppNameText%, %lCopyFavoritesToMenuOrGroup%
 			IfMsgBox, Yes
@@ -9462,7 +9464,6 @@ Loop
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	else
 		g_objEditedFavorite := CopyFavoriteObject(g_objMenuInGui[g_intOriginalMenuPosition])
-	; ###_V(A_ThisLabel, g_intOriginalMenuPosition, g_objEditedFavorite.FavoriteName)
 
 	if (blnMove)
 	{
@@ -9471,15 +9472,10 @@ Loop
 	}
 	else
 	{
-		if (f_drpParentMenu = g_objMenuInGui.MenuPath)
-			###_V("AVANT", "*g_intOriginalMenuPosition", g_intOriginalMenuPosition, "*g_intNewItemPos", g_intNewItemPos)
 		Gosub, GuiCopyOneFavoriteSave
 		intNbFavoritesCopied++
-		; ##### if source = dest and position est avant source, augmenter g_intOriginalMenuPosition +=  1 ; because GuiCopyOneFavoriteSave added a favorite before the source
-		if (f_drpParentMenu = g_objMenuInGui.MenuPath)
-			###_V("APRES", "*g_intOriginalMenuPosition", g_intOriginalMenuPosition, "*g_intNewItemPos", g_intNewItemPos)
-
-		; ###_V(A_ThisLabel . " g_intOriginalMenuPosition APRÈS", g_intOriginalMenuPosition)
+		if (f_drpParentMenu = g_objMenuInGui.MenuPath) and (g_intOriginalMenuPosition >= g_intNewItemPos) ; copied items are inserted before selected, increment selected
+			g_intOriginalMenuPosition++
 	}
 }
 
@@ -9492,6 +9488,7 @@ Gosub, GuiEditFavoriteCancel
 
 blnMove := ""
 intNbFavoritesCopied := ""
+intTempMenuPosition := ""
 
 return
 ;------------------------------------------------------------
@@ -9567,8 +9564,10 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 		return
 
 if (!g_intNewItemPos) ; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave
-	g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
-; ###_V(A_ThisLabel, strOriginalMenu, g_intOriginalMenuPosition, g_objEditedFavorite.FavoriteName, strDestinationMenu, g_intNewItemPos)
+	if (f_drpParentMenuItems)
+		g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
+	else ; if f_drpParentMenuItems is not set, add to the end of menu
+		g_intNewItemPos := g_objMenusIndex[strDestinationMenu].MaxIndex() + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 
 ; validation to avoid unauthorized favorite types in groups
 ; validation to avoid external settings file under another external settings file
@@ -9973,14 +9972,10 @@ else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because 
 
 ; updating original and destination menu objects (these can be the same)
 
-###_O("AVANT g_objMenusIndex[strDestinationMenu]`ng_intOriginalMenuPosition: " . g_intOriginalMenuPosition . "`ng_intNewItemPos: " . g_intNewItemPos, g_objMenusIndex[strDestinationMenu], "FavoriteName")
 if (strOriginalMenu <> "")
 	g_objMenusIndex[strOriginalMenu].Remove(g_intOriginalMenuPosition)
-if (g_intNewItemPos)
-	g_objMenusIndex[strDestinationMenu].Insert(g_intNewItemPos, g_objEditedFavorite)
-else
-	g_objMenusIndex[strDestinationMenu].Insert(g_objEditedFavorite) ; if no item is selected, add to the end of menu
-###_O("APRES g_objMenusIndex[strDestinationMenu]`ng_intOriginalMenuPosition: " . g_intOriginalMenuPosition . "`ng_intNewItemPos: " . g_intNewItemPos, g_objMenusIndex[strDestinationMenu], "FavoriteName")
+
+g_objMenusIndex[strDestinationMenu].Insert(g_intNewItemPos, g_objEditedFavorite)
 
 ; updating listview
 if (strThisLabel <> "GuiAddExternalSave")
@@ -9994,11 +9989,11 @@ Gui, 1:ListView, lvFavoritesList
 
 if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview if original in Gui (can be replaced with modified)
 	LV_Delete(g_intOriginalMenuPosition)
-###_V("g_intOriginalMenuPosition", g_intOriginalMenuPosition)
 
 if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
-	LV_Modify(0, "-Select")
+	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
+		LV_Modify(0, "-Select")
 	if (g_objEditedFavorite.FavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
 	else if (g_objEditedFavorite.FavoriteType = "External")
@@ -10011,12 +10006,14 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	
+	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
-		LV_Insert(g_intNewItemPos, "Select Focus", g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
+		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
 	else
-		LV_Add("Select Focus", g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
-
-	LV_Modify(LV_GetNext(), "Vis")
+		LV_Add((strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_strNewFavoriteHotkey), strThisLocation)
+	
+	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
+		LV_Modify(LV_GetNext(), "Vis")
 }
 
 GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
@@ -10034,10 +10031,7 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 g_blnMenuReady := true
 
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
-{
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
-	###_V("INC g_intNewItemPos HERE", g_intNewItemPos)
-}
 else
 	g_intNewItemPos := "" ; delete it for next use
 
