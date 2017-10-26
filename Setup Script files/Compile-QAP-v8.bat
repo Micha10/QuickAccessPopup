@@ -29,7 +29,7 @@ IF %ERRORLEVEL% NEQ 0 EXIT
 ECHO Copy quickaccesspopup-setup%QAPBETAPROD%.exe
 COPY "C:\temp\InnoSetup-OutputDir\quickaccesspopup-setup%QAPBETAPROD%.exe"
 ECHO Copy quickaccesspopup-setup-%QAPVERSIONFILE%.exe (for Chocolatey)
-COPY "quickaccesspopup-setup%QAPBETAPROD%.exe" "quickaccesspopup-setup%QAPBETAPROD%-%QAPVERSIONFILE%.exe"
+COPY "quickaccesspopup-setup%QAPBETAPROD%.exe" "quickaccesspopup-setup-%QAPVERSIONFILE%.exe"
 rem Update version file
 IF NOT EXIST "QAP-v%QAPVERSIONFILE%.txt" REN "QAP-v%QAPVERSIONPREV%.txt" "QAP-v%QAPVERSIONFILE%.txt"
 ECHO Remove previous version and executable files from zip file
@@ -45,5 +45,5 @@ IF EXIST quickaccesspopup-%QAPVERSIONPREV%.zip DEL quickaccesspopup-%QAPVERSIONP
 ECHO TERMINE DE v%QAPVERSIONPREV% A v%QAPVERSIONFILE% AVEC SUCCES
 ECHO COPIER quickqccesspopup-setup%QAPBETAPROD%.exe dans FTP ftp://www.quickaccesspopup/download
 ECHO COPIER quickqccesspopup.zip (ou version beta) dans FTP ftp://www.quickaccesspopup/download
-ECHO COPIER quickaccesspopup-setup%QAPBETAPROD%-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download/archives
+ECHO COPIER quickaccesspopup-setup-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download/archives
 PAUSE
