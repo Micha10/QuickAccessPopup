@@ -150,9 +150,9 @@ lDialogFavoriteTypesHelp6	Criar um atalho para um "Site FTP".`n`nDefina o nome d
 lDialogFavoriteTypesHelp7	Inserir algures no seu menu "Funções Quick Access Popup" tais como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reuna favoritos relacionados num "Submenu".`n`nAtribua um nome ao seu submenu e seleccione opções de menu.`n`nAdicione favoritos ao seu submenu ou mova-os de outros submenus ou grupos usando o botão "Editar".
 lDialogFavoriteTypesHelp9	Carregue um "Grupo" de favoritos, todos num só atalho!`n`nAtribua um nome ao seu grupo e defina diversas opções para o seu grupo.`n`nAdicione favoritos ao seu grupo ou mova-os de outros submenus ou grupos usando o botão "Editar".`n`nAs opções avançadas permitem controlar a velocidade de restauro inserindo um atraso entre cada favorito a restaurar.
-lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado
-lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|
-lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Mudança de Coluna|..|Snippet|Partilhado
+lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Text Separator
+lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Text Separator
+lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Mudança de Coluna|..|Snippet|Partilhado|Text
 lDialogFavoriteWorkingDirNotFoundPrompt	A definição avançada "Iniciar em" do favorito "~1~" não foi encontrada:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Parâmetro Iniciar em não encontrado - ~1~
 lDialogFileLabel	Documento

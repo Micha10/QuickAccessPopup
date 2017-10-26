@@ -149,9 +149,9 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en select menu opties.`n`nVoeg favorieten toe aan uw submenu of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favoreiten uit, allen in 1 enkele snelkoppeling!1n1nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.`n`nIn Geavanceerde Opties kunt u bijvoorbeeld bepalen wat de tijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link|F&TP Site|&QAP Feature|Sub&menu|&Groep||||&Fragment|&Openbaar Menu
-lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (website)|FTP Site (website)|||||||Inhoud|Extern instellingenbestand (pad)|
-lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|scheiding|Kolomeindes|..|Fragment|Openbaar
+lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link|F&TP Site|&QAP Feature|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Text Separator
+lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (website)|FTP Site (website)|||||||Inhoud|Extern instellingenbestand (pad)|Text Separator
+lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|scheiding|Kolomeindes|..|Fragment|Openbaar|Text
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
 lDialogFileLabel	Document

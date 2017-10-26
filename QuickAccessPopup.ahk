@@ -31,6 +31,53 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.6 (2017-10-26)
+ 
+Add this Link
+- the QAP Feature "Add This Folder" has been renamed "Add this Folder or Link" and now detects URL locations in browsers as well as folder locations in supported file managers
+- when adding a link, QAP retrieves the web page title automatically as default favorite name; if the URL returns an error (this can happen even for valid pages), it leaves the favorite name empty
+- when adding or editing a favorite link, a button allows to retrieve the page title from the web page
+- a tooltip is displayed when retrieving web page title (in case fetching the tile takes some time)
+ 
+Copy multiple favorites
+- support copy multiple favorites (still excluding menus and groups)
+- multiple copy stops when an existing favorite in the destination menu has the same name as the copîed favorite (as for multiple move in previous versions)
+- an error message is displayed when user ask to move or copy multiple favorites to their actual location
+ 
+Text Separators
+- a new favorite type "Text Separator" allows to insert text entries as headers or sub-headers in the QAP menu (selecting these entries in the menu has no effect)
+- a new "T" icon in the left column of Settings window can be clicked to add Text Separators
+- by default, Text Separators have no icon but one can be selected in the "Menu Options" tab
+ 
+Favorites icons management 
+- QAP now allows favorites to have "no icon"
+- in add/edit favorite dialog box "Menu Options" tab, a new link labeled "no icon" selects the "no icon" pseudo-icon (the "forbidden" sign with a diagonal bar)
+- the "no icon" icon can also be selected in the JLicons.dll file
+- the favorite icons taken in JLicons.dll are now saved in the settings file by their name (e.g. "iconFolder") instead of the "file,index" format used for icons from other files
+- current icons from JLindex.dll in the settings file are be converted from "file,index" format to names (e.g. "iconFolder") the first time settings are saved with this version (and future versions)
+- in add/edit favorite dialog box "Menu Options" tab, a new link labeled "select in JLicons.dll"
+- a new icon file named JLicons.dll v1.3 including the new iconNoIcon pseudo-icon will be automatically updated for Setup users (for portable installation, make sure the previous file is replaced)
+ 
+Unicode conversion
+- QAP now save its settings (QuickAccessPopup.ini) with Unicode encoding, allowing more international and special charactes to be saved in favorites location, snippets content or favorites names
+- QAP still supports existing settings file saved in ANSI encoding but it offers to do the conversion QAP is loaded with this version (and future versions)
+- if settings file is encoded in ANSI, QAP displays a dialog box offering the user to:
+  1) convert its settings file to Unicode encoding (for better int'l and special characters support);
+  2) not convert (value "DoNotConvertSettingsToUnicode=1" is added to settings to remember this choice);
+  3) or ask again at next startup.
+- the dialog box includes a link to a FAQ web page for explanation and help (http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
+ 
+Various
+- the option "Always open folders in current file manager window" in Options, "Files mamagers" tab is added to always change folder in the current Explorer, Total Commander or Directory Opus window, except when using the Alternative menu "Open in new window"; this applies to favorites of types Folder, Special Folder and FTP
+- improve visibility of the "Explorer context menu" option in Options "Menu" tab
+- new value SendToConsoleWithAlt in Global settings, default 1 (true), to use the ALT+0nnn ASCII codes when changing folder in a command-line window (CMD)
+- partial update of all language files (complete updates in next versions), full update of the French language file
+ 
+Bug fixes
+- fix bug when changing folder in command-line window (CMD) with some international keyboard input language (by using the ALT+0nnn ASCII codes)
+- fix bug when opening an application favorite with {CUR_LOC} and when location is empty (this was happening when the current window was not an Explorer window)
+- fix bug when user cancels the pick icon dialog box, now QAP keeps the selected icon
+
 Version BETA: 8.5.9.4 (2017-10-26)
 - fix bug when changing folder in command-line window (CMD) with some international keyboard input language (by using the ALT+0nnn ASCII codes)
 - new value SendToConsoleWithAlt in Global settings, default 1 (true), to use the ALT+0nnn ASCII codes when changing folder in a command-line window (CMD)
@@ -1661,7 +1708,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.5.9.4 BETA
+;@Ahk2Exe-SetVersion v8.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1735,8 +1782,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.5.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -6734,7 +6781,7 @@ g_objToolTipsMessages["Static11"] := lControlToolTipMoveDown
 Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%strSettingsIconsExtension% ; Static12
 g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
-g_objToolTipsMessages["Static13"] := lControlToolTipColunmnBreak
+g_objToolTipsMessages["Static13"] := lControlToolTipColumnBreak
 Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26%strSettingsIconsExtension% ; Static14
 g_objToolTipsMessages["Static14"] := lControlToolTipTextSeparator
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static15
@@ -9436,16 +9483,6 @@ if (f_drpParentMenu = g_objMenuInGui.MenuPath)
 {
 	Oops(lOopsCannotCopyMoveToSelf)
 	return
-	
-	; ##### removed for when supporting multiple copy to same folder
-	; if (blnMove)
-		; return
-	; else ; copy
-	; {
-		; MsgBox, 4, %g_strAppNameText%, % L(lCopyFavoritesToSelf, g_objMenuInGui.MenuPath)
-		; IfMsgBox, No
-			; return
-	; }
 }
 
 ; check if favorites to copy include menus or groups
