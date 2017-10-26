@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.5.9.4 (2017-10-??)
+- fix bug when changing folder in command-line window (CMD) with some international keyboard input language (by using the ALT+0nnn ASCII codes)
+- new value SendToConsoleWithAlt in Global settings, default 1 (true), to use the ALT+0nnn ASCII codes when changing folder in a command-line window (CMD)
+- change internal processing of version number when comparing running vs latest version number
+
 Version BETA: 8.5.9.3 (2017-09-30)
 - add option "Always open folders in current file manager window" in Options, file managers tab, to allow always change folder in the current file manager (Explorer, Total Commander or Directory Opus) for favorites of types Folder, Special and FTP (except when using the Alternative menu "Open in new window")
 - support copy multiple favorites (excluding menus and groups)
@@ -1690,7 +1695,7 @@ Gosub, SetQAPWorkingDirectory
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
 ListLines, On
-BuildUserAhkApi(A_ScriptFullPath,1)
+; ##### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
@@ -3326,6 +3331,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
+IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 
 ; ---------------------
 ; Load favorites
@@ -13831,7 +13837,23 @@ OpenFavoriteNavigateConsole:
 
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-SendInput, {Raw}CD /D %g_strFullLocation%
+
+if (g_blnSendToConsoleWithAlt)
+; using ALT+0nnn ASCII codes for console with international keyboard input language
+{
+	strSendToConsoleWithAlt := "CD /D " . g_strFullLocation
+	loop, parse, strSendToConsoleWithAlt
+		; ANSI characters (like "é") are supported by preceeding the ASCII code with 0, but Unicode characters are not supported
+		; see https://autohotkey.com/docs/commands/Send.htm#asc
+		strSendToConsoleAscCodes .= "{ASC 0" . Asc(A_LoopField) . "}"
+	SendInput, %strSendToConsoleAscCodes%
+
+	strSendToConsoleWithAlt := ""
+	strSendToConsoleAscCodes := ""
+}
+else
+	SendInput, {Raw}CD /D %g_strFullLocation%
+
 Sleep, 200
 SendInput, {Enter}
 
@@ -14536,17 +14558,13 @@ return
 
 ;------------------------------------------------------------
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
+; supports from 1 to 5 version sub-numbers of up to 3 digits each
+; examples: "1", "1.2", 1.22.333.444.555"
 ;------------------------------------------------------------
 {
+	strFirstVersion := PrepareVersionNumber(strFirstVersion)
+	strSecondVersion := PrepareVersionNumber(strSecondVersion)
 	; ###_V(A_ThisFunc, strFirstVersion, strSecondVersion)
-	; To make the two strings comparable by < and > operators 
-	; RegExReplace(..., "[^.]") removes all but dots
-	; StrLen() counts number of dots in version number
-	; the loop add ".0" until we have 4 dots (eg "0.0.0.0.0")
-	loop, % 4 - StrLen(RegExReplace(strFirstVersion, "[^.]"))
-		strFirstVersion .= ".0"
-	loop, % 4 - StrLen(RegExReplace(strSecondVersion, "[^.]"))
-		strSecondVersion .= ".0"
 
 	if (strFirstVersion > strSecondVersion)
 		return 1 ; greater
@@ -14555,7 +14573,37 @@ FirstVsSecondIs(strFirstVersion, strSecondVersion)
 	else
 		return 0 ; equal
 }
-;------------------------------------------------------------;------------------------------------------------------------
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+PrepareVersionNumber(strVersionNumber)
+; Make version number strings comparable by < and > operators.
+; Returns a padded string of 5 sub-numbers of 3 digits each, NOT separated.
+; Example: "1.22.333" returns "001022333000000"
+;------------------------------------------------------------
+{
+	; RegExReplace(..., "[^.]") removes all but dots
+	; StrLen() counts number of dots in version number
+	; the loop add ".0" until we have 4 dots and five sub-numbers (eg "0.0.0.0.0")
+	loop, % 4 - StrLen(RegExReplace(strVersionNumber, "[^.]"))
+		strVersionNumber .= ".0"
+
+	; make sure every version sub-number has an equal number of 3 digits, removing dots
+	loop, parse, strVersionNumber, .
+	{
+		strSubNumber := A_LoopField
+		while StrLen(strSubNumber) < 3
+			strSubNumber := "0" . strSubNumber
+		strResult .= strSubNumber
+	}
+	
+	return strResult
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 Check4UpdateChangeButtonNames:
 ;------------------------------------------------------------
 
