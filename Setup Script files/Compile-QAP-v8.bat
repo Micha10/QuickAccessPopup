@@ -1,5 +1,5 @@
 rem Check if version number is OK in source file
->nul find "%QAPVERSIONTEXT%" ..\QuickAccessPopup.ahk && (echo FOUND) || (echo %QAPVERSIONTEXT% = NOT FOUND IN QuickAccessPopup.ahk & pause & exit)
+>NUL find "%QAPVERSIONTEXT%" ..\QuickAccessPopup.ahk && (ECHO FOUND) || (ECHO %QAPVERSIONTEXT% = NOT FOUND IN QuickAccessPopup.ahk & PAUSE & EXIT)
 rem Check if Language files are available
 ECHO Checking language files...
 C:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
@@ -28,6 +28,8 @@ IF %ERRORLEVEL% NEQ 0 PAUSE
 IF %ERRORLEVEL% NEQ 0 EXIT
 ECHO Copy quickaccesspopup-setup%QAPBETAPROD%.exe
 COPY "C:\temp\InnoSetup-OutputDir\quickaccesspopup-setup%QAPBETAPROD%.exe"
+ECHO Copy quickaccesspopup-setup-%QAPVERSIONFILE%.exe (for Chocolatey)
+COPY "quickaccesspopup-setup%QAPBETAPROD%.exe" "quickaccesspopup-setup-%QAPVERSIONFILE%.exe"
 rem Update version file
 IF NOT EXIST "QAP-v%QAPVERSIONFILE%.txt" REN "QAP-v%QAPVERSIONPREV%.txt" "QAP-v%QAPVERSIONFILE%.txt"
 ECHO Remove previous version and executable files from zip file
@@ -41,4 +43,7 @@ ECHO Delete previous ZIP file quickaccesspopup-%QAPVERSIONPREV%.zip
 IF EXIST quickaccesspopup-%QAPVERSIONPREV%.zip DEL quickaccesspopup-%QAPVERSIONPREV%.zip
 :finish
 ECHO TERMINE DE v%QAPVERSIONPREV% A v%QAPVERSIONFILE% AVEC SUCCES
+ECHO COPIER quickaccesspopup-setup%QAPBETAPROD%.exe dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup.zip (ou version beta) dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup-setup-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download/archives
 PAUSE
