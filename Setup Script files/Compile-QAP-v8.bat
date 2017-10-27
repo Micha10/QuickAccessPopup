@@ -43,7 +43,7 @@ ECHO Delete previous ZIP file quickaccesspopup-%QAPVERSIONPREV%.zip
 IF EXIST quickaccesspopup-%QAPVERSIONPREV%.zip DEL quickaccesspopup-%QAPVERSIONPREV%.zip
 :finish
 ECHO TERMINE DE v%QAPVERSIONPREV% A v%QAPVERSIONFILE% AVEC SUCCES
-ECHO COPIER quickqccesspopup-setup%QAPBETAPROD%.exe dans FTP ftp://www.quickaccesspopup/download
-ECHO COPIER quickqccesspopup.zip (ou version beta) dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup-setup%QAPBETAPROD%.exe dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup.zip (ou version beta) dans FTP ftp://www.quickaccesspopup/download
 ECHO COPIER quickaccesspopup-setup-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download/archives
 PAUSE
