@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- support change folder in PowerShell window as well as in command-line console (CMD)
+
 Version: 8.6 (2017-10-26)
  
 Add this Link
@@ -12245,7 +12247,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 ; "CabinetWClass" and "ExploreWClass" -> Explorer
 ; "ProgMan" -> Desktop
 ; "WorkerW" -> Desktop
-; "ConsoleWindowClass" -> Console (CMD)
+; "ConsoleWindowClass" -> Console (CMD) or PowerShell
 ; "#32770" -> Dialog
 ; "bosa_sdm_" (...) -> Dialog MS Office under WinXP
 ;------------------------------------------------------------
@@ -13875,24 +13877,30 @@ OpenFavoriteNavigateConsole:
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 
+WinGet, strProcessName, ProcessName, ahk_id %g_strTargetWinId%
+; add /D option only for cmd.exe, not required for powershell.exe
+strCommand := "CD " . (strProcessName = "powershell.exe" ? "" : "/D ") ; must end with space
+
 if (g_blnSendToConsoleWithAlt)
 ; using ALT+0nnn ASCII codes for console with international keyboard input language
 {
-	strSendToConsoleWithAlt := "CD /D " . g_strFullLocation
-	loop, parse, strSendToConsoleWithAlt
+	strCommand .= """" . g_strFullLocation . """" ; double-quotes required for PowerShell
+	loop, parse, strCommand
 		; ANSI characters (like "é") are supported by preceeding the ASCII code with 0, but Unicode characters are not supported
 		; see https://autohotkey.com/docs/commands/Send.htm#asc
 		strSendToConsoleAscCodes .= "{ASC 0" . Asc(A_LoopField) . "}"
 	SendInput, %strSendToConsoleAscCodes%
 
-	strSendToConsoleWithAlt := ""
 	strSendToConsoleAscCodes := ""
 }
 else
-	SendInput, {Raw}CD /D %g_strFullLocation%
+	SendInput, % "{Raw}" . strCommand . """" . g_strFullLocation . """" ; double-quotes required for PowerShell
 
 Sleep, 200
 SendInput, {Enter}
+
+strProcessName := ""
+strCommand := ""
 
 return
 ;------------------------------------------------------------
