@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- block popup menu during menu refresh launched with QAP feature Refresh Live menus
+
 Version: 8.6 (2017-10-26)
  
 Add this Link
@@ -230,6 +232,10 @@ Various
 - merge change from v8.4.2 about Explorer context menu for Windows Shortcuts (see change log)
 - German translation update for v8.0.4 to v8.3
 
+Version: 8.4.2 (2017-08-18)
+- stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
+- if you need to remove this context menu see the FAQ (http://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
+
 Version BETA: 8.4.9.2 (2017-08-09)
 - Menu key hotkey now removed properly checkbox is turned off
 - Menu key now navigate in active Explorer or open in a new window as would do the regular keyboard hotkey
@@ -247,10 +253,6 @@ Version BETA: 8.4.9.1 (2017-08-07)
 Version BETA: 8.4.9 (2017-08-05)
 - new QAP feature "Reopen Current Folder" allowing to reopen the current location in the last active file manager (Windows Explorer or, if enabled, Directory Opus/Total Commander), most useful in file dialog boxes Open, Save As, etc.
 - rewrite of internal functions used to detect more reliably the current location in hew active file manager (Windows Explorer, dialog boxes or, if enabled, Directory Opus/Total Commander); potential impacts on Add this folder, drag & drop files to Settings window, Reopen a Folder, Reopen Current Folder, {CUR_LOC} and other {CUR_...} placeholders in favorite location and advanced parameters
-
-Version: 8.4.2 (2017-08-18)
-- stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
-- if you need to remove this context menu see the FAQ (http://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
 
 Version: 8.4.1 (2017-08-05)
 - fix bug maximum of Live Folders items exceeded (500 items limit) by error
@@ -5581,7 +5583,10 @@ RefreshQAPMenu:
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, SetTimerRefreshDynamicMenus
+
+g_blnMenuReady := false
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+g_blnMenuReady := true
 
 return
 ;------------------------------------------------------------
