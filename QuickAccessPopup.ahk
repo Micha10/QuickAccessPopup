@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- fix bug default icon not set properly when adding a favorite
+
 Version: 8.6 (2017-10-26)
  
 Add this Link
@@ -8487,7 +8489,7 @@ if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon and 
 {
 	Gui, 2:Submit, NoHide
 
-	if !StrLen(g_strNewFavoriteIconResource) and StrLen(f_strFavoriteLocation)
+	if !StrLen(g_strNewFavoriteIconResource) and (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(f_strFavoriteLocation)
 		g_strNewFavoriteIconResource := GetFolderIcon(f_strFavoriteLocation)
 	
 	Gosub, GuiFavoriteIconDefault
@@ -8630,7 +8632,7 @@ if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
-	g_strNewFavoriteIconResource := ""
+	gosub, GuiFavoriteIconDefault
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
 {
@@ -8809,7 +8811,7 @@ Gui, 2:Submit, NoHide
 
 g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
