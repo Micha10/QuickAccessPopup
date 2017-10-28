@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
+
 Version: 8.6 (2017-10-26)
  
 Add this Link
@@ -12407,10 +12409,23 @@ WindowIsConsole(strClass)
 WindowIsDialog(strClass, strWinId)
 ;------------------------------------------------------------
 {
-	return (strClass = "#32770") and !WindowIsTreeview(strWinId)
+	return (strClass = "#32770") and !WindowIsTreeview(strWinId) and DialogHasRequiredControle(strWinId)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DialogHasRequiredControle(strWinId)
+; Disable popup menu in dialog boxes when its controls list does not fullfil these conditions:
+; include ("Edit1" or "Edit2") and ("ToolBarWindow32" or "SysListView32" or "SysTreeView32" or "DirectUIHWND") and ("Button")
+; Thanks to research by Helge Kraak
+;------------------------------------------------------------
+{
+	WinGet, strControlsList, ControlList, ahk_id %strWinId%
 	
-	; or InStr(strClass, "bosa_sdm_")
-	; Removed 2014-09-27  (see http://code.jeanlalonde.ca/folderspopupv3archives/#comment-7912)
+	return (InStr(strControlsList, "Edit1") or InStr(strControlsList, "Edit2"))
+		and (InStr(strControlsList, "ToolBarWindow32") or InStr(strControlsList, "SysListView32") or InStr(strControlsList, "SysTreeView32") or InStr(strControlsList, "DirectUIHWND"))
+		and InStr(strControlsList, "Button")
 }
 ;------------------------------------------------------------
 
