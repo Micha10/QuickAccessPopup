@@ -33,6 +33,8 @@ HISTORY
 
 - fix bug default icon not set properly when adding a favorite
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
+- allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations
+- save multiple favorites copy/move dialog box last position to ini file and restore previous position
 
 Version: 8.6 (2017-10-26)
  
@@ -3986,7 +3988,7 @@ strSettingsPosition := "-1" ; center at minimal size
 if (g_blnRememberSettingsPosition)
 {
 	WinGet, intMinMax, MinMax, ahk_id %g_strAppHwnd%
-	if (intMinMax <> 1) ; if window is maximized, we keep the default positionand size (center at minimal size)
+	if (intMinMax <> 1) ; if window is maximized, we keep the default position and size (center at minimal size)
 	{
 		WinGetPos, intX, intY, intW, intH, ahk_id %g_strAppHwnd%
 		strSettingsPosition := intX . "|" . intY . "|" . intW . "|" . intH
@@ -8433,7 +8435,7 @@ g_intGui1WinID := WinExist("A")
 
 blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesToMenu")
 
-Gui, 2:New, , % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Resize +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -8457,6 +8459,15 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 GuiControl, 2:Focus, f_drpParentMenu
 Gosub, ShowGui2AndDisableGui1
 
+IniRead, strDialogPosition, %g_strIniFile%, Global, CopyMoveDialogPosition, %A_Space% ; empty by default
+if StrLen(strDialogPosition)
+{
+	StringSplit, arrDialogPosition, strDialogPosition, |
+	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
+}
+
+arrDialogPosition := ""
+strDialogPosition := ""
 blnMove := ""
 
 return
@@ -11894,10 +11905,39 @@ return
 
 
 ;------------------------------------------------------------
+2GuiSize:
+;------------------------------------------------------------
+
+GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
+GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 2GuiClose:
 2GuiEscape:
 ;------------------------------------------------------------
 
+; save position and size of dialog box to select destination menu when copying/moving multiple favorites
+WinGetTitle, g_strFavoriteDialogTitle, A
+g_strFavoriteDialogTitle := SubStr(g_strFavoriteDialogTitle, 1, InStr(g_strFavoriteDialogTitle, " - "))
+if InStr(lDialogMoveFavoritesTitle, g_strFavoriteDialogTitle) or InStr(lDialogCopyFavoritesTitle, g_strFavoriteDialogTitle)
+{
+	WinGet, intMinMax, MinMax, A
+	if (intMinMax <> 1) ; if window is maximized, we keep the previous position and size
+	{
+		WinGetPos, intX, intY, intW, intH, A
+		strDialogPosition := intX . "|" . intY . "|" . intW . "|" . intH
+		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, CopyMoveDialogPosition
+		intX := ""
+		intY := ""
+		intW := ""
+		intH := ""
+	}
+	intMinMax := ""
+}
 g_strFavoriteDialogTitle := ""
 
 Gui, 1:-Disabled
