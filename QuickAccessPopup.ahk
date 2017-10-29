@@ -33,6 +33,7 @@ HISTORY
 
 Version BETA: 8.6.9.1 (2017-10-29)
 - allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
 
 Version: 8.6.1 (2017-10-29)
 - fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
@@ -12488,10 +12489,23 @@ WindowIsConsole(strClass)
 WindowIsDialog(strClass, strWinId)
 ;------------------------------------------------------------
 {
-	return (strClass = "#32770") and !WindowIsTreeview(strWinId)
+	return (strClass = "#32770") and !WindowIsTreeview(strWinId) and DialogHasRequiredControle(strWinId)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DialogHasRequiredControle(strWinId)
+; Disable popup menu in dialog boxes when its controls list does not fullfil these conditions:
+; include ("Edit1" or "Edit2") and ("ToolBarWindow32" or "SysListView32" or "SysTreeView32" or "DirectUIHWND") and ("Button")
+; Thanks to research by Helge Kraak
+;------------------------------------------------------------
+{
+	WinGet, strControlsList, ControlList, ahk_id %strWinId%
 	
-	; or InStr(strClass, "bosa_sdm_")
-	; Removed 2014-09-27  (see http://code.jeanlalonde.ca/folderspopupv3archives/#comment-7912)
+	return (InStr(strControlsList, "Edit1") or InStr(strControlsList, "Edit2"))
+		and (InStr(strControlsList, "ToolBarWindow32") or InStr(strControlsList, "SysListView32") or InStr(strControlsList, "SysTreeView32") or InStr(strControlsList, "DirectUIHWND"))
+		and InStr(strControlsList, "Button")
 }
 ;------------------------------------------------------------
 
