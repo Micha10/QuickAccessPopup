@@ -1716,7 +1716,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.1
+;@Ahk2Exe-SetVersion v8.6.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1790,8 +1790,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.6.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -7559,7 +7559,7 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, , %g_strFavoriteDialogTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x485 +MaxSizex485, %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -7631,6 +7631,15 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 Gui, 2:Add, Text
 Gosub, ShowGui2AndDisableGui1
 
+IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition, %A_Space% ; empty by default
+if StrLen(strDialogPosition)
+{
+	StringSplit, arrDialogPosition, strDialogPosition, |
+	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
+}
+
+*/
+
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
 strGuiFavoriteLabel := ""
@@ -7638,6 +7647,8 @@ arrTop := ""
 g_strNewLocation := ""
 g_blnAbordEdit := ""
 objExternalMenu := ""
+strDialogPosition := ""
+arrDialogPosition := ""
 
 return
 ;------------------------------------------------------------
@@ -8469,9 +8480,9 @@ if StrLen(strDialogPosition)
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
 
+blnMove := ""
 arrDialogPosition := ""
 strDialogPosition := ""
-blnMove := ""
 
 return
 ;------------------------------------------------------------
@@ -11911,10 +11922,22 @@ return
 2GuiSize:
 ;------------------------------------------------------------
 
-; the only level 2 gui resizable is multiple copy/move in created in GuiMoveMultipleFavoritesToMenu or GuiCopyMultipleFavoritesToMenu
+WinGetTitle, strThisTitle, A
 
-GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
-GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
+if WindowIsAddEditCopyFavorite(strThisTitle)
+{
+	; resize add/edit/copy favorite dialog box to select long parent menu
+	GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 50
+	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 50
+	GuiControl, 2:Move, f_intAddFavoriteTab, % "w" . A_GuiWidth - 30
+}
+else if WindowIsToMenuDialogBox(strThisTitle)
+{
+	; resize dialog box to select destination menu when copying/moving multiple favorites
+	GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
+	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
+}
+strThisTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -11925,25 +11948,22 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-; save position and size of dialog box to select destination menu when copying/moving multiple favorites
-WinGetTitle, g_strFavoriteDialogTitle, A
-g_strFavoriteDialogTitle := SubStr(g_strFavoriteDialogTitle, 1, InStr(g_strFavoriteDialogTitle, " - "))
-if InStr(lDialogMoveFavoritesTitle, g_strFavoriteDialogTitle) or InStr(lDialogCopyFavoritesTitle, g_strFavoriteDialogTitle)
+; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
+
+WinGetTitle, strThisTitle, A
+blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
+blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
+
+if (blnIsAddEditCopyFavorite or blnIsToMenuDialogBox)
 {
 	WinGet, intMinMax, MinMax, A
-	if (intMinMax <> 1) ; if window is maximized, we keep the previous position and size
+	if (intMinMax <> 1) ; ignore if window is maximized (it should not be but for safety)
 	{
 		WinGetPos, intX, intY, intW, intH, A
 		strDialogPosition := intX . "|" . intY . "|" . intW . "|" . intH
-		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, CopyMoveDialogPosition
-		intX := ""
-		intY := ""
-		intW := ""
-		intH := ""
+		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, % (blnIsToMenuDialogBox ? "CopyMoveDialogPosition" : "AddEditCopyFavoriteDialogPosition")
 	}
-	intMinMax := ""
 }
-g_strFavoriteDialogTitle := ""
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -11952,6 +11972,16 @@ if (g_intGui1WinID <> A_ScriptHwnd)
 
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, On, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+
+strThisTitle := ""
+blnIsAddEditCopyFavorite := ""
+blnIsToMenuDialogBox := ""
+intMinMax := ""
+strDialogPosition := ""
+intX := ""
+intY := ""
+intW := ""
+intH := ""
 
 return
 ;------------------------------------------------------------
@@ -17416,6 +17446,29 @@ CopyFavoriteObject(objSourceFavorite)
 		objDestFavorite[strKey] := strValue
 	
 	return objDestFavorite
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+WindowIsToMenuDialogBox(strTitle)
+;------------------------------------------------------------
+{
+	strTitle := SubStr(strTitle, 1, InStr(strTitle, " - "))
+	return InStr(lDialogMoveFavoritesTitle, strTitle) or InStr(lDialogCopyFavoritesTitle, strTitle)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+WindowIsAddEditCopyFavorite(strTitle)
+;------------------------------------------------------------
+{
+	strTitle := SubStr(strTitle, 1, InStr(strTitle, ":"))
+	return StrLen(strTitle)
+		and (InStr(L(lDialogAddEditFavoriteTitle, lDialogAdd), strTitle)
+		or InStr(L(lDialogAddEditFavoriteTitle, lDialogEdit), strTitle)
+		or InStr(L(lDialogAddEditFavoriteTitle, lDialogCopy), strTitle))
 }
 ;------------------------------------------------------------
 
