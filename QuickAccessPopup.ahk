@@ -31,8 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.6.9.1 (2017-10-29)
+- allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
+
 Version: 8.6.1 (2017-10-29)
- 
 - fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
 - add link for monthly donations in Support freeware dialog box
@@ -8436,8 +8438,7 @@ g_intGui1WinID := WinExist("A")
 
 blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesToMenu")
 
-; Gui, 2:New, +Resize +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
