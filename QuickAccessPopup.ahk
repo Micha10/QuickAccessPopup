@@ -11910,6 +11910,8 @@ return
 2GuiSize:
 ;------------------------------------------------------------
 
+return ; work in progress, will be completed in next beta phase
+
 ; the only level 2 gui resizable is multiple copy/move in created in GuiMoveMultipleFavoritesToMenu or GuiCopyMultipleFavoritesToMenu
 
 GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
