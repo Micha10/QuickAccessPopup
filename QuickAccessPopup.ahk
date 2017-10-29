@@ -31,10 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
-- fix bug default icon not set properly when adding a favorite
+Version: 8.6.1 (2017-10-29)
+ 
+- fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
-- allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations
-- save multiple favorites copy/move dialog box last position to ini file and restore previous position
 - add link for monthly donations in Support freeware dialog box
 
 Version: 8.6 (2017-10-26)
@@ -1714,7 +1714,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6
+;@Ahk2Exe-SetVersion v8.6.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1788,7 +1788,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8436,7 +8436,8 @@ g_intGui1WinID := WinExist("A")
 
 blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesToMenu")
 
-Gui, 2:New, +Resize +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+; Gui, 2:New, +Resize +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -11908,6 +11909,8 @@ return
 ;------------------------------------------------------------
 2GuiSize:
 ;------------------------------------------------------------
+
+; the only level 2 gui resizable is multiple copy/move in created in GuiMoveMultipleFavoritesToMenu or GuiCopyMultipleFavoritesToMenu
 
 GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
 GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
