@@ -35,6 +35,7 @@ HISTORY
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
 - allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations
 - save multiple favorites copy/move dialog box last position to ini file and restore previous position
+- add link for monthly donations in Support freeware dialog box
 
 Version: 8.6 (2017-10-26)
  
@@ -15191,10 +15192,10 @@ Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup.com/why-support-freeware/")
-loop, 3
+loop, Parse, % "4|1|2|3", |
 {
-	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_Index, % lDonatePlatformName%A_Index%
-	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_Index%
+	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % lDonatePlatformName%A_LoopField%
+	Gui, 2:Add, Link, x+10 w235 yp, % lDonatePlatformComment%A_LoopField%
 }
 ; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, %lDonatePlatformName2% ; Patreon out
 ; Gui, 2:Add, Link, x+10 w235 yp, %lDonatePlatformComment2% ; Patreon out
@@ -15245,11 +15246,13 @@ return
 ButtonDonate1:
 ButtonDonate2:
 ButtonDonate3:
+ButtonDonate4:
 ;------------------------------------------------------------
 
 strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"
 strDonatePlatformUrl2 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"
 strDonatePlatformUrl3 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"
+strDonatePlatformUrl4 := "http://www.quickaccesspopup.com/why-support-freeware/"
 
 StringReplace, intButton, A_ThisLabel, ButtonDonate
 Run, % strDonatePlatformUrl%intButton%
