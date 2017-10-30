@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- add an option to select the parent of QAP temp folder and save parent folder to settings (ini) file
+
 Version BETA: 8.6.9.1 (2017-10-29)
 - support change folder in PowerShell window as well as in command-line console (CMD)
 - allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
@@ -1760,12 +1762,6 @@ ListLines, On
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
 
 ;---------------------------------
-; Create temporary folder
-
-g_strTempDir := A_WorkingDir . "\_temp"
-FileCreateDir, %g_strTempDir%
-
-;---------------------------------
 ; Init settings file name
 ; must be before InitFileInstall because it reads UseClassicButtons setting
 
@@ -1782,6 +1778,22 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
+
+;---------------------------------
+; Create temporary folder
+
+IfExist, %g_strIniFile%
+	IniRead, g_strQAPTempFolderParent, %g_strIniFile%, Global, QAPTempFolder, %A_Space% ; empty by default
+else if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
+	g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
+
+if !StrLen(g_strQAPTempFolderParent)
+	g_strQAPTempFolderParent := A_WorkingDir ; for existing installations before v8.6.9.2
+else ; expand user's folder
+	g_strQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent))
+
+g_strTempDir := g_strQAPTempFolderParent . "\_QAP_temp"
+FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
 ; Init temporary folder and language files
@@ -5664,8 +5676,12 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
 GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 
-; Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogueOUT gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
-; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+Gui, 2:Add, Text, y+10 xs, %lOptionsQAPTempFolder%:
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
+Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
+StringReplace, strTempQAPTempFolderParent, g_strQAPTempFolderParent, % EnvVars("%TEMP%"), % "%TEMP%" ; un-expand TEMP environment variable
+GuiControl, 2:, f_strQAPTempFolderParentPath, %strTempQAPTempFolderParent%
+strTempQAPTempFolderParent := ""
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
@@ -6164,6 +6180,25 @@ return
 
 
 ;------------------------------------------------------------
+ButtonQAPTempFolderParentPath:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+strExpandQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(f_strQAPTempFolderParentPath))
+FileSelectFolder, strNewQAPTempFolderParentPath, *%strExpandQAPTempFolderParent%, 3, %lOptionsSelectQAPTempFolder%
+if !StrLen(strNewQAPTempFolderParentPath)
+	return
+
+GuiControl, 2:, f_strQAPTempFolderParentPath, %strNewQAPTempFolderParentPath%
+
+strNewQAPTempFolderParentPath := ""
+strExpandQAPTempFolderParent := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonExternalMenuSelectCataloguePath:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -6320,6 +6355,10 @@ strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
 IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 
+strQAPTempFolderParentPrev := g_strQAPTempFolderParent
+g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
+IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
+
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
 
@@ -6475,22 +6514,36 @@ IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerA
 ;---------------------------------------
 ; End of tabs
 
-; if language or theme changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme)
+; if language, theme or temporary folder changed, offer to restart the app
+if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsLanguage, &
 		strValue := g_strLanguageLabel
 	}
-	else ; (strThemePrev <> g_strTheme)
+	else if (strThemePrev <> g_strTheme)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
 		strValue := g_strTheme
 	}
+	else ; (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
+		strValue := g_strQAPTempFolderParent
+	}
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
+	else ; if user declines to reload, restore previous values
+	{
+		if (strLanguageCodePrev <> g_strLanguageCode)
+			g_strLanguageCode := strLanguageCodePrev
+		else if (strThemePrev <> g_strTheme)
+			g_strTheme := strThemePrev
+		else ; (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
+	}
 }	
 
 ; rebuild Folders menus w/ or w/o optional folders and shortcuts
@@ -6525,6 +6578,7 @@ g_blnMenuReady := true
 
 strLanguageCodePrev := ""
 strThemePrev := ""
+strQAPTempFolderParentPrev := ""
 strActiveFileManagerSystemName := ""
 strActiveFileManagerDisplayName := ""
 blnActiveFileManangerOK := ""

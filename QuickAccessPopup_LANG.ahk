@@ -543,11 +543,13 @@ global lOptionsPopupFixPositionX := "Position X:"
 global lOptionsPopupFixPositionY := "Y:"
 global lOptionsPopupHotkeyTitles := "Quick Access Popup Mouse button|Quick Access Popup Keyboard shortcut|Alternative Menu Mouse button|Alternative Menu Keyboard shortcut" ; new
 global lOptionsPopupHotkeyTitlesSub := "This mouse button pops the menu anywhere (except over <a>excluded applications</a>) and launch your favorite or navigate to your folder.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere." ; new
+global lOptionsQAPTempFolder := "Temporary Folder"
 global lOptionsRecentFolders := "Numb&er of folders in menu" ; changed
 global lOptionsRecentFoldersPrompt := "Recent Folders:" ; new
 global lOptionsRememberSettingsPosition := "Remember &window position"
 global lOptionsRunAtStartup := "&Run at Startup"
 global lOptionsSelectCatalogueRoot := "Select Shared Menus Catalogue root folder"
+global lOptionsSelectQAPTempFolder := "Create the Temporary Folder in:"
 global lOptionsSnippetsHelp := "Snippets defaults (<a href=""~1~"">~2~</a>)"
 global lOptionsTabFileManagersIntro := "Select the file manager to use to open folders in a new window." ; changed
 global lOptionsTabFileManagersPreferred := "Preferred file manager"
