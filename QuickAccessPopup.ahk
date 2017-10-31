@@ -31,6 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
+- add QAP Feature to list recent files as remembered by Windows
+
 Version BETA: 8.6.9.1 (2017-10-29)
 - support change folder in PowerShell window as well as in command-line console (CMD)
 - allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
@@ -1918,7 +1920,7 @@ Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup men
 Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
 
 Gosub, BuildDrivesMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
-Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
+Gosub, BuildRecentMenusInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
 Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
 
 Gosub, BuildTotalCommanderHotlist
@@ -2971,6 +2973,7 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName
 
 ; Separated menus in case wait time is too long
 InitQAPFeatureObject("Recent Folders", lMenuRecentFolders . "...", "", "RecentFoldersMenuShortcut", 0, "iconRecentFolders", "+^R")
+InitQAPFeatureObject("Recent Files", lMenuRecentFiles . "...", "", "RecentFilesMenuShortcut", 0, "iconRecentFolders", "")
 InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0, "iconDrives", "+^D")
 
 ; Command features
@@ -3945,7 +3948,7 @@ strIniFileContent := ""
 
 g_intClipboardMenuTickCount := 0
 g_intDrivesMenuTickCount := 0
-g_intRecentFoldersMenuTickCount := 0
+g_intRecentItemsMenuTickCount := 0
 g_intSwitchReopenMenuTickCount := 0
 
 return
@@ -4103,9 +4106,11 @@ return
 ;------------------------------------------------------------
 RefreshBackgroundDynamicMenus:
 ; background job started by SetTimer
+; NOT ACTIVE
 ;------------------------------------------------------------
 
 Gosub, RefreshRecentFoldersMenu
+Gosub, RefreshRecentFilesMenu
 Gosub, RefreshDrivesMenu
 
 /*
@@ -4393,15 +4398,18 @@ return
 
 
 ;------------------------------------------------------------
-BuildRecentFoldersMenuInit:
+BuildRecentMenusInit:
 ;------------------------------------------------------------
 
-Menu, g_menuRecentFolders, Add 
-Menu, g_menuRecentFolders, DeleteAll
-if (g_blnUseColors)
-    Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuRecentFolders")
+Loop, Parse, % "Folders|Files", | ; g_menuRecentFolders and g_menuRecentFiles
+{
+	Menu, % "g_menuRecent" . A_LoopField, Add
+	Menu, % "g_menuRecent" . A_LoopField, DeleteAll
+	if (g_blnUseColors)
+		Menu, % "g_menuRecent" . A_LoopField, Color, %g_strMenuBackgroundColor%
+	AddMenuIcon("g_menuRecent" . A_LoopField, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddCloseMenu("g_menuRecent" . A_LoopField)
+}
 
 return
 ;------------------------------------------------------------
@@ -4409,6 +4417,7 @@ return
 
 ;------------------------------------------------------------
 RecentFoldersMenuShortcut:
+RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
 ; When background tasks will be OK...
@@ -4423,10 +4432,13 @@ Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
 ; Until background tasks is back...
 Gosub, SetMenuPosition
 
-Gosub, RefreshRecentFoldersMenu
+if (A_ThisLabel = "RecentFoldersMenuShortcut")
+	Gosub, RefreshRecentFoldersMenu
+else ; RecentFilesMenuShortcut
+	Gosub, RefreshRecentFilesMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? "g_menuRecentFolders" : "g_menuRecentFiles"), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4434,16 +4446,18 @@ return
 
 ;------------------------------------------------------------
 RefreshRecentFoldersMenu:
+RefreshRecentFilesMenu:
 ;------------------------------------------------------------
 
-if !(g_objQAPfeaturesInMenus.HasKey("{Recent Folders}")) ; we don't have this QAP features in at least one menu
+if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and A_ThisLabel = "RefreshRecentFoldersMenu")
+	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFilesMenu")
+	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
 intRecentFoldersMenuStartTickCount := A_TickCount
 
-g_objRecentFolders := Object()
-
-g_intRecentFoldersIndex := 0 ; used in PopupMenu... to check if we disable the menu when empty
+intRecentFoldersCount := 0
+intRecentFilesCount := 0
 strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
@@ -4465,12 +4479,15 @@ for ObjItem in ComObjGet("winmgmts:")
 ; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
 
 Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
-	strDirList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
-Sort, strDirList, R
+	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+Sort, strItemsList, R
 
-intShortcut := 0
+intShortcutFolders := 0
+intShortcutFiles := 0
+strRecentFoldersMenuItemsList := ""
+strRecentFilesMenuItemsList := ""
 
-Loop, parse, strDirList, `n
+Loop, parse, strItemsList, `n
 {
 	if !StrLen(A_LoopField) ; last line is empty
 		continue
@@ -4484,44 +4501,64 @@ Loop, parse, strDirList, `n
 		continue
 	if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
 		continue
-	if LocationIsDocument(strTargetPath) ; not a folder
-		continue
-
-	g_intRecentFoldersIndex++
-	g_objRecentFolders.Insert(g_intRecentFoldersIndex, strTargetPath)
 	
-	strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . strTargetPath
-	strMenuItemsList .= "g_menuRecentFolders|" . strMenuName . "|OpenRecentFolder|iconFolder`n"
+	if (A_ThisLabel = "RefreshRecentFoldersMenu")
+		and (intRecentFoldersCount < g_intRecentFoldersMax)
+		and !LocationIsDocument(strTargetPath) ; add to recent folders
+	{
+		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFolders <= 35) ? "&" . NextMenuShortcut(intShortcutFolders) . " " : "") . strTargetPath
+		strIcon := GetFolderIcon(strTargetPath)
+		strRecentFoldersMenuItemsList .= "g_menuRecentFolders|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		intRecentFoldersCount++
+	}
 
-	if (g_intRecentFoldersIndex >= g_intRecentFoldersMax)
+	if (A_ThisLabel = "RefreshRecentFilesMenu")
+		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
+		and LocationIsDocument(strTargetPath) ; add to recent files
+	{
+		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFiles <= 35) ? "&" . NextMenuShortcut(intShortcutFiles) . " " : "") . strTargetPath
+		strIcon := GetIcon4Location(strTargetPath)
+		strRecentFilesMenuItemsList .= "g_menuRecentFiles|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		intRecentFilesCount++
+	}
+
+	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
 		break
 }
 
 ; Until background tasks is back...
 ; Critical, On
-Menu, g_menuRecentFolders, Add
-Menu, g_menuRecentFolders, DeleteAll
-Loop, Parse, strMenuItemsList, `n
+; g_menuRecentFolders or g_menuRecentFiles / RefreshRecentFoldersMenuFolders or RefreshRecentFoldersMenuFiles
+Menu, % "g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"), Add
+Menu, % "g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"), DeleteAll
+strParseList := (A_ThisLabel = "RefreshRecentFoldersMenu" ? strRecentFoldersMenuItemsList : strRecentFilesMenuItemsList)
+Loop, Parse, strParseList, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
-AddCloseMenu("g_menuRecentFolders")
+AddCloseMenu("g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"))
+
 ; Until background tasks is back...
 ; Critical, Off
 
 SetWaitCursor(false)
 
 strRecentsFolder := ""
-strDirList := ""
-intShortcut := ""
+strItemsList := ""
+strRecentFoldersMenuItemsList := ""
+strRecentFilesMenuItemsList := ""
+intShortcutFolders := ""
+intShortcutFiles := ""
 arrShortcutFullPath := ""
 strShortcutFullPath := ""
 strTargetPath := ""
 strMenuName := ""
+strIcon := ""
+strParseList := ""
 
-g_intRecentFoldersMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
+g_intRecentItemsMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
 ; TrayTip, RecentFolders menu refresh, % g_intRecentFoldersMenuTickCount . " ms"
 return
 ;------------------------------------------------------------
@@ -9175,6 +9212,9 @@ GetFolderIcon(strFolderLocation)
 		strDesktopIconFileIndex := PathCombine(strFolderLocation, EnvVars(strDesktopIconFile)) . ","
 			. intDesktopIconIndex + (intDesktopIconIndex >= 0 ? 1 : 0) ; adjust index for positive index only (not for negative index)
 	
+	if !StrLen(strDesktopIconFileIndex)
+		strDesktopIconFileIndex := "iconFolder"
+	
 	return strDesktopIconFileIndex
 }
 ;------------------------------------------------------------
@@ -12807,6 +12847,7 @@ OpenFavoriteGroup:
 OpenFavoriteFromGroup:
 OpenFavoriteFromHotkey:
 OpenRecentFolder:
+OpenRecentFile:
 OpenReopenFolder:
 OpenClipboard:
 OpenDrives:
@@ -13414,7 +13455,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
-else ; OpenRecentFolder or OpenClipboard
+else ; OpenRecentFolder, OpenRecentFiles or OpenClipboard
 {
 	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
 		strFavoriteType := "URL"
