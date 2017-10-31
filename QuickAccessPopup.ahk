@@ -1919,8 +1919,8 @@ g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.
 Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
 
-Gosub, BuildDrivesMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
-Gosub, BuildRecentMenusInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
+Gosub, BuildDrivesMenuInit
+Gosub, BuildRecentMenusInit
 Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
 
 Gosub, BuildTotalCommanderHotlist
@@ -2968,13 +2968,15 @@ InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuReopenFolder",		"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
-; InitQAPFeatureObject("Drives",			lMenuDrives . "...",				"g_menuDrives",			"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
-; InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . "...",			"g_menuRecentFolders",	"RecentFoldersMenuShortcut",	0, "iconRecentFolders", "+^R")
 
-; Separated menus in case wait time is too long
-InitQAPFeatureObject("Recent Folders", lMenuRecentFolders . "...", "", "RecentFoldersMenuShortcut", 0, "iconRecentFolders", "+^R")
-InitQAPFeatureObject("Recent Files", lMenuRecentFiles . "...", "", "RecentFilesMenuShortcut", 0, "iconRecentFolders", "")
-InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0, "iconDrives", "+^D")
+; Integrated or Separated menus in case wait time is too long (default)
+IniRead, g_blnOptionRefreshedMenusSeparated, %g_strIniFile%, Global, RefreshedMenusSeparated, 0 ; default true, display OpenDrives and Recent Folders/Files menu in separated menu
+InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
+	,(g_blnOptionRefreshedMenusSeparated ? "" : "g_menuRecentFolders"),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
+InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
+	, (g_blnOptionRefreshedMenusSeparated ? "" : "g_menuRecentFiles"),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
+InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
+	, (g_blnOptionRefreshedMenusSeparated ? "" : "g_menuDrives"),			"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
 
 ; Command features
 InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
@@ -6542,10 +6544,14 @@ Gosub, BuildAlternativeMenu
 
 ; and rebuild dynamic menus
 Gosub, RefreshClipboardMenu
-Gosub, RefreshDrivesMenu
-Gosub, RefreshRecentFoldersMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
+if !(g_blnOptionRefreshedMenusSeparated)
+{
+	Gosub, RefreshDrivesMenu
+	Gosub, RefreshRecentFoldersMenu
+	Gosub, RefreshRecentFilesMenu
+}
 
 /*
 if (g_blnDiagMode)
@@ -12270,12 +12276,17 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 
 ; ####
 
-; refresh the five dynamic menus before showing the main menu
+; refresh the dynamic menus before showing the main menu
 ; in order of estimated avverage time required to refresh
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes g_menuReopenFolder
 Gosub, RefreshClipboardMenu
-; Gosub, RefreshRecentFoldersMenu ; displays the wait cursor
-; Gosub, RefreshDrivesMenu ; displays the wait cursor
+if !(g_blnOptionRefreshedMenusSeparated)
+{
+	; displays the wait cursor
+	Gosub, RefreshDrivesMenu
+	Gosub, RefreshRecentFoldersMenu
+	Gosub, RefreshRecentFilesMenu
+}
 
 /*
 if (g_blnDiagMode)
