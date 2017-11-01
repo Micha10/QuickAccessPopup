@@ -2969,14 +2969,9 @@ InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuR
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
 
-; Integrated or Separated menus in case wait time is too long (default)
-IniRead, g_blnOptionRefreshedMenusSeparated, %g_strIniFile%, Global, RefreshedMenusSeparated, 0 ; default true, display OpenDrives and Recent Folders/Files menu in separated menu
-InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
-	,(g_blnOptionRefreshedMenusSeparated ? "" : "g_menuRecentFolders"),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
-InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
-	, (g_blnOptionRefreshedMenusSeparated ? "" : "g_menuRecentFiles"),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
-InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnOptionRefreshedMenusSeparated ? "..." : "")
-	, (g_blnOptionRefreshedMenusSeparated ? "" : "g_menuDrives"),			"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
+; init refreshed menus attached or detached
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display OpenDrives and Recent Folders/Files menu in detached menu
+Gosub, InitQAPFeaturesRefreshed
 
 ; Command features
 InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
@@ -3022,6 +3017,23 @@ StringTrimRight, g_strQAPFeaturesList, g_strQAPFeaturesList, 1
 strQAPFeatureName := ""
 strThisQAPFeatureCode := ""
 strQAPFeatureAlternativeOrder := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+InitQAPFeaturesRefreshed:
+; Attached or Detached menus (in case wait time is too long, default detached)
+; This command is called again when options are saved
+;------------------------------------------------------------
+
+InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
+	,(g_blnRefreshedMenusAttached ? "g_menuRecentFolders" : ""),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
+InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? "g_menuRecentFiles" : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
+InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? "g_menuDrives" : ""),		"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
 
 return
 ;------------------------------------------------------------
@@ -5794,7 +5806,10 @@ Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 
 ; column 2
 
-Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
+Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
 GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
@@ -6203,6 +6218,16 @@ return
 
 
 ;------------------------------------------------------------
+RefreshedMenusAttachedClicked:
+;------------------------------------------------------------
+
+Oops(lOptionsRefreshedMenusAttachedInfo, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonExternalMenuSelectCataloguePath:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -6379,29 +6404,6 @@ IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacr
 ;---------------------------------------
 ; Save Tab 2: Menu options
 
-if !(g_blnPortableMode)
-{
-	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
-		gosub, EnableExplorerContextMenus
-		; else already enabled
-	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
-		gosub, DisableExplorerContextMenus
-		; else already disabled
-	g_blnExplorerContextMenus := f_blnExplorerContextMenus
-	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
-}
-
-g_intRecentFoldersMax := f_intRecentFoldersMax
-IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
-g_blnDisplayIcons := f_blnDisplayIcons
-IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
-g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
-IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
-g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
-IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
-g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
-IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
-
 if (f_radPopupMenuPosition1)
 	g_intPopupMenuPosition := 1
 else if (f_radPopupMenuPosition2)
@@ -6422,9 +6424,33 @@ else
 	g_intHotkeyReminders := 3
 IniWrite, %g_intHotkeyReminders%, %g_strIniFile%, Global, HotkeyReminders
 
+if !(g_blnPortableMode)
+{
+	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+		gosub, EnableExplorerContextMenus
+		; else already enabled
+	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+		gosub, DisableExplorerContextMenus
+		; else already disabled
+	g_blnExplorerContextMenus := f_blnExplorerContextMenus
+	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+}
+
+g_intRecentFoldersMax := f_intRecentFoldersMax
+IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
+
+g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
+IniWrite, %g_blnRefreshedMenusAttached%, %g_strIniFile%, Global, RefreshedMenusAttached
+g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
+IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
+g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
+IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
+g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
+IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
+g_blnDisplayIcons := f_blnDisplayIcons
+IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
 g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
-
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
 
@@ -6539,6 +6565,7 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	arrMenu := "" ; free object's memory
 }
+Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update accrding to g_blnRefreshedMenusAttached
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
@@ -6546,7 +6573,7 @@ Gosub, BuildAlternativeMenu
 Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
-if !(g_blnOptionRefreshedMenusSeparated)
+if (g_blnRefreshedMenusAttached)
 {
 	Gosub, RefreshDrivesMenu
 	Gosub, RefreshRecentFoldersMenu
@@ -12280,7 +12307,7 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 ; in order of estimated avverage time required to refresh
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes g_menuReopenFolder
 Gosub, RefreshClipboardMenu
-if !(g_blnOptionRefreshedMenusSeparated)
+if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
