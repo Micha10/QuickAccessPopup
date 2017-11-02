@@ -35,6 +35,7 @@ Version BETA: 8.6.9.2 (2017-11-02)
 - add QAP Feature to list "Recent Files" as remembered by Windows
 - add option to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a slight refresh delay at each menu popup) or detached as stand-alone menus refreshed on demand
 - add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
+- for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
 
 Version BETA: 8.6.9.1 (2017-10-29)
 - support change folder in PowerShell window as well as in command-line console (CMD)
@@ -1791,11 +1792,9 @@ else if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
 	g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
 
 if !StrLen(g_strQAPTempFolderParent)
-	g_strQAPTempFolderParent := A_WorkingDir ; for existing installations before v8.6.9.2
-else ; expand user's folder
-	g_strQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent))
+	g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
 
-g_strTempDir := g_strQAPTempFolderParent . "\_QAP_temp"
+g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp"
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
@@ -5731,9 +5730,7 @@ GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 Gui, 2:Add, Text, y+10 xs, %lOptionsQAPTempFolder%:
 Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
 Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
-StringReplace, strTempQAPTempFolderParent, g_strQAPTempFolderParent, % EnvVars("%TEMP%"), % "%TEMP%" ; un-expand TEMP environment variable
-GuiControl, 2:, f_strQAPTempFolderParentPath, %strTempQAPTempFolderParent%
-strTempQAPTempFolderParent := ""
+GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
@@ -5760,7 +5757,7 @@ GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
 GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
-Gui, 2:Add, Link, y+3 xs+16 w300 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
+Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
@@ -6235,7 +6232,6 @@ return
 
 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 ButtonQAPTempFolderParentPath:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -6249,12 +6245,16 @@ GuiControl, 2:, f_strQAPTempFolderParentPath, %strNewQAPTempFolderParentPath%
 
 strNewQAPTempFolderParentPath := ""
 strExpandQAPTempFolderParent := ""
-=======
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
 Oops(lOptionsRefreshedMenusAttachedInfo, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
->>>>>>> feat_ready/recentfiles
 
 return
 ;------------------------------------------------------------
@@ -6418,8 +6418,11 @@ g_strTheme := f_drpTheme
 IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
 
 strQAPTempFolderParentPrev := g_strQAPTempFolderParent
-g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
-IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
+if StrLen(f_strQAPTempFolderParentPath)
+{
+	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
+	IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
+}
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath

@@ -19,11 +19,14 @@ lContextShowMenu	Mostrar o menu do Quick Access Popup
 lContextShowMenuAternative	Mostrar o menu Alternativo do Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Mantem esta janela sempre visível em primeiro plano
 lControlToolTipAlwaysOnTopOn	Para de manter esta janela sempre visível
+lControlToolTipColumnBreak	Insere uma quebra de coluna na actual posição do menu
 lControlToolTipMoveDown	Move o(s) favorito(s) seleccionado(s) para baixo
 lControlToolTipMoveUp	Move o(s) favorito(s) seleccionado(s) para cima
 lControlToolTipParentMenu	Vai para o menu principal
 lControlToolTipPreviousMenu	Regressa ao menu anterior
 lControlToolTipSeparator	Insere um separador de menu na posição actual
+lControlToolTipTextSeparator	Insere um separador de texto na actual posição do menu
+lCopyFavoritesToMenuOrGroup	Os menus e grupos não podem ser copiados.`n`nDeseja continuar sem copiar menus e grupos?
 lCopyLocationCopiedToClipboard	Atalho ou URL copiado para a área de transferência
 lDiagModeCaution	~1~ está a ser executado em modo diagnóstico.`n`nA informação sobre a execução do programa será armazenada no ficheiro:`n~2~`n`nNada será enviado sem o seu consentimento.`n`nDeseja continuar no modo disgnóstico?
 lDiagModeExit	O ~1~ compilou a informação de diagnóstico no ficheiro ~2~.
@@ -39,7 +42,7 @@ lDialogAddFavoriteTabsExternal	Menu Partilhado
 lDialogAddFavoriteTabsLive	Opções Pasta Live
 lDialogAddFileSelect	Escolher um novo documento:
 lDialogAddFolderManuallyPrompt	Lamentamos, não é possível detectar a pasta actual neste tipo de janela.`n`nDeseja adicionar uma pasta favoritos manualmente?
-lDialogAddFolderManuallyTitle	Adicionar esta pasta - ~1~ ~2~
+lDialogAddFolderManuallyTitle	Adicionar esta Pasta ou Ligação - ~1~ ~2~
 lDialogAddFolderSelect	Seleccionar ou criar uma nova pasta:
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicação
@@ -68,6 +71,7 @@ lDialogContinue	Continuar
 lDialogContinueAmpersand	C&ontinuar
 lDialogCopy	Copiar
 lDialogCopyAmpersand	C&opiar
+lDialogCopyFavoritesTitle	Copiar Favoritos - ~1~ ~2~
 lDialogCtrl	Controlo
 lDialogCtrlShort	Ctrl
 lDialogEdit	Editar
@@ -137,11 +141,13 @@ lDialogFavoriteSnippetPromptNoPipe	O caracter barra vertical (|) não é permitido
 lDialogFavoriteSnippetSendMode	Enviar amostra para a aplicação actual em:
 lDialogFavoriteSnippetSendModeMacro	Modo Macro
 lDialogFavoriteSnippetSendModeText	Modo Texto
+lDialogFavoritesParentMenuCopy	Copiar ~1~ favoritos para este menu
 lDialogFavoritesParentMenuMove	Mover ~1~ favoritos para este menu
 lDialogFavoriteType	Tipo de Favorito
 lDialogFavoriteTypesHelp1	Criar um atalho para uma "Pasta" utilizada com frequência.`n`nDefina o nome do menu do favorito, atalho e diversas opções do menu.`n`nAs opções da Pasta 'Live' permitem actualizar o conteúdo do menu com o actual conteúdo da pasta.`n`nAs definições avançadas permitem ajustar a posição da janela e opções de gestão de ficheiros.
 lDialogFavoriteTypesHelp13	Criar uma "Amostra de Texto". Defina o título para o menu, o seu conteúdo e diversas opções do menu.`n`nNas opções avançadas, escolha "Modo Texto" para colar pedaços de texto como faria da área de transferência ou escolha "Modo Macro" para enviar fragmentos como se digitasse teclas (incluindo teclas especiais, consulte a ajuda).
 lDialogFavoriteTypesHelp14	Criar um "Menu Partilhado" para usar os favoritos em vários sistemas a partir do mesmo ficheiro de definições numa localização externa. Defina o nome para o menu partilhado, a localização do ficheiro de definições externas e diversas opções.`n`nOs menus partilhados podem ser utilizados nos modos "Pessoal", "Participativo" ou "Centralizado". Pode ser definido um Catálogo de Menus Partilhados no separador Options "Geral" para facilitar a adição de menus partilhados.`n`nOs menus patilhados podem ser editados como menus normais. Só os utilizadores seleccionados podem editar menus partilhados Centralizados. Veja as perguntas frequentes (FAQ) no site para mais ajuda.
+lDialogFavoriteTypesHelp15	Crie um "Separador de Texto" para inserir cabeçalhos dando mais clareza ao seu menu.`n`nPor defeito, os separadores de texto não possuem ícone mas pode seleccionar um no separador "Opções do Menu".
 lDialogFavoriteTypesHelp2	Criar um atalho para um "Documento".`n`nDefina o nome do menu do favorito, atalho e diversas opções do menu.`n`nAs definições avançadas permitem escolhar uma aplicação específica para abrir o documento, adicionar parâmetros opcionais e definir a posição da janela.
 lDialogFavoriteTypesHelp3	Criar um atalho para uma "Aplicação" (programa, batch ou script).`n`nLocalize o ficheiro executável ou seleccione um dos programas em execução. Defina diversas opções do menu.`n`nAs definições avançadas permitem escolher uma pasta "Iniciar Em", adicionar parâmetros e definir a posição da janela.
 lDialogFavoriteTypesHelp4	Criar um atalho para uma das 50 "Pastas Especiais" predefinidas do Windows, tais como: Bibliotecas, As Minhas Imagens, Reciclagem, Transferências, etc.`n`nDefina diversas opções do menu. As definições avançadas permitem definir a posição da janela e opções de gestão de ficheiros.
@@ -150,14 +156,15 @@ lDialogFavoriteTypesHelp6	Criar um atalho para um "Site FTP".`n`nDefina o nome d
 lDialogFavoriteTypesHelp7	Inserir algures no seu menu "Funções Quick Access Popup" tais como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Reuna favoritos relacionados num "Submenu".`n`nAtribua um nome ao seu submenu e seleccione opções de menu.`n`nAdicione favoritos ao seu submenu ou mova-os de outros submenus ou grupos usando o botão "Editar".
 lDialogFavoriteTypesHelp9	Carregue um "Grupo" de favoritos, todos num só atalho!`n`nAtribua um nome ao seu grupo e defina diversas opções para o seu grupo.`n`nAdicione favoritos ao seu grupo ou mova-os de outros submenus ou grupos usando o botão "Editar".`n`nAs opções avançadas permitem controlar a velocidade de restauro inserindo um atraso entre cada favorito a restaurar.
-lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Text Separator
-lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Text Separator
-lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Mudança de Coluna|..|Snippet|Partilhado|Text
+lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Separador de Texto
+lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|Site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Separador de Texto
+lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Snippet|Partilhado|Texto
 lDialogFavoriteWorkingDirNotFoundPrompt	A definição avançada "Iniciar em" do favorito "~1~" não foi encontrada:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Parâmetro Iniciar em não encontrado - ~1~
 lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
 lDialogFoldersPlaceholders	Pode incluir o recipiente {CUR_LOC} para inserir o local onde este favorito é carregado
+lDialogGetWebPageTitle	Obter título
 lDialogGetWinInfo	Para identificar a janela da qual pretende obter o título e classe, clique na janela alvo com a tecla de atalho [~1~] do menu QAP.
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar esta informação para a Área de transferência?
 lDialogHotkeyInvisibleKeys	(OLD version *UPDATE next line and DELETE this line*) <a id="~1~">barra de espaços</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
@@ -208,6 +215,8 @@ lDialogReadOnly	Só de leitura
 lDialogRemoveMultipleFavorites	Deseja mesmo remover ~1~ favoritos ou submenus?
 lDialogSearch	Procurar
 lDialogSelectIcon	Seleccionar ícone
+lDialogSelectIconJL	Seleccionar em JLicons.dll
+lDialogSelectIconNo	Sem ícone
 lDialogSelectItemToAdd	Seleccione o item para adicionar
 lDialogSelectItemToEdit	Por favor, seleccione o item para editar.
 lDialogSelectItemToMove	Por favor, seleccione o item para mover.
@@ -280,6 +289,7 @@ lGuiCancel	Cancelar
 lGuiCancelAmpersand	&Cancelar
 lGuiClose	Fechar
 lGuiCloseAmpersand	Fe&char
+lGuiCopyAmpersand	C&opiar
 lGuiDonate	Doar
 lGuiDropFilesHelp	Ajuda Arrastar && Largar
 lGuiDropFilesIncentive	Pode Arrastar & Largar os seguintes tipos de favoritos para a janela ~1~ :`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
@@ -325,7 +335,7 @@ lHelpText13	Para forçar a abertura da pasta numa nova janela, use as teclas de a
 lHelpText14	Seleccione "Definições" para personalizar o seu menu do Quick Access Popup. Pode adicionar favoritos ao seu menu. Pode mover, renomear ou eliminá-los. Também pode adicionar SUBMENUS, GRUPOS ou MENUS PARTILHADOS. Seleccione o "Menu ou grupo para editar:" na lista pendente. Clique em "Guardar" para manter as suas alterações.
 lHelpText21	Para adicionar favoritos, clique no botão "Adicionar", na janela "Definições". Seleccione o tipo do novo favorito e veja as dicas no lado direito da janela. Clique em "Continuar" para abrir a caixa de diálogo "Adicionar Favorito".
 lHelpText22	Nos quatro separadores da caixa de diálogo "Adicionar favorito", introduza as "Definições Básicas", "Opções do Menu", "Opções da Janela" e "Definições Avançadas". Clique em "Adicionar" para inserir o favorito no seu menu e em "Guardar" na janela Definições.
-lHelpText23	ADICIONAR ESTA PASTA`n`nPara ADICIONAR rapidamente uma nova PASTA favorita ao menu emergente:`n1) Vá para uma pasta usada frequentemente.`n2) Clique na tecla de atalho do QAP [~1~] ou [~2~], e escolha "Adicionar Esta Pasta".`n3) Dê um nome abreviado à pasta, clique em "Adicionar", e depois em "Guardar" na janela Definições.
+lHelpText23	ADICIONAR ESTA PASTA OU LIGAÇÃO`n`nPara ADICIONAR rapidamente uma nova PASTA favorita ou LIGAÇÃO ao menu emergente:`n1) Vá para uma pasta ou página web usada frequentemente.`n2) Clique na tecla de atalho do QAP [~1~] ou [~2~], e escolha "Adicionar esta Pasta ou Ligação".`n3) Dê um nome abreviado ao favorito, clique em "Adicionar", e depois em "Guardar" na janela Definições
 lHelpText31	No menu "O Meu QAP Básico":
 lHelpText32	- Aponte o menu "Mudar..." para mudar para qualquer outra janela em execução do Explorador ou de uma aplicação.`n- Utilize o menu "Reabrir uma Pasta" para reabrir uma pasta anteriormente aberta na janela do Explorador (muito útil em caixas de diálogo de ficheiros).`n- Seleccione o menu "Pastas recentes..." para exibir uma lista actualizada das pastas recentes do Windows.`n- Aceda aos ficheiros ou URLs na sua Área de Transferência com o menu "Área de Transferência".`n- Clique no menu "Unidades" para ver a lista de unidades com o espaço de disco actual.
 lHelpText33	PERSONALIZE O SEU MENU DE FUNÇÕES QAP
@@ -374,8 +384,8 @@ lImpExpUnsavedSettings	Está aberta uma janela de definições, possivelmente com a
 lMainMenuName	Principal
 lMenuAboutAmpersand	A&cerca
 lMenuAddFavorite	Adicionar Favorito
-lMenuAddThisFolder	Adicionar Esta Pasta
-lMenuAddThisFolderXpress	Adicionar Esta Pasta Expresso
+lMenuAddThisFolder	Adicionar esta Pasta ou Ligação
+lMenuAddThisFolderXpress	Adicionar esta Pasta ou Ligação Expresso
 lMenuAlternativeEditFavorite	Editar um Favorito
 lMenuAlternativeNewWindow	Abrir em nova janela
 lMenuAlternativeOpenContainingCurrent	Abrir a Pasta respectiva na Janela Actual
@@ -439,9 +449,10 @@ lMenuUserFolder	Pasta do Utilizador
 lMenuUserPinned	Fixado pelo Utilizador
 lNavigateFileError	Ocorreu um erro ao abrir a pasta:`n~1~.
 lNavigateSpecialError	Ocorreu um erro ao abrir a pasta especial #~1~.
-lOopsAddThisFolderTip	Para melhores resultados com o comando "Adicionar Esta Pasta":`n`n1) Active a janela ~1~ contendo a pasta a adicionar ao seu menu.`n2) Abra o menu emergente usando ~2~.`n3) Seleccione "Adicionar Esta Pasta" e guarde o seu novo favorito.
+lOopsAddThisFolderTip	Para melhores resultados com o comando "Adicionar esta Pasta ou Ligação":`n`n1) Active a janela ~1~ contendo a pasta ou ligação a adicionar ao seu menu.`n2) Abra o menu emergente usando ~2~.`n3) Seleccione "Adicionar esta Pasta ou Ligação" e guarde o seu novo favorito.
 lOopsAmpersandInName	O sÃ­mbolo "&" Ã© utilizado para definir teclas de atalho nos menus do Windows. Para exibir o sÃ­mbolo num nome de menu, digite "&&".`n`nPara mais informaÃ§Ã£o, procure por "ampersand" nas FAQ na pÃ¡gina do QAP.
 lOopsCannotCopyFavorite	Não é possível copiar favoritos do tipo "~1~".
+lOopsCannotCopyMoveToSelf	Não pode mover ou copiar favoritos para a sua localização actual. Por favor, seleccione outro destino.
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro desta caixa de diálogo, tem que activar uma opção (1ª caixa de marcação do separador "Geral").`n`nDeseja abrir a janela de Opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não conseguiu abrir a pasta especial: "~2~".
 lOopsEmpty	vazia
@@ -457,6 +468,8 @@ lOopsExternalNotAllowedUnderExternal	Os menus partilhados não são permitidos den
 lOopsExternalReadOnlyAlert	Os menus partilhados do tipo "Centralizado" só podem ser editados pelo(s) utilizador(es) no campo "~1~" (ou abrindo o ficheiro ini na unidade partilhada usando um editor de texto).`n`nO seu nome de utilizador é: "~2~".`nO nome do seu computador é: "~3~".
 lOopsExternalReadOnlyAlertUsernameAdded	O seu nome de utilizador foi adicionado automaticamente à lista de "Utilizadores com acesso de escrita".
 lOopsExternalSelectType	Por favor seleccione o tipo de menu partilhado no separador "Menu partilhado".
+lOopsFavoritesCopied	~1~ favoritos copiados.
+lOopsFirstEnterUrl	Primeiro, introduza um endereço no campo "~1~".
 lOopsFtpLocationProtocol	A localização FTP deve começar com "ftp://".
 lOopsGroup	grupo
 lOopsHotkeyAlreadyUsed	A tecla de atalho "~1~" já está em uso para ~2~.`n`nPlor favor, escolha outra tecla de atalho para ~3~.
@@ -491,7 +504,9 @@ lOptionsChangeFolderInDialogText	Active esta opção para permitir a navegação em 
 lOptionsChangeHotkey	Alterar
 lOptionsCheck4Update	Procurar actualizações
 lOptionsCheck4UpdateNow	verificar agora
-lOptionsControlDoublePressed	Abrir o menu principal com Ctrl + Ctrl (Tecla da esquerda ou da direita pressionada duas vezes)
+lOptionsControlDoublePressed	Abrir o menu principal com Ctrl + Ctrl (Tecla Ctrl pressionada duas vezes)
+lOptionsControlDoublePressedLeft	Usando a tecla Control Esquerda
+lOptionsControlDoublePressedRight	Usando a tecla Control Direita
 lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
 lOptionsEnableExternalMenusCatalogue	Activar Catálogo de Menus Partilhados
@@ -499,7 +514,9 @@ lOptionsExclusionDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa ap
 lOptionsExclusionDetail2	A tecla de atalho do QAP será desactivada nestas aplicações e o clique [~1~] será enviado para a janela alvo como se o QAP não estivesse a ser executado. Pode também excluir janelas pelo nome da sua classe. Insira * (asterisco) antes do título ou classe para também excluir caixas de diálogo de programas. Pode encontrar ajuda para esta função <a href="~2~">no site do QAP</a>.
 lOptionsExclusionList	Lista de Exclusões
 lOptionsExclusionTitle	Lista de Exclusões para desencadeador do Rato [~1~]
-lOptionsExplorerContextMenus	Activar os Menus de Contexto do Explorador
+lOptionsExplorerContextMenus	Activar menus de contexto
+lOptionsExplorerContextMenusHeader	Menus de Contexto do Explorador do Windows:
+lOptionsFileManagerAlwaysNavigate	Abrir sempre as pastas na actual janela do gestor de ficheiros
 lOptionsFtpEncoding	Codificar utilizador e palavra-passe FTP (recomendado)
 lOptionsFtpEncodingTC	Codificar utilizador e palavra-passe FTP (não recomendado para o Total Commander)
 lOptionsGuiTitle	Opções - ~1~ ~2~
@@ -517,7 +534,7 @@ lOptionsMenuNearMouse	Junto ao cursor do rato
 lOptionsMenuOptions	Opções do Menu
 lOptionsMenuPositionPrompt	Menu emergente:
 lOptionsMouseAndKeyboard	Teclas de Atalho do menu
-lOptionsOpenMenuOnTaskbar	Abrir menu na barra de tarefas
+lOptionsOpenMenuOnTaskbar	(OLD version *UPDATE next line and DELETE this line*) Abrir menu na barra de tarefas
 lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:
@@ -530,6 +547,8 @@ lOptionsRunAtStartup	Executa&r no Arranque
 lOptionsSelectCatalogueRoot	Seleccionar a pasta raiz do Catálogo de Menus Partilhados
 lOptionsSnippetsHelp	Padrões de 'Snippets' (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Seleccione o gestor de ficheiros a usar para abrir pastas numa nova janela.
+lOptionsTabFileManagersPreferences	Preferências do gestor de ficheiros
+lOptionsTabFileManagersPreferred	Gestor de ficheiros preferido
 lOptionsTabMenuOptionsIntro	Faça o menu emergente ter um aspecto a seu gosto !
 lOptionsTabMouseAndKeyboardIntro	Defina os botões do rato e os atalhos de teclado que irão abrir o menu principal do ~1~.
 lOptionsTabOtherOptionsIntro	Faça o ~1~ funcionar da maneira que gosta!
@@ -547,6 +566,7 @@ lPickIconNoLocation	Escolha primeiro um favorito antes de escolher um ícone.
 lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? As alterações ao menu não guardadas serão perdidas.
 lTCMenuName	Lista de Pasta Favoritas do TC
 lTCWinCmdLocation	Localização do WinCmd.ini
+lToolTipRetrievingWebPageTitle	A recuperar título da página web...
 lTooltipSnippetKeyWait	Pressione {~1~} para continuar...
 lTooltipSnippetWaitEnter	Enter
 lTooltipSnippetWaitMacro	Pressione "~1~" ou "~2~" para carregar a macro (aguardar ~3~ segundos)
