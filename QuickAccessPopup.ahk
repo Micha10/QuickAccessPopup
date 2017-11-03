@@ -36,6 +36,7 @@ Version BETA: 8.6.9.2 (2017-11-02)
 - add option to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a slight refresh delay at each menu popup) or detached as stand-alone menus refreshed on demand
 - add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
 - for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
+- update to Italian, Portuguese and Brazilian Portuguese language files
 
 Version BETA: 8.6.9.1 (2017-10-29)
 - support change folder in PowerShell window as well as in command-line console (CMD)
