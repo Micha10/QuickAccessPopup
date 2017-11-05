@@ -266,9 +266,11 @@ lDonateMenu	Supporta il Freeware!
 lDonatePlatformComment1	Puoi inviare donazioni con carta di credito (senza necessità di disporre di un conto) o dal tuo conto PayPal
 lDonatePlatformComment2	Per donatori europei
 lDonatePlatformComment3	Per donatori canadesi
+lDonatePlatformComment4	In dollari USA (USd), Euro e dollari canadesi (CAd).
 lDonatePlatformName1	Usando Paypal in $ (USA)
 lDonatePlatformName2	Usando Paypal in $ (USA)
 lDonatePlatformName3	Usando Paypal in $ (CAN)
+lDonatePlatformName4	Fai una donazione mensilmente
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -427,6 +429,7 @@ lMenuProgramFiles	Programmi
 lMenuProgramsFolderStartMenu	Programmi (Menù Avvio)
 lMenuPublicLibraries	Raccolte Pubbliche
 lMenuQuickLaunch	Avvio veloce
+lMenuRecentFiles	File Recenti
 lMenuRecentFolders	Cartelle Recenti
 lMenuRecentItems	Oggetti Recenti
 lMenuRefreshMenu	Aggiorna i menù delle Cartelle Live
@@ -538,11 +541,15 @@ lOptionsPopupFixPositionX	Posizione X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Tasto del Mouse di Quick Access Popup|Scorciatoia da tastiera di Quick Access Popup|Tasto del Mouse del Menù Alternativo|Scorciatoia da tastiera del Menù Alternativo
 lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere.
+lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di cartelle nel Menù
 lOptionsRecentFoldersPrompt	Cartelle recenti:
+lOptionsRefreshedMenusAttached	Aggiungi i menu "~1~", "~2~" e "~3~" al menu di QAP
+lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~" e "~3~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRememberSettingsPosition	Ricorda la posizione della finestra
 lOptionsRunAtStartup	&Esegui all'avvio
 lOptionsSelectCatalogueRoot	Seleziona la cartella radice del Catalogo dei Menù Condivisi
+lOptionsSelectQAPTempFolder	Crea la Cartella Temporanea in:
 lOptionsSnippetsHelp	Impostazioni predefinite per gli Snippet (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Seleziona il file manager da usare per aprire le cartelle in una nuova finestra.
 lOptionsTabFileManagersPreferences	Impostazioni del file manager
