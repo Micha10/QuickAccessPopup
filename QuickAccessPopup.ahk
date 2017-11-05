@@ -3285,7 +3285,8 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
-
+			[LocationHotkeys]
+			
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 
@@ -16714,9 +16715,9 @@ UriEncode(str)
 ; edited to encode also "@" see http://stackoverflow.com/questions/32341476/valid-url-for-an-ftp-site-with-username-containing/
 ;------------------------------------------------------------
 { 
-   b_Format := A_FormatInteger 
+   strFormat := A_FormatInteger 
    data := "" 
-   SetFormat,Integer,H 
+   SetFormat, Integer, H 
    SizeInBytes := StrPutVar(str,var,"utf-8")
    Loop, %SizeInBytes%
    {
@@ -16728,7 +16729,7 @@ UriEncode(str)
    Else
       s .= Chr(ch)
    }   
-   SetFormat,Integer,%b_format% 
+   SetFormat, Integer, %strformat% 
    return s 
 } 
 ;------------------------------------------------------------
@@ -17694,13 +17695,15 @@ GetInputLanguage()
 ; from YMP (https://autohotkey.com/board/topic/43043-get-current-keyboard-layout/#entry268123)
 ;------------------------------------------------------------
 {
+	strFormat := A_FormatInteger
 	SetFormat, Integer, H ; integer hexa
-	; WinGet, strWinID, , A
 	strProcessID := DllCall("GetCurrentProcessId")
 	strThreadID := DllCall("GetWindowThreadProcessId", "UInt", strProcessID, "UInt", 0)
-	; ###_V(A_ThisFunc, strProcessID, strThreadID, DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt"), A_Language)
 	strInputLanguage := DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt")
+	SetFormat, Integer, %strFormat% ; integer back to previsous format
+	
 	StringRight, strInputLanguage, strInputLanguage, 4 ; keep four right digits
+	
 	return strInputLanguage
 }
 ;------------------------------------------------------------
