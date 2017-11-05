@@ -3810,13 +3810,13 @@ Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsTitles1)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsTitles2)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
@@ -3826,13 +3826,13 @@ Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsTitles1)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsTitles2)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
@@ -3841,13 +3841,13 @@ if HasHotkey(g_arrPopupHotkeysPrevious3)
 if HasHotkey(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsTitles3)
+	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
 if HasHotkey(g_arrPopupHotkeysPrevious4)
 	Hotkey, % g_arrPopupHotkeysPrevious4, , Off
 if HasHotkey(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsTitles4)
+	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsPopupHotkeyTitles4)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
