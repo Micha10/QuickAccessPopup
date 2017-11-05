@@ -1725,7 +1725,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.2 BETA
+;@Ahk2Exe-SetVersion v8.6.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1807,7 +1807,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1991,6 +1991,33 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
+;---------------------------------
+; Setting window hotkey conditional assignment
+
+Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
+
+	; for now, just ignore ErrorLevel
+	; ff required, use this code:
+	; strCurrentInputLanguage := GetInputLanguage()
+	; if (ErrorLevel)
+		; Oops("Language is """ . strCurrentInputLanguage . """ (0419 is Russian)")
+	
+	Hotkey, ^Up, SettingsUp, On UseErrorLevel
+	Hotkey, ^Down, SettingsDown, On UseErrorLevel
+	Hotkey, ^Right, SettingsRight, On UseErrorLevel
+	Hotkey, ^Left, SettingsLeft, On UseErrorLevel
+	Hotkey, ^A, SettingsCtrlA, On UseErrorLevel
+	Hotkey, ^N, SettingsCtrlN, On UseErrorLevel
+	Hotkey, Enter, SettingsEnter, On UseErrorLevel
+	Hotkey, Del, SettingsDel, On UseErrorLevel
+	Hotkey, ^C, SettingsCtrlC, On UseErrorLevel
+	Hotkey, ^F, SettingsCtrlF, On UseErrorLevel
+	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
+	Hotkey, F1, SettingsF1, On UseErrorLevel
+
+Hotkey, If
+
+
 return
 
 
@@ -2012,14 +2039,25 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+;------------------------------------------------------------
+#If, WinActive(QAPSettingsString()) ; main Gui title
+; empty - act as a handle for the "Hotkey, If" condition
+#If
+;------------------------------------------------------------
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 !_012_GUI_HOTKEYS:
 ;========================================================================================================================
 
-; Gui Hotkeys
-#If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+; Settings Gui Hotkeys
 
-^Up::
+; replaced by Hotkey, If, WinActive(QAPSettingsString())
+; #If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+
+SettingsUp: ; ^Up::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2029,7 +2067,7 @@ else
 	Gosub, GuiMoveFavoriteUp
 return
 
-^Down::
+SettingsDown: ; ^Down::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2039,14 +2077,14 @@ else
 	Gosub, GuiMoveFavoriteDown
 return
 
-^Right::
+SettingsRight: ; ^Right::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, HotkeyChangeMenu
 return
 
-^Left::
+SettingsLeft: ; ^Left::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2055,7 +2093,7 @@ if (blnUpMenuVisible)
 	Gosub, GuiGotoPreviousMenu
 return
 
-^A::
+SettingsCtrlA: ; ^A::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, ^a ; select all search control
@@ -2063,14 +2101,14 @@ else
 	LV_Modify(0, "Select") ; select all in listview
 return
 
-^N::
+SettingsCtrlN: ; ^N::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiAddFavoriteSelectType
 return
 
-Enter::
+SettingsEnter: ; Enter::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2080,7 +2118,7 @@ else
 	Gosub, GuiEditFavorite
 return
 
-Del::
+SettingsDel: ; Del::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, {Del}
@@ -2091,7 +2129,7 @@ else
 		Gosub, GuiRemoveFavorite
 return
 
-^C::
+SettingsCtrlC: ; ^C::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, ^c
@@ -2102,28 +2140,30 @@ else
 		Gosub, GuiCopyFavorite
 return
 
-^F::
+SettingsCtrlF: ; ^F::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiFocusFilter
 return
 
-^H::
+SettingsCtrlH: ; ^H::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiHotkeysHelpClicked
 return
 
-F1::
+SettingsF1: ; F1::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiHelp
 return
 
-#If
+; replaced by Hotkey, If, WinActive(QAPSettingsString())
+; #If
+
 ; End of Gui Hotkeys
 
 
@@ -3245,15 +3285,21 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
-			[LocationHotkeys]
-			Hotkey1=|{Settings}|+^S
-			Hotkey2=|{Current Folders}|+^F
-			Hotkey3=|{Recent Folders}|+^R
-			Hotkey4=|{Clipboard}|+^C
-			Hotkey5=|{Switch Folder or App}|+^W
 
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
+
+	if (GetInputLanguage() <> "0419") ; do not init default hotkeys for Russian keyboards
+		FileAppend,
+			(LTrim Join`r`n
+				Hotkey1=|{Settings}|+^S
+				Hotkey2=|{Current Folders}|+^F
+				Hotkey3=|{Recent Folders}|+^R
+				Hotkey4=|{Clipboard}|+^C
+				Hotkey5=|{Switch Folder or App}|+^W
+
+)
+			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 }
 else
 {
@@ -17625,6 +17671,35 @@ WindowIsAddEditCopyFavorite(strTitle)
 		and (InStr(L(lDialogAddEditFavoriteTitle, lDialogAdd), strTitle)
 		or InStr(L(lDialogAddEditFavoriteTitle, lDialogEdit), strTitle)
 		or InStr(L(lDialogAddEditFavoriteTitle, lDialogCopy), strTitle))
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+QAPSettingsString()
+;------------------------------------------------------------
+{
+	global g_strAppNameText
+	global g_strAppVersion
+	
+	return L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetInputLanguage()
+; from YMP (https://autohotkey.com/board/topic/43043-get-current-keyboard-layout/#entry268123)
+;------------------------------------------------------------
+{
+	SetFormat, Integer, H ; integer hexa
+	; WinGet, strWinID, , A
+	strProcessID := DllCall("GetCurrentProcessId")
+	strThreadID := DllCall("GetWindowThreadProcessId", "UInt", strProcessID, "UInt", 0)
+	; ###_V(A_ThisFunc, strProcessID, strThreadID, DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt"), A_Language)
+	strInputLanguage := DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt")
+	StringRight, strInputLanguage, strInputLanguage, 4 ; keep four right digits
+	return strInputLanguage
 }
 ;------------------------------------------------------------
 
