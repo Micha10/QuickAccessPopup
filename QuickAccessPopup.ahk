@@ -3295,8 +3295,10 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 				Hotkey1=|{Settings}|+^S
 				Hotkey2=|{Current Folders}|+^F
 				Hotkey3=|{Recent Folders}|+^R
-				Hotkey4=|{Clipboard}|+^C
+				Hotkey4=|{Clipboard}|+^V
 				Hotkey5=|{Switch Folder or App}|+^W
+				Hotkey6=|{Add This Folder}|+^A
+				Hotkey7=|{ReopenCurrentFolder}|+^C
 
 )
 			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
