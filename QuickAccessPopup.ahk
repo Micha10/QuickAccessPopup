@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.6.2 (2017-11-??)
+- for new inslallations only, add default hotkeys to QAP features:
+  "Add This Folder or Link" -> Shift + Control + A
+  "Reopen Current Folder in Dialog Box" -> Shift + Control + C
+  "Clipboard" -> change from Shift + Control + C to Shift + Control + V
+  (existing users can add it themselves in the Edit Favorite dialog box, Menu Options tab)
+- update to German, Spanish, French, Italian abd Dutch language files
+
 Version: 8.6.1 (2017-10-29)
  
 - fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
@@ -1714,7 +1722,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.1
+;@Ahk2Exe-SetVersion v8.6.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1788,7 +1796,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3215,8 +3223,10 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Hotkey1=|{Settings}|+^S
 			Hotkey2=|{Current Folders}|+^F
 			Hotkey3=|{Recent Folders}|+^R
-			Hotkey4=|{Clipboard}|+^C
+			Hotkey4=|{Clipboard}|+^V
 			Hotkey5=|{Switch Folder or App}|+^W
+			Hotkey6=|{Add This Folder}|+^A
+			Hotkey7=|{ReopenCurrentFolder}|+^C
 
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
