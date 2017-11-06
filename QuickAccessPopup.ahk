@@ -31,13 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.6.2 (2017-11-??)
+Version: 8.6.2 (2017-11-06)
 - for new inslallations only, add default hotkeys to QAP features:
   "Add This Folder or Link" -> Shift + Control + A
   "Reopen Current Folder in Dialog Box" -> Shift + Control + C
   "Clipboard" -> change from Shift + Control + C to Shift + Control + V
   (existing users can add it themselves in the Edit Favorite dialog box, Menu Options tab)
-- update to German, Spanish, French, Italian abd Dutch language files
+- fix bug display hotkey title in error messages when a hotkey is not available in current keyboard layout
+- update to Italian, Portuguese, Brazilian Portuguese, German, Spanish, French and Dutch language files
 
 Version: 8.6.1 (2017-10-29)
  
