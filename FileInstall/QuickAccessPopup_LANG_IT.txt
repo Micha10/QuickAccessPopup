@@ -535,7 +535,7 @@ lOptionsMenuNearMouse	Vicino al puntatore del mouse
 lOptionsMenuOptions	Menù opzioni
 lOptionsMenuPositionPrompt	Apri il menù popup:
 lOptionsMouseAndKeyboard	Menù scorciatoie
-lOptionsOpenMenuOnTaskbar	(OLD version *UPDATE next line and DELETE this line*) &Apri il menù cliccando sulla barra delle applicazioni
+lOptionsOpenMenuOnTaskbar	&Apri il menù cliccando sulla barra delle applicazioni
 lOptionsOtherOptions	Generale
 lOptionsPopupFixPositionX	Posizione X:
 lOptionsPopupFixPositionY	Y:
