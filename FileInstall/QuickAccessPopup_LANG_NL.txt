@@ -19,11 +19,14 @@ lContextShowMenu	Quick Access Popup menu weergeven
 lContextShowMenuAternative	Alternatief QAP-menu weergeven
 lControlToolTipAlwaysOnTopOff	Dit venster altijd op de voorgrond weergeven
 lControlToolTipAlwaysOnTopOn	Stop met het weergeven van dit venster op de voorgrond
+lControlToolTipColumnBreak	Voeg een kolomeinde toe op de huidige positie
 lControlToolTipMoveDown	Verplaats de geselecteerde favoriet(en) naar beneden
 lControlToolTipMoveUp	Verplaats de geselecteerde favoriet(en) naar boven
 lControlToolTipParentMenu	Ga naar het hoofdmenu
 lControlToolTipPreviousMenu	Ga terug naar het vorige menu
 lControlToolTipSeparator	Voeg een separator toe op de huidige positie
+lControlToolTipTextSeparator	Voeg een tekst menu separator toe op de huidige positie
+lCopyFavoritesToMenuOrGroup	Menu's en groepen kunnen niet gekopiÃ«erd worden.`n`nWilt u verder gaan zonder het kopiÃ«ren van de menu's en groepen?
 lCopyLocationCopiedToClipboard	Pad of Website is gekopieërd naar het klembord
 lDiagModeCaution	~1~ wordt momenteel uitgevoerd in diagnose-modus.`n`nInformatie over de applicatie-uitvoering zal worden verzameld in het bestand:`n~2~`n`nNiets zal worden verzonden zonder uw goedkeuring.`n`nWilt u de diagnose-modus actief laten?
 lDiagModeExit	~1~ heeft informatie voor foutdiagnose verzameld in het bestand ~2~.
@@ -39,6 +42,7 @@ lDialogAddFavoriteTabsExternal	Openbaar menu
 lDialogAddFavoriteTabsLive	Opties voor de huidige map
 lDialogAddFileSelect	Selecteer het nieuwe document:
 lDialogAddFolderManuallyPrompt	Sorry, we kunnen de huidige map niet opvragen in dit venstertype.`n`nWilt u de map handmatig toevoegen?
+lDialogAddFolderManuallyTitle	Voeg deze map of link toe - ~1~ ~2~
 lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
 lDialogAlt	Alt
 lDialogApplicationLabel	Applicatie
@@ -67,6 +71,7 @@ lDialogContinue	Volgende
 lDialogContinueAmpersand	&Volgende
 lDialogCopy	Kopiëren
 lDialogCopyAmpersand	&Kopiëren
+lDialogCopyFavoritesTitle	KopieÃ«r Favorieten - ~1~ ~2~
 lDialogCtrl	Control
 lDialogCtrlShort	Ctrl
 lDialogEdit	Bewerken
@@ -135,11 +140,13 @@ lDialogFavoriteSnippetPromptNoPipe	Het karakter: "Verticale lijn: |" kan niet wo
 lDialogFavoriteSnippetSendMode	Kopieër het fragment naar de huidige applicatie in:
 lDialogFavoriteSnippetSendModeMacro	Macro modus
 lDialogFavoriteSnippetSendModeText	Tekst modus
+lDialogFavoritesParentMenuCopy	KopieÃ«r ~1~ favorieten naar dit menu
 lDialogFavoritesParentMenuMove	Verplaats ~1~ favoriet naar dit menu
 lDialogFavoriteType	Favoriet type
 lDialogFavoriteTypesHelp1	Creër een snelkoppeling naar de veel gebruikte "map".`n`nConfigureer de naam van het favoriet, pad en de verschillende menu opties.`n`nLive map opties zorgen voor een automatisch aanpasbaar menu aan de hand van de aangepaste mapstuctuur op het station.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van bestandsbeheerders en locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp13	Creër een "fragment".`n`nConfigureer het fragment's titel voor het menu, zijn inhoud en de verschillende menu opties.`n`nIn Geavanceerde Opties kunt u aangeven of u gebruik wilt maken van de "Tekst Modus", welke toestaat om normale stukken tekst te plakken zoals u doet met het klembord óf kies voor "Macro Modus" om toetsaanslagen te typen inclusief "speciale toetsen" (zie help).
 lDialogFavoriteTypesHelp14	Creër een "Openbaar menu" om op verschillende computers favorieten te delen vanuit een op het netwerk opgeslagen instellingenbestand.`n`nOpenbare menu's kunnen als "Persoonlijk", "In teamverband" of in "Gecentraliseerd" worden geconfigureerd. Een catalogus kan ingesteld worden om de verschillende opties voor het "Openbaar menu" op te slaan, deze vindt u in "Opties" -> "Algemeen".`n`nOpenbare menu's kunnen als standaard favorieten worden bewerkt. Alleen geselecteerde gebruikers met de juiste rechten mogen een "Gecentraliseerd" menu aanpassen (zie help of FAQ).
+lDialogFavoriteTypesHelp15	Maak een "Tekst Scheider" aan om een rubriek aan te maken, hierdoor instaat meer duidelijkheid in het menu.`n`nStandaard heeft een "Tekst Scheider" geen pictogram, maar deze kunt u toevoegen in het "Instellingen Menu".
 lDialogFavoriteTypesHelp2	Creër een snelkoppeling naar een "Document".`n`nConfigureer de naam van het favoriet, pad en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de gebruikte applicatie, optionele instellingen en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp3	Creër een snelkoppeling naar een "Applicatie" (programma, batch of script).`n`nBlader voor het executable bestand of selecteer een van de al uitgevoerde programma's.`n`nConfigureer de naam van het favoriet, pad en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van een "Start in" map, voeg parameters toe en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp4	Creër een snelkoppeling naar een van de 50 voorgedefineërde Windows Speciale mappen zoals Bibliotheken, Mijn afbeeldingen, Prullenbak, Downloads, etc.`n`nConfigureer de naam van het favoriet en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de bestandsbeheerder, optionele instellingen en de locatie van het venster op het scherm.
@@ -148,11 +155,15 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en select menu opties.`n`nVoeg favorieten toe aan uw submenu of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favoreiten uit, allen in 1 enkele snelkoppeling!1n1nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.`n`nIn Geavanceerde Opties kunt u bijvoorbeeld bepalen wat de tijd tussen het starten van de verschillende favorieten dient te worden.
+lDialogFavoriteTypesLabels	&Map|&Document|&Application|&Speciale Map|&Link|F&TP Site|&QAP Functie|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Tekst Scheider
+lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (website)|FTP Site (website)|||||||Inhoud|Extern instellingenbestand (pad)|Tekst Scheider
+lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Scheider|Kolomeindes|..|Fragment|Openbaar|Tekst
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
 lDialogFileLabel	Document
 lDialogFolderLabel	Map
 lDialogFoldersPlaceholders	Accolades {HUIDIG_LOC} kan gebruikt worden om de locatie toe te voegen waar deze favoriet wordt gestart
+lDialogGetWebPageTitle	Haal titel op
 lDialogGetWinInfo	Klik in het doelvenster met de QAP-menusneltoets [~1~] om de titel en klasse van het venster te identificeren.
 lDialogGetWInInfo2Clippoard	Venstertitel: `n"~1~"`n`nKlasse:`n"~2~"`n`nDeze informatie naar het klembord kopiëren?
 lDialogHotkeyInvisibleKeys	<a id="~1~">Spatiebalk</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a>, <a id="~4~">escape</a>`nof <a id="~5~">menu toets (applicatie)</a>
@@ -203,6 +214,8 @@ lDialogReadOnly	Alleen lezen
 lDialogRemoveMultipleFavorites	Wilt u ~1~ favoriet of submenu verwijderen?
 lDialogSearch	Zoeken
 lDialogSelectIcon	Selecteer pictogram
+lDialogSelectIconJL	Selecteer in JLicons.dll
+lDialogSelectIconNo	Geen pictogrammen
 lDialogSelectItemToAdd	Selecteer het item om toe te voegen
 lDialogSelectItemToEdit	Selecteer het te bewerken item alstublieft.
 lDialogSelectItemToMove	Selecteer het te verplaatsen item alstublieft.
@@ -277,6 +290,7 @@ lGuiCancel	Annuleren
 lGuiCancelAmpersand	&Annuleren
 lGuiClose	Sluiten
 lGuiCloseAmpersand	&Sluiten
+lGuiCopyAmpersand	K&opiÃ«ren
 lGuiDonate	Doneer
 lGuiDropFilesHelp	Hulp voor Slepen && Neerzetten
 lGuiDropFilesIncentive	U kunt de volgende type favorieten Slepen & Neerzetten naar het ~1~ venster:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
@@ -322,6 +336,7 @@ lHelpText13	Om het openen van een map in een nieuw venster te forceren, kunt u g
 lHelpText14	Kies "Instellingen" om uw Quick Access Popup menu aan te passen aan uw persoonlijke wensen. U kunt hier favorieten toevoegen aan uw menu of u kunt deze verplaatsen, hernoemen of verwijderen. Ook kunt u SUBMENU'S, GROEPEN of OPENBARE MENU'S toevoegen. Kies het aan te passen menu onder: "Menu of groep om te wijzigen" en sla uw wijzigingen op door op "Opslaan" te drukken.
 lHelpText21	Om een favoriet toe te voegen selecteert u in het "Instellingen"-menu de knop: "Toevoegen".`nSelecteer het gewenste type van de nieuwe favoriet en lees de tips aan de rechterkant van dit scherm.`nKlik op "Volgende" om het "Toevoegen Favoriet"-venster te openen.
 lHelpText22	In de 4 tabs van het venster "Toevoegen Favoriet" kunnen de "Basis Opties", "Menu Opties", "Venster Opties" en "Geavanceerde Opties" gewijzigd worden.`nKlik op "Toevoegen" om de favoriet toe te voegen en op "Opslaan" om de favoriet op te slaan.
+lHelpText23	VOEG DEZE MAP OF LINK TOE`n`nOm snel een nieuwe MAP of LINK toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map of webpagina.`n2) Klik op de QAP-sneltoets [~1~] of [~2~], en kies "Voeg deze map of link toe".`n3) Geef de favoriet een verkorte naam, klik op "Toevoegen", en hierna op "Opslaan" in het Instellingen venster.
 lHelpText31	In het "Mijn QAP Essentials"-menu:
 lHelpText32	- Gebruik "Schakelen..." in het menu om te schakelen tussen openstaande vensters zoals Windows Verkenners of andere applicaties.`n- Gebruik "Een map openen..." om snel te schakelen naar een openstaande map (erg handig in dialoogboxen)`n- Gebruik "Recent bezochte mappen..." voor een geüpdatet lijst van recent bezochte mappen`n- Gebruik de functie "Klembord" in het menu om informatie opgeslagen in het geheugen op te roepen en te gebruiken`n- En tot slot het menu "Stations" voor een lijst van bekende stations op deze computer met informatie over de vrije ruimte.
 lHelpText33	PAS UW QAP FUNCTIES MENU AAN
@@ -370,6 +385,8 @@ lImpExpUnsavedSettings	Een instellingenvenster is open, mogelijk met onopgeslage
 lMainMenuName	Hoofdmenu
 lMenuAboutAmpersand	&Over
 lMenuAddFavorite	Favoriet toevoegen
+lMenuAddThisFolder	Voeg deze Map of Link toe
+lMenuAddThisFolderXpress	Voeg deze Map of Link toe aan Qap-Express
 lMenuAlternativeEditFavorite	Een favoriet wijzigen
 lMenuAlternativeNewWindow	Open in een nieuw venster
 lMenuAlternativeOpenContainingCurrent	Open de map in het openstaande venster
@@ -434,8 +451,10 @@ lMenuUserFolder	Gebruikersmap
 lMenuUserPinned	User Pinned
 lNavigateFileError	Er is een fout opgetreden tijdens het openen van deze map:`n~1~.
 lNavigateSpecialError	Er is een fout opgetreden tijdens het openen van deze speciale map:`n#~1~.
+lOopsAddThisFolderTip	Voor betere resultaten van het "Voeg deze map of link toe" commando:`n`n1)Activeer het ~1~ venster met de map of link om toe te voegen aan het menu.`n2)Open het popup-menu gebruikmakend van ~2~.`n3)Selecteer "Voeg deze map of link toe" and sla de wijzigingen op.
 lOopsAmpersandInName	Het karakter ampersand "&" in Windows menu's wordt gebruikt om sneltoetsen te definiëren. Om een ampersand "&" weer te geven in een menunaam dient u gebruik te maken van een dubbele ampersand "&&".`n`nVoor meer informatie, raadpleeg de FAQ op onze Engelstalige website en zoek naar: "Ampersand".
 lOopsCannotCopyFavorite	Favorieten van het type: "~1~" kunnen niet worden gekopieërd.
+lOopsCannotCopyMoveToSelf	U kunt een favoriet niet kopiÃ«ren naar de bestaande locatie. Selecteer een andere locatie alstublieft.
 lOopsChangeFolderInDialogAlert	Wilde u gebruik maken van mapnavigatie in deze dialoogbox? Om in een dialoogbox te kunnen navigeren, dient u een optie in te schakelen (eerste checkbox onder tab "Algemeen")`n`nWilt u het instellingen-menu openen?
 lOopsCouldNotOpenSpecialFolder	~1~ kan de speciale map "~2~" niet openen.
 lOopsEmpty	leeg
@@ -451,6 +470,8 @@ lOopsExternalNotAllowedUnderExternal	"Openbare Menu's" kunnen niet worden opgesl
 lOopsExternalReadOnlyAlert	"Openbare menu's" van het type: "gecentraliseerd" kunnen alleen aangepast worden door gebruiker(s) welke vermeld staat in het "~1~"-veld (of door het wijzigen van het ini-bestand op het gedeelde station).`n`nUw gebruikersnaam is:  "~2~".`nUw Computer is: "~3~".
 lOopsExternalReadOnlyAlertUsernameAdded	Uw gebruikersnaam is automatisch toegevoegd aan de "gebruikers met schrijfrechten-lijst".
 lOopsExternalSelectType	Selecteer het type voor het Openbare menu in de tab: "Openbaar menu".
+lOopsFavoritesCopied	~1~ favorieten gekopiÃ«erd.
+lOopsFirstEnterUrl	Selecteer eerst een adres in het "~1~" veld.
 lOopsFtpLocationProtocol	Het FTP-Adres dient te starten met "ftp://".
 lOopsGroup	Groep
 lOopsHotkeyAlreadyUsed	De sneltoets "~1~" is al in gebruik voor ~2~.`n`nSelecteer een andere sneltoets voor ~3~.
@@ -485,6 +506,9 @@ lOptionsChangeFolderInDialogText	Zet deze optie AAN om mapnavigatie in dialoogbo
 lOptionsChangeHotkey	Wijzig
 lOptionsCheck4Update	&Controleer op updates
 lOptionsCheck4UpdateNow	nu controleren
+lOptionsControlDoublePressed	Open het hoofdmenu bij het intoetsen van Ctrl + Ctrl (Ctrl toets 2 maal indrukken)
+lOptionsControlDoublePressedLeft	Gebruik de linker "Control" toets
+lOptionsControlDoublePressedRight	Gebruik de rechter "Control" toets
 lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
@@ -492,6 +516,9 @@ lOptionsExclusionDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een appli
 lOptionsExclusionDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van de klasse van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExclusionList	Uitsluitsels
 lOptionsExclusionTitle	Uitsluitlijst voor muistoets: [~1~].
+lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
+lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's:
+lOptionsFileManagerAlwaysNavigate	Open mappen altijd in de openstaande verkenner
 lOptionsFtpEncoding	Versleutel FTP gebruikernaam en wachtwoord (aangeraden)
 lOptionsFtpEncodingTC	Versleutel FTP gebruikernaam en wachtwoord (niet aangeraden voor Total Commander)
 lOptionsGuiTitle	Instellingen - ~1~ ~2~
@@ -509,6 +536,7 @@ lOptionsMenuNearMouse	In de buurt van de muispi&jl
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Popup het menu:
 lOptionsMouseAndKeyboard	Sneltoetsen
+lOptionsOpenMenuOnTaskbar	&Open het menu wanneer er op de taakbalk geklikt wordt
 lOptionsOtherOptions	Algemeen
 lOptionsPopupFixPositionX	Positie X:
 lOptionsPopupFixPositionY	Y:
@@ -525,6 +553,8 @@ lOptionsSelectCatalogueRoot	Selecteer een openbare map voor de Openbare Menu's
 lOptionsSelectQAPTempFolder	Maak de tijdelijke map aan in:
 lOptionsSnippetsHelp	Fragment standaard (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Selecteer de bestandsbeheerder waarin mappen worden geopend in een nieuw venster.
+lOptionsTabFileManagersPreferences	Optie's voor de bestandsbeheerder
+lOptionsTabFileManagersPreferred	Voorkeur Bestandsbeheerder
 lOptionsTabMenuOptionsIntro	Configureer uw popupmenu zoals u dit wenst!
 lOptionsTabMouseAndKeyboardIntro	Configureer hier de muis en snel-toetsen welke het ~1~ hoofdmenu zal openen.
 lOptionsTabOtherOptionsIntro	Laat ~1~ werken zoals u dit wenst!
@@ -542,6 +572,7 @@ lPickIconNoLocation	Selecteer eerst een favoriet alvorens een pictogram te kieze
 lReloadPrompt	~1~ gewijzigd in ~2~. Wilt u ~3~ herladen naar ~2~? Niet opgeslagen wijzigingen gaan verloren.
 lTCMenuName	TC Directory hotlist
 lTCWinCmdLocation	WinCmd.ini locatie
+lToolTipRetrievingWebPageTitle	Titel van de webpagina aan het ophalen...
 lTooltipSnippetKeyWait	Druk op {~1~} om door te gaan...
 lTooltipSnippetWaitEnter	Enter
 lTooltipSnippetWaitMacro	Druk op "~1~" of "~2~" om de makro te starten (wacht ~3~ seconde(n))
