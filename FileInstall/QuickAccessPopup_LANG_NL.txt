@@ -39,7 +39,6 @@ lDialogAddFavoriteTabsExternal	Openbaar menu
 lDialogAddFavoriteTabsLive	Opties voor de huidige map
 lDialogAddFileSelect	Selecteer het nieuwe document:
 lDialogAddFolderManuallyPrompt	Sorry, we kunnen de huidige map niet opvragen in dit venstertype.`n`nWilt u de map handmatig toevoegen?
-lDialogAddFolderManuallyTitle	Voeg deze map toe - ~1~ ~2~
 lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
 lDialogAlt	Alt
 lDialogApplicationLabel	Applicatie
@@ -149,9 +148,6 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en select menu opties.`n`nVoeg favorieten toe aan uw submenu of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favoreiten uit, allen in 1 enkele snelkoppeling!1n1nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.`n`nIn Geavanceerde Opties kunt u bijvoorbeeld bepalen wat de tijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link|F&TP Site|&QAP Feature|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Text Separator
-lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (website)|FTP Site (website)|||||||Inhoud|Extern instellingenbestand (pad)|Text Separator
-lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|scheiding|Kolomeindes|..|Fragment|Openbaar|Text
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
 lDialogFileLabel	Document
@@ -257,9 +253,11 @@ lDonateMenu	Steun Freeware!
 lDonatePlatformComment1	Doneer met een Kredietkaart (een account is niet nodig) of uw Paypal account.
 lDonatePlatformComment2	Voor Europese donors
 lDonatePlatformComment3	Voor Canadese donors
+lDonatePlatformComment4	Beschikbaar voor US $, Euros en CAD $
 lDonatePlatformName1	Gebruik Paypal in US $
 lDonatePlatformName2	Gebruik Paypal in Euros
 lDonatePlatformName3	Gebruik Paypal in CAD $
+lDonatePlatformName4	Doneer maandelijks
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -324,7 +322,6 @@ lHelpText13	Om het openen van een map in een nieuw venster te forceren, kunt u g
 lHelpText14	Kies "Instellingen" om uw Quick Access Popup menu aan te passen aan uw persoonlijke wensen. U kunt hier favorieten toevoegen aan uw menu of u kunt deze verplaatsen, hernoemen of verwijderen. Ook kunt u SUBMENU'S, GROEPEN of OPENBARE MENU'S toevoegen. Kies het aan te passen menu onder: "Menu of groep om te wijzigen" en sla uw wijzigingen op door op "Opslaan" te drukken.
 lHelpText21	Om een favoriet toe te voegen selecteert u in het "Instellingen"-menu de knop: "Toevoegen".`nSelecteer het gewenste type van de nieuwe favoriet en lees de tips aan de rechterkant van dit scherm.`nKlik op "Volgende" om het "Toevoegen Favoriet"-venster te openen.
 lHelpText22	In de 4 tabs van het venster "Toevoegen Favoriet" kunnen de "Basis Opties", "Menu Opties", "Venster Opties" en "Geavanceerde Opties" gewijzigd worden.`nKlik op "Toevoegen" om de favoriet toe te voegen en op "Opslaan" om de favoriet op te slaan.
-lHelpText23	VOEG DEZE MAP TOE`nOm snel een nieuwe MAP toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map`n2) Klik op de QAP-sneltoets [~1~] of [~2~] en kies "Voeg deze map toe"`n3) Geef de favoriet een verkorte naam en klik op Toevoegen`n4) Sla uw wijzigingen op.
 lHelpText31	In het "Mijn QAP Essentials"-menu:
 lHelpText32	- Gebruik "Schakelen..." in het menu om te schakelen tussen openstaande vensters zoals Windows Verkenners of andere applicaties.`n- Gebruik "Een map openen..." om snel te schakelen naar een openstaande map (erg handig in dialoogboxen)`n- Gebruik "Recent bezochte mappen..." voor een geüpdatet lijst van recent bezochte mappen`n- Gebruik de functie "Klembord" in het menu om informatie opgeslagen in het geheugen op te roepen en te gebruiken`n- En tot slot het menu "Stations" voor een lijst van bekende stations op deze computer met informatie over de vrije ruimte.
 lHelpText33	PAS UW QAP FUNCTIES MENU AAN
@@ -373,8 +370,6 @@ lImpExpUnsavedSettings	Een instellingenvenster is open, mogelijk met onopgeslage
 lMainMenuName	Hoofdmenu
 lMenuAboutAmpersand	&Over
 lMenuAddFavorite	Favoriet toevoegen
-lMenuAddThisFolder	Voeg deze map toe
-lMenuAddThisFolderXpress	Voeg deze Expressmap toe
 lMenuAlternativeEditFavorite	Een favoriet wijzigen
 lMenuAlternativeNewWindow	Open in een nieuw venster
 lMenuAlternativeOpenContainingCurrent	Open de map in het openstaande venster
@@ -418,6 +413,7 @@ lMenuProgramFiles	Programmabestanden
 lMenuProgramsFolderStartMenu	Programma Map (Start Menu)
 lMenuPublicLibraries	Openbare Bibliotheken
 lMenuQuickLaunch	Snelstarten
+lMenuRecentFiles	Recente Bestanden
 lMenuRecentFolders	Recent bezochte mappen
 lMenuRecentItems	Onlangs geopend
 lMenuRefreshMenu	Ververs Live-mappen menu's
@@ -438,7 +434,6 @@ lMenuUserFolder	Gebruikersmap
 lMenuUserPinned	User Pinned
 lNavigateFileError	Er is een fout opgetreden tijdens het openen van deze map:`n~1~.
 lNavigateSpecialError	Er is een fout opgetreden tijdens het openen van deze speciale map:`n#~1~.
-lOopsAddThisFolderTip	Voor betere resultaten van het "Voeg deze map toe" commando:`n`n1)Activeer het ~1~ venster met de map om toe te voegen aan het menu.`n2)Open het popup-menu gebruikmakend van ~2~.`n3)Selecteer "Voeg deze map toe" and sla de wijzigingen op.
 lOopsAmpersandInName	Het karakter ampersand "&" in Windows menu's wordt gebruikt om sneltoetsen te definiëren. Om een ampersand "&" weer te geven in een menunaam dient u gebruik te maken van een dubbele ampersand "&&".`n`nVoor meer informatie, raadpleeg de FAQ op onze Engelstalige website en zoek naar: "Ampersand".
 lOopsCannotCopyFavorite	Favorieten van het type: "~1~" kunnen niet worden gekopieërd.
 lOopsChangeFolderInDialogAlert	Wilde u gebruik maken van mapnavigatie in deze dialoogbox? Om in een dialoogbox te kunnen navigeren, dient u een optie in te schakelen (eerste checkbox onder tab "Algemeen")`n`nWilt u het instellingen-menu openen?
@@ -490,7 +485,6 @@ lOptionsChangeFolderInDialogText	Zet deze optie AAN om mapnavigatie in dialoogbo
 lOptionsChangeHotkey	Wijzig
 lOptionsCheck4Update	&Controleer op updates
 lOptionsCheck4UpdateNow	nu controleren
-lOptionsControlDoublePressed	Open het QAP-menu bij het 2 maal indrukken van de geselecteerde Ctrl-toets
 lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
@@ -498,7 +492,6 @@ lOptionsExclusionDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een appli
 lOptionsExclusionDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van de klasse van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExclusionList	Uitsluitsels
 lOptionsExclusionTitle	Uitsluitlijst voor muistoets: [~1~].
-lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
 lOptionsFtpEncoding	Versleutel FTP gebruikernaam en wachtwoord (aangeraden)
 lOptionsFtpEncodingTC	Versleutel FTP gebruikernaam en wachtwoord (niet aangeraden voor Total Commander)
 lOptionsGuiTitle	Instellingen - ~1~ ~2~
@@ -516,17 +509,20 @@ lOptionsMenuNearMouse	In de buurt van de muispi&jl
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Popup het menu:
 lOptionsMouseAndKeyboard	Sneltoetsen
-lOptionsOpenMenuOnTaskbar	&Open het menu op de taakbalk
 lOptionsOtherOptions	Algemeen
 lOptionsPopupFixPositionX	Positie X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Muistoets|Quick Access Popup Sneltoets|QAP Alternatieve Menu Muistoets|QAP Alternatieve Menu Sneltoets
 lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen (zonder excepties) en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).
+lOptionsQAPTempFolder	Tijdelijke map
 lOptionsRecentFolders	mappen in h&et menu
 lOptionsRecentFoldersPrompt	Recent gebruikte mappen:
+lOptionsRefreshedMenusAttached	Koppel de menu's "~1~", "~2~" en "~3~" aan het QAP menu
+lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~" en "~3~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRememberSettingsPosition	Onthoud venster&positie
 lOptionsRunAtStartup	Uitvoeren bij op&starten
 lOptionsSelectCatalogueRoot	Selecteer een openbare map voor de Openbare Menu's
+lOptionsSelectQAPTempFolder	Maak de tijdelijke map aan in:
 lOptionsSnippetsHelp	Fragment standaard (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Selecteer de bestandsbeheerder waarin mappen worden geopend in een nieuw venster.
 lOptionsTabMenuOptionsIntro	Configureer uw popupmenu zoals u dit wenst!

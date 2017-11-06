@@ -43,6 +43,14 @@ Version BETA: 8.6.9.1 (2017-10-29)
 - allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
 - add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
 
+Version: 8.6.2 (2017-11-??)
+- for new inslallations only, add default hotkeys to QAP features:
+  "Add This Folder or Link" -> Shift + Control + A
+  "Reopen Current Folder in Dialog Box" -> Shift + Control + C
+  "Clipboard" -> change from Shift + Control + C to Shift + Control + V
+  (existing users can add it themselves in the Edit Favorite dialog box, Menu Options tab)
+- update to German, Spanish, French, Italian abd Dutch language files
+
 Version: 8.6.1 (2017-10-29)
 - fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
@@ -3291,7 +3299,6 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
 			[LocationHotkeys]
-			
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 
@@ -3888,13 +3895,13 @@ Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsTitles1)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsTitles2)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
@@ -3904,13 +3911,13 @@ Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsTitles1)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsTitles2)
+		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
@@ -3919,13 +3926,13 @@ if HasHotkey(g_arrPopupHotkeysPrevious3)
 if HasHotkey(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsTitles3)
+	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
 if HasHotkey(g_arrPopupHotkeysPrevious4)
 	Hotkey, % g_arrPopupHotkeysPrevious4, , Off
 if HasHotkey(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsTitles4)
+	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsPopupHotkeyTitles4)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures

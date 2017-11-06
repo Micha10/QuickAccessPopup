@@ -267,9 +267,11 @@ lDonateMenu	Soutenez ce gratuiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
 lDonatePlatformComment2	Pour les donateurs Européens
 lDonatePlatformComment3	Pour les donateurs Canadiens
+lDonatePlatformComment4	En US $, Euros ou CAD $
 lDonatePlatformName1	Avec Paypal en US $
 lDonatePlatformName2	Avec Paypal en Euros
 lDonatePlatformName3	Avec Paypal en CAD $
+lDonatePlatformName4	Dons mensuel
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -429,6 +431,7 @@ lMenuProgramFiles	Programmes
 lMenuProgramsFolderStartMenu	Dossier Programmes (menu Démarrer)
 lMenuPublicLibraries	Bibliothèques (public)
 lMenuQuickLaunch	Lancement rapide
+lMenuRecentFiles	Fichiers récents
 lMenuRecentFolders	Emplacements récents
 lMenuRecentItems	Documents récents
 lMenuRefreshMenu	Actualiser les Dossiers actifs
@@ -539,11 +542,15 @@ lOptionsPopupFixPositionX	Position X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Bouton de souris du menu Quick Access Popup|Raccourci clavier du menu Quick Access Popup|Bouton de souris du menu Alternatif|Raccourci clavier du menu Alternatif
 lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où  (sauf dans les  <a>applications exclues</a>) et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce raccourci clavier affiche le menu n'importe où  et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce bouton de la souris affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où (sans exception).|Ce raccourci clavier affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où.
+lOptionsQAPTempFolder	Dossier temporaire
 lOptionsRecentFolders	Nombre d'emplacements récents dans le menu
 lOptionsRecentFoldersPrompt	Emplacements récents:
+lOptionsRefreshedMenusAttached	Attacher les menus "~1~", "~2~" et "~3~" au menu de QAP
+lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~" et "~3~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
 lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
+lOptionsSelectQAPTempFolder	Créer le dossier temporaire dans:
 lOptionsSnippetsHelp	Valeurs par défaut pour les fragments de texte (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
 lOptionsTabFileManagersPreferences	Préférences du gestionnaire de fichiers
