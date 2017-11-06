@@ -1877,6 +1877,8 @@ g_strQAPconnectCompanionPath := ""
 g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
 g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
 
+g_blnRussianKeyboard := (GetInputLanguage() = "0419")
+
 ;---------------------------------
 ; Initial validation
 
@@ -1998,7 +2000,7 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 
 	; for now, just ignore ErrorLevel
 	; ff required, use this code:
-	; strCurrentInputLanguage := GetInputLanguage()
+	; strCurrentInputLanguage := GetInputLanguage() / or g_blnRussianKeyboard
 	; if (ErrorLevel)
 		; Oops("Language is """ . strCurrentInputLanguage . """ (0419 is Russian)")
 	
@@ -2417,7 +2419,10 @@ InitSystemArrays:
 ; Hotkeys: ini names, hotkey variables name, default values, gosub label and Gui hotkey titles
 strPopupHotkeyNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
 StringSplit, g_arrPopupHotkeyNames, strPopupHotkeyNames, |
-strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
+if (g_blnRussianKeyboard)
+	strPopupHotkeyDefaults := "MButton|#" . Chr(1094) . "|+MButton|+#" . Chr(1094) ; Chr(1094) produces the character at the W location on an US keyboard
+else
+	strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
 StringSplit, g_arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
 g_arrPopupHotkeys := Array ; initialized by LoadIniPopupHotkeys
 g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in LoadIniPopupHotkeys
@@ -3290,7 +3295,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 )
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 
-	if (GetInputLanguage() <> "0419") ; do not init default hotkeys for Russian keyboards
+	if !(g_blnRussianKeyboard) ; do not init default hotkeys for Russian keyboards
 		FileAppend,
 			(LTrim Join`r`n
 				Hotkey1=|{Settings}|+^S
