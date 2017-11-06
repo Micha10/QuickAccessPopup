@@ -267,9 +267,11 @@ lDonateMenu	Apoie o Freeware!
 lDonatePlatformComment1	Doe com cartão de crédito (não é necessário criar uma conta) ou com a sua conta PayPal
 lDonatePlatformComment2	Para dadores Europeus
 lDonatePlatformComment3	Para dadores Canadianos
+lDonatePlatformComment4	Em $US, Euros e $CAD
 lDonatePlatformName1	Usando Paypal em US $
 lDonatePlatformName2	Usando Paypal em Euros
 lDonatePlatformName3	Usando Paypal em CAD $
+lDonatePlatformName4	Faça doações mensais
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -429,6 +431,7 @@ lMenuProgramFiles	Programas
 lMenuProgramsFolderStartMenu	Pasta de Programas (Menu Iniciar)
 lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
+lMenuRecentFiles	Ficheiros Recentes
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
 lMenuRefreshMenu	Actualizar menus Pastas Live
@@ -525,7 +528,7 @@ lOptionsHotkeyRemindersNo	Não exibir
 lOptionsHotkeyRemindersPrompt	Lembretes de teclas de atalho no menu:
 lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
-lOptionsIconsManageRows	Manage Linhas da janela de ícones`n(0 máx. espaço disponível)
+lOptionsIconsManageRows	Linhas da janela de ícones`n(0 máx. espaço disponível)
 lOptionsLanguage	Idioma
 lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified|Holandês
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
@@ -534,17 +537,21 @@ lOptionsMenuNearMouse	Junto ao cursor do rato
 lOptionsMenuOptions	Opções do Menu
 lOptionsMenuPositionPrompt	Menu emergente:
 lOptionsMouseAndKeyboard	Teclas de Atalho do menu
-lOptionsOpenMenuOnTaskbar	(OLD version *UPDATE next line and DELETE this line*) Abrir menu na barra de tarefas
+lOptionsOpenMenuOnTaskbar	Abrir menu ao clicar na barra de tarefas
 lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Botão do rato|Quick Access Popup Atalho teclado|Menu Alternativo Botão do rato|Menu Alternativo Atalho teclado
 lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (excepto nas <a>aplicações excluídas</a>) e abre os seus favoritos ou navega para as pastas.|Esta tecla de atalho mostra o menu em toda a parte e abre os seus favoritos ou navega para as pastas.|Este botão do rato exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte (sem excepções).|Esta tecla de atalho exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte.
+lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Número de pastas no menu
 lOptionsRecentFoldersPrompt	Pastas Recentes:
+lOptionsRefreshedMenusAttached	Anexar os menus "~1~", "~2~" e "~3~" ao menu QAP
+lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu (lista de itens recentes e espaço disponível nas unidades actuais). Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, os menus "~1~", "~2~" e "~3~" serão actualizados apenas a pedido e exibidos separadamente do menu principal.
 lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAtStartup	Executa&r no Arranque
 lOptionsSelectCatalogueRoot	Seleccionar a pasta raiz do Catálogo de Menus Partilhados
+lOptionsSelectQAPTempFolder	Criar a Pasta Temporária em:
 lOptionsSnippetsHelp	Padrões de 'Snippets' (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Seleccione o gestor de ficheiros a usar para abrir pastas numa nova janela.
 lOptionsTabFileManagersPreferences	Preferências do gestor de ficheiros
