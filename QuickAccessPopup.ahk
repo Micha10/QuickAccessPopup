@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.6.9.3 (2017-11-06)
+ 
+Russian keyboard support
+- various adjustments for systems where current input language (keyboard) is Russian (language code 0419)
+- if Russian keyboard is detected, replace Windows + W and Shift + Windows + W menu keyboard hotkeys with equivalents keys on Russian keyboard (ASCII Unicode 1094)
+- at first execution on a system with Russian keyboard, do not assign hotkeys to favorites of the default menu
+- change method of initialization of Settings window hotkeys to avoid errors with Russian keyboard
+ 
+Other
+- update default hotkeys for QAP features in "My QAP Essentials" when creating the settings file at first execution
+- fix bug in error message when a hotkey is not available in current keyboard layout
+- update to German, Spanish, French, Italian and Dutch language files
+
 Version BETA: 8.6.9.2 (2017-11-02)
 - add QAP Feature to list "Recent Files" as remembered by Windows
 - add option to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a slight refresh delay at each menu popup) or detached as stand-alone menus refreshed on demand
