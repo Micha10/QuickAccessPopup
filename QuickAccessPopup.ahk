@@ -3312,7 +3312,8 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
 			[LocationHotkeys]
-)
+
+) ; leave the last extra line above
 		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 
 	if !(g_blnRussianKeyboard) ; do not init default hotkeys for Russian keyboards
