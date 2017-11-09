@@ -3807,13 +3807,13 @@ loop, % g_arrPopupHotkeyNames0
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3823,13 +3823,13 @@ Hotkey, If
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3838,13 +3838,13 @@ Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
 if HasHotkey(g_arrPopupHotkeysPrevious3)
-	Hotkey, % g_arrPopupHotkeysPrevious3, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 if HasHotkey(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
 if HasHotkey(g_arrPopupHotkeysPrevious4)
-	Hotkey, % g_arrPopupHotkeysPrevious4, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious4, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 if HasHotkey(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
@@ -3853,7 +3853,7 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
-		; use error level in case the hotkey does not exist yet when adding a new alternative hotkey
+		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
 		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
 ; Load QAP Alternative Menu hotkeys
@@ -11144,7 +11144,7 @@ for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
 	if RecursiveHotkeyNotNeeded(strThisNameLocation, g_objMainMenu)
 	{
 		g_objHotkeysByNameLocation.Remove(strThisNameLocation)
-		Hotkey, %strThisHotkey%, , Off
+		Hotkey, %strThisHotkey%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	}
 
 Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
@@ -11781,7 +11781,7 @@ Loop
 	if (strLocationHotkey = "ERROR")
 		break
 	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey
-	Hotkey, %arrLocationHotkey3%, , Off
+	Hotkey, %arrLocationHotkey3%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 }
 
 strLocationHotkey := ""
