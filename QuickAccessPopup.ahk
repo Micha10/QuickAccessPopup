@@ -3865,6 +3865,8 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
 		g_objQAPFeatures[strCode].CurrentHotkey := strHotkey
 	}
+	else
+		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName)
 }
