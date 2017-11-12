@@ -266,9 +266,11 @@ lDonateMenu	Apoiar o Freeware!
 lDonatePlatformComment1	Doe com seu cartão de crédito (não é necessário uma conta) ou sua conta PayPal
 lDonatePlatformComment2	Para doadores da Europa
 lDonatePlatformComment3	Para doadores do Canadá
+lDonatePlatformComment4	Em US $, Euros e CAD $
 lDonatePlatformName1	Usando Paypal em Dólar Americano
 lDonatePlatformName2	Usando Paypal em Euro
 lDonatePlatformName3	Usando Paypal em Dólar Canadense
+lDonatePlatformName4	Fazer doações mensais
 lDonateReviewNameLeft1	Download.com
 lDonateReviewNameLeft2	PortableFreeware.com
 lDonateReviewNameLeft3	Softpedia.com
@@ -428,6 +430,7 @@ lMenuProgramFiles	Arquivos de Programas
 lMenuProgramsFolderStartMenu	Pasta de Programas (Menu Iniciar)
 lMenuPublicLibraries	Bibliotecas Públicas
 lMenuQuickLaunch	Inicialização Rápida
+lMenuRecentFiles	Arquivos Recentes
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
 lMenuRefreshMenu	Atualizar menus das Pastas Ativas
@@ -539,11 +542,15 @@ lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Botão do Mouse do Quick Access Popup|Atalho de Teclado do Quick Access Popup|Botão do Mouse do Menu Alternativo|Atlaho de Teclado do Menu Alternativo
 lOptionsPopupHotkeyTitlesSub	Este botão do mouse exibe o menu em qualquer lugar (exceto sobre <a>aplicativos excluídos</a>) e inicia seu favorito ou navega para sua pasta.|Esta tecla de atalho exibe o menu em qualquer lugar e inicia seu favorito ou navega para sua pasta.|Este botão do mouse exibe um menu alteranativo oferecendo vários recursos. Este menu pode ser exibido em qualquer lugar (sem exceção).|Esta tecla de atalho exibe um menu alternativo oferecendo vários recursos. Este menu pode ser exibido em qualquer lugar.
+lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Número de pastas no menu
 lOptionsRecentFoldersPrompt	Pastas Recentes
+lOptionsRefreshedMenusAttached	Anexar menus "~1~", "~2~" e "~3~" ao menu do QAP
+lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu (lista de itens recentes e espaço disponível nas unidades atuais). Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, os menus "~1~", "~2~" e "~3~" serão atualizados somente sob demanda e serão exibidos destacados do menu principal.
 lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAtStartup	Executa&r na Inicialização
 lOptionsSelectCatalogueRoot	Selecione a pasta raiz do Catálogo de Menus Compartilhados
+lOptionsSelectQAPTempFolder	Criar a Pasta Temporária em:
 lOptionsSnippetsHelp	Padrões de recortes (<a href="~1~">~2~</a>)
 lOptionsTabFileManagersIntro	Selecione o gerenciador de arquivos para abrir pastas em uma nova janela.
 lOptionsTabFileManagersPreferences	Preferências do gerenciador de arquivos
