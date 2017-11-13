@@ -1901,6 +1901,8 @@ g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of htt
 
 g_blnRussianKeyboard := (GetInputLanguage() = "0419")
 
+g_objLastActions := Object()
+
 ;---------------------------------
 ; Initial validation
 
@@ -13097,6 +13099,26 @@ if (blnShiftPressed or blnControlPressed)
 	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
+
+; beginning of OpenFavorite execution
+; ##### here? gosub CollectForLastActions
+###_V("Collect for Last actions"
+	, "*g_strOpenFavoriteLabel", g_strOpenFavoriteLabel
+	, "*g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName
+	, "*g_blnAlternativeMenu", g_blnAlternativeMenu
+	, "*g_strHokeyTypeDetected", g_strHokeyTypeDetected
+	, "*g_strAlternativeMenu", g_strAlternativeMenu
+	, "*", "")
+
+objNewLastAction := Object()
+objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+objNewLastAction.LastActionLabel := g_objThisFavorite.FavoriteName
+objNewLastAction.OpenFavoriteLabel := g_strOpenFavoriteLabel
+objNewLastAction.g_strHokeyTypeDetected := g_strHokeyTypeDetected
+objNewLastAction.g_blnAlternativeMenu := g_blnAlternativeMenu
+objNewLastAction.g_strAlternativeMenu := g_strAlternativeMenu
+g_objLastActions.InsertAt(1, objNewLastAction)
+###_O("g_objLastActions", g_objLastActions, "LastActionLabel")
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
