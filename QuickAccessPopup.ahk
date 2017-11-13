@@ -12238,28 +12238,7 @@ for strMenuPath, objMenuSource in objMenusSource
 	loop, % objMenuSource.MaxIndex()
 	{
 		objFavorite := Object()
-		objFavorite.FavoriteType := objMenuSource[A_Index].FavoriteType ; 1
-		objFavorite.FavoriteName := objMenuSource[A_Index].FavoriteName ; 2
-		objFavorite.FavoriteLocation := objMenuSource[A_Index].FavoriteLocation ; 3
-		objFavorite.FavoriteIconResource := objMenuSource[A_Index].FavoriteIconResource ; 4
-		objFavorite.FavoriteArguments := objMenuSource[A_Index].FavoriteArguments ; 5
-		objFavorite.FavoriteAppWorkingDir := objMenuSource[A_Index].FavoriteAppWorkingDir ; 6
-		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition ; 7
-		; REMOVED objFavorite.FavoriteHotkey := objMenuSource[A_Index].FavoriteHotkey
-		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith ; 8
-		objFavorite.FavoriteLoginName := objMenuSource[A_Index].FavoriteLoginName ; 9
-		objFavorite.FavoritePassword := objMenuSource[A_Index].FavoritePassword ; 10
-		objFavorite.FavoriteGroupSettings := objMenuSource[A_Index].FavoriteGroupSettings ; 11
-		objFavorite.FavoriteFtpEncoding := objMenuSource[A_Index].FavoriteFtpEncoding ; 12
-		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate ; 13
-		objFavorite.FavoriteDisabled := objMenuSource[A_Index].FavoriteDisabled ; 14
-		objFavorite.FavoriteFolderLiveLevels := objMenuSource[A_Index].FavoriteFolderLiveLevels ; 15
-		objFavorite.FavoriteFolderLiveDocuments := objMenuSource[A_Index].FavoriteFolderLiveDocuments ; 16
-		objFavorite.FavoriteFolderLiveColumns := objMenuSource[A_Index].FavoriteFolderLiveColumns ; 17
-		objFavorite.FavoriteFolderLiveIncludeExclude := objMenuSource[A_Index].FavoriteFolderLiveIncludeExclude ; 18
-		objFavorite.FavoriteFolderLiveExtensions := objMenuSource[A_Index].FavoriteFolderLiveExtensions ; 19
-		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
-		; after menu/groups objects are recreated during restore
+		objFavorite := CopyFavoriteObject(objMenuSource[A_Index])
 		objMenuDest.Insert(objFavorite)
 	}
 	
@@ -12269,6 +12248,7 @@ for strMenuPath, objMenuSource in objMenusSource
 		g_objMenusIndex.Insert(strMenuPath, objMenuDest)
 }
 
+; reconnect submenu after they are recreated during restore
 if (A_ThisLabel = "RestoreBackupMenusObjects")
 {
 	g_objMainMenu := g_objMenusIndex[lMainMenuName] ; re-connect main menu
