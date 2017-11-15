@@ -12428,6 +12428,8 @@ if (g_blnRefreshedMenusAttached)
 	Gosub, RefreshRecentFoldersMenu
 	Gosub, RefreshRecentFilesMenu
 }
+; ##### update last actions menu here
+###_V(A_ThisLabel, "*g_strLastActionsOrderedKeys", "`n" . g_strLastActionsOrderedKeys)
 
 /*
 if (g_blnDiagMode)
@@ -13100,25 +13102,11 @@ if (blnShiftPressed or blnControlPressed)
 		g_strAlternativeMenu := lMenuCopyLocation
 }
 
-; beginning of OpenFavorite execution
-; ##### here? gosub CollectForLastActions
-###_V("Collect for Last actions"
-	, "*g_strOpenFavoriteLabel", g_strOpenFavoriteLabel
-	, "*g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName
-	, "*g_blnAlternativeMenu", g_blnAlternativeMenu
-	, "*g_strHokeyTypeDetected", g_strHokeyTypeDetected
-	, "*g_strAlternativeMenu", g_strAlternativeMenu
-	, "*", "")
+; collect last actions
 
-objNewLastAction := Object()
-objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-objNewLastAction.LastActionLabel := g_objThisFavorite.FavoriteName
-objNewLastAction.OpenFavoriteLabel := g_strOpenFavoriteLabel
-objNewLastAction.g_strHokeyTypeDetected := g_strHokeyTypeDetected
-objNewLastAction.g_blnAlternativeMenu := g_blnAlternativeMenu
-objNewLastAction.g_strAlternativeMenu := g_strAlternativeMenu
-g_objLastActions.InsertAt(1, objNewLastAction)
-###_O("g_objLastActions", g_objLastActions, "LastActionLabel")
+gosub, CollectLastActions ; update g_objLastActions
+
+; beginning of OpenFavorite execution
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -13847,6 +13835,50 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 			intDisabledItemsBeforeThisItem++
 	}
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CollectLastActions:
+; add opened favorite to last actions and update g_strLastActionsOrderedKeys
+;------------------------------------------------------------
+
+; ###_V("Collect for Last actions"
+	; , "*g_strOpenFavoriteLabel", g_strOpenFavoriteLabel
+	; , "*g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName
+	; , "*g_blnAlternativeMenu", g_blnAlternativeMenu
+	; , "*g_strHokeyTypeDetected", g_strHokeyTypeDetected
+	; , "*g_strAlternativeMenu", g_strAlternativeMenu
+	; , "*A_ThisMenu", A_ThisMenu
+	; , "*", "")
+
+objNewLastAction := Object()
+objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+objNewLastAction.FavoriteParentMenu := A_ThisMenu
+objNewLastAction.OpenTimeStamp := A_Now
+
+strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
+
+strLastActionsOrdered := ""
+for strLastActionLabel, objLastAction in g_objLastActions
+	strLastActionsOrdered .= objLastAction.OpenTimeStamp . "|" . strLastActionLabel . "`n"
+
+Sort, strLastActionsOrdered, R
+
+g_strLastActionsOrderedKeys := ""
+loop, parse, strLastActionsOrdered, `n
+{
+	if !StrLen(A_LoopField)
+		break
+	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, "|") + 1)
+	g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
+}
+
+strLastActionLabel := ""
+strLastActionsOrdered := ""
+
+return
 ;------------------------------------------------------------
 
 
