@@ -1864,8 +1864,8 @@ g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
-g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 ;---------------------------------
 ; Initial validation
@@ -7374,7 +7374,7 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	; returns current or latest file manager window ID and Window class (including dialog boxes), and re-activate the last active file manager window
 	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, false, true)
-	
+
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
@@ -7942,7 +7942,7 @@ else
 	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
+		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
 		, % g_objEditedFavorite.FavoriteName
 }
 
@@ -17304,9 +17304,10 @@ GetCurrentUrlDDE(strClass)
 
 ;------------------------------------------------------------
 GetCurrentUrlAcc(strClass)
-; Found at http://autohotkey.com/board/topic/17633-/?p=434518 (via Joe Glines)
+; Found at https://autohotkey.com/boards/viewtopic.php?f=6&t=3702&start=60
 ;------------------------------------------------------------
 {
+	; static or global?
 	global nWindow
 	global accAddressBar
 	
@@ -17335,19 +17336,24 @@ GetCurrentUrlAcc(strClass)
 
 
 ;------------------------------------------------------------
-GetAddressBar(accObj)
-; "GetAddressBar" based in code by uname (via Joe Glines)
-; Found at http://autohotkey.com/board/topic/103178-/?p=637687
+GetAddressBar(accObj, accPath:="")
+; "GetAddressBar" based in code by stealzy
+; Found at https://autohotkey.com/boards/viewtopic.php?p=109548#p109548
 ; IsUrl in this functions above replaced by my own code LocationIsHttp
 ;------------------------------------------------------------
 {
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
+	n := 0
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp(accObj.accValue(0)))
 		Return accObj
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
 		Return accObj
 	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
-		If IsObject(accAddressBar := GetAddressBar(accChild))
+	{
+		n++
+		currentPath := accPath . n . "."
+		If IsObject(accAddressBar := GetAddressBar(accChild, currentPath))
 			Return accAddressBar
+	}
 }
 ;------------------------------------------------------------
 
