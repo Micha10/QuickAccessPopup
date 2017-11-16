@@ -7482,16 +7482,17 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	
 	Loop, %strIDs%
 	{
-		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		intThisIDIndex := A_Index
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
-			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
+			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
 			{
-				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+				WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 			}
-			strThisId := strIDs%A_Index%
+			strThisId := strIDs%intThisIDIndex%
 			break
 		}
 		else if (blnIncludeBrowsers)
@@ -7500,10 +7501,11 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 				{
 					if (blnActivate)
 					{
-						WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-						WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+						WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+						WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 					}
-					strThisId := strIDs%A_Index%
+					strThisId := strIDs%intThisIDIndex%
+					WinGetClass, TEST, % "ahk_id " . strIDs%intThisIDIndex%
 					break, 2
 				}
 	}
