@@ -5300,17 +5300,16 @@ intShortcutLastActionsMenu := 0
 
 Menu, g_menuLastActions, Add
 Menu, g_menuLastActions, DeleteAll
-Loop, Parse, #####, `n
+Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 	{
-		StringSplit, arrMenuItemsList, A_LoopField, |
-		; AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-		; strIconValue can be an index from g_objJLiconsByName (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
-		AddMenuIcon("g_menuLastActions", ###strMenuItemName, "RepeatLastAction", ###strIconValue)
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intShortcutLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intShortcutLastActionsMenu) . " " : "") . A_LoopField
+		AddMenuIcon("g_menuLastActions", strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
 	}
 AddCloseMenu("g_menuLastActions")
 
 intShortcutLastActionsMenu := ""
+strMenuItemName := ""
 
 return
 ;------------------------------------------------------------
@@ -6789,6 +6788,8 @@ Gosub, BuildAlternativeMenu
 Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
+Gosub, RefreshLastActionsMenu
+
 if (g_blnRefreshedMenusAttached)
 {
 	Gosub, RefreshDrivesMenu
@@ -12506,6 +12507,8 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 ; in order of estimated avverage time required to refresh
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes g_menuReopenFolder
 Gosub, RefreshClipboardMenu
+Gosub, RefreshLastActionsMenu
+
 if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
@@ -13084,7 +13087,10 @@ return
 RepeatLastAction:
 ;-----------------------------------------------------------
 
-###_D(A_ThisLabel)
+; ###_V(A_ThisLabel, A_ThisMenuItem, g_objLastActions[A_ThisMenuItem].FavoriteName)
+g_strLastActionRepeated := A_ThisMenuItem
+g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
+gosub, OpenFavoriteFromLastAction
 
 return
 ;-----------------------------------------------------------
@@ -13095,6 +13101,7 @@ OpenFavorite:
 OpenFavoriteGroup:
 OpenFavoriteFromGroup:
 OpenFavoriteFromHotkey:
+OpenFavoriteFromLastAction:
 OpenRecentFolder:
 OpenRecentFile:
 OpenReopenFolder:
@@ -13111,7 +13118,7 @@ g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
-if InStr("OpenFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
 {
 	blnShiftPressed := GetKeyState("Shift")
 	blnControlPressed := GetKeyState("Control")
@@ -13151,7 +13158,7 @@ if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFa
 	g_strTargetWinId := "" ; never use target window when launched in a group
 	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
 }
-else
+else if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have g_objThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
 
 /*
@@ -13199,7 +13206,8 @@ if (blnShiftPressed or blnControlPressed)
 
 ; collect last actions
 
-gosub, CollectLastActions ; update g_objLastActions
+if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollected - no need to collect group members
+	gosub, CollectLastActions ; update g_objLastActions
 
 ; beginning of OpenFavorite execution
 
@@ -13483,7 +13491,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
@@ -13600,6 +13608,8 @@ return
 ;------------------------------------------------------------
 OpenFavoriteGetFavoriteObject:
 ;------------------------------------------------------------
+
+g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, so kill this variable
 
 if (g_blnDisplayNumericShortcuts)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
@@ -13947,12 +13957,17 @@ CollectLastActions:
 	; , "*A_ThisMenu", A_ThisMenu
 	; , "*", "")
 
-objNewLastAction := Object()
-objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-objNewLastAction.FavoriteParentMenu := A_ThisMenu
+if StrLen(g_strLastActionRepeated) ; we are repeating an action
+	objNewLastAction := g_objLastActions[A_ThisMenuItem]
+else
+{
+	objNewLastAction := Object()
+	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+	objNewLastAction.FavoriteParentMenu := A_ThisMenu
+	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+}
 objNewLastAction.OpenTimeStamp := A_Now
 
-strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
 g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
 
 strLastActionsOrdered := ""
