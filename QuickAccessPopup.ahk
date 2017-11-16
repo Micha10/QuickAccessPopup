@@ -7940,7 +7940,7 @@ else
 	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
+		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
 		, % g_objEditedFavorite.FavoriteName
 }
 
