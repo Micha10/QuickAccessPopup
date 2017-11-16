@@ -1864,8 +1864,8 @@ g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
-g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
 
 ;---------------------------------
 ; Initial validation
@@ -7372,11 +7372,12 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	; returns current or latest file manager window ID and Window class (including dialog boxes), and re-activate the last active file manager window
 	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, false, true)
-	
+
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
+###_V(A_ThisLabel, g_strTargetClass, g_strTargetWinId, g_strNewLocation)
 
 g_strNewLocationSpecialName := ""
 if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
@@ -7482,16 +7483,17 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	
 	Loop, %strIDs%
 	{
-		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		intThisIDIndex := A_Index
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
-			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
+			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
 			{
-				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+				WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 			}
-			strThisId := strIDs%A_Index%
+			strThisId := strIDs%intThisIDIndex%
 			break
 		}
 		else if (blnIncludeBrowsers)
@@ -7500,10 +7502,11 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 				{
 					if (blnActivate)
 					{
-						WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-						WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+						WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+						WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 					}
-					strThisId := strIDs%A_Index%
+					strThisId := strIDs%intThisIDIndex%
+					WinGetClass, TEST, % "ahk_id " . strIDs%intThisIDIndex%
 					break, 2
 				}
 	}
@@ -17293,6 +17296,7 @@ GetCurrentUrlDDE(strClass)
 	csvWindowInfo := StrGet(&sData, "CP0")
 	StringSplit, strWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
 	
+	###_V(A_ThisFunc, strWindowInfo2)
 	Return strWindowInfo2
 }
 ;------------------------------------------------------------
@@ -17305,6 +17309,8 @@ GetCurrentUrlAcc(strClass)
 {
 	global nWindow
 	global accAddressBar
+	; static nWindow
+	; static accAddressBar
 	
 	If (nWindow != WinExist("ahk_class " strClass)) ; reuses accAddressBar if it's the same window
 	{
@@ -17325,17 +17331,18 @@ GetCurrentUrlAcc(strClass)
 		sURL := "http://" . sURL
 	If (sURL == "")
 		nWindow := -1 ; Don't remember the window if there is no URL
+	###_V(A_ThisFunc, sURL)
 	Return sURL
 }
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-GetAddressBar(accObj)
+; ------------------------------------------------------------
+GetAddressBar(accObj, nothing:="")
 ; "GetAddressBar" based in code by uname (via Joe Glines)
 ; Found at http://autohotkey.com/board/topic/103178-/?p=637687
 ; IsUrl in this functions above replaced by my own code LocationIsHttp
-;------------------------------------------------------------
+; ------------------------------------------------------------
 {
 	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
 		Return accObj
@@ -17344,6 +17351,30 @@ GetAddressBar(accObj)
 	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
 		If IsObject(accAddressBar := GetAddressBar(accChild))
 			Return accAddressBar
+}
+; ------------------------------------------------------------
+
+
+;------------------------------------------------------------
+XXXGetAddressBar(accObj, accPath:="")
+; "GetAddressBar" based in code by stealzy
+; Found at https://autohotkey.com/boards/viewtopic.php?p=109548#p109548
+; IsUrl in this functions above replaced by my own code LocationIsHttp
+;------------------------------------------------------------
+{
+	n := 0
+	Try If ((accObj.accRole(0) == 42) and accObj.accValue(0))
+		Return accObj
+	; Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+		; Return accObj
+	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
+	{
+		n++
+		currentPath := accPath . n . "."
+		ToolTip % currentPath
+		If IsObject(accAddressBar := GetAddressBar(accChild, currentPath))
+			Return accAddressBar
+	}
 }
 ;------------------------------------------------------------
 
