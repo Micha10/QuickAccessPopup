@@ -1865,7 +1865,7 @@ g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
 g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 ;---------------------------------
 ; Initial validation
@@ -7377,7 +7377,6 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
 	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
-###_V(A_ThisLabel, g_strTargetClass, g_strTargetWinId, g_strNewLocation)
 
 g_strNewLocationSpecialName := ""
 if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
@@ -17296,7 +17295,6 @@ GetCurrentUrlDDE(strClass)
 	csvWindowInfo := StrGet(&sData, "CP0")
 	StringSplit, strWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
 	
-	###_V(A_ThisFunc, strWindowInfo2)
 	Return strWindowInfo2
 }
 ;------------------------------------------------------------
@@ -17304,13 +17302,12 @@ GetCurrentUrlDDE(strClass)
 
 ;------------------------------------------------------------
 GetCurrentUrlAcc(strClass)
-; Found at http://autohotkey.com/board/topic/17633-/?p=434518 (via Joe Glines)
+; Found at https://autohotkey.com/boards/viewtopic.php?f=6&t=3702&start=60
 ;------------------------------------------------------------
 {
+	; static or global?
 	global nWindow
 	global accAddressBar
-	; static nWindow
-	; static accAddressBar
 	
 	If (nWindow != WinExist("ahk_class " strClass)) ; reuses accAddressBar if it's the same window
 	{
@@ -17331,47 +17328,27 @@ GetCurrentUrlAcc(strClass)
 		sURL := "http://" . sURL
 	If (sURL == "")
 		nWindow := -1 ; Don't remember the window if there is no URL
-	###_V(A_ThisFunc, sURL)
 	Return sURL
 }
 ;------------------------------------------------------------
 
 
-; ------------------------------------------------------------
-GetAddressBar(accObj, nothing:="")
-; "GetAddressBar" based in code by uname (via Joe Glines)
-; Found at http://autohotkey.com/board/topic/103178-/?p=637687
-; IsUrl in this functions above replaced by my own code LocationIsHttp
-; ------------------------------------------------------------
-{
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
-		Return accObj
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
-		Return accObj
-	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
-		If IsObject(accAddressBar := GetAddressBar(accChild))
-			Return accAddressBar
-}
-; ------------------------------------------------------------
-
-
 ;------------------------------------------------------------
-XXXGetAddressBar(accObj, accPath:="")
+GetAddressBar(accObj, accPath:="")
 ; "GetAddressBar" based in code by stealzy
 ; Found at https://autohotkey.com/boards/viewtopic.php?p=109548#p109548
 ; IsUrl in this functions above replaced by my own code LocationIsHttp
 ;------------------------------------------------------------
 {
 	n := 0
-	Try If ((accObj.accRole(0) == 42) and accObj.accValue(0))
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp(accObj.accValue(0)))
 		Return accObj
-	; Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
-		; Return accObj
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+		Return accObj
 	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
 	{
 		n++
 		currentPath := accPath . n . "."
-		ToolTip % currentPath
 		If IsObject(accAddressBar := GetAddressBar(accChild, currentPath))
 			Return accAddressBar
 	}
