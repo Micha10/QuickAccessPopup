@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.6.3 (2017-11-16)
+- make "Add this Folder or Line" work with recent versions of Firefox (tested with v56)
+- fix bug when adding a link with "Add this Folder or Link" from the QAP icon menu
+- fix display bug in "Edit favorite" dialog box when very long web page title is retrieved as favorite name
+- fix bug when assigning an hotkey to an Alternative menu feature for the first time
+- update to Brazilian Portuguese language file
+
 Version BETA: 8.6.9.3 (2017-11-06)
  
 Russian keyboard support
@@ -1896,8 +1903,8 @@ g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
-g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 g_blnRussianKeyboard := (GetInputLanguage() = "0419")
 
@@ -3906,13 +3913,13 @@ loop, % g_arrPopupHotkeyNames0
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3922,13 +3929,13 @@ Hotkey, If
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3937,13 +3944,13 @@ Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
 if HasHotkey(g_arrPopupHotkeysPrevious3)
-	Hotkey, % g_arrPopupHotkeysPrevious3, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 if HasHotkey(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
 if HasHotkey(g_arrPopupHotkeysPrevious4)
-	Hotkey, % g_arrPopupHotkeysPrevious4, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious4, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 if HasHotkey(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
@@ -3952,7 +3959,7 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
-		; use error level in case the hotkey does not exist yet when adding a new alternative hotkey
+		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
 		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
 ; Load QAP Alternative Menu hotkeys
@@ -3964,6 +3971,8 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
 		g_objQAPFeatures[strCode].CurrentHotkey := strHotkey
 	}
+	else
+		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName)
 }
@@ -7567,7 +7576,7 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	; returns current or latest file manager window ID and Window class (including dialog boxes), and re-activate the last active file manager window
 	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, false, true)
-	
+
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
@@ -7677,16 +7686,17 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	
 	Loop, %strIDs%
 	{
-		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		intThisIDIndex := A_Index
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
-			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
+			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
 			{
-				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+				WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 			}
-			strThisId := strIDs%A_Index%
+			strThisId := strIDs%intThisIDIndex%
 			break
 		}
 		else if (blnIncludeBrowsers)
@@ -7695,10 +7705,11 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 				{
 					if (blnActivate)
 					{
-						WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-						WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+						WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+						WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 					}
-					strThisId := strIDs%A_Index%
+					strThisId := strIDs%intThisIDIndex%
+					WinGetClass, TEST, % "ahk_id " . strIDs%intThisIDIndex%
 					break, 2
 				}
 	}
@@ -8144,7 +8155,7 @@ else
 	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
+		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
 		, % g_objEditedFavorite.FavoriteName
 }
 
@@ -11352,7 +11363,7 @@ for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
 	if RecursiveHotkeyNotNeeded(strThisNameLocation, g_objMainMenu)
 	{
 		g_objHotkeysByNameLocation.Remove(strThisNameLocation)
-		Hotkey, %strThisHotkey%, , Off
+		Hotkey, %strThisHotkey%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	}
 
 Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
@@ -11989,7 +12000,7 @@ Loop
 	if (strLocationHotkey = "ERROR")
 		break
 	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey
-	Hotkey, %arrLocationHotkey3%, , Off
+	Hotkey, %arrLocationHotkey3%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 }
 
 strLocationHotkey := ""
@@ -17530,9 +17541,10 @@ GetCurrentUrlDDE(strClass)
 
 ;------------------------------------------------------------
 GetCurrentUrlAcc(strClass)
-; Found at http://autohotkey.com/board/topic/17633-/?p=434518 (via Joe Glines)
+; Found at https://autohotkey.com/boards/viewtopic.php?f=6&t=3702&start=60
 ;------------------------------------------------------------
 {
+	; static or global?
 	global nWindow
 	global accAddressBar
 	
@@ -17561,19 +17573,24 @@ GetCurrentUrlAcc(strClass)
 
 
 ;------------------------------------------------------------
-GetAddressBar(accObj)
-; "GetAddressBar" based in code by uname (via Joe Glines)
-; Found at http://autohotkey.com/board/topic/103178-/?p=637687
+GetAddressBar(accObj, accPath:="")
+; "GetAddressBar" based in code by stealzy
+; Found at https://autohotkey.com/boards/viewtopic.php?p=109548#p109548
 ; IsUrl in this functions above replaced by my own code LocationIsHttp
 ;------------------------------------------------------------
 {
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
+	n := 0
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp(accObj.accValue(0)))
 		Return accObj
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
 		Return accObj
 	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
-		If IsObject(accAddressBar := GetAddressBar(accChild))
+	{
+		n++
+		currentPath := accPath . n . "."
+		If IsObject(accAddressBar := GetAddressBar(accChild, currentPath))
 			Return accAddressBar
+	}
 }
 ;------------------------------------------------------------
 
