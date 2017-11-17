@@ -5180,6 +5180,7 @@ RefreshLastActionsMenu:
 ;------------------------------------------------------------
 
 if !(g_objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
+	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
 	return
 
 intShortcutLastActionsMenu := 0
@@ -12969,9 +12970,9 @@ return
 RepeatLastAction:
 ;-----------------------------------------------------------
 
-; ###_V(A_ThisLabel, A_ThisMenuItem, g_objLastActions[A_ThisMenuItem].FavoriteName)
 g_strLastActionRepeated := A_ThisMenuItem
 g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
+
 gosub, OpenFavoriteFromLastAction
 
 return
@@ -13089,6 +13090,7 @@ if (blnShiftPressed or blnControlPressed)
 ; collect last actions
 
 if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollected - no need to collect group members
+	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
 	gosub, CollectLastActions ; update g_objLastActions
 
 ; beginning of OpenFavorite execution
@@ -13846,6 +13848,7 @@ else
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
 	objNewLastAction.FavoriteParentMenu := A_ThisMenu
+	objNewLastAction.AlternativeMenu := g_strAlternativeMenu
 	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
 }
 objNewLastAction.OpenTimeStamp := A_Now
