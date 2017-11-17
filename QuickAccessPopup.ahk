@@ -1788,7 +1788,7 @@ Gosub, SetQAPWorkingDirectory
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
 ListLines, On
-; ##### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
+; #### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
@@ -1908,6 +1908,8 @@ g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 g_blnRussianKeyboard := (GetInputLanguage() = "0419")
 
+g_objLastActions := Object()
+
 ;---------------------------------
 ; Initial validation
 
@@ -1960,14 +1962,21 @@ if (g_blnUseColors)
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
-Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
-Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
-
+; Menus attached or detached
 Gosub, BuildDrivesMenuInit
-Gosub, BuildRecentMenusInit
-Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
+Gosub, BuildRecentFoldersMenuInit
+Gosub, BuildRecentFilesMenuInit
 
-Gosub, BuildTotalCommanderHotlist
+; Menus refreshed at each popup menu call
+Gosub, BuildClipboardMenuInit
+Gosub, BuildSwitchMenuInit 
+Gosub, BuildReopenFolderMenuInit
+Gosub, BuildLastActionsMenuInit
+Gosub, BuildTotalCommanderHotlistInit
+Gosub, BuildTotalCommanderHotlistPrepare
+
+; Other menus
+
 
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
@@ -3051,35 +3060,38 @@ InitQAPFeatures:
 ; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey)
 
 ; Submenus features
-InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
-InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuReopenFolder",		"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
-InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
-InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
 
 ; init refreshed menus attached or detached
-IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display OpenDrives and Recent Folders/Files menu in detached menu
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Recent Folders", "Recent Files" and "Drives" menu in detached menu
 Gosub, InitQAPFeaturesRefreshed
 
+InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
+InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
+InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastAction",						0, 		"iconReload", 			"")
+InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
+
 ; Command features
-InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconAddFavorite")
-InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",					0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",				0, "iconAddThisFolder")
-InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
-InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",							0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",	0, "iconHotkeys")
-InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",		0, "iconIcons")
-InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",			0, "iconOptions")
-InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",					0, "iconSettings", "+^S")
-InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",						0, "iconDonate")
-InitQAPFeatureObject("GetWinInfo",		lMenuGetWinInfo . "...",			"", "GetWinInfo",						0, "iconAbout")
-InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownComputer",					0, "iconExit")
-InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",					0, "iconReload")
-InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",						0, "iconReload")
-InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",						0, "iconClose")
-InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
-InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
+
+InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",								0, "iconAbout")
+InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				0, "iconAddFavorite")
+InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",						0, "iconAddThisFolder", "+^A")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",					0, "iconAddThisFolder")
+InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
+InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
+InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
+InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
+InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
+InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
+InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",							0, "iconDonate")
+InitQAPFeatureObject("GetWinInfo",		lMenuGetWinInfo . "...",			"", "GetWinInfo",							0, "iconAbout")
+InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownComputer",						0, "iconExit")
+InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",						0, "iconReload")
+InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							0, "iconReload")
+InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",							0, "iconClose")
+InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",							0, "iconSettings")
+InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",						0, "iconSettings")
+InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
 InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
 
@@ -3116,9 +3128,9 @@ InitQAPFeaturesRefreshed:
 ;------------------------------------------------------------
 
 InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
-	,(g_blnRefreshedMenusAttached ? "g_menuRecentFolders" : ""),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
 InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? "g_menuRecentFiles" : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
 	, (g_blnRefreshedMenusAttached ? "g_menuDrives" : ""),		"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
 
@@ -3383,33 +3395,6 @@ Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys f
 ; ---------------------
 ; Load Options Tab 1 General
 
-if !(g_blnPortableMode)
-	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
-else
-	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
-IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
-IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
-IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
-IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
-IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
-
-IniRead, g_intPopupMenuPosition, %g_strIniFile%, Global, PopupMenuPosition, 1
-IniRead, strPopupFixPosition, %g_strIniFile%, Global, PopupFixPosition, 20,20
-StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
-IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
-IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
-IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
-IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
-IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
-IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
-IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
-IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
-
-IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
-IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
-IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
-IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
-
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
 	IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk, 0
@@ -3417,25 +3402,62 @@ if (g_blnChangeFolderInDialog)
 IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
+
+IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
+IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
+IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
+IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
+
+IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
+IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
+IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
+IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
+
+; ---------------------
+; Load Options Tab 2 Menu
+
+IniRead, g_intPopupMenuPosition, %g_strIniFile%, Global, PopupMenuPosition, 1
+IniRead, strPopupFixPosition, %g_strIniFile%, Global, PopupFixPosition, 20,20
+StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
+
+IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
+
+if !(g_blnPortableMode)
+	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
+else
+	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
+
+IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
+; attached
+IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
+IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
+IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
+
+IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
+IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
+IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
+
+g_intNbLastActions := 5 ; #####
 	
 ; ---------------------
-; Load Options Tab 2 Menu Hotkeys
+; Load Options Tab 3 Menu Hotkeys
 
 IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
 IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
 
 ; ---------------------
-; Load Options Tab 3 Alternative Menu
+; Load Options Tab 4 Alternative Menu
 
 ; ---------------------
-; Options Tab 4 Exclusion List
+; Options Tab 5 Exclusion List
 
 IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 ; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
 
 ; ---------------------
-; Load Options Tab 5 File Managers
+; Load Options Tab 6 File Managers
 
 IniRead, g_intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
 
@@ -4197,58 +4219,67 @@ return
 
 
 ;------------------------------------------------------------
-SetTimerRefreshDynamicMenus:
-;------------------------------------------------------------
-; ####
-
-; Do nothing until background tasks is fixed...
-/*
-if g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenus.HasKey("{Drives}") ; we have one of these QAP features in at least one menu
-{
-	Gosub, RefreshRecentFoldersMenu ; refresh now and in g_intDynamicMenusRefreshRate ms
-	Gosub, RefreshDrivesMenu ; refresh now and in g_intDynamicMenusRefreshRate ms
-	SetTimer, RefreshBackgroundDynamicMenus, %g_intDynamicMenusRefreshRate% ; 
-}
-*/
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RefreshBackgroundDynamicMenus:
-; background job started by SetTimer
-; NOT ACTIVE
-;------------------------------------------------------------
-
-Gosub, RefreshRecentFoldersMenu
-Gosub, RefreshRecentFilesMenu
-Gosub, RefreshDrivesMenu
-
-/*
-if (g_blnDiagMode)
-{
-	Diag("Background: Recent/Drives", g_intRecentFoldersMenuTickCount . "`t" . g_intDrivesMenuTickCount)
-	; ToolTip,  % "QAP background refresh: " . g_intRecentFoldersMenuTickCount . " (Recent) + " . g_intDrivesMenuTickCount . " (Drives) = " . g_intRecentFoldersMenuTickCount + g_intDrivesMenuTickCount . " ms", 10, 10
-	; sleep, 5000
-	; ToolTip
-}
-*/
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
+BuildDrivesMenuInit:
+BuildRecentFoldersMenuInit:
+BuildRecentFilesMenuInit:
 BuildClipboardMenuInit:
+BuildSwitchMenuInit:
+BuildReopenFolderMenuInit:
+BuildLastActionsMenuInit:
+BuildTotalCommanderHotlistInit:
 ;------------------------------------------------------------
 
-Menu, g_menuClipboard, Add 
-Menu, g_menuClipboard, DeleteAll
+strMenuItemLabel := lDialogNone
+if (A_ThisLabel = "BuildClipboardMenuInit")
+{
+	strMenuName := lMenuClipboard ; g_menuClipboard
+	strMenuItemLabel := lMenuNoClipboard
+}
+if (A_ThisLabel = "BuildDrivesMenuInit")
+	strMenuName := lMenuDrives ; g_menuDrives
+if (A_ThisLabel = "BuildRecentFoldersMenuInit")
+	strMenuName := lMenuRecentFolders ; g_menuRecentFolders
+if (A_ThisLabel = "BuildRecentFilesMenuInit")
+	strMenuName := lMenuRecentFiles ; g_menuRecentFiles
+if (A_ThisLabel = "BuildSwitchMenuInit")
+	strMenuName := lMenuSwitchFolderOrApp ; g_menuSwitchFolderOrApp
+if (A_ThisLabel = "BuildReopenFolderMenuInit")
+	strMenuName := lMenuCurrentFolders ; g_menuReopenFolder
+if (A_ThisLabel = "BuildLastActionsMenuInit")
+	strMenuName := lMenuLastActions ; g_menuLastActions
+if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
+	strMenuName := lTCMenuName ; lTCMenuName
+
+Menu, %strMenuName%, Add 
+Menu, %strMenuName%, DeleteAll
 if (g_blnUseColors)
-    Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuClipboard")
+    Menu, %strMenuName%, Color, %g_strMenuBackgroundColor%
+AddMenuIcon(strMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu(strMenuName)
+
+strMenuName := ""
+strMenuItemLabel := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildTotalCommanderHotlistPrepare:
+;------------------------------------------------------------
+
+g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
+if StrLen(g_strWinCmdIniFileExpanded)
+{
+	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
+	if (strAlternativeWinCmdIniFile <> "ERROR")
+		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
+}
+g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
+
+Gosub, RefreshTotalCommanderHotlist
+
+strAlternativeWinCmdIniFile := ""
 
 return
 ;------------------------------------------------------------
@@ -4262,7 +4293,7 @@ Gosub, RefreshClipboardMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuClipboard, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuClipboard%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4308,8 +4339,8 @@ if StrLen(strContentsInClipboard)
 	Sort, strContentsInClipboard
 
 	; Critical, On
-	Menu, g_menuClipboard, Add
-	Menu, g_menuClipboard, DeleteAll
+	Menu, %lMenuClipboard%, Add
+	Menu, %lMenuClipboard%, DeleteAll
 
 	Loop, parse, strContentsInClipboard, `n
 	{
@@ -4321,9 +4352,9 @@ if StrLen(strContentsInClipboard)
 		
 		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutClipboardMenu <= 35) ? "&" . NextMenuShortcut(intShortcutClipboardMenu) . " " : "") . arrContentsInClipboard1
 		if StrLen(strMenuName) < 260 ; skip too long URLs
-			AddMenuIcon("g_menuClipboard", strMenuName, "OpenClipboard", arrContentsInClipboard2)
+			AddMenuIcon(lMenuClipboard, strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
-	AddCloseMenu("g_menuClipboard")
+	AddCloseMenu(lMenuClipboard)
 	; Critical, Off
 }
 
@@ -4400,34 +4431,9 @@ return
 
 
 ;------------------------------------------------------------
-BuildDrivesMenuInit:
-;------------------------------------------------------------
-
-Menu, g_menuDrives, Add 
-Menu, g_menuDrives, DeleteAll
-if (g_blnUseColors)
-    Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuDrives")
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 DrivesMenuShortcut:
 ;------------------------------------------------------------
 
-; When background tasks will be OK...
-/*
-Gosub, RefreshDrivesMenu ; refreshed by SetTimer but also just before when called by the shortcut
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
-*/
-
-; Until background tasks is back...
 Gosub, SetMenuPosition
 
 Gosub, RefreshDrivesMenu
@@ -4475,8 +4481,6 @@ Loop, parse, strDrivesList
 	strMenuItemsList .= "g_menuDrives|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
 }
 
-; Until background tasks is back...
-; Critical, On
 Menu, g_menuDrives, Add
 Menu, g_menuDrives, DeleteAll
 Loop, Parse, strMenuItemsList, `n
@@ -4486,8 +4490,6 @@ Loop, Parse, strMenuItemsList, `n
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
 AddCloseMenu("g_menuDrives")
-; Until background tasks is back...
-; Critical, Off
 
 SetWaitCursor(false)
 
@@ -4510,38 +4512,10 @@ return
 
 
 ;------------------------------------------------------------
-BuildRecentMenusInit:
-;------------------------------------------------------------
-
-Loop, Parse, % "Folders|Files", | ; g_menuRecentFolders and g_menuRecentFiles
-{
-	Menu, % "g_menuRecent" . A_LoopField, Add
-	Menu, % "g_menuRecent" . A_LoopField, DeleteAll
-	if (g_blnUseColors)
-		Menu, % "g_menuRecent" . A_LoopField, Color, %g_strMenuBackgroundColor%
-	AddMenuIcon("g_menuRecent" . A_LoopField, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-	AddCloseMenu("g_menuRecent" . A_LoopField)
-}
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RecentFoldersMenuShortcut:
 RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
-; When background tasks will be OK...
-/*
-Gosub, RefreshRecentFoldersMenu ; refreshed by SetTimer but also just before when called by the shortcut
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
-*/
-
-; Until background tasks is back...
 Gosub, SetMenuPosition
 
 if (A_ThisLabel = "RecentFoldersMenuShortcut")
@@ -4550,7 +4524,7 @@ else ; RecentFilesMenuShortcut
 	Gosub, RefreshRecentFilesMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? "g_menuRecentFolders" : "g_menuRecentFiles"), Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? lMenuRecentFolders : lMenuRecentFiles), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4620,7 +4594,7 @@ Loop, parse, strItemsList, `n
 	{
 		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFolders <= 35) ? "&" . NextMenuShortcut(intShortcutFolders) . " " : "") . strTargetPath
 		strIcon := GetFolderIcon(strTargetPath)
-		strRecentFoldersMenuItemsList .= "g_menuRecentFolders|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
 	}
 
@@ -4630,7 +4604,7 @@ Loop, parse, strItemsList, `n
 	{
 		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFiles <= 35) ? "&" . NextMenuShortcut(intShortcutFiles) . " " : "") . strTargetPath
 		strIcon := GetIcon4Location(strTargetPath)
-		strRecentFilesMenuItemsList .= "g_menuRecentFiles|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
 	}
 
@@ -4638,11 +4612,8 @@ Loop, parse, strItemsList, `n
 		break
 }
 
-; Until background tasks is back...
-; Critical, On
-; g_menuRecentFolders or g_menuRecentFiles / RefreshRecentFoldersMenuFolders or RefreshRecentFoldersMenuFiles
-Menu, % "g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"), Add
-Menu, % "g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"), DeleteAll
+Menu, % (A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles), Add
+Menu, % (A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles), DeleteAll
 strParseList := (A_ThisLabel = "RefreshRecentFoldersMenu" ? strRecentFoldersMenuItemsList : strRecentFilesMenuItemsList)
 Loop, Parse, strParseList, `n
 	if StrLen(A_LoopField)
@@ -4650,10 +4621,7 @@ Loop, Parse, strParseList, `n
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
-AddCloseMenu("g_menuRecent" . (A_ThisLabel = "RefreshRecentFoldersMenu" ? "Folders" : "Files"))
-
-; Until background tasks is back...
-; Critical, Off
+AddCloseMenu((A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles))
 
 SetWaitCursor(false)
 
@@ -4677,29 +4645,6 @@ return
 
 
 ;------------------------------------------------------------
-BuildSwitchAndReopenFolderMenusInit:
-;------------------------------------------------------------
-
-Menu, g_menuReopenFolder, Add ; create the menu
-Menu, g_menuReopenFolder, DeleteAll
-Menu, g_menuSwitchFolderOrApp, Add ; create the menu
-Menu, g_menuSwitchFolderOrApp, DeleteAll
-
-if (g_blnUseColors)
-{
-    Menu, g_menuReopenFolder, Color, %g_strMenuBackgroundColor%
-    Menu, g_menuSwitchFolderOrApp, Color, %g_strMenuBackgroundColor%
-}
-AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuReopenFolder")
-AddCloseMenu("g_menuSwitchFolderOrApp")
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 ReopenFolderMenuShortcut:
 ;------------------------------------------------------------
 
@@ -4707,7 +4652,7 @@ Gosub, RefreshReopenFolderMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuReopenFolder, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuCurrentFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4721,7 +4666,7 @@ Gosub, RefreshSwitchFolderOrAppMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuSwitchFolderOrApp, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuSwitchFolderOrApp%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4884,29 +4829,29 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	and g_objQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
 {
 	g_objSwitchWindowIdsByName := Object()
-	Menu, g_menuSwitchFolderOrApp, Add
-	Menu, g_menuSwitchFolderOrApp, DeleteAll
+	Menu, %lMenuSwitchFolderOrApp%, Add
+	Menu, %lMenuSwitchFolderOrApp%, DeleteAll
 }
 
-Menu, g_menuReopenFolder, Add
-Menu, g_menuReopenFolder, DeleteAll
+Menu, %lMenuCurrentFolders%, Add
+Menu, %lMenuCurrentFolders%, DeleteAll
 
 if (intWindowsIdIndex)
 {
 	for intIndex, objFolderOrApp in objFoldersAndAppsList
 	{
 		if !StrLen(objFolderOrApp.Name)
-			Menu, g_menuSwitchFolderOrApp, Add
+			Menu, %lMenuSwitchFolderOrApp%, Add
 		else
 		{
 			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objFolderOrApp.Name
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
-				AddMenuIcon("g_menuReopenFolder", strMenuName, "OpenReopenFolder", "iconFolder")
+				AddMenuIcon(lMenuCurrentFolders, strMenuName, "OpenReopenFolder", "iconFolder")
 			}
 			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
-			AddMenuIcon("g_menuSwitchFolderOrApp", strMenuName, "OpenSwitchFolderOrApp"
+			AddMenuIcon(lMenuSwitchFolderOrApp, strMenuName, "OpenSwitchFolderOrApp"
 				, (objFolderOrApp.WindowType = "EX" ? "iconChangeFolder"
 					: (objFolderOrApp.WindowType = "DO" ?  g_strDirectoryOpusRtPath . ",1"
 					: objFolderOrApp.LocationURL . ",1")))
@@ -4914,13 +4859,13 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lMenuSwitchFolderOrApp, lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 if !(blnWeHaveFolders)
-	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lMenuCurrentFolders, lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-AddCloseMenu("g_menuReopenFolder")
-AddCloseMenu("g_menuSwitchFolderOrApp")
+AddCloseMenu(lMenuCurrentFolders)
+AddCloseMenu(lMenuSwitchFolderOrApp)
 
 Critical, Off
 
@@ -5084,34 +5029,6 @@ CollectExplorers(pExplorers)
 
 
 ;------------------------------------------------------------
-BuildTotalCommanderHotlist:
-;------------------------------------------------------------
-
-Menu, %lTCMenuName%, Add 
-Menu, %lTCMenuName%, DeleteAll
-if (g_blnUseColors)
-    Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu(lTCMenuName)
-
-g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
-if StrLen(g_strWinCmdIniFileExpanded)
-{
-	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
-	if (strAlternativeWinCmdIniFile <> "ERROR")
-		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
-}
-g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
-
-Gosub, RefreshTotalCommanderHotlist
-
-strAlternativeWinCmdIniFile := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 TotalCommanderHotlistMenuShortcut:
 ;------------------------------------------------------------
 
@@ -5241,6 +5158,48 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 	}
 }
 ;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+LastActionShortcut:
+;-----------------------------------------------------------
+
+Gosub, SetMenuPosition
+
+Gosub, RefreshLastActionsMenu
+
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;-----------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshLastActionsMenu:
+;------------------------------------------------------------
+
+if !(g_objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
+	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
+	return
+
+intShortcutLastActionsMenu := 0
+
+Menu, %lMenuLastActions%, Add
+Menu, %lMenuLastActions%, DeleteAll
+Loop, Parse, g_strLastActionsOrderedKeys, `n
+	if StrLen(A_LoopField)
+	{
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intShortcutLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intShortcutLastActionsMenu) . " " : "") . A_LoopField
+		AddMenuIcon(lMenuLastActions, strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
+	}
+AddCloseMenu(lMenuLastActions)
+
+intShortcutLastActionsMenu := ""
+strMenuItemName := ""
+
+return
+;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -5662,7 +5621,7 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
 		{
-			ParseIconResource((strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
+			ParseIconResource((strMenuName = lMenuSwitchFolderOrApp ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
 				, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		}
@@ -5739,7 +5698,6 @@ RefreshQAPMenu:
 ;------------------------------------------------------------
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
-Gosub, SetTimerRefreshDynamicMenus
 
 g_blnMenuReady := false
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
@@ -6580,6 +6538,9 @@ IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
 
+; g_intNbLastActions #####
+; when saving change QAPfeature label accordingly
+
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
 
@@ -6713,6 +6674,8 @@ Gosub, BuildAlternativeMenu
 Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
+Gosub, RefreshLastActionsMenu
+
 if (g_blnRefreshedMenusAttached)
 {
 	Gosub, RefreshDrivesMenu
@@ -10040,10 +10003,10 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 			or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) ; when the name has been edited from another menu
 			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
 		{
-			; ##### decide if we allow automatic rename, or after confirmation
+			; #### decide if we allow automatic rename, or after confirmation
 			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
 				and (g_objEditedFavorite.FavoriteType <> "QAP")
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_objEditedFavorite.FavoriteName .= " [!]" ; and loop
 				else
 					strNewFavoriteShortName .= " [!]" ; and loop
@@ -10053,7 +10016,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 					Oops(lDialogFavoriteNameNotNewQAPfeature, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
 				else
 					Oops(lDialogFavoriteNameNotNew, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_intOriginalMenuPosition++
 				gosub, GuiAddFavoriteSaveCleanup
 				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
@@ -11375,7 +11338,6 @@ Gosub, LoadMenuFromIni ; load favorites to menu object
 ToolTip, %lGuiSaving%... ; animated tooltip
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
-Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 Gosub, ExternalMenusRelease ; release reserved external menus
 
@@ -12428,8 +12390,10 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 
 ; refresh the dynamic menus before showing the main menu
 ; in order of estimated avverage time required to refresh
-Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes g_menuReopenFolder
+Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
+Gosub, RefreshLastActionsMenu
+
 if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
@@ -12437,6 +12401,8 @@ if (g_blnRefreshedMenusAttached)
 	Gosub, RefreshRecentFoldersMenu
 	Gosub, RefreshRecentFilesMenu
 }
+; ##### update last actions menu here
+; ###_V(A_ThisLabel, "*g_strLastActionsOrderedKeys", "`n" . g_strLastActionsOrderedKeys)
 
 /*
 if (g_blnDiagMode)
@@ -12466,8 +12432,6 @@ DiagWindowInfo(A_ThisLabel . " After SwitchToThisWindow")
 */
 
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
-
-; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
 
 return
 ;------------------------------------------------------------
@@ -13002,11 +12966,25 @@ return
 ;------------------------------------------------------------
 
 
+;-----------------------------------------------------------
+RepeatLastAction:
+;-----------------------------------------------------------
+
+g_strLastActionRepeated := A_ThisMenuItem
+g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
+
+gosub, OpenFavoriteFromLastAction
+
+return
+;-----------------------------------------------------------
+
+
 ;------------------------------------------------------------
 OpenFavorite:
 OpenFavoriteGroup:
 OpenFavoriteFromGroup:
 OpenFavoriteFromHotkey:
+OpenFavoriteFromLastAction:
 OpenRecentFolder:
 OpenRecentFile:
 OpenReopenFolder:
@@ -13023,7 +13001,7 @@ g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
-if InStr("OpenFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
 {
 	blnShiftPressed := GetKeyState("Shift")
 	blnControlPressed := GetKeyState("Control")
@@ -13063,7 +13041,7 @@ if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFa
 	g_strTargetWinId := "" ; never use target window when launched in a group
 	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
 }
-else
+else if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have g_objThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
 
 /*
@@ -13108,6 +13086,14 @@ if (blnShiftPressed or blnControlPressed)
 	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
+
+; collect last actions
+
+if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollected - no need to collect group members
+	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
+	gosub, CollectLastActions ; update g_objLastActions
+
+; beginning of OpenFavorite execution
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -13389,7 +13375,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
@@ -13506,6 +13492,8 @@ return
 ;------------------------------------------------------------
 OpenFavoriteGetFavoriteObject:
 ;------------------------------------------------------------
+
+g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, so kill this variable
 
 if (g_blnDisplayNumericShortcuts)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
@@ -13836,6 +13824,57 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 			intDisabledItemsBeforeThisItem++
 	}
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CollectLastActions:
+; add opened favorite to last actions and update g_strLastActionsOrderedKeys
+;------------------------------------------------------------
+
+; ###_V("Collect for Last actions"
+	; , "*g_strOpenFavoriteLabel", g_strOpenFavoriteLabel
+	; , "*g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName
+	; , "*g_blnAlternativeMenu", g_blnAlternativeMenu
+	; , "*g_strHokeyTypeDetected", g_strHokeyTypeDetected
+	; , "*g_strAlternativeMenu", g_strAlternativeMenu
+	; , "*A_ThisMenu", A_ThisMenu
+	; , "*", "")
+
+if StrLen(g_strLastActionRepeated) ; we are repeating an action
+	objNewLastAction := g_objLastActions[A_ThisMenuItem]
+else
+{
+	objNewLastAction := Object()
+	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+	objNewLastAction.FavoriteParentMenu := A_ThisMenu
+	objNewLastAction.AlternativeMenu := g_strAlternativeMenu
+	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+}
+objNewLastAction.OpenTimeStamp := A_Now
+
+; insert in g_objLastActions
+g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
+
+strLastActionsOrdered := ""
+for strLastActionLabel, objLastAction in g_objLastActions
+	strLastActionsOrdered .= objLastAction.OpenTimeStamp . "|" . strLastActionLabel . "`n"
+
+Sort, strLastActionsOrdered, R
+
+g_strLastActionsOrderedKeys := ""
+loop, parse, strLastActionsOrdered, `n
+{
+	if !StrLen(A_LoopField)
+		break
+	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, "|") + 1)
+	g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
+}
+
+strLastActionLabel := ""
+strLastActionsOrdered := ""
+
+return
 ;------------------------------------------------------------
 
 
