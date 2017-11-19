@@ -426,6 +426,7 @@ global lMenuMyMusic := "My Music"
 global lMenuMyQAPMenu := "My QAP Esssentials" ; new
 global lMenuMySpecialMenu := "My Special Folders" ; new
 global lMenuMyVideo := "My Video"
+global lOptionsNbLastActions := "Number of items in Repeat Last Actions menu"
 global lMenuNoClipboard := "Clipboard contains no path or URL..." ; new
 global lMenuNoCurrentFolder := "No currently open folders..." ; new
 global lMenuPictures := "Pictures"

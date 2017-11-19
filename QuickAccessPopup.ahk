@@ -3443,7 +3443,8 @@ else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 
 IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
-; attached
+IniRead, g_intNbLastActions, %g_strIniFile%, Global, NbLastActions, 10
+
 IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
 IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
 IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
@@ -3452,8 +3453,6 @@ IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
 IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
 IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
 
-g_intNbLastActions := 5 ; #####
-	
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
 
@@ -5876,6 +5875,11 @@ Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g
 Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
 Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 
+Gui, 2:Add, Text, y+15 xs w300, %lMenuLastActions%
+Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
+Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, %g_intNbLastActions%
+Gui, 2:Add, Text, yp x+10 w235, %lOptionsNbLastActions%
+
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
@@ -6551,9 +6555,8 @@ g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
-
-; g_intNbLastActions #####
-; when saving change QAPfeature label accordingly
+g_intNbLastActions := f_intNbLastActions
+IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
 
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
@@ -12415,8 +12418,6 @@ if (g_blnRefreshedMenusAttached)
 	Gosub, RefreshRecentFoldersMenu
 	Gosub, RefreshRecentFilesMenu
 }
-; ##### update last actions menu here
-; ###_V(A_ThisLabel, "*g_strLastActionsOrderedKeys", "`n" . g_strLastActionsOrderedKeys)
 
 /*
 if (g_blnDiagMode)
@@ -13868,6 +13869,8 @@ else
 objNewLastAction.OpenTimeStamp := A_Now
 
 ; insert in g_objLastActions
+if g_objLastActions.HasKey(strLastActionLabel)
+	g_objLastActions.Delete(strLastActionLabel) ; kill previous item for this key
 g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
 
 strLastActionsOrdered := ""
@@ -13882,7 +13885,10 @@ loop, parse, strLastActionsOrdered, `n
 	if !StrLen(A_LoopField)
 		break
 	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, "|") + 1)
-	g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
+	if (A_Index > g_intNbLastActions)
+		g_objLastActions.Delete(strThisLastActionKey) ; kill older items
+	else
+		g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
 }
 
 strLastActionLabel := ""
