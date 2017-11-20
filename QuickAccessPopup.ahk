@@ -3151,7 +3151,7 @@ InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenus
 InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
 	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? "g_menuDrives" : ""),		"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
+	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				0, "iconDrives",		"+^D")
 
 return
 ;------------------------------------------------------------
@@ -3809,15 +3809,16 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Switch Folder or App}", lMenuSwitchFolderOrApp . "...", "QAP")
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP") ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", lMenuReopenCurrentFolder . "...", "QAP")
-AddToIniOneDefaultMenu("{Current Folders}", lMenuCurrentFolders . "...", "QAP")
+AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP") ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP") ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", lMenuRecentFolders . "...", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", lMenuClipboard . "...", "QAP")
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP") ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP") ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Drives}", lMenuDrives . "...", "QAP")
+AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
 AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
 
 strThisMenuName := lMenuMySpecialMenu
@@ -4457,7 +4458,7 @@ Gosub, SetMenuPosition
 Gosub, RefreshDrivesMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuDrives%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4496,18 +4497,18 @@ Loop, parse, strDrivesList
 		strIcon := "iconDrives"
 	else
 		strIcon := "icon" . strType
-	strMenuItemsList .= "g_menuDrives|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
+	strMenuItemsList .= lMenuDrives . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
 }
 
-Menu, g_menuDrives, Add
-Menu, g_menuDrives, DeleteAll
+Menu, %lMenuDrives%, Add
+Menu, %lMenuDrives%, DeleteAll
 Loop, Parse, strMenuItemsList, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
-AddCloseMenu("g_menuDrives")
+AddCloseMenu(lMenuDrives)
 
 SetWaitCursor(false)
 
