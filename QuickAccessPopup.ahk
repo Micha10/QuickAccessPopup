@@ -12992,14 +12992,20 @@ return
 RepeatLastAction:
 ;-----------------------------------------------------------
 
-if (A_ThisMenuItem = lMenuLastAction) ; use first item from g_strLastActionsOrderedKeys
+if (g_blnDisplayNumericShortcuts)
+	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
+
+if (SubStr(strThisMenuItem, 1, StrLen(lMenuLastAction)) = lMenuLastAction) ; menu item is "Repeat Last Action" (stripping shortcut from label)
+	; use first item from g_strLastActionsOrderedKeys
 	g_strLastActionRepeated := SubStr(g_strLastActionsOrderedKeys, InStr(g_strLastActionsOrderedKeys, "|") + 1, InStr(g_strLastActionsOrderedKeys, "`n") - 1)
 else ; item from the Repeat Last Actions menu
-	g_strLastActionRepeated := A_ThisMenuItem
+	g_strLastActionRepeated := strThisMenuItem
 
 g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
 
 gosub, OpenFavoriteFromLastAction
+
+strThisMenuItem := ""
 
 return
 ;-----------------------------------------------------------
@@ -13859,6 +13865,7 @@ CollectLastActions:
 ;------------------------------------------------------------
 
 if (g_objThisFavorite.FavoriteName = lMenuLastAction) ; do not collect QAP feature Repeat Last Action
+	or (g_objThisFavorite.FavoriteType = "Text") ; do not collect text separators
 	return
 
 if StrLen(g_strLastActionRepeated) ; we are repeating an action
