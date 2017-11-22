@@ -3091,7 +3091,7 @@ Gosub, InitQAPFeaturesRefreshed
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
-InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastAction",						0, 		"iconReload", 			"")
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",						0, 		"iconReload", 			"")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
 
 ; Command features
@@ -3117,6 +3117,7 @@ InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "Switch
 InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
 InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
+InitQAPFeatureObject("Last Action", 	lMenuLastAction,					"", "RepeatLastActionShortcut",				0, 	"iconReload", "")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
@@ -4676,6 +4677,20 @@ Gosub, RefreshReopenFolderMenu
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
 Menu, %lMenuCurrentFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RepeatLastActionsShortcut:
+;------------------------------------------------------------
+
+Gosub, RefreshLastActionsMenu
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -12993,12 +13008,24 @@ return
 
 ;-----------------------------------------------------------
 RepeatLastAction:
+RepeatLastActionShortcut:
 ;-----------------------------------------------------------
 
-g_strLastActionRepeated := A_ThisMenuItem
+if (g_blnDisplayNumericShortcuts)
+	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
+
+if (A_ThisLabel = "RepeatLastActionShortcut" ; Repeat Last Action shortcut
+	or SubStr(strThisMenuItem, 1, StrLen(lMenuLastAction)) = lMenuLastAction) ; menu item is "Repeat Last Action" (stripping shortcut from label)
+	; use first item from g_strLastActionsOrderedKeys
+	g_strLastActionRepeated := SubStr(g_strLastActionsOrderedKeys, InStr(g_strLastActionsOrderedKeys, "|") + 1, InStr(g_strLastActionsOrderedKeys, "`n") - 1)
+else ; item from the Repeat Last Actions menu
+	g_strLastActionRepeated := strThisMenuItem
+
 g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
 
 gosub, OpenFavoriteFromLastAction
+
+strThisMenuItem := ""
 
 return
 ;-----------------------------------------------------------
@@ -13857,23 +13884,20 @@ CollectLastActions:
 ; add opened favorite to last actions and update g_strLastActionsOrderedKeys
 ;------------------------------------------------------------
 
-; ###_V("Collect for Last actions"
-	; , "*g_strOpenFavoriteLabel", g_strOpenFavoriteLabel
-	; , "*g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName
-	; , "*g_blnAlternativeMenu", g_blnAlternativeMenu
-	; , "*g_strHokeyTypeDetected", g_strHokeyTypeDetected
-	; , "*g_strAlternativeMenu", g_strAlternativeMenu
-	; , "*A_ThisMenu", A_ThisMenu
-	; , "*", "")
+if (g_objThisFavorite.FavoriteName = lMenuLastAction) ; do not collect QAP feature Repeat Last Action
+	or (g_objThisFavorite.FavoriteName = lMenuLastActions) ; do not collect QAP feature Repeat Last Actions
+	or (g_objThisFavorite.FavoriteType = "Text") ; do not collect text separators
+	return
 
 if StrLen(g_strLastActionRepeated) ; we are repeating an action
-	objNewLastAction := g_objLastActions[A_ThisMenuItem]
+{
+	objNewLastAction := g_objLastActions[g_strLastActionRepeated]
+	strLastActionLabel := g_strLastActionRepeated
+}
 else
 {
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-	objNewLastAction.FavoriteParentMenu := A_ThisMenu
-	objNewLastAction.AlternativeMenu := g_strAlternativeMenu
 	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
 }
 objNewLastAction.OpenTimeStamp := A_Now
