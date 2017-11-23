@@ -13320,11 +13320,12 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 if (g_blnAlternativeMenu)
 {
 	; ###_V(A_ThisLabel, "*g_strFullLocation", g_strFullLocation
+		; , "*A_ThisMenu", A_ThisMenu
 		; , "*g_objMenusIndex[A_ThisMenu].MenuPath", g_objMenusIndex[A_ThisMenu].MenuPath
 		; , "*g_intOriginalMenuPosition", g_intOriginalMenuPosition
 		; , "*GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition)", GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition).FavoriteName
 		; , "")
-	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
+	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and A_ThisMenu <> lMenuLastActions)
 	{
 		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
 		
