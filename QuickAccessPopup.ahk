@@ -13018,20 +13018,6 @@ if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have locat
 	}
 }
 
-if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
-	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
-{
-	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
-	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
-	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
-	
-	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
-	WinActivate, ahk_id %strAppID%
-	
-	gosub, OpenFavoriteCleanup
-	return
-}
-
 ; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
 ; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
@@ -13098,6 +13084,20 @@ if (g_blnAlternativeMenu)
 if (g_objThisFavorite.FavoriteType = "Text")
 ; if we did not have to edit a Text Separator, we must stop here
 {
+	gosub, OpenFavoriteCleanup
+	return
+}
+
+if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
+	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
+{
+	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
+	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
+	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
+	
+	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
+	WinActivate, ahk_id %strAppID%
+	
 	gosub, OpenFavoriteCleanup
 	return
 }
