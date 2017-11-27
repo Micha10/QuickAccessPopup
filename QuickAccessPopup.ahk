@@ -3758,6 +3758,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		{
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
+			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
+				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
@@ -7068,7 +7071,7 @@ if !(g_blnDonor)
 {
 	strDonateButtons := "thumbs_up|solutions|handshake|conference|gift"
 	StringSplit, arrDonateButtons, strDonateButtons, |
-	Random, intDonateButton, 1, 5
+	intDonateButton := RandomBetween(1, 5)
 
 	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static30
 	Gui, 1:Font, s8 w400, Arial ; button legend
@@ -11187,11 +11190,14 @@ GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . str
 
 if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
 {
-	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
-	; this favorite could not be edited because it is in an external menu locked by another user,
-	; or because external settings file is in a read-only folder, or because external files was modified 
-	; by another user since it was loaded in QAP by this user
-		goto, IconsManagePickIconDialogCleanup
+	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu)
+		if !ExternalMenuAvailableForLock(objExternalMenu)
+			; this favorite could not be edited because it is in an external menu locked by another user,
+			; or because external settings file is in a read-only folder, or because external files was modified 
+			; by another user since it was loaded in QAP by this user
+			goto, IconsManagePickIconDialogCleanup
+		else ; flag that this external menu needs to be saved
+			objExternalMenu.NeedSave := true
 	; else continue
 
 	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
@@ -17527,8 +17533,8 @@ ExternalMenuFolderIsReadOnly(strFile)
 	
 	if !g_objExternalMenuFolderReadOnly.HasKey(strFolder) ; if folder of file was not already checked
 	{
-		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random file number and variable number
-		strRandomFile := strFolder . "\~$_QAP_Test_file_" . intRandom . ".ini" ; Dropbox does not syn files starting with ~$
+		; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+		strRandomFile := strFolder . "\~$_QAP_Test_file_" . RandomBetween() . ".ini" ; Dropbox does not syn files starting with ~$
 		
 		IniWrite, %A_UserName% on %A_ComputerName% at %A_Now%, %strRandomFile%, Global, WriteAccessTest
 		Sleep, 20 ; for safety
@@ -17837,6 +17843,16 @@ GetInputLanguage()
 }
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+RandomBetween(intMin := 0, intMax := 2147483647)
+;------------------------------------------------------------
+{
+	Random, intValue, %intMin%, %intMax%
+	
+	return intValue
+}
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
