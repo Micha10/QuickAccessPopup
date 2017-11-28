@@ -31,19 +31,26 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.6.9.9 (2017-11-27)
+- do not allow to use the Alternative menu feature "Edit a favorite" to edit items from the "Repeat Last Actions" menu
+- give temporary menu name to unknown QAP feature (this should only happen if switching back from beta to master versions)
+- fix bug changes in Manage Icons window were not saved if menu was part of a shared menu
+- fix bug cannot use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option is enabled
+- Simplified Chinese (ZH-TW) translation update (back to v8.1, thanks fo Jess) and English language proof reading (thanks to Richard for proofreading)
+
 Version BETA: 8.6.9.8 (2017-11-22)
 - fix small bug when launching repeated action
- 
+
 Version BETA: 8.6.9.7 (2017-11-22)
 - implement shortcuts for Repeat last actions menu and Repeat last action
 - fix bug wit last actions menu when numeric shortcuts are enabled
 - fix bug with last action when QAP feature menu item has a shortcut
 - stop collecting text separators in last actions
- 
+
 Version BETA: 8.6.9.6 (2017-11-19)
 - fix bug with Drives menu when dynamically refreshed menus are attached to QAP popup menu
 - adding a new item "Repeat Last Actions" to "My QAP Essentials" menu for new installation only (existing users must add it themselves)
- 
+
 Version BETA: 8.6.9.5 (2017-11-19)
 - limit number of items in Repeat Last Actions menu
 - default to 10 item in the Repeat Last Actions
@@ -1786,7 +1793,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.8 BETA
+;@Ahk2Exe-SetVersion v8.6.9.9 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1868,7 +1875,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
