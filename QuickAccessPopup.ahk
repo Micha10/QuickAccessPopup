@@ -13101,6 +13101,7 @@ if (g_objThisFavorite.FavoriteType = "Text")
 }
 
 if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
+	; and !(g_objThisFavorite.FavoriteElevate) ; if run elevate do not activate, launch a new instance anyway
 	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
 {
 	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
@@ -16762,6 +16763,15 @@ AppIsRunning(strAppPath, ByRef strAppID)
 	Loop, %strWinIDs%
 	{
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
+		WinGet, intPid , PID, % "ahk_id " . strWinIDs%A_Index%
+		if IsProcessElevated(intPid, strProcessPath)
+			str .= IsProcessElevated(intPid, strProcessPath) . "`t" . strProcessPath . "`n"
+	}
+	###_D(str)
+	Loop, %strWinIDs%
+	{
+		
+		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
 			strAppID := strWinIDs%A_Index%
@@ -16772,6 +16782,31 @@ AppIsRunning(strAppPath, ByRef strAppID)
 }
 ;------------------------------------------------------------
 
+IsProcessElevated(ProcessID, strProcessPath)
+{
+    if !(hProcess := DllCall("OpenProcess", "uint", 0x0400, "int", 0, "uint", ProcessID, "ptr"))
+	{
+		if InStr(strProcessPath, "Notepad")
+			###_V("OpenProcess failed", strProcessPath)
+		return false
+        ; throw Exception("OpenProcess failed", -1)
+	}
+    if !(DllCall("advapi32\OpenProcessToken", "ptr", hProcess, "uint", 0x0008, "ptr*", hToken))
+	{
+		if InStr(strProcessPath, "Notepad")
+			###_V("OpenProcessToken failed", strProcessPath)
+		return false
+        ; throw Exception("OpenProcessToken failed", -1), DllCall("CloseHandle", "ptr", hProcess)
+	}
+    if !(DllCall("advapi32\GetTokenInformation", "ptr", hToken, "int", 20, "uint*", IsElevated, "uint", 4, "uint*", size))
+	{
+		if InStr(strProcessPath, "Notepad")
+			###_V("GetTokenInformation failed", strProcessPath)
+		return false
+        ; throw Exception("GetTokenInformation failed", -1), DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
+	}
+    return IsElevated, DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
+}
 
 ;------------------------------------------------------------
 SetWaitCursor(blnOnOff)
