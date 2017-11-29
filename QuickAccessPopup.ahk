@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.6.4 (2017-11-29)
+- fix bug - changes in Manage Icons window were not saved if menu was part of a shared menu
+- fix bug - could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- give temporary menu name to unknown QAP feature (this should only happen if switching back from a version with a new QAP feature to an earlier version where this QAP feature is unknown)
+- Simplified Chinese (ZH-TW) translation update (back to v8.1, thanks fo Jess) and English language proofreading (thanks to Richard)
+ 
 Version: 8.6.3 (2017-11-16)
 - make "Add this Folder or Line" work with recent versions of Firefox (tested with v56)
 - fix bug when adding a link with "Add this Folder or Link" from the QAP icon menu
@@ -1730,7 +1736,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.3
+;@Ahk2Exe-SetVersion v8.6.4
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1804,7 +1810,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
