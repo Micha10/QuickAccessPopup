@@ -13100,16 +13100,17 @@ if (g_objThisFavorite.FavoriteType = "Text")
 	return
 }
 
-if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
-	; and !(g_objThisFavorite.FavoriteElevate) ; if run elevate do not activate, launch a new instance anyway
-	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
+if (g_objThisFavorite.FavoriteType = "Application")
+	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
+	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
 {
 	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
 	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
 	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
+	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
-	WinActivate, ahk_id %strAppID%
+	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
 	gosub, OpenFavoriteCleanup
 	return
@@ -16755,19 +16756,12 @@ EnvVars(str)
 
 
 ;------------------------------------------------------------
-AppIsRunning(strAppPath, ByRef strAppID)
+AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Based on Drugoy (https://github.com/Drugoy/Autohotkey-scripts-.ahk/blob/master/DevTools/showPerWindowInfoOfAllWindows.ahk)
+; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
-	Loop, %strWinIDs%
-	{
-		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
-		WinGet, intPid , PID, % "ahk_id " . strWinIDs%A_Index%
-		if IsProcessElevated(intPid, strProcessPath)
-			str .= IsProcessElevated(intPid, strProcessPath) . "`t" . strProcessPath . "`n"
-	}
-	###_D(str)
 	Loop, %strWinIDs%
 	{
 		
@@ -16775,38 +16769,33 @@ AppIsRunning(strAppPath, ByRef strAppID)
 		if (strProcessPath = strAppPath)
 		{
 			strAppID := strWinIDs%A_Index%
-			return true
+			WinGet, intPid , PID, % "ahk_id " . strWinIDs%A_Index%
+			if (blnDesiredElevated = IsProcessElevated(intPid))
+				return true
 		}
 	}
 	return false
 }
 ;------------------------------------------------------------
 
-IsProcessElevated(ProcessID, strProcessPath)
+
+;------------------------------------------------------------
+IsProcessElevated(ProcessID)
+; from jNizM on https://autohotkey.com/boards/viewtopic.php?p=96016#p96016
+; with fix https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+;------------------------------------------------------------
 {
-    if !(hProcess := DllCall("OpenProcess", "uint", 0x0400, "int", 0, "uint", ProcessID, "ptr"))
-	{
-		if InStr(strProcessPath, "Notepad")
-			###_V("OpenProcess failed", strProcessPath)
-		return false
-        ; throw Exception("OpenProcess failed", -1)
-	}
+    if !(hProcess := DllCall("OpenProcess", "uint", 0x1000, "int", 0, "uint", ProcessID, "ptr"))
+		; Use 0x1000 (PROCESS_QUERY_LIMITED_INFORMATION) instead of 0x0400 (PROCESS_QUERY_INFORMATION) - see https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+        throw Exception("OpenProcess failed", -1)
     if !(DllCall("advapi32\OpenProcessToken", "ptr", hProcess, "uint", 0x0008, "ptr*", hToken))
-	{
-		if InStr(strProcessPath, "Notepad")
-			###_V("OpenProcessToken failed", strProcessPath)
-		return false
-        ; throw Exception("OpenProcessToken failed", -1), DllCall("CloseHandle", "ptr", hProcess)
-	}
+        throw Exception("OpenProcessToken failed", -1), DllCall("CloseHandle", "ptr", hProcess)
     if !(DllCall("advapi32\GetTokenInformation", "ptr", hToken, "int", 20, "uint*", IsElevated, "uint", 4, "uint*", size))
-	{
-		if InStr(strProcessPath, "Notepad")
-			###_V("GetTokenInformation failed", strProcessPath)
-		return false
-        ; throw Exception("GetTokenInformation failed", -1), DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
-	}
+        throw Exception("GetTokenInformation failed", -1), DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
     return IsElevated, DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
 }
+;------------------------------------------------------------
+
 
 ;------------------------------------------------------------
 SetWaitCursor(blnOnOff)
