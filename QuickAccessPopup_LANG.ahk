@@ -440,6 +440,7 @@ global lMenuRecentItems := "Recent Items"
 global lMenuRefreshMenu := "Refresh Live Folders menus"
 global lMenuReload := "Restart ~1~" ; new
 global lMenuReopenCurrentFolder := "Reopen Current Folder in Dialog Box"
+global lMenuRestoreSettingsWindowPosition := "Restore Settings window position"
 global lMenuRunAtStartupAmpersand := "&Run at Startup"
 global lMenuSettings := "Settings" ; changed
 global lMenuStartMenu := "Start Menu"

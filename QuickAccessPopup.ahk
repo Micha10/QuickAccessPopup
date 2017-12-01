@@ -4247,7 +4247,9 @@ Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
+Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, RestoreSettingsWindowPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
@@ -14839,6 +14841,17 @@ else
 	Suspend, On
 
 Menu, Tray, % (A_IsSuspended ? "check" : "uncheck"), %lMenuSuspendHotkeys%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RestoreSettingsWindowPosition:
+;------------------------------------------------------------
+
+WinRestore, ahk_id %g_strAppHwnd% ; unminimizes or unmaximizes the specified window if it is minimized or maximized
+WinMove, ahk_id %g_strAppHwnd%, , 100, 100, 636, 538 ; give save position and default size
 
 return
 ;------------------------------------------------------------
