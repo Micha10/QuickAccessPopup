@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.6.9.10 (2017-12-01)
+- add an item t the QAP icon menu in Notification zone labeled "Restore Settings window position" that reposition the Settings window to the top left of main screen, in case it would become invisible following changes in screen configuration
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", it will be activated only if it has the requested admnin (UAC) level (elevated or normal)
+
 Version: 8.6.4 (2017-11-29)
 - fix bug - changes in Manage Icons window were not saved if menu was part of a shared menu
 - fix bug - could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
