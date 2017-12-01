@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.6.4 (2017-11-29)
+- fix bug - changes in Manage Icons window were not saved if menu was part of a shared menu
+- fix bug - could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- give temporary menu name to unknown QAP feature (this should only happen if switching back from a version with a new QAP feature to an earlier version where this QAP feature is unknown)
+- Simplified Chinese (ZH-TW) translation update (back to v8.1, thanks fo Jess) and English language proofreading (thanks to Richard)
+ 
 Version BETA: 8.6.9.9 (2017-11-27)
 - do not allow to use the Alternative menu feature "Edit a favorite" to edit items from the "Repeat Last Actions" menu
 - give temporary menu name to unknown QAP feature (this should only happen if switching back from beta to master versions)
@@ -1793,7 +1799,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.9 BETA
+;@Ahk2Exe-SetVersion v8.6.9.10 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1875,7 +1881,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -13375,15 +13381,17 @@ if (g_objThisFavorite.FavoriteType = "Text")
 	return
 }
 
-if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
-	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
+if (g_objThisFavorite.FavoriteType = "Application")
+	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
+	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
 {
 	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
 	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
 	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
+	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
-	WinActivate, ahk_id %strAppID%
+	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
 	gosub, OpenFavoriteCleanup
 	return
@@ -17090,21 +17098,43 @@ EnvVars(str)
 
 
 ;------------------------------------------------------------
-AppIsRunning(strAppPath, ByRef strAppID)
+AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Based on Drugoy (https://github.com/Drugoy/Autohotkey-scripts-.ahk/blob/master/DevTools/showPerWindowInfoOfAllWindows.ahk)
+; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
 	Loop, %strWinIDs%
 	{
+		
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
 			strAppID := strWinIDs%A_Index%
-			return true
+			WinGet, intPid , PID, % "ahk_id " . strWinIDs%A_Index%
+			if (blnDesiredElevated = IsProcessElevated(intPid))
+				return true
 		}
 	}
 	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+IsProcessElevated(ProcessID)
+; from jNizM on https://autohotkey.com/boards/viewtopic.php?p=96016#p96016
+; with fix https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+;------------------------------------------------------------
+{
+    if !(hProcess := DllCall("OpenProcess", "uint", 0x1000, "int", 0, "uint", ProcessID, "ptr"))
+		; Use 0x1000 (PROCESS_QUERY_LIMITED_INFORMATION) instead of 0x0400 (PROCESS_QUERY_INFORMATION) - see https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+        throw Exception("OpenProcess failed", -1)
+    if !(DllCall("advapi32\OpenProcessToken", "ptr", hProcess, "uint", 0x0008, "ptr*", hToken))
+        throw Exception("OpenProcessToken failed", -1), DllCall("CloseHandle", "ptr", hProcess)
+    if !(DllCall("advapi32\GetTokenInformation", "ptr", hToken, "int", 20, "uint*", IsElevated, "uint", 4, "uint*", size))
+        throw Exception("GetTokenInformation failed", -1), DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
+    return IsElevated, DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
 }
 ;------------------------------------------------------------
 
