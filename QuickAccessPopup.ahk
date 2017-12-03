@@ -2000,6 +2000,8 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
+if (A_IsAdmin)
+	Oops(lOptionsRunAsAdminAlert)
 
 Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
@@ -2030,7 +2032,6 @@ Gosub, BuildTotalCommanderHotlistInit
 Gosub, BuildTotalCommanderHotlistPrepare
 
 ; Other menus
-
 
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
@@ -2455,6 +2456,8 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
 	FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
 	FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+
+	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 }
 else
 {
@@ -2482,6 +2485,8 @@ else
 	FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
 	FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
 	FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
+
+	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 }
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
@@ -2536,7 +2541,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial|iconNoIcon"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -3154,7 +3159,7 @@ InitQAPFeatureObject("Last Action", 	lMenuLastAction,					"", "RepeatLastActionS
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
 InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard")
-InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconApplication")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconUAClogo")
 InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
 
@@ -4235,9 +4240,11 @@ BuildTrayMenu:
 
 Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, NoStandard
+if (A_IsAdmin)
+	Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
-Menu, Tray, Icon, %A_ScriptDir%\QuickAccessPopup-DEV-red-512.ico, 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
@@ -5881,6 +5888,10 @@ Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
+Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
+Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
+GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
+
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
 Gui, 2:Font
@@ -6216,6 +6227,18 @@ return
 
 
 ;------------------------------------------------------------
+RunAsAdminClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+if (f_blnRunAsAdmin)
+	Oops(lOptionsRunAsAdminAlert)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonOptionsChangeHotkey1:
 ButtonOptionsChangeHotkey2:
 ButtonOptionsChangeHotkey3:
@@ -6526,6 +6549,9 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+blnRunAsAdminPrev := g_blnRunAsAdmin
+g_blnRunAsAdmin := f_blnRunAsAdmin
+IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
 
 strLanguageCodePrev := g_strLanguageCode
 g_strLanguageLabel := f_drpLanguage
@@ -6707,7 +6733,10 @@ IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerA
 ; End of tabs
 
 ; if language, theme or temporary folder changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+if (strLanguageCodePrev <> g_strLanguageCode)
+	or (strThemePrev <> g_strTheme)
+	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
@@ -6719,11 +6748,17 @@ if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or
 		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
 		strValue := g_strTheme
 	}
-	else ; (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
 		strValue := g_strQAPTempFolderParent
 	}
+	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
+		strValue := (g_blnRunAsAdmin ? "Administrator" : "Not Administrator") ; ##### language
+	}
+
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
@@ -6737,7 +6772,13 @@ if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme) or
 			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
 	}
 }	
-
+else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
+{
+	; Do not use ReloadQAP because it would reloas itself with admin right
+	MsgBox, 52, %g_strAppNameText%, % L(lOptionsRunAsAdminExit, g_strAppNameText)
+	IfMsgBox, Yes
+		Gosub, ExitApp
+}
 ; rebuild Folders menus w/ or w/o optional folders and shortcuts
 for strMenuName, arrMenu in g_objMenusIndex
 {
