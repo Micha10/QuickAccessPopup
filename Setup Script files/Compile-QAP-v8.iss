@@ -17,7 +17,7 @@
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define JLdir "JeanLalonde"
-#define JLicons "JLicons-1_3.dll"
+#define JLicons "JLicons-1_4.dll"
 
 [CustomMessages]
 HelpMePayExpenses=&HELP me pay EXPENSES for making QAP%n
