@@ -1803,7 +1803,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.10 BETA
+;@Ahk2Exe-SetVersion v8.6.9.11 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1885,7 +1885,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.6.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1995,9 +1995,14 @@ Gosub, InitQAPFeatures
 Gosub, InitGuiControls
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) name|location hotkeys and populate g_objHotkeysByNameLocation, load favorites to menu object
-Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
 ; must be after LoadIniFile
+
+if (g_blnRunAsAdmin and !A_IsAdmin)
+	gosub, ReloadAsAdmin
+
+Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
+
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (g_blnDiagMode)
@@ -2272,7 +2277,7 @@ CollectCommandLineParameters:
 
 Loop, %0% ; loop each parameter
 {
-    strThisParam := %A_Index%
+    strThisParam := %A_Index% ; %1%, %2%, etc. are each command-line parameters
 	if SubStr(strThisParam, 1, 10) = "/Settings:"
 		StringReplace, g_strParamSettings, strThisParam, % "/Settings:"
 
@@ -3573,6 +3578,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
+IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 
 ; ---------------------
 ; Load favorites
@@ -14784,6 +14790,7 @@ return
 ;------------------------------------------------------------
 ReloadQAP:
 ReloadQAPSwitch:
+ReloadAsAdmin:
 ;------------------------------------------------------------
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
@@ -14796,12 +14803,33 @@ SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
 	g_strCurrentCommandLineParameters := "/Settings:" . g_strSwitchSettingsFile
-	; review this when parameters other than "/Settings:" is used in the future
+; else keep params recevied from command-line, if any (review this when parameters other than "/Settings:" is used in the future)
 
-if (A_IsCompiled)
-	Run, %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
-else
-	Run, %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+; ###_V(A_ThisLabel, A_IsCompiled, " " . strRunAs, A_ScriptFullPath, g_strCurrentCommandLineParameters, A_AhkPath)
+
+; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered no to
+; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
+; On failure, the new instance exits and RunWait returns."
+
+; Putting "*RunAs" in a variable caused an error when making it empty to launch without admin right
+
+try
+{
+	if (A_IsCompiled)
+		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+			RunWait, *RunAs %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
+		else
+			RunWait, %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
+	else
+		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+			RunWait, *RunAs %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+		else
+			RunWait, %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+	ExitApp
+}
+
+; ##### TEST COMPILED
+###_V("Could not run as admin, run Normal", A_ThisLabel, A_IsCompiled, A_AhkPath, A_ScriptFullPath, g_strCurrentCommandLineParameters)
 
 return
 ;------------------------------------------------------------
