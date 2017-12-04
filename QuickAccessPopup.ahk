@@ -1897,6 +1897,9 @@ if (g_blnPortableMode)
 else ; setup mode
 	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
 
+g_intGuiDefaultWidth := 636
+g_intGuiDefaultHeight := 538
+
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
 
@@ -7007,7 +7010,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize636x558, %g_strGuiFullTitle%
+Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x558, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -7103,7 +7106,7 @@ StringSplit, arrSettingsPosition, strSettingsPosition, |
 ; Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
-	? "center w636 h538"
+	? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
 	: "x" . arrSettingsPosition1 . " y" . arrSettingsPosition2)
 sleep, 100
 if (arrSettingsPosition1 <> -1)
@@ -14855,7 +14858,8 @@ RestoreSettingsWindowPosition:
 ;------------------------------------------------------------
 
 WinRestore, ahk_id %g_strAppHwnd% ; unminimizes or unmaximizes the specified window if it is minimized or maximized
-WinMove, ahk_id %g_strAppHwnd%, , 100, 100, 636, 538 ; give save position and default size
+; WinMove, ahk_id %g_strAppHwnd%, , 100, 100, %g_intGuiDefaultWidth%, %g_intGuiDefaultHeight% ; give save position and default size
+Gui, 1:Show, center w%g_intGuiDefaultWidth% h%g_intGuiDefaultHeight%
 
 return
 ;------------------------------------------------------------
