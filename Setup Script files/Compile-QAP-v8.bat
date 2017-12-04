@@ -2,9 +2,9 @@ rem Check if version number is OK in source file
 >NUL find "%QAPVERSIONTEXT%" ..\QuickAccessPopup.ahk && (ECHO FOUND) || (ECHO %QAPVERSIONTEXT% = NOT FOUND IN QuickAccessPopup.ahk & PAUSE & EXIT)
 rem Check if Language files are available
 ECHO Checking language files...
-C:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
+E:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
 rem Set current directory
-C:
+E:
 CD \Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%QAPBETAPROD%\
 rem Create or update version variables
 SET QAPVERSIONPREV=%QAPVERSIONPREV%%QAPBETAPROD%
@@ -17,12 +17,12 @@ IF EXIST "QAP-v%QAPVERSIONFILE%.txt" ECHO MAIS QAP-v%QAPVERSIONFILE%.txt EXISTE 
 IF NOT EXIST "QAP-v%QAPVERSIONPREV%.txt" PAUSE
 rem Compile exe files
 ECHO Ahk2Exe-QAP-v8.ahk 32 %QAPBETAPROD%
-"C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 32 %QAPBETAPROD%
+"E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 32 %QAPBETAPROD%
 ECHO Ahk2Exe-QAP-v8.ahk 64 %QAPBETAPROD%
-"C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 64 %QAPBETAPROD%
+"E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 64 %QAPBETAPROD%
 rem Compile Setup file
 ECHO Inno Setup Compile-QAP-v8.iss
-"C:\Program Files (x86)\Inno Setup 5\compil32" /cc "C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-QAP-v8.iss"
+"C:\Program Files (x86)\Inno Setup 5\compil32" /cc "E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-QAP-v8.iss"
 IF %ERRORLEVEL% NEQ 0 ECHO UNE ERREUR EST SURVENUE...
 IF %ERRORLEVEL% NEQ 0 PAUSE
 IF %ERRORLEVEL% NEQ 0 EXIT
