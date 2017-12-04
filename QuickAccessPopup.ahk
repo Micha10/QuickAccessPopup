@@ -2605,7 +2605,7 @@ InitSpecialFolderObject("{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "MyComputerFol
 	; OK     OK      OK     OK    OK      OK
 InitSpecialFolderObject("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "ControlPanelFolder", 3, "", "controls", 2123
 	, "Control Panel (Icons view)", "" ; Tous les Panneaux de configuration
-	, "SCT", "SCT", "NEW", "NEW", "DOA", "CLS", "NEW")
+	, "SCT", "SCT", "NEW", "NEW", "NEW", "CLS", "NEW")
 	; OK     OK      OK     OK    OK  NO-use NEW
 InitSpecialFolderObject("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "Personal", 5, "A_MyDocuments", "mydocuments", ""
 	, "Documents", "" ; Mes documents
