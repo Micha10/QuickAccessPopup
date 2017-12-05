@@ -1849,7 +1849,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.11
+;@Ahk2Exe-SetVersion v8.6.9.11 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
