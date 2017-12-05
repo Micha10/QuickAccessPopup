@@ -57,7 +57,7 @@ Temporary folder
 Other improvements
 - support navigation (change folder) in PowerShell window as in the command-line console (CMD)
 - add an item to the QAP system menu (richt-click on QAP icon menu in Notification zone) labeled "Restore Settings window position" that move the "Settings" window to its default position and size, in case it would become invisible following changes by user in screens configuration
-- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", activate it only if it has the requested admnin (UAC) level (elevated or normal)
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", activate it only if it has the requested admnin (UAC) level (elevated or normal), if not, launch a new instance with the required admin level (if the application supports multiple instances)
 - allow resize of dialog box shown when selecting a destination menu for copied or moved multiple favorites, allowing to see longer destination menus and save window last position to ini file to restore it when using this dialog box again
 - add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
  
@@ -67,10 +67,15 @@ Bug fixes
 - default hotkeys for QAP features in "My QAP Essentials" were not correctly initializes when creating the settings file at first execution
 - bug in error message when a hotkey was not available in current keyboard layout
 - opening Special folder "Control panel" in Directory Opus was causing a blank tab to be added
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
  
 Language updates
 - update to Traditional Chinese (ZH-TW, back to v8.1), Italian, Portuguese, Brazilian Portuguese, German, Spanish, Dutch and French language files
 - English language revision (thanks to Richard for proofreading)
+
+Version BETA: 8.6.9.11 (2017-12-05)
+- fix bug when Restore Settings position if Settings was never displayed before;
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
 
 Version BETA: 8.6.9.10 (2017-12-01)
 - add an item t the QAP icon menu in Notification zone labeled "Restore Settings window position" that reposition the Settings window to the top left of main screen, in case it would become invisible following changes in screen configuration
@@ -1844,7 +1849,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7
+;@Ahk2Exe-SetVersion v8.6.9.11
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1926,8 +1931,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.6.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -4297,7 +4302,7 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
-Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, RestoreSettingsWindowPosition
+Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
@@ -9406,9 +9411,10 @@ return
 ;------------------------------------------------------------
 GuiShow:
 GuiShowFromAlternative:
-SettingsHotkey:
-GuiShowFromTray:
+GuiShowRestoreDefaultPosition:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
+GuiShowFromTray:
+SettingsHotkey:
 GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
@@ -9419,7 +9425,7 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set if from Alternative hotkey
+if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set in these cases
 	g_objMenuInGui := g_objMainMenu
 
 Gosub, BackupMenusObjects
@@ -9432,8 +9438,7 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-; Diag(A_ThisLabel, "")
-Gui, 1:Show
+Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
 
 GuiShowCleanup:
 blnSaveEnabled := ""
@@ -13441,6 +13446,9 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
+	WinGet, intMinMax, MinMax, ahk_id %strAppID%
+	if (intMinMax = -1) ; restore if window is minimized
+		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
 	gosub, OpenFavoriteCleanup
@@ -13558,6 +13566,7 @@ blnControlPressed := ""
 strCurrentAppWorkingDir := ""
 objContainingFavorite := ""
 strContainingFolder := ""
+intMinMax := ""
 
 return
 ;------------------------------------------------------------
@@ -14889,18 +14898,6 @@ else
 	Suspend, On
 
 Menu, Tray, % (A_IsSuspended ? "check" : "uncheck"), %lMenuSuspendHotkeys%
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RestoreSettingsWindowPosition:
-;------------------------------------------------------------
-
-WinRestore, ahk_id %g_strAppHwnd% ; unminimizes or unmaximizes the specified window if it is minimized or maximized
-; WinMove, ahk_id %g_strAppHwnd%, , 100, 100, %g_intGuiDefaultWidth%, %g_intGuiDefaultHeight% ; give save position and default size
-Gui, 1:Show, center w%g_intGuiDefaultWidth% h%g_intGuiDefaultHeight%
 
 return
 ;------------------------------------------------------------
