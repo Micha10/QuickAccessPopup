@@ -31,6 +31,47 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7 (2017-12-??)
+ 
+New QAP Features
+- new QAP feature "Repeat Last Actions" displaying a submenu with the last 10 items selected in the popup menu
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- when an item is selected from the "Repeat Last Actions" menu, it is moved to the top of the menu
+- new option in "Options", "Menu" tab, to select the number of items in "Repeat Last Actions" menu (default 10)
+- new QAP feature "Repeat Last Action" (singular) to repeat the last item selected in the popup menu (* users must add it themselves to their menu *)
+ 
+- new QAP Feature "Recent Files" displaying a submenu with recent files as remembered by Windows (* users must add it themselves to their menu *)
+- the "Recent Files" submenu contains the same number of items as the "Recent Folders" submenu
+- new option in "Options", "Menu" tab, to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a refresh delay that may vary at each menu popup) or detached as stand-alone menus refreshed on demand (as before this release)
+ 
+Russian keyboard support
+- various adjustments for systems where current input language (keyboard) is Russian (language code 0419)
+- if Russian keyboard is detected, replace Windows + W and Shift + Windows + W menu keyboard hotkeys with equivalent keys on Russian keyboard (ASCII Unicode 1094)
+- at first execution, do not assign default hotkeys to favorites if running on a system with Russian keyboard
+- change method of initialization of shortcuts in "Settings" window to avoid errors with Russian keyboard
+ 
+Temporary folder
+- add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
+- for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
+ 
+Other improvements
+- support navigation (change folder) in PowerShell window as in the command-line console (CMD)
+- add an item to the QAP system menu (richt-click on QAP icon menu in Notification zone) labeled "Restore Settings window position" that move the "Settings" window to its default position and size, in case it would become invisible following changes by user in screens configuration
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", activate it only if it has the requested admnin (UAC) level (elevated or normal)
+- allow resize of dialog box shown when selecting a destination menu for copied or moved multiple favorites, allowing to see longer destination menus and save window last position to ini file to restore it when using this dialog box again
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
+ 
+Bug fixes
+- changes in Manage Icons window were not saved if favorites were part of a shared menu
+- could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- default hotkeys for QAP features in "My QAP Essentials" were not correctly initializes when creating the settings file at first execution
+- bug in error message when a hotkey was not available in current keyboard layout
+- opening Special folder "Control panel" in Directory Opus was causing a blank tab to be added
+ 
+Language updates
+- update to Traditional Chinese (ZH-TW, back to v8.1), Italian, Portuguese, Brazilian Portuguese, German, Spanish, Dutch and French language files
+- English language revision (thanks to Richard for proofreading)
+
 Version BETA: 8.6.9.10 (2017-12-01)
 - add an item t the QAP icon menu in Notification zone labeled "Restore Settings window position" that reposition the Settings window to the top left of main screen, in case it would become invisible following changes in screen configuration
 - when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", it will be activated only if it has the requested admnin (UAC) level (elevated or normal)
@@ -1803,7 +1844,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.10 BETA
+;@Ahk2Exe-SetVersion v8.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1885,8 +1926,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
