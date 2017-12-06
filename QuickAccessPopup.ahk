@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.7 (2017-12-??)
+Version: 8.7 (2017-12-06)
  
 New QAP Features
 - new QAP feature "Repeat Last Actions" displaying a submenu with the last 10 items selected in the popup menu
@@ -40,8 +40,11 @@ New QAP Features
 - new option in "Options", "Menu" tab, to select the number of items in "Repeat Last Actions" menu (default 10)
 - new QAP feature "Repeat Last Action" (singular) to repeat the last item selected in the popup menu (* users must add it themselves to their menu *)
  
-- new QAP Feature "Recent Files" displaying a submenu with recent files as remembered by Windows (* users must add it themselves to their menu *)
+- new QAP Feature "Recent Files" displaying a submenu with recent files as remembered by Windows
+- adding a new submenu "Recent Files" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
 - the "Recent Files" submenu contains the same number of items as the "Recent Folders" submenu
+ 
 - new option in "Options", "Menu" tab, to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a refresh delay that may vary at each menu popup) or detached as stand-alone menus refreshed on demand (as before this release)
  
 Russian keyboard support
@@ -3899,6 +3902,7 @@ AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP") ; do not save QAP fea
 AddToIniOneDefaultMenu("{Current Folders}", "", "QAP") ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP") ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
 AddToIniOneDefaultMenu("{Clipboard}", "", "QAP") ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
