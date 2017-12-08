@@ -31,6 +31,55 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7 (2017-12-06)
+ 
+New QAP Features
+- new QAP feature "Repeat Last Actions" displaying a submenu with the last 10 items selected in the popup menu
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- when an item is selected from the "Repeat Last Actions" menu, it is moved to the top of the menu
+- new option in "Options", "Menu" tab, to select the number of items in "Repeat Last Actions" menu (default 10)
+- new QAP feature "Repeat Last Action" (singular) to repeat the last item selected in the popup menu (* users must add it themselves to their menu *)
+ 
+- new QAP Feature "Recent Files" displaying a submenu with recent files as remembered by Windows
+- adding a new submenu "Recent Files" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- the "Recent Files" submenu contains the same number of items as the "Recent Folders" submenu
+ 
+- new option in "Options", "Menu" tab, to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a refresh delay that may vary at each menu popup) or detached as stand-alone menus refreshed on demand (as before this release)
+ 
+Russian keyboard support
+- various adjustments for systems where current input language (keyboard) is Russian (language code 0419)
+- if Russian keyboard is detected, replace Windows + W and Shift + Windows + W menu keyboard hotkeys with equivalent keys on Russian keyboard (ASCII Unicode 1094)
+- at first execution, do not assign default hotkeys to favorites if running on a system with Russian keyboard
+- change method of initialization of shortcuts in "Settings" window to avoid errors with Russian keyboard
+ 
+Temporary folder
+- add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
+- for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
+ 
+Other improvements
+- support navigation (change folder) in PowerShell window as in the command-line console (CMD)
+- add an item to the QAP system menu (richt-click on QAP icon menu in Notification zone) labeled "Restore Settings window position" that move the "Settings" window to its default position and size, in case it would become invisible following changes by user in screens configuration
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", activate it only if it has the requested admnin (UAC) level (elevated or normal), if not, launch a new instance with the required admin level (if the application supports multiple instances)
+- allow resize of dialog box shown when selecting a destination menu for copied or moved multiple favorites, allowing to see longer destination menus and save window last position to ini file to restore it when using this dialog box again
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
+ 
+Bug fixes
+- changes in Manage Icons window were not saved if favorites were part of a shared menu
+- could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- default hotkeys for QAP features in "My QAP Essentials" were not correctly initializes when creating the settings file at first execution
+- bug in error message when a hotkey was not available in current keyboard layout
+- opening Special folder "Control panel" in Directory Opus was causing a blank tab to be added
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
+ 
+Language updates
+- update to Traditional Chinese (ZH-TW, back to v8.1), Italian, Portuguese, Brazilian Portuguese, German, Spanish, Dutch and French language files
+- English language revision (thanks to Richard for proofreading)
+
+Version BETA: 8.6.9.11 (2017-12-05)
+- fix bug when Restore Settings position if Settings was never displayed before;
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
+
 Version BETA: 8.6.9.10 (2017-12-01)
 - add an item t the QAP icon menu in Notification zone labeled "Restore Settings window position" that reposition the Settings window to the top left of main screen, in case it would become invisible following changes in screen configuration
 - when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", it will be activated only if it has the requested admnin (UAC) level (elevated or normal)
@@ -1803,7 +1852,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.9.11 BETA
+;@Ahk2Exe-SetVersion v8.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1885,8 +1934,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.6.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -1896,6 +1945,9 @@ if (g_blnPortableMode)
 	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
 	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
+
+g_intGuiDefaultWidth := 636
+g_intGuiDefaultHeight := 538
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
@@ -2744,7 +2796,7 @@ InitSpecialFolderObject("{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "MyComputerFol
 	; OK     OK      OK     OK    OK      OK
 InitSpecialFolderObject("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "ControlPanelFolder", 3, "", "controls", 2123
 	, "Control Panel (Icons view)", "" ; Tous les Panneaux de configuration
-	, "SCT", "SCT", "NEW", "NEW", "DOA", "CLS", "NEW")
+	, "SCT", "SCT", "NEW", "NEW", "NEW", "CLS", "NEW")
 	; OK     OK      OK     OK    OK  NO-use NEW
 InitSpecialFolderObject("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "Personal", 5, "A_MyDocuments", "mydocuments", ""
 	, "Documents", "" ; Mes documents
@@ -3861,6 +3913,7 @@ AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP") ; do not save QAP fea
 AddToIniOneDefaultMenu("{Current Folders}", "", "QAP") ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP") ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
 AddToIniOneDefaultMenu("{Clipboard}", "", "QAP") ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
@@ -4266,7 +4319,7 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
-Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, RestoreSettingsWindowPosition
+Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
@@ -7054,7 +7107,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize636x558, %g_strGuiFullTitle%
+Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x558, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -7150,7 +7203,7 @@ StringSplit, arrSettingsPosition, strSettingsPosition, |
 ; Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
-	? "center w636 h538"
+	? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
 	: "x" . arrSettingsPosition1 . " y" . arrSettingsPosition2)
 sleep, 100
 if (arrSettingsPosition1 <> -1)
@@ -9409,9 +9462,10 @@ return
 ;------------------------------------------------------------
 GuiShow:
 GuiShowFromAlternative:
-SettingsHotkey:
-GuiShowFromTray:
+GuiShowRestoreDefaultPosition:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
+GuiShowFromTray:
+SettingsHotkey:
 GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
@@ -9422,7 +9476,7 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set if from Alternative hotkey
+if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set in these cases
 	g_objMenuInGui := g_objMainMenu
 
 Gosub, BackupMenusObjects
@@ -9435,8 +9489,7 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-; Diag(A_ThisLabel, "")
-Gui, 1:Show
+Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
 
 GuiShowCleanup:
 blnSaveEnabled := ""
@@ -13444,6 +13497,9 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
+	WinGet, intMinMax, MinMax, ahk_id %strAppID%
+	if (intMinMax = -1) ; restore if window is minimized
+		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
 	gosub, OpenFavoriteCleanup
@@ -13561,6 +13617,7 @@ blnControlPressed := ""
 strCurrentAppWorkingDir := ""
 objContainingFavorite := ""
 strContainingFolder := ""
+intMinMax := ""
 
 return
 ;------------------------------------------------------------
@@ -14914,17 +14971,6 @@ else
 	Suspend, On
 
 Menu, Tray, % (A_IsSuspended ? "check" : "uncheck"), %lMenuSuspendHotkeys%
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RestoreSettingsWindowPosition:
-;------------------------------------------------------------
-
-WinRestore, ahk_id %g_strAppHwnd% ; unminimizes or unmaximizes the specified window if it is minimized or maximized
-WinMove, ahk_id %g_strAppHwnd%, , 100, 100, 636, 538 ; give save position and default size
 
 return
 ;------------------------------------------------------------
