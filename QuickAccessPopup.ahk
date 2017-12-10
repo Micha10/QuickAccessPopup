@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7.1.9 (2017-12-??)
+- REWRITE
+- using v8.6.9.11 for compiled tests; reload app is admin right required and is not admin; read ini variable RunAsAdmin, default false; rewrite ReloadQAP using Try and RunWait to support ReloadAsAdmin; display message is user refuse elevation
+- Windows UAC logo used in Options for Run As Administrator option
+- new JLicons.dll v1.4 including UAC logo icon and QAP icon with UAC logo
+- display security alert when loading QAP in admin mode; add UAC logo icon used for Run As Administrator QAP feature; change tray icon for version embedding UAC logo when QAP is running as admin; add checkbox to Options, first tab, for Run As Admin; display security alert when selecting this Run As Admin option; save RunAsAdmin option to ini file; if saving options with RunAsAdmin true, offer to reload QAP; if saving options with RunAsAdmin false, offer to exit app (not reload because reloaded instance would inherit admin privileges);
+- add [admin] tag to app name when running in admin mode
+- Run As Admin alert proofreading
+
 Version: 8.7 (2017-12-06)
  
 New QAP Features
@@ -1852,7 +1861,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7
+;@Ahk2Exe-SetVersion v8.7.1.9 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1934,8 +1943,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.7.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
