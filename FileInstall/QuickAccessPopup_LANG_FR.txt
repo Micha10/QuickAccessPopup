@@ -35,7 +35,7 @@ lDiagModeSee	Voulez-vous consulter le fichier de diagnostique?
 lDialogActivateAlreadyRunning	Si l'application est déjà lancée, l'activer au lieu de la relancer`n(l'application doit avoir exactement le même emplacement)
 lDialogAdd	Ajouter
 lDialogAddAmpersand	&Ajouter
-lDialogAddEditFavoriteTitle	~1~ un favori - ~2~ ~3~
+lDialogAddEditFavoriteTitle	~1~ un favori: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~ ~2~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
 lDialogAddFavoriteTabsExternal	Menu partagé
@@ -91,7 +91,6 @@ lDialogExternalMenuName	Nom du menu partagé
 lDialogExternalMenuOpen	Ouvrir le fichier du menu partagé?
 lDialogExternalMenusAdded	~1~ menu(s) partagé(s) ajoutés.
 lDialogExternalMenuSelectFromCatalogue	Sélectionnez un ou plusieurs menus partagés à ajouter à votre menu et cliquez ~1~
-lDialogExternalSelectFromCatalogue	Choisissez le Menu partagé à ajouter à votre menu
 lDialogExternalStartingNumber	Numéro du premier favori:
 lDialogExternalTip	Faites double-clic sur une ligne pour voir l'information sur le menu partagé
 lDialogExternalTypes	Personnel (menu partagé sur différents ordinateurs pour le même utilisateur)|Collaboratif (menu sur un disque partagé pour une équipe ou un groupe de travail)|Centralisé (menu sur un disque partagé géré par un administrateur de menu)
