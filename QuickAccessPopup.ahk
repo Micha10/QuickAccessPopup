@@ -15985,6 +15985,7 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 			return
 	}
 	
+	; ###_V(A_ThisFunc, """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam)
 	if FileExist(g_strDirectoryOpusRtPath) ; for safety only
 		Run, % """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
 }
