@@ -2061,7 +2061,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin)
+if (A_IsAdmin and !g_blnRunAsAdminSilent)
 	Oops(lOptionsRunAsAdminAlert)
 
 Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
@@ -2335,13 +2335,20 @@ return
 
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
+; each param must begin with "/"
 ;-----------------------------------------------------------
+
+g_strCurrentCommandLineParameters := ""
+g_strParamSettings := ""
+g_blnRunAsAdminSilent := false
 
 Loop, %0% ; loop each parameter
 {
     strThisParam := %A_Index% ; %1%, %2%, etc. are each command-line parameters
 	if SubStr(strThisParam, 1, 10) = "/Settings:"
 		StringReplace, g_strParamSettings, strThisParam, % "/Settings:"
+	if InStr(strThisParam, "/Admin:Silent")
+		g_blnRunAsAdminSilent := true
 
 	g_strCurrentCommandLineParameters .= strThisParam . " "
 }
@@ -14909,8 +14916,29 @@ ReloadAsAdmin:
 SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
-	g_strCurrentCommandLineParameters := "/Settings:" . g_strSwitchSettingsFile
-; else keep params recevied from command-line, if any (review this when parameters other than "/Settings:" is used in the future)
+{
+	if InStr(g_strCurrentCommandLineParameters, "/Settings:")
+	; remove ini param that will be replaced after the if
+	{
+		/* #####
+		g_strCurrentCommandLineParameters := "/123 /SETtings:abc.ini /456 "
+		intStart := InStr(g_strCurrentCommandLineParameters, "/Settings:")
+		if (intStart)
+		{
+			strBegin := SubStr(g_strCurrentCommandLineParameters, 1, intStart - 1)
+			strEnd := SubStr(g_strCurrentCommandLineParameters, intStart)
+			intEnd := InStr(strEnd, "/", false, 2) ; locate next param - all params must start with "/"
+			strEnd := SubStr(strEnd, intEnd)
+			g_strCurrentCommandLineParameters := strBegin . strEnd
+		}
+		###_V("", "*g_strCurrentCommandLineParameters", "!" . g_strCurrentCommandLineParameters . "!", "*intStart", intStart, "*strBegin", "!" . strBegin . "!", "*strTemp", strTemp, "*intEnd", intEnd, "*strEnd", "!" . strEnd . "!")
+		*/
+	}
+	
+	g_strCurrentCommandLineParameters .= " /Settings:" . g_strSwitchSettingsFile
+}
+
+; keep other params recevied from command-line in g_strCurrentCommandLineParameters
 
 ; ###_V(A_ThisLabel, A_IsCompiled, " " . strRunAs, A_ScriptFullPath, g_strCurrentCommandLineParameters, A_AhkPath)
 
