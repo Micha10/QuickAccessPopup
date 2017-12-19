@@ -31,12 +31,17 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.7.1.9 (2017-12-??)
-- REWRITE
-- using v8.6.9.11 for compiled tests; reload app is admin right required and is not admin; read ini variable RunAsAdmin, default false; rewrite ReloadQAP using Try and RunWait to support ReloadAsAdmin; display message is user refuse elevation
+Version: 8.7.0.9.1 (2017-12-??)
+- reload app is admin right required and is not admin; read ini variable RunAsAdmin, default false; rewrite ReloadQAP using Try and RunWait to support ReloadAsAdmin; display message is user refuse elevation
 - Windows UAC logo used in Options for Run As Administrator option
 - new JLicons.dll v1.4 including UAC logo icon and QAP icon with UAC logo
-- display security alert when loading QAP in admin mode; add UAC logo icon used for Run As Administrator QAP feature; change tray icon for version embedding UAC logo when QAP is running as admin; add checkbox to Options, first tab, for Run As Admin; display security alert when selecting this Run As Admin option; save RunAsAdmin option to ini file; if saving options with RunAsAdmin true, offer to reload QAP; if saving options with RunAsAdmin false, offer to exit app (not reload because reloaded instance would inherit admin privileges);
+- display security alert when loading QAP in admin mode
+- add UAC logo icon used for Run As Administrator QAP feature
+- change tray icon for version embedding UAC logo when QAP is running as admin
+- add checkbox to Options, first tab, for Run As Admin, display security alert when selecting this Run As Admin option
+- save RunAsAdmin option to ini file
+- after saving options with RunAsAdmin on, offer to reload QAP in Admin mode
+- after saving options with RunAsAdmin ofdf, offer to exit app (but QAP could not reload itself because the reloaded instance would inherit admin privileges)
 - add [admin] tag to app name when running in admin mode
 - Run As Admin alert proofreading
 
@@ -1861,7 +1866,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.1.9 BETA
+;@Ahk2Exe-SetVersion v8.7.0.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1885,7 +1890,7 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
-Gosub, CollectCommandLineParameters
+Gosub, CollectCommandLineParameters ; updates g_objCommandLineParams["/Settings:"] and g_objCommandLineParams["/AdminSilent"]
 
 Gosub, SetQAPWorkingDirectory
 
@@ -1943,7 +1948,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.7.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.0.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2041,8 +2046,8 @@ if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is cre
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
-if StrLen(g_strParamSettings)
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_strParamSettings))
+if StrLen(g_objCommandLineParams["/Settings:"])
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_objCommandLineParams["/Settings:"]))
 
 ;---------------------------------
 ; Init routines
@@ -2061,7 +2066,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin and !g_blnRunAsAdminSilent)
+if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent"))
 	Oops(lOptionsRunAsAdminAlert)
 
 Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
@@ -2335,25 +2340,30 @@ return
 
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
-; each param must begin with "/"
+; each param must begin with "/" and be separated by a space
 ;-----------------------------------------------------------
 
-g_strCurrentCommandLineParameters := ""
-g_strParamSettings := ""
-g_blnRunAsAdminSilent := false
+g_objCommandLineParams := Object()
 
-Loop, %0% ; loop each parameter
+Loop, %0% ; for each parameter
 {
-    strThisParam := %A_Index% ; %1%, %2%, etc. are each command-line parameters
-	if SubStr(strThisParam, 1, 10) = "/Settings:"
-		StringReplace, g_strParamSettings, strThisParam, % "/Settings:"
-	if InStr(strThisParam, "/Admin:Silent")
-		g_blnRunAsAdminSilent := true
-
-	g_strCurrentCommandLineParameters .= strThisParam . " "
+    strParam := %A_Index% ; fetch the contents of the variable whose name is contained in A_Index
+	if !StrLen(strParam)
+		continue
+	intColon := InStr(strParam, ":")
+	if (intColon)
+	{
+		strParamKey := SubStr(strParam, 1, intColon) ; including the starting slash and ending colon
+		strParamValue := SubStr(strParam, intColon + 1)
+		g_objCommandLineParams[strParamKey] := strParamValue
+	}
+	else
+		g_objCommandLineParams[strParam] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strParam)
 }
 
-strThisParam := ""
+strParam := ""
+strParamKey := ""
+strParamValue := ""
 
 return
 ;-----------------------------------------------------------
@@ -6825,7 +6835,7 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
-		strValue := (g_blnRunAsAdmin ? "Administrator" : "Not Administrator") ; ##### language
+		strValue := (g_blnRunAsAdmin ? lDialogAdmnistrator : lDialogAdmnistratorNot)
 	}
 
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
@@ -14908,41 +14918,22 @@ ReloadAsAdmin:
 ;------------------------------------------------------------
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
-; To pass such parameters, do not use Reload. Instead, use Run in conjunction with A_AhkPath and A_ScriptFullPath
-; (and A_IsCompiled if the script is ever used in compiled form). Also, include the string /restart as the first parameter
-; (i.e. after the name of the executable), which tells the program to use the same behavior as Reload.
+; Also, include the string /restart as the first parameter (i.e. after the name of the executable), which tells the program to
+; use the same behavior as Reload.
 
 ; make sure the default system mouse pointer are reset before reloading QAP
 SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
-{
-	if InStr(g_strCurrentCommandLineParameters, "/Settings:")
-	; remove ini param that will be replaced after the if
-	{
-		/* #####
-		g_strCurrentCommandLineParameters := "/123 /SETtings:abc.ini /456 "
-		intStart := InStr(g_strCurrentCommandLineParameters, "/Settings:")
-		if (intStart)
-		{
-			strBegin := SubStr(g_strCurrentCommandLineParameters, 1, intStart - 1)
-			strEnd := SubStr(g_strCurrentCommandLineParameters, intStart)
-			intEnd := InStr(strEnd, "/", false, 2) ; locate next param - all params must start with "/"
-			strEnd := SubStr(strEnd, intEnd)
-			g_strCurrentCommandLineParameters := strBegin . strEnd
-		}
-		###_V("", "*g_strCurrentCommandLineParameters", "!" . g_strCurrentCommandLineParameters . "!", "*intStart", intStart, "*strBegin", "!" . strBegin . "!", "*strTemp", strTemp, "*intEnd", intEnd, "*strEnd", "!" . strEnd . "!")
-		*/
-	}
+	; update Settings param
+	g_objCommandLineParams["/Settings:"] := g_strSwitchSettingsFile
+
+; keep other params received from command-line as collected in g_objCommandLineParams
+strCurrentCommandLineParameters := ""
+for strParam, strValue in g_objCommandLineParams
+	strCurrentCommandLineParameters .= """" . strParam . strValue . """ " ; enclose all params with double-quotes
 	
-	g_strCurrentCommandLineParameters .= " /Settings:" . g_strSwitchSettingsFile
-}
-
-; keep other params recevied from command-line in g_strCurrentCommandLineParameters
-
-; ###_V(A_ThisLabel, A_IsCompiled, " " . strRunAs, A_ScriptFullPath, g_strCurrentCommandLineParameters, A_AhkPath)
-
-; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered no to
+; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered "No" to
 ; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
 ; On failure, the new instance exits and RunWait returns."
 
@@ -14952,19 +14943,20 @@ try
 {
 	if (A_IsCompiled)
 		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
-			RunWait, *RunAs %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
+			RunWait, *RunAs %A_ScriptFullPath% /restart %strCurrentCommandLineParameters%
 		else
-			RunWait, %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
+			RunWait, %A_ScriptFullPath% /restart %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
 	else
 		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
-			RunWait, *RunAs %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+			RunWait, *RunAs %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters%
 		else
-			RunWait, %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+			RunWait, %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
 	ExitApp
 }
 
-; ##### TEST COMPILED
-###_V("Could not run as admin, run Normal", A_ThisLabel, A_IsCompiled, A_AhkPath, A_ScriptFullPath, g_strCurrentCommandLineParameters)
+Oops(lOopsNotAdmin, g_strAppNameText)
+
+strCurrentCommandLineParameters := ""
 
 return
 ;------------------------------------------------------------
