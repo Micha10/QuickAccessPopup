@@ -32,18 +32,18 @@ HISTORY
 =======
 
 Version: 8.7.0.9.1 (2017-12-??)
-- reload app is admin right required and is not admin; read ini variable RunAsAdmin, default false; rewrite ReloadQAP using Try and RunWait to support ReloadAsAdmin; display message is user refuse elevation
-- Windows UAC logo used in Options for Run As Administrator option
-- new JLicons.dll v1.4 including UAC logo icon and QAP icon with UAC logo
-- display security alert when loading QAP in admin mode
-- add UAC logo icon used for Run As Administrator QAP feature
-- change tray icon for version embedding UAC logo when QAP is running as admin
-- add checkbox to Options, first tab, for Run As Admin, display security alert when selecting this Run As Admin option
-- save RunAsAdmin option to ini file
-- after saving options with RunAsAdmin on, offer to reload QAP in Admin mode
-- after saving options with RunAsAdmin ofdf, offer to exit app (but QAP could not reload itself because the reloaded instance would inherit admin privileges)
-- add [admin] tag to app name when running in admin mode
-- Run As Admin alert proofreading
+- add the "Run as administrator" checkbox option to Options, first tab, to launch QAP as an admnistrator (ie: with elevated UAC privileges)
+- display Windows UAC logo in Options dialog box for the "Run as administrator" option
+- save this option to variable RunAsAdmin in settings ini file (default false)
+- display a security alert when selecting the "Run as administrator" option
+- after saving options with "Run as administrator" on, offer to reload QAP in Admin mode
+- after saving options with "Run as administrator" OFF, offer to exit app (but QAP could not reload itself in normal mode because the reloaded instance would inherit admin privileges)
+- display a security alert when launching QAP as Admin and support the command-line option "/AdminSilent" for power users wanting to skip this alert 
+- change the QAP tray icon for version embedding the UAC logo when QAP is running as administrator
+- display an alert message if refused to elevation (ie: did not enter the admin password when requested) and running as normal user
+- distribute a new JLicons.dll icons file v1.4 including UAC logo icon and QAP icon with UAC logo
+- use the UAC logo as default icon for the Alternative menu "Run as administrator"
+- add the "[admin]" tag to QAP application name when running as administrator
 
 Version: 8.7 (2017-12-06)
  
