@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.7.0.9.1 (2017-12-??)
+Version: 8.7.0.9.1 (2017-12-20)
 - add the "Run as administrator" checkbox option to Options, first tab, to launch QAP as an admnistrator (ie: with elevated UAC privileges)
 - display Windows UAC logo in Options dialog box for the "Run as administrator" option
 - save this option to variable RunAsAdmin in settings ini file (default false)
