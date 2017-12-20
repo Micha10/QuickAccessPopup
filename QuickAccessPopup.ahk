@@ -4680,10 +4680,12 @@ return
 ;------------------------------------------------------------
 RefreshRecentFoldersMenu:
 RefreshRecentFilesMenu:
+RefreshRecentFoldersAndFilesMenus:
 ;------------------------------------------------------------
 
 if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and A_ThisLabel = "RefreshRecentFoldersMenu")
 	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFilesMenu")
+	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFoldersAndFilesMenus")
 	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
@@ -4735,7 +4737,7 @@ Loop, parse, strItemsList, `n
 	if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
 		continue
 	
-	if (A_ThisLabel = "RefreshRecentFoldersMenu")
+	if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 		and (intRecentFoldersCount < g_intRecentFoldersMax)
 		and !LocationIsDocument(strTargetPath) ; add to recent folders
 	{
@@ -4745,7 +4747,7 @@ Loop, parse, strItemsList, `n
 		intRecentFoldersCount++
 	}
 
-	if (A_ThisLabel = "RefreshRecentFilesMenu")
+	if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
 		and LocationIsDocument(strTargetPath) ; add to recent files
 	{
@@ -4759,16 +4761,31 @@ Loop, parse, strItemsList, `n
 		break
 }
 
-Menu, % (A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles), Add
-Menu, % (A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles), DeleteAll
-strParseList := (A_ThisLabel = "RefreshRecentFoldersMenu" ? strRecentFoldersMenuItemsList : strRecentFilesMenuItemsList)
-Loop, Parse, strParseList, `n
-	if StrLen(A_LoopField)
-	{
-		StringSplit, arrMenuItemsList, A_LoopField, |
-		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
-	}
-AddCloseMenu((A_ThisLabel = "RefreshRecentFoldersMenu" ? lMenuRecentFolders : lMenuRecentFiles))
+if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+{
+	Menu, %lMenuRecentFolders%, Add
+	Menu, %lMenuRecentFolders%, DeleteAll
+	Loop, Parse, strRecentFoldersMenuItemsList, `n
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrMenuItemsList, A_LoopField, |
+			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+	AddCloseMenu(lMenuRecentFolders)
+}
+
+if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+{
+	Menu, %lMenuRecentFiles%, Add
+	Menu, %lMenuRecentFiles%, DeleteAll
+	Loop, Parse, strRecentFilesMenuItemsList, `n
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrMenuItemsList, A_LoopField, |
+			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+	AddCloseMenu(lMenuRecentFiles)
+}
 
 SetWaitCursor(false)
 
@@ -4783,7 +4800,6 @@ strShortcutFullPath := ""
 strTargetPath := ""
 strMenuName := ""
 strIcon := ""
-strParseList := ""
 
 g_intRecentItemsMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
 ; TrayTip, RecentFolders menu refresh, % g_intRecentFoldersMenuTickCount . " ms"
@@ -6878,8 +6894,7 @@ Gosub, RefreshLastActionsMenu
 if (g_blnRefreshedMenusAttached)
 {
 	Gosub, RefreshDrivesMenu
-	Gosub, RefreshRecentFoldersMenu
-	Gosub, RefreshRecentFilesMenu
+	Gosub, RefreshRecentFoldersAndFilesMenus
 }
 
 /*
@@ -12600,8 +12615,7 @@ if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
-	Gosub, RefreshRecentFoldersMenu
-	Gosub, RefreshRecentFilesMenu
+	gosub, RefreshRecentFoldersAndFilesMenus
 }
 
 /*
