@@ -2113,7 +2113,7 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 {
 	; if the startup shortcut exists, update it at each execution in case the exe filename changed
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
 	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
 }
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
@@ -3413,7 +3413,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	g_strIniBefore := "NEW"
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
 	if !(g_blnPortableMode)
-		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+		Gosub, CreateStartupShortcut
 
 	g_blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
@@ -6643,7 +6643,7 @@ if (g_intClickedFileManager > 1 and !blnActiveFileManangerOK)
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 if (f_blnOptionsRunAtStartup)
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 g_blnAddAutoAtTop := f_blnAddAutoAtTop
@@ -14959,10 +14959,8 @@ if (A_ThisLabel = "ReloadQAPSwitch")
 	g_objCommandLineParams["/Settings:"] := g_strSwitchSettingsFile
 
 ; keep other params received from command-line as collected in g_objCommandLineParams
-strCurrentCommandLineParameters := ""
-for strParam, strValue in g_objCommandLineParams
-	strCurrentCommandLineParameters .= """" . strParam . strValue . """ " ; enclose all params with double-quotes
-	
+strCurrentCommandLineParameters := ConcatenateParamsString(g_objCommandLineParams)
+
 ; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered "No" to
 ; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
 ; On failure, the new instance exits and RunWait returns."
@@ -15014,7 +15012,18 @@ Menu, Tray, Togglecheck, %lMenuRunAtStartupAmpersand%
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 else
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CreateStartupShortcut:
+;------------------------------------------------------------
+
+FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	, % ConcatenateParamsString(g_objCommandLineParams) ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
 
 return
 ;------------------------------------------------------------
@@ -18080,6 +18089,22 @@ RandomBetween(intMin := 0, intMax := 2147483647)
 	Random, intValue, %intMin%, %intMax%
 	
 	return intValue
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ConcatenateParamsString(objParams)
+;------------------------------------------------------------
+{
+	strConcat := ""
+	for strParam, strValue in objParams
+	{
+		strQuotes := (InStr(strParam . strValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
+		strConcat .= strQuotes . strParam . strValue . strQuotes . " " ; separate params with space
+	}
+	StringTrimRight, strConcat, strConcat, 1 ; remove last space
+	return strConcat
 }
 ;------------------------------------------------------------
 
