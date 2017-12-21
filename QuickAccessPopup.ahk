@@ -7951,7 +7951,7 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %g_strFavoriteDialogTitle%!
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -8408,11 +8408,14 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		if (g_objEditedFavorite.FavoriteType <> "Snippet")
 			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
 		
-		Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, %lDialogBrowseOrSelectApplication%
-		Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
-			, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
-		Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
-		GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+        if (g_objEditedFavorite.FavoriteType = "Application")
+		{
+			Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, %lDialogBrowseOrSelectApplication%
+			Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
+				, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
+			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
+			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+		}
 		
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
 			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
