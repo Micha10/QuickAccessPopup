@@ -1936,7 +1936,8 @@ else if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
 if !StrLen(g_strQAPTempFolderParent)
 	g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
 
-g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp"
+; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
+g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
