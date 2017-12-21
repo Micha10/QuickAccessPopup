@@ -5698,10 +5698,21 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 				g_intNbLiveFolderItems++
 				if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 					Break
-				strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
+				; favorite type Document is OK for Application items
+				strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				
+				; get links or shortcuts icons
+				if (A_LoopFileExt = "url")
+					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+				else if (A_LoopFileExt = "lnk")
+				{
+					FileGetShortcut, %A_LoopFileLongPath%, strShortcutLocation
+					strFiles .= GetIcon4Location(strShortcutLocation)
+				}
+				; else icon resource will be set when building menu
+				
+				strFiles .= "`n"
 			}
-			; icon resource will be set when building menu
-			; favorite type Document is OK for Application items
 
 	if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 	{
@@ -5718,7 +5729,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		if !StrLen(A_LoopField)
 			break
 		
-		; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders only)
+		; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk)
 		StringSplit, arrItem, A_LoopField, `t
 		
 		if (objLiveFolder.FavoriteFolderLiveColumns and !Mod(A_Index + 1, objLiveFolder.FavoriteFolderLiveColumns)) ; insert column break
