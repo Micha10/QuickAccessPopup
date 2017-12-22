@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7.0.9.2 (2017-12-22)
+- fix icons for items with extension .url (link) or .lnk (shortcuts) in Live Folders
+- add a random number to temp folder name to make sure we have distinct folders in case multiple QAP instances are launched
+- optimize refresh Recent folders and Recent files menus when user enabled the attached options enabled (this has no impact on detached menus)
+- augment height of "Add/Edit favorite" dialog box to show the {cur_loc} tip for all types of favorites
+- fix bug in French version to remember the "Add/Edit favorite" dialog box width
+- German language typo fix
+
 Version: 8.7.0.9.1 (2017-12-20)
 - add the "Run as administrator" checkbox option to Options, first tab, to launch QAP as an admnistrator (ie: with elevated UAC privileges)
 - display Windows UAC logo in Options dialog box for the "Run as administrator" option
@@ -1866,7 +1874,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.0.9.1 BETA
+;@Ahk2Exe-SetVersion v8.7.0.9.2 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1949,7 +1957,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.7.0.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.0.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8041,7 +8049,7 @@ IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPos
 if StrLen(strDialogPosition)
 {
 	StringSplit, arrDialogPosition, strDialogPosition, |
-	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in version 8.7.0.9 by restoring saved height of previous version
+	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in version 8.7.0.9.2 by restoring saved height of previous version
 		arrDialogPosition4 := 544
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
