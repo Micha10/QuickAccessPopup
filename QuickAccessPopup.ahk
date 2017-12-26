@@ -40,6 +40,8 @@ Version: 8.7.0.9.2 (2017-12-22)
 - optimize refresh Recent folders and Recent files menus when user enabled the attached options enabled (this has no impact on detached menus)
 - augment height of "Add/Edit favorite" dialog box to show the {cur_loc} tip for all types of favorites
 - fix bug in French version to remember the "Add/Edit favorite" dialog box width
+- refactor code to convert command-line params from object to string and code to create a startup shortcut
+- QAP startup shortcut now includes the changed "/Settings:" parameter if user switched settings file
 - German language typo fix
 
 Version: 8.7.0.9.1 (2017-12-20)
