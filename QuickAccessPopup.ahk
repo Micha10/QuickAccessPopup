@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7.0.9.3 (2017-12-23)
+- show running as admin alert only if QAP is running as admin because of the "Run as administrator" option
+
 Version: 8.7.0.9.2 (2017-12-22)
 - fix icons for items with extension .url (link) or .lnk (shortcuts) in Live Folders
 - add a random number to temp folder name to make sure we have distinct folders in case multiple QAP instances are launched
@@ -1874,7 +1877,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.0.9.2 BETA
+;@Ahk2Exe-SetVersion v8.7.0.9.3 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1957,7 +1960,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.7.0.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.0.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2075,7 +2078,8 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent"))
+if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
+	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option
 	Oops(lOptionsRunAsAdminAlert)
 
 Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
@@ -8049,7 +8053,7 @@ IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPos
 if StrLen(strDialogPosition)
 {
 	StringSplit, arrDialogPosition, strDialogPosition, |
-	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in version 8.7.0.9.2 by restoring saved height of previous version
+	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in v8.7.0.9.2 by restoring saved height of previous version
 		arrDialogPosition4 := 544
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
