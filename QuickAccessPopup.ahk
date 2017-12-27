@@ -4160,6 +4160,7 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 strCode := ""
 objThisQAPFeature := ""
 strHotkey := ""
+intOrder := ""
 
 return
 ;------------------------------------------------------------
@@ -5854,6 +5855,9 @@ for intIndex, objMenuColumnBreak in g_objMenuColumnBreaks
 	DllCall("SetMenuItemInfo", "ptr", pMenuHandle, "uint", objMenuColumnBreak.MenuPosition, "int", 1, "ptr", &mii)
 }
 
+intIndex := ""
+objMenuColumnBreak := ""
+
 return
 ;------------------------------------------------------------
 
@@ -6210,6 +6214,9 @@ Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
 Gosub, ShowGui2AndDisableGui1
+
+intOrder := ""
+strAlternativeCode := ""
 
 return
 ;------------------------------------------------------------
@@ -6946,6 +6953,10 @@ strExclusionCleanup := ""
 strTempLocation := ""
 strOptionNoAmpersand := ""
 strValue := ""
+strThisAlternativeCode := ""
+strNewHotkey := ""
+strMenuName := ""
+arrMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -8207,7 +8218,7 @@ else ; add favorite
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
-		; Boolean,MinMax,Left,Top,Width,Height,Delay (comma delimited)
+		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height; for example: "1,0,100,50,640,480,200"
 		; record position but keep "use default position"
 		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
@@ -8499,7 +8510,7 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	and (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
-	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
 	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (g_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
@@ -8631,7 +8642,7 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
 	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
@@ -10579,7 +10590,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strExternalMenuPath := ""
 	intMenuExternalType := ""
 	strLastModified := ""
-
+	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
 }
@@ -11132,6 +11143,8 @@ LV_ModifyCol(7, 0)
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
 intHotkeysManageListWinID := ""
+strQAPFeatureCode := ""
+g_objQAPFeaturesDefaultNameByCode := ""
 
 return
 ;------------------------------------------------------------
@@ -11605,6 +11618,8 @@ else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	
 g_intIniLine := ""
 strSavedMenuInGui := ""
+strThisNameLocation := ""
+strThisHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -12521,6 +12536,7 @@ strThisHotkey := ""
 intInStr := ""
 strParentPath := ""
 objParentMenu := ""
+strThisNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -14140,6 +14156,7 @@ loop, parse, strLastActionsOrdered, `n
 
 strLastActionLabel := ""
 strLastActionsOrdered := ""
+objLastAction := ""
 
 return
 ;------------------------------------------------------------
@@ -14730,11 +14747,10 @@ return
 OpenFavoriteInNewWindowDirectoryOpus:
 ;------------------------------------------------------------
 
+if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " NEWTAB") ; open in a new tab of pane 1
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
-
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 {
 	if (g_blnFirstItemOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
 		strTabParameter := "NEW=nodual"
@@ -14752,17 +14768,33 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 else
 {
 	strTabParameter := g_strDirectoryOpusNewTabOrWindow
-	arrFavoriteWindowPosition8 := ""
+	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
+Gosub, RefreshDOpusListText
+objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
+; Lines will have active_lister="1" if they represent tabs from the active lister.
+for intIndex, objLister in objDOpusListers
+	if (objLister.active_lister = "1") ; this is the active lister
+	{
+		; In v1.1+, the last value(s) are available outside the loop. In v2.0-a, the value(s) are local within the loop.
+		; (https://autohotkey.com/boards/viewtopic.php?t=12369)
+		strActiveLister := "ahk_id " . objLister.Lister ; to be compatible with future AHK v2.0, copy value to a variable
+		break
+	}
+
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
-WinWait, ahk_class dopus.lister, , 10
-WinActivate, ahk_class dopus.lister
-g_strNewWindowId := "ahk_class dopus.lister"
+WinWait, %strActiveLister%, , 10
+WinActivate, %strActiveLister%
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
 arrFavoriteWindowPosition := ""
+objDOpusListers := ""
+intIndex := ""
+objLister := ""
+strActiveLister := ""
 
 return
 ;------------------------------------------------------------
@@ -16131,7 +16163,7 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 	if (strCommand = "/info")
 	{
 		Process, Exist, dopus.exe
-		; abord if DOpus.exe is not running
+		; abort if DOpus.exe is not running
 		if !(ErrorLevel)
 			return
 	}
