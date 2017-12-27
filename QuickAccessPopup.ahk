@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7.0.9.4 (2017-12-27)
+- fix bug when DOpus has multiple listers, wrong lister being sometimes activated after open in new window
+- add the "[admin]" tag to QAP application name only if QAP is running as admin because of the "Run as administrator" option
+- change the QAP tray icon for version embedding the UAC logo only if QAP is running as admin because of the "Run as administrator" option
+
 Version: 8.7.0.9.3 (2017-12-23)
 - show running as admin alert only if QAP is running as admin because of the "Run as administrator" option
 
@@ -1879,7 +1884,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.0.9.3 BETA
+;@Ahk2Exe-SetVersion v8.7.0.9.4 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1961,8 +1966,8 @@ Gosub, InitLanguageVariables
 
 ; --- Global variables
 
-g_strAppNameText := "Quick Access Popup" . (A_IsAdmin ? " [" . lOptionsRunAsAdminShort . "]" : "")
-g_strCurrentVersion := "8.7.0.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strAppNameText := "Quick Access Popup"
+g_strCurrentVersion := "8.7.0.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2081,8 +2086,10 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
 if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
-	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option
+	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
 	Oops(lOptionsRunAsAdminAlert)
+if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
+	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
 
 Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
@@ -4335,7 +4342,7 @@ BuildTrayMenu:
 
 Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, NoStandard
-if (A_IsAdmin)
+if (A_IsAdmin and g_blnRunAsAdmin)
 	Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
