@@ -31,15 +31,42 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 8.7.0.9.4 (2017-12-27)
+Version: 8.7.1 (2017-12-29)
+ 
+Run as administrator
+- new checkbox "Run as administrator" in Options, first tab, to launch QAP as an admnistrator (ie: with elevated privileges)
+- display a security alert when selecting the "Run as administrator" option and when launching QAP as administrator
+- when running as administrator, embed the Windows UAC (User Access Control) logo in QAP icon in the Notification zone
+- add the "[admin]" tag to QAP application name when running as administrator
+- administrator security alert, "[admin]" tag and QAP tray icon with UAC logo are displayed only if QAP is running as admin because of the "Run as administrator" option (ie: not if user launched QAP as administrator by other means)
+- launch QAP with normal privileges if user decline elevation (ie: do not enter the admin password when requested)
+- more info here: http://www.quickaccesspopup.com/can-i-launch-qap-with-administrator-privileges/
+ 
+Various
+- Italian, Portuguese, Brazilian Portuguese and French language update
+- the QAP startup shortcut (created when user select the "Run at startup" option) now includes the "/Settings:" parameter if user switched settings file (QAP will reload with the changed settings file)
+- add a random number to QAP temporary folder name to make sure we have distinct folders in case multiple QAP instances are launched
+- use the Windows UAC (User Access Control) logo as default icon for the Alternative menu "Run as administrator"
+- new JLicons.dll icons file v1.4 including Windows UAC logo icon and QAP icon with UAC logo
+* User installing QAP in PORTABLE mode, make sure you update your JLicons.dll file
+ 
+Bug fixes
+- in Live Folders, fix icons for items with extension .url (links) or .lnk (shortcuts)
+- fix bug when Directory Opus had multiple listers and wrong lister was sometimes activated after opening a folder in new tab
+- fix bug in French version to remember the "Add/Edit favorite" dialog box width
+
+Version BETA: 8.7.0.9.5 (2017-12-27)
+- small change to fix in v8.7.0.9.4, using internal DOpus command to bring lister to front
+
+Version BETA: 8.7.0.9.4 (2017-12-27)
 - fix bug when DOpus has multiple listers, wrong lister being sometimes activated after open in new window
 - add the "[admin]" tag to QAP application name only if QAP is running as admin because of the "Run as administrator" option
 - change the QAP tray icon for version embedding the UAC logo only if QAP is running as admin because of the "Run as administrator" option
 
-Version: 8.7.0.9.3 (2017-12-23)
+Version BETA: 8.7.0.9.3 (2017-12-23)
 - show running as admin alert only if QAP is running as admin because of the "Run as administrator" option
 
-Version: 8.7.0.9.2 (2017-12-22)
+Version BETA: 8.7.0.9.2 (2017-12-22)
 - fix icons for items with extension .url (link) or .lnk (shortcuts) in Live Folders
 - add a random number to temp folder name to make sure we have distinct folders in case multiple QAP instances are launched
 - optimize refresh Recent folders and Recent files menus when user enabled the attached options enabled (this has no impact on detached menus)
@@ -49,7 +76,7 @@ Version: 8.7.0.9.2 (2017-12-22)
 - QAP startup shortcut now includes the changed "/Settings:" parameter if user switched settings file
 - German language typo fix
 
-Version: 8.7.0.9.1 (2017-12-20)
+Version BETA: 8.7.0.9.1 (2017-12-20)
 - add the "Run as administrator" checkbox option to Options, first tab, to launch QAP as an admnistrator (ie: with elevated UAC privileges)
 - display Windows UAC logo in Options dialog box for the "Run as administrator" option
 - save this option to variable RunAsAdmin in settings ini file (default false)
@@ -1884,7 +1911,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.0.9.4 BETA
+;@Ahk2Exe-SetVersion v8.7.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1967,8 +1994,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.0.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.7.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -2087,7 +2114,7 @@ if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
 if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
 	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
-	Oops(lOptionsRunAsAdminAlert)
+	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
 if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
 	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
 
@@ -6367,7 +6394,7 @@ RunAsAdminClicked:
 Gui, 2:Submit, NoHide
 
 if (f_blnRunAsAdmin)
-	Oops(lOptionsRunAsAdminAlert)
+	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
 
 return
 ;------------------------------------------------------------
@@ -14778,22 +14805,8 @@ else
 	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
-Gosub, RefreshDOpusListText
-objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
-; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
-; Lines will have active_lister="1" if they represent tabs from the active lister.
-for intIndex, objLister in objDOpusListers
-	if (objLister.active_lister = "1") ; this is the active lister
-	{
-		; In v1.1+, the last value(s) are available outside the loop. In v2.0-a, the value(s) are local within the loop.
-		; (https://autohotkey.com/boards/viewtopic.php?t=12369)
-		strActiveLister := "ahk_id " . objLister.Lister ; to be compatible with future AHK v2.0, copy value to a variable
-		break
-	}
-
+StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instead of activating by QAP as in previous versions
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
-WinWait, %strActiveLister%, , 10
-WinActivate, %strActiveLister%
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
@@ -14801,7 +14814,6 @@ arrFavoriteWindowPosition := ""
 objDOpusListers := ""
 intIndex := ""
 objLister := ""
-strActiveLister := ""
 
 return
 ;------------------------------------------------------------

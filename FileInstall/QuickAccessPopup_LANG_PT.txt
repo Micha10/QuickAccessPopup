@@ -44,6 +44,8 @@ lDialogAddFileSelect	Escolher um novo documento:
 lDialogAddFolderManuallyPrompt	Lamentamos, não é possível detectar a pasta actual neste tipo de janela.`n`nDeseja adicionar uma pasta favoritos manualmente?
 lDialogAddFolderManuallyTitle	Adicionar esta Pasta ou Ligação - ~1~ ~2~
 lDialogAddFolderSelect	Seleccionar ou criar uma nova pasta:
+lDialogAdmnistrator	Administrador
+lDialogAdmnistratorNot	Não Administrador
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicação
 lDialogAppWorkingDirCurrent	Iniciar o programa na pasta onde este favorito foi aberto
@@ -91,7 +93,6 @@ lDialogExternalMenuName	Nome do menu partilhado
 lDialogExternalMenuOpen	Abrir ficheiro de menu partilhado?
 lDialogExternalMenusAdded	~1~ Menu(s) partilhado(s) adicionado(s).
 lDialogExternalMenuSelectFromCatalogue	Seleccione um ou mais menus partilhados para adicionar ao seu menu e clique ~1~
-lDialogExternalSelectFromCatalogue	Seleccione o menu partilhado a adicionar ao seu menu
 lDialogExternalStartingNumber	Número do primeiro favorito:
 lDialogExternalTip	Faça duplo-clique numa linha para ver a informação do menu partilhado.
 lDialogExternalTypes	Pessoal (menu partilhado em vários computadores pelo mesmo utilizador)|Colaborativo (menu numa unidade partilhada por equipa ou grup de trabalho)|Centralizado (menu numa unidade partilhado mantido por um administrador)
@@ -437,6 +438,7 @@ lMenuRecentItems	Itens Recentes
 lMenuRefreshMenu	Actualizar menus Pastas Live
 lMenuReload	Reiniciar ~1~
 lMenuReopenCurrentFolder	Reabrir Pasta Actual na Caixa de Diálogo
+lMenuRestoreSettingsWindowPosition	Restaurar posição da janela de Definições
 lMenuRunAtStartupAmpersand	Executa&r no Arranque
 lMenuSettings	Definições
 lMenuStartMenu	Menu Iniciar
@@ -487,6 +489,7 @@ lOopsMenuExternalCentralized	menu partilhado centralizado
 lOopsMenuExternalCollaborative	menu partilhado colaborativo
 lOopsMenuExternalPersonalChangedBy	Este menu partilhado pessoal está a ser EDITADO ou tem alterações NÃO GUARDADAS no computador: ~1~.`n`nSe guardar as alterações para este menu aqui, as alterações não guardadas no outro computador serão perdidas e deve cancelar essas alterações quando regressar a esse computador.
 lOopsMenuExternalReservedBy	Este ~1~ está RESERVADO pelo utilizador: ~2~.`n`nAguarde que este utilizador liberte o menu partilhado ou contacte o administrador do sistema.
+lOopsNotAdmin	Não foi possível carregar ~1~ como Administrador.`n`nEstá agora a ser executado como Normal.
 lOopsOSVerrsionError	O ~1~ requer o Window 7 ou mais recente. Os utilizadores do Windows Vista e XP users devem usar o Folders Popup que é compatível com essas versões.`n`nDeseja visitar o site do Folders Popup?
 lOopsQAPfeature	Função QAP
 lOopsTitle	~1~ (~2~)
@@ -544,11 +547,15 @@ lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Botão do rato|Quick Access Popup Atalho teclado|Menu Alternativo Botão do rato|Menu Alternativo Atalho teclado
 lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (excepto nas <a>aplicações excluídas</a>) e abre os seus favoritos ou navega para as pastas.|Esta tecla de atalho mostra o menu em toda a parte e abre os seus favoritos ou navega para as pastas.|Este botão do rato exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte (sem excepções).|Esta tecla de atalho exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte.
 lOptionsQAPTempFolder	Pasta Temporária
-lOptionsRecentFolders	Número de pastas no menu
-lOptionsRecentFoldersPrompt	Pastas Recentes:
+lOptionsRecentFolders	Núm&ero de itens em menus
+lOptionsRecentFoldersPrompt	Pastas e Ficheiros Recentes:
 lOptionsRefreshedMenusAttached	Anexar os menus "~1~", "~2~" e "~3~" ao menu QAP
 lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu (lista de itens recentes e espaço disponível nas unidades actuais). Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, os menus "~1~", "~2~" e "~3~" serão actualizados apenas a pedido e exibidos separadamente do menu principal.
 lOptionsRememberSettingsPosition	Lembrar posição da janela
+lOptionsRunAsAdmin	Executar como administrador
+lOptionsRunAsAdminAlert	Alerta: Executar o ~1~ em modo Administrador pode provocar resultados inesperados ao carregar programas que possam estar infectados com códigos maliciosos. Isso pode permitir a esses programas a aquisição de previlégios de administrador e infectarem ou controlarem o seu computador. Tenha cuidado ao executar o ~1~ em modo Administrador.
+lOptionsRunAsAdminExit	O ~1~ será carregado sem direitos de administrador na sua próxima execução.`n`nDeseja sair já do ~1~? As alterações não guardadas no menu serão perdidas.
+lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Executa&r no Arranque
 lOptionsSelectCatalogueRoot	Seleccionar a pasta raiz do Catálogo de Menus Partilhados
 lOptionsSelectQAPTempFolder	Criar a Pasta Temporária em:

@@ -44,6 +44,8 @@ lDialogAddFileSelect	Choisir un nouveau document:
 lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement le dossier actif dans ce type de fenêtre.`n`nVoulez-vous ajouter un dossier favori manuellement?
 lDialogAddFolderManuallyTitle	Ajouter ce dossier ou ce lien - ~1~ ~2~
 lDialogAddFolderSelect	Choisir ou créer ce nouveau dossier:
+lDialogAdmnistrator	Administrateur
+lDialogAdmnistratorNot	Pas administrateur
 lDialogAlt	Alt
 lDialogApplicationLabel	Application
 lDialogAppWorkingDirCurrent	Lancer l'application dans le dossier où le favori a été cliqué
@@ -436,6 +438,7 @@ lMenuRecentItems	Documents récents
 lMenuRefreshMenu	Actualiser les Dossiers actifs
 lMenuReload	Redémarrer ~1~
 lMenuReopenCurrentFolder	Réouvrir le dossier actif dans une boîte de dialogue
+lMenuRestoreSettingsWindowPosition	Restaurer la position de la fenêtre des Paramètres
 lMenuRunAtStartupAmpersand	&Exécuter au démarrage
 lMenuSettings	Paramètres
 lMenuStartMenu	Menu Démarrer
@@ -485,6 +488,7 @@ lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dép
 lOopsMenuExternalCentralized	menu partagé centralisé
 lOopsMenuExternalCollaborative	menu partagé collaboratif
 lOopsMenuExternalReservedBy	Ce ~1~ est RÉSERVÉ par l'utilisateur: ~2~.`n`nAttendez que cet utilisateur libère le menu ou contactez votre administrateur de système.
+lOopsNotAdmin	~1~ ne peut être exécuté en tant qu'administrateur.`n`nL'application est maintenant exécutée avec les privilèges normaux.
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
 lOopsTitle	~1~ (~2~)
@@ -542,11 +546,15 @@ lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Bouton de souris du menu Quick Access Popup|Raccourci clavier du menu Quick Access Popup|Bouton de souris du menu Alternatif|Raccourci clavier du menu Alternatif
 lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où  (sauf dans les  <a>applications exclues</a>) et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce raccourci clavier affiche le menu n'importe où  et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce bouton de la souris affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où (sans exception).|Ce raccourci clavier affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où.
 lOptionsQAPTempFolder	Dossier temporaire
-lOptionsRecentFolders	Nombre d'emplacements récents dans le menu
-lOptionsRecentFoldersPrompt	Emplacements récents:
+lOptionsRecentFolders	Nombre d'items récents dans le menu
+lOptionsRecentFoldersPrompt	Emplacements et fichiers récents:
 lOptionsRefreshedMenusAttached	Attacher les menus "~1~", "~2~" et "~3~" au menu de QAP
 lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~" et "~3~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
+lOptionsRunAsAdmin	Exécuter en tant qu'administrateur
+lOptionsRunAsAdminAlert	Avertissement: Exécuter ~1~ en tant qu'administrateur peut avoir des conséquences inattendues en lançant des programmes qui seraient infectés de codes malicieux. Ces programmes malicieux hériteraient alors des privilèges de l'administrateur et pourraient endommager ou prendre le contrôle de votre ordinateur. Soyez prudent lorsque vous exécutez ~1~ en tant qu'administrateur.
+lOptionsRunAsAdminExit	~1~ sera exécuté sans les privilèges d'administrateur la prochaine fois que vous relancerez l'application.`n`nVoulez-vous quitter ~1~ maintenant? Vos modifications non sauvegardées seront perdues.
+lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
 lOptionsSelectQAPTempFolder	Créer le dossier temporaire dans:
