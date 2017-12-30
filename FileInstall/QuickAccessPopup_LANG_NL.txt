@@ -44,6 +44,8 @@ lDialogAddFileSelect	Selecteer het nieuwe document:
 lDialogAddFolderManuallyPrompt	Sorry, we kunnen de huidige map niet opvragen in dit venstertype.`n`nWilt u de map handmatig toevoegen?
 lDialogAddFolderManuallyTitle	Voeg deze map of link toe - ~1~ ~2~
 lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
+lDialogAdmnistrator	Administrator
+lDialogAdmnistratorNot	Gebruiker
 lDialogAlt	Alt
 lDialogApplicationLabel	Applicatie
 lDialogAppWorkingDirCurrent	Start de applicatie op de locatie waar deze favoriet is gestart
@@ -436,6 +438,7 @@ lMenuRecentItems	Onlangs geopend
 lMenuRefreshMenu	Ververs Live-mappen menu's
 lMenuReload	~1~ opnieuw laden
 lMenuReopenCurrentFolder	Heropen de huidige map in een dialogbox
+lMenuRestoreSettingsWindowPosition	Positie van het Instellingenvenster herstellen
 lMenuRunAtStartupAmpersand	&Uitvoeren bij opstarten
 lMenuSettings	Instellingen
 lMenuStartMenu	Startmenu
@@ -486,6 +489,7 @@ lOopsMenuExternalCentralized	gecentraliseerd openbaar menu
 lOopsMenuExternalCollaborative	openbaar team menu
 lOopsMenuExternalPersonalChangedBy	Dit persoonlijke Openbare menu wordt GEWIJZIGD of heeft onopgeslagen wijzigingen op computer: ~1~.`n`nAls u uw wijzigingen opslaat zullen de onopgeslagen wijzigingen van de andere computer verloren gaan, daarnaast zult u de wijzigingen op die computer moeten annuleren.
 lOopsMenuExternalReservedBy	Deze sessie van ~1~ is GERESERVEERD door gebruiker: ~2~.`n`nWacht alstublieft totdat deze gebruiker het Openbare menu afsluit of neem contact op met de systeembeheerder.
+lOopsNotAdmin	~1~ kon niet worden geladen als Administrator.`n`nHet is geladen in de normale modus.
 lOopsOSVerrsionError	~1~ kan worden uitgevoerd op Windows 7 of een recentere versie van Windows. Windows Vista en XP gebruikers zijn uitgenodigd om "Folders Popup" te downloaden, dit programma is geschikt voor oudere versies van Windows.`n`nWilt u de website bezoeken van Folders Popup?
 lOopsQAPfeature	QAP functies
 lOopsTitle	~1~ (~2~)
@@ -543,11 +547,15 @@ lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Muistoets|Quick Access Popup Sneltoets|QAP Alternatieve Menu Muistoets|QAP Alternatieve Menu Sneltoets
 lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen (zonder excepties) en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).
 lOptionsQAPTempFolder	Tijdelijke map
-lOptionsRecentFolders	mappen in h&et menu
-lOptionsRecentFoldersPrompt	Recent gebruikte mappen:
+lOptionsRecentFolders	Numm&er van items in de menu's
+lOptionsRecentFoldersPrompt	Recent gebruikte mappen of bestanden:
 lOptionsRefreshedMenusAttached	Koppel de menu's "~1~", "~2~" en "~3~" aan het QAP menu
 lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~" en "~3~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRememberSettingsPosition	Onthoud venster&positie
+lOptionsRunAsAdmin	Als Administrator uitvoeren
+lOptionsRunAsAdminAlert	Waarschuwing: Het uitvoeren van ~1~ in Administrator mode kan leiden tot ongewenste consequenties bij het laden van programma's welke kwaadaardige en/of geïnfecteerde code bevat. Dit zou kwaadaardige programma's administratieve rechten tot uw computer kunnen geven en hierdoor uw computer kunnen infecteren of over kunnen nemen. Wees voorzichtig met het draaien van ~1~ in Administrator mode.
+lOptionsRunAsAdminExit	~1~ zal de volgende start worden geladen zonder administratieve rechten.`n`nWilt u ~1~ nu afsluiten? Onopgeslagen wijzigingen zullen verloren gaan.
+lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Uitvoeren bij op&starten
 lOptionsSelectCatalogueRoot	Selecteer een openbare map voor de Openbare Menu's
 lOptionsSelectQAPTempFolder	Maak de tijdelijke map aan in:
