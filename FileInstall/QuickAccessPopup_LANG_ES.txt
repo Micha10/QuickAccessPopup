@@ -44,6 +44,8 @@ lDialogAddFileSelect	elegir un nuevo documento:
 lDialogAddFolderManuallyPrompt	Lo sentimos, no podemos detectar la carpeta actual en este tipo de ventana.`n`n¿Quiere añadir una carpeta favorita ahora manualmente?
 lDialogAddFolderManuallyTitle	Añadir esta Carpeta o Link - ~1~ ~2~
 lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
+lDialogAdmnistrator	Administrador
+lDialogAdmnistratorNot	No Administrador
 lDialogAlt	Alt
 lDialogApplicationLabel	Aplicación
 lDialogAppWorkingDirCurrent	Iniciar la aplicación en la ubicación de la carpeta en la que se puso en marcha este favorito
@@ -90,7 +92,6 @@ lDialogExternalMenuName	Nombre del menú compartido
 lDialogExternalMenuOpen	Abrir archivo de menú compartido?
 lDialogExternalMenusAdded	~1~ menú(s) compartido añadido.
 lDialogExternalMenuSelectFromCatalogue	Seleccione uno o más menús compartidos para agregar a su menú y haga clic en ellos ~1~
-lDialogExternalSelectFromCatalogue	Elige el Menú compartido para añadir a tu menú
 lDialogExternalStartingNumber	Número del primer favorito:
 lDialogExternalTip	Doble-click en una linea para ver la info del menú Compartido.
 lDialogExternalTypes	Personnel (Menú compartido en equipos diferentes para el mismo usuario)|Colaborativo (menú en una unidad compartida de un equipo o grupo de trabajo)|Centralizado (menú en una unidad compartida gestionada por un administrador del menú)
@@ -436,6 +437,7 @@ lMenuRecentItems	Documentos recientes
 lMenuRefreshMenu	Actualizar menús de carpetas activas
 lMenuReload	Reiniciar ~1~ 
 lMenuReopenCurrentFolder	Reabrir Carpeta Actual en Cuadro de Diálogo
+lMenuRestoreSettingsWindowPosition	Restaurar la posición de la ventana Configuración
 lMenuRunAtStartupAmpersand	&Ejecutar al Inicio
 lMenuSettings	Configuración
 lMenuStartMenu	Menú de Inicio
@@ -486,6 +488,7 @@ lOopsMenuExternalCentralized	menú compartido centralizado
 lOopsMenuExternalCollaborative	menú compartido colaborativo
 lOopsMenuExternalPersonalChangedBy	Este menú compartido personal ha sido MODIFICADO o contiene modificaciones NO guardadas en el ordenador: ~1~.`n`nSi guardas los cambios en este menú ahora se perderán los cambios no guardados en otro ordenador y tendrás que cancelar tus cambios en este equipo cuando vuelvas.
 lOopsMenuExternalReservedBy	Este ~1~ esta RESERVADO para el usuario: ~2~.`n`nEspera que este usuario libere el menú o contacta con tu administrador de sistema.
+lOopsNotAdmin	~1~ no se pudo iniciar como administrador.`n`nIt ahora se ejecuta como Normal.
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
 lOopsTitle	~1~ (~2~)
@@ -543,11 +546,15 @@ lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Botón del mouse|Quick Access Popup Atajo de teclado|Alternativa Menú botón del ratón|Atajo de teclado alternativo Menú
 lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace aparecer el menú en cualquier parte (excepto sobre <a> aplicaciones excluidas </a>) y lanzar su favorito o navegar a la carpeta |. Esta tecla de acceso directo abre el menú en cualquier lugar y lanzar su favorito o navegar a la carpeta |. Pops Este ratón un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar (sin excepción) |. Esta tecla de acceso directo hace aparecer un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar.
 lOptionsQAPTempFolder	Carpeta Temporal
-lOptionsRecentFolders	Número de carpetas en el menú
-lOptionsRecentFoldersPrompt	Carpetas recientes:
+lOptionsRecentFolders	Número de elementos en el menú 
+lOptionsRecentFoldersPrompt	Carpetas Recientes y Archivos Recientes:
 lOptionsRefreshedMenusAttached	Adjuntar "~1~", "~2~" y "~3~" menús al menú de QAP
 lOptionsRefreshedMenusAttachedInfo	Si habilita esta opción, puede haber un ligero retardo de actualización (dependiendo de la configuración del sistema) cada vez que aparezca el menú emergente.`n`nLa duración del retardo depende del tiempo que Windows toma para proporcionar la información refrescada requerida para construir el menú (lista de elementos recientes y espacio disponible en unidades actuales). Esta duración puede variar para cada llamada.`n`nIf deshabilite esta opción en "~1~", "~2~" y "~3~" menús se actualizará sólo bajo demanda y se mostrará separado del menú principal.
 lOptionsRememberSettingsPosition	Memorizar la posición de la ventana
+lOptionsRunAsAdmin	Ejecutar como administrador
+lOptionsRunAsAdminAlert	Atención: Ejecutando ~1~ en modo Administrador puede tener consecuencias inesperadas al ejecutar programas que pueden estar infectados con código malicioso. Esto podría permitir que los programas maliciosos hereden privilegios administrativos e infecten o tomen el control de tu computadora. Tenga cuidado cuando se ejecuta ~1~ en modo Administrador.
+lOptionsRunAsAdminExit	~1~ se lanzará sin derecho administrativo la próxima vez que lo lances.`n`nQuieres salir ~1~ ahora? Los cambios no guardados en el menú se perderán.
+lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Ejecutar al inicio
 lOptionsSelectCatalogueRoot	Elije la carpeta principal del Catálogo de los menús compartidos
 lOptionsSelectQAPTempFolder	Crear Carpeta Temporal en:

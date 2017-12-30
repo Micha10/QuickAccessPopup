@@ -43,7 +43,7 @@ Run as administrator
 - more info here: http://www.quickaccesspopup.com/can-i-launch-qap-with-administrator-privileges/
  
 Various
-- Italian, Portuguese, Brazilian Portuguese, Dutch, German and French language update
+- Italian, Portuguese, Brazilian Portuguese, Dutch, German, Spanish and French language update
 - the QAP startup shortcut (created when user select the "Run at startup" option) now includes the "/Settings:" parameter if user switched settings file (QAP will reload with the changed settings file)
 - add a random number to QAP temporary folder name to make sure we have distinct folders in case multiple QAP instances are launched
 - use the Windows UAC (User Access Control) logo as default icon for the Alternative menu "Run as administrator"
