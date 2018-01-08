@@ -2067,8 +2067,6 @@ g_strQAPconnectCompanionPath := ""
 g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
 g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
-g_blnRussianKeyboard := (GetInputLanguage() = "0419")
-
 g_objLastActions := Object()
 
 ;---------------------------------
@@ -2206,12 +2204,6 @@ DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex
 
 Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 
-	; for now, just ignore ErrorLevel
-	; ff required, use this code:
-	; strCurrentInputLanguage := GetInputLanguage() / or g_blnRussianKeyboard
-	; if (ErrorLevel)
-		; Oops("Language is """ . strCurrentInputLanguage . """ (0419 is Russian)")
-	
 	Hotkey, ^Up, SettingsUp, On UseErrorLevel
 	Hotkey, ^Down, SettingsDown, On UseErrorLevel
 	Hotkey, ^Right, SettingsRight, On UseErrorLevel
@@ -2643,10 +2635,7 @@ InitSystemArrays:
 ; Hotkeys: ini names, hotkey variables name, default values, gosub label and Gui hotkey titles
 strPopupHotkeyNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
 StringSplit, g_arrPopupHotkeyNames, strPopupHotkeyNames, |
-if (g_blnRussianKeyboard)
-	strPopupHotkeyDefaults := "MButton|#" . Chr(1094) . "|+MButton|+#" . Chr(1094) ; Chr(1094) produces the character at the W location on an US keyboard
-else
-	strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
+strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
 StringSplit, g_arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
 g_arrPopupHotkeys := Array ; initialized by LoadIniPopupHotkeys
 g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in LoadIniPopupHotkeys
@@ -3519,22 +3508,15 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
 			[LocationHotkeys]
+			Hotkey1=|{Settings}|+^S
+			Hotkey2=|{Current Folders}|+^F
+			Hotkey3=|{Recent Folders}|+^R
+			Hotkey4=|{Clipboard}|+^V
+			Hotkey5=|{Switch Folder or App}|+^W
+			Hotkey6=|{Add This Folder}|+^A
+			Hotkey7=|{ReopenCurrentFolder}|+^C
 
 ) ; leave the last extra line above
-		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
-
-	if !(g_blnRussianKeyboard) ; do not init default hotkeys for Russian keyboards
-		FileAppend,
-			(LTrim Join`r`n
-				Hotkey1=|{Settings}|+^S
-				Hotkey2=|{Current Folders}|+^F
-				Hotkey3=|{Recent Folders}|+^R
-				Hotkey4=|{Clipboard}|+^V
-				Hotkey5=|{Switch Folder or App}|+^W
-				Hotkey6=|{Add This Folder}|+^A
-				Hotkey7=|{ReopenCurrentFolder}|+^C
-
-)
 			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 }
 else
