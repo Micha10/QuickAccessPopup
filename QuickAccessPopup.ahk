@@ -1911,7 +1911,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.7.1
+;@Ahk2Exe-SetVersion v8.7.1.9.1 BETA
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1994,8 +1994,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.7.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -15804,7 +15804,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w380, % L(lAboutText1, g_strAppNameText, g_strAppVersion, A_PtrSize * 8) ;  ; A_PtrSize * 8 = 32 or 64
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
+Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText, A_AhkVersion)
 FormatTime, strYear, , yyyy ; current time
 Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
 Gui, 2:Add, Text, w380, % L(lAboutUserComputerName, A_UserName, A_ComputerName)
