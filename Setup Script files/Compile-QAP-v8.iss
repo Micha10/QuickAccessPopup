@@ -5,6 +5,7 @@
 ;
 
 #define MyBetaProd GetEnv('QAPBETAPROD')
+#define MyAppVersionNumber GetEnv('QAPVERSIONNUMBER') ; exemple "1.2.3.4"
 #define MyAppVersion GetEnv('QAPVERSIONTEXT') ; exemple "v1.2.3.4 BETA"
 #define MyVersionFileName GetEnv('QAPVERSIONFILE') ; exemple "1_2_3_4 ou 1_2_3_4-beta"
 
@@ -54,6 +55,7 @@ AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=auto
 AlwaysShowGroupOnReadyPage=yes
 SignTool=JeanLalondeCustom sign /t http://timestamp.digicert.com /a $f
+VersionInfoVersion={#MyAppVersionNumber}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
