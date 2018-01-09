@@ -1,5 +1,6 @@
 rem Check if version number is OK in source file
->NUL find "%QAPVERSIONTEXT%" ..\QuickAccessPopup.ahk && (ECHO Version number FOUND in QuickAccessPopup.ahk) || (ECHO %QAPVERSIONTEXT% = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+>NUL find "SetVersion %QAPVERSIONNUMBER%" ..\QuickAccessPopup.ahk && (ECHO Version number #1 FOUND in QuickAccessPopup.ahk) || (ECHO SetVersion %QAPVERSIONNUMBER% = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+>NUL find """%QAPVERSIONNUMBER%""" ..\QuickAccessPopup.ahk && (ECHO Version number #2 FOUND in QuickAccessPopup.ahk) || (ECHO "%QAPVERSIONNUMBER%" = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
 rem Check if Language files are available
 ECHO Checking language files...
 E:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
