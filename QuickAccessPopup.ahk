@@ -2,7 +2,7 @@
 /*
 
 Quick Access Popup
-Written using AutoHotkey v1.1.23.00+ (http://ahkscript.org/)
+Written using AutoHotkey v1.1.27+ (http://ahkscript.org/)
 By Jean Lalonde (JnLlnd on AHKScript.org forum)
 
 Based on FoldersPopup from the same author
@@ -2394,23 +2394,23 @@ CollectCommandLineParameters:
 
 g_objCommandLineParams := Object()
 
-Loop, %0% ; for each parameter
+for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
 {
-    strParam := %A_Index% ; fetch the contents of the variable whose name is contained in A_Index
-	if !StrLen(strParam)
+	if !StrLen(strOneArg)
 		continue
-	intColon := InStr(strParam, ":")
+	intColon := InStr(strOneArg, ":")
 	if (intColon)
 	{
-		strParamKey := SubStr(strParam, 1, intColon) ; including the starting slash and ending colon
-		strParamValue := SubStr(strParam, intColon + 1)
+		strParamKey := SubStr(strOneArg, 1, intColon) ; including the starting slash and ending colon
+		strParamValue := SubStr(strOneArg, intColon + 1)
 		g_objCommandLineParams[strParamKey] := strParamValue
 	}
 	else
-		g_objCommandLineParams[strParam] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strParam)
+		g_objCommandLineParams[strOneArg] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strOneArg)
 }
 
-strParam := ""
+intArg := ""
+strOneArg := ""
 strParamKey := ""
 strParamValue := ""
 
