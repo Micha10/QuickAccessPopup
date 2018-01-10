@@ -31,9 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.7.1.91 (2018-01-??)
-- fix bug write file version number to executable files (32-bit and 64-bit)
-- add executable file number to setup executable file
+Version BETA: 8.7.1.91 (2018-01-09)
+- compiled with new AHK runtime v1.1.27.03
+- display AHK runtime version number in about dialog box
+- use new object A_Args to parse arguments; requires AHK v1.1.27+
+- remove hotkeys exceptions for Russian keyboard solved by new runtime v1.1.27
+- fix bug writing file version number to executable files (32-bit and 64-bit)
+- add QAP executable file number to setup executable file
 
 Version: 8.7.1 (2017-12-30)
  
