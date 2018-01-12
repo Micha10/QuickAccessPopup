@@ -520,6 +520,7 @@ global lOptionsControlDoublePressedRight := "Using Right Control key" ; new
 global lOptionsDisplayIcons := "Display Menu &Icons"
 global lOptionsDisplayMenuShortcuts := "Display &Numeric Menu Shortcuts"
 global lOptionsEnableExternalMenusCatalogue := "Enable Shared Menus Catalogue"
+global lOptionsEnableHotstrings := "Enable Hotstrings"
 global lOptionsExclusionDetail1 := "To block the QAP mouse menu button [~1~] in an application, enter any part of the application's window title. You can enter multiple exclusions, one per line. For example, to exclude Chrome and Word, enter the following two lines in the exclusion list:`n`nGoogle Chrome`nMicrosoft Word" ; new
 global lOptionsExclusionDetail2 := "The QAP hotkey will be disabled in these apps and the [~1~] click will be sent to the target window as if QAP was not running. You can also exclude windows by their class name. Prefix the title or class with * (asterisk) to also exclude application's dialog boxes. You can find help and support on this feature <a href=""~2~"">on the QAP website</a>." ; new
 global lOptionsExclusionList := "Exclusions" ; new

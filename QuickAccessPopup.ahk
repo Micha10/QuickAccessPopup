@@ -2057,6 +2057,8 @@ g_objQAPFeaturesAlternativeCodeByOrder := Object()
 g_strQAPFeaturesList := ""
 
 g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated with "|" pipe separator)
+g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
+g_objFavoritesObjectsByHotstring := Object()
 
 g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
@@ -2112,7 +2114,7 @@ Gosub, InitSpecialFolders
 Gosub, InitQAPFeatures
 Gosub, InitGuiControls
 
-Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) name|location hotkeys and populate g_objHotkeysByNameLocation, load favorites to menu object
+Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
 
 ; must be after LoadIniFile
 
@@ -2124,7 +2126,8 @@ if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
 if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
 	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
 
-Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
+; Now included in build menu
+; Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
@@ -3445,7 +3448,7 @@ InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := f
 
 ;-----------------------------------------------------------
 LoadIniFile:
-; load options, load/enable popup hotkeys, load (not enable) name|location hotkeys and populate g_objHotkeysByNameLocation, load favorites to menu object
+; load options, load/enable popup hotkeys, load favorites to menu object
 ;-----------------------------------------------------------
 
 Gosub, BackupIniFile
@@ -3567,7 +3570,8 @@ else
 }
 
 Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
-Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
+; Now in load favorites
+; Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
 
 ; ---------------------
 ; Load Options Tab 1 General
@@ -3845,6 +3849,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
+		; 20 FavoriteShortcut, 21 FavoriteHotstring
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -3945,6 +3950,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveColumns := arrThisFavorite17 ; number of items per columns in live folder menus
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
+		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.9?) shortcut (mouse or keyboard hotkey) to launch this favorite
+		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.9?) hotstring to launch this favorite
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -4190,6 +4197,8 @@ return
 ;------------------------------------------------------------
 
 
+/*
+Now in load favorites
 ;------------------------------------------------------------
 LoadIniLocationHotkeys:
 ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
@@ -4225,6 +4234,7 @@ blnHotkeysUpgradedToNameLocation := ""
 
 return
 ;------------------------------------------------------------
+*/
 
 
 ;------------------------------------------------------------
@@ -5468,7 +5478,14 @@ Menu, %lMainMenuName%, DeleteAll
 if (g_blnUseColors)
 	Menu, %lMainMenuName%, Color, %g_strMenuBackgroundColor%
 
-g_objMenuColumnBreaks := Object() ; re-init before rebuilding menu
+
+; re-init these objects before rebuilding menu
+g_objMenuColumnBreaks := Object()
+g_objFavoritesObjectsByHotstring := Object()
+
+; disable shortcuts and re-init shoprtcuts object before rebuilding menu
+gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
+g_objFavoritesObjectsByShortcut := Object()
 
 g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
@@ -5503,7 +5520,9 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objQAPFeatures
 	global g_objMenuColumnBreaks
 	global g_intHotkeyReminders
-	global g_objHotkeysByNameLocation
+	; global g_objHotkeysByNameLocation
+	global g_objFavoritesObjectsByShortcut
+	global g_objFavoritesObjectsByHotstring
 	global g_strMenuPathSeparator
 	global g_objMenusIndex
 	global g_strAppNameText
@@ -5538,10 +5557,36 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
 		
-		if (g_intHotkeyReminders > 1) and g_objHotkeysByNameLocation.HasKey(FavoriteNameLocationFromObject(objCurrentMenu[A_Index]))
-			strMenuName .= " (" . (g_intHotkeyReminders = 2
-				? g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])] 
-				: Hotkey2Text(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])])) . ")"
+		; if (g_intHotkeyReminders > 1) and g_objHotkeysByNameLocation.HasKey(FavoriteNameLocationFromObject(objCurrentMenu[A_Index]))
+			; strMenuName .= " (" . (g_intHotkeyReminders = 2
+				; ? g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])] 
+				; : Hotkey2Text(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])])) . ")"
+		if StrLen(objCurrentMenu[A_Index].FavoriteShortcut)
+		{
+			g_objFavoritesObjectsByShortcut.Insert(objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index])
+
+			if (g_intHotkeyReminders > 1) and 
+				strMenuName .= " (" . (g_intHotkeyReminders = 2
+					? objCurrentMenu[A_Index].FavoriteShortcut 
+					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut) . ")"
+					
+			; enable shortcut
+			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromHotkey, On UseErrorLevel
+			if (ErrorLevel)
+			{
+				if StrLen(arrNameLocation1)
+					Oops(lDialogInvalidHotkeyFavorite, objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation)
+				else ; for QAP feature name is empty
+					Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, objCurrentMenu[A_Index].FavoriteLocation)
+			}
+		}
+		
+		if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
+		{
+			g_objFavoritesObjectsByHotstring.Insert(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
+			if (g_intHotkeyReminders > 1)
+				strMenuName .= " ##"
+		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
 			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels and LiveFolderHasContent(objCurrentMenu[A_Index])) and !(g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
@@ -5938,6 +5983,19 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+DisableShortcuts:
+;------------------------------------------------------------
+
+for strShortcut in g_objFavoritesObjectsByShortcut
+	Hotkey, %strShortcut%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+
+strShortcut := ""
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF BUILD
 ;========================================================================================================================
@@ -6040,6 +6098,9 @@ GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnable Hotstrings, %lOptionsEnableHotstrings%
+GuiControl, , f_blnRememberEnableHotstrings, %g_blnEnableHotstrings% ; ######
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
@@ -12237,6 +12298,7 @@ return
 ;------------------------------------------------------------
 
 
+/*
 ;------------------------------------------------------------
 DisablePreviousLocationHotkeys:
 ; disable hotkeys found in ini file before updating the ini file
@@ -12256,7 +12318,7 @@ arrLocationHotkey := ""
 
 return
 ;------------------------------------------------------------
-
+*/
 
 ;------------------------------------------------------------
 SaveLocationHotkeysToIni:
