@@ -11660,7 +11660,7 @@ GuiSaveAndDoNothing:
 g_blnMenuReady := false
 strSavedMenuInGui := g_objMenuInGui.MenuPath
 
-ToolTip, %lGuiSaving% ; animated tooltip
+ToolTip, %lGuiSaving%. ; animated tooltip
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
@@ -11672,20 +11672,20 @@ IniDelete, %g_strIniFile%, Favorites
 
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
-ToolTip, %lGuiSaving%. ; animated tooltip
 
-; clean-up unused hotkeys if favorites were deleted
-for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
-	if RecursiveHotkeyNotNeeded(strThisNameLocation, g_objMainMenu)
-	{
-		g_objHotkeysByNameLocation.Remove(strThisNameLocation)
-		Hotkey, %strThisHotkey%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	}
-
-Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
-Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByNameLocation
-Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByNameLocation
 ToolTip, %lGuiSaving%.. ; animated tooltip
+
+; was for g_objHotkeysByNameLocation
+; clean-up unused hotkeys if favorites were deleted
+; for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
+	; if RecursiveHotkeyNotNeeded(strThisNameLocation, g_objMainMenu)
+	; {
+		; g_objHotkeysByNameLocation.Remove(strThisNameLocation)
+		; Hotkey, %strThisHotkey%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+	; }
+; Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
+; Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByNameLocation
+; Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByNameLocation
 
 Gosub, LoadMenuFromIni ; load favorites to menu object
 ToolTip, %lGuiSaving%... ; animated tooltip
@@ -11775,6 +11775,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveColumns . "|" ; 17
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
+			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
+			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstring . "|" ; 21
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -12190,8 +12192,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 
 
 /*
-Was with g_objHotkeysByNameLocation
-
+; Was with g_objHotkeysByNameLocation
 ;-----------------------------------------------------------
 UpdateHotkeyObjectsFavoriteSave:
 UpdateHotkeyObjectsHotkeysListSave:
@@ -12227,6 +12228,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	global g_arrPopupHotkeys
 	global g_objQAPFeatures
 	global g_arrOptionsPopupHotkeyTitles
+	global g_objFavoritesObjectsByShortcut
 	
 	if !StrLen(strHotkey) or (strHotkey = "None")
 		return strHotkey
@@ -12249,7 +12251,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	
 	; check favorites hotkeys
 	if !StrLen(strExistingLocation)
-		strExistingLocation := GetHotkeyLocation(strHotkey)
+		strExistingLocation := g_objFavoritesObjectsByShortcut[strHotkey].FavoriteLocation ; ##### debug
 	
 	if StrLen(strExistingLocation)
 	{
@@ -12284,6 +12286,8 @@ FormatExistingLocation(strExistingLocation)
 ;-----------------------------------------------------------
 
 
+/*
+; Was with g_objHotkeysByNameLocation
 ;------------------------------------------------------------
 EnableLocationHotkeys:
 ; enable location hotkeys from g_objHotkeysByNameLocation
@@ -12310,7 +12314,6 @@ return
 ;------------------------------------------------------------
 
 
-/*
 ;------------------------------------------------------------
 DisablePreviousLocationHotkeys:
 ; disable hotkeys found in ini file before updating the ini file
@@ -12330,7 +12333,7 @@ arrLocationHotkey := ""
 
 return
 ;------------------------------------------------------------
-*/
+
 
 ;------------------------------------------------------------
 SaveLocationHotkeysToIni:
@@ -12377,7 +12380,7 @@ RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu)
 	return true
 }
 ;------------------------------------------------------------
-
+*/
 
 ;========================================================================================================================
 ; END OF GUI_CHANGE_HOTKEY:
@@ -12608,6 +12611,8 @@ if (A_ThisLabel = "RestoreBackupMenusObjects")
 	g_objMenusBK := ""
 }
 
+/*
+; Was with g_objHotkeysByNameLocation
 ; also backup hotkey objects
 
 if (A_ThisLabel = "BackupMenusObjects")
@@ -12622,6 +12627,7 @@ else
 		g_objHotkeysByNameLocation.Insert(strThisNameLocation, strThisHotkey)
 	g_objHotkeysByNameLocationBK := ""
 }
+*/
 
 objMenusSource := ""
 strMenuPath := ""
@@ -12630,11 +12636,9 @@ objMenuDest := ""
 objFavorite := ""
 objSubMenu := ""
 strThisLocation := ""
-strThisHotkey := ""
 intInStr := ""
 strParentPath := ""
 objParentMenu := ""
-strThisNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -16013,7 +16017,7 @@ Gui, 2:Tab, 3
 Gui, 2:Add, Link, w%intWidth%, % lHelpText31
 Gui, 2:Add, Link, w%intWidth% y+3, % lHelpText32
 Gui, 2:Add, Link, w%intWidth%, % lHelpText33
-Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(g_objHotkeysByNameLocation["|{Settings}"])) ; in name|location name is empty for QAP feature {Settings}
+Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")) ; ##### debug, what if no fav for settings?
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext3")
 
@@ -16588,6 +16592,8 @@ GetFirstName4Location(strLocation)
 ;------------------------------------------------------------
 
 
+/*
+; was for g_objHotkeysByNameLocation
 ;------------------------------------------------------------
 GetHotkeyLocation(strHotkey)
 ;------------------------------------------------------------
@@ -16604,13 +16610,30 @@ GetHotkeyLocation(strHotkey)
 GetHotkeyNameLocation(strHotkey)
 ;------------------------------------------------------------
 {
-	global g_objHotkeysByNameLocation
+	; global g_objHotkeysByNameLocation
+	global #####
 	
 	for strNameLocation, strThisHotkey in g_objHotkeysByNameLocation
 		if (strHotkey = strThisHotkey)
 			return strNameLocation
 	
 	return ""
+}
+;------------------------------------------------------------
+*/
+
+
+;------------------------------------------------------------
+GetFavoriteHotkeyFromLocation(strLocation)
+;------------------------------------------------------------
+{
+	global g_objFavoritesObjectsByShortcut
+	
+	for strShortcut, objFavorite in g_objFavoritesObjectsByShortcut
+		if (objFavorite.FavoriteLocation = strLocation)
+			return objFavorite.FavoriteLocation
+		
+	return lDialogNone
 }
 ;------------------------------------------------------------
 
@@ -17737,6 +17760,8 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 ;------------------------------------------------------------
 
 
+/*
+; Was with g_objHotkeysByNameLocation
 ;------------------------------------------------------------
 FavoriteNameLocationFromObject(objFavorite)
 ;------------------------------------------------------------
@@ -17744,6 +17769,7 @@ FavoriteNameLocationFromObject(objFavorite)
 	return (objFavorite.FavoriteType = "QAP" ? "" : objFavorite.FavoriteName) . "|" . objFavorite.FavoriteLocation
 }
 ;------------------------------------------------------------
+*/
 
 
 ;------------------------------------------------------------
