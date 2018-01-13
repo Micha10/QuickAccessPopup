@@ -4506,7 +4506,7 @@ if !g_objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP featu
 	or (StrLen(Clipboard) > 50000) ; Clipboard is too large - 50K of text with 600 file paths takes 0,3 sec to process on my dev machine
 	return
 
-intShortcutClipboardMenu := 0
+intMenuNumberClipboardMenu := 0
 strContentsInClipboard := ""
 
 ; gather info for menu (can be long if large Clipboard) before refreshing the menu with Critical On
@@ -4547,7 +4547,7 @@ if StrLen(strContentsInClipboard)
 		; arrContentsInClipboard1 = path or URL, arrContentsInClipboard2 = icon (file,index or icon code)
 		StringSplit, arrContentsInClipboard, A_LoopField, `t
 		
-		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutClipboardMenu <= 35) ? "&" . NextMenuShortcut(intShortcutClipboardMenu) . " " : "") . arrContentsInClipboard1
+		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberClipboardMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberClipboardMenu) . " " : "") . arrContentsInClipboard1
 		if StrLen(strMenuName) < 260 ; skip too long URLs
 			AddMenuIcon(lMenuClipboard, strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
@@ -4555,7 +4555,7 @@ if StrLen(strContentsInClipboard)
 	; Critical, Off
 }
 
-intShortcutClipboardMenu := ""
+intMenuNumberClipboardMenu := ""
 strContentsInClipboard := ""
 strClipboardLineExpanded := ""
 strURLSearchString := ""
@@ -4651,7 +4651,7 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP featur
 
 intDrivesMenuStartTickCount := A_TickCount
 
-intShortcutDrivesMenu := 0
+intMenuNumberDrivesMenu := 0
 strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
@@ -4670,7 +4670,7 @@ Loop, parse, strDrivesList
 	strMenuItemName := strPath . " " . strLabel
 	if StrLen(intFreeSpace) and StrLen(intCapacity)
 		strMenuItemName .= " " . L(lMenuDrivesSpace, intFreeSpace // 1024, intCapacity // 1024)
-	strMenuItemName := (g_blnDisplayNumericShortcuts and (intShortcutDrivesMenu <= 35) ? "&" . NextMenuShortcut(intShortcutDrivesMenu) . " " : "") . strMenuItemName
+	strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberDrivesMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberDrivesMenu) . " " : "") . strMenuItemName
 	if InStr("Fixed|Unknown", strType)
 		strIcon := "iconDrives"
 	else
@@ -4690,7 +4690,7 @@ AddCloseMenu(lMenuDrives)
 
 SetWaitCursor(false)
 
-intShortcutDrivesMenu := ""
+intMenuNumberDrivesMenu := ""
 strMenuItemsList := ""
 strDrivesList := ""
 strPath := ""
@@ -4767,8 +4767,8 @@ Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are n
 	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strItemsList, R
 
-intShortcutFolders := 0
-intShortcutFiles := 0
+intMenuNumberFolders := 0
+intMenuNumberFiles := 0
 strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
 
@@ -4791,7 +4791,7 @@ Loop, parse, strItemsList, `n
 		and (intRecentFoldersCount < g_intRecentFoldersMax)
 		and !LocationIsDocument(strTargetPath) ; add to recent folders
 	{
-		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFolders <= 35) ? "&" . NextMenuShortcut(intShortcutFolders) . " " : "") . strTargetPath
+		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFolders <= 35) ? "&" . NextMenuShortcut(intMenuNumberFolders) . " " : "") . strTargetPath
 		strIcon := GetFolderIcon(strTargetPath)
 		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
@@ -4801,7 +4801,7 @@ Loop, parse, strItemsList, `n
 		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
 		and LocationIsDocument(strTargetPath) ; add to recent files
 	{
-		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFiles <= 35) ? "&" . NextMenuShortcut(intShortcutFiles) . " " : "") . strTargetPath
+		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . NextMenuShortcut(intMenuNumberFiles) . " " : "") . strTargetPath
 		strIcon := GetIcon4Location(strTargetPath)
 		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
@@ -4843,8 +4843,8 @@ strRecentsFolder := ""
 strItemsList := ""
 strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
-intShortcutFolders := ""
-intShortcutFiles := ""
+intMenuNumberFolders := ""
+intMenuNumberFiles := ""
 arrShortcutFullPath := ""
 strShortcutFullPath := ""
 strTargetPath := ""
@@ -5048,7 +5048,7 @@ Loop, % objFoldersAndAppsList.MaxIndex()
 
 ; Build menu
 
-intShortcut := 0
+intMenuNumber := 0
 g_objReopenFolderLocationUrlByName := Object()
 
 Critical, On
@@ -5071,7 +5071,7 @@ if (intWindowsIdIndex)
 			Menu, %lMenuSwitchFolderOrApp%, Add
 		else
 		{
-			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objFolderOrApp.Name
+			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . objFolderOrApp.Name
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
@@ -5103,7 +5103,7 @@ objFoldersAndAppsList := ""
 intIndex := ""
 objLister := ""
 objFolder := ""
-intShortcut := ""
+intMenuNumber := ""
 strMenuName := ""
 intWindowsIdIndex := ""
 strWinIDs := ""
@@ -5410,19 +5410,19 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP 
 	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
 	return
 
-intShortcutLastActionsMenu := 0
+intMenuNumberLastActionsMenu := 0
 
 Menu, %lMenuLastActions%, Add
 Menu, %lMenuLastActions%, DeleteAll
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 	{
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intShortcutLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intShortcutLastActionsMenu) . " " : "") . A_LoopField
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberLastActionsMenu) . " " : "") . A_LoopField
 		AddMenuIcon(lMenuLastActions, strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
 	}
 AddCloseMenu(lMenuLastActions)
 
-intShortcutLastActionsMenu := ""
+intMenuNumberLastActionsMenu := ""
 strMenuItemName := ""
 
 return
@@ -5436,14 +5436,14 @@ BuildAlternativeMenu:
 Menu, g_menuAlternative, Add
 Menu, g_menuAlternative, DeleteAll
 
-intShortcut := 0
+intMenuNumber := 0
 
 Loop
 	if g_objQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
 		strThisHotkey := g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
 		
-		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "")
+		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "")
 			. g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName
 		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Hotkey2Text(strThisHotkey)) . ")"
@@ -5531,7 +5531,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 
-	intShortcut := 0
+	intMenuNumber := 0
 	
 	; ###_O("objCurrentMenu .FavoriteLocation", objCurrentMenu, "FavoriteLocation")
 	; try because at first execution the strMenu menu does not exist and produces an error,
@@ -5552,7 +5552,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		intMenuItemsCount++ ; for objMenuColumnBreak
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteName)
-			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objCurrentMenu[A_Index].FavoriteName
+			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . objCurrentMenu[A_Index].FavoriteName
 		
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
@@ -5565,13 +5565,13 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			g_objFavoritesObjectsByShortcut.Insert(objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index])
 
-			if (g_intHotkeyReminders > 1) and 
+			if (g_intHotkeyReminders > 1)
 				strMenuName .= " (" . (g_intHotkeyReminders = 2
 					? objCurrentMenu[A_Index].FavoriteShortcut 
-					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut) . ")"
+					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)) . ")"
 					
 			; enable shortcut
-			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromHotkey, On UseErrorLevel
+			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 			if (ErrorLevel)
 			{
 				if StrLen(arrNameLocation1)
@@ -13359,7 +13359,7 @@ return
 OpenFavorite:
 OpenFavoriteGroup:
 OpenFavoriteFromGroup:
-OpenFavoriteFromHotkey:
+OpenFavoriteFromShortcut:
 OpenFavoriteFromLastAction:
 OpenRecentFolder:
 OpenRecentFile:
@@ -13388,7 +13388,7 @@ else
 	blnControlPressed := false
 }
 
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
+if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
 {
 	if SettingsUnsaved()
 		if SettingsNotSavedReturn()
@@ -13757,7 +13757,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
@@ -13893,35 +13893,36 @@ if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavorite
 	
 	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
 	
-else if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotkey")
+else if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
 {
-	blnLocationFound := false
-	strThisNameLocation := GetHotkeyNameLocation(A_ThisHotkey)
-	StringSplit, arrThisNameLocation, strThisNameLocation, |
+	g_objThisFavorite := g_objFavoritesObjectsByShortcut[A_ThisHotkey]
+	; blnLocationFound := false
+	; strThisNameLocation := GetHotkeyNameLocation(A_ThisHotkey)
+	; StringSplit, arrThisNameLocation, strThisNameLocation, |
 
-	for strMenuPath, objMenu in g_objMenusIndex
-	{
-		loop, % objMenu.MaxIndex()
-		{
-			strTempName := (objMenu[A_Index].FavoriteType = "QAP" ? "" : objMenu[A_Index].FavoriteName)
-			if (strTempName = arrThisNameLocation1 and objMenu[A_Index].FavoriteLocation = arrThisNameLocation2)
-			{
-				g_objThisFavorite := objMenu[A_Index]
-				blnLocationFound := true
-				break, 2
-			}
-		}
-	}
+	; for strMenuPath, objMenu in g_objMenusIndex
+	; {
+		; loop, % objMenu.MaxIndex()
+		; {
+			; strTempName := (objMenu[A_Index].FavoriteType = "QAP" ? "" : objMenu[A_Index].FavoriteName)
+			; if (strTempName = arrThisNameLocation1 and objMenu[A_Index].FavoriteLocation = arrThisNameLocation2)
+			; {
+				; g_objThisFavorite := objMenu[A_Index]
+				; blnLocationFound := true
+				; break, 2
+			; }
+		; }
+	; }
 	
-	if !(blnLocationFound)
+	; if !(blnLocationFound)
 	; could happen if hotkey was linked to a favorite in external menu that was changed or removed
 	; orphan hotkeys will be removed next time favorites are saved
-	{
-		Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
+	; {
+		; Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
 		
-		gosub, OpenFavoriteGetFavoriteObjectCleanup
-		return
-	}
+		; gosub, OpenFavoriteGetFavoriteObjectCleanup
+		; return
+	; }
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
@@ -14010,7 +14011,6 @@ OpenFavoriteGetFavoriteObjectCleanup:
 strThisMenuItem := ""
 strFavoriteType := ""
 intMenuItemPos := ""
-blnLocationFound := ""
 strThisNameLocation := ""
 arrThisNameLocation := ""
 strTempName := ""
@@ -16017,7 +16017,7 @@ Gui, 2:Tab, 3
 Gui, 2:Add, Link, w%intWidth%, % lHelpText31
 Gui, 2:Add, Link, w%intWidth% y+3, % lHelpText32
 Gui, 2:Add, Link, w%intWidth%, % lHelpText33
-Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")) ; ##### debug, what if no fav for settings?
+Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}"))) ; ##### debug, what if no fav for settings?
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext3")
 
@@ -17004,15 +17004,15 @@ GetDeepestMenuPath(strPath)
 
 
 ;------------------------------------------------------------
-NextMenuShortcut(ByRef intShortcut)
+NextMenuShortcut(ByRef intMenuNumber)
 ;------------------------------------------------------------
 {
-	if (intShortcut < 10)
-		strShortcut := intShortcut ; 0 .. 9
+	if (intMenuNumber < 10)
+		strShortcut := intMenuNumber ; 0 .. 9
 	else
-		strShortcut := Chr(intShortcut + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
+		strShortcut := Chr(intMenuNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
 	
-	intShortcut := intShortcut + 1
+	intMenuNumber := intMenuNumber + 1
 	return strShortcut
 }
 ;------------------------------------------------------------
