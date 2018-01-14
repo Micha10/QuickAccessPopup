@@ -3475,6 +3475,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	FileAppend,
 		(LTrim Join`r`n
 			[Global]
+			ExclusionMouseList=scite
 			LanguageCode=%g_strLanguageCode%
 			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
@@ -3515,17 +3516,9 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite2=Folder|Windows|%A_WinDir%
 			Favorite3=Folder|Program Files|%A_ProgramFiles%
 			Favorite4=Folder|User Profile|`%USERPROFILE`%
-			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe
-			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
+			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
+			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|:b*:#qap#
 			Favorite7=Z
-			[LocationHotkeys]
-			Hotkey1=|{Settings}|+^S
-			Hotkey2=|{Current Folders}|+^F
-			Hotkey3=|{Recent Folders}|+^R
-			Hotkey4=|{Clipboard}|+^V
-			Hotkey5=|{Switch Folder or App}|+^W
-			Hotkey6=|{Add This Folder}|+^A
-			Hotkey7=|{ReopenCurrentFolder}|+^C
 
 ) ; leave the last extra line above
 			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
@@ -3978,15 +3971,15 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP") ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP") ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file
-AddToIniOneDefaultMenu("{Current Folders}", "", "QAP") ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true) ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP") ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
 AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", "", "QAP") ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true) ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
 AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
@@ -4013,7 +4006,7 @@ if (strThisMenuName = lMenuSettings . "...") ; if equal, it means that this menu
 ; (we cannot have this menu twice with "+" because, as all QAP features, lMenuSettings always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP") ; back in main menu
+	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP", true) ; back in main menu
 }
 if (g_intActiveFileManager = 3) ; TotalCommander
 {
@@ -4027,7 +4020,7 @@ if (g_intActiveFileManager = 3) ; TotalCommander
 	}
 }
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP")
+AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP", true)
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
@@ -4067,7 +4060,7 @@ return
 
 
 ;------------------------------------------------------------
-AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
+AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
 ;------------------------------------------------------------
 {
 	global g_strIniFile
@@ -4097,8 +4090,11 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType)
 				strName := g_objSpecialFolders[strLocation].DefaultName
 			else
 				strName := g_objQAPFeatures[strLocation].DefaultName
-		
-		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||"
+
+		if (blnAddShortcut)
+			strShortcut := g_objQAPFeatures[strLocation].DefaultHotkey
+
+		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
 	
 	IniWrite, %strNewIniLine%, %g_strIniFile%, Favorites, Favorite%g_intNextFavoriteNumber%
