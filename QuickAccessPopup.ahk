@@ -3265,7 +3265,7 @@ InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddTh
 InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",					0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
 InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
+InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiShortcutsManageFromQAPFeature",		0, "iconHotkeys")
 InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
 InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
 InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
@@ -3380,7 +3380,7 @@ InsertGuiControlPos("f_picGuiAddFavorite",			 -44,  120, true) ; 120
 InsertGuiControlPos("f_picGuiEditFavorite",			 -44,  195, true) ; 190 + 5
 InsertGuiControlPos("f_picGuiRemoveFavorite",		 -44,  270, true) ; 260 + 10
 InsertGuiControlPos("f_picGuiCopyFavorite",			 -44,  345, true) ; 330 + 15
-InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -148, true, true) ; -140 true = center, true = draw
+InsertGuiControlPos("f_picGuiShortcutsManage",		 -44, -148, true, true) ; -140 true = center, true = draw
 InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw
 InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
@@ -3414,7 +3414,7 @@ InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
 InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true)
 InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
-InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
+InsertGuiControlPos("f_lblGuiShortcutsManage",		 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
 
 InsertGuiControlPos("f_strFavoritesListFilter",		  40,  115)
@@ -4125,15 +4125,15 @@ loop, % g_arrPopupHotkeyNames0
 
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
-	if HasHotkey(g_arrPopupHotkeysPrevious1)
+	if HasShortcut(g_arrPopupHotkeysPrevious1)
 		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasHotkey(g_arrPopupHotkeys1)
+	if HasShortcut(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
-	if HasHotkey(g_arrPopupHotkeysPrevious2)
+	if HasShortcut(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasHotkey(g_arrPopupHotkeys2)
+	if HasShortcut(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
@@ -4141,37 +4141,37 @@ Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
-	if HasHotkey(g_arrPopupHotkeysPrevious1)
+	if HasShortcut(g_arrPopupHotkeysPrevious1)
 		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasHotkey(g_arrPopupHotkeys1)
+	if HasShortcut(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
-	if HasHotkey(g_arrPopupHotkeysPrevious2)
+	if HasShortcut(g_arrPopupHotkeysPrevious2)
 		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasHotkey(g_arrPopupHotkeys2)
+	if HasShortcut(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
-if HasHotkey(g_arrPopupHotkeysPrevious3)
+if HasShortcut(g_arrPopupHotkeysPrevious3)
 	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-if HasHotkey(g_arrPopupHotkeys3)
+if HasShortcut(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
-if HasHotkey(g_arrPopupHotkeysPrevious4)
+if HasShortcut(g_arrPopupHotkeysPrevious4)
 	Hotkey, % g_arrPopupHotkeysPrevious4, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-if HasHotkey(g_arrPopupHotkeys4)
+if HasShortcut(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsPopupHotkeyTitles4)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
-	if HasHotkey(objThisQAPFeature.CurrentHotkey)
+	if HasShortcut(objThisQAPFeature.CurrentHotkey)
 		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
 		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
@@ -6022,7 +6022,7 @@ loop, 4
 
 g_objQAPFeaturesNewHotkeys := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
-	if HasHotkey(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
+	if HasShortcut(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
 		; g_objQAPFeaturesNewHotkeys will be saved to ini file and g_objQAPFeatures will be used to turn off previous hotkeys
 		g_objQAPFeaturesNewHotkeys.Insert(strAlternativeCode, g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
 
@@ -6875,7 +6875,7 @@ loop, % g_arrPopupHotkeyNames0
 
 IniDelete, %g_strIniFile%, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
-	if HasHotkey(strNewHotkey)
+	if HasShortcut(strNewHotkey)
 		IniWrite, %strNewHotkey%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
@@ -7293,7 +7293,7 @@ Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempD
 Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%strSettingsIconsExtension% ; Static3
 Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%strSettingsIconsExtension% ; Static4
 Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%strSettingsIconsExtension% ; Static5
-Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
+Gui, 1:Add, Picture, vf_picGuiShortcutsManage gGuiShortcutsManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
 Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%strSettingsIconsExtension% ; Static7
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%strSettingsIconsExtension% ; Static8
 g_objToolTipsMessages["Static8"] := lControlToolTipPreviousMenu
@@ -7323,7 +7323,7 @@ Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, 
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static24
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static25
+Gui, 1:Add, Text, vf_lblGuiShortcutsManage center gGuiShortcutsManage x+1 yp, %lDialogHotkeys% ; Static25
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
 Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
 Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
@@ -8200,7 +8200,7 @@ GuiFavoriteInit:
 ; g_strDefaultIconResource -> default icon for the current type of favorite
 ; g_strNewFavoriteIconResource -> icon currently displayed in the Add/Edit dialog box
 
-; g_strNewFavoriteHotkey -> actual hotkey in internal format displayed as text in the Add/Edit dialog box
+; g_strNewFavoriteShortcut -> actual hotkey in internal format displayed as text in the Add/Edit dialog box
 
 ; when edit favorite, keep original values in g_objEditedFavorite
 ; when add favorite, put initial or default values in g_objEditedFavorite and update them when gui save
@@ -8278,9 +8278,9 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	g_blnNewFavoriteFtpEncoding := g_objEditedFavorite.FavoriteFtpEncoding
 
 	if (strGuiFavoriteLabel = "GuiCopyFavorite")
-		g_strNewFavoriteHotkey := "None" ; copied favorite has no hotkey
+		g_strNewFavoriteShortcut := "None" ; copied favorite has no hotkey
 	else
-		g_strNewFavoriteHotkey := g_objEditedFavorite.FavoriteShortcut
+		g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
 
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -8338,7 +8338,7 @@ else ; add favorite
 				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
 		}
 	}
-	g_strNewFavoriteHotkey := "None" ; internal name
+	g_strNewFavoriteShortcut := "None" ; internal name
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 	{
@@ -8677,7 +8677,7 @@ if !(blnIsGroupMember)
 	if (g_objEditedFavorite.FavoriteType <> "Text")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
-		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteHotkey)
+		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 	}
 }
@@ -9010,12 +9010,12 @@ Gui, 2:Submit, NoHide
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	strQAPDefaultHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
 
-strBackupFavoriteHotkey := g_strNewFavoriteHotkey
-g_strNewFavoriteHotkey := SelectHotkey(g_strNewFavoriteHotkey, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultHotkey)
-if StrLen(g_strNewFavoriteHotkey)
-	GuiControl, 2:, f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteHotkey)
+strBackupFavoriteHotkey := g_strNewFavoriteShortcut
+g_strNewFavoriteShortcut := SelectHotkey(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultHotkey)
+if StrLen(g_strNewFavoriteShortcut)
+	GuiControl, 2:, f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 else
-	g_strNewFavoriteHotkey := strBackupFavoriteHotkey
+	g_strNewFavoriteShortcut := strBackupFavoriteHotkey
 
 strQAPDefaultHotkey := ""
 strBackupFavoriteHotkey := ""
@@ -9150,12 +9150,12 @@ GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[f_drpQA
 g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultIcon
 g_strDefaultIconResource := g_strNewFavoriteIconResource 
 
-g_strNewFavoriteHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
+g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
 ; check if hotkey is already used, if yes empty default new hotkey
-; WAS g_strNewFavoriteHotkey := (StrLen(GetHotkeyLocation(g_strNewFavoriteHotkey)) ? "" : g_strNewFavoriteHotkey)
-g_strNewFavoriteHotkey := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteHotkey) ? "" : g_strNewFavoriteHotkey) ; ##### debug
+; WAS g_strNewFavoriteShortcut := (StrLen(GetHotkeyLocation(g_strNewFavoriteShortcut)) ? "" : g_strNewFavoriteShortcut)
+g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut) ; ##### debug
 
-GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteHotkey)
+GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 
 strExistingNameLocation := ""
 
@@ -10470,9 +10470,9 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	if StrLen(g_objEditedFavorite.FavoriteLocation) and (g_objEditedFavorite.FavoriteLocation <> strNewFavoriteLocation)
 	{
 		g_objHotkeysByNameLocation.Remove(FavoriteNameLocationFromObject(g_objEditedFavorite))
-		if StrLen(strNewFavoriteLocation) and HasHotkey(g_strNewFavoriteHotkey)
+		if StrLen(strNewFavoriteLocation) and HasShortcut(g_strNewFavoriteShortcut)
 			g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : strNewFavoriteShortName) ; QAP features name must be empty
-				. "|" . strNewFavoriteLocation, g_strNewFavoriteHotkey) ; if the key already exists, its value is overwritten
+				. "|" . strNewFavoriteLocation, g_strNewFavoriteShortcut) ; if the key already exists, its value is overwritten
 	}
 	*/
 
@@ -10507,9 +10507,9 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
 	
 	Gosub, UpdateFavoritesObjectsByShortcutSave
-	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteHotkey", g_strNewFavoriteHotkey)
-	g_objEditedFavorite.FavoriteShortcut := (HasHotkey(g_strNewFavoriteHotkey) ? g_strNewFavoriteHotkey : "")
-	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteHotkey", g_strNewFavoriteHotkey)
+	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
+	g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
+	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
@@ -11077,11 +11077,11 @@ MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
 
 
 ;============================================================
-GuiHotkeysManage:
-GuiHotkeysManageFromQAPFeature:
+GuiShortcutsManage:
+GuiShortcutsManageFromQAPFeature:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
+if (A_ThisLabel = "GuiShortcutsManageFromQAPFeature")
 	Gosub, GuiShowFromHotkeysManage
 	
 intWidth := 840
@@ -11164,7 +11164,7 @@ if (A_GuiEvent = "DoubleClick")
 	{
 		g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
 		
-		g_strNewFavoriteHotkey := SelectHotkey(g_objEditedFavorite.FavoriteShortcut
+		g_strNewFavoriteShortcut := SelectHotkey(g_objEditedFavorite.FavoriteShortcut
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation, 3
@@ -11172,11 +11172,11 @@ if (A_GuiEvent = "DoubleClick")
 		; SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultHotkey := "", strDescription := "")
 		; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 		; returns the new hotkey, "None" if no hotkey or empty string if cancel
-		if !StrLen(g_strNewFavoriteHotkey)
-			g_strNewFavoriteHotkey := g_objEditedFavorite.FavoriteShortcut
+		if !StrLen(g_strNewFavoriteShortcut)
+			g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
 		
 		Gosub, UpdateFavoritesObjectsByShortcutSaveList
-		g_objEditedFavorite.FavoriteShortcut := (HasHotkey(g_strNewFavoriteHotkey) ? g_strNewFavoriteHotkey : "")
+		g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 	}
 }
 
@@ -11212,7 +11212,7 @@ loop, 4
 for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode
 {
 	if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
-		if HasHotkey(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
+		if HasShortcut(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
 			LV_Add(, , lDialogHotkeysManageAlternativeMenu, g_objQAPFeatures[strQAPFeatureCode].LocalizedName, lDialogHotkeysManageAlternative
 				, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
 }
@@ -12134,7 +12134,7 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 	if !StrLen(SH_strNewHotkey)
 		SH_strNewHotkey := "None"
 	
-	if HasHotkey(SH_strNewHotkey)
+	if HasShortcut(SH_strNewHotkey)
 		Loop, 4
 		{
 			SH_intReverseIndex := -(A_Index-5) ; reverse order of modifiers important to keep modifiers labels in correct order
@@ -12188,11 +12188,11 @@ UpdateFavoritesObjectsByShortcutSave:
 UpdateFavoritesObjectsByShortcutSaveList:
 ;-----------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteHotkey)
+if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut)
 	return
 	
 ; if the shortcut changed, add new or remove item from g_objFavoritesObjectsByShortcut
-if HasHotkey(g_strNewFavoriteHotkey)
+if HasShortcut(g_strNewFavoriteShortcut)
 	g_objFavoritesObjectsByShortcut.Insert(g_objEditedFavorite.FavoriteShortcut, g_objEditedFavorite)
 else
 	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut)
@@ -17164,10 +17164,10 @@ NameIsInObject(strName, obj)
 
 
 ;------------------------------------------------------------
-HasHotkey(strCandidateHotkey)
+HasShortcut(strCandidateShortcut)
 ;------------------------------------------------------------
 {
-	return StrLen(strCandidateHotkey) and (strCandidateHotkey <> "None")
+	return StrLen(strCandidateShortcut) and (strCandidateShortcut <> "None")
 }
 ;------------------------------------------------------------
 
