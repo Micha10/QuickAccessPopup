@@ -10504,7 +10504,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
 	
 	; Gosub, UpdateHotkeyObjectsFavoriteSave ; not required with g_objFavoritesObjectsByShortcut
-	g_objEditedFavorite.FavoriteShortcut := g_strNewFavoriteHotkey
+	g_objEditedFavorite.FavoriteShortcut := (HasHotkey(g_strNewFavoriteHotkey) ? g_strNewFavoriteHotkey : "")
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
