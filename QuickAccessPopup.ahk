@@ -3902,8 +3902,11 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
 			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
+			{
+				###_O("Unknown QAP feature for: " . arrThisFavorite3, g_objQAPFeaturesDefaultNameByCode)
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
+			}
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
@@ -10503,8 +10506,10 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	else
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
 	
-	; Gosub, UpdateHotkeyObjectsFavoriteSave ; not required with g_objFavoritesObjectsByShortcut
+	Gosub, UpdateFavoritesObjectsByShortcutSave
+	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteHotkey", g_strNewFavoriteHotkey)
 	g_objEditedFavorite.FavoriteShortcut := (HasHotkey(g_strNewFavoriteHotkey) ? g_strNewFavoriteHotkey : "")
+	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteHotkey", g_strNewFavoriteHotkey)
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
@@ -11159,7 +11164,6 @@ if (A_GuiEvent = "DoubleClick")
 	{
 		g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
 		
-		strBackupFavoriteHotkey := g_objEditedFavorite.FavoriteShortcut
 		g_strNewFavoriteHotkey := SelectHotkey(g_objEditedFavorite.FavoriteShortcut
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
@@ -11169,20 +11173,10 @@ if (A_GuiEvent = "DoubleClick")
 		; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 		; returns the new hotkey, "None" if no hotkey or empty string if cancel
 		if !StrLen(g_strNewFavoriteHotkey)
-			g_strNewFavoriteHotkey := strBackupFavoriteHotkey
-		else
-			if (g_strNewFavoriteHotkey <> strBackupFavoriteHotkey)
-			{
-				; Gosub, UpdateHotkeyObjectsHotkeysListSave ; was with g_objHotkeysByNameLocation
-				g_objEditedFavorite.FavoriteShortcut := g_strNewFavoriteHotkey
-				
-				GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
-				GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-				GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
-
-				Gosub, LoadHotkeysManageList
-			}
-
+			g_strNewFavoriteHotkey := g_objEditedFavorite.FavoriteShortcut
+		
+		Gosub, UpdateFavoritesObjectsByShortcutSaveList
+		g_objEditedFavorite.FavoriteShortcut := (HasHotkey(g_strNewFavoriteHotkey) ? g_strNewFavoriteHotkey : "")
 	}
 }
 
@@ -11192,7 +11186,6 @@ strHotkeyType := ""
 strMenuPath := ""
 strFavoritePosition := ""
 strNewHotkey := ""
-strBackupFavoriteHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -12190,23 +12183,21 @@ SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavor
 ;------------------------------------------------------------
 
 
-/*
-; Was with g_objHotkeysByNameLocation
 ;-----------------------------------------------------------
-UpdateHotkeyObjectsFavoriteSave:
-UpdateHotkeyObjectsHotkeysListSave:
+UpdateFavoritesObjectsByShortcutSave:
+UpdateFavoritesObjectsByShortcutSaveList:
 ;-----------------------------------------------------------
 
-; if the hotkey changed, add new or remove hotkey from object
-if (g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(g_objEditedFavorite)] <> g_strNewFavoriteHotkey)
-{
-	if HasHotkey(g_strNewFavoriteHotkey)
-		g_objHotkeysByNameLocation.Insert(FavoriteNameLocationFromObject(g_objEditedFavorite), g_strNewFavoriteHotkey)
-	else
-		g_objHotkeysByNameLocation.Remove(FavoriteNameLocationFromObject(g_objEditedFavorite))
-}
+if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteHotkey)
+	return
+	
+; if the shortcut changed, add new or remove item from g_objFavoritesObjectsByShortcut
+if HasHotkey(g_strNewFavoriteHotkey)
+	g_objFavoritesObjectsByShortcut.Insert(g_objEditedFavorite.FavoriteShortcut, g_objEditedFavorite)
+else
+	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut)
 
-if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
+if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
@@ -12217,7 +12208,6 @@ if (A_ThisLabel = "UpdateHotkeyObjectsHotkeysListSave")
 
 return
 ;-----------------------------------------------------------
-*/
 
 
 ;-----------------------------------------------------------
@@ -12250,7 +12240,7 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	
 	; check favorites hotkeys
 	if !StrLen(strExistingLocation)
-		strExistingLocation := g_objFavoritesObjectsByShortcut[strHotkey].FavoriteLocation ; ##### debug
+		strExistingLocation := g_objFavoritesObjectsByShortcut[strHotkey].FavoriteLocation
 	
 	if StrLen(strExistingLocation)
 	{
