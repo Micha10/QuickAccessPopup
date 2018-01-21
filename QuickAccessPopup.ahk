@@ -34,8 +34,11 @@ HISTORY
 Version: 8.7.1.1 (2018-01-21)
 - fix bug introduced in v8.7.1 making the menu miss the QAP features names after user saved changes in the Hotkeys dialog box
 - fix bug "unknown" icons displayed for some favorites in menu after saving favorites for the first time after first launch after installation
+- fix bug write file version number to executable files (32-bit and 64-bit)
+- add executable files version number to setup executable file
+- add AHK runtime version in About dialog box
 - update to traditional Chinese (ZH-TW) language file
-
+ 
 Version: 8.7.1 (2017-12-30)
  
 Run as administrator
@@ -15811,7 +15814,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w380, % L(lAboutText1, g_strAppNameText, g_strAppVersion, A_PtrSize * 8) ;  ; A_PtrSize * 8 = 32 or 64
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
+Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText, A_AhkVersion)
 FormatTime, strYear, , yyyy ; current time
 Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
 Gui, 2:Add, Text, w380, % L(lAboutUserComputerName, A_UserName, A_ComputerName)
