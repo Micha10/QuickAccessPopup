@@ -5485,9 +5485,10 @@ if (g_blnUseColors)
 g_objMenuColumnBreaks := Object()
 g_objFavoritesObjectsByHotstring := Object()
 
-; disable shortcuts and re-init shoprtcuts object before rebuilding menu
+; disable shortcuts and re-init shortcuts objects before rebuilding menu
 gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
 g_objFavoritesObjectsByShortcut := Object()
+g_objShortcutsToRemoveWhenBuilingMenu := Object()
 
 g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
@@ -5990,6 +5991,9 @@ DisableShortcuts:
 ;------------------------------------------------------------
 
 for strShortcut in g_objFavoritesObjectsByShortcut
+	Hotkey, %strShortcut%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+
+for strShortcut in g_objShortcutsToRemoveWhenBuilingMenu
 	Hotkey, %strShortcut%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 
 strShortcut := ""
@@ -10506,9 +10510,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	else
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
 	
-	Gosub, UpdateFavoritesObjectsByShortcutSave
 	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
-	g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
+	Gosub, UpdateFavoritesObjectsByShortcutSave
 	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
@@ -11176,7 +11179,6 @@ if (A_GuiEvent = "DoubleClick")
 			g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
 		
 		Gosub, UpdateFavoritesObjectsByShortcutSaveList
-		g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 	}
 }
 
@@ -12188,14 +12190,21 @@ UpdateFavoritesObjectsByShortcutSave:
 UpdateFavoritesObjectsByShortcutSaveList:
 ;-----------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut)
+if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut) ; if not changed
+	or (!HasShortcut(g_objEditedFavorite.FavoriteShortcut) and !HasShortcut(g_strNewFavoriteShortcut)) ; if both are "None" or empty
 	return
 	
-; if the shortcut changed, add new or remove item from g_objFavoritesObjectsByShortcut
+; if the shortcut changed, add new or remove item from g_objFavoritesObjectsByShortcut and g_objShortcutsToRemoveWhenBuilingMenu
 if HasShortcut(g_strNewFavoriteShortcut)
-	g_objFavoritesObjectsByShortcut.Insert(g_objEditedFavorite.FavoriteShortcut, g_objEditedFavorite)
+{
+	g_objFavoritesObjectsByShortcut.Insert(g_strNewFavoriteShortcut, g_objEditedFavorite) ; insert new shortcut as in g_strNewFavoriteShortcut
+	g_objShortcutsToRemoveWhenBuilingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before (not using deprecated function .Remove)
+}
 else
-	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut)
+{
+	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
+	g_objShortcutsToRemoveWhenBuilingMenu[g_objEditedFavorite.FavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
+}
 
 if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 {
@@ -12205,6 +12214,8 @@ if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 
 	Gosub, LoadHotkeysManageList
 }
+
+g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 
 return
 ;-----------------------------------------------------------
