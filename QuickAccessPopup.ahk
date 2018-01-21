@@ -36,7 +36,7 @@ Version: 8.7.1.1 (2018-01-21)
 - fix bug "unknown" icons displayed for some favorites in menu after saving favorites for the first time after first launch after installation
 - fix bug write file version number to executable files (32-bit and 64-bit)
 - add executable files version number to setup executable file
-- add AHK runtime version in About dialog box
+- compiled with new AHK runtime v1.1.27.03 and display AHK runtime version in About dialog box
 - update to traditional Chinese (ZH-TW) language file
  
 Version: 8.7.1 (2017-12-30)
