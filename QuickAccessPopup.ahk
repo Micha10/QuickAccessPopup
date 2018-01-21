@@ -11183,7 +11183,6 @@ DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked wi
 
 intHotkeysManageListWinID := ""
 strQAPFeatureCode := ""
-g_objQAPFeaturesDefaultNameByCode := ""
 
 return
 ;------------------------------------------------------------
