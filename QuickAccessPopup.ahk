@@ -10914,6 +10914,11 @@ if (blnItemIsMenu)
 	}
 	g_objMenusIndex.Remove(g_objMenuInGui[intItemToRemove].Submenu.MenuPath) ; if user cancels settings changes, menu object will not be re-created (we live with it)
 }
+
+g_objEditedFavorite := g_objMenuInGui[intItemToRemove] ; for UpdateFavoritesObjectsByShortcutSave
+g_strNewFavoriteShortcut := "" ; for UpdateFavoritesObjectsByShortcutSave
+Gosub, UpdateFavoritesObjectsByShortcutSave
+
 g_objMenuInGui.Remove(intItemToRemove)
 
 ; refresh menu dropdpown in gui
@@ -12203,15 +12208,18 @@ UpdateFavoritesObjectsByShortcutSaveList:
 if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut) ; if not changed
 	or (!HasShortcut(g_objEditedFavorite.FavoriteShortcut) and !HasShortcut(g_strNewFavoriteShortcut)) ; if both are "None" or empty
 	return
-	
-; if the shortcut changed, add new or remove item from g_objFavoritesObjectsByShortcut and g_objShortcutsToRemoveWhenBuilingMenu
+
+; shortcut was added, changed or removed
+
 if HasShortcut(g_strNewFavoriteShortcut)
 {
+	; add item to g_objFavoritesObjectsByShortcut and remove from g_objShortcutsToRemoveWhenBuilingMenu (because it is now re-used)
 	g_objFavoritesObjectsByShortcut.Insert(g_strNewFavoriteShortcut, g_objEditedFavorite) ; insert new shortcut as in g_strNewFavoriteShortcut
 	g_objShortcutsToRemoveWhenBuilingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before (not using deprecated function .Remove)
 }
 else
 {
+	; remove item from g_objFavoritesObjectsByShortcut and add it to g_objShortcutsToRemoveWhenBuilingMenu
 	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
 	g_objShortcutsToRemoveWhenBuilingMenu[g_objEditedFavorite.FavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
 }
