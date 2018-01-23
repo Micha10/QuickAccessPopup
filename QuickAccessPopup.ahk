@@ -12229,11 +12229,12 @@ if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
 	GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
-
-	Gosub, LoadHotkeysManageList
 }
 
 g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
+
+if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
+	Gosub, LoadHotkeysManageList
 
 return
 ;-----------------------------------------------------------
