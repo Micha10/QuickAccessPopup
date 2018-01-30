@@ -3459,7 +3459,7 @@ InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := f
 
 ;-----------------------------------------------------------
 LoadIniFile:
-; load options, load/enable popup hotkeys, load favorites to menu object
+; load options, load favorites to menu object
 ;-----------------------------------------------------------
 
 Gosub, BackupIniFile
@@ -3491,7 +3491,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
-			HotkeysUpgradedToNameLocation=1
+			NameLocationHotkeysUpgraded=1
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -3574,8 +3574,6 @@ else
 }
 
 Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
-; Now in load favorites
-; Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
 
 ; ---------------------
 ; Load Options Tab 1 General
@@ -3715,6 +3713,8 @@ IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false,
 
 Gosub, LoadMenuFromIni
 
+Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
+
 arrMainMenu := ""
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
@@ -3723,7 +3723,6 @@ strAlternativeHotkeyKeyboardDefault := ""
 strPopupFixPosition := ""
 blnDefaultMenuBuilt := ""
 blnMyQAPFeaturesBuilt := ""
-strLoadIniLine := ""
 arrThisFavorite := ""
 objLoadIniFavorite := ""
 arrSubMenu := ""
@@ -4248,6 +4247,89 @@ blnHotkeysUpgradedToNameLocation := ""
 return
 ;------------------------------------------------------------
 */
+
+
+;------------------------------------------------------------
+ConvertLocationHotkeys:
+;------------------------------------------------------------
+
+; check if name-location hotkeys need to be converted to v8.8 favorites shortcut format
+IniRead, blnNameLocationHotkeysUpgraded, %g_strIniFile%, Global, NameLocationHotkeysUpgraded, 0 ; default false
+if (blnNameLocationHotkeysUpgraded) ; already upgraded, no need to convert
+	return
+
+; check if location hotkeys need to be converted to v8.1 "name|location|hotkey" format before converting to v8.8 favorites shortcut format
+IniRead, blnHotkeysUpgradedToNameLocation, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation, 0 ; default false
+
+blnNeedToSave := false
+Loop ; convert each LocationHotkeys to shortcut for the first favorites matching name and location
+{
+	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
+	if (strLocationHotkey = "ERROR")
+		break
+	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
+	
+	if !(blnHotkeysUpgradedToNameLocation)
+	; convert format from pre-v8.1 "location|hotkey" to "name|location|hotkey", using the name of the first favorite found for location
+	{
+		arrLocationHotkey3 := arrLocationHotkey2 ; in this order, move hotkey to 3rd position
+		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
+		Loop
+		{
+			IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
+			if (strLoadIniLine = "ERROR")
+				break
+			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
+			StringSplit, arrLoadIniLine, strLoadIniLine, |
+			if (arrLoadIniLine3 = arrLocationHotkey1)
+				arrLocationHotkey1 := arrLoadIniLine2 ; put name in arrLocationHotkey1
+		}
+	}
+	; now arrLocationHotkey1 contains the name, arrLocationHotkey2 contains the location and arrLocationHotkey3 contains the hotkey
+	; find first favorite for this name-location in menu object 
+	for strMenuName, objThisMenu in g_objMenusIndex
+		for intIndex, objThisFavorite in objThisMenu
+		{
+			strThisFavoriteName := (objThisFavorite.FavoriteType = "QAP" ? "" : objThisFavorite.FavoriteName) ; compare empty name for QAP Features favorites
+			if (strThisFavoriteName = arrLocationHotkey1) and (objThisFavorite.FavoriteLocation = arrLocationHotkey2)
+			{
+				objThisFavorite.FavoriteShortcut := arrLocationHotkey3
+				blnNeedToSave := true
+				break, 2 ; exit 2 for-loops
+			}
+		}			
+}
+
+if (blnNeedToSave)
+{
+	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion)
+		, % L("Hotkeys section in your settings file has been upgraded for this version (~1~). The upgraded settings will be saved.", g_strAppVersion)
+	FileCopy, %g_strIniFile%, %g_strIniFile%-pre_v8_8_hotkeys-BK, 1 ; the backup file should not exist but, in case, overwrite it
+	; must be after FileCopy
+	IniRead, strHotkeysIniSection, %g_strIniFile%, LocationHotkeys
+	IniWrite, %strHotkeysIniSection%, %g_strIniFile%, LocationHotkeys-pre_v8_8_hotkeys-BK
+	IniDelete, %g_strIniFile%, LocationHotkeys
+	IniWrite, 1, %g_strIniFile%, Global, NameLocationHotkeysUpgraded
+	Gosub, GuiSaveAndReloadQAP
+}
+
+
+blnNameLocationHotkeysUpgraded := ""
+blnHotkeysUpgradedToNameLocation := ""
+strLocationHotkey := ""
+arrLocationHotkey := ""
+strLoadIniLine := ""
+arrLoadIniLine := ""
+strMenuName := ""
+objThisMenu := ""
+intIndex := ""
+objThisFavorite := ""
+strThisFavoriteName := ""
+blnNeedToSave := ""
+strHotkeysIniSection := ""
+
+return
+;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -7004,7 +7086,7 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 }	
 else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
 {
-	; Do not use ReloadQAP because it would reloas itself with admin right
+	; Do not use ReloadQAP because it would reload itself with admin right
 	MsgBox, 52, %g_strAppNameText%, % L(lOptionsRunAsAdminExit, g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ExitApp
@@ -9167,8 +9249,7 @@ g_strDefaultIconResource := g_strNewFavoriteIconResource
 
 g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
 ; check if hotkey is already used, if yes empty default new hotkey
-; WAS g_strNewFavoriteShortcut := (StrLen(GetHotkeyLocation(g_strNewFavoriteShortcut)) ? "" : g_strNewFavoriteShortcut)
-g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut) ; ##### debug
+g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
 
 GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 
@@ -11664,6 +11745,7 @@ return
 GuiSaveAndCloseFavorites:
 GuiSaveAndStayFavorites:
 GuiSaveAndDoNothing:
+GuiSaveAndReloadQAP:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
@@ -11681,6 +11763,9 @@ IniDelete, %g_strIniFile%, Favorites
 
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
+
+if (A_ThisLabel = "GuiSaveAndReloadQAP")
+	Gosub, ReloadQAP
 
 ToolTip, %lGuiSaving%.. ; animated tooltip
 
@@ -13915,33 +14000,6 @@ if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavorite
 else if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
 {
 	g_objThisFavorite := g_objFavoritesObjectsByShortcut[A_ThisHotkey]
-	; blnLocationFound := false
-	; strThisNameLocation := GetHotkeyNameLocation(A_ThisHotkey)
-	; StringSplit, arrThisNameLocation, strThisNameLocation, |
-
-	; for strMenuPath, objMenu in g_objMenusIndex
-	; {
-		; loop, % objMenu.MaxIndex()
-		; {
-			; strTempName := (objMenu[A_Index].FavoriteType = "QAP" ? "" : objMenu[A_Index].FavoriteName)
-			; if (strTempName = arrThisNameLocation1 and objMenu[A_Index].FavoriteLocation = arrThisNameLocation2)
-			; {
-				; g_objThisFavorite := objMenu[A_Index]
-				; blnLocationFound := true
-				; break, 2
-			; }
-		; }
-	; }
-	
-	; if !(blnLocationFound)
-	; could happen if hotkey was linked to a favorite in external menu that was changed or removed
-	; orphan hotkeys will be removed next time favorites are saved
-	; {
-		; Oops(lOopsHotkeyNotInMenus, arrThisNameLocation2, A_ThisHotkey)
-		
-		; gosub, OpenFavoriteGetFavoriteObjectCleanup
-		; return
-	; }
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
@@ -16588,58 +16646,6 @@ GetOSVersionInfo()
 	return Ver
 }
 ;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetFirstName4Location(strLocation)
-;------------------------------------------------------------
-{
-	global g_strIniFile
-
-	Loop
-	{
-		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
-		if (strLoadIniLine = "ERROR")
-			break
-		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
-		StringSplit, arrThisFavorite, strLoadIniLine, |
-		if (arrThisFavorite3 = strLocation)
-			return arrThisFavorite2
-	}
-	; else function returns ""
-}
-;------------------------------------------------------------
-
-
-/*
-; was for g_objHotkeysByNameLocation
-;------------------------------------------------------------
-GetHotkeyLocation(strHotkey)
-;------------------------------------------------------------
-{
-	strNameLocation := GetHotkeyNameLocation(strHotkey)
-	StringSplit, arrNameLocation, strNameLocation, |
-	
-	return arrNameLocation2
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetHotkeyNameLocation(strHotkey)
-;------------------------------------------------------------
-{
-	; global g_objHotkeysByNameLocation
-	global #####
-	
-	for strNameLocation, strThisHotkey in g_objHotkeysByNameLocation
-		if (strHotkey = strThisHotkey)
-			return strNameLocation
-	
-	return ""
-}
-;------------------------------------------------------------
-*/
 
 
 ;------------------------------------------------------------
