@@ -14004,7 +14004,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
 	{
-		objMenu := g_objMenusIndex[lMainMenuName . " " . arrThisNameLocation2]
+		objMenu := g_objThisFavorite.SubMenu
 		if objMenu.MaxIndex() > 1 ; has more than the backlink entry
 		{
 			loop, % objMenu.MaxIndex()
@@ -14017,7 +14017,7 @@ else if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
 		}
 		else
 		{
-			Oops(lMenuMenu . """" . g_objThisFavorite.FavoriteName . """" . lOopsEmpty)
+			Oops(lMenuMenu . " """ . g_objThisFavorite.FavoriteName . """ " . lOopsEmpty)
 			g_objThisFavorite := ""
 		}
 	}
