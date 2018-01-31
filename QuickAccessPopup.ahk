@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.7.1.93 (2018-01-31)
+- internal changes for a simplified management of favorites keyboard and mouse shortcuts
+- in the settings file (quickaccesspopup.ini), shortcuts are now saved in the favorites lines in the [Favorites] section instead of the separate [LocationHotkeys] section
+- upgrade previous settings file to the new favorites shortcuts format; NOTE: new version of the settings file should not be used with older version of QAP
+
 Version BETA: 8.7.1.92 (2018-01-21)
 - merge bux fixes from master release v8.7.1.1
 
@@ -1930,7 +1935,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.92
+;@Ahk2Exe-SetVersion 8.7.1.93
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2013,7 +2018,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.92" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.93" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3956,8 +3961,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveColumns := arrThisFavorite17 ; number of items per columns in live folder menus
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
-		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.9n) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.9n) hotstring to launch this favorite
+		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
+		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.93) hotstring to launch this favorite
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
