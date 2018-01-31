@@ -8783,6 +8783,10 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
+		
+		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
+		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, % g_objEditedFavorite.FavoriteHotstring
+		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogHotstringsHelp, "http://quickaccesspopup.com") ; #####
 	}
 }
 
@@ -10428,6 +10432,12 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
+	if StrLen(f_strHotstring) and InStr(f_strHotstring, " ") ; ##### other chars to reject
+	{
+		Oops(lOopsInvalidHotstring)
+		gosub, GuiAddFavoriteSaveCleanup
+		return
+	}
 }
 
 loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
@@ -10567,18 +10577,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	g_objEditedFavorite.FavoriteName := strNewFavoriteShortName
 	
-	/*
-	Not required with g_objFavoritesObjectsByShortcut
-	; before updating g_objEditedFavorite.FavoriteLocation, check if location was changed and update hotkeys objects
-	if StrLen(g_objEditedFavorite.FavoriteLocation) and (g_objEditedFavorite.FavoriteLocation <> strNewFavoriteLocation)
-	{
-		g_objHotkeysByNameLocation.Remove(FavoriteNameLocationFromObject(g_objEditedFavorite))
-		if StrLen(strNewFavoriteLocation) and HasShortcut(g_strNewFavoriteShortcut)
-			g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : strNewFavoriteShortName) ; QAP features name must be empty
-				. "|" . strNewFavoriteLocation, g_strNewFavoriteShortcut) ; if the key already exists, its value is overwritten
-	}
-	*/
-
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
@@ -10615,6 +10613,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
+	
+	g_objEditedFavorite.FavoriteHotstring := f_strHotstring
 	
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -10820,6 +10820,7 @@ f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
 f_blnFavoriteElevate := ""
 f_strHotkeyText := ""
+f_strHotstring := ""
 f_blnRadioSendModeMacro := ""
 f_strFavoriteSnippetPrompt := ""
 f_blnFavoriteFolderLive := ""
@@ -16101,7 +16102,7 @@ Gui, 2:Tab, 3
 Gui, 2:Add, Link, w%intWidth%, % lHelpText31
 Gui, 2:Add, Link, w%intWidth% y+3, % lHelpText32
 Gui, 2:Add, Link, w%intWidth%, % lHelpText33
-Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}"))) ; ##### debug, what if no fav for settings?
+Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")))
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext3")
 
@@ -16663,7 +16664,7 @@ GetFavoriteHotkeyFromLocation(strLocation)
 	
 	for strShortcut, objFavorite in g_objFavoritesObjectsByShortcut
 		if (objFavorite.FavoriteLocation = strLocation)
-			return objFavorite.FavoriteLocation
+			return objFavorite.FavoriteShortcut
 		
 	return lDialogNone
 }

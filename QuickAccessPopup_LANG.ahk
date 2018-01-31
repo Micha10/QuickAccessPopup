@@ -181,6 +181,8 @@ global lDialogHotkeysManageListSeeAllFavorites := "See all favorites" ; new
 global lDialogHotkeysManageListSeeShortHotkeyNames := "See abbreviated hotkey names" ; new
 global lDialogHotkeysManagePopup := "Popup" ; keep Popup in all languages?
 global lDialogHotkeysManageTitle := "Manage Hotkeys - ~1~ ~2~" ; new
+global lDialogHotstring := "Hotstring"
+global lDialogHotstringsHelp := "##### Help <a href=""~1~"">link</a> #####"
 global lDialogIcon := "Favorite Icon" ; changed
 global lDialogIconsManage := "Icons"
 global lDialogIconsManageAbout := "Select new icons for your favorites or set them to the default icon for their type. Do not forget to save your changes in the Settings window." ; new
@@ -484,6 +486,7 @@ global lOopsGroup := "group" ; new
 global lOopsHotkeyAlreadyUsed := "The hotkey ""~1~"" is already used for ~2~.`n`nPlease choose another hotkey for ~3~." ; new
 global lOopsHotkeyNotInMenus := "Error: location ""~1~"" for hotkey ""~1~"" not found in menus." ; new
 global lOopsHttpLocationTransformed := "The http location (URL format) has been transformed to a network path (UNC format) for compatibility with Windows:`n`n~1~`n~2~" ; changed
+global lOopsInvalidHotstring := "Invalid character in hotstring (no space, #####)"
 global lOopsInvalidWinCmdIni := "Total Commander settings file ""wincmd.ini"" not found.`n`nSelect the file in ""Options"", ""File managers"" tab."
 global lOopsInvalidWindowPosition := "Invalid window position value(s)" ; new
 global lOopsLaunchWithNotFound := """Launch with this application"" file not found:`n`n~1~`n`nCheck the favorite's advanced settings." ; new
