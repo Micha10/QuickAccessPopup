@@ -2072,7 +2072,6 @@ g_objQAPFeaturesDefaultNameByCode := Object()
 g_objQAPFeaturesAlternativeCodeByOrder := Object()
 g_strQAPFeaturesList := ""
 
-; g_objHotkeysByNameLocation := Object() ; Hotkeys by Name|Location (concatenated with "|" pipe separator)
 g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
 g_objFavoritesObjectsByHotstring := Object()
 
@@ -3712,6 +3711,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
+IniRead, g_blnEnableHotstrings, %g_strIniFile%, Global, EnableHotstrings, 1 ; default true
 
 ; ---------------------
 ; Load favorites
@@ -6203,8 +6203,8 @@ Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunA
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnable Hotstrings, %lOptionsEnableHotstrings%
-GuiControl, , f_blnRememberEnableHotstrings, %g_blnEnableHotstrings% ; ######
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableHotstrings, %lOptionsEnableHotstrings%
+GuiControl, , f_blnEnableHotstrings, %g_blnEnableHotstrings%
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
@@ -6869,6 +6869,8 @@ IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSetti
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
+g_blnEnableHotstrings := f_blnEnableHotstrings
+IniWrite, %g_blnEnableHotstrings%, %g_strIniFile%, Global, EnableHotstrings
 
 strLanguageCodePrev := g_strLanguageCode
 g_strLanguageLabel := f_drpLanguage
