@@ -182,7 +182,9 @@ global lDialogHotkeysManageListSeeShortHotkeyNames := "See abbreviated hotkey na
 global lDialogHotkeysManagePopup := "Popup" ; keep Popup in all languages?
 global lDialogHotkeysManageTitle := "Manage Hotkeys - ~1~ ~2~" ; new
 global lDialogHotstring := "Hotstring"
-global lDialogHotstringsHelp := "##### Help <a href=""~1~"">link</a> #####"
+global lDialogHotstringKeepTrigger := "Keep trigger"
+global lDialogHotstringCaseSensitive := "Case sensitive"
+global lDialogHotstringWaitEndingKey := "Wait ending key"
 global lDialogIcon := "Favorite Icon" ; changed
 global lDialogIconsManage := "Icons"
 global lDialogIconsManageAbout := "Select new icons for your favorites or set them to the default icon for their type. Do not forget to save your changes in the Settings window." ; new

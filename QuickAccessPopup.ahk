@@ -2202,6 +2202,9 @@ if (g_blnDisplayTrayTip)
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
 
+if (g_blnEnableHotstrings)
+	gosub, EnableHotstrings
+
 g_blnMenuReady := true
 
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
@@ -3532,7 +3535,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite3=Folder|Program Files|%A_ProgramFiles%
 			Favorite4=Folder|User Profile|`%USERPROFILE`%
 			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
-			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|:b*:#qap#
+			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|#qap#|
 			Favorite7=Z
 
 ) ; leave the last extra line above
@@ -3857,7 +3860,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
-		; 20 FavoriteShortcut, 21 FavoriteHotstring
+		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteHotstringOptions
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -3963,6 +3966,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
 		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.93) hotstring to launch this favorite
+		objLoadIniFavorite.FavoriteHotstringOptions := arrThisFavorite22 ; (new in v8.7.1.93) hotstring options
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -4391,6 +4395,212 @@ IniRead, g_strMenuBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, MenuBackgro
 
 return
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EnableHotstrings:
+; adapted from Menixator (https://autohotkey.com/boards/viewtopic.php?f=6&t=3329)
+;------------------------------------------------------------
+
+g_strHotkeyPrefix := "~$" ; "~" to send the hotkey to the active window and "$" to allow to Send the hotkey itself
+g_strHotstringsTyped := ""
+
+g_objHotstringsKeys := {"Symbols": "!""#$%&'()*+,-./:;<=>?@[\]^_``{|}~", "Num": "0123456789", "Alpha": "abcdefghijklmnopqrstuvwxyz"
+	, "Other": "BS,Return,Tab,Space"
+	, "BreakKeys": "Left,Right,Up,Down,Home,End,RButton,LButton,LControl,RControl,LAlt,AppsKey,Lwin,Rwin,WheelDown,WheelUp,f1,f2,f3,f4,f5,f6,f7,f8,f9,f6,f7,f9,f10,f11,f12"
+	, "Numpad": "Numpad0,Numpad1,Numpad2,Numpad3,Numpad4,Numpad5,Numpad6,Numpad7,Numpad8,Numpad9,NumpadDot,NumpadDiv,NumpadMult,NumpadAdd,NumpadSub,NumpadEnter"}
+g_objHotstringsEffect := {"Return": "`n", "Tab": A_Tab, "Space": A_Space, "Enter": "`n", "Dot": ".", "Div": "/", "Mult": "*", "Add": "+", "Sub": "-"}
+
+g_strHotstringsEndingKeys := "-()':;""/,.?!" ; plus `n `t space processed separately; issues with: "[]{}\" because of AltGr; in AHK hostrings are: -()[]{}':;"/\,.?!`n `t
+
+; binds the keys to watch for triggers
+for intKey, strKeys in ["Symbols", "Num", "Alpha"]
+{
+	; alphanumeric/symbols
+	strKeys := g_objHotstringsKeys[strKeys]
+	Loop, Parse, strKeys
+		Hotkey, %g_strHotkeyPrefix%%A_LoopField%, HotstringsReceive
+}
+
+; capital alpha
+strKeys := g_objHotstringsKeys.Alpha
+Loop, Parse, strKeys
+	Hotkey, %g_strHotkeyPrefix%+%A_Loopfield%, HotstringsReceive
+for intKey, strKeys in ["Other", "BreakKeys", "Numpad"]
+{
+	; comma separated values
+	strKeys := g_objHotstringsKeys[strKeys]
+	Loop, Parse, strKeys, `,
+		Hotkey, %g_strHotkeyPrefix%%A_LoopField%, HotstringsReceive
+}
+
+intKey := ""
+strKeys := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+HotstringsReceive:
+; if Hotstrings are enabled, this label is triggered every time a key is pressed
+;------------------------------------------------------------
+
+strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
+###_HotstringsDebug(1, "strHotstringsHotkey reçu: """ . strHotstringsHotkey . """")
+
+; process matched hotstring waiting for ending key
+if (g_blnHotstringMatchedWaitingEndingKey) and (InStr(g_strHotstringsEndingKeys, strHotstringsHotkey) or InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ","))
+{
+	; we have a match and an ending key, process trigger and return
+	###_HotstringsDebug(8, "g_strHotstringsTyped après Match avec Ending key:`n" . g_strHotstringsTyped)
+	gosub, HotstringsProcessTriggerWithEndingKey
+	return
+}
+else ; we don't have a match yet or the key pressed after a match was not an ending key
+{
+	g_blnHotstringMatchedWaitingEndingKey := false
+	###_HotstringsDebug(2, "")
+}
+
+; append the key to the string monitored for trigger
+
+; processs capital letters
+if ((StrLen(strHotstringsHotkey) = 2) and (Substr(strHotstringsHotkey, 1, 1) = "+") and Instr(g_objHotstringsKeys.Alpha, Substr(strHotstringsHotkey, 2, 1)))
+{
+	strHotstringsHotkey := Substr(strHotstringsHotkey, 2)
+	if (!GetKeyState("Capslock", "T")) ; retrieve the Toggle state, true (1) for "on" and false (0) for "off"
+		StringUpper, strHotstringsHotkey, strHotstringsHotkey
+}
+blnShiftState := GetKeyState("Shift", "P") ; retrieve the Physical state
+; if capslock is down, shift's function is reversed (ie pressing shift and a key while capslock is on will provide the lowercase key)
+blnUppercase := (GetKeyState("Capslock", "T") ? !blnShiftState : blnShiftState)
+if (blnUppercase and Instr(g_objHotstringsKeys.Alpha, strHotstringsHotkey))
+	StringUpper, strHotstringsHotkey, strHotstringsHotkey
+
+; process break keys, keys resetting the string monitored for trigger
+if (Instr("," . g_objHotstringsKeys.BreakKeys . ",", "," . strHotstringsHotkey . ","))
+{
+	g_strHotstringsTyped := ""
+	###_HotstringsDebug(3, "Break key: """ . strHotstringsHotkey . """")
+	###_HotstringsDebug(8, "g_strHotstringsTyped après Break key:`n" . g_strHotstringsTyped)
+	return
+}
+; convert some special keys from label to their actual AHK code
+else if InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ",")
+	g_strHotstringsTyped .= g_objHotstringsEffect[strHotstringsHotkey]
+; trim g_strHotstringsTyped if Backspace was pressed
+else if (strHotstringsHotkey = "BS")
+{
+	StringTrimRight, g_strHotstringsTyped, g_strHotstringsTyped, 1
+	###_HotstringsDebug(8, "g_strHotstringsTyped après BS:`n" . g_strHotstringsTyped)
+	return
+}
+; process numeric pad keys
+else if (RegExMatch(strHotstringsHotkey, "Numpad(.+?)", arrNumpadKey)) ; put what follows "Numpad" in an array of one item
+	; ~= is a  shorthand for RegExMatch
+	if (arrNumpadKey1 ~= "\d") ; "\d" returns position of first numeric character in arrNumpadKey1 or true if it contains a number
+		g_strHotstringsTyped .= arrNumpadKey1 ; append the number
+	else
+		g_strHotstringsTyped .= g_objHotstringsEffect[arrNumpadKey1] ; append the numpad action key to its actual single char
+; it is a regular char to append to the string monitored for trigger
+else
+	g_strHotstringsTyped .= strHotstringsHotkey
+###_HotstringsDebug(2, "strHotstringsHotkey traité: """ . strHotstringsHotkey . """")
+###_HotstringsDebug(8, "g_strHotstringsTyped après traité:`n" . g_strHotstringsTyped . "`n> " . g_objFavoritesObjectsByHotstring.HasKey(g_strHotstringsTyped))
+
+###_strDebugIf := ""
+; check if we have a hotstring in the monitored string
+
+if g_objFavoritesObjectsByHotstring.HasKey(g_strHotstringsTyped)
+{
+	###_O("yes", g_objFavoritesObjectsByHotstring[g_strHotstringsTyped])
+
+	/*
+	for strThisHotstring, strNameLocation in g_objNameLocationByHotstrings
+	{
+		; strThisHotstring format: ":bc*:trigger::"
+		; "c" case sensitive (default off), "*" ending character not required (default off?), "b" backspace trigger (default true)
+		
+		RegExMatch(strThisHotstring, "i):([bc*]*):(.*)", arrMatch) ; ##### validate regex
+		if !StrLen(arrMatch2)
+		{
+			Oops("Error in hotstring: """ . strThisHotstring . """")
+			break
+		}
+		###_strDebugIf .= A_Index . " IF """ . arrMatch2 . """ avec """ . arrMatch1 . """ -> " . InStr(g_strHotstringsTyped, arrMatch2, InStr(arrMatch1, "c")) . "`n"
+		
+		if InStr(g_strHotstringsTyped, arrMatch2, InStr(arrMatch1, "c")) ; we have a match
+		{
+			###_HotstringsDebug(6, ###_strDebugIf)
+			g_blnHotstringDeleteTrigger := InStr(arrMatch1, "b") ; hotstring backspace option 
+			g_strMatchedHotstringTrigger := arrMatch2 ; typed trigger
+			g_strMatchedHotstringNameLocation := strNameLocation 
+			
+			if InStr(arrMatch1, "*") ; ending character is not required, process
+				gosub, HotstringsProcessTrigger
+			else ; wait for end key before processing
+				g_blnHotstringMatchedWaitingEndingKey := true
+			
+			break ; skip other hotstrings
+		}
+		else
+			###_HotstringsDebug(6, ###_strDebugIf)
+	}
+	*/
+}
+
+strHotstringsHotkey := ""
+blnShiftState := ""
+blnUppercase := ""
+arrNumpadKey := ""
+strThisHotstring := ""
+strNameLocation := ""
+arrMatch := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+HotstringsProcessTrigger:
+HotstringsProcessTriggerWithEndingKey:
+;------------------------------------------------------------
+
+SoundBeep, 400
+###_HotstringsDebug(7, A_ThisLabel . " - " . g_blnHotstringDeleteTrigger . " - " . g_strMatchedHotstringTrigger)
+if (g_blnHotstringDeleteTrigger) ; backspace trigger
+{
+	; if (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey")
+		; SendInput, {Left} ; preserve the ending key
+
+	; delete the trigger
+	SendInput, % "{BS " . StrLen(g_strMatchedHotstringTrigger) + (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey" ? 1 : 0) . "}"
+	
+	; if (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey")
+		; SendInput, {Right} ; move after the ending key
+}
+
+g_blnHotstringMatchedWaitingEndingKey := false
+g_strHotstringsTyped := ""
+gosub, OpenFavoriteFromHotstring ; with g_strMatchedHotstringNameLocation
+###_HotstringsDebug(8, "g_strHotstringsTyped après " . A_ThisLabel . ":`n" . g_strHotstringsTyped)
+
+return
+;------------------------------------------------------------
+
+
+###_HotstringsDebug(intNo, strText)
+{
+	; COMMENT TO ENABLE DEBUG
+	; return
+	
+	CoordMode, ToolTip, Screen
+	
+	intX := 1200
+	intY := intNo * 100
+	ToolTip, %strText%, %intX%, %intY%, %intNo%
+}
 
 
 
@@ -5686,7 +5896,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			g_objFavoritesObjectsByHotstring.Insert(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
 			if (g_intHotkeyReminders > 1)
-				strMenuName .= " ##"
+				strMenuName .= " [#]"
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -8785,8 +8995,12 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
-		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, % g_objEditedFavorite.FavoriteHotstring
-		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogHotstringsHelp, "http://quickaccesspopup.com") ; #####
+		Gui, 2:Add, Link, x+10 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
+		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, % g_objEditedFavorite.FavoriteHotstring ; ##### FavoriteHotstringOptions
+		; "c" case sensitive (default off), "*" ending character not required (default off), "k" keep trigger (default off)
+		Gui, 2:Add, Checkbox, % "x20 y+5 vf_blnHotstringCaseSensitive " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
+		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "*") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
+		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringKeepTrigger " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "k") ? "checked" : ""), %lDialogHotstringKeepTrigger%
 	}
 }
 
@@ -10432,7 +10646,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
-	if StrLen(f_strHotstring) and InStr(f_strHotstring, " ") ; ##### other chars to reject
+	if StrLen(f_strHotstring) and InStr(f_strHotstring, " ") ; ##### other chars to reject: -()':;""/,.?!" plus `n `t
 	{
 		Oops(lOopsInvalidHotstring)
 		gosub, GuiAddFavoriteSaveCleanup
@@ -10615,7 +10829,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
 	g_objEditedFavorite.FavoriteHotstring := f_strHotstring
-	
+	g_objEditedFavorite.FavoriteHotstringOptions := (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
+
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
 		g_objEditedFavorite.FavoriteGroupSettings := f_blnRadioGroupReplace
@@ -11879,6 +12094,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
 			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstring . "|" ; 21
+			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstringOptions . "|" ; 22
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -13480,8 +13696,11 @@ OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
 OpenReopenCurrentFolder:
+OpenFavoriteFromHotstring:
 ;------------------------------------------------------------
 
+if (A_ThisLabel = "OpenFavoriteFromHotstring")
+	###_D(A_ThisLabel)
 if (g_blnChangeHotkeyInProgress)
  	return
 
@@ -13500,7 +13719,7 @@ else
 	blnControlPressed := false
 }
 
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut")
+if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFavoriteLabel)
 {
 	if SettingsUnsaved()
 		if SettingsNotSavedReturn()
@@ -13869,7 +14088,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
