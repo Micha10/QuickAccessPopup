@@ -488,7 +488,7 @@ global lOopsGroup := "group" ; new
 global lOopsHotkeyAlreadyUsed := "The hotkey ""~1~"" is already used for ~2~.`n`nPlease choose another hotkey for ~3~." ; new
 global lOopsHotkeyNotInMenus := "Error: location ""~1~"" for hotkey ""~1~"" not found in menus." ; new
 global lOopsHttpLocationTransformed := "The http location (URL format) has been transformed to a network path (UNC format) for compatibility with Windows:`n`n~1~`n~2~" ; changed
-global lOopsInvalidHotstring := "Invalid character in hotstring (no space, #####)"
+global lOopsInvalidHotstring := "Invalid char in hotstring.`n`nValid chars in hotstrings are:`n`nletters (a-z)`nnumbers (0-9)`nand these symbols:`n# $ % & * + < = > @ ^ _ ` | ~"
 global lOopsInvalidWinCmdIni := "Total Commander settings file ""wincmd.ini"" not found.`n`nSelect the file in ""Options"", ""File managers"" tab."
 global lOopsInvalidWindowPosition := "Invalid window position value(s)" ; new
 global lOopsLaunchWithNotFound := """Launch with this application"" file not found:`n`n~1~`n`nCheck the favorite's advanced settings." ; new
