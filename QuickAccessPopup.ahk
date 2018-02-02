@@ -2048,6 +2048,7 @@ g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separ
 g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
 g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in any item name
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
+g_strHotstringIndicator := "*"
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
 g_strFolderLiveIndicator := "!"
@@ -5804,7 +5805,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objQAPFeatures
 	global g_objMenuColumnBreaks
 	global g_intHotkeyReminders
-	; global g_objHotkeysByNameLocation
 	global g_objFavoritesObjectsByShortcut
 	global g_objFavoritesObjectsByHotstring
 	global g_strMenuPathSeparator
@@ -5814,6 +5814,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objJLiconsByName
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
+	global g_strHotstringIndicator
 
 	intMenuNumber := 0
 	
@@ -5869,7 +5870,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
 			if (g_intHotkeyReminders > 1)
-				strMenuName .= " [#]"
+				strMenuName .= " " . g_strHotstringIndicator
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -7264,7 +7265,7 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 	}
 	else ; (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
 	{
-		StringReplace, strOptionNoAmpersand, lDialogHotstring, &
+		StringReplace, strOptionNoAmpersand, lDialogHotstrings, &
 		strValue := lOptionsEnableHotstrings . " " . (g_blnEnableHotstrings ? lDialogOn : lDialogOff)
 	}
 
@@ -7695,6 +7696,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
 	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut)
+	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
+		strThisHotkey .= " " . g_strHotstringIndicator
 	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
@@ -7817,6 +7820,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 	; global g_objHotkeysByNameLocation
 	global g_strMenuPathSeparator
 	global g_strGroupIndicatorPrefix
+	global g_strHotstringIndicator
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
@@ -7825,7 +7829,8 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 		{
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
-				
+			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
+				strThisHotkey .= " " . g_strHotstringIndicator
 			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Menu")
@@ -10842,8 +10847,11 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
-	g_objEditedFavorite.FavoriteHotstring := f_strHotstring . ":"
-		. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
+	if StrLen(f_strHotstring)
+		g_objEditedFavorite.FavoriteHotstring := f_strHotstring . ":"
+			. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
+	else
+		g_objEditedFavorite.FavoriteHotstring := ""
 
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -11433,15 +11441,17 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
+Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460", %lDialogHotkeys%|%lDialogHotstrings%
+
 Gui, 2:Font, w600
-Gui, 2:Add, Text, x10 y10, % L(lDialogHotkeysManageAbout, g_strAppNameText)
+Gui, 2:Add, Text, x20 y40, % L(lDialogHotkeysManageAbout, g_strAppNameText)
 Gui, 2:Font
 
-Gui, 2:Add, Text, x10 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, lDialogHotkeysManageListSeeAllFavorites, lDialogHotkeysManageListSeeFullHotkeyNames)
+Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, lDialogHotkeysManageListSeeAllFavorites, lDialogHotkeysManageListSeeFullHotkeyNames)
 
 Gui, 2:Add, Listview
 	, % "vf_lvHotkeysManageList Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
-	. " gHotkeysManageListEvents x10 y+10 w" . intWidth - 40. " h340"
+	. " gHotkeysManageListEvents x20 y+10 w" . intWidth - 0. " h340"
 	, #|%lDialogHotkeysManageListHeader%|Object Position (hidden)
 
 Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lDialogHotkeysManageListSeeAllFavorites%
@@ -11450,6 +11460,7 @@ GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no na
 
 Gosub, LoadHotkeysManageList
 
+Gui, 2:Tab
 Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
 Gui, 2:Add, Text, x10, %A_Space%

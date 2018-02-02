@@ -184,6 +184,7 @@ global lDialogHotkeysManageTitle := "Manage Hotkeys - ~1~ ~2~" ; new
 global lDialogHotstring := "Hotstring"
 global lDialogHotstringKeepHotstring := "Keep hotstring"
 global lDialogHotstringCaseSensitive := "Case sensitive"
+global lDialogHotstrings := "Hotstrings"
 global lDialogHotstringWaitEndingKey := "Wait ending key"
 global lDialogIcon := "Favorite Icon" ; changed
 global lDialogIconsManage := "Icons"
