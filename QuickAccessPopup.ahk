@@ -4408,7 +4408,7 @@ g_strHotstringsTyped := ""
 g_objHotstringsKeys := {"Symbols": "!""#$%&'()*+,-./:;<=>?@[\]^_``{|}~", "Num": "0123456789", "Alpha": "abcdefghijklmnopqrstuvwxyz"
 	, "Other": "BS,Return,Tab,Space"
 	, "BreakKeys": "Left,Right,Up,Down,Home,End,RButton,LButton,LControl,RControl,LAlt,AppsKey,Lwin,Rwin,WheelDown,WheelUp,f1,f2,f3,f4,f5,f6,f7,f8,f9,f6,f7,f9,f10,f11,f12"
-	, "Numpad": "Numpad0,Numpad1,Numpad2,Numpad3,Numpad4,Numpad5,Numpad6,Numpad7,Numpad8,Numpad9,NumpadDot,NumpadDiv,NumpadMult,NumpadAdd,NumpadSub,NumpadEnter"}
+	, "Numpad": "Numpad0,Numpad1,Numpad2,Numpad3,Numpad4,Numpad5,Numpad6,Numpad7,Numpad8,Numpad9,NumpadDot,NumpadDiv,NumpadMult,NumpadAdd,NumpadSub"} ; NumpadEnter removed because interfere with Return
 g_objHotstringsEffect := {"Return": "`n", "Tab": A_Tab, "Space": A_Space, "Enter": "`n", "Dot": ".", "Div": "/", "Mult": "*", "Add": "+", "Sub": "-"}
 
 g_strHotstringsEndingKeys := "-()':;""/,.?!" . "[]{}\" ; plus `n `t space processed separately; issues with: "[]{}\" because of AltGr; in AHK hostrings are: -()[]{}':;"/\,.?!`n `t
@@ -4550,7 +4550,6 @@ HotstringsProcessTrigger:
 HotstringsProcessTriggerWithEndingKey:
 ;------------------------------------------------------------
 
-SoundBeep, 400
 ###_HotstringsDebug(7, A_ThisLabel . " - " . g_blnHotstringDeleteTrigger . " - " . g_strMatchedHotstringTrigger)
 if (g_blnHotstringDeleteTrigger) ; backspace trigger
 	SendInput, % "{BS " . StrLen(g_strMatchedHotstringTrigger) + (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey" ? 1 : 0) . "}"
