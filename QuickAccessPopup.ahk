@@ -2073,7 +2073,7 @@ g_objQAPFeaturesAlternativeCodeByOrder := Object()
 g_strQAPFeaturesList := ""
 
 g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
-g_objFavoritesObjectsByHotstring := Object()
+g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
 g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
@@ -3860,7 +3860,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
-		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteHotstringOptions
+		; 20 FavoriteShortcut, 21 FavoriteHotstring
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -3965,8 +3965,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.93) hotstring to launch this favorite
-		objLoadIniFavorite.FavoriteHotstringOptions := arrThisFavorite22 ; (new in v8.7.1.93) hotstring options
+		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.93) hotstring to launch this favorite (format: "trigger:options"
+			; hotstring options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -4450,6 +4450,7 @@ strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
 ###_HotstringsDebug(1, "strHotstringsHotkey reçu: """ . strHotstringsHotkey . """")
 
 ; process matched hotstring waiting for ending key
+; ###_V("strHotstringsHotkey", strHotstringsHotkey)
 if (g_blnHotstringMatchedWaitingEndingKey) and (InStr(g_strHotstringsEndingKeys, strHotstringsHotkey) or InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ","))
 {
 	; we have a match and an ending key, process trigger and return
@@ -4507,28 +4508,28 @@ else if (RegExMatch(strHotstringsHotkey, "Numpad(.+?)", arrNumpadKey)) ; put wha
 else
 	g_strHotstringsTyped .= strHotstringsHotkey
 ###_HotstringsDebug(2, "strHotstringsHotkey traité: """ . strHotstringsHotkey . """")
-###_HotstringsDebug(8, "g_strHotstringsTyped après traité:`n" . g_strHotstringsTyped . "`n> " . g_objFavoritesObjectsByHotstring.HasKey(g_strHotstringsTyped))
 
 ; check if we have a hotstring in the monitored string
 
-if g_objFavoritesObjectsByHotstring.HasKey(g_strHotstringsTyped)
+for strThisHotstring in g_objFavoritesObjectsByHotstring
 {
-	###_O("yes", g_objFavoritesObjectsByHotstring[g_strHotstringsTyped])
-	; check case sensitive option
-	StringCaseSense, On
-	blnCaseSensitiveOK := !InStr(g_objFavoritesObjectsByHotstring[g_strHotstringsTyped].FavoriteHotstringOptions, "c") ; not case sensitive
-		or (g_strHotstringsTyped = g_objFavoritesObjectsByHotstring[g_strHotstringsTyped].FavoriteHotstring) ; or case sensitive comparison OK
-	StringCaseSense, Off ; QAP default
-
-	if (blnCaseSensitiveOK)
+	StringSplit, arrThisHotstring, strThisHotstring, :
+	; arrThisHotstring1 trigger / arrThisHotstring2 options
+	; options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
+	###_HotstringsDebug(8, "g_strHotstringsTyped après traité:`n" . g_strHotstringsTyped . "`n> " . InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c")))
+	if InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c")) ; case sensitive or not
+	; we have a match
 	{
-		g_blnHotstringDeleteTrigger := !InStr(g_objFavoritesObjectsByHotstring[g_strHotstringsTyped].FavoriteHotstringOptions, "k") ; hotstring "keep" (no backspace) option 
-		g_strMatchedHotstringTrigger := g_strHotstringsTyped ; typed trigger
+		###_O("yes", g_objFavoritesObjectsByHotstring.Item(strThisHotstring))
+		g_strMatchedHotstring := strThisHotstring ; format "trigger:options"
+		g_strMatchedHotstringTrigger := arrThisHotstring1
+		g_blnHotstringDeleteTrigger := !InStr(arrThisHotstring2, "k") ; hotstring "keep" (no backspace) option
 		
-		if InStr(g_objFavoritesObjectsByHotstring[g_strMatchedHotstringTrigger].FavoriteHotstringOptions, "*") ; ending character required
+		if InStr(arrThisHotstring2, "*") ; ending character required
 			g_blnHotstringMatchedWaitingEndingKey := true ; wait for end key before processing
 		else ; ready to process
 			gosub, HotstringsProcessTrigger
+		break
 	}
 }
 
@@ -4537,8 +4538,8 @@ blnShiftState := ""
 blnUppercase := ""
 arrNumpadKey := ""
 strThisHotstring := ""
-strNameLocation := ""
-arrMatch := ""
+strThisTrigger := ""
+
 
 return
 ;------------------------------------------------------------
@@ -4556,7 +4557,7 @@ if (g_blnHotstringDeleteTrigger) ; backspace trigger
 
 g_blnHotstringMatchedWaitingEndingKey := false
 g_strHotstringsTyped := ""
-gosub, OpenFavoriteFromHotstring ; with g_objFavoritesObjectsByHotstring[g_strMatchedHotstringTrigger]
+gosub, OpenFavoriteFromHotstring ; with g_objFavoritesObjectsByHotstring.Item(g_strMatchedHotstring)
 ###_HotstringsDebug(8, "g_strHotstringsTyped après " . A_ThisLabel . ":`n" . g_strHotstringsTyped)
 
 return
@@ -5764,7 +5765,7 @@ if (g_blnUseColors)
 
 ; re-init these objects before rebuilding menu
 g_objMenuColumnBreaks := Object()
-g_objFavoritesObjectsByHotstring := Object()
+g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
 ; disable shortcuts and re-init shortcuts objects before rebuilding menu
 gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
@@ -5867,7 +5868,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 		{
-			g_objFavoritesObjectsByHotstring.Insert(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
+			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= " [#]"
 		}
@@ -8969,13 +8970,19 @@ if !(blnIsGroupMember)
 		
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
 		Gui, 2:Add, Link, x+10 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
-		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, % g_objEditedFavorite.FavoriteHotstring
-		; "c" case sensitive (default off), "*" ending character not required (default off), "k" keep trigger (default off)
-		Gui, 2:Add, Checkbox, % "x20 y+5 vf_blnHotstringCaseSensitive " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "*") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
-		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringKeepTrigger " . (InStr(g_objEditedFavorite.FavoriteHotstringOptions, "k") ? "checked" : ""), %lDialogHotstringKeepTrigger%
+		strFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
+		StringSplit, arrFavoriteHotstring, strFavoriteHotstring, :
+		; arrFavoriteHotstring1 trigger / arrFavoriteHotstring2 options
+		; options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
+		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, %arrFavoriteHotstring1%
+		Gui, 2:Add, Checkbox, % "x20 y+5 vf_blnHotstringCaseSensitive " . (InStr(arrFavoriteHotstring2, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
+		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(arrFavoriteHotstring2, "*") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
+		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringKeepTrigger " . (InStr(arrFavoriteHotstring2, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
 	}
 }
+
+arrFavoriteHotstring := ""
+strFavoriteHotstring := ""
 
 return
 ;------------------------------------------------------------
@@ -10808,8 +10815,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
-	g_objEditedFavorite.FavoriteHotstring := f_strHotstring
-	g_objEditedFavorite.FavoriteHotstringOptions := (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
+	g_objEditedFavorite.FavoriteHotstring := f_strHotstring . ":"
+		. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
 
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -12075,7 +12082,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
 			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstring . "|" ; 21
-			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstringOptions . "|" ; 22
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -14207,7 +14213,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 {
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
-		: g_objFavoritesObjectsByHotstring[g_strMatchedHotstringTrigger])
+		: g_objFavoritesObjectsByHotstring.Item(g_strMatchedHotstring))
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
