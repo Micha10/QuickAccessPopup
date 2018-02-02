@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.7.1.94 (2018-02-02)
+- add "Enable Hotstrings" in Options ("General" tab)
+- when hotstrings are enabled, monitor keyboard and launch triggered favorites when an hotstring is typed (regardless of the running application)
+- add "Hotstring" to "Add/Edit Favorite" dialog box ("Menu Options" tab)
+- when saving favorite, monitor that hotstrings are unique
+- valid chars for triggers are letters (a-z), numbers (0-9) and these symbols: # $ % & * + < = > @ ^ _ ` | ~"
+- option "Case sensitive" to launch favorite only if typed characters match the trigger with upper/lower case
+- option "Wait ending key" to wait for one of these keys before launching the favorite: Space, Tab, Enter and these symbols - ( ) ' : ; " / , . ? ! [ ] { } \
+- option "Keep hotstring" to keep or delete the typed trigger after the favorite is launched
+
 Version BETA: 8.7.1.93 (2018-01-31)
 - internal changes for a simplified management of favorites keyboard and mouse shortcuts
 - in the settings file (quickaccesspopup.ini), shortcuts are now saved in the favorites lines in the [Favorites] section instead of the separate [LocationHotkeys] section
@@ -1935,7 +1945,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.93
+;@Ahk2Exe-SetVersion 8.7.1.94
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2018,7 +2028,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.93" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.94" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3966,7 +3976,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.93) hotstring to launch this favorite (format: "trigger:options"
+		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.94) hotstring to launch this favorite (format: "trigger:options"
 			; hotstring options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
