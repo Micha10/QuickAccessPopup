@@ -7052,6 +7052,7 @@ IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSetti
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
+blnPrevEnableHotstrings := g_blnEnableHotstrings
 g_blnEnableHotstrings := f_blnEnableHotstrings
 IniWrite, %g_blnEnableHotstrings%, %g_strIniFile%, Global, EnableHotstrings
 
@@ -7239,6 +7240,7 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 	or (strThemePrev <> g_strTheme)
 	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
+	or (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
@@ -7255,10 +7257,15 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
 		strValue := g_strQAPTempFolderParent
 	}
-	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+	else if (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
 		strValue := (g_blnRunAsAdmin ? lDialogAdmnistrator : lDialogAdmnistratorNot)
+	}
+	else ; (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
+	{
+		StringReplace, strOptionNoAmpersand, lDialogHotstring, &
+		strValue := lOptionsEnableHotstrings . " " . (g_blnEnableHotstrings ? lDialogOn : lDialogOff)
 	}
 
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
@@ -7270,8 +7277,12 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 			g_strLanguageCode := strLanguageCodePrev
 		else if (strThemePrev <> g_strTheme)
 			g_strTheme := strThemePrev
-		else ; (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+		else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
+		else if (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+			g_blnRunAsAdmin := blnRunAsAdminPrev
+		else ; (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
+			g_blnEnableHotstrings := blnPrevEnableHotstrings
 	}
 }	
 else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
@@ -7331,6 +7342,7 @@ strThisAlternativeCode := ""
 strNewHotkey := ""
 strMenuName := ""
 arrMenu := ""
+blnPrevEnableHotstrings := ""
 
 return
 ;------------------------------------------------------------
@@ -8968,7 +8980,7 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
-		Gui, 2:Add, Link, x+10 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
+		Gui, 2:Add, Link, x+5 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
 		strFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		StringSplit, arrFavoriteHotstring, strFavoriteHotstring, :
 		; arrFavoriteHotstring1 trigger / arrFavoriteHotstring2 options
@@ -8980,8 +8992,8 @@ if !(blnIsGroupMember)
 	}
 }
 
-arrFavoriteHotstring := ""
 strFavoriteHotstring := ""
+ResetArray("arrFavoriteHotstring")
 
 return
 ;------------------------------------------------------------
@@ -10625,10 +10637,26 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
-	if StrLen(f_strHotstring)
-	; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
-	; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
+	if StrLen(f_strHotstring) and (f_strHotstring <> arrFavoriteHotstring1)
 	{
+		; check that hotstring is not already used
+		for strThisHotstring in g_objFavoritesObjectsByHotstring
+		{
+			StringSplit, arrThisHotstring, strThisHotstring, :
+			; arrThisHotstring1 trigger / arrThisHotstring2 options
+			; options: "c" case sensitive (default off)
+			if InStr(arrThisHotstring1, f_strHotstring ; new hotstring trigger included in an existing hotstring trigger
+				, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
+				or InStr(f_strHotstring, arrThisHotstring1 ; existing hotstring trigger included in new hotstring trigger
+				, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
+			{
+				Oops(lOopsExistingHotstring)
+				gosub, GuiAddFavoriteSaveCleanup
+				return
+			}
+		}
+		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
+		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
 		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz"
 		Loop, Parse, f_strHotstring
 			if !InStr(strValidKeys, A_LoopField)
@@ -18503,6 +18531,17 @@ ConcatenateParamsString(objParams)
 	}
 	StringTrimRight, strConcat, strConcat, 1 ; remove last space
 	return strConcat
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ResetArray(ByRef arr)
+;------------------------------------------------------------
+{
+	Loop, % %arr%0
+		%arr%%A_Index% := ""
+	%arr%0 := "" ; do not forget to reset the counter
 }
 ;------------------------------------------------------------
 
