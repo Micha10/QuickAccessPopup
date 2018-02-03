@@ -2034,6 +2034,7 @@ g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? "
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
+g_blnDiagHotstrings := False
 
 if (g_blnPortableMode)
 	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
@@ -3709,6 +3710,7 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 ; Load internal flags and various values
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
+IniRead, g_blnDiagHotstrings, %g_strIniFile%, Global, DiagHotstrings, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
 IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
 IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
@@ -3723,6 +3725,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
+IniRead, g_intWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 300 ; default 300 ms (split in two sleep commands 33% and 67%)
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_blnEnableHotstrings, %g_strIniFile%, Global, EnableHotstrings, 1 ; default true
@@ -4417,7 +4420,7 @@ g_strHotkeyPrefix := "~$" ; "~" to send the hotkey to the active window and "$" 
 g_strHotstringsTyped := ""
 
 g_objHotstringsKeys := {"Symbols": "!""#$%&'()*+,-./:;<=>?@[\]^_``{|}~", "Num": "0123456789", "Alpha": "abcdefghijklmnopqrstuvwxyz"
-	, "Other": "BS,Return,Tab,Space"
+	, "Other": "BS,Enter,Tab,Space"
 	, "BreakKeys": "Left,Right,Up,Down,Home,End,RButton,LButton,LControl,RControl,LAlt,AppsKey,Lwin,Rwin,WheelDown,WheelUp,f1,f2,f3,f4,f5,f6,f7,f8,f9,f6,f7,f9,f10,f11,f12"
 	, "Numpad": "Numpad0,Numpad1,Numpad2,Numpad3,Numpad4,Numpad5,Numpad6,Numpad7,Numpad8,Numpad9,NumpadDot,NumpadDiv,NumpadMult,NumpadAdd,NumpadSub"} ; NumpadEnter removed because interfere with Return
 g_objHotstringsEffect := {"Return": "`n", "Tab": A_Tab, "Space": A_Space, "Enter": "`n", "Dot": ".", "Div": "/", "Mult": "*", "Add": "+", "Sub": "-"}
@@ -4457,15 +4460,16 @@ HotstringsReceive:
 ; if Hotstrings are enabled, this label is triggered every time a key is pressed
 ;------------------------------------------------------------
 
+###_strNow := A_TickCount
 strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
-###_HotstringsDebug(1, "strHotstringsHotkey reçu: """ . strHotstringsHotkey . """")
+###_HotstringsDebug(1, "strHotstringsHotkey received: """ . strHotstringsHotkey . """")
 
 ; process matched hotstring waiting for ending key
 ; ###_V("strHotstringsHotkey", strHotstringsHotkey)
 if (g_blnHotstringMatchedWaitingEndingKey) and (InStr(g_strHotstringsEndingKeys, strHotstringsHotkey) or InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ","))
 {
 	; we have a match and an ending key, process trigger and return
-	###_HotstringsDebug(8, "g_strHotstringsTyped après Match avec Ending key:`n" . g_strHotstringsTyped)
+	###_HotstringsDebug(8, "g_strHotstringsTyped after Match with Ending key:`n" . g_strHotstringsTyped)
 	gosub, HotstringsProcessTriggerWithEndingKey
 	return
 }
@@ -4495,17 +4499,17 @@ if (Instr("," . g_objHotstringsKeys.BreakKeys . ",", "," . strHotstringsHotkey .
 {
 	g_strHotstringsTyped := ""
 	###_HotstringsDebug(3, "Break key: """ . strHotstringsHotkey . """")
-	###_HotstringsDebug(8, "g_strHotstringsTyped après Break key:`n" . g_strHotstringsTyped)
+	###_HotstringsDebug(8, "g_strHotstringsTyped after Break key:`n" . g_strHotstringsTyped)
 	return
 }
 ; convert some special keys from label to their actual AHK code
-else if InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ",")
+else if InStr(",Enter,Tab,Space,", "," . strHotstringsHotkey . ",")
 	g_strHotstringsTyped .= g_objHotstringsEffect[strHotstringsHotkey]
 ; trim g_strHotstringsTyped if Backspace was pressed
 else if (strHotstringsHotkey = "BS")
 {
 	StringTrimRight, g_strHotstringsTyped, g_strHotstringsTyped, 1
-	###_HotstringsDebug(8, "g_strHotstringsTyped après BS:`n" . g_strHotstringsTyped)
+	###_HotstringsDebug(8, "g_strHotstringsTyped after Backspace:`n" . g_strHotstringsTyped)
 	return
 }
 ; process numeric pad keys
@@ -4518,7 +4522,7 @@ else if (RegExMatch(strHotstringsHotkey, "Numpad(.+?)", arrNumpadKey)) ; put wha
 ; it is a regular char to append to the string monitored for trigger
 else
 	g_strHotstringsTyped .= strHotstringsHotkey
-###_HotstringsDebug(2, "strHotstringsHotkey traité: """ . strHotstringsHotkey . """")
+###_HotstringsDebug(2, "strHotstringsHotkey processed: """ . strHotstringsHotkey . """")
 
 ; check if we have a hotstring in the monitored string
 
@@ -4527,11 +4531,12 @@ for strThisHotstring in g_objFavoritesObjectsByHotstring
 	StringSplit, arrThisHotstring, strThisHotstring, :
 	; arrThisHotstring1 trigger / arrThisHotstring2 options
 	; options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
-	###_HotstringsDebug(8, "g_strHotstringsTyped après traité:`n" . g_strHotstringsTyped . "`n> " . InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c")))
+	###_HotstringsDebug(8, "g_strHotstringsTyped after process:`n" . g_strHotstringsTyped . "`nMatch? " . InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c"))
+		. "`nDuration: " . (A_TickCount - ###_strNow) . " ms")
 	if InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c")) ; case sensitive or not
 	; we have a match
 	{
-		###_O("yes", g_objFavoritesObjectsByHotstring.Item(strThisHotstring))
+		; ###_O("Match", g_objFavoritesObjectsByHotstring.Item(strThisHotstring))
 		g_strMatchedHotstring := strThisHotstring ; format "trigger:options"
 		g_strMatchedHotstringTrigger := arrThisHotstring1
 		g_blnHotstringDeleteTrigger := !InStr(arrThisHotstring2, "k") ; hotstring "keep" (no backspace) option
@@ -4561,23 +4566,28 @@ HotstringsProcessTrigger:
 HotstringsProcessTriggerWithEndingKey:
 ;------------------------------------------------------------
 
-###_HotstringsDebug(7, A_ThisLabel . " - " . g_blnHotstringDeleteTrigger . " - " . g_strMatchedHotstringTrigger)
+###_HotstringsDebug(7, A_ThisLabel . " - Del: " . g_blnHotstringDeleteTrigger . " - Matched: " . g_strMatchedHotstringTrigger)
 if (g_blnHotstringDeleteTrigger) ; backspace trigger
 	SendInput, % "{BS " . StrLen(g_strMatchedHotstringTrigger) + (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey" ? 1 : 0) . "}"
 
 g_blnHotstringMatchedWaitingEndingKey := false
 g_strHotstringsTyped := ""
 gosub, OpenFavoriteFromHotstring ; with g_objFavoritesObjectsByHotstring.Item(g_strMatchedHotstring)
-###_HotstringsDebug(8, "g_strHotstringsTyped après " . A_ThisLabel . ":`n" . g_strHotstringsTyped)
+###_HotstringsDebug(8, "g_strHotstringsTyped after " . A_ThisLabel . ":`n" . g_strHotstringsTyped
+	. "`nDuration: " . (A_TickCount - ###_strNow) . " ms")
 
 return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
 ###_HotstringsDebug(intNo, strText)
+;------------------------------------------------------------
 {
-	; COMMENT TO ENABLE DEBUG
-	; return
+	global g_blnDiagHotstrings
+	
+	if !(g_blnDiagHotstrings)
+		return
 	
 	CoordMode, ToolTip, Screen
 	
@@ -4585,6 +4595,7 @@ return
 	intY := intNo * 100
 	ToolTip, %strText%, %intX%, %intY%, %intNo%
 }
+;------------------------------------------------------------
 
 
 
@@ -10652,7 +10663,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
-	if StrLen(f_strHotstring) and (f_strHotstring <> arrFavoriteHotstring1)
+	if StrLen(f_strHotstring)
 	{
 		; check that hotstring is not already used
 		for strThisHotstring in g_objFavoritesObjectsByHotstring
@@ -10660,12 +10671,13 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			StringSplit, arrThisHotstring, strThisHotstring, :
 			; arrThisHotstring1 trigger / arrThisHotstring2 options
 			; options: "c" case sensitive (default off)
-			if InStr(arrThisHotstring1, f_strHotstring ; new hotstring trigger included in an existing hotstring trigger
-				, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
+			if (f_strHotstring <> arrThisHotstring1)
+				and (InStr(arrThisHotstring1, f_strHotstring ; new hotstring trigger included in an existing hotstring trigger
+					, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
 				or InStr(f_strHotstring, arrThisHotstring1 ; existing hotstring trigger included in new hotstring trigger
-				, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
+					, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive)) ; with new or existing case insensitive
 			{
-				Oops(lOopsExistingHotstring)
+				Oops(lOopsExistingHotstring, f_strHotstring, arrThisHotstring1)
 				gosub, GuiAddFavoriteSaveCleanup
 				return
 			}
@@ -10975,12 +10987,15 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
+	strThisHotkey := Hotkey2Text(g_objEditedFavorite.FavoriteShortcut)
+	if StrLen(g_objEditedFavorite.FavoriteHotstring)
+		strThisHotkey .= " " . g_strHotstringIndicator
 	
 	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
-		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_objEditedFavorite.FavoriteShortcut), strThisLocation)
+		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, strThisHotkey, strThisLocation)
 	else
-		LV_Add((strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, Hotkey2Text(g_objEditedFavorite.FavoriteShortcut), strThisLocation)
+		LV_Add((strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, strThisHotkey, strThisLocation)
 	
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(LV_GetNext(), "Vis")
@@ -11014,6 +11029,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strMenuLocation := ""
 	strThisLocation := ""
 	strThisType := ""
+	strThisHotkey := ""
 	strNewFavoriteWindowPosition := ""
 	strMenuPath := ""
 	objMenu := ""
@@ -14170,6 +14186,7 @@ strCurrentAppWorkingDir := ""
 objContainingFavorite := ""
 strContainingFolder := ""
 intMinMax := ""
+g_blnLaunchFromTrayIcon := ""
 
 return
 ;------------------------------------------------------------
@@ -14686,10 +14703,11 @@ blnTextSnippet := (arrFavoriteSnippetOptions1 <> 1)
 
 if (blnTextSnippet)
 {
+	BlockInput, On
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
-	Sleep, 100 ; safety delay
+	Sleep, % g_intWaitDelayInSnippet / 10 ; safety delay default 300 * 10% = 30 ms
 	ClipBoard := ""
-	Sleep, 100 ; safety delay
+	Sleep, % g_intWaitDelayInSnippet * 3/10 ; safety delay default 300 * 30% = 90 ms
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
@@ -14704,8 +14722,9 @@ if (blnTextSnippet)
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
 	; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
-	Sleep, 200 ; delay required by some application, including Notepad
+	Sleep, % g_intWaitDelayInSnippet * 6 / 10 ; delay required by some application, including Notepad, default 300 * 60% = 180 ms
 	SendEvent, ^v
+	BlockInput, Off
 	Sleep, 100 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
@@ -14791,7 +14810,6 @@ intErrorLevel := ""
 blnTextSnippet := ""
 objPrevClipboard := ""
 strClassSnippet := ""
-g_blnLaunchFromTrayIcon := false
 strTemp := ""
 strSend := ""
 strCommand := ""
