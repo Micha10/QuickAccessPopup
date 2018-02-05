@@ -13087,7 +13087,7 @@ LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
-DiagWindowInfo(A_ThisLabel . " Begin")
+; DiagWindowInfo(A_ThisLabel . " Begin")
 
 if SettingsUnsaved()
 	if SettingsNotSavedReturn()
@@ -13241,7 +13241,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	DiagWindowInfo("CanNavigate Begin")
+	; DiagWindowInfo("CanNavigate Begin")
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
@@ -13264,7 +13264,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	else
 		g_blnShowChangeFolderInDialogAlert := false
 	
-	DiagWindowInfo("CanNavigate End")
+	; DiagWindowInfo("CanNavigate End")
 	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
 	
 	return blnCanNavigate
@@ -13278,7 +13278,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	DiagWindowInfo("CanLaunch")
+	; DiagWindowInfo("CanLaunch")
 	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
@@ -13396,9 +13396,6 @@ WindowIsConsole(strClass)
 WindowIsDialog(strClass, strWinId)
 ;------------------------------------------------------------
 {
-	DiagWindowInfo(A_ThisFunc)
-	Diag(A_ThisFunc . " WindowIsTreeview(strWinId)", WindowIsTreeview(strWinId))
-	Diag(A_ThisFunc . " DialogHasRequiredControle(strWinId)", DialogHasRequiredControle(strWinId))
 	return (strClass = "#32770") and !WindowIsTreeview(strWinId) and DialogHasRequiredControle(strWinId)
 }
 ;------------------------------------------------------------
@@ -13412,7 +13409,6 @@ DialogHasRequiredControle(strWinId)
 ;------------------------------------------------------------
 {
 	WinGet, strControlsList, ControlList, ahk_id %strWinId%
-	Diag(A_ThisFunc . " strControlsList", strControlsList)
 	
 	return (InStr(strControlsList, "Edit1") or InStr(strControlsList, "Edit2"))
 		and (InStr(strControlsList, "ToolBarWindow32") or InStr(strControlsList, "SysListView32") or InStr(strControlsList, "SysTreeView32") or InStr(strControlsList, "DirectUIHWND"))
@@ -13772,7 +13768,7 @@ else
 	blnControlPressed := false
 }
 
-if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFavoriteLabel)
+if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavoriteLabel . "|") ; include end marker
 {
 	if SettingsUnsaved()
 		if SettingsNotSavedReturn()
@@ -13969,12 +13965,10 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 	}
 }
 
-DiagWindowInfo("Before SetTargetName")
 gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
-DiagWindowInfo("After SetTargetName")
-Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
-if (g_blnDiagMode)
-	Diag("g_strTargetAppName", g_strTargetAppName)
+; Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
+; if (g_blnDiagMode)
+	; Diag("g_strTargetAppName", g_strTargetAppName)
 
 if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 {
@@ -14143,7 +14137,8 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
+	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
@@ -14202,7 +14197,6 @@ return
 SetTargetName:
 ;------------------------------------------------------------
 
-###_V(A_ThisLabel . 1, g_strTargetAppName, WindowIsDialog(g_strTargetClass, g_strTargetWinId), g_strTargetClass, g_strTargetWinId)
 if WindowIsExplorer(g_strTargetClass)
 	g_strTargetAppName := "Explorer"
 else if WindowIsDesktop(g_strTargetClass)
@@ -14236,14 +14230,12 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 else
 	g_strTargetAppName := "Unknown"
 
-###_V(A_ThisLabel . 2, g_strTargetAppName, g_strTargetClass, g_strTargetWinId)
 if (g_strTargetAppName = "Desktop")
 {
 	g_strTargetWinId := "" ; never use target window when clicked on the desktop
 	g_strHokeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
 }
 
-###_V(A_ThisLabel . 3, g_strTargetAppName, g_strTargetClass, g_strTargetWinId)
 if (g_strHokeyTypeDetected = "Launch")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
 		g_strTargetAppName := "Explorer"
@@ -14257,7 +14249,6 @@ if (g_strHokeyTypeDetected = "Launch")
 			g_strTargetAppName := "QAPconnect"
 		else
 			g_strTargetAppName := "Explorer"
-###_V(A_ThisLabel . 4, g_strTargetAppName, g_strTargetClass, g_strTargetWinId)
 
 return
 ;------------------------------------------------------------
@@ -14311,7 +14302,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 		}
 	}
 
-	DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
+	; DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotstring")
 	{
 		g_strTargetWinId := "" ; never use target window when launched from hotstring
@@ -14329,7 +14320,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return ; active window is on exclusion list
 	}
-	DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
+	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
 {
@@ -14690,7 +14681,7 @@ StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
 ; Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
-DiagWindowInfo(A_ThisLabel . " Start")
+; DiagWindowInfo(A_ThisLabel . " Start")
 
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
@@ -17645,7 +17636,7 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Mouse, %strMouseOrKeyboard% = %g_strMouseNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%`n%g_strTargetControl%
 		; WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-		DiagWindowInfo("SetTargetWinInfo - Mouse")
+		; DiagWindowInfo("SetTargetWinInfo - Mouse")
 	}
 	else ; Keyboard
 	{
@@ -17653,7 +17644,7 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 		g_strTargetControl := ""
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
 		; TrayTip, Navigate Keyboard, %strMouseOrKeyboard% = %g_strKeyboardNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%
-		DiagWindowInfo("SetTargetWinInfo - Keyboard")
+		; DiagWindowInfo("SetTargetWinInfo - Keyboard")
 	}
 
 	WinGetTitle, g_strTargetWinTitle, % "ahk_id " . g_strTargetWinId
