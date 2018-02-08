@@ -2071,6 +2071,7 @@ g_strSnippetOptionsSeparator := ":" ; separator between command and options in m
 
 g_strHotstringIndicator := "*"
 g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
+g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
 
 g_strExclusionMouseListDialogIndicator := "*"
 
@@ -4470,12 +4471,14 @@ HotstringsReceive:
 ; if Hotstrings are enabled, this label is triggered every time a key is pressed
 ;------------------------------------------------------------
 
+Critical ; needed to avoid the next key pressed to re-launch this thread and change variable values
+
 if (g_blnChangeHotstringInProgress)
 	return ; do not monitor hotstrings when the Change hotstring dialog box is open
 
 ###_strNow := A_TickCount
 strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
-###_HotstringsDebug(1, "strHotstringsHotkey received: """ . strHotstringsHotkey . """")
+###_HotstringsDebug(1, "strHotstringsHotkey Key received: """ . strHotstringsHotkey . """")
 
 ; process matched hotstring waiting for ending key
 ; ###_V("strHotstringsHotkey", strHotstringsHotkey)
@@ -4541,7 +4544,7 @@ else
 
 for strCheckedHotstring in g_objFavoritesObjectsByHotstring
 {
-	StringSplit, arrCheckedHotstring, strCheckedHotstring, :
+	StringSplit, arrCheckedHotstring, strCheckedHotstring, : ; do not user SplitHotstring for efficiency
 	; arrCheckedHotstring1 trigger / arrCheckedHotstring2 options
 	; options: "c" case sensitive (default off), "w" ending character not required (default off), "k" keep hotstring (default off)
 	###_HotstringsDebug(8, "g_strHotstringsTyped after process:`n" . g_strHotstringsTyped . "`nMatch """ . arrCheckedHotstring1 . """? " . InStr(g_strHotstringsTyped, arrCheckedHotstring1, InStr(arrCheckedHotstring2, "c"))
@@ -4567,6 +4570,9 @@ blnShiftState := ""
 blnUppercase := ""
 arrNumpadKey := ""
 strCheckedHotstring := ""
+ResetArray("arrCheckedHotstring")
+
+Critical, Off
 
 return
 ;------------------------------------------------------------
@@ -4580,6 +4586,10 @@ HotstringsProcessTriggerWithEndingKey:
 ###_HotstringsDebug(7, A_ThisLabel . " - Del: " . g_blnHotstringDeleteTrigger . " - Matched: " . g_strMatchedHotstringTrigger)
 if (g_blnHotstringDeleteTrigger) ; backspace trigger
 	SendInput, % "{BS " . StrLen(g_strMatchedHotstringTrigger) + (A_ThisLabel = "HotstringsProcessTriggerWithEndingKey" ? 1 : 0) . "}"
+
+if SettingsUnsaved()
+	if SettingsNotSavedReturn()
+		return
 
 g_blnHotstringMatchedWaitingEndingKey := false
 g_strHotstringsTyped := ""
@@ -4604,7 +4614,7 @@ return
 	
 	intX := 1200
 	intY := intNo * 100
-	ToolTip, %strText%, %intX%, %intY%, %intNo%
+	ToolTip, %intNo%) %strText%, %intX%, %intY%, %intNo%
 }
 ;------------------------------------------------------------
 
@@ -6787,7 +6797,7 @@ else
 	intHotkeyType := 2 ; Keyboard
 
 strPopupHotkeysBackup := g_arrPopupHotkeys%intHotkeyIndex%
-g_arrPopupHotkeys%intHotkeyIndex% := SelectHotkey(g_arrPopupHotkeys%intHotkeyIndex%, g_arrOptionsPopupHotkeyTitles%intHotkeyIndex%, "", "", intHotkeyType, g_arrPopupHotkeyDefaults%intHotkeyIndex%, g_arrOptionsTitlesSub%intHotkeyIndex%)
+g_arrPopupHotkeys%intHotkeyIndex% := SelectShortcut(g_arrPopupHotkeys%intHotkeyIndex%, g_arrOptionsPopupHotkeyTitles%intHotkeyIndex%, "", "", intHotkeyType, g_arrPopupHotkeyDefaults%intHotkeyIndex%, g_arrOptionsTitlesSub%intHotkeyIndex%)
 
 if StrLen(g_arrPopupHotkeys%intHotkeyIndex%)
 	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % Hotkey2Text(g_arrPopupHotkeys%intHotkeyIndex%)
@@ -6813,7 +6823,7 @@ strThisAlternativeCode := g_objQAPFeaturesAlternativeCodeByOrder[intAlternativeO
 objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
 strAlternativeHotkeysBackup := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
 
-g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := SelectHotkey(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
+g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultHotkey)
 objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
 
@@ -9018,18 +9028,17 @@ if !(blnIsGroupMember)
 		
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
 		Gui, 2:Add, Link, x+5 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
-		strFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
-		StringSplit, arrFavoriteHotstring, strFavoriteHotstring, :
-		; arrFavoriteHotstring1 trigger / arrFavoriteHotstring2 options
-		; options: "c" case sensitive (default off), "w" ending character not required (default off), "k" keep hotstring (default off)
-		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, %arrFavoriteHotstring1%
-		Gui, 2:Add, Checkbox, % "x20 y+5 vf_blnHotstringCaseSensitive " . (InStr(arrFavoriteHotstring2, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(arrFavoriteHotstring2, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
-		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringKeepTrigger " . (InStr(arrFavoriteHotstring2, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+		
+		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
+		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
+		Gui, 2:Add, Text, x20 y+20, %lDialogHotstringTriggerOptions%
+		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringTrigger gButtonChangeFavoriteHotstring, %g_strNewFavoriteHotstringTrigger%
+		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotstring, %lOptionsChangeHotkey%
+		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
 	}
 }
 
-strFavoriteHotstring := ""
+g_strNewFavoriteHotstring := ""
 ResetArray("arrFavoriteHotstring")
 
 return
@@ -9361,7 +9370,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 	strQAPDefaultHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
 
 strBackupFavoriteHotkey := g_strNewFavoriteShortcut
-g_strNewFavoriteShortcut := SelectHotkey(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultHotkey)
+g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultHotkey)
 if StrLen(g_strNewFavoriteShortcut)
 	GuiControl, 2:, f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 else
@@ -11550,12 +11559,12 @@ if (A_GuiEvent = "DoubleClick")
 	{
 		g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
 		
-		g_strNewFavoriteShortcut := SelectHotkey(g_objEditedFavorite.FavoriteShortcut
+		g_strNewFavoriteShortcut := SelectShortcut(g_objEditedFavorite.FavoriteShortcut
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation, 3
 			, g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultHotkey)
-		; SelectHotkey(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultHotkey := "", strDescription := "")
+		; SelectShortcut(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultHotkey := "", strDescription := "")
 		; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 		; returns the new hotkey, "None" if no hotkey or empty string if cancel
 		if !StrLen(g_strNewFavoriteShortcut)
@@ -12243,7 +12252,7 @@ return
 ; Gui in function, see from daniel2 http://www.autohotkey.com/board/topic/19880-help-making-gui-work-inside-a-function/#entry130557
 
 ;------------------------------------------------------------
-SelectHotkey(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_intHotkeyType, P_strDefaultHotkey := "", P_strDescription := "")
+SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_intHotkeyType, P_strDefaultHotkey := "", P_strDescription := "")
 ; P_intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 ; returns the new hotkey, "None" if no hotkey or empty string if cancel
 ;------------------------------------------------------------
@@ -17118,6 +17127,36 @@ GetFirstNotModifier(strHotkey)
 		else
 			return intPos
 	return intPos
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
+;------------------------------------------------------------
+{
+	StringSplit, arrHotstring, strHotstring, :
+	strTrigger := arrHotstring1
+	strOptionsShort := arrHotstring2
+	
+	return StrLen(arrHotstring1)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetHotstringOptionsLong(strHotstringOptionsShort)
+;------------------------------------------------------------
+{
+	global g_strHotstringOptionsLongSeparator
+	
+	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "c") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "w") ? lDialogHotstringWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "k") ? lDialogHotstringKeepHotstring : "")
+	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
+		StringTrimRight, strHotstringOptionsLong, strHotstringOptionsLong, % StrLen(g_strHotstringOptionsLongSeparator)
+	
+	return strHotstringOptionsLong
 }
 ;------------------------------------------------------------
 
