@@ -3280,7 +3280,7 @@ TranslateMUI(resDll, resID)
 InitQAPFeatures:
 ;------------------------------------------------------------
 
-; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey)
+; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut)
 
 ; Submenus features
 
@@ -3363,7 +3363,7 @@ return
 
 
 ;------------------------------------------------------------
-InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey := "")
+InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut := "")
 
 ; QAP Feature Objects (g_objQAPFeatures) definition:
 ;		Key: strQAPFeatureInternalName
@@ -3375,7 +3375,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 ;		QAPFeatureCommand: command to be executed when this favorite is selected (excluding the ending ":")
 ;		QAPFeatureAlternativeOrder: order of feature in the Alternative Menu displayed before user choose the target favorite (0 if not Alternative menu feature)
 ;		DefaultIcon: default icon (in the "file,index" format)
-;		DefaultHotkey: default feature hotkey (string like "+^s")
+;		DefaultShortcut: default feature hotkey (string like "+^s")
 
 ;------------------------------------------------------------
 {
@@ -3392,7 +3392,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
 	objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
 	objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
-	objOneQAPFeature.DefaultHotkey := strDefaultHotkey
+	objOneQAPFeature.DefaultShortcut := strDefaultShortcut
 	
 	g_objQAPFeatures.Insert("{" . strQAPFeatureCode . "}", objOneQAPFeature)
 	g_objQAPFeaturesCodeByDefaultName.Insert(strThisLocalizedName, "{" . strQAPFeatureCode . "}")
@@ -4142,7 +4142,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 				strName := g_objQAPFeatures[strLocation].DefaultName
 
 		if (blnAddShortcut)
-			strShortcut := g_objQAPFeatures[strLocation].DefaultHotkey
+			strShortcut := g_objQAPFeatures[strLocation].DefaultShortcut
 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
@@ -6824,7 +6824,7 @@ objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
 strAlternativeHotkeysBackup := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
 g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
-	, "", 3, objThisAlternative.DefaultHotkey)
+	, "", 3, objThisAlternative.DefaultShortcut)
 objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
 if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
@@ -9026,12 +9026,10 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
-		Gui, 2:Add, Text, x20 y+20, %lDialogHotstring%
-		Gui, 2:Add, Link, x+5 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
-		
 		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstringTriggerOptions%
+		Gui, 2:Add, Link, x+5 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringTrigger gButtonChangeFavoriteHotstring, %g_strNewFavoriteHotstringTrigger%
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotstring, %lOptionsChangeHotkey%
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
@@ -9367,17 +9365,17 @@ ButtonChangeFavoriteHotkey:
 Gui, 2:Submit, NoHide
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	strQAPDefaultHotkey := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
+	strQAPDefaultShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultShortcut
 
-strBackupFavoriteHotkey := g_strNewFavoriteShortcut
-g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultHotkey)
+strBackupFavoriteShortcut := g_strNewFavoriteShortcut
+g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
 if StrLen(g_strNewFavoriteShortcut)
 	GuiControl, 2:, f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 else
-	g_strNewFavoriteShortcut := strBackupFavoriteHotkey
+	g_strNewFavoriteShortcut := strBackupFavoriteShortcut
 
-strQAPDefaultHotkey := ""
-strBackupFavoriteHotkey := ""
+strQAPDefaultShortcut := ""
+strBackupFavoriteShortcut := ""
 
 return
 ;------------------------------------------------------------
@@ -9531,7 +9529,7 @@ GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[f_drpQA
 g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultIcon
 g_strDefaultIconResource := g_strNewFavoriteIconResource 
 
-g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultHotkey
+g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultShortcut
 ; check if hotkey is already used, if yes empty default new hotkey
 g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
 
@@ -11573,8 +11571,8 @@ if (A_GuiEvent = "DoubleClick")
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation, 3
-			, g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultHotkey)
-		; SelectShortcut(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultHotkey := "", strDescription := "")
+			, g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
+		; SelectShortcut(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultShortcut := "", strDescription := "")
 		; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
 		; returns the new hotkey, "None" if no hotkey or empty string if cancel
 		if !StrLen(g_strNewFavoriteShortcut)
@@ -12365,10 +12363,10 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Show, AutoSize Center
 
 	Gui, 2:+Disabled
-	WinWaitClose,  % L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
 	
 	if (SS_strNewShortcut <> P_strActualShortcut)
-		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
+		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, P_strFavoriteName)
 
 	; Clean-up function global variables
 	SS_arrModifiersLabels := ""
