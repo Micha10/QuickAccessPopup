@@ -2046,7 +2046,7 @@ g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 538
 
 g_blnMenuReady := false
-g_blnChangeHotkeyInProgress := false
+g_blnChangeShortcutInProgress := false
 g_blnChangeHotstringInProgress := false
 
 g_arrSubmenuStack := Object()
@@ -6348,11 +6348,11 @@ g_intGui1WinID := WinExist("A")
 loop, 4
 	g_arrPopupHotkeysPrevious%A_Index% := g_arrPopupHotkeys%A_Index% ; allow to turn off changed hotkeys and to revert g_arrPopupHotkeys if cancel
 
-g_objQAPFeaturesNewHotkeys := Object() ; re-init
+g_objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	if HasShortcut(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
-		; g_objQAPFeaturesNewHotkeys will be saved to ini file and g_objQAPFeatures will be used to turn off previous hotkeys
-		g_objQAPFeaturesNewHotkeys.Insert(strAlternativeCode, g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
+		; g_objQAPFeaturesNewShortcuts will be saved to ini file and g_objQAPFeatures will be used to turn off previous hotkeys
+		g_objQAPFeaturesNewShortcuts.Insert(strAlternativeCode, g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
 
 StringSplit, g_arrOptionsTitlesSub, lOptionsPopupHotkeyTitlesSub, |
 
@@ -6531,9 +6531,9 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Font, s8 w700
 	Gui, 2:Add, Text, x15 y+20 w610, % g_arrOptionsPopupHotkeyTitles%A_Index%
 	Gui, 2:Font, s9 w500, Courier New
-	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeHotkey%A_Index%, % HotkeySections2Text(strModifiers%A_Index%, strMouseButton%A_Index%, strOptionsKey%A_Index%)
+	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % HotkeySections2Text(strModifiers%A_Index%, strMouseButton%A_Index%, strOptionsKey%A_Index%)
 	Gui, 2:Font
-	Gui, 2:Add, Button, yp x555 vf_btnChangeHotkey%A_Index% gButtonOptionsChangeHotkey%A_Index%, %lOptionsChangeHotkey%
+	Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%A_Index% gButtonOptionsChangeShortcut%A_Index%, %lOptionsChangeHotkey%
 	Gui, 2:Font, s8 w500
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
@@ -6782,14 +6782,14 @@ return
 
 
 ;------------------------------------------------------------
-ButtonOptionsChangeHotkey1:
-ButtonOptionsChangeHotkey2:
-ButtonOptionsChangeHotkey3:
-ButtonOptionsChangeHotkey4:
+ButtonOptionsChangeShortcut1:
+ButtonOptionsChangeShortcut2:
+ButtonOptionsChangeShortcut3:
+ButtonOptionsChangeShortcut4:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-StringReplace, intHotkeyIndex, A_ThisLabel, ButtonOptionsChangeHotkey
+StringReplace, intHotkeyIndex, A_ThisLabel, ButtonOptionsChangeShortcut
 
 if InStr(g_arrPopupHotkeyNames%intHotkeyIndex%, "Mouse")
 	intHotkeyType := 1 ; Mouse
@@ -6821,16 +6821,16 @@ StringReplace, intAlternativeOrder, intAlternativeOrder, f_btnChangeAlternativeH
 
 strThisAlternativeCode := g_objQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
 objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
-strAlternativeHotkeysBackup := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
+strAlternativeHotkeysBackup := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
-g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
+g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultHotkey)
-objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewHotkeys[strThisAlternativeCode]
+objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
-if StrLen(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
-	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewHotkeys[strThisAlternativeCode])
+if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
 else
-	g_objQAPFeaturesNewHotkeys[strThisAlternativeCode] := strAlternativeHotkeysBackup
+	g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
 ; strPopupHotkeysBackup := ""
 intAlternativeOrder := ""
@@ -7205,9 +7205,9 @@ loop, % g_arrPopupHotkeyNames0
 ; Save Tab 4: Alternative menu hotkeys
 
 IniDelete, %g_strIniFile%, AlternativeMenuHotkeys
-for strThisAlternativeCode, strNewHotkey in g_objQAPFeaturesNewHotkeys
-	if HasShortcut(strNewHotkey)
-		IniWrite, %strNewHotkey%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
+for strThisAlternativeCode, strNewShortcut in g_objQAPFeaturesNewShortcuts
+	if HasShortcut(strNewShortcut)
+		IniWrite, %strNewShortcut%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
@@ -7382,7 +7382,7 @@ strTempLocation := ""
 strOptionNoAmpersand := ""
 strValue := ""
 strThisAlternativeCode := ""
-strNewHotkey := ""
+strNewShortcut := ""
 strMenuName := ""
 arrMenu := ""
 blnPrevEnableHotstrings := ""
@@ -9384,6 +9384,28 @@ return
 
 
 ;------------------------------------------------------------
+ButtonChangeFavoriteHotstring:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+strBackupFavoriteHotstring := g_strNewFavoriteHotstring
+g_strNewFavoriteHotstring := SelectHotstring(g_strNewFavoriteHotstring, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation)
+
+if !StrLen(g_strNewFavoriteHotstring) ; SelectHotstring was cancelled, restore previous values
+	g_strNewFavoriteHotstring := strBackupFavoriteHotstring
+	
+SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
+
+GuiControl, 2:, f_strHotstringTrigger, %g_strNewFavoriteHotstringTrigger%
+GuiControl, 2:, f_strHotstringOptions, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
+
+strBackupFavoriteHotstring := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiAddFavoriteTabChanged:
 ;------------------------------------------------------------
 
@@ -9514,8 +9536,6 @@ g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f
 g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
 
 GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
-
-strExistingNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -10683,29 +10703,12 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
-	if StrLen(f_strHotstring)
+	if StrLen(strNewFavoriteHotstringTrigger)
 	{
-		; check that hotstring is not already used
-		for strThisHotstring in g_objFavoritesObjectsByHotstring
-		{
-			StringSplit, arrThisHotstring, strThisHotstring, :
-			; arrThisHotstring1 trigger / arrThisHotstring2 options
-			; options: "c" case sensitive (default off)
-			if (f_strHotstring <> arrThisHotstring1)
-				and (InStr(arrThisHotstring1, f_strHotstring ; new hotstring trigger included in an existing hotstring trigger
-					, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive) ; with new or existing case insensitive
-				or InStr(f_strHotstring, arrThisHotstring1 ; existing hotstring trigger included in new hotstring trigger
-					, !InStr(arrThisHotstring2, "c") or !f_blnHotstringCaseSensitive)) ; with new or existing case insensitive
-			{
-				Oops(lOopsExistingHotstring, f_strHotstring, arrThisHotstring1)
-				gosub, GuiAddFavoriteSaveCleanup
-				return
-			}
-		}
 		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
 		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
 		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz"
-		Loop, Parse, f_strHotstring
+		Loop, Parse, strNewFavoriteHotstringTrigger
 			if !InStr(strValidKeys, A_LoopField)
 			{
 				Oops(lOopsInvalidHotstring)
@@ -10713,6 +10716,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 				return
 			}
 	}
+	else
+		g_strNewFavoriteHotstring := "" ; save an empty string (instead of ":...") if no trigger
 }
 
 loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
@@ -10885,16 +10890,16 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
 	Gosub, UpdateFavoritesObjectsByShortcutSave
 	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
+	Gosub, UpdateFavoritesObjectsByHotstringSave ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
+
+	if StrLen(g_strNewFavoriteHotstringTrigger) and !(g_blnEnableHotstrings)
+		Oops(lOopsEnableHotstrings)
+	; ###_V(A_ThisLabel . "`n`nFull hotstring in object, Trigger, Options Short and Options Long"
+		; , g_objEditedFavorite.FavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
-	if StrLen(f_strHotstring)
-		g_objEditedFavorite.FavoriteHotstring := f_strHotstring . g_strHotstringOptionsSeparator
-			. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "w" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
-	else
-		g_objEditedFavorite.FavoriteHotstring := ""
-
 	if (g_objEditedFavorite.FavoriteType = "Group")
 	{
 		g_objEditedFavorite.FavoriteGroupSettings := f_blnRadioGroupReplace
@@ -11064,7 +11069,11 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	intMenuExternalType := ""
 	strLastModified := ""
 	strValidKeys := ""
-	
+	strThisHotstringTrigger := ""
+	strThisHotstringOptions := ""
+	g_strNewFavoriteHotstringTrigger := ""
+	g_strNewFavoriteHotstringOptionsShort := ""
+		
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
 }
@@ -11104,7 +11113,8 @@ f_strFavoritePassword := ""
 f_strFavoriteShortName := ""
 f_blnFavoriteElevate := ""
 f_strHotkeyText := ""
-f_strHotstring := ""
+f_strHotstringTrigger := ""
+f_strHotstringOptions := ""
 f_blnRadioSendModeMacro := ""
 f_strFavoriteSnippetPrompt := ""
 f_blnFavoriteFolderLive := ""
@@ -11579,7 +11589,7 @@ intItemPosition := ""
 strHotkeyType := ""
 strMenuPath := ""
 strFavoritePosition := ""
-strNewHotkey := ""
+strNewShortcut := ""
 
 return
 ;------------------------------------------------------------
@@ -12252,23 +12262,23 @@ return
 ; Gui in function, see from daniel2 http://www.autohotkey.com/board/topic/19880-help-making-gui-work-inside-a-function/#entry130557
 
 ;------------------------------------------------------------
-SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_intHotkeyType, P_strDefaultHotkey := "", P_strDescription := "")
-; P_intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
-; returns the new hotkey, "None" if no hotkey or empty string if cancel
+SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_intShortcutType, P_strDefaultShortcut := "", P_strDescription := "")
+; P_intShortcutType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
+; returns the new shortcut, "None" if no shortcut or empty string if cancel
 ;------------------------------------------------------------
 {
 	; To create a global variable inside a function without knowing in advance what the variable's name is, the function must be assume-global. (Lexikos)
 	; (https://autohotkey.com/board/topic/84822-error-when-creating-gui-with-global-var-as-a-name/#entry540615)
-	; Use SH_ prefix in local variable names to avoid conflicts outside the function and empty these variable because the function will not do it.
+	; Use SS_ prefix in local variable names to avoid conflicts outside the function and empty these variable because the function will not do it.
 	global
 
-	g_blnChangeHotkeyInProgress := true
-	SH_strModifiersLabels := "Shift|Ctrl|Alt|Win"
-	StringSplit, SH_arrModifiersLabels, SH_strModifiersLabels, |
-	SH_strModifiersSymbols := "+|^|!|#"
-	StringSplit, SH_arrModifiersSymbols, SH_strModifiersSymbols, |
+	g_blnChangeShortcutInProgress := true
+	SS_strModifiersLabels := "Shift|Ctrl|Alt|Win"
+	StringSplit, SS_arrModifiersLabels, SS_strModifiersLabels, |
+	SS_strModifiersSymbols := "+|^|!|#"
+	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
 	
-	SplitHotkey(P_strActualHotkey, SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
+	SplitHotkey(P_strActualShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
 
 	g_intGui2WinID := WinExist("A")
 
@@ -12280,7 +12290,7 @@ SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFav
 	if (g_blnUseColors)
 		Gui, Color, %g_strGuiWindowColor%
 	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeShortcutTitle, g_strAppNameText)
 	Gui, Font
 
 	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
@@ -12298,100 +12308,97 @@ SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFav
 
 	Loop, 4 ; for each modifier add a checkbox
 	{
-		Gui, Add, CheckBox, % "y+" (SH_arrModifiersLabels%A_Index% = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SH_arrModifiersLabels%A_Index%, % lDialog . SH_arrModifiersLabels%A_Index%
-		if (SH_arrModifiersLabels%A_Index% = "Shift")
-			GuiControlGet, SH_arrTop, Pos, f_blnShift
+		Gui, Add, CheckBox, % "y+" (SS_arrModifiersLabels%A_Index% = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SS_arrModifiersLabels%A_Index%, % lDialog . SS_arrModifiersLabels%A_Index%
+		if (SS_arrModifiersLabels%A_Index% = "Shift")
+			GuiControlGet, SS_arrTop, Pos, f_blnShift
 	}
 
-	if (P_intHotkeyType = 1)
-		Gui, Add, DropDownList, % "y" . SH_arrTopY . " x150 w200 vf_drpHotkeyMouse gMouseChanged", %SH_strActualMouseButtonsWithDefault%
-	if (P_intHotkeyType = 3)
+	if (P_intShortcutType = 1)
+		Gui, Add, DropDownList, % "y" . SS_arrTopY . " x150 w200 vf_drpShortcutMouse gMouseChanged", %SS_strActualMouseButtonsWithDefault%
+	if (P_intShortcutType = 3)
 	{
-		Gui, Add, Text, % "y" . SH_arrTopY . " x150 w60", %lDialogMouse%
-		Gui, Add, DropDownList, yp x+10 w200 vf_drpHotkeyMouse gMouseChanged, %SH_strActualMouseButtonsWithDefault%
-		Gui, Add, Text, % "y" . SH_arrTopY + 20 . " x150", %lDialogOr%
+		Gui, Add, Text, % "y" . SS_arrTopY . " x150 w60", %lDialogMouse%
+		Gui, Add, DropDownList, yp x+10 w200 vf_drpShortcutMouse gMouseChanged, %SS_strActualMouseButtonsWithDefault%
+		Gui, Add, Text, % "y" . SS_arrTopY + 20 . " x150", %lDialogOr%
 	}
-	if (P_intHotkeyType <> 1)
+	if (P_intShortcutType <> 1)
 	{
-		Gui, Add, Text, % "y" . SH_arrTopY + (P_intHotkeyType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
-		Gui, Add, Hotkey, yp x+10 w200 vf_strHotkeyKey gHotkeyChanged section
-		GuiControl, , f_strHotkeyKey, %SH_strActualKey%
+		Gui, Add, Text, % "y" . SS_arrTopY + (P_intShortcutType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
+		Gui, Add, Hotkey, yp x+10 w200 vf_strShortcutKey gShortcutChanged section
+		GuiControl, , f_strShortcutKey, %SS_strActualKey%
 	}
-	if (P_intHotkeyType <> 1)
-		Gui, Add, Link, y+5 xs w200 gHotkeyInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc", "Menu")
+	if (P_intShortcutType <> 1)
+		Gui, Add, Link, y+5 xs w200 gShortcutInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc", "Menu")
 
-	Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnNoneHotkey gSelectNoneHotkeyClicked", %lDialogNone%
-	if StrLen(P_strDefaultHotkey)
+	Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnNoneShortcut gSelectNoneShortcutClicked", %lDialogNone%
+	if StrLen(P_strDefaultShortcut)
 	{
-		Gui, Add, Button, % "x10 y" . SH_arrTopY + 100 . " vf_btnResetHotkey gButtonResetHotkey", %lGuiResetDefault%
-		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey", "f_btnResetHotkey")
+		Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnResetShortcut gButtonResetShortcut", %lGuiResetDefault%
+		GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
 	}
 	else
 	{
-		Gui, Add, Text, % "x10 y" . SH_arrTopY + 100
-		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneHotkey")
+		Gui, Add, Text, % "x10 y" . SS_arrTopY + 100
+		GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut")
 	}
 	
 	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
 	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
 	{
-		Gui, Add, Text, y+10 x10 w60 right, % lDialog . SH_arrModifiersLabels%A_Index%
+		Gui, Add, Text, y+10 x10 w60 right, % lDialog . SS_arrModifiersLabels%A_Index%
 		Gui, Font, w700
 		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
 		Gui, Font
-		Gui, Add, Radio, % "yp x+10 disabled vf_radLeft" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionLeft%
-		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SH_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
-		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SH_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radLeft" . SS_arrModifiersLabels%A_Index%, %lDialogWindowPositionLeft%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SS_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
+		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SS_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
 	}
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
 
-	if StrLen(P_strFavoriteLocation)
-		Gui, Add, Text, x10 y+25 w400 left vf_ChangeHotkeyNote, % (P_strFavoriteType = "Snippet" ? L(lDialogChangeHotkeyNoteSnippet, P_strFavoriteName) : L(lDialogChangeHotkeyNote, P_strFavoriteLocation, P_strFavoriteName))
-		
-	Gui, Add, Button, y+25 x10 vf_btnChangeHotkeyOK gButtonChangeHotkeyOK, %lDialogOKAmpersand%
-	Gui, Add, Button, yp x+20 vf_btnChangeHotkeyCancel gButtonChangeHotkeyCancel, %lGuiCancelAmpersand%
+	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, %lDialogOKAmpersand%
+	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotkeyOK", "f_btnChangeHotkeyCancel")
+	GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
 
 	Gui, Add, Text
-	GuiControl, Focus, f_btnChangeHotkeyOK
+	GuiControl, Focus, f_btnChangeShortcutOK
 	Gui, Show, AutoSize Center
 
 	Gui, 2:+Disabled
-	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	WinWaitClose,  % L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
 	
-	if (SH_strNewHotkey <> P_strActualHotkey)
-		SH_strNewHotkey := HotkeyIfAvailable(SH_strNewHotkey, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
+	if (SS_strNewShortcut <> P_strActualShortcut)
+		SS_strNewShortcut := HotkeyIfAvailable(SS_strNewShortcut, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
 
 	; Clean-up function global variables
-	SH_arrModifiersLabels := ""
-	SH_arrModifiersSymbols := ""
-	SH_arrTop := ""
-	SH_blnAlt := ""
-	SH_blnCtrl := ""
-	SH_blnShift := ""
-	SH_blnThisLeft := ""
-	SH_blnThisModifierOn := ""
-	SH_blnThisRight := ""
-	SH_blnWin := ""
-	SH_intReverseIndex := ""
-	SH_strActualKey := ""
-	SH_strActualModifiers := ""
-	SH_strActualMouseButton := ""
-	SH_strActualMouseButtonsWithDefault := ""
-	SH_strHotkeyControl := ""
-	SH_strHotkeyControlKey := ""
-	SH_strHotkeyControlModifiers := ""
-	SH_strKey := ""
-	SH_strModifiersLabels := ""
-	SH_strModifiersSymbols := ""
-	SH_strMouse := ""
-	SH_strMouseControl := ""
-	SH_strMouseValue := ""
-	SH_strThisLabel := ""
-	SH_strThisSymbol := ""
+	SS_arrModifiersLabels := ""
+	SS_arrModifiersSymbols := ""
+	SS_arrTop := ""
+	SS_blnAlt := ""
+	SS_blnCtrl := ""
+	SS_blnShift := ""
+	SS_blnThisLeft := ""
+	SS_blnThisModifierOn := ""
+	SS_blnThisRight := ""
+	SS_blnWin := ""
+	SS_intReverseIndex := ""
+	SS_strActualKey := ""
+	SS_strActualModifiers := ""
+	SS_strActualMouseButton := ""
+	SS_strActualMouseButtonsWithDefault := ""
+	SS_strHotkeyControl := ""
+	SS_strHotkeyControlKey := ""
+	SS_strHotkeyControlModifiers := ""
+	SS_strKey := ""
+	SS_strModifiersLabels := ""
+	SS_strModifiersSymbols := ""
+	SS_strMouse := ""
+	SS_strMouseControl := ""
+	SS_strMouseValue := ""
+	SS_strThisLabel := ""
+	SS_strThisSymbol := ""
 
-	return SH_strNewHotkey ; returning value
+	return SS_strNewShortcut ; returning value
 	
 	;------------------------------------------------------------
 
@@ -12399,81 +12406,81 @@ SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFav
 	MouseChanged:
 	;------------------------------------------------------------
 
-	SH_strMouseControl := A_GuiControl ; hotkey var name
-	GuiControlGet, SH_strMouseValue, , %SH_strMouseControl%
+	SS_strMouseControl := A_GuiControl ; hotkey var name
+	GuiControlGet, SS_strMouseValue, , %SS_strMouseControl%
 
-	if (SH_strMouseValue = lDialogNone) ; this is the translated "None"
+	if (SS_strMouseValue = lDialogNone) ; this is the translated "None"
 	{
 		loop, 4 ; uncheck modifiers checkbox
-			GuiControl, , % "f_bln" . SH_arrModifiersLabels%A_Index%, 0
+			GuiControl, , % "f_bln" . SS_arrModifiersLabels%A_Index%, 0
 		gosub, ModifierClicked
 	}
 
-	if (P_intHotkeyType = 3) ; both keyboard and mouse options are available
+	if (P_intShortcutType = 3) ; both keyboard and mouse options are available
 		; we have a mouse button, empty the hotkey control
-		GuiControl, , f_strHotkeyKey, None
+		GuiControl, , f_strShortcutKey, None
 
 	return
 	;------------------------------------------------------------
 	
 	;------------------------------------------------------------
-	HotkeyChanged:
+	ShortcutChanged:
 	;------------------------------------------------------------
-	SH_strHotkeyControl := A_GuiControl ; hotkey var name
-	SH_strHotkeyControl := %SH_strHotkeyControl% ; hotkey content
+	SS_strHotkeyControl := A_GuiControl ; hotkey var name
+	SS_strHotkeyControl := %SS_strHotkeyControl% ; hotkey content
 
-	if !StrLen(SH_strHotkeyControl)
+	if !StrLen(SS_strHotkeyControl)
 		return
 
-	SplitModifiersFromKey(SH_strHotkeyControl, SH_strHotkeyControlModifiers, SH_strHotkeyControlKey)
+	SplitModifiersFromKey(SS_strHotkeyControl, SS_strHotkeyControlModifiers, SS_strHotkeyControlKey)
 
-	if StrLen(SH_strHotkeyControlModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
+	if StrLen(SS_strHotkeyControlModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
 		GuiControl, , %A_GuiControl%, None
 	else ; we have a valid key, empty the mouse dropdown and return
-		GuiControl, Choose, f_drpHotkeyMouse, 0
+		GuiControl, Choose, f_drpShortcutMouse, 0
 
 	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	SelectNoneHotkeyClicked:
+	SelectNoneShortcutClicked:
 	;------------------------------------------------------------
 
-	GuiControl, , f_strHotkeyKey, %lDialogNone%
-	GuiControl, Choose, f_drpHotkeyMouse, %lDialogNone%
-	SplitHotkey("None", SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
+	GuiControl, , f_strShortcutKey, %lDialogNone%
+	GuiControl, Choose, f_drpShortcutMouse, %lDialogNone%
+	SplitHotkey("None", SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
 
 	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	HotkeyInvisibleKeysClicked:
+	ShortcutInvisibleKeysClicked:
 	;------------------------------------------------------------
 	
 	if (ErrorLevel = "Space")
-		GuiControl, , f_strHotkeyKey, %A_Space%
+		GuiControl, , f_strShortcutKey, %A_Space%
 	else if (ErrorLevel = "Tab")
-		GuiControl, , f_strHotkeyKey, %A_Tab%
+		GuiControl, , f_strShortcutKey, %A_Tab%
 	else if (ErrorLevel = "Enter")
-		GuiControl, , f_strHotkeyKey, Enter
+		GuiControl, , f_strShortcutKey, Enter
 	else if (ErrorLevel = "Esc")
-		GuiControl, , f_strHotkeyKey, Escape
+		GuiControl, , f_strShortcutKey, Escape
 	else ; Menu
-		GuiControl, , f_strHotkeyKey, AppsKey
-	GuiControl, Choose, f_drpHotkeyMouse, 0
+		GuiControl, , f_strShortcutKey, AppsKey
+	GuiControl, Choose, f_drpShortcutMouse, 0
 
 	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	ButtonResetHotkey:
+	ButtonResetShortcut:
 	;------------------------------------------------------------
 
-	SplitHotkey(P_strDefaultHotkey, SH_strActualModifiers, SH_strActualKey, SH_strActualMouseButton, SH_strActualMouseButtonsWithDefault)
-	GuiControl, , f_strHotkeyKey, %SH_strActualKey%
-	GuiControl, Choose, f_drpHotkeyMouse, % GetText4MouseButton(SH_strActualMouseButton)
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SH_strActualModifiers
+	SplitHotkey(P_strDefaultShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
+	GuiControl, , f_strShortcutKey, %SS_strActualKey%
+	GuiControl, Choose, f_drpShortcutMouse, % GetText4MouseButton(SS_strActualMouseButton)
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
 	
 	return
 	;------------------------------------------------------------
@@ -12481,16 +12488,16 @@ SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFav
 	;------------------------------------------------------------
 	SetModifiersCheckBoxAndRadio:
 	;------------------------------------------------------------
-	loop, 4 ; set modifiers checkboxes according to SH_strActualModifiers
+	loop, 4 ; set modifiers checkboxes according to SS_strActualModifiers
 	{
-		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
-		SH_strThisSymbol := SH_arrModifiersSymbols%A_Index%
+		SS_strThisLabel := SS_arrModifiersLabels%A_Index%
+		SS_strThisSymbol := SS_arrModifiersSymbols%A_Index%
 		
-		GuiControl, , % "f_bln" . SH_strThisLabel, % InStr(SH_strActualModifiers, SH_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
+		GuiControl, , % "f_bln" . SS_strThisLabel, % InStr(SS_strActualModifiers, SS_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
 		
-		GuiControl, , f_radLeft%SH_strThisLabel%, % InStr(SH_strActualModifiers, "<" . SH_strThisSymbol) > 0
-		GuiControl, , f_radAny%SH_strThisLabel%, % !InStr(SH_strActualModifiers, "<" . SH_strThisSymbol) and !InStr(P_strActualHotkey, ">" . SH_strThisSymbol)
-		GuiControl, , f_radRight%SH_strThisLabel%, % InStr(SH_strActualModifiers, ">" . SH_strThisSymbol) > 0
+		GuiControl, , f_radLeft%SS_strThisLabel%, % InStr(SS_strActualModifiers, "<" . SS_strThisSymbol) > 0
+		GuiControl, , f_radAny%SS_strThisLabel%, % !InStr(SS_strActualModifiers, "<" . SS_strThisSymbol) and !InStr(P_strActualShortcut, ">" . SS_strThisSymbol)
+		GuiControl, , f_radRight%SS_strThisLabel%, % InStr(SS_strActualModifiers, ">" . SS_strThisSymbol) > 0
 	}
 	gosub, ModifierClicked
 	
@@ -12502,76 +12509,76 @@ SelectShortcut(P_strActualHotkey, P_strFavoriteName, P_strFavoriteType, P_strFav
 	;------------------------------------------------------------
 	Loop, 4 ; enable/disable modifiers radio buttons groups for each modifier
 	{
-		SH_strThisLabel := SH_arrModifiersLabels%A_Index%
-		SH_strThisSymbol := SH_arrModifiersSymbols%A_Index%
+		SS_strThisLabel := SS_arrModifiersLabels%A_Index%
+		SS_strThisSymbol := SS_arrModifiersSymbols%A_Index%
 		
-		GuiControlGet, SH_blnThisModifierOn, , % "f_bln" . SH_arrModifiersLabels%A_Index%
-		GuiControl, Enable%SH_blnThisModifierOn%, f_radLeft%SH_strThisLabel%
-		GuiControl, Enable%SH_blnThisModifierOn%, f_radAny%SH_strThisLabel%
-		GuiControl, Enable%SH_blnThisModifierOn%, f_radRight%SH_strThisLabel%
+		GuiControlGet, SS_blnThisModifierOn, , % "f_bln" . SS_arrModifiersLabels%A_Index%
+		GuiControl, Enable%SS_blnThisModifierOn%, f_radLeft%SS_strThisLabel%
+		GuiControl, Enable%SS_blnThisModifierOn%, f_radAny%SS_strThisLabel%
+		GuiControl, Enable%SS_blnThisModifierOn%, f_radRight%SS_strThisLabel%
 	}
 	return
 	;------------------------------------------------------------
 	
 	;------------------------------------------------------------
-	ButtonChangeHotkeyOK:
+	ButtonChangeShortcutOK:
 	;------------------------------------------------------------
 	
-	GuiControlGet, SH_strMouse, , f_drpHotkeyMouse
-	GuiControlGet, SH_strKey, , f_strHotkeyKey
-	GuiControlGet, SH_blnWin , ,f_blnWin
-	GuiControlGet, SH_blnAlt, , f_blnAlt
-	GuiControlGet, SH_blnCtrl, , f_blnCtrl
-	GuiControlGet, SH_blnShift, , f_blnShift
+	GuiControlGet, SS_strMouse, , f_drpShortcutMouse
+	GuiControlGet, SS_strKey, , f_strShortcutKey
+	GuiControlGet, SS_blnWin , ,f_blnWin
+	GuiControlGet, SS_blnAlt, , f_blnAlt
+	GuiControlGet, SS_blnCtrl, , f_blnCtrl
+	GuiControlGet, SS_blnShift, , f_blnShift
 
-	if StrLen(SH_strMouse)
-		SH_strMouse := GetMouseButton4Text(SH_strMouse) ; get mouse button system name from dropdown localized text
+	if StrLen(SS_strMouse)
+		SS_strMouse := GetMouseButton4Text(SS_strMouse) ; get mouse button system name from dropdown localized text
 	
-	SH_strNewHotkey := Trim(SH_strKey . (SH_strMouse = "None" ? "" : SH_strMouse))
-	if !StrLen(SH_strNewHotkey)
-		SH_strNewHotkey := "None"
+	SS_strNewShortcut := Trim(SS_strKey . (SS_strMouse = "None" ? "" : SS_strMouse))
+	if !StrLen(SS_strNewShortcut)
+		SS_strNewShortcut := "None"
 	
-	if HasShortcut(SH_strNewHotkey)
+	if HasShortcut(SS_strNewShortcut)
 		Loop, 4
 		{
-			SH_intReverseIndex := -(A_Index-5) ; reverse order of modifiers important to keep modifiers labels in correct order
-			SH_strThisLabel := SH_arrModifiersLabels%SH_intReverseIndex%
-			SH_strThisSymbol := SH_arrModifiersSymbols%SH_intReverseIndex%
-			if (SH_bln%SH_strThisLabel%)
+			SS_intReverseIndex := -(A_Index-5) ; reverse order of modifiers important to keep modifiers labels in correct order
+			SS_strThisLabel := SS_arrModifiersLabels%SS_intReverseIndex%
+			SS_strThisSymbol := SS_arrModifiersSymbols%SS_intReverseIndex%
+			if (SS_bln%SS_strThisLabel%)
 			{
-				GuiControlGet, SH_blnThisLeft, , f_radLeft%SH_strThisLabel%
-				GuiControlGet, SH_blnThisRight, , f_radRight%SH_strThisLabel%
-				SH_strNewHotkey := (SH_blnThisLeft ? "<" : "") . (SH_blnThisRight ? ">" : "") . SH_strThisSymbol . SH_strNewHotkey
+				GuiControlGet, SS_blnThisLeft, , f_radLeft%SS_strThisLabel%
+				GuiControlGet, SS_blnThisRight, , f_radRight%SS_strThisLabel%
+				SS_strNewShortcut := (SS_blnThisLeft ? "<" : "") . (SS_blnThisRight ? ">" : "") . SS_strThisSymbol . SS_strNewShortcut
 			}
 		}
 
-	; ###_V(A_ThisLabel, SH_strNewHotkey)
+	; ###_V(A_ThisLabel, SS_strNewShortcut)
 	
-	if (SH_strNewHotkey = "LButton")
+	if (SS_strNewShortcut = "LButton")
 	{
 		Oops(lDialogChangeHotkeyMouseCheckLButton, lDialogShift, lDialogCtrl, lDialogAlt, lDialogWin)
-		SH_strNewHotkey := ""
+		SS_strNewShortcut := ""
 		return
 	}
-	else if (SH_blnWin or SH_blnAlt or SH_blnCtrl or SH_blnShift) and (SH_strNewHotkey = "None")
+	else if (SS_blnWin or SS_blnAlt or SS_blnCtrl or SS_blnShift) and (SS_strNewShortcut = "None")
 	{
 		Oops(lDialogChangeHotkeyModifierAndNone)
-		SH_strNewHotkey := ""
+		SS_strNewShortcut := ""
 		return
 	}	
-	g_blnChangeHotkeyInProgress := false
+	g_blnChangeShortcutInProgress := false
 	Gosub, 3GuiClose
 	
 	return
 	;------------------------------------------------------------
 
 	;------------------------------------------------------------
-	ButtonChangeHotkeyCancel:
+	ButtonChangeShortcutCancel:
 	;------------------------------------------------------------
 	
-	SH_strNewHotkey := ""
+	SS_strNewShortcut := ""
 
-	g_blnChangeHotkeyInProgress := false
+	g_blnChangeShortcutInProgress := false
 	Gosub, 3GuiClose
   
 	return
@@ -13113,7 +13120,7 @@ if SettingsUnsaved()
 	if SettingsNotSavedReturn()
 		return
 
-if !(g_blnMenuReady) or (g_blnChangeHotkeyInProgress)
+if !(g_blnMenuReady) or (g_blnChangeShortcutInProgress)
 	return
 
 if (g_blnGetWinInfo)
@@ -13548,7 +13555,7 @@ return
 OpenAlternativeMenuHotkey:
 ;------------------------------------------------------------
 
-if (g_blnChangeHotkeyInProgress)
+if (g_blnChangeShortcutInProgress)
 	return
 
 ; search Alternative menu code in g_objQAPFeatures to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
@@ -13770,7 +13777,7 @@ OpenReopenCurrentFolder:
 OpenFavoriteFromHotstring:
 ;------------------------------------------------------------
 
-if (g_blnChangeHotkeyInProgress)
+if (g_blnChangeShortcutInProgress)
  	return
 
 g_strOpenFavoriteLabel := A_ThisLabel
