@@ -9036,7 +9036,6 @@ if !(blnIsGroupMember)
 	}
 }
 
-g_strNewFavoriteHotstring := ""
 ResetArray("arrFavoriteHotstring")
 
 return
@@ -10701,12 +10700,12 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		return
 	}
 	
-	if StrLen(strNewFavoriteHotstringTrigger)
+	if StrLen(g_strNewFavoriteHotstringTrigger)
 	{
 		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
 		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
 		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz"
-		Loop, Parse, strNewFavoriteHotstringTrigger
+		Loop, Parse, g_strNewFavoriteHotstringTrigger
 			if !InStr(strValidKeys, A_LoopField)
 			{
 				Oops(lOopsInvalidHotstring)
@@ -12626,12 +12625,13 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	Gui, 2:+Disabled
 	WinWaitClose,  % L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
 	
-	; ###_V("SH_strNewHotstring", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
+	; ###_V("SH_strNewHotstring avant Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
 	if (SubStr(SH_strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator) ; trigger empty
 		SH_strNewHotstring := g_strHotstringOptionsSeparator ; make sure we have no option if no trigger
 	
 	if StrLen(SH_strNewHotstring) and (SH_strNewHotstring <> g_strHotstringOptionsSeparator)
 		SH_strNewHotstring := HotstringIfAvailable(P_strActualHotstring, SH_strNewHotstring, P_strFavoriteName)
+	; ###_V("SH_strNewHotstring après Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
 	
 	; Clean-up function global variables
 	; ... #####
@@ -12720,6 +12720,7 @@ UpdateFavoritesObjectsByHotstringSave:
 UpdateFavoritesObjectsByHotstringSaveList:
 ;-----------------------------------------------------------
 
+; ###_O(A_ThisLabel . " / " . g_strNewFavoriteHotstring, g_objEditedFavorite)
 if (g_objEditedFavorite.FavoriteHotstring = g_strNewFavoriteHotstring) ; if not changed
 	return
 
@@ -12743,6 +12744,7 @@ if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
 }
 
 g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
+; ###_O("g_objEditedFavorite", g_objEditedFavorite)
 
 if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
 	Gosub, HotkeysManageListLoad
