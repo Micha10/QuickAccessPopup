@@ -1956,6 +1956,7 @@ f_typNameOfVariable
 #NoEnv
 #SingleInstance force
 #KeyHistory 0
+#MaxHotkeysPerInterval 200
 ListLines, Off
 DetectHiddenWindows, On ; On required for button centering function GuiCenterButtons
 SendMode, Input
@@ -2046,6 +2047,7 @@ g_intGuiDefaultHeight := 538
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
+g_blnChangeHotstringInProgress := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -2059,7 +2061,6 @@ g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separ
 g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
 g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in any item name
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
-g_strHotstringIndicator := "*"
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
 g_strFolderLiveIndicator := "!"
@@ -2067,6 +2068,11 @@ g_strFolderLiveIndicator := "!"
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
 g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
+
+g_strHotstringIndicator := "*"
+g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
+
+g_strExclusionMouseListDialogIndicator := "*"
 
 g_objGuiControls := Object() ; to build Settings gui
 
@@ -3295,7 +3301,7 @@ InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddTh
 InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",					0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
 InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiShortcutsManageFromQAPFeature",		0, "iconHotkeys")
+InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
 InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
 InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
 InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
@@ -3410,7 +3416,7 @@ InsertGuiControlPos("f_picGuiAddFavorite",			 -44,  120, true) ; 120
 InsertGuiControlPos("f_picGuiEditFavorite",			 -44,  195, true) ; 190 + 5
 InsertGuiControlPos("f_picGuiRemoveFavorite",		 -44,  270, true) ; 260 + 10
 InsertGuiControlPos("f_picGuiCopyFavorite",			 -44,  345, true) ; 330 + 15
-InsertGuiControlPos("f_picGuiShortcutsManage",		 -44, -148, true, true) ; -140 true = center, true = draw
+InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -148, true, true) ; -140 true = center, true = draw
 InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw
 InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
 InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
@@ -3444,7 +3450,7 @@ InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
 InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true)
 InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
-InsertGuiControlPos("f_lblGuiShortcutsManage",		 -44,  -97, true)
+InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
 
 InsertGuiControlPos("f_strFavoritesListFilter",		  40,  115)
@@ -3511,6 +3517,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
 			NameLocationHotkeysUpgraded=1
+			WaitDelayInSnippet=40|80|180
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -3725,7 +3732,9 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
+IniRead, strWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 40|80|180 ; default 300 ms (split in three sleep commands)
 IniRead, g_intWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 300 ; default 300 ms (split in two sleep commands 33% and 67%)
+StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_blnEnableHotstrings, %g_strIniFile%, Global, EnableHotstrings, 1 ; default true
@@ -3757,6 +3766,7 @@ objIniFile := ""
 strFileEncoding := ""
 strIniFileContent := ""
 blnDoNotConvertSettingsToUnicode := ""
+strWaitDelayInSnippet := ""
 
 return
 ;------------------------------------------------------------
@@ -3980,7 +3990,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
 		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.94) hotstring to launch this favorite (format: "trigger:options"
-			; hotstring options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
+			; hotstring options: "c" case sensitive (default off), "w" wait for ending character (default off), "k" keep hotstring (default off)
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -4421,7 +4431,7 @@ g_strHotstringsTyped := ""
 
 g_objHotstringsKeys := {"Symbols": "!""#$%&'()*+,-./:;<=>?@[\]^_``{|}~", "Num": "0123456789", "Alpha": "abcdefghijklmnopqrstuvwxyz"
 	, "Other": "BS,Enter,Tab,Space"
-	, "BreakKeys": "Left,Right,Up,Down,Home,End,RButton,LButton,LControl,RControl,LAlt,AppsKey,Lwin,Rwin,WheelDown,WheelUp,f1,f2,f3,f4,f5,f6,f7,f8,f9,f6,f7,f9,f10,f11,f12"
+	, "BreakKeys": "Left,Right,Up,Down,Home,End,RButton,LButton,LControl,RControl,LAlt,AppsKey,Lwin,Rwin,WheelDown,WheelUp,WheelLeft,WheelRight,f1,f2,f3,f4,f5,f6,f7,f8,f9,f6,f7,f9,f10,f11,f12"
 	, "Numpad": "Numpad0,Numpad1,Numpad2,Numpad3,Numpad4,Numpad5,Numpad6,Numpad7,Numpad8,Numpad9,NumpadDot,NumpadDiv,NumpadMult,NumpadAdd,NumpadSub"} ; NumpadEnter removed because interfere with Return
 g_objHotstringsEffect := {"Return": "`n", "Tab": A_Tab, "Space": A_Space, "Enter": "`n", "Dot": ".", "Div": "/", "Mult": "*", "Add": "+", "Sub": "-"}
 
@@ -4460,6 +4470,9 @@ HotstringsReceive:
 ; if Hotstrings are enabled, this label is triggered every time a key is pressed
 ;------------------------------------------------------------
 
+if (g_blnChangeHotstringInProgress)
+	return ; do not monitor hotstrings when the Change hotstring dialog box is open
+
 ###_strNow := A_TickCount
 strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
 ###_HotstringsDebug(1, "strHotstringsHotkey received: """ . strHotstringsHotkey . """")
@@ -4469,7 +4482,7 @@ strHotstringsHotkey := SubStr(A_ThisHotkey, 3)
 if (g_blnHotstringMatchedWaitingEndingKey) and (InStr(g_strHotstringsEndingKeys, strHotstringsHotkey) or InStr(",Return,Tab,Space,", "," . strHotstringsHotkey . ","))
 {
 	; we have a match and an ending key, process trigger and return
-	###_HotstringsDebug(8, "g_strHotstringsTyped after Match with Ending key:`n" . g_strHotstringsTyped)
+	###_HotstringsDebug(9, "g_strHotstringsTyped after Match with Ending key:`n" . g_strHotstringsTyped)
 	gosub, HotstringsProcessTriggerWithEndingKey
 	return
 }
@@ -4526,22 +4539,22 @@ else
 
 ; check if we have a hotstring in the monitored string
 
-for strThisHotstring in g_objFavoritesObjectsByHotstring
+for strCheckedHotstring in g_objFavoritesObjectsByHotstring
 {
-	StringSplit, arrThisHotstring, strThisHotstring, :
-	; arrThisHotstring1 trigger / arrThisHotstring2 options
-	; options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
-	###_HotstringsDebug(8, "g_strHotstringsTyped after process:`n" . g_strHotstringsTyped . "`nMatch? " . InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c"))
+	StringSplit, arrCheckedHotstring, strCheckedHotstring, :
+	; arrCheckedHotstring1 trigger / arrCheckedHotstring2 options
+	; options: "c" case sensitive (default off), "w" ending character not required (default off), "k" keep hotstring (default off)
+	###_HotstringsDebug(8, "g_strHotstringsTyped after process:`n" . g_strHotstringsTyped . "`nMatch """ . arrCheckedHotstring1 . """? " . InStr(g_strHotstringsTyped, arrCheckedHotstring1, InStr(arrCheckedHotstring2, "c"))
 		. "`nDuration: " . (A_TickCount - ###_strNow) . " ms")
-	if InStr(g_strHotstringsTyped, arrThisHotstring1, InStr(arrThisHotstring2, "c")) ; case sensitive or not
+	if InStr(g_strHotstringsTyped, arrCheckedHotstring1, InStr(arrCheckedHotstring2, "c")) ; case sensitive or not
 	; we have a match
 	{
-		; ###_O("Match", g_objFavoritesObjectsByHotstring.Item(strThisHotstring))
-		g_strMatchedHotstring := strThisHotstring ; format "trigger:options"
-		g_strMatchedHotstringTrigger := arrThisHotstring1
-		g_blnHotstringDeleteTrigger := !InStr(arrThisHotstring2, "k") ; hotstring "keep" (no backspace) option
+		; ###_O("Match", g_objFavoritesObjectsByHotstring.Item(strCheckedHotstring))
+		g_strMatchedHotstring := strCheckedHotstring ; format "trigger:options"
+		g_strMatchedHotstringTrigger := arrCheckedHotstring1
+		g_blnHotstringDeleteTrigger := !InStr(arrCheckedHotstring2, "k") ; hotstring "keep" (no backspace) option
 		
-		if InStr(arrThisHotstring2, "*") ; ending character required
+		if InStr(arrCheckedHotstring2, "w") ; ending character required
 			g_blnHotstringMatchedWaitingEndingKey := true ; wait for end key before processing
 		else ; ready to process
 			gosub, HotstringsProcessTrigger
@@ -4553,9 +4566,7 @@ strHotstringsHotkey := ""
 blnShiftState := ""
 blnUppercase := ""
 arrNumpadKey := ""
-strThisHotstring := ""
-strThisTrigger := ""
-
+strCheckedHotstring := ""
 
 return
 ;------------------------------------------------------------
@@ -7614,7 +7625,7 @@ Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempD
 Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%strSettingsIconsExtension% ; Static3
 Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%strSettingsIconsExtension% ; Static4
 Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%strSettingsIconsExtension% ; Static5
-Gui, 1:Add, Picture, vf_picGuiShortcutsManage gGuiShortcutsManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
+Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
 Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%strSettingsIconsExtension% ; Static7
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%strSettingsIconsExtension% ; Static8
 g_objToolTipsMessages["Static8"] := lControlToolTipPreviousMenu
@@ -7644,7 +7655,7 @@ Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, 
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static24
-Gui, 1:Add, Text, vf_lblGuiShortcutsManage center gGuiShortcutsManage x+1 yp, %lDialogHotkeys% ; Static25
+Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static25
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
 Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
 Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
@@ -9010,10 +9021,10 @@ if !(blnIsGroupMember)
 		strFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		StringSplit, arrFavoriteHotstring, strFavoriteHotstring, :
 		; arrFavoriteHotstring1 trigger / arrFavoriteHotstring2 options
-		; options: "c" case sensitive (default off), "*" ending character not required (default off), "k" keep hotstring (default off)
+		; options: "c" case sensitive (default off), "w" ending character not required (default off), "k" keep hotstring (default off)
 		Gui, 2:Add, Edit, x20 y+5 w300 Limit250 vf_strHotstring, %arrFavoriteHotstring1%
 		Gui, 2:Add, Checkbox, % "x20 y+5 vf_blnHotstringCaseSensitive " . (InStr(arrFavoriteHotstring2, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(arrFavoriteHotstring2, "*") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
+		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringWaitEndingKey " . (InStr(arrFavoriteHotstring2, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
 		Gui, 2:Add, Checkbox, % "x+20 yp vf_blnHotstringKeepTrigger " . (InStr(arrFavoriteHotstring2, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
 	}
 }
@@ -10870,8 +10881,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
 	if StrLen(f_strHotstring)
-		g_objEditedFavorite.FavoriteHotstring := f_strHotstring . ":"
-			. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "*" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
+		g_objEditedFavorite.FavoriteHotstring := f_strHotstring . g_strHotstringOptionsSeparator
+			. (f_blnHotstringCaseSensitive ? "c" : "") . (f_blnHotstringWaitEndingKey ? "w" : "") . (f_blnHotstringKeepTrigger ? "k" : "")
 	else
 		g_objEditedFavorite.FavoriteHotstring := ""
 
@@ -11449,11 +11460,11 @@ MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
 
 
 ;============================================================
-GuiShortcutsManage:
-GuiShortcutsManageFromQAPFeature:
+GuiHotkeysManage:
+GuiHotkeysManageFromQAPFeature:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "GuiShortcutsManageFromQAPFeature")
+if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
 	Gosub, GuiShowFromHotkeysManage
 	
 intWidth := 840
@@ -14706,9 +14717,9 @@ if (blnTextSnippet)
 {
 	BlockInput, On
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
-	Sleep, % g_intWaitDelayInSnippet / 10 ; safety delay default 300 * 10% = 30 ms
+	Sleep, %g_arrWaitDelayInSnippet1% ; safety delay default 40 ms
 	ClipBoard := ""
-	Sleep, % g_intWaitDelayInSnippet * 3/10 ; safety delay default 300 * 30% = 90 ms
+	Sleep, %g_arrWaitDelayInSnippet2% ; safety delay default 80 ms
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
@@ -14723,7 +14734,7 @@ if (blnTextSnippet)
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
 	; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
-	Sleep, % g_intWaitDelayInSnippet * 6 / 10 ; delay required by some application, including Notepad, default 300 * 60% = 180 ms
+	Sleep, %g_arrWaitDelayInSnippet3% ; delay required by some application, including Notepad, default 180 ms
 	SendEvent, ^v
 	BlockInput, Off
 	Sleep, 100 ; safety
@@ -18087,12 +18098,14 @@ FavoriteNameLocationFromObject(objFavorite)
 SplitExclusionList(strExclusionMouseList, ByRef g_strExclusionMouseListApp, ByRef g_strExclusionMouseListDialog)
 ;------------------------------------------------------------
 {
+	global g_strExclusionMouseListDialogIndicator
+	
 	g_strExclusionMouseListApp := ""
 	g_strExclusionMouseListDialog := ""
 	
 	Loop, Parse, strExclusionMouseList, |
-		if (SubStr(A_LoopField, 1, 1) = "*") and (StrLen(A_LoopField) > 2)
-		; "*" tells to check this exclusion also in app's dialog boxes, and we have something after the "*"
+		if (SubStr(A_LoopField, 1, 1) = g_strExclusionMouseListDialogIndicator) and (StrLen(A_LoopField) > 2)
+		; g_strExclusionMouseListDialogIndicator ("*") tells to check this exclusion also in app's dialog boxes, and we have something after the indicator
 		{
 			g_strExclusionMouseListApp .= Trim(SubStr(A_LoopField, 2)) . "|"
 			g_strExclusionMouseListDialog .= Trim(SubStr(A_LoopField, 2)) . "|"
