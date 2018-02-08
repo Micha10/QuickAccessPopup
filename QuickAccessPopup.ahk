@@ -11514,7 +11514,7 @@ Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lD
 Gui, 2:Add, Checkbox, x+50 yp vf_blnSeeShortHotkeyNames gCheckboxSeeShortHotkeyNames, %lDialogHotkeysManageListSeeShortHotkeyNames%
 GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no name, 2 = short names, 3 = full name
 
-Gosub, LoadHotkeysManageList
+Gosub, HotkeysManageListLoad
 
 Gui, 2:Tab
 Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGuiCloseAmpersand%
@@ -11596,7 +11596,7 @@ return
 
 
 ;------------------------------------------------------------
-LoadHotkeysManageList:
+HotkeysManageListLoad:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
@@ -11676,7 +11676,7 @@ CheckboxSeeAllFavoritesClicked:
 CheckboxSeeShortHotkeyNames:
 ;------------------------------------------------------------
 
-Gosub, LoadHotkeysManageList
+Gosub, HotkeysManageListLoad
 
 return
 ;------------------------------------------------------------
@@ -12368,7 +12368,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	WinWaitClose,  % L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
 	
 	if (SS_strNewShortcut <> P_strActualShortcut)
-		SS_strNewShortcut := HotkeyIfAvailable(SS_strNewShortcut, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
+		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, (StrLen(P_strFavoriteLocation) ? P_strFavoriteLocation : P_strFavoriteName))
 
 	; Clean-up function global variables
 	SS_arrModifiersLabels := ""
@@ -12405,7 +12405,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	MouseChanged:
 	;------------------------------------------------------------
-
 	SS_strMouseControl := A_GuiControl ; hotkey var name
 	GuiControlGet, SS_strMouseValue, , %SS_strMouseControl%
 
@@ -12445,7 +12444,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	SelectNoneShortcutClicked:
 	;------------------------------------------------------------
-
 	GuiControl, , f_strShortcutKey, %lDialogNone%
 	GuiControl, Choose, f_drpShortcutMouse, %lDialogNone%
 	SplitHotkey("None", SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
@@ -12457,7 +12455,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ShortcutInvisibleKeysClicked:
 	;------------------------------------------------------------
-	
 	if (ErrorLevel = "Space")
 		GuiControl, , f_strShortcutKey, %A_Space%
 	else if (ErrorLevel = "Tab")
@@ -12476,7 +12473,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonResetShortcut:
 	;------------------------------------------------------------
-
 	SplitHotkey(P_strDefaultShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
 	GuiControl, , f_strShortcutKey, %SS_strActualKey%
 	GuiControl, Choose, f_drpShortcutMouse, % GetText4MouseButton(SS_strActualMouseButton)
@@ -12523,7 +12519,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonChangeShortcutOK:
 	;------------------------------------------------------------
-	
 	GuiControlGet, SS_strMouse, , f_drpShortcutMouse
 	GuiControlGet, SS_strKey, , f_strShortcutKey
 	GuiControlGet, SS_blnWin , ,f_blnWin
@@ -12575,10 +12570,105 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonChangeShortcutCancel:
 	;------------------------------------------------------------
-	
 	SS_strNewShortcut := ""
 
 	g_blnChangeShortcutInProgress := false
+	Gosub, 3GuiClose
+  
+	return
+	;------------------------------------------------------------
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation)
+; returns the new hotstring or empty string if cancel
+;------------------------------------------------------------
+{
+	global
+	
+	g_blnChangeHotstringInProgress := true
+
+	g_intGui2WinID := WinExist("A")
+
+	Gui, 3:New, , % L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:Default
+	Gui, +Owner2
+	Gui, +OwnDialogs
+	
+	if (g_blnUseColors)
+		Gui, Color, %g_strGuiWindowColor%
+	Gui, Font, s10 w700, Verdana
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotstringTitle, g_strAppNameText)
+	Gui, Font
+
+	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
+	Gui, Font, s8 w700
+	Gui, Add, Text, x+5 yp w300 section, % P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : "")
+	Gui, Font
+	if StrLen(P_strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
+
+	SplitHotstring(P_strActualHotstring, strFavoriteHotstringTrigger, strFavoriteHotstringOptionsShort)
+	Gui, Add, Edit, x10 y+10 w300 Limit250 vf_SH_strHotstringTrigger, %strFavoriteHotstringTrigger%
+	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(strFavoriteHotstringOptionsShort, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitEndingKey " . (InStr(strFavoriteHotstringOptionsShort, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepTrigger " . (InStr(strFavoriteHotstringOptionsShort, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+
+	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, %lDialogOKAmpersand%
+	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, %lGuiCancelAmpersand%
+	
+	GuiCenterButtons(L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotstringOK", "f_btnChangeHotstringCancel")
+
+	Gui, Add, Text
+	GuiControl, Focus, f_btnChangeHotkeyOK
+	Gui, Show, AutoSize Center
+
+	Gui, 2:+Disabled
+	WinWaitClose,  % L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	
+	; ###_V("SH_strNewHotstring", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
+	if (SubStr(SH_strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator) ; trigger empty
+		SH_strNewHotstring := g_strHotstringOptionsSeparator ; make sure we have no option if no trigger
+	
+	if StrLen(SH_strNewHotstring) and (SH_strNewHotstring <> g_strHotstringOptionsSeparator)
+		SH_strNewHotstring := HotstringIfAvailable(P_strActualHotstring, SH_strNewHotstring, P_strFavoriteName)
+	
+	; Clean-up function global variables
+	; ... #####
+	
+	return SH_strNewHotstring ; returning value
+	
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	ButtonChangeHotstringOK:
+	;------------------------------------------------------------
+	
+	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
+	GuiControlGet, SH_blnHotstringCaseSensitive, , f_SH_blnHotstringCaseSensitive
+	GuiControlGet, SH_blnHotstringWaitEndingKey, , f_SH_blnHotstringWaitEndingKey
+	GuiControlGet, SH_blnHotstringKeepTrigger , ,f_SH_blnHotstringKeepTrigger
+
+	SH_strNewHotstring := SH_strHotstringTrigger . g_strHotstringOptionsSeparator
+		. (SH_blnHotstringCaseSensitive ? "c" : "") . (SH_blnHotstringWaitEndingKey ? "w" : "") . (SH_blnHotstringKeepTrigger ? "k" : "")
+	
+	###_V(A_ThisLabel, SH_strNewHotstring)
+	
+	g_blnChangeHotstringInProgress := false
+	Gosub, 3GuiClose
+	
+	return
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	ButtonChangeHotstringCancel:
+	;------------------------------------------------------------
+	
+	SH_strNewHotstring := ""
+
+	g_blnChangeHotstringInProgress := false
 	Gosub, 3GuiClose
   
 	return
@@ -12621,14 +12711,50 @@ if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 
 if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
-	Gosub, LoadHotkeysManageList
+	Gosub, HotkeysManageListLoad
 
 return
 ;-----------------------------------------------------------
 
 
 ;-----------------------------------------------------------
-HotkeyIfAvailable(strHotkey, strLocation)
+UpdateFavoritesObjectsByHotstringSave:
+UpdateFavoritesObjectsByHotstringSaveList:
+;-----------------------------------------------------------
+
+if (g_objEditedFavorite.FavoriteHotstring = g_strNewFavoriteHotstring) ; if not changed
+	return
+
+; Hotstring was added, changed or removed
+
+if (StrLen(g_strNewFavoriteHotstring) and SubStr(g_strNewFavoriteHotstring, 1, 1) <> g_strHotstringOptionsSeparator) ; make sure there is a trigger
+{
+	; ###_V("ADD g_objFavoritesObjectsByHotstring in " . A_ThisLabel, g_strNewFavoriteHotstring, g_objEditedFavorite.FavoriteName)
+	; add item to g_objFavoritesObjectsByHotstring
+	g_objFavoritesObjectsByHotstring.Add(g_strNewFavoriteHotstring, g_objEditedFavorite)
+}
+else
+	; remove item from g_objFavoritesObjectsByHotstring
+	g_objFavoritesObjectsByHotstring.Remove(g_objEditedFavorite.FavoriteHotstring) ; remove old Hotstring as in g_objEditedFavorite
+
+if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
+{
+	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
+	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
+	GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
+}
+
+g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
+
+if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
+	Gosub, HotkeysManageListLoad
+
+return
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+ShortcutIfAvailable(strShortcut, strFavoriteName)
 ;-----------------------------------------------------------
 {
 	global g_arrPopupHotkeys
@@ -12636,157 +12762,99 @@ HotkeyIfAvailable(strHotkey, strLocation)
 	global g_arrOptionsPopupHotkeyTitles
 	global g_objFavoritesObjectsByShortcut
 	
-	if !StrLen(strHotkey) or (strHotkey = "None")
-		return strHotkey
+	if !StrLen(strShortcut) or (strShortcut = "None")
+		return strShortcut
 	
 	; check popup menu hotkeys
 	loop, 4
-		if (g_arrPopupHotkeys%A_Index% = strHotkey)
+		if (g_arrPopupHotkeys%A_Index% = strShortcut)
 		{
-			strExistingLocation := g_arrOptionsPopupHotkeyTitles%A_Index%
+			strExistingName := g_arrOptionsPopupHotkeyTitles%A_Index%
 			break
 		}
 	
-	; check QAP Features Alternative menu hotkeys
-	for strCode, objThisQAPFeature in g_objQAPFeatures
-		if (objThisQAPFeature.CurrentHotkey = strHotkey)
-		{
-			strExistingLocation := strCode
-			break
-		}
+	if !StrLen(strExistingName)
+		; check QAP Features Alternative menu hotkeys
+		for strCode, objThisQAPFeature in g_objQAPFeatures
+			if (objThisQAPFeature.CurrentHotkey = strShortcut)
+			{
+				strExistingName := objThisQAPFeature.LocalizedName
+				break
+			}
 	
 	; check favorites hotkeys
-	if !StrLen(strExistingLocation)
-		strExistingLocation := g_objFavoritesObjectsByShortcut[strHotkey].FavoriteLocation
-	
-	if StrLen(strExistingLocation)
+	if !StrLen(strExistingName)
+		strExistingName := g_objFavoritesObjectsByShortcut[strShortcut].FavoriteName
+
+	if StrLen(strExistingName)
 	{
-		Oops(lOopsHotkeyAlreadyUsed, Hotkey2Text(strHotkey), FormatExistingLocation(strExistingLocation), FormatExistingLocation(strLocation))
+		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
+		Oops(lOopsHotkeyAlreadyUsed, arrShortcutHotstringLower1, Hotkey2Text(strShortcut), strExistingName, strFavoriteName)
 		return ""
 	}
 	else
-		return strHotkey
+		return strShortcut
 }
 ;-----------------------------------------------------------
 
 
 ;-----------------------------------------------------------
-FormatExistingLocation(strExistingLocation)
+HotstringIfAvailable(strActualHotstring, strNewHotstring, strFavoriteName)
 ;-----------------------------------------------------------
 {
-	global g_strGroupIndicatorPrefix
-	global g_strGroupIndicatorSuffix
-	global g_strMenuPathSeparator
+	global g_objFavoritesObjectsByHotstring
 	
-	if InStr(strExistingLocation, g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix)
-		strExisting := lOopsGroup
-	else if SubStr(strExistingLocation, 1, 1) = g_strMenuPathSeparator
-		strExisting := lMenuMenu
-	else if SubStr(strExistingLocation, 1, 1) = "{"
-		strExisting := lOopsQAPfeature
-	else
-		strExisting := lOopsLocation
+	if (!StrLen(strNewHotstring) or SubStr(strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator)
+		return strNewHotstring
 	
-	return strExisting . " """ . strExistingLocation . """"
-}
-;-----------------------------------------------------------
-
-
-/*
-; Was with g_objHotkeysByNameLocation
-;------------------------------------------------------------
-EnableLocationHotkeys:
-; enable location hotkeys from g_objHotkeysByNameLocation
-;------------------------------------------------------------
-
-for strNameLocation, strHotkey in g_objHotkeysByNameLocation
-{
-	Hotkey, %strHotkey%, OpenFavoriteFromHotkey, On UseErrorLevel
-	if (ErrorLevel)
+	SplitHotstring(strActualHotstring, strActualTrigger, strActualOptionsShort)
+	SplitHotstring(strNewHotstring, strNewTrigger, strNewOptionsShort)
+	
+	if (strActualTrigger = strNewTrigger) ; same trigger
+		and (InStr(strActualOptionsShort, "c") = InStr(strNewOptionsShort, "c")) ; same case option
+			return strNewHotstring ; no change to be checked
+			
+	; trigger or case sensitive changed, check existing favorites hotstrings
+	for strExistingHotstring, objExistingFavorite in g_objFavoritesObjectsByHotstring
 	{
-		StringSplit, arrNameLocation, strNameLocation, | ; name|location
-		if StrLen(arrNameLocation1)
-			Oops(lDialogInvalidHotkeyFavorite, strHotkey, arrNameLocation1, arrNameLocation2)
-		else ; for QAP feature arrNameLocation1 is empty
-			Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, arrNameLocation2)
-	}
-}
-
-strNameLocation := ""
-arrNameLocation := ""
-strHotkey := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-DisablePreviousLocationHotkeys:
-; disable hotkeys found in ini file before updating the ini file
-;------------------------------------------------------------
-
-Loop
-{
-	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
-	if (strLocationHotkey = "ERROR")
-		break
-	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey
-	Hotkey, %arrLocationHotkey3%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-}
-
-strLocationHotkey := ""
-arrLocationHotkey := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-SaveLocationHotkeysToIni:
-; save location hotkeys to ini file from g_objHotkeysByNameLocation
-;------------------------------------------------------------
-
-IniDelete, %g_strIniFile%, LocationHotkeys
-
-g_intIniLine := 1
-for strNamePipeLocation, strHotkey in g_objHotkeysByNameLocation ; strNamePipeLocation include: "name|location"
-{
-	IniWrite, %strNamePipeLocation%|%strHotkey%, %g_strIniFile%, LocationHotkeys, Hotkey%g_intIniLine%
-	g_intIniLine++
-}
-
-strHotkey := ""
-strNamePipeLocation := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu)
-;------------------------------------------------------------
-{
-	Loop, % objCurrentMenu.MaxIndex()
-	{
-		if InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType) ; skip back link and separators
-			continue
+		; ###_V(A_ThisFunc . "`ncase-sensitive-equal?", strActualHotstring, strExistingHotstring, strActualHotstring == strExistingHotstring)
+		if (strActualHotstring == strExistingHotstring) ; case-sensitive-equal
+			continue ; if exact same hotstring, skip it
 		
-		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
+		SplitHotstring(strExistingHotstring, strExistingTrigger, strExistingOptionsShort)
+		; ###_V(A_ThisFunc, "*strNewHotstring", strNewHotstring, "*strLocation", strLocation, "*strExistingHotstring", strExistingHotstring
+			; , "*strExistingTrigger", strExistingTrigger, "*strExistingOptionsShort", strExistingOptionsShort
+			; , "*strNewTrigger", strNewTrigger, "*strNewOptionsShort", strNewOptionsShort
+			; , "*case", InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")
+			; , InStr(strExistingTrigger, strNewTrigger ; new hotstring trigger included in an existing hotstring trigger
+			; , InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c"))
+			; , InStr(strNewTrigger, strExistingTrigger ; existing hotstring trigger included in new hotstring trigger
+			; , InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")))
+			
+		if (InStr(strExistingTrigger, strNewTrigger ; new hotstring trigger included in an existing hotstring trigger
+			, InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")) ; with new or existing case insensitive
+		or InStr(strNewTrigger, strExistingTrigger ; existing hotstring trigger included in new hotstring trigger
+			, InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c"))) ; with new or existing case insensitive
 		{
-			blnHotkeyNotNeeded := RecursiveHotkeyNotNeeded(strHotkeyNameLocation, objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
-			if !(blnHotkeyNotNeeded)
-				return false ; we need this hotkey, stop recursion
+			; ###_V("TRUE", strExistingHotstring, g_objFavoritesObjectsByHotstring.Item(strExistingHotstring).FavoriteLocation, objExistingFavorite.FavoriteLocation)
+			; ###_O("g_objFavoritesObjectsByHotstring", g_objFavoritesObjectsByHotstring, "FavoriteLocation")
+			strExistingName := g_objFavoritesObjectsByHotstring.Item(strExistingHotstring).FavoriteName
+			break
 		}
-		
-		strTempName := (objCurrentMenu[A_Index].FavoriteType = "QAP" ? "" : objCurrentMenu[A_Index].FavoriteName)
-		if (strTempName . "|" . objCurrentMenu[A_Index].FavoriteLocation = strHotkeyNameLocation)
-			return false
 	}
+	; ###_V("strExistingLocation", strExistingLocation)
 	
-	return true
+	if StrLen(strExistingName)
+	{
+		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
+		Oops(lOopsHotkeyAlreadyUsed, arrShortcutHotstringLower2, strNewHotstring, strExistingName, strFavoriteName)
+		return ""
+	}
+	else
+		return strNewHotstring
 }
-;------------------------------------------------------------
-*/
+;-----------------------------------------------------------
+
 
 ;========================================================================================================================
 ; END OF GUI_CHANGE_HOTKEY:
@@ -15981,9 +16049,8 @@ Gui, ImpExp:Add, Text, y+20 x10 w400 vf_lblImpExpOptions, %lImpExpExport%
 Gui, ImpExp:Font
 
 Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpFavorites Checked, %lImpExpOptionFavorites%
-Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpHotkeys Checked, %lImpExpOptionHotkeys%
-Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, %lImpExpOptionAlternative%
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, %lImpExpFileGlobal%
+Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, %lImpExpOptionAlternative%
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, %lImpExpFileThemes%
 
 Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExportAmpersand%
@@ -16047,6 +16114,12 @@ ButtonImpExpGo:
 ;------------------------------------------------------------
 Gui, ImpExp:Submit, NoHide
 
+if !StrLen(f_strImpExpFile)
+{
+	Oops(lImpExpSelectFile, (f_radImpExpExport ? lImpExpDestination : lImpExpSource))
+	return
+}
+
 blnAbort := false
 blnContentTransfered := false
 blnContentIdentical := false
@@ -16095,7 +16168,7 @@ if !(blnAbort) and (f_blnImpExpFavorites)
 					Break
 				}
 			}
-			intLastFavorite -= 2 ; minus one for "ERROR" and mminus one to overwrite "Z" (end of menu) that will be re-inserted in the import
+			intLastFavorite -= 2 ; minus one for "ERROR" and minus one to overwrite "Z" (end of menu) that will be re-inserted in the import
 			intIniLine := 0
 			Loop
 			{
@@ -16116,9 +16189,6 @@ if !(blnAbort) and (f_blnImpExpFavorites)
 
 if (f_blnImpExpGlobal)
 	WriteIniSection("Global", lImpExpFileGlobal, blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
-
-if (f_blnImpExpHotkeys)
-	WriteIniSection("LocationHotkeys", lImpExpOptionHotkeys, blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
 
 if (f_blnImpExpAlternative)
 	WriteIniSection("AlternativeMenuHotkeys", "", blnAbort, blnContentTransfered, blnContentIdentical) ; update blnAbort, blnContentTransfered and blnContentIdentical
@@ -18126,18 +18196,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 	}
 }
 ;------------------------------------------------------------
-
-
-/*
-; Was with g_objHotkeysByNameLocation
-;------------------------------------------------------------
-FavoriteNameLocationFromObject(objFavorite)
-;------------------------------------------------------------
-{
-	return (objFavorite.FavoriteType = "QAP" ? "" : objFavorite.FavoriteName) . "|" . objFavorite.FavoriteLocation
-}
-;------------------------------------------------------------
-*/
 
 
 ;------------------------------------------------------------
