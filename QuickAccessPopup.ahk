@@ -31,15 +31,26 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.7.1.94 (2018-02-02)
-- add "Enable Hotstrings" in Options ("General" tab)
+Version BETA: 8.7.1.94/8.7.1.95 (2018-02-09)
+ 
+Hotstrings
+- new checkbox "Enable Hotstrings" in "Options", "General" tab
 - when hotstrings are enabled, monitor keyboard and launch triggered favorites when an hotstring is typed (regardless of the running application)
-- add "Hotstring" to "Add/Edit Favorite" dialog box ("Menu Options" tab)
-- when saving favorite, monitor that hotstrings are unique
-- valid chars for triggers are letters (a-z), numbers (0-9) and these symbols: # $ % & * + < = > @ ^ _ ` | ~"
-- option "Case sensitive" to launch favorite only if typed characters match the trigger with upper/lower case
-- option "Wait ending key" to wait for one of these keys before launching the favorite: Space, Tab, Enter and these symbols - ( ) ' : ; " / , . ? ! [ ] { } \
-- option "Keep hotstring" to keep or delete the typed trigger after the favorite is launched
+- add "Hotstring" section to "Add/Edit Favorite" dialog box ("Menu Options" tab)
+- add new "Hotstrings" tab to the "Manage Hotkeys" window
+- new "Change hotstring" dialog box to set the hotstring trigger and options
+- stop monitoring hotstrings when the "Change hotstring" dialog box is open
+- when saving hotstring, monitor that hotstrings triggers are unique
+- valid characters in trigger are letters (a-z), numbers (0-9) and these symbols: # $ % & * + < = > @ ^ _ ` | ~`n- ( ) ' : `; "" / , . ? ! [ ] { } \
+- option "Case sensitive" to launch favorite only if typed characters match a trigger with upper/lower case
+- option "Keep hotstring" to keep (or delete) the typed trigger after the favorite is launched
+- option "Wait ending key" when an hotstring trigger is matched, wait for one of theses keys before launching the favorite: Enter, Tab and the keys - ( ) ' : ; " / , . ? ! [ ] { } 
+ 
+Bug fixes and minor changes
+- fix bug in v8.7.1.93 loosing target window id when opening a favorite in dialog box
+- add three configurable delays in ini file applied when paste snippets (see FAQ page on Text Snippets)
+- validate that source or destination file is set when importing or exporting settings
+- remove the Hotkeys option when importing or exporting settings
 
 Version BETA: 8.7.1.93 (2018-01-31)
 - internal changes for a simplified management of favorites keyboard and mouse shortcuts
@@ -2069,7 +2080,6 @@ g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
 g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
 
-g_strHotstringIndicator := "*"
 g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
 g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
 
@@ -5856,7 +5866,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objJLiconsByName
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
-	global g_strHotstringIndicator
 
 	intMenuNumber := 0
 	
@@ -5912,7 +5921,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
 			if (g_intHotkeyReminders > 1)
-				strMenuName .= " " . g_strHotstringIndicator
+				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -7739,7 +7748,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
 	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut)
 	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
-		strThisHotkey .= " " . g_strHotstringIndicator
+		strThisHotkey .= GetHotstringReminder(g_objMenuInGui[A_Index].FavoriteHotstring)
 	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
@@ -7862,7 +7871,6 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 	; global g_objHotkeysByNameLocation
 	global g_strMenuPathSeparator
 	global g_strGroupIndicatorPrefix
-	global g_strHotstringIndicator
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
@@ -7872,7 +7880,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
 			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
-				strThisHotkey .= " " . g_strHotstringIndicator
+				strThisHotkey .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Menu")
@@ -9023,6 +9031,7 @@ if !(blnIsGroupMember)
 	if (g_objEditedFavorite.FavoriteType <> "Text")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
+		Gui, 2:Add, Link, x+5 yp, (<a href="http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/">%lGuiHelp%</a>)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
@@ -9385,18 +9394,12 @@ ButtonChangeFavoriteHotstring:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strBackupFavoriteHotstring := g_strNewFavoriteHotstring
 g_strNewFavoriteHotstring := SelectHotstring(g_strNewFavoriteHotstring, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteHotstring) ; SelectHotstring was cancelled, restore previous values
-	g_strNewFavoriteHotstring := strBackupFavoriteHotstring
-	
 SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 
 GuiControl, 2:, f_strHotstringTrigger, %g_strNewFavoriteHotstringTrigger%
 GuiControl, 2:, f_strHotstringOptions, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
-
-strBackupFavoriteHotstring := ""
 
 return
 ;------------------------------------------------------------
@@ -10699,22 +10702,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
-	
-	if StrLen(g_strNewFavoriteHotstringTrigger)
-	{
-		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
-		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
-		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz"
-		Loop, Parse, g_strNewFavoriteHotstringTrigger
-			if !InStr(strValidKeys, A_LoopField)
-			{
-				Oops(lOopsInvalidHotstring)
-				gosub, GuiAddFavoriteSaveCleanup
-				return
-			}
-	}
-	else
-		g_strNewFavoriteHotstring := "" ; save an empty string (instead of ":...") if no trigger
 }
 
 loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
@@ -11011,7 +10998,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	strThisHotkey := Hotkey2Text(g_objEditedFavorite.FavoriteShortcut)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
-		strThisHotkey .= " " . g_strHotstringIndicator
+		strThisHotkey .= GetHotstringReminder(g_objEditedFavorite.FavoriteHotstring)
 	
 	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
@@ -11499,6 +11486,8 @@ arrShortcutsHotstrings2 := lDialogHotstrings
 StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
 arrHotkeysHeader1 := L(lDialogHotkeysManageListHeader, arrShortcutsHotstrings1)
 arrHotkeysHeader2 := L(lDialogHotkeysManageListHeader, lDialogHotkeysManageListHeaderHotstrings)
+arrHotkeysUrl1 := "http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
+arrHotkeysUrl2 := "http://www.quickaccesspopup.com/what-are-hotstrings/"
 
 Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460 vf_HotkeysTab AltSubmit", %arrShortcutsHotstrings1%|%arrShortcutsHotstrings2%
 
@@ -11508,7 +11497,7 @@ Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
 	Gui, 2:Font, w600
 	Gui, 2:Add, Text, x20 y40, % L(lDialogHotkeysManageAbout, arrShortcutsHotstrings%A_Index%, g_strAppNameText)
 	Gui, 2:Font
-	
+	Gui, 2:Add, Link, x+5 yp, % "(<a href=""" . arrHotkeysUrl%A_Index% . """>" . lGuiHelp . "</a>)"
 	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, arrShortcutHotstringLower%A_Index%)
 
 	; 1 -> #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
@@ -11527,8 +11516,9 @@ GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no na
 Gosub, HotkeysManageListLoad
 
 Gui, 2:Tab
-Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33, %lGuiCloseAmpersand%
+Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33 Default, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
+GuiControl, Focus, f_btnHotkeysManageClose
 Gui, 2:Add, Text, x10, %A_Space%
 
 Gosub, ShowGui2AndDisableGui1
@@ -11604,9 +11594,7 @@ if (A_GuiEvent = "DoubleClick")
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation)
-		; SelectHotstring returns the new hotstring (format "trigger:options"), no trigger ":options" if no hotstring, or empty string if cancelled
-		if !StrLen(g_strNewFavoriteHotstring) ; SelectHotstring was cancelled, restore previous value
-			g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
+		; SelectHotstring returns the new hotstring (format "trigger:options"), empty string if no trigger or existing hotstring if cancelled
 		
 		Gosub, UpdateFavoritesObjectsByHotstringSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
 		
@@ -12670,8 +12658,9 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	if StrLen(P_strFavoriteLocation)
 		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
 
+	Gui, Add, Text, y+15 x10, %lDialogHotstringTriggerAbbreviation%
 	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
-	Gui, Add, Edit, x10 y+10 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
+	Gui, Add, Edit, x10 y+5 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
 	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strFavoriteHotstringOptionsShort, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepTrigger " . (InStr(SH_strFavoriteHotstringOptionsShort, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
@@ -12690,9 +12679,9 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	
 	; ###_V("SH_strNewHotstring avant Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
 	if (SubStr(SH_strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator) ; trigger empty
-		SH_strNewHotstring := g_strHotstringOptionsSeparator ; make sure we have no option if no trigger
+		SH_strNewHotstring := "" ; make sure we have no option if no trigger
 	
-	if StrLen(SH_strNewHotstring) and (SH_strNewHotstring <> g_strHotstringOptionsSeparator)
+	if StrLen(SH_strNewHotstring)
 		SH_strNewHotstring := HotstringIfAvailable(P_strActualHotstring, SH_strNewHotstring, P_strFavoriteName)
 	; ###_V("SH_strNewHotstring après Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
 	
@@ -12914,10 +12903,22 @@ HotstringIfAvailable(strActualHotstring, strNewHotstring, strFavoriteName)
 	{
 		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
 		Oops(lOopsHotkeyAlreadyUsed, arrShortcutHotstringLower2, strNewHotstring, strExistingName, strFavoriteName)
-		return ""
+		return strActualHotstring
 	}
 	else
+	{
+		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
+		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
+		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz-()':;""/,.?![]{}\"
+		Loop, Parse, strNewHotstring
+			if !InStr(strValidKeys, A_LoopField)
+			{
+				Oops(lOopsInvalidHotstring, (A_LoopField = A_Space ? lTooltipSnippetWaitSpace : A_LoopField))
+				return strActualHotstring
+			}
+			
 		return strNewHotstring
+	}
 }
 ;-----------------------------------------------------------
 
@@ -17270,6 +17271,33 @@ GetFirstNotModifier(strHotkey)
 		else
 			return intPos
 	return intPos
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetHotstringReminder(strHotstring)
+;------------------------------------------------------------
+{
+	global g_intHotkeyReminders
+	
+	if StrLen(strHotstring)
+		return " (" . (g_intHotkeyReminders = 2
+			? lDialogHotstringIndicator
+			: GetHotstringTrigger(strHotstring)) . ")"
+	else
+		return ""
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetHotstringTrigger(strHotstring)
+;------------------------------------------------------------
+{
+	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
+	
+	return strTrigger
 }
 ;------------------------------------------------------------
 
