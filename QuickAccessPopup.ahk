@@ -11483,7 +11483,7 @@ GuiHotkeysManageFromQAPFeature:
 if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
 	Gosub, GuiShowFromHotkeysManage
 	
-intWidth := 840
+intWidth := 980
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
@@ -11494,18 +11494,31 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460", %lDialogHotkeys%|%lDialogHotstrings%
+arrShortcutsHotstrings1 := lDialogShortcuts
+arrShortcutsHotstrings2 := lDialogHotstrings
+StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
+arrHotkeysHeader1 := L(lDialogHotkeysManageListHeader, arrShortcutsHotstrings1)
+arrHotkeysHeader2 := L(lDialogHotkeysManageListHeader, lDialogHotkeysManageListHeaderHotstrings)
 
-Gui, 2:Font, w600
-Gui, 2:Add, Text, x20 y40, % L(lDialogHotkeysManageAbout, g_strAppNameText)
-Gui, 2:Font
+Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460 vf_HotkeysTab AltSubmit", %arrShortcutsHotstrings1%|%arrShortcutsHotstrings2%
 
-Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, lDialogHotkeysManageListSeeAllFavorites, lDialogHotkeysManageListSeeFullHotkeyNames)
+Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
+{
+	Gui, 2:Tab, %A_Index%
+	Gui, 2:Font, w600
+	Gui, 2:Add, Text, x20 y40, % L(lDialogHotkeysManageAbout, arrShortcutsHotstrings%A_Index%, g_strAppNameText)
+	Gui, 2:Font
+	
+	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, arrShortcutHotstringLower%A_Index%)
 
-Gui, 2:Add, Listview
-	, % "vf_lvHotkeysManageList Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
-	. " gHotkeysManageListEvents x20 y+10 w" . intWidth - 0. " h340"
-	, #|%lDialogHotkeysManageListHeader%|Object Position (hidden)
+	; 1 -> #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
+	; 2 -> #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
+	Gui, 2:Add, Listview
+		, % "vf_lvHotkeysManageList" . A_Index . " Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
+		. " gHotkeysManageListEvents x20 y+10 w" . intWidth - 0. " h340"
+		, % "#|" . arrHotkeysHeader%A_Index% . "|Object Position (hidden)"
+}
+Gui, 2:Tab
 
 Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lDialogHotkeysManageListSeeAllFavorites%
 Gui, 2:Add, Checkbox, x+50 yp vf_blnSeeShortHotkeyNames gCheckboxSeeShortHotkeyNames, %lDialogHotkeysManageListSeeShortHotkeyNames%
@@ -11528,12 +11541,17 @@ return
 
 ;------------------------------------------------------------
 HotkeysManageListEvents:
+; 1 Shortcuts -> #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
+; 2 Hotstrings -> #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
 ;------------------------------------------------------------
 
 Gui, 2:ListView, f_lvHotkeysList
 
 if (A_GuiEvent = "DoubleClick")
 {
+	GuiControlGet, intActiveTab, , f_HotkeysTab
+	Gui, 2:ListView, f_lvHotkeysManageList%intActiveTab%
+	
 	intItemPosition := LV_GetNext()
 	LV_GetText(strHotkeyType, intItemPosition, 4)
 	if !StrLen(strHotkeyType)
@@ -11541,52 +11559,67 @@ if (A_GuiEvent = "DoubleClick")
 		gosub, HotkeysManageListEventsCleanup
 		return
 	}
-	LV_GetText(strFavoritePosition, intItemPosition, 7)
+	
+	LV_GetText(strMenuPath, intItemPosition, 2)
+	LV_GetText(strFavoritePosition, intItemPosition, LV_GetCount("Column"))
 	LV_GetText(strMenuPath, intItemPosition, 2)
 	
-	if (strHotkeyType = lDialogHotkeysManagePopup) ; this is a popup menu hotkey, go to Options, Menu hotkeys
-	{
-		MsgBox, 35, %g_strAppNameText%!, % L(lDialogChangeHotkeyPopup, lOptionsMouseAndKeyboard, lGuiOptions)
-		IfMsgBox, Yes
+	g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
+	
+	if (intActiveTab = 1) ; Shortcut
+		if (strHotkeyType = lDialogHotkeysManagePopup) ; this is a popup menu hotkey, go to Options, Menu hotkeys
 		{
-			Gosub, GuiOptions
-			GuiControl, Choose, f_intOptionsTab, 3
+			MsgBox, 35, %g_strAppNameText%!, % L(lDialogChangeHotkeyPopup, lOptionsMouseAndKeyboard, lGuiOptions)
+			IfMsgBox, Yes
+			{
+				Gosub, GuiOptions
+				GuiControl, Choose, f_intOptionsTab, 3
+			}
 		}
-	}
-	else if (strHotkeyType = lDialogHotkeysManageAlternative) ; this is Alternative menu feature, go to Options, Menu hotkeys
-	{
-		MsgBox, 35, %g_strAppNameText%!, % L(lDialogChangeHotkeyAlternative, lOptionsAlternativeMenuFeatures, lGuiOptions)
-		IfMsgBox, Yes
+		else if (strHotkeyType = lDialogHotkeysManageAlternative) ; this is Alternative menu feature, go to Options, Menu hotkeys
 		{
-			Gosub, GuiOptions
-			GuiControl, Choose, f_intOptionsTab, 4
+			MsgBox, 35, %g_strAppNameText%!, % L(lDialogChangeHotkeyAlternative, lOptionsAlternativeMenuFeatures, lGuiOptions)
+			IfMsgBox, Yes
+			{
+				Gosub, GuiOptions
+				GuiControl, Choose, f_intOptionsTab, 4
+			}
 		}
-	}
-	else
+		else
+		{
+			g_strNewFavoriteShortcut := SelectShortcut(g_objEditedFavorite.FavoriteShortcut
+				, g_objEditedFavorite.FavoriteName
+				, g_objEditedFavorite.FavoriteType
+				, g_objEditedFavorite.FavoriteLocation, 3
+				, g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
+			; SelectShortcut returns the new shortcut, "None" if no shortcut or empty string if cancelled
+			if !StrLen(g_strNewFavoriteShortcut)
+				g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
+			
+			Gosub, UpdateFavoritesObjectsByShortcutSaveList ; updates g_objEditedFavorite.FavoriteShortcut with g_strNewFavoriteShortcut and enable Settings save/Cancel buttons
+		}
+	else ; Hotstring
 	{
-		g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
-		
-		g_strNewFavoriteShortcut := SelectShortcut(g_objEditedFavorite.FavoriteShortcut
+		g_strNewFavoriteHotstring := SelectHotstring(g_objEditedFavorite.FavoriteHotstring
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
-			, g_objEditedFavorite.FavoriteLocation, 3
-			, g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
-		; SelectShortcut(strActualHotkey, strFavoriteName, strFavoriteType, strFavoriteLocation, intHotkeyType, strDefaultShortcut := "", strDescription := "")
-		; intHotkeyType: 1 Mouse, 2 Keyboard, 3 Mouse or Keyboard
-		; returns the new hotkey, "None" if no hotkey or empty string if cancel
-		if !StrLen(g_strNewFavoriteShortcut)
-			g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
+			, g_objEditedFavorite.FavoriteLocation)
+		; SelectHotstring returns the new hotstring (format "trigger:options"), no trigger ":options" if no hotstring, or empty string if cancelled
+		if !StrLen(g_strNewFavoriteHotstring) ; SelectHotstring was cancelled, restore previous value
+			g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		
-		Gosub, UpdateFavoritesObjectsByShortcutSaveList
+		Gosub, UpdateFavoritesObjectsByHotstringSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
+		
+		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 	}
 }
 
 HotkeysManageListEventsCleanup:
+intActiveTab := ""
 intItemPosition := ""
 strHotkeyType := ""
 strMenuPath := ""
 strFavoritePosition := ""
-strNewShortcut := ""
 
 return
 ;------------------------------------------------------------
@@ -11605,27 +11638,36 @@ intHotkeysManageListWinID := WinExist("A")
 if not DllCall("LockWindowUpdate", Uint, intHotkeysManageListWinID)
 	Oops("An error occured while locking window display in`n" . L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion))
 
-; Position (hidden)|Menu|Favorite Name|Type|Hotkey|Favorite Location
-loop, 4
-	LV_Add(, , , g_arrOptionsPopupHotkeyTitles%A_Index%, lDialogHotkeysManagePopup
-		, (f_blnSeeShortHotkeyNames ? g_arrPopupHotkeys%A_Index% : Hotkey2Text(g_arrPopupHotkeys%A_Index%)))
-
-for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode
+Loop, 2
 {
-	if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
-		if HasShortcut(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
-			LV_Add(, , lDialogHotkeysManageAlternativeMenu, g_objQAPFeatures[strQAPFeatureCode].LocalizedName, lDialogHotkeysManageAlternative
-				, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
+	Gui, 2:ListView, f_lvHotkeysManageList%A_Index%
+	LV_Delete()
+
+	if (A_Index = 1) ; for shortcuts (1) only
+	{
+		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
+		loop, 4 ; load popup menu triggers
+			LV_Add(, , lDialogNA, g_arrOptionsPopupHotkeyTitles%A_Index%, lDialogHotkeysManagePopup
+				, (f_blnSeeShortHotkeyNames ? g_arrPopupHotkeys%A_Index% : Hotkey2Text(g_arrPopupHotkeys%A_Index%)), lDialogNA)
+
+		for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
+		{
+			if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
+				if HasShortcut(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
+					LV_Add(, , lDialogHotkeysManageAlternativeMenu, g_objQAPFeatures[strQAPFeatureCode].LocalizedName, lDialogHotkeysManageAlternative
+						, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
+		}
+	}
+	
+	g_intHotkeyListOrder := 0
+	RecursiveLoadMenuHotkeys(g_objMainMenu, A_Index) ; load favorite shortcuts (1) and hotstrings (2)
+	g_intHotkeyListOrder := ""
+
+	LV_ModifyCol(1, "Integer Sort")
+	Loop, % LV_GetCount("Column") - 1
+		LV_ModifyCol(A_Index + 1, "AutoHdr")
+	LV_ModifyCol(LV_GetCount("Column"), 0) ; last column Object Position (hidden)
 }
-
-g_intHotkeyListOrder := 0
-RecursiveLoadMenuHotkeys(g_objMainMenu)
-g_intHotkeyListOrder := ""
-
-LV_ModifyCol(1, "Integer Sort")
-Loop, % LV_GetCount("Column") - 1
-	LV_ModifyCol(A_Index + 1, "AutoHdr")
-LV_ModifyCol(7, 0)
 
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
@@ -11637,10 +11679,10 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuHotkeys(objCurrentMenu)
+RecursiveLoadMenuHotkeys(objCurrentMenu, intIndex)
+; intIndex: (1) shortcuts and (2) hotstrings
 ;------------------------------------------------------------
 {
-	; global g_objHotkeysByNameLocation
 	global f_blnSeeAllFavorites
 	global f_blnSeeShortHotkeyNames
 	global g_intHotkeyListOrder
@@ -11648,21 +11690,42 @@ RecursiveLoadMenuHotkeys(objCurrentMenu)
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if !InStr("B|X", objCurrentMenu[A_Index].FavoriteType)
-			and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) or f_blnSeeAllFavorites)
+			and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut)
+			or StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
+			or f_blnSeeAllFavorites)
 		{
-			strThisHotkey := (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) ? objCurrentMenu[A_Index].FavoriteShortcut : lDialogNone)
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			g_intHotkeyListOrder++
-			; Position (hidden)|Menu|Favorite Name|Type|Hotkey|Favorite Location
-			LV_Add(, g_intHotkeyListOrder
-				, objCurrentMenu.MenuPath, objCurrentMenu[A_Index].FavoriteName, strThisType
-				, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
-				, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
-				, A_Index)
+			
+			if (intIndex = 1 and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) or f_blnSeeAllFavorites))
+			{
+				strThisHotkey := (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) ? objCurrentMenu[A_Index].FavoriteShortcut : lDialogNone)
+				; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
+				LV_Add(, g_intHotkeyListOrder
+					, objCurrentMenu.MenuPath
+					, objCurrentMenu[A_Index].FavoriteName
+					, strThisType
+					, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
+					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
+					, A_Index)
+			}
+			else if (intIndex = 2 and (StrLen(objCurrentMenu[A_Index].FavoriteHotstring) or f_blnSeeAllFavorites))
+			{
+				SplitHotstring(objCurrentMenu[A_Index].FavoriteHotstring, strTrigger, strOptionsShort)
+				; #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
+				LV_Add(, g_intHotkeyListOrder
+					, objCurrentMenu.MenuPath
+					, objCurrentMenu[A_Index].FavoriteName
+					, strThisType
+					, strTrigger
+					, (f_blnSeeShortHotkeyNames ? strOptionsShort : GetHotstringOptionsLong(strOptionsShort))
+					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
+					, A_Index)
+			}
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadMenuHotkeys(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
+			RecursiveLoadMenuHotkeys(objCurrentMenu[A_Index].SubMenu, intIndex) ; RECURSIVE
 	}
 }
 ;------------------------------------------------------------
