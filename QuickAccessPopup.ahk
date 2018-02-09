@@ -1945,7 +1945,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.94
+;@Ahk2Exe-SetVersion 8.7.1.95
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2029,7 +2029,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.94" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.95" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -9029,7 +9029,7 @@ if !(blnIsGroupMember)
 		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstringTriggerOptions%
-		Gui, 2:Add, Link, x+5 yp, (<a href="http://quickaccesspopup.com">%lGuiHelp%</a>) ; #####
+		Gui, 2:Add, Link, x+5 yp, (<a href="http://www.quickaccesspopup.com/what-are-hotstrings/">%lGuiHelp%</a>)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringTrigger gButtonChangeFavoriteHotstring, %g_strNewFavoriteHotstringTrigger%
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotstring, %lOptionsChangeHotkey%
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
@@ -12670,11 +12670,11 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	if StrLen(P_strFavoriteLocation)
 		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
 
-	SplitHotstring(P_strActualHotstring, strFavoriteHotstringTrigger, strFavoriteHotstringOptionsShort)
-	Gui, Add, Edit, x10 y+10 w300 Limit250 vf_SH_strHotstringTrigger, %strFavoriteHotstringTrigger%
-	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(strFavoriteHotstringOptionsShort, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitEndingKey " . (InStr(strFavoriteHotstringOptionsShort, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepTrigger " . (InStr(strFavoriteHotstringOptionsShort, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	Gui, Add, Edit, x10 y+10 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
+	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strFavoriteHotstringOptionsShort, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepTrigger " . (InStr(SH_strFavoriteHotstringOptionsShort, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
 
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, %lGuiCancelAmpersand%
@@ -12697,7 +12697,12 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	; ###_V("SH_strNewHotstring après Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
 	
 	; Clean-up function global variables
-	; ... #####
+	SH_strFavoriteHotstringTrigger := ""
+	SH_strFavoriteHotstringOptionsShort := ""
+	SH_strHotstringTrigger := ""
+	SH_blnHotstringCaseSensitive := ""
+	SH_blnHotstringWaitEndingKey := ""
+	SH_blnHotstringKeepTrigger := ""
 	
 	return SH_strNewHotstring ; returning value
 	
@@ -12714,8 +12719,6 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	SH_strNewHotstring := SH_strHotstringTrigger . g_strHotstringOptionsSeparator
 		. (SH_blnHotstringCaseSensitive ? "c" : "") . (SH_blnHotstringWaitEndingKey ? "w" : "") . (SH_blnHotstringKeepTrigger ? "k" : "")
-	
-	###_V(A_ThisLabel, SH_strNewHotstring)
 	
 	g_blnChangeHotstringInProgress := false
 	Gosub, 3GuiClose
