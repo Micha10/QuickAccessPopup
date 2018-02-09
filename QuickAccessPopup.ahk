@@ -12719,7 +12719,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	ButtonChangeHotstringCancel:
 	;------------------------------------------------------------
 	
-	SH_strNewHotstring := ""
+	SH_strNewHotstring := P_strActualHotstring
 
 	g_blnChangeHotstringInProgress := false
 	Gosub, 3GuiClose
