@@ -2046,7 +2046,6 @@ g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? "
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
-g_blnDiagHotstrings := False
 
 if (g_blnPortableMode)
 	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
@@ -2230,9 +2229,6 @@ if (g_blnDisplayTrayTip)
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
-
-if (g_blnEnableHotstrings)
-	gosub, EnableHotstrings
 
 g_blnMenuReady := true
 
@@ -3728,7 +3724,6 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 ; Load internal flags and various values
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
-IniRead, g_blnDiagHotstrings, %g_strIniFile%, Global, DiagHotstrings, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
 IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
 IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
@@ -3748,7 +3743,7 @@ IniRead, g_intWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 30
 StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
-IniRead, g_blnEnableHotstrings, %g_strIniFile%, Global, EnableHotstrings, 1 ; default true
+IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
 
 ; ---------------------
 ; Load favorites
@@ -3955,11 +3950,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
 			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
-			{
-				###_O("Unknown QAP feature for: " . arrThisFavorite3, g_objQAPFeaturesDefaultNameByCode)
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
-			}
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
@@ -4000,8 +3992,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (new in v8.7.1.94) hotstring to launch this favorite (format: "trigger:options"
-			; hotstring options: "c" case sensitive (default off), "w" wait for ending character (default off), "k" keep hotstring (default off)
+		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -4432,6 +4423,7 @@ return
 ;------------------------------------------------------------
 
 
+/*
 ;------------------------------------------------------------
 EnableHotstrings:
 ; adapted from Menixator (https://autohotkey.com/boards/viewtopic.php?f=6&t=3329)
@@ -4627,7 +4619,7 @@ return
 	ToolTip, %intNo%) %strText%, %intX%, %intY%, %intNo%
 }
 ;------------------------------------------------------------
-
+*/
 
 
 ;========================================================================================================================
@@ -5922,6 +5914,16 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
+			
+			; enable hotstring #####
+			; Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
+			; if (ErrorLevel) -> not ErrorLevel but Catch
+			; {
+				; if StrLen(arrNameLocation1)
+					; Oops(lDialogInvalidHotkeyFavorite, objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation)
+				; else ; for QAP feature name is empty
+					; Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, objCurrentMenu[A_Index].FavoriteLocation)
+			; }
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -6438,9 +6440,6 @@ Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunA
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableHotstrings, %lOptionsEnableHotstrings%
-GuiControl, , f_blnEnableHotstrings, %g_blnEnableHotstrings%
-
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
 Gui, 2:Font
@@ -6485,12 +6484,8 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders1 Group " . (g_intHotkeyR
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders2 " . (g_intHotkeyReminders = 2 ? "Checked" : ""), %lOptionsHotkeyRemindersShort%
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (g_intHotkeyReminders = 3 ? "Checked" : ""), %lOptionsHotkeyRemindersFull%
 
-if !(g_blnPortableMode)
-{
-	Gui, 2:Add, Text, y+15 xs w300, %lOptionsExplorerContextMenusHeader%
-	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
-	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
-}
+Gui, 2:Add, Text, y+15 xs, %lOptionsHotstringsDefault%
+Gui, 2:Add, Button, x+5 yp gSelectHotstringDefaultOptions, %lOptionsHotstringsDefaultSelect%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
@@ -6526,6 +6521,13 @@ GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
 Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
 Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
+
+if !(g_blnPortableMode)
+{
+	Gui, 2:Add, Text, y+15 xs w300, %lOptionsExplorerContextMenusHeader%
+	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
+	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+}
 
 ;---------------------------------------
 ; Tab 3: Popup menu hotkeys
@@ -7104,9 +7106,8 @@ IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSetti
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
-blnPrevEnableHotstrings := g_blnEnableHotstrings
-g_blnEnableHotstrings := f_blnEnableHotstrings
-IniWrite, %g_blnEnableHotstrings%, %g_strIniFile%, Global, EnableHotstrings
+g_strHotstringsDefaultOptions := strNewHotstringsDefaultOptions
+IniWrite, %g_strHotstringsDefaultOptions%, %g_strIniFile%, Global, HotstringsDefaultOptions
 
 strLanguageCodePrev := g_strLanguageCode
 g_strLanguageLabel := f_drpLanguage
@@ -7292,7 +7293,6 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 	or (strThemePrev <> g_strTheme)
 	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
-	or (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
@@ -7309,15 +7309,10 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
 		strValue := g_strQAPTempFolderParent
 	}
-	else if (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
 		strValue := (g_blnRunAsAdmin ? lDialogAdmnistrator : lDialogAdmnistratorNot)
-	}
-	else ; (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
-	{
-		StringReplace, strOptionNoAmpersand, lDialogHotstrings, &
-		strValue := lOptionsEnableHotstrings . " " . (g_blnEnableHotstrings ? lDialogOn : lDialogOff)
 	}
 
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
@@ -7331,10 +7326,8 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 			g_strTheme := strThemePrev
 		else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
-		else if (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+		else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 			g_blnRunAsAdmin := blnRunAsAdminPrev
-		else ; (blnPrevEnableHotstrings <> g_blnEnableHotstrings)
-			g_blnEnableHotstrings := blnPrevEnableHotstrings
 	}
 }	
 else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
@@ -7394,7 +7387,7 @@ strThisAlternativeCode := ""
 strNewShortcut := ""
 strMenuName := ""
 arrMenu := ""
-blnPrevEnableHotstrings := ""
+strNewHotstringsDefaultOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -10876,8 +10869,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
 	Gosub, UpdateFavoritesObjectsByHotstringSave ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
 
-	if StrLen(g_strNewFavoriteHotstringTrigger) and !(g_blnEnableHotstrings)
-		Oops(lOopsEnableHotstrings)
 	; ###_V(A_ThisLabel . "`n`nFull hotstring in object, Trigger, Options Short and Options Long"
 		; , g_objEditedFavorite.FavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 
@@ -11594,7 +11585,7 @@ if (A_GuiEvent = "DoubleClick")
 			, g_objEditedFavorite.FavoriteName
 			, g_objEditedFavorite.FavoriteType
 			, g_objEditedFavorite.FavoriteLocation)
-		; SelectHotstring returns the new hotstring (format "trigger:options"), empty string if no trigger or existing hotstring if cancelled
+		; SelectHotstring returns the new hotstring (AHK format ":options:trigger"), empty string if no trigger or existing hotstring if cancelled
 		
 		Gosub, UpdateFavoritesObjectsByHotstringSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
 		
@@ -12630,11 +12621,23 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 
 ;------------------------------------------------------------
-SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation)
+SelectHotstringDefaultOptions:
+;------------------------------------------------------------
+
+strNewHotstringsDefaultOptions := SelectHotstring(g_strHotstringsDefaultOptions, "", "", "", true)
+; ###_V("strNewHotstringsDefaultOptions", strNewHotstringsDefaultOptions)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_strFavoriteLocation, P_blnDefaultOptions := false)
 ; returns the new hotstring or empty string if cancel
 ;------------------------------------------------------------
 {
 	global
+	; #####
 	
 	g_blnChangeHotstringInProgress := true
 
@@ -17307,7 +17310,7 @@ SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
 ;------------------------------------------------------------
 {
 	StringSplit, arrHotstring, strHotstring, :
-	strTrigger := arrHotstring1
+	strTrigger := arrHotstring3
 	strOptionsShort := arrHotstring2
 	
 	return StrLen(arrHotstring1)
@@ -17320,7 +17323,8 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 ;------------------------------------------------------------
 {
 	global g_strHotstringOptionsLongSeparator
-	
+
+	; #####
 	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "c") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "w") ? lDialogHotstringWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "k") ? lDialogHotstringKeepHotstring : "")
