@@ -3561,7 +3561,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite3=Folder|Program Files|%A_ProgramFiles%
 			Favorite4=Folder|User Profile|`%USERPROFILE`%
 			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
-			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|#qap#|
+			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|:X*:#qap#|
 			Favorite7=Z
 
 ) ; leave the last extra line above
@@ -5916,6 +5916,13 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
 			; enable hotstring #####
+			; replace command Hotkey with function Hotstring()
+			; For type Snippet-Text, add Hotstring with Location as replacement
+			; For other types, add option X to and replacement "OpenFavoriteFromHotstring" to process favorite
+			
+			; escape backticks and semicolons having a space or tab to their left
+			; HotstringEscapeTrigger() only in function Hotstring()
+			
 			; Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 			; if (ErrorLevel) -> not ErrorLevel but Catch
 			; {
@@ -6484,9 +6491,6 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders1 Group " . (g_intHotkeyR
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders2 " . (g_intHotkeyReminders = 2 ? "Checked" : ""), %lOptionsHotkeyRemindersShort%
 Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (g_intHotkeyReminders = 3 ? "Checked" : ""), %lOptionsHotkeyRemindersFull%
 
-Gui, 2:Add, Text, y+15 xs, %lOptionsHotstringsDefault%
-Gui, 2:Add, Button, x+5 yp gSelectHotstringDefaultOptions, %lOptionsHotstringsDefaultSelect%
-
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
 Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
@@ -6548,6 +6552,12 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Font, s8 w500
 	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
 }
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Text, x10 y+20, %lDialogHotstrings%
+Gui, 2:Font
+Gui, 2:Add, Text, x10 y+5, %lOptionsHotstringsDefault%
+Gui, 2:Add, Button, x+5 yp gSelectHotstringDefaultOptions, %lOptionsHotstringsDefaultSelect%
 
 ;---------------------------------------
 ; Tab 4: Alternative Menu Features
@@ -9034,7 +9044,7 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Link, x+5 yp, (<a href="http://www.quickaccesspopup.com/what-are-hotstrings/">%lGuiHelp%</a>)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringTrigger gButtonChangeFavoriteHotstring, %g_strNewFavoriteHotstringTrigger%
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotstring, %lOptionsChangeHotkey%
-		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
+		Gui, 2:Add, Text, x20 y+5 w300 h46 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
 	}
 }
 
@@ -10606,6 +10616,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if  (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
+		; for snippet of type Text: Hotstring's replacement text is limited to about 5000 characters (this may vary depending on the operating system's version and performance settings)
+		; ##### tester pour voir le message d'erreur avant de coder une validation
 		if InStr(f_strFavoriteSnippetPrompt, "|")
 		{
 			Oops(lDialogFavoriteSnippetPromptNoPipe)
@@ -12639,11 +12651,14 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	global
 	; #####
 	
-	g_blnChangeHotstringInProgress := true
+	g_blnChangeHotstringInProgress := !(P_blnDefaultOptions)
+	SH_strGuiTitle := L((P_blnDefaultOptions ? lDialogChangeHotstringTitleDefaultOptions : lDialogChangeHotstringTitle), g_strAppNameText) 
+	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	; ###_V("P_strActualHotstring", P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 
 	g_intGui2WinID := WinExist("A")
 
-	Gui, 3:New, , % L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:New, , %SH_strGuiTitle%
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -12651,50 +12666,82 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	if (g_blnUseColors)
 		Gui, Color, %g_strGuiWindowColor%
 	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotstringTitle, g_strAppNameText)
+	Gui, Add, Text, x10 y10 w400 center, %SH_strGuiTitle%
 	Gui, Font
-
-	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
-	Gui, Font, s8 w700
-	Gui, Add, Text, x+5 yp w300 section, % P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : "")
-	Gui, Font
+	
+	Gui, Add, Link, y+15 x10, % (P_blnDefaultOptions ? L(lDialogChangeHotstringDefaultOptionsPrompt, "http://www.quickaccesspopup.com/what-are-hotstrings/#options") : lDialogTriggerFor)
+	
+	if !(P_blnDefaultOptions)
+	{
+		Gui, Font, s8 w700
+		Gui, Add, Text, x+5 yp w300 section, % (P_blnDefaultOptions ? lDialogChangeHotstringDefaultOptionsPrompt
+			: P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : ""))
+		Gui, Font
+	}
+	
 	if StrLen(P_strFavoriteLocation)
 		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
 
-	Gui, Add, Text, y+15 x10, %lDialogHotstringTriggerAbbreviation%
-	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
-	Gui, Add, Edit, x10 y+5 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
-	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strFavoriteHotstringOptionsShort, "c") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "w") ? "checked" : ""), %lDialogHotstringWaitEndingKey%
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepTrigger " . (InStr(SH_strFavoriteHotstringOptionsShort, "k") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+	; Trigger
+	if !(P_blnDefaultOptions)
+	{
+		Gui, Add, Text, y+15 x10, %lDialogHotstringTriggerAbbreviation%
+		Gui, Add, Edit, x10 y+5 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
+	}
+
+	; Options
+	SH_strTempOptions := SH_strFavoriteHotstringOptionsShort
+	SH_blnNotConformCase := InStr(SH_strTempOptions , "C1")
+	if (SH_blnNotConformCase)
+		StringReplace, SH_strTempOptions , SH_strTempOptions , C1 ; remove "C1" avoid ambiguity with "C"
+	
+	; C Case sensitive
+	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strTempOptions , "C") ? "checked" : ""), %lDialogHotstringCaseSensitive%
+	; C1 Do not conform to typed case
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotConformCase " . (SH_blnNotConformCase ? "checked" : ""), %lDialogHotstringNotConformCase%
+	; ?	Expand inside other words
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringExpandInsideWords " . (InStr(SH_strFavoriteHotstringOptionsShort, "?") ? "checked" : ""), %lDialogHotstringExpandInsideWords%
+	; B0 Keep hotstring trigger (do not backspace)
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitKeepHotstring " . (InStr(SH_strFavoriteHotstringOptionsShort, "B0") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+	; *	Do not wait for Ending key
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "*") ? "checked" : ""), %lDialogHotstringNotWaitEndingKey%
+	; O	Do not keep Ending key
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotKeepEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "O") ? "checked" : ""), %lDialogHotstringNotKeepEndingKey%
+	; Unsuported options: Kn Key-delay, Pn Priority, R Send Raw, SI Send Input, SP Send PLay, SE Send Event, T Send Raw, Z Reset recognizer after each triggering
 
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeHotstringOK", "f_btnChangeHotstringCancel")
+	GuiCenterButtons(SH_strGuiTitle, 10, 5, 20, "f_btnChangeHotstringOK", "f_btnChangeHotstringCancel")
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeHotkeyOK
 	Gui, Show, AutoSize Center
 
 	Gui, 2:+Disabled
-	WinWaitClose,  % L(lDialogChangeHotstringTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	WinWaitClose,  %SH_strGuiTitle% ; waiting for Gui to close
 	
-	; ###_V("SH_strNewHotstring avant Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
-	if (SubStr(SH_strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator) ; trigger empty
+	; SH_strNewHotstring was built by ButtonChangeHotstringOK
+	SplitHotstring(SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	###_V("SH_strNewHotstring avant Validate", SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	
+	if !StrLen(SH_strHotstringTrigger) and !(P_blnDefaultOptions)
 		SH_strNewHotstring := "" ; make sure we have no option if no trigger
 	
 	if StrLen(SH_strNewHotstring)
-		SH_strNewHotstring := HotstringIfAvailable(P_strActualHotstring, SH_strNewHotstring, P_strFavoriteName)
-	; ###_V("SH_strNewHotstring après Available", SH_strNewHotstring, SubStr(SH_strNewHotstring, 1, 1))
+		SH_strNewHotstring := HotstringValidate(P_strActualHotstring, SH_strNewHotstring)
+	###_V("SH_strNewHotstring après Validate", SH_strNewHotstring)
 	
 	; Clean-up function global variables
+	SH_strGuiTitle := ""
 	SH_strFavoriteHotstringTrigger := ""
 	SH_strFavoriteHotstringOptionsShort := ""
 	SH_strHotstringTrigger := ""
 	SH_blnHotstringCaseSensitive := ""
 	SH_blnHotstringWaitEndingKey := ""
 	SH_blnHotstringKeepTrigger := ""
+	SH_strTempOptions := ""
+	SH_blnNotConformCase := ""
 	
 	return SH_strNewHotstring ; returning value
 	
@@ -12704,13 +12751,23 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	ButtonChangeHotstringOK:
 	;------------------------------------------------------------
 	
-	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
 	GuiControlGet, SH_blnHotstringCaseSensitive, , f_SH_blnHotstringCaseSensitive
-	GuiControlGet, SH_blnHotstringWaitEndingKey, , f_SH_blnHotstringWaitEndingKey
-	GuiControlGet, SH_blnHotstringKeepTrigger , ,f_SH_blnHotstringKeepTrigger
+	GuiControlGet, SH_blnHotstringNotConformCase, , f_SH_blnHotstringNotConformCase
+	GuiControlGet, SH_blnHotstringExpandInsideWords, , f_SH_blnHotstringExpandInsideWords
+	GuiControlGet, SH_blnHotstringWaitKeepHotstring , ,f_SH_blnHotstringWaitKeepHotstring
+	GuiControlGet, SH_blnHotstringNotWaitEndingKey , ,f_SH_blnHotstringNotWaitEndingKey
+	GuiControlGet, SH_blnHotstringNotKeepEndingKey , ,f_SH_blnHotstringNotKeepEndingKey
 
-	SH_strNewHotstring := SH_strHotstringTrigger . g_strHotstringOptionsSeparator
-		. (SH_blnHotstringCaseSensitive ? "c" : "") . (SH_blnHotstringWaitEndingKey ? "w" : "") . (SH_blnHotstringKeepTrigger ? "k" : "")
+	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
+	
+	SH_strNewHotstring := g_strHotstringOptionsSeparator
+		. (SH_blnHotstringCaseSensitive ? "C" : "")
+		. (SH_blnHotstringNotConformCase ? "C1" : "")
+		. (SH_blnHotstringExpandInsideWords ? "?" : "")
+		. (SH_blnHotstringWaitKeepHotstring ? "B0" : "")
+		. (SH_blnHotstringNotWaitEndingKey ? "*" : "")
+		. (SH_blnHotstringNotKeepEndingKey ? "O" : "")
+		. g_strHotstringOptionsSeparator . SH_strHotstringTrigger
 	
 	g_blnChangeHotstringInProgress := false
 	Gosub, 3GuiClose
@@ -12846,8 +12903,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 
 	if StrLen(strExistingName)
 	{
-		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
-		Oops(lOopsHotkeyAlreadyUsed, arrShortcutHotstringLower1, Hotkey2Text(strShortcut), strExistingName, strFavoriteName)
+		Oops(lOopsHotkeyAlreadyUsed, Hotkey2Text(strShortcut), strExistingName, strFavoriteName)
 		return ""
 	}
 	else
@@ -12857,71 +12913,16 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 
 
 ;-----------------------------------------------------------
-HotstringIfAvailable(strActualHotstring, strNewHotstring, strFavoriteName)
+HotstringValidate(strActualHotstring, strNewHotstring)
 ;-----------------------------------------------------------
 {
-	global g_objFavoritesObjectsByHotstring
-	
-	if (!StrLen(strNewHotstring) or SubStr(strNewHotstring, 1, 1) = g_strHotstringOptionsSeparator)
-		return strNewHotstring
-	
-	SplitHotstring(strActualHotstring, strActualTrigger, strActualOptionsShort)
-	SplitHotstring(strNewHotstring, strNewTrigger, strNewOptionsShort)
-	
-	if (strActualTrigger = strNewTrigger) ; same trigger
-		and (InStr(strActualOptionsShort, "c") = InStr(strNewOptionsShort, "c")) ; same case option
-			return strNewHotstring ; no change to be checked
-			
-	; trigger or case sensitive changed, check existing favorites hotstrings
-	for strExistingHotstring, objExistingFavorite in g_objFavoritesObjectsByHotstring
+	if StrLen(strNewHotstring) > 40 ; each hotstring abbreviation can be no more than 40 characters long
 	{
-		; ###_V(A_ThisFunc . "`ncase-sensitive-equal?", strActualHotstring, strExistingHotstring, strActualHotstring == strExistingHotstring)
-		if (strActualHotstring == strExistingHotstring) ; case-sensitive-equal
-			continue ; if exact same hotstring, skip it
-		
-		SplitHotstring(strExistingHotstring, strExistingTrigger, strExistingOptionsShort)
-		; ###_V(A_ThisFunc, "*strNewHotstring", strNewHotstring, "*strLocation", strLocation, "*strExistingHotstring", strExistingHotstring
-			; , "*strExistingTrigger", strExistingTrigger, "*strExistingOptionsShort", strExistingOptionsShort
-			; , "*strNewTrigger", strNewTrigger, "*strNewOptionsShort", strNewOptionsShort
-			; , "*case", InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")
-			; , InStr(strExistingTrigger, strNewTrigger ; new hotstring trigger included in an existing hotstring trigger
-			; , InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c"))
-			; , InStr(strNewTrigger, strExistingTrigger ; existing hotstring trigger included in new hotstring trigger
-			; , InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")))
-			
-		if (InStr(strExistingTrigger, strNewTrigger ; new hotstring trigger included in an existing hotstring trigger
-			, InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c")) ; with new or existing case insensitive
-		or InStr(strNewTrigger, strExistingTrigger ; existing hotstring trigger included in new hotstring trigger
-			, InStr(strExistingOptionsShort, "c") and InStr(strNewOptionsShort, "c"))) ; with new or existing case insensitive
-		{
-			; ###_V("TRUE", strExistingHotstring, g_objFavoritesObjectsByHotstring.Item(strExistingHotstring).FavoriteLocation, objExistingFavorite.FavoriteLocation)
-			; ###_O("g_objFavoritesObjectsByHotstring", g_objFavoritesObjectsByHotstring, "FavoriteLocation")
-			strExistingName := g_objFavoritesObjectsByHotstring.Item(strExistingHotstring).FavoriteName
-			break
-		}
-	}
-	; ###_V("strExistingLocation", strExistingLocation)
-	
-	if StrLen(strExistingName)
-	{
-		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
-		Oops(lOopsHotkeyAlreadyUsed, arrShortcutHotstringLower2, strNewHotstring, strExistingName, strFavoriteName)
+		Oops(lOopsHotstringTriggerTooLong)
 		return strActualHotstring
 	}
 	else
-	{
-		; valid keys: #$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz
-		; invalid keys: -()':;"/,.?![]{}\ plus space `n `t
-		strValidKeys := "#$%&*+<=>@^_`|~0123456789abcdefghijklmnopqrstuvwxyz-()':;""/,.?![]{}\"
-		Loop, Parse, strNewHotstring
-			if !InStr(strValidKeys, A_LoopField)
-			{
-				Oops(lOopsInvalidHotstring, (A_LoopField = A_Space ? lTooltipSnippetWaitSpace : A_LoopField))
-				return strActualHotstring
-			}
-			
 		return strNewHotstring
-	}
 }
 ;-----------------------------------------------------------
 
@@ -17323,17 +17324,40 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 ;------------------------------------------------------------
 {
 	global g_strHotstringOptionsLongSeparator
+	
+	strTempOptions := strHotstringOptionsShort
+	if InStr(strTempOptions, "C1")
+	{
+		blnNotConformCase := true
+		StringReplace, strTempOptions, strTempOptions, C1 ; avoid ambiguity with "C"
+	}
 
-	; #####
-	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "c") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "w") ? lDialogHotstringWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "k") ? lDialogHotstringKeepHotstring : "")
+	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "C") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
+		. (blnNotConformCase ? lDialogHotstringNotConformCase . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "?") ? lDialogHotstringExpandInsideWords . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "B0") ? lDialogHotstringKeepHotstring . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "*") ? lDialogHotstringNotWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "O") ? lDialogHotstringNotKeepEndingKey . g_strHotstringOptionsLongSeparator : "")
 	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
 		StringTrimRight, strHotstringOptionsLong, strHotstringOptionsLong, % StrLen(g_strHotstringOptionsLongSeparator)
 	
 	return strHotstringOptionsLong
 }
 ;------------------------------------------------------------
+
+
+;-----------------------------------------------------------
+HotstringEscapeTrigger(strTrigger)
+; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
+;-----------------------------------------------------------
+{
+	StringReplace, strTrigger, strTrigger, ``, ```` ; replace tick with tick tick ##### test
+	StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```; ; replace "space semi-colon" with "space tick semi-colon ##### test
+	StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```; ; replace "tab semi-colon" with "tab tick semi-colon ##### test
+	
+	return strTrigger
+}
+;-----------------------------------------------------------
 
 
 ;------------------------------------------------
