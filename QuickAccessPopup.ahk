@@ -5858,6 +5858,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objJLiconsByName
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
+	global g_strHotstringOptionsSeparator
 
 	intMenuNumber := 0
 	
@@ -5915,22 +5916,28 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
-			; enable hotstring #####
-			; replace command Hotkey with function Hotstring()
-			; For type Snippet-Text, add Hotstring with Location as replacement
-			; For other types, add option X to and replacement "OpenFavoriteFromHotstring" to process favorite
+			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
+			SplitHotstring(objCurrentMenu[A_Index].FavoriteHotstring, strTrigger, strOptionsShort)
+			strEscapedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger) 
 			
-			; escape backticks and semicolons having a space or tab to their left
-			; HotstringEscapeTrigger() only in function Hotstring()
+			if (objCurrentMenu[A_Index].FavoriteType = "Snippet")
+			{
+				strSnippetOptions := objCurrentMenu[A_Index].FavoriteLaunchWith
+				StringSplit, arrSnippetOptions, strSnippetOptions, `;
+			}
 			
-			; Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
-			; if (ErrorLevel) -> not ErrorLevel but Catch
-			; {
-				; if StrLen(arrNameLocation1)
-					; Oops(lDialogInvalidHotkeyFavorite, objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation)
-				; else ; for QAP feature name is empty
-					; Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, objCurrentMenu[A_Index].FavoriteLocation)
-			; }
+			if (objCurrentMenu[A_Index].FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
+			{
+				###_V("before create replacement hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteLocation)
+				Hotstring(strEscapedHotstring, objCurrentMenu[A_Index].FavoriteLocation)
+			}
+			else ; Snippet of Macro or other types of Favorite, use Execute option
+			{
+				; insert Execute option as first option (":X:trigger" or ":XC*:trigger") before creating the hotstring
+				strEscapedHotstring := g_strHotstringOptionsSeparator . "X" . SubStr(strEscapedHotstring, 2)
+				###_V("before create execute hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation, objCurrentMenu[A_Index].FavoriteLaunchWith)
+				Hotstring(strEscapedHotstring, "OpenFavoriteFromHotstring")
+			}
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -12708,6 +12715,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	; O	Do not keep Ending key
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotKeepEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "O") ? "checked" : ""), %lDialogHotstringNotKeepEndingKey%
 	; Unsuported options: Kn Key-delay, Pn Priority, R Send Raw, SI Send Input, SP Send PLay, SE Send Event, T Send Raw, Z Reset recognizer after each triggering
+	; Keep default EndChars "-()[]{}:;'"/\,.?!" + Enter, Space and Tab
+	; Keep default MouseReset option (recognizer resets monitored string on mouse click)
 
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, %lGuiCancelAmpersand%
@@ -12760,14 +12769,18 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
 	
-	SH_strNewHotstring := g_strHotstringOptionsSeparator
-		. (SH_blnHotstringCaseSensitive ? "C" : "")
-		. (SH_blnHotstringNotConformCase ? "C1" : "")
-		. (SH_blnHotstringExpandInsideWords ? "?" : "")
-		. (SH_blnHotstringWaitKeepHotstring ? "B0" : "")
-		. (SH_blnHotstringNotWaitEndingKey ? "*" : "")
-		. (SH_blnHotstringNotKeepEndingKey ? "O" : "")
-		. g_strHotstringOptionsSeparator . SH_strHotstringTrigger
+	if StrLen(SH_strHotstringTrigger)
+		SH_strNewHotstring := g_strHotstringOptionsSeparator
+			. (SH_blnHotstringCaseSensitive ? "C" : "")
+			. (SH_blnHotstringNotConformCase ? "C1" : "")
+			. (SH_blnHotstringExpandInsideWords ? "?" : "")
+			. (SH_blnHotstringWaitKeepHotstring ? "B0" : "")
+			. (SH_blnHotstringNotWaitEndingKey ? "*" : "")
+			. (SH_blnHotstringNotKeepEndingKey ? "O" : "")
+			. g_strHotstringOptionsSeparator
+			. SH_strHotstringTrigger
+	else
+		SH_strNewHotstring := "" ; return empty if no trigger
 	
 	g_blnChangeHotstringInProgress := false
 	Gosub, 3GuiClose
@@ -12836,17 +12849,15 @@ UpdateFavoritesObjectsByHotstringSaveList:
 ;-----------------------------------------------------------
 
 ; ###_O(A_ThisLabel . " / " . g_strNewFavoriteHotstring, g_objEditedFavorite)
-if (g_objEditedFavorite.FavoriteHotstring = g_strNewFavoriteHotstring) ; if not changed
+if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
 	return
 
 ; Hotstring was added, changed or removed
 
-if (StrLen(g_strNewFavoriteHotstring) and SubStr(g_strNewFavoriteHotstring, 1, 1) <> g_strHotstringOptionsSeparator) ; make sure there is a trigger
-{
+if StrLen(g_strNewFavoriteHotstring)
 	; ###_V("ADD g_objFavoritesObjectsByHotstring in " . A_ThisLabel, g_strNewFavoriteHotstring, g_objEditedFavorite.FavoriteName)
 	; add item to g_objFavoritesObjectsByHotstring
 	g_objFavoritesObjectsByHotstring.Add(g_strNewFavoriteHotstring, g_objEditedFavorite)
-}
 else
 	; remove item from g_objFavoritesObjectsByHotstring
 	g_objFavoritesObjectsByHotstring.Remove(g_objEditedFavorite.FavoriteHotstring) ; remove old Hotstring as in g_objEditedFavorite
@@ -14445,7 +14456,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 {
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
-		: g_objFavoritesObjectsByHotstring.Item(g_strMatchedHotstring))
+		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" Execute option as first option (":X:trigger" or ":XC*:trigger")
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
