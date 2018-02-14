@@ -1956,7 +1956,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.95
+;@Ahk2Exe-SetVersion 8.7.1.96
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2040,7 +2040,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.95" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.96" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2081,6 +2081,8 @@ g_strSnippetOptionsSeparator := ":" ; separator between command and options in m
 
 g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
 g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
+g_strHotstringOptionsText := "T"
+g_strHotstringOptionsExecute := "X"
 
 g_strExclusionMouseListDialogIndicator := "*"
 
@@ -5664,6 +5666,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	global g_strHotstringOptionsSeparator
+	global g_strHotstringOptionsText
+	global g_strHotstringOptionsExecute
 
 	intMenuNumber := 0
 	
@@ -5722,11 +5726,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
 			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
-			strEscapedHotstring := PrepareHotstringAdd(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
-			; ###_V("before create hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
-				; , objCurrentMenu[A_Index].FavoriteLaunchWith, strHotstringType)
+			strHotstringForFunction := PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
+			; ###_V("before create hotstring", strHotstringForFunction, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
+				; , objCurrentMenu[A_Index].FavoriteLaunchWith, strHotstringType, DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation))
 			
-			Hotstring(strEscapedHotstring, (strHotstringType = "T" ? objCurrentMenu[A_Index].FavoriteLocation : "OpenFavoriteFromHotstring"), "On")
+			Hotstring(strHotstringForFunction, (strHotstringType = g_strHotstringOptionsText ? DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation) : "OpenFavoriteFromHotstring"), "On")
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -5764,7 +5768,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			}
 		}
 		
-		else if (objCurrentMenu[A_Index].FavoriteType = "X") ; this is a separator
+		else if (objCurrentMenu[A_Index].FavoriteType = g_strHotstringOptionsExecute) ; this is a separator
 			
 			if (objCurrentMenu[A_Index - 1].FavoriteType = "K")
 				intMenuItemsCount -= 1 ; separator not allowed as first item is a column, skip it
@@ -6151,13 +6155,14 @@ DisableHotstrings:
 for strHotstring in g_objFavoritesObjectsByHotstring
 {
 	; before disabling an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
-	strEscapedHotstring := PrepareHotstringAdd(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
+	strHotstringForFunction := PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
 	
-	; ###_V("before turning off execute hotstring", strEscapedHotstring)
-	Hotstring(strEscapedHotstring, (strHotstringType = "T" ? "" : "OpenFavoriteFromHotstring"), "Off")
+	; ###_V("before turning off execute hotstring", strHotstringForFunction)
+	; no need to send replacement parameter if it is a regular replacement hotstring, but need to set the label if it is an Execute hotstring
+	Hotstring(strHotstringForFunction, (strHotstringType = g_strHotstringOptionsText ? "" : "OpenFavoriteFromHotstring"), "Off")
 }
 
-strEscapedHotstring := ""
+strHotstringForFunction := ""
 strHotstringType := ""
 
 return
@@ -9410,7 +9415,7 @@ if (strSnippetFormatBefore = "raw" and f_blnProcessEOLTab)
 }
 if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
 {
-	; EncodeSnippet: convert from "display" format (when in gui f_blnProcessEOLTab was true) to "raw" content (when f_blnProcessEOLTab is false), ready for saving to in file
+	; EncodeSnippet: convert from "display" format (when in gui f_blnProcessEOLTab was true) to "raw" content (when f_blnProcessEOLTab is false), ready for saving to ini file
 	GuiControl, , f_strFavoriteLocation, % EncodeSnippet(f_strFavoriteLocation)
 	g_strSnippetFormat := "raw"
 }
@@ -14261,7 +14266,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 {
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
-		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" Execute option as first option (":X:trigger" or ":XC*:trigger")
+		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
 	; ###_O(A_ThisLabel . " -> " . A_ThisHotkey . " -> " . g_objThisFavorite.FavoriteLocation, g_objFavoritesObjectsByHotstring)
 	if !IsObject(g_objThisFavorite)
 	{
@@ -14703,7 +14708,7 @@ if (blnTextSnippet)
 	ClipBoard := ""
 	Sleep, %g_arrWaitDelayInSnippet2% ; safety delay default 80 ms
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation, true)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
 	; Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
@@ -17174,14 +17179,16 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 
 
 ;------------------------------------------------------------
-PrepareHotstringAdd(strHotstring, objFavorite, ByRef strHotstringType)
+PrepareHotstringForFunction(strHotstring, objFavorite, ByRef strHotstringType)
 ;------------------------------------------------------------
 {
 	global g_strHotstringOptionsSeparator
+	global g_strHotstringOptionsText
+	global g_strHotstringOptionsExecute
 	
 	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
 	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
-	strEscapedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger) 
+	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
 
 	if (objFavorite.FavoriteType = "Snippet")
 	{
@@ -17190,28 +17197,15 @@ PrepareHotstringAdd(strHotstring, objFavorite, ByRef strHotstringType)
 	}
 
 	if (objFavorite.FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
-		strHotstringType := "T" ; use T (Text) option to send the replacement text raw
+		strHotstringType := g_strHotstringOptionsText ; T (Text), do NOT use T option
 	else
-		strHotstringType := "X" ; use X (Execute) option to execute OpenFavoriteFromHotstring label
+		strHotstringType := g_strHotstringOptionsExecute ; use X (Execute) option to execute OpenFavoriteFromHotstring label
 
-	; insert T or X option as first option (":T...:trigger" or ":X...:trigger") just before creating the hotstring
-	strEscapedHotstring := g_strHotstringOptionsSeparator . strHotstringType . SubStr(strEscapedHotstring, 2)
+	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring, do NOT insert T option
+	strPreparedHotstring := g_strHotstringOptionsSeparator . (strHotstringType = g_strHotstringOptionsExecute ? g_strHotstringOptionsExecute : "") . SubStr(strPreparedHotstring, 2)
+	; ###_V(A_ThisFunc, strPreparedHotstring)
 	
-	return strEscapedHotstring
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-HotstringEscapeTrigger(strTrigger)
-; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
-;-----------------------------------------------------------
-{
-	StringReplace, strTrigger, strTrigger, ``, ```` ; replace tick with tick tick ##### test
-	StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```; ; replace "space semi-colon" with "space tick semi-colon ##### test
-	StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```; ; replace "tab semi-colon" with "tab tick semi-colon ##### test
-	
-	return strTrigger
+	return strPreparedHotstring
 }
 ;-----------------------------------------------------------
 
@@ -17514,14 +17508,15 @@ No need to process:
 
 
 ;------------------------------------------------------------
-DecodeSnippet(strSnippet)
+DecodeSnippet(strSnippet, blnWithCarriageReturn := false)
 ; convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 ;------------------------------------------------------------
 {
-	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A ; preserve double-backticks
-	StringReplace, strSnippet, strSnippet, ``n, `r`n, A          ; decode end-of-lines
-	StringReplace, strSnippet, strSnippet, ``t, `t, A            ; decode tabs
-	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A   ; restore double-backticks
+	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A	; preserve double-backticks
+	StringReplace, strSnippet, strSnippet
+		, ``n, % (blnWithCarriageReturn ? "`r" : "") . "`n", A		; decode end-of-lines (with `r only when sending as Snippet)
+	StringReplace, strSnippet, strSnippet, ``t, `t, A				; decode tabs
+	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A		; restore double-backticks
 	
 	return strSnippet
 }
