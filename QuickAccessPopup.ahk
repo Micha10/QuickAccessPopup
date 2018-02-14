@@ -5666,7 +5666,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	global g_strHotstringOptionsSeparator
-	global g_strHotstringOptionsText
 	global g_strHotstringOptionsExecute
 
 	intMenuNumber := 0
@@ -5725,12 +5724,13 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
-			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
-			strHotstringForFunction := PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
-			; ###_V("before create hotstring", strHotstringForFunction, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
-				; , objCurrentMenu[A_Index].FavoriteLaunchWith, strHotstringType, DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation))
-			
-			Hotstring(strHotstringForFunction, (strHotstringType = g_strHotstringOptionsText ? DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation) : "OpenFavoriteFromHotstring"), "On")
+			; before creating an hotstring...
+			; in hotstring options: insert "T" (Text raw) or "X" (Execute) option (PrepareHotstringForFunction)
+			; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
+			; in hotstring replacement: decode end-of-lines and tabs (DecodeSnippet)
+			Hotstring(PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
+				, (strHotstringType = "Text" ? DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation) : "OpenFavoriteFromHotstring")
+				, "On")
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -5768,7 +5768,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			}
 		}
 		
-		else if (objCurrentMenu[A_Index].FavoriteType = g_strHotstringOptionsExecute) ; this is a separator
+		else if (objCurrentMenu[A_Index].FavoriteType = "X") ; this is a separator
 			
 			if (objCurrentMenu[A_Index - 1].FavoriteType = "K")
 				intMenuItemsCount -= 1 ; separator not allowed as first item is a column, skip it
@@ -6154,12 +6154,12 @@ DisableHotstrings:
 
 for strHotstring in g_objFavoritesObjectsByHotstring
 {
-	; before disabling an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
-	strHotstringForFunction := PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
-	
-	; ###_V("before turning off execute hotstring", strHotstringForFunction)
-	; no need to send replacement parameter if it is a regular replacement hotstring, but need to set the label if it is an Execute hotstring
-	Hotstring(strHotstringForFunction, (strHotstringType = g_strHotstringOptionsText ? "" : "OpenFavoriteFromHotstring"), "Off")
+	; before disabling an hotstring...
+	; in hotstring options: insert "T" (Text raw) or "X" (Execute) option (PrepareHotstringForFunction)
+	; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
+	; no need to send replacement parameter if it is a replacement hotstring, but need to set the label if it is an Execute hotstring
+	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
+		, (strHotstringType = "Text" ? "" : "OpenFavoriteFromHotstring"), "Off")
 }
 
 strHotstringForFunction := ""
@@ -12580,9 +12580,9 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	GuiControlGet, SH_blnHotstringCaseSensitive, , f_SH_blnHotstringCaseSensitive
 	GuiControlGet, SH_blnHotstringNotConformCase, , f_SH_blnHotstringNotConformCase
 	GuiControlGet, SH_blnHotstringExpandInsideWords, , f_SH_blnHotstringExpandInsideWords
-	GuiControlGet, SH_blnHotstringWaitKeepHotstring , ,f_SH_blnHotstringWaitKeepHotstring
-	GuiControlGet, SH_blnHotstringNotWaitEndingKey , ,f_SH_blnHotstringNotWaitEndingKey
-	GuiControlGet, SH_blnHotstringNotKeepEndingKey , ,f_SH_blnHotstringNotKeepEndingKey
+	GuiControlGet, SH_blnHotstringWaitKeepHotstring , , f_SH_blnHotstringWaitKeepHotstring
+	GuiControlGet, SH_blnHotstringNotWaitEndingKey , , f_SH_blnHotstringNotWaitEndingKey
+	GuiControlGet, SH_blnHotstringNotKeepEndingKey , , f_SH_blnHotstringNotKeepEndingKey
 
 	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
 	
@@ -17188,7 +17188,7 @@ PrepareHotstringForFunction(strHotstring, objFavorite, ByRef strHotstringType)
 	
 	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
 	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
-	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
+	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger)
 
 	if (objFavorite.FavoriteType = "Snippet")
 	{
@@ -17197,15 +17197,29 @@ PrepareHotstringForFunction(strHotstring, objFavorite, ByRef strHotstringType)
 	}
 
 	if (objFavorite.FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
-		strHotstringType := g_strHotstringOptionsText ; T (Text), do NOT use T option
+		strHotstringType := "Text" ; use T option
 	else
-		strHotstringType := g_strHotstringOptionsExecute ; use X (Execute) option to execute OpenFavoriteFromHotstring label
+		strHotstringType := "Execute" ; use X (Execute) option to execute OpenFavoriteFromHotstring label
 
-	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring, do NOT insert T option
-	strPreparedHotstring := g_strHotstringOptionsSeparator . (strHotstringType = g_strHotstringOptionsExecute ? g_strHotstringOptionsExecute : "") . SubStr(strPreparedHotstring, 2)
+	; insert T or X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
+	strPreparedHotstring := g_strHotstringOptionsSeparator . (strHotstringType = "Text" ? g_strHotstringOptionsText : g_strHotstringOptionsExecute) . SubStr(strPreparedHotstring, 2)
 	; ###_V(A_ThisFunc, strPreparedHotstring)
 	
 	return strPreparedHotstring
+}
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+HotstringEscapeTrigger(strTrigger)
+; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
+;-----------------------------------------------------------
+{
+    StringReplace, strTrigger, strTrigger, ``, ```` ; replace tick with tick tick ##### test
+    StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```; ; replace "space semi-colon" with "space tick semi-colon ##### test
+    StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```; ; replace "tab semi-colon" with "tab tick semi-colon ##### test
+    
+    return strTrigger
 }
 ;-----------------------------------------------------------
 
