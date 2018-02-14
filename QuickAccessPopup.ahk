@@ -5611,7 +5611,10 @@ if (g_blnUseColors)
 
 ; re-init these objects before rebuilding menu
 g_objMenuColumnBreaks := Object()
-g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
+
+; disable (turn off) existing hotstrings in g_objFavoritesObjectsByHotstring (if any) before updating them
+gosub, DisableHotstrings
+g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; reset object, using instead of Object() to support case sensitive keys
 
 ; disable shortcuts and re-init shortcuts objects before rebuilding menu
 gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
@@ -5718,28 +5721,12 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
-			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
-			SplitHotstring(objCurrentMenu[A_Index].FavoriteHotstring, strTrigger, strOptionsShort)
-			strEscapedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger) 
+			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
+			strEscapedHotstring := PrepareHotstringAdd(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
+			; ###_V("before create execute hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
+				; , objCurrentMenu[A_Index].FavoriteLaunchWith, strHotstringType)
 			
-			if (objCurrentMenu[A_Index].FavoriteType = "Snippet")
-			{
-				strSnippetOptions := objCurrentMenu[A_Index].FavoriteLaunchWith
-				StringSplit, arrSnippetOptions, strSnippetOptions, `;
-			}
-			
-			if (objCurrentMenu[A_Index].FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
-			{
-				###_V("before create replacement hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteLocation)
-				Hotstring(strEscapedHotstring, objCurrentMenu[A_Index].FavoriteLocation)
-			}
-			else ; Snippet of Macro or other types of Favorite, use Execute option
-			{
-				; insert Execute option as first option (":X:trigger" or ":XC*:trigger") before creating the hotstring
-				strEscapedHotstring := g_strHotstringOptionsSeparator . "X" . SubStr(strEscapedHotstring, 2)
-				###_V("before create execute hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation, objCurrentMenu[A_Index].FavoriteLaunchWith)
-				Hotstring(strEscapedHotstring, "OpenFavoriteFromHotstring")
-			}
+			Hotstring(strEscapedHotstring, (strHotstringType = "T" ? objCurrentMenu[A_Index].FavoriteLocation : "OpenFavoriteFromHotstring"), "On")
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -6151,6 +6138,31 @@ strShortcut := ""
 
 return
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DisableHotstrings:
+;------------------------------------------------------------
+; If the hotstring already exists, any options specified in String are put into effect, while all other options are left as is.
+; However, since hotstrings with C or ? are considered distinct from other hotstrings, it is not possible to add or remove these options.
+; Instead, turn off the existing hotstring and create a new one.
+;------------------------------------------------------------
+
+for strHotstring in g_objFavoritesObjectsByHotstring
+{
+	; before disabling an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
+	strEscapedHotstring := PrepareHotstringAdd(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
+	
+	; ###_V("before turning off execute hotstring", strEscapedHotstring)
+	Hotstring(strEscapedHotstring, (strHotstringType = "T" ? "" : "OpenFavoriteFromHotstring"), "Off")
+}
+
+strEscapedHotstring := ""
+strHotstringType := ""
+
+return
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================
@@ -10688,7 +10700,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
 	Gosub, UpdateFavoritesObjectsByShortcutSave
 	; ###_V(A_ThisLabel . " APRÈS", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
-	Gosub, UpdateFavoritesObjectsByHotstringSave ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
+	Gosub, UpdateFavoriteObjectSave ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
 
 	; ###_V(A_ThisLabel . "`n`nFull hotstring in object, Trigger, Options Short and Options Long"
 		; , g_objEditedFavorite.FavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
@@ -11408,7 +11420,7 @@ if (A_GuiEvent = "DoubleClick")
 			, g_objEditedFavorite.FavoriteLocation)
 		; SelectHotstring returns the new hotstring (AHK format ":options:trigger"), empty string if no trigger or existing hotstring if cancelled
 		
-		Gosub, UpdateFavoritesObjectsByHotstringSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
+		Gosub, UpdateFavoriteObjectSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
 		
 		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 	}
@@ -12534,14 +12546,14 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	
 	; SH_strNewHotstring was built by ButtonChangeHotstringOK
 	SplitHotstring(SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
-	###_V("SH_strNewHotstring avant Validate", SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	; ###_V("SH_strNewHotstring avant Validate", SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	
 	if !StrLen(SH_strHotstringTrigger) and !(P_blnDefaultOptions)
 		SH_strNewHotstring := "" ; make sure we have no option if no trigger
 	
 	if StrLen(SH_strNewHotstring)
 		SH_strNewHotstring := HotstringValidate(P_strActualHotstring, SH_strNewHotstring)
-	###_V("SH_strNewHotstring après Validate", SH_strNewHotstring)
+	; ###_V("SH_strNewHotstring après Validate", SH_strNewHotstring)
 	
 	; Clean-up function global variables
 	SH_strGuiTitle := ""
@@ -12646,8 +12658,8 @@ return
 
 
 ;-----------------------------------------------------------
-UpdateFavoritesObjectsByHotstringSave:
-UpdateFavoritesObjectsByHotstringSaveList:
+UpdateFavoriteObjectSave:
+UpdateFavoriteObjectSaveList:
 ;-----------------------------------------------------------
 
 ; ###_O(A_ThisLabel . " / " . g_strNewFavoriteHotstring, g_objEditedFavorite)
@@ -12655,27 +12667,20 @@ if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not
 	return
 
 ; Hotstring was added, changed or removed
+; do not add new, change or remove hotstring to g_objFavoritesObjectsByHotstring because we would not be able to turn it off in disablehotstrings since it does not exist yet
 
-if StrLen(g_strNewFavoriteHotstring)
-	; ###_V("ADD g_objFavoritesObjectsByHotstring in " . A_ThisLabel, g_strNewFavoriteHotstring, g_objEditedFavorite.FavoriteName)
-	; add item to g_objFavoritesObjectsByHotstring
-	g_objFavoritesObjectsByHotstring.Add(g_strNewFavoriteHotstring, g_objEditedFavorite)
-else
-	; remove item from g_objFavoritesObjectsByHotstring
-	g_objFavoritesObjectsByHotstring.Remove(g_objEditedFavorite.FavoriteHotstring) ; remove old Hotstring as in g_objEditedFavorite
+; update favorite object
+g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
+; ###_O("g_objEditedFavorite", g_objEditedFavorite)
 
-if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
+if (A_ThisLabel = "UpdateFavoriteObjectSaveList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
 	GuiControl, 1:, f_btnGuiCancel, %lGuiCancelAmpersand%
-}
-
-g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
-; ###_O("g_objEditedFavorite", g_objEditedFavorite)
-
-if (A_ThisLabel = "UpdateFavoritesObjectsByHotstringSaveList")
+	
 	Gosub, HotkeysManageListLoad
+}
 
 return
 ;-----------------------------------------------------------
@@ -14259,6 +14264,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
 		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" Execute option as first option (":X:trigger" or ":XC*:trigger")
+	; ###_V(A_ThisLabel, A_ThisHotkey, g_objThisFavorite.FavoriteLocation)
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
@@ -17157,6 +17163,35 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 	return strHotstringOptionsLong
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+PrepareHotstringAdd(strHotstring, objFavorite, ByRef strHotstringType)
+;------------------------------------------------------------
+{
+	global g_strHotstringOptionsSeparator
+	
+	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
+	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
+	strEscapedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger) 
+
+	if (objFavorite.FavoriteType = "Snippet")
+	{
+		strSnippetOptions := objFavorite.FavoriteLaunchWith
+		StringSplit, arrSnippetOptions, strSnippetOptions, `;
+	}
+
+	if (objFavorite.FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
+		strHotstringType := "T" ; use T (Text) option to send the replacement text raw
+	else
+		strHotstringType := "X" ; use X (Execute) option to execute OpenFavoriteFromHotstring label
+
+	; insert T or X option as first option (":T...:trigger" or ":X...:trigger") just before creating the hotstring
+	strEscapedHotstring := g_strHotstringOptionsSeparator . strHotstringType . SubStr(strEscapedHotstring, 2)
+	
+	return strEscapedHotstring
+}
+;-----------------------------------------------------------
 
 
 ;-----------------------------------------------------------
