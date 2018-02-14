@@ -502,6 +502,7 @@ global lOopsFtpLocationProtocol := "FTP location address must start with ""ftp:/
 global lOopsGroup := "group" ; new
 global lOopsHotkeyAlreadyUsed := "The shortcut ""~1~"" is already used for ""~2~"".`n`nPlease choose another shortcut for ""~3~""."
 global lOopsHotkeyNotInMenus := "Error: location ""~1~"" for hotkey ""~1~"" not found in menus." ; new
+global lOopsHotkeyObjectNotFound := "~1~ could not locate the favorite associated to the ~2~ ""~3~"".`n`nThis may be a temporary situation. Try restart ~1~."
 global lOopsHotstringTriggerTooLong := "Hotstring trigger too long. Hotstring triggers can be no more than 40 characters long."
 global lOopsHttpLocationTransformed := "The http location (URL format) has been transformed to a network path (UNC format) for compatibility with Windows:`n`n~1~`n~2~" ; changed
 global lOopsInvalidWinCmdIni := "Total Commander settings file ""wincmd.ini"" not found.`n`nSelect the file in ""Options"", ""File managers"" tab."

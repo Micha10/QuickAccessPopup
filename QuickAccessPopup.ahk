@@ -5723,7 +5723,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			
 			; before creating an hotstring, escape backticks and semicolons having a space or tab to their left, and insert "T" or "X" option
 			strEscapedHotstring := PrepareHotstringAdd(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
-			; ###_V("before create execute hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
+			; ###_V("before create hotstring", strEscapedHotstring, objCurrentMenu[A_Index].FavoriteType, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation
 				; , objCurrentMenu[A_Index].FavoriteLaunchWith, strHotstringType)
 			
 			Hotstring(strEscapedHotstring, (strHotstringType = "T" ? objCurrentMenu[A_Index].FavoriteLocation : "OpenFavoriteFromHotstring"), "On")
@@ -11421,8 +11421,6 @@ if (A_GuiEvent = "DoubleClick")
 		; SelectHotstring returns the new hotstring (AHK format ":options:trigger"), empty string if no trigger or existing hotstring if cancelled
 		
 		Gosub, UpdateFavoriteObjectSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
-		
-		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 	}
 }
 
@@ -14264,7 +14262,17 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
 		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" Execute option as first option (":X:trigger" or ":XC*:trigger")
-	; ###_V(A_ThisLabel, A_ThisHotkey, g_objThisFavorite.FavoriteLocation)
+	; ###_O(A_ThisLabel . " -> " . A_ThisHotkey . " -> " . g_objThisFavorite.FavoriteLocation, g_objFavoritesObjectsByHotstring)
+	if !IsObject(g_objThisFavorite)
+	{
+		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
+		SplitHotstring(A_ThisHotkey, strOopsTrigger, strHotstringOppsOptionsShort)
+		Oops(lOopsHotkeyObjectNotFound
+			, g_strAppNameText
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? arrShortcutHotstringLower1 : arrShortcutHotstringLower2)
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? A_ThisHotkey : strOopsTrigger))
+		return
+	}
 	
 	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
