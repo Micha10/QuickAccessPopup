@@ -12477,7 +12477,10 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	
 	g_blnChangeHotstringInProgress := !(P_blnDefaultOptions)
 	SH_strGuiTitle := L((P_blnDefaultOptions ? lDialogChangeHotstringTitleDefaultOptions : lDialogChangeHotstringTitle), g_strAppNameText) 
+
 	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
+	if !StrLen(P_strActualHotstring) ; if new hotstring, use default options
+		SH_strFavoriteHotstringOptionsShort := g_strHotstringsDefaultOptions
 	; ###_V("P_strActualHotstring", P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 
 	g_intGui2WinID := WinExist("A")
