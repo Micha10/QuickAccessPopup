@@ -2,7 +2,7 @@
 /*
 
 Quick Access Popup
-Written using AutoHotkey v1.1.27+ (http://ahkscript.org/)
+Written using AutoHotkey v1.1.28+ (http://ahkscript.org/)
 By Jean Lalonde (JnLlnd on AHKScript.org forum)
 
 Based on FoldersPopup from the same author
@@ -30,6 +30,23 @@ limitations under the License.
 
 HISTORY
 =======
+
+Version BETA: 8.7.1.96 (2018-02-15)
+ 
+Hotstrings
+- complete rewrite using new built-in Hostring Function, using AHK format ":options:trigger" (requires AHK v1.1.28.00+)
+- in Options, remove "Enable Hotstrings" (always enabled now) and add "Default hotstrings options" in "Hotkeys" tab
+- always use options "T" for replacement hotstring or "X" for execute hotstrings
+- new hotstrings options "Expand inside other words", "Do not conform to typed case" and "Do not keep Ending key"
+- rename hotstring options "Keep hotstring abbreviation" and "Do not wait for Ending key"
+- validate hotstring trigger maximum length of 40 characters
+- stop validationg if new or changed hotstring trigger already exists
+- display an error message if cannot get favorite object from a hotkey (most probably hotstring) suggesting is it a temporary issue and to restart QAP
+- rename "Hotkeys" button in "Settings" to "Shortcuts" (but keep internal code "{Hotkeys}" for backward compatibility)
+- add label in "Settings" and QAP feature "Hotstrings" to open Manage Hotkeys dialog box in "Hotstrings" tab
+ 
+Shortcuts
+- fix bug when changing shortcut for one favorite and assigning the old shortcut to another another, was still considered as used
 
 Version BETA: 8.7.1.94/8.7.1.95 (2018-02-09)
  
