@@ -14472,8 +14472,10 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 			g_strFullLocation := ""
 	}
 	else
-		g_strFullLocation := strFullLaunchWith . " """ . g_strFullLocation . """" ; enclose document path in double-quotes
+		g_strFullLocation := """" . strFullLaunchWith . """ """ . g_strFullLocation . """" ; enclose document path in double-quotes
 }
+else
+	g_strFullLocation := """" . g_strFullLocation . """"
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
 	; let user enter double-quotes as required by his arguments
