@@ -3304,28 +3304,29 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 
 ; Command features
 
-InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",								0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				0, "iconAddFavorite")
-InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",						0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",					0, "iconAddThisFolder")
-InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
-InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
-InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
-InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
-InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
-InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",							0, "iconDonate")
-InitQAPFeatureObject("GetWinInfo",		lMenuGetWinInfo . "...",			"", "GetWinInfo",							0, "iconAbout")
-InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownComputer",						0, "iconExit")
-InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",						0, "iconReload")
-InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							0, "iconReload")
-InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",							0, "iconClose")
-InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",							0, "iconSettings")
-InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",						0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
-InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
-InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
-InitQAPFeatureObject("Last Action", 	lMenuLastAction,					"", "RepeatLastActionShortcut",				0, 	"iconReload", "")
+InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								0, "iconAbout")
+InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				0, "iconAddFavorite")
+InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						0, "iconAddThisFolder", "+^A")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					0, "iconAddThisFolder")
+InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
+InitQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
+InitQAPFeatureObject("Hotkeys",					lDialogShortcuts . "...",			"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
+InitQAPFeatureObject("Hotstrings",				lDialogHotstrings . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	0, "iconHotkeys")
+InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
+InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
+InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
+InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							0, "iconDonate")
+InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							0, "iconAbout")
+InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						0, "iconExit")
+InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						0, "iconReload")
+InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							0, "iconReload")
+InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							0, "iconClose")
+InitQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							0, "iconSettings")
+InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						0, "iconSettings")
+InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
+InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
+InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
+InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				0, 	"iconReload", "")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
@@ -3417,55 +3418,56 @@ InitGuiControls:
 
 ; Order of controls important to avoid drawgins gliches when resizing
 
-InsertGuiControlPos("f_lnkGuiDropHelpClicked",		 -88, -130)
-InsertGuiControlPos("f_lnkGuiHotkeysHelpClicked",	  40, -130)
+InsertGuiControlPos("f_lnkGuiDropHelpClicked",			 -88, -130)
+InsertGuiControlPos("f_lnkGuiHotkeysHelpClicked",		  40, -130)
 
-InsertGuiControlPos("f_picGuiOptions",				 -44,   10, true) ; true = center
-InsertGuiControlPos("f_picGuiAddFavorite",			 -44,  120, true) ; 120
-InsertGuiControlPos("f_picGuiEditFavorite",			 -44,  195, true) ; 190 + 5
-InsertGuiControlPos("f_picGuiRemoveFavorite",		 -44,  270, true) ; 260 + 10
-InsertGuiControlPos("f_picGuiCopyFavorite",			 -44,  345, true) ; 330 + 15
-InsertGuiControlPos("f_picGuiHotkeysManage",		 -44, -148, true, true) ; -140 true = center, true = draw
-InsertGuiControlPos("f_picGuiIconsManage",			 -44,  -78, true, true) ; -140 true = center, true = draw
-InsertGuiControlPos("f_picGuiDonate",				-124,  -62, true, true)
-InsertGuiControlPos("f_picGuiHelp",					  30,  -62, true, true)
-InsertGuiControlPos("f_picGuiAbout",				  72,  -62, true, true)
+InsertGuiControlPos("f_picGuiOptions",					 -44,   10, true) ; true = center
+InsertGuiControlPos("f_picGuiAddFavorite",				 -44,  120, true) ; 120
+InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  195, true) ; 190 + 5
+InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  270, true) ; 260 + 10
+InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  345, true) ; 330 + 15
+InsertGuiControlPos("f_picGuiHotkeysManage",			 -44, -153, true, true) ; true = center, true = draw
+InsertGuiControlPos("f_picGuiIconsManage",				 -44,  -78, true, true) ; true = center, true = draw
+InsertGuiControlPos("f_picGuiDonate",					-124,  -62, true, true)
+InsertGuiControlPos("f_picGuiHelp",						  30,  -62, true, true)
+InsertGuiControlPos("f_picGuiAbout",					  72,  -62, true, true)
 
-InsertGuiControlPos("f_picAddTextSeparator",		  10,  290) ; +25 for Search box
-InsertGuiControlPos("f_picAddColumnBreak",			  10,  255)
-InsertGuiControlPos("f_picAddSeparator",			  10,  225)
-InsertGuiControlPos("f_picMoveFavoriteDown",		  10,  195)
-InsertGuiControlPos("f_picMoveFavoriteUp",			  10,  165)
-InsertGuiControlPos("f_picPreviousMenu",			  10,   84)
-; InsertGuiControlPos("picSortFavorites",			  10, -165) ; REMOVED
-InsertGuiControlPos("f_picUpMenu",					  25,   84)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOn",		  10,  -165)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOff",		  10,  -165)
+InsertGuiControlPos("f_picAddTextSeparator",			  10,  290) ; +25 for Search box
+InsertGuiControlPos("f_picAddColumnBreak",				  10,  255)
+InsertGuiControlPos("f_picAddSeparator",				  10,  225)
+InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  195)
+InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
+InsertGuiControlPos("f_picPreviousMenu",				  10,   84)
+; InsertGuiControlPos("picSortFavorites",				  10, -165) ; REMOVED
+InsertGuiControlPos("f_picUpMenu",						  25,   84)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -165)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -165)
 
-InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",   0,  -80, , true)
-InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",    0,  -80, , true)
-InsertGuiControlPos("f_btnGuiCancel",				   0,  -80, , true)
+InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -80, , true)
+InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -80, , true)
+InsertGuiControlPos("f_btnGuiCancel",					  0,  -80, , true)
 
-InsertGuiControlPos("f_drpMenusList",				  40,   84)
+InsertGuiControlPos("f_drpMenusList",					  40,   84)
+	
+InsertGuiControlPos("f_lblGuiDonate",					-124,  -27, true)
+InsertGuiControlPos("f_lblGuiAbout",					  70,  -27, true)
+InsertGuiControlPos("f_lblGuiHelp",						  28,  -27, true)
+InsertGuiControlPos("f_lblAppName",						  10,   10)
+InsertGuiControlPos("f_lblAppTagLine",					  10,   42)
+InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  168, true) ; 170 - 2
+InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  243, true) ; 240 + 5 - 2
+InsertGuiControlPos("f_lblGuiOptions",					 -44,   45, true)
+InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  318, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  393, true)
+InsertGuiControlPos("f_lblSubmenuDropdownLabel",		  40,   66)
+InsertGuiControlPos("f_lblGuiHotkeysManageShortcuts",	 -44,  -110, true)
+InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	 -44,  -97, true)
+InsertGuiControlPos("f_lblGuiIconsManage",				 -44,  -27, true)
 
-InsertGuiControlPos("f_lblGuiDonate",				-124,  -27, true)
-InsertGuiControlPos("f_lblGuiAbout",				  70,  -27, true)
-InsertGuiControlPos("f_lblGuiHelp",					  28,  -27, true)
-InsertGuiControlPos("f_lblAppName",					  10,   10)
-InsertGuiControlPos("f_lblAppTagLine",				  10,   42)
-InsertGuiControlPos("f_lblGuiAddFavorite",			 -44,  168, true) ; 170 - 2
-InsertGuiControlPos("f_lblGuiEditFavorite",			 -44,  243, true) ; 240 + 5 - 2
-InsertGuiControlPos("f_lblGuiOptions",				 -44,   45, true)
-InsertGuiControlPos("f_lblGuiRemoveFavorite",		 -44,  318, true)
-InsertGuiControlPos("f_lblGuiCopyFavorite",			 -44,  393, true)
-InsertGuiControlPos("f_lblSubmenuDropdownLabel",	  40,   66)
-InsertGuiControlPos("f_lblGuiHotkeysManage",		 -44,  -97, true)
-InsertGuiControlPos("f_lblGuiIconsManage",			 -44,  -27, true)
-
-InsertGuiControlPos("f_strFavoritesListFilter",		  40,  115)
-InsertGuiControlPos("f_btnFavoritesListNoFilter",	-110,  115)
-InsertGuiControlPos("f_lvFavoritesList",			  40,  140)
-InsertGuiControlPos("f_lvFavoritesListFiltered",	  40,  140)
+InsertGuiControlPos("f_strFavoritesListFilter",			  40,  115)
+InsertGuiControlPos("f_btnFavoritesListNoFilter",		-110,  115)
+InsertGuiControlPos("f_lvFavoritesList",				  40,  140)
+InsertGuiControlPos("f_lvFavoritesListFiltered",		  40,  140)
 
 return
 ;------------------------------------------------------------
@@ -7503,7 +7505,8 @@ Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, 
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static24
-Gui, 1:Add, Text, vf_lblGuiHotkeysManage center gGuiHotkeysManage x+1 yp, %lDialogHotkeys% ; Static25
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static25
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static25
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
 Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
 Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
@@ -11294,9 +11297,11 @@ MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
 ;============================================================
 GuiHotkeysManage:
 GuiHotkeysManageFromQAPFeature:
+GuiHotkeysManageHotstrings:
+GuiHotkeysManageHotstringsFromQAPFeature:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "GuiHotkeysManageFromQAPFeature")
+if InStr(A_ThisLabel, "FromQAPFeature")
 	Gosub, GuiShowFromHotkeysManage
 	
 intWidth := 980
@@ -11349,6 +11354,9 @@ Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33 Default, %
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
 GuiControl, Focus, f_btnHotkeysManageClose
 Gui, 2:Add, Text, x10, %A_Space%
+
+if InStr(A_ThisLabel, "Hotstrings")
+	GuiControl, Choose, f_HotkeysTab, 2
 
 Gosub, ShowGui2AndDisableGui1
 
