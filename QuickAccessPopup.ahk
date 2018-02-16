@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.7.1.97 (2018-02-16)
+- always send snippet with PasteSnippet command (stop using slower AHK built-in replacement hotstrings)
+- QAP hotstrings are now always of type "X" (Execute) using the "OpenFavoriteFromHotstring" command
+
 Version BETA: 8.7.1.96 (2018-02-15)
  
 Hotstrings
@@ -1973,7 +1977,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.96
+;@Ahk2Exe-SetVersion 8.7.1.97
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2057,7 +2061,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.96" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.97" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2098,7 +2102,6 @@ g_strSnippetOptionsSeparator := ":" ; separator between command and options in m
 
 g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
 g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
-g_strHotstringOptionsText := "T"
 g_strHotstringOptionsExecute := "X"
 
 g_strExclusionMouseListDialogIndicator := "*"
@@ -5744,12 +5747,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
 			; before creating an hotstring...
-			; in hotstring options: insert "T" (Text raw) or "X" (Execute) option (PrepareHotstringForFunction)
+			; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
 			; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
 			; in hotstring replacement: decode end-of-lines and tabs (DecodeSnippet)
-			Hotstring(PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index], strHotstringType)
-				, (strHotstringType = "Text" ? DecodeSnippet(objCurrentMenu[A_Index].FavoriteLocation) : "OpenFavoriteFromHotstring")
-				, "On")
+			Hotstring(PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index]), "OpenFavoriteFromHotstring", "On")
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
@@ -6174,15 +6175,13 @@ DisableHotstrings:
 for strHotstring in g_objFavoritesObjectsByHotstring
 {
 	; before disabling an hotstring...
-	; in hotstring options: insert "T" (Text raw) or "X" (Execute) option (PrepareHotstringForFunction)
+	; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
 	; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
-	; no need to send replacement parameter if it is a replacement hotstring, but need to set the label if it is an Execute hotstring
-	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring), strHotstringType)
-		, (strHotstringType = "Text" ? "" : "OpenFavoriteFromHotstring"), "Off")
+	; set the label "OpenFavoriteFromHotstring" for hotstrings with Execute option
+	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring)), "OpenFavoriteFromHotstring", "Off")
 }
 
 strHotstringForFunction := ""
-strHotstringType := ""
 
 return
 ;------------------------------------------------------------
@@ -17208,31 +17207,18 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 
 
 ;------------------------------------------------------------
-PrepareHotstringForFunction(strHotstring, objFavorite, ByRef strHotstringType)
+PrepareHotstringForFunction(strHotstring, objFavorite)
 ;------------------------------------------------------------
 {
 	global g_strHotstringOptionsSeparator
-	global g_strHotstringOptionsText
 	global g_strHotstringOptionsExecute
 	
 	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
 	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
 	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger)
 
-	if (objFavorite.FavoriteType = "Snippet")
-	{
-		strSnippetOptions := objFavorite.FavoriteLaunchWith
-		StringSplit, arrSnippetOptions, strSnippetOptions, `;
-	}
-
-	if (objFavorite.FavoriteType = "Snippet") and !(arrSnippetOptions1) ; arrSnippetOptions1 false Snippet is Text mode, use hotstring replacement
-		strHotstringType := "Text" ; use T option
-	else
-		strHotstringType := "Execute" ; use X (Execute) option to execute OpenFavoriteFromHotstring label
-
-	; insert T or X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
-	strPreparedHotstring := g_strHotstringOptionsSeparator . (strHotstringType = "Text" ? g_strHotstringOptionsText : g_strHotstringOptionsExecute) . SubStr(strPreparedHotstring, 2)
-	; ###_V(A_ThisFunc, strPreparedHotstring)
+	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
+	strPreparedHotstring := g_strHotstringOptionsSeparator . g_strHotstringOptionsExecute . SubStr(strPreparedHotstring, 2)
 	
 	return strPreparedHotstring
 }
