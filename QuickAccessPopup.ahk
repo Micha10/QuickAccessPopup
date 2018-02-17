@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1 (2018-02-17)
+- encode pipe | in hotstring trigger in QuickAccessPopup.ini settings file
+- limit length of hotstring trigger to 40 characters in change hotstring dialog box
+
 Version BETA: 8.7.1.97 (2018-02-16)
 - always send snippet with PasteSnippet command (stop using slower AHK built-in replacement hotstrings)
 - QAP hotstrings are now always of type "X" (Execute) using the "OpenFavoriteFromHotstring" command
@@ -4016,7 +4020,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := arrThisFavorite21 ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
+		objLoadIniFavorite.FavoriteHotstring := ReplaceAllInString(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -12074,7 +12078,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
-			strIniLine .= objCurrentMenu[A_Index].FavoriteHotstring . "|" ; 21
+			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -12537,7 +12541,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	if !(P_blnDefaultOptions)
 	{
 		Gui, Add, Text, y+15 x10, %lDialogHotstringTriggerAbbreviation%
-		Gui, Add, Edit, x10 y+5 w300 Limit250 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
+		Gui, Add, Edit, x10 y+5 w300 Limit40 vf_SH_strHotstringTrigger, %SH_strFavoriteHotstringTrigger%
 	}
 
 	; Options
