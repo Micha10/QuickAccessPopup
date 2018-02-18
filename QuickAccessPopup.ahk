@@ -2336,12 +2336,11 @@ return
 
 ; Settings Gui Hotkeys
 
-; replaced by Hotkey, If, WinActive(QAPSettingsString())
-; #If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+; see Hotkey, If, WinActive(QAPSettingsString())
 
 SettingsUp: ; ^Up::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
+if InStr(strFocusedControl, "FavoritesListFilter")
 	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesUp
@@ -2351,7 +2350,7 @@ return
 
 SettingsDown: ; ^Down::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
+if InStr(strFocusedControl, "FavoritesListFilter")
 	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesDown
@@ -2361,14 +2360,14 @@ return
 
 SettingsRight: ; ^Right::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
+if InStr(strFocusedControl, "FavoritesListFilter")
 	return
 Gosub, HotkeyChangeMenu
 return
 
 SettingsLeft: ; ^Left::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
+if InStr(strFocusedControl, "FavoritesListFilter")
 	return
 GuiControlGet, blnUpMenuVisible, Visible, f_picUpMenu
 if (blnUpMenuVisible)
@@ -2385,15 +2384,11 @@ return
 
 SettingsCtrlN: ; ^N::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
 Gosub, GuiAddFavoriteSelectType
 return
 
 SettingsEnter: ; Enter::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
 if (LV_GetCount("Selected") > 1)
 	Gosub, GuiMoveMultipleFavoritesToMenu
 else
@@ -2431,20 +2426,13 @@ return
 
 SettingsCtrlH: ; ^H::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
 Gosub, GuiHotkeysHelpClicked
 return
 
 SettingsF1: ; F1::
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
 Gosub, GuiHelp
 return
-
-; replaced by Hotkey, If, WinActive(QAPSettingsString())
-; #If
 
 ; End of Gui Hotkeys
 
@@ -3489,7 +3477,6 @@ InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	 -44,  -97, true)
 InsertGuiControlPos("f_lblGuiIconsManage",				 -44,  -27, true)
 
 InsertGuiControlPos("f_strFavoritesListFilter",			  40,  115)
-InsertGuiControlPos("f_btnFavoritesListNoFilter",		-110,  115)
 InsertGuiControlPos("f_lvFavoritesList",				  40,  140)
 InsertGuiControlPos("f_lvFavoritesListFiltered",		  40,  140)
 
@@ -3946,7 +3933,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			; create a navigation entry to navigate to the parent menu
 			objNewMenuBack := Object()
 			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
+			objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
 			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
@@ -5499,7 +5486,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			; (not used in Settings for this menu - but keep for code reusability)
 			objNewMenuBack := Object()
 			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-			objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(objCurrentMenu.MenuPath) . ")"
+			objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
 			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
@@ -7541,6 +7528,7 @@ Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
+Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered, %lDialogExtendedSearch% ; Button2
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
@@ -7550,9 +7538,9 @@ Gui, 1:Add, ListView
 
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button2
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button3
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button4
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button4
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button5
 
 if !(g_blnDonor)
 {
@@ -7600,7 +7588,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
 	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut)
 	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
-		strThisHotkey .= GetHotstringReminder(g_objMenuInGui[A_Index].FavoriteHotstring)
+		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objMenuInGui[A_Index].FavoriteHotstring))
 	
 	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
@@ -7667,9 +7655,8 @@ Gui, 1:Submit, NoHide
 
 Critical, On ; prevents the current thread from being interrupted by other threads
 
-strFavoritesListFilter := f_strFavoritesListFilter
-if (strFavoritesListFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused)
-	return
+strFavoritesListFilter := GetFavoritesListFilter()
+blnFavoritesListFilterExtended := f_blnFavoritesListFilterExtended
 
 if !StrLen(strFavoritesListFilter)
 {
@@ -7700,7 +7687,7 @@ Gui, 1:ListView, f_lvFavoritesListFiltered
 LV_Delete()
 LV_ModifyCol(6, 0) ; do early to avoid flash
 
-RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter)
+RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter, blnFavoritesListFilterExtended)
 
 LV_Modify(1, "Select Focus") 
 Loop, % LV_GetCount("Column") - 1
@@ -7717,7 +7704,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
+RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 ;------------------------------------------------------------
 {
 	; global g_objHotkeysByNameLocation
@@ -7727,12 +7714,24 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
-			and InStr(objCurrentMenu[A_Index].FavoriteName, strFilter)
+			and ((InStr(objCurrentMenu[A_Index].FavoriteName, strFilter) and !(strExtended))
+				or (strExtended
+					and InStr(objCurrentMenu[A_Index].FavoriteName
+					. " " . g_objFavoriteTypesLocationLabels[objCurrentMenu[A_Index].FavoriteType]
+					. " " . Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
+					. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
+					. " " . objCurrentMenu[A_Index].FavoriteLocation
+					. " " . objCurrentMenu[A_Index].FavoriteArguments
+					. " " . objCurrentMenu[A_Index].FavoriteAppWorkingDir
+					. " " . objCurrentMenu[A_Index].FavoriteLaunchWith
+					. " " . objCurrentMenu[A_Index].FavoriteLoginName
+					. " " . objCurrentMenu[A_Index].FavoritePassword
+					, strFilter)))
 		{
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
 			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
-				strThisHotkey .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
+				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
 			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Menu")
@@ -7759,7 +7758,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter)
 		}
 		
 		if InStr("Menu|External|Group", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadFavoritesListFiltered(objCurrentMenu[A_Index].SubMenu, strFilter) ; RECURSIVE
+			RecursiveLoadFavoritesListFiltered(objCurrentMenu[A_Index].SubMenu, strFilter, strExtended) ; RECURSIVE
 	}
 }
 ;------------------------------------------------------------
@@ -7774,6 +7773,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
 
 g_intListW := A_GuiWidth - 40 - 88
 intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9.2)
+intFavoritesListFilterCloseW := 25
 
 ; space before, between and after save/reload/close buttons
 ; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
@@ -7811,8 +7811,12 @@ for intIndex, objGuiControl in g_objGuiControls
 		
 }
 
+GuiControlGet, arrFavoritesListFilterExtendedPos, Pos, f_blnFavoritesListFilterExtended
 GuiControl, 1:Move, f_drpMenusList, w%g_intListW%
-GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - 25 ; -25 to make room for close button on the right (in v8.2.9.2)
+GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - intFavoritesListFilterCloseW - arrFavoritesListFilterExtendedPosW - 10
+GuiControlGet, arrFavoritesListFilterPos, Pos, f_strFavoritesListFilter
+GuiControl, 1:Move, f_btnFavoritesListNoFilter, % "y" . arrFavoritesListFilterPosY . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + 5
+GuiControl, 1:Move, f_blnFavoritesListFilterExtended, % "y" . arrFavoritesListFilterPosY + 3 . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + 10 + intFavoritesListFilterCloseW
 GuiControl, 1:Move, f_lvFavoritesList, w%g_intListW% h%intListH%
 GuiControl, 1:Move, f_lvFavoritesListFiltered, w%g_intListW% h%intListH%
 
@@ -7825,6 +7829,7 @@ objGuiControl := ""
 intX := ""
 intY := ""
 arrPos := ""
+intFavoritesListFilterCloseW := ""
 
 return
 ;------------------------------------------------------------
@@ -10628,7 +10633,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	; create a navigation entry to navigate to the parent menu
 	objNewMenuBack := Object()
 	objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-	objNewMenuBack.FavoriteName := "(" . GetDeepestMenuPath(strDestinationMenu) . ")"
+	objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(strDestinationMenu))
 	objNewMenuBack.ParentMenu := g_objMenusIndex[strDestinationMenu] ; this is the link to the parent menu
 	objNewMenu.Insert(objNewMenuBack)
 	
@@ -11917,7 +11922,7 @@ GetFavoritesListFilter()
 	
 	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
 
-	return (strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused ? "" : strFilter)
+	return ((strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused) ? "" : Trim(strFilter))
 }
 ;------------------------------------------------------------
 
@@ -17150,9 +17155,9 @@ GetHotstringReminder(strHotstring)
 	global g_intHotkeyReminders
 	
 	if StrLen(strHotstring)
-		return " (" . (g_intHotkeyReminders = 2
+		return " " . BetweenParenthesis((g_intHotkeyReminders = 2
 			? lDialogHotstringIndicator
-			: GetHotstringTrigger(strHotstring)) . ")"
+			: GetHotstringTrigger(strHotstring)))
 	else
 		return ""
 }
@@ -18062,7 +18067,7 @@ GetFavoriteTypeForList(objFavorite)
 	if (objFavorite.FavoriteFolderLiveLevels)
 		strType := g_strFolderLiveIndicator . strType . g_strFolderLiveIndicator
 	if (objFavorite.FavoriteDisabled)
-		strType := "(" . strType . ")"
+		strType := BetweenParenthesis(strType)
 	
 	return strType
 }
@@ -18705,6 +18710,15 @@ ResetArray(ByRef arr)
 	Loop, % %arr%0
 		%arr%%A_Index% := ""
 	%arr%0 := "" ; do not forget to reset the counter
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BetweenParenthesis(str)
+;------------------------------------------------------------
+{
+	return "(" . str . ")"
 }
 ;------------------------------------------------------------
 
