@@ -2389,10 +2389,13 @@ return
 
 SettingsEnter: ; Enter::
 GuiControlGet, strFocusedControl, FocusV
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiMoveMultipleFavoritesToMenu
+if InStr(strFocusedControl, "f_lvFavoritesList") ; includes filtered ist
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiMoveMultipleFavoritesToMenu
+	else
+		Gosub, GuiEditFavorite
 else
-	Gosub, GuiEditFavorite
+	Send, {Enter}
 return
 
 SettingsDel: ; Del::
@@ -7538,9 +7541,9 @@ Gui, 1:Add, ListView
 
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled Default gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button3
 Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button4
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button5
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h50, %lGuiCloseAmpersand% ; Close until changes occur - Button5
 
 if !(g_blnDonor)
 {
