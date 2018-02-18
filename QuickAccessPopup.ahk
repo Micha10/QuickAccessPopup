@@ -10912,6 +10912,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strValidKeys := ""
 	strThisHotstringTrigger := ""
 	strThisHotstringOptions := ""
+	g_strNewFavoriteHotstring := ""
 	g_strNewFavoriteHotstringTrigger := ""
 	g_strNewFavoriteHotstringOptionsShort := ""
 		
