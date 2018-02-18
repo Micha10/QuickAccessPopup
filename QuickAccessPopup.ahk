@@ -13628,6 +13628,9 @@ objThisGroupFavoritesList := g_objMenusIndex[lMainMenuName . " " . objThisGroupF
 loop, % objThisGroupFavoritesList.MaxIndex() - 1 ; skip first item backlink
 {
 	g_objThisFavorite := objThisGroupFavoritesList[A_Index + 1] ; skip first item backlink
+	; consider this as a pseudo favorite because if its location is not found and we offer to edit, instead of editing the member, it would edit its group favorite
+	; (this could be fixed but much work for little benefits in a rare situation)
+	g_objThisFavorite.FavoritePseudo := true
 	
 	Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
 	
@@ -13750,6 +13753,7 @@ else ; item from the Repeat Last Actions menu
 	g_strLastActionRepeated := strThisMenuItem
 
 g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
+g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 gosub, OpenFavoriteFromLastAction
 
@@ -13917,9 +13921,11 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
-		MsgBox, 4, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
+		MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
+			, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
 			, % L(lDialogFavoriteDoesNotExistPrompt, g_objThisFavorite.FavoriteLocation
-				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : "")) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : ""))
+				. (g_objThisFavorite.FavoritePseudo ? "" : "`n`n" . lDialogFavoriteDoesNotExistEdit)
 		IfMsgBox, Yes
 		{
 			g_blnAlternativeMenu := true
@@ -13950,8 +13956,10 @@ if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
-		MsgBox, 4, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
-			, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, strTempLocation) . "`n`n" . lDialogFavoriteDoesNotExistEdit
+		MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
+			, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
+			, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, strTempLocation)
+			. (g_objThisFavorite.FavoritePseudo ? "" : "`n`n" . lDialogFavoriteDoesNotExistEdit)
 		IfMsgBox, Yes
 		{
 			g_blnAlternativeMenu := true
@@ -13963,7 +13971,6 @@ if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite
 			return
 		}
 	}
-
 }
 
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent or g_strAlternativeMenu = lMenuAlternativeOpenContainingNew)
@@ -13971,6 +13978,7 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType)
 	{
 		objContainingFavorite := Object() ; build a replacement favorite object
+		objContainingFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 		objContainingFavorite.FavoriteType := "Folder"
 		objContainingFavorite.FavoriteName := "Containing Folder" ; not shown
 		strContainingFolder := g_objThisFavorite.FavoriteLocation
@@ -14365,6 +14373,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
 	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
 	
 	g_objThisFavorite := Object() ; temporary favorite object
+	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	; g_objThisFavorite.FavoriteName not needed because menu object never used for menu building
 	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
 	g_objThisFavorite.FavoriteType := "Folder"
@@ -14382,6 +14391,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 		strFavoriteType := "Folder"
 	
 	g_objThisFavorite := Object() ; temporary favorite object
+	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
@@ -14400,6 +14410,7 @@ else ; OpenRecentFolder, OpenRecentFiles or OpenClipboard
 	}
 	
 	g_objThisFavorite := Object() ; temporary favorite object
+	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
 	g_objThisFavorite.FavoriteLocation := (g_strOpenFavoriteLabel = "OpenDrives" ? SubStr(strThisMenuItem, 1, 1) . ":\" : strThisMenuItem)
 	g_objThisFavorite.FavoriteType :=  (g_strOpenFavoriteLabel = "OpenDrives" ? "Folder" : strFavoriteType)
@@ -14471,7 +14482,9 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 	if !(blnFileExist) and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
-		MsgBox, 4, %g_strAppNameText%, % L(lOopsLaunchWithNotFound, strFullLaunchWith) . " " . lDialogFavoriteDoesNotExistEdit
+		MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
+			, %g_strAppNameText%, % L(lOopsLaunchWithNotFound, strFullLaunchWith)
+			. (g_objThisFavorite.FavoritePseudo ? "" : " " . lDialogFavoriteDoesNotExistEdit)
 		IfMsgBox, Yes
 		{
 			g_blnAlternativeMenu := true
