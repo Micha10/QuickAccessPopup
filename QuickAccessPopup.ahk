@@ -31,9 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.9.1.1 (2018-02-19)
+Version BETA: 8.7.1.98 (2018-02-19)
  
 Hotstrings
+- stop escaping backticks and some semi-colon in trigger; remove deprecated comments
 - limit length of hotstring trigger to 40 characters in change hotstring dialog box
 - encode pipe ("|") symbols in hotstring trigger in QuickAccessPopup.ini settings file
 - fix bug in v8.7.1.94, hotstring from previously edited favorite being reused by error in next added favorite
@@ -62,7 +63,7 @@ Hotstrings
 - new hotstrings options "Expand inside other words", "Do not conform to typed case" and "Do not keep Ending key"
 - rename hotstring options "Keep hotstring abbreviation" and "Do not wait for Ending key"
 - validate hotstring trigger maximum length of 40 characters
-- stop validationg if new or changed hotstring trigger already exists
+- stop validating if new or changed hotstring trigger already exists
 - display an error message if cannot get favorite object from a hotkey (most probably hotstring) suggesting is it a temporary issue and to restart QAP
 - rename "Hotkeys" button in "Settings" to "Shortcuts" (but keep internal code "{Hotkeys}" for backward compatibility)
 - add label in "Settings" and QAP feature "Hotstrings" to open Manage Hotkeys dialog box in "Hotstrings" tab
@@ -1995,7 +1996,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.1
+;@Ahk2Exe-SetVersion 8.7.1.98
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2079,7 +2080,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.98" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5756,7 +5757,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			
 			; before creating an hotstring...
 			; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
-			; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
+			; in hotstring trigger (NOT REQUIRED as of v8.9.1.1): escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
 			; in hotstring replacement: decode end-of-lines and tabs (DecodeSnippet)
 			Hotstring(PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index]), "OpenFavoriteFromHotstring", "On")
 		}
@@ -6184,7 +6185,7 @@ for strHotstring in g_objFavoritesObjectsByHotstring
 {
 	; before disabling an hotstring...
 	; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
-	; in hotstring trigger: escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
+	; in hotstring trigger (NOT REQUIRED as of v8.9.1.1): escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
 	; set the label "OpenFavoriteFromHotstring" for hotstrings with Execute option
 	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring)), "OpenFavoriteFromHotstring", "Off")
 }
@@ -10487,8 +10488,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if  (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
-		; for snippet of type Text: Hotstring's replacement text is limited to about 5000 characters (this may vary depending on the operating system's version and performance settings)
-		; ##### tester pour voir le message d'erreur avant de coder une validation
 		if InStr(f_strFavoriteSnippetPrompt, "|")
 		{
 			Oops(lDialogFavoriteSnippetPromptNoPipe)
@@ -17257,7 +17256,7 @@ PrepareHotstringForFunction(strHotstring, objFavorite)
 	
 	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
 	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
-	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . HotstringEscapeTrigger(strTrigger)
+	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
 
 	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
 	strPreparedHotstring := g_strHotstringOptionsSeparator . g_strHotstringOptionsExecute . SubStr(strPreparedHotstring, 2)
@@ -17267,18 +17266,20 @@ PrepareHotstringForFunction(strHotstring, objFavorite)
 ;-----------------------------------------------------------
 
 
+/*
 ;-----------------------------------------------------------
 HotstringEscapeTrigger(strTrigger)
 ; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
 ;-----------------------------------------------------------
 {
-    StringReplace, strTrigger, strTrigger, ``, ```` ; replace tick with tick tick ##### test
-    StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```; ; replace "space semi-colon" with "space tick semi-colon ##### test
-    StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```; ; replace "tab semi-colon" with "tab tick semi-colon ##### test
-    
+    StringReplace, strTrigger, strTrigger, ``, ````, A ; replace all tick with tick tick
+    StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```;, A ; replace "space semi-colon" with "space tick semi-colon
+    StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```;, A ; replace "tab semi-colon" with "tab tick semi-colon
+	
     return strTrigger
 }
 ;-----------------------------------------------------------
+*/
 
 
 ;------------------------------------------------
