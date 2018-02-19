@@ -31,9 +31,23 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.9.1 (2018-02-17)
-- encode pipe | in hotstring trigger in QuickAccessPopup.ini settings file
+Version BETA: 8.9.1.1 (2018-02-19)
+ 
+Hotstrings
 - limit length of hotstring trigger to 40 characters in change hotstring dialog box
+- encode pipe ("|") symbols in hotstring trigger in QuickAccessPopup.ini settings file
+- fix bug in v8.7.1.94, hotstring from previously edited favorite being reused by error in next added favorite
+ 
+Extended Search
+- add "Extended Search" checkbox to Settings window
+- if not checked, search filters only on favorite name
+- if checked, "Extended Search" covers favorite name, type, shortcut, hotstring trigger, location (file or folder path), snippet content, FTP login name and password, and advanced settings "Parameters" and "Start in" folder
+ 
+Bug fixes
+- enable some keyboard shortcuts in Settings window that were disabled by error when favorite list was filtered
+- stop offering to edit a favorite when location is not found for items from a dynamic menus (like "Recent Folder")
+- in Settings window, change the default button to "Close" and, if user hits the Enter key when the focus is not in the favorites list or filtered favorites list, send the Enter key to the default Close button
+- fix change shortcut dialog box window size error
 
 Version BETA: 8.7.1.97 (2018-02-16)
 - always send snippet with PasteSnippet command (stop using slower AHK built-in replacement hotstrings)
@@ -1981,7 +1995,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.97
+;@Ahk2Exe-SetVersion 8.9.1.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2065,7 +2079,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.97" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -12246,12 +12260,12 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if StrLen(P_strDefaultShortcut)
 	{
 		Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnResetShortcut gButtonResetShortcut", %lGuiResetDefault%
-		GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
+		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
 	}
 	else
 	{
 		Gui, Add, Text, % "x10 y" . SS_arrTopY + 100
-		GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut")
+		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut")
 	}
 	
 	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
@@ -12270,7 +12284,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogChangeShortcutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
+	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeShortcutOK
@@ -12510,7 +12524,6 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 ;------------------------------------------------------------
 {
 	global
-	; #####
 	
 	g_blnChangeHotstringInProgress := !(P_blnDefaultOptions)
 	SH_strGuiTitle := L((P_blnDefaultOptions ? lDialogChangeHotstringTitleDefaultOptions : lDialogChangeHotstringTitle), g_strAppNameText) 
@@ -12591,11 +12604,14 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	SplitHotstring(SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	; ###_V("SH_strNewHotstring avant Validate", SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	
-	if !StrLen(SH_strHotstringTrigger) and !(P_blnDefaultOptions)
-		SH_strNewHotstring := "" ; make sure we have no option if no trigger
-	
-	if StrLen(SH_strNewHotstring)
-		SH_strNewHotstring := HotstringValidate(P_strActualHotstring, SH_strNewHotstring)
+	if !(P_blnDefaultOptions)
+	{
+		if !StrLen(SH_strHotstringTrigger)
+			SH_strNewHotstring := "" ; make sure we have no option if no trigger
+		
+		if StrLen(SH_strNewHotstring)
+			SH_strNewHotstring := HotstringValidate(P_strActualHotstring, SH_strNewHotstring)
+	}
 	; ###_V("SH_strNewHotstring après Validate", SH_strNewHotstring)
 	
 	; Clean-up function global variables
@@ -12626,7 +12642,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
 	
-	if StrLen(SH_strHotstringTrigger)
+	if StrLen(SH_strHotstringTrigger) or (P_blnDefaultOptions)
 		SH_strNewHotstring := g_strHotstringOptionsSeparator
 			. (SH_blnHotstringCaseSensitive ? "C" : "")
 			. (SH_blnHotstringNotConformCase ? "C1" : "")
