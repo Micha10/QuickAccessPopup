@@ -31,6 +31,38 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.1 (2018-02-20)
+(summary of changes in private beta releases v8.7.1.94 to v8.7.1.98)
+ 
+Hotstrings
+- see FAQ page http://www.quickaccesspopup.com/what-are-hotstrings/
+- add "Hotstrings" section to "Menu Options" tab in "Add/Edit Favorite" dialog box
+- add "Change hotstring" dialog box to set the trigger (or abbreviation) of an hotstring and its options
+- checkbox options in "Change hotstring" dialog box are: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: http://www.quickaccesspopup.com/what-are-hotstrings/#options)
+- hotstrings can trigger any type of favorites, most useful with "Text Snippets" to use an abbreviation (the trigger) to expand in the longer replacement text of a Text Snippet
+- due to large number of options combinations (taking into account case-sensitivity and other options), QAP does not validate that hotstring triggers are unique; in case of duplication, depending on various options, only one of the favorites having the same hotstring will be triggered
+- in "Options", "Hotkeys" tab, add the "Hotstrings default options" button to to set default hotstrings options for newly created hotstrings (these defaults do not impact existing hotstrings)
+- to "Manage Hotkeys" window, add the "Hotstrings" tab with a list of all favorites having an hotstring
+- in "Settings" window, add a label under the "Hotkeys" (renamed "Shortcuts, see below) to open the "Manage Hotkeys" dialog box in the "Hotstrings" tab
+- add a new QAP feature named "Hotstrings" to open the "Manage Hotkeys" dialog box in the "Hotstrings" tab
+ 
+Keyboard shortcuts
+- rename button and labels "Hotkeys" to "Shortcuts" in windows "Settings", "Add/Edit Favorites", "Manage Hotkeys", etc. (in QAP, the term "Hotkeys" now encompass both "Shortcuts" (mostly keyboard shortcuts, but also mouse shortcuts) and the new "Hotstrings" (described above)
+- simplified management of favorites keyboard and mouse shortcuts (internal changes only)
+- in the settings file QuickAccessPopup.ini, shortcuts are now saved in the favorites lines in the [Favorites] section (instead of the separate [LocationHotkeys] section as before)
+- the existing shortcuts in the [LocationHotkeys] section are automatically upgraded to the new favorites shortcuts format
+- NOTE: once you upgraded to a version greater than 8.7.1.92, you should not revert to an earlier version (if whenever you have to do it, your keyboard shortcuts will be lost)
+ 
+Extended Search
+- add the "Extended Search" checkbox after the "Search" text box in the "Settings" window
+- by default, the "Extended Search" is not checked, and search filters only based on the favorites name
+- if the "Extended Search" is checked, search covers favorite name, type, shortcut, hotstring trigger, location (file or folder path), snippet content, FTP login name and password, and advanced settings "Parameters" and "Start in" folder
+ 
+Bug fixes and minor changes
+- enable some keyboard shortcuts in the "Settings" window that were disabled by error when favorite list was filtered by the Search
+- stop offering to edit a favorite when its location is not found for items from dynamic menus (like "Recent Folder")
+- in the "Settings" window, change the default button to "Close" (instead of "Save & Close") and, if user hits the Enter key when the focus is not in the favorites list, send the Enter key to the default "Close" button
+
 Version BETA: 8.7.1.98 (2018-02-19)
  
 Hotstrings
@@ -1996,7 +2028,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.7.1.98
+;@Ahk2Exe-SetVersion 8.9.1.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2080,7 +2112,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.7.1.98" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
