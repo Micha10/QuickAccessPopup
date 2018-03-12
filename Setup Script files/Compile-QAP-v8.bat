@@ -37,14 +37,21 @@ ECHO Remove previous version and executable files from zip file
 7z d -bso0 "%QAPZIPFILE%.zip" QAP-v*.txt QuickAccessPopup-??-bit.exe
 ECHO Add new version and executable files to zip file
 7z a -bso0 "%QAPZIPFILE%.zip" QAP-v%QAPVERSIONFILE%.txt QuickAccessPopup-??-bit.exe
-IF [%QAPBETAPROD%] == [] GOTO:finish
+IF [%QAPBETAPROD%] == [] GOTO:messages
 ECHO Copy %QAPZIPFILE%.zip to %QAPZIPFILEVERSION%.zip
 COPY %QAPZIPFILE%.zip %QAPZIPFILEVERSION%.zip
 ECHO Delete previous ZIP file quickaccesspopup-%QAPVERSIONPREV%.zip
 IF EXIST quickaccesspopup-%QAPVERSIONPREV%.zip DEL quickaccesspopup-%QAPVERSIONPREV%.zip
-:finish
+:messages
 ECHO TERMINE DE v%QAPVERSIONPREV% A v%QAPVERSIONFILE% AVEC SUCCES
-ECHO COPIER quickaccesspopup-setup%QAPBETAPROD%.exe dans FTP ftp://www.quickaccesspopup/download
-ECHO COPIER quickaccesspopup.zip (ou version beta) dans FTP ftp://www.quickaccesspopup/download
+IF [%QAPBETAPROD%] == [] GOTO:messagesprod
+ECHO COPIER quickaccesspopup-setup-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup-%QAPVERSIONFILE%.zip dans FTP ftp://www.quickaccesspopup/download
+ECHO DEPLACER anciennes versions dans FTP ftp://www.quickaccesspopup/download/archives
+GOTO:finish
+:messagesprod
+ECHO COPIER quickaccesspopup-setup.exe dans FTP ftp://www.quickaccesspopup/download
+ECHO COPIER quickaccesspopup.zip dans FTP ftp://www.quickaccesspopup/download
 ECHO COPIER quickaccesspopup-setup-%QAPVERSIONFILE%.exe dans FTP ftp://www.quickaccesspopup/download/archives
+:finish
 PAUSE

@@ -65,8 +65,6 @@ lDialogChangeHotkeyAny	Beide toetsen
 lDialogChangeHotkeyLeftAnyRight	Van elke functietoets kan bepaald worden welke actief is in combinatie met een sneltoets, dit kan alleen de linker of rechter zijn, of beide, selecteer hieronder uw voorkeur.
 lDialogChangeHotkeyModifierAndNone	Functietoetsen zoals "Alt" of "Control" kunnen niet zonder sneltoets geselecteerd worden. Selecteer ook een muis of snel -toets in de rechter sectie.
 lDialogChangeHotkeyMouseCheckLButton	Het is niet mogelijk om de "Linker Muistoets" te selecteren zonder een functietoets:`n(zoals: ~1~, ~2~, ~3~ of ~4~).
-lDialogChangeHotkeyNote	nb: Alle favorieten met de naam: "~2~" met als locatie: "~1~" zullen gelinkt worden aan de nieuwe sneltoets.
-lDialogChangeHotkeyNoteSnippet	nb: Alle fragmenten genaamd "~1~" met dezelfde inhoud zal worden gelinkt aan de nieuwe sneltoets.
 lDialogChangeHotkeyPopup	Dit is een popupmenu sneltoets.`n`nWilt u deze aanpassen van "~1~" in "~2~"?
 lDialogChangeHotkeyTitle	Wijzig sneltoets - ~1~ ~2~
 lDialogContinue	Volgende
@@ -154,7 +152,7 @@ lDialogFavoriteTypesHelp3	Creër een snelkoppeling naar een "Applicatie" (program
 lDialogFavoriteTypesHelp4	Creër een snelkoppeling naar een van de 50 voorgedefineërde Windows Speciale mappen zoals Bibliotheken, Mijn afbeeldingen, Prullenbak, Downloads, etc.`n`nConfigureer de naam van het favoriet en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de bestandsbeheerder, optionele instellingen en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp5	Creër een "Link" naar een website.`n`nConfigureer de naam van het favoriet, website's adres (URL) en de verschillende opties.`n`nGeavanceerde Opties laten u de webbrowser selecteren waar de link wordt gestart, en de locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de naam van het favoriet, FTP-adres (URL), loginnaam, wachtwoord en de verschillende opties.`n`nGeavanceerde Opties laten u de FTP-Client selecteren waarin de FTP-link wordt gestart, optionele parameters, en de locatie van het venster op het scherm.`n`nNB. Wachtwoorden worden NIET versleuteld over het internet verstuurd!
-lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
+lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" overal toe in het menu zoals: ~1~, ~2~, ~3~, ~4~, ~5~, etc.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en select menu opties.`n`nVoeg favorieten toe aan uw submenu of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favoreiten uit, allen in 1 enkele snelkoppeling!1n1nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats deze van andere submenu's of groepen door middel van de "Wijzigen" knop.`n`nIn Geavanceerde Opties kunt u bijvoorbeeld bepalen wat de tijd tussen het starten van de verschillende favorieten dient te worden.
 lDialogFavoriteTypesLabels	&Map|&Document|&Application|&Speciale Map|&Link|F&TP Site|&QAP Functie|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Tekst Scheider
@@ -192,7 +190,6 @@ lDialogIconsManageSetDefaultIcon	Stel standaard pictogram in
 lDialogIconsManageTitle	Beheer pictogrammen - ~1~ ~2~
 lDialogInvalidHotkey	Met de huidige toetsenbordindeling kan de sneltoets "~1~" niet gebruikt worden als commando voor het popup-menu.`n`nGelieve het instellingenmenu te openen vanuit de taakbalk en klik op "Instellingen". Selecteer hier een andere sneltoets voor "~2~".
 lDialogInvalidHotkeyFavorite	Met de huidige toetsenbordindeling kan de sneltoets "~1~" niet gebruikt worden als snelkoppeling naar het favoriet "~2~".`n`nGelieve het instellingenmenu te openen vanuit de taakbalk en klik op "Instellingen". Selecteer hier een andere sneltoets voor "~2~" en zijn locatie "~3~".
-lDialogInvalidHotkeyQAPFeature	Met de huidige toetsenbordindeling kan de sneltoets "~1~" niet gebruikt worden als commando voor deze QAP-feature (geen geldige toetsnaam).`n`nGelieve een andere sneltoets te kiezen voor QAP-feature ~2~.
 lDialogKeyboard	Toetsenbord
 lDialogLaunchWith	Starten met deze applicatie
 lDialogMaximized	Maximaliseren
@@ -374,7 +371,6 @@ lImpExpMerge	Samenvoegen met
 lImpExpNoThemes	Geen themalijst gevonden in waarde "~1~" van sectie "~2~".`n`nBronbestand:`n~3~
 lImpExpOptionAlternative	Sneltoetsen voor alternatieve menu's
 lImpExpOptionFavorites	Favorieten (sneltoetsen uitgesloten)
-lImpExpOptionHotkeys	Sneltoetsen voor favorieten
 lImpExpOrIdentical	(of de content is identiek)
 lImpExpReplaceAll	Alles vervangen
 lImpExpReplaceFavorites	Er zijn favorieten aanwezig in het doelbestand, wat wilt u doen?`n`n~1~

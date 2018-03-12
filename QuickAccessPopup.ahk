@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.2 (2018-02-23)
+- add in "Menu" tab of "Options" windows an option to set the number of seconds between scheduled refresh of the QAP menu including Live Folders and Shared menus (during refresh the menu is not available)
+- add a checkbox "Beep before and after refresh (debug)" to help estimate the time required to refresh the menu
+- add value "RefreshQAPMenuIntervalSec" to quickaccesspopup.ini file with the number of seconds between scheduled refresh
+- add debug value "RefreshQAPMenuDebugBeep" to quickaccesspopup.ini file to sound beep before and after scheduled menu refresh
+- fix bug with checking favorite type in Extended Filter
+- plus changes from master release v8.7.1.2 (see below)
+ 
+Version: 8.7.1.2 (2018-02-23)
+- prevent user from changing the location or file name of a Shared menu (avoiding errors); if the file for a shared menu has been renamed or moved, first remove the shared menu and create a new one for the moved or renamed file
+- message to confirm before creating a new (empty) external menu
+- using Snippets, when waiting to send a text snippet or execute a macro snippet, accept Escape to cancel the snippet
+
 Version BETA: 8.9.1.1 (2018-02-20)
 (summary of changes in private beta releases v8.7.1.94 to v8.7.1.98)
  
@@ -2028,7 +2041,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.1
+;@Ahk2Exe-SetVersion 8.9.1.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2072,7 +2085,6 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 
 ;---------------------------------
 ; Init settings file name
-; must be before InitFileInstall because it reads UseClassicButtons setting
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
@@ -2087,6 +2099,8 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
+
+g_strIniFileDefault := g_strIniFile
 
 ;---------------------------------
 ; Create temporary folder
@@ -2112,7 +2126,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2125,7 +2139,7 @@ else ; setup mode
 	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
 
 g_intGuiDefaultWidth := 636
-g_intGuiDefaultHeight := 538
+g_intGuiDefaultHeight := 601
 
 g_blnMenuReady := false
 g_blnChangeShortcutInProgress := false
@@ -2160,8 +2174,8 @@ g_strExclusionMouseListDialogIndicator := "*"
 g_objGuiControls := Object() ; to build Settings gui
 
 g_strMouseButtons := ""
-g_arrMouseButtons := ""
-g_arrMouseButtonsText := ""
+ResetArray("g_arrMouseButtons")
+ResetArray("g_arrMouseButtonsText")
 
 g_objClassIdOrPathByDefaultName := Object() ; used by InitSpecialFolders and CollectExplorers
 g_objSpecialFolders := Object()
@@ -2227,6 +2241,7 @@ Gosub, InitSystemArrays
 Gosub, InitLanguages
 Gosub, InitLanguageArrays
 Gosub, InitSpecialFolders
+Gosub, InitQAPFeaturesURLs
 Gosub, InitQAPFeatures
 Gosub, InitGuiControls
 
@@ -2303,6 +2318,11 @@ if (g_blnDisplayTrayTip)
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
 
+IniRead, g_intRefreshQAPMenuIntervalSec, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec, 0
+IniRead, g_blnRefreshQAPMenuDebugBeep, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep, 0
+if (g_intRefreshQAPMenuIntervalSec > 0)
+	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
+
 g_blnMenuReady := true
 
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
@@ -2345,7 +2365,6 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, F1, SettingsF1, On UseErrorLevel
 
 Hotkey, If
-
 
 return
 
@@ -2665,66 +2684,34 @@ FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAcces
 
 FileInstall, FileInstall\default_browser_icon.html, %g_strTempDir%\default_browser_icon.html, 1
 
-IniRead, g_blnUseClassicButtons, %g_strIniFile%, Global, UseClassicButtons, 0
-if (g_blnUseClassicButtons)
-{
-	FileInstall, FileInstall\about-32.png, %g_strTempDir%\about-32.png
-	FileInstall, FileInstall\add_property-48.png, %g_strTempDir%\add_property-48.png
-	FileInstall, FileInstall\delete_property-48.png, %g_strTempDir%\delete_property-48.png
-	FileInstall, FileInstall\copy-48.png, %g_strTempDir%\copy-48.png
-	FileInstall, FileInstall\keyboard-48.png, %g_strTempDir%\keyboard-48.png
-	FileInstall, FileInstall\details-48.png, %g_strTempDir%\details-48.png
-	FileInstall, FileInstall\separator-26.png, %g_strTempDir%\separator-26.png
-	FileInstall, FileInstall\column-26.png, %g_strTempDir%\column-26.png
-	FileInstall, FileInstall\down_circular-26.png, %g_strTempDir%\down_circular-26.png
-	FileInstall, FileInstall\edit_property-48.png, %g_strTempDir%\edit_property-48.png
-	; FileInstall, FileInstall\generic_sorting2-26-grey.png, %g_strTempDir%\generic_sorting2-26-grey.png
-	FileInstall, FileInstall\help-32.png, %g_strTempDir%\help-32.png
-	FileInstall, FileInstall\left-12.png, %g_strTempDir%\left-12.png
-	FileInstall, FileInstall\settings-32.png, %g_strTempDir%\settings-32.png
-	FileInstall, FileInstall\up-12.png, %g_strTempDir%\up-12.png
-	FileInstall, FileInstall\up_circular-26.png, %g_strTempDir%\up_circular-26.png
-	FileInstall, FileInstall\QAP-pin-off-26.png, %g_strTempDir%\QAP-pin-off-26.png
-	FileInstall, FileInstall\QAP-pin-on-26.png, %g_strTempDir%\QAP-pin-on-26.png
-	FileInstall, FileInstall\text-26.png, %g_strTempDir%\text-26.png
+FileInstall, FileInstall\about-32_c.png, %g_strTempDir%\about-32_c.png
+FileInstall, FileInstall\add_property-48_c.png, %g_strTempDir%\add_property-48_c.png
+FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
+FileInstall, FileInstall\play_property-48_c.png, %g_strTempDir%\play_property-48_c.png
+FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
+FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
+FileInstall, FileInstall\details-48_c.png, %g_strTempDir%\details-48_c.png
+FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
+FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
+FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
+FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
+FileInstall, FileInstall\edit_property-48d_c.png, %g_strTempDir%\edit_property-48d_c.png
+FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
+FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
+FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
+FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
+FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
+FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
+FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
+FileInstall, FileInstall\text-26_c.png, %g_strTempDir%\text-26_c.png
 
-	FileInstall, FileInstall\thumbs_up-32.png, %g_strTempDir%\thumbs_up-32.png
-	FileInstall, FileInstall\solutions-32.png, %g_strTempDir%\solutions-32.png
-	FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
-	FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
-	FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
+FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
+FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
+FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
+FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 
-	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
-}
-else
-{
-	FileInstall, FileInstall\about-32_c.png, %g_strTempDir%\about-32_c.png
-	FileInstall, FileInstall\add_property-48_c.png, %g_strTempDir%\add_property-48_c.png
-	FileInstall, FileInstall\delete_property-48_c.png, %g_strTempDir%\delete_property-48_c.png
-	FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
-	FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
-	FileInstall, FileInstall\details-48_c.png, %g_strTempDir%\details-48_c.png
-	FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
-	FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
-	FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
-	FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
-	FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
-	FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
-	FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
-	FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
-	FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
-	FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
-	FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
-	FileInstall, FileInstall\text-26_c.png, %g_strTempDir%\text-26_c.png
-
-	FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
-	FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
-	FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
-	FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
-	FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
-
-	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
-}
+FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
@@ -2740,6 +2727,7 @@ InitLanguageVariables:
 ;-----------------------------------------------------------
 
 #Include %A_ScriptDir%\QuickAccessPopup_LANG.ahk
+#Include %A_ScriptDir%\QuickAccessPopup_DESC.ahk
 
 return
 ;-----------------------------------------------------------
@@ -2799,17 +2787,24 @@ strActiveFileManagerDisplayNames := "Windows Explorer|Directory Opus|Total Comma
 StringSplit, g_arrActiveFileManagerDisplayNames, strActiveFileManagerDisplayNames, |
 
 ; ----------------------
+; QAPFeatures categories
+
+strQAPFeaturesCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|4-WindowsFeature|5-Utility|6-QAPManagement"
+StringSplit, g_arrQAPFeaturesCategories, strQAPFeaturesCategories, |
+
+; ----------------------
 
 strPopupHotkeyNames := ""
 strPopupHotkeyDefaults := ""
 strIconsMenus := ""
 strIconsFile := ""
 strIconsIndex := ""
-arrIconsFile := ""
-arrIconsIndex := ""
+ResetArray("arrIconsFile")
+ResetArray("arrIconsIndex")
 strActiveFileManagerSystemNames := ""
 strActiveFileManagerNames := ""
-arrActiveFileManagerNames := ""
+ResetArray("arrActiveFileManagerNames")
+strQAPCategories := ""
 
 return
 ;-----------------------------------------------------------
@@ -2865,7 +2860,7 @@ else
 strLanguageFile := ""
 strReplacementForSemicolon := ""
 strLanguageStrings := ""
-arrLanguageBit := ""
+ResetArray("arrLanguageBit")
 
 return
 ;------------------------------------------------------------
@@ -2903,6 +2898,8 @@ StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
 StringSplit, arrFavoriteTypesLocationLabels, lDialogFavoriteTypesLocationLabels, |
 g_objFavoriteTypesLocationLabels := Object()
+StringSplit, arrFavoriteTypesLocationLabelsNoAmpersand, lDialogFavoriteTypesLabelsNoAmpersand, |
+g_objFavoriteTypesLocationLabelsNoAmpersand := Object()
 ; StringSplit, arrFavoriteTypesHelp, lDialogFavoriteTypesHelp, |
 Loop, 9 ; excluding X, K and B
 	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
@@ -2917,16 +2914,27 @@ Loop, %g_arrFavoriteTypes0%
 	; example to display favorite type label: g_objFavoriteTypesLabels["Folder"], g_objFavoriteTypesLabels["Document"]
 	g_objFavoriteTypesLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLabels%A_Index%)
 	g_objFavoriteTypesLocationLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabels%A_Index%)
+	g_objFavoriteTypesLocationLabelsNoAmpersand.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabelsNoAmpersand%A_Index%)
 	g_objFavoriteTypesHelp.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesHelp%A_Index%)
 	g_objFavoriteTypesShortNames.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesShortNames%A_Index%)
 }
 
+; ----------------------
+; QAP Features Categories Names
+; 1-Featured|2-DynamicMenus|3-QAPMenuEditing|4-WindowsFeature|5-Utility|6-QAPManagement
+StringSplit, arrQAPFeatureCategoriesNames, lDialogQAPFeatureCategoriesNames, |
+g_objQAPCategories := Object()
+Loop, %g_arrQAPFeaturesCategories0%
+	g_objQAPCategories[g_arrQAPFeaturesCategories%A_Index%] := arrQAPFeatureCategoriesNames%A_Index%
+
 strOptionsLanguageCodes := ""
 strFavoriteTypes := ""
-arrFavoriteTypesLabels := ""
-arrFavoriteTypesLocationLabels := ""
-arrFavoriteTypesHelp := ""
-arrFavoriteTypesShortNames := ""
+ResetArray("arrFavoriteTypesLabels")
+ResetArray("arrFavoriteTypesLocationLabels")
+ResetArray("arrFavoriteTypesLocationLabelsNoAmpersand")
+ResetArray("arrFavoriteTypesHelp")
+ResetArray("arrFavoriteTypesShortNames")
+ResetArray("arrQAPFeatureCategoriesNames")
 
 return
 ;------------------------------------------------------------
@@ -3347,10 +3355,46 @@ TranslateMUI(resDll, resID)
 
 
 ;------------------------------------------------------------
+InitQAPFeaturesURLs:
+;------------------------------------------------------------
+
+g_objQAPFeaturesURL := Object()
+
+g_objQAPFeaturesURL["Add Favorite"] := "what-should-i-know-about-quick-access-popup-before-starting"
+g_objQAPFeaturesURL["Add This Folder"] := "can-i-add-on-the-fly-the-folder-i-am-already-in"
+g_objQAPFeaturesURL["Add This Folder Express"] := "can-i-add-on-the-fly-the-folder-i-am-already-in"
+g_objQAPFeaturesURL["AddExternalFromCatalogue"] := "shared-menu-catalogue"
+g_objQAPFeaturesURL["Clipboard"] := "what-is-in-the-clipboard-menu"
+g_objQAPFeaturesURL["CloseMenu"] := "what-is-the-close-menu-issue"
+g_objQAPFeaturesURL["Current Folders"] := "how-is-built-the-current-folders-menu"
+g_objQAPFeaturesURL["Drives"] := "what-are-these-features-in-the-my-qap-essentials-menu"
+g_objQAPFeaturesURL["Exclusions Mouse"] := "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps"
+g_objQAPFeaturesURL["GetWinInfo"] := "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps"
+g_objQAPFeaturesURL["Hotkeys"] := "can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts"
+g_objQAPFeaturesURL["Hotstrings"] := "what-are-hotstrings"
+g_objQAPFeaturesURL["Icons"] := "can-i-manage-all-my-menu-icons-in-one-screen"
+g_objQAPFeaturesURL["ImportExport"] := "can-i-backup-import-or-export-my-favorites-and-settings"
+g_objQAPFeaturesURL["Last Action"] := "can-i-reopen-one-of-the-last-favorites-i-selected-recently"
+g_objQAPFeaturesURL["Last Actions"] := "can-i-reopen-one-of-the-last-favorites-i-selected-recently"
+g_objQAPFeaturesURL["Options"] := "what-are-the-essential-global-options-to-know"
+g_objQAPFeaturesURL["Recent Files"] := "from-where-comes-the-content-of-the-recent-folders-menu"
+g_objQAPFeaturesURL["Recent Folders"] := "from-where-comes-the-content-of-the-recent-folders-menu"
+g_objQAPFeaturesURL["ReopenCurrentFolder"] := "can-i-change-folders-in-file-dialog-boxes-open-save-as-etc"
+g_objQAPFeaturesURL["Settings"] := "what-should-i-know-about-quick-access-popup-before-starting"
+g_objQAPFeaturesURL["Support"] := "why-support-freeware"
+g_objQAPFeaturesURL["Switch Folder or App"] := "how-is-built-the-switch-to-an-open-folder-or-application-menu"
+g_objQAPFeaturesURL["TC Directory hotlist"] := "how-do-i-enable-total-commander-support-in-quick-access-popup"
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 InitQAPFeatures:
 ;------------------------------------------------------------
 
-; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut)
+; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
+; 	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut)
 
 ; Submenus features
 
@@ -3358,45 +3402,95 @@ InitQAPFeatures:
 IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Recent Folders", "Recent Files" and "Drives" menu in detached menu
 Gosub, InitQAPFeaturesRefreshed
 
-InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
-InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
-InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
-InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",						0, 		"iconReload", 			"")
-InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
+InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
+	, lMenuClipboardDescription, 0, "iconClipboard", "+^V")
+InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus|4-WindowsFeature"
+	, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^W")
+InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus|4-WindowsFeature"
+	, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^F")
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus|6-QAPManagement"
+	, lMenuLastActionsDescription, 0, "iconReload", "")
+InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
+	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
 ; Command features
 
-InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				0, "iconAddFavorite")
-InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					0, "iconAddThisFolder")
-InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
-InitQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",					lDialogShortcuts . "...",			"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
-InitQAPFeatureObject("Hotstrings",				lDialogHotstrings . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	0, "iconHotkeys")
-InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
-InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
-InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
-InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							0, "iconDonate")
-InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							0, "iconAbout")
-InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						0, "iconExit")
-InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						0, "iconReload")
-InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							0, "iconReload")
-InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							0, "iconClose")
-InitQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							0, "iconSettings")
-InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
-InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
-InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
-InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				0, 	"iconReload", "")
+InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"6-QAPManagement"
+	, lGuiAboutDescription, 0, "iconAbout")
+InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				"3-QAPMenuEditing"
+	, lMenuAddFavoriteDescription, 0, "iconAddFavorite")
+InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
+	, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^A")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					"3-QAPMenuEditing"
+	, lMenuAddThisFolderXpressDescription, 0, "iconAddThisFolder")
+InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								"6-QAPManagement"
+	, lMenuExitAppDescription, 0, "iconExit")
+InitQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								"6-QAPManagement"
+	, lGuiHelpDescription, 0, "iconHelp")
+InitQAPFeatureObject("Hotkeys",					lDialogShortcuts . "...",			"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
+	, lDialogShortcutsDescription, 0, "iconHotkeys")
+InitQAPFeatureObject("Hotstrings",				lDialogHotstrings . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	"1-Featured|3-QAPMenuEditing"
+	, lDialogHotstringsDescription, 0, "iconHotkeys")
+InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
+	, lDialogIconsManageDescription, 0, "iconIcons")
+InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"6-QAPManagement"
+	, lGuiOptionsDescription, 0, "iconOptions")
+InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing"
+	, lMenuSettingsDescription, 0, "iconSettings", "+^S")
+InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"6-QAPManagement"
+	, lGuiDonateDescription, 0, "iconDonate")
+InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"5-Utility"
+	, lMenuGetWinInfoDescription, 0, "iconAbout")
+InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						"4-WindowsFeature"
+	, lMenuComputerShutdownDescription, 0, "iconExit")
+InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						"4-WindowsFeature"
+	, lMenuComputerRestartDescription, 0, "iconReload")
+InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"5-Utility"
+	, lMenuReloadDescription, 0, "iconReload")
+InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"6-QAPManagement"
+	, lMenuCloseThisMenuDescription, 0, "iconClose")
+InitQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							"6-QAPManagement"
+	, lImpExpMenuDescription, 0, "iconSettings")
+InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						"3-QAPMenuEditing|6-QAPManagement"
+	, lMenuSwitchSettingsDescription, 0, "iconSettings")
+InitQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing|6-QAPManagement"
+	, lMenuSwitchSettingsDefaultDescription, 0, "iconSettings")
+InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing"
+	, lMenuRefreshMenuDescription, 0, "iconReload")
+InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
+	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
+InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured|5-Utility"
+	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^C")
+InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"5-Utility|6-QAPManagement"
+	, lMenuLastActionDescription, 0, "iconReload", "")
 
 ; Alternative Menu features
-InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
-InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
-InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard")
-InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconUAClogo")
-InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
-InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
+InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", ""
+	, "", 1, "iconFolder")
+InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", ""
+	, "", 3, "iconEditFavorite")
+InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", ""
+	, "", 5, "iconClipboard")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", ""
+	, "", 7, "iconUAClogo")
+InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", ""
+	, "", 9, "iconSpecialFolders")
+InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", ""
+	, "", 10, "iconSpecialFolders")
+
+; New for v9
+; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured|4-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured|4-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured|4-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Shutdown Combo", 			lMenu,					"", "command",				"1-Featured|4-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured|6-QAPManagement"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured|6-QAPManagement"
+	; , lMenuDescription, 0, "icon", "")
 
 ;--------------------------------
 ; Build folders list for dropdown
@@ -3423,18 +3517,22 @@ InitQAPFeaturesRefreshed:
 ;------------------------------------------------------------
 
 InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	"2-DynamicMenus|4-WindowsFeature"
+	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^R")
 InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		"2-DynamicMenus|4-WindowsFeature"
+	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				0, "iconDrives",		"+^D")
+	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus|4-WindowsFeature"
+	, lMenuDrivesDescription, 0, "iconDrives",		"+^D")
 
 return
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut := "")
+InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
+	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut := "")
 
 ; QAP Feature Objects (g_objQAPFeatures) definition:
 ;		Key: strQAPFeatureInternalName
@@ -3444,6 +3542,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 ;		LocalizedName: QAP Feature localized label
 ;		QAPFeatureMenuName: menu to be added to the menu (excluding the starting ":"), empty if no submenu associated to this QAP feature
 ;		QAPFeatureCommand: command to be executed when this favorite is selected (excluding the ending ":")
+;		QAPFeatureCategories: one or many (pipe delimited) of 1-Featured|2-DynamicMenus|3-AlternativeMenu|4-QAPMenuEditing|5-WindowsFeature|6-Utility|7-QAPManagement
 ;		QAPFeatureAlternativeOrder: order of feature in the Alternative Menu displayed before user choose the target favorite (0 if not Alternative menu feature)
 ;		DefaultIcon: default icon (in the "file,index" format)
 ;		DefaultShortcut: default feature hotkey (string like "+^s")
@@ -3455,13 +3554,17 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_objQAPFeaturesAlternativeCodeByOrder
 	global g_objJLiconsByName
+	global g_objQAPFeaturesURL
 	
 	objOneQAPFeature := Object()
 	
-	objOneQAPFeature.LocalizedName := strThisLocalizedName
+	objOneQAPFeature.LocalizedName := strThisLocalizedName ; use as default value when adding QAP favorite, not to display name after (except for Alternative menus)
 	objOneQAPFeature.DefaultIcon := strThisDefaultIcon
 	objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
 	objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
+	objOneQAPFeature.QAPFeatureCategories := strQAPFeatureCategories
+	objOneQAPFeature.QAPFeatureDescription := strQAPFeatureDescription
+	objOneQAPFeature.QAPFeatureURL := g_objQAPFeaturesURL[strQAPFeatureCode]
 	objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
 	objOneQAPFeature.DefaultShortcut := strDefaultShortcut
 	
@@ -3480,19 +3583,21 @@ InitGuiControls:
 
 ; Order of controls important to avoid drawgins gliches when resizing
 
-InsertGuiControlPos("f_lnkGuiDropHelpClicked",			 -88, -130)
-InsertGuiControlPos("f_lnkGuiHotkeysHelpClicked",		  40, -130)
+InsertGuiControlPos("f_lnkGuiDropHelpClicked",			 -88, -145)
+InsertGuiControlPos("f_lnkGuiHotkeysHelpClicked",		  40, -145)
 
 InsertGuiControlPos("f_picGuiOptions",					 -44,   10, true) ; true = center
-InsertGuiControlPos("f_picGuiAddFavorite",				 -44,  120, true) ; 120
-InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  195, true) ; 190 + 5
-InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  270, true) ; 260 + 10
-InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  345, true) ; 330 + 15
-InsertGuiControlPos("f_picGuiHotkeysManage",			 -44, -153, true, true) ; true = center, true = draw
-InsertGuiControlPos("f_picGuiIconsManage",				 -44,  -78, true, true) ; true = center, true = draw
-InsertGuiControlPos("f_picGuiDonate",					-124,  -62, true, true)
-InsertGuiControlPos("f_picGuiHelp",						  30,  -62, true, true)
-InsertGuiControlPos("f_picGuiAbout",					  72,  -62, true, true)
+InsertGuiControlPos("f_picGuiDonate",					-124,   10, true, true)
+InsertGuiControlPos("f_picGuiAddFavorite",				 -44,  135, true)
+InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  210, true)
+InsertGuiControlPos("f_picGuiEditFavorited",			 -44,  210, true)
+InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  285, true)
+InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  360, true)
+InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  435, true)
+InsertGuiControlPos("f_picGuiHotkeysManage",			-124,  -100, true, true) ; true = center, true = draw
+InsertGuiControlPos("f_picGuiIconsManage",				 -44,  -94, true, true)
+InsertGuiControlPos("f_picGuiHelp",						  30,  -84, true, true)
+InsertGuiControlPos("f_picGuiAbout",					  72,  -84, true, true)
 
 InsertGuiControlPos("f_picAddTextSeparator",			  10,  290) ; +25 for Search box
 InsertGuiControlPos("f_picAddColumnBreak",				  10,  255)
@@ -3502,29 +3607,30 @@ InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",				  10,   84)
 ; InsertGuiControlPos("picSortFavorites",				  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",						  25,   84)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -165)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -165)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -185)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -185)
 
-InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -80, , true)
-InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -80, , true)
-InsertGuiControlPos("f_btnGuiCancel",					  0,  -80, , true)
+InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -84, , true)
+InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -84, , true)
+InsertGuiControlPos("f_btnGuiCancel",					  0,  -84, , true)
 
 InsertGuiControlPos("f_drpMenusList",					  40,   84)
 	
-InsertGuiControlPos("f_lblGuiDonate",					-124,  -27, true)
-InsertGuiControlPos("f_lblGuiAbout",					  70,  -27, true)
-InsertGuiControlPos("f_lblGuiHelp",						  28,  -27, true)
+InsertGuiControlPos("f_lblGuiAbout",					  70,  -46, true)
+InsertGuiControlPos("f_lblGuiHelp",						  28,  -46, true)
 InsertGuiControlPos("f_lblAppName",						  10,   10)
 InsertGuiControlPos("f_lblAppTagLine",					  10,   42)
-InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  168, true) ; 170 - 2
-InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  243, true) ; 240 + 5 - 2
+InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  183, true) ; 170 - 2
+InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  258, true) ; 240 + 5 - 2
 InsertGuiControlPos("f_lblGuiOptions",					 -44,   45, true)
-InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  318, true)
-InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  393, true)
+InsertGuiControlPos("f_lblGuiDonate",					-124,   45, true)
+InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  333, true)
+InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  408, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  483, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",		  40,   66)
-InsertGuiControlPos("f_lblGuiHotkeysManageShortcuts",	 -44,  -110, true)
-InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	 -44,  -97, true)
-InsertGuiControlPos("f_lblGuiIconsManage",				 -44,  -27, true)
+InsertGuiControlPos("f_lblGuiHotkeysManageShortcuts",	-124,  -57, true)
+InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	-124,  -44, true, true)
+InsertGuiControlPos("f_lblGuiIconsManage",				 -44,  -44, true)
 
 InsertGuiControlPos("f_strFavoritesListFilter",			  40,  115)
 InsertGuiControlPos("f_lvFavoritesList",				  40,  140)
@@ -3817,7 +3923,7 @@ Gosub, LoadMenuFromIni
 
 Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
 
-arrMainMenu := ""
+ResetArray("arrMainMenu")
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
 strAlternativeHotkeyMouseDefault := ""
@@ -3825,9 +3931,9 @@ strAlternativeHotkeyKeyboardDefault := ""
 strPopupFixPosition := ""
 blnDefaultMenuBuilt := ""
 blnMyQAPFeaturesBuilt := ""
-arrThisFavorite := ""
+ResetArray("arrThisFavorite")
 objLoadIniFavorite := ""
-arrSubMenu := ""
+ResetArray("arrSubMenu")
 g_intIniLine := ""
 blnActiveFileManangerOK := ""
 strActiveFileManagerSystemName := ""
@@ -3894,6 +4000,7 @@ else
 
 	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
+	g_objQAPfeaturesCustomNames := Object() ; index of QAP features with names customized by user
 	
 	g_intIniLine := 1
 	
@@ -3911,6 +4018,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 {
 	global g_objMenusIndex
 	global g_objQAPfeaturesInMenus
+	global g_objQAPfeaturesCustomNames
 	global g_strIniFile
 	global g_intIniLine
 	global g_strMenuPathSeparator
@@ -4012,20 +4120,18 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		
 		if (arrThisFavorite1 = "QAP")
 		{
-			; get QAP feature's name in current language (QAP features names are not saved to ini file)
+			if StrLen(arrThisFavorite2)
+				g_objQAPfeaturesCustomNames[objCurrentMenu.MenuPath . "|" . arrThisFavorite3] := arrThisFavorite2 ; name to display in Settings and menus
+				
+			; for not customized names, get QAP feature's default name in current language
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
+				
 			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
-			/*
-			if g_objQAPfeaturesInMenus.HasKey(arrThisFavorite3) ; QAP feature already in object
-				g_objQAPfeaturesInMenus[arrThisFavorite3] .= objCurrentMenu.MenuPath . g_strSeparatorQAPMenuPath . intMenuItemPos . "|"
-			else
-				g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, objCurrentMenu.MenuPath . g_strSeparatorQAPMenuPath . intMenuItemPos . "|") ; add it with menu path
-			*/
 		}
 
 		; this is a regular favorite, add it to the current menu
@@ -4087,17 +4193,17 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file and keep default name
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true) ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file
-AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true) ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file and keep default name
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file and keep default name
 AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true) ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true) ; do not save QAP feature menu name lMenuClipboard . "..." to ini file and keep default name
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
+AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file and keep default name
 AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
 
 strThisMenuName := lMenuMySpecialMenu
@@ -4297,6 +4403,7 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
+; .LocalizedName OK because Alternative
 		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName)
 }
 
@@ -4307,46 +4414,6 @@ intOrder := ""
 
 return
 ;------------------------------------------------------------
-
-
-/*
-Now in load favorites
-;------------------------------------------------------------
-LoadIniLocationHotkeys:
-; load (but do not enable) name|location hotkeys from ini and populate g_objHotkeysByNameLocation
-;------------------------------------------------------------
-
-; check if location hotkeys need to be converted to v8.1 "name|location|hotkey" format
-IniRead, blnHotkeysUpgradedToNameLocation, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation, 0 ; default false
-
-Loop
-{
-	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
-	if (strLocationHotkey = "ERROR")
-		break
-	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
-	if !(blnHotkeysUpgradedToNameLocation)
-	; convert format from pre-v8.1 "location|hotkey" to "name|location|hotkey", using the name of the first favorite found for location
-	; (if other favorites have the same location, their hotkey is lost and will have to be recreated by user)
-	{
-		arrLocationHotkey3 := arrLocationHotkey2 ; in this order, move hotkey to 3rd position
-		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
-		arrLocationHotkey1 := GetFirstName4Location(arrLocationHotkey2) ; get name of first favorite for this location (searching in order of favorites in ini file)
-		IniWrite, %arrLocationHotkey1%|%arrLocationHotkey2%|%arrLocationHotkey3%, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index% ; update ini file value
-	}
-	g_objHotkeysByNameLocation.Insert(arrLocationHotkey1 . "|" . arrLocationHotkey2, arrLocationHotkey3)
-}
-
-if !(blnHotkeysUpgradedToNameLocation) ; flag that the convertion to v8.1 has been made
-	IniWrite, 1, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation
-
-strLocationHotkey := ""
-arrLocationHotkey := ""
-blnHotkeysUpgradedToNameLocation := ""
-
-return
-;------------------------------------------------------------
-*/
 
 
 ;------------------------------------------------------------
@@ -4417,9 +4484,9 @@ if (blnNeedToSave)
 blnNameLocationHotkeysUpgraded := ""
 blnHotkeysUpgradedToNameLocation := ""
 strLocationHotkey := ""
-arrLocationHotkey := ""
+ResetArray("arrLocationHotkey")
 strLoadIniLine := ""
-arrLoadIniLine := ""
+ResetArray("arrLoadIniLine")
 strMenuName := ""
 objThisMenu := ""
 intIndex := ""
@@ -4578,18 +4645,23 @@ if (strAlternativeTrayIcon <> "ERROR")
 	if FileExist(strAlternativeTrayIcon)
 		Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 	
-Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
-Menu, Tray, Add
-Menu, Tray, Add, %lMenuSwitchSettings%..., SwitchSettings
+Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettings%..., SwitchSettings
+Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettingsDefault%, SwitchSettingsDefault
+Menu, menuTraySettingsFileOptions, Add
 SplitPath, g_strIniFile, strIniFileNameExtOnly
-Menu, Tray, Add, % L(lMenuEditIniFile, strIniFileNameExtOnly), ShowSettingsIniFile
-Menu, Tray, Add, %lImpExpMenu%..., ImportExport
+Menu, menuTraySettingsFileOptions, Add, % L(lMenuEditIniFile, strIniFileNameExtOnly), ShowSettingsIniFile
+Menu, menuTraySettingsFileOptions, Add
+Menu, menuTraySettingsFileOptions, Add, %lImpExpMenu%..., ImportExport
+
+Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
+Menu, Tray, Add, %lMenuSettingsFileOptions%..., :menuTraySettingsFileOptions
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
@@ -4895,7 +4967,7 @@ strLabel := ""
 strType := ""
 strMenuItemName := ""
 strIcon := ""
-arrMenuItemsList := ""
+ResetArray("arrMenuItemsList")
 
 g_intDrivesMenuTickCount := A_TickCount - intDrivesMenuStartTickCount
 ; TrayTip, Drives menu refresh, % g_intDrivesMenuTickCount . " ms"
@@ -5040,7 +5112,7 @@ strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
 intMenuNumberFolders := ""
 intMenuNumberFiles := ""
-arrShortcutFullPath := ""
+ResetArray("arrShortcutFullPath")
 strShortcutFullPath := ""
 strTargetPath := ""
 strMenuName := ""
@@ -5464,6 +5536,7 @@ return
 
 ;------------------------------------------------------------
 RefreshTotalCommanderHotlist:
+RefreshTotalCommanderHotlistScheduled:
 ;------------------------------------------------------------
 
 ; Init TC Directory hotlist if wincmd.ini file exists
@@ -5483,7 +5556,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	if (RecursiveLoadTotalCommanderHotlistFromIni(g_objTCMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
 	
-	g_blnWorkingToolTip := True
+	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
 	Tooltip
 }
@@ -5638,6 +5711,7 @@ Loop
 	{
 		strThisHotkey := g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
 		
+; .LocalizedName OK because Alternative
 		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "")
 			. g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName
 		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
@@ -5664,6 +5738,7 @@ return
 ;------------------------------------------------------------
 BuildMainMenu:
 BuildMainMenuWithStatus:
+BuildMainMenuScheduled:
 ;------------------------------------------------------------
 
 g_blnWorkingToolTip := (A_ThisLabel = "BuildMainMenuWithStatus")
@@ -5672,7 +5747,6 @@ Menu, %lMainMenuName%, Add
 Menu, %lMainMenuName%, DeleteAll
 if (g_blnUseColors)
 	Menu, %lMainMenuName%, Color, %g_strMenuBackgroundColor%
-
 
 ; re-init these objects before rebuilding menu
 g_objMenuColumnBreaks := Object()
@@ -5730,6 +5804,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intNbLiveFolderItemsMax
 	global g_strHotstringOptionsSeparator
 	global g_strHotstringOptionsExecute
+	global g_objQAPfeaturesCustomNames
 
 	intMenuNumber := 0
 	
@@ -5751,8 +5826,16 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		intMenuItemsCount++ ; for objMenuColumnBreak
 		
-		if StrLen(objCurrentMenu[A_Index].FavoriteName)
-			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . objCurrentMenu[A_Index].FavoriteName
+		if (objCurrentMenu[A_Index].FavoriteType = "QAP")
+			if g_objQAPfeaturesCustomNames.HasKey(objCurrentMenu.MenuPath . "|" . objCurrentMenu[A_Index].FavoriteLocation)
+				strMenuName := g_objQAPfeaturesCustomNames[objCurrentMenu.MenuPath . "|" . objCurrentMenu[A_Index].FavoriteLocation] ; name to display in Settings and menus
+			else
+				strMenuName := g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
+		else
+			strMenuName := objCurrentMenu[A_Index].FavoriteName
+		
+		if StrLen(strMenuName)
+			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . strMenuName
 		
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
@@ -5773,12 +5856,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			; enable shortcut
 			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 			if (ErrorLevel)
-			{
-				if StrLen(arrNameLocation1)
-					Oops(lDialogInvalidHotkeyFavorite, objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu[A_Index].FavoriteLocation)
-				else ; for QAP feature name is empty
-					Oops(lDialogInvalidHotkeyQAPFeature, strHotkey, objCurrentMenu[A_Index].FavoriteLocation)
-			}
+				Oops(lDialogInvalidHotkeyFavorite, objCurrentMenu[A_Index].FavoriteShortcut
+					, (StrLen(objCurrentMenu[A_Index].FavoriteName) ? objCurrentMenu[A_Index].FavoriteName
+						: g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
+					, objCurrentMenu[A_Index].FavoriteLocation)
 		}
 		
 		if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
@@ -6177,12 +6258,34 @@ GetMenuHandle(strMenuName)
 
 ;------------------------------------------------------------
 RefreshQAPMenu:
+RefreshQAPMenuScheduled:
 ;------------------------------------------------------------
 
-Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
+if (SettingsUnsaved() or !g_blnMenuReady ; these two required
+	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
+	return
 
 g_blnMenuReady := false
-Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+if (A_ThisLabel = "RefreshQAPMenuScheduled")
+{
+	if (g_blnRefreshQAPMenuDebugBeep)
+		SoundBeep, 220
+	
+	for strMenuName, objThisMenu in g_objMenusIndex
+		if (objThisMenu.MenuType = "External")
+			strResult := LoadExternalMenu(objThisMenu, objThisMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+		
+	Gosub, RefreshTotalCommanderHotlistScheduled
+	Gosub, BuildMainMenuScheduled
+	
+	if (g_blnRefreshQAPMenuDebugBeep)
+		SoundBeep, 440
+}
+else
+{
+	Gosub, RefreshTotalCommanderHotlist
+	Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+}
 g_blnMenuReady := true
 
 return
@@ -6418,6 +6521,14 @@ if !(g_blnPortableMode)
 	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
 }
 
+Gui, 2:Add, Text, y+15 xs w300, %lOptionsRefreshQAPMenuTitle%
+Gui, 2:Add, Edit, y+5 xs w60 h22 vf_intRefreshQAPMenuIntervalSecEdit number center
+Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range0-86400, % g_intRefreshQAPMenuIntervalSec
+Gui, 2:Add, Text, yp x+10 w235, %lOptionsRefreshQAPMenuIntervalSec%
+
+Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnRefreshQAPMenuDebugBeep, %lOptionsRefreshQAPMenuDebugBeep%
+GuiControl, , f_blnRefreshQAPMenuDebugBeep, %g_blnRefreshQAPMenuDebugBeep%
+
 ;---------------------------------------
 ; Tab 3: Popup menu hotkeys
 
@@ -6455,6 +6566,7 @@ Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsAlternativeMenuFeaturesIntro
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 {
 	Gui, 2:Font, s8 w700
+; .LocalizedName OK because Alternative
 	Gui, 2:Add, Text, x15 y+10 w240, % g_objQAPFeatures[strAlternativeCode].LocalizedName
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
@@ -6729,6 +6841,7 @@ strThisAlternativeCode := g_objQAPFeaturesAlternativeCodeByOrder[intAlternativeO
 objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
 strAlternativeHotkeysBackup := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
+; .LocalizedName OK because Alternative
 g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultShortcut)
 objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
@@ -7037,11 +7150,6 @@ IniWrite, %g_intSnippetDefaultFontSize%, %g_strIniFile%, Global, SnippetDefaultF
 g_blnSnippetDefaultMacro := f_blnSnippetDefaultMacro
 IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacro
 
-; UseClassicButtons deprecated in v8.1.1 (still supported if present in ini file)
-; strUseClassicButtonsPrev := g_blnUseClassicButtons
-; g_blnUseClassicButtons := f_blnUseClassicButtons
-; IniWrite, %g_blnUseClassicButtons%, %g_strIniFile%, Global, UseClassicButtons
-
 ;---------------------------------------
 ; Save Tab 2: Menu options
 
@@ -7096,6 +7204,16 @@ g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
 g_intNbLastActions := f_intNbLastActions
 IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
+
+g_intRefreshQAPMenuIntervalSec := f_intRefreshQAPMenuIntervalSec
+IniWrite, %g_intRefreshQAPMenuIntervalSec%, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec
+g_blnRefreshQAPMenuDebugBeep := f_blnRefreshQAPMenuDebugBeep
+IniWrite, %g_blnRefreshQAPMenuDebugBeep%, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep
+
+if (g_intRefreshQAPMenuIntervalSec > 0)
+	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
+else if (g_intRefreshQAPMenuIntervalSec = 0)
+	SetTimer, RefreshQAPMenuScheduled, Off
 
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
@@ -7237,7 +7355,7 @@ for strMenuName, arrMenu in g_objMenusIndex
 {
 	Menu, %strMenuName%, Add
 	Menu, %strMenuName%, DeleteAll
-	arrMenu := "" ; free object's memory
+	ResetArray("arrMenu") ; free object's memory
 }
 Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update accrding to g_blnRefreshedMenusAttached
 Gosub, BuildMainMenuWithStatus
@@ -7281,7 +7399,7 @@ strValue := ""
 strThisAlternativeCode := ""
 strNewShortcut := ""
 strMenuName := ""
-arrMenu := ""
+ResetArray("arrMenu")
 strNewHotstringsDefaultOptions := ""
 
 return
@@ -7511,7 +7629,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x558, %g_strGuiFullTitle%
+Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -7519,61 +7637,62 @@ g_strAppHwnd := WinExist()
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
 
-strSettingsIconsExtension := (g_blnUseClassicButtons ? ".png" : "_c.png")
-
 ; Order of controls important to avoid drawgins gliches when resizing
 
 Gui, 1:Font, % "s12 w700 " . (g_blnUseColors ? "c" . strTextColor : ""), Verdana
-Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion . (StrLen(g_strUserBanner) ? " " . g_strUserBanner : "") ; Static1
+Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion . (StrLen(g_strUserBanner) ? " " . g_strUserBanner : "") ; Static1 (see WM_MOUSEMOVE)
 Gui, 1:Font, s9 w400, Verdana
 Gui, 1:Add, Link, vf_lblAppTagLine, %lAppTagline% ; SysLink1
 
-Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48%strSettingsIconsExtension% ; Static2
-Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48%strSettingsIconsExtension% ; Static3
-Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48%strSettingsIconsExtension% ; Static4
-Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48%strSettingsIconsExtension% ; Static5
-Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48%strSettingsIconsExtension% ; Static6
-Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32%strSettingsIconsExtension% ; Static7
-Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12%strSettingsIconsExtension% ; Static8
+Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48_c.png ; Static2
+Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48_c.png ; Static3
+Gui, 1:Add, Picture, vf_picGuiEditFavorited xp yp, %g_strTempDir%\edit_property-48d_c.png ; Static4
+Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48_c.png ; Static5
+Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static6
+Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static7
+Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
+Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32_c.png ; Static9
+Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12_c.png ; Static10
 g_objToolTipsMessages["Static8"] := lControlToolTipPreviousMenu
-Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12%strSettingsIconsExtension% ; Static9
+Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12_c.png ; Static11
 g_objToolTipsMessages["Static9"] := lControlToolTipParentMenu
-Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26%strSettingsIconsExtension% ; Static10
+Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static12
 g_objToolTipsMessages["Static10"] := lControlToolTipMoveUp
-Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26%strSettingsIconsExtension% ; Static11
+Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26_c.png ; Static13
 g_objToolTipsMessages["Static11"] := lControlToolTipMoveDown
-Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26%strSettingsIconsExtension% ; Static12
+Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26_c.png ; Static14
 g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
-Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26%strSettingsIconsExtension% ; Static13
+Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26_c.png ; Static15
 g_objToolTipsMessages["Static13"] := lControlToolTipColumnBreak
-Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26%strSettingsIconsExtension% ; Static14
+Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
 g_objToolTipsMessages["Static14"] := lControlToolTipTextSeparator
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26%strSettingsIconsExtension% ; Static15
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static17
 g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOn
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26%strSettingsIconsExtension% ; Static16
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static18
 g_objToolTipsMessages["Static16"] := lControlToolTipAlwaysOnTopOff
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32%strSettingsIconsExtension% ; Static17
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32%strSettingsIconsExtension% ; Static18
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48%strSettingsIconsExtension% ; Static19
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static19
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static20
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static21
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static20
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static21
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static22, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static23
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static24
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static25
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static25
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static26
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static27
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static28
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static22
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static23
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static24, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static25
+Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, %lGuiMove% ; Static26
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static27
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static28
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static29
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static30
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static31
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static32
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static29
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static33
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
@@ -7586,7 +7705,6 @@ Gui, 1:Add, ListView
 	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
 	, %lGuiLvFavoritesHeaderFiltered%|Object Position (hidden) ; SysHeader321 / SysListView321
 
-
 Gui, 1:Font, s8 w600, Verdana
 Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w100 h50, %lGuiSaveAndCloseAmpersand% ; Button3
 Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, %lGuiSaveAndStayAmpersand% ; Button4
@@ -7598,9 +7716,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	intDonateButton := RandomBetween(1, 5)
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static30
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32_c.png" ; Static34
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static31
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static35
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -7616,9 +7734,8 @@ if (arrSettingsPosition1 <> -1)
 	WinMove, ahk_id %g_strAppHwnd%, , , , %arrSettingsPosition3%, %arrSettingsPosition4%
 
 strSettingsPosition := ""
-arrSettingsPosition := ""
+ResetArray("arrSettingsPosition")
 strTextColor := ""
-strSettingsIconsExtension := ""
 
 return
 ;------------------------------------------------------------
@@ -7628,8 +7745,10 @@ return
 LoadMenuInGui:
 LoadMenuInGuiFromAlternative:
 LoadMenuInGuiFromGuiSearch:
+LoadMenuInGuiFromHotkeysManage:
 ;------------------------------------------------------------
 
+Gui, 1:Default
 Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
@@ -7669,13 +7788,18 @@ Loop, % g_objMenuInGui.MaxIndex()
 	else if (g_objMenuInGui[A_Index].FavoriteType = "B") ; this is a back link
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
-	else ; this is a folder, document, URL or application
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey
+	else ; this is a folder, document, QAP feature, URL or application
+	{
+		if (g_objMenuInGui[A_Index].FavoriteType = "QAP") and g_objQAPfeaturesCustomNames.HasKey(g_objMenuInGui.MenuPath . "|" . g_objMenuInGui[A_Index].FavoriteLocation)
+			strFavoriteName := g_objQAPfeaturesCustomNames[g_objMenuInGui.MenuPath . "|" . g_objMenuInGui[A_Index].FavoriteLocation] ; name to display in Settings and menus
+		else
+			strFavoriteName := g_objMenuInGui[A_Index].FavoriteName
+		LV_Add(, strFavoriteName, strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
+	}
 }
 
-; keep original position from LoadMenuInGuiFromAlternative or LoadMenuInGuiFromGuiSearch
-; do NOT use InStr because "LoadMenuInGui" is included in "LoadMenuInGuiFromAlternative" and "LoadMenuInGuiFromGuiSearch"
+; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
 LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
 Gosub, AdjustColumnsWidth
@@ -7688,6 +7812,7 @@ strGuiMenuLocation := ""
 strThisType := ""
 strThisHotkey := ""
 strExternalMenuName := ""
+strFavoriteName := ""
 
 return
 ;------------------------------------------------------------
@@ -7757,26 +7882,30 @@ return
 RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 ;------------------------------------------------------------
 {
-	; global g_objHotkeysByNameLocation
+	global g_objFavoriteTypesLocationLabelsNoAmpersand
 	global g_strMenuPathSeparator
 	global g_strGroupIndicatorPrefix
 	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
+		strSearchIn := objCurrentMenu[A_Index].FavoriteName
+		if (strExtended)
+		{
+			strHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
+			strHotkey := (strHotkey = lDialogNone ? "" : strHotkey)
+			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType]
+				. " " . strHotkey
+				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
+				. " " . objCurrentMenu[A_Index].FavoriteLocation
+				. " " . objCurrentMenu[A_Index].FavoriteArguments
+				. " " . objCurrentMenu[A_Index].FavoriteAppWorkingDir
+				. " " . objCurrentMenu[A_Index].FavoriteLaunchWith
+				. " " . objCurrentMenu[A_Index].FavoriteLoginName
+				. " " . objCurrentMenu[A_Index].FavoritePassword
+			; do not include objCurrentMenu.MenuPath unless I isolate the last submenu name
+		}
 		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
-			and ((InStr(objCurrentMenu[A_Index].FavoriteName, strFilter) and !(strExtended))
-				or (strExtended
-					and InStr(objCurrentMenu[A_Index].FavoriteName
-					. " " . g_objFavoriteTypesLocationLabels[objCurrentMenu[A_Index].FavoriteType]
-					. " " . Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
-					. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
-					. " " . objCurrentMenu[A_Index].FavoriteLocation
-					. " " . objCurrentMenu[A_Index].FavoriteArguments
-					. " " . objCurrentMenu[A_Index].FavoriteAppWorkingDir
-					. " " . objCurrentMenu[A_Index].FavoriteLaunchWith
-					. " " . objCurrentMenu[A_Index].FavoriteLoginName
-					. " " . objCurrentMenu[A_Index].FavoritePassword
-					, strFilter)))
+			and InStr(strSearchIn, strFilter)
 		{
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
 			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
@@ -7822,7 +7951,7 @@ if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
     return
 
 g_intListW := A_GuiWidth - 40 - 88
-intListH := A_GuiHeight - 115 - 132 - 25 ; - 25 to reduce list height to give space for search box (in v8.2.9.2)
+intListH := A_GuiHeight - 115 - 132 - 25 - 20 ; - 25 to reduce list height to give space for search box (in v8.2.9.2), -20 for v9
 intFavoritesListFilterCloseW := 25
 
 ; space before, between and after save/reload/close buttons
@@ -7878,7 +8007,7 @@ intIndex := ""
 objGuiControl := ""
 intX := ""
 intY := ""
-arrPos := ""
+ResetArray("arrPos")
 intFavoritesListFilterCloseW := ""
 
 return
@@ -7943,13 +8072,18 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 	g_intFavoriteSelected := LV_GetCount("Selected")
 	if (g_intFavoriteSelected > 1)
 	{
-		GuiControl, , f_lblGuiEditFavorite, % lGuiMove . " (" . g_intFavoriteSelected . ")"
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_lblGuiEditFavorite
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_picGuiEditFavorite
+		GuiControl, Disable, f_lblGuiEditFavorite
+		GuiControl, Show, f_picGuiEditFavorited
+		GuiControl, Hide, f_picGuiEditFavorite
+		g_blnEditButtonDisabled := true
 		
 		GuiControl, , f_lblGuiRemoveFavorite, % lGuiRemoveFavorite . " (" . g_intFavoriteSelected . ")"
 		GuiControl, +gGuiRemoveMultipleFavorites, f_lblGuiRemoveFavorite
 		GuiControl, +gGuiRemoveMultipleFavorites, f_picGuiRemoveFavorite
+		
+		GuiControl, , f_lblGuiMoveFavorite, % lGuiMove . " (" . g_intFavoriteSelected . ")"
+		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_lblGuiMoveFavorite
+		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_picGuiMoveFavorite
 		
 		GuiControl, , f_lblGuiCopyFavorite, % lDialogCopy . " (" . g_intFavoriteSelected . ")"
 		GuiControl, +gGuiCopyMultipleFavoritesToMenu, f_lblGuiCopyFavorite
@@ -7960,13 +8094,18 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 	}
 	else
 	{
-		GuiControl, , f_lblGuiEditFavorite, %lGuiEditFavorite%
-		GuiControl, +gGuiEditFavorite, f_lblGuiEditFavorite
-		GuiControl, +gGuiEditFavorite, f_picGuiEditFavorite
+		GuiControl, Enable, f_lblGuiEditFavorite
+		GuiControl, Show, f_picGuiEditFavorite
+		GuiControl, Hide, f_picGuiEditFavorited
+		g_blnEditButtonDisabled := false
 		
 		GuiControl, , f_lblGuiRemoveFavorite, %lGuiRemoveFavorite%
 		GuiControl, +gGuiRemoveFavorite, f_lblGuiRemoveFavorite
 		GuiControl, +gGuiRemoveFavorite, f_picGuiRemoveFavorite
+		
+		GuiControl, , f_lblGuiMoveFavorite, %lGuiMove%
+		GuiControl, +gGuiMoveFavoriteToMenu, f_lblGuiMoveFavorite
+		GuiControl, +gGuiMoveFavoriteToMenu, f_picGuiMoveFavorite
 		
 		GuiControl, , f_lblGuiCopyFavorite, %lDialogCopy%
 		GuiControl, +gGuiCopyFavorite, f_lblGuiCopyFavorite
@@ -8085,6 +8224,7 @@ return
 ;------------------------------------------------------------
 GuiAddFavoriteSelectTypeContinue:
 ;------------------------------------------------------------
+
 Gui, 2:Submit, NoHide
 
 if !StrLen(g_strAddFavoriteType)
@@ -8390,8 +8530,10 @@ if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 else
 	GuiControl, 2:+Default, f_btnAddFavoriteAdd
 
-if InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
-	GuiControl, 2:Focus, % "f_drp" . g_objEditedFavorite.FavoriteType
+if (g_objEditedFavorite.FavoriteType = "Special")
+	GuiControl, 2:Focus, f_drpSpecial
+else if (g_objEditedFavorite.FavoriteType = "QAP")
+	GuiControl, 2:Focus, f_tvQAP
 else
 {
 	GuiControl, 2:Focus, f_strFavoriteShortName
@@ -8418,12 +8560,12 @@ if StrLen(strDialogPosition)
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
 strGuiFavoriteLabel := ""
-arrTop := ""
+ResetArray("arrTop")
 g_strNewLocation := ""
 g_blnAbordEdit := ""
 objExternalMenu := ""
 strDialogPosition := ""
-arrDialogPosition := ""
+ResetArray("arrDialogPosition")
 
 return
 ;------------------------------------------------------------
@@ -8709,7 +8851,7 @@ if (g_objEditedFavorite.FavoriteType = "Snippet")
 }
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	Gui, 2:Add, Edit, x20 y+0 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
+	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
 	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
@@ -8810,17 +8952,24 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 }
 else ; "Special" or "QAP"
 {
-	Gui, 2:Add, Edit, x20 y+20 hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by DropdownSpecialChanged or DropdownQAPChanged
-	Gui, 2:Add, Text, xs ys, % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
+	; ##### allow options and custom name for some QAP features here? (select type for Add, Select options of Shutdown)
+	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by DropdownSpecialChanged or TreeviewQAPChanged
+	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "Special" ? "y+20" : "yp") . "xs w300", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
 
-	Gui, 2:Add, DropDownList
-		, % "x20 y+10 w400 vf_drp" . g_objEditedFavorite.FavoriteType . " gDropdown" . g_objEditedFavorite.FavoriteType . "Changed"
-		, % lDialogSelectItemToAdd . "...||" . (g_objEditedFavorite.FavoriteType = "Special" ? g_strSpecialFoldersList : g_strQAPFeaturesList)
-	if InStr("GuiEditFavorite|GuiEditFavoriteFromAlternative|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
-		if (g_objEditedFavorite.FavoriteType = "Special")
+	if (g_objEditedFavorite.FavoriteType = "Special")
+	{
+		Gui, 2:Add, DropDownList
+			, % "x20 y+10 w400 vf_drpSpecial gDropdownSpecialChanged", % lDialogSelectItemToAdd . "...||" . g_strSpecialFoldersList
+		if InStr("GuiEditFavorite|GuiEditFavoriteFromAlternative|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
 			GuiControl, ChooseString, f_drpSpecial, % g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName
-		else ; QAP
-			GuiControl, ChooseString, f_drpQAP, % g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName
+	}
+	else ; QAP feature
+	{
+		Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
+		Gui, 2:Add, TreeView, x20 y+5 w300 h250 vf_tvQAP gTreeViewQAPChanged
+		Gui, 2:Add, Edit, x+5 yp w200 h250 ReadOnly vf_tvQAPDescription
+		gosub, LoadTreeviewQAP
+	}
 }
 
 if (g_objEditedFavorite.FavoriteType = "FTP")
@@ -8863,21 +9012,54 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 if (g_objEditedFavorite.FavoriteType = "External")
 {
 	Gui, 2:Add, Text, x20 y+10, %lDialogExternalLocation% *
-	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
-	Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
+	Gui, 2:Add, Edit, % (StrLen(g_objEditedFavorite.FavoriteAppWorkingDir) ? "Disabled " : "") .  "x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir", % g_objEditedFavorite.FavoriteAppWorkingDir
+	if StrLen(g_objEditedFavorite.FavoriteAppWorkingDir)
+		Gui, 2:Add, Text, x20 y+5 w500, %lDialogExternalLocationReadOnly%
+	else 
+		Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+20 w500 vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+20 vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
-arrNewFavoriteWindowPosition := ""
-arrPosTypeHelp := ""
-arrPosFixedFont := ""
-arrPosFixedFont := ""
-arrPosFontSizeLabel := ""
-arrPosEnlarge := ""
-arrPosSnippetContent := ""
+ResetArray("arrNewFavoriteWindowPosition")
+ResetArray("arrPosTypeHelp")
+ResetArray("arrPosFixedFont")
+ResetArray("arrPosFixedFont")
+ResetArray("arrPosFontSizeLabel")
+ResetArray("arrPosEnlarge")
+ResetArray("arrPosSnippetContent")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadTreeviewQAP:
+;------------------------------------------------------------
+
+objCategoriesID := Object()
+g_objQAPFeaturesByTreeViewsIDs := Object()
+
+for strCategory, strCategoryLabel in g_objQAPCategories
+{
+	objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 ? "Expand" : "") " Bold")
+	for strQAPFeatureCode, objQAPFeature in g_objQAPFeatures
+		if InStr(objQAPFeature.QAPFeatureCategories, strCategory)
+		{
+			intQAPFeatureID := TV_Add(objQAPFeature.LocalizedName, objCategoriesID[strCategory]
+				, (g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName = objQAPFeature.LocalizedName ? "Select" : ""))
+			g_objQAPFeaturesByTreeViewsIDs[intQAPFeatureID] := objQAPFeature
+		}
+}
+
+objCategoriesID := ""
+strCategory := ""
+strCategoryLabel := ""
+strQAPFeatureCode := ""
+objQAPFeature := ""
+intQAPFeatureID := ""
 
 return
 ;------------------------------------------------------------
@@ -9096,7 +9278,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 }
 
 strFavoriteSnippetOptions := ""
-arrFavoriteSnippetOptions := ""
+ResetArray("arrFavoriteSnippetOptions")
 
 return
 ;------------------------------------------------------------
@@ -9137,7 +9319,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	gosub, RadioButtonExternalMenuInit
 }
 
-arrExternalTypes := ""
+ResetArray("arrExternalTypes")
 
 return
 ;------------------------------------------------------------
@@ -9228,30 +9410,35 @@ return
 
 
 ;------------------------------------------------------------
+GuiMoveFavoriteToMenu:
 GuiMoveMultipleFavoritesToMenu:
 GuiCopyMultipleFavoritesToMenu:
 ;------------------------------------------------------------
 g_intGui1WinID := WinExist("A")
 
-blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesToMenu")
+blnMove := InStr(A_ThisLabel, "GuiMove")
 
-Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+strGuiTitle := L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogMoveFavoriteTitle : lDialogMoveFavoritesTitle)
+	: lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu, % L((blnMove ? lDialogFavoritesParentMenuMove : lDialogFavoritesParentMenuCopy), g_intFavoriteSelected)
+Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu
+	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogFavoriteParentMenuMove : lDialogFavoritesParentMenuMove)
+	: lDialogFavoritesParentMenuCopy), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
 	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, , true) ; include self but exclude read-only external
 
-Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, %lDialogFavoriteMenuPosition%
+Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogFavoriteMenuPosition : lDialogFavoritesMenuPosition)
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
 GuiControl, 2:, f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . lDialogEndOfMenu . " " . g_strGuiDoubleLine
 
 Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? lGuiMoveAmpersand : lGuiCopyAmpersand)
 Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
-GuiCenterButtons(L(L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion), g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnMoveOrCopyFavoritesSave", "f_btnMoveOrCopyFavoritesCancel")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnMoveOrCopyFavoritesSave", "f_btnMoveOrCopyFavoritesCancel")
 
 g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
@@ -9267,7 +9454,7 @@ if StrLen(strDialogPosition)
 }
 
 blnMove := ""
-arrDialogPosition := ""
+ResetArray("arrDialogPosition")
 strDialogPosition := ""
 
 return
@@ -9280,7 +9467,7 @@ ButtonChangeFavoriteHotkey:
 Gui, 2:Submit, NoHide
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	strQAPDefaultShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultShortcut
+	strQAPDefaultShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut
 
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
 g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
@@ -9428,21 +9615,32 @@ return
 
 
 ;------------------------------------------------------------
-DropdownQAPChanged:
+TreeViewQAPChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, , f_strFavoriteShortName, %f_drpQAP%
-GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[f_drpQAP]
+if (A_GuiEvent = "S")
+{
+	g_strQAPFeatureSelectedLocalizedName := g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].LocalizedName
+	if StrLen(g_strQAPFeatureSelectedLocalizedName)
+	{
+		GuiControl, , f_strFavoriteShortName, %g_strQAPFeatureSelectedLocalizedName%
+		GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]
+		
+		g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultIcon
+		g_strDefaultIconResource := g_strNewFavoriteIconResource 
+		
+		g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut
+		; check if hotkey is already used, if yes empty default new hotkey
+		g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
 
-g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultIcon
-g_strDefaultIconResource := g_strNewFavoriteIconResource 
+		GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+	}
 
-g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[f_drpQAP]].DefaultShortcut
-; check if hotkey is already used, if yes empty default new hotkey
-g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
-
-GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+	GuiControl, , f_tvQAPDescription, % g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureDescription
+	GuiControl, % (StrLen(g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
+	GuiControl, , f_tvQAPFeatureURL, % "<a href=""http://www.quickaccesspopup.com/" . g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
+}
 
 return
 ;------------------------------------------------------------
@@ -10225,7 +10423,7 @@ if (A_GuiEvent = "DoubleClick")
 strFile := ""
 strValue := ""
 strTitle := ""
-arrExternalTypes := ""
+ResetArray("arrExternalTypes")
 strMessage := ""
 blnReadOnly := ""
 
@@ -10504,7 +10702,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
-	if !StrLen(strNewFavoriteShortName)
+	if !StrLen(strNewFavoriteShortName) and (g_objEditedFavorite.FavoriteType <> "QAP")
 	{
 		Oops(InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? lDialogSubmenuNameEmpty : lDialogFavoriteNameEmpty)
 		gosub, GuiAddFavoriteSaveCleanup
@@ -10546,7 +10744,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		Oops(lDialogFavoriteDropdownEmpty, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
+		Oops(lDialogFavoriteDropdownEmpty, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", "")
+			, (g_objEditedFavorite.FavoriteType = "Special" ? lDialogDropDown : lDialogTreeView))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
@@ -10699,25 +10898,16 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 		if FileExist(strExternalMenuPath) ; file path exists
-		{
 			; load the external menu to menu object objNewMenu created earlier
-			; remove existing menu entries but keep entry #1 (back menu)
-			loop, % objNewMenu.MaxIndex() -  1
-				objNewMenu.Delete(objNewMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
-			
-			strPreviousIniFile := g_strIniFile
-			intPreviousIniLine := g_intIniLine
-			g_strIniFile := strExternalMenuPath ; FavoriteAppWorkingDir, settings file path
-			g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
-			; g_intIniLine := f_intExternalStartingNumber ; starting number - DEPRECATED sinced v8.1.9.1
-			
-			strResult := RecursiveLoadMenuFromIni(objNewMenu)
-			
-			g_strIniFile := strPreviousIniFile
-			g_intIniLine := intPreviousIniLine
-		}
+			strResult := LoadExternalMenu(objNewMenu, strExternalMenuPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
+			MsgBox, 4, %g_strAppNameText%, % L(lDialogExternalMenuNotExist, strExternalMenuPath)
+			IfMsgBox, No
+			{
+				gosub, GuiAddFavoriteSaveCleanup
+				return
+			}
 			IniWrite, Z, %strExternalMenuPath%, Favorites, Favorite1
 			Sleep, 20 ; for safety
 		}
@@ -10778,13 +10968,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	else
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
 	
-	; ###_V(A_ThisLabel . " AVANT", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
-	Gosub, UpdateFavoritesObjectsByShortcutSave
-	; ###_V(A_ThisLabel . " APRES", "*g_objEditedFavorite.FavoriteShortcut", g_objEditedFavorite.FavoriteShortcut, "*g_strNewFavoriteShortcut", g_strNewFavoriteShortcut)
-	Gosub, UpdateFavoriteObjectSave ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
-
-	; ###_V(A_ThisLabel . "`n`nFull hotstring in object, Trigger, Options Short and Options Long"
-		; , g_objEditedFavorite.FavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
+	Gosub, UpdateFavoriteObjectSaveShortcut
+	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
 
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
@@ -10927,8 +11112,6 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 	if FavoriteIsUnderExternalMenu(g_objMenusIndex[strOriginalMenu], objExternalMenu)
 		objExternalMenu.NeedSave := true
 
-g_blnMenuReady := true
-
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
 else
@@ -10963,12 +11146,38 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	g_strNewFavoriteHotstring := ""
 	g_strNewFavoriteHotstringTrigger := ""
 	g_strNewFavoriteHotstringOptionsShort := ""
-		
+	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
 }
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadExternalMenu(objExternalMenu, strExternalMenuPath)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	global g_intIniLine
+	
+	; remove existing menu entries but keep entry #1 (back menu)
+	loop, % objExternalMenu.MaxIndex() -  1
+		objExternalMenu.Delete(objExternalMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
+	
+	strPreviousIniFile := g_strIniFile
+	intPreviousIniLine := g_intIniLine
+	g_strIniFile := strExternalMenuPath ; settings file path for external menu
+	g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
+	
+	strResult := RecursiveLoadMenuFromIni(objExternalMenu) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+	
+	g_strIniFile := strPreviousIniFile
+	g_intIniLine := intPreviousIniLine
+	
+	return strResult
+}
 ;------------------------------------------------------------
 
 
@@ -10984,7 +11193,7 @@ f_blnRadioGroupRestoreWithOther := ""
 f_blnUseDefaultWindowPosition := ""
 f_drpParentMenu := ""
 f_drpParentMenuItems := ""
-f_drpQAP := ""
+f_tvQAP := ""
 f_drpRunningApplication := ""
 f_drpSpecial := ""
 f_intGroupExplorerDelay := ""
@@ -11015,6 +11224,7 @@ f_radFavoriteFolderLiveInclude := ""
 f_radFavoriteFolderLiveExclude := ""
 f_strFavoriteFolderLiveExtensions := ""
 objExternalMenu := ""
+g_strQAPFeatureSelectedLocalizedName := ""
 
 return
 ;------------------------------------------------------------
@@ -11188,9 +11398,9 @@ if (blnItemIsMenu)
 	g_objMenusIndex.Remove(g_objMenuInGui[intItemToRemove].Submenu.MenuPath) ; if user cancels settings changes, menu object will not be re-created (we live with it)
 }
 
-g_objEditedFavorite := g_objMenuInGui[intItemToRemove] ; for UpdateFavoritesObjectsByShortcutSave
-g_strNewFavoriteShortcut := "" ; for UpdateFavoritesObjectsByShortcutSave
-Gosub, UpdateFavoritesObjectsByShortcutSave
+g_objEditedFavorite := g_objMenuInGui[intItemToRemove] ; for UpdateFavoriteObjectSaveShortcut
+g_strNewFavoriteShortcut := "" ; for UpdateFavoriteObjectSaveShortcut
+Gosub, UpdateFavoriteObjectSaveShortcut
 
 g_objMenuInGui.Remove(intItemToRemove)
 
@@ -11424,7 +11634,7 @@ GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no na
 Gosub, HotkeysManageListLoad
 
 Gui, 2:Tab
-Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose g2GuiClose h33 Default, %lGuiCloseAmpersand%
+Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose gGuiHotkeysManageClose h33 Default, %lGuiCloseAmpersand%
 GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
 GuiControl, Focus, f_btnHotkeysManageClose
 Gui, 2:Add, Text, x10, %A_Space%
@@ -11497,7 +11707,7 @@ if (A_GuiEvent = "DoubleClick")
 			if !StrLen(g_strNewFavoriteShortcut)
 				g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
 			
-			Gosub, UpdateFavoritesObjectsByShortcutSaveList ; updates g_objEditedFavorite.FavoriteShortcut with g_strNewFavoriteShortcut and enable Settings save/Cancel buttons
+			Gosub, UpdateFavoriteObjectSaveShortcutList ; updates g_objEditedFavorite.FavoriteShortcut with g_strNewFavoriteShortcut and enable Settings save/Cancel buttons
 		}
 	else ; Hotstring
 	{
@@ -11507,7 +11717,7 @@ if (A_GuiEvent = "DoubleClick")
 			, g_objEditedFavorite.FavoriteLocation)
 		; SelectHotstring returns the new hotstring (AHK format ":options:trigger"), empty string if no trigger or existing hotstring if cancelled
 		
-		Gosub, UpdateFavoriteObjectSaveList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
+		Gosub, UpdateFavoriteObjectSaveHotstringList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
 	}
 }
 
@@ -11548,12 +11758,10 @@ Loop, 2
 				, (f_blnSeeShortHotkeyNames ? g_arrPopupHotkeys%A_Index% : Hotkey2Text(g_arrPopupHotkeys%A_Index%)), lDialogNA)
 
 		for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
-		{
 			if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
 				if HasShortcut(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
 					LV_Add(, , lDialogHotkeysManageAlternativeMenu, g_objQAPFeatures[strQAPFeatureCode].LocalizedName, lDialogHotkeysManageAlternative
 						, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
-		}
 	}
 	
 	g_intHotkeyListOrder := 0
@@ -11634,6 +11842,17 @@ CheckboxSeeShortHotkeyNames:
 ;------------------------------------------------------------
 
 Gosub, HotkeysManageListLoad
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiHotkeysManageClose:
+;------------------------------------------------------------
+
+gosub, 2GuiClose
+gosub, LoadMenuInGuiFromHotkeysManage
 
 return
 ;------------------------------------------------------------
@@ -12100,10 +12319,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					continue
 
 			strIniLine := objCurrentMenu[A_Index].FavoriteType . "|" ; 1
-			if (objCurrentMenu[A_Index].FavoriteType = "QAP")
-				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
-			else
-				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
@@ -12328,9 +12544,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, P_strFavoriteName)
 
 	; Clean-up function global variables
-	SS_arrModifiersLabels := ""
-	SS_arrModifiersSymbols := ""
-	SS_arrTop := ""
+	ResetArray("SS_arrModifiersLabels")
+	ResetArray("SS_arrModifiersSymbols")
+	ResetArray("SS_arrTop")
 	SS_blnAlt := ""
 	SS_blnCtrl := ""
 	SS_blnShift := ""
@@ -12708,8 +12924,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 
 ;-----------------------------------------------------------
-UpdateFavoritesObjectsByShortcutSave:
-UpdateFavoritesObjectsByShortcutSaveList:
+UpdateFavoriteObjectSaveShortcut:
+UpdateFavoriteObjectSaveShortcutList:
 ;-----------------------------------------------------------
 
 if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut) ; if not changed
@@ -12732,7 +12948,7 @@ if HasShortcut(g_objEditedFavorite.FavoriteShortcut)
 	g_objShortcutsToRemoveWhenBuilingMenu[g_objEditedFavorite.FavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
 }
 
-if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
+if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
@@ -12741,7 +12957,7 @@ if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
 
 g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 
-if (A_ThisLabel = "UpdateFavoritesObjectsByShortcutSaveList")
+if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
 	Gosub, HotkeysManageListLoad
 
 return
@@ -12749,11 +12965,10 @@ return
 
 
 ;-----------------------------------------------------------
-UpdateFavoriteObjectSave:
-UpdateFavoriteObjectSaveList:
+UpdateFavoriteObjectSaveHotstring:
+UpdateFavoriteObjectSaveHotstringList:
 ;-----------------------------------------------------------
 
-; ###_O(A_ThisLabel . " / " . g_strNewFavoriteHotstring, g_objEditedFavorite)
 if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
 	return
 
@@ -12762,9 +12977,8 @@ if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not
 
 ; update favorite object
 g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
-; ###_O("g_objEditedFavorite", g_objEditedFavorite)
 
-if (A_ThisLabel = "UpdateFavoriteObjectSaveList")
+if (A_ThisLabel = "UpdateFavoriteObjectSaveHotstringList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
@@ -12895,6 +13109,7 @@ if (blnCancelEnabled)
 		GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 		GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
+		
 		g_blnMenuReady := true
 	}
 	IfMsgBox, No
@@ -13168,7 +13383,7 @@ if SettingsUnsaved()
 	if SettingsNotSavedReturn()
 		return
 
-if !(g_blnMenuReady) or (g_blnChangeShortcutInProgress)
+if (!g_blnMenuReady or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
 	return
 
 if (g_blnGetWinInfo)
@@ -13603,7 +13818,7 @@ return
 OpenAlternativeMenuHotkey:
 ;------------------------------------------------------------
 
-if (g_blnChangeShortcutInProgress)
+if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
 	return
 
 ; search Alternative menu code in g_objQAPFeatures to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
@@ -13611,6 +13826,7 @@ g_strAlternativeMenu := ""
 for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 	if (g_objQAPFeatures[strCode].CurrentHotkey = A_ThisHotkey)
 	{
+; .LocalizedName OK because Alternative
 		g_strAlternativeMenu := g_objQAPFeatures[strCode].LocalizedName
 		break
 	}
@@ -13694,7 +13910,7 @@ OpenGroupOfFavoritesCleanup:
 objThisGroupFavorite := ""
 objThisGroupFavoritesList := ""
 strGroupSettings := ""
-g_arrGroupSettingsOpen := ""
+ResetArray("g_arrGroupSettingsOpen")
 
 return
 ;------------------------------------------------------------
@@ -13754,7 +13970,7 @@ Tooltip ; clear tooltip
 intSleepTime := ""
 strWindowsId := ""
 objExplorer := ""
-arrIDs := ""
+ResetArray("arrIDs")
 
 return
 ;------------------------------------------------------------
@@ -13829,7 +14045,7 @@ OpenReopenCurrentFolder:
 OpenFavoriteFromHotstring:
 ;------------------------------------------------------------
 
-if (g_blnChangeShortcutInProgress)
+if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
  	return
 
 g_strOpenFavoriteLabel := A_ThisLabel
@@ -14260,7 +14476,7 @@ if (g_strHokeyTypeDetected = "Launch")
 OpenFavoriteCleanup:
 g_objThisFavorite := ""
 strFavoriteWindowPosition := ""
-g_arrFavoriteWindowPosition := ""
+ResetArray("g_arrFavoriteWindowPosition")
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
 strTempLocation := ""
@@ -14471,7 +14687,7 @@ strThisMenuItem := ""
 strFavoriteType := ""
 intMenuItemPos := ""
 strThisNameLocation := ""
-arrThisNameLocation := ""
+ResetArray("arrThisNameLocation")
 strTempName := ""
 strMenuPath := ""
 objMenu := ""
@@ -14785,11 +15001,11 @@ WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
 	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
-		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), lTooltipSnippetWaitEnter, lTooltipSnippetWaitSpace, strWaitTime)
-	Input, strTemp, T%strWaitTime%, {Enter}{Space}
+		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), lTooltipSnippetWaitEnter, lTooltipSnippetWaitSpace, strWaitTime, lTooltipSnippetWaitEscape)
+	Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
 	strErrorLevel := ErrorLevel
 	ToolTip
-	if !InStr(strErrorLevel, "EndKey:")
+	if !InStr(strErrorLevel, "EndKey:") or InStr(strErrorLevel, "Escape")
 	{
 		Gosub, PasteSnippetCleanup
 		return
@@ -14913,7 +15129,7 @@ strClassSnippet := ""
 strTemp := ""
 strSend := ""
 strCommand := ""
-arrFavoriteSnippetOptions := ""
+ResetArray("arrFavoriteSnippetOptions")
 strFavoriteSnippetOptions := ""
 
 return
@@ -15340,7 +15556,7 @@ RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a ne
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
-arrFavoriteWindowPosition := ""
+ResetArray("arrFavoriteWindowPosition")
 objDOpusListers := ""
 intIndex := ""
 objLister := ""
@@ -15427,7 +15643,7 @@ intTCCommandFocus := ""
 strTabParameter := ""
 strSideParameter := ""
 strFavoriteWindowPosition := ""
-arrFavoriteWindowPosition := ""
+ResetArray("arrFavoriteWindowPosition")
 
 return
 ;------------------------------------------------------------
@@ -15983,6 +16199,7 @@ return
 
 ;------------------------------------------------------------
 SwitchSettings:
+SwitchSettingsDefault:
 ;------------------------------------------------------------
 
 if SettingsUnsaved()
@@ -15991,16 +16208,21 @@ if SettingsUnsaved()
 	return
 }
 
-IniRead, strSwitchSettingsFolder, %g_strIniFile%, Global, SwitchSettingsFolder, %A_WorkingDir%
+if (A_ThisLabel = "SwitchSettingsDefault")
+	g_strSwitchSettingsFile := g_strIniFileDefault
+else
+{
+	IniRead, strSwitchSettingsFolder, %g_strIniFile%, Global, SwitchSettingsFolder, %A_WorkingDir%
 
-FileSelectFile, g_strSwitchSettingsFile, 3, %strSwitchSettingsFolder%, %lDialogSwitchSettings%, *.ini
-if !(StrLen(g_strSwitchSettingsFile))
-	return
+	FileSelectFile, g_strSwitchSettingsFile, 3, %strSwitchSettingsFolder%, %lDialogSwitchSettings%, *.ini
+	if !(StrLen(g_strSwitchSettingsFile))
+		return
 
-SplitPath, g_strSwitchSettingsFile, , strSwitchSettingsFolder, strSwitchSettingsExt
-if !StrLen(strSwitchSettingsExt)
-	g_strSwitchSettingsFile .= ".ini"
-IniWrite, %strSwitchSettingsFolder%, %g_strIniFile%, Global, SwitchSettingsFolder
+	SplitPath, g_strSwitchSettingsFile, , strSwitchSettingsFolder, strSwitchSettingsExt
+	if !StrLen(strSwitchSettingsExt)
+		g_strSwitchSettingsFile .= ".ini"
+	IniWrite, %strSwitchSettingsFolder%, %g_strIniFile%, Global, SwitchSettingsFolder
+}
 
 IniRead, strIniSettingsGlobal, %g_strSwitchSettingsFile%, Global, , %A_Space%
 IniRead, strIniSettingsFavorite1, %g_strSwitchSettingsFile%, Favorites, Favorite1, %A_Space%
@@ -16513,7 +16735,7 @@ GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f
 GuiControl, Focus, btnHelpClose
 Gosub, ShowGui2AndDisableGui1
 
-arrSharedMenuTypes := ""
+ResetArray("arrSharedMenuTypes")
 
 return
 ;------------------------------------------------------------
@@ -18813,6 +19035,7 @@ WM_MOUSEMOVE(wParam, lParam)
 	global g_strGuiFullTitle
 	global g_blnFavoritesListFilterNeverFocused
 	global g_objToolTipsMessages
+	global g_blnEditButtonDisabled
 
 	; get window's titte and exit if it is not the Settings window
 	WinGetTitle, strCurrentWindow, A
@@ -18837,8 +19060,9 @@ WM_MOUSEMOVE(wParam, lParam)
 	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
 	{
-		; 2-29 sauf 27
-		if (intControl < 2) or (intControl = 29) or (intControl > 30)
+		; 2-35 except 33 (and except 3, 4 and 24 if Edit disabled)
+		if (intControl < 2) or (intControl = 33) or (intControl > 35)
+			or ((intControl = 3 or intControl = 4 or intControl = 24) and g_blnEditButtonDisabled)
 			return
 	}
 	else if !InStr(strControl, "Button")

@@ -65,8 +65,6 @@ lDialogChangeHotkeyAny	N'importe quelle
 lDialogChangeHotkeyLeftAnyRight	Chaque touche spéciale peut être liée à seulement la touche de "Gauche", seulement celle de "Droite" ou à "N'importe quelle".
 lDialogChangeHotkeyModifierAndNone	Les touches spéciales comme "Alt" ou "Control" ne peuvent pas être sélectionnées seules. Choisissez aussi un bouton de la souris ou une touche du clavier dans la section de droite.
 lDialogChangeHotkeyMouseCheckLButton	Vous ne pouvez pas affecter le "Bouton gauche de la souris" sans touche spéciale `n(comme les touches ~1~, ~2~, ~3~ or ~4~).
-lDialogChangeHotkeyNote	Note: Tous les favoris nommée "~2~" avec l'emplacement "~1~" seront reliés à ce nouveau raccourci.
-lDialogChangeHotkeyNoteSnippet	Note: Tous les fragments nommés "~1~ avec le même contenu seront reliés à ce nouveau raccourci.
 lDialogChangeHotkeyPopup	Ceci est un raccourci de menu popup.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyTitle	Modifier le raccourci - ~1~ ~2~
 lDialogContinue	Poursuivre
@@ -154,7 +152,7 @@ lDialogFavoriteTypesHelp3	Créez un raccourci vers une "Appplication" (programme,
 lDialogFavoriteTypesHelp4	Créez un raccourci vers l'un des 50 "Dossiers spéciaux" de Windows tel que: Bibliothèque, Mes Images, Corbeille, Téléchargements, etc.`n`nRéglez diverses options pour le menu. Les réglages avancés permettent de définir la position de la fenêtre et diverses options de gestion de fichier.
 lDialogFavoriteTypesHelp5	Créez un raccourci vers un "Lien" vers une page web.`n`nChoisissez le nom pour le menu, l'adresse de la page (URL) et diverses options pour le menu.`n`nLes réglages avancés permettent de choisir le navigateur pour ouvrir ce lien, d'ajouter des paramètres optionels et de définir la position de la fenêtre.
 lDialogFavoriteTypesHelp6	Créez un raccourci vers un "Site FTP".`n`nChoisissez le nom pour le menu, l'adresse du site FTP (URL), les nom d'utilisateur et mot de passe ainsi que diverses options pour le menu.`n`nLes réglages avancés permettent de choisir le logiciel pour ouvrir ce site, d'ajouter des paramètres optionels et de définir la position de la fenêtre.`n`nNote: le mot de passe n'est PAS encrypté lorsqu'il est transmis sur Internet.
-lDialogFavoriteTypesHelp7	Dans n'importe quel menu, insérez des fonctionnalités de QAP tel que:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
+lDialogFavoriteTypesHelp7	Dans n'importe quel menu, insérez des fonctionnalités de QAP tel que: ~1~, ~2~, ~3~, ~4~, ~5~, etc.
 lDialogFavoriteTypesHelp8	Rassemblez des favoris apparentés dans un "Sous-menu".`n`nDonnez un nom à ce sous-menu et sélectionnez diverses options.`n`nAjoutez des favoris à votre sous-menu ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Modifier".
 lDialogFavoriteTypesHelp9	Lancez un "Groupe" de favoris en un seul raccourci.`n`nDonnez un nom à ce groupe et sélectionnez diverses options.`n`nAjoutez des favoris à votre groupe ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Modifier".`n`nLes Réglages avancés permettent de contrôle la vitesse de restauration en insérant un délai entre chaque favori à restaurer.
 lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|M&enu partagé|Texte séparateur
@@ -192,7 +190,6 @@ lDialogIconsManageSetDefaultIcon	Icône par défaut
 lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
 lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour ce favori.`n`nVeuillez choisir une autre touche de raccourci pour le favori "~2~" et l'emplacement "~3~".
-lDialogInvalidHotkeyQAPFeature	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée pour cette fonctionnalité QAP.`n`nVeuillez choisir une autre touche de raccourci pour la fonctionnalité QAP "~2~".
 lDialogKeyboard	Clavier
 lDialogLaunchWith	Lancer avec cette application
 lDialogMaximized	Maximisée
@@ -374,7 +371,6 @@ lImpExpMerge	Fusionner avec
 lImpExpNoThemes	Aucune liste de thèmes dans la valeur "~1~" de la section "~2~".`n`nFichier source:`n~3~
 lImpExpOptionAlternative	Raccourcis du menu Alternatif
 lImpExpOptionFavorites	Favoris (excluant leurs raccourcis)
-lImpExpOptionHotkeys	Raccourcis des favoris
 lImpExpOrIdentical	(ou contenu identique)
 lImpExpReplaceAll	Remplacer tout
 lImpExpReplaceFavorites	Il existe des favoris dans le fichier de destination. Que désirez-vous faire?`n`n~1~

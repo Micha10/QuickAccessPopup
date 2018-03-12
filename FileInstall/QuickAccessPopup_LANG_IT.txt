@@ -65,8 +65,6 @@ lDialogChangeHotkeyAny	Qualunque
 lDialogChangeHotkeyLeftAnyRight	Ciascun modificatore di tasti può essere vincolato al solo tasto "Sinistra", al solo tasto "Destra"  o a "Qualunque" di loro.
 lDialogChangeHotkeyModifierAndNone	Modificatori come "Alt" o "Control" non possono essere selezionati da soli. Inoltre, seleziona anche un hotkey per mouse o tastiera nella sezione appropriata.
 lDialogChangeHotkeyMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
-lDialogChangeHotkeyNote	Nota: Tutti i preferiti denominati "~2~" che si trovano in  "~1~" saranno associati alla nuova scorciatoia.
-lDialogChangeHotkeyNoteSnippet	Nota: Tutti i frammenti (snippet) denominati "~1~" con il medesimo contenuto saranno associati alla nuova scorciatoia.
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
 lDialogContinue	Continua
@@ -153,7 +151,7 @@ lDialogFavoriteTypesHelp3	Crea una scorciatoia per una "Applicazione" (programma
 lDialogFavoriteTypesHelp4	Crea una scorciatoia per una delle 50 "Cartelle Speciali" predefinite di Windows come: Librerie, Immagini, Cestino, Download, etc.`n`nAssegna impostazioni varie del menù. Le impostazioni avanzate permettono di selezionare la posizione della finestra e impostazioni del file manager.
 lDialogFavoriteTypesHelp5	Crea un "Link" ad una pagina web.`n`nAssegna il nome del menù del Preferito, indirizzo della pagina web (URL) e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il browser da usare per aprire il link, aggiungere parametri opzionali e assegnare la posizione della finestra.
 lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il nome del menù del Preferito, indirizzo del sito FTP (URL), nome di login, password e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il programma FTP da usare per accedere a questo sito, aggiungere parametri, assegnare la posizione della finestra e codificare nome di login e password.`n`nNota: la password NON viene criptata quando viene inviata in Internet.
-lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- ecc.
+lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come: ~1~, ~2~, ~3~, ~4~, ~5~, ecc.
 lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù o spostali da altri sottomenù o gruppi cliccando su "Edit".
 lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo gruppo o spostali da altri sottomenù o gruppi cliccando su "Edit".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciacuno Preferito da ripristinare.
 lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso|Separatore di testo
@@ -191,7 +189,6 @@ lDialogIconsManageSetDefaultIcon	Assegna l'icona di default
 lDialogIconsManageTitle	Gestione Icone - ~1~ ~2~
 lDialogInvalidHotkey	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire il popup menù (errore: tasto scelto non valido).`n`nPer favore, apri la finestra "~2~ Impostazioni" dal menù dell'icona nell'area notifiche e clicca: "Opzioni". In questa casella di dialogo, scegli un altro shortcut per "~3~".
 lDialogInvalidHotkeyFavorite	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per aprire questo preferito (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per il Preferito"~2~" e la destinazione "~3~".
-lDialogInvalidHotkeyQAPFeature	Con il tuo attuale layout di tastiera di sistema, non è stato possibile usare la combinazione "~1~" per lanciare questa funzione di QAP (errore: nome del tasto scelto non valido).`n`nPer favore, scegli un altra scorciatoia per la funzione "~2~" di QAP.
 lDialogKeyboard	Tastiera
 lDialogLaunchWith	Esegui con questa applicazione
 lDialogMaximized	Massimizzata
@@ -372,7 +369,6 @@ lImpExpMerge	Unire a
 lImpExpNoThemes	Non trovo nessun elenco di Temi nel valore "~1~" della sezione "~2~".`n`nFile sorgente:`n~3~
 lImpExpOptionAlternative	Scorciatoie dei menù Alternativi
 lImpExpOptionFavorites	Preferiti (escludendo le loro scorciatoie)
-lImpExpOptionHotkeys	Scorciatoie dei Preferiti
 lImpExpOrIdentical	(o dal contenuto identico)
 lImpExpReplaceAll	Sostituire tutto
 lImpExpReplaceFavorites	Ci sono Preferiti nel file di destinazione. Cosa intendi fare?`n`n~1~

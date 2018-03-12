@@ -65,8 +65,6 @@ lDialogChangeHotkeyAny	Any
 lDialogChangeHotkeyLeftAnyRight	Each keyboard modifier can be bound to only "Left" key, only "Right" key or to "Any" of them.
 lDialogChangeHotkeyModifierAndNone	Modifiers like "Alt" or "Control" cannot be selected alone. Also select a mouse or keyboard hotkey in the right section.
 lDialogChangeHotkeyMouseCheckLButton	You can't assign the "Left Mouse Button" without a modifier`n(like ~1~, ~2~, ~3~ or ~4~ keys).
-lDialogChangeHotkeyNote	Nota: Todos los favoritos nombrados "~2~" con la ubicación "~1~" estarán vinculados a la nueva tecla de acceso directo.
-lDialogChangeHotkeyNoteSnippet	Nota: Todo fragmento denominado "~ 1 ~" con el mismo contenido estará vinculado a la nueva tecla de acceso directo. 
 lDialogChangeHotkeyPopup	Se trata de un acceso directo del menú emergente.`n`n¿Quiere gestionar? "~1~" in "~2~"?
 lDialogChangeHotkeyTitle	Modificar acceso directo - ~1~ ~2~
 lDialogContinue	Continuar
@@ -153,7 +151,7 @@ lDialogFavoriteTypesHelp3	Crear un acceso directo a una "Aplicación" (programa, 
 lDialogFavoriteTypesHelp4	Crear un atajo hacia una de las 50 "Carpetas especiales" de Windows tales como: Bibliotecas, Mis Imágenes, Papelera, Descargas, etc.`n`nConfigure las diferentes opciones del menú. Ajustes avanzados permiten configurar las opciones de posición de la ventana y del gestor de archivos.
 lDialogFavoriteTypesHelp5	Crear un "Link" a un sitio web.`n`nEstablecer nombre del menú, la dirección de la página web (URL) y varias opciones de menú.`n`nAjustes avanzados permiten seleccionar un navegador específico para poner en marcha el enlace, agregar parámetros opcionales y ajustar la posición de la ventana.
 lDialogFavoriteTypesHelp6	Crear un acceso directo a un "FTP Sitio".`n`nEstablecer Nombre del menú, FTP dirección del sitio (URL), nombre de inicio de sesión, contraseña y varias opciones del menú.`n`nAjustes avanzados permiten seleccionar un programa de FTP específico para acceder a este sitio, agregar parámetros opcionales, ajuste la posición de la ventana y codificar el nombre de usuario y contraseña.`n`nNota: la contraseña NO es encriptada al enviarse por Internet.
-lDialogFavoriteTypesHelp7	Inserte cualquier lugar en su menú "Quick Access Popup Características" como:`n`n- ~1~`n- ~2~`n- ~3~`n- ~4~`n- ~5~`n- etc.
+lDialogFavoriteTypesHelp7	Inserte cualquier lugar en su menú "Quick Access Popup Características" como: ~1~, ~2~, ~3~, ~4~, ~5~, etc.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados en un "Submenú".`n`nDele a su submenú un nombre y seleccione las opciones de menú.`n`nAñadir favoritos a su submenú o moverlos a otros submenús o grupos utilizando el botón "Editar".
 lDialogFavoriteTypesHelp9	Lance un "grupo" de favoritos, todo en un acceso directo!`n`nDele a su grupo un nombre y configure varias opciones para su grupo.`n`nAñadir favoritos a tu grupo o moverlos a otros submenús o grupos utilizando el botón "Editar".`n`nAjustes avanzados permiten controlar la velocidad de la restauración mediante la inserción de un retardo entre cada favorito para restaurar.
 lDialogFavoriteTypesLabels	&Carpeta|&Documento|&Aplicación|&Carpeta Especial|&Link|Sitio F&TP |&Característica de QAP|Sub&menú|&Grupo||||F&ragmento|M&enú Compartido|Separador de Texto
@@ -191,7 +189,6 @@ lDialogIconsManageSetDefaultIcon	Establecer icono predeterminado
 lDialogIconsManageTitle	Administrar iconos - ~1~ ~2~ 
 lDialogInvalidHotkey	Con la configuración actual de la tecla de acceso directo del teclado "~1~" no se puede utilizar como un disparador para el menú emergente.`n`nPor favor, abra la "Configuración ~2~" en el área de notificación y haga clic en "Opciones". En este cuadro de diálogo, elija otra tecla de acceso directo a"~3~".
 lDialogInvalidHotkeyFavorite	With your current system keyboard layout, the hotkey "~1~" could not be used as a trigger for this favorite (not a valid key name error).`n`nPlease, choose another shortcut for favorite "~2~" and location "~3~".
-lDialogInvalidHotkeyQAPFeature	With your current system keyboard layout, the hotkey "~1~" could not be used as a trigger for this QAP feature (not a valid key name error).`n`nPlease, choose another shortcut for QAP feature "~2~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Lanzar con esta aplicación
 lDialogMaximized	Maximizado
@@ -373,7 +370,6 @@ lImpExpMerge	Fusionar con
 lImpExpNoThemes	Alguna lista de temas en el valor "~1~" de la sección "~2~".`n`nArchivo origen:`n~3~
 lImpExpOptionAlternative	Atajos de menú Alternativos
 lImpExpOptionFavorites	Favoritos (incluyendo sus atajos)
-lImpExpOptionHotkeys	Atajos de favoritos
 lImpExpOrIdentical	(o contenido identico)
 lImpExpReplaceAll	Sustituir todo
 lImpExpReplaceFavorites	Hay favoritos en el archivo de destino. Qué desea hacer?`n`n~1~
