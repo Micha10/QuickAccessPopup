@@ -1,10 +1,11 @@
 ;
 ; DO NOT RUN FROM INNO SETUP EDITOR
 ; THIS SCRIPT REQUIRES ENVIRONMENT VARIABLES FROM BATCH
-; C:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-v8.bat
+; E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Compile-v8.bat
 ;
 
 #define MyBetaProd GetEnv('QAPBETAPROD')
+#define MyAppVersionNumber GetEnv('QAPVERSIONNUMBER') ; exemple "1.2.3.4"
 #define MyAppVersion GetEnv('QAPVERSIONTEXT') ; exemple "v1.2.3.4 BETA"
 #define MyVersionFileName GetEnv('QAPVERSIONFILE') ; exemple "1_2_3_4 ou 1_2_3_4-beta"
 
@@ -17,7 +18,7 @@
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
 #define JLdir "JeanLalonde"
-#define JLicons "JLicons-1_3.dll"
+#define JLicons "JLicons-1_4.dll"
 
 [CustomMessages]
 HelpMePayExpenses=&HELP me pay EXPENSES for making QAP%n
@@ -36,10 +37,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\license.txt
+LicenseFile=E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\license.txt
 OutputDir=C:\temp\InnoSetup-OutputDir\
 OutputBaseFilename={#MyAppNameLower}-setup{#MyBetaProd}
-SetupIconFile=C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}{#MyBetaProd}.ico
+SetupIconFile=E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}{#MyBetaProd}.ico
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -54,6 +55,7 @@ AlwaysShowDirOnReadyPage=yes
 DisableProgramGroupPage=auto
 AlwaysShowGroupOnReadyPage=yes
 SignTool=JeanLalondeCustom sign /t http://timestamp.digicert.com /a $f
+VersionInfoVersion={#MyAppVersionNumber}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -74,13 +76,13 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "{commonappdata}\{#MyAppName}" 
 
 [Files]
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-64-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-32-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}.ico"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.ico"; Flags: ignoreversion
-Source: "C:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-64-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: IsWin64; Flags: 64bit ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\build-v8{#MyBetaProd}\{#MyAppNameNoSpace}-32-bit.exe"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.exe"; Check: "not IsWin64"; Flags: 32bit ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#FPImportVersionFileName}"; DestDir: "{app}"; DestName: "ImportFPsettings.exe"; Flags: ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#QAPmessengerVersionFileName}"; DestDir: "{app}"; DestName: "QAPmessenger.exe"; Flags: ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}.ico"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.ico"; Flags: ignoreversion
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
