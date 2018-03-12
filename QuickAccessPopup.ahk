@@ -31,6 +31,40 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.4 (2018-03-??)
+- categorize QAP features, one feature to 1-to-n categories
+- init QAP features with one help URL for each feature
+- replace QAP Features dropdown list with a tree view containing QAP featurees grouped by categories
+- add a description for each QAP features and display it in the tree view
+- add help link to QAP features in the tree view
+- internal changes allowing some QAP features (those that will have options in a future release) to have a custom name
+
+Version BETA: 8.9.1.3 (2018-03-04)
+ 
+Settings window
+- add a "Move" button to move one or multiple favorites to another submenu
+- disable the "Edit" button if multiple favorites are selected
+- adapt Copy/Move commands language to singular/plural depending on number of favorites selected
+- move the "Shortcuts"/"Hotstrings" button to the right of "Close" button
+- rename the "Support" button to "Donate" and move it up to the left of "Options" button
+- remove support for old classic black and white Settings buttons (already deprecated since v8.1.1 )
+ 
+Sheduled refresh
+- the "Refresh Live Folders menus" now also refresh Shared menus from external settings files (including when running scheduled)
+- do not execute scheduled menu refresh if there are unsaved changes in "Settings"
+ 
+Hotstrings
+- reload favorites in "Settings" after changes in "Manage hotstrings" (as well as in "Manage Shortcuts")
+- fix bug in display hotstrings options when "Do not conform to types case" was selected
+ 
+QAP features
+- new QAP feature "Switch to default settings file" to reload the normal QAP settings file QuickAccessPopup.ini
+ 
+Tray menu (QAP icon in Notification zone)
+- group some Tray menu options under the new submenu "Settings file options"
+- add "Switch to default settings file" to Tray submenu "Settings file options"
+- add "Refresh Live folder menus" to the Tray menu
+
 Version BETA: 8.9.1.2 (2018-02-23)
 - add in "Menu" tab of "Options" windows an option to set the number of seconds between scheduled refresh of the QAP menu including Live Folders and Shared menus (during refresh the menu is not available)
 - add a checkbox "Beep before and after refresh (debug)" to help estimate the time required to refresh the menu
@@ -3408,7 +3442,7 @@ InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitc
 	, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^W")
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus|4-WindowsFeature"
 	, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^F")
-InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus|6-QAPManagement"
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus|5-Utility"
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
@@ -3435,7 +3469,7 @@ InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsMan
 	, lDialogIconsManageDescription, 0, "iconIcons")
 InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"6-QAPManagement"
 	, lGuiOptionsDescription, 0, "iconOptions")
-InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing"
+InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing|6-QAPManagement"
 	, lMenuSettingsDescription, 0, "iconSettings", "+^S")
 InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"6-QAPManagement"
 	, lGuiDonateDescription, 0, "iconDonate")
@@ -3459,9 +3493,9 @@ InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu
 	, lMenuRefreshMenuDescription, 0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
-InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured|5-Utility"
+InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured|4-WindowsFeature"
 	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^C")
-InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"5-Utility|6-QAPManagement"
+InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"5-Utility"
 	, lMenuLastActionDescription, 0, "iconReload", "")
 
 ; Alternative Menu features
@@ -9622,7 +9656,7 @@ Gui, 2:Submit, NoHide
 if (A_GuiEvent = "S")
 {
 	g_strQAPFeatureSelectedLocalizedName := g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].LocalizedName
-	if StrLen(g_strQAPFeatureSelectedLocalizedName)
+	if StrLen(g_strQAPFeatureSelectedLocalizedName) ; a QAP feature is selected
 	{
 		GuiControl, , f_strFavoriteShortName, %g_strQAPFeatureSelectedLocalizedName%
 		GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]
@@ -9630,9 +9664,10 @@ if (A_GuiEvent = "S")
 		g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultIcon
 		g_strDefaultIconResource := g_strNewFavoriteIconResource 
 		
-		g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut
-		; check if hotkey is already used, if yes empty default new hotkey
-		g_strNewFavoriteShortcut := (g_objFavoritesObjectsByShortcut.HasKey(g_strNewFavoriteShortcut) ? "" : g_strNewFavoriteShortcut)
+		if !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
+			; and default shortcut is not already used
+			and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut)
+			g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut ; assign default shortcut for QAP feature
 
 		GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 	}
