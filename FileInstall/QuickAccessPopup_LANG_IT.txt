@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
-lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nDutch translation: Ric Roggeveen`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v1.1 (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nDutch translation: Ric Roggeveen`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L ~2~ (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Supporto:  <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Crediti - ~1~ ~2~
@@ -44,6 +44,8 @@ lDialogAddFileSelect	Scegli il nuovo Documento:
 lDialogAddFolderManuallyPrompt	Spiacente, ma non riesco a intercettare la cartella corrente in questo tipo di finestra.`n`nVuoi aggiungere adesso, manualmente, una cartella come Preferito?
 lDialogAddFolderManuallyTitle	Aggiungi Questa Cartella o Link - ~1~ ~2~
 lDialogAddFolderSelect	Scegli o crea una nuova Cartella:
+lDialogAdmnistrator	Amministratore
+lDialogAdmnistratorNot	Non Amministratore
 lDialogAlt	Alt
 lDialogApplicationLabel	Applicazione
 lDialogAppWorkingDirCurrent	Esegui l'applicazione nella cartella in cui questo preferito è stato avviato
@@ -90,7 +92,6 @@ lDialogExternalMenuName	Nome del menù condiviso
 lDialogExternalMenuOpen	Apro il file del menù condiviso?
 lDialogExternalMenusAdded	Menù condiviso/i ~1~ aggiunti.
 lDialogExternalMenuSelectFromCatalogue	Seleziona uno o più menù condivisi da aggiungere al tuo Menù e clicca ~1~
-lDialogExternalSelectFromCatalogue	Seleziona il Menù condiviso da aggiungere al tuo menù
 lDialogExternalStartingNumber	Numero del primo preferito:
 lDialogExternalTip	Fai doppio click su una linea per vedere le informazioni del menù condiviso.
 lDialogExternalTypes	Personale (menù condiviso su computer differenti per lo stesso utente)|Collaborativo (menù su disco condiviso per team o gruppi di lavoro)|Centralizzato (menù su un disco condiviso gestito da un amministratore del menù)
@@ -435,6 +436,7 @@ lMenuRecentItems	Oggetti Recenti
 lMenuRefreshMenu	Aggiorna i menù delle Cartelle Live
 lMenuReload	Riavvia ~1~
 lMenuReopenCurrentFolder	Riapri la Cartella Corrente nella Casella di Dialogo
+lMenuRestoreSettingsWindowPosition	Ripristina la posizione della finestra delle Impostazioni
 lMenuRunAtStartupAmpersand	&Esegui all'Avvio
 lMenuSettings	Impostazioni
 lMenuStartMenu	Menù Avvio
@@ -485,6 +487,7 @@ lOopsMenuExternalCentralized	menù condiviso centralizzato
 lOopsMenuExternalCollaborative	menù condiviso collaborativo
 lOopsMenuExternalPersonalChangedBy	Questo menù personale condiviso è attualmente in corso di MODIFICHE o ci sono modifiche ancora NON SALVATE sul computer: ~1~.`n`nSe salvi delle modifiche a questo menù qui, le modifiche non ancora salvate sull'altro computer saranno perse e dovresti annullare tali modifiche quando ritorni su quel computer.
 lOopsMenuExternalReservedBy	Questo ~1~ è RISERVATO dall'utente: ~2~.`n`nAspetta che tale utente rilasci il menù condiviso o contatta l'amministratore di sistema.
+lOopsNotAdmin	Non é stato possibile ~1~ come Amministratore.`n`nE' pertanto in esecuzione in modalitá Normale.
 lOopsOSVerrsionError	~1~ richiede Window 7 o un sistema operativo più recente. Windows Vista e utenti XP sono invitati ad usare il Folders Popup che è compatibile con queste versioni.`n`nVuoi visitare il sito web di Folders Popup?
 lOopsQAPfeature	Funzionalità di QAP
 lOopsTitle	~1~ (~2~)
@@ -542,11 +545,15 @@ lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Tasto del Mouse di Quick Access Popup|Scorciatoia da tastiera di Quick Access Popup|Tasto del Mouse del Menù Alternativo|Scorciatoia da tastiera del Menù Alternativo
 lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere.
 lOptionsQAPTempFolder	Cartella Temporanea
-lOptionsRecentFolders	Numero di cartelle nel Menù
-lOptionsRecentFoldersPrompt	Cartelle recenti:
+lOptionsRecentFolders	Numero di oggetti nei Menù
+lOptionsRecentFoldersPrompt	Cartelle recenti e File recenti:
 lOptionsRefreshedMenusAttached	Aggiungi i menu "~1~", "~2~" e "~3~" al menu di QAP
 lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~" e "~3~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRememberSettingsPosition	Ricorda la posizione della finestra
+lOptionsRunAsAdmin	Esegui come Amministratore
+lOptionsRunAsAdminAlert	Avviso: Eseguire ~1~ in modalitá Amministratore puó causare conseguenze non prevedibili quando vengano eseguiti programmi che siano infetti con codice malevolo. Ció potrebbe consentire a programmi malevoli di ereditare privilegi di Amministratore ed infettare o prendere il controllo del tuo computer. Sii prudente quando esegui ~1~ in modalitá Amministratore.
+lOptionsRunAsAdminExit	~1~ verrá eseguito senza permessi di Amministratore la prossima volta.`n`nVuoi terminare ~1~ adesso? Cambiamenti non salvati al Menú saranno persi.
+lOptionsRunAsAdminShort	Ammin.
 lOptionsRunAtStartup	&Esegui all'avvio
 lOptionsSelectCatalogueRoot	Seleziona la cartella radice del Catalogo dei Menù Condivisi
 lOptionsSelectQAPTempFolder	Crea la Cartella Temporanea in:

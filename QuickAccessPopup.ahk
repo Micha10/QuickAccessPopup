@@ -31,6 +31,203 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 8.7.1.1 (2018-01-21)
+- fix bug introduced in v8.7.1 making the menu miss the QAP features names after user saved changes in the Hotkeys dialog box
+- fix bug "unknown" icons displayed for some favorites in menu after saving favorites for the first time after first launch after installation
+- fix bug write file version number to executable files (32-bit and 64-bit)
+- add executable files version number to setup executable file
+- compiled with new AHK runtime v1.1.27.03 and display AHK runtime version in About dialog box
+- update to traditional Chinese (ZH-TW) language file
+ 
+Version: 8.7.1 (2017-12-30)
+ 
+Run as administrator
+- new checkbox "Run as administrator" in Options, first tab, to launch QAP as an admnistrator (ie: with elevated privileges)
+- display a security alert when selecting the "Run as administrator" option and when launching QAP as administrator
+- when running as administrator, embed the Windows UAC (User Access Control) logo in QAP icon in the Notification zone
+- add the "[admin]" tag to QAP application name when running as administrator
+- administrator security alert, "[admin]" tag and QAP tray icon with UAC logo are displayed only if QAP is running as admin because of the "Run as administrator" option (ie: not if user launched QAP as administrator by other means)
+- launch QAP with normal privileges if user decline elevation (ie: do not enter the admin password when requested)
+- more info here: http://www.quickaccesspopup.com/can-i-launch-qap-with-administrator-privileges/
+ 
+Various
+- Italian, Portuguese, Brazilian Portuguese, Dutch, German, Spanish and French language update
+- the QAP startup shortcut (created when user select the "Run at startup" option) now includes the "/Settings:" parameter if user switched settings file (QAP will reload with the changed settings file)
+- add a random number to QAP temporary folder name to make sure we have distinct folders in case multiple QAP instances are launched
+- use the Windows UAC (User Access Control) logo as default icon for the Alternative menu "Run as administrator"
+- new JLicons.dll icons file v1.4 including Windows UAC logo icon and QAP icon with UAC logo
+* User installing QAP in PORTABLE mode, make sure you update your JLicons.dll file
+ 
+Bug fixes
+- in Live Folders, fix icons for items with extension .url (links) or .lnk (shortcuts)
+- fix bug when Directory Opus had multiple listers and wrong lister was sometimes activated after opening a folder in new tab
+- fix bug in French version to remember the "Add/Edit favorite" dialog box width
+
+Version BETA: 8.7.0.9.5 (2017-12-27)
+- small change to fix in v8.7.0.9.4, using internal DOpus command to bring lister to front
+
+Version BETA: 8.7.0.9.4 (2017-12-27)
+- fix bug when DOpus has multiple listers, wrong lister being sometimes activated after open in new window
+- add the "[admin]" tag to QAP application name only if QAP is running as admin because of the "Run as administrator" option
+- change the QAP tray icon for version embedding the UAC logo only if QAP is running as admin because of the "Run as administrator" option
+
+Version BETA: 8.7.0.9.3 (2017-12-23)
+- show running as admin alert only if QAP is running as admin because of the "Run as administrator" option
+
+Version BETA: 8.7.0.9.2 (2017-12-22)
+- fix icons for items with extension .url (link) or .lnk (shortcuts) in Live Folders
+- add a random number to temp folder name to make sure we have distinct folders in case multiple QAP instances are launched
+- optimize refresh Recent folders and Recent files menus when user enabled the attached options enabled (this has no impact on detached menus)
+- augment height of "Add/Edit favorite" dialog box to show the {cur_loc} tip for all types of favorites
+- fix bug in French version to remember the "Add/Edit favorite" dialog box width
+- refactor code to convert command-line params from object to string and code to create a startup shortcut
+- QAP startup shortcut now includes the changed "/Settings:" parameter if user switched settings file
+- German language typo fix
+
+Version BETA: 8.7.0.9.1 (2017-12-20)
+- add the "Run as administrator" checkbox option to Options, first tab, to launch QAP as an admnistrator (ie: with elevated UAC privileges)
+- display Windows UAC logo in Options dialog box for the "Run as administrator" option
+- save this option to variable RunAsAdmin in settings ini file (default false)
+- display a security alert when selecting the "Run as administrator" option
+- after saving options with "Run as administrator" on, offer to reload QAP in Admin mode
+- after saving options with "Run as administrator" OFF, offer to exit app (but QAP could not reload itself in normal mode because the reloaded instance would inherit admin privileges)
+- display a security alert when launching QAP as Admin and support the command-line option "/AdminSilent" for power users wanting to skip this alert 
+- change the QAP tray icon for version embedding the UAC logo when QAP is running as administrator
+- display an alert message if refused to elevation (ie: did not enter the admin password when requested) and running as normal user
+- distribute a new JLicons.dll icons file v1.4 including UAC logo icon and QAP icon with UAC logo
+- use the UAC logo as default icon for the Alternative menu "Run as administrator"
+- add the "[admin]" tag to QAP application name when running as administrator
+
+Version: 8.7 (2017-12-06)
+ 
+New QAP Features
+- new QAP feature "Repeat Last Actions" displaying a submenu with the last 10 items selected in the popup menu
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- when an item is selected from the "Repeat Last Actions" menu, it is moved to the top of the menu
+- new option in "Options", "Menu" tab, to select the number of items in "Repeat Last Actions" menu (default 10)
+- new QAP feature "Repeat Last Action" (singular) to repeat the last item selected in the popup menu (* users must add it themselves to their menu *)
+ 
+- new QAP Feature "Recent Files" displaying a submenu with recent files as remembered by Windows
+- adding a new submenu "Recent Files" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- adding a new submenu "Repeat Last Actions" to the "My QAP Essentials" menu for new installation only (* existing users must add it themselves *)
+- the "Recent Files" submenu contains the same number of items as the "Recent Folders" submenu
+ 
+- new option in "Options", "Menu" tab, to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a refresh delay that may vary at each menu popup) or detached as stand-alone menus refreshed on demand (as before this release)
+ 
+Russian keyboard support
+- various adjustments for systems where current input language (keyboard) is Russian (language code 0419)
+- if Russian keyboard is detected, replace Windows + W and Shift + Windows + W menu keyboard hotkeys with equivalent keys on Russian keyboard (ASCII Unicode 1094)
+- at first execution, do not assign default hotkeys to favorites if running on a system with Russian keyboard
+- change method of initialization of shortcuts in "Settings" window to avoid errors with Russian keyboard
+ 
+Temporary folder
+- add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
+- for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
+ 
+Other improvements
+- support navigation (change folder) in PowerShell window as in the command-line console (CMD)
+- add an item to the QAP system menu (richt-click on QAP icon menu in Notification zone) labeled "Restore Settings window position" that move the "Settings" window to its default position and size, in case it would become invisible following changes by user in screens configuration
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", activate it only if it has the requested admnin (UAC) level (elevated or normal), if not, launch a new instance with the required admin level (if the application supports multiple instances)
+- allow resize of dialog box shown when selecting a destination menu for copied or moved multiple favorites, allowing to see longer destination menus and save window last position to ini file to restore it when using this dialog box again
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
+ 
+Bug fixes
+- changes in Manage Icons window were not saved if favorites were part of a shared menu
+- could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- default hotkeys for QAP features in "My QAP Essentials" were not correctly initializes when creating the settings file at first execution
+- bug in error message when a hotkey was not available in current keyboard layout
+- opening Special folder "Control panel" in Directory Opus was causing a blank tab to be added
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
+ 
+Language updates
+- update to Traditional Chinese (ZH-TW, back to v8.1), Italian, Portuguese, Brazilian Portuguese, German, Spanish, Dutch and French language files
+- English language revision (thanks to Richard for proofreading)
+
+Version BETA: 8.6.9.11 (2017-12-05)
+- fix bug when Restore Settings position if Settings was never displayed before;
+- make sure the application window does not stay minimized when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching"
+
+Version BETA: 8.6.9.10 (2017-12-01)
+- add an item t the QAP icon menu in Notification zone labeled "Restore Settings window position" that reposition the Settings window to the top left of main screen, in case it would become invisible following changes in screen configuration
+- when activating a running application with Applications favorite option "If the application is already running, activate it instead of launching", it will be activated only if it has the requested admnin (UAC) level (elevated or normal)
+
+Version: 8.6.4 (2017-11-29)
+- fix bug - changes in Manage Icons window were not saved if menu was part of a shared menu
+- fix bug - could not use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option was enabled
+- give temporary menu name to unknown QAP feature (this should only happen if switching back from a version with a new QAP feature to an earlier version where this QAP feature is unknown)
+- Simplified Chinese (ZH-TW) translation update (back to v8.1, thanks fo Jess) and English language proofreading (thanks to Richard)
+ 
+Version BETA: 8.6.9.9 (2017-11-27)
+- do not allow to use the Alternative menu feature "Edit a favorite" to edit items from the "Repeat Last Actions" menu
+- give temporary menu name to unknown QAP feature (this should only happen if switching back from beta to master versions)
+- fix bug changes in Manage Icons window were not saved if menu was part of a shared menu
+- fix bug cannot use the Alternative menu feature "Edit a favorite" for running apps favorites if the "If this application is already running, activate..." option is enabled
+- Simplified Chinese (ZH-TW) translation update (back to v8.1, thanks fo Jess) and English language proof reading (thanks to Richard for proofreading)
+
+Version BETA: 8.6.9.8 (2017-11-22)
+- fix small bug when launching repeated action
+
+Version BETA: 8.6.9.7 (2017-11-22)
+- implement shortcuts for Repeat last actions menu and Repeat last action
+- fix bug wit last actions menu when numeric shortcuts are enabled
+- fix bug with last action when QAP feature menu item has a shortcut
+- stop collecting text separators in last actions
+
+Version BETA: 8.6.9.6 (2017-11-19)
+- fix bug with Drives menu when dynamically refreshed menus are attached to QAP popup menu
+- adding a new item "Repeat Last Actions" to "My QAP Essentials" menu for new installation only (existing users must add it themselves)
+
+Version BETA: 8.6.9.5 (2017-11-19)
+- limit number of items in Repeat Last Actions menu
+- default to 10 item in the Repeat Last Actions
+- add option to select the number of items in Repeat Last Actions in Options, Menu tab
+
+Version BETA: 8.6.9.4 (2017-11-17)
+ 
+Repeat Last Actions
+- collect opened favorites to "Repeat Last Actions" menu (excluding Alternative menu features)
+- display "Repeat Last Actions" menu with fix number of 5 last opened items (will be configurable)
+- when an item is repeated, it is moved to the top of the "Repeat Last Actions" menu
+ 
+Bug fixes from release v8.6.3
+- make "Add this Folder or Line" work with recent versions of Firefox (tested with v56)
+- fix bug when adding a link with "Add this Folder or Link" from the QAP icon menu
+- fix display bug in "Edit favorite" dialog box when very long web page title is retrieved as favorite name
+- fix bug when assigning an hotkey to an Alternative menu feature for the first time
+- update to Brazilian Portuguese language file
+
+Version: 8.6.3 (2017-11-16)
+- make "Add this Folder or Line" work with recent versions of Firefox (tested with v56)
+- fix bug when adding a link with "Add this Folder or Link" from the QAP icon menu
+- fix display bug in "Edit favorite" dialog box when very long web page title is retrieved as favorite name
+- fix bug when assigning an hotkey to an Alternative menu feature for the first time
+- update to Brazilian Portuguese language file
+
+Version BETA: 8.6.9.3 (2017-11-06)
+ 
+Russian keyboard support
+- various adjustments for systems where current input language (keyboard) is Russian (language code 0419)
+- if Russian keyboard is detected, replace Windows + W and Shift + Windows + W menu keyboard hotkeys with equivalents keys on Russian keyboard (ASCII Unicode 1094)
+- at first execution on a system with Russian keyboard, do not assign hotkeys to favorites of the default menu
+- change method of initialization of Settings window hotkeys to avoid errors with Russian keyboard
+ 
+Other
+- update default hotkeys for QAP features in "My QAP Essentials" when creating the settings file at first execution
+- fix bug in error message when a hotkey is not available in current keyboard layout
+- update to German, Spanish, French, Italian and Dutch language files
+
+Version BETA: 8.6.9.2 (2017-11-02)
+- add QAP Feature to list "Recent Files" as remembered by Windows
+- add option to display the refreshed folders "Recent Folders", "Recent Files" and "Drives" attached to the main menu (with a slight refresh delay at each menu popup) or detached as stand-alone menus refreshed on demand
+- add an option in "General" tab to select the folder where the QAP temporary folder is created (and deleted when you exit QAP)
+- for new installation starting with this version, the default temporary folder is created in Windows %TEMP% folder (e.g. C:\Users\UserName\AppData\Local\Temp)
+- update to Italian, Portuguese and Brazilian Portuguese language files
+
+Version BETA: 8.6.9.1 (2017-10-29)
+- support change folder in PowerShell window as well as in command-line console (CMD)
+- allow resize of window when selecting the destination menu for copied or moved multiple favorites, allowing to see longer menu destinations and save window last position to ini file and restore previous position
+- add code to be more specific when detecting a file dialog box (Open, Save As, etc.) and exclude non-file dialog boxes (Preferences, Options, etc.)
+
 Version: 8.6.2 (2017-11-06)
 - for new inslallations only, add default hotkeys to QAP features:
   "Add This Folder or Link" -> Shift + Control + A
@@ -41,7 +238,6 @@ Version: 8.6.2 (2017-11-06)
 - update to Italian, Portuguese, Brazilian Portuguese, German, Spanish, French and Dutch language files
 
 Version: 8.6.1 (2017-10-29)
- 
 - fix bug default icon not set properly when adding a favorite (update RECOMMENDED for all users)
 - block popup menu during menu refresh launched with QAP feature Refresh Live menus
 - add link for monthly donations in Support freeware dialog box
@@ -1723,7 +1919,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion v8.6.2
+;@Ahk2Exe-SetVersion 8.7.1.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -1747,7 +1943,7 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
-Gosub, CollectCommandLineParameters
+Gosub, CollectCommandLineParameters ; updates g_objCommandLineParams["/Settings:"] and g_objCommandLineParams["/AdminSilent"]
 
 Gosub, SetQAPWorkingDirectory
 
@@ -1757,18 +1953,12 @@ Gosub, SetQAPWorkingDirectory
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
 ListLines, On
-; ##### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
+; #### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
-
-;---------------------------------
-; Create temporary folder
-
-g_strTempDir := A_WorkingDir . "\_temp"
-FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
 ; Init settings file name
@@ -1789,6 +1979,21 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 ;@Ahk2Exe-IgnoreEnd
 
 ;---------------------------------
+; Create temporary folder
+
+IfExist, %g_strIniFile%
+	IniRead, g_strQAPTempFolderParent, %g_strIniFile%, Global, QAPTempFolder, %A_Space% ; empty by default
+else if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
+	g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
+
+if !StrLen(g_strQAPTempFolderParent)
+	g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
+
+; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
+g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
+FileCreateDir, %g_strTempDir%
+
+;---------------------------------
 ; Init temporary folder and language files
 
 Gosub, InitFileInstall
@@ -1797,7 +2002,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.6.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.7.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -1808,6 +2013,9 @@ if (g_blnPortableMode)
 	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
 	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
+
+g_intGuiDefaultWidth := 636
+g_intGuiDefaultHeight := 538
 
 g_blnMenuReady := false
 g_blnChangeHotkeyInProgress := false
@@ -1864,8 +2072,12 @@ g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
 
-g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass,MozillaWindowClass" ; as of https://autohotkey.com/boards/viewtopic.php?p=116752#p116752
+g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
+g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
+
+g_blnRussianKeyboard := (GetInputLanguage() = "0419")
+
+g_objLastActions := Object()
 
 ;---------------------------------
 ; Initial validation
@@ -1888,8 +2100,8 @@ if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is cre
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
-if StrLen(g_strParamSettings)
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_strParamSettings))
+if StrLen(g_objCommandLineParams["/Settings:"])
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_objCommandLineParams["/Settings:"]))
 
 ;---------------------------------
 ; Init routines
@@ -1903,9 +2115,19 @@ Gosub, InitQAPFeatures
 Gosub, InitGuiControls
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load (not enable) name|location hotkeys and populate g_objHotkeysByNameLocation, load favorites to menu object
-Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
 ; must be after LoadIniFile
+
+if (g_blnRunAsAdmin and !A_IsAdmin)
+	gosub, ReloadAsAdmin
+if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
+	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
+	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
+if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
+	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
+
+Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
+
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (g_blnDiagMode)
@@ -1919,14 +2141,20 @@ if (g_blnUseColors)
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
-Gosub, BuildSwitchAndReopenFolderMenusInit ; will be refreshed at each popup menu call
-Gosub, BuildClipboardMenuInit ; will be refreshed at each popup menu call
+; Menus attached or detached
+Gosub, BuildDrivesMenuInit
+Gosub, BuildRecentFoldersMenuInit
+Gosub, BuildRecentFilesMenuInit
 
-Gosub, BuildDrivesMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
-Gosub, BuildRecentFoldersMenuInit ; show in separate menu until... #### will be refreshed by a background task and after each popup menu call
-Gosub, SetTimerRefreshDynamicMenus ; Drives, Recent Folders
+; Menus refreshed at each popup menu call
+Gosub, BuildClipboardMenuInit
+Gosub, BuildSwitchMenuInit 
+Gosub, BuildReopenFolderMenuInit
+Gosub, BuildLastActionsMenuInit
+Gosub, BuildTotalCommanderHotlistInit
+Gosub, BuildTotalCommanderHotlistPrepare
 
-Gosub, BuildTotalCommanderHotlist
+; Other menus
 
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
@@ -1941,7 +2169,7 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 {
 	; if the startup shortcut exists, update it at each execution in case the exe filename changed
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
 	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
 }
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
@@ -1981,6 +2209,33 @@ OnMessage(0x4a, "RECEIVE_QAPMESSENGER")
 ; Create a mutex to allow Inno Setup to detect if FP is running before uninstall or update
 DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex")
 
+;---------------------------------
+; Setting window hotkey conditional assignment
+
+Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
+
+	; for now, just ignore ErrorLevel
+	; ff required, use this code:
+	; strCurrentInputLanguage := GetInputLanguage() / or g_blnRussianKeyboard
+	; if (ErrorLevel)
+		; Oops("Language is """ . strCurrentInputLanguage . """ (0419 is Russian)")
+	
+	Hotkey, ^Up, SettingsUp, On UseErrorLevel
+	Hotkey, ^Down, SettingsDown, On UseErrorLevel
+	Hotkey, ^Right, SettingsRight, On UseErrorLevel
+	Hotkey, ^Left, SettingsLeft, On UseErrorLevel
+	Hotkey, ^A, SettingsCtrlA, On UseErrorLevel
+	Hotkey, ^N, SettingsCtrlN, On UseErrorLevel
+	Hotkey, Enter, SettingsEnter, On UseErrorLevel
+	Hotkey, Del, SettingsDel, On UseErrorLevel
+	Hotkey, ^C, SettingsCtrlC, On UseErrorLevel
+	Hotkey, ^F, SettingsCtrlF, On UseErrorLevel
+	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
+	Hotkey, F1, SettingsF1, On UseErrorLevel
+
+Hotkey, If
+
+
 return
 
 
@@ -2002,14 +2257,25 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+;------------------------------------------------------------
+#If, WinActive(QAPSettingsString()) ; main Gui title
+; empty - act as a handle for the "Hotkey, If" condition
+#If
+;------------------------------------------------------------
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 !_012_GUI_HOTKEYS:
 ;========================================================================================================================
 
-; Gui Hotkeys
-#If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+; Settings Gui Hotkeys
 
-^Up::
+; replaced by Hotkey, If, WinActive(QAPSettingsString())
+; #If WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+
+SettingsUp: ; ^Up::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2019,7 +2285,7 @@ else
 	Gosub, GuiMoveFavoriteUp
 return
 
-^Down::
+SettingsDown: ; ^Down::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2029,14 +2295,14 @@ else
 	Gosub, GuiMoveFavoriteDown
 return
 
-^Right::
+SettingsRight: ; ^Right::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, HotkeyChangeMenu
 return
 
-^Left::
+SettingsLeft: ; ^Left::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2045,7 +2311,7 @@ if (blnUpMenuVisible)
 	Gosub, GuiGotoPreviousMenu
 return
 
-^A::
+SettingsCtrlA: ; ^A::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, ^a ; select all search control
@@ -2053,14 +2319,14 @@ else
 	LV_Modify(0, "Select") ; select all in listview
 return
 
-^N::
+SettingsCtrlN: ; ^N::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiAddFavoriteSelectType
 return
 
-Enter::
+SettingsEnter: ; Enter::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
@@ -2070,7 +2336,7 @@ else
 	Gosub, GuiEditFavorite
 return
 
-Del::
+SettingsDel: ; Del::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, {Del}
@@ -2081,7 +2347,7 @@ else
 		Gosub, GuiRemoveFavorite
 return
 
-^C::
+SettingsCtrlC: ; ^C::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	Send, ^c
@@ -2092,28 +2358,30 @@ else
 		Gosub, GuiCopyFavorite
 return
 
-^F::
+SettingsCtrlF: ; ^F::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiFocusFilter
 return
 
-^H::
+SettingsCtrlH: ; ^H::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiHotkeysHelpClicked
 return
 
-F1::
+SettingsF1: ; F1::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
 Gosub, GuiHelp
 return
 
-#If
+; replaced by Hotkey, If, WinActive(QAPSettingsString())
+; #If
+
 ; End of Gui Hotkeys
 
 
@@ -2129,18 +2397,30 @@ return
 
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
+; each param must begin with "/" and be separated by a space
 ;-----------------------------------------------------------
 
-Loop, %0% ; loop each parameter
-{
-    strThisParam := %A_Index%
-	if SubStr(strThisParam, 1, 10) = "/Settings:"
-		StringReplace, g_strParamSettings, strThisParam, % "/Settings:"
+g_objCommandLineParams := Object()
 
-	g_strCurrentCommandLineParameters .= strThisParam . " "
+Loop, %0% ; for each parameter
+{
+    strParam := %A_Index% ; fetch the contents of the variable whose name is contained in A_Index
+	if !StrLen(strParam)
+		continue
+	intColon := InStr(strParam, ":")
+	if (intColon)
+	{
+		strParamKey := SubStr(strParam, 1, intColon) ; including the starting slash and ending colon
+		strParamValue := SubStr(strParam, intColon + 1)
+		g_objCommandLineParams[strParamKey] := strParamValue
+	}
+	else
+		g_objCommandLineParams[strParam] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strParam)
 }
 
-strThisParam := ""
+strParam := ""
+strParamKey := ""
+strParamValue := ""
 
 return
 ;-----------------------------------------------------------
@@ -2311,6 +2591,8 @@ if (g_blnUseClassicButtons)
 	FileInstall, FileInstall\handshake-32.png, %g_strTempDir%\handshake-32.png
 	FileInstall, FileInstall\conference-32.png, %g_strTempDir%\conference-32.png
 	FileInstall, FileInstall\gift-32.png, %g_strTempDir%\gift-32.png
+
+	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 }
 else
 {
@@ -2338,6 +2620,8 @@ else
 	FileInstall, FileInstall\handshake-32_c.png, %g_strTempDir%\handshake-32_c.png
 	FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
 	FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
+
+	FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 }
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
@@ -2367,7 +2651,10 @@ InitSystemArrays:
 ; Hotkeys: ini names, hotkey variables name, default values, gosub label and Gui hotkey titles
 strPopupHotkeyNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
 StringSplit, g_arrPopupHotkeyNames, strPopupHotkeyNames, |
-strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
+if (g_blnRussianKeyboard)
+	strPopupHotkeyDefaults := "MButton|#" . Chr(1094) . "|+MButton|+#" . Chr(1094) ; Chr(1094) produces the character at the W location on an US keyboard
+else
+	strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
 StringSplit, g_arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
 g_arrPopupHotkeys := Array ; initialized by LoadIniPopupHotkeys
 g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in LoadIniPopupHotkeys
@@ -2389,7 +2676,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial|iconNoIcon"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -2592,7 +2879,7 @@ InitSpecialFolderObject("{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "MyComputerFol
 	; OK     OK      OK     OK    OK      OK
 InitSpecialFolderObject("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "ControlPanelFolder", 3, "", "controls", 2123
 	, "Control Panel (Icons view)", "" ; Tous les Panneaux de configuration
-	, "SCT", "SCT", "NEW", "NEW", "DOA", "CLS", "NEW")
+	, "SCT", "SCT", "NEW", "NEW", "NEW", "CLS", "NEW")
 	; OK     OK      OK     OK    OK  NO-use NEW
 InitSpecialFolderObject("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "Personal", 5, "A_MyDocuments", "mydocuments", ""
 	, "Documents", "" ; Mes documents
@@ -2967,45 +3254,47 @@ InitQAPFeatures:
 ; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultHotkey)
 
 ; Submenus features
-InitQAPFeatureObject("Clipboard",				lMenuClipboard . "...",				"g_menuClipboard",			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
-InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders . "...",		"g_menuReopenFolder",		"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
-InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp . "...",		"g_menuSwitchFolderOrApp",	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
-InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName . "...",				lTCMenuName,				"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
-; InitQAPFeatureObject("Drives",			lMenuDrives . "...",				"g_menuDrives",			"DrivesMenuShortcut",			0, "iconDrives",		"+^D")
-; InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . "...",			"g_menuRecentFolders",	"RecentFoldersMenuShortcut",	0, "iconRecentFolders", "+^R")
 
-; Separated menus in case wait time is too long
-InitQAPFeatureObject("Recent Folders", lMenuRecentFolders . "...", "", "RecentFoldersMenuShortcut", 0, "iconRecentFolders", "+^R")
-InitQAPFeatureObject("Drives", lMenuDrives . "...",	"", "DrivesMenuShortcut", 0, "iconDrives", "+^D")
+; init refreshed menus attached or detached
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Recent Folders", "Recent Files" and "Drives" menu in detached menu
+Gosub, InitQAPFeaturesRefreshed
+
+InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				0, 		"iconClipboard", 		"+^V")
+InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		0, 		"iconSwitch",			"+^W")
+InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				0,		"iconCurrentFolders",	"+^F")
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",						0, 		"iconReload", 			"")
+InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	0,		"iconSubmenu",			"+^T")
 
 ; Command features
-InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",							0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",			0, "iconAddFavorite")
-InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",					0, "iconAddThisFolder", "+^A")
-InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",				0, "iconAddThisFolder")
-InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",							0, "iconExit")
-InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",							0, "iconHelp")
-InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",	0, "iconHotkeys")
-InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",		0, "iconIcons")
-InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",			0, "iconOptions")
-InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",					0, "iconSettings", "+^S")
-InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",						0, "iconDonate")
-InitQAPFeatureObject("GetWinInfo",		lMenuGetWinInfo . "...",			"", "GetWinInfo",						0, "iconAbout")
-InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownComputer",					0, "iconExit")
-InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",					0, "iconReload")
-InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",						0, "iconReload")
-InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",						0, "iconClose")
-InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",						0, "iconSettings")
-InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",					0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",					0, "iconReload")
+
+InitQAPFeatureObject("About",			lGuiAbout . "...",					"", "GuiAbout",								0, "iconAbout")
+InitQAPFeatureObject("Add Favorite",	lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				0, "iconAddFavorite")
+InitQAPFeatureObject("Add This Folder",	lMenuAddThisFolder . "...",			"", "AddThisFolder",						0, "iconAddThisFolder", "+^A")
+InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,	"", "AddThisFolderXpress",					0, "iconAddThisFolder")
+InitQAPFeatureObject("Exit",			L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								0, "iconExit")
+InitQAPFeatureObject("Help",			lGuiHelp . "...",					"", "GuiHelp",								0, "iconHelp")
+InitQAPFeatureObject("Hotkeys",			lDialogHotkeys . "...",				"", "GuiHotkeysManageFromQAPFeature",		0, "iconHotkeys")
+InitQAPFeatureObject("Icons",			lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			0, "iconIcons")
+InitQAPFeatureObject("Options",			lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				0, "iconOptions")
+InitQAPFeatureObject("Settings",		lMenuSettings . "...",				"", "SettingsHotkey",						0, "iconSettings", "+^S")
+InitQAPFeatureObject("Support",			lGuiDonate . "...",					"", "GuiDonate",							0, "iconDonate")
+InitQAPFeatureObject("GetWinInfo",		lMenuGetWinInfo . "...",			"", "GetWinInfo",							0, "iconAbout")
+InitQAPFeatureObject("ShutDown",		lMenuComputerShutdown . "...",		"", "ShutdownComputer",						0, "iconExit")
+InitQAPFeatureObject("Restart",			lMenuComputerRestart . "...",		"", "RestartComputer",						0, "iconReload")
+InitQAPFeatureObject("Reload",			L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							0, "iconReload")
+InitQAPFeatureObject("CloseMenu",		lMenuCloseThisMenu,					"", "DoNothing",							0, "iconClose")
+InitQAPFeatureObject("ImportExport",	lImpExpMenu . "...",				"", "ImportExport",							0, "iconSettings")
+InitQAPFeatureObject("SwitchSettings",	lMenuSwitchSettings . "...",		"", "SwitchSettings",						0, "iconSettings")
+InitQAPFeatureObject("RefreshMenu",		lMenuRefreshMenu,					"", "RefreshQAPMenu",						0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue", lMenuExternalCatalogue, 	"", "AddExternalCatalogueFromQAPFeature",	0, "iconAddFavorite")
 InitQAPFeatureObject("ReopenCurrentFolder", lMenuReopenCurrentFolder, 		"", "OpenReopenCurrentFolder",				0, "iconChangeFolder", "+^C")
+InitQAPFeatureObject("Last Action", 	lMenuLastAction,					"", "RepeatLastActionShortcut",				0, 	"iconReload", "")
 
 ; Alternative Menu features
 InitQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", 1, "iconFolder")
 InitQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", 3, "iconEditFavorite")
 InitQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", 5, "iconClipboard")
-InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconApplication")
+InitQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", 7, "iconUAClogo")
 InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", 9, "iconSpecialFolders")
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", 10, "iconSpecialFolders")
 
@@ -3022,6 +3311,23 @@ StringTrimRight, g_strQAPFeaturesList, g_strQAPFeaturesList, 1
 strQAPFeatureName := ""
 strThisQAPFeatureCode := ""
 strQAPFeatureAlternativeOrder := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+InitQAPFeaturesRefreshed:
+; Attached or Detached menus (in case wait time is too long, default detached)
+; This command is called again when options are saved
+;------------------------------------------------------------
+
+InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	0, "iconRecentFolders",	"+^R")
+InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		0, "iconRecentFolders",	"")
+InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				0, "iconDrives",		"+^D")
 
 return
 ;------------------------------------------------------------
@@ -3163,7 +3469,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	g_strIniBefore := "NEW"
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
 	if !(g_blnPortableMode)
-		FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+		Gosub, CreateStartupShortcut
 
 	g_blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
@@ -3221,16 +3527,23 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com
 			Favorite7=Z
 			[LocationHotkeys]
-			Hotkey1=|{Settings}|+^S
-			Hotkey2=|{Current Folders}|+^F
-			Hotkey3=|{Recent Folders}|+^R
-			Hotkey4=|{Clipboard}|+^V
-			Hotkey5=|{Switch Folder or App}|+^W
-			Hotkey6=|{Add This Folder}|+^A
-			Hotkey7=|{ReopenCurrentFolder}|+^C
+
+) ; leave the last extra line above
+		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
+
+	if !(g_blnRussianKeyboard) ; do not init default hotkeys for Russian keyboards
+		FileAppend,
+			(LTrim Join`r`n
+				Hotkey1=|{Settings}|+^S
+				Hotkey2=|{Current Folders}|+^F
+				Hotkey3=|{Recent Folders}|+^R
+				Hotkey4=|{Clipboard}|+^V
+				Hotkey5=|{Switch Folder or App}|+^W
+				Hotkey6=|{Add This Folder}|+^A
+				Hotkey7=|{ReopenCurrentFolder}|+^C
 
 )
-		, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
+			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
 }
 else
 {
@@ -3277,33 +3590,6 @@ Gosub, LoadIniLocationHotkeys ; load (but do not enable) name|location hotkeys f
 ; ---------------------
 ; Load Options Tab 1 General
 
-if !(g_blnPortableMode)
-	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
-else
-	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
-IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
-IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
-IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
-IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
-IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
-
-IniRead, g_intPopupMenuPosition, %g_strIniFile%, Global, PopupMenuPosition, 1
-IniRead, strPopupFixPosition, %g_strIniFile%, Global, PopupFixPosition, 20,20
-StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
-IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
-IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
-IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
-IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
-IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
-IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
-IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
-IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
-
-IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
-IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
-IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
-IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
-
 IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
 if (g_blnChangeFolderInDialog)
 	IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk, 0
@@ -3311,25 +3597,61 @@ if (g_blnChangeFolderInDialog)
 IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
-	
+
+IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
+IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
+IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
+IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
+
+IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
+IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
+IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
+IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
+
 ; ---------------------
-; Load Options Tab 2 Menu Hotkeys
+; Load Options Tab 2 Menu
+
+IniRead, g_intPopupMenuPosition, %g_strIniFile%, Global, PopupMenuPosition, 1
+IniRead, strPopupFixPosition, %g_strIniFile%, Global, PopupFixPosition, 20,20
+StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
+
+IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
+
+if !(g_blnPortableMode)
+	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
+else
+	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
+
+IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
+IniRead, g_intNbLastActions, %g_strIniFile%, Global, NbLastActions, 10
+
+IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
+IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
+IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
+
+IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
+IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
+IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
+
+; ---------------------
+; Load Options Tab 3 Menu Hotkeys
 
 IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
 IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
 
 ; ---------------------
-; Load Options Tab 3 Alternative Menu
+; Load Options Tab 4 Alternative Menu
 
 ; ---------------------
-; Options Tab 4 Exclusion List
+; Options Tab 5 Exclusion List
 
 IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 ; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
 
 ; ---------------------
-; Load Options Tab 5 File Managers
+; Load Options Tab 6 File Managers
 
 IniRead, g_intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
 
@@ -3396,6 +3718,7 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
+IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 
 ; ---------------------
 ; Load favorites
@@ -3598,6 +3921,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		{
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
+			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
+				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
@@ -3637,6 +3963,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		objLoadIniFavorite.FavoriteFolderLiveColumns := arrThisFavorite17 ; number of items per columns in live folder menus
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
+
+		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
+			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
 		
 		; this is a submenu favorite, link to the submenu object
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
@@ -3663,15 +3992,17 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Switch Folder or App}", lMenuSwitchFolderOrApp . "...", "QAP")
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP") ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", lMenuReopenCurrentFolder . "...", "QAP")
-AddToIniOneDefaultMenu("{Current Folders}", lMenuCurrentFolders . "...", "QAP")
+AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP") ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP") ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", lMenuRecentFolders . "...", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", lMenuClipboard . "...", "QAP")
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP") ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file
+AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP") ; do not save QAP feature menu name lMenuClipboard . "..." to ini file
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Drives}", lMenuDrives . "...", "QAP")
+AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file
 AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
 
 strThisMenuName := lMenuMySpecialMenu
@@ -3807,13 +4138,13 @@ loop, % g_arrPopupHotkeyNames0
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3823,13 +4154,13 @@ Hotkey, If
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasHotkey(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 	if HasHotkey(g_arrPopupHotkeys1)
 		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
 	if HasHotkey(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off
+		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasHotkey(g_arrPopupHotkeys2)
 		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
@@ -3838,13 +4169,13 @@ Hotkey, If
 
 ; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
 if HasHotkey(g_arrPopupHotkeysPrevious3)
-	Hotkey, % g_arrPopupHotkeysPrevious3, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 if HasHotkey(g_arrPopupHotkeys3)
 	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
 	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
 if HasHotkey(g_arrPopupHotkeysPrevious4)
-	Hotkey, % g_arrPopupHotkeysPrevious4, , Off
+	Hotkey, % g_arrPopupHotkeysPrevious4, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 if HasHotkey(g_arrPopupHotkeys4)
 	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
@@ -3853,7 +4184,7 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasHotkey(objThisQAPFeature.CurrentHotkey)
-		; use error level in case the hotkey does not exist yet when adding a new alternative hotkey
+		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
 		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
 	
 ; Load QAP Alternative Menu hotkeys
@@ -3865,6 +4196,8 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
 		g_objQAPFeatures[strCode].CurrentHotkey := strHotkey
 	}
+	else
+		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
 		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName)
 }
@@ -3872,6 +4205,7 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 strCode := ""
 objThisQAPFeature := ""
 strHotkey := ""
+intOrder := ""
 
 return
 ;------------------------------------------------------------
@@ -3952,7 +4286,7 @@ strIniFileContent := ""
 
 g_intClipboardMenuTickCount := 0
 g_intDrivesMenuTickCount := 0
-g_intRecentFoldersMenuTickCount := 0
+g_intRecentItemsMenuTickCount := 0
 g_intSwitchReopenMenuTickCount := 0
 
 return
@@ -4046,9 +4380,11 @@ BuildTrayMenu:
 
 Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, NoStandard
+if (A_IsAdmin and g_blnRunAsAdmin)
+	Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
-Menu, Tray, Icon, %A_ScriptDir%\QuickAccessPopup-DEV-red-512.ico, 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
@@ -4068,7 +4404,9 @@ Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
+Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
@@ -4089,56 +4427,67 @@ return
 
 
 ;------------------------------------------------------------
-SetTimerRefreshDynamicMenus:
-;------------------------------------------------------------
-; ####
-
-; Do nothing until background tasks is fixed...
-/*
-if g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenus.HasKey("{Drives}") ; we have one of these QAP features in at least one menu
-{
-	Gosub, RefreshRecentFoldersMenu ; refresh now and in g_intDynamicMenusRefreshRate ms
-	Gosub, RefreshDrivesMenu ; refresh now and in g_intDynamicMenusRefreshRate ms
-	SetTimer, RefreshBackgroundDynamicMenus, %g_intDynamicMenusRefreshRate% ; 
-}
-*/
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RefreshBackgroundDynamicMenus:
-; background job started by SetTimer
-;------------------------------------------------------------
-
-Gosub, RefreshRecentFoldersMenu
-Gosub, RefreshDrivesMenu
-
-/*
-if (g_blnDiagMode)
-{
-	Diag("Background: Recent/Drives", g_intRecentFoldersMenuTickCount . "`t" . g_intDrivesMenuTickCount)
-	; ToolTip,  % "QAP background refresh: " . g_intRecentFoldersMenuTickCount . " (Recent) + " . g_intDrivesMenuTickCount . " (Drives) = " . g_intRecentFoldersMenuTickCount + g_intDrivesMenuTickCount . " ms", 10, 10
-	; sleep, 5000
-	; ToolTip
-}
-*/
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
+BuildDrivesMenuInit:
+BuildRecentFoldersMenuInit:
+BuildRecentFilesMenuInit:
 BuildClipboardMenuInit:
+BuildSwitchMenuInit:
+BuildReopenFolderMenuInit:
+BuildLastActionsMenuInit:
+BuildTotalCommanderHotlistInit:
 ;------------------------------------------------------------
 
-Menu, g_menuClipboard, Add 
-Menu, g_menuClipboard, DeleteAll
+strMenuItemLabel := lDialogNone
+if (A_ThisLabel = "BuildClipboardMenuInit")
+{
+	strMenuName := lMenuClipboard ; g_menuClipboard
+	strMenuItemLabel := lMenuNoClipboard
+}
+if (A_ThisLabel = "BuildDrivesMenuInit")
+	strMenuName := lMenuDrives ; g_menuDrives
+if (A_ThisLabel = "BuildRecentFoldersMenuInit")
+	strMenuName := lMenuRecentFolders ; g_menuRecentFolders
+if (A_ThisLabel = "BuildRecentFilesMenuInit")
+	strMenuName := lMenuRecentFiles ; g_menuRecentFiles
+if (A_ThisLabel = "BuildSwitchMenuInit")
+	strMenuName := lMenuSwitchFolderOrApp ; g_menuSwitchFolderOrApp
+if (A_ThisLabel = "BuildReopenFolderMenuInit")
+	strMenuName := lMenuCurrentFolders ; g_menuReopenFolder
+if (A_ThisLabel = "BuildLastActionsMenuInit")
+	strMenuName := lMenuLastActions ; g_menuLastActions
+if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
+	strMenuName := lTCMenuName ; lTCMenuName
+
+Menu, %strMenuName%, Add 
+Menu, %strMenuName%, DeleteAll
 if (g_blnUseColors)
-    Menu, g_menuClipboard, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuClipboard", lMenuNoClipboard, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuClipboard")
+    Menu, %strMenuName%, Color, %g_strMenuBackgroundColor%
+AddMenuIcon(strMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+AddCloseMenu(strMenuName)
+
+strMenuName := ""
+strMenuItemLabel := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildTotalCommanderHotlistPrepare:
+;------------------------------------------------------------
+
+g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
+if StrLen(g_strWinCmdIniFileExpanded)
+{
+	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
+	if (strAlternativeWinCmdIniFile <> "ERROR")
+		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
+}
+g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
+
+Gosub, RefreshTotalCommanderHotlist
+
+strAlternativeWinCmdIniFile := ""
 
 return
 ;------------------------------------------------------------
@@ -4152,7 +4501,7 @@ Gosub, RefreshClipboardMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuClipboard, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuClipboard%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4198,8 +4547,8 @@ if StrLen(strContentsInClipboard)
 	Sort, strContentsInClipboard
 
 	; Critical, On
-	Menu, g_menuClipboard, Add
-	Menu, g_menuClipboard, DeleteAll
+	Menu, %lMenuClipboard%, Add
+	Menu, %lMenuClipboard%, DeleteAll
 
 	Loop, parse, strContentsInClipboard, `n
 	{
@@ -4211,9 +4560,9 @@ if StrLen(strContentsInClipboard)
 		
 		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutClipboardMenu <= 35) ? "&" . NextMenuShortcut(intShortcutClipboardMenu) . " " : "") . arrContentsInClipboard1
 		if StrLen(strMenuName) < 260 ; skip too long URLs
-			AddMenuIcon("g_menuClipboard", strMenuName, "OpenClipboard", arrContentsInClipboard2)
+			AddMenuIcon(lMenuClipboard, strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
-	AddCloseMenu("g_menuClipboard")
+	AddCloseMenu(lMenuClipboard)
 	; Critical, Off
 }
 
@@ -4290,40 +4639,15 @@ return
 
 
 ;------------------------------------------------------------
-BuildDrivesMenuInit:
-;------------------------------------------------------------
-
-Menu, g_menuDrives, Add 
-Menu, g_menuDrives, DeleteAll
-if (g_blnUseColors)
-    Menu, g_menuDrives, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuDrives", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuDrives")
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 DrivesMenuShortcut:
 ;------------------------------------------------------------
 
-; When background tasks will be OK...
-/*
-Gosub, RefreshDrivesMenu ; refreshed by SetTimer but also just before when called by the shortcut
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
-*/
-
-; Until background tasks is back...
 Gosub, SetMenuPosition
 
 Gosub, RefreshDrivesMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuDrives, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuDrives%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4362,22 +4686,18 @@ Loop, parse, strDrivesList
 		strIcon := "iconDrives"
 	else
 		strIcon := "icon" . strType
-	strMenuItemsList .= "g_menuDrives|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
+	strMenuItemsList .= lMenuDrives . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
 }
 
-; Until background tasks is back...
-; Critical, On
-Menu, g_menuDrives, Add
-Menu, g_menuDrives, DeleteAll
+Menu, %lMenuDrives%, Add
+Menu, %lMenuDrives%, DeleteAll
 Loop, Parse, strMenuItemsList, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
-AddCloseMenu("g_menuDrives")
-; Until background tasks is back...
-; Critical, Off
+AddCloseMenu(lMenuDrives)
 
 SetWaitCursor(false)
 
@@ -4400,40 +4720,19 @@ return
 
 
 ;------------------------------------------------------------
-BuildRecentFoldersMenuInit:
-;------------------------------------------------------------
-
-Menu, g_menuRecentFolders, Add 
-Menu, g_menuRecentFolders, DeleteAll
-if (g_blnUseColors)
-    Menu, g_menuRecentFolders, Color, %g_strMenuBackgroundColor%
-AddMenuIcon("g_menuRecentFolders", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuRecentFolders")
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RecentFoldersMenuShortcut:
+RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
-; When background tasks will be OK...
-/*
-Gosub, RefreshRecentFoldersMenu ; refreshed by SetTimer but also just before when called by the shortcut
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
-*/
-
-; Until background tasks is back...
 Gosub, SetMenuPosition
 
-Gosub, RefreshRecentFoldersMenu
+if (A_ThisLabel = "RecentFoldersMenuShortcut")
+	Gosub, RefreshRecentFoldersMenu
+else ; RecentFilesMenuShortcut
+	Gosub, RefreshRecentFilesMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuRecentFolders, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? lMenuRecentFolders : lMenuRecentFiles), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4441,16 +4740,20 @@ return
 
 ;------------------------------------------------------------
 RefreshRecentFoldersMenu:
+RefreshRecentFilesMenu:
+RefreshRecentFoldersAndFilesMenus:
 ;------------------------------------------------------------
 
-if !(g_objQAPfeaturesInMenus.HasKey("{Recent Folders}")) ; we don't have this QAP features in at least one menu
+if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and A_ThisLabel = "RefreshRecentFoldersMenu")
+	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFilesMenu")
+	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFoldersAndFilesMenus")
+	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
 intRecentFoldersMenuStartTickCount := A_TickCount
 
-g_objRecentFolders := Object()
-
-g_intRecentFoldersIndex := 0 ; used in PopupMenu... to check if we disable the menu when empty
+intRecentFoldersCount := 0
+intRecentFilesCount := 0
 strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
@@ -4472,12 +4775,15 @@ for ObjItem in ComObjGet("winmgmts:")
 ; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
 
 Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
-	strDirList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
-Sort, strDirList, R
+	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+Sort, strItemsList, R
 
-intShortcut := 0
+intShortcutFolders := 0
+intShortcutFiles := 0
+strRecentFoldersMenuItemsList := ""
+strRecentFilesMenuItemsList := ""
 
-Loop, parse, strDirList, `n
+Loop, parse, strItemsList, `n
 {
 	if !StrLen(A_LoopField) ; last line is empty
 		continue
@@ -4491,68 +4797,73 @@ Loop, parse, strDirList, `n
 		continue
 	if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
 		continue
-	if LocationIsDocument(strTargetPath) ; not a folder
-		continue
-
-	g_intRecentFoldersIndex++
-	g_objRecentFolders.Insert(g_intRecentFoldersIndex, strTargetPath)
 	
-	strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . strTargetPath
-	strMenuItemsList .= "g_menuRecentFolders|" . strMenuName . "|OpenRecentFolder|iconFolder`n"
+	if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+		and (intRecentFoldersCount < g_intRecentFoldersMax)
+		and !LocationIsDocument(strTargetPath) ; add to recent folders
+	{
+		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFolders <= 35) ? "&" . NextMenuShortcut(intShortcutFolders) . " " : "") . strTargetPath
+		strIcon := GetFolderIcon(strTargetPath)
+		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		intRecentFoldersCount++
+	}
 
-	if (g_intRecentFoldersIndex >= g_intRecentFoldersMax)
+	if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
+		and LocationIsDocument(strTargetPath) ; add to recent files
+	{
+		strMenuName := (g_blnDisplayNumericShortcuts and (intShortcutFiles <= 35) ? "&" . NextMenuShortcut(intShortcutFiles) . " " : "") . strTargetPath
+		strIcon := GetIcon4Location(strTargetPath)
+		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		intRecentFilesCount++
+	}
+
+	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
 		break
 }
 
-; Until background tasks is back...
-; Critical, On
-Menu, g_menuRecentFolders, Add
-Menu, g_menuRecentFolders, DeleteAll
-Loop, Parse, strMenuItemsList, `n
-	if StrLen(A_LoopField)
-	{
-		StringSplit, arrMenuItemsList, A_LoopField, |
-		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
-	}
-AddCloseMenu("g_menuRecentFolders")
-; Until background tasks is back...
-; Critical, Off
+if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+{
+	Menu, %lMenuRecentFolders%, Add
+	Menu, %lMenuRecentFolders%, DeleteAll
+	Loop, Parse, strRecentFoldersMenuItemsList, `n
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrMenuItemsList, A_LoopField, |
+			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+	AddCloseMenu(lMenuRecentFolders)
+}
+
+if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+{
+	Menu, %lMenuRecentFiles%, Add
+	Menu, %lMenuRecentFiles%, DeleteAll
+	Loop, Parse, strRecentFilesMenuItemsList, `n
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrMenuItemsList, A_LoopField, |
+			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+	AddCloseMenu(lMenuRecentFiles)
+}
 
 SetWaitCursor(false)
 
 strRecentsFolder := ""
-strDirList := ""
-intShortcut := ""
+strItemsList := ""
+strRecentFoldersMenuItemsList := ""
+strRecentFilesMenuItemsList := ""
+intShortcutFolders := ""
+intShortcutFiles := ""
 arrShortcutFullPath := ""
 strShortcutFullPath := ""
 strTargetPath := ""
 strMenuName := ""
+strIcon := ""
 
-g_intRecentFoldersMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
+g_intRecentItemsMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
 ; TrayTip, RecentFolders menu refresh, % g_intRecentFoldersMenuTickCount . " ms"
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-BuildSwitchAndReopenFolderMenusInit:
-;------------------------------------------------------------
-
-Menu, g_menuReopenFolder, Add ; create the menu
-Menu, g_menuReopenFolder, DeleteAll
-Menu, g_menuSwitchFolderOrApp, Add ; create the menu
-Menu, g_menuSwitchFolderOrApp, DeleteAll
-
-if (g_blnUseColors)
-{
-    Menu, g_menuReopenFolder, Color, %g_strMenuBackgroundColor%
-    Menu, g_menuSwitchFolderOrApp, Color, %g_strMenuBackgroundColor%
-}
-AddMenuIcon("g_menuReopenFolder", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddMenuIcon("g_menuSwitchFolderOrApp", lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu("g_menuReopenFolder")
-AddCloseMenu("g_menuSwitchFolderOrApp")
-
 return
 ;------------------------------------------------------------
 
@@ -4565,7 +4876,21 @@ Gosub, RefreshReopenFolderMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuReopenFolder, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuCurrentFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RepeatLastActionsShortcut:
+;------------------------------------------------------------
+
+Gosub, RefreshLastActionsMenu
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4579,7 +4904,7 @@ Gosub, RefreshSwitchFolderOrAppMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, g_menuSwitchFolderOrApp, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, %lMenuSwitchFolderOrApp%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -4742,29 +5067,29 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	and g_objQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
 {
 	g_objSwitchWindowIdsByName := Object()
-	Menu, g_menuSwitchFolderOrApp, Add
-	Menu, g_menuSwitchFolderOrApp, DeleteAll
+	Menu, %lMenuSwitchFolderOrApp%, Add
+	Menu, %lMenuSwitchFolderOrApp%, DeleteAll
 }
 
-Menu, g_menuReopenFolder, Add
-Menu, g_menuReopenFolder, DeleteAll
+Menu, %lMenuCurrentFolders%, Add
+Menu, %lMenuCurrentFolders%, DeleteAll
 
 if (intWindowsIdIndex)
 {
 	for intIndex, objFolderOrApp in objFoldersAndAppsList
 	{
 		if !StrLen(objFolderOrApp.Name)
-			Menu, g_menuSwitchFolderOrApp, Add
+			Menu, %lMenuSwitchFolderOrApp%, Add
 		else
 		{
 			strMenuName := (g_blnDisplayNumericShortcuts and (intShortcut <= 35) ? "&" . NextMenuShortcut(intShortcut) . " " : "") . objFolderOrApp.Name
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
-				AddMenuIcon("g_menuReopenFolder", strMenuName, "OpenReopenFolder", "iconFolder")
+				AddMenuIcon(lMenuCurrentFolders, strMenuName, "OpenReopenFolder", "iconFolder")
 			}
 			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
-			AddMenuIcon("g_menuSwitchFolderOrApp", strMenuName, "OpenSwitchFolderOrApp"
+			AddMenuIcon(lMenuSwitchFolderOrApp, strMenuName, "OpenSwitchFolderOrApp"
 				, (objFolderOrApp.WindowType = "EX" ? "iconChangeFolder"
 					: (objFolderOrApp.WindowType = "DO" ?  g_strDirectoryOpusRtPath . ",1"
 					: objFolderOrApp.LocationURL . ",1")))
@@ -4772,13 +5097,13 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	AddMenuIcon("g_menuSwitchFolderOrApp", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lMenuSwitchFolderOrApp, lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
 if !(blnWeHaveFolders)
-	AddMenuIcon("g_menuReopenFolder", lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddMenuIcon(lMenuCurrentFolders, lMenuNoCurrentFolder, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-AddCloseMenu("g_menuReopenFolder")
-AddCloseMenu("g_menuSwitchFolderOrApp")
+AddCloseMenu(lMenuCurrentFolders)
+AddCloseMenu(lMenuSwitchFolderOrApp)
 
 Critical, Off
 
@@ -4942,34 +5267,6 @@ CollectExplorers(pExplorers)
 
 
 ;------------------------------------------------------------
-BuildTotalCommanderHotlist:
-;------------------------------------------------------------
-
-Menu, %lTCMenuName%, Add 
-Menu, %lTCMenuName%, DeleteAll
-if (g_blnUseColors)
-    Menu, %lTCMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(lTCMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu(lTCMenuName)
-
-g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
-if StrLen(g_strWinCmdIniFileExpanded)
-{
-	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
-	if (strAlternativeWinCmdIniFile <> "ERROR")
-		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
-}
-g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
-
-Gosub, RefreshTotalCommanderHotlist
-
-strAlternativeWinCmdIniFile := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 TotalCommanderHotlistMenuShortcut:
 ;------------------------------------------------------------
 
@@ -5099,6 +5396,48 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 	}
 }
 ;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+LastActionShortcut:
+;-----------------------------------------------------------
+
+Gosub, SetMenuPosition
+
+Gosub, RefreshLastActionsMenu
+
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;-----------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshLastActionsMenu:
+;------------------------------------------------------------
+
+if !(g_objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
+	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
+	return
+
+intShortcutLastActionsMenu := 0
+
+Menu, %lMenuLastActions%, Add
+Menu, %lMenuLastActions%, DeleteAll
+Loop, Parse, g_strLastActionsOrderedKeys, `n
+	if StrLen(A_LoopField)
+	{
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intShortcutLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intShortcutLastActionsMenu) . " " : "") . A_LoopField
+		AddMenuIcon(lMenuLastActions, strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
+	}
+AddCloseMenu(lMenuLastActions)
+
+intShortcutLastActionsMenu := ""
+strMenuItemName := ""
+
+return
+;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -5420,10 +5759,21 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 				g_intNbLiveFolderItems++
 				if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 					Break
-				strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`n"
+				; favorite type Document is OK for Application items
+				strFiles .= "Document" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				
+				; get links or shortcuts icons
+				if (A_LoopFileExt = "url")
+					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+				else if (A_LoopFileExt = "lnk")
+				{
+					FileGetShortcut, %A_LoopFileLongPath%, strShortcutLocation
+					strFiles .= GetIcon4Location(strShortcutLocation)
+				}
+				; else icon resource will be set when building menu
+				
+				strFiles .= "`n"
 			}
-			; icon resource will be set when building menu
-			; favorite type Document is OK for Application items
 
 	if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 	{
@@ -5440,7 +5790,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		if !StrLen(A_LoopField)
 			break
 		
-		; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders only)
+		; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk)
 		StringSplit, arrItem, A_LoopField, `t
 		
 		if (objLiveFolder.FavoriteFolderLiveColumns and !Mod(A_Index + 1, objLiveFolder.FavoriteFolderLiveColumns)) ; insert column break
@@ -5520,7 +5870,7 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		if (ErrorLevel)
 		{
-			ParseIconResource((strMenuName = "g_menuSwitchFolderOrApp" ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
+			ParseIconResource((strMenuName = lMenuSwitchFolderOrApp ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
 				, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
 		}
@@ -5549,6 +5899,9 @@ for intIndex, objMenuColumnBreak in g_objMenuColumnBreaks
 	pMenuHandle := GetMenuHandle(objMenuColumnBreak.MenuPath) 
 	DllCall("SetMenuItemInfo", "ptr", pMenuHandle, "uint", objMenuColumnBreak.MenuPosition, "int", 1, "ptr", &mii)
 }
+
+intIndex := ""
+objMenuColumnBreak := ""
 
 return
 ;------------------------------------------------------------
@@ -5597,7 +5950,6 @@ RefreshQAPMenu:
 ;------------------------------------------------------------
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
-Gosub, SetTimerRefreshDynamicMenus
 
 g_blnMenuReady := false
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
@@ -5671,8 +6023,10 @@ Gui, 2:Add, Text, y+10 xs, %lOptionsTheme%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
 GuiControl, ChooseString, f_drpTheme, %g_strTheme%
 
-; Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableSharedMenuCatalogueOUT gEnableSharedMenuCatalogueClicked, %lOptionsEnableSharedMenuCatalogue%
-; GuiControl, , f_blnEnableSharedMenuCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+Gui, 2:Add, Text, y+10 xs, %lOptionsQAPTempFolder%:
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
+Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
+GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
@@ -5699,10 +6053,14 @@ GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
 GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
-Gui, 2:Add, Link, y+3 xs+16 w300 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
+Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
+
+Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
+Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
+GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
@@ -5760,9 +6118,17 @@ Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g
 Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
 Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 
+Gui, 2:Add, Text, y+15 xs w300, %lMenuLastActions%
+Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
+Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, %g_intNbLastActions%
+Gui, 2:Add, Text, yp x+10 w235, %lOptionsNbLastActions%
+
 ; column 2
 
-Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
+Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
 GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
@@ -5893,6 +6259,9 @@ Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
 Gosub, ShowGui2AndDisableGui1
+
+intOrder := ""
+strAlternativeCode := ""
 
 return
 ;------------------------------------------------------------
@@ -6025,6 +6394,18 @@ OptionsTitlesSubClicked:
 Gui, 2:Submit, NoHide
 
 GuiControl, Choose, f_intOptionsTab, 5
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RunAsAdminClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+if (f_blnRunAsAdmin)
+	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
 
 return
 ;------------------------------------------------------------
@@ -6171,6 +6552,35 @@ return
 
 
 ;------------------------------------------------------------
+ButtonQAPTempFolderParentPath:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+strExpandQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(f_strQAPTempFolderParentPath))
+FileSelectFolder, strNewQAPTempFolderParentPath, *%strExpandQAPTempFolderParent%, 3, %lOptionsSelectQAPTempFolder%
+if !StrLen(strNewQAPTempFolderParentPath)
+	return
+
+GuiControl, 2:, f_strQAPTempFolderParentPath, %strNewQAPTempFolderParentPath%
+
+strNewQAPTempFolderParentPath := ""
+strExpandQAPTempFolderParent := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshedMenusAttachedClicked:
+;------------------------------------------------------------
+
+Oops(lOptionsRefreshedMenusAttachedInfo, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonExternalMenuSelectCataloguePath:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -6299,7 +6709,7 @@ if (g_intClickedFileManager > 1 and !blnActiveFileManangerOK)
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 if (f_blnOptionsRunAtStartup)
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 g_blnAddAutoAtTop := f_blnAddAutoAtTop
@@ -6312,6 +6722,9 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+blnRunAsAdminPrev := g_blnRunAsAdmin
+g_blnRunAsAdmin := f_blnRunAsAdmin
+IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
 
 strLanguageCodePrev := g_strLanguageCode
 g_strLanguageLabel := f_drpLanguage
@@ -6326,6 +6739,13 @@ IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
 strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
 IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
+
+strQAPTempFolderParentPrev := g_strQAPTempFolderParent
+if StrLen(f_strQAPTempFolderParentPath)
+{
+	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
+	IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
+}
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
@@ -6347,29 +6767,6 @@ IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacr
 ;---------------------------------------
 ; Save Tab 2: Menu options
 
-if !(g_blnPortableMode)
-{
-	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
-		gosub, EnableExplorerContextMenus
-		; else already enabled
-	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
-		gosub, DisableExplorerContextMenus
-		; else already disabled
-	g_blnExplorerContextMenus := f_blnExplorerContextMenus
-	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
-}
-
-g_intRecentFoldersMax := f_intRecentFoldersMax
-IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
-g_blnDisplayIcons := f_blnDisplayIcons
-IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
-g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
-IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
-g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
-IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
-g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
-IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
-
 if (f_radPopupMenuPosition1)
 	g_intPopupMenuPosition := 1
 else if (f_radPopupMenuPosition2)
@@ -6390,11 +6787,37 @@ else
 	g_intHotkeyReminders := 3
 IniWrite, %g_intHotkeyReminders%, %g_strIniFile%, Global, HotkeyReminders
 
+if !(g_blnPortableMode)
+{
+	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+		gosub, EnableExplorerContextMenus
+		; else already enabled
+	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+		gosub, DisableExplorerContextMenus
+		; else already disabled
+	g_blnExplorerContextMenus := f_blnExplorerContextMenus
+	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+}
+
+g_intRecentFoldersMax := f_intRecentFoldersMax
+IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
+
+g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
+IniWrite, %g_blnRefreshedMenusAttached%, %g_strIniFile%, Global, RefreshedMenusAttached
+g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
+IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
+g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
+IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
+g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
+IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
+g_blnDisplayIcons := f_blnDisplayIcons
+IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
 g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
-
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
+g_intNbLastActions := f_intNbLastActions
+IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
 
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
@@ -6482,24 +6905,53 @@ IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerA
 ;---------------------------------------
 ; End of tabs
 
-; if language or theme changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode) or (strThemePrev <> g_strTheme)
+; if language, theme or temporary folder changed, offer to restart the app
+if (strLanguageCodePrev <> g_strLanguageCode)
+	or (strThemePrev <> g_strTheme)
+	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
 {
 	if (strLanguageCodePrev <> g_strLanguageCode)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsLanguage, &
 		strValue := g_strLanguageLabel
 	}
-	else ; (strThemePrev <> g_strTheme)
+	else if (strThemePrev <> g_strTheme)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
 		strValue := g_strTheme
 	}
+	else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
+		strValue := g_strQAPTempFolderParent
+	}
+	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+	{
+		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
+		strValue := (g_blnRunAsAdmin ? lDialogAdmnistrator : lDialogAdmnistratorNot)
+	}
+
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
+	else ; if user declines to reload, restore previous values
+	{
+		if (strLanguageCodePrev <> g_strLanguageCode)
+			g_strLanguageCode := strLanguageCodePrev
+		else if (strThemePrev <> g_strTheme)
+			g_strTheme := strThemePrev
+		else ; (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
+	}
 }	
-
+else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
+{
+	; Do not use ReloadQAP because it would reloas itself with admin right
+	MsgBox, 52, %g_strAppNameText%, % L(lOptionsRunAsAdminExit, g_strAppNameText)
+	IfMsgBox, Yes
+		Gosub, ExitApp
+}
 ; rebuild Folders menus w/ or w/o optional folders and shortcuts
 for strMenuName, arrMenu in g_objMenusIndex
 {
@@ -6507,15 +6959,21 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	arrMenu := "" ; free object's memory
 }
+Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update accrding to g_blnRefreshedMenusAttached
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
 ; and rebuild dynamic menus
 Gosub, RefreshClipboardMenu
-Gosub, RefreshDrivesMenu
-Gosub, RefreshRecentFoldersMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
+Gosub, RefreshLastActionsMenu
+
+if (g_blnRefreshedMenusAttached)
+{
+	Gosub, RefreshDrivesMenu
+	Gosub, RefreshRecentFoldersAndFilesMenus
+}
 
 /*
 if (g_blnDiagMode)
@@ -6532,6 +6990,7 @@ g_blnMenuReady := true
 
 strLanguageCodePrev := ""
 strThemePrev := ""
+strQAPTempFolderParentPrev := ""
 strActiveFileManagerSystemName := ""
 strActiveFileManagerDisplayName := ""
 blnActiveFileManangerOK := ""
@@ -6539,6 +6998,10 @@ strExclusionCleanup := ""
 strTempLocation := ""
 strOptionNoAmpersand := ""
 strValue := ""
+strThisAlternativeCode := ""
+strNewHotkey := ""
+strMenuName := ""
+arrMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -6767,7 +7230,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize636x558, %g_strGuiFullTitle%
+Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x558, %g_strGuiFullTitle%
 
 Gui, +LastFound
 g_strAppHwnd := WinExist()
@@ -6850,7 +7313,7 @@ if !(g_blnDonor)
 {
 	strDonateButtons := "thumbs_up|solutions|handshake|conference|gift"
 	StringSplit, arrDonateButtons, strDonateButtons, |
-	Random, intDonateButton, 1, 5
+	intDonateButton := RandomBetween(1, 5)
 
 	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32" . strSettingsIconsExtension ; Static30
 	Gui, 1:Font, s8 w400, Arial ; button legend
@@ -6863,7 +7326,7 @@ StringSplit, arrSettingsPosition, strSettingsPosition, |
 ; Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
-	? "center w636 h538"
+	? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
 	: "x" . arrSettingsPosition1 . " y" . arrSettingsPosition2)
 sleep, 100
 if (arrSettingsPosition1 <> -1)
@@ -7372,7 +7835,7 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	; returns current or latest file manager window ID and Window class (including dialog boxes), and re-activate the last active file manager window
 	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, false, true)
-	
+
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
 if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
@@ -7482,16 +7945,17 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	
 	Loop, %strIDs%
 	{
-		WinGetClass, strThisClass, % "ahk_id " . strIDs%A_Index%
+		intThisIDIndex := A_Index
+		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
-			or (WindowIsDialog(strThisClass, strIDs%A_Index%) and !blnExcludeDialogBox)
+			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
 			{
-				WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-				WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+				WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+				WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 			}
-			strThisId := strIDs%A_Index%
+			strThisId := strIDs%intThisIDIndex%
 			break
 		}
 		else if (blnIncludeBrowsers)
@@ -7500,10 +7964,11 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 				{
 					if (blnActivate)
 					{
-						WinActivate, % "ahk_id " . strIDs%A_Index% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
-						WinWaitActive, % "ahk_id " . strIDs%A_Index%, , 1 ; wait up to 1 seconds
+						WinActivate, % "ahk_id " . strIDs%intThisIDIndex% ; scan items of the array from the most recently active before invoking the popup menu from the tray icon
+						WinWaitActive, % "ahk_id " . strIDs%intThisIDIndex%, , 1 ; wait up to 1 seconds
 					}
-					strThisId := strIDs%A_Index%
+					strThisId := strIDs%intThisIDIndex%
+					WinGetClass, TEST, % "ahk_id " . strIDs%intThisIDIndex%
 					break, 2
 				}
 	}
@@ -7568,13 +8033,13 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, , %g_strFavoriteDialogTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h420 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
+Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h440 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
@@ -7599,23 +8064,25 @@ Gosub, CheckboxFolderLiveClicked
 
 Gui, 2:Tab
 
+intButtonsY := 460
+
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
-	Gui, 2:Add, Button, y440 vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
 	Gui, 2:Add, Button, yp vf_btnEditFavoriteCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnEditFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
-	Gui, 2:Add, Button, y440 vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopyAmpersand%
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopyAmpersand%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogCopy, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
-	Gui, 2:Add, Button, y440 vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAddAmpersand%
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAddAmpersand%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
 	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogAdd, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
@@ -7640,6 +8107,17 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 Gui, 2:Add, Text
 Gosub, ShowGui2AndDisableGui1
 
+IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition, %A_Space% ; empty by default
+if StrLen(strDialogPosition)
+{
+	StringSplit, arrDialogPosition, strDialogPosition, |
+	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in v8.7.0.9.2 by restoring saved height of previous version
+		arrDialogPosition4 := 544
+	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
+}
+
+*/
+
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
 strGuiFavoriteLabel := ""
@@ -7647,6 +8125,8 @@ arrTop := ""
 g_strNewLocation := ""
 g_blnAbordEdit := ""
 objExternalMenu := ""
+strDialogPosition := ""
+arrDialogPosition := ""
 
 return
 ;------------------------------------------------------------
@@ -7783,7 +8263,7 @@ else ; add favorite
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
-		; Boolean,MinMax,Left,Top,Width,Height,Delay (comma delimited)
+		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height; for example: "1,0,100,50,640,480,200"
 		; record position but keep "use default position"
 		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
@@ -7938,7 +8418,7 @@ else
 	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
+		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
 		, % g_objEditedFavorite.FavoriteName
 }
 
@@ -8007,7 +8487,10 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
-		if (g_objEditedFavorite.FavoriteType = "Application")
+		if (g_objEditedFavorite.FavoriteType <> "Snippet")
+			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
+		
+        if (g_objEditedFavorite.FavoriteType = "Application")
 		{
 			Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, %lDialogBrowseOrSelectApplication%
 			Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
@@ -8015,9 +8498,6 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
 		}
-		else if (g_objEditedFavorite.FavoriteType <> "Snippet")
-			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
-			; {CUR_ placeholders are also supported for applications but we don't have enough room show this tip
 		
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
 			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
@@ -8075,7 +8555,7 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	and (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
-	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
 	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (g_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
@@ -8207,7 +8687,7 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	;  0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
 	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
@@ -8447,8 +8927,7 @@ g_intGui1WinID := WinExist("A")
 
 blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesToMenu")
 
-; Gui, 2:New, +Resize +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, % L((blnMove ? lDialogMoveFavoritesTitle : lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -8479,9 +8958,9 @@ if StrLen(strDialogPosition)
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
 
+blnMove := ""
 arrDialogPosition := ""
 strDialogPosition := ""
-blnMove := ""
 
 return
 ;------------------------------------------------------------
@@ -9110,9 +9589,10 @@ return
 ;------------------------------------------------------------
 GuiShow:
 GuiShowFromAlternative:
-SettingsHotkey:
-GuiShowFromTray:
+GuiShowRestoreDefaultPosition:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
+GuiShowFromTray:
+SettingsHotkey:
 GuiShowFromGuiOptions:
 GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
@@ -9123,7 +9603,7 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set if from Alternative hotkey
+if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set in these cases
 	g_objMenuInGui := g_objMainMenu
 
 Gosub, BackupMenusObjects
@@ -9136,8 +9616,7 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-; Diag(A_ThisLabel, "")
-Gui, 1:Show
+Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
 
 GuiShowCleanup:
 blnSaveEnabled := ""
@@ -9171,6 +9650,9 @@ GetFolderIcon(strFolderLocation)
 	if StrLen(strDesktopIconFile)
 		strDesktopIconFileIndex := PathCombine(strFolderLocation, EnvVars(strDesktopIconFile)) . ","
 			. intDesktopIconIndex + (intDesktopIconIndex >= 0 ? 1 : 0) ; adjust index for positive index only (not for negative index)
+	
+	if !StrLen(strDesktopIconFileIndex)
+		strDesktopIconFileIndex := "iconFolder"
 	
 	return strDesktopIconFileIndex
 }
@@ -9821,10 +10303,10 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 			or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) ; when the name has been edited from another menu
 			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
 		{
-			; ##### decide if we allow automatic rename, or after confirmation
+			; #### decide if we allow automatic rename, or after confirmation
 			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
 				and (g_objEditedFavorite.FavoriteType <> "QAP")
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_objEditedFavorite.FavoriteName .= " [!]" ; and loop
 				else
 					strNewFavoriteShortName .= " [!]" ; and loop
@@ -9834,7 +10316,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 					Oops(lDialogFavoriteNameNotNewQAPfeature, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
 				else
 					Oops(lDialogFavoriteNameNotNew, (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; ##### not in effect now
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_intOriginalMenuPosition++
 				gosub, GuiAddFavoriteSaveCleanup
 				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
@@ -10153,7 +10635,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strExternalMenuPath := ""
 	intMenuExternalType := ""
 	strLastModified := ""
-
+	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
 }
@@ -10706,6 +11188,7 @@ LV_ModifyCol(7, 0)
 DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked window.
 
 intHotkeysManageListWinID := ""
+strQAPFeatureCode := ""
 
 return
 ;------------------------------------------------------------
@@ -10954,11 +11437,14 @@ GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . str
 
 if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
 {
-	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
-	; this favorite could not be edited because it is in an external menu locked by another user,
-	; or because external settings file is in a read-only folder, or because external files was modified 
-	; by another user since it was loaded in QAP by this user
-		goto, IconsManagePickIconDialogCleanup
+	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu)
+		if !ExternalMenuAvailableForLock(objExternalMenu)
+			; this favorite could not be edited because it is in an external menu locked by another user,
+			; or because external settings file is in a read-only folder, or because external files was modified 
+			; by another user since it was loaded in QAP by this user
+			goto, IconsManagePickIconDialogCleanup
+		else ; flag that this external menu needs to be saved
+			objExternalMenu.NeedSave := true
 	; else continue
 
 	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
@@ -11144,7 +11630,7 @@ for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
 	if RecursiveHotkeyNotNeeded(strThisNameLocation, g_objMainMenu)
 	{
 		g_objHotkeysByNameLocation.Remove(strThisNameLocation)
-		Hotkey, %strThisHotkey%, , Off
+		Hotkey, %strThisHotkey%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	}
 
 Gosub, DisablePreviousLocationHotkeys ; disable hotkeys found in ini file before updating the ini file
@@ -11156,7 +11642,6 @@ Gosub, LoadMenuFromIni ; load favorites to menu object
 ToolTip, %lGuiSaving%... ; animated tooltip
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
-Gosub, SetTimerRefreshDynamicMenus
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 Gosub, ExternalMenusRelease ; release reserved external menus
 
@@ -11177,6 +11662,8 @@ else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	
 g_intIniLine := ""
 strSavedMenuInGui := ""
+strThisNameLocation := ""
+strThisHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -11781,7 +12268,7 @@ Loop
 	if (strLocationHotkey = "ERROR")
 		break
 	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey
-	Hotkey, %arrLocationHotkey3%, , Off
+	Hotkey, %arrLocationHotkey3%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 }
 
 strLocationHotkey := ""
@@ -11921,12 +12408,22 @@ return
 2GuiSize:
 ;------------------------------------------------------------
 
-return ; work in progress, will be completed in next beta phase
+WinGetTitle, strThisTitle, A
 
-; the only level 2 gui resizable is multiple copy/move in created in GuiMoveMultipleFavoritesToMenu or GuiCopyMultipleFavoritesToMenu
-
-GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
-GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
+if WindowIsAddEditCopyFavorite(strThisTitle)
+{
+	; resize add/edit/copy favorite dialog box to select long parent menu
+	GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 50
+	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 50
+	GuiControl, 2:Move, f_intAddFavoriteTab, % "w" . A_GuiWidth - 30
+}
+else if WindowIsToMenuDialogBox(strThisTitle)
+{
+	; resize dialog box to select destination menu when copying/moving multiple favorites
+	GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 20
+	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 30
+}
+strThisTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -11937,25 +12434,22 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-; save position and size of dialog box to select destination menu when copying/moving multiple favorites
-WinGetTitle, g_strFavoriteDialogTitle, A
-g_strFavoriteDialogTitle := SubStr(g_strFavoriteDialogTitle, 1, InStr(g_strFavoriteDialogTitle, " - "))
-if InStr(lDialogMoveFavoritesTitle, g_strFavoriteDialogTitle) or InStr(lDialogCopyFavoritesTitle, g_strFavoriteDialogTitle)
+; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
+
+WinGetTitle, strThisTitle, A
+blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
+blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
+
+if (blnIsAddEditCopyFavorite or blnIsToMenuDialogBox)
 {
 	WinGet, intMinMax, MinMax, A
-	if (intMinMax <> 1) ; if window is maximized, we keep the previous position and size
+	if (intMinMax <> 1) ; ignore if window is maximized (it should not be but for safety)
 	{
 		WinGetPos, intX, intY, intW, intH, A
 		strDialogPosition := intX . "|" . intY . "|" . intW . "|" . intH
-		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, CopyMoveDialogPosition
-		intX := ""
-		intY := ""
-		intW := ""
-		intH := ""
+		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, % (blnIsToMenuDialogBox ? "CopyMoveDialogPosition" : "AddEditCopyFavoriteDialogPosition")
 	}
-	intMinMax := ""
 }
-g_strFavoriteDialogTitle := ""
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -11964,6 +12458,16 @@ if (g_intGui1WinID <> A_ScriptHwnd)
 
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, On, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+
+strThisTitle := ""
+blnIsAddEditCopyFavorite := ""
+blnIsToMenuDialogBox := ""
+intMinMax := ""
+strDialogPosition := ""
+intX := ""
+intY := ""
+intW := ""
+intH := ""
 
 return
 ;------------------------------------------------------------
@@ -12013,28 +12517,7 @@ for strMenuPath, objMenuSource in objMenusSource
 	loop, % objMenuSource.MaxIndex()
 	{
 		objFavorite := Object()
-		objFavorite.FavoriteType := objMenuSource[A_Index].FavoriteType ; 1
-		objFavorite.FavoriteName := objMenuSource[A_Index].FavoriteName ; 2
-		objFavorite.FavoriteLocation := objMenuSource[A_Index].FavoriteLocation ; 3
-		objFavorite.FavoriteIconResource := objMenuSource[A_Index].FavoriteIconResource ; 4
-		objFavorite.FavoriteArguments := objMenuSource[A_Index].FavoriteArguments ; 5
-		objFavorite.FavoriteAppWorkingDir := objMenuSource[A_Index].FavoriteAppWorkingDir ; 6
-		objFavorite.FavoriteWindowPosition := objMenuSource[A_Index].FavoriteWindowPosition ; 7
-		; REMOVED objFavorite.FavoriteHotkey := objMenuSource[A_Index].FavoriteHotkey
-		objFavorite.FavoriteLaunchWith := objMenuSource[A_Index].FavoriteLaunchWith ; 8
-		objFavorite.FavoriteLoginName := objMenuSource[A_Index].FavoriteLoginName ; 9
-		objFavorite.FavoritePassword := objMenuSource[A_Index].FavoritePassword ; 10
-		objFavorite.FavoriteGroupSettings := objMenuSource[A_Index].FavoriteGroupSettings ; 11
-		objFavorite.FavoriteFtpEncoding := objMenuSource[A_Index].FavoriteFtpEncoding ; 12
-		objFavorite.FavoriteElevate := objMenuSource[A_Index].FavoriteElevate ; 13
-		objFavorite.FavoriteDisabled := objMenuSource[A_Index].FavoriteDisabled ; 14
-		objFavorite.FavoriteFolderLiveLevels := objMenuSource[A_Index].FavoriteFolderLiveLevels ; 15
-		objFavorite.FavoriteFolderLiveDocuments := objMenuSource[A_Index].FavoriteFolderLiveDocuments ; 16
-		objFavorite.FavoriteFolderLiveColumns := objMenuSource[A_Index].FavoriteFolderLiveColumns ; 17
-		objFavorite.FavoriteFolderLiveIncludeExclude := objMenuSource[A_Index].FavoriteFolderLiveIncludeExclude ; 18
-		objFavorite.FavoriteFolderLiveExtensions := objMenuSource[A_Index].FavoriteFolderLiveExtensions ; 19
-		; do not backup objMenuSource[A_Index].SubMenu because we have to recreate them
-		; after menu/groups objects are recreated during restore
+		objFavorite := CopyFavoriteObject(objMenuSource[A_Index])
 		objMenuDest.Insert(objFavorite)
 	}
 	
@@ -12044,6 +12527,7 @@ for strMenuPath, objMenuSource in objMenusSource
 		g_objMenusIndex.Insert(strMenuPath, objMenuDest)
 }
 
+; reconnect submenu after they are recreated during restore
 if (A_ThisLabel = "RestoreBackupMenusObjects")
 {
 	g_objMainMenu := g_objMenusIndex[lMainMenuName] ; re-connect main menu
@@ -12096,6 +12580,7 @@ strThisHotkey := ""
 intInStr := ""
 strParentPath := ""
 objParentMenu := ""
+strThisNameLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -12210,12 +12695,18 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 
 ; ####
 
-; refresh the five dynamic menus before showing the main menu
+; refresh the dynamic menus before showing the main menu
 ; in order of estimated avverage time required to refresh
-Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes g_menuReopenFolder
+Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
-; Gosub, RefreshRecentFoldersMenu ; displays the wait cursor
-; Gosub, RefreshDrivesMenu ; displays the wait cursor
+Gosub, RefreshLastActionsMenu
+
+if (g_blnRefreshedMenusAttached)
+{
+	; displays the wait cursor
+	Gosub, RefreshDrivesMenu
+	gosub, RefreshRecentFoldersAndFilesMenus
+}
 
 /*
 if (g_blnDiagMode)
@@ -12245,8 +12736,6 @@ DiagWindowInfo(A_ThisLabel . " After SwitchToThisWindow")
 */
 
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
-
-; Gosub, SetTimerRefreshDynamicMenus ; after showing the menu THIS COMMAND BREAKS THE SUBMENU QAP ESSENTIALS !!!
 
 return
 ;------------------------------------------------------------
@@ -12308,7 +12797,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 ; "CabinetWClass" and "ExploreWClass" -> Explorer
 ; "ProgMan" -> Desktop
 ; "WorkerW" -> Desktop
-; "ConsoleWindowClass" -> Console (CMD)
+; "ConsoleWindowClass" -> Console (CMD) or PowerShell
 ; "#32770" -> Dialog
 ; "bosa_sdm_" (...) -> Dialog MS Office under WinXP
 ;------------------------------------------------------------
@@ -12470,10 +12959,23 @@ WindowIsConsole(strClass)
 WindowIsDialog(strClass, strWinId)
 ;------------------------------------------------------------
 {
-	return (strClass = "#32770") and !WindowIsTreeview(strWinId)
+	return (strClass = "#32770") and !WindowIsTreeview(strWinId) and DialogHasRequiredControle(strWinId)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DialogHasRequiredControle(strWinId)
+; Disable popup menu in dialog boxes when its controls list does not fullfil these conditions:
+; include ("Edit1" or "Edit2") and ("ToolBarWindow32" or "SysListView32" or "SysTreeView32" or "DirectUIHWND") and ("Button")
+; Thanks to research by Helge Kraak
+;------------------------------------------------------------
+{
+	WinGet, strControlsList, ControlList, ahk_id %strWinId%
 	
-	; or InStr(strClass, "bosa_sdm_")
-	; Removed 2014-09-27  (see http://code.jeanlalonde.ca/folderspopupv3archives/#comment-7912)
+	return (InStr(strControlsList, "Edit1") or InStr(strControlsList, "Edit2"))
+		and (InStr(strControlsList, "ToolBarWindow32") or InStr(strControlsList, "SysListView32") or InStr(strControlsList, "SysTreeView32") or InStr(strControlsList, "DirectUIHWND"))
+		and InStr(strControlsList, "Button")
 }
 ;------------------------------------------------------------
 
@@ -12768,12 +13270,41 @@ return
 ;------------------------------------------------------------
 
 
+;-----------------------------------------------------------
+RepeatLastAction:
+RepeatLastActionShortcut:
+;-----------------------------------------------------------
+
+if (g_blnDisplayNumericShortcuts)
+	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
+else
+	strThisMenuItem :=  A_ThisMenuItem
+
+if (A_ThisLabel = "RepeatLastActionShortcut" ; Repeat Last Action shortcut
+	or SubStr(strThisMenuItem, 1, StrLen(lMenuLastAction)) = lMenuLastAction) ; menu item is "Repeat Last Action" (stripping shortcut from label)
+	; use first item from g_strLastActionsOrderedKeys
+	g_strLastActionRepeated := SubStr(g_strLastActionsOrderedKeys, InStr(g_strLastActionsOrderedKeys, "|") + 1, InStr(g_strLastActionsOrderedKeys, "`n") - 1)
+else ; item from the Repeat Last Actions menu
+	g_strLastActionRepeated := strThisMenuItem
+
+g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
+
+gosub, OpenFavoriteFromLastAction
+
+strThisMenuItem := ""
+
+return
+;-----------------------------------------------------------
+
+
 ;------------------------------------------------------------
 OpenFavorite:
 OpenFavoriteGroup:
 OpenFavoriteFromGroup:
 OpenFavoriteFromHotkey:
+OpenFavoriteFromLastAction:
 OpenRecentFolder:
+OpenRecentFile:
 OpenReopenFolder:
 OpenClipboard:
 OpenDrives:
@@ -12788,7 +13319,7 @@ g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
-if InStr("OpenFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
 {
 	blnShiftPressed := GetKeyState("Shift")
 	blnControlPressed := GetKeyState("Control")
@@ -12828,7 +13359,7 @@ if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFa
 	g_strTargetWinId := "" ; never use target window when launched in a group
 	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
 }
-else
+else if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have g_objThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
 
 /*
@@ -12873,6 +13404,14 @@ if (blnShiftPressed or blnControlPressed)
 	else ; blnControlPressed as if user selected lMenuCopyLocation in Alternative menu
 		g_strAlternativeMenu := lMenuCopyLocation
 }
+
+; collect last actions
+
+if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollected - no need to collect group members
+	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
+	gosub, CollectLastActions ; update g_objLastActions
+
+; beginning of OpenFavorite execution
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
@@ -13007,20 +13546,6 @@ if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have locat
 	}
 }
 
-if (g_objThisFavorite.FavoriteType = "Application") and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
-	and AppIsRunning(g_strFullLocation, strAppID) ; g_strFullLocation includes optional parameter
-{
-	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
-	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
-	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
-	
-	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
-	WinActivate, ahk_id %strAppID%
-	
-	gosub, OpenFavoriteCleanup
-	return
-}
-
 ; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
 ; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
@@ -13036,11 +13561,12 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 if (g_blnAlternativeMenu)
 {
 	; ###_V(A_ThisLabel, "*g_strFullLocation", g_strFullLocation
+		; , "*A_ThisMenu", A_ThisMenu
 		; , "*g_objMenusIndex[A_ThisMenu].MenuPath", g_objMenusIndex[A_ThisMenu].MenuPath
 		; , "*g_intOriginalMenuPosition", g_intOriginalMenuPosition
 		; , "*GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition)", GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition).FavoriteName
 		; , "")
-	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite)
+	if (g_strAlternativeMenu = lMenuAlternativeEditFavorite and A_ThisMenu <> lMenuLastActions)
 	{
 		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
 		
@@ -13087,6 +13613,25 @@ if (g_blnAlternativeMenu)
 if (g_objThisFavorite.FavoriteType = "Text")
 ; if we did not have to edit a Text Separator, we must stop here
 {
+	gosub, OpenFavoriteCleanup
+	return
+}
+
+if (g_objThisFavorite.FavoriteType = "Application")
+	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
+	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
+{
+	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
+	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
+	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
+	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
+	
+	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
+	WinGet, intMinMax, MinMax, ahk_id %strAppID%
+	if (intMinMax = -1) ; restore if window is minimized
+		WinRestore, ahk_id %strAppID%
+	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
+	
 	gosub, OpenFavoriteCleanup
 	return
 }
@@ -13154,7 +13699,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 ; --- QAP Command ---
 
-if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+if InStr("OpenFavorite|OpenFavoriteFromHotkey|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel) and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	gosub, OpenFavoriteCleanup
@@ -13202,6 +13747,7 @@ blnControlPressed := ""
 strCurrentAppWorkingDir := ""
 objContainingFavorite := ""
 strContainingFolder := ""
+intMinMax := ""
 
 return
 ;------------------------------------------------------------
@@ -13271,6 +13817,8 @@ return
 ;------------------------------------------------------------
 OpenFavoriteGetFavoriteObject:
 ;------------------------------------------------------------
+
+g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, so kill this variable
 
 if (g_blnDisplayNumericShortcuts)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
@@ -13381,7 +13929,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
-else ; OpenRecentFolder or OpenClipboard
+else ; OpenRecentFolder, OpenRecentFiles or OpenClipboard
 {
 	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
 		strFavoriteType := "URL"
@@ -13601,6 +14149,60 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 			intDisabledItemsBeforeThisItem++
 	}
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CollectLastActions:
+; add opened favorite to last actions and update g_strLastActionsOrderedKeys
+;------------------------------------------------------------
+
+if (g_objThisFavorite.FavoriteName = lMenuLastAction) ; do not collect QAP feature Repeat Last Action
+	or (g_objThisFavorite.FavoriteName = lMenuLastActions) ; do not collect QAP feature Repeat Last Actions
+	or (g_objThisFavorite.FavoriteType = "Text") ; do not collect text separators
+	return
+
+if StrLen(g_strLastActionRepeated) ; we are repeating an action
+{
+	objNewLastAction := g_objLastActions[g_strLastActionRepeated]
+	strLastActionLabel := g_strLastActionRepeated
+}
+else
+{
+	objNewLastAction := Object()
+	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+}
+objNewLastAction.OpenTimeStamp := A_Now
+
+; insert in g_objLastActions
+if g_objLastActions.HasKey(strLastActionLabel)
+	g_objLastActions.Delete(strLastActionLabel) ; kill previous item for this key
+g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
+
+strLastActionsOrdered := ""
+for strLastActionLabel, objLastAction in g_objLastActions
+	strLastActionsOrdered .= objLastAction.OpenTimeStamp . "|" . strLastActionLabel . "`n"
+
+Sort, strLastActionsOrdered, R
+
+g_strLastActionsOrderedKeys := ""
+loop, parse, strLastActionsOrdered, `n
+{
+	if !StrLen(A_LoopField)
+		break
+	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, "|") + 1)
+	if (A_Index > g_intNbLastActions)
+		g_objLastActions.Delete(strThisLastActionKey) ; kill older items
+	else
+		g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
+}
+
+strLastActionLabel := ""
+strLastActionsOrdered := ""
+objLastAction := ""
+
+return
 ;------------------------------------------------------------
 
 
@@ -13938,24 +14540,30 @@ OpenFavoriteNavigateConsole:
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 
+WinGet, strProcessName, ProcessName, ahk_id %g_strTargetWinId%
+; add /D option only for cmd.exe, not required for powershell.exe
+strCommand := "CD " . (strProcessName = "powershell.exe" ? "" : "/D ") ; must end with space
+
 if (g_blnSendToConsoleWithAlt)
 ; using ALT+0nnn ASCII codes for console with international keyboard input language
 {
-	strSendToConsoleWithAlt := "CD /D " . g_strFullLocation
-	loop, parse, strSendToConsoleWithAlt
+	strCommand .= """" . g_strFullLocation . """" ; double-quotes required for PowerShell
+	loop, parse, strCommand
 		; ANSI characters (like "é") are supported by preceeding the ASCII code with 0, but Unicode characters are not supported
 		; see https://autohotkey.com/docs/commands/Send.htm#asc
 		strSendToConsoleAscCodes .= "{ASC 0" . Asc(A_LoopField) . "}"
 	SendInput, %strSendToConsoleAscCodes%
 
-	strSendToConsoleWithAlt := ""
 	strSendToConsoleAscCodes := ""
 }
 else
-	SendInput, {Raw}CD /D %g_strFullLocation%
+	SendInput, % "{Raw}" . strCommand . """" . g_strFullLocation . """" ; double-quotes required for PowerShell
 
 Sleep, 200
 SendInput, {Enter}
+
+strProcessName := ""
+strCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -14183,11 +14791,10 @@ return
 OpenFavoriteInNewWindowDirectoryOpus:
 ;------------------------------------------------------------
 
+if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " NEWTAB") ; open in a new tab of pane 1
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
-
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 {
 	if (g_blnFirstItemOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
 		strTabParameter := "NEW=nodual"
@@ -14205,17 +14812,18 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 else
 {
 	strTabParameter := g_strDirectoryOpusNewTabOrWindow
-	arrFavoriteWindowPosition8 := ""
+	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
+StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instead of activating by QAP as in previous versions
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
-WinWait, ahk_class dopus.lister, , 10
-WinActivate, ahk_class dopus.lister
-g_strNewWindowId := "ahk_class dopus.lister"
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
 arrFavoriteWindowPosition := ""
+objDOpusListers := ""
+intIndex := ""
+objLister := ""
 
 return
 ;------------------------------------------------------------
@@ -14411,24 +15019,47 @@ return
 ;------------------------------------------------------------
 ReloadQAP:
 ReloadQAPSwitch:
+ReloadAsAdmin:
 ;------------------------------------------------------------
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
-; To pass such parameters, do not use Reload. Instead, use Run in conjunction with A_AhkPath and A_ScriptFullPath
-; (and A_IsCompiled if the script is ever used in compiled form). Also, include the string /restart as the first parameter
-; (i.e. after the name of the executable), which tells the program to use the same behavior as Reload.
+; Also, include the string /restart as the first parameter (i.e. after the name of the executable), which tells the program to
+; use the same behavior as Reload.
 
 ; make sure the default system mouse pointer are reset before reloading QAP
 SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
-	g_strCurrentCommandLineParameters := "/Settings:" . g_strSwitchSettingsFile
-	; review this when parameters other than "/Settings:" is used in the future
+	; update Settings param
+	g_objCommandLineParams["/Settings:"] := g_strSwitchSettingsFile
 
-if (A_IsCompiled)
-	Run, %A_ScriptFullPath% /restart "%g_strCurrentCommandLineParameters%"
-else
-	Run, %A_AhkPath% /restart %A_ScriptFullPath% "%g_strCurrentCommandLineParameters%"
+; keep other params received from command-line as collected in g_objCommandLineParams
+strCurrentCommandLineParameters := ConcatenateParamsString(g_objCommandLineParams)
+
+; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered "No" to
+; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
+; On failure, the new instance exits and RunWait returns."
+
+; Putting "*RunAs" in a variable caused an error when making it empty to launch without admin right
+
+try
+{
+	if (A_IsCompiled)
+		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+			RunWait, *RunAs %A_ScriptFullPath% /restart %strCurrentCommandLineParameters%
+		else
+			RunWait, %A_ScriptFullPath% /restart %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
+	else
+		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+			RunWait, *RunAs %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters%
+		else
+			RunWait, %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
+	ExitApp
+}
+
+Oops(lOopsNotAdmin, g_strAppNameText)
+
+strCurrentCommandLineParameters := ""
 
 return
 ;------------------------------------------------------------
@@ -14456,7 +15087,18 @@ Menu, Tray, Togglecheck, %lMenuRunAtStartupAmpersand%
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 else
-	FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	Gosub, CreateStartupShortcut
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CreateStartupShortcut:
+;------------------------------------------------------------
+
+FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
+	, % ConcatenateParamsString(g_objCommandLineParams) ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
 
 return
 ;------------------------------------------------------------
@@ -15172,7 +15814,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w380, % L(lAboutText1, g_strAppNameText, g_strAppVersion, A_PtrSize * 8) ;  ; A_PtrSize * 8 = 32 or 64
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText)
+Gui, 2:Add, Link, w380, % L(lAboutText2, g_strAppNameText, A_AhkVersion)
 FormatTime, strYear, , yyyy ; current time
 Gui, 2:Add, Link, w380, % L(lAboutText3, chr(169), strYear)
 Gui, 2:Add, Text, w380, % L(lAboutUserComputerName, A_UserName, A_ComputerName)
@@ -15550,11 +16192,12 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 	if (strCommand = "/info")
 	{
 		Process, Exist, dopus.exe
-		; abord if DOpus.exe is not running
+		; abort if DOpus.exe is not running
 		if !(ErrorLevel)
 			return
 	}
 	
+	; ###_V(A_ThisFunc, """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam)
 	if FileExist(g_strDirectoryOpusRtPath) ; for safety only
 		Run, % """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
 }
@@ -16492,9 +17135,9 @@ UriEncode(str)
 ; edited to encode also "@" see http://stackoverflow.com/questions/32341476/valid-url-for-an-ftp-site-with-username-containing/
 ;------------------------------------------------------------
 { 
-   b_Format := A_FormatInteger 
+   strFormat := A_FormatInteger 
    data := "" 
-   SetFormat,Integer,H 
+   SetFormat, Integer, H 
    SizeInBytes := StrPutVar(str,var,"utf-8")
    Loop, %SizeInBytes%
    {
@@ -16506,7 +17149,7 @@ UriEncode(str)
    Else
       s .= Chr(ch)
    }   
-   SetFormat,Integer,%b_format% 
+   SetFormat, Integer, %strformat% 
    return s 
 } 
 ;------------------------------------------------------------
@@ -16731,21 +17374,43 @@ EnvVars(str)
 
 
 ;------------------------------------------------------------
-AppIsRunning(strAppPath, ByRef strAppID)
+AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Based on Drugoy (https://github.com/Drugoy/Autohotkey-scripts-.ahk/blob/master/DevTools/showPerWindowInfoOfAllWindows.ahk)
+; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
 	Loop, %strWinIDs%
 	{
+		
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
 			strAppID := strWinIDs%A_Index%
-			return true
+			WinGet, intPid , PID, % "ahk_id " . strWinIDs%A_Index%
+			if (blnDesiredElevated = IsProcessElevated(intPid))
+				return true
 		}
 	}
 	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+IsProcessElevated(ProcessID)
+; from jNizM on https://autohotkey.com/boards/viewtopic.php?p=96016#p96016
+; with fix https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+;------------------------------------------------------------
+{
+    if !(hProcess := DllCall("OpenProcess", "uint", 0x1000, "int", 0, "uint", ProcessID, "ptr"))
+		; Use 0x1000 (PROCESS_QUERY_LIMITED_INFORMATION) instead of 0x0400 (PROCESS_QUERY_INFORMATION) - see https://autohotkey.com/boards/viewtopic.php?f=5&t=40657
+        throw Exception("OpenProcess failed", -1)
+    if !(DllCall("advapi32\OpenProcessToken", "ptr", hProcess, "uint", 0x0008, "ptr*", hToken))
+        throw Exception("OpenProcessToken failed", -1), DllCall("CloseHandle", "ptr", hProcess)
+    if !(DllCall("advapi32\GetTokenInformation", "ptr", hToken, "int", 20, "uint*", IsElevated, "uint", 4, "uint*", size))
+        throw Exception("GetTokenInformation failed", -1), DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
+    return IsElevated, DllCall("CloseHandle", "ptr", hToken) && DllCall("CloseHandle", "ptr", hProcess)
 }
 ;------------------------------------------------------------
 
@@ -17181,8 +17846,8 @@ ExternalMenuFolderIsReadOnly(strFile)
 	
 	if !g_objExternalMenuFolderReadOnly.HasKey(strFolder) ; if folder of file was not already checked
 	{
-		Random, intRandom ; by default an integer between 0 and 2147483647 to generate a random file number and variable number
-		strRandomFile := strFolder . "\~$_QAP_Test_file_" . intRandom . ".ini" ; Dropbox does not syn files starting with ~$
+		; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+		strRandomFile := strFolder . "\~$_QAP_Test_file_" . RandomBetween() . ".ini" ; Dropbox does not syn files starting with ~$
 		
 		IniWrite, %A_UserName% on %A_ComputerName% at %A_Now%, %strRandomFile%, Global, WriteAccessTest
 		Sleep, 20 ; for safety
@@ -17300,9 +17965,10 @@ GetCurrentUrlDDE(strClass)
 
 ;------------------------------------------------------------
 GetCurrentUrlAcc(strClass)
-; Found at http://autohotkey.com/board/topic/17633-/?p=434518 (via Joe Glines)
+; Found at https://autohotkey.com/boards/viewtopic.php?f=6&t=3702&start=60
 ;------------------------------------------------------------
 {
+	; static or global?
 	global nWindow
 	global accAddressBar
 	
@@ -17331,19 +17997,24 @@ GetCurrentUrlAcc(strClass)
 
 
 ;------------------------------------------------------------
-GetAddressBar(accObj)
-; "GetAddressBar" based in code by uname (via Joe Glines)
-; Found at http://autohotkey.com/board/topic/103178-/?p=637687
+GetAddressBar(accObj, accPath:="")
+; "GetAddressBar" based in code by stealzy
+; Found at https://autohotkey.com/boards/viewtopic.php?p=109548#p109548
 ; IsUrl in this functions above replaced by my own code LocationIsHttp
 ;------------------------------------------------------------
 {
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp(accObj.accValue(0)))
+	n := 0
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp(accObj.accValue(0)))
 		Return accObj
-	Try If ((accObj.accRole(0) == 42) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
+	Try If ((accObj.accRole(0) == 42) and StrLen(accObj.accValue(0)) and LocationIsHttp("http://" . accObj.accValue(0))) ; Modern browsers omit "http://"
 		Return accObj
 	For nChild, accChild in GetCurrentUrlAccChildren(accObj)
-		If IsObject(accAddressBar := GetAddressBar(accChild))
+	{
+		n++
+		currentPath := accPath . n . "."
+		If IsObject(accAddressBar := GetAddressBar(accChild, currentPath))
 			Return accAddressBar
+	}
 }
 ;------------------------------------------------------------
 
@@ -17431,6 +18102,86 @@ CopyFavoriteObject(objSourceFavorite)
 }
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+WindowIsToMenuDialogBox(strTitle)
+;------------------------------------------------------------
+{
+	strTitle := SubStr(strTitle, 1, InStr(strTitle, " - "))
+	return InStr(lDialogMoveFavoritesTitle, strTitle) or InStr(lDialogCopyFavoritesTitle, strTitle)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+WindowIsAddEditCopyFavorite(strTitle)
+;------------------------------------------------------------
+{
+	strTitle := SubStr(strTitle, 1, InStr(strTitle, ":"))
+	return StrLen(strTitle)
+		and (InStr(L(lDialogAddEditFavoriteTitle, lDialogAdd), strTitle)
+		or InStr(L(lDialogAddEditFavoriteTitle, lDialogEdit), strTitle)
+		or InStr(L(lDialogAddEditFavoriteTitle, lDialogCopy), strTitle))
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+QAPSettingsString()
+;------------------------------------------------------------
+{
+	global g_strAppNameText
+	global g_strAppVersion
+	
+	return L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetInputLanguage()
+; from YMP (https://autohotkey.com/board/topic/43043-get-current-keyboard-layout/#entry268123)
+;------------------------------------------------------------
+{
+	strFormat := A_FormatInteger
+	SetFormat, Integer, H ; integer hexa
+	strProcessID := DllCall("GetCurrentProcessId")
+	strThreadID := DllCall("GetWindowThreadProcessId", "UInt", strProcessID, "UInt", 0)
+	strInputLanguage := DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt")
+	SetFormat, Integer, %strFormat% ; integer back to previsous format
+	
+	StringRight, strInputLanguage, strInputLanguage, 4 ; keep four right digits
+	
+	return strInputLanguage
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RandomBetween(intMin := 0, intMax := 2147483647)
+;------------------------------------------------------------
+{
+	Random, intValue, %intMin%, %intMax%
+	
+	return intValue
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ConcatenateParamsString(objParams)
+;------------------------------------------------------------
+{
+	strConcat := ""
+	for strParam, strValue in objParams
+	{
+		strQuotes := (InStr(strParam . strValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
+		strConcat .= strQuotes . strParam . strValue . strQuotes . " " ; separate params with space
+	}
+	StringTrimRight, strConcat, strConcat, 1 ; remove last space
+	return strConcat
+}
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
