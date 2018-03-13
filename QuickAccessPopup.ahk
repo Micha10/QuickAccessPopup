@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.9.1.4 (2018-03-??)
+Version BETA: 8.9.1.4 (2018-03-13)
 - categorize QAP features, one feature to 1-to-n categories
 - init QAP features with one help URL for each feature
 - replace QAP Features dropdown list with a tree view containing QAP featurees grouped by categories
@@ -66,7 +66,7 @@ Tray menu (QAP icon in Notification zone)
 - add "Refresh Live folder menus" to the Tray menu
 
 Version BETA: 8.9.1.2 (2018-02-23)
-- add in "Menu" tab of "Options" windows an option to set the number of seconds between scheduled refresh of the QAP menu including Live Folders and Shared menus (during refresh the menu is not available)
+- add in "Menu" tab of "Options" windows an option to set the number of seconds between scheduled refresh of the QAP menu including Live Folders (during refresh the menu is not available)
 - add a checkbox "Beep before and after refresh (debug)" to help estimate the time required to refresh the menu
 - add value "RefreshQAPMenuIntervalSec" to quickaccesspopup.ini file with the number of seconds between scheduled refresh
 - add debug value "RefreshQAPMenuDebugBeep" to quickaccesspopup.ini file to sound beep before and after scheduled menu refresh
@@ -2075,7 +2075,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.2
+;@Ahk2Exe-SetVersion 8.9.1.4
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2160,7 +2160,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
