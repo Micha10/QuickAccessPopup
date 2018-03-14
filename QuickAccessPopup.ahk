@@ -8730,6 +8730,11 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 }
 else ; add favorite
 {
+	strOriginalExtension := GetFileExtension(g_strNewLocation)
+	if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
+		; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+		FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
+		
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 		and (InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
 			or (strGuiFavoriteLabel = "GuiAddFromDropFiles"))
@@ -8800,10 +8805,6 @@ else ; add favorite
 	}
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress|GuiAddShortcutFromMsg", strGuiFavoriteLabel)
 	{
-		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg")
-			; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
-			FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
-		
 		strExtension := GetFileExtension(g_strNewLocation)
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
 			g_objEditedFavorite.FavoriteType := "Application"
@@ -8812,7 +8813,7 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 		
-		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg")
+		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 			g_objEditedFavorite.FavoriteAppWorkingDir := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutWorkingDir : "")
