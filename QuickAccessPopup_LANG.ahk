@@ -255,6 +255,7 @@ global lDialogSettingsNotSavedTitle := "~1~ - Settings not saved"
 global lDialogShift := "Shift" ; renamed
 global lDialogShortcut := "Shortcut"
 global lDialogShortcuts := "Shortcuts"
+global lDialogSpecialFoldersCategoriesNames := "Basic|Power User|Sysadmin|Contents|Hardware"
 global lDialogState := "Window State:" ; new
 global lDialogSubmenuNameEmpty := "The submenu name is empty. Please choose a name."
 global lDialogSubmenuParentMenu := "Submenu parent menu"
