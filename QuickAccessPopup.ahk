@@ -2213,7 +2213,6 @@ ResetArray("g_arrMouseButtonsText")
 
 g_objClassIdOrPathByDefaultName := Object() ; used by InitSpecialFolders and CollectExplorers
 g_objSpecialFolders := Object()
-g_strSpecialFoldersList := ""
 
 g_objQAPFeatures := Object()
 g_objQAPFeaturesCodeByDefaultName := Object()
@@ -2275,6 +2274,7 @@ Gosub, InitSystemArrays
 Gosub, InitLanguages
 Gosub, InitLanguageArrays
 Gosub, InitSpecialFolders
+Gosub, InitSpecialFoldersCategories
 Gosub, InitQAPFeaturesURLs
 Gosub, InitQAPFeatures
 Gosub, InitGuiControls
@@ -2961,6 +2961,14 @@ g_objQAPCategories := Object()
 Loop, %g_arrQAPFeaturesCategories0%
 	g_objQAPCategories[g_arrQAPFeaturesCategories%A_Index%] := arrQAPFeatureCategoriesNames%A_Index%
 
+; ----------------------
+; Windows Special Folders Categories Names
+; 1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware
+StringSplit, arrSpecialFoldersCategoriesNames, lDialogSpecialFoldersCategoriesNames, |
+g_objSpecialFoldersCategories := Object()
+Loop, %g_arrSpecialFoldersCategories0%
+	g_objSpecialFoldersCategories[g_arrSpecialFoldersCategories%A_Index%] := arrSpecialFoldersCategoriesNames%A_Index%
+
 strOptionsLanguageCodes := ""
 strFavoriteTypes := ""
 ResetArray("arrFavoriteTypesLabels")
@@ -2969,6 +2977,80 @@ ResetArray("arrFavoriteTypesLocationLabelsNoAmpersand")
 ResetArray("arrFavoriteTypesHelp")
 ResetArray("arrFavoriteTypesShortNames")
 ResetArray("arrQAPFeatureCategoriesNames")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+InitSpecialFoldersCategories:
+; g_objSpecialFolders[key].Categories: categories, one or many (pipe delimited) of 1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware
+;------------------------------------------------------------
+
+g_objSpecialFolders["%ALLUSERSPROFILE%"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Startup"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%APPDATA%"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%APPDATA%\Microsoft\Internet Explorer\Quick Launch"].Categories := "2-Power User|4-Contents"
+g_objSpecialFolders["%APPDATA%\Microsoft\SystemCertificates"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Recent"].Categories := "2-Power User|4-Contents"
+g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Start Menu"].Categories := "1-Basic"
+g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"].Categories := "2-Power User"
+g_objSpecialFolders["%LOCALAPPDATA%\Microsoft\Windows\History"].Categories := "2-Power User"
+g_objSpecialFolders["%LOCALAPPDATA%\Microsoft\Windows\Temporary Internet Files"].Categories := "2-Power User"
+g_objSpecialFolders["%LocalAppData%\Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\AC\MicrosoftEdge\Cookies"].Categories := "2-Power User"
+g_objSpecialFolders["%ProgramFiles%"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%ProgramFiles(x86)%"].Categories := "3-Sysadmin"
+g_objSpecialFolders["%PUBLIC%\Libraries"].Categories := "3-Sysadmin"
+g_objSpecialFolders["{031E4825-7B94-4dc3-B131-E946B44C8DD5}"].Categories := "1-Basic|4-Contents"
+g_objSpecialFolders["{1f3427c8-5c10-4210-aa03-2ee45287d668}"].Categories := "2-Power User"
+g_objSpecialFolders["{20D04FE0-3AEA-1069-A2D8-08002B30309D}"].Categories := "1-Basic|5-Hardware"
+g_objSpecialFolders["{21EC2020-3AEA-1069-A2DD-08002B30309D}"].Categories := "1-Basic|5-Hardware"
+g_objSpecialFolders["{2227A280-3AEA-1069-A2DE-08002B30309D}"].Categories := "1-Basic|5-Hardware"
+g_objSpecialFolders["{22877a6d-37a1-461a-91b0-dbda5aaebc99}"].Categories := "2-Power User|4-Contents"
+g_objSpecialFolders["{3080F90D-D7AD-11D9-BD98-0000947B0257}"].Categories := "1-Basic"
+g_objSpecialFolders["{323CA680-C24D-4099-B94D-446DD2D7249E}"].Categories := "4-Contents"
+g_objSpecialFolders["{35786D3C-B075-49b9-88DD-029876E11C01}"].Categories := "2-Power User|5-Hardware"
+g_objSpecialFolders["{450D8FBA-AD25-11D0-98A8-0800361B1103}"].Categories := "1-Basic|4-Contents"
+g_objSpecialFolders["{59031a47-3f72-44a7-89c5-5595fe6b30ee}"].Categories := "3-Sysadmin"
+g_objSpecialFolders["{645FF040-5081-101B-9F08-00AA002F954E}"].Categories := "1-Basic"
+g_objSpecialFolders["{6DFD7C5C-2451-11d3-A299-00C04F8EF6AF}"].Categories := "2-Power User"
+g_objSpecialFolders["{7007ACC7-3202-11D1-AAD2-00805FC1270E}"].Categories := "3-Sysadmin|5-Hardware"
+g_objSpecialFolders["{B4FB3F98-C1EA-428d-A78A-D1F5659CBA93}"].Categories := "3-Sysadmin|5-Hardware"
+g_objSpecialFolders["{B98A2BEA-7D42-4558-8BD1-832F41BAC6FD}"].Categories := "3-Sysadmin"
+g_objSpecialFolders["{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}"].Categories := "3-Sysadmin|5-Hardware"
+g_objSpecialFolders["{BD84B380-8CA2-1069-AB1D-08000948534}"].Categories := "3-Sysadmin"
+g_objSpecialFolders["{D20EA4E1-3957-11d2-A40B-0C5020524153}"].Categories := "3-Sysadmin"
+g_objSpecialFolders["{ED228FDF-9EA8-4870-83b1-96b02CFE0D52}"].Categories := "4-Contents"
+g_objSpecialFolders["{ED7BA470-8E54-465E-825C-99712043E01C}"].Categories := "1-Basic|5-Hardware"
+g_objSpecialFolders["{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}"].Categories := "3-Sysadmin|5-Hardware"
+
+g_objSpecialFolders[A_Desktop].Categories := "1-Basic"
+g_objSpecialFolders[A_DesktopCommon].Categories := "3-Sysadmin"
+g_objSpecialFolders[A_Programs].Categories := "2-Power User"
+g_objSpecialFolders[A_Temp].Categories := "2-Power User"
+g_objSpecialFolders[A_WinDir].Categories := "3-Sysadmin"
+
+RegRead, strSpecialID, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, {374DE290-123F-4565-9164-39C4925E467B} ; Downloads
+g_objSpecialFolders[strSpecialID].Categories := "1-Basic|4-Contents"
+
+RegRead, strSpecialID, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Music
+g_objSpecialFolders[strSpecialID].Categories := "1-Basic|4-Contents"
+
+RegRead, strSpecialID, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Video
+g_objSpecialFolders[strSpecialID].Categories := "1-Basic|4-Contents"
+
+RegRead, strSpecialID, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Pictures
+g_objSpecialFolders[strSpecialID].Categories := "1-Basic|4-Contents"
+
+StringReplace, strSpecialID, A_AppData, \AppData\Roaming
+StringReplace, strSpecialID, % strSpecialID . "\Public", \%A_UserName% ; Public Folder
+g_objSpecialFolders[strSpecialID].Categories := "3-Sysadmin"
+
+RegRead, strSpecialID, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Templates
+g_objSpecialFolders[strSpecialID].Categories := "2-Power User"
+
+strSpecialID := ""
 
 return
 ;------------------------------------------------------------
@@ -3126,10 +3208,11 @@ RegRead, g_strMyPicturesPath, HKEY_CURRENT_USER, Software\Microsoft\Windows\Curr
 InitSpecialFolderObject(g_strMyPicturesPath, "", 39, "", "mypictures", ""
 	, lMenuPictures, "iconPictures"
 	, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS")
-RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Favorites ; Favorites (Internet)
-InitSpecialFolderObject(strException, "", -1, "", "", ""
-	, lMenuFavoritesInternet, "iconFavorites"
-	, "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS")
+; in v8.9.1.5 remove duplicate with {323CA680-C24D-4099-B94D-446DD2D7249E} Favorites
+; RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Favorites ; Favorites (Internet)
+; InitSpecialFolderObject(strException, "", -1, "", "", ""
+	; , lMenuFavoritesInternet, "iconFavorites"
+	; , "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS")
 
 ;---------------------
 ; Path under %APPDATA% (no CLSID), localized name and icon provided, no Shell Command - to be tested with DOpus, TC and FPc
@@ -3220,14 +3303,6 @@ InitSpecialFolderObject(A_Programs, "", -1, "A_Programs", "programs", "" ; CLSID
 	, lMenuProgramsFolderStartMenu, "" ; Menu Démarrer / Programmes (Menu Start/Programs)
 	, "CLS", "CLS", "CLS", "CLS", "DOA", "AHK", "AHK")
 
-;------------------------------------------------------------
-; Build folders list for dropdown
-
-g_strSpecialFoldersList := ""
-for strSpecialFolderName in g_objClassIdOrPathByDefaultName
-	g_strSpecialFoldersList .= strSpecialFolderName . "|"
-StringTrimRight, g_strSpecialFoldersList, g_strSpecialFoldersList, 1
-
 strException := ""
 strPathUsername := ""
 strPathUsers := ""
@@ -3302,6 +3377,7 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 ;		objSpecialFolder.Use4DOpus:
 ;		objSpecialFolder.Use4TC:
 ;		objSpecialFolder.Use4FPc:
+;		objSpecialFolder.Categories: categories, one or many (pipe delimited) of 1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware (populated by InitSpecialFoldersCategories)
 
 ;------------------------------------------------------------
 {
@@ -8992,6 +9068,7 @@ else ; "Special" or "QAP"
 
 	if (g_objEditedFavorite.FavoriteType = "Special")
 	{
+		; ##### replace with tree view
 		Gui, 2:Add, DropDownList
 			, % "x20 y+10 w400 vf_drpSpecial gDropdownSpecialChanged", % lDialogSelectItemToAdd . "...||" . g_strSpecialFoldersList
 		if InStr("GuiEditFavorite|GuiEditFavoriteFromAlternative|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
