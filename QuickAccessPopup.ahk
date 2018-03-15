@@ -8628,6 +8628,7 @@ Gui, 2:Tab
 
 intButtonsY := 460
 
+; see same if/else conditions in TreeViewQAPChanged and TreeViewSpecialChanged to save favorite when event DoubleClick
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
 	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
@@ -8656,7 +8657,7 @@ else
 	GuiControl, 2:+Default, f_btnAddFavoriteAdd
 
 if (g_objEditedFavorite.FavoriteType = "Special")
-	GuiControl, 2:Focus, f_drpSpecial
+	GuiControl, 2:Focus, f_tvSpecial
 else if (g_objEditedFavorite.FavoriteType = "QAP")
 	GuiControl, 2:Focus, f_tvQAP
 else
@@ -8684,7 +8685,6 @@ if StrLen(strDialogPosition)
 
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
-strGuiFavoriteLabel := ""
 ResetArray("arrTop")
 g_strNewLocation := ""
 g_blnAbordEdit := ""
@@ -9660,9 +9660,11 @@ return
 GuiAddFavoriteTabChanged:
 ;------------------------------------------------------------
 
-if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon and external menu values
+intFromTab := f_intAddFavoriteTab
+Gui, 2:Submit, NoHide ; updates f_intAddFavoriteTab
+
+if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external menu values
 {
-	Gui, 2:Submit, NoHide
 
 	if !StrLen(g_strNewFavoriteIconResource) and (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(f_strFavoriteLocation)
 		g_strNewFavoriteIconResource := GetFolderIcon(f_strFavoriteLocation)
@@ -9675,9 +9677,18 @@ if (f_intAddFavoriteTab = 1) ; if last tab was 1 we need to update the icon and 
 		gosub, LoadExternalFileGlobalValues
 		g_blnExternalLocationChanged := false
 	}
+	
 }
+else ; to tab 1
+	if (g_objEditedFavorite.FavoriteType = "Special")
+		GuiControl, 2:Focus, f_tvSpecial
+	else if (g_objEditedFavorite.FavoriteType = "QAP")
+		GuiControl, 2:Focus, f_tvQAP
+
 ; normally this should be called only if g_blnExternalLocationChanged but it need to run at each tab change to keep control's r-o option, do not know why
 gosub, LoadExternalFileGlobalReadOnly
+
+intFromTab := ""
 
 return
 ;------------------------------------------------------------
@@ -9792,6 +9803,15 @@ if (A_GuiEvent = "S")
 		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
 		GuiControl, , f_tvQAPFeatureURL, % "<a href=""http://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
 	}
+}
+else if (A_GuiEvent = "DoubleClick")
+{
+	if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
+		gosub, GuiEditFavoriteSave
+	else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
+		gosub, GuiCopyFavoriteSave
+	else
+		gosub, GuiAddFavoriteSave
 }
 
 return
@@ -11346,6 +11366,7 @@ f_blnUseDefaultWindowPosition := ""
 f_drpParentMenu := ""
 f_drpParentMenuItems := ""
 f_tvQAP := ""
+f_tvSpecial := ""
 f_drpRunningApplication := ""
 f_drpSpecial := ""
 f_intGroupExplorerDelay := ""
@@ -11377,6 +11398,7 @@ f_radFavoriteFolderLiveExclude := ""
 f_strFavoriteFolderLiveExtensions := ""
 objExternalMenu := ""
 g_strItemSelectedName := ""
+strGuiFavoriteLabel := ""
 
 return
 ;------------------------------------------------------------
