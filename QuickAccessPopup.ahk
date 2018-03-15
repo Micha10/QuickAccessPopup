@@ -2821,10 +2821,16 @@ strActiveFileManagerDisplayNames := "Windows Explorer|Directory Opus|Total Comma
 StringSplit, g_arrActiveFileManagerDisplayNames, strActiveFileManagerDisplayNames, |
 
 ; ----------------------
-; QAPFeatures categories
+; QAP Features categories
 
-strQAPFeaturesCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|4-WindowsFeature|5-Utility|6-QAPManagement"
-StringSplit, g_arrQAPFeaturesCategories, strQAPFeaturesCategories, |
+strCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|4-WindowsFeature|5-Utility|6-QAPManagement"
+StringSplit, g_arrQAPFeaturesCategories, strCategories, |
+
+; ----------------------
+; Special Folders categories
+
+strCategories := "1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware"
+StringSplit, g_arrSpecialFoldersCategories, strCategories, |
 
 ; ----------------------
 
@@ -2838,7 +2844,7 @@ ResetArray("arrIconsIndex")
 strActiveFileManagerSystemNames := ""
 strActiveFileManagerNames := ""
 ResetArray("arrActiveFileManagerNames")
-strQAPCategories := ""
+strCategories := ""
 
 return
 ;-----------------------------------------------------------
@@ -2994,7 +3000,7 @@ g_objSpecialFolders["%APPDATA%"].Categories := "3-Sysadmin"
 g_objSpecialFolders["%APPDATA%\Microsoft\Internet Explorer\Quick Launch"].Categories := "2-Power User|4-Contents"
 g_objSpecialFolders["%APPDATA%\Microsoft\SystemCertificates"].Categories := "3-Sysadmin"
 g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Recent"].Categories := "2-Power User|4-Contents"
-g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Start Menu"].Categories := "1-Basic"
+g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Start Menu"].Categories := "2-Power User"
 g_objSpecialFolders["%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup"].Categories := "2-Power User"
 g_objSpecialFolders["%LOCALAPPDATA%\Microsoft\Windows\History"].Categories := "2-Power User"
 g_objSpecialFolders["%LOCALAPPDATA%\Microsoft\Windows\Temporary Internet Files"].Categories := "2-Power User"
@@ -3002,13 +3008,13 @@ g_objSpecialFolders["%LocalAppData%\Packages\Microsoft.MicrosoftEdge_8wekyb3d8bb
 g_objSpecialFolders["%ProgramFiles%"].Categories := "3-Sysadmin"
 g_objSpecialFolders["%ProgramFiles(x86)%"].Categories := "3-Sysadmin"
 g_objSpecialFolders["%PUBLIC%\Libraries"].Categories := "3-Sysadmin"
-g_objSpecialFolders["{031E4825-7B94-4dc3-B131-E946B44C8DD5}"].Categories := "1-Basic|4-Contents"
+g_objSpecialFolders["{031E4825-7B94-4dc3-B131-E946B44C8DD5}"].Categories := "2-Power User|4-Contents"
 g_objSpecialFolders["{1f3427c8-5c10-4210-aa03-2ee45287d668}"].Categories := "2-Power User"
 g_objSpecialFolders["{20D04FE0-3AEA-1069-A2D8-08002B30309D}"].Categories := "1-Basic|5-Hardware"
 g_objSpecialFolders["{21EC2020-3AEA-1069-A2DD-08002B30309D}"].Categories := "1-Basic|5-Hardware"
 g_objSpecialFolders["{2227A280-3AEA-1069-A2DE-08002B30309D}"].Categories := "1-Basic|5-Hardware"
 g_objSpecialFolders["{22877a6d-37a1-461a-91b0-dbda5aaebc99}"].Categories := "2-Power User|4-Contents"
-g_objSpecialFolders["{3080F90D-D7AD-11D9-BD98-0000947B0257}"].Categories := "1-Basic"
+g_objSpecialFolders["{3080F90D-D7AD-11D9-BD98-0000947B0257}"].Categories := "2-Power User"
 g_objSpecialFolders["{323CA680-C24D-4099-B94D-446DD2D7249E}"].Categories := "4-Contents"
 g_objSpecialFolders["{35786D3C-B075-49b9-88DD-029876E11C01}"].Categories := "2-Power User|5-Hardware"
 g_objSpecialFolders["{450D8FBA-AD25-11D0-98A8-0800361B1103}"].Categories := "1-Basic|4-Contents"
@@ -3022,9 +3028,8 @@ g_objSpecialFolders["{BB06C0E4-D293-4f75-8A90-CB05B6477EEE}"].Categories := "3-S
 g_objSpecialFolders["{BD84B380-8CA2-1069-AB1D-08000948534}"].Categories := "3-Sysadmin"
 g_objSpecialFolders["{D20EA4E1-3957-11d2-A40B-0C5020524153}"].Categories := "3-Sysadmin"
 g_objSpecialFolders["{ED228FDF-9EA8-4870-83b1-96b02CFE0D52}"].Categories := "4-Contents"
-g_objSpecialFolders["{ED7BA470-8E54-465E-825C-99712043E01C}"].Categories := "1-Basic|5-Hardware"
+g_objSpecialFolders["{ED7BA470-8E54-465E-825C-99712043E01C}"].Categories := "2-Power User|5-Hardware"
 g_objSpecialFolders["{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}"].Categories := "3-Sysadmin|5-Hardware"
-
 g_objSpecialFolders[A_Desktop].Categories := "1-Basic"
 g_objSpecialFolders[A_DesktopCommon].Categories := "3-Sysadmin"
 g_objSpecialFolders[A_Programs].Categories := "2-Power User"
@@ -8275,14 +8280,23 @@ Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
 ; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|Text
-loop, 6
-	Gui, 2:Add, Radio, % (A_Index = 1 ? " yp " : "") . "vf_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index% . " xs gFavoriteSelectTypeRadioButtonsChanged", % g_objFavoriteTypesLabels[g_arrFavoriteTypes%A_Index%]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
+Gui, 2:Add, Radio, xs yp vf_intRadioFavoriteTypeFolder gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Folder"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSpecial gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Special"]
+
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeDocument gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Document"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeApplication gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Application"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeURL gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["URL"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeFTP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["FTP"]
+
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
+
 Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["External"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
+
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
@@ -8586,7 +8600,8 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Tab2, vf_intAddFavoriteTab w520 h440 gGuiAddFavoriteTabChanged AltSubmit, % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
+intTabHeight := 440
+Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavoriteTabChanged AltSubmit", % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
@@ -8950,7 +8965,7 @@ Gui, 2:Add, Text, x20 y50 w500, % lDialogFavoriteType . ": " . g_objFavoriteType
 Gui, 2:Font
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	Gui, 2:Add, Text, x20 y+10 w500, % ReplaceAllInString(L(g_objFavoriteTypesHelp["QAP"], lMenuRecentFolders, lMenuCurrentFolders, lMenuAddThisFolder, lMenuSettings, lGuiOptions), "`n`n", "`n")
+	Gui, 2:Add, Text, x20 y+10 w500, % "> " . ReplaceAllInString(L(g_objFavoriteTypesHelp["QAP"], lMenuRecentFolders, lMenuCurrentFolders, lMenuAddThisFolder, lMenuSettings, lGuiOptions), "`n`n", "`n> ")
 else
 	Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
 
@@ -8964,7 +8979,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, x20 y+20 vf_ShortNameLabel, % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
+	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -9063,24 +9078,25 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 else ; "Special" or "QAP"
 {
 	; ##### allow options and custom name for some QAP features here? (select type for Add, Select options of Shutdown)
-	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by DropdownSpecialChanged or TreeviewQAPChanged
-	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "Special" ? "y+20" : "yp") . "xs w300", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
+	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
+	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "Special" ? "y+10" : "yp") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
 
-	if (g_objEditedFavorite.FavoriteType = "Special")
-	{
-		; ##### replace with tree view
-		Gui, 2:Add, DropDownList
-			, % "x20 y+10 w400 vf_drpSpecial gDropdownSpecialChanged", % lDialogSelectItemToAdd . "...||" . g_strSpecialFoldersList
-		if InStr("GuiEditFavorite|GuiEditFavoriteFromAlternative|GuiCopyFavorite", strGuiFavoriteLabel) or StrLen(g_strNewLocationSpecialName)
-			GuiControl, ChooseString, f_drpSpecial, % g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName
-	}
-	else ; QAP feature
-	{
+	GuiControlGet, arrLocationLabelPos, Pos, f_lblLocation
+	intTreeViewHeight := intTabHeight - arrLocationLabelPosY - 43 ; 43 = space required below)
+		
+	if (g_objEditedFavorite.FavoriteType = "QAP")
 		Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
-		Gui, 2:Add, TreeView, x20 y+5 w300 h250 vf_tvQAP gTreeViewQAPChanged
-		Gui, 2:Add, Edit, x+5 yp w200 h250 ReadOnly vf_tvQAPDescription
+	
+	intTreeViewWidth := (g_objEditedFavorite.FavoriteType = "QAP" ? "300" : "400")
+	Gui, 2:Add, TreeView, % "x20 y+5 w" . intTreeViewWidth . " h" . intTreeViewHeight . " " . (g_objEditedFavorite.FavoriteType = "QAP" ? "vf_tvQAP gTreeViewQAPChanged" : "vf_tvSpecial gTreeViewSpecialChanged")
+	
+	if (g_objEditedFavorite.FavoriteType = "QAP")
+	{
+		Gui, 2:Add, Edit, % "x+5 yp w200 h" . intTreeViewHeight . " ReadOnly vf_tvQAPDescription"
 		gosub, LoadTreeviewQAP
 	}
+	else
+		gosub, LoadTreeviewSpecial
 }
 
 if (g_objEditedFavorite.FavoriteType = "FTP")
@@ -9131,7 +9147,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+20 vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : "20") . " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 ResetArray("arrNewFavoriteWindowPosition")
@@ -9141,6 +9157,9 @@ ResetArray("arrPosFixedFont")
 ResetArray("arrPosFontSizeLabel")
 ResetArray("arrPosEnlarge")
 ResetArray("arrPosSnippetContent")
+ResetArray("arrLocationLabelPos")
+intTreeViewHeight := ""
+intTreeViewWidth := ""
 
 return
 ;------------------------------------------------------------
@@ -9148,29 +9167,56 @@ return
 
 ;------------------------------------------------------------
 LoadTreeviewQAP:
+LoadTreeviewSpecial:
 ;------------------------------------------------------------
 
+blnSelectDone := false
 objCategoriesID := Object()
-g_objQAPFeaturesByTreeViewsIDs := Object()
+g_objTreeViewItemsByIDs := Object()
 
-for strCategory, strCategoryLabel in g_objQAPCategories
+objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? g_objQAPCategories : g_objSpecialFoldersCategories)
+
+for strCategory, strCategoryLabel in objCategories
 {
 	objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 ? "Expand" : "") " Bold")
-	for strQAPFeatureCode, objQAPFeature in g_objQAPFeatures
-		if InStr(objQAPFeature.QAPFeatureCategories, strCategory)
+	for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? g_objQAPFeatures : g_objSpecialFolders)
+		if InStr((A_ThisLabel = "LoadTreeviewQAP" ? objItem.QAPFeatureCategories : objItem.Categories), strCategory)
 		{
-			intQAPFeatureID := TV_Add(objQAPFeature.LocalizedName, objCategoriesID[strCategory]
-				, (g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName = objQAPFeature.LocalizedName ? "Select" : ""))
-			g_objQAPFeaturesByTreeViewsIDs[intQAPFeatureID] := objQAPFeature
+			if (A_ThisLabel = "LoadTreeviewQAP")
+			{
+				if (!blnSelectDone and g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName = objItem.LocalizedName)
+				{
+					strSelect := "Select"
+					blnSelectDone := true
+				}
+				else
+					strSelect := ""
+				intItemID := TV_Add(objItem.LocalizedName, objCategoriesID[strCategory], strSelect)
+		}
+			else
+			{
+				if (!blnSelectDone and g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName = objItem.DefaultName)
+				{
+					strSelect := "Select"
+					blnSelectDone := true
+				}
+				else
+					strSelect := ""
+				intItemID := TV_Add(objItem.DefaultName, objCategoriesID[strCategory], strSelect)
+			}
+			g_objTreeViewItemsByIDs[intItemID] := objItem
 		}
 }
 
 objCategoriesID := ""
+objCategories := ""
 strCategory := ""
 strCategoryLabel := ""
-strQAPFeatureCode := ""
-objQAPFeature := ""
-intQAPFeatureID := ""
+strItemCode := ""
+objItem := ""
+intItemID := ""
+strSelect := ""
+blnSelectDone := ""
 
 return
 ;------------------------------------------------------------
@@ -9711,47 +9757,41 @@ return
 
 
 ;------------------------------------------------------------
-DropdownSpecialChanged:
-;------------------------------------------------------------
-Gui, 2:Submit, NoHide
-
-GuiControl, , f_strFavoriteShortName, %f_drpSpecial%
-GuiControl, , f_strFavoriteLocation, % g_objClassIdOrPathByDefaultName[f_drpSpecial]
-
-g_strNewFavoriteIconResource := g_objSpecialFolders[g_objClassIdOrPathByDefaultName[f_drpSpecial]].DefaultIcon
-g_strDefaultIconResource := g_strNewFavoriteIconResource 
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 TreeViewQAPChanged:
+TreeViewSpecialChanged:
 ;------------------------------------------------------------
-Gui, 2:Submit, NoHide
 
 if (A_GuiEvent = "S")
 {
-	g_strQAPFeatureSelectedLocalizedName := g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].LocalizedName
-	if StrLen(g_strQAPFeatureSelectedLocalizedName) ; a QAP feature is selected
+	Gui, 2:Submit, NoHide
+	
+	g_strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
+	if StrLen(g_strItemSelectedName) ; a QAP feature is selected
 	{
-		GuiControl, , f_strFavoriteShortName, %g_strQAPFeatureSelectedLocalizedName%
-		GuiControl, , f_strFavoriteLocation, % g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]
+		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeaturesCodeByDefaultName[g_strItemSelectedName] : g_objClassIdOrPathByDefaultName[g_strItemSelectedName])
+		GuiControl, , f_strFavoriteShortName, %g_strItemSelectedName%
+		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
-		g_strNewFavoriteIconResource := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultIcon
+		g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeatures[strLocation].DefaultIcon : g_objSpecialFolders[strLocation].DefaultIcon)
 		g_strDefaultIconResource := g_strNewFavoriteIconResource 
 		
-		if !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
-			; and default shortcut is not already used
-			and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut)
-			g_strNewFavoriteShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut ; assign default shortcut for QAP feature
-
-		GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+		if (A_ThisLabel = "TreeViewQAPChanged")
+		{
+			if !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
+				and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[strLocation].DefaultShortcut) ; and default shortcut is not already used
+				g_strNewFavoriteShortcut := g_objQAPFeatures[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
+				
+			GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+		}
+		strLocation := ""
 	}
 
-	GuiControl, , f_tvQAPDescription, % g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureDescription
-	GuiControl, % (StrLen(g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
-	GuiControl, , f_tvQAPFeatureURL, % "<a href=""http://www.quickaccesspopup.com/" . g_objQAPFeaturesByTreeViewsIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
+	if (A_ThisLabel = "TreeViewQAPChanged")
+	{
+		GuiControl, , f_tvQAPDescription, % g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureDescription
+		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
+		GuiControl, , f_tvQAPFeatureURL, % "<a href=""http://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
+	}
 }
 
 return
@@ -11336,7 +11376,7 @@ f_radFavoriteFolderLiveInclude := ""
 f_radFavoriteFolderLiveExclude := ""
 f_strFavoriteFolderLiveExtensions := ""
 objExternalMenu := ""
-g_strQAPFeatureSelectedLocalizedName := ""
+g_strItemSelectedName := ""
 
 return
 ;------------------------------------------------------------
@@ -16848,6 +16888,7 @@ GuiControl, Focus, btnHelpClose
 Gosub, ShowGui2AndDisableGui1
 
 ResetArray("arrSharedMenuTypes")
+ResetArray("arrTabPos")
 
 return
 ;------------------------------------------------------------
