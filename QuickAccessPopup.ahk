@@ -9176,36 +9176,50 @@ g_objTreeViewItemsByIDs := Object()
 
 objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? g_objQAPCategories : g_objSpecialFoldersCategories)
 
+; build name|code|categories (sorted by name)
+strItemsNameCodeCategories := ""
+for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? g_objQAPFeatures : g_objSpecialFolders)
+	if (A_ThisLabel = "LoadTreeviewQAP")
+		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . ReplaceAllInString(objItem.QAPFeatureCategories, "|", ";") . "`n"
+	else ; LoadTreeviewSpecial
+		strItemsNameCodeCategories .= objItem.DefaultName . "|" . strItemCode . "|" . ReplaceAllInString(objItem.Categories, "|", "~") . "`n"
+Sort, strItemsNameCodeCategories
+
 for strCategory, strCategoryLabel in objCategories
 {
-	objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 ? "Expand" : "") " Bold")
-	for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? g_objQAPFeatures : g_objSpecialFolders)
-		if InStr((A_ThisLabel = "LoadTreeviewQAP" ? objItem.QAPFeatureCategories : objItem.Categories), strCategory)
+	objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 and InStr(strGuiFavoriteLabel, "GuiAdd") ? "Expand" : "") " Bold")
+	loop, Parse, strItemsNameCodeCategories, `n
+	{
+		; name|code|categories
+		StringSplit, arrItem, A_LoopField, |
+		if InStr(arrItem3, strCategory)
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
-				if (!blnSelectDone and g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName = objItem.LocalizedName)
+				if (!blnSelectDone and g_objQAPFeatures[g_objEditedFavorite.FavoriteLocation].LocalizedName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
 				}
 				else
 					strSelect := ""
-				intItemID := TV_Add(objItem.LocalizedName, objCategoriesID[strCategory], strSelect)
-		}
+				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
+				g_objTreeViewItemsByIDs[intItemID] := g_objQAPFeatures[arrItem2]
+			}
 			else
 			{
-				if (!blnSelectDone and g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName = objItem.DefaultName)
+				if (!blnSelectDone and g_objSpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
 				}
 				else
 					strSelect := ""
-				intItemID := TV_Add(objItem.DefaultName, objCategoriesID[strCategory], strSelect)
+				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
+				g_objTreeViewItemsByIDs[intItemID] := g_objSpecialFolders[arrItem2]
 			}
-			g_objTreeViewItemsByIDs[intItemID] := objItem
 		}
+	}
 }
 
 objCategoriesID := ""
@@ -9217,6 +9231,8 @@ objItem := ""
 intItemID := ""
 strSelect := ""
 blnSelectDone := ""
+strItemsNameCodeCategories := ""
+ResetArray("arrItem")
 
 return
 ;------------------------------------------------------------
