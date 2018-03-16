@@ -6384,7 +6384,7 @@ g_blnMenuReady := false
 if (A_ThisLabel = "RefreshQAPMenuScheduled")
 {
 	if (g_blnRefreshQAPMenuDebugBeep)
-		SoundBeep, 220
+		SoundBeep, 330
 	
 	for strMenuName, objThisMenu in g_objMenusIndex
 		if (objThisMenu.MenuType = "External")
