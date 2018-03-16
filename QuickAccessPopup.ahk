@@ -9188,10 +9188,12 @@ Sort, strItemsNameCodeCategories
 for strCategory, strCategoryLabel in objCategories
 {
 	objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 and InStr(strGuiFavoriteLabel, "GuiAdd") ? "Expand" : "") " Bold")
+	
 	loop, Parse, strItemsNameCodeCategories, `n
 	{
 		; name|code|categories
 		StringSplit, arrItem, A_LoopField, |
+		
 		if InStr(arrItem3, strCategory)
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
@@ -9203,6 +9205,7 @@ for strCategory, strCategoryLabel in objCategories
 				}
 				else
 					strSelect := ""
+				
 				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
 				g_objTreeViewItemsByIDs[intItemID] := g_objQAPFeatures[arrItem2]
 			}
@@ -9215,6 +9218,7 @@ for strCategory, strCategoryLabel in objCategories
 				}
 				else
 					strSelect := ""
+				
 				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
 				g_objTreeViewItemsByIDs[intItemID] := g_objSpecialFolders[arrItem2]
 			}
@@ -9640,7 +9644,7 @@ ButtonChangeFavoriteHotkey:
 Gui, 2:Submit, NoHide
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	strQAPDefaultShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[g_strQAPFeatureSelectedLocalizedName]].DefaultShortcut
+	strQAPDefaultShortcut := g_objQAPFeatures[g_objQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].DefaultShortcut
 
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
 g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
@@ -9792,11 +9796,11 @@ if (A_GuiEvent = "S")
 {
 	Gui, 2:Submit, NoHide
 	
-	g_strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
-	if StrLen(g_strItemSelectedName) ; a QAP feature is selected
+	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
+	if StrLen(strItemSelectedName) ; a QAP feature is selected
 	{
-		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeaturesCodeByDefaultName[g_strItemSelectedName] : g_objClassIdOrPathByDefaultName[g_strItemSelectedName])
-		GuiControl, , f_strFavoriteShortName, %g_strItemSelectedName%
+		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeaturesCodeByDefaultName[strItemSelectedName] : g_objClassIdOrPathByDefaultName[strItemSelectedName])
+		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
 		g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeatures[strLocation].DefaultIcon : g_objSpecialFolders[strLocation].DefaultIcon)
@@ -9804,11 +9808,14 @@ if (A_GuiEvent = "S")
 		
 		if (A_ThisLabel = "TreeViewQAPChanged")
 		{
-			if !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
+			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
+				and !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
 				and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[strLocation].DefaultShortcut) ; and default shortcut is not already used
 				g_strNewFavoriteShortcut := g_objQAPFeatures[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
 				
 			GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+			
+		    strQAPFeatureSelectedLocalizedName := strItemSelectedName ; used when calling SelectShortcut for default shortcut
 		}
 		strLocation := ""
 	}
@@ -11413,8 +11420,9 @@ f_radFavoriteFolderLiveInclude := ""
 f_radFavoriteFolderLiveExclude := ""
 f_strFavoriteFolderLiveExtensions := ""
 objExternalMenu := ""
-g_strItemSelectedName := ""
+strItemSelectedName := ""
 strGuiFavoriteLabel := ""
+strQAPFeatureSelectedLocalizedName := ""
 
 return
 ;------------------------------------------------------------
