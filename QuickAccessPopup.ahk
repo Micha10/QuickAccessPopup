@@ -15503,7 +15503,13 @@ if (g_arrFavoriteWindowPosition1)
 	; Diag(A_ThisLabel . " strExplorerIDsBefore", strExplorerIDsBefore)
 }
 
-Run, % "Explorer """ . g_strFullLocation . """" ; there was a bug prior to v3.3.1 because the lack of double-quotes
+if StrLen(g_objThisFavorite.FavoriteArguments)
+	; Note 1: this technique is used only if there is an argument (low probability) but it creates a new Explorer instance at every call
+	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
+	Run, % "Explorer """ . g_strFullLocation . """"
+else
+	; Note: this technique is preferred because it uses the same Explorer instance created by QAP if call multiple times
+	Run, %g_strFullLocation%
 
 if (g_arrFavoriteWindowPosition1)
 {
