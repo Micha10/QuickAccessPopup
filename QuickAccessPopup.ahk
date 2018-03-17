@@ -31,6 +31,25 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.5 (2018-03-17)
+ 
+Windows Special folders
+- categorize Windows Special folders, one special folder to 1-to-n categories
+- replace Windows Special folders dropdown list with a tree view containing Special folders grouped by categories
+- support double click in treeview to add immediately a new Windows Special folder (also when adding from the QAP features tree view)
+- when editing a new Windows Special (or QAP feature) favorite, in the tree view, expand the branch of the first occurence of the edited favorite (it can be available in more than one branch)
+- remove duplicate Windows Special folder "Favorites (Internet)" and keep {323CA680-C24D-4099-B94D-446DD2D7249E}
+ 
+Various
+- reorder types of favorites radio buttons in "Select Type" dialog box when adding a favorite
+- before this release, opening a folder in a new window was creating a new Explorer instance for every window; now, the new window is created under the same Explorer instance and only one Explorer instance is created by QAP unless user adds an argument to the folder in Advanced settings (low probability) in which case QAP must create a new instance for this window
+- rename "Refresh Live Folders menus" to "Refresh Live Folders and Shared menus"
+ 
+Bug fixes
+- fix bug with default shortcut when adding or editing a QAP feature favorite
+- when adding a file shortcut (.lnk) using drag and drop, set default name based on the target file (not the file shortcut name) to be consistent with other ways of adding file shortcuts
+- when adding a file shortcut from the "Add favorite" dialog box or using drag and drop, get from file shortcut the favorite default for the icon and, for applications, for Parameters (command line arguments) and working directory (this is already done when adding unsing the Explorer context menu)
+
 Version BETA: 8.9.1.4 (2018-03-13)
 - categorize QAP features, one feature to 1-to-n categories
 - init QAP features with one help URL for each feature
@@ -2075,7 +2094,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.4
+;@Ahk2Exe-SetVersion 8.9.1.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2160,7 +2179,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
