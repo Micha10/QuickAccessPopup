@@ -43,6 +43,7 @@ Windows Special folders
 Various
 - reorder types of favorites radio buttons in "Select Type" dialog box when adding a favorite
 - before this release, opening a folder in a new window was creating a new Explorer instance for every window; now, the new window is created under the same Explorer instance and only one Explorer instance is created by QAP unless user adds an argument to the folder in Advanced settings (low probability) in which case QAP must create a new instance for this window
+- opening a folder that is already open in another Explorer window now brings the existing window to front instead of creating a new window (except if you click inside an existing Explorer window, in which case it will change the folder inside this window)
 - rename "Refresh Live Folders menus" to "Refresh Live Folders and Shared menus"
  
 Bug fixes
@@ -3551,7 +3552,7 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 
 InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"6-QAPManagement"
 	, lGuiAboutDescription, 0, "iconAbout")
-InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAP",				"3-QAPMenuEditing"
+InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
 	, lMenuAddFavoriteDescription, 0, "iconAddFavorite")
 InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
 	, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^A")
@@ -3823,7 +3824,6 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	FileAppend,
 		(LTrim Join`r`n
 			[Global]
-			ExclusionMouseList=scite
 			LanguageCode=%g_strLanguageCode%
 			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
@@ -4134,7 +4134,6 @@ else
 
 	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
-	g_objQAPfeaturesCustomNames := Object() ; index of QAP features with names customized by user
 	
 	g_intIniLine := 1
 	
@@ -4152,7 +4151,6 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 {
 	global g_objMenusIndex
 	global g_objQAPfeaturesInMenus
-	global g_objQAPfeaturesCustomNames
 	global g_strIniFile
 	global g_intIniLine
 	global g_strMenuPathSeparator
@@ -4254,12 +4252,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 		
 		if (arrThisFavorite1 = "QAP")
 		{
-			if StrLen(arrThisFavorite2)
-				g_objQAPfeaturesCustomNames[objCurrentMenu.MenuPath . "|" . arrThisFavorite3] := arrThisFavorite2 ; name to display in Settings and menus
-				
-			; for not customized names, get QAP feature's default name in current language
+			; get QAP feature's name in current language (QAP features names are not saved to ini file)
 			arrThisFavorite2 := g_objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
-				
 			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
@@ -5938,11 +5932,9 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intNbLiveFolderItemsMax
 	global g_strHotstringOptionsSeparator
 	global g_strHotstringOptionsExecute
-	global g_objQAPfeaturesCustomNames
 
 	intMenuNumber := 0
 	
-	; ###_O("objCurrentMenu .FavoriteLocation", objCurrentMenu, "FavoriteLocation")
 	; try because at first execution the strMenu menu does not exist and produces an error,
 	; but DeleteAll is required later for menu updates
 	try Menu, % objCurrentMenu.MenuPath, DeleteAll
@@ -5960,14 +5952,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		intMenuItemsCount++ ; for objMenuColumnBreak
 		
-		if (objCurrentMenu[A_Index].FavoriteType = "QAP")
-			if g_objQAPfeaturesCustomNames.HasKey(objCurrentMenu.MenuPath . "|" . objCurrentMenu[A_Index].FavoriteLocation)
-				strMenuName := g_objQAPfeaturesCustomNames[objCurrentMenu.MenuPath . "|" . objCurrentMenu[A_Index].FavoriteLocation] ; name to display in Settings and menus
-			else
-				strMenuName := g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
-		else
-			strMenuName := objCurrentMenu[A_Index].FavoriteName
-		
+		strMenuName := objCurrentMenu[A_Index].FavoriteName
 		if StrLen(strMenuName)
 			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . strMenuName
 		
@@ -7923,14 +7908,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a folder, document, QAP feature, URL or application
-	{
-		if (g_objMenuInGui[A_Index].FavoriteType = "QAP") and g_objQAPfeaturesCustomNames.HasKey(g_objMenuInGui.MenuPath . "|" . g_objMenuInGui[A_Index].FavoriteLocation)
-			strFavoriteName := g_objQAPfeaturesCustomNames[g_objMenuInGui.MenuPath . "|" . g_objMenuInGui[A_Index].FavoriteLocation] ; name to display in Settings and menus
-		else
-			strFavoriteName := g_objMenuInGui[A_Index].FavoriteName
-		LV_Add(, strFavoriteName, strThisType, strThisHotkey
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
-	}
 }
 
 ; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
@@ -8270,10 +8249,10 @@ return
 
 ;------------------------------------------------------------
 GuiAddFavoriteSelectType:
-GuiAddFavoriteFromQAP:
+GuiAddFavoriteFromQAPFeature:
 ;------------------------------------------------------------
 
-if (A_ThisLabel = "GuiAddFavoriteFromQAP")
+if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 	gosub, GuiShowFromGuiAddFavoriteSelectType
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
@@ -8318,7 +8297,7 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButto
 Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
-Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
+Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h230, % L(lDialogFavoriteSelectType, lDialogContinue)
 
@@ -8651,9 +8630,9 @@ intButtonsY := 460
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
 	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
-	Gui, 2:Add, Button, yp vf_btnEditFavoriteCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnEditFavoriteCancel")
+	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnAddFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
@@ -9162,7 +9141,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Edit, % (StrLen(g_objEditedFavorite.FavoriteAppWorkingDir) ? "Disabled " : "") .  "x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir", % g_objEditedFavorite.FavoriteAppWorkingDir
 	if StrLen(g_objEditedFavorite.FavoriteAppWorkingDir)
 		Gui, 2:Add, Text, x20 y+5 w500, %lDialogExternalLocationReadOnly%
-	else 
+	else
 		Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
@@ -9634,7 +9613,7 @@ Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
 GuiControl, 2:, f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . lDialogEndOfMenu . " " . g_strGuiDoubleLine
 
 Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? lGuiMoveAmpersand : lGuiCopyAmpersand)
-Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiEditFavoriteCancel, %lGuiCancelAmpersand%
+Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnMoveOrCopyFavoritesSave", "f_btnMoveOrCopyFavoritesCancel")
 
 g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
@@ -9817,7 +9796,7 @@ if (A_GuiEvent = "S")
 	Gui, 2:Submit, NoHide
 	
 	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
-	if StrLen(strItemSelectedName) ; a QAP feature is selected
+	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeaturesCodeByDefaultName[strItemSelectedName] : g_objClassIdOrPathByDefaultName[strItemSelectedName])
 		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
@@ -9828,6 +9807,7 @@ if (A_GuiEvent = "S")
 		
 		if (A_ThisLabel = "TreeViewQAPChanged")
 		{
+			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
 				and !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
 				and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[strLocation].DefaultShortcut) ; and default shortcut is not already used
@@ -9835,7 +9815,7 @@ if (A_GuiEvent = "S")
 				
 			GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
 			
-		    strQAPFeatureSelectedLocalizedName := strItemSelectedName ; used when calling SelectShortcut for default shortcut
+			strQAPFeatureSelectedLocalizedName := strItemSelectedName ; used when calling SelectShortcut for default shortcut
 		}
 		strLocation := ""
 	}
@@ -10296,7 +10276,6 @@ return
 
 ;------------------------------------------------------------
 GuiAddFavoriteCancel:
-GuiEditFavoriteCancel:
 ;------------------------------------------------------------
 
 Gosub, GuiAddFavoriteFlush
@@ -10794,7 +10773,7 @@ if (intNbFavoritesCopied)
 
 gosub, GuiAddFavoriteSaveCleanup ; clean these variables for next multiple move or copy
 
-Gosub, GuiEditFavoriteCancel
+Gosub, GuiAddFavoriteCancel
 
 blnMove := ""
 intNbFavoritesCopied := ""
@@ -12537,7 +12516,10 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 					continue
 
 			strIniLine := objCurrentMenu[A_Index].FavoriteType . "|" ; 1
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			if (objCurrentMenu[A_Index].FavoriteType = "QAP")
+				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
+			else
+				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
@@ -14215,6 +14197,8 @@ else if (arrFolderWindowId1 = "DO") ; Directory Opus
 else ; APP
 	WinActivate, % "ahk_id " . arrFolderWindowId2
 
+strThisMenuItem := ""
+
 return
 ;------------------------------------------------------------
 
@@ -14232,7 +14216,7 @@ else
 if (A_ThisLabel = "RepeatLastActionShortcut" ; Repeat Last Action shortcut
 	or SubStr(strThisMenuItem, 1, StrLen(lMenuLastAction)) = lMenuLastAction) ; menu item is "Repeat Last Action" (stripping shortcut from label)
 	; use first item from g_strLastActionsOrderedKeys
-	g_strLastActionRepeated := SubStr(g_strLastActionsOrderedKeys, InStr(g_strLastActionsOrderedKeys, "|") + 1, InStr(g_strLastActionsOrderedKeys, "`n") - 1)
+	g_strLastActionRepeated := SubStr(g_strLastActionsOrderedKeys, 1, InStr(g_strLastActionsOrderedKeys, "`n") - 1)
 else ; item from the Repeat Last Actions menu
 	g_strLastActionRepeated := strThisMenuItem
 
@@ -15135,7 +15119,7 @@ g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older
 
 strLastActionsOrdered := ""
 for strLastActionLabel, objLastAction in g_objLastActions
-	strLastActionsOrdered .= objLastAction.OpenTimeStamp . "|" . strLastActionLabel . "`n"
+	strLastActionsOrdered .= objLastAction.OpenTimeStamp . g_strEscapePipe . strLastActionLabel . "`n"
 
 Sort, strLastActionsOrdered, R
 
@@ -15144,7 +15128,7 @@ loop, parse, strLastActionsOrdered, `n
 {
 	if !StrLen(A_LoopField)
 		break
-	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, "|") + 1)
+	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, g_strEscapePipe) + StrLen(g_strEscapePipe))
 	if (A_Index > g_intNbLastActions)
 		g_objLastActions.Delete(strThisLastActionKey) ; kill older items
 	else
