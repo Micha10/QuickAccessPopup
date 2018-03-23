@@ -8277,7 +8277,8 @@ GuiAddFavoriteFromQAPFeatureText:
 
 StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
 
-gosub, GuiShowFromGuiAddFavoriteSelectType
+g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
+gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
@@ -8285,7 +8286,7 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMen
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
 	return
-	
+
 gosub, GuiAddFavorite
 
 return
@@ -8298,7 +8299,10 @@ GuiAddFavoriteFromQAPFeature:
 ;------------------------------------------------------------
 
 if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
-	gosub, GuiShowFromGuiAddFavoriteSelectType
+{
+	g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
+	gosub, GuiShowFromGuiAddFavoriteQAPFeature
+}
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
@@ -8609,7 +8613,6 @@ strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
 Gosub, GuiFavoriteInit
-; ###_V(A_ThisLabel, "g_objMenuInGui.MenuPath", g_objMenuInGui.MenuPath, "objExternalMenu.MenuPath", objExternalMenu.MenuPath, g_blnAbordEdit)
 
 if (g_blnAbordEdit)
 {
@@ -8777,7 +8780,6 @@ GuiFavoriteInit:
 ; when add favorite, put initial or default values in g_objEditedFavorite and update them when gui save
 
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
-; ###_V(A_ThisLabel, blnFavoriteFromSearch, GetFavoritesListFilter())
 
 if (blnFavoriteFromSearch)
 	g_objMenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
@@ -10354,20 +10356,21 @@ return
 GuiShow:
 GuiShowFromAlternative:
 GuiShowRestoreDefaultPosition:
+GuiShowFromGuiSettings:
+GuiShowFromGuiAddFavoriteQAPFeature:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
 GuiShowFromTray:
 SettingsHotkey:
 GuiShowFromGuiOptions:
-GuiShowFromGuiAddFavoriteSelectType:
 GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
 GuiShowFromIconsManage:
-GuiShowFromGuiSettings:
 GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if (A_ThisLabel <> "GuiShowFromAlternative" and A_ThisLabel <> "GuiShowFromGuiSettings") ; menu object already set in these cases
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiAddFavoriteQAPFeature|", A_ThisLabel . "|")
+	; menu object already set in these cases
 	g_objMenuInGui := g_objMainMenu
 
 Gosub, BackupMenusObjects
