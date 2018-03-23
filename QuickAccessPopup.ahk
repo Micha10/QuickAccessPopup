@@ -3602,6 +3602,9 @@ InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "O
 	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^C")
 InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"5-Utility"
 	, lMenuLastActionDescription, 0, "iconReload", "")
+InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowsFeature"
+	, lMenuCloseAllWindowsDescription, 0, "iconDesktop", "")
+; shutdown etc. iconClose
 
 Loop, %g_arrFavoriteTypes0%
 	if StrLen(g_objFavoriteTypesLocationLabelsNoAmpersand[g_arrFavoriteTypes%A_Index%])
@@ -8274,7 +8277,16 @@ GuiAddFavoriteFromQAPFeatureText:
 
 StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
 
-Gosub, GuiAddFavorite
+gosub, GuiShowFromGuiAddFavoriteSelectType
+gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
+
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+; this favorite could not be added because it is in an external menu locked by another user,
+; or because external settings file is in a read-only folder, or because external files was modified 
+; by another user since it was loaded in QAP by this user
+	return
+	
+gosub, GuiAddFavorite
 
 return
 ;------------------------------------------------------------
@@ -8530,7 +8542,7 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	global g_strLegacyBrowsers
 	
 	DetectHiddenWindows, Off
-	Winget, strIDs, list
+	WinGet, strIDs, list
 	DetectHiddenWindows, On ; revert to app default
 
 	strBrowsersClass := g_strModernBrowsers . "," . g_strLegacyBrowsers
@@ -10602,7 +10614,7 @@ Gui, 2:Add, Text, x10 w640 center, %lDialogExternalTip%
 Gui, 2:Add, Text
 Gui, 2:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue default, %lDialogExternalMenuAdd%
 Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, %lDialogExternalMenuAddNotFromCatalogue%
-Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btrAddExternalMenusFromCatalogueClose, %lGuiClose%
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btnAddExternalMenusFromCatalogueClose, %lGuiClose%
 Gui, 2:Add, Text
 	
 strExpandedPath := PathCombine(A_WorkingDir, EnvVars(g_strExternalMenusCataloguePath))
@@ -10617,7 +10629,7 @@ Loop, Files, %strExpandedPath%\*.ini, R
 }
 LV_ModifyCol(, "")
 
-GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btrAddExternalMenusFromCatalogueClose")
+GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btnAddExternalMenusFromCatalogueClose")
 
 Gosub, ShowGui2AndDisableGui1
 
@@ -15371,6 +15383,179 @@ strSend := ""
 strCommand := ""
 ResetArray("arrFavoriteSnippetOptions")
 strFavoriteSnippetOptions := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindows:
+;------------------------------------------------------------
+
+Gui, CloseAllWindows:New, , % lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseAllWindows:+OwnDialogs
+if (g_blnUseColors)
+	Gui, CloseAllWindows:Color, %g_strGuiWindowColor%
+
+Gui, Font, w700
+Gui, CloseAllWindows:Add, Text, w640, %lDialogCloseAllWindows%
+Gui, Font
+Gui, CloseAllWindows:Add, Text, w640, %lDialogCloseAllWindowsIntro%
+Gui, CloseAllWindows:Add, Button, x10 y+20 gCloseAllWindowsSelectAll vf_btnCloseAllWindowsSelectAll, %lDialogCloseAllWindowsSelectAll%
+Gui, CloseAllWindows:Add, ListView, % "vf_lvCloseAllWindows Count32 Checked " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
+	. " gCloseAllWindowsListEvents x10 y+20 w640 h340 AltSubmit", %lDialogCloseAllWindowsHeader%|ID|Window Process Path
+LV_ModifyCol(2, 0)
+LV_ModifyCol(3, 0)
+
+Gui, CloseAllWindows:Add, Text
+Gui, CloseAllWindows:Add, Button, x10 gCloseAllWindowsCloseButton vf_btnCloseAllWindowsClose, %lDialogCloseAllWindowsClose%
+Gui, CloseAllWindows:Add, Button, x+20 yp gCloseAllWindowsGuiEscape vf_btnCloseAllWindowsCancel, %lDialogCancelButton%
+Gui, CloseAllWindows:Add, Button, gCloseAllWindowsEnter Hidden Default, Enter
+Gui, CloseAllWindows:Add, Text
+
+DetectHiddenWindows, Off
+WinGet, strIDs, list
+DetectHiddenWindows, On ; revert to app default
+
+Loop, %strIDs%
+{
+	WinGetTitle, strWindowTitle, % "ahk_id " . strIDs%A_Index%
+	WinGet, strWindowPath, ProcessPath, % "ahk_id " . strIDs%A_Index%
+	if StrLen(strWindowTitle) and (strWindowTitle <> "Program Manager")
+		LV_Add("Check", strWindowTitle, strIDs%A_Index%, strWindowPath)
+}
+LV_ModifyCol(1, "Auto")
+
+GuiCenterButtons(lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
+
+GuiControl, CloseAllWindows:Focus, f_lvCloseAllWindows
+Gui, CloseAllWindows:Show, AutoSize Center
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsSelectAll:
+;------------------------------------------------------------
+
+; check all if none is checked, use "-" prefix to deselect all if any one is selected
+LV_Modify("", (LV_GetNext(, "Checked") ? "-" : "") . "Check")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsListEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent <> "DoubleClick")
+	return
+
+intFocusRow := A_EventInfo
+gosub, CloseAllWindowsDetails
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsEnter:
+;------------------------------------------------------------
+
+GuiControlGet, strControlFocus, FocusV
+if (strControlFocus <> "f_lvCloseAllWindows")
+    return
+
+intFocusRow := LV_GetNext(0, "Focused")
+gosub, CloseAllWindowsDetails
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsDetails:
+;------------------------------------------------------------
+Gui, CloseAllWindows:+OwnDialogs
+
+LV_GetText(strWindowTitle, intFocusRow, 1)
+LV_GetText(strWindowPath, intFocusRow, 3)
+
+MsgBox, % 4+32+256, %g_strAppNameText%, % L(lDialogCloseAllWindowsDetail, strWindowTitle, strWindowPath)
+
+IfMsgBox, Yes
+{
+	LV_GetText(strWindowID, intFocusRow, 2)
+	Gosub, CloseAllWindowsCloseThisWindow
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsCloseButton:
+;------------------------------------------------------------
+
+intWindowsRow := 0 ; the first loop iteration starts the search at the top of the list
+Loop
+{
+	intWindowsRow := LV_GetNext(intWindowsRow, "Checked")  ; Resume the search at the row after that found by the previous iteration.
+	if !(intWindowsRow) ; false if no more selected rows
+		break
+	
+	LV_GetText(strWindowID, intWindowsRow, 2)
+	Gosub, CloseAllWindowsCloseThisWindow
+	Sleep, 200 ; for safety, required?
+}
+
+Gosub, CloseAllWindowsGuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsCloseThisWindow:
+;------------------------------------------------------------
+
+; WinClose sends a WM_CLOSE message to the target window, which is a somewhat forceful method of closing it.
+; An alternate method of closing is to send the following message. It is similar in effect to pressing Alt-F4 or clicking the window's close button in its title bar
+; PostMessage, 0x112, 0xF060,,, % "ahk_id " . strWindowID ; 0x112 = WM_SYSCOMMAND, 0xF060 = SC_CLOSE
+
+WinActivate, ahk_id %strWindowID%
+Sleep, 100 ; for safety, required?
+WinClose, ahk_id %strWindowID%
+Sleep, 100 ; for safety, required?
+
+; WinWaitClose, ahk_id %strWindowID%, , 2 ; wait 2 secs and set ErrorLevel to 1 if timed out
+; if (ErrorLevel)
+; {
+	; WinGetTitle, strWindowTitle, ahk_id %strWindowID%
+	; Oops("Unable to close window:`n`n~1~", strWindowTitle) ; ##### language
+; }
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseAllWindowsGuiClose:
+CloseAllWindowsGuiEscape:
+;------------------------------------------------------------
+
+Gui, CloseAllWindows:Destroy
+
+strWindows := ""
+intWindowsRow := ""
+ResetArray("strIDs")
+strWindowTitle := ""
+strWindowPath := ""
+strWindowID := ""
+strControlFocus := ""
+intFocusRow := ""
 
 return
 ;------------------------------------------------------------

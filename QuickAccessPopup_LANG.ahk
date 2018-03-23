@@ -70,6 +70,12 @@ global lDialogChangeHotkeyTitle := "Change shortcut - ~1~ ~2~"
 global lDialogChangeHotstringDefaultOptionsPrompt := "Select default options for newly created hotstrings (<a href=""~1~"">Help</a>)"
 global lDialogChangeHotstringTitle := "Change hotstring - ~1~"
 global lDialogChangeHotstringTitleDefaultOptions := "Hotstrings default options - ~1~"
+global lDialogCloseAllWindows := "Close All Windows"
+global lDialogCloseAllWindowsClose := "Close selected windows"
+global lDialogCloseAllWindowsDetail := "Window title:`n~1~`n`nWindow process path:`n~2~`n`nDo you want to CLOSE this window?"
+global lDialogCloseAllWindowsHeader := "Window title"
+global lDialogCloseAllWindowsIntro := "Check the windows to close and click ""Close selected windows"". Double-click or press Enter to close one window or see its details."
+global lDialogCloseAllWindowsSelectAll := "Select/Deselect all"
 global lDialogContinue := "Continue" ; added
 global lDialogContinueAmpersand := "C&ontinue" ; added
 global lDialogCopy := "Copy" ; new
@@ -428,6 +434,7 @@ global lMenuAlternativeRunAs := "Run as administrator"
 global lMenuAppData := "Application Data"
 global lMenuCache := "Cache"
 global lMenuClipboard := "Clipboard"
+global lMenuCloseAllWindows := "Close all windows"
 global lMenuCloseThisMenu := "Close this menu"
 global lMenuColumnBreak := "column"
 global lMenuCommonAppData := "Common Application Data"
@@ -652,4 +659,3 @@ global lUpdateTitle := "Update ~1~?"
 global lUpdateYouHaveLatest := "You have the latest version: ~1~.`n`nVisit the ~2~ web page anyway?"
 global lWindowIsTreeviewText := "Windows limitation..." ; changed
 global lWindowIsTreeviewTitle := "Tree view dialog box not supported"
-
