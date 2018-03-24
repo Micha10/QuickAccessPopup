@@ -8905,8 +8905,11 @@ else ; add favorite
 {
 	strOriginalExtension := GetFileExtension(g_strNewLocation)
 	if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
+	{
+		strShortcutFilename := GetDeepestFolderName(g_strNewLocation) ; save the name of the lnk as new favorite name
 		; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
 		FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
+	}
 		
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 		and (InStr(strGuiFavoriteLabel, "ThisFolder") ; includes all ...FromMsg
@@ -8941,6 +8944,10 @@ else ; add favorite
 			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
 			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(g_strNewLocation))
 		}
+        else if (strOriginalExtension = "lnk")
+            
+            g_objEditedFavorite.FavoriteName := strShortcutFilename ; other fields filled later
+            
 		else ; all other labels
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
@@ -9277,6 +9284,9 @@ for strCategory, strCategoryLabel in objCategories
 	
 	loop, Parse, strItemsNameCodeCategories, `n
 	{
+		if !StrLen(A_LoopField)
+			continue
+		
 		; name|code|categories
 		StringSplit, arrItem, A_LoopField, |
 		
