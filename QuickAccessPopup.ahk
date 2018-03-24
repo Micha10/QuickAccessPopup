@@ -10882,9 +10882,9 @@ if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 	
 	if (strThisLabel = "GuiAddFavoriteSaveXpress")
 	{
-		; add new favorite in first position of Main menu
-		strDestinationMenu := lMainMenuName
-		g_intNewItemPos := (g_blnAddAutoAtTop ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1)
+		; add new favorite in first or last position of menu where the XPress command was used
+		strDestinationMenu := A_ThisMenu
+		g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
 	}
 	else ; GuiAddExternalSave
 	{
