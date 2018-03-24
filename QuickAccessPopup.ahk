@@ -6620,8 +6620,8 @@ Gui, 2:Add, Text, yp x+10 w235, %lOptionsNbLastActions%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsAddAutoAtTop%
 
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop0 Group " . (!g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoBottomOfMenu%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoTopOfMenu%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop0 Group " . (g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoTopOfMenu%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoBottomOfMenu%
 
 ; column 2
 
@@ -7235,7 +7235,7 @@ if (f_blnOptionsRunAtStartup)
 	Gosub, CreateStartupShortcut
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
-g_blnAddAutoAtTop := f_blnAddAutoAtTop
+g_blnAddAutoAtTop := f_blnAddAutoAtTop0
 IniWrite, %g_blnAddAutoAtTop%, %g_strIniFile%, Global, AddAutoAtTop
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
 IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
