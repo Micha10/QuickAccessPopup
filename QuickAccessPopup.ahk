@@ -31,6 +31,34 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.6 (2018-03-24)
+ 
+Close All Windows
+- add the QAP feature "Close All Windows" with a dialog box to select which of the currently open windows to close
+- add a button to select or deselect all windows to close
+- double-click or press Enter to close one window only or see its details
+ 
+Options
+- when adding a favorite automatically using one of the "Express" commands or "Add Favorite" QAP features, change default position of new favorites from top to bottom of the menu
+- rename option "Add automatically at the top of menu" to "When adding automatically, add a favorite at..." and change it from a check box to radio buttons with options "Bottom of menu" and "Top of menu"
+- in "Options" dialog box, move the "When adding automatically, add a favorite at..." option from "General" to "Menu" tab
+ 
+QAP Features
+- new QAP features to add a favorite for each type of favorite (12 types)
+- add these new features to the QAP Features tree view under 2nd level list "Add Favorite of Type"
+- when adding a favorite using QAP features "Add Favorite" (with or without type), add it at top or bottom of menu according to option "When adding automatically, add a favorite at..."
+- also, when adding with "Add favorite" QAP features, add the new favorite to the top or bottom of the menu where the "Add Favorite" command was launched
+- at first QAP launch (when creating the QuickAccessPopup.ini file), add default items "Add Feature - QAP" at top of menu "My QAP Essentials" and "Add Feature - Special" at top of menu "My Special Folders"
+- stop saving the QAP features name to ini file (this was done by error in the previous beta release)
+ 
+Add Express command
+- when using the "Add this Folder or Link Express", add favorite to menu where the "Express" command was launched
+- when adding a favorite using "Express" command, add it at top or bottom of menu according to option "When adding automatically, add a favorite at...".
+ 
+Bug fixes
+- fix bug when double-clicking a tree view header (when adding QAP Features or Special Folders)
+- show Settings window and check for read-only status of Shared menus when adding favorites using QAP feature "Add favorite - Type"
+
 Version BETA: 8.9.1.5 (2018-03-17)
  
 Windows Special folders
@@ -2095,7 +2123,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.5
+;@Ahk2Exe-SetVersion 8.9.1.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2180,7 +2208,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
