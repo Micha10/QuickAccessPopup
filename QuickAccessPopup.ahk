@@ -3938,7 +3938,7 @@ IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
 
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
-IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 1
+IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
@@ -4332,25 +4332,30 @@ strThisMenuName := lMenuMyQAPMenu
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
 g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
 
+; do not save QAP feature menus name to ini file and keep default names
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) ; do not save QAP feature menu name lMenuSwitchFolderOrApp . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Add Favorite - QAP}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Last Actions}", "", "QAP") ; do not save QAP feature menu name lMenuLastActions . "..." to ini file and keep default name
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true) ; do not save QAP feature menu name lMenuReopenCurrentFolder . "..." to ini file and keep default name
-AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuCurrentFolders . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) 
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true) ; do not save QAP feature menu name lMenuRecentFolders . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Last Actions}", "", "QAP")
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true)
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true)
 AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true) ; do not save QAP feature menu name lMenuClipboard . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Drives}", "", "QAP") ; do not save QAP feature menu name lMenuDrives . "..." to ini file and keep default name
+AddToIniOneDefaultMenu("{Drives}", "", "QAP")
 AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
 
 strThisMenuName := lMenuMySpecialMenu
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
 
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
+AddToIniOneDefaultMenu("{Add Favorite - Special}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(A_Desktop, lMenuDesktop, "Special") ; Desktop
 AddToIniOneDefaultMenu("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "", "Special") ; Documents
 AddToIniOneDefaultMenu(g_strMyPicturesPath, "", "Special") ; Pictures
