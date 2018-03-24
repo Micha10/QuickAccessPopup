@@ -6550,9 +6550,6 @@ Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
 Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsRunAtStartup%
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddAutoAtTop, %lOptionsAddAutoAtTop%
-GuiControl, , f_blnAddAutoAtTop, %g_blnAddAutoAtTop%
-
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
 
@@ -6620,6 +6617,11 @@ Gui, 2:Add, Text, y+15 xs w300, %lMenuLastActions%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
 Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, %g_intNbLastActions%
 Gui, 2:Add, Text, yp x+10 w235, %lOptionsNbLastActions%
+
+Gui, 2:Add, Text, y+15 xs w300, %lOptionsAddAutoAtTop%
+
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop0 Group " . (!g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoBottomOfMenu%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoTopOfMenu%
 
 ; column 2
 
@@ -8280,6 +8282,7 @@ StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
 g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
+g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added because it is in an external menu locked by another user,
@@ -8302,6 +8305,7 @@ if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 {
 	g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 	gosub, GuiShowFromGuiAddFavoriteQAPFeature
+	g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 }
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
@@ -10905,7 +10909,9 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
 		return
 
-if (!g_intNewItemPos) ; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress or GuiAddExternalSave
+if (!g_intNewItemPos)
+	; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress, GuiAddExternalSave, 
+	; GuiAddFavoriteFromQAPFeature or GuiAddFavoriteFromQAPFeatureFolder (and other types)
 	if (f_drpParentMenuItems)
 		g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
 	else ; if f_drpParentMenuItems is not set, add to the end of menu
