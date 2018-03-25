@@ -2774,6 +2774,7 @@ FileInstall, FileInstall\copy-48_c.png, %g_strTempDir%\copy-48_c.png
 FileInstall, FileInstall\keyboard-48_c.png, %g_strTempDir%\keyboard-48_c.png
 FileInstall, FileInstall\details-48_c.png, %g_strTempDir%\details-48_c.png
 FileInstall, FileInstall\separator-26_c.png, %g_strTempDir%\separator-26_c.png
+FileInstall, FileInstall\generic_sorting-26_c.png, %g_strTempDir%\generic_sorting-26_c.png
 FileInstall, FileInstall\column-26_c.png, %g_strTempDir%\column-26_c.png
 FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26_c.png
 FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
@@ -3781,10 +3782,10 @@ InsertGuiControlPos("f_picAddSeparator",				  10,  225)
 InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  195)
 InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",				  10,   84)
-; InsertGuiControlPos("picSortFavorites",				  10, -165) ; REMOVED
 InsertGuiControlPos("f_picUpMenu",						  25,   84)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -185)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -185)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -215)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -215)
+InsertGuiControlPos("f_picSortFavorites",				  10,  -185)
 
 InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -84, , true)
 InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -84, , true)
@@ -7820,46 +7821,48 @@ Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDi
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
 Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32_c.png ; Static9
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12_c.png ; Static10
-g_objToolTipsMessages["Static8"] := lControlToolTipPreviousMenu
+g_objToolTipsMessages["Static10"] := lControlToolTipPreviousMenu
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12_c.png ; Static11
-g_objToolTipsMessages["Static9"] := lControlToolTipParentMenu
+g_objToolTipsMessages["Static11"] := lControlToolTipParentMenu
 Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static12
-g_objToolTipsMessages["Static10"] := lControlToolTipMoveUp
+g_objToolTipsMessages["Static12"] := lControlToolTipMoveUp
 Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26_c.png ; Static13
-g_objToolTipsMessages["Static11"] := lControlToolTipMoveDown
+g_objToolTipsMessages["Static13"] := lControlToolTipMoveDown
 Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26_c.png ; Static14
-g_objToolTipsMessages["Static12"] := lControlToolTipSeparator
+g_objToolTipsMessages["Static14"] := lControlToolTipSeparator
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26_c.png ; Static15
-g_objToolTipsMessages["Static13"] := lControlToolTipColumnBreak
+g_objToolTipsMessages["Static15"] := lControlToolTipColumnBreak
 Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
-g_objToolTipsMessages["Static14"] := lControlToolTipTextSeparator
+g_objToolTipsMessages["Static16"] := lControlToolTipTextSeparator
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static17
-g_objToolTipsMessages["Static15"] := lControlToolTipAlwaysOnTopOn
+g_objToolTipsMessages["Static17"] := lControlToolTipAlwaysOnTopOn
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static18
-g_objToolTipsMessages["Static16"] := lControlToolTipAlwaysOnTopOff
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static19
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static20
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static21
+g_objToolTipsMessages["Static18"] := lControlToolTipAlwaysOnTopOff
+Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static19
+g_objToolTipsMessages["Static19"] := lControlToolTipSortFavorites
+Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static20
+Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static21
+Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static22
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static23
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static24, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static25
-Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, %lGuiMove% ; Static26
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static27
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static28
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static29
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static30
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static31
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static32
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static23
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static24
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static25, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static26
+Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, %lGuiMove% ; Static27
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static28
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static29
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static30
+Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static31
+Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static32
+Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static33
 
 Gui, 1:Font, s8 w400 italic, Verdana
 Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, <a>%lGuiHotkeysHelp%</a> ; SysLink2 center option not working SysLink1
 Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, <a>%lGuiDropFilesHelp%</a> ; SysLink3
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static33
+Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, %lGuiSubmenuDropdownLabel% ; Static34
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, %lDialogSearch% ; Edit1
@@ -7883,9 +7886,9 @@ if !(g_blnDonor)
 	StringSplit, arrDonateButtons, strDonateButtons, |
 	intDonateButton := RandomBetween(1, 5)
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32_c.png" ; Static34
+	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32_c.png" ; Static35
 	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static35
+	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static36
 }
 
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
@@ -11744,16 +11747,7 @@ GuiMoveMultipleFavoritesDown:
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
-g_blnAbortMultipleMove := false
-strSelectedRows := ""
-g_intRowToProcess := 0
-loop
-{
-	g_intRowToProcess := LV_GetNext(g_intRowToProcess)
-	strSelectedRows .= g_intRowToProcess . "|"
-}
-until !LV_GetNext(g_intRowToProcess)
-StringTrimRight, strSelectedRows, strSelectedRows, 1
+Gosub, GetSelectedRows
 
 Loop
 {
@@ -11774,24 +11768,6 @@ LV_Modify(LV_GetNext(0), "Focus") ; give focus to the first selected row
 g_blnAbortMultipleMove := ""
 strSelectedRows := ""
 g_intRowToProcess := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetFirstSelected:
-GetLastSelected:
-;------------------------------------------------------------
-
-g_intRowToProcess := 0
-
-if (A_ThisLabel = "GetFirstSelected")
-	g_intRowToProcess := LV_GetNext(g_intRowToProcess) ; start from first selected
-else
-	loop
-		g_intRowToProcess := LV_GetNext(g_intRowToProcess) ; start with last selected
-	until !LV_GetNext(g_intRowToProcess)
 
 return
 ;------------------------------------------------------------
@@ -11874,6 +11850,122 @@ MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
 	objMenu.Insert(intItem + intDirection + (intDirection > 0 ? 1 : 0), objMenu[intItem])
 	objMenu.Remove(intItem + (intDirection > 0 ? 0 : 1))
 }	
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiSortFavorites:
+;------------------------------------------------------------
+
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+{
+	objExternalMenu := ""
+	return
+}
+
+GuiControl, Focus, f_lvFavoritesList
+Gui, 1:ListView, f_lvFavoritesList
+
+intFirstSelectedRow := LV_GetNext(0)
+
+if (LV_GetCount("Selected") <= 1) ; if one or no row is selected, select all and sort until the first separator
+{
+	LV_Modify(0, "Select") ; select all rows
+	if (g_objMenuInGui[1].FavoriteType = "B")
+		LV_Modify(1, "-Select") ; deselect backlink
+}
+	
+Gosub, GetSelectedRows ; updated strSelectedRows (pipe delimited list of selected row numbers)
+StringSplit, arrSelectedRows, strSelectedRows, |
+
+objNewOrder := Object() ; keys of object are favorite names, sorting object array by favorite names
+
+intRowsToSort := 0 ; counter, sort only if at least 2 rows to sort
+strSortedRows := "" ; keep track of sorted rows to re-select only these rows
+
+Loop, Parse, strSelectedRows, |
+{
+	if !StrLen(g_objMenuInGui[A_LoopField].FavoriteName) ; stop at first separator
+		break
+	intRowsToSort++
+	strSortedRows .= arrSelectedRows%A_Index% . "|"
+	objNewOrder[g_objMenuInGui[A_LoopField].FavoriteName] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
+}
+StringTrimRight, strSortedRows, strSortedRows, 1
+
+if (intRowsToSort > 1) ; sort only if required
+{
+	for strThisName, objThisFavorite in objNewOrder
+		; replace gui menu objects to sort with favorites object sorted
+		g_objMenuInGui[arrSelectedRows%A_Index%] := objThisFavorite
+
+	gosub, LoadMenuInGui ; refresh menu in gui
+	
+	LV_Modify(0, "-Select") ; deselect all
+	Loop, Parse, strSortedRows, |
+		LV_Modify(A_LoopField, "Select") ; select only sorted rows
+	LV_Modify(LV_GetNext(0), "Focus Vis") ; give focus to the first sorted row and make it visible
+
+	Gosub, EnableSaveAndCancel
+
+	; if favorite's menu is in an external settings file, flag that it needs to be saved
+	if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
+		objExternalMenu.NeedSave := true
+}
+else
+{
+	LV_Modify(0, "-Select") ; deselect all
+	LV_Modify(intFirstSelectedRow, "Select") ; re-select first selected
+}
+
+intFirstSelectedRow := ""
+objExternalMenu := ""
+strSelectedRows := ""
+ResetArray("arrSelectedRows")
+intSelected := ""
+objNewOrder := ""
+intRowsToSort := ""
+strSortedRows := ""
+strThisName := ""
+objThisFavorite := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFirstSelected:
+GetLastSelected:
+;------------------------------------------------------------
+
+g_intRowToProcess := 0
+
+if (A_ThisLabel = "GetFirstSelected")
+	g_intRowToProcess := LV_GetNext(g_intRowToProcess) ; start from first selected
+else
+	loop
+		g_intRowToProcess := LV_GetNext(g_intRowToProcess) ; start with last selected
+	until !LV_GetNext(g_intRowToProcess)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSelectedRows:
+;------------------------------------------------------------
+
+strSelectedRows := ""
+g_intRowToProcess := 0
+loop
+{
+	g_intRowToProcess := LV_GetNext(g_intRowToProcess)
+	strSelectedRows .= g_intRowToProcess . "|"
+}
+until !LV_GetNext(g_intRowToProcess)
+StringTrimRight, strSelectedRows, strSelectedRows, 1
+
+return
 ;------------------------------------------------------------
 
 
@@ -19544,9 +19636,9 @@ WM_MOUSEMOVE(wParam, lParam)
 	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
 	{
-		; 2-35 except 33 (and except 3, 4 and 24 if Edit disabled)
-		if (intControl < 2) or (intControl = 33) or (intControl > 35)
-			or ((intControl = 3 or intControl = 4 or intControl = 24) and g_blnEditButtonDisabled)
+		; 2-36 except 34 (and except 3, 4 and 25 if Edit disabled)
+		if (intControl < 2) or (intControl = 34) or (intControl > 35)
+			or ((intControl = 3 or intControl = 4 or intControl = 25) and g_blnEditButtonDisabled)
 			return
 	}
 	else if !InStr(strControl, "Button")
