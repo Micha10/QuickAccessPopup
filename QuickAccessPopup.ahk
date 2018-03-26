@@ -6221,10 +6221,10 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 			Break
 		if !InStr(A_LoopFileAttrib, "H")
-			strFolders .= A_LoopFileSize . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
+			strFolders .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
 	}
-	Sort, strFolders
-	; ###_V("strFolders", strFolders)
+	
+	Sort, strFolders, % (SubStr(objLiveFolder.FavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
 	
 	; scan files in live folder
 	strFiles := ""
@@ -6239,7 +6239,8 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 				if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
 					Break
 				; favorite type Document is OK for Application items
-				strFiles .= A_LoopFileSize . "`tDocument" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+
+				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tDocument" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
 				
 				; get links or shortcuts icons
 				if (A_LoopFileExt = "url")
@@ -6260,8 +6261,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		return
 	}
 
-	Sort, strFiles
-	; ###_V("strFiles", strFiles)
+	Sort, strFiles, % (SubStr(objLiveFolder.FavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
 	
 	strContent := (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
 
@@ -6306,6 +6306,32 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 
 	; attach live folder menu to live folder favorite object
 	objLiveFolder.SubMenu := objNewMenu
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSortCriteria(strSort)
+;------------------------------------------------------------
+{
+	; sort criteria 1 file name, 2 extension, 3 size or 4 modified date (22)
+	strSortCriteria := SubStr(strSort, 2, 1)
+	
+	if (strSortCriteria = "1")
+		strCriteria := A_LoopFileName
+	else if (strSortCriteria = "2")
+		strCriteria := A_LoopFileExt . A_LoopFileName
+	else if (strSortCriteria = "3")
+	{		
+		strCriteria := A_LoopFileSize
+		while StrLen(strCriteria) < 16 ; OK up to 1024 TB
+			strCriteria := "0" . strCriteria
+		strCriteria .= A_LoopFileName ; in case we have equal sizes
+	}
+	else ; 4
+		strCriteria := A_LoopFileTimeModified . A_LoopFileName
+	
+	return strCriteria
 }
 ;------------------------------------------------------------
 
