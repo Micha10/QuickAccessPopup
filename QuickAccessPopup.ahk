@@ -3632,6 +3632,8 @@ InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActio
 	, lMenuLastActionDescription, 0, "iconReload", "")
 InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowsFeature"
 	, lMenuCloseAllWindowsDescription, 0, "iconDesktop", "")
+InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",					"4-WindowsFeature"
+	, lMenuReopenInNewWindowDescription, 0, "iconChangeFolder", "")
 ; shutdown etc. iconClose
 
 Loop, %g_arrFavoriteTypes0%
@@ -9197,7 +9199,6 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 }
 else ; "Special" or "QAP"
 {
-	; ##### allow options and custom name for some QAP features here? (select type for Add, Select options of Shutdown)
 	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
 	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "Special" ? "y+10" : "yp") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
 
@@ -11290,7 +11291,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	}
 
 	g_objEditedFavorite.FavoriteName := strNewFavoriteShortName
-	
+
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
 		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
@@ -11350,12 +11351,15 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
 	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 	
-	strLoopCriteria := 0
-	loop
-		if (f_radLiveFolderSort%A_Index%)
-			strLoopCriteria := A_Index
-	until (strLoopCriteria > 0)
-	g_objEditedFavorite.FavoriteFolderLiveSort := (f_radLiveFolderSortA ? "A" : "D") . strLoopCriteria
+	if (f_blnFavoriteFolderLive)
+	{
+		strLoopCriteria := 0
+		loop
+			if (f_radLiveFolderSort%A_Index%)
+				strLoopCriteria := A_Index
+		until (strLoopCriteria > 0)
+		g_objEditedFavorite.FavoriteFolderLiveSort := (f_radLiveFolderSortA ? "A" : "D") . strLoopCriteria
+	}
 
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 		; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
@@ -14412,6 +14416,7 @@ OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
 OpenReopenCurrentFolder:
+OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
 ;------------------------------------------------------------
 
@@ -15002,12 +15007,23 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 	}
 	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
-else if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder")
+else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
 {
-	; returns current or latest file manager window ID and Window class, excluding dialog boxes
-	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
-	GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
-	
+	if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder") ; reopen in dialog box
+		; returns current or latest file manager window ID and Window class, excluding dialog boxes
+		; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
+		GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
+	else ; OpenReopenInNewWindow reoen from dialog box
+	{
+		; get location from current file dialog box
+		strReopenWindowsID := g_strTargetWinId
+		strReopenWindowClass := g_strTargetClass
+		; open in a new window
+		g_strTargetWinId := ""
+		g_strTargetClass := ""
+		g_strHokeyTypeDetected := "Launch"
+	}
+
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	; g_objThisFavorite.FavoriteName not needed because menu object never used for menu building
@@ -15652,7 +15668,7 @@ Sleep, 100 ; for safety, required?
 ; if (ErrorLevel)
 ; {
 	; WinGetTitle, strWindowTitle, ahk_id %strWindowID%
-	; Oops("Unable to close window:`n`n~1~", strWindowTitle) ; ##### language
+	; Oops("Unable to close window:`n`n~1~", strWindowTitle) ; ### language
 ; }
 
 return
