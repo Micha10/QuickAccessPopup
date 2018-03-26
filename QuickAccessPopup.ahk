@@ -2170,6 +2170,7 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
+g_strIniFileNameExtOnly := g_strAppNameFile . ".ini"
 
 ; Set developement ini file
 
@@ -3612,7 +3613,7 @@ InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "Shutdow
 	, lMenuComputerShutdownDescription, 0, "iconExit")
 InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						"4-WindowsFeature"
 	, lMenuComputerRestartDescription, 0, "iconReload")
-InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"5-Utility"
+InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"5-Utility~6-QAPManagement"
 	, lMenuReloadDescription, 0, "iconReload")
 InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"6-QAPManagement"
 	, lMenuCloseThisMenuDescription, 0, "iconClose")
@@ -3632,8 +3633,14 @@ InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActio
 	, lMenuLastActionDescription, 0, "iconReload", "")
 InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowsFeature"
 	, lMenuCloseAllWindowsDescription, 0, "iconDesktop", "")
-InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",					"4-WindowsFeature"
+InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",				"4-WindowsFeature"
 	, lMenuReopenInNewWindowDescription, 0, "iconChangeFolder", "")
+InitQAPFeatureObject("Restore Settings Position", lMenuRestoreSettingsWindowPosition, "", "GuiShowRestoreDefaultPosition",		"6-QAPManagement"
+	, lMenuRestoreSettingsWindowPositionDescription, 0, "iconSettings", "")
+InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"6-QAPManagement"
+	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
+InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"6-QAPManagement"
+	, lMenuEditIniFileDescription, 0, "iconSettings", "")
 ; shutdown etc. iconClose
 
 Loop, %g_arrFavoriteTypes0%
@@ -4825,12 +4832,11 @@ if (strAlternativeTrayIcon <> "ERROR")
 Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettings%..., SwitchSettings
 Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettingsDefault%, SwitchSettingsDefault
 Menu, menuTraySettingsFileOptions, Add
-SplitPath, g_strIniFile, strIniFileNameExtOnly
-Menu, menuTraySettingsFileOptions, Add, % L(lMenuEditIniFile, strIniFileNameExtOnly), ShowSettingsIniFile
-Menu, menuTraySettingsFileOptions, Add
 Menu, menuTraySettingsFileOptions, Add, %lImpExpMenu%..., ImportExport
 
 Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
+Menu, Tray, Add
+Menu, Tray, Add, % L(lMenuEditIniFile, g_strIniFileNameExtOnly), ShowSettingsIniFile
 Menu, Tray, Add, %lMenuSettingsFileOptions%..., :menuTraySettingsFileOptions
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
@@ -4844,7 +4850,7 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
 Menu, Tray, Add, %lMenuAboutAmpersand%, GuiAbout
-Menu, Tray, Add, %lDonateMenu%, GuiDonate
+Menu, Tray, Add, %lGuiDonate%, GuiDonate
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuExitApp, g_strAppNameText), TrayMenuExitApp
 Menu, Tray, Default, %lMenuSettings%...
@@ -4852,7 +4858,6 @@ if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButtonAmpersand) ; A_PtrSize * 8 = 32 or 64
 
-strIniFileNameExtOnly := ""
 strAlternativeTrayIcon := ""
 
 return
