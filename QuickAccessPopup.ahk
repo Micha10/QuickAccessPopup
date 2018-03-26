@@ -8353,6 +8353,7 @@ g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
+g_intOriginalMenuPosition := g_intNewItemPos
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added because it is in an external menu locked by another user,
