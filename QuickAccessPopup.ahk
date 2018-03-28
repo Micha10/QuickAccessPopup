@@ -2872,7 +2872,7 @@ StringSplit, g_arrActiveFileManagerDisplayNames, strActiveFileManagerDisplayName
 ; ----------------------
 ; QAP Features categories
 
-strCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowsFeature|5-Utility|6-QAPManagement"
+strCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|6-Utility|7-QAPManagement"
 StringSplit, g_arrQAPFeaturesCategories, strCategories, |
 
 ; ----------------------
@@ -3010,7 +3010,7 @@ Loop, %g_arrFavoriteTypes0%
 
 ; ----------------------
 ; QAP Features Categories Names
-; 1-Featured|2-DynamicMenus|3-QAPMenuEditing|4-WindowsFeature|5-Utility|6-QAPManagement
+; 1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|6-Utility|7-QAPManagement
 StringSplit, arrQAPFeatureCategoriesNames, lDialogQAPFeatureCategoriesNames, |
 g_objQAPCategories := Object()
 Loop, %g_arrQAPFeaturesCategories0%
@@ -3572,18 +3572,18 @@ Gosub, InitQAPFeaturesRefreshed
 
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
 	, lMenuClipboardDescription, 0, "iconClipboard", "+^V")
-InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowsFeature"
+InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
 	, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^W")
-InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowsFeature"
+InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
 	, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^F")
-InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus~5-Utility"
+InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
 ; Command features
 
-InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"6-QAPManagement"
+InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"7-QAPManagement"
 	, lGuiAboutDescription, 0, "iconAbout")
 InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
 	, lMenuAddFavoriteDescription, 0, "iconAddFavorite")
@@ -3591,9 +3591,9 @@ InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "Add
 	, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^A")
 InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					"3-QAPMenuEditing"
 	, lMenuAddThisFolderXpressDescription, 0, "iconAddThisFolder")
-InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								"6-QAPManagement"
+InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
 	, lMenuExitAppDescription, 0, "iconExit")
-InitQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								"6-QAPManagement"
+InitQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								"7-QAPManagement"
 	, lGuiHelpDescription, 0, "iconHelp")
 InitQAPFeatureObject("Hotkeys",					lDialogShortcuts . "...",			"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
 	, lDialogShortcutsDescription, 0, "iconHotkeys")
@@ -3601,45 +3601,45 @@ InitQAPFeatureObject("Hotstrings",				lDialogHotstrings . "...",			"", "GuiHotke
 	, lDialogHotstringsDescription, 0, "iconHotkeys")
 InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
 	, lDialogIconsManageDescription, 0, "iconIcons")
-InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"6-QAPManagement"
+InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"7-QAPManagement"
 	, lGuiOptionsDescription, 0, "iconOptions")
-InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~6-QAPManagement"
+InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuSettingsDescription, 0, "iconSettings", "+^S")
-InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"6-QAPManagement"
+InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"7-QAPManagement"
 	, lGuiDonateDescription, 0, "iconDonate")
-InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"5-Utility"
+InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"6-Utility"
 	, lMenuGetWinInfoDescription, 0, "iconAbout")
-InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						"4-WindowsFeature"
+InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						"5-WindowsFeature"
 	, lMenuComputerShutdownDescription, 0, "iconExit")
-InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						"4-WindowsFeature"
+InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						"5-WindowsFeature"
 	, lMenuComputerRestartDescription, 0, "iconReload")
-InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"5-Utility~6-QAPManagement"
+InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"6-Utility~7-QAPManagement"
 	, lMenuReloadDescription, 0, "iconReload")
-InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"6-QAPManagement"
+InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"7-QAPManagement"
 	, lMenuCloseThisMenuDescription, 0, "iconClose")
-InitQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							"6-QAPManagement"
+InitQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							"7-QAPManagement"
 	, lImpExpMenuDescription, 0, "iconSettings")
-InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						"3-QAPMenuEditing~6-QAPManagement"
+InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuSwitchSettingsDescription, 0, "iconSettings")
-InitQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~6-QAPManagement"
+InitQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuSwitchSettingsDefaultDescription, 0, "iconSettings")
 InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing"
 	, lMenuRefreshMenuDescription, 0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
-InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowsFeature"
+InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
 	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^C")
-InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"5-Utility"
+InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"6-Utility"
 	, lMenuLastActionDescription, 0, "iconReload", "")
-InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowsFeature"
+InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
 	, lMenuCloseAllWindowsDescription, 0, "iconDesktop", "")
-InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",				"4-WindowsFeature"
+InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",				"4-WindowManagement"
 	, lMenuReopenInNewWindowDescription, 0, "iconChangeFolder", "")
-InitQAPFeatureObject("Restore Settings Position", lMenuRestoreSettingsWindowPosition, "", "GuiShowRestoreDefaultPosition",		"6-QAPManagement"
+InitQAPFeatureObject("Restore Settings Position", lMenuRestoreSettingsWindowPosition, "", "GuiShowRestoreDefaultPosition",		"7-QAPManagement"
 	, lMenuRestoreSettingsWindowPositionDescription, 0, "iconSettings", "")
-InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"6-QAPManagement"
+InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"7-QAPManagement"
 	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
-InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"6-QAPManagement"
+InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
 	, lMenuEditIniFileDescription, 0, "iconSettings", "")
 ; shutdown etc. iconClose
 
@@ -3664,17 +3664,17 @@ InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,	
 	, "", 10, "iconSpecialFolders")
 
 ; New for v9
-; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured~4-WindowsFeature"
+; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured~4-WindowManagement"
 	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured~4-WindowsFeature"
+; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
 	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured~4-WindowsFeature"
+; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
 	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Shutdown Combo", 			lMenu,					"", "command",				"1-Featured~4-WindowsFeature"
+; InitQAPFeatureObject("Shutdown Combo", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
 	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~6-QAPManagement"
+; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
 	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~6-QAPManagement"
+; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
 	; , lMenuDescription, 0, "icon", "")
 
 ;--------------------------------
@@ -3702,13 +3702,13 @@ InitQAPFeaturesRefreshed:
 ;------------------------------------------------------------
 
 InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	"2-DynamicMenus~4-WindowsFeature"
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	"2-DynamicMenus~5-WindowsFeature"
 	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^R")
 InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		"2-DynamicMenus~4-WindowsFeature"
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		"2-DynamicMenus~5-WindowsFeature"
 	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus~4-WindowsFeature"
+	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus~5-WindowsFeature"
 	, lMenuDrivesDescription, 0, "iconDrives",		"+^D")
 
 return
@@ -3727,7 +3727,7 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 ;		LocalizedName: QAP Feature localized label
 ;		QAPFeatureMenuName: menu to be added to the menu (excluding the starting ":"), empty if no submenu associated to this QAP feature
 ;		QAPFeatureCommand: command to be executed when this favorite is selected (excluding the ending ":")
-;		QAPFeatureCategories: one or many (tilde delimited) of 1-Featured~2-DynamicMenus~3-AlternativeMenu~4-QAPMenuEditing~5-WindowsFeature~6-Utility~7-QAPManagement
+;		QAPFeatureCategories: one or many (tilde delimited) of 1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|6-Utility|7-QAPManagement
 ;		QAPFeatureAlternativeOrder: order of feature in the Alternative Menu displayed before user choose the target favorite (0 if not Alternative menu feature)
 ;		DefaultIcon: default icon (in the "file,index" format)
 ;		DefaultShortcut: default feature hotkey (string like "+^s")
