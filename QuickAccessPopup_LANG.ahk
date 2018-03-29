@@ -25,6 +25,7 @@ global lControlToolTipMoveUp := "Move selected favorite(s) up"
 global lControlToolTipParentMenu := "Go to parent menu"
 global lControlToolTipPreviousMenu := "Return to previous menu"
 global lControlToolTipSeparator := "Insert a menu separator at the current menu position"
+global lControlToolTipSortFavorites := "Sort all or selected favorites in list"
 global lControlToolTipTextSeparator := "Insert a text menu separator at the current menu position"
 global lCopyFavoritesToMenuOrGroup := "Menus and groups cannot be copied.`n`nDo you want to continue without copying menus and groups?"
 global lCopyLocationCopiedToClipboard := "Path or URL copied to the Clipboard" ; new
