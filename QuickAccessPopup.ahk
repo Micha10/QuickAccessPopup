@@ -31,6 +31,24 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.7 (2018-03-24)
+ 
+QAP Features
+- add QAP feature "Reopen Current Folder from Dialog Box"
+- add existing featrures in Tray menu as QAP features that can be added to any menu: "Restore Settings Position", "Check for update" and "Edit Settings file"
+- add category "Window Management" for QAP features and move some features from category "Windows Feature" to "Window Management"
+- fix bug with "TC Hotlist" QAP feature being displayed twice in QAP features tree view (same issu fixed with Special folders tree view)
+ 
+Various improvements
+- add Sort favorites button to left side of Settings window and sort selected rows when user click this button; if a separator is part of the selected rows, sorting stops at first separator
+- when a file shortcut (.lnk file) is added to QAP menu with Drag and Drop, keep the shortcut's file name as default favorite name (instead target's file name)
+- add Sort option for Live folders with ascending or descending sort by file name, extension, size of modified date, default sort order is file name ascending
+- move "Edit Settings file" tray menu item back to main Tray menu
+ 
+Bug fixes
+- fix bug item position in menu dropdown not set when adding a QAP feature with type
+- fix bug tooltips in Settings window for left hand column being offset by 2
+
 Version BETA: 8.9.1.6 (2018-03-24)
  
 Close All Windows
@@ -2123,7 +2141,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.6
+;@Ahk2Exe-SetVersion 8.9.1.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2209,7 +2227,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
