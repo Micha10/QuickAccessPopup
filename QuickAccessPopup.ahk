@@ -31,23 +31,23 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 8.9.1.7 (2018-03-24)
+Version BETA: 8.9.1.7 (2018-03-30)
  
 QAP Features
-- add QAP feature "Reopen Current Folder from Dialog Box"
-- add existing featrures in Tray menu as QAP features that can be added to any menu: "Restore Settings Position", "Check for update" and "Edit Settings file"
-- add category "Window Management" for QAP features and move some features from category "Windows Feature" to "Window Management"
-- fix bug with "TC Hotlist" QAP feature being displayed twice in QAP features tree view (same issu fixed with Special folders tree view)
+- add QAP feature "Reopen Current Folder from Dialog Box" (when you are in a dialog box and wish to browse this folder in Explorer)
+- add QAP features for existing features that were available only in Tray menu (they cannow be added in any menu): "Restore Settings Position", "Check for update" and "Edit Settings file"
+- add category "Window Management" in QAP features tree view and move some features from category "Windows Feature" to "Window Management"
+- fix bug with "TC Hotlist" QAP feature being displayed twice in QAP features tree view (same issue fixed with Special folders tree view)
  
 Various improvements
-- add Sort favorites button to left side of Settings window and sort selected rows when user click this button; if a separator is part of the selected rows, sorting stops at first separator
+- add "Sort" button to left side of Settings window to "Sort all or selected favorites in list"; if a separator is part of the selected rows, sorting stops at first separator
+- add "Sort" option for "Live folders" with ascending or descending sort by file name, extension, size of modified date, default sort order is file name ascending
 - when a file shortcut (.lnk file) is added to QAP menu with Drag and Drop, keep the shortcut's file name as default favorite name (instead target's file name)
-- add Sort option for Live folders with ascending or descending sort by file name, extension, size of modified date, default sort order is file name ascending
-- move "Edit Settings file" tray menu item back to main Tray menu
+- move "Edit Settings file" from "Settings file options" tray submenu back to main Tray menu
  
 Bug fixes
 - fix bug item position in menu dropdown not set when adding a QAP feature with type
-- fix bug tooltips in Settings window for left hand column being offset by 2
+- fix bug with tooltips in Settings window for left hand column that were offset by 2
 
 Version BETA: 8.9.1.6 (2018-03-24)
  
@@ -9481,10 +9481,14 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 
 	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), %lDialogFavoriteFolderLive%
 	
+	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
+	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % g_objEditedFavorite.FavoriteFolderLiveLevels
+	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
+	
 	if !StrLen(g_objEditedFavorite.FavoriteFolderLiveSort)
 		g_objEditedFavorite.FavoriteFolderLiveSort := "A1"
 	strLiveFolderSortOrder := SubStr(g_objEditedFavorite.FavoriteFolderLiveSort, 1, 1)
-	Gui, 2:Add, Text, y+15 x200 section vf_lblLiveFolderSortOrderLabel hidden, %lDialogSortOrder%:
+	Gui, 2:Add, Text, y+20 x200 section vf_lblLiveFolderSortOrderLabel hidden, %lDialogSortOrder%:
 	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortA hidden group" . (strLiveFolderSortOrder = "A" ? " checked" : ""), %lDialogAscending%
 	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortD hidden" . (strLiveFolderSortOrder = "D" ? " checked" : ""), %lDialogDescending%
 
@@ -9495,10 +9499,6 @@ if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when 
 	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort3 hidden" . (strLiveFolderSortCriteria = "3" ? " checked" : ""), %lDialogFileSize%
 	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort4 hidden" . (strLiveFolderSortCriteria = "4" ? " checked" : ""), %lDialogModifiedDate%
 
-	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
-	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % g_objEditedFavorite.FavoriteFolderLiveLevels
-	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, %lDialogFavoriteFolderLiveLevels%
-	
 	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
 	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % g_objEditedFavorite.FavoriteFolderLiveColumns
 	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, %lDialogFavoriteFolderLiveColumns%
