@@ -6594,7 +6594,7 @@ Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Text, x10 y10 w595 center, % L(lOptionsGuiTitle, g_strAppNameText)
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intOptionsTab w620 h420 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMenuOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
+Gui, 2:Add, Tab2, vf_intOptionsTab w620 h440 AltSubmit, %A_Space%%lOptionsOtherOptions% | %lOptionsMenuOptions% | %lOptionsMouseAndKeyboard% | %lOptionsAlternativeMenuFeatures% | %lOptionsExclusionList% | %lOptionsThirdParty%%A_Space%
 
 ;---------------------------------------
 ; Tab 1: General options
@@ -7907,7 +7907,7 @@ Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, 
 Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, %lGuiMove% ; Static27
 Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, %lDialogCopy% ; Static28
 Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, %lDialogShortcuts% ; Static29
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstrings% ; Static30
+Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, %lDialogHotstringsShort% ; Static30
 Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, %lDialogIconsManage% ; Static31
 Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, %lGuiAbout% ; Static32
 Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, %lGuiHelp% ; Static33
@@ -10840,7 +10840,7 @@ Loop
 		LV_Modify(intListviewRow, "Select")
 	}
 }
-MsgBox, 0, %g_strAppNameText%, % L(lDialogExternalMenusAdded, intNbMenusAdded)
+MsgBox, 0, %g_strAppNameText%, % L((intNbMenusAdded > 1 ? lDialogExternalMenusAdded : lDialogExternalMenuAdded), intNbMenusAdded)
 
 Gosub, 2GuiClose
 
@@ -12097,7 +12097,7 @@ Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
 {
 	Gui, 2:Tab, %A_Index%
 	Gui, 2:Font, w600
-	Gui, 2:Add, Text, x20 y40, % L(lDialogHotkeysManageAbout, arrShortcutsHotstrings%A_Index%, g_strAppNameText)
+	Gui, 2:Add, Text, x20 y40, % L((A_Index = 1 ? lDialogHotkeysManageAboutShortcuts : lDialogHotkeysManageAboutHotstrings), g_strAppNameText)
 	Gui, 2:Font
 	Gui, 2:Add, Link, x+5 yp, % "(<a href=""" . arrHotkeysUrl%A_Index% . """>" . lGuiHelp . "</a>)"
 	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(lDialogHotkeysManageIntro, arrShortcutHotstringLower%A_Index%)
