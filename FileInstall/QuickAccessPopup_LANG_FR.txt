@@ -189,7 +189,6 @@ lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre e
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
 lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a>, <a id="~4~">échappement</a>`nou <a id="~5~">touche menu (application)</a>
 lDialogHotkeys	Raccourcis
-lDialogHotkeysManageAbout	~1~ actuellement actifs dans ~2~
 lDialogHotkeysManageAlternative	Alternatif
 lDialogHotkeysManageAlternativeMenu	Menu Alternatif
 lDialogHotkeysManageIntro	Faites un double-clic sur un favori pour changer son ~1~.
@@ -209,6 +208,7 @@ lDialogHotstringNotConformCase	Ne pas se conformer à la casse
 lDialogHotstringNotKeepEndingKey	Ne pas conserver le caractère de fin
 lDialogHotstringNotWaitEndingKey	Ne pas attendre de caractère de fin
 lDialogHotstrings	Chaînes de substitution
+lDialogHotstringsShort	Substitution
 lDialogHotstringTriggerAbbreviation	Déclencheur (abréviation):
 lDialogHotstringTriggerOptions	Chaîne de substitution (déclencheur et options)
 lDialogHotstringWaitEndingKey	Attendre la touche de fin
@@ -264,7 +264,7 @@ lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont p
 lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés
 lDialogShift	Maj
 lDialogShortcut	Raccourci
-lDialogShortcuts	Raccourci
+lDialogShortcuts	Raccourcis
 lDialogSortBy	Trier par
 lDialogSortOrder	Ordre de tri
 lDialogSpecialFoldersCategoriesNames	De base|Utilisateur expert|Administrateur de système|Contenus|Matériel
