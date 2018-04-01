@@ -2773,7 +2773,7 @@ InitFileInstall:
 
 FileInstall, FileInstall\QuickAccessPopup_LANG_DE.txt, %g_strTempDir%\QuickAccessPopup_LANG_DE.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_FR.txt, %g_strTempDir%\QuickAccessPopup_LANG_FR.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_SV.txt, %g_strTempDir%\QuickAccessPopup_LANG_SV.txt, 1
+; FileInstall, FileInstall\QuickAccessPopup_LANG_SV.txt, %g_strTempDir%\QuickAccessPopup_LANG_SV.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_ES.txt, %g_strTempDir%\QuickAccessPopup_LANG_ES.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_PT-BR.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT-BR.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAccessPopup_LANG_IT.txt, 1
@@ -2981,7 +2981,7 @@ InitLanguageArrays:
 ; ----------------------
 ; OPTIONS
 StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
-strOptionsLanguageCodes := "EN|FR|DE|SV|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL" ; removed KO - edit lOptionsLanguageLabels in all languages
+strOptionsLanguageCodes := "EN|FR|DE|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL" ; removed KO and SV - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 
