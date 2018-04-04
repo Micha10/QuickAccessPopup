@@ -14061,7 +14061,10 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseListApp, |
-			if StrLen(A_Loopfield) and (InStr(g_strTargetClass, A_LoopField) or InStr(g_strTargetWinTitle, A_LoopField))
+			if StrLen(A_Loopfield)
+				and (InStr(g_strTargetClass, A_LoopField)
+				or InStr(g_strTargetWinTitle, A_LoopField)
+				or InStr(g_strTargetProcessName, A_LoopField))
 				return false
 
 	; Diag("CanLaunch End1 - g_blnClickOnTrayIcon / g_blnOpenMenuOnTaskbar", g_blnClickOnTrayIcon . " / " . g_blnOpenMenuOnTaskbar)
@@ -15460,12 +15463,12 @@ GetWinInfo2Clippoard:
 ;------------------------------------------------------------
 
 g_blnGetWinInfo := ""
-WinClose, %g_strAppNameFile% - %lMenuGetWinInfo%
+WinClose, %g_strAppNameText% - %lMenuGetWinInfo%
 
-MsgBox, 4, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo2Clippoard, g_strTargetWinTitle, g_strTargetClass)
+MsgBox, 4, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo2Clippoard, g_strTargetWinTitle, g_strTargetClass, g_strTargetProcessName)
 
 IfMsgBox, Yes
-	Clipboard := g_strTargetWinTitle . "`r`n" . g_strTargetClass
+	Clipboard := g_strTargetWinTitle . "`r`n" . g_strTargetClass . "`r`n" . g_strTargetProcessName
 
 return
 ;------------------------------------------------------------
@@ -18756,6 +18759,7 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 	}
 
 	WinGetTitle, g_strTargetWinTitle, % "ahk_id " . g_strTargetWinId
+	WinGet, g_strTargetProcessName, ProcessName, % "ahk_id " . g_strTargetWinId
 }
 ;------------------------------------------------------------
 
