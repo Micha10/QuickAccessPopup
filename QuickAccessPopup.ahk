@@ -9911,6 +9911,7 @@ if (f_drpParentMenu = g_objMenuInGui.MenuPath) and (g_intOriginalMenuPosition <>
 	GuiControl, Choose, f_drpParentMenuItems, % g_intOriginalMenuPosition - (g_objMenusIndex[f_drpParentMenu][1].FavoriteType = "B" ? 1 : 0)
 else
 	GuiControl, ChooseString, f_drpParentMenuItems, % g_strGuiDoubleLine . " " . lDialogEndOfMenu . " " . g_strGuiDoubleLine
+g_intNewItemPos := "" ; if new item position g_intNewItemPos is set, reset it and let f_drpParentMenuItems set it later
 
 strDropdownParentMenuItems := ""
 
