@@ -3660,7 +3660,19 @@ InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check
 	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
 InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
 	, lMenuEditIniFileDescription, 0, "iconSettings", "")
-; shutdown etc. iconClose
+InitQAPFeatureObject("Close Computer Control", lDialogCloseComputerControl, 		"", "CloseComputerControl",					"1-Featured~5-WindowsFeature"
+	, lMenuCloseComputerControlDescription, 0, "iconExit", "")
+; New for v9
+; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured~4-WindowManagement"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
+	; , lMenuDescription, 0, "icon", "")
+; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
+	; , lMenuDescription, 0, "icon", "")
 
 Loop, %g_arrFavoriteTypes0%
 	if StrLen(g_objFavoriteTypesLocationLabelsNoAmpersand[g_arrFavoriteTypes%A_Index%])
@@ -3682,19 +3694,6 @@ InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCu
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", ""
 	, "", 10, "iconSpecialFolders")
 
-; New for v9
-; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured~4-WindowManagement"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Shutdown Combo", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
-	; , lMenuDescription, 0, "icon", "")
 
 ;--------------------------------
 ; Build folders list for dropdown
@@ -15475,8 +15474,135 @@ return
 
 
 ;------------------------------------------------------------
+CloseComputerControl:
+;------------------------------------------------------------
+
+Gui, CloseComputer:New, , % lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseComputer:+OwnDialogs
+if (g_blnUseColors)
+	Gui, CloseComputer:Color, %g_strGuiWindowColor%
+
+Gui, Font, w700
+Gui, CloseComputer:Add, Text, w500, %lDialogCloseComputerControl%
+Gui, Font
+
+Gui, CloseComputer:Add, Radio, x10 y+15 w200 gCloseComputerComboClicked vf_CloseComputerA0, %lDialogCloseComputerLogoff%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA1, %lDialogCloseComputerShutdown%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA2, %lDialogCloseComputerReboot%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA8, %lDialogCloseComputerPowerDown%
+
+Gui, CloseComputer:Add, Radio, x10 y+10 w200 gCloseComputerComboClicked vf_CloseComputerBSuspend section, %lDialogCloseComputerSuspend%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerBHibernate, %lDialogCloseComputerHibernate%
+
+Gui, CloseComputer:Add, Radio, x10 y+10 w200 gCloseComputerComboClicked vf_CloseComputerMonitorTurnOff, %lDialogCloseComputerMonitorTurnOff%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerMonitorLowPower, %lDialogCloseComputerMonitorLowPower%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerStartScreenSaver, %lDialogCloseComputerStartScreenSaver%
+
+Gui, CloseComputer:Add, Checkbox, x270 ys w300 vf_CloseComputerSuspendImmediately hidden, %lDialogCloseComputerSuspendImmediately%
+Gui, CloseComputer:Add, Checkbox, x270 y+5 w300 vf_CloseComputerDisableWakeEvents hidden, %lDialogCloseComputerDisableWakeEvents%
+GuiControlGet, arrGroup1Pos, Pos, f_CloseComputerA0
+Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w300 vf_CloseComputerForce hidden, %lDialogCloseComputerForce%
+
+GuiControlGet, arrGroupLastPos, Pos, f_CloseComputerStartScreenSaver
+Gui, CloseComputer:Add, Button, % "x10 y" . arrGroupLastPosY + 25 . " gCloseComputerGuiGo vf_btnCloseComputerGo default", %lDialogCloseComputerGo%
+Gui, CloseComputer:Add, Button, x10 yp gCloseComputerGuiEscape vf_btnCloseComputerCancel, %lDialogCancelButton%
+Gui, CloseComputer:Add, Text, y+10
+
+GuiCenterButtons(lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseComputerCancel")
+
+Gui, CloseComputer:Show, AutoSize Center
+
+ResetArray("arrGroup1Pos")
+ResetArray("arrGroupLastPos")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseComputerComboClicked:
+;------------------------------------------------------------
+
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerA") ? "Show" : "Hide"), f_CloseComputerForce
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Show" : "Hide"), f_CloseComputerSuspendImmediately
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Show" : "Hide"), f_CloseComputerDisableWakeEvents
+
+strCloseComputerControlSelected := A_GuiControl
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CloseComputerGuiGo:
+CloseComputerGuiEscape:
+;------------------------------------------------------------
+Gui, CloseComputer:Submit, NoHide
+
+intShutdownParameter := 0
+
+if (A_ThisLabel = "CloseComputerGuiGo")
+{
+	if !StrLen(strCloseComputerControlSelected)
+	{
+		Oops(lDialogCloseComputerPrompt)
+		return
+	}
+	
+	if InStr(strCloseComputerControlSelected, "f_CloseComputerA")
+	{
+		StringReplace, intShutdownParameter, strCloseComputerControlSelected, f_CloseComputerA
+		MsgBox, 4, %g_strAppNameText%, % (intShutdownParameter = 0 ? lDialogCloseComputerLogoffPrompt
+			: (intShutdownParameter = 2 ? lDialogCloseComputerRebootPrompt : lDialogCloseComputerShutdownPrompt))
+		IfMsgBox, Yes
+			Shutdown, % intShutdownParameter + (f_CloseComputerForce * 4) ; 0 Logoff, 1 Shutdown, 2 Reboot, 8 Power down, add 4 to Force
+	}
+	else if InStr(strCloseComputerControlSelected, "f_CloseComputerB")
+	{
+		MsgBox, 4, %g_strAppNameText%, % (strCloseComputerControlSelected = "f_CloseComputerBHibernate" ? lDialogCloseComputerHibernatePrompt : lDialogCloseComputerSuspendPrompt)
+		IfMsgBox, Yes
+			DllCall("PowrProf\SetSuspendState"
+				, "int", (strCloseComputerControlSelected = "f_CloseComputerBHibernate") ; 0 suspend or 1 hibernate
+				, "int", f_CloseComputerSuspendImmediately ; 1 suspend immediately
+				, "int", f_CloseComputerDisableWakeEvents) ; 1 disable all wake events
+	}
+	else
+	{
+		Sleep, 1000 ; make sure no key release would wake up the monitor again
+		if InStr(strCloseComputerControlSelected, "f_CloseComputerMonitor")
+			SendMessage, 0x112, 0xF170
+				, (strCloseComputerControlSelected = "f_CloseComputerMonitorTurnOff" ? 2 : 1) ; 1 low-power, 2 turn off
+				, , Program Manager  ; 0x112 is WM_SYSCOMMAND, 0xF170 is SC_MONITORPOWER.
+		else if (strCloseComputerControlSelected = "f_CloseComputerStartScreenSaver")
+			; start the user's chosen screen saver
+			SendMessage, 0x112, 0xF140, 0, , Program Manager  ; 0x112 is WM_SYSCOMMAND, and 0xF140 is SC_SCREENSAVE.
+	}
+}
+
+Gui, CloseComputer:Destroy
+
+strCloseComputerControlSelected := ""
+intShutdownParameter := ""
+
+return
+;------------------------------------------------------------
+
+
+
+
+;------------------------------------------------------------
 ShutdownComputer:
 RestartComputer:
+
+; LogoffComputer:
+; RebootComputer:
+; PowerDownComputer:
+
+; SuspendComputer:
+; HibernateComputer:
+
+; TurnOffMonitorComputer:
+; StartScreenSaverComputer:
 ;------------------------------------------------------------
 
 MsgBox, 4, %g_strAppNameText%, % (A_ThisLabel = "ShutdownComputer" ? lMenuComputerShutdown : lMenuComputerRestart) . "?"
