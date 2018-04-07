@@ -2891,7 +2891,7 @@ StringSplit, g_arrActiveFileManagerDisplayNames, strActiveFileManagerDisplayName
 ; ----------------------
 ; QAP Features categories
 
-strCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|6-Utility|7-QAPManagement"
+strCategories := "1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement"
 StringSplit, g_arrQAPFeaturesCategories, strCategories, |
 
 ; ----------------------
@@ -3029,7 +3029,7 @@ Loop, %g_arrFavoriteTypes0%
 
 ; ----------------------
 ; QAP Features Categories Names
-; 1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|6-Utility|7-QAPManagement
+; 1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement
 StringSplit, arrQAPFeatureCategoriesNames, lDialogQAPFeatureCategoriesNames, |
 g_objQAPCategories := Object()
 Loop, %g_arrQAPFeaturesCategories0%
@@ -3628,10 +3628,6 @@ InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",				
 	, lGuiDonateDescription, 0, "iconDonate")
 InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"6-Utility"
 	, lMenuGetWinInfoDescription, 0, "iconAbout")
-InitQAPFeatureObject("ShutDown",				lMenuComputerShutdown . "...",		"", "ShutdownComputer",						"5-WindowsFeature"
-	, lMenuComputerShutdownDescription, 0, "iconExit")
-InitQAPFeatureObject("Restart",					lMenuComputerRestart . "...",		"", "RestartComputer",						"5-WindowsFeature"
-	, lMenuComputerRestartDescription, 0, "iconReload")
 InitQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"6-Utility~7-QAPManagement"
 	, lMenuReloadDescription, 0, "iconReload")
 InitQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"7-QAPManagement"
@@ -3660,15 +3656,38 @@ InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check
 	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
 InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
 	, lMenuEditIniFileDescription, 0, "iconSettings", "")
-InitQAPFeatureObject("Close Computer Control", lDialogCloseComputerControl, 		"", "CloseComputerControl",					"1-Featured~5-WindowsFeature"
-	, lMenuCloseComputerControlDescription, 0, "iconExit", "")
-; New for v9
-; InitQAPFeatureObject("Close all windows", 			lMenu,					"", "command",				"1-Featured~4-WindowManagement"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Sleep Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
-	; , lMenuDescription, 0, "icon", "")
-; InitQAPFeatureObject("Hibernate Computer", 			lMenu,					"", "command",				"1-Featured~5-WindowsFeature"
-	; , lMenuDescription, 0, "icon", "")
+
+InitQAPFeatureObject("Close Computer Control", lDialogCloseComputerControl, 		"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
+	, lDialogCloseComputerControlDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerShutdown, &
+InitQAPFeatureObject("ShutDown",				strQAPFeatureName,					"", "ShutdownComputer",						"5.1-CloseComputer"
+	, lDialogCloseComputerShutdownDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerPowerDown, &
+InitQAPFeatureObject("Power Down Computer", 	strQAPFeatureName, 					"", "PowerDownComputer",					"5.1-CloseComputer"
+	, lDialogCloseComputerPowerDownDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerRestart, &
+InitQAPFeatureObject("Restart",					strQAPFeatureName,					"", "RestartComputer",						"5.1-CloseComputer"
+	, lDialogCloseComputerRestartDescription, 0, "iconReload", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerLogoff, &
+InitQAPFeatureObject("Logoff", 					strQAPFeatureName, 					"", "LogoffComputer",						"5.1-CloseComputer"
+	, lDialogCloseComputerLogoffDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerSuspend, &
+InitQAPFeatureObject("Suspend Computer", 		strQAPFeatureName, 					"", "SuspendComputer",						"5.1-CloseComputer"
+	, lDialogCloseComputerSuspendDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerHibernate, &
+InitQAPFeatureObject("Hibernate Computer", 		strQAPFeatureName, 					"", "HibernateComputer",					"5.1-CloseComputer"
+	, lDialogCloseComputerHibernateDescription, 0, "iconExit", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerMonitorTurnOff, &
+InitQAPFeatureObject("Turn Off Monitor", 		strQAPFeatureName, 					"", "TurnOffMonitorComputer",				"5.1-CloseComputer"
+	, lDialogCloseComputerMonitorTurnOffDescription, 0, "iconDesktop", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerMonitorLowPower, &
+InitQAPFeatureObject("Monitor Low Power", 		strQAPFeatureName, 					"", "LowPowerMonitorComputer",				"5.1-CloseComputer"
+	, lDialogCloseComputerMonitorLowPowerDescription, 0, "iconDesktop", "")
+StringReplace, strQAPFeatureName, lDialogCloseComputerStartScreenSaver, &
+InitQAPFeatureObject("Start Screen Saver", 		strQAPFeatureName, 					"", "StartScreenSaverComputer",				"5.1-CloseComputer"
+	, lDialogCloseComputerStartScreenSaverDescription, 0, "iconDesktop", "")
+
+; New for v9.x
 ; InitQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
 	; , lMenuDescription, 0, "icon", "")
 ; InitQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
@@ -9336,6 +9355,8 @@ for strCategory, strCategoryLabel in objCategories
 {
 	if (strCategory = "3.1-AddFavoriteOfType")
 		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, objCategoriesID["3-QAPMenuEditing"], "First Bold")
+	else if (strCategory = "5.1-CloseComputer")
+		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, objCategoriesID["5-WindowsFeature"], "First Bold")
 	else
 		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 and InStr(strGuiFavoriteLabel, "GuiAdd") ? "Expand" : "") " Bold")
 	
@@ -15487,10 +15508,10 @@ Gui, Font, w700
 Gui, CloseComputer:Add, Text, w500, %lDialogCloseComputerControl%
 Gui, Font
 
-Gui, CloseComputer:Add, Radio, x10 y+15 w200 gCloseComputerComboClicked vf_CloseComputerA0, %lDialogCloseComputerLogoff%
+Gui, CloseComputer:Add, Radio, x10 y+15 w200 gCloseComputerComboClicked vf_CloseComputerA9, %lDialogCloseComputerPowerDown% ; 9 = 1 shutdown + 8 power down
 Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA1, %lDialogCloseComputerShutdown%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA2, %lDialogCloseComputerReboot%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA8, %lDialogCloseComputerPowerDown%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA2, %lDialogCloseComputerRestart%
+Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA0, %lDialogCloseComputerLogoff%
 
 Gui, CloseComputer:Add, Radio, x10 y+10 w200 gCloseComputerComboClicked vf_CloseComputerBSuspend section, %lDialogCloseComputerSuspend%
 Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerBHibernate, %lDialogCloseComputerHibernate%
@@ -15501,7 +15522,7 @@ Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseC
 
 Gui, CloseComputer:Add, Checkbox, x270 ys w300 vf_CloseComputerSuspendImmediately hidden, %lDialogCloseComputerSuspendImmediately%
 Gui, CloseComputer:Add, Checkbox, x270 y+5 w300 vf_CloseComputerDisableWakeEvents hidden, %lDialogCloseComputerDisableWakeEvents%
-GuiControlGet, arrGroup1Pos, Pos, f_CloseComputerA0
+GuiControlGet, arrGroup1Pos, Pos, f_CloseComputerA9
 Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w300 vf_CloseComputerForce hidden, %lDialogCloseComputerForce%
 
 GuiControlGet, arrGroupLastPos, Pos, f_CloseComputerStartScreenSaver
@@ -15553,19 +15574,14 @@ if (A_ThisLabel = "CloseComputerGuiGo")
 	if InStr(strCloseComputerControlSelected, "f_CloseComputerA")
 	{
 		StringReplace, intShutdownParameter, strCloseComputerControlSelected, f_CloseComputerA
-		MsgBox, 4, %g_strAppNameText%, % (intShutdownParameter = 0 ? lDialogCloseComputerLogoffPrompt
-			: (intShutdownParameter = 2 ? lDialogCloseComputerRebootPrompt : lDialogCloseComputerShutdownPrompt))
-		IfMsgBox, Yes
-			Shutdown, % intShutdownParameter + (f_CloseComputerForce * 4) ; 0 Logoff, 1 Shutdown, 2 Reboot, 8 Power down, add 4 to Force
+		Shutdown, % intShutdownParameter + (f_CloseComputerForce * 4) ; 0 Logoff, 1 Shutdown, 2 Reboot, 8 Power down (9 Shutdown + Power down), add 4 to Force
 	}
 	else if InStr(strCloseComputerControlSelected, "f_CloseComputerB")
 	{
-		MsgBox, 4, %g_strAppNameText%, % (strCloseComputerControlSelected = "f_CloseComputerBHibernate" ? lDialogCloseComputerHibernatePrompt : lDialogCloseComputerSuspendPrompt)
-		IfMsgBox, Yes
-			DllCall("PowrProf\SetSuspendState"
-				, "int", (strCloseComputerControlSelected = "f_CloseComputerBHibernate") ; 0 suspend or 1 hibernate
-				, "int", f_CloseComputerSuspendImmediately ; 1 suspend immediately
-				, "int", f_CloseComputerDisableWakeEvents) ; 1 disable all wake events
+		DllCall("PowrProf\SetSuspendState"
+			, "int", (strCloseComputerControlSelected = "f_CloseComputerBHibernate") ; 0 suspend or 1 hibernate
+			, "int", f_CloseComputerSuspendImmediately ; 1 suspend immediately
+			, "int", f_CloseComputerDisableWakeEvents) ; 1 disable all wake events
 	}
 	else
 	{
@@ -15589,26 +15605,58 @@ return
 ;------------------------------------------------------------
 
 
-
-
 ;------------------------------------------------------------
 ShutdownComputer:
+PowerDownComputer:
 RestartComputer:
-
-; LogoffComputer:
-; RebootComputer:
-; PowerDownComputer:
-
-; SuspendComputer:
-; HibernateComputer:
-
-; TurnOffMonitorComputer:
-; StartScreenSaverComputer:
+LogoffComputer:
+SuspendComputer:
+HibernateComputer:
+TurnOffMonitorComputer:
+LowPowerMonitorComputer:
+StartScreenSaverComputer:
 ;------------------------------------------------------------
 
-MsgBox, 4, %g_strAppNameText%, % (A_ThisLabel = "ShutdownComputer" ? lMenuComputerShutdown : lMenuComputerRestart) . "?"
-IfMsgBox, Yes
-	Shutdown, % (A_ThisLabel = "ShutdownComputer" ? 1+8 : 2) ; Logoff 0, Shutdown 1, Reboot 2, Force 4, Power down 8 
+if (A_ThisLabel = "ShutdownComputer")
+	strPrompt := lDialogCloseComputerShutdown
+else if (A_ThisLabel = "PowerDownComputer")
+	strPrompt := lDialogCloseComputerPowerDown
+else if (A_ThisLabel = "RestartComputer")
+	strPrompt := lDialogCloseComputerRestart
+else if (A_ThisLabel = "LogoffComputer")
+	strPrompt := lDialogCloseComputerLogoff
+
+StringReplace, strPrompt, strPrompt, &
+strPrompt .= "?"
+
+if InStr("ShutdownComputer|PowerDownComputer|RestartComputer|LogoffComputer", A_ThisLabel)
+{
+	MsgBox, 4, %g_strAppNameText%, %strPrompt%
+	IfMsgBox, Yes
+		Shutdown, % (A_ThisLabel = "ShutdownComputer" ? 1 ; Shutdown 1
+			: (A_ThisLabel = "PowerDownComputer" ? 8+1 ; Power down 8 + Shutdown 1
+			: (A_ThisLabel = "RestartComputer" ? 2 : 0))) ; Logoff 0, Reboot 2
+}
+else if InStr("SuspendComputer|HibernateComputer", A_ThisLabel)
+	{
+		DllCall("PowrProf\SetSuspendState"
+			, "int", (A_ThisLabel = "HibernateComputer") ; 0 suspend or 1 hibernate
+			, "int", 0 ; 1 suspend immediately
+			, "int", 0) ; 1 disable all wake events
+	}
+else ; TurnOffMonitorComputer, LowPowerMonitorComputer or StartScreenSaverComputer
+{
+	Sleep, 1000 ; make sure no key release would wake up the monitor again
+	if InStr("TurnOffMonitorComputer|LowPowerMonitorComputer", A_ThisLabel)
+		SendMessage, 0x112, 0xF170
+			, (A_ThisLabel = "TurnOffMonitorComputer" ? 2 : 1) ; 1 low-power, 2 turn off
+			, , Program Manager  ; 0x112 is WM_SYSCOMMAND, 0xF170 is SC_MONITORPOWER.
+	else ; StartScreenSaverComputer
+		; start the user's chosen screen saver
+		SendMessage, 0x112, 0xF140, 0, , Program Manager  ; 0x112 is WM_SYSCOMMAND, and 0xF140 is SC_SCREENSAVE.
+}
+
+strPrompt := ""
 
 return
 ;------------------------------------------------------------
