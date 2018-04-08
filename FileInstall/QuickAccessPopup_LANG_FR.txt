@@ -25,6 +25,7 @@ lControlToolTipMoveUp	Déplacer le(s) favori(s) vers le bas
 lControlToolTipParentMenu	Aller au menu parent
 lControlToolTipPreviousMenu	Retourner au menu précédent
 lControlToolTipSeparator	Insérer une ligne de séparation à la position actuelle du menu
+lControlToolTipSortFavorites	Trier tous les favoris ou ceux sélectionnés
 lControlToolTipTextSeparator	Insérer un texte séparateur à la position actuelle dans le menu
 lCopyFavoritesToMenuOrGroup	Les menus et les groupes ne peuvent pas être copiés.`n`nVoulez-vous continuer sans copier les menus et les groupes?
 lCopyLocationCopiedToClipboard	Emplacement copié dans le Presse-papiers
@@ -77,6 +78,22 @@ lDialogCloseAllWindowsDetail	Titre de la fenêtre:`n~1~`n`nChemin du processus Wi
 lDialogCloseAllWindowsHeader	Titre de la fenêtre
 lDialogCloseAllWindowsIntro	Cochez les fenêtrez à fermer et cliquez sur "Fermer les fenêtres sélectionnées". Faites un double-clic ou appuyez sur Entrée pour fermer une fenêtre ou voir ses informations.
 lDialogCloseAllWindowsSelectAll	Sélectionner/Dé-sélectionner tout
+lDialogCloseComputerControl	Fermeture de l'ordinateur - Centre de contrôle
+lDialogCloseComputerDisableWakeEvents	Désactiver les événements de réveil
+lDialogCloseComputerForce	&Forcer (peut causer des pertes de données)
+lDialogCloseComputerGo	Exécuter l'action sélectionnée
+lDialogCloseComputerHibernate	Mettre en veille prolongée
+lDialogCloseComputerIntro	Sélectionnez l'action à exécuter
+lDialogCloseComputerLogoff	Se déconnecter
+lDialogCloseComputerMonitorLowPower	&Mettre l'écran en mode d'économie d'énergie
+lDialogCloseComputerMonitorTurnOff	&Éteindre l'écran
+lDialogCloseComputerPowerDown	&Éteindre l'ordinateur
+lDialogCloseComputerPrompt	Veuillez sélectiuonner une option
+lDialogCloseComputerRestart	&Redémarrer l'ordinateur
+lDialogCloseComputerShutdown	&Arrêter l'ordinateur
+lDialogCloseComputerStartScreenSaver	Démarrer l'écran de veille
+lDialogCloseComputerSuspend	Mettre l'ordinateur en veille
+lDialogCloseComputerSuspendImmediately	Mettre en veille immédiatement(peut causer des pertes de données)
 lDialogContinue	Poursuivre
 lDialogContinueAmpersand	&Poursuivre
 lDialogCopy	Copier
@@ -98,13 +115,14 @@ lDialogExternalLocation	Emplacement du fichier de configuration de ce menu parta
 lDialogExternalLocationIni	Le fichier de paramètres partagé doit être un fichier .ini.
 lDialogExternalLocationReadOnly	L'emplacement des des fichiers des menus partagés ne peut être modifié. Si le fichier de ce menu a été renommé ou déplacé, retirez le d'abord et créez un nouveau menu partagé avec le nouvel emplacement du fichier.
 lDialogExternalMenuAdd	Ajouter le(s) menu(s) sélectionnés
+lDialogExternalMenuAdded	Menu partagé ajouté.
 lDialogExternalMenuAddFromCatalogue	Ajouter des menus partagés du catalogue - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nom du menu partgé|Fichier de configuration du menu partagé
 lDialogExternalMenuAddNotFromCatalogue	Ajouter un autre menu partagé...
 lDialogExternalMenuName	Nom du menu partagé
 lDialogExternalMenuNotExist	Ce menu partagé n'existe pas. Voulez-vous créer un nouveau menu partagé vide à cet emplacement?`n`n~1~
 lDialogExternalMenuOpen	Ouvrir le fichier du menu partagé?
-lDialogExternalMenusAdded	~1~ menu(s) partagé(s) ajoutés.
+lDialogExternalMenusAdded	~1~ menus partagés ajoutés.
 lDialogExternalMenuSelectFromCatalogue	Sélectionnez un ou plusieurs menus partagés à ajouter à votre menu et cliquez ~1~
 lDialogExternalStartingNumber	Numéro du premier favori:
 lDialogExternalTip	Faites double-clic sur une ligne pour voir l'information sur le menu partagé
@@ -185,10 +203,12 @@ lDialogFileSize	Taille du fichier
 lDialogFolderLabel	Dossier
 lDialogFoldersPlaceholders	Vous pouvez insérer l'emplacement d'où ce favori est lancé en insérant le code {CUR_LOC}
 lDialogGetWebPageTitle	Récupérer le titre
-lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre et la classe, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
-lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nCopier ces informations dans le Presse-papiers?
+lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre, la classe ou le nom du processus, cliquez dans la fenêtre désirée avec le raccouricis de menu de QAP [~1~].
+lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nNom du processus:`n"~3~"`n`nCopier ces informations dans le Presse-papiers?
 lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a>, <a id="~4~">échappement</a>`nou <a id="~5~">touche menu (application)</a>
 lDialogHotkeys	Raccourcis
+lDialogHotkeysManageAboutHotstrings	Chaînes de substitution actuellement actives dans ~1~
+lDialogHotkeysManageAboutShortcuts	Raccourcis actuellement actifs dans ~1~
 lDialogHotkeysManageAlternative	Alternatif
 lDialogHotkeysManageAlternativeMenu	Menu Alternatif
 lDialogHotkeysManageIntro	Faites un double-clic sur un favori pour changer son ~1~.
@@ -264,7 +284,7 @@ lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont p
 lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés
 lDialogShift	Maj
 lDialogShortcut	Raccourci
-lDialogShortcuts	Raccourcis
+lDialogShortcuts	Raccourci
 lDialogSortBy	Trier par
 lDialogSortOrder	Ordre de tri
 lDialogSpecialFoldersCategoriesNames	De base|Utilisateur expert|Administrateur de système|Contenus|Matériel
@@ -446,8 +466,6 @@ lMenuCommonAppData	Application Data (commun)
 lMenuCommonDesktop	Bureau (commun)
 lMenuCommonStartMenu	Menu Démarrer (commun)
 lMenuCommonStartupMenu	Démarrage (commun)
-lMenuComputerRestart	Redémarrer l'ordinateur
-lMenuComputerShutdown	Éteindre l'ordinateur
 lMenuCookies	Cookies
 lMenuCopyLocation	Copier l'emplacement d'un favori
 lMenuCurrentFolders	Réutiliser un dossier
@@ -460,9 +478,11 @@ lMenuExitApp	Quitter ~1~
 lMenuExternalCatalogue	Ajouter un menu partagé du catalogue...
 lMenuFavoritesInternet	Favoris (Internet)
 lMenuFonts	Polices
-lMenuGetWinInfo	Lire le titre et la classe d'une fenêtre
+lMenuGetWinInfo	Lire les renseignements sur une fenêtre
 lMenuHelp	Aide
 lMenuHistory	Historique
+lMenuLastAction	Répéter la dernière action
+lMenuLastActions	Répéter les dernières actions
 lMenuMenu	Menu
 lMenuMyMusic	Ma musique
 lMenuMyQAPMenu	Mes Fonctions QAP
@@ -536,6 +556,7 @@ lOopsLocation	emplacement
 lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dépassé. Veuillez réduire le nombre de niveaux de ce Dossier actif.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inatendus. Modifiez la valeur "NbLiveFolderItemsMax" sous la rubrique [Global] du fichier de paramètres (QuickAccessPop.ini).
 lOopsMenuExternalCentralized	menu partagé centralisé
 lOopsMenuExternalCollaborative	menu partagé collaboratif
+lOopsMenuExternalPersonalChangedBy	Ce menu partagé personnel est actuellement MODIFIÉ ou comporte des modifications NON ENREGISTRÉES sur l'ordinateur: ~1~.`n`nSi vous enregistrez ici les modifications à ce menu, les changements non enregistrés sur l'autre ordinateur seront perdus et vous devriez annuler ces changements quand vous serez de retour sur l'autre ordinateur.
 lOopsMenuExternalReservedBy	Ce ~1~ est RÉSERVÉ par l'utilisateur: ~2~.`n`nAttendez que cet utilisateur libère le menu ou contactez votre administrateur de système.
 lOopsNotAdmin	~1~ ne peut être exécuté en tant qu'administrateur.`n`nL'application est maintenant exécutée avec les privilèges normaux.
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
@@ -567,7 +588,7 @@ lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
 lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
+lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
 lOptionsExclusionList	Exclusions
 lOptionsExclusionTitle	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExplorerContextMenus	Activer les menus contextuels
@@ -585,13 +606,14 @@ lOptionsHotstringsDefaultSelect	Sélectionner
 lOptionsIconSize	Taille des icônes de menu
 lOptionsIconsManageRows	Nombre de rangées de la fenêtre Gérer les icônes`n(0 pour le maximum disponible)
 lOptionsLanguage	Langue
-lOptionsLanguageLabels	Anglais|Français|Allemand|Suédois|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié|Néerlandais
+lOptionsLanguageLabels	Anglais|Français|Allemand|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié|Néerlandais
 lOptionsMenuActiveWindow	Dans la fenêtre active
 lOptionsMenuFixPosition	À une position fixe
 lOptionsMenuNearMouse	Près du pointeur de la souris
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
+lOptionsNbLastActions	Nombre d'items dans le menu "Répéter les dernières actions"
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu en cliquant sur la barre des tâches
 lOptionsOtherOptions	Général
 lOptionsPopupFixPositionX	Position X:
