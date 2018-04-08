@@ -96,6 +96,7 @@ lDialogErrorMoving	Non è possibile spostare il preferito:`n"~1~"
 lDialogExtendedSearch	Ricerca estesa
 lDialogExternalAddFromCatalogue	Vuoi aggiungere un menù esterno dal Catalogo dei Menù condivisi?
 lDialogExternalLocation	Impostazioni nel menù esterno per la destinazione del file
+lDialogExternalLocationIni	Il file Delle impostazioni del menù condiviso deve essere un file .ini
 lDialogExternalLocationReadOnly	Non è possibile cambiare la posizione del menù condiviso esistente. Se il file per questo menù condiviso è stato rinominato o spostato, prima elimina questo menù condiviso e creane uno nuovo con il file spostato o rinominato.
 lDialogExternalMenuAdd	Aggiungi il/i menù condivisi selezionati
 lDialogExternalMenuAdded	Menù condiviso aggiunto.
@@ -361,6 +362,7 @@ lGuiLvFavoritesHeaderFiltered	Nome|Menù|Tipo|Combinazione|Posizione o contenuto
 lGuiMove	Sposta
 lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
+lGuiPassword	Password
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
 lGuiResetDefault	Ripristina hotkey predefinito
@@ -640,6 +642,7 @@ lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche 
 lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
 lToolTipRetrievingWebPageTitle	Sto recuperando il titolo della pagina web...
+lTooltipSnippetKeyWait	Premere {~1~} per continuare…
 lTooltipSnippetWaitEnter	Invio
 lTooltipSnippetWaitEscape	Esc
 lTooltipSnippetWaitMacro	Premi "~1~" o "~2~" per eseguire la macro (aspettando ~3~ secondi o premi ~4~ per annullare)
