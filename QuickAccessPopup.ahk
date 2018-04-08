@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.8 (2018-04-08)
+ 
+Close computer QAP Features
+- add QAP Feature "Close Computer Control Center" with commands Power down, Shutdown, Restart and Logoff, forced or not; Sleep or Hibernate, immediately or not, disabling wake events or not; Turn monitor off, Put monitor in low-power mode or Start screen saver
+- add QAP Features "Restart computer", "Logoff user", "Sleep computer", "Hibernate computer", "Turn monitor off", "Put monitor in low-power mode" and "Start screen saver"
+- add QAP tree view sub category "Close Computer Commands" under "Windows Features" for close computer QAP features
+ 
+Various improvements and bug fixes
+- add capacity to exclude menu mouse trigger (MButton) by process name (exe file name) in addition to window title and class name
+- add detection of process name when using the "Get window info" button below exclusion list
+- fix bug in menu item position when adding favorites with any of the "Add Favorite" QAP features if user selected a different parent menu in "Menu Options" tab
+- language updates for Spanish, Brazilian Portuguese, German and French, removed Sweedish language (not updated since v8.0)
+
 Version BETA: 8.9.1.7 (2018-03-30)
  
 QAP Features
@@ -2141,7 +2154,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.7
+;@Ahk2Exe-SetVersion 8.9.1.8
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2227,7 +2240,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
