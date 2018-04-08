@@ -15505,25 +15505,25 @@ if (g_blnUseColors)
 	Gui, CloseComputer:Color, %g_strGuiWindowColor%
 
 Gui, Font, w700
-Gui, CloseComputer:Add, Text, w500, %lDialogCloseComputerControl%
+Gui, CloseComputer:Add, Text, x10 w520, %lDialogCloseComputerControl%
 Gui, Font
 
-Gui, CloseComputer:Add, Radio, x10 y+15 w200 gCloseComputerComboClicked vf_CloseComputerA9, %lDialogCloseComputerPowerDown% ; 9 = 1 shutdown + 8 power down
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA1, %lDialogCloseComputerShutdown%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA2, %lDialogCloseComputerRestart%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerA0, %lDialogCloseComputerLogoff%
+Gui, CloseComputer:Add, Radio, x10 y+15 w250 gCloseComputerComboClicked vf_CloseComputerA9, %lDialogCloseComputerPowerDown% ; 9 = 1 shutdown + 8 power down
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerA1, %lDialogCloseComputerShutdown%
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerA2, %lDialogCloseComputerRestart%
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerA0, %lDialogCloseComputerLogoff%
 
-Gui, CloseComputer:Add, Radio, x10 y+10 w200 gCloseComputerComboClicked vf_CloseComputerBSuspend section, %lDialogCloseComputerSuspend%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerBHibernate, %lDialogCloseComputerHibernate%
+Gui, CloseComputer:Add, Radio, x10 y+10 w250 gCloseComputerComboClicked vf_CloseComputerBSuspend section, %lDialogCloseComputerSuspend%
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerBHibernate, %lDialogCloseComputerHibernate%
 
-Gui, CloseComputer:Add, Radio, x10 y+10 w200 gCloseComputerComboClicked vf_CloseComputerMonitorTurnOff, %lDialogCloseComputerMonitorTurnOff%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerMonitorLowPower, %lDialogCloseComputerMonitorLowPower%
-Gui, CloseComputer:Add, Radio, x10 y+5 w200 gCloseComputerComboClicked vf_CloseComputerStartScreenSaver, %lDialogCloseComputerStartScreenSaver%
+Gui, CloseComputer:Add, Radio, x10 y+10 w250 gCloseComputerComboClicked vf_CloseComputerMonitorTurnOff, %lDialogCloseComputerMonitorTurnOff%
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerMonitorLowPower, %lDialogCloseComputerMonitorLowPower%
+Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerStartScreenSaver, %lDialogCloseComputerStartScreenSaver%
 
-Gui, CloseComputer:Add, Checkbox, x270 ys w300 vf_CloseComputerSuspendImmediately hidden, %lDialogCloseComputerSuspendImmediately%
-Gui, CloseComputer:Add, Checkbox, x270 y+5 w300 vf_CloseComputerDisableWakeEvents hidden, %lDialogCloseComputerDisableWakeEvents%
+Gui, CloseComputer:Add, Checkbox, x270 ys w250 vf_CloseComputerSuspendImmediately hidden, %lDialogCloseComputerSuspendImmediately%
+Gui, CloseComputer:Add, Checkbox, x270 y+5 w250 vf_CloseComputerDisableWakeEvents hidden, %lDialogCloseComputerDisableWakeEvents%
 GuiControlGet, arrGroup1Pos, Pos, f_CloseComputerA9
-Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w300 vf_CloseComputerForce hidden, %lDialogCloseComputerForce%
+Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w250 vf_CloseComputerForce hidden, %lDialogCloseComputerForce%
 
 GuiControlGet, arrGroupLastPos, Pos, f_CloseComputerStartScreenSaver
 Gui, CloseComputer:Add, Button, % "x10 y" . arrGroupLastPosY + 25 . " gCloseComputerGuiGo vf_btnCloseComputerGo default", %lDialogCloseComputerGo%
