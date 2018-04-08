@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bit)
-lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Svedese:Åke Engelbrektson`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nDutch translation: Ric Roggeveen`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L ~2~ (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ è stato scritto da Jean Lalonde usando il linguaggio di programmazione`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraduzione in Italiano: Riccardo Leone`nTraduzione in Tedesco: Edgar "Fast Edi" Hoffmann`nTraduzione in Francese: Jean Lalonde`nTraduzione in Spagnolo: kiketrucker`nTraduzione in Portoghese: Luis Neves`nDutch translation: Ric Roggeveen`nTraduzione in Portoghese (BR): Igor Ruckert`nTraduzione in Cinese Tradizionale e Semplificato: Jess Yang`nTraduzione in altre lingue: (se volete collaborare siete benvenuti)`nEnglish proof checking: (help welcomed)`n`nIcone realizzate da: <a href="http://www.visualpharm.com">Visual Pharm</a>`nProgramma di installazione: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> di jrsoftware.org`nAutoHotkey_L v~2~ (sorgenti): <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Supporto:  <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Crediti - ~1~ ~2~
@@ -25,6 +25,7 @@ lControlToolTipMoveUp	Sposta in su il preferito selezionato/i
 lControlToolTipParentMenu	Vai al menú superiore
 lControlToolTipPreviousMenu	Ritorna al menú precedente
 lControlToolTipSeparator	Inserisci un separatore di menú alla posizione corrente (del menú)
+lControlToolTipSortFavorites	Ordina tutti i Preferiti, o solo quelli selezionati nella lista
 lControlToolTipTextSeparator	Inserisci un separatore di menu testuale nella posizione corrente nel menú
 lCopyFavoritesToMenuOrGroup	Menú e gruppi non possono essere copiati.`n`nVuoi proseguire senza copiarli?
 lCopyLocationCopiedToClipboard	Percorso o URL copiato negli Appunti
@@ -36,7 +37,7 @@ lDialogActivateAlreadyRunning	Se l'applicazione è già in esecuzione, viene resa 
 lDialogAdd	Aggiungi
 lDialogAddAmpersand	&Aggiungi
 lDialogAddEditFavoriteTitle	~1~ Favorite: ~4~ - ~2~ ~3~
-lDialogAddFavoriteSelectTitle	Aggiungi un Preferito - ~1~ ~2~
+lDialogAddFavoriteSelectTitle	Aggiungi un Tipo di Preferito - ~1~ ~2~
 lDialogAddFavoriteTabs	Impostazioni di base|Menù Opzioni|Finestra Opzioni|Impostazioni Avanzate
 lDialogAddFavoriteTabsExternal	Menù condiviso
 lDialogAddFavoriteTabsLive	Opzioni Cartella Live
@@ -55,6 +56,7 @@ lDialogArgumentsPlaceholders	Puoi inserire la destinazione completa di questo pr
 lDialogArgumentsPlaceholdersCheckLabel	Parametri correnti con segnaposto estesi
 lDialogArgumentsPlaceholdersCurrent	Puoi anche inserire dei segnaposto per la cartella corrente in cui questo preferito è stato avviato: {CUR_LOC} (cartella completa), {CUR_NAME} (ultima cartella), {CUR_DIR} (cartella contenente l'ultima cartella) o {CUR_DRIVE}
 lDialogArgumentsPlaceholdersCurrentExample	x:\cartella_contenitore\ultima_cartella
+lDialogAscending	Ascendente
 lDialogBrowseButton	Sfoglia
 lDialogBrowseOrSelectApplication	Ricerca un file eseguibile o`nseleziona una applicazione in esecuzione in questo elenco
 lDialogCancelButton	Annulla
@@ -67,6 +69,15 @@ lDialogChangeHotkeyModifierAndNone	Modificatori come "Alt" o "Control" non posso
 lDialogChangeHotkeyMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
+lDialogChangeHotstringDefaultOptionsPrompt	Seleziona le opzioni predefinite per abbreviazioni appena create (<a href="~1~">Aiuto</a>)
+lDialogChangeHotstringTitle	Cambia abbreviazione - ~1~
+lDialogChangeHotstringTitleDefaultOptions	Opzioni predefinite per le Abbreviazioni - ~1~
+lDialogCloseAllWindows	Chiudi tutte le finestre
+lDialogCloseAllWindowsClose	Chiudi le finestre selezionate
+lDialogCloseAllWindowsDetail	Titolo della finestra:`n~1~`n`nPercorso del processo della finestra:`n~2~`n`nVuoi CHIUDERE questa finestra?
+lDialogCloseAllWindowsHeader	Titolo della finestra
+lDialogCloseAllWindowsIntro	Controlla le finestre da chiudere e clicca "Chiudi le finestre selezionate". Fai doppio-click o premi Invio per chiudere una finestra o vedere i suoi dettagli.
+lDialogCloseAllWindowsSelectAll	Seleziona/Deseleziona tutto
 lDialogContinue	Continua
 lDialogContinueAmpersand	C&ontinua
 lDialogCopy	Copia
@@ -74,21 +85,27 @@ lDialogCopyAmpersand	C&opia
 lDialogCopyFavoritesTitle	Copia Preferiti - ~1~ ~2~
 lDialogCtrl	Control
 lDialogCtrlShort	Ctrl
+lDialogDescending	Discendente
+lDialogDropDown	a discesa
 lDialogEdit	Modifica
 lDialogEditIcon	Modifica l'icona della risorsa
 lDialogEditIconPrompt	Modifica l'icona della risorsa nel formato "fileicona,indice" (per esempio, "shell32.dll,2"):
 lDialogElevate	Esegui l'applicazione con privilegi di Amministratore
 lDialogEndOfMenu	Fine del menù
 lDialogErrorMoving	Non è possibile spostare il preferito:`n"~1~"
+lDialogExtendedSearch	Ricerca estesa
 lDialogExternalAddFromCatalogue	Vuoi aggiungere un menù esterno dal Catalogo dei Menù condivisi?
 lDialogExternalLocation	Impostazioni nel menù esterno per la destinazione del file
+lDialogExternalLocationReadOnly	Non è possibile cambiare la posizione del menù condiviso esistente. Se il file per questo menù condiviso è stato rinominato o spostato, prima elimina questo menù condiviso e creane uno nuovo con il file spostato o rinominato.
 lDialogExternalMenuAdd	Aggiungi il/i menù condivisi selezionati
+lDialogExternalMenuAdded	Menù condiviso aggiunto.
 lDialogExternalMenuAddFromCatalogue	Aggiungi menù condivisi dal catalogo - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nome del Menù Condiviso|File di Impostazioni del Menù Condiviso
 lDialogExternalMenuAddNotFromCatalogue	Aggiungi un altro menù condiviso...
 lDialogExternalMenuName	Nome del menù condiviso
+lDialogExternalMenuNotExist	Questo menù condiviso non esiste. Vuoi creare un nuovo menù condiviso vuoto in questa posizione?`n`n~1~
 lDialogExternalMenuOpen	Apro il file del menù condiviso?
-lDialogExternalMenusAdded	Menù condiviso/i ~1~ aggiunti.
+lDialogExternalMenusAdded	Menù condivisi ~1~ aggiunti.
 lDialogExternalMenuSelectFromCatalogue	Seleziona uno o più menù condivisi da aggiungere al tuo Menù e clicca ~1~
 lDialogExternalStartingNumber	Numero del primo preferito:
 lDialogExternalTip	Fai doppio click su una linea per vedere le informazioni del menù condiviso.
@@ -101,7 +118,7 @@ lDialogFavoriteDisabledGroupMember	Disabilita questo oggetto nel gruppo
 lDialogFavoriteDoesNotExistEdit	Vuoi modificare questo preferito?
 lDialogFavoriteDoesNotExistPrompt	Il preferito "~1~"~2~ non esiste o non è disponibile.`n`nSe questo Preferito è su un disco di rete, per favore prova di nuovo dopo esserti autenticato sulla rete.
 lDialogFavoriteDoesNotExistTitle	Il Preferito non esiste - ~1~
-lDialogFavoriteDropdownEmpty	Per favore scegli un oggetto nel menù a discesa ~1~ .
+lDialogFavoriteDropdownEmpty		Per favore scegli un elemento nella lista ~1~ .
 lDialogFavoriteExternalHelpWeb	Vedi  <a href="~1~">Aiuto per i menù esterni</a> per maggiori informazioni.
 lDialogFavoriteExternalSaveNote	Nota: I valori in questa scheda vengono salvati immediatamente nel menù condiviso premendo "~1~".
 lDialogFavoriteFolderLive	Cartella Live (menù con incluse sottocartelle)
@@ -112,19 +129,21 @@ lDialogFavoriteFolderLiveExtensions	queste estensioni (separa le estensioni con 
 lDialogFavoriteFolderLiveInclude	Includi
 lDialogFavoriteFolderLiveLevels	Numero di livelli di sottocartelle da includere nel menù della Cartella Live
 lDialogFavoriteLocationEmpty	La destinazione è vuota. Si prega di riprovare: scegli una destinazione non vuota.
-lDialogFavoriteMenuPosition	Inserisci il nuovo Preferito prima di questo elemento
+lDialogFavoriteMenuPosition	Inserisci il Preferito prima di questo elemento
 lDialogFavoriteNameEmpty	Il nome del Preferito non può essere vuoto. Per favore, scegli un nome.
 lDialogFavoriteNameNoSeparator	Questo oggetto non può contenere il carattere riservato "~1~".
 lDialogFavoriteNameNotAllowed	Preferiti del tipo "~1~" non sono permessi nei Gruppi. Per favore, seleziona un altro menù di destinazione dalla scheda "Menù Opzioni".
 lDialogFavoriteNameNotNew	Il nome "~1~" è già in uso in questo menù. Si prega di scegliere un altro nome.
 lDialogFavoriteNameNotNewQAPfeature	Il nome "~1~" è già in uso in questo menù. Per favore, rinomina il Preferito esistente e prova di nuovo.
 lDialogFavoriteParentMenu	Scegli il menù in cui inserirlo
+lDialogFavoriteParentMenuMove	Sposta il Preferito in questo menù
 lDialogFavoriteRemoveExternalPrompt	Vuoi eliminare il sottomenù esterno "~1~"?`n(il file .ini delle impostazioni "esterne" NON verrà cancellato)
 lDialogFavoriteRemoveGroupPrompt	Rimuovere il gruppo "~1~"`n(anche gli elementi del gruppo verranno cancellati)?
 lDialogFavoriteRemovePrompt	Eliminare il sottomenù "~1~"`ne TUTTO il contenuto (cartelle e sottomenù)?
 lDialogFavoriteRemoveTitle	Elimina il Preferito - ~1~
 lDialogFavoriteSelectType	Seleziona il tipo di Preferito da aggiungere.`n`nNella finestra seguente, darai al Preferito:`n- un nome`n- un contenuto (a seconda del tipo)`n- vari attributi (icona, scorciatotia, ecc.)`n`nScegli il nuovo nome del Preferito e clicca "~1~".
 lDialogFavoriteShortNameLabel	Nome abbreviato per il menù
+lDialogFavoritesMenuPosition	Inserisci i Preferiti prima di questo elemento
 lDialogFavoriteSnippetEmpty	Contenuto vuoto. Per favore, inserisci il contenuto dello snippet.
 lDialogFavoriteSnippetFixedFont	Font a larghezza fissa
 lDialogFavoriteSnippetFontSize	Dimensione del font
@@ -146,20 +165,24 @@ lDialogFavoriteTypesHelp1	Crea un collegamento ad una "Cartella" usata di freque
 lDialogFavoriteTypesHelp13	Crea uno "Snippet". Assegna il titolo dello snippet per il menù, il suo contenuto e varie opzioni del menù.`n`nIn Opzioni Avanzate, scegli "Modalità Testo" per incollare snippet di testo come faresti con gli Appunti o scegli "Modalità macro" per inviare snippet come se premessi dei tasti (inclusi tasti speciali, vedi Aiuto).
 lDialogFavoriteTypesHelp14	Crea un "Menù Condiviso" per usare dei Preferiti su sistemi differenti usando uno stesso file di impostazioni, posto in una posizione esterna. Assegna al menù il nome del menù condiviso, la posizione esterna del file delle impostazioni e varie opzioni.`n`nI Menù Condivisi possono essere usati in Modo "Personale", "Collaborativo" o "Centralizzato". Un Catalogo di Menù Condivisi può essere impostato nel tab "Generale" delle Impostazioni per facilitare l'aggiunta di menù condivisi.`n`nI Menù Condivisi possono essere editati come i normali menù. Solo utenti selezionati possono invece modificare menù condivisi Centralizzati. Vedi le FAQ sul sito web per un maggior supporto.
 lDialogFavoriteTypesHelp15	Crea un "Separatore di testo" per inserire intestazioni, rendendo piú chiaro il tuo menú.`n`nPer default, i separatori di testo non hanno icone ma puoi selezionarne una nel tab "Opzioni del Menú".
-lDialogFavoriteTypesHelp2	Crea una scorciatoia per un "Documento".`n`nAssegna il nome del menù del Preferito, il percorso e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare una specifica applicazione per aprire il documento, aggiungere parametri opzionali e assegnare la posizione della finestra.
-lDialogFavoriteTypesHelp3	Crea una scorciatoia per una "Applicazione" (programma, file batch o script).`n`nRicerca il file eseguibile o seleziona uno dei programmi attualmente in esecuzione. Seleziona varie impostazioni del menù.`n`nLe impostazioni avanzate permettono di selezionare una "cartella di partenza", aggiungere parametri opzionali e assegnare la posizione della finestra.
+lDialogFavoriteTypesHelp2	Crea una scorciatoia per un "Documento".`n`nAssegna il nome del menù del Preferito, il percorso e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare una applicazione specifica per aprire il documento e aggiungere parametri opzionali.
+lDialogFavoriteTypesHelp3	Crea una scorciatoia per una "Applicazione" (programma, file batch o script).`n`nRicerca il file eseguibile o seleziona uno dei programmi attualmente in esecuzione. Seleziona varie impostazioni del menù.`n`nLe impostazioni avanzate permettono di selezionare una cartella di "partenza" e aggiungere parametri opzionali.
 lDialogFavoriteTypesHelp4	Crea una scorciatoia per una delle 50 "Cartelle Speciali" predefinite di Windows come: Librerie, Immagini, Cestino, Download, etc.`n`nAssegna impostazioni varie del menù. Le impostazioni avanzate permettono di selezionare la posizione della finestra e impostazioni del file manager.
-lDialogFavoriteTypesHelp5	Crea un "Link" ad una pagina web.`n`nAssegna il nome del menù del Preferito, indirizzo della pagina web (URL) e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il browser da usare per aprire il link, aggiungere parametri opzionali e assegnare la posizione della finestra.
+lDialogFavoriteTypesHelp5	Crea un "Link" ad una pagina web.`n`nAssegna nome del menù, indirizzo della pagina web (URL) e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il browser da usare per aprire il link e aggiungere parametri opzionali.
 lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il nome del menù del Preferito, indirizzo del sito FTP (URL), nome di login, password e impostazioni varie del menù.`n`nLe impostazioni avanzate permettono di selezionare il programma FTP da usare per accedere a questo sito, aggiungere parametri, assegnare la posizione della finestra e codificare nome di login e password.`n`nNota: la password NON viene criptata quando viene inviata in Internet.
-lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come: ~1~, ~2~, ~3~, ~4~, ~5~, ecc.
-lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù o spostali da altri sottomenù o gruppi cliccando su "Edit".
-lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo gruppo o spostali da altri sottomenù o gruppi cliccando su "Edit".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciacuno Preferito da ripristinare.
+lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come: ~1~, ~2~, ~3~, ~4~, ~5~, ecc.`n`nConsulta le descrizioni e i link di aiuto per maggiori infomazioni.
+lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù. Sposta un Preferito ad un altro sottomenù o gruppo cliccando su "Sposta" o il tab "Opzioni Menù" della finestra "Modifica preferito".
+lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona varie opzioni del gruppo.`n`nAggiungi Preferiti al tuo gruppo. Sposta un preferito ad un altro gruppo o sottomenù cliccando su "Modifica" o il tab "Menù opzioni" della finestra "Modifica preferito".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciascun Preferito da ripristinare.
 lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso|Separatore di testo
+lDialogFavoriteTypesLabelsNoAmpersand	Cartella|Documento|Applicazione|Cartella Speciale|Link|Sito FTP|Caratteristica di QAP|Sottomenù|Gruppi||||Snippet|Menù Condiviso|Separatore di testo
 lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Contenuto|File Impostazioni "esterne" (percorso)|Separatore di testo
 lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Interruzione Colonna|..|Snippet|Condiviso|Testo
 lDialogFavoriteWorkingDirNotFoundPrompt	L'impostazione avanzata "Inizia in" del preferito "~1~" non è stata trovata:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Il Parametro "Inizia in" non è stato trovato - ~1~
+lDialogFileExtension	Estensione del file
 lDialogFileLabel	Documento
+lDialogFileName	Nome del File
+lDialogFileSize	Dimensione del File
 lDialogFolderLabel	Cartella
 lDialogFoldersPlaceholders	Puoi mettere il segnaposto {CUR_LOC} per inserire la posizione in cui questo Preferito deve essere eseguito
 lDialogGetWebPageTitle	Estrai il titolo
@@ -167,15 +190,31 @@ lDialogGetWinInfo	Per identificare la finestra di cui vuoi trovare titolo e clas
 lDialogGetWInInfo2Clippoard	Titolo della Finestra:`n"~1~"`n`nClasse:`n"~2~"`n`nVuoi copiare queste informazioni negli Appunti?
 lDialogHotkeyInvisibleKeys	<a id="~1~">Barra spaziatrice</a>, <a id="~2~">Tab</a>, <a id="~3~">Enter</a>, <a id="~4~">Esc</a>`nor <a id="~5~">tasto del menú (applicazione)</a>
 lDialogHotkeys	Scorciatoie
-lDialogHotkeysManageAbout	Scorciatoie attualmente attive in ~1~
+lDialogHotkeysManageAboutHotstrings	Abbreviazioni correntemente attive in ~1~
+lDialogHotkeysManageAboutShortcuts	Scorciatoie correntemente attive in ~1~
 lDialogHotkeysManageAlternative	Alternativo
 lDialogHotkeysManageAlternativeMenu	Menù Alternativo
-lDialogHotkeysManageIntro	Fai doppio click sulla riga di un Preferito per cambiare la sua scorciatoia.
-lDialogHotkeysManageListHeader	Menù|Nome del Preferito|Tipo|Scorciatoia|Destinazione del Preferito
+lDialogHotkeysManageIntro	Fai doppio click sulla riga di un Preferito per cambiare il suo ~1~.
+lDialogHotkeysManageListHeader	Menù|Nome del Preferito|Tipo|~1~|Posizione del Preferito o del Contenuto
+lDialogHotkeysManageListHeaderHotstrings	Abbreviazioni|Opzioni
 lDialogHotkeysManageListSeeAllFavorites	Visualizza tutti i Preferiti
-lDialogHotkeysManageListSeeShortHotkeyNames	Visualizza i nomi abbreviati delle scorciatoie
+lDialogHotkeysManageListSeeShortHotkeyNames	Visualizza i nomi abbreviati delle scorciatoie e delle opzioni delle abbreviazioni.
 lDialogHotkeysManagePopup	Popup
+lDialogHotkeysManageShortcutHotstringLower	scorciatoia|abbreviazione
 lDialogHotkeysManageTitle	Gestione Scorciatoie - ~1~ ~2~
+lDialogHotstring	Abbreviazione
+lDialogHotstringCaseSensitive	Distingue maiusc/minusc
+lDialogHotstringExpandInsideWords	Espansione all'interno di altre parole
+lDialogHotstringIndicator	Abbrev.
+lDialogHotstringKeepHotstring	Mantieni l'abbreviazione tale e quale
+lDialogHotstringNotConformCase	Non rispettare il formato maiusc/minusc
+lDialogHotstringNotKeepEndingKey	Non mantenere il tasto di finalizzazione
+lDialogHotstringNotWaitEndingKey	Non aspettare il tasto di finalizzazione
+lDialogHotstrings	Abbreviazioni
+lDialogHotstringsShort	Hotstrings
+lDialogHotstringTriggerAbbreviation	Trigger (abbreviazione):
+lDialogHotstringTriggerOptions	Abbreviazione (trigger e opzioni)
+lDialogHotstringWaitEndingKey	Aspetta tasto di finalizzazione
 lDialogIcon	Icona del Preferito
 lDialogIconsManage	Icone
 lDialogIconsManageAbout	Seleziona nuove icone per i tuoi preferiti o assegnagli l'icona di default per il loro tipo. Non dimenticare di salvare le modifiche nella finestra delle Impostazioni.
@@ -195,9 +234,12 @@ lDialogMaximized	Massimizzata
 lDialogMenuKey	Tasto del Menú
 lDialogMenuNotMoveUnderItself	Il menù "~1~" non può essere posizionato sotto se stesso.
 lDialogMinimized	Minimizzato
+lDialogModifiedDate	Data modificata
 lDialogMouse	Mouse
 lDialogMouseButtonsText	Tasto Sinistro del Mouse|Tasto Centrale del Mouse|Tasto destro del Mouse|Tasto Speciale 1 del Mouse|Tasto Speciale 2 del Mouse|Rotellina Su|Rotellina Giù|Rotellina Sinistra|Rotellina Destra|
 lDialogMoveFavoritesTitle	Sposta i Preferiti - ~1~ ~2~
+lDialogMoveFavoriteTitle	Sposta il Preferito - ~1~ ~2~
+lDialogNA	n/a
 lDialogNone	Nessuno
 lDialogNormal	Normale
 lDialogOff	Assente
@@ -208,6 +250,8 @@ lDialogOpenThisGroup	Apri questo gruppo
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogOtherHotkeys	Altre scorciatoie per il menú principale
+lDialogQAPFeatureCategoriesNames		Funzionalità|Menù Dinamico|Modifica Menù QAP|Aggiungi Preferito o Tipo|Gestione finestra|Funzionalità delle finestre|Utilità varie|Gestione QAP
+lDialogQAPFeaturesHelpLink	Aiuto su questa funzionalità
 lDialogReadOnly	Sola-Lettura
 lDialogRemoveMultipleFavorites	Vuoi davvero eliminare ~1~ preferiti / sottomenù?
 lDialogSearch	Cerca
@@ -223,6 +267,10 @@ lDialogSettingsNotSavedPrompt	La finestra delle Impostazioni è aperta con modifi
 lDialogSettingsNotSavedTitle	~1~ - Impostazioni non salvate
 lDialogShift	Shift
 lDialogShortcut	Scorciatoia
+lDialogShortcuts	Scorciatoie
+lDialogSortBy		Ordina per
+lDialogSortOrder	Tipo di ordinamento
+lDialogSpecialFoldersCategoriesNames	Base|Esperto|Amministr. di sistema|Contenuti|Hardware
 lDialogState	Stato della Finestra:
 lDialogSubmenuNameEmpty	Il nome del sottomenù non può essere vuoto. Si prega di inserire un nome.
 lDialogSubmenuParentMenu	Scegli il menù in cui inserirlo
@@ -231,6 +279,7 @@ lDialogSwitchSettingsCancel	Sostituzione del file delle Impostazioni annullata..
 lDialogSwitchSettingsReady	Ricarica ~2~ con il nuovo file delle Impostazioni`n`n~1~
 lDialogTabNext	Seguente
 lDialogThirdPartyDetected	~1~ ha riscontrato che ~2~ è installato nel tuo sistema.`n`nVuoi abilitare l'integrazione con ~2~?
+lDialogTreeView	vista albero
 lDialogTriggerFor	Condizione di attivazione per:
 lDialogUseDefaultWindowPosition	Usa la posizione di default della finestra
 lDialogWin	Tasto Windows
@@ -289,7 +338,7 @@ lGuiCancelAmpersand	A&nnulla
 lGuiClose	Chiudi
 lGuiCloseAmpersand	&Chiudi
 lGuiCopyAmpersand	C&opia
-lGuiDonate	Supporto
+lGuiDonate	Donazione
 lGuiDropFilesHelp	Drag and Drop (promemoria)
 lGuiDropFilesIncentive	Puoi trascinare i seguenti tipi di preferiti sulla finestra ~1~:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
 lGuiDropFilesIncentive2	Per aiutarti a trascinare uno o piú file in una sola volta, puoi far restare la finestra delle 'Impostazioni' sempre "in primo piano" cliccando l'icona a puntina sul lato sinistro della finestra.
@@ -368,13 +417,14 @@ lImpExpMenu	Impostazioni per Importare/Esportare
 lImpExpMerge	Unire a
 lImpExpNoThemes	Non trovo nessun elenco di Temi nel valore "~1~" della sezione "~2~".`n`nFile sorgente:`n~3~
 lImpExpOptionAlternative	Scorciatoie dei menù Alternativi
-lImpExpOptionFavorites	Preferiti (escludendo le loro scorciatoie)
+lImpExpOptionFavorites	Preferiti
 lImpExpOrIdentical	(o dal contenuto identico)
 lImpExpReplaceAll	Sostituire tutto
 lImpExpReplaceFavorites	Ci sono Preferiti nel file di destinazione. Cosa intendi fare?`n`n~1~
 lImpExpReplaceSection	Sostituire (SOVRASCRIVERE) la sezione ~2~ nel file esistente?`n`n~1~`n`n[~2~]`n~3~
 lImpExpRestartApp	Vuoi riavviare ~1~ caricando le nuove impostazioni adesso?
 lImpExpSectionNotFound	Contenuto non trovato nel file:`n`n~1~`n`nSezione: [~2~]`nDescrizione: ~3~
+lImpExpSelectFile	Per favore, seleziona il file  ~1~.
 lImpExpSource	Sorgente
 lImpExpTitle	Impostazioni per Importare / Esportare - ~1~
 lImpExpUnsavedSettings	Una finestra delle impostazioni è già aperta, senza aver salvato eventuali cambiamenti.`n`nPer favore, chiudi le finestre delle impostazioni prima di importarle o esportarle.
@@ -391,14 +441,13 @@ lMenuAlternativeRunAs	Esegui come Amministratore
 lMenuAppData	Dati Applicazioni
 lMenuCache	Cache
 lMenuClipboard	Appunti di Windows
+lMenuCloseAllWindows	Chiudi tutte le finestre
 lMenuCloseThisMenu	Chiudi questo menù
 lMenuColumnBreak	Colonna
 lMenuCommonAppData	Dati Applicazioni (pubblica)
 lMenuCommonDesktop	Desktop pubblico
 lMenuCommonStartMenu	Menù Avvio (pubblico)
 lMenuCommonStartupMenu	Esecuzione Automatica (pubblico)
-lMenuComputerRestart	Riavvia il Computer
-lMenuComputerShutdown	Spegni il Computer
 lMenuCookies	Cookies
 lMenuCopyLocation	Copia URL o Percorso del Preferito
 lMenuCurrentFolders	Cartelle Correnti
@@ -414,6 +463,8 @@ lMenuFonts	Font di caratteri
 lMenuGetWinInfo	Leggi il titolo della finestra e la Classe
 lMenuHelp	Aiuto
 lMenuHistory	Cronologia
+lMenuLastAction	Ripeti l'ultima azione
+lMenuLastActions	Ripeti le ultime azioni
 lMenuMenu	Menù
 lMenuMyMusic	Musica
 lMenuMyQAPMenu	Strumenti di QAP
@@ -429,21 +480,25 @@ lMenuQuickLaunch	Avvio veloce
 lMenuRecentFiles	File Recenti
 lMenuRecentFolders	Cartelle Recenti
 lMenuRecentItems	Oggetti Recenti
-lMenuRefreshMenu	Aggiorna i menù delle Cartelle Live
+lMenuRefreshMenu	Aggiorna Cartelle Live e Menù Condivisi
 lMenuReload	Riavvia ~1~
 lMenuReopenCurrentFolder	Riapri la Cartella Corrente nella Casella di Dialogo
+lMenuReopenInNewWindow	Riapri la Cartella Corrrente dalla casella di Dialogo
 lMenuRestoreSettingsWindowPosition	Ripristina la posizione della finestra delle Impostazioni
 lMenuRunAtStartupAmpersand	&Esegui all'Avvio
 lMenuSettings	Impostazioni
+lMenuSettingsFileOptions	Opzioni del file delle impostazioni
 lMenuStartMenu	Menù Avvio
 lMenuStartup	Esecuzione Automatica
 lMenuSuspendHotkeys	Sospendi Scorciatoie
 lMenuSwitchFolderOrApp	Cambia
 lMenuSwitchSettings	Cambiare il file delle Impostazioni
+lMenuSwitchSettingsDefault	Passa al file delle impostazioni predefinite
 lMenuSystemCertificates	Certificati di Sistema
 lMenuTemplates	Modelli
 lMenuTemporaryFiles	File temporanei
 lMenuUpdateAmpersand	Cerca &Aggiornamenti
+lMenuUpdateNoAmpersand	Cerca aggiornamenti
 lMenuUserFolder	Cartella Utente
 lMenuUserPinned	Collegamenti evidenziati dall'utente
 lNavigateFileError	C'è stato un errore nell'aprire la cartella:`n~1~.
@@ -456,7 +511,7 @@ lOopsChangeFolderInDialogAlert	Hai intenzione di cambiare cartella in questa cas
 lOopsCouldNotOpenSpecialFolder	~1~ non è riuscito ad aprire la Cartella Speciale: "~2~".
 lOopsEmpty	vuoto
 lOopsErrorIniFileModified	Questo menù condiviso è stato modificato dopo l'avvio di QAP. Per modificare questo menù dovresti riavviare QAP.`n`nRiavvio adesso? Le modifiche al menù non ancora salvate verranno perse.
-lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso è in SOLA-LETTURA.
+lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso o questa posizione è di SOLA-LETTURA.
 lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di rete, prova a ricaricare ~1~ quando il disco di rete sarà disponibile.
 lOopsErrorIniFileUnavailable	Questo file di impostazioni del menù esterno non è disponibile
 lOopsErrorReadingIniFile	C'è stato un errore leggendo questo file di impostazioni:
@@ -473,6 +528,8 @@ lOopsFtpLocationProtocol	L'indirizzo di un sito FTP deve iniziare con "ftp://".
 lOopsGroup	Gruppo
 lOopsHotkeyAlreadyUsed	La combinazione di tasti "~1~" è già usata per ~2~.`n`nE' necessario scegliere un altra combinazione per ~3~.
 lOopsHotkeyNotInMenus	Errore: la destinazione "~1~" per la combinazione "~1~" non è presente in alcun menù.
+lOopsHotkeyObjectNotFound	~1~ potrebbe non trovare il preferito associato al ~2~ "~3~".`n`nQuesta può essere una situazione temporanea. Prova a riavviare ~1~.
+lOopsHotstringTriggerTooLong	Hotstring trigger too long. Hotstring triggers can be no more than 40 characters long.
 lOopsHttpLocationTransformed	La destinazione http (in formato URL) è stato convertita in un percorso di rete (formato UNC) per compatibilità con Windows :`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	File delle impostazioni di Total Commander ("wincmd.ini") non trovato.`n`nSelezionalo in "Opzioni" > "File manager".
 lOopsInvalidWindowPosition	Valori non validi per la posizione della finestra
@@ -492,7 +549,9 @@ lOopsWriteProtectedError	Sembra che ~1~ sia eseguito da una cartella PROTETTA-IN
 lOopsWrongThirdPartyPath	Nome del file o percorso sbagliato per ~1~:`n~2~.`n`nControlla il file .exe selezionato per ~1~ nelle "Opzioni", tab "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Wrong percorso o nome del file per l'applicazione di QAPconnect`n~1~:`n~2~.`n`nControlla i valori per [~1~] in ~3~. Clicca su "~4~" in "Opzioni", tab "~5~".
 lOopsZipFileError	Sembra che ~1~ sia stato eseguito direttamente da un archivio .ZIP .`n`nE' necessario dapprima estrarre il file ~1~ .EXE dall'archivio .ZIP in una cartella di tua scelta prima di eseguirlo.`n`n~1~ verrà chiuso.
-lOptionsAddAutoAtTop	Aggiungi automaticamente in cima al menù
+lOptionsAddAutoAtTop	Quando aggiungi automaticamente, inserisci il preferito nella
+lOptionsAddAutoBottomOfMenu	parte inf. del menù
+lOptionsAddAutoTopOfMenu	parte sup. del menù
 lOptionsAddCloseToDynamicMenus	Aggiungi "Chiudi" ai menù
 lOptionsAlternativeMenuFeatures	Combinazioni di tasti per il Menù Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gestisci le scorciatoie che lanciano le funzionalità del Menù Alternativo.
@@ -520,20 +579,23 @@ lOptionsFileManagerAlwaysNavigate	Apri sempre le cartelle nella finestra corrent
 lOptionsFtpEncoding	Codifica nome utente e password FTP (consigliato)
 lOptionsFtpEncodingTC	Codifica nome utente e password FTP (non consigliato per Total Commander)
 lOptionsGuiTitle	Opzioni - ~1~ ~2~
-lOptionsHotkeyRemindersFull	Mostra nomi completi
+lOptionsHotkeyRemindersFull	Mostra nomi completi e abbreviazioni complete
 lOptionsHotkeyRemindersNo	Non mostrare
-lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti nel menù:
-lOptionsHotkeyRemindersShort	Mostra nomi abbreviati
+lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti e abbreviazioni nel menù:
+lOptionsHotkeyRemindersShort	Visualizza abbreviati
+lOptionsHotstringsDefault	Opzioni predefinite delle Abbreviazioni
+lOptionsHotstringsDefaultSelect	Seleziona
 lOptionsIconSize	Dimensione delle icone
 lOptionsIconsManageRows	Righe della finestra Gestione Icone`n(0 per usare tutto lo spazio disponibile)
 lOptionsLanguage	Lingua
-lOptionsLanguageLabels	Inglese|Francese|Tedesco|Svedese|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese|Cinese Simplified|Olandese
+lOptionsLanguageLabels	Inglese|Francese|Tedesco|Spagnolo|Portoghese (BR)|Italiano|Cinese Tradizionale|Portoghese|Cinese Simplified|Olandese
 lOptionsMenuActiveWindow	In alto a sinistra della finestra attiva
 lOptionsMenuFixPosition	In posizione prefissata
 lOptionsMenuNearMouse	Vicino al puntatore del mouse
 lOptionsMenuOptions	Menù opzioni
 lOptionsMenuPositionPrompt	Apri il menù popup:
 lOptionsMouseAndKeyboard	Menù scorciatoie
+lOptionsNbLastActions	Numero degli elementi nel menù Ripeti le ultime azioni
 lOptionsOpenMenuOnTaskbar	&Apri il menù cliccando sulla barra delle applicazioni
 lOptionsOtherOptions	Generale
 lOptionsPopupFixPositionX	Posizione X:
@@ -545,6 +607,9 @@ lOptionsRecentFolders	Numero di oggetti nei Menù
 lOptionsRecentFoldersPrompt	Cartelle recenti e File recenti:
 lOptionsRefreshedMenusAttached	Aggiungi i menu "~1~", "~2~" e "~3~" al menu di QAP
 lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~" e "~3~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
+lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
+lOptionsRefreshQAPMenuIntervalSec	Intervallo tra aggiornamenti menù (secondi)
+lOptionsRefreshQAPMenuTitle	Aggiornamento programmato del menù QAP
 lOptionsRememberSettingsPosition	Ricorda la posizione della finestra
 lOptionsRunAsAdmin	Esegui come Amministratore
 lOptionsRunAsAdminAlert	Avviso: Eseguire ~1~ in modalitá Amministratore puó causare conseguenze non prevedibili quando vengano eseguiti programmi che siano infetti con codice malevolo. Ció potrebbe consentire a programmi malevoli di ereditare privilegi di Amministratore ed infettare o prendere il controllo del tuo computer. Sii prudente quando esegui ~1~ in modalitá Amministratore.
@@ -576,9 +641,10 @@ lTCMenuName	Hotlist Cartelle di TC
 lTCWinCmdLocation	posizione di WinCmd.ini
 lToolTipRetrievingWebPageTitle	Sto recuperando il titolo della pagina web...
 lTooltipSnippetWaitEnter	Invio
-lTooltipSnippetWaitMacro	Premi "~1~" o "~2~" per eseguire la macro (aspettando ~3~ secondi)
+lTooltipSnippetWaitEscape	Esc
+lTooltipSnippetWaitMacro	Premi "~1~" o "~2~" per eseguire la macro (aspettando ~3~ secondi o premi ~4~ per annullare)
 lTooltipSnippetWaitSpace	Spazio
-lTooltipSnippetWaitText	Seleziona il punto di inserimento e premi "~1~" o "~2~" per incollare lo snippet (aspettando ~3~ secondi)
+lTooltipSnippetWaitText	Seleziona il punto di inserimento e premi "~1~" o "~2~" per incollare lo snippet (aspettando ~3~ secondi o premi ~4~ per annullare)
 lTrayTipInstalledDetail	~1~ per aprire Preferiti
 lTrayTipInstalledTitle	~1~ ~2~ è pronto!
 lTrayTipWorkingDetail	Menù in costruzione...
