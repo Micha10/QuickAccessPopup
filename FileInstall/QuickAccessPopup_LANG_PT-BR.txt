@@ -187,8 +187,6 @@ lDialogFileSize	File Tamanho
 lDialogFolderLabel	Pasta
 lDialogFoldersPlaceholders	Você pode inserir o marcador de posição {CUR_LOC} para inserir o local de onde este favorito é iniciado
 lDialogGetWebPageTitle	Obter título
-lDialogGetWinInfo	Para identificar a janela da qual deseja obter título e classe, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
-lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar informações para a Área de Transferência?
 lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaço</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a>, <a id="~4~">escape</a>`nor <a id="~5~">tecla menu (aplicativo)</a>
 lDialogHotkeys	Teclas de Atalho
 lDialogHotkeysManageAboutHotstrings	Strings de substituição atualmente ativas em ~1~
@@ -251,7 +249,6 @@ lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
 lDialogOtherHotkeys	Outras teclas de atalho para o menu principal
-lDialogQAPFeatureCategoriesNames	Destacado|Menus Dinâmicos|Edição de Menu do QAP|Adicionar Favorito do Tipo|Gerenciamento de janela|Recursos do Windows|Vários Utilitários|Gerenciamento do QAP
 lDialogQAPFeaturesHelpLink	Ajuda para este recurso
 lDialogReadOnly	Somente leitura
 lDialogRemoveMultipleFavorites	Deseja realmente remover favoritos do ~1~ ou submenus?
@@ -450,8 +447,6 @@ lMenuCommonAppData	Dados de Aplicativos Comuns
 lMenuCommonDesktop	Área de Trabalho Comum
 lMenuCommonStartMenu	Menu Iniciar Comum
 lMenuCommonStartupMenu	Menu Inicializar Comum
-lMenuComputerRestart	Reiniciar Computador
-lMenuComputerShutdown	Desligar Computador
 lMenuCookies	Cookies
 lMenuCopyLocation	Copiar Caminho ou URL do Favorite
 lMenuCurrentFolders	Reabrir Pasta
@@ -464,7 +459,6 @@ lMenuExitApp	Sair do ~1~
 lMenuExternalCatalogue	Adicionar menu de favoritos compartilhados do catálogo...
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fontes
-lMenuGetWinInfo	Obter Título e Classe da janela
 lMenuHelp	Ajuda
 lMenuHistory	Histórico
 lMenuLastAction	Repetir Última Ação
@@ -574,7 +568,6 @@ lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
 lOptionsEnableExternalMenusCatalogue	Habilitar o Catálogo de Menus Compartilhados
 lOptionsExclusionDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	A tecla de atalho do QAP será desativada nestes aplicativos e o clique [~1~] será enviado para a janela de destino se o QAP não estiver em execução. Você também pode excluir janelas pelo nome da sua classe. Prefixe o título ou classe com * (asterisco) para excluir também caixas de diálogo de aplicativos. Você pode encontrar ajuda e suporte deste recurso no <a href="~2~">site do QAP</a>.
 lOptionsExclusionList	Lista de exclusões
 lOptionsExclusionTitle	Lista de exclusões para disparador do Mouse [~1~]
 lOptionsExplorerContextMenus	Habilitar menus de contexto

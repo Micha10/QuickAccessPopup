@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Sueca:Åke Engelbrektson`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nDutch translation: Ric Roggeveen`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="https://icons8.com/">Icons8</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L ~2~ sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ foi escrito por Jean Lalonde usando a`nlinguagem de programação <a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução Alemã: Edgar "Fast Edi" Hoffmann`nTradução Francesa: Jean Lalonde`nTradução Italiana: Riccardo Leone`nTradução Espanhola: kiketrucker`nTradução Brasileira: Igor Ruckert`nTradução Chinês Tradicional: Jess Yang`nTradução Portuguesa: Luis Neves`nDutch translation: Ric Roggeveen`nTradução em outros idiomas: (a ajuda é bem-vinda)`nRevisão do Inglês: (a ajuda é bem-vinda)`n`nÍcones por: <a href="https://icons8.com/">Icons8</a>`nInstalador: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v~2~ sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Suporte em <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca do - ~1~ ~2~
@@ -36,7 +36,6 @@ lDialogActivateAlreadyRunning	Se o programa estiver em execução, activar em vez 
 lDialogAdd	Adicionar
 lDialogAddAmpersand	&Adicionar
 lDialogAddEditFavoriteTitle	~1~ Favorito: ~4~ - ~2~ ~3~
-lDialogAddFavoriteSelectTitle	Adicionar Favorito - ~1~ ~2~
 lDialogAddFavoriteTabs	Definições Básicas|Opções de Menu|Opções de Janela|Definições Avançadas
 lDialogAddFavoriteTabsExternal	Menu Partilhado
 lDialogAddFavoriteTabsLive	Opções Pasta Live
@@ -66,7 +65,6 @@ lDialogChangeHotkeyLeftAnyRight	A combinação de teclas pode ser associada só à t
 lDialogChangeHotkeyModifierAndNone	Modificadores como "Alt" ou "Control" não podem usados sozinhos. Seleccione também um atalho de teclado ou de rato na secção à direita.
 lDialogChangeHotkeyMouseCheckLButton	Não pode atribuir o "Botão Esquerdo do Rato" sem um modificador`n(como as teclas ~1~, ~2~, ~3~ ou ~4~).
 lDialogChangeHotkeyPopup	Trata-se de uma tecla de atalho do menu emergente.`n`nDeseja manusear "~1~" em "~2~"?
-lDialogChangeHotkeyTitle	Alterar tecla de atalho - ~1~ ~2~
 lDialogContinue	Continuar
 lDialogContinueAmpersand	C&ontinuar
 lDialogCopy	Copiar
@@ -89,7 +87,6 @@ lDialogExternalMenuAddHeader	Nome do Menu Partilhado|Ficheiro de Definições do M
 lDialogExternalMenuAddNotFromCatalogue	Adicionar outro menu partilhado...
 lDialogExternalMenuName	Nome do menu partilhado
 lDialogExternalMenuOpen	Abrir ficheiro de menu partilhado?
-lDialogExternalMenusAdded	~1~ Menu(s) partilhado(s) adicionado(s).
 lDialogExternalMenuSelectFromCatalogue	Seleccione um ou mais menus partilhados para adicionar ao seu menu e clique ~1~
 lDialogExternalStartingNumber	Número do primeiro favorito:
 lDialogExternalTip	Faça duplo-clique numa linha para ver a informação do menu partilhado.
@@ -102,7 +99,6 @@ lDialogFavoriteDisabledGroupMember	Desactivar este item no grupo
 lDialogFavoriteDoesNotExistEdit	Deseja editar este favorito?
 lDialogFavoriteDoesNotExistPrompt	O favorito "~1~"~2~ não existe ou não está disponível.`n`nSe este favorito está numa unidade de rede, repita depois de autenticar a rede.
 lDialogFavoriteDoesNotExistTitle	O favorito não existe - ~1~
-lDialogFavoriteDropdownEmpty	Por favor escolha um item ~1~ na lista pendente.
 lDialogFavoriteExternalHelpWeb	Consulte <a href="~1~">Ajuda menus externos</a> para mais informação.
 lDialogFavoriteExternalSaveNote	Nota: Os valores deste separador são guardados no menu partilhado quando clicar em "~1~".
 lDialogFavoriteFolderLive	Pasta Live (menu incluindo subpastas)
@@ -113,7 +109,6 @@ lDialogFavoriteFolderLiveExtensions	estas extensões (separar as extensões com es
 lDialogFavoriteFolderLiveInclude	Incluir
 lDialogFavoriteFolderLiveLevels	Número de níveis de subpastas a incluir no menu Pasta Live
 lDialogFavoriteLocationEmpty	A localização está vazia. Por favor, escolha outra.
-lDialogFavoriteMenuPosition	Inserir o novo favorito antes deste item
 lDialogFavoriteNameEmpty	O nome do favorito está em branco. Por favor, escolha um nome.
 lDialogFavoriteNameNoSeparator	O nome deste item não pode incluir o caracter reservado "~1~".
 lDialogFavoriteNameNotAllowed	Favoritos do tipo "~1~" não são permitidos em grupos. Por favor, seleccione outro menu no separador "Opções de Menu".
@@ -147,14 +142,8 @@ lDialogFavoriteTypesHelp1	Criar um atalho para uma "Pasta" utilizada com frequên
 lDialogFavoriteTypesHelp13	Criar uma "Amostra de Texto". Defina o título para o menu, o seu conteúdo e diversas opções do menu.`n`nNas opções avançadas, escolha "Modo Texto" para colar pedaços de texto como faria da área de transferência ou escolha "Modo Macro" para enviar fragmentos como se digitasse teclas (incluindo teclas especiais, consulte a ajuda).
 lDialogFavoriteTypesHelp14	Criar um "Menu Partilhado" para usar os favoritos em vários sistemas a partir do mesmo ficheiro de definições numa localização externa. Defina o nome para o menu partilhado, a localização do ficheiro de definições externas e diversas opções.`n`nOs menus partilhados podem ser utilizados nos modos "Pessoal", "Participativo" ou "Centralizado". Pode ser definido um Catálogo de Menus Partilhados no separador Options "Geral" para facilitar a adição de menus partilhados.`n`nOs menus patilhados podem ser editados como menus normais. Só os utilizadores seleccionados podem editar menus partilhados Centralizados. Veja as perguntas frequentes (FAQ) no site para mais ajuda.
 lDialogFavoriteTypesHelp15	Crie um "Separador de Texto" para inserir cabeçalhos dando mais clareza ao seu menu.`n`nPor defeito, os separadores de texto não possuem ícone mas pode seleccionar um no separador "Opções do Menu".
-lDialogFavoriteTypesHelp2	Criar um atalho para um "Documento".`n`nDefina o nome do menu do favorito, atalho e diversas opções do menu.`n`nAs definições avançadas permitem escolhar uma aplicação específica para abrir o documento, adicionar parâmetros opcionais e definir a posição da janela.
-lDialogFavoriteTypesHelp3	Criar um atalho para uma "Aplicação" (programa, batch ou script).`n`nLocalize o ficheiro executável ou seleccione um dos programas em execução. Defina diversas opções do menu.`n`nAs definições avançadas permitem escolher uma pasta "Iniciar Em", adicionar parâmetros e definir a posição da janela.
 lDialogFavoriteTypesHelp4	Criar um atalho para uma das 50 "Pastas Especiais" predefinidas do Windows, tais como: Bibliotecas, As Minhas Imagens, Reciclagem, Transferências, etc.`n`nDefina diversas opções do menu. As definições avançadas permitem definir a posição da janela e opções de gestão de ficheiros.
-lDialogFavoriteTypesHelp5	Criar uma "Ligação" para uma página internet.`n`nDefina o nome do menu, endereço da página (URL) e diversas opções do menu.`n`nAs definições avançadas permitem seleccionar um navegador para abrir a ligação, adicionar parâmetros opcionais e definir a posição da janela.
 lDialogFavoriteTypesHelp6	Criar um atalho para um "Site FTP".`n`nDefina o nome do menu, Endereço do site FTP (URL), utilizador, palavra-passe e diversas opções do menu.`n`nAs definições avançadas permitem seleccionar um programa FTP para aceder ao site, adicionar parâmetros opcionais, definir a posição da janela e codificar o nome de utilizador e palavra-passe.`n`nNota: a palavra-passe NÃO é encriptada ao ser enviada para a Internet.
-lDialogFavoriteTypesHelp7	Inserir algures no seu menu "Funções Quick Access Popup" tais como: ~1~, ~2~, ~3~, ~4~, ~5~, etc.
-lDialogFavoriteTypesHelp8	Reuna favoritos relacionados num "Submenu".`n`nAtribua um nome ao seu submenu e seleccione opções de menu.`n`nAdicione favoritos ao seu submenu ou mova-os de outros submenus ou grupos usando o botão "Editar".
-lDialogFavoriteTypesHelp9	Carregue um "Grupo" de favoritos, todos num só atalho!`n`nAtribua um nome ao seu grupo e defina diversas opções para o seu grupo.`n`nAdicione favoritos ao seu grupo ou mova-os de outros submenus ou grupos usando o botão "Editar".`n`nAs opções avançadas permitem controlar a velocidade de restauro inserindo um atraso entre cada favorito a restaurar.
 lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Separador de Texto
 lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|Site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Separador de Texto
 lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Snippet|Partilhado|Texto
@@ -164,17 +153,11 @@ lDialogFileLabel	Documento
 lDialogFolderLabel	Pasta
 lDialogFoldersPlaceholders	Pode incluir o recipiente {CUR_LOC} para inserir o local onde este favorito é carregado
 lDialogGetWebPageTitle	Obter título
-lDialogGetWinInfo	Para identificar a janela da qual pretende obter o título e classe, clique na janela alvo com a tecla de atalho [~1~] do menu QAP.
-lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nCopiar esta informação para a Área de transferência?
 lDialogHotkeyInvisibleKeys	(OLD version *UPDATE next line and DELETE this line*) <a id="~1~">barra de espaços</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
 lDialogHotkeys	Teclas de Atalho
-lDialogHotkeysManageAbout	Atalhos actualmente activos no ~1~
 lDialogHotkeysManageAlternative	Alternativo
 lDialogHotkeysManageAlternativeMenu	Menu Alternativo
-lDialogHotkeysManageIntro	Faça duplo-clique num favorito para alterar os seus atalhos.
-lDialogHotkeysManageListHeader	Menu|Favorito|Tipo|Tecla de Atalho|Localização
 lDialogHotkeysManageListSeeAllFavorites	Ver todos os favoritos
-lDialogHotkeysManageListSeeShortHotkeyNames	Ver nomes abreviados das teclas de atalho
 lDialogHotkeysManagePopup	Popup
 lDialogHotkeysManageTitle	Gerir Teclas de atalho - ~1~ ~2~
 lDialogIcon	Ícone do Favorito
@@ -290,7 +273,6 @@ lGuiCancelAmpersand	&Cancelar
 lGuiClose	Fechar
 lGuiCloseAmpersand	Fe&char
 lGuiCopyAmpersand	C&opiar
-lGuiDonate	Doar
 lGuiDropFilesHelp	Ajuda Arrastar && Largar
 lGuiDropFilesIncentive	Pode Arrastar & Largar os seguintes tipos de favoritos para a janela ~1~ :`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
 lGuiDropFilesIncentive2	Para ajudá-lo a arrastar um ou mais ficheiros, pode tornar a janela de Definições "sempre visível" clicando no ícone pin do lado esquerdo da janela.
@@ -370,7 +352,6 @@ lImpExpMenu	Definições de Importação/Exportação
 lImpExpMerge	Misturar com
 lImpExpNoThemes	Nenhuma lista de temas encontrada no valor "~1~" da secção "~2~".`n`nFicheiro de origem:`n~3~
 lImpExpOptionAlternative	Teclas de atalhos dos menus alternativos
-lImpExpOptionFavorites	Favoritos (excluindo as teclas de atalho)
 lImpExpOrIdentical	(ou conteúdo idêntico)
 lImpExpReplaceAll	Substituir tudo
 lImpExpReplaceFavorites	Existem favoritos no ficheiro de destino. O que pretende fazer?`n`n~1~
@@ -399,8 +380,6 @@ lMenuCommonAppData	Dados de Aplicações (comum)
 lMenuCommonDesktop	Ambiente de Trabalho (comum)
 lMenuCommonStartMenu	Menu Iniciar (comum)
 lMenuCommonStartupMenu	Menu de Arranque (comum)
-lMenuComputerRestart	Reiniciar o Computador
-lMenuComputerShutdown	Desligar o Computador
 lMenuCookies	Cookies
 lMenuCopyLocation	Copiar um Atalho ou URL dos Favoritos
 lMenuCurrentFolders	Reabrir uma Pasta
@@ -413,7 +392,6 @@ lMenuExitApp	Sair ~1~
 lMenuExternalCatalogue	Adicionar menu de favoritos partilhado do catálogo...
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fontes
-lMenuGetWinInfo	Obter Título e Classe da janela
 lMenuHelp	Ajuda
 lMenuHistory	Histórico
 lMenuMenu	Menu
@@ -431,7 +409,6 @@ lMenuQuickLaunch	Inicialização Rápida
 lMenuRecentFiles	Ficheiros Recentes
 lMenuRecentFolders	Pastas Recentes
 lMenuRecentItems	Itens Recentes
-lMenuRefreshMenu	Actualizar menus Pastas Live
 lMenuReload	Reiniciar ~1~
 lMenuReopenCurrentFolder	Reabrir Pasta Actual na Caixa de Diálogo
 lMenuRestoreSettingsWindowPosition	Restaurar posição da janela de Definições
@@ -458,7 +435,6 @@ lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Pa
 lOopsCouldNotOpenSpecialFolder	O ~1~ não conseguiu abrir a pasta especial: "~2~".
 lOopsEmpty	vazia
 lOopsErrorIniFileModified	Este menu partilhado foi modificado desde que carregou o QAP. Para editar este menu, reinicie o QAP.`n`nReiniciar agora? Serão perdidas as alterações não guardadas do menu.
-lOopsErrorIniFileReadOnly	Este ficheiro de definições de menu partilhado é SÓ-DE-LEITURA.
 lOopsErrorIniFileRetry	Se o ficheiro de definições estiver numa unidade de rede, tente reiniciar o ~1~ quando a unidade de rede estiver disponível.
 lOopsErrorIniFileUnavailable	Este ficheiro de definições do menu externo, não está disponível
 lOopsErrorReadingIniFile	Ocorreu um erro ao ler este ficheiro de definições:
@@ -473,7 +449,6 @@ lOopsFavoritesCopied	~1~ favoritos copiados.
 lOopsFirstEnterUrl	Primeiro, introduza um endereço no campo "~1~".
 lOopsFtpLocationProtocol	A localização FTP deve começar com "ftp://".
 lOopsGroup	grupo
-lOopsHotkeyAlreadyUsed	A tecla de atalho "~1~" já está em uso para ~2~.`n`nPlor favor, escolha outra tecla de atalho para ~3~.
 lOopsHotkeyNotInMenus	Erro: Não foi encontrada nos menus a localização "~1~" para a tecla de atalho "~1~".
 lOopsHttpLocationTransformed	A localização http (formato URL) foi transformada num atalho de rede (formato UNC) para compatibilidade com o Windows:`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	Não foi encontrado o ficheiro de definições do Total Commander "wincmd.ini".`n`nSeleccione o ficheiro em "Opções", separador "Gestores de ficheiros".
@@ -494,7 +469,6 @@ lOopsWriteProtectedError	Parece que o ~1~ está a ser executado de uma pasta PROT
 lOopsWrongThirdPartyPath	Atalho ou nome de ficheiro errados para ~1~:`n~2~.`n`nVerifique o ficheiro .exe seleccionado para ~1~ em "Opções", separador "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Atalho ou nome de ficheiro errados para a aplicação QAPconnect`n~1~:`n~2~.`n`nVerifique os valores para [~1~] em ~3~. Utilize o botão "~4~" em "Opções", separador "~5~".
 lOopsZipFileError	Parece que o ~1~ está a ser executado directamente de um ficheiro .ZIP.`n`nDeve extrair o ficheiro ~1~ .EXE do ficheiro .ZIP para uma pasta à sua escolha, antes de o executar.`n`nO ~1~ vai ser encerrado.
-lOptionsAddAutoAtTop	Adicionar automaticamente no início do menu
 lOptionsAddCloseToDynamicMenus	Adicionar "Fechar" aos menus
 lOptionsAlternativeMenuFeatures	Teclas de Atalho do Menu Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gerir os atalhos que irão dar acesso às funções do menu Alternativo.
@@ -513,7 +487,6 @@ lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
 lOptionsEnableExternalMenusCatalogue	Activar Catálogo de Menus Partilhados
 lOptionsExclusionDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa aplicação, introduza qualquer parte to título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir o Chrome e o Word, introduza as duas seguintes linhas na lista de exclusões:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	A tecla de atalho do QAP será desactivada nestas aplicações e o clique [~1~] será enviado para a janela alvo como se o QAP não estivesse a ser executado. Pode também excluir janelas pelo nome da sua classe. Insira * (asterisco) antes do título ou classe para também excluir caixas de diálogo de programas. Pode encontrar ajuda para esta função <a href="~2~">no site do QAP</a>.
 lOptionsExclusionList	Lista de Exclusões
 lOptionsExclusionTitle	Lista de Exclusões para desencadeador do Rato [~1~]
 lOptionsExplorerContextMenus	Activar menus de contexto
@@ -522,14 +495,11 @@ lOptionsFileManagerAlwaysNavigate	Abrir sempre as pastas na actual janela do ges
 lOptionsFtpEncoding	Codificar utilizador e palavra-passe FTP (recomendado)
 lOptionsFtpEncodingTC	Codificar utilizador e palavra-passe FTP (não recomendado para o Total Commander)
 lOptionsGuiTitle	Opções - ~1~ ~2~
-lOptionsHotkeyRemindersFull	Exibir nome completos
 lOptionsHotkeyRemindersNo	Não exibir
-lOptionsHotkeyRemindersPrompt	Lembretes de teclas de atalho no menu:
-lOptionsHotkeyRemindersShort	Exibir nomes abreviados
 lOptionsIconSize	Tamanho dos ícones do menu
 lOptionsIconsManageRows	Linhas da janela de ícones`n(0 máx. espaço disponível)
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Sueco|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified|Holandês
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Espanhol|Brasileiro|Italiano|Chinês Traditional|Português|Chinês Simplified|Holandês
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela activa
 lOptionsMenuFixPosition	Numa posição fixa
 lOptionsMenuNearMouse	Junto ao cursor do rato
@@ -579,9 +549,7 @@ lTCWinCmdLocation	Localização do WinCmd.ini
 lToolTipRetrievingWebPageTitle	A recuperar título da página web...
 lTooltipSnippetKeyWait	Pressione {~1~} para continuar...
 lTooltipSnippetWaitEnter	Enter
-lTooltipSnippetWaitMacro	Pressione "~1~" ou "~2~" para carregar a macro (aguardar ~3~ segundos)
 lTooltipSnippetWaitSpace	Espaço
-lTooltipSnippetWaitText	Seleccione o ponto de inserção e pressione "~1~" ou "~2~" para colar o snippet (aguardar ~3~ segundos)
 lTrayTipInstalledDetail	~1~ para abrir favoritos
 lTrayTipInstalledTitle	~1~ pronto!
 lTrayTipWorkingDetail	A construir menus

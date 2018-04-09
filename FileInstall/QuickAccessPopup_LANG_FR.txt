@@ -82,18 +82,18 @@ lDialogCloseComputerControl	Fermeture de l'ordinateur - Centre de contrôle
 lDialogCloseComputerDisableWakeEvents	Désactiver les événements de réveil
 lDialogCloseComputerForce	&Forcer (peut causer des pertes de données)
 lDialogCloseComputerGo	Exécuter l'action sélectionnée
-lDialogCloseComputerHibernate	Mettre en veille prolongée
+lDialogCloseComputerHibernate	Mettre en veille &prolongée
 lDialogCloseComputerIntro	Sélectionnez l'action à exécuter
-lDialogCloseComputerLogoff	Se déconnecter
+lDialogCloseComputerLogoff	Se &déconnecter
 lDialogCloseComputerMonitorLowPower	&Mettre l'écran en mode d'économie d'énergie
-lDialogCloseComputerMonitorTurnOff	&Éteindre l'écran
+lDialogCloseComputerMonitorTurnOff	É&teindre l'écran
 lDialogCloseComputerPowerDown	&Éteindre l'ordinateur
-lDialogCloseComputerPrompt	Veuillez sélectiuonner une option
+lDialogCloseComputerPrompt	Veuillez sélectionner une option
 lDialogCloseComputerRestart	&Redémarrer l'ordinateur
 lDialogCloseComputerShutdown	&Arrêter l'ordinateur
-lDialogCloseComputerStartScreenSaver	Démarrer l'écran de veille
-lDialogCloseComputerSuspend	Mettre l'ordinateur en veille
-lDialogCloseComputerSuspendImmediately	Mettre en veille immédiatement(peut causer des pertes de données)
+lDialogCloseComputerStartScreenSaver	Démarrer &l'écran de veille
+lDialogCloseComputerSuspend	Mettre l'ordinateur en &veille
+lDialogCloseComputerSuspendImmediately	Mettre en veille &immédiatement(peut causer des pertes de données)
 lDialogContinue	Poursuivre
 lDialogContinueAmpersand	&Poursuivre
 lDialogCopy	Copier
@@ -267,7 +267,7 @@ lDialogOpenThisGroup	Ouvrir ce groupe
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogOtherHotkeys	Autres raccourcis pour le menu principal
-lDialogQAPFeatureCategoriesNames	En vedette|Menus dynamiques|Édition du menu de QAP|Ajouter un favori avec type|Gestion des fenêtres|Fonctionnalités de Windows|Divers utilitaires|Gestion de QAP
+lDialogQAPFeatureCategoriesNames	En vedette|Menus dynamiques|Édition du menu de QAP|Ajouter un favori avec type|Gestion des fenêtres|Fonctionnalités de Windows|Fermeture de l'ordinateur|Divers utilitaires|Gestion de QAP
 lDialogQAPFeaturesHelpLink	Aide sur cette fonctionnalité
 lDialogReadOnly	Lecture seulement
 lDialogRemoveMultipleFavorites	Voulez-vous vraiement supprimer ~1~ favoris ou sous-menus?
