@@ -2842,7 +2842,6 @@ InitLanguageVariables:
 ;-----------------------------------------------------------
 
 #Include %A_ScriptDir%\QuickAccessPopup_LANG.ahk
-#Include %A_ScriptDir%\QuickAccessPopup_DESC.ahk
 
 return
 ;-----------------------------------------------------------
@@ -6859,7 +6858,9 @@ Gui, 2:Tab, 6
 
 Gui, 2:Add, Text, x10 y+10 w595 center, %lOptionsTabFileManagersIntro%
 
+Gui, Font, w600
 Gui, 2:Add, Text, y+15 x10 w300 Section, %lOptionsTabFileManagersPreferred%
+Gui, Font
 loop, %g_arrActiveFileManagerSystemNames0%
 	Gui, 2:Add, Radio, % "y+10 x15 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (g_intActiveFileManager = A_Index ? " checked" : ""), % g_arrActiveFileManagerDisplayNames%A_Index%
 
@@ -6879,11 +6880,14 @@ Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, %lTCWinCmdLoc
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, %lDialogBrowseButton%
 
+Gui, Font, w600
 Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsTabFileManagersPreferences%
-Gui, 2:Add, Checkbox, y+10 x320 w300 vf_blnFileManagerAlwaysNavigate, %lOptionsFileManagerAlwaysNavigate%
-GuiControl, , f_blnFileManagerAlwaysNavigate, %g_blnFileManagerAlwaysNavigate%
+Gui, Font
+Gui, 2:Add, Text, y+10 x320 w300 vf_lblFileManagerNavigate, % L(lOptionsFileManagerNavigateIntro, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%)
+Gui, 2:Add, Radio, % "y+10 x325 w250 vf_radFileManagerNavigateCurrent" . (g_blnFileManagerAlwaysNavigate ? " checked" : "")
+Gui, 2:Add, Radio, % "y+5 x325 w250 vf_radFileManagerNavigateNew" . (! g_blnFileManagerAlwaysNavigate ? " checked" : "")
 
-Gosub, ActiveFileManagerClicked ; init visible fields
+Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavigateClicked
 
 ;---------------------------------------
 ; Build Gui footer
@@ -6983,10 +6987,24 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 		GuiControl, , f_strTotalCommanderWinCmd, %g_strWinCmdIniFile%
 }
 
+gosub, FileManagerNavigateClicked
+
 strClickedFileManagerSystemNames := ""
 strHelpUrl := ""
 strQAPconnectFileManagersList := ""
 strShowHideCommand := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FileManagerNavigateClicked:
+;------------------------------------------------------------
+
+GuiControl, , f_lblFileManagerNavigate, % L(lOptionsFileManagerNavigateIntro, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
+GuiControl, Text, f_radFileManagerNavigateCurrent, % L(lOptionsFileManagerNavigateCurrent, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
+GuiControl, Text, f_radFileManagerNavigateNew, % L(lOptionsFileManagerNavigateNew, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
 
 return
 ;------------------------------------------------------------
@@ -7549,7 +7567,7 @@ else if (g_intActiveFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconnect
 	Gosub, SetActiveFileManager
 
-g_blnFileManagerAlwaysNavigate := f_blnFileManagerAlwaysNavigate
+g_blnFileManagerAlwaysNavigate := f_radFileManagerNavigateCurrent ; same as !f_radFileManagerNavigateNew
 IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
 
 ;---------------------------------------
