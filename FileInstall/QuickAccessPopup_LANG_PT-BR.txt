@@ -78,6 +78,22 @@ lDialogCloseAllWindowsDetail	Título da janela:`n~1~`n`nCaminho do processo da ja
 lDialogCloseAllWindowsHeader	Título da janela
 lDialogCloseAllWindowsIntro	Marque as janelas para serem fechadas e clique em "Fechar janelas selecionadas". Dê um duplo clique ou pressione Enter para fechar uma janela ou veja seus detalhes.
 lDialogCloseAllWindowsSelectAll	Marcar/desmarcar todas
+lDialogCloseComputerControl	Fechar Central de Controle do Computador
+lDialogCloseComputerDisableWakeEvents	&Desativar eventos de despertar
+lDialogCloseComputerForce	&Forçar (pode causar perda de dados)
+lDialogCloseComputerGo	Executar a ação selecionada
+lDialogCloseComputerHibernate	&Hibernar computador
+lDialogCloseComputerIntro	Selecione a ação que deseja executar
+lDialogCloseComputerLogoff	Fazer &logoff do usuário
+lDialogCloseComputerMonitorLowPower	Colocar monitor no modo de &baixo consumo
+lDialogCloseComputerMonitorTurnOff	Desligar &monitor
+lDialogCloseComputerPowerDown	Desativar &computador
+lDialogCloseComputerPrompt	Por favor, selecione uma opção...
+lDialogCloseComputerRestart	&Reiniciar computador
+lDialogCloseComputerShutdown	De&sligar computador
+lDialogCloseComputerStartScreenSaver	Inici&ar proteção de tela
+lDialogCloseComputerSuspend	&Suspender computador
+lDialogCloseComputerSuspendImmediately	Suspender &imediatamente (pode causar perda de dados)
 lDialogContinue	Continuar
 lDialogContinueAmpersand	C&ontinuar
 lDialogCopy	Copiar
@@ -187,6 +203,8 @@ lDialogFileSize	File Tamanho
 lDialogFolderLabel	Pasta
 lDialogFoldersPlaceholders	Você pode inserir o marcador de posição {CUR_LOC} para inserir o local de onde este favorito é iniciado
 lDialogGetWebPageTitle	Obter título
+lDialogGetWinInfo	Para identificar a janela da qual deseja obter título, classe ou nome do processo, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
+lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nNome do processo:`n"~3~"`n`nCopiar informações para a Área de Transferência?
 lDialogHotkeyInvisibleKeys	<a id="~1~">barra de espaço</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a>, <a id="~4~">escape</a>`nor <a id="~5~">tecla menu (aplicativo)</a>
 lDialogHotkeys	Teclas de Atalho
 lDialogHotkeysManageAboutHotstrings	Strings de substituição atualmente ativas em ~1~
@@ -249,6 +267,7 @@ lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menu
 lDialogOr	ou
 lDialogOtherHotkeys	Outras teclas de atalho para o menu principal
+lDialogQAPFeatureCategoriesNames	Destacado|Menus Dinâmicos|Edição de Menu do QAP|Adicionar Favorito do Tipo|Gerenciamento de janela|Recursos do Windows|Comandos para fechar o computador|Vários Utilitários|Gerenciamento do QAP
 lDialogQAPFeaturesHelpLink	Ajuda para este recurso
 lDialogReadOnly	Somente leitura
 lDialogRemoveMultipleFavorites	Deseja realmente remover favoritos do ~1~ ou submenus?
@@ -459,6 +478,7 @@ lMenuExitApp	Sair do ~1~
 lMenuExternalCatalogue	Adicionar menu de favoritos compartilhados do catálogo...
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fontes
+lMenuGetWinInfo	Obter informações da janela
 lMenuHelp	Ajuda
 lMenuHistory	Histórico
 lMenuLastAction	Repetir Última Ação
@@ -568,11 +588,11 @@ lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
 lOptionsEnableExternalMenusCatalogue	Habilitar o Catálogo de Menus Compartilhados
 lOptionsExclusionDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionDetail2	A tecla de atalho do QAP será desativada nestes aplicativos e o clique [~1~] será enviado para a janela de destino se o QAP não estiver em execução. Você também pode excluir janelas pelo nome da sua classe ou nome do processo (nome do arquivo EXE). Prefixe o título ou classe com * (asterisco) para excluir também caixas de diálogo de aplicativos. Você pode encontrar ajuda e suporte deste recurso no <a href="~2~">site do QAP</a>.
 lOptionsExclusionList	Lista de exclusões
 lOptionsExclusionTitle	Lista de exclusões para disparador do Mouse [~1~]
 lOptionsExplorerContextMenus	Habilitar menus de contexto
 lOptionsExplorerContextMenusHeader	Menus de Contexto do Windows Explorer:
-lOptionsFileManagerAlwaysNavigate	Sempre abrir pastas na janela atual do gerenciador de arquivos
 lOptionsFtpEncoding	Criptografar usuário e senha FTP (recomendado)
 lOptionsFtpEncodingTC	Criptografar usuário e senha FTP (não recomendado para o Total Commander)
 lOptionsGuiTitle	Opções - ~1~ ~2~

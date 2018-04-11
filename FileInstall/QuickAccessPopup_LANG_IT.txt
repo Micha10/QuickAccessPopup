@@ -78,6 +78,22 @@ lDialogCloseAllWindowsDetail	Titolo della finestra:`n~1~`n`nPercorso del process
 lDialogCloseAllWindowsHeader	Titolo della finestra
 lDialogCloseAllWindowsIntro	Controlla le finestre da chiudere e clicca "Chiudi le finestre selezionate". Fai doppio-click o premi Invio per chiudere una finestra o vedere i suoi dettagli.
 lDialogCloseAllWindowsSelectAll	Seleziona/Deseleziona tutto
+lDialogCloseComputerControl	Chiudi il Centro di Controllo del Computer
+lDialogCloseComputerDisableWakeEvents	&Disabilita eventi di risveglio
+lDialogCloseComputerForce	&Forza (può causare perdita di dati)
+lDialogCloseComputerGo	Esegui l'azione selezionata
+lDialogCloseComputerHibernate	&Hiberna il computer
+lDialogCloseComputerIntro	Seleziona l'azione da eseguire
+lDialogCloseComputerLogoff	&Esci dall'account utente
+lDialogCloseComputerMonitorLowPower	&Metti il monitor in modalità a basso consumo
+lDialogCloseComputerMonitorTurnOff	&Spegni il monitor
+lDialogCloseComputerPowerDown	&Spegni il computer
+lDialogCloseComputerPrompt	Per favore, seleziona un'opzione...
+lDialogCloseComputerRestart	&Riavvia il computer
+lDialogCloseComputerShutdown	&Spegnimento del computer
+lDialogCloseComputerStartScreenSaver	Av&vio screen saver
+lDialogCloseComputerSuspend	S&ospensione del computer (stand-by)
+lDialogCloseComputerSuspendImmediately	Sospendi &immediatamente (può causare perdita di dati)
 lDialogContinue	Continua
 lDialogContinueAmpersand	C&ontinua
 lDialogCopy	Copia
@@ -187,6 +203,8 @@ lDialogFileSize	Dimensione del File
 lDialogFolderLabel	Cartella
 lDialogFoldersPlaceholders	Puoi mettere il segnaposto {CUR_LOC} per inserire la posizione in cui questo Preferito deve essere eseguito
 lDialogGetWebPageTitle	Estrai il titolo
+lDialogGetWinInfo	Per identificare la finestra di cui vuoi trovare titolo, classe o nome del processo, clicca sulla finestra desiderata premendo la scorciatoia del menù QAP [~1~].
+lDialogGetWInInfo2Clippoard	Titolo della Finestra:`n"~1~"`n`nClasse:`n"~2~"`n`nNome del Processo:`n"~3~"`n`nVuoi copiare queste informazioni negli Appunti?
 lDialogHotkeyInvisibleKeys	<a id="~1~">Barra spaziatrice</a>, <a id="~2~">Tab</a>, <a id="~3~">Enter</a>, <a id="~4~">Esc</a>`nor <a id="~5~">tasto del menú (applicazione)</a>
 lDialogHotkeys	Scorciatoie
 lDialogHotkeysManageAboutHotstrings	Abbreviazioni correntemente attive in ~1~
@@ -249,6 +267,7 @@ lDialogOpenThisGroup	Apri questo gruppo
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogOtherHotkeys	Altre scorciatoie per il menú principale
+lDialogQAPFeatureCategoriesNames		Funzionalità|Menù Dinamici|Modifica Menù QAP|Aggiungi Preferito del Tipo|Gestione finestra|Funzionalità delle finestre|Chiudi Comandi del Computer|Utilità varie|Gestione QAP
 lDialogQAPFeaturesHelpLink	Aiuto su questa funzionalità
 lDialogReadOnly	Sola-Lettura
 lDialogRemoveMultipleFavorites	Vuoi davvero eliminare ~1~ preferiti / sottomenù?
@@ -459,6 +478,7 @@ lMenuExitApp	Esci da ~1~
 lMenuExternalCatalogue	Aggiungi un menù condiviso di Preferiti dal catalogo...
 lMenuFavoritesInternet	Preferiti (Internet)
 lMenuFonts	Font di caratteri
+lMenuGetWinInfo	Leggi le informazioni della finestra
 lMenuHelp	Aiuto
 lMenuHistory	Cronologia
 lMenuLastAction	Ripeti l'ultima azione
@@ -568,11 +588,11 @@ lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsEnableExternalMenusCatalogue	Abilita il Catalogo del Menù Condiviso
 lOptionsExclusionDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionDetail2	La combinazione per aprire QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra indicata come se QAP non fosse in esecuzione. Puoi anche escludere finestre usando il nome della loro classe o del loro processo (nome del file EXE). Usa * (asterisco) come prefisso per il titolo o la classe per escludere anche le caselle di dialogo dell'applicazione. Puoi trovare aiuto e supporto per questa funzionalità qui <a href="~2~">sul sito web QAP</a>.
 lOptionsExclusionList	Lista delle esclusioni
 lOptionsExclusionTitle	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
 lOptionsExplorerContextMenus	Abilita i menù contestuali
 lOptionsExplorerContextMenusHeader	Menú contestuali di Windows Explorer:
-lOptionsFileManagerAlwaysNavigate	Apri sempre le cartelle nella finestra corrente del file manager
 lOptionsFtpEncoding	Codifica nome utente e password FTP (consigliato)
 lOptionsFtpEncodingTC	Codifica nome utente e password FTP (non consigliato per Total Commander)
 lOptionsGuiTitle	Opzioni - ~1~ ~2~
