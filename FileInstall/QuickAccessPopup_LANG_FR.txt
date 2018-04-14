@@ -593,7 +593,6 @@ lOptionsExclusionList	Exclusions
 lOptionsExclusionTitle	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExplorerContextMenus	Activer les menus contextuels
 lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer:
-lOptionsFileManagerAlwaysNavigate	Toujours ouvrir les dossiers dans la fenêtre actuelle du gestionnaire de fichiers
 lOptionsFtpEncoding	Encoder le code d'utilisateur et le mot de passe FTP (recommandé)
 lOptionsFtpEncodingTC	Encoder le code d'utilisateur et le mot de passe FTP (déconseillé aux utilisateurs de Total Commander)
 lOptionsGuiTitle	Options - ~1~ ~2~
@@ -626,8 +625,8 @@ lOptionsRecentFoldersPrompt	Emplacements et fichiers récents:
 lOptionsRefreshedMenusAttached	Attacher les menus "~1~", "~2~" et "~3~" au menu de QAP
 lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~" et "~3~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
 lOptionsRefreshQAPMenuDebugBeep	Faire un bip avant et après les actualisation (déboguage)
-lOptionsRefreshQAPMenuIntervalSec	Intervalle entre les rafraîchissements (secondes)
-lOptionsRefreshQAPMenuTitle	Rafraîchissement programmés du menu de QAP
+lOptionsRefreshQAPMenuIntervalSec	Intervalle entre les actualisations (secondes)
+lOptionsRefreshQAPMenuTitle	Actualisation périodique du menu de QAP
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre
 lOptionsRunAsAdmin	Exécuter en tant qu'administrateur
 lOptionsRunAsAdminAlert	Avertissement: Exécuter ~1~ en tant qu'administrateur peut avoir des conséquences inattendues en lançant des programmes qui seraient infectés de codes malicieux. Ces programmes malicieux hériteraient alors des privilèges de l'administrateur et pourraient endommager ou prendre le contrôle de votre ordinateur. Soyez prudent lorsque vous exécutez ~1~ en tant qu'administrateur.
