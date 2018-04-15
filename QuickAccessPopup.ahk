@@ -6373,10 +6373,8 @@ GetSortCriteria(strSort)
 	; sort criteria 1 file name, 2 extension, 3 size or 4 modified date (22)
 	strSortCriteria := SubStr(strSort, 2, 1)
 	
-	if (strSortCriteria = "1")
-		strCriteria := A_LoopFileName
-	else if (strSortCriteria = "2")
-		strCriteria := A_LoopFileExt . A_LoopFileName
+	if (strSortCriteria = "4")
+		strCriteria := A_LoopFileTimeModified . A_LoopFileName
 	else if (strSortCriteria = "3")
 	{		
 		strCriteria := A_LoopFileSize
@@ -6384,8 +6382,10 @@ GetSortCriteria(strSort)
 			strCriteria := "0" . strCriteria
 		strCriteria .= A_LoopFileName ; in case we have equal sizes
 	}
-	else ; 4
-		strCriteria := A_LoopFileTimeModified . A_LoopFileName
+	else if (strSortCriteria = "2")
+		strCriteria := A_LoopFileExt . A_LoopFileName
+	else ; 1 default if strSort not set, fallback for live folfers before v9
+		strCriteria := A_LoopFileName
 	
 	return strCriteria
 }
