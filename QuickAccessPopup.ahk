@@ -6759,13 +6759,23 @@ GuiControl, , f_blnAddCloseToDynamicMenus, %g_blnAddCloseToDynamicMenus%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayIcons gDisplayIconsClicked, %lOptionsDisplayIcons%
 GuiControl, , f_blnDisplayIcons, %g_blnDisplayIcons%
 
-Gui, 2:Add, Text, % "y+10 xs vf_drpIconSizeLabel " . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconSize%
-Gui, 2:Add, DropDownList, % "yp x+10 w40 vf_drpIconSize Sort " . (g_blnDisplayIcons ? "" : "Disabled"), 16|24|32|48|64
+Gui, 2:Add, Text, y+5 xs vf_drpIconSizeLabel Disabled, %lOptionsIconSize%
+Gui, 2:Add, DropDownList, yp x+10 w40 vf_drpIconSize Sort Disabled, 16|24|32|48|64
 GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
+gosub, DisplayIconsClicked
 
 Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
 Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
+
+Gui, 2:Add, Checkbox, y+15 xs w300 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, %lOptionsRefreshQAPMenuTitle%
+GuiControl, , f_blnRefreshQAPMenuEnable, % (g_intRefreshQAPMenuIntervalSec > 0)
+Gui, 2:Add, Edit, y+5 xs w60 h22 vf_intRefreshQAPMenuIntervalSecEdit number center Disabled
+Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 Disabled, % g_intRefreshQAPMenuIntervalSec
+Gui, 2:Add, Text, yp x+10 w235 vf_blnRefreshQAPMenuDebugBeepLabel Disabled, %lOptionsRefreshQAPMenuIntervalSec%
+Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnRefreshQAPMenuDebugBeep Disabled, %lOptionsRefreshQAPMenuDebugBeep%
+GuiControl, , f_blnRefreshQAPMenuDebugBeep, %g_blnRefreshQAPMenuDebugBeep%
+gosub, RefreshQAPMenuEnableClicked
 
 if !(g_blnPortableMode)
 {
@@ -6773,14 +6783,6 @@ if !(g_blnPortableMode)
 	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
 	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
 }
-
-Gui, 2:Add, Text, y+15 xs w300, %lOptionsRefreshQAPMenuTitle%
-Gui, 2:Add, Edit, y+5 xs w60 h22 vf_intRefreshQAPMenuIntervalSecEdit number center
-Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range0-86400, % g_intRefreshQAPMenuIntervalSec
-Gui, 2:Add, Text, yp x+10 w235, %lOptionsRefreshQAPMenuIntervalSec%
-
-Gui, 2:Add, CheckBox, y+15 xs w300 vf_blnRefreshQAPMenuDebugBeep, %lOptionsRefreshQAPMenuDebugBeep%
-GuiControl, , f_blnRefreshQAPMenuDebugBeep, %g_blnRefreshQAPMenuDebugBeep%
 
 ;---------------------------------------
 ; Tab 3: Popup menu hotkeys
@@ -7016,11 +7018,28 @@ DisplayIconsClicked:
 Gui, 2:Submit, NoHide
 
 strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
-
 GuiControl, %strEnableDisableCommand%, f_drpIconSizeLabel
 GuiControl, %strEnableDisableCommand%, f_drpIconSize
-GuiControl, %strEnableDisableCommand%, f_intIconsManageRows
-GuiControl, %strEnableDisableCommand%, f_lblIconsManageRows
+
+strEnableDisableCommand := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshQAPMenuEnableClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+if (f_blnRefreshQAPMenuEnable and g_intRefreshQAPMenuIntervalSec = 0)
+	GuiControl, , f_intRefreshQAPMenuIntervalSec, 300 ; proposed value when enabled
+
+strEnableDisableCommand := (f_blnRefreshQAPMenuEnable ? "Enable" : "Disable")
+GuiControl, %strEnableDisableCommand%, f_intRefreshQAPMenuIntervalSecEdit
+GuiControl, %strEnableDisableCommand%, f_intRefreshQAPMenuIntervalSec
+GuiControl, %strEnableDisableCommand%, f_blnRefreshQAPMenuDebugBeepLabel
+GuiControl, %strEnableDisableCommand%, f_blnRefreshQAPMenuDebugBeep
 
 strEnableDisableCommand := ""
 
@@ -7477,7 +7496,7 @@ IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRow
 g_intNbLastActions := f_intNbLastActions
 IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
 
-g_intRefreshQAPMenuIntervalSec := f_intRefreshQAPMenuIntervalSec
+g_intRefreshQAPMenuIntervalSec := (f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
 IniWrite, %g_intRefreshQAPMenuIntervalSec%, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec
 g_blnRefreshQAPMenuDebugBeep := f_blnRefreshQAPMenuDebugBeep
 IniWrite, %g_blnRefreshQAPMenuDebugBeep%, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep
@@ -15184,7 +15203,7 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 		; returns current or latest file manager window ID and Window class, excluding dialog boxes
 		; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 		GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
-	else ; OpenReopenInNewWindow reoen from dialog box
+	else ; OpenReopenInNewWindow reopen from dialog box
 	{
 		; get location from current file dialog box
 		strReopenWindowsID := g_strTargetWinId
