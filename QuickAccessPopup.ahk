@@ -8438,7 +8438,6 @@ GuiAddFavoriteFromQAPFeatureText:
 
 StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
 
-g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
@@ -8463,7 +8462,6 @@ GuiAddFavoriteFromQAPFeature:
 
 if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 {
-	g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 	gosub, GuiShowFromGuiAddFavoriteQAPFeature
 	g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 }
@@ -9982,7 +9980,7 @@ if (f_drpParentMenu = g_objMenuInGui.MenuPath) and (g_intOriginalMenuPosition <>
 	GuiControl, Choose, f_drpParentMenuItems, % g_intOriginalMenuPosition - (g_objMenusIndex[f_drpParentMenu][1].FavoriteType = "B" ? 1 : 0)
 else
 	GuiControl, ChooseString, f_drpParentMenuItems, % g_strGuiDoubleLine . " " . lDialogEndOfMenu . " " . g_strGuiDoubleLine
-g_intNewItemPos := "" ; if new item position g_intNewItemPos is set, reset it and let f_drpParentMenuItems set it later
+g_intNewItemPos := "" ; if new item position g_intNewItemPos is set, reset it and let f_drpParentMenuItems set it later #### not sure if safe...
 
 strDropdownParentMenuItems := ""
 
@@ -10572,9 +10570,9 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiAddFavoriteQAPFeature|", A_ThisLabel . "|")
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|")
 	; menu object already set in these cases
-	g_objMenuInGui := g_objMainMenu
+	g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
 
 Gosub, BackupMenusObjects
 
