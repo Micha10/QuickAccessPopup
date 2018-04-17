@@ -18777,15 +18777,17 @@ GetWebPageTitle(strLocation)
 	strHTML := Url2Var(strLocation)
 	ToolTip
 	
-	RegExMatch(strHTML, "is)<title>(.*?)</title>", strTitle)
+	RegExMatch(strHTML, "is)<title(.*?)</title>", strTitle) ; extract title with tags
+	RegExMatch(strTitle, "s)>(.*?)</title>", strTitle) ; remove part of opening title tag
+	StringTrimLeft, strTitle, strTitle, 1 ; remove rest of opening title tag
 	
-	StringReplace, strTitle, strTitle, <title>
-	StringReplace, strTitle, strTitle, </title>
+	StringReplace, strTitle, strTitle, </title> ; remove closing title tag
 	StringReplace, strTitle, strTitle, `r, , A
 	StringReplace, strTitle, strTitle, `t, %A_Space%, A
 	StringReplace, strTitle, strTitle, `n, %A_Space%, A
 	
-	return NumDecode(Trim(strTitle, Chr(160))) ; Chr(160) to also trim non-breaking spaces
+	strTitle := NumDecode(Trim(strTitle, Chr(160))) ; Chr(160) to also trim non-breaking spaces
+	return (StrLen(strTitle) ? strTitle : lDialogNA)
 }
 ;------------------------------------------------------------
 
