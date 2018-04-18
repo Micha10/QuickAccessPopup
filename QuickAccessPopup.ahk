@@ -10570,9 +10570,8 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|")
-	; menu object already set in these cases
-	g_objMenuInGui := g_objMenusIndex[A_ThisMenu]
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
+	g_objMenuInGui := g_objMenusIndex[A_ThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 
 Gosub, BackupMenusObjects
 
@@ -16368,8 +16367,9 @@ if (g_arrFavoriteWindowPosition1)
 	; Diag(A_ThisLabel . " strExplorerIDsBefore", strExplorerIDsBefore)
 }
 
-if StrLen(g_objThisFavorite.FavoriteArguments)
-	; Note 1: this technique is used only if there is an argument (low probability) but it creates a new Explorer instance at every call
+if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
+	; Note 1: this technique creates a new Explorer instance at every call; it is used only if the Alternative menu was
+	;         called to open the folder in a new window or if there is an argument in favorite advanced options
 	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
 	Run, % "Explorer """ . g_strFullLocation . """"
 else
