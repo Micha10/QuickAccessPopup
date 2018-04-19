@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 8.9.1.9 (2018-04-19)
+- in "Options", "File Managers" tab, replace the "Always navigate" check box with clearer radio buttons "When opening the QAP menu outside of file manager, open folders in:" with two options "the current Windows Explorer window" or "a new Windows Explorer window", keeping the actual user's value; default value "new window" is unchanged
+- in "Options", add a check box to enable or disable scheduled refresh instead of setting interval to 0 second to disable it (no change in the functionality itself)
+- fix bug with Live folders sorting for folders created before v9, now existing live folders are sorted by alphabetical order
+- fix bug when adding a Link favorite with "Express" QAP feature and added web page did not return a title
+- fix bug when getting a web page title and the opening title HTML tag of that page is formated like "<title id=... >" instead of "<title>"
+- when adding favorite from QAP features "Add favorite...", the default parent menu is set to the menu where the QAP feature was called (now also for "Add This Folder or Link")
+- fix bug when using the Alternative menu "Open in a new window" and the folder was already open in Windows Explorer (now it always creates a new Explorer instance)
+- update to language files for German, Italian, Portuguese, Brazilian Portuguese, Spanish and French
+
 Version BETA: 8.9.1.8 (2018-04-08)
  
 Close computer QAP Features
@@ -2154,7 +2164,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.8
+;@Ahk2Exe-SetVersion 8.9.1.9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2240,7 +2250,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "8.9.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
