@@ -10581,7 +10581,10 @@ GuiShowNeverCalled:
 ;------------------------------------------------------------
 
 if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
-	g_objMenuInGui := g_objMenusIndex[A_ThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+{
+	strThisMenu := (A_ThisMenu = "Tray" or A_ThisMenu = "" ? "Main" : A_ThisMenu) ; A_ThisMenu = "" by safety
+	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+}
 
 Gosub, BackupMenusObjects
 
@@ -10597,6 +10600,7 @@ Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_i
 
 GuiShowCleanup:
 blnSaveEnabled := ""
+strThisMenu := ""
 
 return
 ;------------------------------------------------------------
