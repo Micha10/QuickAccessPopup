@@ -4907,6 +4907,8 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
+Menu, Tray, Add, %lMenuWebSiteSupport%, OpenWebSiteSupport
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
 Menu, Tray, Add, %lMenuAboutAmpersand%, GuiAbout
 Menu, Tray, Add, %lGuiDonate%, GuiDonate
@@ -17113,6 +17115,16 @@ strChangelog := ""
 strUrlChangeLog := ""
 strUrlDownloadSetup := ""
 strUrlDownloadPortable:= ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenWebSiteSupport:
+;------------------------------------------------------------
+
+Run, http://www.quickaccesspopup.com/support/
 
 return
 ;------------------------------------------------------------
