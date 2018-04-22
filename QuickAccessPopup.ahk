@@ -3742,7 +3742,7 @@ InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "Swit
 	, lMenuSwitchSettingsDescription, 0, "iconSettings")
 InitQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuSwitchSettingsDefaultDescription, 0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing"
+InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuRefreshMenuDescription, 0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
@@ -4989,6 +4989,8 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
+Menu, Tray, Add, %lMenuWebSiteSupport%, OpenWebSiteSupport
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
 Menu, Tray, Add, %lMenuAboutAmpersand%, GuiAbout
 Menu, Tray, Add, %lGuiDonate%, GuiDonate
@@ -10663,7 +10665,10 @@ GuiShowNeverCalled:
 ;------------------------------------------------------------
 
 if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
-	g_objMenuInGui := g_objMenusIndex[A_ThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+{
+	strThisMenu := (A_ThisMenu = "Tray" or A_ThisMenu = "" ? "Main" : A_ThisMenu) ; A_ThisMenu = "" by safety
+	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+}
 
 Gosub, BackupMenusObjects
 
@@ -10679,6 +10684,7 @@ Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_i
 
 GuiShowCleanup:
 blnSaveEnabled := ""
+strThisMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -17191,6 +17197,16 @@ strChangelog := ""
 strUrlChangeLog := ""
 strUrlDownloadSetup := ""
 strUrlDownloadPortable:= ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenWebSiteSupport:
+;------------------------------------------------------------
+
+Run, http://www.quickaccesspopup.com/support/
 
 return
 ;------------------------------------------------------------
