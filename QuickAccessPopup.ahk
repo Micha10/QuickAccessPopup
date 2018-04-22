@@ -31,6 +31,88 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.0.1 (2018-04-??)
+ 
+Scheduled refresh
+- new option to refresh periodically the Live Folders menus and Shared Menus (during the short refresh period, the menu is not available)
+- set the "Interval between refresh (seconds)" in "Menu" tab of "Options" windows
+- recommended interval is 300 seconds (5 minutes) or more and minimal interval is 30 seconds
+- use the check box "Beep before and after refresh (debug)" to help estimate the time required to refresh the menu
+ 
+Tree views when adding QAP features and Windows Special folders
+- in "Add/Edit Favorite" dialog box, replace dropdown lists new tree view lists help selecting new QAP features or Windows Special folders
+- QAP Features and Windows Special folders are grouped in the tree view by categories
+- each QAP features has a description and is linked to a FAQ page on QAP web site
+- you can double click an item in the tree view to add immediately the new QAP feature or Windows Special folder
+ 
+Hotstrings
+- an hotstring is a small sequence of characters used as trigger to expand an abbreviation into the full text of a Snippet (auto-replace) or to launch any type of favorite
+- a new "Hotstrings" section is added to the "Menu Options" tab in "Add/Edit Favorite" dialog box
+- in the "Change hotstring" dialog box, you set the trigger (abbreviation) and options: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: http://www.quickaccesspopup.com/what-are-hotstrings/)
+- due to large number of options combinations (taking into account case-sensitivity and other options), QAP does not validate that hotstring triggers are unique; in case of duplication, depending on various options, only one of the favorites having the same hotstring will be triggered
+- in "Options", "Hotkeys" tab, a new button "Hotstrings default options" opens a dialog box where you can set default values for options of newly created hotstrings (these defaults do not impact existing hotstrings)
+- the "Manage Hotkeys" window now has two tabs: the existing list of Favorite Shortcuts is inserted in a first tab and a second tab now lists the Favorites Hotstrings
+- a new QAP feature named "Hotstrings" opens the "Manage Hotkeys" window in the "Hotstrings" tab
+- the QAP feature "Hotkeys" has been renamed "Shortcuts"
+ 
+Settings window improvements
+- a new "Sort" button on the left side of the "Settings" window to "Sort all or selected favorites in list"; sorting stops at the first line separator or column break, if present
+- a new "Move" button on the right side of the "Settings" window to move one or multiple favorites to another sub menu (no more need to edit a favorite to move it to another menu)
+- the "Hotkeys" button has been moved to the bottom of the "Settings" window and now has two distinct labels: "Shortcuts" to manage shortcuts and "Hotstrings" to open directly the Hotstrings tab
+- remove support for old black and white buttons (already deprecated since v8.1.1)
+ 
+Extended Search in favorites
+- in "Settings" window, a new check box "Extended Search" beside the "Search" text box gives more power to the Search tool
+- by default, with the "Extended Search" not checked, the Search tool only filters favorites based on their name
+- if the "Extended Search" is checked, search also covers favorite type, shortcut text, hotstring trigger, location (file or folder path), snippet content, FTP login and advanced settings "Parameters" and "Start in" folder
+ 
+Sort Live folders
+- new "Sort" options in "Live Folders Options" of favorite folders allow to sort the content of Live folders by file name, extension, size or modified date
+- Live folder content can be sorted ascending or descending
+- default sort order is alphabetically by file name
+ 
+Close computer QAP Features
+- new QAP Feature "Close Computer Control Center", a dialog box giving full control on the way you close or suspend your computer with commands "Power down", "Shutdown", "Restart" and "Logoff", with option to force closing or not; "Sleep" or "Hibernate", with options to suspend immediately or not, or to disable wake events or not; "Turn monitor off", "Put monitor in low-power mode" or "Start screen saver"
+- new individual QAP Features to "Restart computer", "Logoff user", "Sleep computer", "Hibernate computer", "Turn monitor off", "Put monitor in low-power mode" and "Start screen saver"
+ 
+Add Favorites QAP Features
+- twelve new QAP features to add a favorite for each type of favorite
+- when adding a favorite using any of the "Add Favorite" QAP features (including "Add this Folder or Link"), the default parent menu of the new favorite is now the same menu where the QAP feature was launched
+- when adding a favorite with "Add this Folder or Link Express" QAP feature, the new favorite is immediately added to the same menu where the QAP feature was launched
+- the position of the new favorite is set accordingly to the options "When adding automatically, add a favorite at..." top or bottom, in the "Menu" tab of the "Options" window
+- at first QAP launch, when creating the default QuickAccessPopup.ini file, the item "Add Feature - QAP Feature" is added at the top of the "My QAP Essentials" menu and the item "Add Feature - Special" is added at the top of the "My Special Folders" menu
+ 
+Other new QAP Features
+- "Close All Windows" shows a list of all the windows of running application where you can close all or selected windows in one click
+- "Reopen Current Folder from Dialog Box" will open a new Windows Explorer window and load the folder that is active in the dialog box
+- "Switch to default settings file" reloads the normal QAP settings file QuickAccessPopup.ini
+- various QAP features for existing features that were available only in Tray menu but can now be added in any menu: "Restore Settings Position", "Check for update" and "Edit Settings file"
+ 
+Tray menu (right-click on QAP icon in Notification zone)
+- group some Tray menu options under a new sub menu "Settings file options"
+- add the item "Switch to default settings file" to the Tray sub menu "Settings file options"
+ 
+Keyboard shortcuts (internal changes)
+- internal keyboard shortcuts management has been simplified
+- in the settings file QuickAccessPopup.ini, shortcuts are now saved with the favorites info (in the [Favorites] section instead of the separate [LocationHotkeys] section as before)
+- the existing shortcuts in the [LocationHotkeys] section are automatically upgraded to the new favorites shortcuts format
+- IMPORTANT NOTE: once you upgraded to a version greater than v9.0 (or beta release v8.7.1.92), you should not revert to an earlier version (if whenever you have to do it, your keyboard shortcuts will be lost)
+ 
+Other  minor improvements
+- Shared menus: prevent user from changing the location or file name of a Shared menu (avoiding errors); if the file for a shared menu has been renamed or moved, first remove the shared menu and create a new one with the moved or renamed file
+- Snippets: when displaying a prompt waiting to send a text snippet or execute a macro snippet, QAP now accepts Escape to cancel the snippet
+- Drag & Drop: when adding a file shortcut (.lnk) using drag and drop, set the default name of the favorite to the name of the shortcut
+- File Shortcuts (.lnk): when adding a file shortcut with the "Add favorite" dialog box or using drag and drop, get the favorite default icon value and, for applications, the "Parameters" (command line arguments) and "Start In" working directory values from the file shortcut (this is already done that way when adding the shortcut using the Explorer context menu)
+- Add favorite: reorder the types of favorites radio buttons in the "Select Type" dialog box when you add a favorite
+- Windows Explorer: opening a folder that is already open in another Explorer window now brings the existing window to front (instead of creating a new window) except, of course, if you click inside an existing Explorer window, in which case it changes the folder inside this window
+- Windows Explorer instances: before this release, opening a folder in a new window was creating a new Explorer instance for every new folder; now, the window for a new folder is created under the existing Explorer instance and only one Explorer instance is created by QAP (unless user open the Alternative menu "Open in new window" or if user adds an argument to the folder in "Advanced Settings" in which cases QAP must create new Explorer instances)
+- Exclusions: add the capability to exclude menu mouse trigger (by default, Middle mouse button) by process name in addition to window title and class name (the process name is usually the name of the executable file of an application, for example: NOTEPAD.EXE) and add detection of process name when using the "Get window info" button below exclusion list in "Exclusion" tab of the "Options" window
+- QAP development framework AutoHotkey has been upgraded to v1.1.28.00
+ 
+Language
+- language updates for Brazilian Portuguese, Dutch, French, German, Italian, Portuguese, Spanish
+- removed Sweedish language (not updated since v8.0)
+
 Version BETA: 8.9.1.9 (2018-04-19)
 - in "Options", "File Managers" tab, replace the "Always navigate" check box with clearer radio buttons "When opening the QAP menu outside of file manager, open folders in:" with two options "the current Windows Explorer window" or "a new Windows Explorer window", keeping the actual user's value; default value "new window" is unchanged
 - in "Options", add a check box to enable or disable scheduled refresh instead of setting interval to 0 second to disable it (no change in the functionality itself)
@@ -2164,7 +2246,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.9
+;@Ahk2Exe-SetVersion 9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2250,8 +2332,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
