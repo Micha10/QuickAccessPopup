@@ -3660,7 +3660,7 @@ InitQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "Swit
 	, lMenuSwitchSettingsDescription, 0, "iconSettings")
 InitQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuSwitchSettingsDefaultDescription, 0, "iconSettings")
-InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing"
+InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing~7-QAPManagement"
 	, lMenuRefreshMenuDescription, 0, "iconReload")
 InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
