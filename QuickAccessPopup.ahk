@@ -13125,7 +13125,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Text, x+5 yp w300 section, % P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : "")
 	Gui, Font
 	if StrLen(P_strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(EncodeSnippet(P_strFavoriteLocation), 150)) : P_strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(EncodeSnippet(P_strFavoriteLocation), 150) : P_strFavoriteLocation)
 	if StrLen(P_strDescription)
 	{
 		StringReplace, P_strDescription, P_strDescription, <A> ; remove links from description (already displayed in previous dialog box)
