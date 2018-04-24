@@ -13125,7 +13125,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Text, x+5 yp w300 section, % P_strFavoriteName . (StrLen(P_strFavoriteType) ? " (" . P_strFavoriteType . ")" : "")
 	Gui, Font
 	if StrLen(P_strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet"
+			? ReplaceAllInString(StringLeftDotDotDot(P_strFavoriteLocation, 150), "`n", Chr(182))
+			: P_strFavoriteLocation)
 	if StrLen(P_strDescription)
 	{
 		StringReplace, P_strDescription, P_strDescription, <A> ; remove links from description (already displayed in previous dialog box)
@@ -13458,7 +13460,9 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	}
 	
 	if StrLen(P_strFavoriteLocation)
-		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(P_strFavoriteLocation, 150) : P_strFavoriteLocation)
+		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet"
+			? ReplaceAllInString(StringLeftDotDotDot(P_strFavoriteLocation, 150), "`n", Chr(182))
+			: P_strFavoriteLocation)
 
 	; Trigger
 	if !(P_blnDefaultOptions)
