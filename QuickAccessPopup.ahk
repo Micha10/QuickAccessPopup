@@ -2565,6 +2565,7 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, ^N, SettingsCtrlN, On UseErrorLevel
 	Hotkey, Enter, SettingsEnter, On UseErrorLevel
 	Hotkey, Del, SettingsDel, On UseErrorLevel
+	Hotkey, ^M, SettingsCtrlM, On UseErrorLevel
 	Hotkey, ^C, SettingsCtrlC, On UseErrorLevel
 	Hotkey, ^F, SettingsCtrlF, On UseErrorLevel
 	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
@@ -2655,17 +2656,17 @@ else
 return
 
 SettingsCtrlN: ; ^N::
-GuiControlGet, strFocusedControl, FocusV
 Gosub, GuiAddFavoriteSelectType
 return
 
 SettingsEnter: ; Enter::
 GuiControlGet, strFocusedControl, FocusV
-if InStr(strFocusedControl, "f_lvFavoritesList") ; includes filtered ist
-	if (LV_GetCount("Selected") > 1)
-		Gosub, GuiMoveMultipleFavoritesToMenu
-	else
+if InStr(strFocusedControl, "f_lvFavoritesList") ; includes filtered list
+{
+	if (LV_GetCount("Selected") = 1)
 		Gosub, GuiEditFavorite
+	; else Edit button is disabled
+}
 else
 	Send, {Enter}
 return
@@ -2679,6 +2680,13 @@ else
 		Gosub, GuiRemoveMultipleFavorites
 	else
 		Gosub, GuiRemoveFavorite
+return
+
+SettingsCtrlM: ; ^M::
+if (LV_GetCount("Selected") > 1)
+	Gosub, GuiMoveMultipleFavoritesToMenu
+else
+	Gosub, GuiMoveFavoriteToMenu
 return
 
 SettingsCtrlC: ; ^C::
@@ -2700,12 +2708,10 @@ Gosub, GuiFocusFilter
 return
 
 SettingsCtrlH: ; ^H::
-GuiControlGet, strFocusedControl, FocusV
 Gosub, GuiHotkeysHelpClicked
 return
 
 SettingsF1: ; F1::
-GuiControlGet, strFocusedControl, FocusV
 Gosub, GuiHelp
 return
 
@@ -3756,6 +3762,8 @@ InitQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "Op
 	, lMenuReopenInNewWindowDescription, 0, "iconChangeFolder", "")
 InitQAPFeatureObject("Restore Settings Position", lMenuRestoreSettingsWindowPosition, "", "GuiShowRestoreDefaultPosition",		"7-QAPManagement"
 	, lMenuRestoreSettingsWindowPositionDescription, 0, "iconSettings", "")
+InitQAPFeatureObject("Restore Edit Position", lMenuRestoreEditCopyMoveWindowPosition, "", "RestoreEditCopyMoveWindowPosition",	"7-QAPManagement"
+	, lMenuRestoreEditCopyMoveWindowPositionDescription, 0, "iconSettings", "")
 InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"7-QAPManagement"
 	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
 InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
@@ -4987,6 +4995,7 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
+Menu, Tray, Add, %lMenuRestoreEditCopyMoveWindowPosition%, RestoreEditCopyMoveWindowPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuWebSiteSupport%, OpenWebSiteSupport
@@ -11033,6 +11042,23 @@ ButtonAddExternalMenusFromCatalogueClose:
 ;------------------------------------------------------------
 
 Gosub, 2GuiClose
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RestoreEditCopyMoveWindowPosition:
+;------------------------------------------------------------
+
+MsgBox, 4, %g_strAppNameText%, % L(lOopsRestoreEditCopyMoveWindowPosition, g_strAppNameText)
+IfMsgBox, No
+	return
+
+IniDelete, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition
+IniDelete, %g_strIniFile%, Global, CopyMoveDialogPosition
+
+Gosub, ReloadQAP
 
 return
 ;------------------------------------------------------------
