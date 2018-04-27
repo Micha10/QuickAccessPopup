@@ -93,7 +93,7 @@ Tray menu (right-click on QAP icon in Notification zone)
 - add the item "Switch to default settings file" to the Tray sub menu "Settings file options"
  
 Keyboard shortcuts (internal changes)
-- internal keyboard shortcuts management has been simplified
+- internal keyboard shortcuts management has been simplified and now allows to have various shortcuts for the same location with different parameters
 - in the settings file QuickAccessPopup.ini, shortcuts are now saved with the favorites info (in the [Favorites] section instead of the separate [LocationHotkeys] section as before)
 - the existing shortcuts in the [LocationHotkeys] section are automatically upgraded to the new favorites shortcuts format
 - IMPORTANT NOTE: once you upgraded to a version greater than v9.0 (or beta release v8.7.1.92), you should not revert to an earlier version (if whenever you have to do it, your keyboard shortcuts will be lost)
@@ -2293,7 +2293,6 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 
 g_strAppNameFile := "QuickAccessPopup"
 g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
-g_strIniFileNameExtOnly := g_strAppNameFile . ".ini"
 
 ; Set developement ini file
 
@@ -2307,6 +2306,16 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 ;@Ahk2Exe-IgnoreEnd
 
 g_strIniFileDefault := g_strIniFile
+
+;---------------------------------
+; Check if we received an alternative settings file in parameter /Settings:
+
+if StrLen(g_objCommandLineParams["/Settings:"])
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_objCommandLineParams["/Settings:"]))
+
+; set file name used for Edit settings label
+SplitPath, g_strIniFile, g_strIniFileNameExtOnly
+; ###_V("g_strIniFileNameExtOnly", g_strIniFileNameExtOnly)
 
 ;---------------------------------
 ; Create temporary folder
@@ -2431,12 +2440,6 @@ if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is cre
 	Oops(lOopsZipFileError, g_strAppNameFile)
 	ExitApp
 }
-
-;---------------------------------
-; Check if we received an alternative settings file in parameter /Settings:
-
-if StrLen(g_objCommandLineParams["/Settings:"])
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_objCommandLineParams["/Settings:"]))
 
 ;---------------------------------
 ; Init routines
@@ -16866,6 +16869,7 @@ CreateStartupShortcut:
 
 FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
 	, % ConcatenateParamsString(g_objCommandLineParams) ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
+; ###_V("ConcatenateParamsString(g_objCommandLineParams)", ConcatenateParamsString(g_objCommandLineParams))
 
 return
 ;------------------------------------------------------------
