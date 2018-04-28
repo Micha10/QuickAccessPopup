@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.0.1 (2018-04-??)
+Version: 9.0.1 (2018-04-28)
  
 Scheduled refresh
 - new option to refresh periodically the Live Folders menus and Shared Menus (during the short refresh period, the menu is not available)
@@ -107,6 +107,7 @@ Other  minor improvements
 - Windows Explorer: opening a folder that is already open in another Explorer window now brings the existing window to front (instead of creating a new window) except, of course, if you click inside an existing Explorer window, in which case it changes the folder inside this window
 - Windows Explorer instances: before this release, opening a folder in a new window was creating a new Explorer instance for every new folder; now, the window for a new folder is created under the existing Explorer instance and only one Explorer instance is created by QAP (unless user open the Alternative menu "Open in new window" or if user adds an argument to the folder in "Advanced Settings" in which cases QAP must create new Explorer instances)
 - Exclusions: add the capability to exclude menu mouse trigger (by default, Middle mouse button) by process name in addition to window title and class name (the process name is usually the name of the executable file of an application, for example: NOTEPAD.EXE) and add detection of process name when using the "Get window info" button below exclusion list in "Exclusion" tab of the "Options" window
+- make sure location ends with backslash for app's Save As dialog box (like with Notepad++ v7.5.6) trying to save instead of navigating if location does not end with backslash
 - QAP development framework AutoHotkey has been upgraded to v1.1.28.00
  
 Language
@@ -2255,7 +2256,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 8.9.1.10
+;@Ahk2Exe-SetVersion 9.0.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2350,8 +2351,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "8.9.1.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
