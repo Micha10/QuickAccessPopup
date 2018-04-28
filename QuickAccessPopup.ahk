@@ -113,6 +113,15 @@ Language
 - language updates for Brazilian Portuguese, Dutch, French, German, Italian, Portuguese, Spanish
 - removed Sweedish language (not updated since v8.0)
 
+Version BETA: 8.9.1.10 (2018-04-28)
+- fix bug no menu selected in Settings when opening the Settings window from QAP icon
+- add Ctrl-M hotkey in Settings to move the selected favorite(s)
+- fix bug disabling hotkey Enter in Settings when multiple favorites are selected
+- encode snippet content when dislayed in Select hotkey or Select hotstring dialog boxes
+- add QAP feature "Restore dialog boxes window position" and add it to System menu (Tray)
+- fix bug in System menu (Tray) to display the correct settings file name if settings file has been switched
+- add menu item for QAP support group in Tray menu
+
 Version BETA: 8.9.1.9 (2018-04-19)
 - in "Options", "File Managers" tab, replace the "Always navigate" check box with clearer radio buttons "When opening the QAP menu outside of file manager, open folders in:" with two options "the current Windows Explorer window" or "a new Windows Explorer window", keeping the actual user's value; default value "new window" is unchanged
 - in "Options", add a check box to enable or disable scheduled refresh instead of setting interval to 0 second to disable it (no change in the functionality itself)
@@ -2246,7 +2255,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9
+;@Ahk2Exe-SetVersion 8.9.1.10
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2341,8 +2350,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "8.9.1.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
