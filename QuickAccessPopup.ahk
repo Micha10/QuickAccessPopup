@@ -16361,7 +16361,10 @@ Else ; if above fails - just return and do nothing.
 
 ControlGetText, strPrevControlText, %strEditControl%, ahk_id %g_strTargetWinId% ; we'll get and store control's initial text first
 
-if !ControlSetTextR(strEditControl, g_strFullLocation, "ahk_id " . g_strTargetWinId) ; set control's text to strLocation
+; for app's (like Notepad++ v7.5.6) Save As dialog box trying to save instead of navigating if location does not end with backslash
+strFullLocationTemp := g_strFullLocation . (SubStr(g_strFullLocation, StrLen(g_strFullLocation), 1) <> "\" ? "\" : "")
+
+if !ControlSetTextR(strEditControl, strFullLocationTemp, "ahk_id " . g_strTargetWinId) ; set control's text to strLocation
 {
 	gosub, OpenFavoriteNavigateDialogCleanUp
 	return ; abort if control is not set
@@ -16401,6 +16404,7 @@ strEditControl := ""
 strPrevControlText := ""
 blnWasSuspended := ""
 strControlTextAfterNavigation := ""
+strFullLocationTemp := ""
 
 return
 ;------------------------------------------------------------
