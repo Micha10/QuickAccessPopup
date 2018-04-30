@@ -10688,7 +10688,12 @@ GuiShowNeverCalled:
 
 if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
 {
-	strThisMenu := (A_ThisMenu = "Tray" or A_ThisMenu = "" ? "Main" : A_ThisMenu) ; A_ThisMenu = "" by safety
+	if (g_objMenusIndex[A_ThisMenu].IsLiveMenu)
+		strThisMenu := g_objMenusIndex[A_ThisMenu].LiveMenuParentPath
+	else if (A_ThisMenu = "Tray" or A_ThisMenu = "") ; A_ThisMenu = "" by safety
+		strThisMenu := "Main"
+	else
+		strThisMenu := A_ThisMenu
 	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 }
 
