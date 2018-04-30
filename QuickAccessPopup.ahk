@@ -8188,11 +8188,11 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
-		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, "", g_strGuiMenuSeparator . g_strGuiMenuSeparator)
+		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
 	
 	else if (g_objMenuInGui[A_Index].FavoriteType = "K") ; this is a column break
 		LV_Add(, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine
-		, g_strGuiDoubleLine, "", g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
+		, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
 		
 	else if (g_objMenuInGui[A_Index].FavoriteType = "B") ; this is a back link
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
@@ -12810,10 +12810,10 @@ g_objMenuInGui.Insert(intInsertPosition, objNewFavorite)
 LV_Modify(0, "-Select")
 
 if (A_ThisLabel = "GuiAddSeparator")
-	LV_Insert(intInsertPosition, "Select Focus", g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
+	LV_Insert(intInsertPosition, "Select Focus", g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
 else ; GuiAddColumnBreak
 	LV_Insert(intInsertPosition, "Select Focus", g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine
-		, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
+		, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . lMenuColumnBreak . " " . g_strGuiDoubleLine)
 
 LV_Modify(LV_GetNext(), "Vis")
 Gosub, AdjustColumnsWidth
