@@ -10053,6 +10053,8 @@ if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external 
 		gosub, LoadExternalFileGlobalValues
 		g_blnExternalLocationChanged := false
 	}
+	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType, true)
+		gosub, FavoriteArgumentChanged
 	
 }
 else ; to tab 1
@@ -10265,10 +10267,13 @@ FavoriteArgumentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, % (InStr(f_strFavoriteArguments, "{") ? "Show" : "Hide"), f_PlaceholdersCheckLabel
-GuiControl, % (InStr(f_strFavoriteArguments, "{") ? "Show" : "Hide"), f_strPlaceholdersCheck
+strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z]*}") ? "Show" : "Hide") ; "i){[a-z]*}" case insensitive, between {},  zero, one or more a-z
 
+GuiControl, %strCommand%, f_PlaceholdersCheckLabel
+GuiControl, %strCommand%, f_strPlaceholdersCheck 
 GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample)
+
+strCommand := ""
 
 return
 ;------------------------------------------------------------
