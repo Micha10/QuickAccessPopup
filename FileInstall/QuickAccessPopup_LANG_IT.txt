@@ -69,9 +69,9 @@ lDialogChangeHotkeyModifierAndNone	Modificatori come "Alt" o "Control" non posso
 lDialogChangeHotkeyMouseCheckLButton	Non puoi assegnare il "Tasto Sinistro del Mouse" senza un modificatore`n(come i tasti ~1~, ~2~, ~3~ o ~4~).
 lDialogChangeHotkeyPopup	Questa è una scorciatoia per il menù.`n`nVuoi controllare "~1~" con "~2~"?
 lDialogChangeHotkeyTitle	Cambia scorciatoia - ~1~ ~2~
-lDialogChangeHotstringDefaultOptionsPrompt	Seleziona le opzioni predefinite per abbreviazioni appena create (<a href="~1~">Aiuto</a>)
-lDialogChangeHotstringTitle	Cambia abbreviazione - ~1~
-lDialogChangeHotstringTitleDefaultOptions	Opzioni predefinite per le Abbreviazioni - ~1~
+lDialogChangeHotstringDefaultOptionsPrompt	Seleziona le opzioni predefinite per sequenze di sostituzione appena create (<a href="~1~">Aiuto</a>)
+lDialogChangeHotstringTitle	Cambia sequenza di sostituzione - ~1~
+lDialogChangeHotstringTitleDefaultOptions	Opzioni predefinite per le Sequenze di sostituzione - ~1~
 lDialogCloseAllWindows	Chiudi tutte le finestre
 lDialogCloseAllWindowsClose	Chiudi le finestre selezionate
 lDialogCloseAllWindowsDetail	Titolo della finestra:`n~1~`n`nPercorso del processo della finestra:`n~2~`n`nVuoi CHIUDERE questa finestra?
@@ -79,20 +79,30 @@ lDialogCloseAllWindowsHeader	Titolo della finestra
 lDialogCloseAllWindowsIntro	Controlla le finestre da chiudere e clicca "Chiudi le finestre selezionate". Fai doppio-click o premi Invio per chiudere una finestra o vedere i suoi dettagli.
 lDialogCloseAllWindowsSelectAll	Seleziona/Deseleziona tutto
 lDialogCloseComputerControl	Chiudi il Centro di Controllo del Computer
+lDialogCloseComputerControlDescription	Controlla completamente in che modo il computer si spegnerà:`n - Chiusura Utente, Chiusura Windows, Riavvio, Spegnimento alimentazione, forzata o no`n- Sospensione o Ibernazione, immediata o no, disabilitazione o meno degli eventi per il risveglio`n- Spegnimento monitor, Attivazione della modalità a basso consumo del monitor o Avvio dello screen saver.
 lDialogCloseComputerDisableWakeEvents	&Disabilita eventi di risveglio
 lDialogCloseComputerForce	&Forza (può causare perdita di dati)
 lDialogCloseComputerGo	Esegui l'azione selezionata
 lDialogCloseComputerHibernate	&Hiberna il computer
+lDialogCloseComputerHibernateDescription	Mette il computer in modalità risparmio energetico che gli consente di riprendere rapidamente la piena operatività (simile alla sospensione, ma usa meno energia). Quando avvii di nuovo il PC lo ritrovi esattamente come lo avevi lasciato spegnendolo (anche se meno rapidamente, rispetto a quanto impiega a uscire dallo stand-by). Ibernazione è progettata per PC portatili e potrebbe non essere disponibile per monitor da scrivania (desktop).
 lDialogCloseComputerIntro	Seleziona l'azione da eseguire
 lDialogCloseComputerLogoff	&Esci dall'account utente
+lDialogCloseComputerLogoffDescription	Chiudi tutte le applicazioni e termina la sessione utente corrente.
 lDialogCloseComputerMonitorLowPower	&Metti il monitor in modalità a basso consumo
+lDialogCloseComputerMonitorLowPowerDescription	Metti il monitor del computer in modalità basso consumo. Tale modalità è progettata per PC portatili e potrebbe non essere disponibile per monitor da scrivania (desktop).
 lDialogCloseComputerMonitorTurnOff	&Spegni il monitor
+lDialogCloseComputerMonitorTurnOffDescription	Spegni il monitor del computer.
 lDialogCloseComputerPowerDown	&Spegni il computer
+lDialogCloseComputerPowerDownDescription	Chiudi tutte le applicazioni e spegni l'alimentazione del computer.
 lDialogCloseComputerPrompt	Per favore, seleziona un'opzione...
 lDialogCloseComputerRestart	&Riavvia il computer
+lDialogCloseComputerRestartDescription	Chiudi tutte le applicazioni e riavvia il computer come se l'utente avesse spento e riacceso.
 lDialogCloseComputerShutdown	&Spegnimento del computer
+lDialogCloseComputerShutdownDescription	Chiudi tutte le applicazioni per prepararti a spegnere il computer. A seconda della configurazione del tuo sistema, potrebbe essere seguito da spegnimento del sistema.
 lDialogCloseComputerStartScreenSaver	Av&vio screen saver
+lDialogCloseComputerStartScreenSaverDescription	Avvia lo screen saver predefinito del sistema operativo.
 lDialogCloseComputerSuspend	S&ospensione del computer (stand-by)
+lDialogCloseComputerSuspendDescription	Metti il computer in modalità di risparmio energetico che gli permette di riprendere rapidamente la piena operatività quando desideri riprendere l'attività. La modalità di stand-by (sospensione) utilizza pochissima energia, il computer si riavvia più velocemente, e ritrovi in un istante tutto come lo avevi lasciato.
 lDialogCloseComputerSuspendImmediately	Sospendi &immediatamente (può causare perdita di dati)
 lDialogContinue	Continua
 lDialogContinueAmpersand	C&ontinua
@@ -207,36 +217,38 @@ lDialogGetWinInfo	Per identificare la finestra di cui vuoi trovare titolo, class
 lDialogGetWInInfo2Clippoard	Titolo della Finestra:`n"~1~"`n`nClasse:`n"~2~"`n`nNome del Processo:`n"~3~"`n`nVuoi copiare queste informazioni negli Appunti?
 lDialogHotkeyInvisibleKeys	<a id="~1~">Barra spaziatrice</a>, <a id="~2~">Tab</a>, <a id="~3~">Enter</a>, <a id="~4~">Esc</a>`nor <a id="~5~">tasto del menú (applicazione)</a>
 lDialogHotkeys	Scorciatoie
-lDialogHotkeysManageAboutHotstrings	Abbreviazioni correntemente attive in ~1~
+lDialogHotkeysManageAboutHotstrings	Sequenze di sostituzione correntemente attive in ~1~
 lDialogHotkeysManageAboutShortcuts	Scorciatoie correntemente attive in ~1~
 lDialogHotkeysManageAlternative	Alternativo
 lDialogHotkeysManageAlternativeMenu	Menù Alternativo
 lDialogHotkeysManageIntro	Fai doppio click sulla riga di un Preferito per cambiare il suo ~1~.
 lDialogHotkeysManageListHeader	Menù|Nome del Preferito|Tipo|~1~|Posizione del Preferito o del Contenuto
-lDialogHotkeysManageListHeaderHotstrings	Abbreviazioni|Opzioni
+lDialogHotkeysManageListHeaderHotstrings	Sequenze di sostituzione|Opzioni
 lDialogHotkeysManageListSeeAllFavorites	Visualizza tutti i Preferiti
-lDialogHotkeysManageListSeeShortHotkeyNames	Visualizza i nomi abbreviati delle scorciatoie e delle opzioni delle abbreviazioni.
+lDialogHotkeysManageListSeeShortHotkeyNames	Visualizza i nomi abbreviati delle scorciatoie e delle opzioni delle sequenze di sostituzione.
 lDialogHotkeysManagePopup	Popup
-lDialogHotkeysManageShortcutHotstringLower	scorciatoia|abbreviazione
+lDialogHotkeysManageShortcutHotstringLower	scorciatoia|sequenza di sostituzione
 lDialogHotkeysManageTitle	Gestione Scorciatoie - ~1~ ~2~
-lDialogHotstring	Abbreviazione
+lDialogHotstring	Sequenza di sostituzione
 lDialogHotstringCaseSensitive	Distingue maiusc/minusc
 lDialogHotstringExpandInsideWords	Espansione all'interno di altre parole
 lDialogHotstringIndicator	Abbrev.
-lDialogHotstringKeepHotstring	Mantieni l'abbreviazione tale e quale
+lDialogHotstringKeepHotstring	Mantieni la sequenza di sostituzione tale e quale
 lDialogHotstringNotConformCase	Non rispettare il formato maiusc/minusc
 lDialogHotstringNotKeepEndingKey	Non mantenere il tasto di finalizzazione
 lDialogHotstringNotWaitEndingKey	Non aspettare il tasto di finalizzazione
-lDialogHotstrings	Abbreviazioni
-lDialogHotstringsShort	Hotstrings
-lDialogHotstringTriggerAbbreviation	Trigger (abbreviazione):
-lDialogHotstringTriggerOptions	Abbreviazione (trigger e opzioni)
+lDialogHotstrings	Sequenze di sostituzione
+lDialogHotstringsDescription	Visualizza una casella di dialogo con una visione complessiva delle sequenze di sostituzione (corte sequenze di tasti, di solito caratteri, che attivano automaticamente preferiti, di solito uno, di QAP). Puoi ordinare i preferiti cliccando sull'intestazione.`n`nFai doppio click su una sequenza di sostituzione per editarla.`n`nClicca la casella di spunta "Vedi tutti i preferiti" per assegnare sequenze di sostituzione ad altri preferiti.
+lDialogHotstringsShort	Sostituzione
+lDialogHotstringTriggerAbbreviation	Attivatore (abbreviazione):
+lDialogHotstringTriggerOptions	Sequenza di sostituzione (attivatore e opzioni)
 lDialogHotstringWaitEndingKey	Aspetta tasto di finalizzazione
 lDialogIcon	Icona del Preferito
 lDialogIconsManage	Icone
 lDialogIconsManageAbout	Seleziona nuove icone per i tuoi preferiti o assegnagli l'icona di default per il loro tipo. Non dimenticare di salvare le modifiche nella finestra delle Impostazioni.
 lDialogIconsManageCurrent	Icona corrente
 lDialogIconsManageDefault	Icona di default
+lDialogIconsManageDescription	Visualizza una casella di dialogo che elenca tutti i preferiti del tuo menù QAP con la loro icona attualmente associata e l'icona predefinita per questo tipo di rpeferito. I preferiti vengono raggruppati tramite sottomenù, nell'ordine in cui appaiono nel tuo menù.`n`nClicca i pulsanti per selezionare una icona personalizzata per un preferito o resettare l'icona di un preferito a querlla predefinita.
 lDialogIconsManageFavoriteName	Nome del Preferito
 lDialogIconsManageNext	&Successivo
 lDialogIconsManageParentMenu	Menù superiore del Preferito
@@ -267,7 +279,7 @@ lDialogOpenThisGroup	Apri questo gruppo
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogOtherHotkeys	Altre scorciatoie per il menú principale
-lDialogQAPFeatureCategoriesNames		Funzionalità|Menù Dinamici|Modifica Menù QAP|Aggiungi Preferito del Tipo|Gestione finestra|Funzionalità delle finestre|Chiudi Comandi del Computer|Utilità varie|Gestione QAP
+lDialogQAPFeatureCategoriesNames	Funzionalità|Menù Dinamici|Modifica Menù QAP|Aggiungi Preferito del Tipo|Gestione finestra|Funzionalità delle finestre|Chiudi Comandi del Computer|Utilità varie|Gestione QAP
 lDialogQAPFeaturesHelpLink	Aiuto su questa funzionalità
 lDialogReadOnly	Sola-Lettura
 lDialogRemoveMultipleFavorites	Vuoi davvero eliminare ~1~ preferiti / sottomenù?
@@ -285,6 +297,7 @@ lDialogSettingsNotSavedTitle	~1~ - Impostazioni non salvate
 lDialogShift	Shift
 lDialogShortcut	Scorciatoia
 lDialogShortcuts	Scorciatoie
+lDialogShortcutsDescription	Visualizza una casella di dialogo con una visione complessiva delle tue scorciatoie di mouse o tastiera. Puoi ordinare i preferiti cliccando sul'intestazione.`n`nFai doppio click su una scorciatoia per cambiare o rimuovere la combinazione di tasti assegnata.`n`nClicca la casella "Vedi tutti i preferiti" per assegnare scorciatoie ad altri preferiti.
 lDialogSortBy		Ordina per
 lDialogSortOrder	Tipo di ordinamento
 lDialogSpecialFoldersCategoriesNames	Base|Esperto|Amministr. di sistema|Contenuti|Hardware
@@ -349,6 +362,7 @@ lDonateText5	Mandami il tuo link
 lDonateThankyou	Grazie di supportare il freeware!
 lDonateTitle	Supporta il freeware! - ~1~ ~2~
 lGuiAbout	Crediti
+lGuiAboutDescription	Visualizza sviluppo, traduzioni ed altri riconoscimenti, numeri di versione del programma e del motore, licenza, nome dell'utente corrente e del PC, collegamento al sito web di supporto.`n`nQuesta caratteristica è anche disponibile dal pulsante "A proposito di" nella finestra delle Impostazioni principali.
 lGuiAddFavorite	Aggiungi
 lGuiCancel	Annulla
 lGuiCancelAmpersand	A&nnulla
@@ -356,6 +370,7 @@ lGuiClose	Chiudi
 lGuiCloseAmpersand	&Chiudi
 lGuiCopyAmpersand	C&opia
 lGuiDonate	Donazione
+lGuiDonateDescription	Visualizza la casella di dialogo del "Supporta il software gratuito".`n`nPuoi fare una donazione in dollari US ($), Euro o dollari canadesi (CAN$) usando Paypal o la tua carta di credito. Puoi anche fare piccole donazioni mensili.`n`nLo sviluppo di questa applicazione e il supporto dei suoi utenti richiede molto del mio tempo libero. Ma lo faccio con piacere e faccio del mio meglio per soddisfare gli utenti e permettergli una maggiore efficienza usando il programma. Le donazioni mi aiutano a supportare gli utenti ed aggiungere con regolarità nuove funzioni e miglioramenti!
 lGuiDropFilesHelp	Drag and Drop (promemoria)
 lGuiDropFilesIncentive	Puoi trascinare i seguenti tipi di preferiti sulla finestra ~1~:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
 lGuiDropFilesIncentive2	Per aiutarti a trascinare uno o piú file in una sola volta, puoi far restare la finestra delle 'Impostazioni' sempre "in primo piano" cliccando l'icona a puntina sul lato sinistro della finestra.
@@ -369,6 +384,7 @@ lGuiGroupSaveReplaceWindowsLabel	Sostituisci le finestre esistenti
 lGuiGroupSaveRestoreOption	Nel ripristinare questo gruppo:
 lGuiGroupSaveRestoreWith	Ripristina le cartelle con:
 lGuiHelp	Aiuto
+lGuiHelpDescription	Mostra la finestra di "Aiuto" di QAP breve.
 lGuiHotkeysHelp	Organizzazione Preferiti (scorciatoie)
 lGuiHotkeysHelpText	Giù: Seleziona il Preferito successivo`nSu: Seleziona Preferito precedente`n`nEnter: Modifica il Preferito`nCtrl-N: Aggiungi un nuovo Preferito`nCtrl-C: Copia un Preferito`nDel: Rimuovi Preferito/i`n`nShift-Su/Giù: Seleziona Preferiti contigui`nCtrl-Click: Seleziona Preferiti non contigui`nCtrl-A: Seleziona tutti i Preferiti`n`nCtrl-Giù: Sposta Preferito/i giù`nCtrl-Su: Sposta Preferito/i su`n`nCtrl-Destra: Apri il sottomenù o gruppo selezionato`nCtrl-Sinistra: Apri menù superioreOpen parent menu
 lGuiHotkeysHelpText2	F1: Visualizza la finestra di Aiuto`nCtrl-F: Seleziona la casella di ricerca`nCtrl-H: Visualizza questa finestra
@@ -378,6 +394,7 @@ lGuiLvFavoritesHeaderFiltered	Nome|Menù|Tipo|Combinazione|Posizione o contenuto
 lGuiMove	Sposta
 lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
+lGuiOptionsDescription	Visualizza la casella di dialogo "Opzioni" per consentire a QAP di comportarsi nel modo desiderato.`n`nLe opzioni sono raggruppate in tab: "Generale", "Menù", "Sequenze di sostituzione", "Sequenze di sostituzione alternative", "Esclusioni" e "File manager".
 lGuiPassword	Password
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
@@ -432,6 +449,7 @@ lImpExpHotkeys	Scorciatoie
 lImpExpImport	Importare
 lImpExpImportAmpersand	&Importare
 lImpExpMenu	Impostazioni per Importare/Esportare
+lImpExpMenuDescription	Visualizza una casella di dialogo dove puoi esportare i tuoi preferiti ed altre impostazioni per creare un backup da conservare dove preferisci.`n`nPuoi anche importare preferiti e impostazioni da un altro PC o da un altro utente.
 lImpExpMerge	Unire a
 lImpExpNoThemes	Non trovo nessun elenco di Temi nel valore "~1~" della sezione "~2~".`n`nFile sorgente:`n~3~
 lImpExpOptionAlternative	Scorciatoie dei menù Alternativi
@@ -449,8 +467,12 @@ lImpExpUnsavedSettings	Una finestra delle impostazioni è già aperta, senza aver 
 lMainMenuName	Principale
 lMenuAboutAmpersand	C&rediti
 lMenuAddFavorite	Aggiungi Preferito
+lMenuAddFavoriteDescription	Visualizza una lista di tipi preferiti dove selezionare il tipo di preferito da aggiungere.`n`nNella prossima finestra, inserisci:`n- un nome per il preferito`n- il contenuto`n- varie impostazioni come icona, scorciatoia, sequenza di sostituzione, parametri, ecc.`n`nA seconda del tipo di preferito selezionato, il contenuto può essere una cartella, un documento o il percorso del file di un programma, un link web, uno snippet di testo (frammento), il nome di un sottomenù, etc.
+lMenuAddFavoriteOfTypeDescription	Aggiungi un preferito del tipo "~1~".`n`nNella casella di dialogo "Aggiungi Preferito", inserisci:`n- un nome per il preferito`n- il contenuto, a seconda del tipo selezionato per il preferito`n- settaggi vari come icona, scorciatoia, sequenza di sostituzione, parametri, ecc.
 lMenuAddThisFolder	Aggiungi Questa Cartella o Link
+lMenuAddThisFolderDescription	Aggiungi rapidamente al tuo menù la cartella o la pagina web attiva.`n`nPuoi aggiungere delle cartelle in questo modo in Windows Explorer o nelle finestre delle caselle di dialogo per file. Puoi aggiungere collegamenti a pagine web con la maggior parte dei web browsers.`n`nNella casella di dialogo "Aggiungi prefeirto", conferma il nome per il tuo preferito e inserisci settaggi vari come icona, scorciatoia, sequenza di sostituzione, parametri, ecc.`n`nCome impostazione predefinita, questa funzionalità è inclusa nel menù Principale.
 lMenuAddThisFolderXpress	Aggiungi questa Cartella o Link Express
+lMenuAddThisFolderXpressDescription	Simile alla funzione "Aggiungi questa Cartella o Link" eccetto che il nuovo preferito sarà automaticamente aggiunto in cima al menù Principale senza nessuna interruzione.`n`nSe hai bisogno di cambiare le impostazioni predefinite, puoi cliccare il pulsante "Modifica" per cambiare il nome, la posizione o vari settaggi dei preferiti.`n`nIn "Opzioni", puoi scegliere che il nuovo preferito venga inserito, come impostazione predefinita, in fondo al menù Principale.
 lMenuAlternativeEditFavorite	Modifica un Preferito
 lMenuAlternativeNewWindow	Apri in una nuova finestra
 lMenuAlternativeOpenContainingCurrent	Apri la Cartella che lo contiene nella Finestra Corrente
@@ -459,8 +481,11 @@ lMenuAlternativeRunAs	Esegui come Amministratore
 lMenuAppData	Dati Applicazioni
 lMenuCache	Cache
 lMenuClipboard	Appunti di Windows
+lMenuClipboardDescription	Visualizza un menù dinamico con il contenuto attuale degli Appunti di Windows.`n`nSe gli Appunti contengono documenti, applicazioni o il percorso di cartelle di file, QAP mostrerà questo elenco nel menù, consentendoti di aprire un documento, eseguire un'applicazione o spostarti in una cartella trovata negli Appunti.
 lMenuCloseAllWindows	Chiudi tutte le finestre
+lMenuCloseAllWindowsDescription	Mostra l'elenco delle finestre attualmente aperte. Deseleziona quelle da preservare e clicca "Chiudi le finestre selezionate" per chiudere le altre restanti. Con un doppio click o premendo Invio puoi chiudere una finestra o vederne i dettagli.
 lMenuCloseThisMenu	Chiudi questo menù
+lMenuCloseThisMenuDescription	Chiudi il menù QAP se è ancora aperto cliccando al di fuori del menù o premendo il tasto Esc, come faresti normalmente.`n`nQuesto dipende da un malfunzionamento saltuario (probabilmente dovuto a ndows) che impedisce agli utenti di chiudere normalmente il menù.
 lMenuColumnBreak	Colonna
 lMenuCommonAppData	Dati Applicazioni (pubblica)
 lMenuCommonDesktop	Desktop pubblico
@@ -469,20 +494,28 @@ lMenuCommonStartupMenu	Esecuzione Automatica (pubblico)
 lMenuCookies	Cookies
 lMenuCopyLocation	Copia URL o Percorso del Preferito
 lMenuCurrentFolders	Cartelle Correnti
+lMenuCurrentFoldersDescription	Visualizza un menù dinamico che mostra le cartelle già aperte in Windows Explorer e Directory Opus. Questo menù viene rigenerato ogni volta che apri il menù QAP.`n`nIl "Riapri una Cartella" è utile specialmente quando sei in una casella di dialogo di file e vuoi aprire un file che si trova in una cartella già aperta in un'altra finestra.  Vedi anche "Riapri la Cartella Corrente nella Casella di Dialogo".
 lMenuDesktop	Desktop
 lMenuDownloads	Download
 lMenuDrives	Unità disco
+lMenuDrivesDescription	Visualizza un menù dinamico che mostra i dischi montati nel tuo computer con etichetta, spazio libero, capacità ed un'icona che dipende dal tipo di unità disco.`n`nQuesto menù viene rigenerato ogni volta che apri il menù QAP.
 lMenuDrivesSpace	(~1~ GB liberi / ~2~ GB)
 lMenuEditIniFile	Modifica ~1~
+lMenuEditIniFileDescription	Modifica il file di impostazioni (.ini) attivo di Quick Access Popup (QAP).
 lMenuExitApp	Esci da ~1~
+lMenuExitAppDescription	Esci da Quick Access Popup, rilasciando tutti i tasti attivanti e le scorciatoie del menù, sia del mouse che della tastiera, assegnati ai preferiti.
 lMenuExternalCatalogue	Aggiungi un menù condiviso di Preferiti dal catalogo...
+lMenuExternalCatalogueDescription	Aggiungi al menù un menù condiviso preso dal Catalogo dei Menù Condivisi, un repository di file di impostazioni prescelti gestito dagli amministratori del menù o da altri membri del gruppo di lavoro.`n`nPuoi selezionare un file di menù condiviso dal repository, aggiungere un menù condiviso non presente nel catalogo o creare un nuovo menù condiviso.
 lMenuFavoritesInternet	Preferiti (Internet)
 lMenuFonts	Font di caratteri
 lMenuGetWinInfo	Leggi le informazioni della finestra
+lMenuGetWinInfoDescription	Aiuta a riconoscere la finestra che vuoi togliere dal tasto attivatore del mouse per il menù QAP.`n`nQuesta funzionalità ti richiederà di cliccare nella finestra destinazione con tal tasto per il menù QAP (quello centrale, come impostazione predefinita) e copiare il titolo della finestra e il nome della classe negli Appunti.`n`nVedi il tab "Esclusioni" nella casella di dialogo "Opzioni" per avere spiegazioni complete.
 lMenuHelp	Aiuto
 lMenuHistory	Cronologia
 lMenuLastAction	Ripeti l'ultima azione
+lMenuLastActionDescription	Aggiungi un elemento con etichetta "Ripeti Ultima Azione" al tuo menù. Quando selezioni questo elemento dal menù, ti riapre l'ultimo preferito aperto.`n`nL'etichetta di questa funzionalità è sempre "Ripeti Ultima Azione" (dovuto a un limite di QAP). Devi ricordarti qual era l'ultima azione che avevi selezionato.
 lMenuLastActions	Ripeti le ultime azioni
+lMenuLastActionsDescription	Visualizza un menù dinamico contenente i dieci più recenti preferiti che hai richiamato.`n`nPuoi configurare il numero di oggetti in questo menù nelle "Opzioni", tab "Menù".`n`nGli elementi di questo menù vengono ordinati mettendo per primi quelli usati più di recente. Quando riapri un elemento, la sua riga viene spostata in alto nel menù.
 lMenuMenu	Menù
 lMenuMyMusic	Musica
 lMenuMyQAPMenu	Strumenti di QAP
@@ -496,27 +529,39 @@ lMenuProgramsFolderStartMenu	Programmi (Menù Avvio)
 lMenuPublicLibraries	Raccolte Pubbliche
 lMenuQuickLaunch	Avvio veloce
 lMenuRecentFiles	File Recenti
+lMenuRecentFilesDescription	Visualizza un menù dinamico contenente i dieci documenti usati più di recente, come li elenca Windows nella sua cartella virtuale "Oggetti Recenti". You can configure the number of items in this menu in the "Options", "Menu" tab.`n`nGli elementi in questo menù sono ordinati con il file più recente in testa, come ricordato da Windows.
 lMenuRecentFolders	Cartelle Recenti
+lMenuRecentFoldersDescription	Visualizza un menù dinamico contenente le dieci cartelle aperte più di recente, come le elenca Windows nella sua cartella virtuale "Oggetti Recenti". Puoi configurare il numero di oggetti in questo menù nelle "Opzioni", tab "Menù".`n`nGli elementi in questo menù sono ordinati con la cartella più recente in testa, come ricordata da Windows.
 lMenuRecentItems	Oggetti Recenti
 lMenuRefreshMenu	Aggiorna Cartelle Live e Menù Condivisi
+lMenuRefreshMenuDescription	Rigenera manualmente i menù "Cartelle Live". Questa azione può anche essere eseguita ripetutamente inserendo un intervallo (in secondi) nel menù "Ricaricamento programmato del menù QAP" nel tab "Menù" nella finestra "Opzioni".`n`nDurante il breve tempo di rigenerazione (a seconda del numero di Cartelle Live o menù Condivisi), il menù QAP non è disponibile.
 lMenuReload	Riavvia ~1~
+lMenuReloadDescription	Riavvia Quick Access Popup.`n`nAccertati di salvare le modifiche nelle Impostazioni prima di riavviare QAP.
 lMenuReopenCurrentFolder	Riapri la Cartella Corrente nella Casella di Dialogo
+lMenuReopenCurrentFolderDescription	Usa come cartella corrente nelle caselle di dialogo per i file, quella attiva in Windows Explorer.`n`nPer usare questa funzionalità, deve essere settata l'opzione "Cambia cartella nelle caselle di dialogo..." nelle "Opzioni", tab "Generale".
 lMenuReopenInNewWindow	Riapri la Cartella Corrrente dalla casella di Dialogo
+lMenuReopenInNewWindowDescription	Riapri la cartella corrente in una nuova finestra di Explorer (vale anche per Directory Opus o Total Commander). Utile quando vuoi aprire la cartella che stai sfogliando in una casella di dialogo per file, in una finestra di Explorer.
 lMenuRestoreSettingsWindowPosition	Ripristina la posizione della finestra delle Impostazioni
+lMenuRestoreSettingsWindowPositionDescription	Ripristina dimensione finestra e posizione delle Impostazioni al centro dello schermo principale.
 lMenuRunAtStartupAmpersand	&Esegui all'Avvio
 lMenuSettings	Impostazioni
+lMenuSettingsDescription	Visualizza la finestra delle "Impostazioni" in cui puoi personalizzare il menù popup QAP, gestire i tuoi preferiti e settare varie opzioni.`n`nPer impostazione predefinita, questa funzione è inclusa nel menù Principale.
 lMenuSettingsFileOptions	Opzioni del file delle impostazioni
 lMenuStartMenu	Menù Avvio
 lMenuStartup	Esecuzione Automatica
 lMenuSuspendHotkeys	Sospendi Scorciatoie
 lMenuSwitchFolderOrApp	Cambia
+lMenuSwitchFolderOrAppDescription	Visualizza un menù dinamico in due parti:`n1) le cartelle già aperte in finestre di Windows Explorer e Directory Opus`n2) le applicazioni attualmete in esecuzione nel tuo sistema (cominciando con la finestra attivata più di recente, e a seguire).`n`nQuando selezioni un elemento, la sua finestra viene automaticamente portata in primo piano.`n`nQuesto menù viene rigenerato ogni volta che apri il menù QAP.
 lMenuSwitchSettings	Cambiare il file delle Impostazioni
 lMenuSwitchSettingsDefault	Passa al file delle impostazioni predefinite
+lMenuSwitchSettingsDefaultDescription	Riavvia Quick Access Popup con il file di Impostazioni presente nella posizione predefinita.`n`nSe hai installato QAP usando la procedura "installazione immediata", la posizione predefinita si trova nella cartella Utente (per esempio, "C:\Users\Jean\AppData\Roaming\Quick Access Popup").`n`nSe invece hai optato per l'installazione portabile, la posizione predefinita è la stessa da cui viene richiamato il programma eseguibile QuickAccessPopup.exe.
+lMenuSwitchSettingsDescription	Seleziona un altro file di impostazioni QAP e riavvia Quick Access Popup con tali impostazioni (inclusi preferiti e opzioni varie).`n`nAssicurati di aver salvato le modifiche nelle Impostazioni prima di riavviare QAP.
 lMenuSystemCertificates	Certificati di Sistema
 lMenuTemplates	Modelli
 lMenuTemporaryFiles	File temporanei
 lMenuUpdateAmpersand	Cerca &Aggiornamenti
 lMenuUpdateNoAmpersand	Cerca aggiornamenti
+lMenuUpdateNoAmpersandDescription	Controlla sul sito web di Quick Access Popup se è disponibile una nuova versione.
 lMenuUserFolder	Cartella Utente
 lMenuUserPinned	Collegamenti evidenziati dall'utente
 lNavigateFileError	C'è stato un errore nell'aprire la cartella:`n~1~.
@@ -547,7 +592,7 @@ lOopsGroup	Gruppo
 lOopsHotkeyAlreadyUsed	La combinazione di tasti "~1~" è già usata per ~2~.`n`nE' necessario scegliere un altra combinazione per ~3~.
 lOopsHotkeyNotInMenus	Errore: la destinazione "~1~" per la combinazione "~1~" non è presente in alcun menù.
 lOopsHotkeyObjectNotFound	~1~ potrebbe non trovare il preferito associato al ~2~ "~3~".`n`nQuesta può essere una situazione temporanea. Prova a riavviare ~1~.
-lOopsHotstringTriggerTooLong	Hotstring trigger too long. Hotstring triggers can be no more than 40 characters long.
+lOopsHotstringTriggerTooLong	Hotstring trigger too long. Hotstring triggers can be no more than 40 characters long.<<<<
 lOopsHttpLocationTransformed	La destinazione http (in formato URL) è stato convertita in un percorso di rete (formato UNC) per compatibilità con Windows :`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	File delle impostazioni di Total Commander ("wincmd.ini") non trovato.`n`nSelezionalo in "Opzioni" > "File manager".
 lOopsInvalidWindowPosition	Valori non validi per la posizione della finestra
@@ -596,11 +641,11 @@ lOptionsExplorerContextMenusHeader	Menú contestuali di Windows Explorer:
 lOptionsFtpEncoding	Codifica nome utente e password FTP (consigliato)
 lOptionsFtpEncodingTC	Codifica nome utente e password FTP (non consigliato per Total Commander)
 lOptionsGuiTitle	Opzioni - ~1~ ~2~
-lOptionsHotkeyRemindersFull	Mostra nomi completi e abbreviazioni complete
+lOptionsHotkeyRemindersFull	Mostra nomi completi e sequenze di sostituzione complete
 lOptionsHotkeyRemindersNo	Non mostrare
-lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti e abbreviazioni nel menù:
+lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti e sequenze di sostituzione nel menù:
 lOptionsHotkeyRemindersShort	Visualizza abbreviati
-lOptionsHotstringsDefault	Opzioni predefinite delle Abbreviazioni
+lOptionsHotstringsDefault	Opzioni predefinite delle Sequenze di sostituzione
 lOptionsHotstringsDefaultSelect	Seleziona
 lOptionsIconSize	Dimensione delle icone
 lOptionsIconsManageRows	Righe della finestra Gestione Icone`n(0 per usare tutto lo spazio disponibile)
@@ -655,6 +700,7 @@ lOptionsUseClassicButtons	Usa i pulsanti classici di QAP
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
+lTCMenuNameDescription	Per gli utenti di Total Commander (TC), visualizza un menù dinamico costruito con i preferiti aggiunti alla lista-cartelle di TC, che viene riportata nel, e richiamata dal, file wincdm.ini.`n`nImposta la posizione del file wincdm.ini nelle "Opzioni", tab "File Manager". Se era stato selezionato TC al momento dell'installazione di QAP, la lista-Cartelle è stata aggiunta automaticamente al tuo menù.
 lTCWinCmdLocation	posizione di WinCmd.ini
 lToolTipRetrievingWebPageTitle	Sto recuperando il titolo della pagina web...
 lTooltipSnippetKeyWait	Premere {~1~} per continuare…
