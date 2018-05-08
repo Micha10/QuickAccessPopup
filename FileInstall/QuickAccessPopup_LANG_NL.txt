@@ -65,6 +65,22 @@ lDialogChangeHotkeyLeftAnyRight	Van elke functietoets kan bepaald worden welke a
 lDialogChangeHotkeyModifierAndNone	Functietoetsen zoals "Alt" of "Control" kunnen niet zonder sneltoets geselecteerd worden. Selecteer ook een muis of snel -toets in de rechter sectie.
 lDialogChangeHotkeyMouseCheckLButton	Het is niet mogelijk om de "Linker Muistoets" te selecteren zonder een functietoets:`n(zoals: ~1~, ~2~, ~3~ of ~4~).
 lDialogChangeHotkeyPopup	Dit is een popupmenu sneltoets.`n`nWilt u deze aanpassen van "~1~" in "~2~"?
+lDialogCloseComputerControl	Sluit Computer Control Center
+lDialogCloseComputerDisableWakeEvents	&Disable wake events
+lDialogCloseComputerForce	&Forceren (mogelijk dataverlies als gevolg)
+lDialogCloseComputerGo	De geselecteerde actie uitvoeren
+lDialogCloseComputerHibernate	&Computer in Slaapstand zetten
+lDialogCloseComputerIntro	Selecteer de actie om uit te voeren
+lDialogCloseComputerLogoff	&Gebruiker uitloggen
+lDialogCloseComputerMonitorLowPower	&Zet monitor in low-power mode
+lDialogCloseComputerMonitorTurnOff	&Zet monitor uit
+lDialogCloseComputerPowerDown	&Computer uitschakelen
+lDialogCloseComputerPrompt	Selecteer een optie alstublieft...
+lDialogCloseComputerRestart	&Herstart computer
+lDialogCloseComputerShutdown	&Computer uitschakelen
+lDialogCloseComputerStartScreenSaver	St&art screensaver
+lDialogCloseComputerSuspend	Computer in Slaapstand &zetten 
+lDialogCloseComputerSuspendImmediately	Direct in Slaapstand zetten (mogelijk dataverlies als gevolg)
 lDialogContinue	Volgende
 lDialogContinueAmpersand	&Volgende
 lDialogCopy	Kopiëren
@@ -153,6 +169,8 @@ lDialogFileLabel	Document
 lDialogFolderLabel	Map
 lDialogFoldersPlaceholders	Accolades {HUIDIG_LOC} kan gebruikt worden om de locatie toe te voegen waar deze favoriet wordt gestart
 lDialogGetWebPageTitle	Haal titel op
+lDialogGetWinInfo	Klik in het doelvenster met de QAP-menusneltoets [~1~] om de titel, klasse of procesnaam van het venster te identificeren.
+lDialogGetWInInfo2Clippoard	Venstertitel:`n"~1~"`n`nKlasse:`n"~2~"`n`nProcesnaam:`n"~3~"`n`nDeze informatie naar het klembord kopiëren?
 lDialogHotkeyInvisibleKeys	<a id="~1~">Spatiebalk</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a>, <a id="~4~">escape</a>`nof <a id="~5~">menu toets (applicatie)</a>
 lDialogHotkeys	Sneltoetsen
 lDialogHotkeysManageAlternative	Alternatief
@@ -192,6 +210,7 @@ lDialogOpenThisGroup	Open deze groep
 lDialogOpenThisMenu	Open dit menu
 lDialogOr	of
 lDialogOtherHotkeys	Andere sneltoetsen voor het hoofdmenu
+lDialogQAPFeatureCategoriesNames	Uitgelicht|Dynamische Menu's|QAP Menu Bewerking|Favoriet of Type toevoegen|Venster management|Windows mogelijkheden|Computer Commando's sluiten|Various Utilities|QAP Management
 lDialogReadOnly	Alleen lezen
 lDialogRemoveMultipleFavorites	Wilt u ~1~ favoriet of submenu verwijderen?
 lDialogSearch	Zoeken
@@ -392,6 +411,7 @@ lMenuExitApp	~1~ afsluiten
 lMenuExternalCatalogue	Openbare favorietenmenu vanuit de catalogus toevoegen...
 lMenuFavoritesInternet	Internet favorieten
 lMenuFonts	Lettertypen
+lMenuGetWinInfo	Haal vensterinformatie op
 lMenuHelp	Help
 lMenuHistory	Geschiedenis
 lMenuMenu	Menu
@@ -487,11 +507,11 @@ lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
 lOptionsExclusionDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExclusionList	Uitsluitsels
 lOptionsExclusionTitle	Uitsluitlijst voor muistoets: [~1~].
 lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
 lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's:
-lOptionsFileManagerAlwaysNavigate	Open mappen altijd in de openstaande verkenner
 lOptionsFtpEncoding	Versleutel FTP gebruikernaam en wachtwoord (aangeraden)
 lOptionsFtpEncodingTC	Versleutel FTP gebruikernaam en wachtwoord (niet aangeraden voor Total Commander)
 lOptionsGuiTitle	Instellingen - ~1~ ~2~
