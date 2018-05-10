@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.0.2.9 (2018-05-10)
+- debugging code for recent folders refresh
+- debugging code for full location when launching application
+
 Version: 9.0.2 (2018-05-06)
 - fix bug showing the Settings window empty or with wrong content under certain conditions, especialy when used in non-English language
 - fix display bug when adding line separators of column breaks in Settings
@@ -2261,7 +2265,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.2
+;@Ahk2Exe-SetVersion 9.0.2.9
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2356,8 +2360,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -4881,7 +4885,7 @@ if !FileExist(g_strDiagFile)
 
 FileRead, strIniFileContent, %g_strIniFile%
 StringReplace, strIniFileContent, strIniFileContent, `", `"`"
-Diag("IniFile", """" . strIniFileContent . """")
+Diag("IniFile", "`n""" . strIniFileContent . """`n")
 FileAppend, `n, %g_strDiagFile% ; required when the last line of the existing file ends with "
 
 strIniFileContent := ""
@@ -4929,8 +4933,8 @@ ExitApp
 CleanUpBeforeExit:
 ;-----------------------------------------------------------
 
-if (g_blnDiagMode)
-	Diag("ListLines", ScriptInfo("ListLines"))
+; if (g_blnDiagMode)
+	; Diag("ListLines", ScriptInfo("ListLines"))
 
 strSettingsPosition := "-1" ; center at minimal size
 if (g_blnRememberSettingsPosition)
@@ -5367,6 +5371,9 @@ strMenuItemsList := "" ; menu name|menu item name|label|icon
 SetWaitCursor(true)
 
 RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+; #####
+Diag("strRecentsFolder", strRecentsFolder)
+Diag("strRecentsFolder Tick", A_TickCount)
 
 /*
 ; Alternative to collect recent files *** NOT WORKING with XP and SLOWER because all shortcuts are resolved before getting the list
@@ -5385,12 +5392,16 @@ for ObjItem in ComObjGet("winmgmts:")
 Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
 	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strItemsList, R
+Diag("strItemsList", strItemsList)
+Diag("strItemsList Tick", A_TickCount)
 
 intMenuNumberFolders := 0
 intMenuNumberFiles := 0
 strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
 
+Diag("g_intRecentFoldersMax", g_intRecentFoldersMax)
+Diag("g_intRecentFoldersMax Tick", A_TickCount)
 Loop, parse, strItemsList, `n
 {
 	if !StrLen(A_LoopField) ; last line is empty
@@ -5400,6 +5411,9 @@ Loop, parse, strItemsList, `n
 	strShortcutFullPath := arrShortcutFullPath[2]
 	
 	FileGetShortcut, %strShortcutFullPath%, strTargetPath
+	Diag("intRecentFoldersCount/intRecentFilesCount", intRecentFoldersCount . "/" . intRecentFilesCount)
+	Diag("strShortcutFullPath", strShortcutFullPath)
+	Diag("strShortcutFullPath Tick", A_TickCount)
 	
 	if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
 		continue
@@ -5430,6 +5444,8 @@ Loop, parse, strItemsList, `n
 		break
 }
 
+Diag("strRecentFoldersMenuItemsList", strRecentFoldersMenuItemsList)
+Diag("strRecentFoldersMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
 	Menu, %lMenuRecentFolders%, Add
@@ -5443,6 +5459,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 	AddCloseMenu(lMenuRecentFolders)
 }
 
+Diag("strRecentFilesMenuItemsList", strRecentFilesMenuItemsList)
+Diag("strRecentFilesMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 {
 	Menu, %lMenuRecentFiles%, Add
@@ -5456,6 +5474,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
+Diag("RefreshRecentFoldersAndFilesMenus Finished Tick", A_TickCount)
 SetWaitCursor(false)
 
 strRecentsFolder := ""
@@ -14986,9 +15005,6 @@ gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetecte
 if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 {
 	gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
-	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-	; if (g_strOpenFavoriteLabel = "OpenFavoriteHotlist")
-	;	Diag("g_strFullLocation", g_strFullLocation)
 
 	if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
 	{
@@ -15068,6 +15084,7 @@ if (g_objThisFavorite.FavoriteType = "Text")
 	return
 }
 
+; #####
 if (g_objThisFavorite.FavoriteType = "Application")
 	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
 	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
@@ -15077,6 +15094,8 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
 	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
+	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+	Diag(A_ThisLabel . ":activate", strAppID)
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
 	WinGet, intMinMax, MinMax, ahk_id %strAppID%
 	if (intMinMax = -1) ; restore if window is minimized
@@ -15129,6 +15148,9 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
+	Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
+	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+	Diag(A_ThisLabel . ":strCurrentAppWorkingDir", strCurrentAppWorkingDir)
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 	{
@@ -18619,12 +18641,12 @@ DiagWindowInfo(strName)
 	
 	WinGetClass, strClass, ahk_id %g_strTargetWinId%
 	WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-	Diag(strName . " - Window Info", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
+	; Diag(strName . " - Window Info", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
 	
 	strActiveWindowId := WinActive("A")
 	WinGetClass, strClass, ahk_id %strActiveWindowId%
 	WinGetTitle, strTitle, ahk_id %strActiveWindowId%
-	Diag(strName . " - Active Window", strActiveWindowId . "`t" . strClass . "`t" . strTitle)
+	; Diag(strName . " - Active Window", strActiveWindowId . "`t" . strClass . "`t" . strTitle)
 }
 ;------------------------------------------------
 
@@ -20219,7 +20241,7 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
-	Diag("REPLY_QAPISRUNNING:wParam/lParam", wParam . "/" . lParam)
+	; Diag("REPLY_QAPISRUNNING:wParam/lParam", wParam . "/" . lParam)
 	return true
 } 
 ;------------------------------------------------------------
@@ -20237,13 +20259,13 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strTargetWinId
 	
 	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
-	Diag(A_ThisFunc . " - g_strTargetClass", g_strTargetClass)
-	Diag(A_ThisFunc . " - g_strTargetWinId", g_strTargetWinId)
+	; Diag(A_ThisFunc . " - g_strTargetClass", g_strTargetClass)
+	; Diag(A_ThisFunc . " - g_strTargetWinId", g_strTargetWinId)
 
-	Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
+	; Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
-	Diag("RECEIVE_QAPMESSENGER:strCopyOfData", strCopyOfData)
+	; Diag("RECEIVE_QAPMESSENGER:strCopyOfData", strCopyOfData)
 	
 	StringSplit, arrData, strCopyOfData, |
 	
