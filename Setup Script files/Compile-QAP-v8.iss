@@ -61,7 +61,7 @@ VersionInfoVersion={#MyAppVersionNumber}
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "german"; MessagesFile: "compiler:Languages\German.isl"
-; Name: "dutch"; MessagesFile: "compiler:Languages\Dutch.isl"
+Name: "dutch"; MessagesFile: "compiler:Languages\Dutch.isl"
 ; Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "swedish"; MessagesFile: "compiler:Languages\Swedish.isl"
 Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
