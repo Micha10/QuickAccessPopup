@@ -5354,15 +5354,15 @@ return
 
 
 ;------------------------------------------------------------
-RefreshRecentFoldersMenu:
-RefreshRecentFilesMenu:
-RefreshRecentFoldersAndFilesMenus:
+RefreshRecentFoldersMenu: ; on demand, refresh only Folders
+RefreshRecentFilesMenu: ; on demand, refresh only Files
+RefreshRecentFoldersAndFilesMenus: ; attached, refresh both if present in menu
 ;------------------------------------------------------------
 
 if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and A_ThisLabel = "RefreshRecentFoldersMenu")
 	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFilesMenu")
 	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFoldersAndFilesMenus")
-	; we don't have Recent Folders or Recent Files QAP features in at least one menu
+	; we don't have Recent Folders and/or Recent Files QAP features in at least one menu
 	return
 
 intRecentFoldersMenuStartTickCount := A_TickCount
@@ -5373,10 +5373,9 @@ strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
 
+; Diag("strRecentsFolder", strRecentsFolder)
+; Diag("strRecentsFolder Tick", A_TickCount)
 RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-; #####
-Diag("strRecentsFolder", strRecentsFolder)
-Diag("strRecentsFolder Tick", A_TickCount)
 
 /*
 ; Alternative to collect recent files *** NOT WORKING with XP and SLOWER because all shortcuts are resolved before getting the list
@@ -5395,16 +5394,14 @@ for ObjItem in ComObjGet("winmgmts:")
 Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
 	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strItemsList, R
-Diag("strItemsList", strItemsList)
-Diag("strItemsList Tick", A_TickCount)
+; Diag("strItemsList", strItemsList)
+; Diag("strItemsList Tick", A_TickCount)
 
 intMenuNumberFolders := 0
 intMenuNumberFiles := 0
 strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
 
-Diag("g_intRecentFoldersMax", g_intRecentFoldersMax)
-Diag("g_intRecentFoldersMax Tick", A_TickCount)
 Loop, parse, strItemsList, `n
 {
 	if !StrLen(A_LoopField) ; last line is empty
@@ -5414,16 +5411,16 @@ Loop, parse, strItemsList, `n
 	strShortcutFullPath := arrShortcutFullPath[2]
 	
 	FileGetShortcut, %strShortcutFullPath%, strTargetPath
-	Diag("intRecentFoldersCount/intRecentFilesCount", intRecentFoldersCount . "/" . intRecentFilesCount)
-	Diag("strShortcutFullPath", strShortcutFullPath)
-	Diag("strShortcutFullPath Tick", A_TickCount)
+	; Diag("intRecentFoldersCount/intRecentFilesCount", intRecentFoldersCount . "/" . intRecentFilesCount)
+	; Diag("strShortcutFullPath", strShortcutFullPath)
+	; Diag("strShortcutFullPath Tick", A_TickCount)
 	
 	if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
 		continue
 	if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
 		continue
 	
-	if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+	if (A_ThisLabel = "RefreshRecentFoldersMenu" or (A_ThisLabel = "RefreshRecentFoldersAndFilesMenus" and g_objQAPfeaturesInMenus.HasKey("{Recent Folders}")))
 		and (intRecentFoldersCount < g_intRecentFoldersMax)
 		and !LocationIsDocument(strTargetPath) ; add to recent folders
 	{
@@ -5433,7 +5430,7 @@ Loop, parse, strItemsList, `n
 		intRecentFoldersCount++
 	}
 
-	if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+	if (A_ThisLabel = "RefreshRecentFilesMenu" or (A_ThisLabel = "RefreshRecentFoldersAndFilesMenus" and g_objQAPfeaturesInMenus.HasKey("{Recent Files}")))
 		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
 		and LocationIsDocument(strTargetPath) ; add to recent files
 	{
@@ -5464,8 +5461,8 @@ Loop, parse, strItemsList, `n
 		; break
 }
 
-Diag("strRecentFoldersMenuItemsList", strRecentFoldersMenuItemsList)
-Diag("strRecentFoldersMenuItemsList Tick", A_TickCount)
+; Diag("strRecentFoldersMenuItemsList", strRecentFoldersMenuItemsList)
+; Diag("strRecentFoldersMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
 	Menu, %lMenuRecentFolders%, Add
@@ -5479,8 +5476,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 	AddCloseMenu(lMenuRecentFolders)
 }
 
-Diag("strRecentFilesMenuItemsList", strRecentFilesMenuItemsList)
-Diag("strRecentFilesMenuItemsList Tick", A_TickCount)
+; Diag("strRecentFilesMenuItemsList", strRecentFilesMenuItemsList)
+; Diag("strRecentFilesMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 {
 	Menu, %lMenuRecentFiles%, Add
@@ -5494,7 +5491,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-Diag("RefreshRecentFoldersAndFilesMenus Finished Tick", A_TickCount)
+; Diag("RefreshRecentFoldersAndFilesMenus Finished Tick", A_TickCount)
 SetWaitCursor(false)
 
 strRecentsFolder := ""
