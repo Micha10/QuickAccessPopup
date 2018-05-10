@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.0.2.9 (2018-05-10)
+Version BETA: 9.0.2.9 (2018-05-10)
 - debugging code for recent folders refresh
 - debugging code for full location when launching application
 
