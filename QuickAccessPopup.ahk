@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.2.9.1 (2018-05-10)
+- optimize recent folders and recent files refresh
+
 Version BETA: 9.0.2.9 (2018-05-10)
 - debugging code for recent folders refresh
 - debugging code for full location when launching application
@@ -2265,7 +2268,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.2.9
+;@Ahk2Exe-SetVersion 9.0.2.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2360,7 +2363,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5440,8 +5443,25 @@ Loop, parse, strItemsList, `n
 		intRecentFilesCount++
 	}
 
-	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
-		break
+	if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+	{
+		if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
+			break ; both Folders and Files menus are complete
+	}
+	else if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+	{
+		if (intRecentFoldersCount >= g_intRecentFoldersMax)
+			break ; Folders menu is complete
+	}
+	else if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+	{
+		if (intRecentFilesCount >= g_intRecentFoldersMax) ; we use the same max for both folders and files
+			break ; Files menu is complete
+	}
+	
+	; bug between v8.7.0.9.2 and v9.0.2.9)
+	; if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
+		; break
 }
 
 Diag("strRecentFoldersMenuItemsList", strRecentFoldersMenuItemsList)
