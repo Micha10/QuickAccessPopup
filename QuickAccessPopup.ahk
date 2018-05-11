@@ -13523,23 +13523,18 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	; Options
 	SH_strTempOptions := SH_strFavoriteHotstringOptionsShort
-	SH_blnNotConformCase := InStr(SH_strTempOptions , "C1")
-	if (SH_blnNotConformCase)
-		StringReplace, SH_strTempOptions , SH_strTempOptions , C1 ; remove "C1" avoid ambiguity with "C"
+	StringReplace, SH_strTempOptions , SH_strTempOptions , C1 ; avoid ambiguity with "C", for backward compatibility, remove "C1" option that was available in v9.0.1/9.0.2
 	
 	; C Case sensitive
 	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strTempOptions , "C") ? "checked" : ""), %lDialogHotstringCaseSensitive%
-	; C1 Do not conform to typed case
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotConformCase " . (SH_blnNotConformCase ? "checked" : ""), %lDialogHotstringNotConformCase%
 	; ?	Expand inside other words
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringExpandInsideWords " . (InStr(SH_strFavoriteHotstringOptionsShort, "?") ? "checked" : ""), %lDialogHotstringExpandInsideWords%
 	; B0 Keep hotstring trigger (do not backspace)
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitKeepHotstring " . (InStr(SH_strFavoriteHotstringOptionsShort, "B0") ? "checked" : ""), %lDialogHotstringKeepHotstring%
 	; *	Do not wait for Ending key
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "*") ? "checked" : ""), %lDialogHotstringNotWaitEndingKey%
-	; O	Do not keep Ending key
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotKeepEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "O") ? "checked" : ""), %lDialogHotstringNotKeepEndingKey%
-	; Unsuported options: Kn Key-delay, Pn Priority, R Send Raw, SI Send Input, SP Send PLay, SE Send Event, T Send Raw, Z Reset recognizer after each triggering
+	; Unsupported options: O	Do not keep Ending key (not available when using Send), C1 Do not conform to typed case (not available when using Send),
+	; Kn Key-delay, Pn Priority, R Send Raw, SI Send Input, SP Send PLay, SE Send Event, T Send Raw, Z Reset recognizer after each triggering
 	; Keep default EndChars "-()[]{}:;'"/\,.?!" + Enter, Space and Tab
 	; Keep default MouseReset option (recognizer resets monitored string on mouse click)
 
