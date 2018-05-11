@@ -16049,7 +16049,7 @@ Loop, %strIDs%
 	WinGetTitle, strWindowTitle, % "ahk_id " . strIDs%A_Index%
 	WinGet, strWindowPath, ProcessPath, % "ahk_id " . strIDs%A_Index%
 	if StrLen(strWindowTitle) and (strWindowTitle <> "Program Manager")
-		LV_Add("Check", strWindowTitle, strIDs%A_Index%, strWindowPath)
+		LV_Add("", strWindowTitle, strIDs%A_Index%, strWindowPath)
 }
 LV_ModifyCol(1, "Auto")
 
