@@ -239,7 +239,7 @@ lDialogHotstringNotKeepEndingKey	Eindtoets niet behouden
 lDialogHotstringNotWaitEndingKey	Niet wachten op de eindtoets
 lDialogHotstrings	Hotstrings
 lDialogHotstringsDescription	Geeft het venster weer met een globaal overzicht van uw hotstrings (kleine toetsenreeks die automatisch QAP-favorieten activeren). U kunt favorieten sorteren door op de kop te klikken.`n`nDubbelklik op een hotstring om deze te bewerken.`n`nKlik op het selectievakje "Alle favorieten bekijken" om hotstrings aan andere favorieten toe te wijzen.
-lDialogHotstringsShort	Toetsreeksen voor voorgedefinieerde tekst
+lDialogHotstringsShort	Hotstrings
 lDialogHotstringTriggerAbbreviation	Trigger (afkorting):
 lDialogHotstringTriggerOptions	Hotstring (trigger en opties)
 lDialogHotstringWaitEndingKey	Wacht op de eindtoets
