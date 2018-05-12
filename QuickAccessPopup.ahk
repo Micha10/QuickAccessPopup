@@ -6213,7 +6213,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			
 			; before creating an hotstring...
 			; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
-			; in hotstring trigger (NOT REQUIRED as of v8.9.1.1): escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
 			; in hotstring replacement: decode end-of-lines and tabs (DecodeSnippet)
 			Hotstring(PrepareHotstringForFunction(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index]), "OpenFavoriteFromHotstring", "On")
 		}
@@ -6683,16 +6682,11 @@ return
 ;------------------------------------------------------------
 DisableHotstrings:
 ;------------------------------------------------------------
-; If the hotstring already exists, any options specified in String are put into effect, while all other options are left as is.
-; However, since hotstrings with C or ? are considered distinct from other hotstrings, it is not possible to add or remove these options.
-; Instead, turn off the existing hotstring and create a new one.
-;------------------------------------------------------------
 
 for strHotstring in g_objFavoritesObjectsByHotstring
 {
 	; before disabling an hotstring...
 	; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
-	; in hotstring trigger (NOT REQUIRED as of v8.9.1.1): escape backticks and semicolons having a space or tab to their left (PrepareHotstringForFunction)
 	; set the label "OpenFavoriteFromHotstring" for hotstrings with Execute option
 	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring)), "OpenFavoriteFromHotstring", "Off")
 }
@@ -12949,7 +12943,7 @@ IniDelete, %g_strIniFile%, Favorites
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 
-if (A_ThisLabel = "GuiSaveAndReloadQAP")
+if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
 
 ToolTip, %lGuiSaving%.. ; animated tooltip
@@ -13675,8 +13669,16 @@ UpdateFavoriteObjectSaveHotstringList:
 if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
 	return
 
-; Hotstring was added, changed or removed
-; do not add new, change or remove hotstring to g_objFavoritesObjectsByHotstring because we would not be able to turn it off in disablehotstrings since it does not exist yet
+; Hotstring was added, changed or removed. Do not add new, change or remove hotstring to g_objFavoritesObjectsByHotstring
+; because we would not be able to turn it off in DisableHotstrings since it does not exist yet
+
+; if an hostring does not already need restart, check if this hotstring's options changed and need restart
+if !(g_blnHotstringNeedRestart)
+	and (GetHotstringOptions(g_objEditedFavorite.FavoriteHotstring) <> GetHotstringOptions(g_strNewFavoriteHotstring))
+{
+	g_blnHotstringNeedRestart := true
+	Oops(lDialogChangeHotstringReload, g_strAppNameText)
+}
 
 ; update favorite object
 g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
@@ -13813,6 +13815,7 @@ if (blnCancelEnabled)
 		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 		GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
 		
+		g_blnHotstringNeedRestart := false
 		g_blnMenuReady := true
 	}
 	IfMsgBox, No
@@ -15288,7 +15291,7 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
 		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
-	; ###_O(A_ThisLabel . " -> " . A_ThisHotkey . " -> " . g_objThisFavorite.FavoriteLocation, g_objFavoritesObjectsByHotstring)
+
 	if !IsObject(g_objThisFavorite)
 	{
 		StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
@@ -18532,6 +18535,17 @@ GetHotstringTrigger(strHotstring)
 
 
 ;------------------------------------------------------------
+GetHotstringOptions(strHotstring)
+;------------------------------------------------------------
+{
+	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
+	
+	return strOptionsShort
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
 ;------------------------------------------------------------
 {
@@ -18578,32 +18592,13 @@ PrepareHotstringForFunction(strHotstring, objFavorite)
 	global g_strHotstringOptionsSeparator
 	global g_strHotstringOptionsExecute
 	
-	; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
-	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
-	strPreparedHotstring := g_strHotstringOptionsSeparator . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
-
 	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
-	strPreparedHotstring := g_strHotstringOptionsSeparator . g_strHotstringOptionsExecute . SubStr(strPreparedHotstring, 2)
+	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
+	strPreparedHotstring := g_strHotstringOptionsSeparator . g_strHotstringOptionsExecute . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
 	
 	return strPreparedHotstring
 }
 ;-----------------------------------------------------------
-
-
-/*
-;-----------------------------------------------------------
-HotstringEscapeTrigger(strTrigger)
-; before creating an hotstring, escape backticks and semicolons having a space or tab to their left
-;-----------------------------------------------------------
-{
-    StringReplace, strTrigger, strTrigger, ``, ````, A ; replace all tick with tick tick
-    StringReplace, strTrigger, strTrigger, %A_Space%`;, %A_Space%```;, A ; replace "space semi-colon" with "space tick semi-colon
-    StringReplace, strTrigger, strTrigger, %A_Tab%`;, %A_Tab%```;, A ; replace "tab semi-colon" with "tab tick semi-colon
-	
-    return strTrigger
-}
-;-----------------------------------------------------------
-*/
 
 
 ;------------------------------------------------
