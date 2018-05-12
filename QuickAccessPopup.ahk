@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.0.3 (2018-05-12)
+- optimize recent folders and recent files menu refresh when these menus are attached to the main menu (refresh time will be shorter when only one of the "Recent Folders" or "Recent Files" is used)
+- close all windows now default each line unchecked
+- Hotstrings: remove unsupported options "Do not keep Ending key" and "Do not conform to typed case"
+- Hotstrings: restart QAP automatically when an hotstring's options are changed, display an alert for the first change
+- Dutch language file update and minor updates to EN, DE and ES language files; add Dutch language to Setup script
+
 Version BETA: 9.0.2.9.1 (2018-05-10)
 - optimize recent folders and recent files refresh
 
@@ -2268,7 +2275,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.2.9.1
+;@Ahk2Exe-SetVersion 9.0.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2363,8 +2370,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
