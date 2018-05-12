@@ -70,6 +70,7 @@ global lDialogChangeHotkeyMouseCheckLButton := "You can't assign the ""Left Mous
 global lDialogChangeHotkeyPopup := "This is a popup menu hotkey.`n`nDo you want to manage ""~1~"" in ""~2~""?"
 global lDialogChangeHotkeyTitle := "Change shortcut - ~1~ ~2~"
 global lDialogChangeHotstringDefaultOptionsPrompt := "Select default options for newly created hotstrings (<a href=""~1~"">Help</a>)"
+global lDialogChangeHotstringReload := "Changes in the options of this hotstring will require to automatically restart ~1~ after saving favorites."
 global lDialogChangeHotstringTitle := "Change hotstring - ~1~"
 global lDialogChangeHotstringTitleDefaultOptions := "Hotstrings default options - ~1~"
 global lDialogCloseAllWindows := "Close All Windows"
