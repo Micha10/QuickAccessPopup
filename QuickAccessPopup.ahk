@@ -9670,7 +9670,8 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Text, x+5 yp vf_lblRemoveIcon gGuiRemoveIcon, X
 	Gui, 2:Add, Link, x20 ys+57 gGuiPickIconDialog, <a>%lDialogSelectIcon%</a>
 	Gui, 2:Add, Link, x+20 yp gGuiPickIconDialogNo, <a>%lDialogSelectIconNo%</a>
-	Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
+	if (g_objEditedFavorite.FavoriteType = "Folder")
+		Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, <a>%lDialogWindowsFolderIconSet%</a>
 	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, <a>%lDialogEditIcon%</a>
 	Gui, 2:Add, Link, x20 ys+91 w240 gGuiPickIconDialogJL vf_lblSelectIconJL, <a>%lDialogSelectIconJL%</a>
 
@@ -10465,7 +10466,8 @@ if (g_objEditedFavorite.FavoriteType = "Folder")
 {
 	GuiControl, % ((blnThisDesktopIniExist) ; desktop.ini exists
 		or (g_strNewFavoriteIconResource <> g_strDefaultIconResource ; or icon is not default
-		and (!blnThisDesktopIniExist) and g_strNewFavoriteIconResource <> "iconNoIcon") ; but not if no icon and desktop does not exist
+		and (!blnThisDesktopIniExist) and (g_strNewFavoriteIconResource <> "iconNoIcon") ; but not if no icon and desktop does not exist
+		and StrLen(f_strFavoriteLocation))
 		? "Show" : "Hide")
 		, f_lblSetWindowsFolderIcon
 
