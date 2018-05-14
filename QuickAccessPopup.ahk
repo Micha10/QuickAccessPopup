@@ -13567,7 +13567,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	; ?	Expand inside other words
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringExpandInsideWords " . (InStr(SH_strFavoriteHotstringOptionsShort, "?") ? "checked" : ""), %lDialogHotstringExpandInsideWords%
 	; B0 Keep hotstring trigger (do not backspace)
-	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringWaitKeepHotstring " . (InStr(SH_strFavoriteHotstringOptionsShort, "B0") ? "checked" : ""), %lDialogHotstringKeepHotstring%
+	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringKeepHotstring " . (InStr(SH_strFavoriteHotstringOptionsShort, "B0") ? "checked" : ""), %lDialogHotstringKeepHotstring%
 	; *	Do not wait for Ending key
 	Gui, Add, Checkbox, % "x10 y+5 vf_SH_blnHotstringNotWaitEndingKey " . (InStr(SH_strFavoriteHotstringOptionsShort, "*") ? "checked" : ""), %lDialogHotstringNotWaitEndingKey%
 	; Unsupported options: O	Do not keep Ending key (not available when using Send), C1 Do not conform to typed case (not available when using Send),
@@ -13621,22 +13621,18 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	;------------------------------------------------------------
 	
 	GuiControlGet, SH_blnHotstringCaseSensitive, , f_SH_blnHotstringCaseSensitive
-	GuiControlGet, SH_blnHotstringNotConformCase, , f_SH_blnHotstringNotConformCase
 	GuiControlGet, SH_blnHotstringExpandInsideWords, , f_SH_blnHotstringExpandInsideWords
-	GuiControlGet, SH_blnHotstringWaitKeepHotstring , , f_SH_blnHotstringWaitKeepHotstring
+	GuiControlGet, SH_blnHotstringKeepHotstring , , f_SH_blnHotstringKeepHotstring
 	GuiControlGet, SH_blnHotstringNotWaitEndingKey , , f_SH_blnHotstringNotWaitEndingKey
-	GuiControlGet, SH_blnHotstringNotKeepEndingKey , , f_SH_blnHotstringNotKeepEndingKey
 
 	GuiControlGet, SH_strHotstringTrigger, , f_SH_strHotstringTrigger
 	
 	if StrLen(SH_strHotstringTrigger) or (P_blnDefaultOptions)
 		SH_strNewHotstring := g_strHotstringOptionsSeparator
 			. (SH_blnHotstringCaseSensitive ? "C" : "")
-			. (SH_blnHotstringNotConformCase ? "C1" : "")
 			. (SH_blnHotstringExpandInsideWords ? "?" : "")
-			. (SH_blnHotstringWaitKeepHotstring ? "B0" : "")
+			. (SH_blnHotstringKeepHotstring ? "B0" : "")
 			. (SH_blnHotstringNotWaitEndingKey ? "*" : "")
-			. (SH_blnHotstringNotKeepEndingKey ? "O" : "")
 			. g_strHotstringOptionsSeparator
 			. SH_strHotstringTrigger
 	else
@@ -18612,17 +18608,12 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 	
 	strTempOptions := strHotstringOptionsShort
 	if InStr(strTempOptions, "C1")
-	{
-		blnNotConformCase := true
-		StringReplace, strTempOptions, strTempOptions, C1 ; avoid ambiguity with "C"
-	}
+		StringReplace, strTempOptions, strTempOptions, C1 ; backward compatibility from 8.9 beta to v9.0.2, to avoid ambiguity with "C"
 
 	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "C") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
-		. (blnNotConformCase ? lDialogHotstringNotConformCase . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "?") ? lDialogHotstringExpandInsideWords . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "B0") ? lDialogHotstringKeepHotstring . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "*") ? lDialogHotstringNotWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "O") ? lDialogHotstringNotKeepEndingKey . g_strHotstringOptionsLongSeparator : "")
 	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
 		StringTrimRight, strHotstringOptionsLong, strHotstringOptionsLong, % StrLen(g_strHotstringOptionsLongSeparator)
 	
