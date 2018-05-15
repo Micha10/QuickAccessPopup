@@ -79,20 +79,30 @@ lDialogCloseAllWindowsHeader	Título de ventana
 lDialogCloseAllWindowsIntro	Compruebe las ventanas que desea cerrar y haga clic en "Cerrar ventanas seleccionadas". Haga doble clic o pulse Intro para cerrar una ventana o ver sus detalles.
 lDialogCloseAllWindowsSelectAll	Seleccionar/Deseleccionar todo
 lDialogCloseComputerControl	Cerrar el Panel de Control del Ordenador
+lDialogCloseComputerControlDescription	Tome el control total de cómo se apagará su ordenador:`n - Cierre de sesión, Apagado, Reinicio, Apagado, forzado o no`n- Suspender o Hibernar, inmediatamente o no, desactivando o no los eventos de encendido.`n- Apague el monitor, active el modo de bajo consumo de energía del monitor o Inicie el protector de pantalla.
 lDialogCloseComputerDisableWakeEvents	&Desactivar los mensajes de activación
 lDialogCloseComputerForce	&Forzar (puede causar pérdida de datos)
 lDialogCloseComputerGo	Ejecutar la acción seleccionada
 lDialogCloseComputerHibernate	&Hibernar ordenador
+lDialogCloseComputerHibernateDescription	Poner el equipo en un estado de ahorro de energía que le permita reanudar rápidamente el funcionamiento a pleno rendimiento (similar a Suspender, pero consume menos energía). Cuando inicie de nuevo el equipo, volverá al punto en el que lo dejó (aunque no tan rápido como en reposo). Hibernación está diseñado para portátiles y es posible que no esté disponible para todos los equipos.
 lDialogCloseComputerIntro	Seleccionar acción a ejecutar
 lDialogCloseComputerLogoff	&Cerrar sesión de usuario
+lDialogCloseComputerLogoffDescription	Cierre todas las aplicaciones y finalice la sesión de usuario actual.
 lDialogCloseComputerMonitorLowPower	&Poner el monitor en modo de bajo consumo
+lDialogCloseComputerMonitorLowPowerDescription	Ponga el monitor de la computadora en modo de bajo consumo. El modo de bajo consumo está diseñado para portátiles y es posible que no esté disponible para monitores de escritorio.
 lDialogCloseComputerMonitorTurnOff	&Apagar monitor
+lDialogCloseComputerMonitorTurnOffDescription	Apague el monitor de la computadora.
 lDialogCloseComputerPowerDown	&Apagar el ordenador
+lDialogCloseComputerPowerDownDescription	Cierre todas las aplicaciones y apague el equipo.
 lDialogCloseComputerPrompt	Por favor, seleccione una opción...
 lDialogCloseComputerRestart	&Reiniciar el ordenador
+lDialogCloseComputerRestartDescription	Cierre todas las aplicaciones y reinicie el equipo como si el usuario hubiera apagado y vuelto a encender el equipo.
 lDialogCloseComputerShutdown	&Apagar el ordenador
+lDialogCloseComputerShutdownDescription	Cierre todas las aplicaciones en preparación para apagar el equipo. Dependiendo de la configuración de su sistema, esto podría ir seguido de un apagado del sistema.
 lDialogCloseComputerStartScreenSaver	In&iciar salvapantallas
+lDialogCloseComputerStartScreenSaverDescription	Inicie el protector de pantalla predeterminado del sistema.
 lDialogCloseComputerSuspend	S&uspensión del ordenador
+lDialogCloseComputerSuspendDescription	Poner el equipo en un estado de ahorro de energía que le permita reanudar rápidamente el funcionamiento a plena potencia cuando desee empezar a trabajar de nuevo. El modo de suspensión consume muy poca energía, el equipo se inicia más rápido y regresa instantáneamente al punto en el que lo dejó.
 lDialogCloseComputerSuspendImmediately	Suspensión &inmediata (puede causar pérdida de datos)
 lDialogContinue	Continuar
 lDialogContinueAmpersand	C&ontinuar
@@ -224,10 +234,9 @@ lDialogHotstringCaseSensitive	Sensible a mayúsculas y minúsculas
 lDialogHotstringExpandInsideWords	Expandir en otras palabras
 lDialogHotstringIndicator	ca
 lDialogHotstringKeepHotstring	Mantenga la abreviatura de cadena activa
-lDialogHotstringNotConformCase	No se ajusta a la caja mecanografiada
-lDialogHotstringNotKeepEndingKey	No seguir con la tecla Finalizar
 lDialogHotstringNotWaitEndingKey	No espere a la tecla Finalizar
 lDialogHotstrings	Cadenas activas
+lDialogHotstringsDescription	Visualizar una ventana de diálogo con una vista global de las cadenas activas (pequeñas secuencias de teclas que activan automáticamente los favoritos QAP). Puede ordenar los favoritos haciendo clic en el encabezado.`n`nDoble clic en una cadena para editarla.`n`nHaz clic en la casilla de verificación "Ver todos los favoritos" para asignar cadenas activas a otros favoritos.
 lDialogHotstringsShort	Cadenas act. 
 lDialogHotstringTriggerAbbreviation	Lanzador (abbreviation):
 lDialogHotstringTriggerOptions	Cadenas activas (trigger and options)
@@ -237,6 +246,7 @@ lDialogIconsManage	Iconos
 lDialogIconsManageAbout	Seleccione los iconos nuevos para sus favoritos o establezca el icono predeterminado para su tipo. No olvide guardar los cambios en la ventana Configuración. 
 lDialogIconsManageCurrent	Icono actual 
 lDialogIconsManageDefault	Icono por defecto 
+lDialogIconsManageDescription	Muestre una caja de diálogo listando todos los favoritos en su menú QAP con su ícono actual y el ícono por defecto para este tipo de favorito. Los favoritos se agrupan por submenús, en el orden en que aparecen en su menú.`n`nHaga clic en los botones para seleccionar un icono personalizado para un favorito o restablecer un favorito a su icono predeterminado.
 lDialogIconsManageFavoriteName	Nombre favorito 
 lDialogIconsManageNext	&Siguiente 
 lDialogIconsManageParentMenu	Menú principal favorito
@@ -285,6 +295,7 @@ lDialogSettingsNotSavedTitle	~1~ - Configuración no guardada
 lDialogShift	Cambio
 lDialogShortcut	Atajo
 lDialogShortcuts	Accesos directos
+lDialogShortcutsDescription	Mostrar un cuadro de diálogo con una vista global de los métodos abreviados de teclado o ratón. Puede ordenar los favoritos haciendo clic en el encabezado.`n`nHaga doble clic en un acceso directo para cambiar o eliminar su tecla de acceso directo asignada.`n`nHaga clic en la casilla de verificación "Ver todos los favoritos" para asignar accesos directos a otros favoritos.
 lDialogSortBy	Ordenar por
 lDialogSortOrder	Clasificar por orden
 lDialogSpecialFoldersCategoriesNames	Básico|Administrador|Sysadmin|Contenido|Hardware
@@ -349,6 +360,7 @@ lDonateText5	Enviadme vuestro link
 lDonateThankyou	Gracias por esta señal de aprecio!
 lDonateTitle	Donar! - ~1~ ~2~
 lGuiAbout	Acerca de
+lGuiAboutDescription	Mostrar el desarrollo, la traducción y otros créditos, números de versión de la aplicación y del tiempo de ejecución, licencia, usuario actual y nombres de PC, enlace al sitio web de soporte.`n`nEsta función también está disponible desde el botón "Acerca de" en la ventana principal "Ajustes".
 lGuiAddFavorite	Añadir
 lGuiCancel	Anular
 lGuiCancelAmpersand	&Anular
@@ -356,6 +368,7 @@ lGuiClose	Cerrar
 lGuiCloseAmpersand	&Cerrar
 lGuiCopyAmpersand	C&opiar
 lGuiDonate	Donar
+lGuiDonateDescription	Mostrar el cuadro de diálogo "Apoyar programa gratuito".
 lGuiDropFilesHelp	Uso de arrastrar y soltar
 lGuiDropFilesIncentive	Puede Arrastrar y Soltar los siguientes tipos de favoritos en la ~1~ ventana:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
 lGuiDropFilesIncentive2	Para ayudarle a arrastrar uno o varios archivos, puede hacer que la ventana de Configuración permanezca "siempre arriba" haciendo clic en el icono del pin en el lado izquierdo de la ventana.
@@ -378,6 +391,7 @@ lGuiLvFavoritesHeaderFiltered	Name|Menú|Tipo|Atajo|Ubicación o contenido
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opciones
+lGuiOptionsDescription	Mostrar el cuadro de diálogo "Opciones" que permite hacer que QAP funcione de la forma deseada.`n`n`Las opciones están agrupadas en pestañas: "General", "Menú", "Teclas de acceso rápido", "Teclas de acceso rápido alternativas", "Exclusiones" y "Gestores de ficheros".
 lGuiPassword	Contraseña
 lGuiPasswordNotEncripted	Nota: La contraseña no será encriptada cuando se envía por Internet.
 lGuiRemoveFavorite	Suprimir
@@ -432,6 +446,7 @@ lImpExpHotkeys	atajos
 lImpExpImport	Importar 
 lImpExpImportAmpersand	&Importar 
 lImpExpMenu	Importar/exportar la configuración
+lImpExpMenuDescription	Muestra un cuadro de diálogo en el que puedes exportar tus favoritos y otras configuraciones para crear una copia de seguridad en una ubicación de tu elección.`n`n`También puede importar favoritos y configuraciones desde otro PC u otro usuario.
 lImpExpMerge	Fusionar con
 lImpExpNoThemes	Alguna lista de temas en el valor "~1~" de la sección "~2~".`n`nArchivo origen:`n~3~
 lImpExpOptionAlternative	Atajos de menú Alternativos
@@ -449,8 +464,12 @@ lImpExpUnsavedSettings	Una ventana de configración está abierta, posiblemente co
 lMainMenuName	Principal
 lMenuAboutAmpersand	&Acerca de
 lMenuAddFavorite	Añadir Favorito
+lMenuAddFavoriteDescription	Muestra una lista de tipos favoritos en la que puede seleccionar el tipo de favorito que desea agregar.En la siguiente ventana, escriba :`n-un nombre para su favorito`n- un contenido`n- varios ajustes como icono, atajo, cadena, parámetros, etc.`n`nDependiendo del tipo de favorito seleccionado, el contenido del favorito puede ser una ruta de carpeta, documento o archivo de aplicación, enlace web, texto de fragmentos, nombre de submenú, etc.
+lMenuAddFavoriteOfTypeDescription	Añadir un tipo de favorito "~1~".`n`nEn el "Añadir Favorito" cuadro de diálogo, introducir :`n- un nombre para su favorito`n- un contenido, dependiendo del tipo de favorito seleccionado`n- varios ajustes como icono, atajo, cadena, parámetros, etc.
 lMenuAddThisFolder	Añadir esta Carpeta o Link
+lMenuAddThisFolderDescription	Agregue rápidamente a su menú la carpeta o página web activa.`n`nPuede agregar carpetas de esta manera en el explorador de Windows o en las ventanas del cuadro de diálogo de archivos. Puede añadir enlaces a páginas web desde la mayoría de los navegadores web.`n`nEn el "Añadir Favorito" cuadro de diálogo, confirme el nombre de su favorito e introduzca varios ajustes como el icono, el acceso directo, la cadena, los parámetros, etc..`n`nDe forma predeterminada, esta función se incluye en el menú principal.
 lMenuAddThisFolderXpress	Añadir esta Carpeta o Link Rápido 
+lMenuAddThisFolderXpressDescription	Similar a la función "Añadir esta Carpeta o Enlace" excepto que el nuevo favorito se añadirá automáticamente en la parte superior del menú principal sin ninguna interrupción.`n`nSi necesita cambiar la configuración predeterminada, puede hacer clic en el botón "Editar" para cambiar el nombre, la posición o varias configuraciones de los favoritos.`n`nEn "Opciones", puede configurar el nuevo favorito para que se añada de forma predeterminada en la parte inferior del menú principal.
 lMenuAlternativeEditFavorite	Editar un Favorito
 lMenuAlternativeNewWindow	Abrir en nueva ventana
 lMenuAlternativeOpenContainingCurrent	Abrir la carpeta principal en la ventana actual
@@ -459,8 +478,11 @@ lMenuAlternativeRunAs	Run as administrator
 lMenuAppData	Datos de la aplicación
 lMenuCache	Cache
 lMenuClipboard	Portapapeles
+lMenuClipboardDescription	Mostrar un menú dinámico con el contenido de su actual Portapapeles de Windows.`n`nSi el Portapapeles contiene la ruta del archivo de documentos, aplicaciones o carpetas, QAP muestra esta lista en el menú, permitiéndole abrir un documento, iniciar una aplicación o navegar hasta una carpeta que se encuentra en el Portapapeles.
 lMenuCloseAllWindows	Cerrar todas las ventanas
+lMenuCloseAllWindowsDescription	Mostrar una lista de ventanas abiertas actualmente. Desmarque las que desea conservar y haga clic en "Cerrar ventanas seleccionadas" para cerrar las demás ventanas. Haga doble clic o pulse Intro para cerrar una ventana o ver sus detalles.
 lMenuCloseThisMenu	Cerrar este menú
+lMenuCloseThisMenuDescription	Cierre el menú QAP si no está cerrado haciendo clic fuera del menú o pulsando la tecla Escape como lo haría normalmente.`n`nEsto está relacionado con un problema intermitente (probablemente causado por Windows) que impide a los usuarios cerrar el menú normalmente.
 lMenuColumnBreak	columna
 lMenuCommonAppData	Datos de la aplicación (común)
 lMenuCommonDesktop	Oficina (común)
@@ -469,20 +491,28 @@ lMenuCommonStartupMenu	Inicio (común)
 lMenuCookies	Cookies
 lMenuCopyLocation	Copiar Ruta o dirección URL favorita
 lMenuCurrentFolders	Vuelva a abrir una carpeta 
+lMenuCurrentFoldersDescription	Mostrar un menú dinámico que muestra las carpetas ya abiertas en las ventanas del Explorador de Windows y Directorio Opus. Este menú se actualiza cada vez que se abre el menú QAP.`n`nReabrir una carpeta es particularmente útil cuando se encuentra en un cuadro de diálogo de archivo y desea abrir un archivo en una carpeta que ya está abierta en otra ventana.  Véase también "Reabrir la carpeta actual en la ventana de diálogo".
 lMenuDesktop	Oficina
 lMenuDownloads	Descarga
 lMenuDrives	Unidades de disco 
+lMenuDrivesDescription	Mostrar un menú dinámico que muestra las unidades de su sistema con etiqueta, espacio libre, capacidad y un icono que muestra el tipo de unidad.`n`nEste menú se actualiza cada vez que se abre el menú QAP.
 lMenuDrivesSpace	(~1~ GB libre / ~2~ GB) 
 lMenuEditIniFile	Editar ~1~
+lMenuEditIniFileDescription	Edite el archivo de configuración activo Quick Access Popup settings file (.ini).
 lMenuExitApp	Cerrar ~1~
+lMenuExitAppDescription	Salir de la ventana emergente de acceso rápido, liberando todos los desencadenantes y accesos directos del menú del ratón o del teclado asignados a favoritos.
 lMenuExternalCatalogue	Agregar menú de favoritos compartidos del catálogo...
+lMenuExternalCatalogueDescription	Agregue a su menú un menú compartido desde el Catálogo de menús compartidos, un repositorio de archivos de configuración de favoritos administrados por los administradores del menú o por otros miembros del grupo de trabajo.`n`nPuede seleccionar un archivo de menú Compartido existente desde el repositorio, añadir un menú compartido que no esté en el catálogo o crear un nuevo menú compartido.
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fuentes
 lMenuGetWinInfo	Obtener información de la ventana
+lMenuGetWinInfoDescription	Ayudarle a identificar una ventana que desea excluir del menú QAP tecla de acceso directo del ratón.`n`nEsta característica le pedirá que haga clic en la ventana de destino con la tecla de acceso directo del menú QAP (por defecto, botón central del ratón) y copie el título de la ventana y el nombre de la clase en el Portapapeles.`n`nConsulte la pestaña "Exclusiones" en el cuadro de diálogo "Opciones" para obtener explicaciones completas.
 lMenuHelp	Ayuda
 lMenuHistory	Historial
 lMenuLastAction	Repetir Última Acción
+lMenuLastActionDescription	Agregue un elemento etiquetado "Repetir la última acción" a su menú. Cuando selecciona este elemento de menú, se vuelve a abrir el último favorito que abrió.`n`nLa etiqueta de esta característica es siempre "Repetir última acción" (limitación QAP). Tienes que recordar cuál fue la última acción que seleccionaste.
 lMenuLastActions	Repetir Últimas Acciónes
+lMenuLastActionsDescription	Display a dynamic menu containing the ten most recent favorites that you launched.`n`nLa etiqueta de esta característica es siempre "Repetir última acción" (limitación QAP). Tienes que recordar cuál fue la última acción que seleccionaste.
 lMenuMenu	Menú
 lMenuMyMusic	Mi música
 lMenuMyQAPMenu	Mi QAP Básico
@@ -496,27 +526,39 @@ lMenuProgramsFolderStartMenu	Carpeta Programas (menú Inicio)
 lMenuPublicLibraries	Bibliotecas (publico)
 lMenuQuickLaunch	Lanzador rápido
 lMenuRecentFiles	Archivos recientes
+lMenuRecentFilesDescription	Mostrar un menú dinámico que contiene los diez documentos utilizados más recientemente, tal y como los recuerda Windows en su carpeta virtual "Elementos recientes". En la ficha "Opciones", "Menú", puede configurar el número de opciones de este menú.`n`nLos elementos de este menú se ordenan primero con el archivo más reciente, tal como lo ha grabado Windows.
 lMenuRecentFolders	Ubicaciones recientes
+lMenuRecentFoldersDescription	Mostrar un menú dinámico que contiene las diez últimas carpetas abiertas, tal y como las recuerda Windows en su carpeta virtual "Elementos recientes". En la ficha "Opciones", "Menú", puede configurar el número de opciones de este menú.`n`nLos elementos de este menú se ordenan primero con la carpeta más reciente, tal y como la ha grabado Windows.
 lMenuRecentItems	Documentos recientes
 lMenuRefreshMenu	Refresh Carpetas activas y Menús compartidos
+lMenuRefreshMenuDescription	Actualizar bajo demanda los menús "Carpetas abiertas". Esta acción también se puede ejecutar repetidamente introduciendo un intervalo (en segundos) en la pestaña "Menú" de la ventana "Opciones", en la pestaña "Actualizar menú QAP programado".`n`nDurante el tiempo de actualización corto (dependiendo del número de carpetas abiertas o menús compartidos), el menú QAP no está disponible.
 lMenuReload	Reiniciar ~1~ 
+lMenuReloadDescription	Reiniciar Quick Access Popup.`n`nAsegúrese de guardar los cambios en Configuración antes de reiniciar QAP.
 lMenuReopenCurrentFolder	Reabrir Carpeta Actual en Cuadro de Diálogo
+lMenuReopenCurrentFolderDescription	Cambie la carpeta de los cuadros de diálogo de un archivo a la carpeta actualmente activa en el Explorador de Windows.`n`nPara utilizar esta característica, la opción "Cambiar carpeta en el cuadro de diálogo..." debe estar marcada en "Opciones", pestaña "General".
 lMenuReopenInNewWindow	Volver a abrir la Carpeta Actual desde la Ventana de Diálogo
+lMenuReopenInNewWindowDescription	Vuelva a abrir la carpeta actual en una nueva ventana del Explorador (también en Directory Opus o Total Commander). Es útil cuando desea abrir la carpeta que está explorando en un cuadro de diálogo de archivo en una ventana del Explorador.
 lMenuRestoreSettingsWindowPosition	Restaurar la posición de la ventana Configuración
+lMenuRestoreSettingsWindowPositionDescription	Restaurar el tamaño de la ventana de ajustes y la posición en el centro de la pantalla principal.
 lMenuRunAtStartupAmpersand	&Ejecutar al Inicio
 lMenuSettings	Configuración
+lMenuSettingsDescription	Abra la ventana "Ajustes" en la que podrá personalizar el menú desplegable de QAP, gestionar sus favoritos y configurar varias opciones.`n`nPor defecto esta característica está incluida en el menú principal.
 lMenuSettingsFileOptions	Opciones de archivo de configuración
 lMenuStartMenu	Menú de Inicio
 lMenuStartup	Inicio
 lMenuSuspendHotkeys	Suspender atajos de teclado (Hotkeys)
 lMenuSwitchFolderOrApp	Cambiar 
+lMenuSwitchFolderOrAppDescription	Visualizar un menú dinámico en dos partes:`n1) las carpetas que ya están abiertas en las ventanas de Windows Explorer y Directory Opus`n2) las aplicaciones que se están ejecutando actualmente en su sistema (comenzando con la ventana activada más recientemente).`n`nCuando selecciona un elemento, su ventana se abre automáticamente.`n`nEste menú se actualiza cada vez que se abre el menú QAP.
 lMenuSwitchSettings	Changer del archivo de configuración
 lMenuSwitchSettingsDefault	Cambiar al archivo de configuración predeterminado
+lMenuSwitchSettingsDefaultDescription	Reinicie la ventana emergente de acceso rápido con el archivo de configuración en su ubicación predeterminada.`n`nSi instaló QAP utilizando el procedimiento de "instalación en un solo paso", la ubicación predeterminada se encuentra en el directorio de usuario (por ejemplo, "C:\Users\Jean\AppData\Roaming\Quick Access Popup").`n`nSi prefiere la instalación portátil, la ubicación predeterminada es donde se ejecuta el programa QuickAccessPopup.exe.
+lMenuSwitchSettingsDescription	Seleccione otro archivo de configuración QAP y reinicie la ventana emergente de acceso rápido con esta configuración (incluidos los favoritos y varias opciones).`n`nAsegúrese de guardar los cambios en Configuración antes de reiniciar QAP.
 lMenuSystemCertificates	Certificados de Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheros temporales
 lMenuUpdateAmpersand	&Compruebe Actualización
 lMenuUpdateNoAmpersand	Comprobar si hay actualización
+lMenuUpdateNoAmpersandDescription	Compruebe en el sitio web de Quick Access Popup si hay una nueva versión disponible.
 lMenuUserFolder	Carpeta de Usuario
 lMenuUserPinned	Adherido al Usuario
 lNavigateFileError	Se produjo un error al abrir la carpeta:`n~1~.
@@ -655,6 +697,7 @@ lOptionsUseClassicButtons	Usar botones clásicos de QAP
 lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar un icono.
 lReloadPrompt	Cambio de ~1~ guardado: ~2~. Quieres relanzar ~3~ en ~2~ ahora? Los cambios no guardados en el menú se perderán.
 lTCMenuName	TC Lista de sitios Favoritos 
+lTCMenuNameDescription	Para los usuarios de Total Commander (TC), muestre un menú dinámico construido con los favoritos agregados a Hotlist de TC como se encuentra en el archivo wincdm.ini.`n`nConfigure la ubicación del archivo wincdm.ini en la pestaña "Opciones", "Gestores de archivos". Si TC fue seleccionado cuando instaló QAP, el Directorio Hotlist ha sido añadido automáticamente a su menú.
 lTCWinCmdLocation	WinCmd.ini ubicación 
 lToolTipRetrievingWebPageTitle	Recuperar el título de la página web...
 lTooltipSnippetKeyWait	Pulsar {~1~} para continuar…
