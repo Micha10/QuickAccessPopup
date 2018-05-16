@@ -9277,6 +9277,12 @@ else ; add favorite
 		else
 			g_objEditedFavorite.FavoriteType := "Folder"
 		
+		if (strGuiFavoriteLabel = "GuiAddThisFileFromMsgXpress")
+		{
+			g_strNewFavoriteIconResource := GetDefaultIcon4Type(g_objEditedFavorite, g_strNewLocation)
+			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+		}
+		
 		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
@@ -11267,6 +11273,8 @@ if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 	{
 		; add new favorite in first or last position of menu where the XPress command was used
 		strDestinationMenu := A_ThisMenu
+		if !StrLen(strDestinationMenu) ; for GuiAddFavoriteSaveXpress favorite is added from context menu (no A_ThisMenu)
+			strDestinationMenu := lMainMenuName
 		g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
 	}
 	else ; GuiAddExternalSave
