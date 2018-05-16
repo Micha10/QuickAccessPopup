@@ -5698,15 +5698,12 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 		}
 		*/
 
-		blnExcludeFileManager := true
-		blnExcludeProgramManager := false
-		blnKeepThisWindowDebug := false
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, blnExcludeFileManager, blnExcludeProgramManager, blnKeepThisWindowDebug, strWindowTitle, strProcessPath)
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Menu", objWindowProperties)
 		{
 			intWindowsIdIndex++
 			objFolderOrApp := Object()
-			objFolderOrApp.Name := strWindowTitle
-			objFolderOrApp.LocationURL := strProcessPath
+			objFolderOrApp.Name := objWindowProperties.WindowTitle
+			objFolderOrApp.LocationURL := objWindowProperties.ProcessPath
 			objFolderOrApp.WindowId := strWinIDs%A_Index%
 			; objFolderOrApp.ExStyle := intExStyle
 			objFolderOrApp.WindowType := "APP"
@@ -5790,9 +5787,6 @@ strWindowClass := ""
 strDiagFile := ""
 intExStyle := ""
 strWinTitlesWinApps := ""
-blnExcludeFileManager := ""
-blnExcludeProgramManager := ""
-blnKeepThisWindowDebug := ""
 
 g_intSwitchReopenMenuTickCount := A_TickCount - intSwitchReopenMenuStartTickCount
 ; TrayTip, SwitchReopen menu refresh, % g_intSwitchReopenMenuTickCount . " ms"
@@ -16106,22 +16100,15 @@ DetectHiddenWindows, Off
 WinGet, strWinIDs, list
 DetectHiddenWindows, On ; revert to app default
 
-blnExcludeFileManager := false
-blnExcludeProgramManager := true
-blnKeepThisWindowDebug := false
 Loop, %strWinIDs%
-	If KeepThisWindow(A_Index, strWinIDs%A_Index%, blnExcludeFileManager, blnExcludeProgramManager, blnKeepThisWindowDebug, strWindowTitle, strWindowPath) ; exclude title empty
-		LV_Add("", strWindowTitle, strWinIDs%A_Index%, strWindowPath)
+	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close", objWindowProperties)
+		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
 GuiCenterButtons(lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
 
 GuiControl, CloseAllWindows:Focus, f_lvCloseAllWindows
 Gui, CloseAllWindows:Show, AutoSize Center
-
-blnExcludeFileManager := ""
-blnExcludeProgramManager := ""
-blnKeepThisWindowDebug := ""
 
 return
 ;------------------------------------------------------------
@@ -18318,33 +18305,99 @@ return
 ListApplications:
 ;------------------------------------------------------------
 
-
 DetectHiddenWindows, Off
-WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
+WinGet, strWinIDs, List	; Retrieve IDs of all the non-hidden windows
 DetectHiddenWindows, On ; revert to app default
-
-blnExcludeFileManager := false
-blnExcludeProgramManager := false
-blnKeepThisWindowDebug := true
 
 Gui, ListApps:New
 Gui, ListApps:+Resize +MaximizeBox +MinimizeBox 
 Gui, ListApps:Add, ListView
-	, % "Count32 AltSubmit " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents w1500 h900"
+	, % "Count32 vf_gListApplications gListApplicationsEvents w1000 h700 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "")
 	, %lGuiListApplicationsHeader%
 Gui, ListApps:
 Gui, ListApps:Default
+
+Gui, ListApps:Add, Text, vf_ListApplicationLabel, List applications for:
+Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, List All||Switch Menu|Running Applications|Close Applications
+Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationRefreshButton gListApplicationsLoad, Refresh
+
+Gosub, ListApplicationsChanged
+
+Gui, ListApps:Show
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListAppsGuiSize:
+
+GuiControl, ListApps:Move, f_gListApplications, % "w" . A_GuiWidth - 20
+GuiControl, ListApps:Move, f_gListApplications, % "h" . A_GuiHeight - 50
+GuiControl, ListApps:Move, f_ListApplicationLabel, % "y" . A_GuiHeight - 25
+GuiControl, ListApps:Move, f_drpListApplications, % "y" . A_GuiHeight - 30
+GuiControl, ListApps:Move, f_ListApplicationRefreshButton, % "y" . A_GuiHeight - 30
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent = "DoubleClick")
+{
+	LV_GetText(strWindowID, A_EventInfo, 2)
+	LV_GetText(strWindowTitle, A_EventInfo, 3)
+	MsgBox, 3, Selected window, %strWindowTitle%`n`nYes: Activate / No: Close / Cancel: Cancel!
+	IfMsgBox, Yes
+		WinActivate, ahk_id %strWindowID%
+	IfMsgBox, No
+		WinClose, ahk_id %strWindowID%
+	
+	strWindowID := ""
+	strWindowTitle := ""
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsChanged:
+;------------------------------------------------------------
+
+Gui, ListApps:Submit, NoHide
+gosub, ListApplicationsLoad
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsLoad:
+;------------------------------------------------------------
+
+LV_Delete()
 Loop, %strWinIDs%
-	KeepThisWindow(A_Index, strWinIDs%A_Index%, blnExcludeFileManager, blnExcludeProgramManager, blnKeepThisWindowDebug, strWindowTitle, strWindowPath)
+	if KeepThisWindow(A_Index, strWinIDs%A_Index%, f_drpListApplications, objWindowProperties)
+	{
+		LV_Add("", A_Index, objWindowProperties.WindowID, SubStr(objWindowProperties.WindowTitle, 1, 50), objWindowProperties.ProcessName, SubStr(objWindowProperties.ProcessPath, 1, 50)
+			, objWindowProperties.WandH, objWindowProperties.MinMax, objWindowProperties.Style, objWindowProperties.ExStyle
+			, objWindowProperties.UniversalApplicationID, objWindowProperties.UniversalApplicationName)
+			
+		if (objWindowProperties.UniversalApplicationID) and (f_drpListApplications = "List")
+			if KeepThisWindow(A_Index, objWindowProperties.UniversalApplicationID, "List", objWindowProperties)
+				LV_Add("", A_Index, objWindowProperties.WindowID, SubStr(objWindowProperties.WindowTitle, 1, 50), objWindowProperties.ProcessName, SubStr(objWindowProperties.ProcessPath, 1, 50)
+					, objWindowProperties.WandH, objWindowProperties.MinMax, objWindowProperties.Style, objWindowProperties.ExStyle
+					, objWindowProperties.UniversalApplicationID, objWindowProperties.UniversalApplicationName . " !!!")
+	}
 Loop, % LV_GetCount("Column")
 	LV_ModifyCol(A_Index, "AutoHdr")
-Gui, ListApps:Show
-	
-blnExcludeFileManager := ""
-blnExcludeProgramManager := ""
-blnKeepThisWindowDebug := ""
-strWindowTitle := ""
-strWindowPath := ""
+LV_ModifyCol(1, "Integer")
+
+objWindowProperties := ""
 
 return
 ;------------------------------------------------------------
@@ -18944,13 +18997,10 @@ CollectRunningApplications(strDefaultPath)
 	Winget, strWinIDs, list
 	DetectHiddenWindows, On ; revert to app default
 	
-	blnExcludeFileManager := false
-	blnExcludeProgramManager := false
-	blnKeepThisWindowDebug := false
 	Loop, %strWinIDs%
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, blnExcludeFileManager, blnExcludeProgramManager, blnKeepThisWindowDebug, strWindowTitle, strWindowPath)
-			if !objApps.HasKey(strWindowPath)
-				objApps.Insert(strWindowPath, "")
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Running", objWindowProperties)
+			if !objApps.HasKey(objWindowProperties.ProcessPath)
+				objApps.Insert(objWindowProperties.ProcessPath, "")
 
 	for strThisPath in objApps
 	{
@@ -20185,59 +20235,90 @@ BetweenParenthesis(str)
 
 
 ;------------------------------------------------------------
-KeepThisWindow(intIndex, strWinID, blnExcludeFileManager, blnExcludeProgramManager, blnDebug, ByRef strWindowTitle, ByRef strProcessPath)
+KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
+; strCaller: List All||Switch Menu|Running Applications|Close Applications
 ;------------------------------------------------------------
 {
-	WinGetTitle, strWindowTitle, % "ahk_id " strWinID
+	global g_strDirectoryOpusPath
+	global g_intActiveFileManager
+	
+	static strWinTitlesWinApps
+	if (intIndex = 1)
+		strWinTitlesWinApps := ""
+	
+	objWindowProperties := Object()
+	objWindowProperties.Index := intIndex
+	objWindowProperties.WindowID := strWinID
+	
 	WinGet, strProcessName, ProcessName, % "ahk_id " . strWinID
+	objWindowProperties.ProcessName := strProcessName
+    if (strProcessName == "explorer.exe") ; case sensitive
+		strWindowTitle := "Explorer"
+	else
+		WinGetTitle, strWindowTitle, % "ahk_id " strWinID
+	objWindowProperties.WindowTitle := strWindowTitle
 	WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinID
+	objWindowProperties.ProcessPath := strProcessPath
 	WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinID
+	blnWandH := intW and intH
+	objWindowProperties.WandH := blnWandH
 	WinGet, intMinMax, MinMax, % "ahk_id " . strWinID
+	objWindowProperties.MinMax := intMinMax
+	WinGet, intStyle, Style, % "ahk_id " . strWinID
+	objWindowProperties.Style := intStyle
 	WinGet, intExStyle, ExStyle, % "ahk_id " . strWinID
-
-	if (blnDebug)
-		LV_Add("", intIndex, strWindowTitle, strProcessName, strProcessPath, intW and intH, intMinMax, intExStyle)
+	objWindowProperties.ExStyle := intExStyle
+	
+    if (strProcessName = "ApplicationFrameHost.exe")
+	{
+        ControlGet, intUniversalApplicationID, Hwnd, , Windows.UI.Core.CoreWindow1, % "ahk_id " . strWinID
+        if (intUniversalApplicationID)
+		{
+            WinGet strUniversalApplicationName, ProcessName, ahk_id %intUniversalApplicationID%
+			objWindowProperties.UniversalApplicationName := strUniversalApplicationName
+			objWindowProperties.UniversalApplicationID := intUniversalApplicationID
+		}
+		if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		{
+			; remember titles of window of intExStyle 0x00200000 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
+			strWinTitlesWinApps .= strWindowTitle . "|"
+			###_V("strWinTitlesWinApps", strWinTitlesWinApps)
+			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
+		}
+	}
+	
+	; if InStr(strWindowTitle, "Calendrier")
+		; ###_O("objWindowProperties", objWindowProperties)
+	; if InStr(strProcessPath, "opus")
+		; ###_O(strCaller . " / " . strProcessPath . " / " . g_strDirectoryOpusPath . " / " . g_intActiveFileManager, objWindowProperties)
+	
+	if (strCaller = "List All")
+		return true
 	
 	if !StrLen(strWindowTitle)
 		or !StrLen(strProcessPath)
-		or !(intW * intH) ; if intW or intH = 0
+		or !(blnWandH)
+		or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
+		or InStr(strProcessPath, A_ProgramFiles . "\WindowsApps\") ; and (intExStyle <> 0x00280000)
 		return false
 
-	if (blnExcludeFileManager and strProcessPath = A_WinDir . "\explorer.exe")
+	else if (strProcessName = "ApplicationFrameHost.exe")
+		; si minimisé conserver
+	{
+		return StrLen(intUniversalApplicationID) ; this is a running and normal (or maximized?)
+			or (intMinMax = -1) ; this is a running and minimized
+	}
+	
+	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	if (blnExcludeFileManager and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
+	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
 		return false
 	
-	if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
-		return false
+	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
+		; return false
 	
-	if (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
-		return false
-
 	return true
-/*
-exclude
-		if !StrLen(strProcessPath)
-			or !(intW * intH)
-			or !StrLen(strWindowTitle)
-			or (strProcessPath = A_WinDir . "\explorer.exe")
-			or (strProcessPath = g_strDirectoryOpusPath) and (g_intActiveFileManager = 2)
-			or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
-			
-			; if (g_strCurrentBranch <> "prod")
-			;	FileAppend, NO`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
-			continue
-			
-		else if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
-		{
-			; remember titles of window of intExStyle 0x00200100 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
-			strWinTitlesWinApps .= strWindowTitle . "|"
-			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
-			continue
-		}
-*/
-
 
 }
 ;------------------------------------------------------------
