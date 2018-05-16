@@ -6518,6 +6518,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 				objNewMenuItem.FavoriteFolderLiveColumns := objLiveFolder.FavoriteFolderLiveColumns
 				objNewMenuItem.FavoriteFolderLiveIncludeExclude := objLiveFolder.FavoriteFolderLiveIncludeExclude
 				objNewMenuItem.FavoriteFolderLiveExtensions := objLiveFolder.FavoriteFolderLiveExtensions
+				objNewMenuItem.FavoriteFolderLiveSort := objLiveFolder.FavoriteFolderLiveSort
 			}
 		}
 		objNewMenu.Insert(objNewMenuItem)
