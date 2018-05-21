@@ -15187,10 +15187,8 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 if (g_objThisFavorite.FavoriteType = "WindowsApp")
 {
-	###_V("Run", g_strFullLocation)
-	; Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, , UseErrorLevel, intPid
+	; ###_V("Run", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation)
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, , UseErrorLevel
-	###_err := ErrorLevel
 	if (ErrorLevel = "ERROR")
 	{
 		if (A_LastError <> 1223)
@@ -15198,7 +15196,6 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
 
-	###_V(A_ThisLabel, g_strFullLocation, ###_err, intPid, g_strNewWindowId)
 	gosub, OpenFavoriteCleanup
 	return
 }
