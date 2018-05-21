@@ -2282,7 +2282,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.4
+;@Ahk2Exe-SetVersion 9.0.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2377,8 +2377,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -3149,7 +3149,7 @@ StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
 ; ----------------------
 ; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text"
+strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp"
 StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
 StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
 g_objFavoriteTypesLabels := Object()
@@ -3163,6 +3163,7 @@ Loop, 9 ; excluding X, K and B
 arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
 arrFavoriteTypesHelp14 := lDialogFavoriteTypesHelp14
 arrFavoriteTypesHelp15 := lDialogFavoriteTypesHelp15
+arrFavoriteTypesHelp16 := lDialogFavoriteTypesHelp16
 g_objFavoriteTypesHelp := Object()
 StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
 g_objFavoriteTypesShortNames := Object()
@@ -8660,6 +8661,7 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSpecial gFavoriteSelectTypeRadioBut
 
 Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeDocument gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Document"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeApplication gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Application"]
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeWindowsApp gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["WindowsApp"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeURL gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["URL"]
 Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeFTP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["FTP"]
 
