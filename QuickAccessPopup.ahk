@@ -8575,6 +8575,7 @@ GuiAddFavoriteFromQAPFeatureGroup:
 GuiAddFavoriteFromQAPFeatureSnippet:
 GuiAddFavoriteFromQAPFeatureExternal:
 GuiAddFavoriteFromQAPFeatureText:
+GuiAddFavoriteFromQAPFeatureWindowsApp:
 ;------------------------------------------------------------
 
 StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
@@ -15182,6 +15183,26 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	return
 }
 
+; --- Windows App ---
+
+if (g_objThisFavorite.FavoriteType = "WindowsApp")
+{
+	###_V("Run", g_strFullLocation)
+	; Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, , UseErrorLevel, intPid
+	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, , UseErrorLevel
+	###_err := ErrorLevel
+	if (ErrorLevel = "ERROR")
+	{
+		if (A_LastError <> 1223)
+			Oops(lOopsUnknownTargetAppName)
+		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
+	}
+
+	###_V(A_ThisLabel, g_strFullLocation, ###_err, intPid, g_strNewWindowId)
+	gosub, OpenFavoriteCleanup
+	return
+}
+
 ; --- QAP Command ---
 
 if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
@@ -15496,6 +15517,9 @@ else
 		blnFileExist := FileExistInPath(g_strFullLocation) ; return g_strFullLocation with expanded relative path and envvars, and absolute location if in PATH
 		; was g_strFullLocation := PathCombine(A_WorkingDir, EnvVars(g_strFullLocation))
 	}
+	else if (g_objThisFavorite.FavoriteType = "WindowsApp")
+		; preparation for Windows Apps
+		g_strFullLocation := "shell:Appsfolder\" . g_strFullLocation
 	else if (g_objThisFavorite.FavoriteType = "Special")
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
