@@ -2614,6 +2614,9 @@ Hotkey, If
 
 return
 
+;========================================================================================================================
+; Handles for the "Hotkey, If" condition
+;========================================================================================================================
 
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -3808,6 +3811,8 @@ InitQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check
 	, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "")
 InitQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
 	, lMenuEditIniFileDescription, 0, "iconSettings", "")
+InitQAPFeatureObject("List Applications", 		lMenuListApplications,				"", "ListApplications",						"7-QAPManagement"
+	, lMenuListApplicationsDescription, 0, "iconDesktop", "")
 
 InitQAPFeatureObject("Close Computer Control", lDialogCloseComputerControl, 		"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
 	, lDialogCloseComputerControlDescription, 0, "iconExit", "")
@@ -5671,50 +5676,19 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	*/
 	Loop, %strWinIDs%
 	{
-		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
-		WinGetTitle, strWindowTitle, % "ahk_id " strWinIDs%A_Index%
-		WinGetClass, strWindowClass, % "ahk_id " strWinIDs%A_Index%
-		WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinIDs%A_Index%
-		WinGet, intExStyle, ExStyle, % "ahk_id " . strWinIDs%A_Index%
-		
-		; if ((intExStyle & 0xFFFF0000) = 0x00200000)
-		;	###_V("", Format("{1:#x}", intExStyle), strWindowClass, strWindowTitle, strProcessPath, "=", strWinTitlesWinApps)
-		
-		if !StrLen(strProcessPath)
-			or !(intW * intH)
-			or !StrLen(strWindowTitle)
-			or (strProcessPath = A_WinDir . "\explorer.exe")
-			or (strProcessPath = g_strDirectoryOpusPath) and (g_intActiveFileManager = 2)
-			or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
-			
-			; if (g_strCurrentBranch <> "prod")
-			;	FileAppend, NO`t%strProcessPath%`t%strWindowTitle%`t%strWindowClass%`t%strProcessPath%`t%intW%`t%intH%`n, %strDiagFile%
-			continue
-			
-		else if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Switch Menu", objWindowProperties)
 		{
-			; remember titles of window of intExStyle 0x00200100 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
-			strWinTitlesWinApps .= strWindowTitle . "|"
-			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
-			continue
+			intWindowsIdIndex++
+			objFolderOrApp := Object()
+			objFolderOrApp.Name := objWindowProperties.WindowTitle
+			objFolderOrApp.LocationURL := objWindowProperties.ProcessPath
+			objFolderOrApp.WindowId := strWinIDs%A_Index%
+			objFolderOrApp.WindowType := "APP"
+
+			objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
 		}
-
-		intWindowsIdIndex++
-		objFolderOrApp := Object()
-		objFolderOrApp.Name := strWindowTitle
-		objFolderOrApp.LocationURL := strProcessPath
-		objFolderOrApp.WindowId := strWinIDs%A_Index%
-		objFolderOrApp.ExStyle := intExStyle
-		objFolderOrApp.WindowType := "APP"
-
-		objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
 	}
 }
-
-; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
-Loop, % objFoldersAndAppsList.MaxIndex()
-	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
-		objFoldersAndAppsList.Remove(A_Index)
 
 ; Build menu
 
@@ -16101,16 +16075,12 @@ Gui, CloseAllWindows:Add, Button, gCloseAllWindowsEnter Hidden Default, Enter
 Gui, CloseAllWindows:Add, Text
 
 DetectHiddenWindows, Off
-WinGet, strIDs, list
+WinGet, strWinIDs, list
 DetectHiddenWindows, On ; revert to app default
 
-Loop, %strIDs%
-{
-	WinGetTitle, strWindowTitle, % "ahk_id " . strIDs%A_Index%
-	WinGet, strWindowPath, ProcessPath, % "ahk_id " . strIDs%A_Index%
-	if StrLen(strWindowTitle) and (strWindowTitle <> "Program Manager")
-		LV_Add("", strWindowTitle, strIDs%A_Index%, strWindowPath)
-}
+Loop, %strWinIDs%
+	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close Applications", objWindowProperties)
+		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
 GuiCenterButtons(lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
@@ -18309,6 +18279,124 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+ListApplications:
+;------------------------------------------------------------
+
+Gui, ListApps:New
+Gui, ListApps:+Resize +MaximizeBox +MinimizeBox 
+Gui, ListApps:Add, ListView
+	, % "Count32 vf_gListApplications gListApplicationsEvents w1000 h700 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "")
+	, %lGuiListApplicationsHeader%
+Gui, ListApps:
+Gui, ListApps:Default
+
+Gui, ListApps:Add, Text, vf_ListApplicationLabel, %lDialogListApplicationLabel%
+Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, %lDialogListApplicationsDropdown%
+Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationRefreshButton gListApplicationsLoad, %lDialogRefresh%
+Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationCloseButton gListAppsGuiClose, %lGuiClose%
+
+Gosub, ListApplicationsChanged
+
+Gui, ListApps:Show
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListAppsGuiClose:
+;------------------------------------------------------------
+
+Gui, ListApps:Destroy
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListAppsGuiSize:
+
+GuiControl, ListApps:Move, f_gListApplications, % "w" . A_GuiWidth - 20
+GuiControl, ListApps:Move, f_gListApplications, % "h" . A_GuiHeight - 50
+GuiControl, ListApps:Move, f_ListApplicationLabel, % "y" . A_GuiHeight - 25
+GuiControl, ListApps:Move, f_drpListApplications, % "y" . A_GuiHeight - 30
+GuiControl, ListApps:Move, f_ListApplicationRefreshButton, % "y" . A_GuiHeight - 30
+GuiControl, ListApps:Move, f_ListApplicationCloseButton, % "x" . A_GuiWidth - 50 . " y" . A_GuiHeight - 30
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsEvents:
+;------------------------------------------------------------
+
+if (A_GuiEvent = "DoubleClick")
+{
+	LV_GetText(strWindowID, A_EventInfo, 2)
+	WinGetTitle, strWindowTitle, ahk_id %strWindowID%
+	WinGet, strWindowProcessPath, ProcessPath, ahk_id %strWindowID%
+	MsgBox, 3, %lMenuListApplications%, %strWindowTitle%`n%strWindowProcessPath%`n`n%lDialogListApplicationYesNo%
+	IfMsgBox, Yes
+		WinActivate, ahk_id %strWindowID%
+	IfMsgBox, No
+		WinClose, ahk_id %strWindowID%
+	
+	strWindowID := ""
+	strWindowTitle := ""
+	strWindowProcessPath := ""
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsChanged:
+;------------------------------------------------------------
+
+Gui, ListApps:Submit, NoHide
+gosub, ListApplicationsLoad
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ListApplicationsLoad:
+;------------------------------------------------------------
+
+DetectHiddenWindows, Off
+WinGet, strWinIDs, List	; Retrieve IDs of all the non-hidden windows
+DetectHiddenWindows, On ; revert to app default
+
+LV_Delete()
+Loop, %strWinIDs%
+	if KeepThisWindow(A_Index, strWinIDs%A_Index%, f_drpListApplications, objWindowProperties)
+	{
+		LV_Add("", A_Index, objWindowProperties.WindowID, SubStr(objWindowProperties.WindowTitle, 1, 50), objWindowProperties.ProcessName, SubStr(objWindowProperties.ProcessPath, 1, 50)
+			, objWindowProperties.WandH, objWindowProperties.MinMax, objWindowProperties.Style, objWindowProperties.ExStyle
+			, objWindowProperties.UniversalApplicationID, objWindowProperties.UniversalApplicationName)
+			
+		if (objWindowProperties.UniversalApplicationID) and (f_drpListApplications = "List All")
+			if KeepThisWindow(A_Index, objWindowProperties.UniversalApplicationID, "List All", objUniversalWindowProperties)
+				LV_Add("", A_Index, objUniversalWindowProperties.WindowID, SubStr(objUniversalWindowProperties.WindowTitle, 1, 50)
+					, objUniversalWindowProperties.ProcessName, SubStr(objUniversalWindowProperties.ProcessPath, 1, 50), objUniversalWindowProperties.WandH
+					, objUniversalWindowProperties.MinMax, objUniversalWindowProperties.Style, objUniversalWindowProperties.ExStyle
+					, objUniversalWindowProperties.UniversalApplicationID, "(" . objWindowProperties.WindowID . ")")
+	}
+Loop, % LV_GetCount("Column")
+	LV_ModifyCol(A_Index, "AutoHdr")
+LV_ModifyCol(1, "Integer")
+
+objWindowProperties := ""
+objUniversalWindowProperties := ""
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -18895,15 +18983,14 @@ CollectRunningApplications(strDefaultPath)
 	objApps := Object()
 
 	DetectHiddenWindows, Off
-	Winget, strIDs, list
+	Winget, strWinIDs, list
 	DetectHiddenWindows, On ; revert to app default
 	
-	Loop, %strIDs%
-	{
-		WinGet, strPath, ProcessPath, % "ahk_id " . strIDs%A_index%
-		if !objApps.HasKey(strPath)
-			objApps.Insert(strPath, "")
-	}
+	Loop, %strWinIDs%
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Running Applications", objWindowProperties)
+			if !objApps.HasKey(objWindowProperties.ProcessPath)
+				objApps.Insert(objWindowProperties.ProcessPath, "")
+
 	for strThisPath in objApps
 	{
 		strPaths .= strThisPath . "|"
@@ -20132,6 +20219,102 @@ BetweenParenthesis(str)
 ;------------------------------------------------------------
 {
 	return "(" . str . ")"
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
+; strCaller: List All||Switch Menu|Running Applications|Close Applications
+;------------------------------------------------------------
+{
+	global g_strDirectoryOpusPath
+	global g_intActiveFileManager
+	
+	static strWinTitlesWinApps
+	if (intIndex = 1)
+		strWinTitlesWinApps := "" ; ##### to be validated or continued
+	
+	objWindowProperties := Object()
+	objWindowProperties.Index := intIndex
+	objWindowProperties.WindowID := strWinID
+	
+	WinGet, strProcessName, ProcessName, % "ahk_id " . strWinID
+	objWindowProperties.ProcessName := strProcessName
+    if (strProcessName == "explorer.exe") ; case sensitive
+		strWindowTitle := "Explorer"
+	else
+		WinGetTitle, strWindowTitle, % "ahk_id " strWinID
+	objWindowProperties.WindowTitle := strWindowTitle
+	WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinID
+	objWindowProperties.ProcessPath := strProcessPath
+	WinGetPos, intX, intY, intW, intH, % "ahk_id " strWinID
+	blnWandH := intW and intH
+	objWindowProperties.WandH := blnWandH
+	WinGet, intMinMax, MinMax, % "ahk_id " . strWinID
+	objWindowProperties.MinMax := intMinMax
+	WinGet, intStyle, Style, % "ahk_id " . strWinID
+	objWindowProperties.Style := intStyle
+	WinGet, intExStyle, ExStyle, % "ahk_id " . strWinID
+	objWindowProperties.ExStyle := intExStyle
+	
+    if (strProcessName = "ApplicationFrameHost.exe")
+	{
+        ControlGet, intUniversalApplicationID, Hwnd, , Windows.UI.Core.CoreWindow1, % "ahk_id " . strWinID
+        if (intUniversalApplicationID)
+		{
+            WinGet strUniversalApplicationName, ProcessName, ahk_id %intUniversalApplicationID%
+			objWindowProperties.UniversalApplicationName := strUniversalApplicationName
+			objWindowProperties.UniversalApplicationID := intUniversalApplicationID
+		}
+		if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		{
+			; remember titles of window of intExStyle 0x00200000 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
+			strWinTitlesWinApps .= strWindowTitle . "|"
+			; ###_V("strWinTitlesWinApps", strWinTitlesWinApps)
+			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
+		}
+		; ##### to be validated or continued
+		; ##### run after loops, not here
+		; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
+		; Loop, % objFoldersAndAppsList.MaxIndex()
+		;	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
+		;		objFoldersAndAppsList.Remove(A_Index)
+	}
+	
+	; if InStr(strWindowTitle, "Calendrier")
+		; ###_O("objWindowProperties", objWindowProperties)
+	; if InStr(strProcessPath, "opus")
+		; ###_O(strCaller . " / " . strProcessPath . " / " . g_strDirectoryOpusPath . " / " . g_intActiveFileManager, objWindowProperties)
+	
+	if (strCaller = "List All")
+		return true
+	
+	if !StrLen(strWindowTitle)
+		or !StrLen(strProcessPath)
+		or !(blnWandH)
+		or (strProcessPath = A_ProgramFiles . "\Windows Sidebar\sidebar.exe")
+		or InStr(strProcessPath, A_ProgramFiles . "\WindowsApps\") ; and (intExStyle <> 0x00280000)
+		return false
+
+	else if (strProcessName = "ApplicationFrameHost.exe")
+		; si minimisé conserver
+	{
+		return StrLen(intUniversalApplicationID) ; this is a running and normal (or maximized?)
+			or (intMinMax = -1) ; this is a running and minimized
+	}
+	
+	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
+		return false
+	
+	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
+		return false
+	
+	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
+		; return false
+	
+	return true
+
 }
 ;------------------------------------------------------------
 
