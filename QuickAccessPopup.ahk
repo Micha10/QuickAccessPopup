@@ -4278,6 +4278,9 @@ IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
 IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
+IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
+if !(blnDefaultWindowsAppsMenuBuilt)
+ 	Gosub, AddToIniWindwosAppsDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
@@ -4635,6 +4638,44 @@ return
 
 
 ;------------------------------------------------------------
+AddToIniWindwosAppsDefaultMenu:
+;------------------------------------------------------------
+
+strThisMenuName := lMenuMyWindowsAppsMenu
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
+g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
+
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
+
+AddToIniOneDefaultMenu("Microsoft.MicrosoftSolitaireCollection_8wekyb3d8bbwe!App", "Solitaire", "WindowsApp")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("Microsoft.WindowsCalculator_8wekyb3d8bbwe!App", "Calculator", "WindowsApp")
+AddToIniOneDefaultMenu("microsoft.windowscommunicationsapps_8wekyb3d8bbwe!microsoft.windowslive.calendar", "Calendar", "WindowsApp")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint", "MS Paint", "WindowsApp")
+AddToIniOneDefaultMenu("Microsoft.SkypeApp_kzf8qxf38zg5c!App", "Skype", "WindowsApp")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("Microsoft.MicrosoftEdge_8wekyb3d8bbwe!MicrosoftEdge", "Microsoft Edge", "WindowsApp")
+AddToIniOneDefaultMenu("Microsoft.WindowsMaps_8wekyb3d8bbwe!App", "Maps", "WindowsApp")
+AddToIniOneDefaultMenu("Microsoft.BingNews_8wekyb3d8bbwe!AppexNews", "Bing News", "WindowsApp")
+AddToIniOneDefaultMenu("Microsoft.ZuneVideo_8wekyb3d8bbwe!Microsoft.ZuneVideo", "Zune Video", "WindowsApp")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("windows.immersivecontrolpanel_cw5n1h2txyewy!microsoft.windows.immersivecontrolpanel", "Immersive Control Panel", "WindowsApp")
+AddToIniOneDefaultMenu("", "", "Z") ; close Windows Apps menu
+
+AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
+
+IniWrite, 1, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt
+
+g_intNextFavoriteNumber := ""
+strThisMenuName := ""
+strDefaultMenu := ""
+
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 AddToIniGetMenuName:
 ;------------------------------------------------------------
 
@@ -4670,7 +4711,6 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 	global g_objJLiconsByName
 	global lMenuMyQAPMenu
 
-	; ###_V("AddToIniOneDefaultMenu", strLocation, strName, strFavoriteType)
 	if (strFavoriteType = "Z")
 		strNewIniLine := strFavoriteType
 	else
@@ -4678,10 +4718,14 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 		if (strFavoriteType = "Menu")
 			if (strName = lMenuMyQAPMenu)
 				strIconResource := "iconApplication"
-			else ; lMenuMySpecialMenu
+			else if (strName = lMenuMySpecialMenu)
 				strIconResource := "iconSpecialFolders"
+			else ; lMenuMyWindowsAppsMenu
+				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
 			strIconResource := g_objSpecialFolders[strLocation].DefaultIcon
+		else if (strFavoriteType = "WindowsApp")
+			strIconResource := "iconDesktop"
 		else
 			strIconResource := g_objQAPFeatures[strLocation].DefaultIcon
 
@@ -9075,7 +9119,7 @@ BuildTabsList(strFavoriteType)
 ;------------------------------------------------------------
 GuiFavoriteInit:
 ;------------------------------------------------------------
-; Icon resource in the format "iconfile,index", examnple "shell32.dll,2"
+; Icon resource in the format "iconfile,index", example "shell32.dll,2"
 ; g_strDefaultIconResource -> default icon for the current type of favorite
 ; g_strNewFavoriteIconResource -> icon currently displayed in the Add/Edit dialog box
 
@@ -15188,7 +15232,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 if (g_objThisFavorite.FavoriteType = "WindowsApp")
 {
 	; ###_V("Run", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation)
-	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, , UseErrorLevel
+	Run, %g_strFullLocation%, , UseErrorLevel
 	if (ErrorLevel = "ERROR")
 	{
 		if (A_LastError <> 1223)
@@ -19664,6 +19708,8 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
 	else if (objFavorite.FavoriteType = "Text")
 		return "iconNoIcon"
+	else if (objFavorite.FavoriteType = "WindowsApp")
+		return "iconDesktop"
 	else ; should not
 		return "iconUnknown"
 }
