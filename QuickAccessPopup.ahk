@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.1 (2018-05-22)
+- support Windows Apps (aka Universal Applications, UWP applications or Metro Apps)
+- add favorite type "Windows App"
+- add menu "My Windows Apps" at the end of Main menu, if it is not already built;
+- add QAP Feature "List Applications" used to analyse properties of currently open applications and windows (for debugging use)
+- implement KeepThisWIndow for Switch menu, Close all windows and Add application (list of running apps)
+
 Version: 9.0.4 (2018-05-20)
 - fix bug subfolders of Live folders are now also sorted according to Live folder's options
 - fix bug default icon is now set when adding a file with the "Add File to Quick Access Popup menu Express" extended context menu (Shift + Right click a file in Windows Explorer to show the "extended" context menu)
