@@ -32,8 +32,8 @@ HISTORY
 =======
 
 Version: 9.0.5 (2018-06-03)
-- fix bug with icon whan adding a link (URL) favorite with the "Add this Folder or Link Express" command
-- minor language udates for all languages
+- fix bug with icon when adding a link (URL) favorite with the "Add this Folder or Link Express" command
+- minor language updates for all languages
 
 Version BETA: 9.0.9.1 (2018-05-22)
 - support Windows Apps (aka Universal Applications, UWP applications or Metro Apps)
