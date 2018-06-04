@@ -200,9 +200,9 @@ lDialogFavoriteTypesHelp6	Créez un raccourci vers un "Site FTP".`n`nChoisissez l
 lDialogFavoriteTypesHelp7	Dans n'importe quel menu, insérez des fonctionnalités de QAP tel que: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nVoyez les descriptions et liens d'aide pour plus d'information.
 lDialogFavoriteTypesHelp8	Rassemblez des favoris apparentés dans un "Sous-menu".`n`nDonnez un nom à ce sous-menu et sélectionnez diverses options.`n`nAjoutez des favoris à votre sous-menu ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Déplacer" ou dans l'onglet "Options du menu" de la boîte de dialogue "Modifier un favori".
 lDialogFavoriteTypesHelp9	Lancez un "Groupe" de favoris en un seul raccourci.`n`nDonnez un nom à ce groupe et sélectionnez diverses options.`n`nAjoutez des favoris à votre groupe. Déplacez un favori vers un autre groupe ou sous-menu avec le bouton "Déplacer" ou dans l'onglet "Options du menu" de la boîte de dialogue "Modifier un favori".`n`nLes Réglages avancés permettent de contrôle la vitesse de restauration en insérant un délai entre chaque favori à restaurer.
-lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|M&enu partagé|Texte séparateur
-lDialogFavoriteTypesLabelsNoAmpersand	Dossier|Document|Application|Dossier spécial|Lien|Site FTP|Fonctionnalité QAP|Sous-menu|Groupe||||Fragments de texte|Menu partagé|Texte séparateur
-lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier)||Lien (URL)|Site FTP (URL)|||||||Contenu|Menu externe (emplacement et nom du fichier)|Texte séparateur
+lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien (URL)|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|M&enu partagé|Texte séparateur|&Windows App
+lDialogFavoriteTypesLabelsNoAmpersand	Dossier|Document|Application|Dossier spécial|Lien (URL)|Site FTP|Fonctionnalité QAP|Sous-menu|Groupe||||Fragments de texte|Menu partagé|Texte séparateur|Windows App
+lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier)||Lien (URL)|Site FTP (URL)|||||||Contenu|Menu externe (emplacement et nom du fichier)|Texte séparateur|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..|Fragment|Partagé|Texte
 lDialogFavoriteWorkingDirNotFoundPrompt	Le dossier "Démarrer dans" du favori "~1~" est introuvable:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Paramètre "Démarrer dans" introuvable - ~1~
@@ -234,8 +234,6 @@ lDialogHotstringCaseSensitive	Sensible à la casse
 lDialogHotstringExpandInsideWords	Substituer à l'intérieur d'autres mots
 lDialogHotstringIndicator	cs
 lDialogHotstringKeepHotstring	Conserver l'abréviation
-lDialogHotstringNotConformCase	Ne pas se conformer à la casse
-lDialogHotstringNotKeepEndingKey	Ne pas conserver le caractère de fin
 lDialogHotstringNotWaitEndingKey	Ne pas attendre de caractère de fin
 lDialogHotstrings	Chaînes de substitution
 lDialogHotstringsDescription	Afficher une boîte de dialogue offrant une vue globale de vos chaînes de substitution (petites séquences de caractères qui déclenchent automatiquement un favori de QAP). Vous pouvez trier les favoris en cliquant sur l'entête des colonnes.`n`nFaites un double-clic sur une chaîne de substitution pour la modifier.`n`nCliquez sur la case à cocher "Voir tous les favoris" pour assigner des chaînes de substitution à d'autres favoris.

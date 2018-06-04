@@ -200,9 +200,9 @@ lDialogFavoriteTypesHelp6	Criar um atalho para um "Site FTP".`n`nDefina o nome d
 lDialogFavoriteTypesHelp7	Inserir algures no seu menu "Funções Quick Access Popup" tais como: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nVer descrições e ligações de ajuda para mais informação.
 lDialogFavoriteTypesHelp8	Reunir favoritos relacionados num "Submenu".`n`nAtribua um nome ao seu submenu e seleccione opções de menu.`n`nAdicione favoritos ao seu submenu. Mova um favorito para outro submenu ou grupo usando o botão "Mover" ou o separador "Opções do Menu" da janela "Editar favorito".
 lDialogFavoriteTypesHelp9	Carregar um "Grupo" de favoritos, todos com uma só tecla de atalho!`n`nAtribua um nome ao seu grupo e defina diversas opções para o seu grupo.`n`nAdicione favoritos ao seu grupo. Mova um favorito para outro grupo ou submenu usando o botão "Mover" ou o separador "Opções do Menu" da janela "Editar favorito".`n`nAs opções avançadas permitem controlar a velocidade de restauro inserindo um atraso entre cada favorito a restaurar.
-lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Separador de Texto
-lDialogFavoriteTypesLabelsNoAmpersand	Pasta|Documento|Aplicação|Pasta Especial|Ligação|Site FTP|Função QAP|Submenu|Grupo||||Snippet|Menu Partilhado|Separador de Texto
-lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|Site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Separador de Texto
+lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicação|Pasta E&special|&Ligação (URL)|Site F&TP|Função &QAP|Sub&menu|&Grupo||||S&nippet|Menu Partil&hado|Separador de Texto|&Windows App
+lDialogFavoriteTypesLabelsNoAmpersand	Pasta|Documento|Aplicação|Pasta Especial|Ligação (URL)|Site FTP|Função QAP|Submenu|Grupo||||Snippet|Menu Partilhado|Separador de Texto|Windows App
+lDialogFavoriteTypesLocationLabels	Pasta (atalho)|Documento (atalho e nome de ficheiro)|Aplicação (atalho e nome de ficheiro)||Ligação (URL)|Site FTP (URL)|||||||Conteúdo|Ficheiro de definições esternas (atalho)|Separador de Texto|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Pasta|Doc|App|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Snippet|Partilhado|Texto
 lDialogFavoriteWorkingDirNotFoundPrompt	A definição avançada "Iniciar em" do favorito "~1~" não foi encontrada:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Parâmetro Iniciar em não encontrado - ~1~
@@ -234,8 +234,6 @@ lDialogHotstringCaseSensitive	Sensível a Maiúsc/minúsc
 lDialogHotstringExpandInsideWords	Expandir dentro de outras palavras
 lDialogHotstringIndicator	cs
 lDialogHotstringKeepHotstring	Manter abreviatura da cadeia de substituição
-lDialogHotstringNotConformCase	Não obedecer a letra digitada
-lDialogHotstringNotKeepEndingKey	Não guardar tecla final
 lDialogHotstringNotWaitEndingKey	Não esperar por tecla final
 lDialogHotstrings	Cadeias de substituição
 lDialogHotstringsDescription	Exibe uma caixa de diálogo com uma vista geral das cadeias de substituição (pequenas sequência de teclas que activam automaticamente os favoritos QAP). Pode ordenar os favoritos clicando no cabeçalho.`n`nFaça duplo clique numa cadeia de substituição para editá-la.`n`nClique na caixa de selecção "Ver todos os favoritos" para atribuir cadeias de substituição a outros favoritos.
