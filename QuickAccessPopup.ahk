@@ -9246,6 +9246,7 @@ else ; add favorite
 			{
 				g_objEditedFavorite.FavoriteType := "URL"
 				g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
+				g_strNewFavoriteIconResource := g_strURLIconFileIndex
 			}
 			else
 				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))

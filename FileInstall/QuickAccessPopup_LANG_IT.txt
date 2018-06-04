@@ -200,9 +200,9 @@ lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il 
 lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come: ~1~, ~2~, ~3~, ~4~, ~5~, ecc.`n`nConsulta le descrizioni e i link di aiuto per maggiori infomazioni.
 lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù. Sposta un Preferito ad un altro sottomenù o gruppo cliccando su "Sposta" o il tab "Opzioni Menù" della finestra "Modifica preferito".
 lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona varie opzioni del gruppo.`n`nAggiungi Preferiti al tuo gruppo. Sposta un preferito ad un altro gruppo o sottomenù cliccando su "Modifica" o il tab "Menù opzioni" della finestra "Modifica preferito".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciascun Preferito da ripristinare.
-lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso|Separatore di testo
-lDialogFavoriteTypesLabelsNoAmpersand	Cartella|Documento|Applicazione|Cartella Speciale|Link|Sito FTP|Caratteristica di QAP|Sottomenù|Gruppi||||Snippet|Menù Condiviso|Separatore di testo
-lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Contenuto|File Impostazioni "esterne" (percorso)|Separatore di testo
+lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link (URL)|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso|Separatore di testo|&Windows App
+lDialogFavoriteTypesLabelsNoAmpersand	Cartella|Documento|Applicazione|Cartella Speciale|Link (URL)|Sito FTP|Caratteristica di QAP|Sottomenù|Gruppi||||Snippet|Menù Condiviso|Separatore di testo|Windows App
+lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Contenuto|File Impostazioni "esterne" (percorso)|Separatore di testo|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Interruzione Colonna|..|Snippet|Condiviso|Testo
 lDialogFavoriteWorkingDirNotFoundPrompt	L'impostazione avanzata "Inizia in" del preferito "~1~" non è stata trovata:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Il Parametro "Inizia in" non è stato trovato - ~1~
@@ -234,8 +234,6 @@ lDialogHotstringCaseSensitive	Distingue maiusc/minusc
 lDialogHotstringExpandInsideWords	Espansione all'interno di altre parole
 lDialogHotstringIndicator	Abbrev.
 lDialogHotstringKeepHotstring	Mantieni la sequenza di sostituzione tale e quale
-lDialogHotstringNotConformCase	Non rispettare il formato maiusc/minusc
-lDialogHotstringNotKeepEndingKey	Non mantenere il tasto di finalizzazione
 lDialogHotstringNotWaitEndingKey	Non aspettare il tasto di finalizzazione
 lDialogHotstrings	Sequenze di sostituzione
 lDialogHotstringsDescription	Visualizza una casella di dialogo con una visione complessiva delle sequenze di sostituzione (corte sequenze di tasti, di solito caratteri, che attivano automaticamente preferiti, di solito uno, di QAP). Puoi ordinare i preferiti cliccando sull'intestazione.`n`nFai doppio click su una sequenza di sostituzione per editarla.`n`nClicca la casella di spunta "Vedi tutti i preferiti" per assegnare sequenze di sostituzione ad altri preferiti.
