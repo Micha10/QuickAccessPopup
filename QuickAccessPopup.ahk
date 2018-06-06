@@ -4360,6 +4360,7 @@ return
 
 ;------------------------------------------------------------
 LoadMenuFromIni:
+LoadMenuFromIniWithStatus:
 ;------------------------------------------------------------
 
 IfNotExist, %g_strIniFile%
@@ -4377,9 +4378,10 @@ else
 	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
 	
+	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
+
 	g_intIniLine := 1
-	
-	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
+	if (RecursiveLoadMenuFromIni(g_objMainMenu, g_blnWorkingToolTip) <> "EOM") ; build menu tree
 		ExitApp
 }
 
@@ -4388,7 +4390,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuFromIni(objCurrentMenu)
+RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
@@ -4407,6 +4409,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 	
 	; ###_V("RecursiveLoadMenuFromIni Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu)
+	if (blnWorkingToolTip)
+		Tooltip, % lToolTipLoading . "`n" . objCurrentMenu.MenuPath
 
 	Loop
 	{
@@ -4460,6 +4464,11 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
+				
+				; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
+				IniRead, strMenuExternalReservedBy, % objNewMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space%
+				if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+					IniWrite, % "", % objNewMenu.MenuExternalPath, Global, MenuReservedBy
 			}
 			
 			; create a navigation entry to navigate to the parent menu
@@ -4480,7 +4489,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			}
 			
 			; build the submenu
-			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
+			strResult := RecursiveLoadMenuFromIni(objNewMenu, blnWorkingToolTip) ; RECURSIVE
 			
 			if (arrThisFavorite1 = "External")
 			{
@@ -6220,8 +6229,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	if (g_blnWorkingToolTip)
-		Tooltip, % L(lTrayTipWorkingTitle, g_strAppNameText) . "`n" . objCurrentMenu.MenuPath
-		
+		Tooltip, % lToolTipBuilding . "`n" . objCurrentMenu.MenuPath
+
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
@@ -12996,7 +13005,6 @@ GuiSaveAndReloadQAP:
 g_blnMenuReady := false
 strSavedMenuInGui := g_objMenuInGui.MenuPath
 
-ToolTip, %lGuiSaving%. ; animated tooltip
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
@@ -13006,13 +13014,12 @@ IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
+g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
-
-ToolTip, %lGuiSaving%.. ; animated tooltip
 
 ; was for g_objHotkeysByNameLocation
 ; clean-up unused hotkeys if favorites were deleted
@@ -13026,12 +13033,11 @@ ToolTip, %lGuiSaving%.. ; animated tooltip
 ; Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByNameLocation
 ; Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByNameLocation
 
-Gosub, LoadMenuFromIni ; load favorites to menu object
-ToolTip, %lGuiSaving%... ; animated tooltip
+Gosub, ExternalMenusRelease ; release reserved external menus
+Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
-Gosub, ExternalMenusRelease ; release reserved external menus
 
 GuiControl, Enable, f_btnGuiCancel
 GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
@@ -13067,10 +13073,14 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_objJLiconsByName
 	global g_objJLiconsNames
 	global g_strJLiconsFile
+	global g_blnWorkingToolTip
+
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
-	
+	if (g_blnWorkingToolTip)
+		Tooltip, % lToolTipSaving . "`n" . objCurrentMenu.MenuPath
+
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		; skip ".." back link to parent menu
@@ -19679,8 +19689,8 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 			; ... already reserved for this user, return true
 			return true
 		else
-			; ... reserved by another user, return false
 		{
+			; ... reserved by another user, return false
 			Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
 			return false
 		}
