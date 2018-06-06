@@ -13496,6 +13496,12 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		SS_strNewShortcut := ""
 		return
 	}
+	else if (SS_strNewShortcut = "#l") ; Windows + L is locking the system before QAP can intercept the hotkey
+	{
+		Oops(lDialogChangeHotkeyKeyReserved, Format("{:U}", SS_strNewShortcut)) ; {:U} convert to uppercase
+		SS_strNewShortcut := ""
+		return
+	}	
 	else if (SS_blnWin or SS_blnAlt or SS_blnCtrl or SS_blnShift) and (SS_strNewShortcut = "None")
 	{
 		Oops(lDialogChangeHotkeyModifierAndNone)
