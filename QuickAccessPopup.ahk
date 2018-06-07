@@ -4462,6 +4462,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
 				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
+				###_V("strLastModified", strLastModified)
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
 				
@@ -6697,6 +6698,7 @@ RefreshQAPMenuScheduled:
 RefreshQAPMenuExternalOnly:
 ;------------------------------------------------------------
 
+###_V(A_ThisLabel, ###_coucou, SettingsUnsaved(), g_blnMenuReady)
 if (SettingsUnsaved() or !g_blnMenuReady ; these two required
 	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
 	return
@@ -6708,7 +6710,15 @@ g_blnMenuReady := false
 
 for strMenuName, objThisMenu in g_objMenusIndex
 	if (objThisMenu.MenuType = "External") and ExternalMenuModifiedSinceLoaded(objThisMenu) ; refresh only if changed only
+	{
 		strResult := LoadExternalMenu(objThisMenu, objThisMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+		IniRead, strLastModified, % objThisMenu.MenuExternalPath, Global, LastModified, %A_Space%
+		###_V("strLastModified", strLastModified)
+		objThisMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+		objThisMenu.MenuExternalLastModifiedNow := strLastModified
+		RecursiveBuildOneMenu(objThisMenu)
+
+	}
 
 if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
@@ -6726,6 +6736,8 @@ g_blnMenuReady := true
 
 if (g_blnRefreshQAPMenuDebugBeep)
 	SoundBeep, 440
+
+strLastModified := ""
 
 return
 ;------------------------------------------------------------
@@ -8243,6 +8255,13 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
 		{
+			if ExternalMenuModifiedSinceLoaded(g_objMenuInGui[A_Index].SubMenu)
+			{
+				strResult := LoadExternalMenu(g_objMenuInGui[A_Index].SubMenu, g_objMenuInGui[A_Index].SubMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+				###_coucou := "coucou"
+				Gosub, RefreshQAPMenu ; will LoadExternalMenu
+				###_V(A_ThisLabel, strResult)
+			}
 			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
 				strGuiMenuLocation := lDialogReadOnly . " "
 			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
@@ -10778,6 +10797,7 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ;
 	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 }
 
+###_coucou := "coucou"
 Gosub, RefreshQAPMenuExternalOnly
 
 Gosub, BackupMenusObjects
@@ -19671,6 +19691,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	global g_objExternaleMenuToRelease
 	global g_strAppNameText
 	global g_strAppVersion
+	global g_objMenuInGui
 
 	; ###_O(A_ThisFunc . " - objMenu", objMenu)
 	if (objMenu.MenuType <> "External")
@@ -19706,39 +19727,44 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		Oops(lOopsExternalFileWriteErrorCollaborative)
 		return false
 	}
-; instead of else, just continue
-	else if ExternalMenuModifiedSinceLoaded(objMenu)
-	; external settings file was modified since it was loaded - could not be locked, return false
-	{
-		; here, user can reload QAP or continue and the lock is refused
-; could it just reload the external menu and refresh the menu in gui
-		MsgBox, 52, %g_strAppNameText% - %g_strAppVersion%, %lOopsErrorIniFileModified%
-		IfMsgBox, Yes
-			Gosub, ReloadQAP
-		
-		return false
-	}
-; and instead of else, just continue afet refresh if refreshed
-	else
-	; lock is allowed, return true
-	{
-		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
-			; personal menu is changed on another system - only inform user, lock overwriting is allowed
-			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
-		
-		if (blnLockItForMe)
-		; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
-		{
-			; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
-			IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
-				, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
-			; remember to free when saving or canceling
-			g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-			; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
-		}
 
-		return true
+	; here, we know that this menu can be locked.
+	; but first check if it need to be refreshed
+
+	if (blnLockItForMe) and ExternalMenuModifiedSinceLoaded(objMenu)
+	; external settings file was modified since it was loaded - refresh it and, if it is in the gui, reload it
+	{
+		strResult := LoadExternalMenu(objMenu, objMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+		###_V(A_ThisFunc, strResult)
+		###_O("g_objMenuInGui!", g_objMenuInGui)
+		###_O("objMenu!", objMenu)
+		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
+		{
+			Oops("menu was changed, it will be refreshed but you will have to redo your change") ; ##### language
+			Gosub, LoadMenuInGui
+			return false
+		}
 	}
+	
+	; and instead of else, just continue afet refresh if refreshed
+
+	; lock is allowed, return true
+	if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
+		; personal menu is changed on another system - only inform user, lock overwriting is allowed
+		Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
+	
+	if (blnLockItForMe)
+	; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
+	{
+		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
+		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
+			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
+		; remember to free when saving or canceling
+		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
+		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
+	}
+
+	return true
 }
 ;------------------------------------------------------------
 
@@ -19782,6 +19808,7 @@ ExternalMenuModifiedSinceLoaded(objMenu)
 	; if (!StrLen(objMenu.MenuExternalLastModifiedWhenLoaded) or !StrLen(objMenu.MenuExternalLastModifiedNow))
 	;	###_V(A_ThisFunc . " !!!!!", strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
 	; ###_V(A_ThisFunc . " MODIFIED?", (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded), strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
+	###_O(A_ThisFunc . " " . objMenu.MenuPath, objMenu)
 	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
 }
 ;------------------------------------------------------------
