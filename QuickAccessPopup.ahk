@@ -6694,34 +6694,38 @@ GetMenuHandle(strMenuName)
 ;------------------------------------------------------------
 RefreshQAPMenu:
 RefreshQAPMenuScheduled:
+RefreshQAPMenuExternalOnly:
 ;------------------------------------------------------------
 
 if (SettingsUnsaved() or !g_blnMenuReady ; these two required
 	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
 	return
 
+if (g_blnRefreshQAPMenuDebugBeep)
+	SoundBeep, 330
+
 g_blnMenuReady := false
-if (A_ThisLabel = "RefreshQAPMenuScheduled")
-{
-	if (g_blnRefreshQAPMenuDebugBeep)
-		SoundBeep, 330
-	
-	for strMenuName, objThisMenu in g_objMenusIndex
-		if (objThisMenu.MenuType = "External")
-			strResult := LoadExternalMenu(objThisMenu, objThisMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
-		
-	Gosub, RefreshTotalCommanderHotlistScheduled
-	Gosub, BuildMainMenuScheduled
-	
-	if (g_blnRefreshQAPMenuDebugBeep)
-		SoundBeep, 440
-}
-else
-{
-	Gosub, RefreshTotalCommanderHotlist
-	Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
-}
+
+for strMenuName, objThisMenu in g_objMenusIndex
+	if (objThisMenu.MenuType = "External") and ExternalMenuModifiedSinceLoaded(objThisMenu) ; refresh only if changed only
+		strResult := LoadExternalMenu(objThisMenu, objThisMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+
+if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
+	if (A_ThisLabel = "RefreshQAPMenuScheduled")
+	{
+		Gosub, RefreshTotalCommanderHotlistScheduled
+		Gosub, BuildMainMenuScheduled
+	}
+	else
+	{
+		Gosub, RefreshTotalCommanderHotlist
+		Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+	}
+
 g_blnMenuReady := true
+
+if (g_blnRefreshQAPMenuDebugBeep)
+	SoundBeep, 440
 
 return
 ;------------------------------------------------------------
@@ -10773,6 +10777,8 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ;
 		strThisMenu := A_ThisMenu
 	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 }
+
+Gosub, RefreshQAPMenuExternalOnly
 
 Gosub, BackupMenusObjects
 
@@ -19700,16 +19706,19 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		Oops(lOopsExternalFileWriteErrorCollaborative)
 		return false
 	}
+; instead of else, just continue
 	else if ExternalMenuModifiedSinceLoaded(objMenu)
 	; external settings file was modified since it was loaded - could not be locked, return false
 	{
 		; here, user can reload QAP or continue and the lock is refused
+; could it just reload the external menu and refresh the menu in gui
 		MsgBox, 52, %g_strAppNameText% - %g_strAppVersion%, %lOopsErrorIniFileModified%
 		IfMsgBox, Yes
 			Gosub, ReloadQAP
 		
 		return false
 	}
+; and instead of else, just continue afet refresh if refreshed
 	else
 	; lock is allowed, return true
 	{
