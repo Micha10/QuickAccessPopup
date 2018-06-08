@@ -13734,7 +13734,6 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	SH_blnHotstringWaitEndingKey := ""
 	SH_blnHotstringKeepTrigger := ""
 	SH_strTempOptions := ""
-	SH_blnNotConformCase := ""
 	
 	return SH_strNewHotstring ; returning value
 	
