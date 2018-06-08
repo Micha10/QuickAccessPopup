@@ -51,6 +51,8 @@ Various
 - display tooltips during saving favorites and rebuilding the menu (not only when rebuilding)
 - change tooltips language when rebuilding menu;
 - sound debug beep also when refreshing shared menus and live folders on-demand
+- do not save settings window position if ini file has been deleted when QAP was running (user can do it to create a fresh ini file)
+- in select hotkey, reject Windows + L hotkey because it is locking the system before QAP can intercept the hotkey
 
 Version: 9.0.5 (2018-06-03)
 - fix bug with icon when adding a link (URL) favorite with the "Add this Folder or Link Express" command
