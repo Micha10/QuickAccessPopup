@@ -5046,17 +5046,20 @@ CleanUpBeforeExit:
 ; if (g_blnDiagMode)
 	; Diag("ListLines", ScriptInfo("ListLines"))
 
-strSettingsPosition := "-1" ; center at minimal size
-if (g_blnRememberSettingsPosition)
+if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh one, this avoids creating an ini file with just this value
 {
-	WinGet, intMinMax, MinMax, ahk_id %g_strAppHwnd%
-	if (intMinMax <> 1) ; if window is maximized, we keep the default position and size (center at minimal size)
+	strSettingsPosition := "-1" ; center at minimal size
+	if (g_blnRememberSettingsPosition)
 	{
-		WinGetPos, intX, intY, intW, intH, ahk_id %g_strAppHwnd%
-		strSettingsPosition := intX . "|" . intY . "|" . intW . "|" . intH
+		WinGet, intMinMax, MinMax, ahk_id %g_strAppHwnd%
+		if (intMinMax <> 1) ; if window is maximized, we keep the default position and size (center at minimal size)
+		{
+			WinGetPos, intX, intY, intW, intH, ahk_id %g_strAppHwnd%
+			strSettingsPosition := intX . "|" . intY . "|" . intW . "|" . intH
+		}
 	}
+	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 }
-IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
