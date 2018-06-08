@@ -200,9 +200,6 @@ lDialogFavoriteTypesHelp6	Crie um atalho para um "Site FTP".`n`nDefina o nome do
 lDialogFavoriteTypesHelp7	Insira em qualquer lugar do seu menu "Recursos do Quick Access Popup" como: ~1~, ~2~, ~3~, ~4~, ~5~, etc. Consulte as descrições e links de ajuda para maiores informações.
 lDialogFavoriteTypesHelp8	Reúna favoritos relacionados em um "Submenu".`n`nDê um nome para seu submenu e selecione as opções de menu.`n`nAdicione favoritos em seu submenu. Mova um favorito para outro submenu ou grupo usando o botão "Mover" ou a aba "Opções de Menu" da janela "Editar Favorito".
 lDialogFavoriteTypesHelp9	Inicie um "Grupo" de favoritos, todos em um atalho!`n`nDê um nome para seu grupo e defina várias opções para seu grupo.`n`nAdicione favoritos em seu grupo. Mova um favorito de outro grupo ou submenu usando o botão "Mover" ou a aba "Opções de Menu" da janela "Editar Favorito".`n`nConfigurações avançadas permitem controlar a velocidade de restauração inserindo um atraso entre cada favorito para restaurar.
-lDialogFavoriteTypesLabels	&Pasta|&Documento|&Aplicativo|Pasta E&special|&Link (URL)|Site F&TP|Recurso &QAP|Sub&menu|&Grupo||||&Recorte|Menu &Compartilhado|Separador de Texto|&Windows App
-lDialogFavoriteTypesLabelsNoAmpersand	Pasta|Documento|Aplicativo|Pasta Especial|Link (URL)|Site FTP|Recurso do QAP|Submenu|Grupo||||Recorte|Menu Compartilhado|Separador de Texto|Windows App
-lDialogFavoriteTypesLocationLabels	Pasta (caminho)|Documento (caminho e nome do arquivo)|Aplicativo (caminho e nome do arquivo)||Link (URL)|Site FTP (URL)|||||||Conteúdo|Arquivo de configurações externo (caminho)|Separador de Texto|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Pasta|Documento|Aplicativo|Especial|Link|FTP|QAP|Menu|Grupo|Separador|Quebra de Coluna|..|Recorte|Compartilhado|Texto
 lDialogFavoriteWorkingDirNotFoundPrompt	A configuração avançada "Iniciar em" do favorito "~1~" não foi encontrada:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Parâmetro 'Iniciar em' não encontrado - ~1~
@@ -384,7 +381,6 @@ lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Exibe a janela de "Ajuda" curta do QAP.
 lGuiHotkeysHelp	Ajuda de Atalhos para Favoritos
-lGuiHotkeysHelpText	Seta para baixo: Selecionar próximo favorito`nSeta para cima: Selecionar favorito anterior`n`nEnter: Editar favorito`nCtrl-N: Adicionar novo favorito`nCtrl-C: Copiar favorito`nDel: Remover favorito(s)`n`nShift-Seta para cima/baixo: Selecionar favoritos contínuos`nCtrl-Clique: Selecionar favoritos não-contínuos`nCtrl-A: Selecionar todos os favorites`n`nCtrl-Seta para baixo: Mover favorito(s) para baixo`nCtrl-Seta para cima: Mover favorito(s) para cima`n`nCtrl-Seta direita: Abrir submenu ou grupo selecionado`nCtrl-Seta esquerda: Abrir menu pai
 lGuiHotkeysHelpText2	F1: Mostra a janela de ajuda`nCtrl-F: Seleciona a caixa de Pesquisa`nCtrl-H: Mostra esta janela
 lGuiLoginName	Nome de login
 lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Local ou conteúdo
@@ -571,7 +567,6 @@ lOopsCannotCopyMoveToSelf	Você não pode mover ou copiar favoritos para sua local
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro de uma caixa de diálogo, você precisa habilitar esta opção (primeira caixa de seleção na aba "Geral").`n`nDeseja abrir a janela de opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não pôde abrir a pasta especial: "~2~".
 lOopsEmpty	vazio
-lOopsErrorIniFileModified	Este menu compartilhado foi modificado desde que você abriu o QAP. Para editar este menu, recarregue o QAP.`n`nRecarregar agora? Alterações não salvas no menu serão perdidas.
 lOopsErrorIniFileReadOnly	Este arquivo de configurações de menu compartilhado ou este local é SOMENTE LEITURA.
 lOopsErrorIniFileRetry	Se o arquivo de configurações está em uma unidade de rede, tente recarregar o ~1~ quando a unidade de rede estiver disponível.
 lOopsErrorIniFileUnavailable	Este arquivo de configurações do menu externo está indisponível
@@ -668,8 +663,6 @@ lOptionsRecentFoldersPrompt	Pastas Recentes e Arquivos Recentes:
 lOptionsRefreshedMenusAttached	Anexar menus "~1~", "~2~" e "~3~" ao menu do QAP
 lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu (lista de itens recentes e espaço disponível nas unidades atuais). Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, os menus "~1~", "~2~" e "~3~" serão atualizados somente sob demanda e serão exibidos destacados do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Aviso sonoro antes e após atualizar (depuração)
-lOptionsRefreshQAPMenuIntervalSec	Intervalo entre atualizações (segundos)
-lOptionsRefreshQAPMenuTitle	Atualização agendada de menu do QAP
 lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAsAdmin	Executar como Administrador
 lOptionsRunAsAdminAlert	Aviso: Executar o ~1~ como Administrador pode resultar em consequências inesperadas ao executar programas que podem estar infectados com código malicioso. Isto pode permitir que programas maliciosos herdem privilégios administrativos e infectem ou controlem o seu computador. Seja cauteloso ao executar o ~1~ como Administrador.
@@ -709,9 +702,6 @@ lTooltipSnippetWaitSpace	Espaço
 lTooltipSnippetWaitText	Selecione o ponto de inserção e aperte "~1~" ou "~2~" para colar o recorte (aguarde ~3~ segundos ou pressione ~4~ para cancelar)
 lTrayTipInstalledDetail	~1~ para iniciar favoritos
 lTrayTipInstalledTitle	~1~ ~2~ pronto!
-lTrayTipWorkingDetail	Criando menus
-lTrayTipWorkingDetailFinished	O menu foi atualizado.
-lTrayTipWorkingTitle	~1~ ~2~ trabalhando...
 lUpdateButtonChangeLog	Ver log de alterações
 lUpdateButtonDownloadPortable	Baixar arquivo ZIP portátil
 lUpdateButtonDownloadSetup	Baixar arquivo de Instalação

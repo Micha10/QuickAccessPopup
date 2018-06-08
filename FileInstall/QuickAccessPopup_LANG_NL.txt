@@ -136,7 +136,7 @@ lDialogExternalMenusAdded	~1~ openbare menu's toegevoegd.
 lDialogExternalMenuSelectFromCatalogue	Selecteer 1 of meer openbare menu's om deze toe te voegen aan het menu and klik op ~1~
 lDialogExternalStartingNumber	Nummer van het eerste favoriet:
 lDialogExternalTip	Dubbelklik op een regel om menuinformatie te bekijken.
-lDialogExternalTypes	Persoonlijk (menu gedeeld op verschillende computers voor dezelfde gebruiker)|In teamverband (menu staat op een netwerklocatie voor een team of werkgroep)|Gecentraliseerd (menu staat op een netwerklocatie en wordt beheerd door een menuadministrator
+lDialogExternalTypes	Persoonlijk (menu gedeeld op verschillende computers voor dezelfde gebruiker)|In teamverband (menu staat op een netwerklocatie voor een team of werkgroep)|Gecentraliseerd (menu staat op een netwerklocatie en wordt beheerd door een menuadministrator)
 lDialogExternalTypesLabel	Type van het openbaar menu
 lDialogExternalWriteAccessMessage	Bericht voor schrijfrechten openbaar menu
 lDialogExternalWriteAccessUsers	Gebruikers met schrijfrechten tot dit openbare menu
@@ -200,9 +200,6 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" toe in het menu zoals: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nZie omschrijving en help -links voor meer informatie.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en selecteer de menuopties.`n`nVoeg favorieten toe aan uw submenu of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favorieten uit, allen in 1 enkele snelkoppeling!`n`nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.`n`nIn Geavanceerde Opties kunt u bepalen wat de wachttijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesLabels	&Map|&Document|&Application|&Speciale Map|&Link (URL)|F&TP Site|&QAP Functie|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Tekst Scheider|&Windows App
-lDialogFavoriteTypesLabelsNoAmpersand	Map|Document|Applicatie|Speciale Map|Link (URL)|FTP Site|QAP Opties|Submenu|Groep||||Fragment|Openbaar Menu|Scheidingslijn|Windows App
-lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (URL)|FTP Site (URL)|||||||Inhoud|Extern instellingenbestand (pad)|Tekst Scheider|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Scheider|Kolomeindes|..|Fragment|Openbaar|Tekst
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
@@ -383,7 +380,6 @@ lGuiGroupSaveRestoreOption	Indien deze groep wordt opgeroepen:
 lGuiGroupSaveRestoreWith	Herstel mappen met:
 lGuiHelp	Help
 lGuiHotkeysHelp	Hulp voor sneltoetsen
-lGuiHotkeysHelpText	Pijl Op:    Ga naar de vorige favoriet`nPijl Neer: Ga naar de volgende favoriet`n`nEnter:    Wijzig de huidige favoriet`nCtrl-N:   Voeg een nieuwe favoriet toe`nCtrl-C:   Kopieër een favoriet`nDel:        Verwijder favoriet(en)`n`nShift-Op/Neer:      Selecteer aangrenzende favoriet`nCtrl-muisklik:        Selecteer niet aangrenzende favorieten`nCtrl-A:                    Selecteer alle favorieten`nCtrl-Pijl Op:           Verplaats favoriet naar boven`nCtrl-Pijl Neer:        Verplaats favoriet omlaag`nCrtl-Pijl Rechts:     Open submenu`nCtrl-Links:              Open hoofdmenu
 lGuiHotkeysHelpText2	F1: Help weergeven`nCtrl-F: Selecteer de zoekfunctie`nCtrl-H: Dit venster weergeven
 lGuiLoginName	Login naam
 lGuiLvFavoritesHeader	Naam|Type|Sneltoets|Locatie of inhoud
@@ -570,7 +566,6 @@ lOopsCannotCopyMoveToSelf	U kunt een favoriet niet kopiÃ«ren naar de bestaande l
 lOopsChangeFolderInDialogAlert	Wilde u gebruik maken van mapnavigatie in deze dialoogbox? Om in een dialoogbox te kunnen navigeren, dient u een optie in te schakelen (eerste checkbox onder tab "Algemeen")`n`nWilt u het instellingen-menu openen?
 lOopsCouldNotOpenSpecialFolder	~1~ kan de speciale map "~2~" niet openen.
 lOopsEmpty	leeg
-lOopsErrorIniFileModified	Dit "Openbare Menu" is aangepast sinds QAP geladen is. Om dit menu aan te kunnen passen dient QAP opnieuw geïnitialiseerd te worden.`n`nNu opnieuw initialiseren (Onopgeslagen wijzigingen zullen verloren gaan)?
 lOopsErrorIniFileReadOnly	Dit "Openbaar Menu" -instellingenbestand of deze locatie is ALLEEN-LEZEN.
 lOopsErrorIniFileRetry	Als het instellingenbestand opgeslagen is op een netwerkstation, probeer ~1~ te herladen wanneer het netwerkstation beschikbaar is.
 lOopsErrorIniFileUnavailable	Dit "Openbare Menu"-instellingenbestand is niet beschikbaar
@@ -667,8 +662,6 @@ lOptionsRecentFoldersPrompt	Recent gebruikte mappen of bestanden:
 lOptionsRefreshedMenusAttached	Koppel de menu's "~1~", "~2~" en "~3~" aan het QAP menu
 lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~" en "~3~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
-lOptionsRefreshQAPMenuIntervalSec	Verversinterval (in secondes)
-lOptionsRefreshQAPMenuTitle	Gepland verversen van het QAP-menu
 lOptionsRememberSettingsPosition	Onthoud venster&positie
 lOptionsRunAsAdmin	Als Administrator uitvoeren
 lOptionsRunAsAdminAlert	Waarschuwing: Het uitvoeren van ~1~ in Administrator mode kan leiden tot ongewenste consequenties bij het laden van programma's welke kwaadaardige en/of geÃ¯nfecteerde code bevat. Dit zou kwaadaardige programma's administratieve rechten tot uw computer kunnen geven en hierdoor uw computer kunnen infecteren of over kunnen nemen. Wees voorzichtig met het draaien van ~1~ in Administrator mode.
@@ -708,9 +701,6 @@ lTooltipSnippetWaitSpace	Spatiebalk
 lTooltipSnippetWaitText	Selecteer de locatie om te plakken en druk op "~1~" of "~2~" om het fragment te in te voegen (wacht ~3~ seconde(n) of druk op ~4~ om te annuleren)
 lTrayTipInstalledDetail	~1~ om favorieten te starten
 lTrayTipInstalledTitle	~1~ gereed!
-lTrayTipWorkingDetail	Menu's aan het opbouwen
-lTrayTipWorkingDetailFinished	Het menu is bijgewerkt.
-lTrayTipWorkingTitle	~1~ is bezig...
 lUpdateButtonChangeLog	Zie wijzigingsbestand
 lUpdateButtonDownloadPortable	Download portable zipbestand
 lUpdateButtonDownloadSetup	Download installatiebestand

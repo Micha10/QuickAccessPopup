@@ -200,9 +200,6 @@ lDialogFavoriteTypesHelp6	Crea una scorciatoia per un "FTP Site".`n`nAssegna il 
 lDialogFavoriteTypesHelp7	Inserisci, dove preferisci, nel tuo menù "Proprietà di Quick Access Popup", come: ~1~, ~2~, ~3~, ~4~, ~5~, ecc.`n`nConsulta le descrizioni e i link di aiuto per maggiori infomazioni.
 lDialogFavoriteTypesHelp8	Raggruppa Preferiti attinenti fra loro in un "Sottomenù".`n`nDai al tuo sottomenù un nome e seleziona le opzioni del menù.`n`nAggiungi Preferiti al tuo sottomenù. Sposta un Preferito ad un altro sottomenù o gruppo cliccando su "Sposta" o il tab "Opzioni Menù" della finestra "Modifica preferito".
 lDialogFavoriteTypesHelp9	Lancia un "Gruppo" di Preferiti, per mezzo di una singola scorciatoia!`n`nDai al tuo gruppo un nome e seleziona varie opzioni del gruppo.`n`nAggiungi Preferiti al tuo gruppo. Sposta un preferito ad un altro gruppo o sottomenù cliccando su "Modifica" o il tab "Menù opzioni" della finestra "Modifica preferito".`n`nLe impostazioni avanzate permettono di controllare la velocità di ripristino inserendo un ritardo tra ciascun Preferito da ripristinare.
-lDialogFavoriteTypesLabels	&Cartella|&Documento|&Applicazione|Cartella &Speciale|&Link (URL)|Sito &FTP|Proprietà &QAP|Sotto&menù|&Gruppo||||S&nippet|&Menù Condiviso|Separatore di testo|&Windows App
-lDialogFavoriteTypesLabelsNoAmpersand	Cartella|Documento|Applicazione|Cartella Speciale|Link (URL)|Sito FTP|Caratteristica di QAP|Sottomenù|Gruppi||||Snippet|Menù Condiviso|Separatore di testo|Windows App
-lDialogFavoriteTypesLocationLabels	Cartella (percorso)|Documento (percorso e nome del file)|Applicazione (percorso e nome del file)||Link (URL)|Sito FTP (URL)|||||||Contenuto|File Impostazioni "esterne" (percorso)|Separatore di testo|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Cartella|Doc|App|Speciale|Link|FTP|QAP|Menu|Gruppo|Separatore|Interruzione Colonna|..|Snippet|Condiviso|Testo
 lDialogFavoriteWorkingDirNotFoundPrompt	L'impostazione avanzata "Inizia in" del preferito "~1~" non è stata trovata:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	Il Parametro "Inizia in" non è stato trovato - ~1~
@@ -384,7 +381,6 @@ lGuiGroupSaveRestoreWith	Ripristina le cartelle con:
 lGuiHelp	Aiuto
 lGuiHelpDescription	Mostra la finestra di "Aiuto" di QAP breve.
 lGuiHotkeysHelp	Organizzazione Preferiti (scorciatoie)
-lGuiHotkeysHelpText	Giù: Seleziona il Preferito successivo`nSu: Seleziona Preferito precedente`n`nEnter: Modifica il Preferito`nCtrl-N: Aggiungi un nuovo Preferito`nCtrl-C: Copia un Preferito`nDel: Rimuovi Preferito/i`n`nShift-Su/Giù: Seleziona Preferiti contigui`nCtrl-Click: Seleziona Preferiti non contigui`nCtrl-A: Seleziona tutti i Preferiti`n`nCtrl-Giù: Sposta Preferito/i giù`nCtrl-Su: Sposta Preferito/i su`n`nCtrl-Destra: Apri il sottomenù o gruppo selezionato`nCtrl-Sinistra: Apri menù superioreOpen parent menu
 lGuiHotkeysHelpText2	F1: Visualizza la finestra di Aiuto`nCtrl-F: Seleziona la casella di ricerca`nCtrl-H: Visualizza questa finestra
 lGuiLoginName	Nome di Login
 lGuiLvFavoritesHeader	Nome|Tipo|Scorciatoia|Locazionen o contenuto
@@ -571,7 +567,6 @@ lOopsCannotCopyMoveToSelf	Non puoi spostare o copiare preferiti nella loro attua
 lOopsChangeFolderInDialogAlert	Hai intenzione di cambiare cartella in questa casella di dialogo? Per poter navigare da una casella di dialogo, è necessario abilitare un'opzione (prima casella di selezione nel tab "Generale").`n`nVuoi aprire la finestra delle Opzioni?
 lOopsCouldNotOpenSpecialFolder	~1~ non è riuscito ad aprire la Cartella Speciale: "~2~".
 lOopsEmpty	vuoto
-lOopsErrorIniFileModified	Questo menù condiviso è stato modificato dopo l'avvio di QAP. Per modificare questo menù dovresti riavviare QAP.`n`nRiavvio adesso? Le modifiche al menù non ancora salvate verranno perse.
 lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso o questa posizione è di SOLA-LETTURA.
 lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di rete, prova a ricaricare ~1~ quando il disco di rete sarà disponibile.
 lOopsErrorIniFileUnavailable	Questo file di impostazioni del menù esterno non è disponibile
@@ -668,8 +663,6 @@ lOptionsRecentFoldersPrompt	Cartelle recenti e File recenti:
 lOptionsRefreshedMenusAttached	Aggiungi i menu "~1~", "~2~" e "~3~" al menu di QAP
 lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~" e "~3~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
-lOptionsRefreshQAPMenuIntervalSec	Intervallo tra aggiornamenti menù (secondi)
-lOptionsRefreshQAPMenuTitle	Aggiornamento programmato del menù QAP
 lOptionsRememberSettingsPosition	Ricorda la posizione della finestra
 lOptionsRunAsAdmin	Esegui come Amministratore
 lOptionsRunAsAdminAlert	Avviso: Eseguire ~1~ in modalitá Amministratore puó causare conseguenze non prevedibili quando vengano eseguiti programmi che siano infetti con codice malevolo. Ció potrebbe consentire a programmi malevoli di ereditare privilegi di Amministratore ed infettare o prendere il controllo del tuo computer. Sii prudente quando esegui ~1~ in modalitá Amministratore.
@@ -709,9 +702,6 @@ lTooltipSnippetWaitSpace	Spazio
 lTooltipSnippetWaitText	Seleziona il punto di inserimento e premi "~1~" o "~2~" per incollare lo snippet (aspettando ~3~ secondi o premi ~4~ per annullare)
 lTrayTipInstalledDetail	~1~ per aprire Preferiti
 lTrayTipInstalledTitle	~1~ ~2~ è pronto!
-lTrayTipWorkingDetail	Menù in costruzione...
-lTrayTipWorkingDetailFinished	Il menù è stato aggiornato.
-lTrayTipWorkingTitle	~1~ ~2~ in esecuzione...
 lUpdateButtonChangeLog	Vedi il log delle modifiche
 lUpdateButtonDownloadPortable	Download del file zip Portabile
 lUpdateButtonDownloadSetup	Download del file di Setup
