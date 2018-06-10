@@ -31,14 +31,34 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.0.6 (2018-06-10)
+ 
+Shared menus and Time zones
+- shared menus now fully support menus saved on cloud shared drive (Dropbox, etc.) when users are working accross different time zones
+  - note 1: before v9.0.6, sharing menus on cloud drives was possible but some modification alerts could be skipped or sent at inapropriate time
+  - note 2: there never was issue when sharing menus using network drives because the file's timestamp is the same for all users regardless of time zone
+- add to add/edit shared menu the "Drive hosting the shared menu":
+  - "Network" (default option, backward compatible pre-v9.0.6), get last modified time of shared menu from file's date-time
+  - "Cloud" option (Dropbox, Gogle Drive, OneDrive, etc.), get modification time from each PC's UTC time (for better sync messaging, users shold sync their clocks on a time server)
+ 
+Shared menus refreshing
+- before showing the "Settings" window, refresh all external menus that were changed since last load and rebuild main menu
+- in "Settings", when opening a shared menu, check if the menu was modified by another user and, if yes, refresh it before displaying it and rebuild the main menu
+- when changing a favorite in a shared menu and the menu was modified by another user since last load (should be very rare), refresh and reload the menu, rebuild the main menu and inform user that its last change cannot be saved
+- when loading a shared menu, if it is already locked by the current user (because something unexpected happened and the lock was not released previously), unlock the menu immediately
+ 
+Various
+- display tooltips during saving favorites and rebuilding the menu (not only when rebuilding)
+- sound debug beep also when refreshing shared menus and live folders on-demand
+
 Version BETA: 9.0.9.2/9.0.9.3 (2018-06-07)
  
 Shared menus and Time zones
 - shared menus now fully support menus saved on cloud shared drive (Dropbox, etc.) when users are working accross different time zones
-  - note 1: before v9.1, sharing menus on cloud drives was working but some modification alerts could be skipped or sent at inapropriate time
+  - note 1: before v9.0.6, sharing menus on cloud drives was working but some modification alerts could be skipped or sent at inapropriate time
   - note 2: there never was issue when sharing menus using network drives because the file's timestamp is the same for all users regardless of time zone
 - add to add/edit shared menu the "Type of shared menu":
-  - "Network" (default option and backward compatible value for pre-v9.1), get last modified time of shared menu from file's date-time
+  - "Network" (default option and backward compatible value for pre-v9.0.6), get last modified time of shared menu from file's date-time
   - "Cloud" option (Dropbox, Gogle Drive, OneDrive, etc.), get modification time from each PC's UTC time (for better sync messaging, users shold sync their clocks on a time server)
  
 Shared menus refreshing
@@ -2307,7 +2327,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.3
+;@Ahk2Exe-SetVersion 9.0.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2402,8 +2422,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
