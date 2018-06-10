@@ -31,6 +31,27 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.2/9.0.9.3 (2018-06-07)
+ 
+Shared menus and Time zones
+- shared menus now fully support menus saved on cloud shared drive (Dropbox, etc.) when users are working accross different time zones
+  - note 1: before v9.1, sharing menus on cloud drives was working but some modification alerts could be skipped or sent at inapropriate time
+  - note 2: there never was issue when sharing menus using network drives because the file's timestamp is the same for all users regardless of time zone
+- add to add/edit shared menu the "Type of shared menu":
+  - "Network" (default option and backward compatible value for pre-v9.1), get last modified time of shared menu from file's date-time
+  - "Cloud" option (Dropbox, Gogle Drive, OneDrive, etc.), get modification time from each PC's UTC time (for better sync messaging, users shold sync their clocks on a time server)
+ 
+Shared menus refreshing
+- before showing the "Settings" window, refresh all external menus that were changed since last load and rebuild main menu
+- in "Settings", when opening a shared menu, check if the menu was modified by another user and, if yes, refresh it before displaying it and rebuild the main menu
+- when changing a favorite in a shared menu and the menu was modified by another user since last load (should be very rare), refresh and reload the menu, rebuild the main menu and inform user that its last change cannot be saved
+- when loading a shared menu, if it is already locked by the current user (because something unexpected happened and the lock was not released previously), unlock the menu immediately
+ 
+Various
+- display tooltips during saving favorites and rebuilding the menu (not only when rebuilding)
+- change tooltips language when rebuilding menu;
+- sound debug beep also when refreshing shared menus and live folders on-demand
+
 Version: 9.0.5 (2018-06-03)
 - fix bug with icon when adding a link (URL) favorite with the "Add this Folder or Link Express" command
 - minor language updates for all languages
@@ -2286,7 +2307,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.5
+;@Ahk2Exe-SetVersion 9.0.9.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2381,8 +2402,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.0.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -4360,6 +4381,7 @@ return
 
 ;------------------------------------------------------------
 LoadMenuFromIni:
+LoadMenuFromIniWithStatus:
 ;------------------------------------------------------------
 
 IfNotExist, %g_strIniFile%
@@ -4377,9 +4399,10 @@ else
 	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
 	
+	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
+
 	g_intIniLine := 1
-	
-	if (RecursiveLoadMenuFromIni(g_objMainMenu) <> "EOM") ; build menu tree
+	if (RecursiveLoadMenuFromIni(g_objMainMenu, g_blnWorkingToolTip) <> "EOM") ; build menu tree
 		ExitApp
 }
 
@@ -4388,7 +4411,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuFromIni(objCurrentMenu)
+RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
@@ -4407,6 +4430,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 	
 	; ###_V("RecursiveLoadMenuFromIni Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu)
+	if (blnWorkingToolTip)
+		Tooltip, % lToolTipLoading . "`n" . objCurrentMenu.MenuPath
 
 	Loop
 	{
@@ -4458,8 +4483,15 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
 				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
+				IniRead, blnLastModifiedFromSystem, % objNewMenu.MenuExternalPath, Global, LastModifiedFromSystem, %A_Space%
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
+				objNewMenu.MenuExternalLastModifiedFromSystem := blnLastModifiedFromSystem
+				
+				; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
+				IniRead, strMenuExternalReservedBy, % objNewMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space%
+				if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+					IniWrite, % "", % objNewMenu.MenuExternalPath, Global, MenuReservedBy
 			}
 			
 			; create a navigation entry to navigate to the parent menu
@@ -4480,7 +4512,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu)
 			}
 			
 			; build the submenu
-			strResult := RecursiveLoadMenuFromIni(objNewMenu) ; RECURSIVE
+			strResult := RecursiveLoadMenuFromIni(objNewMenu, blnWorkingToolTip) ; RECURSIVE
 			
 			if (arrThisFavorite1 = "External")
 			{
@@ -6223,8 +6255,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	intMenuItemsCount := 0 ; counter of items in this menu
 	
 	if (g_blnWorkingToolTip)
-		Tooltip, % L(lTrayTipWorkingTitle, g_strAppNameText) . "`n" . objCurrentMenu.MenuPath
-		
+		Tooltip, % lToolTipBuilding . "`n" . objCurrentMenu.MenuPath
+
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		if (objCurrentMenu[A_Index].FavoriteType = "B") ; skip back link
@@ -6688,34 +6720,38 @@ GetMenuHandle(strMenuName)
 ;------------------------------------------------------------
 RefreshQAPMenu:
 RefreshQAPMenuScheduled:
+RefreshQAPMenuExternalOnly:
 ;------------------------------------------------------------
 
 if (SettingsUnsaved() or !g_blnMenuReady ; these two required
 	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
 	return
 
+if (g_blnRefreshQAPMenuDebugBeep)
+	SoundBeep, 330
+
 g_blnMenuReady := false
-if (A_ThisLabel = "RefreshQAPMenuScheduled")
-{
-	if (g_blnRefreshQAPMenuDebugBeep)
-		SoundBeep, 330
-	
-	for strMenuName, objThisMenu in g_objMenusIndex
-		if (objThisMenu.MenuType = "External")
-			strResult := LoadExternalMenu(objThisMenu, objThisMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
-		
-	Gosub, RefreshTotalCommanderHotlistScheduled
-	Gosub, BuildMainMenuScheduled
-	
-	if (g_blnRefreshQAPMenuDebugBeep)
-		SoundBeep, 440
-}
-else
-{
-	Gosub, RefreshTotalCommanderHotlist
-	Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
-}
+
+for strMenuName, objThisMenu in g_objMenusIndex
+	if (objThisMenu.MenuType = "External") and ExternalMenuModifiedSinceLoaded(objThisMenu) ; refresh only if changed
+		ExternalMenuReloadAndRebuild(objThisMenu)
+
+if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
+	if (A_ThisLabel = "RefreshQAPMenuScheduled")
+	{
+		Gosub, RefreshTotalCommanderHotlistScheduled
+		Gosub, BuildMainMenuScheduled
+	}
+	else
+	{
+		Gosub, RefreshTotalCommanderHotlist
+		Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
+	}
+
 g_blnMenuReady := true
+
+if (g_blnRefreshQAPMenuDebugBeep)
+	SoundBeep, 440
 
 return
 ;------------------------------------------------------------
@@ -8218,6 +8254,9 @@ Gui, 1:Default
 Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
+if (g_objMenuInGui.MenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
+	ExternalMenuReloadAndRebuild(g_objMenuInGui)
+
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
@@ -8233,6 +8272,8 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
 		{
+			if ExternalMenuModifiedSinceLoaded(g_objMenuInGui[A_Index].SubMenu)
+				ExternalMenuReloadAndRebuild(g_objMenuInGui[A_Index].SubMenu)
 			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
 				strGuiMenuLocation := lDialogReadOnly . " "
 			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
@@ -9892,22 +9933,28 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	
 	Gui, 2:Tab, % ++intTabNumber
 
-	Loop, 3 ; no default type
-		Gui, 2:Add, Radio, % (A_Index = 1 ? "x20 y50" : "x20 y+5") . " gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index%
-
 	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
-		Gui, 2:Add, Text, x20 y+15 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
-	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
+		Gui, 2:Add, Text, x20 y50 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
+	Gui, 2:Add, Link, x20 y+10 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 	
+	Gui, 2:Add, Text, x20 y+10 w500, %lDialogExternalTypesTitle%
+	Loop, 3 ; no default type
+		Gui, 2:Add, Radio, % "x20 y+5 w480 gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index% ; current value set by LoadExternalFileGlobalValues
+
 	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, %lDialogReadOnly%
-	Gui, 2:Add, Text, x20 y+15 vf_lblExternalMenuName, %lDialogExternalMenuName%
+	Gui, 2:Add, Text, x20 y+10 vf_lblExternalMenuName, %lDialogExternalMenuName%
 	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
 	
-	Gui, 2:Add, Text, x20 y+15 vf_lblExternalWriteAccessUsers, %lDialogExternalWriteAccessUsers%
+	Gui, 2:Add, Text, x20 y+10 w500 vf_lblExternalSource, %lDialogExternalSource%
+	Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceNetwork, %lDialogExternalSourceNetwork% ; current value set by LoadExternalFileGlobalValues
+	GuiControl, , f_radExternalSourceNetwork, 1 ; default true (Network), backward compatible value for pre-v9.1
+	Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceCloud, %lDialogExternalSourceCloud%
+	
+	Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessUsers, %lDialogExternalWriteAccessUsers%
 	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalWriteAccessUsers
 	
-	Gui, 2:Add, Text, x20 y+15 vf_lblExternalWriteAccessMessage, %lDialogExternalWriteAccessMessage%
-	Gui, 2:Add, Edit, x20 y+5 w400 r7 vf_strExternalWriteAccessMessage
+	Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessMessage, %lDialogExternalWriteAccessMessage%
+	Gui, 2:Add, Edit, x20 y+5 w400 r3 vf_strExternalWriteAccessMessage
 	
 	; Gui, 2:Add, Text, x20 y+15, %lDialogExternalStartingNumber% ; DEPRECATED since v8.1.9.1
 	; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
@@ -9947,6 +9994,10 @@ if (A_ThisLabel = "RadioButtonExternalMenuClicked" and ExternalMenuIsReadOnly(f_
 
 GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalMenuName
 GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_strExternalMenuName
+
+GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalSource
+GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_radExternalSourceNetwork
+GuiControl, % (f_radExternalMenuType2 or f_radExternalMenuType3 ? "Show" : "Hide"), f_radExternalSourceCloud
 
 GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_lblExternalWriteAccessUsers
 GuiControl, % (f_radExternalMenuType3 ? "Show" : "Hide"), f_strExternalWriteAccessUsers
@@ -10768,6 +10819,8 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ;
 	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 }
 
+Gosub, RefreshQAPMenuExternalOnly
+
 Gosub, BackupMenusObjects
 
 if (A_ThisLabel = "GuiShowFromAlternative")
@@ -10959,12 +11012,17 @@ GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
 IniRead, strExternalWriteAccessMessage, %strExternalExpandedFileName%, Global, WriteAccessMessage, %A_Space% ; empty if not found
 GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
 
+IniRead, strExternalLastModifiedFromSystem, %strExternalExpandedFileName%, Global, LastModifiedFromSystem, %A_Space% ; empty if not found
+GuiControl, , f_radExternalSourceNetwork, % strExternalLastModifiedFromSystem <> 1
+GuiControl, , f_radExternalSourceCloud, % strExternalLastModifiedFromSystem = 1
+
 blnExternalMenuReadOnly := ""
 strExternalMenuName := ""
 strExternalWriteAccessUsers := ""
 strExternalWriteAccessMessage := ""
 intMenuExternalType := ""
 strExternalExpandedName := ""
+strExternalLastModifiedFromSystem := ""
 
 return
 ;------------------------------------------------------------
@@ -11579,8 +11637,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		; if external settings file is not read-only, write [Global] values to external settings file
 		if !ExternalMenuIsReadOnly(strExternalMenuPath)
 		{
-			strLastModified := GetModifiedDateTime(strExternalMenuPath)
-			
 			if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
 			{
 				intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
@@ -11590,13 +11646,18 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 				IniWrite, %f_strExternalWriteAccessUsers%, %strExternalMenuPath%, Global, WriteAccessUsers
 				IniWrite, %f_strExternalWriteAccessMessage%, %strExternalMenuPath%, Global, WriteAccessMessage
 				; update last modified value in ini file because values requiring update by other users were changed
+				IniWrite, % (f_radExternalSourceCloud = 1), %strExternalMenuPath%, Global, LastModifiedFromSystem
+				strLastModified := ExternalMenuGetModifiedDateTime(strExternalMenuPath)
 				IniWrite, %strLastModified%, %strExternalMenuPath%, Global, LastModified
 			}
-			; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
+			else
+				strLastModified := ExternalMenuGetModifiedDateTime(strExternalMenuPath)
+				; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 
 			; update object's last modified dates anyway
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedFromSystem := (f_radExternalSourceCloud = 1)
 		}
 	}
 
@@ -12999,7 +13060,6 @@ GuiSaveAndReloadQAP:
 g_blnMenuReady := false
 strSavedMenuInGui := g_objMenuInGui.MenuPath
 
-ToolTip, %lGuiSaving%. ; animated tooltip
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
@@ -13009,13 +13069,12 @@ IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
 IniDelete, %g_strIniFile%, Favorites
 
+g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
-
-ToolTip, %lGuiSaving%.. ; animated tooltip
 
 ; was for g_objHotkeysByNameLocation
 ; clean-up unused hotkeys if favorites were deleted
@@ -13029,12 +13088,11 @@ ToolTip, %lGuiSaving%.. ; animated tooltip
 ; Gosub, SaveLocationHotkeysToIni ; save location hotkeys to ini file from g_objHotkeysByNameLocation
 ; Gosub, EnableLocationHotkeys ; enable location hotkeys from g_objHotkeysByNameLocation
 
-Gosub, LoadMenuFromIni ; load favorites to menu object
-ToolTip, %lGuiSaving%... ; animated tooltip
+Gosub, ExternalMenusRelease ; release reserved external menus
+Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
 
 Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
-Gosub, ExternalMenusRelease ; release reserved external menus
 
 GuiControl, Enable, f_btnGuiCancel
 GuiControl, , f_btnGuiCancel, %lGuiCloseAmpersand%
@@ -13070,10 +13128,14 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_objJLiconsByName
 	global g_objJLiconsNames
 	global g_strJLiconsFile
+	global g_blnWorkingToolTip
+
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
-	
+	if (g_blnWorkingToolTip)
+		Tooltip, % lToolTipSaving . "`n" . objCurrentMenu.MenuPath
+
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		; skip ".." back link to parent menu
@@ -13172,7 +13234,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				Sleep, 20 ; for safety
-				strIniDateTimeAfter := GetModifiedDateTime(g_strIniFile)
+				strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(g_strIniFile)
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.NeedSave := false
@@ -14010,6 +14072,7 @@ for strMenuPath, objMenuSource in objMenusSource
 	objMenuDest.MenuLoaded := objMenuSource.MenuLoaded
 	objMenuDest.MenuExternalLastModifiedNow := objMenuSource.MenuExternalLastModifiedNow
 	objMenuDest.MenuExternalLastModifiedWhenLoaded := objMenuSource.MenuExternalLastModifiedWhenLoaded
+	objMenuDest.MenuExternalLastModifiedFromSystem := objMenuSource.MenuExternalLastModifiedFromSystem
 
 	loop, % objMenuSource.MaxIndex()
 	{
@@ -15532,7 +15595,7 @@ else
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
 
-if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType) ; ignore for Application favorites
+if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType) ; ignore for Application or Snippet favorites
 {
 	strFullLaunchWith := g_objThisFavorite.FavoriteLaunchWith
 	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
@@ -19494,17 +19557,6 @@ GetFavoriteTypeForList(objFavorite)
 
 
 ;------------------------------------------------------------
-GetModifiedDateTime(strFile)
-; returns the last modified file system date-time of file
-;------------------------------------------------------------
-{
-	FileGetTime, strDateTime, %strFile% ; modification date-time by default
-	return strDateTime
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 GetFileExtension(strFile)
 ;------------------------------------------------------------
 {
@@ -19658,6 +19710,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	global g_objExternaleMenuToRelease
 	global g_strAppNameText
 	global g_strAppVersion
+	global g_objMenuInGui
 
 	; ###_O(A_ThisFunc . " - objMenu", objMenu)
 	if (objMenu.MenuType <> "External")
@@ -19682,8 +19735,8 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 			; ... already reserved for this user, return true
 			return true
 		else
-			; ... reserved by another user, return false
 		{
+			; ... reserved by another user, return false
 			Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
 			return false
 		}
@@ -19693,36 +19746,41 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		Oops(lOopsExternalFileWriteErrorCollaborative)
 		return false
 	}
-	else if ExternalMenuModifiedSinceLoaded(objMenu)
-	; external settings file was modified since it was loaded - could not be locked, return false
-	{
-		; here, user can reload QAP or continue and the lock is refused
-		MsgBox, 52, %g_strAppNameText% - %g_strAppVersion%, %lOopsErrorIniFileModified%
-		IfMsgBox, Yes
-			Gosub, ReloadQAP
-		
-		return false
-	}
-	else
-	; lock is allowed, return true
-	{
-		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
-			; personal menu is changed on another system - only inform user, lock overwriting is allowed
-			Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
-		
-		if (blnLockItForMe)
-		; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
-		{
-			; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
-			IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
-				, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
-			; remember to free when saving or canceling
-			g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-			; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
-		}
 
-		return true
+	; here, we know that this menu can be locked
+
+	if (blnLockItForMe) and ExternalMenuModifiedSinceLoaded(objMenu)
+	; check if shared menu has been modified since it was loaded and, if yes, refresh menu
+	{
+		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
+		; this menu is in gui - inform user that his change cannot be saved and reload menu in gui
+		{
+			Oops(lOopsErrorIniFileModified)
+			Gosub, LoadMenuInGui ; will ExternalMenuReloadAndRebuild
+			return false
+		}
+		else
+			ExternalMenuReloadAndRebuild(objMenu)
 	}
+	
+	; lock is allowed, return true
+	
+	if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
+		; personal menu is changed on another system - only inform user, lock overwriting is allowed
+		Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
+	
+	if (blnLockItForMe)
+	; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
+	{
+		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
+		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
+			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
+		; remember to free when saving or canceling
+		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
+		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
+	}
+
+	return true
 }
 ;------------------------------------------------------------
 
@@ -19763,10 +19821,17 @@ ExternalMenuModifiedSinceLoaded(objMenu)
 {
 	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
 	objMenu.MenuExternalLastModifiedNow := strLastModified
-	; if (!StrLen(objMenu.MenuExternalLastModifiedWhenLoaded) or !StrLen(objMenu.MenuExternalLastModifiedNow))
-	;	###_V(A_ThisFunc . " !!!!!", strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
-	; ###_V(A_ThisFunc . " MODIFIED?", (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded), strLastModified, objMenu.MenuExternalLastModifiedWhenLoaded, objMenu.MenuExternalLastModifiedNow)
-	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded)
+	; ###_V(A_ThisFunc, "Now: " . objMenu.MenuExternalLastModifiedNow
+		; , "When loaded: " . objMenu.MenuExternalLastModifiedWhenLoaded
+		; , "Modified since loaded: " . (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded))
+		
+	; check if the two timestamps are of the same type
+	; if not (could happen when an existing menu is changed of type), return that the menu has been modified
+	if InStr(objMenu.MenuExternalLastModifiedNow, "UTC") and !InStr(objMenu.MenuExternalLastModifiedWhenLoaded, "UTC")
+		or !InStr(objMenu.MenuExternalLastModifiedNow, "UTC") and InStr(objMenu.MenuExternalLastModifiedWhenLoaded, "UTC")
+		return true
+	
+	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded) ; both of same format YYYYMMDDHHMMSS or YYYYMMDDHHMMSSUTC
 }
 ;------------------------------------------------------------
 
@@ -19817,6 +19882,39 @@ ExternalMenuFolderIsReadOnly(strFile)
 	}
 
 	return g_objExternalMenuFolderReadOnly[strFolder]
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuReloadAndRebuild(objMenu)
+;------------------------------------------------------------
+{
+	strResult := LoadExternalMenu(objMenu, objMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+	
+	IniRead, strLastModified, % objMenu.MenuExternalPath, Global, LastModified, %A_Space%
+	objMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+	objMenu.MenuExternalLastModifiedNow := strLastModified
+	
+	RecursiveBuildOneMenu(objMenu)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExternalMenuGetModifiedDateTime(strFile)
+; returns the last modified date of the external menu
+; (file system date-time or system's date-time UTC if blnLastModifiedFromSystem)
+;------------------------------------------------------------
+{
+	IniRead, blnLastModifiedFromSystem, %strFile%, Global, LastModifiedFromSystem, %A_Space%
+
+	if (blnLastModifiedFromSystem)
+		strDateTime := A_NowUTC . "UTC"
+	else
+		FileGetTime, strDateTime, %strFile% ; modification date-time by default
+	
+	return strDateTime
 }
 ;------------------------------------------------------------
 
