@@ -2493,6 +2493,9 @@ g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 g_objLastActions := Object()
 
+g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.txt"
+g_objWindowsAppsID := Object()
+
 ;---------------------------------
 ; Initial validation
 
@@ -8288,6 +8291,8 @@ if (g_objMenuInGui.MenuType = "External") and ExternalMenuModifiedSinceLoaded(g_
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
+	###_O("g_objMenuInGui[A_Index]", g_objMenuInGui[A_Index])
+	###_V("strThisType", strThisType)
 	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut)
 	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
 		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objMenuInGui[A_Index].FavoriteHotstring))
@@ -8323,7 +8328,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 	else if (g_objMenuInGui[A_Index].FavoriteType = "B") ; this is a back link
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
-	else ; this is a folder, document, QAP feature, URL or application
+	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
@@ -9517,7 +9522,7 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
-		if (g_objEditedFavorite.FavoriteType <> "Snippet")
+		if !InStr("Snippet|WindowsApp|", g_objEditedFavorite.FavoriteType . "|")
 			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
 		
         if (g_objEditedFavorite.FavoriteType = "Application")
@@ -9528,7 +9533,15 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
 		}
-		
+
+		if (g_objEditedFavorite.FavoriteType = "WindowsApp")
+		{
+			Gui, 2:Add, Text, x20 y+20 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
+			Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
+				, % LoadWindowsAppsList()
+			Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, %lDialogRefresh%
+		}
+
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
 			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
 	}
@@ -10258,6 +10271,110 @@ DropdownRunningApplicationChanged:
 Gui, 2:Submit, NoHide
 
 GuiControl, , f_strFavoriteLocation, %f_drpRunningApplication%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DropdownWindowsAppsListChanged:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+strWindowsApp := g_objWindowsAppsID[f_drpWindowsAppsList]
+
+GuiControl, , f_strFavoriteShortName, %f_drpWindowsAppsList%
+GuiControl, , f_strFavoriteLocation, %strWindowsApp%
+
+strWindowsApp := ""
+ResetArray(arrWindowsApp)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonRefreshWindowsAppsList:
+;------------------------------------------------------------
+
+MsgBox, 1, %g_strAppNameText%, %lOopsRefreshWindowsAppsListIntro%
+IfMsgBox, Cancel
+	return
+
+strPsScriptFile := g_strTempDir . "\CollectWindowsAppsList.ps1"
+strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.txt"
+FileDelete, %strPsScriptFile%
+FileDelete, %strWindowsAppsListFile%
+FileAppend,
+	(LTrim Join`r`n
+$installedapps = get-AppxPackage
+foreach ($app in $installedapps)
+{
+foreach ($id in (Get-AppxPackageManifest $app).package.applications.application.id)
+{
+	$line = $app.Name + "=" + $app.packagefamilyname + "!" + $id
+	echo $line
+	$line >> '%strWindowsAppsListFile%'
+}
+}
+
+) ; leave the last extra line above
+, %strPsScriptFile%, % (A_IsUnicode ? "UTF-16" : "")
+sleep, 1000
+
+blnResetSecurity := false
+Loop
+{
+	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%
+	Sleep, 500
+	FileDelete, %strPsScriptFile%
+	
+	; with the option "-ExecutionPolicy Bypass", the following if should not be required
+	if FileExist(strWindowsAppsListFile)
+	{
+		if (blnResetSecurity)
+		{
+			MsgBox, 4, %g_strAppNameText%, %lOopsRefreshWindowsAppsListResetSecurity%
+			IfMsgBox, Yes
+			{
+				Run, *RunAs PowerShell.exe -NoExit
+				Sleep, 500
+				InputBox, strUnused, %g_strAppNameText%, `n*** %lOopsRefreshWindowsAppsListNotClickOKYet% ***`n`n%lOopsRefreshWindowsAppsListResetPrompt%`n.`n.
+					, , 480, 170, , , , , Set-ExecutionPolicy Restricted CurrentUser
+			}
+		}
+		strResult := "OK"
+	}
+	else
+	{
+		MsgBox, % 1+48+16384, %g_strAppNameText%, %lOopsRefreshWindowsAppsListChangeSecurity%
+		IfMsgBox, Cancel
+			strResult := "Cancel"
+		else
+		{
+			blnResetSecurity := true
+			Run, *RunAs PowerShell.exe -NoExit
+			Sleep, 500
+			Gui +LastFound +OwnDialogs +AlwaysOnTop
+			InputBox, strUnused, %g_strAppNameText%, `n*** %lOopsRefreshWindowsAppsListNotClickOKYet% ***`n`n%lOopsRefreshWindowsAppsListChangePrompt%, , 480, 230, , , , , Set-ExecutionPolicy Unrestricted CurrentUser
+			if (ErrorLevel) ; 1 cancel or 2 timeout
+				strResult := "Cancel"
+		}
+	}
+	if (strResult = "OK" or strResult = "Cancel")
+		break
+}
+
+if (strResult = "OK")
+{
+	FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
+	GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList()
+}
+
+strPsScriptFile := ""
+strWindowsAppsListFile := ""
+strUnused := ""
+strResult := ""
 
 return
 ;------------------------------------------------------------
@@ -19149,6 +19266,31 @@ CollectRunningApplications(strDefaultPath)
 	}
 
 	return strPaths
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+LoadWindowsAppsList()
+;------------------------------------------------------------
+{
+	global g_strWindosListAppsCacheFile
+	global g_objWindowsAppsID
+	
+	if !FileExist(g_strWindosListAppsCacheFile)
+		return
+	
+	g_objWindowsAppsID := Object() ; reset object
+	Loop, Read, %g_strWindosListAppsCacheFile%
+	{
+		StringSplit, arrWindowsApp, A_LoopReadLine, =
+		g_objWindowsAppsID[arrWindowsApp1] := arrWindowsApp2
+	}
+
+	for strThisApp in g_objWindowsAppsID ; to list apps sorted by name
+		strWindowsAppsList .= strThisApp . "|"
+
+	return %strWindowsAppsList%
 }
 ;------------------------------------------------------------
 
