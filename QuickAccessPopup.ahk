@@ -10453,7 +10453,7 @@ else ; IniFile
 		strNewLocation .= ".ini"
 }
 
-if !(StrLen(strNewLocation))
+if (!StrLen(strNewLocation) or strNewLocation = ".ini")
 {
 	gosub, ButtonSelectFavoriteLocationCleanup
 	return
@@ -11424,6 +11424,14 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 ; validation to make sure the user selected the type of the new external menu
 if (g_objEditedFavorite.FavoriteType = "External")
 {
+	SplitPath, f_strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
+	if !StrLen(strExternalFilenameNoExt)
+	{
+		Oops(lDialogFavoriteLocationEmpty)
+		gosub, GuiAddFavoriteSaveCleanup
+		return
+	}
+	
 	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
 	{
 		gosub, LoadExternalFileGlobalValues ; load values if file exists
@@ -11902,6 +11910,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	g_strNewFavoriteHotstringTrigger := ""
 	g_strNewFavoriteHotstringOptionsShort := ""
 	strLoopCriteria := ""
+	strExternalFilenameNoExt := ""
 	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
