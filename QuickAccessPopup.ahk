@@ -6187,7 +6187,7 @@ Loop
 		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "")
 			. g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName
 		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
-			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Hotkey2Text(strThisHotkey)) . ")"
+			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Hotkey2Text(strThisHotkey, true)) . ")"
 			; hotkey reminder " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
 		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
@@ -6314,7 +6314,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= " (" . (g_intHotkeyReminders = 2
 					? objCurrentMenu[A_Index].FavoriteShortcut 
-					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)) . ")"
+					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)) . ")"
 					
 			; enable shortcut
 			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
@@ -8291,9 +8291,7 @@ if (g_objMenuInGui.MenuType = "External") and ExternalMenuModifiedSinceLoaded(g_
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
-	###_O("g_objMenuInGui[A_Index]", g_objMenuInGui[A_Index])
-	###_V("strThisType", strThisType)
-	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut)
+	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut, true)
 	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
 		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objMenuInGui[A_Index].FavoriteHotstring))
 	
@@ -8425,7 +8423,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 		strSearchIn := objCurrentMenu[A_Index].FavoriteName
 		if (strExtended)
 		{
-			strHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
+			strHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
 			strHotkey := (strHotkey = lDialogNone ? "" : strHotkey)
 			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType]
 				. " " . strHotkey
@@ -8442,7 +8440,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 			and InStr(strSearchIn, strFilter)
 		{
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
-			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut)
+			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
 			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
 			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
