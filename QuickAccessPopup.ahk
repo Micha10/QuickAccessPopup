@@ -40,15 +40,36 @@ Windows Apps
 Various
 - when showing a hotkey in Main menu, Alternative menu, Settings window and Settings list filtering, replace modifiers text "Control" with "Ctrl" and "Windows" with "Win"
 - revert exclusion of hotkey Windows + L (this Windows default hotkey it is locking the system before QAP can intercept the hotkey but can be disabled by editing a registry key - see http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/)
+fix bug prevent shared menu file to be empty or ".ini"
+
+Version: 9.0.6 (2018-06-10)
+ 
+Shared menus and Time zones
+- shared menus now fully support menus saved on cloud shared drive (Dropbox, etc.) when users are working accross different time zones
+  - note 1: before v9.0.6, sharing menus on cloud drives was possible but some modification alerts could be skipped or sent at inapropriate time
+  - note 2: there never was issue when sharing menus using network drives because the file's timestamp is the same for all users regardless of time zone
+- add to add/edit shared menu the "Drive hosting the shared menu":
+  - "Network" (default option, backward compatible pre-v9.0.6), get last modified time of shared menu from file's date-time
+  - "Cloud" option (Dropbox, Gogle Drive, OneDrive, etc.), get modification time from each PC's UTC time (for better sync messaging, users shold sync their clocks on a time server)
+ 
+Shared menus refreshing
+- before showing the "Settings" window, refresh all external menus that were changed since last load and rebuild main menu
+- in "Settings", when opening a shared menu, check if the menu was modified by another user and, if yes, refresh it before displaying it and rebuild the main menu
+- when changing a favorite in a shared menu and the menu was modified by another user since last load (should be very rare), refresh and reload the menu, rebuild the main menu and inform user that its last change cannot be saved
+- when loading a shared menu, if it is already locked by the current user (because something unexpected happened and the lock was not released previously), unlock the menu immediately
+ 
+Various
+- display tooltips during saving favorites and rebuilding the menu (not only when rebuilding)
+- sound debug beep also when refreshing shared menus and live folders on-demand
 
 Version BETA: 9.0.9.2/9.0.9.3 (2018-06-07)
  
 Shared menus and Time zones
 - shared menus now fully support menus saved on cloud shared drive (Dropbox, etc.) when users are working accross different time zones
-  - note 1: before v9.1, sharing menus on cloud drives was working but some modification alerts could be skipped or sent at inapropriate time
+  - note 1: before v9.0.6, sharing menus on cloud drives was working but some modification alerts could be skipped or sent at inapropriate time
   - note 2: there never was issue when sharing menus using network drives because the file's timestamp is the same for all users regardless of time zone
 - add to add/edit shared menu the "Type of shared menu":
-  - "Network" (default option and backward compatible value for pre-v9.1), get last modified time of shared menu from file's date-time
+  - "Network" (default option and backward compatible value for pre-v9.0.6), get last modified time of shared menu from file's date-time
   - "Cloud" option (Dropbox, Gogle Drive, OneDrive, etc.), get modification time from each PC's UTC time (for better sync messaging, users shold sync their clocks on a time server)
  
 Shared menus refreshing
@@ -4599,7 +4620,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteHotstring := ReplaceAllInString(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
 		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ;  two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
 
-		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu)
+		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
 		
 		; this is a submenu favorite, link to the submenu object
@@ -10588,7 +10609,7 @@ else ; IniFile
 		strNewLocation .= ".ini"
 }
 
-if !(StrLen(strNewLocation))
+if (!StrLen(strNewLocation) or strNewLocation = ".ini")
 {
 	gosub, ButtonSelectFavoriteLocationCleanup
 	return
@@ -11559,6 +11580,14 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 ; validation to make sure the user selected the type of the new external menu
 if (g_objEditedFavorite.FavoriteType = "External")
 {
+	SplitPath, f_strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
+	if !StrLen(strExternalFilenameNoExt)
+	{
+		Oops(lDialogFavoriteLocationEmpty)
+		gosub, GuiAddFavoriteSaveCleanup
+		return
+	}
+	
 	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
 	{
 		gosub, LoadExternalFileGlobalValues ; load values if file exists
@@ -11824,7 +11853,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
 		
-		if (strThisLabel = "GuiEditFavoriteSave")
+		if (strThisLabel = "GuiEditFavoriteSave") ; only this label, not required for Add, Copy, Move
 		{
 			; update g_objMenusIndex
 			strIndexToRemove := ""
@@ -12037,6 +12066,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	g_strNewFavoriteHotstringTrigger := ""
 	g_strNewFavoriteHotstringOptionsShort := ""
 	strLoopCriteria := ""
+	strExternalFilenameNoExt := ""
 	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
