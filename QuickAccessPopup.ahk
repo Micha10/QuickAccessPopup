@@ -40,7 +40,7 @@ Windows Apps
 Various
 - when showing a hotkey in Main menu, Alternative menu, Settings window and Settings list filtering, replace modifiers text "Control" with "Ctrl" and "Windows" with "Win"
 - revert exclusion of hotkey Windows + L (this Windows default hotkey it is locking the system before QAP can intercept the hotkey but can be disabled by editing a registry key - see http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/)
-fix bug prevent shared menu file to be empty or ".ini"
+- fix bug prevent shared menu file to be empty or ".ini"
 
 Version: 9.0.6 (2018-06-10)
  
