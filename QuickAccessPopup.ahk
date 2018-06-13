@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.5 (2018-06-13)
+- when launching the PowerShell script, use its 8.3 short path/file name to avoid an error if path or file name include space(s)
+- there may still be an issue if the filesystem does not support 8.3 naming (Google "NtfsDisable8dot3NameCreation") and the name include space(s); in this case a specific error message is displayed, suggesting the user to change QAP temp folder
+
 Version BETA: 9.0.9.4 (2018-06-12)
  
 Windows Apps
@@ -2347,7 +2351,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.4
+;@Ahk2Exe-SetVersion 9.0.9.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2442,7 +2446,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -10350,6 +10354,18 @@ foreach ($id in (Get-AppxPackageManifest $app).package.applications.application.
 ) ; leave the last extra line above
 , %strPsScriptFile%, % (A_IsUnicode ? "UTF-16" : "")
 sleep, 1000
+if InStr(strPsScriptFile, A_Space)
+	Loop, %strPsScriptFile%
+	{
+		if StrLen(A_LoopFileShortPath) ; in case the file system does not support 8.3 (search NtfsDisable8dot3NameCreation in registry)
+			strPsScriptFile := A_LoopFileShortPath
+		blnShortNameIssue :=  InStr(strPsScriptFile, A_Space) ; if it still have space, inform the user of the issue
+		; ... until we find a way to launch the script even with a space in its path
+		; Note: NtfsDisable8dot3NameCreation values are 0 (create short file names), 1 (does not create), 2 (per volume) and 3 (does not create except the system volume)
+		;       If NtfsDisable8dot3NameCreation value is 2, setting is on a per volume basis
+		;       To get 8dotname setting on a volume: "fsutil 8dot3name query c:"
+		;       To set 8dotname setting on a volume: "fsutil 8dot3name set c: 0" (0 to enable 8.3, 1 to disable 8.3) - change apply only for newly created folders or files
+	}
 
 blnResetSecurity := false
 Loop
@@ -10358,8 +10374,14 @@ Loop
 	Sleep, 500
 	FileDelete, %strPsScriptFile%
 	
+	if (blnShortNameIssue)
+	{
+		; no need to translate - hoping this will be resolved before master version
+		Oops("The drive where is saved the temporary PowerShell script:`n`n~1~`n`ndoes not support the 8.3 short file naming required to launch the script.`n`nTo bypass this PowerShell limitation, in QAP ""Options"", ""General"" tab, change the Temporary Folder for a folder having no space(s) is its path (for example: ""C:\TEMP""). Then, you should be able to refresh the Windows Apps list.", strPsScriptFile)
+		strResult := "Cancel"
+	}
+	else if FileExist(strWindowsAppsListFile)
 	; with the option "-ExecutionPolicy Bypass", the following if should not be required
-	if FileExist(strWindowsAppsListFile)
 	{
 		if (blnResetSecurity)
 		{
@@ -10404,6 +10426,7 @@ strPsScriptFile := ""
 strWindowsAppsListFile := ""
 strUnused := ""
 strResult := ""
+blnShortNameIssue := ""
 
 return
 ;------------------------------------------------------------
