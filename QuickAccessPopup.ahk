@@ -9479,6 +9479,15 @@ if (g_objEditedFavorite.FavoriteType = "Snippet")
 	g_intTypeHelpY := arrPosTypeHelpY
 }
 
+if (g_objEditedFavorite.FavoriteType = "WindowsApp")
+{
+	Gui, 2:Add, Text, x20 y+20 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
+	strWindowsAppsDropdownList := LoadWindowsAppsList()
+	Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
+		, %strWindowsAppsDropdownList% 
+	Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, % (StrLen(strWindowsAppsDropdownList) ? lDialogRefresh : lDialogWindowsAppsListPopulate)
+}
+
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
@@ -9565,14 +9574,6 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 				, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, %lDialogActivateAlreadyRunning%
 			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
-		}
-
-		if (g_objEditedFavorite.FavoriteType = "WindowsApp")
-		{
-			Gui, 2:Add, Text, x20 y+20 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
-			Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
-				, % LoadWindowsAppsList()
-			Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, %lDialogRefresh%
 		}
 
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
@@ -9671,6 +9672,7 @@ ResetArray("arrPosSnippetContent")
 ResetArray("arrLocationLabelPos")
 intTreeViewHeight := ""
 intTreeViewWidth := ""
+strWindowsAppsDropdownList := ""
 
 return
 ;------------------------------------------------------------
@@ -10341,19 +10343,29 @@ FileDelete, %strWindowsAppsListFile%
 FileAppend,
 	(LTrim Join`r`n
 $installedapps = get-AppxPackage
+$ids = $null
 foreach ($app in $installedapps)
 {
-foreach ($id in (Get-AppxPackageManifest $app).package.applications.application.id)
-{
-	$line = $app.Name + "=" + $app.packagefamilyname + "!" + $id
-	echo $line
-	$line >> '%strWindowsAppsListFile%'
-}
+  try
+  {
+    $ids += (Get-AppxPackageManifest $app -erroraction Stop).package.applications.application.id
+  }
+  catch
+  {
+  	# Write-Output "No Id's found for $($app.name)" 
+  }
+  foreach ($id in $ids)
+  {
+  	$line = $app.Name + "=" + $app.packagefamilyname + "!" + $id
+  	# echo $line
+  	$line >> '%strWindowsAppsListFile%'
+  }
 }
 
 ) ; leave the last extra line above
 , %strPsScriptFile%, % (A_IsUnicode ? "UTF-16" : "")
-sleep, 1000
+
+sleep, 200
 if InStr(strPsScriptFile, A_Space)
 	Loop, %strPsScriptFile%
 	{
@@ -10377,7 +10389,7 @@ Loop
 	if (blnShortNameIssue)
 	{
 		; no need to translate - hoping this will be resolved before master version
-		Oops("The drive where is saved the temporary PowerShell script:`n`n~1~`n`ndoes not support the 8.3 short file naming required to launch the script.`n`nTo bypass this PowerShell limitation, in QAP ""Options"", ""General"" tab, change the Temporary Folder for a folder having no space(s) is its path (for example: ""C:\TEMP""). Then, you should be able to refresh the Windows Apps list.", strPsScriptFile)
+		Oops(lOopsWindowsAppsList8dot3Error, strPsScriptFile)
 		strResult := "Cancel"
 	}
 	else if FileExist(strWindowsAppsListFile)
@@ -10420,6 +10432,7 @@ if (strResult = "OK")
 {
 	FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
 	GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList()
+	MsgBox, 0, %g_strAppNameText%, %lDialogWindowsAppsListSuccess%
 }
 
 strPsScriptFile := ""
@@ -15398,7 +15411,6 @@ if (g_objThisFavorite.FavoriteType = "Text")
 	return
 }
 
-; #####
 if (g_objThisFavorite.FavoriteType = "Application")
 	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
 	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
@@ -20617,7 +20629,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	
 	static strWinTitlesWinApps
 	if (intIndex = 1)
-		strWinTitlesWinApps := "" ; ##### to be validated or continued
+		strWinTitlesWinApps := "" ; #### to be validated or continued
 	
 	objWindowProperties := Object()
 	objWindowProperties.Index := intIndex
@@ -20658,8 +20670,8 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 			; ###_V("strWinTitlesWinApps", strWinTitlesWinApps)
 			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
 		}
-		; ##### to be validated or continued
-		; ##### run after loops, not here
+		; #### to be validated or continued
+		; #### run after loops, not here
 		; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
 		; Loop, % objFoldersAndAppsList.MaxIndex()
 		;	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
