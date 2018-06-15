@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.6 (2018-06-15)
+- avoid the red error message in PowerShell script and stop listing the apps in the PowerShell window
+- display message to user after succesful refresh of list
+- moved the Windows Apps drop down list at the top of the Basic Settings tab
+- label button "Populate" if the list is empty
+- added some missing help URLs for QAP features in Add/Edit Favorite dialog box
+
 Version BETA: 9.0.9.5 (2018-06-13)
 - when launching the PowerShell script, use its 8.3 short path/file name to avoid an error if path or file name include space(s)
 - there may still be an issue if the filesystem does not support 8.3 naming (Google "NtfsDisable8dot3NameCreation") and the name include space(s); in this case a specific error message is displayed, suggesting the user to change QAP temp folder
@@ -2351,7 +2358,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.5
+;@Ahk2Exe-SetVersion 9.0.9.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2446,7 +2453,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
