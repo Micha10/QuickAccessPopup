@@ -10355,7 +10355,7 @@ foreach ($app in $installedapps)
 {
   try
   {
-    $ids += (Get-AppxPackageManifest $app -erroraction Stop).package.applications.application.id
+    $ids = (Get-AppxPackageManifest $app -erroraction Stop).package.applications.application.id
   }
   catch
   {
@@ -19307,7 +19307,12 @@ LoadWindowsAppsList()
 	Loop, Read, %g_strWindosListAppsCacheFile%
 	{
 		StringSplit, arrWindowsApp, A_LoopReadLine, =
-		g_objWindowsAppsID[arrWindowsApp1] := arrWindowsApp2
+		StringSplit, arrWindowsAppID, arrWindowsApp2, !
+		if (arrWindowsAppID2 = "App" or arrWindowsAppID2 = arrWindowsApp1)
+			strWindowAppUniqueKey := arrWindowsApp1
+		else
+			strWindowAppUniqueKey := arrWindowsApp1 . " - " . arrWindowsAppID2
+		g_objWindowsAppsID[strWindowAppUniqueKey] := arrWindowsApp2
 	}
 
 	for strThisApp in g_objWindowsAppsID ; to list apps sorted by name
