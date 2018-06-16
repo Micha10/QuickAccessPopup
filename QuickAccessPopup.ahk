@@ -10339,13 +10339,13 @@ return
 ButtonRefreshWindowsAppsList:
 ;------------------------------------------------------------
 
-MsgBox, 1, %g_strAppNameText%, %lOopsRefreshWindowsAppsListIntro%
-IfMsgBox, Cancel
-	return
-
-strPsScriptFile := g_strTempDir . "\CollectWindowsAppsList.ps1"
+strPsScriptFile := ".\CollectWindowsAppsList.ps1" ; must start with ".\", start PowerShell in g_strTempDir
+if (g_strCurrentBranch = "beta")
+	strPsScriptPathFile := A_WorkingDir . "\" . strPsScriptFile
+else
+	strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
+FileDelete, %strPsScriptPathFile%
 strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.txt"
-FileDelete, %strPsScriptFile%
 FileDelete, %strWindowsAppsListFile%
 FileAppend,
 	(LTrim Join`r`n
@@ -10359,94 +10359,43 @@ foreach ($app in $installedapps)
   }
   catch
   {
-  	# Write-Output "No Id's found for $($app.name)" 
+  	Write-Output "No Id's found for $($app.name)" 
   }
   foreach ($id in $ids)
   {
   	$line = $app.Name + "=" + $app.packagefamilyname + "!" + $id
-  	# echo $line
+  	echo $line
   	$line >> '%strWindowsAppsListFile%'
   }
 }
+write-host "Press any key to continue..."
+[void][System.Console]::ReadKey($true)
 
 ) ; leave the last extra line above
-, %strPsScriptFile%, % (A_IsUnicode ? "UTF-16" : "")
+, %strPsScriptPathFile%, % (A_IsUnicode ? "UTF-16" : "")
 
 sleep, 200
-if InStr(strPsScriptFile, A_Space)
-	Loop, %strPsScriptFile%
-	{
-		if StrLen(A_LoopFileShortPath) ; in case the file system does not support 8.3 (search NtfsDisable8dot3NameCreation in registry)
-			strPsScriptFile := A_LoopFileShortPath
-		blnShortNameIssue :=  InStr(strPsScriptFile, A_Space) ; if it still have space, inform the user of the issue
-		; ... until we find a way to launch the script even with a space in its path
-		; Note: NtfsDisable8dot3NameCreation values are 0 (create short file names), 1 (does not create), 2 (per volume) and 3 (does not create except the system volume)
-		;       If NtfsDisable8dot3NameCreation value is 2, setting is on a per volume basis
-		;       To get 8dotname setting on a volume: "fsutil 8dot3name query c:"
-		;       To set 8dotname setting on a volume: "fsutil 8dot3name set c: 0" (0 to enable 8.3, 1 to disable 8.3) - change apply only for newly created folders or files
-	}
 
-blnResetSecurity := false
-Loop
-{
-	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%
-	Sleep, 500
-	FileDelete, %strPsScriptFile%
+if (g_strCurrentBranch = "beta")
+	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %A_WorkingDir%
+else
+	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %g_strTempDir%, Min
+Sleep, 500
+if (g_strCurrentBranch = "prod")
+	FileDelete, %g_strTempDir%\%strPsScriptFile%
 	
-	if (blnShortNameIssue)
-	{
-		; no need to translate - hoping this will be resolved before master version
-		Oops(lOopsWindowsAppsList8dot3Error, strPsScriptFile)
-		strResult := "Cancel"
-	}
-	else if FileExist(strWindowsAppsListFile)
-	; with the option "-ExecutionPolicy Bypass", the following if should not be required
-	{
-		if (blnResetSecurity)
-		{
-			MsgBox, 4, %g_strAppNameText%, %lOopsRefreshWindowsAppsListResetSecurity%
-			IfMsgBox, Yes
-			{
-				Run, *RunAs PowerShell.exe -NoExit
-				Sleep, 500
-				InputBox, strUnused, %g_strAppNameText%, `n*** %lOopsRefreshWindowsAppsListNotClickOKYet% ***`n`n%lOopsRefreshWindowsAppsListResetPrompt%`n.`n.
-					, , 480, 170, , , , , Set-ExecutionPolicy Restricted CurrentUser
-			}
-		}
-		strResult := "OK"
-	}
-	else
-	{
-		MsgBox, % 1+48+16384, %g_strAppNameText%, %lOopsRefreshWindowsAppsListChangeSecurity%
-		IfMsgBox, Cancel
-			strResult := "Cancel"
-		else
-		{
-			blnResetSecurity := true
-			Run, *RunAs PowerShell.exe -NoExit
-			Sleep, 500
-			Gui +LastFound +OwnDialogs +AlwaysOnTop
-			InputBox, strUnused, %g_strAppNameText%, `n*** %lOopsRefreshWindowsAppsListNotClickOKYet% ***`n`n%lOopsRefreshWindowsAppsListChangePrompt%, , 480, 230, , , , , Set-ExecutionPolicy Unrestricted CurrentUser
-			if (ErrorLevel) ; 1 cancel or 2 timeout
-				strResult := "Cancel"
-		}
-	}
-	if (strResult = "OK" or strResult = "Cancel")
-		break
-}
-
-if (strResult = "OK")
+if FileExist(strWindowsAppsListFile)
 {
 	FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
 	GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList()
 	MsgBox, 0, %g_strAppNameText%, %lDialogWindowsAppsListSuccess%
 }
+else
+	Oops(lDialogWindowsAppsListError)
 
 strPsScriptFile := ""
+strPsScriptPathFile := ""
 strWindowsAppsListFile := ""
-strUnused := ""
-strResult := ""
-blnShortNameIssue := ""
 
 return
 ;------------------------------------------------------------
