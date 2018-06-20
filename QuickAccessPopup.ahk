@@ -2541,7 +2541,7 @@ g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
 g_objLastActions := Object()
 
-g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.txt"
+g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
 g_objWindowsAppsID := Object()
 
 ;---------------------------------
@@ -10357,7 +10357,7 @@ ButtonRefreshWindowsAppsListAtStartup:
 strPsScriptFile := ".\CollectWindowsAppsList.ps1" ; must start with ".\", start PowerShell in g_strTempDir
 strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
 FileDelete, %strPsScriptPathFile%
-strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.txt"
+strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.tsv"
 FileDelete, %strWindowsAppsListFile%
 FileAppend,
 	(LTrim Join`r`n
@@ -10375,7 +10375,7 @@ foreach ($app in $installedapps)
   }
   foreach ($id in $ids)
   {
-  	$line = $app.Name + "=" + $app.packagefamilyname + "!" + $id
+  	$line = $app.Name + "`t" + $app.packagefamilyname + "!" + $id
   	echo $line
   	$line >> '%strWindowsAppsListFile%'
   }
@@ -10406,6 +10406,9 @@ if (A_ThisLabel <> "ButtonRefreshWindowsAppsListAtStartup")
 	else
 		Oops(lDialogWindowsAppsListError)
 }
+else
+	if FileExist(strWindowsAppsListFile)
+		FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
 
 strPsScriptFile := ""
 strPsScriptPathFile := ""
@@ -19320,7 +19323,7 @@ LoadWindowsAppsList(strCurrentAppID)
 	g_objWindowsAppsID := Object() ; reset object
 	Loop, Read, %g_strWindosListAppsCacheFile%
 	{
-		StringSplit, arrWindowsApp, A_LoopReadLine, =
+		StringSplit, arrWindowsApp, A_LoopReadLine, `t
 		StringSplit, arrWindowsAppID, arrWindowsApp2, !
 		if (arrWindowsAppID2 = "App" or arrWindowsAppID2 = arrWindowsApp1)
 			strWindowAppUniqueKey := arrWindowsApp1
