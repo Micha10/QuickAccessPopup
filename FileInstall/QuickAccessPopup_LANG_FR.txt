@@ -146,7 +146,7 @@ lDialogExternalTypesLabel	Type de menu partagé
 lDialogExternalTypesTitle	Type de menu partagé
 lDialogExternalWriteAccessMessage	Message sur l'accès en écriture du menu partagé
 lDialogExternalWriteAccessUsers	Utilisateurs avec les droits d'écriture pour ce menu
-lDialogFavoriteDisabled	Ne pas afficher ce favori dans le menu
+lDialogFavoriteDisabled	Désactiver ce favori
 lDialogFavoriteDisabledGroupMember	Désactiver cet item dans le groupe
 lDialogFavoriteDoesNotExistEdit	Voulez-vous modifier ce favori?
 lDialogFavoriteDoesNotExistPrompt	Le favori "~1~" n'existe pas ou n'est pas disponible.`n`nSi ce favori réside sur un lecteur réseau, veuillez essayer à nouveau après l'authentification réseau.
