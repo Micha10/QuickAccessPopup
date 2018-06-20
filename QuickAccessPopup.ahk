@@ -2623,21 +2623,6 @@ Gosub, BuildAlternativeMenu
 Gosub, BuildGui
 Gosub, BuildTrayMenu
 
-if (g_blnCheck4Update)
-	Gosub, Check4Update
-
-; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
-IfExist, %A_Startup%\%g_strAppNameFile%.lnk
-{
-	; if the startup shortcut exists, update it at each execution in case the exe filename changed
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-	Gosub, CreateStartupShortcut
-	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
-}
-; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
-IfExist, %A_Startup%\FoldersPopup.lnk
-	FileDelete, %A_Startup%\FoldersPopup.lnk
-
 if (g_blnDisplayTrayTip)
 {
 	GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
@@ -2654,6 +2639,26 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
 
 g_blnMenuReady := true
+
+; the next gosubs can be done aftrer menu is declared ready
+
+if (g_blnCheck4Update)
+	Gosub, Check4Update
+
+; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
+IfExist, %A_Startup%\%g_strAppNameFile%.lnk
+{
+	; if the startup shortcut exists, update it at each execution in case the exe filename changed
+	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
+	Gosub, CreateStartupShortcut
+	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
+}
+; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
+IfExist, %A_Startup%\FoldersPopup.lnk
+	FileDelete, %A_Startup%\FoldersPopup.lnk
+
+if (g_blnRefreshWindowsAppsListAtStartup)
+	Gosub, ButtonRefreshWindowsAppsListAtStartup
 
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
@@ -4381,6 +4386,7 @@ StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
+IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 1 ; default true
 
 ; ---------------------
 ; Load favorites
@@ -9492,15 +9498,6 @@ if (g_objEditedFavorite.FavoriteType = "Snippet")
 	g_intTypeHelpY := arrPosTypeHelpY
 }
 
-if (g_objEditedFavorite.FavoriteType = "WindowsApp")
-{
-	Gui, 2:Add, Text, x20 y+20 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
-	strWindowsAppsDropdownList := LoadWindowsAppsList()
-	Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
-		, %strWindowsAppsDropdownList% 
-	Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, % (StrLen(strWindowsAppsDropdownList) ? lDialogRefresh : lDialogWindowsAppsListPopulate)
-}
-
 if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
@@ -9517,7 +9514,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 else if (g_objEditedFavorite.FavoriteType = "URL")
 	Gui, 2:Add, Button, x+10 yp gGuiGetWebPageTitle, %lDialogGetWebPageTitle%
 
-if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
+if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 {
 	if !InStr("|Menu|Group|External|Text", "|" . g_objEditedFavorite.FavoriteType, true)
 	{
@@ -9601,27 +9598,38 @@ if !InStr("Special|QAP", g_objEditedFavorite.FavoriteType)
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
 }
-else ; "Special" or "QAP"
+else ; "Special", "QAP" or "WindowsApp"
 {
-	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
-	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "Special" ? "y+10" : "yp") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
+	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged, TreeviewQAPChanged or Windows Apps dropdown list
+	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
 
-	GuiControlGet, arrLocationLabelPos, Pos, f_lblLocation
-	intTreeViewHeight := intTabHeight - arrLocationLabelPosY - 43 ; 43 = space required below)
-		
-	if (g_objEditedFavorite.FavoriteType = "QAP")
-		Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
-	
-	intTreeViewWidth := (g_objEditedFavorite.FavoriteType = "QAP" ? "300" : "400")
-	Gui, 2:Add, TreeView, % "x20 y+5 w" . intTreeViewWidth . " h" . intTreeViewHeight . " " . (g_objEditedFavorite.FavoriteType = "QAP" ? "vf_tvQAP gTreeViewQAPChanged" : "vf_tvSpecial gTreeViewSpecialChanged")
-	
-	if (g_objEditedFavorite.FavoriteType = "QAP")
+	if (g_objEditedFavorite.FavoriteType = "WindowsApp")
 	{
-		Gui, 2:Add, Edit, % "x+5 yp w200 h" . intTreeViewHeight . " ReadOnly vf_tvQAPDescription"
-		gosub, LoadTreeviewQAP
+		Gui, 2:Add, Text, x20 y+20 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
+		strWindowsAppsDropdownList := LoadWindowsAppsList(g_objEditedFavorite.FavoriteLocation)
+		Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
+			, %strWindowsAppsDropdownList% 
+		Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, % (StrLen(strWindowsAppsDropdownList) ? lDialogRefresh : lDialogWindowsAppsListPopulate)
 	}
 	else
-		gosub, LoadTreeviewSpecial
+	{
+		GuiControlGet, arrLocationLabelPos, Pos, f_lblLocation
+		intTreeViewHeight := intTabHeight - arrLocationLabelPosY - 43 ; 43 = space required below)
+			
+		if (g_objEditedFavorite.FavoriteType = "QAP")
+			Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
+		
+		intTreeViewWidth := (g_objEditedFavorite.FavoriteType = "QAP" ? "300" : "400")
+		Gui, 2:Add, TreeView, % "x20 y+5 w" . intTreeViewWidth . " h" . intTreeViewHeight . " " . (g_objEditedFavorite.FavoriteType = "QAP" ? "vf_tvQAP gTreeViewQAPChanged" : "vf_tvSpecial gTreeViewSpecialChanged")
+		
+		if (g_objEditedFavorite.FavoriteType = "QAP")
+		{
+			Gui, 2:Add, Edit, % "x+5 yp w200 h" . intTreeViewHeight . " ReadOnly vf_tvQAPDescription"
+			gosub, LoadTreeviewQAP
+		}
+		else
+			gosub, LoadTreeviewSpecial
+	}
 }
 
 if (g_objEditedFavorite.FavoriteType = "FTP")
@@ -10343,13 +10351,11 @@ return
 
 ;------------------------------------------------------------
 ButtonRefreshWindowsAppsList:
+ButtonRefreshWindowsAppsListAtStartup:
 ;------------------------------------------------------------
 
 strPsScriptFile := ".\CollectWindowsAppsList.ps1" ; must start with ".\", start PowerShell in g_strTempDir
-if (g_strCurrentBranch = "beta")
-	strPsScriptPathFile := A_WorkingDir . "\" . strPsScriptFile
-else
-	strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
+strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
 FileDelete, %strPsScriptPathFile%
 strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.txt"
 FileDelete, %strWindowsAppsListFile%
@@ -10374,30 +10380,32 @@ foreach ($app in $installedapps)
   	$line >> '%strWindowsAppsListFile%'
   }
 }
-write-host "Press any key to continue..."
-[void][System.Console]::ReadKey($true)
+# write-host "Press any key to continue..."
+# [void][System.Console]::ReadKey($true)
 
 ) ; leave the last extra line above
 , %strPsScriptPathFile%, % (A_IsUnicode ? "UTF-16" : "")
 
 sleep, 200
 
-if (g_strCurrentBranch = "beta")
-	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %A_WorkingDir%
-else
-	RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %g_strTempDir%, Min
-Sleep, 500
-if (g_strCurrentBranch = "prod")
-	FileDelete, %g_strTempDir%\%strPsScriptFile%
-	
-if FileExist(strWindowsAppsListFile)
+; when Run or RunWait a PowerShell script, the -Command parameter script's path cannot include space(s) (PoWerShell bug?)
+; this is why the scipt path is set as current folder (".\") and the script path is passed as WorkingDir
+RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %g_strTempDir%, Hide
+Sleep, 200
+FileDelete, %strPsScriptPathFile%
+
+if (A_ThisLabel <> "ButtonRefreshWindowsAppsListAtStartup")
 {
-	FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
-	GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList()
-	MsgBox, 0, %g_strAppNameText%, %lDialogWindowsAppsListSuccess%
+	Gui, 2:+OwnDialogs
+	if FileExist(strWindowsAppsListFile)
+	{
+		FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
+		GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList(g_objEditedFavorite.FavoriteLocation)
+		MsgBox, 0, %g_strAppNameText%, %lDialogWindowsAppsListSuccess%
+	}
+	else
+		Oops(lDialogWindowsAppsListError)
 }
-else
-	Oops(lDialogWindowsAppsListError)
 
 strPsScriptFile := ""
 strPsScriptPathFile := ""
@@ -19300,7 +19308,7 @@ CollectRunningApplications(strDefaultPath)
 
 
 ;------------------------------------------------------------
-LoadWindowsAppsList()
+LoadWindowsAppsList(strCurrentAppID)
 ;------------------------------------------------------------
 {
 	global g_strWindosListAppsCacheFile
@@ -19321,8 +19329,8 @@ LoadWindowsAppsList()
 		g_objWindowsAppsID[strWindowAppUniqueKey] := arrWindowsApp2
 	}
 
-	for strThisApp in g_objWindowsAppsID ; to list apps sorted by name
-		strWindowsAppsList .= strThisApp . "|"
+	for strThisApp, strThisAppID in g_objWindowsAppsID ; to list apps sorted by name
+		strWindowsAppsList .= strThisApp . "|" . (strThisAppID = strCurrentAppID ? "|" : "")
 
 	return %strWindowsAppsList%
 }
