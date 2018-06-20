@@ -200,7 +200,7 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" toe in het menu zoals: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nZie omschrijving en help -links voor meer informatie.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en selecteer de menuopties.`n`nVoeg favorieten toe aan uw submenu of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favorieten uit, allen in 1 enkele snelkoppeling!`n`nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.`n`nIn Geavanceerde Opties kunt u bepalen wat de wachttijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Scheider|Kolomeindes|..|Fragment|Openbaar|Tekst
+lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Scheider|Kolomeindes|..|Fragment|Openbaar|Tekst|Win App
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
 lDialogFileExtension	Bestandsextensie
