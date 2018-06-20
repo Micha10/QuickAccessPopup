@@ -140,7 +140,6 @@ lDialogExternalTypes	Persoonlijk (menu gedeeld op verschillende computers voor d
 lDialogExternalTypesLabel	Type van het openbaar menu
 lDialogExternalWriteAccessMessage	Bericht voor schrijfrechten openbaar menu
 lDialogExternalWriteAccessUsers	Gebruikers met schrijfrechten tot dit openbare menu
-lDialogFavoriteDisabled	Deze favoriet verbergen in het menu
 lDialogFavoriteDisabledGroupMember	Schakel dit item uit in de groep
 lDialogFavoriteDoesNotExistEdit	Wilt u deze favoriet wijzigen?
 lDialogFavoriteDoesNotExistPrompt	De favoriet "~1~" ~2~ bestaat niet of is niet beschikbaar.`n`nIndien deze favoriet zich op een netwerklocatie bevindt, controleer dan of u voldoende rechten en verbinding heeft met de netwerklocatie.
@@ -192,6 +191,7 @@ lDialogFavoriteTypesHelp1	Creër een snelkoppeling naar de veel gebruikte "map".`
 lDialogFavoriteTypesHelp13	Creër een "fragment".`n`nConfigureer het fragment's titel voor het menu, zijn inhoud en de verschillende menu opties.`n`nIn Geavanceerde Opties kunt u aangeven of u gebruik wilt maken van de "Tekst Modus", welke toestaat om normale stukken tekst te plakken zoals u doet met het klembord óf kies voor "Macro Modus" om toetsaanslagen te typen inclusief "speciale toetsen" (zie help).
 lDialogFavoriteTypesHelp14	Creër een "Openbaar menu" om op verschillende computers favorieten te delen vanuit een op het netwerk opgeslagen instellingenbestand.`n`nOpenbare menu's kunnen als "Persoonlijk", "In teamverband" of in "Gecentraliseerd" worden geconfigureerd. Een catalogus kan ingesteld worden om de verschillende opties voor het "Openbaar menu" op te slaan, deze vindt u in "Opties" -> "Algemeen".`n`nOpenbare menu's kunnen als standaard favorieten worden bewerkt. Alleen geselecteerde gebruikers met de juiste rechten mogen een "Gecentraliseerd" menu aanpassen (zie help of FAQ).
 lDialogFavoriteTypesHelp15	Maak een "Tekst Scheider" aan om een rubriek aan te maken, hierdoor instaat meer duidelijkheid in het menu.`n`nStandaard heeft een "Tekst Scheider" geen pictogram, maar deze kunt u toevoegen in het "Instellingen Menu".
+lDialogFavoriteTypesHelp16	CreÃ«er een snelkoppeling naar een "Windows App".`n`nSelecteer de gewenste Windows App vanuit de lijst van geÃ¯nstalleerde Apps op uw systeem.`n`nDeze lijst is ververst tijdens de start van QAP en kan ververst worden op gebruikers verzoek.
 lDialogFavoriteTypesHelp2	Creëer een sneltoets naar een "Document".`n`nConfigureer de naam van het favoriet, pad en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de gebruikte applicatie en optionele instellingen.
 lDialogFavoriteTypesHelp3	Creëer een sneltoets naar een "Applicatie" (programma, batch of script).`n`nBlader voor het executable bestand of selecteer een van de al uitgevoerde programma's.`n`nConfigureer de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van een "Start in" map en eventuele parameters.
 lDialogFavoriteTypesHelp4	Creër een snelkoppeling naar een van de 50 voorgedefineërde Windows Speciale mappen zoals Bibliotheken, Mijn afbeeldingen, Prullenbak, Downloads, etc.`n`nConfigureer de naam van het favoriet en de verschillende menu opties.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van de bestandsbeheerder, optionele instellingen en de locatie van het venster op het scherm.
@@ -200,7 +200,10 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" toe in het menu zoals: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nZie omschrijving en help -links voor meer informatie.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en selecteer de menuopties.`n`nVoeg favorieten toe aan uw submenu of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favorieten uit, allen in 1 enkele snelkoppeling!`n`nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.`n`nIn Geavanceerde Opties kunt u bepalen wat de wachttijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Scheider|Kolomeindes|..|Fragment|Openbaar|Tekst|Win App
+lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link (URL)|F&TP Site|&QAP Functies|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Tekst Separator|&Windows App
+lDialogFavoriteTypesLabelsNoAmpersand	Map|Document|Applicatie|Speciale Map|Link (URL)|FTP Site|QAP Functies|Submenu|Groep||||Fragment|Openbaar Menu|Tekst Separator|Windows App
+lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (URL)|FTP Site (URL)|||||||Inhoud|Extern instellingenbestand (pad)|Tekst Separator|Windows App ID (AUMID)
+lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Separator|Kolomeinde|..|Fragment|Openbaar|Tekst|Win App
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	"Start in" parameter niet gevonden - ~1~
 lDialogFileExtension	Bestandsextensie
@@ -317,6 +320,9 @@ lDialogWindowPositionRight	Rechts
 lDialogWindowPositionW	Breedte
 lDialogWindowPositionX	Links
 lDialogWindowPositionY	Top
+lDialogWindowsAppsList	Selecteer de gewenste Windows App vanuit de lijst van geÃ¯nstalleerde Apps op uw systeem.
+lDialogWindowsAppsListError	De lijst van Windows Apps kon niet worden ververst. Een kritieke fout heeft zich voorgedaan tijdens het draaien van het Powershell script.
+lDialogWindowsAppsListSuccess	De lijst van Windows App is ververst.
 lDialogWindowsFolderIconCreate	maken
 lDialogWindowsFolderIconNoRoot	Het Windows-map pictogram kan niet ingesteld worden in het stations hoofdmap.
 lDialogWindowsFolderIconPrompt	Dit commando zal het systeembestand ~1~:`n~2~`n`nHet pictogram van de map: "Windows" zal aangepast worden door het huidig geselecteerde pictogram. Wilt u doorgaan?

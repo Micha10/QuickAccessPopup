@@ -32,7 +32,7 @@ HISTORY
 =======
 
 Version BETA: 9.0.9.9 (2018-06-20)
-- update FR language for v9.0.9.8
+- update FR, DE and NL (partial) languages for v9.0.9.8
 - addition of Win App short label for all languages
 - in Add/Edit favorite dialog bnox, remplace "Hide this favorite" with "Disable this favorite"
 
