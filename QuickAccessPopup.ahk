@@ -31,6 +31,17 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.8 (2018-06-20)
+- refresh Windows Apps list at QAP startup using PowerShell script, unless ini [Global] value RefreshWindowsAppsListAtStartup=0
+- do not display success or error feedback when refresh is done at startup
+- when refreshing Windows Apps list, save temporary PowerShell script and temporary apps list in QAP temporary folder
+- remove pause at the end of PowerShell script execution
+- run PowerShell script hidden
+- change delimiter in Windows Apps list file to tab instead of "=" and rename the file WindowsAppsList.tsv
+- in Add/Edit Windows App favorite, hide location text box (holding the Winsdows App ID), move dropdown list after short name
+- set default value of Windows Apps dropdown list to the current Windows App, if any
+- at startup, make QAP menu available before refreshing Windows Apps list, checking for updates and refreshing startup shortcut (in case these operations take some time)
+
 Version BETA: 9.0.9.7 (2018-06-16)
 - fix bug making Windows Apps ID wrong
 - differentiate Windows Apps name when there are more than one ID for the same app name (for example, see: microsoft.windowscommunicationsapps)
@@ -2364,7 +2375,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.7
+;@Ahk2Exe-SetVersion 9.0.9.8
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2459,7 +2470,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
