@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.0.7 (2018-07-27)
+- fix bug remembering window position and size when moving the "Move favorite" dialog box when used for only one favorite
+- when using drag-and-drop to add a favorite to a menu in the "Settings" window, insert the new favorite after the selected one (instead of before)
+- in the "Add/Edit Favorite" dialog box for QAP Features, add help links for all remaining features
+- change English labels "Remember window position" to "Remember Settings window position" (in "Options") and "Hide this favorite in menu" to "Disable this favorite" (in Add/Edit Favorite dialog box)
+- update to all localized language files
+
 Version: 9.0.6 (2018-06-10)
  
 Shared menus and Time zones
@@ -2327,7 +2334,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.6
+;@Ahk2Exe-SetVersion 9.0.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2422,7 +2429,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
