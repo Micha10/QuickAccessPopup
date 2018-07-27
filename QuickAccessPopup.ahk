@@ -20162,7 +20162,7 @@ WindowIsToMenuDialogBox(strTitle)
 ;------------------------------------------------------------
 {
 	strTitle := SubStr(strTitle, 1, InStr(strTitle, " - "))
-	return InStr(lDialogMoveFavoritesTitle, strTitle) or InStr(lDialogCopyFavoritesTitle, strTitle)
+	return InStr(lDialogMoveFavoriteTitle, strTitle) or InStr(lDialogMoveFavoritesTitle, strTitle) or InStr(lDialogCopyFavoritesTitle, strTitle)
 }
 ;------------------------------------------------------------
 
