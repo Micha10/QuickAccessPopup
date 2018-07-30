@@ -15521,14 +15521,24 @@ if (g_objThisFavorite.FavoriteType = "Application")
 
 if (g_objThisFavorite.FavoriteType = "WindowsApp")
 {
-	; ###_V("Run", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation)
-	Run, %g_strFullLocation%, , UseErrorLevel
-	if (ErrorLevel = "ERROR")
-	{
-		if (A_LastError <> 1223)
-			Oops(lOopsUnknownTargetAppName)
-		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
-	}
+	; for archive, before using IApplicationActivationManager
+		; Run, %g_strFullLocation%, , UseErrorLevel
+		; if (ErrorLevel = "ERROR")
+		; {
+			; if (A_LastError <> 1223)
+				; Oops(lOopsUnknownTargetAppName)
+			; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
+		; }
+	
+	; from https://www.reddit.com/r/windows/comments/4aac5b/how_do_i_run_edge_browser_with_autohotkey/
+	objIApplicationActivationManager := ComObjCreate("{45BA127D-10A8-46EA-8AB7-56EA9078943C}", "{2e941141-7f97-4756-ba1d-9decde894a3d}")
+	DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
+		, "Ptr", objIApplicationActivationManager
+		, "Str", g_strFullLocation
+		, "Str", ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		, "UInt", 0
+		, "IntP", intProcessId)
+	ObjRelease(objIApplicationActivationManager)
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -15587,6 +15597,8 @@ objContainingFavorite := ""
 strContainingFolder := ""
 intMinMax := ""
 g_blnLaunchFromTrayIcon := ""
+objIApplicationActivationManager := ""
+intProcessId := ""
 
 return
 ;------------------------------------------------------------
@@ -15852,8 +15864,10 @@ else
 	{
 		if (SubStr(g_strFullLocation, 1, 7) = "Custom:")
 			StringTrimLeft, g_strFullLocation, g_strFullLocation, 7
-		; preparation for Windows Apps
-		g_strFullLocation := "shell:Appsfolder\" . g_strFullLocation
+		; for archive, older method of launching Windows Apps before using IApplicationActivationManager
+		; g_strFullLocation := "shell:Appsfolder\" . g_strFullLocation
+		
+		return ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
 	}
 	else if (g_objThisFavorite.FavoriteType = "Special")
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
