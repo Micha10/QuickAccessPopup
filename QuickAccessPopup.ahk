@@ -8844,7 +8844,7 @@ Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioB
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 Gui, Add, Text
-Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h230, % L(lDialogFavoriteSelectType, lDialogContinue)
+Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h290, % L(lDialogFavoriteSelectType, lDialogContinue)
 
 GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
 Gosub, ShowGui2AndDisableGui1
@@ -8870,6 +8870,10 @@ loop, %g_arrFavoriteTypes0%
 	{
 		if (g_arrFavoriteTypes%A_Index% = "QAP")
 			strThisTypeHelp := L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+		else if (g_arrFavoriteTypes%A_Index% = "Application")
+			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%] . "`n`n" . lDialogFavoriteTypeNoteApplication
+		else if (g_arrFavoriteTypes%A_Index% = "WindowsApp")
+			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%] . "`n`n" . lDialogFavoriteTypeNoteWindowsApps
 		else
 			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
 		GuiControl, , f_lblAddFavoriteTypeHelp, %strThisTypeHelp%
@@ -9118,7 +9122,7 @@ if (g_blnAbordEdit)
 
 ; must be before GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
-g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|Group" ; must start with "|"
+g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|Group|WindowsApp" ; must start with "|"
 
 if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
@@ -10026,7 +10030,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 	}
-	else ; Folder, Document, Special, URL and FTP 
+	else if (g_objEditedFavorite.FavoriteType <> "WindowsApp") ; Folder, Document, Special, URL and FTP 
 	{
 		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
@@ -15535,7 +15539,7 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 	DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
 		, "Ptr", objIApplicationActivationManager
 		, "Str", g_strFullLocation
-		, "Str", ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		, "Str", ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
 		, "UInt", 0
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
