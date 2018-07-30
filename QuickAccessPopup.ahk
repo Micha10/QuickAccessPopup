@@ -8922,7 +8922,7 @@ Loop, parse, A_GuiEvent, `n
     Break
 }
 
-g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
+g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() + 1 : 0xFFFF) : 1)
 Gosub, GuiAddFromDropFiles
 
 return
@@ -9226,8 +9226,6 @@ if StrLen(strDialogPosition)
 		arrDialogPosition4 := 544
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
-
-*/
 
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
