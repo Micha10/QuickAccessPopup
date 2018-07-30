@@ -9633,16 +9633,21 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 }
 else ; "Special", "QAP" or "WindowsApp"
 {
-	Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged, TreeviewQAPChanged or Windows Apps dropdown list
+	if (g_objEditedFavorite.FavoriteType <> "WindowsApp")
+		Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
 	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
 
 	if (g_objEditedFavorite.FavoriteType = "WindowsApp")
 	{
+		blnIsCustomWindowsApp := (SubStr(g_objEditedFavorite.FavoriteLocation, 1, 7) = "Custom:")
 		Gui, 2:Add, Text, x20 y+5 vf_lblWindowsAppsList, %lDialogWindowsAppsList%
 		strWindowsAppsDropdownList := LoadWindowsAppsList(g_objEditedFavorite.FavoriteLocation)
 		Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
-			, %strWindowsAppsDropdownList% 
+			, % strWindowsAppsDropdownList . "|* " . lDialogWindowsAppsListCustom . (blnIsCustomWindowsApp ? "||" : "")
 		Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, %lDialogRefresh%
+		Gui, 2:Add, Edit, % "x20 y+5 section vf_strFavoriteLocation w400 h20"
+			. (blnIsCustomWindowsApp ? "" : " hidden") ; hidden because Windows Apps dropdown list except if starts with "Custom:"
+			, % (blnIsCustomWindowsApp ? SubStr(g_objEditedFavorite.FavoriteLocation, 8) : g_objEditedFavorite.FavoriteLocation)
 	}
 	else
 	{
@@ -9727,6 +9732,7 @@ ResetArray("arrLocationLabelPos")
 intTreeViewHeight := ""
 intTreeViewWidth := ""
 strWindowsAppsDropdownList := ""
+blnIsCustomWindowsApp := ""
 
 return
 ;------------------------------------------------------------
@@ -10370,13 +10376,18 @@ DropdownWindowsAppsListChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strWindowsApp := g_objWindowsAppsID[f_drpWindowsAppsList]
-
-GuiControl, , f_strFavoriteShortName, %f_drpWindowsAppsList%
-GuiControl, , f_strFavoriteLocation, %strWindowsApp%
-
-strWindowsApp := ""
-ResetArray(arrWindowsApp)
+if (f_drpWindowsAppsList = "* " . lDialogWindowsAppsListCustom)
+{
+	GuiControl, , f_strFavoriteLocation
+	GuiControl, Show, f_strFavoriteLocation
+}
+else
+{
+	GuiControl, Hide, f_strFavoriteLocation
+	
+	GuiControl, , f_strFavoriteShortName, %f_drpWindowsAppsList%
+	GuiControl, , f_strFavoriteLocation, % g_objWindowsAppsID[f_drpWindowsAppsList]
+}
 
 return
 ;------------------------------------------------------------
@@ -11917,8 +11928,12 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		}
 	}
 	else
+	{
+		if (g_objEditedFavorite.FavoriteType = "WindowsApp") and (f_drpWindowsAppsList = "* " . lDialogWindowsAppsListCustom)
+			strNewFavoriteLocation := "Custom:" . strNewFavoriteLocation
 		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
-	
+	}
+
 	Gosub, UpdateFavoriteObjectSaveShortcut
 	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
 
@@ -15834,8 +15849,12 @@ else
 		; was g_strFullLocation := PathCombine(A_WorkingDir, EnvVars(g_strFullLocation))
 	}
 	else if (g_objThisFavorite.FavoriteType = "WindowsApp")
+	{
+		if (SubStr(g_strFullLocation, 1, 7) = "Custom:")
+			StringTrimLeft, g_strFullLocation, g_strFullLocation, 7
 		; preparation for Windows Apps
 		g_strFullLocation := "shell:Appsfolder\" . g_strFullLocation
+	}
 	else if (g_objThisFavorite.FavoriteType = "Special")
 		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
@@ -19367,6 +19386,7 @@ LoadWindowsAppsList(strCurrentAppID)
 
 	for strThisApp, strThisAppID in g_objWindowsAppsID ; to list apps sorted by name
 		strWindowsAppsList .= strThisApp . "|" . (strThisAppID = strCurrentAppID ? "|" : "")
+	StringTrimRight, strWindowsAppsList, strWindowsAppsList, 1
 
 	return %strWindowsAppsList%
 }
