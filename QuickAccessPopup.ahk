@@ -11408,7 +11408,8 @@ Loop
 		LV_Modify(intListviewRow, "Select")
 	}
 }
-MsgBox, 0, %g_strAppNameText%, % L((intNbMenusAdded > 1 ? lDialogExternalMenusAdded : lDialogExternalMenuAdded), intNbMenusAdded)
+if (intNbMenusAdded)
+	MsgBox, 0, %g_strAppNameText%, % L((intNbMenusAdded > 1 ? lDialogExternalMenusAdded : lDialogExternalMenuAdded), intNbMenusAdded)
 
 Gosub, 2GuiClose
 
@@ -11647,10 +11648,10 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	return
 }
 
-; validation to make sure the user selected the type of the new external menu
 if (g_objEditedFavorite.FavoriteType = "External")
 {
-	SplitPath, f_strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
+	; make sure the we have a file name
+	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
 	if !StrLen(strExternalFilenameNoExt)
 	{
 		Oops(lDialogFavoriteLocationEmpty)
@@ -11658,6 +11659,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 		return
 	}
 	
+	; make sure the user selected the type of the new external menu
 	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
 	{
 		gosub, LoadExternalFileGlobalValues ; load values if file exists
