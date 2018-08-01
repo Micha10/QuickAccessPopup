@@ -2573,7 +2573,7 @@ g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 g_objLastActions := Object()
 
 g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
-g_objWindowsAppsID := Object()
+g_objWindowsAppsIDsByName := Object()
 
 ;---------------------------------
 ; Initial validation
@@ -4418,7 +4418,7 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
 if !(blnDefaultWindowsAppsMenuBuilt)
- 	Gosub, AddToIniWindwosAppsDefaultMenu ; modify the ini file Favorites section before reading it
+ 	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
@@ -4788,7 +4788,9 @@ return
 
 
 ;------------------------------------------------------------
-AddToIniWindwosAppsDefaultMenu:
+AddToIniWindowsAppsDefaultMenu:
+; Technical debt: this menu is created with IDs found in Windows 10 Version 1803 (same as in 1709) as-of 2018-08-01.
+; We have no way to check if these IDs are OK on users' system (IDs in future releases may change). 
 ;------------------------------------------------------------
 
 strThisMenuName := lMenuMyWindowsAppsMenu
@@ -4798,6 +4800,8 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
 
+AddToIniOneDefaultMenu("{Add Favorite - WindowsApp}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("Microsoft.MicrosoftSolitaireCollection_8wekyb3d8bbwe!App", "Solitaire", "WindowsApp")
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("Microsoft.WindowsCalculator_8wekyb3d8bbwe!App", "Calculator", "WindowsApp")
@@ -10403,7 +10407,7 @@ else
 	GuiControl, Hide, f_strFavoriteLocation
 	
 	GuiControl, , f_strFavoriteShortName, %f_drpWindowsAppsList%
-	GuiControl, , f_strFavoriteLocation, % g_objWindowsAppsID[f_drpWindowsAppsList]
+	GuiControl, , f_strFavoriteLocation, % g_objWindowsAppsIDsByName[f_drpWindowsAppsList]
 }
 
 return
@@ -19400,24 +19404,26 @@ LoadWindowsAppsList(strCurrentAppID)
 ;------------------------------------------------------------
 {
 	global g_strWindosListAppsCacheFile
-	global g_objWindowsAppsID
+	global g_objWindowsAppsIDsByName
 	
 	if !FileExist(g_strWindosListAppsCacheFile)
 		return
 	
-	g_objWindowsAppsID := Object() ; reset object
+	g_objWindowsAppsIDsByName := Object() ; reset object
 	Loop, Read, %g_strWindosListAppsCacheFile%
 	{
-		StringSplit, arrWindowsApp, A_LoopReadLine, `t
-		StringSplit, arrWindowsAppID, arrWindowsApp2, !
+		StringSplit, arrWindowsApp, A_LoopReadLine, `t ; $app.Name + "`t" + $app.packagefamilyname + "!" + $id
+		; arrWindowsApp1 = name / arrWindowsApp2 = packagefamilyname!id (required to execute a Windows App)
+		StringSplit, arrWindowsAppID, arrWindowsApp2, ! ; $app.packagefamilyname + "!" + $id
+		; arrWindowsAppID1 = packagefamilyname / arrWindowsAppID2 = id
 		if (arrWindowsAppID2 = "App" or arrWindowsAppID2 = arrWindowsApp1)
 			strWindowAppUniqueKey := arrWindowsApp1
 		else
 			strWindowAppUniqueKey := arrWindowsApp1 . " - " . arrWindowsAppID2
-		g_objWindowsAppsID[strWindowAppUniqueKey] := arrWindowsApp2
+		g_objWindowsAppsIDsByName[strWindowAppUniqueKey] := arrWindowsApp2
 	}
 
-	for strThisApp, strThisAppID in g_objWindowsAppsID ; to list apps sorted by name
+	for strThisApp, strThisAppID in g_objWindowsAppsIDsByName ; to list apps sorted by name
 		strWindowsAppsList .= strThisApp . "|" . (strThisAppID = strCurrentAppID ? "|" : "")
 	StringTrimRight, strWindowsAppsList, strWindowsAppsList, 1
 
