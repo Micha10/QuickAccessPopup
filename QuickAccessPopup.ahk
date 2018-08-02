@@ -4506,7 +4506,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
-		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort
+		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -4611,6 +4611,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
 		objLoadIniFavorite.FavoriteHotstring := ReplaceAllInString(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
 		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ;  two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
+		objLoadIniFavorite.FavoriteSoundLocation := ReplaceAllInString(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -8447,6 +8448,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 				. " " . objCurrentMenu[A_Index].FavoriteLaunchWith
 				. " " . objCurrentMenu[A_Index].FavoriteLoginName
 				. " " . objCurrentMenu[A_Index].FavoritePassword
+				. " " . objCurrentMenu[A_Index].FavoriteSoundLocation
 			; do not include objCurrentMenu.MenuPath unless I isolate the last submenu name
 		}
 		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
@@ -9042,7 +9044,7 @@ if (g_blnAbordEdit)
 
 ; must be before GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
-g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|Group" ; must start with "|"
+g_strTypesForTabAdvancedOptions := "|Folder|Special|Document|Application|URL|FTP|Snippet|QAP|Group" ; must start with "|"
 
 if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
@@ -9930,14 +9932,14 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 	}
-	else ; Folder, Document, Special, URL and FTP 
+	else if (g_objEditedFavorite.FavoriteType <> "QAP") ; Folder, Document, Special, URL and FTP 
 	{
 		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
 		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
-	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("Group|Snippet|QAP", g_objEditedFavorite.FavoriteType, true)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
@@ -9956,6 +9958,11 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (g_intActiveFileManager = 3 ? lOptionsFtpEncodingTC : lOptionsFtpEncoding)
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
 	}
+	
+	Gui, 2:Add, Link, x20 y+10, % L(lDialogSoundLabel, "http://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", lGuiHelp)
+	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w400 h20, % g_objEditedFavorite.FavoriteSoundLocation
+	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, %lDialogBrowseButton%
+
 }
 
 strFavoriteSnippetOptions := ""
@@ -10442,6 +10449,7 @@ ButtonSelectFavoriteLocation:
 ButtonSelectWorkingDir:
 ButtonSelectLaunchWith:
 ButtonSelectExternalSettingsFile:
+ButtonSelectFavoriteSoundLocation:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
@@ -10456,9 +10464,17 @@ else if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisL
 	strDefault := f_strFavoriteAppWorkingDir ; working directory or external menu settings file
 	strType := (A_ThisLabel = "ButtonSelectWorkingDir" ? "Folder" : "IniFile") ; file if External settings file
 }
-else ; ButtonSelectLaunchWith
+else ; ButtonSelectLaunchWith or ButtonSelectFavoriteSoundLocation 
 {
-	strDefault := f_strFavoriteLaunchWith
+	if (A_ThisLabel = "ButtonSelectLaunchWith")
+		strDefault := f_strFavoriteLaunchWith
+	else ; ButtonSelectFavoriteSoundLocation
+	{
+		if (StrLen(f_strFavoriteSoundLocation) and SubStr(f_strFavoriteSoundLocation, 1, 1) <> "*")
+			strDefault := f_strFavoriteSoundLocation
+		else
+			strDefault := A_WinDir . "\media\tada.wav"
+	}
 	strType := "File"
 }
 
@@ -10485,12 +10501,14 @@ if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisLabel)
 	GuiControl, 2:, f_strFavoriteAppWorkingDir, %strNewLocation%
 else if (A_ThisLabel = "ButtonSelectLaunchWith")
 	GuiControl, 2:, f_strFavoriteLaunchWith, %strNewLocation%
-else
+else if (A_ThisLabel = "ButtonSelectLaunchWith")
 {
 	GuiControl, 2:, f_strFavoriteLocation, %strNewLocation%
 	if !StrLen(f_strFavoriteShortName)
 		GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName(strNewLocation)
 }
+else ; ButtonSelectFavoriteSoundLocation
+	GuiControl, 2:, f_strFavoriteSoundLocation, %strNewLocation%
 
 ButtonSelectFavoriteLocationCleanup:
 strNewLocation := ""
@@ -11406,6 +11424,7 @@ else
 	strNewFavoriteShortName := f_strFavoriteShortName
 	strNewFavoriteLocation := f_strFavoriteLocation
 	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	strNewFavoriteSoundLocation := f_strFavoriteSoundLocation
 
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
@@ -11763,7 +11782,9 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_blnFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
 	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
 	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
-	
+
+	g_objEditedFavorite.FavoriteSoundLocation := strNewFavoriteSoundLocation
+
 	if (f_blnFavoriteFolderLive)
 	{
 		strLoopCriteria := 0
@@ -11924,6 +11945,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	g_strNewFavoriteHotstringTrigger := ""
 	g_strNewFavoriteHotstringOptionsShort := ""
 	strLoopCriteria := ""
+	strNewFavoriteSoundLocation := ""
 	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
@@ -13223,7 +13245,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveSort ; 22
+			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveSort . "|" ; 22
+			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) ; 23
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -15032,7 +15055,7 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
 	gosub, OpenGroupOfFavorites
 	
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15040,7 +15063,7 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15233,7 +15256,6 @@ if (g_objThisFavorite.FavoriteType = "Text")
 	return
 }
 
-; #####
 if (g_objThisFavorite.FavoriteType = "Application")
 	and (g_objThisFavorite.FavoriteLaunchWith = 1) ; 1 activate existing if running
 	and AppIsRunning(g_strFullLocation, g_objThisFavorite.FavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
@@ -15251,7 +15273,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15272,7 +15294,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 			gosub, OpenFavoriteWindowResize
 		}
 
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15315,7 +15337,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 			gosub, OpenFavoriteWindowResize
 		}
 
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15325,7 +15347,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15334,7 +15356,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15343,7 +15365,7 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetect
 if (g_objThisFavorite.FavoriteType = "Special") and (g_strHokeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, OpenFavoriteCleanup
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15358,7 +15380,41 @@ if (g_strHokeyTypeDetected = "Launch")
 	gosub, OpenFavoriteWindowResize
 }
 
+OpenFavoritePlaySoundAndCleanup:
+
+if StrLen(g_objThisFavorite.FavoriteSoundLocation)
+{
+	if (SubStr(g_objThisFavorite.FavoriteSoundLocation, 1, 2) = "*|")
+		intFavoriteSoundType := 1 ; sequence
+	else if (SubStr(g_objThisFavorite.FavoriteSoundLocation, 1, 1) = "*")
+		intFavoriteSoundType := 2 ; system
+	else
+		intFavoriteSoundType := 3 ; file
+
+	if (intFavoriteSoundType = 1)
+		Loop, Parse, % g_objThisFavorite.FavoriteSoundLocation, |, *
+			if StrLen(A_LoopField)
+			{
+				StringSplit, arrThisSound, A_LoopField, @
+				SoundBeep, %arrThisSound2%, %arrThisSound1%
+			}
+	
+	if (intFavoriteSoundType > 1) ; do not use else with previous if(s)
+	{
+		strFavoriteSoundLocationExpanded := (intFavoriteSoundType = 2
+			? g_objThisFavorite.FavoriteSoundLocation ; system
+			: PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteSoundLocation))) ; file
+			
+		if (intFavoriteSoundType = 3) ; if file do not exist play system sound
+			if !FileExist(strFavoriteSoundLocationExpanded)
+				strFavoriteSoundLocationExpanded := "*16" ; Hand (stop/error)
+			
+		SoundPlay, %strFavoriteSoundLocationExpanded%
+	}
+}
+
 OpenFavoriteCleanup:
+
 g_objThisFavorite := ""
 strFavoriteWindowPosition := ""
 ResetArray("g_arrFavoriteWindowPosition")
@@ -15372,6 +15428,8 @@ objContainingFavorite := ""
 strContainingFolder := ""
 intMinMax := ""
 g_blnLaunchFromTrayIcon := ""
+intFavoriteSoundType := ""
+strFavoriteSoundLocationExpanded := ""
 
 return
 ;------------------------------------------------------------
