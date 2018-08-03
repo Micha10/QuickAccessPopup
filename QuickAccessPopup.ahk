@@ -10049,7 +10049,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		
 		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
 	}
-	else !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
+	else if !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
 		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
