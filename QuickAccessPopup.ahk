@@ -31,6 +31,22 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.10 (2018-08-04)
+ 
+Sound
+- add capability to play a sound after a favorite is launched
+- favorite sound location field added to Advanced Settings tab of Add/Edit Favorite
+- support for sounds from a sound as file (wave, mp3, .mid, etc.), a system sound or a sequence (see help https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/)
+- default file sound %WinDir%\media\tada.wav
+- sound is played after the favorite or group is launched
+- add Advanced Settings tab to QAP features for sound property;
+ 
+Windows Apps and others
+- add QAP feature "Add Favorite - Windows App" at top of the menu "My Windows Apps" created at first execution of QAP
+- save PowerShell script collecting the list of Windows Apps in the QAP working directory instead of under a QAP temp folder (allowing eaisier whitelisting for protection software) and stop deleting the script after execution
+- fix bug when adding a shared menu from the catalogue
+- fix bug reporting shared menu added even when error occured
+
 Version BETA: 9.0.9.10 (2018-07-30)
 - in "Add/Edit favorite" for Windows Apps, add the "Ccustom Windows App" item to the drop down list of installed Windows Apps (allowing user to add app not collected by the PowerShell script, if any)
 - for custom Windows Apps, display location text box for custom app code (AUMID); internally prefix custom AUMID with "Custom:"; remove prefix before running or displaying the code
