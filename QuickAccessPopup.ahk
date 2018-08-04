@@ -12631,7 +12631,7 @@ Loop, Parse, strSelectedRows, |
 		break
 	intRowsToSort++
 	strSortedRows .= arrSelectedRows%A_Index% . "|"
-	objNewOrder[g_objMenuInGui[A_LoopField].FavoriteName] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
+	objNewOrder[CleanFavoriteName(g_objMenuInGui[A_LoopField].FavoriteName)] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
 }
 StringTrimRight, strSortedRows, strSortedRows, 1
 
@@ -12672,6 +12672,20 @@ strThisName := ""
 objThisFavorite := ""
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CleanFavoriteName(strFavoriteName)
+;------------------------------------------------------------
+{
+	if InStr(strFavoriteName, "&")
+	{
+		StringReplace, strFavoriteName, strFavoriteName, &, , A
+		strFavoriteName .= "-" . RandomBetween() ; add random number in case another favorite has the same name without the ampersand)
+	}
+	return strFavoriteName
+}
 ;------------------------------------------------------------
 
 
