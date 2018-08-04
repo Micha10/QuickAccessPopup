@@ -10427,7 +10427,8 @@ ButtonRefreshWindowsAppsListAtStartup:
 ;------------------------------------------------------------
 
 strPsScriptFile := ".\CollectWindowsAppsList.ps1" ; must start with ".\", start PowerShell in g_strTempDir
-strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
+; changed in v9.0.9.11 strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
+strPsScriptPathFile := A_WorkingDir . "\" . strPsScriptFile
 FileDelete, %strPsScriptPathFile%
 strWindowsAppsListFile := g_strTempDir . "\CollectWindowsAppsList.tsv"
 FileDelete, %strWindowsAppsListFile%
@@ -10462,9 +10463,10 @@ sleep, 200
 
 ; when Run or RunWait a PowerShell script, the -Command parameter script's path cannot include space(s) (PoWerShell bug?)
 ; this is why the scipt path is set as current folder (".\") and the script path is passed as WorkingDir
-RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %g_strTempDir%, Hide ; could be Min instead of Hide
+; RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %g_strTempDir%, Hide ; could be Min instead of Hide
+RunWait, PowerShell.exe -ExecutionPolicy Bypass -Command %strPsScriptFile%, %A_WorkingDir%, Hide ; could be Min instead of Hide
 Sleep, 200
-FileDelete, %strPsScriptPathFile%
+; removed in v9.0.9.11 FileDelete, %strPsScriptPathFile%
 
 if (A_ThisLabel <> "ButtonRefreshWindowsAppsListAtStartup")
 {
