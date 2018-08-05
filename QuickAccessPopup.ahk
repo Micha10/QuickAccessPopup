@@ -50,6 +50,7 @@ Other changes
 - set default icons when adding shared menu from catalogue
 - fix bug preventing adding a shared menu from the catalogue
 - fix bug reporting shared menu added even when error occured
+- fix bug updating the expanded parameters preview in Add Favorite when using placeholders {CUR_LOC} and other {CUR_...}
 
 Version BETA: 9.0.9.10 (2018-07-30)
 - in "Add/Edit favorite" for Windows Apps, add the "Ccustom Windows App" item to the drop down list of installed Windows Apps (allowing user to add app not collected by the PowerShell script, if any)
@@ -10662,7 +10663,7 @@ FavoriteArgumentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z]*}") ? "Show" : "Hide") ; "i){[a-z]*}" case insensitive, between {},  zero, one or more a-z
+strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z_]*}") ? "Show" : "Hide") ; "i){[a-z]*}" case insensitive, between {},  zero, one or more a-z
 
 GuiControl, %strCommand%, f_PlaceholdersCheckLabel
 GuiControl, %strCommand%, f_strPlaceholdersCheck 
