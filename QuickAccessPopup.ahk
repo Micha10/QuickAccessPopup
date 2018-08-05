@@ -10731,14 +10731,14 @@ if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisLabel)
 	GuiControl, 2:, f_strFavoriteAppWorkingDir, %strNewLocation%
 else if (A_ThisLabel = "ButtonSelectLaunchWith")
 	GuiControl, 2:, f_strFavoriteLaunchWith, %strNewLocation%
-else if (A_ThisLabel = "ButtonSelectLaunchWith")
+else if (A_ThisLabel = "ButtonSelectFavoriteSoundLocation")
+	GuiControl, 2:, f_strFavoriteSoundLocation, %strNewLocation%
+else ; ButtonSelectFavoriteLocation
 {
 	GuiControl, 2:, f_strFavoriteLocation, %strNewLocation%
 	if !StrLen(f_strFavoriteShortName)
 		GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName(strNewLocation)
 }
-else ; ButtonSelectFavoriteSoundLocation
-	GuiControl, 2:, f_strFavoriteSoundLocation, %strNewLocation%
 
 ButtonSelectFavoriteLocationCleanup:
 strNewLocation := ""
