@@ -41,10 +41,14 @@ Sound
 - sound is played after the favorite or group is launched
 - add Advanced Settings tab to QAP features for sound property;
  
-Windows Apps and others
+Windows Apps
 - add QAP feature "Add Favorite - Windows App" at top of the menu "My Windows Apps" created at first execution of QAP
 - save PowerShell script collecting the list of Windows Apps in the QAP working directory instead of under a QAP temp folder (allowing eaisier whitelisting for protection software) and stop deleting the script after execution
-- fix bug when adding a shared menu from the catalogue
+ 
+Other changes
+- remove ampersand (&) from favorite names temporarily before sorting favorites in Settings window
+- set default icons when adding shared menu from catalogue
+- fix bug preventing adding a shared menu from the catalogue
 - fix bug reporting shared menu added even when error occured
 
 Version BETA: 9.0.9.10 (2018-07-30)
@@ -9441,6 +9445,8 @@ else ; add favorite
 			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
 			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
 			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(g_strNewLocation))
+			g_objEditedFavorite.FavoriteType := "External"
+			g_strNewFavoriteIconResource := "iconSubmenu"
 		}
         else if (strOriginalExtension = "lnk")
             
@@ -9516,8 +9522,6 @@ else ; add favorite
 			g_objEditedFavorite.FavoriteWindowPosition := g_strNewFavoriteWindowPosition
 		}
 	}
-	else if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
-		g_objEditedFavorite.FavoriteType := "External"
 	
 	if (g_strAddFavoriteType = "FTP")
 		g_blnNewFavoriteFtpEncoding := (g_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
