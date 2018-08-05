@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.0.9.10 (2018-08-04)
+Version BETA: 9.0.9.11 (2018-08-05)
  
 Sound
 - add capability to play a sound after a favorite is launched
@@ -51,6 +51,7 @@ Other changes
 - fix bug preventing adding a shared menu from the catalogue
 - fix bug reporting shared menu added even when error occured
 - fix bug updating the expanded parameters preview in Add Favorite when using placeholders {CUR_LOC} and other {CUR_...}
+- in List Applications window, add "..." when title or process path is trucated
 
 Version BETA: 9.0.9.10 (2018-07-30)
 - in "Add/Edit favorite" for Windows Apps, add the "Ccustom Windows App" item to the drop down list of installed Windows Apps (allowing user to add app not collected by the PowerShell script, if any)
@@ -2416,7 +2417,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.10
+;@Ahk2Exe-SetVersion 9.0.9.11
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2511,7 +2512,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -18867,14 +18868,14 @@ LV_Delete()
 Loop, %strWinIDs%
 	if KeepThisWindow(A_Index, strWinIDs%A_Index%, f_drpListApplications, objWindowProperties)
 	{
-		LV_Add("", A_Index, objWindowProperties.WindowID, SubStr(objWindowProperties.WindowTitle, 1, 50), objWindowProperties.ProcessName, SubStr(objWindowProperties.ProcessPath, 1, 50)
+		LV_Add("", A_Index, objWindowProperties.WindowID, StringLeftDotDotDot(objWindowProperties.WindowTitle, 50), objWindowProperties.ProcessName, StringLeftDotDotDot(objWindowProperties.ProcessPath, 50)
 			, objWindowProperties.WandH, objWindowProperties.MinMax, objWindowProperties.Style, objWindowProperties.ExStyle
 			, objWindowProperties.UniversalApplicationID, objWindowProperties.UniversalApplicationName)
 			
 		if (objWindowProperties.UniversalApplicationID) and (f_drpListApplications = "List All")
 			if KeepThisWindow(A_Index, objWindowProperties.UniversalApplicationID, "List All", objUniversalWindowProperties)
-				LV_Add("", A_Index, objUniversalWindowProperties.WindowID, SubStr(objUniversalWindowProperties.WindowTitle, 1, 50)
-					, objUniversalWindowProperties.ProcessName, SubStr(objUniversalWindowProperties.ProcessPath, 1, 50), objUniversalWindowProperties.WandH
+				LV_Add("", A_Index, objUniversalWindowProperties.WindowID, StringLeftDotDotDot(objUniversalWindowProperties.WindowTitle, 50)
+					, objUniversalWindowProperties.ProcessName, StringLeftDotDotDot(objUniversalWindowProperties.ProcessPath, 50), objUniversalWindowProperties.WandH
 					, objUniversalWindowProperties.MinMax, objUniversalWindowProperties.Style, objUniversalWindowProperties.ExStyle
 					, objUniversalWindowProperties.UniversalApplicationID, "(" . objWindowProperties.WindowID . ")")
 	}
