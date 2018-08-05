@@ -35,23 +35,22 @@ Version BETA: 9.0.9.11 (2018-08-05)
  
 Sound
 - add capability to play a sound after a favorite is launched
-- favorite sound location field added to Advanced Settings tab of Add/Edit Favorite
-- support for sounds from a sound as file (wave, mp3, .mid, etc.), a system sound or a sequence (see help https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/)
+- favorite sound location field added to "Advanced Settings" tab of "Add/Edit Favorite" dialog box
+- support for sounds from a sound as file (wave, mp3, .mid, etc.), a system sound or your own sequence (see help https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/)
 - default file sound %WinDir%\media\tada.wav
 - sound is played after the favorite or group is launched
-- add Advanced Settings tab to QAP features for sound property;
+- add "Advanced Settings" tab to QAP features for sound property
  
 Windows Apps
 - add QAP feature "Add Favorite - Windows App" at top of the menu "My Windows Apps" created at first execution of QAP
-- save PowerShell script collecting the list of Windows Apps in the QAP working directory instead of under a QAP temp folder (allowing eaisier whitelisting for protection software) and stop deleting the script after execution
+- save the PowerShell script collecting the list of Windows Apps in the QAP working directory instead of under a QAP temp folder (allowing easier whitelisting by protection software) and stop deleting the script after its execution
  
-Other changes
-- remove ampersand (&) from favorite names temporarily before sorting favorites in Settings window
+Bug fixes
+- sort favorite in Settings window without considering the ampersand (&) in their names
 - set default icons when adding shared menu from catalogue
-- fix bug preventing adding a shared menu from the catalogue
-- fix bug reporting shared menu added even when error occured
-- fix bug updating the expanded parameters preview in Add Favorite when using placeholders {CUR_LOC} and other {CUR_...}
-- in List Applications window, add "..." when title or process path is trucated
+- adding a shared menu from the catalogue
+- reporting shared menu added even when error occured
+- updating the expanded parameters preview in Add Favorite when using placeholders {CUR_LOC} and other {CUR_...}
 
 Version BETA: 9.0.9.10 (2018-07-30)
 - in "Add/Edit favorite" for Windows Apps, add the "Ccustom Windows App" item to the drop down list of installed Windows Apps (allowing user to add app not collected by the PowerShell script, if any)
