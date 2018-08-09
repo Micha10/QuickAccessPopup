@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.1 (2018-08-09)
+Version: 9.1 (2018-08-10)
  
 Windows Apps
 - support Windows Apps (downloaded from Windows Store or pre-installed in Windows 10, also called Metro Apps under Windows 8, Universal Applications, UWP applications)
@@ -57,6 +57,7 @@ Various improvements and bug fixes
 - optimize "Recent Folders" and "Recent Files" menus refresh when these menus are attached to the Main menu
 - fix bug to prevent shared menu file name to be empty or only ".ini"
 - set default icons when adding Shared menu from Catalogue
+- update links to QAP website from http:// to https:// (Yes! QAP website is now more secure with an SSL certficate.)
 - update of all language files, thanks to translators
 
 Version BETA: 9.0.9.12 (2018-08-09)
