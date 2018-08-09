@@ -31,6 +31,34 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.1 (2018-08-09)
+ 
+Windows Apps
+- support Windows Apps (downloaded from Windows Store or pre-installed in Windows 10, also called Metro Apps under Windows 8, Universal Applications, UWP applications)
+- automatically add the submenu "My Windows Apps" to your Main menu with sample of Windows Apps installed with Windows 10 (created only if you run QAP under Windows 10; you can move or delete this submenu if you wish)
+- new favorite type "Windows App" in the "Select Favorite Type " dialog box
+- adapt the "Add/Edit Favorite" dialog box for a Windows Apps:
+  - select the Windows App to add in a dropdown list of Windows Apps installed on your system
+  - click the "Refresh" button to include freshly installed Windows Apps
+  - select the last dropdown list entry "Custom Windows App" to add manualy a Windows App identifier
+  - in the "Advanced Settings" tab, the "Parameter" option is available
+  - known limitations: at this time, QAP could not retrieve the "friendly" localized app name and its icon, but you can change the app's name or icon as you wish
+  - technical note: the Windows Apps list is refreshed by a PowerShell script running silently; the list is automatically refreshed at QAP launch, unless the [Global] value "RefreshWindowsAppsListAtStartup=0" is added to the QAP ini file
+ 
+Favorite Sound
+- add capability to play a sound after any menu item is launched
+- the favorite sound location field is added to "Advanced Settings" tab of "Add/Edit Favorite" dialog box for all types of favorites
+- support for sounds from a sound as file (wave, mp3, midi, etc. depending on your system configuration), a system sound or your own sound sequence
+- see help https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/
+ 
+Various improvements and bug fixes
+- add QAP Feature "List Applications" used to analyse properties of currently open applications and windows (mostly for debugging use)
+- sort favorite in Settings window without considering the ampersand (&) in their names
+- optimize "Recent Folders" and "Recent Files" menus refresh when these menus are attached to the Main menu
+- fix bug to prevent shared menu file name to be empty or only ".ini"
+- set default icons when adding Shared menu from Catalogue
+- update of all language files, thanks to translators
+
 Version BETA: 9.0.9.12 (2018-08-09)
 - create the sample "My Windows Apps" menu only the first time launching QAP on Windows 10
 - make QAP menu available by left-clicking the QAP icon in the Notification before refreshing Windows Apps list, checking for updates and refreshing startup shortcut
@@ -2422,7 +2450,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.12
+;@Ahk2Exe-SetVersion 9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2517,8 +2545,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.12" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
