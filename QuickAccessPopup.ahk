@@ -12008,7 +12008,11 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	Gosub, UpdateFavoriteObjectSaveShortcut
 	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
 
+	; for safety check if icon resource is empty, if yes, set default icon for type
+	if !StrLen(g_strNewFavoriteIconResource)
+		GetDefaultIcon4Type(g_objEditedFavorite, strNewFavoriteLocation)
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+	
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
 	
 	if (g_objEditedFavorite.FavoriteType = "Group")
