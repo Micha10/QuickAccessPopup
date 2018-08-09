@@ -142,7 +142,7 @@ Windows Apps
  
 Various
 - when showing a hotkey in Main menu, Alternative menu, Settings window and Settings list filtering, replace modifiers text "Control" with "Ctrl" and "Windows" with "Win"
-- revert exclusion of hotkey Windows + L (this Windows default hotkey it is locking the system before QAP can intercept the hotkey but can be disabled by editing a registry key - see http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/)
+- revert exclusion of hotkey Windows + L (this Windows default hotkey it is locking the system before QAP can intercept the hotkey but can be disabled by editing a registry key - see https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/)
 - fix bug prevent shared menu file to be empty or ".ini"
 
 Version: 9.0.6 (2018-06-10)
@@ -242,7 +242,7 @@ Tree views when adding QAP features and Windows Special folders
 Hotstrings
 - an hotstring is a small sequence of characters used as trigger to expand an abbreviation into the full text of a Snippet (auto-replace) or to launch any type of favorite
 - a new "Hotstrings" section is added to the "Menu Options" tab in "Add/Edit Favorite" dialog box
-- in the "Change hotstring" dialog box, you set the trigger (abbreviation) and options: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: http://www.quickaccesspopup.com/what-are-hotstrings/)
+- in the "Change hotstring" dialog box, you set the trigger (abbreviation) and options: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: https://www.quickaccesspopup.com/what-are-hotstrings/)
 - due to large number of options combinations (taking into account case-sensitivity and other options), QAP does not validate that hotstring triggers are unique; in case of duplication, depending on various options, only one of the favorites having the same hotstring will be triggered
 - in "Options", "Hotkeys" tab, a new button "Hotstrings default options" opens a dialog box where you can set default values for options of newly created hotstrings (these defaults do not impact existing hotstrings)
 - the "Manage Hotkeys" window now has two tabs: the existing list of Favorite Shortcuts is inserted in a first tab and a second tab now lists the Favorites Hotstrings
@@ -457,10 +457,10 @@ Version BETA: 8.9.1.1 (2018-02-20)
 (summary of changes in private beta releases v8.7.1.94 to v8.7.1.98)
  
 Hotstrings
-- see FAQ page http://www.quickaccesspopup.com/what-are-hotstrings/
+- see FAQ page https://www.quickaccesspopup.com/what-are-hotstrings/
 - add "Hotstrings" section to "Menu Options" tab in "Add/Edit Favorite" dialog box
 - add "Change hotstring" dialog box to set the trigger (or abbreviation) of an hotstring and its options
-- checkbox options in "Change hotstring" dialog box are: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: http://www.quickaccesspopup.com/what-are-hotstrings/#options)
+- checkbox options in "Change hotstring" dialog box are: Case sensitive, Do not conform to typed case, Expand inside other words, Keep hotstring abbreviation, Do not wait for Ending key, Do not keep Ending key (see FAQ page for explanations of options: https://www.quickaccesspopup.com/what-are-hotstrings/#options)
 - hotstrings can trigger any type of favorites, most useful with "Text Snippets" to use an abbreviation (the trigger) to expand in the longer replacement text of a Text Snippet
 - due to large number of options combinations (taking into account case-sensitivity and other options), QAP does not validate that hotstring triggers are unique; in case of duplication, depending on various options, only one of the favorites having the same hotstring will be triggered
 - in "Options", "Hotkeys" tab, add the "Hotstrings default options" button to to set default hotstrings options for newly created hotstrings (these defaults do not impact existing hotstrings)
@@ -579,7 +579,7 @@ Run as administrator
 - add the "[admin]" tag to QAP application name when running as administrator
 - administrator security alert, "[admin]" tag and QAP tray icon with UAC logo are displayed only if QAP is running as admin because of the "Run as administrator" option (ie: not if user launched QAP as administrator by other means)
 - launch QAP with normal privileges if user decline elevation (ie: do not enter the admin password when requested)
-- more info here: http://www.quickaccesspopup.com/can-i-launch-qap-with-administrator-privileges/
+- more info here: https://www.quickaccesspopup.com/can-i-launch-qap-with-administrator-privileges/
  
 Various
 - Italian, Portuguese, Brazilian Portuguese, Dutch, German, Spanish and French language update
@@ -807,7 +807,7 @@ Unicode conversion
   1) convert its settings file to Unicode encoding (for better int'l and special characters support);
   2) not convert (value "DoNotConvertSettingsToUnicode=1" is added to settings to remember this choice);
   3) or ask again at next startup.
-- the dialog box includes a link to a FAQ web page for explanation and help (http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
+- the dialog box includes a link to a FAQ web page for explanation and help (https://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
  
 Various
 - the option "Always open folders in current file manager window" in Options, "Files mamagers" tab is added to always change folder in the current Explorer, Total Commander or Directory Opus window, except when using the Alternative menu "Open in new window"; this applies to favorites of types Folder, Special Folder and FTP
@@ -863,7 +863,7 @@ Unicode conversion
   1) convert its settings file to Unicode (for better int'l and special characters support);
   2) not convert (value DoNotConvertSettingsToUnicode=1 is added to settings to remember this choice);
   3) or ask user next startup.
-- dialog box includes a link to a FAQ web page for explanation and help (http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
+- dialog box includes a link to a FAQ web page for explanation and help (https://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/)
  
 Various
 - fix bug when opening an application favorite with {CUR_LOC} and when location is empty (when the current window is not an Explorer window)
@@ -974,7 +974,7 @@ Various
 
 Version: 8.4.2 (2017-08-18)
 - stop creating Windows Explorer context menu for Windows Shortcuts (.lnk files) because of potential security issue
-- if you need to remove this context menu see the FAQ (http://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
+- if you need to remove this context menu see the FAQ (https://www.quickaccesspopup.com/how-can-i-remove-the-windows-explorer-contextual-menu-for-windows-shortcuts-lnk-files/)
 
 Version BETA: 8.4.9.2 (2017-08-09)
 - Menu key hotkey now removed properly checkbox is turned off
@@ -1202,7 +1202,7 @@ Shared Menus
 
 Version BETA: 8.1.9.3 (2017-03-10)
  
-Shared menus (see updated FAQ page http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/)
+Shared menus (see updated FAQ page https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/)
 - error message when user tries to load an external menu that was modified based on file last modified date-time
 - store and read last modified date of external file in ini file and update it only when favorites or external menu properties are changed, not when only reserved without changes
 - update the last modified date-time of external ini file and in external menu object when user save changes
@@ -1327,7 +1327,7 @@ Live Folder options
 - Add the new QAP Feature "Refresh Live Folders menus" to your menu to refresh Live Folder on-demand (normally, Live Folder menus are refreshed when you launch QAP of when you save changes in Settings)
 - QAP adds items to Live Folders up to a maximum of 500 items; if this number is exceeded, it displays an alert message
 - You can edit a Live Folder favorite in the "Settings" window or using the Alternative menu "Edit a Favorite" (Shift+Middle Mouse Button or Shift+Win+W) and also by clicking any item in a Live Folder menu with Shift+Ctrl menu modifiers pressed
-- More info: http://www.quickaccesspopup.com/can-a-menu-be-updated-as-the-content-of-a-folder-changes/
+- More info: https://www.quickaccesspopup.com/can-a-menu-be-updated-as-the-content-of-a-folder-changes/
 
 New menu icons
 - QAP now uses new color icons from the shared file JLicons.dll installed with QAP
@@ -1708,7 +1708,7 @@ Context menus
 For the standard "Easy one-step" installation users (Setup)
 - change to setup procedure to create registry keys for QAP context menu at installation and removed them when user uninstalls the app (using Inno Setup tool)
 - add a check box in Option ("General" tab) to enable/disable QAP Explorer context menus (enabling or disabling scripts will ask to run with elevated administrator privileges)
-- creation of the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
+- creation of the context menus help page (https://www.quickaccesspopup.com/what-else-should-i-know-about-explorer-context-menus/)
 - fix bug in the uninstall procedure that was not properly checking that QAP was not running before uninstalling it (now, QAP must be closed by the user before installing and uninstalling it)
 - fix bug that prevented the Startup folder shortcut to be removed when uninstalling the app 
  
@@ -1735,7 +1735,7 @@ Version BETA: 7.2.3.5 (2016-06-16)
 
 Version BETA: 7.2.3.4 (2016-06-13)
 - No change to the main QAP executable file
-- Addition od the context menus help page (http://www.quickaccesspopup.com/explorer-context-menus-help/)
+- Addition od the context menus help page (https://www.quickaccesspopup.com/what-else-should-i-know-about-explorer-context-menus/)
  
 Changes for portable installation users
 - Addition to the portable setup zip file of the executable file QAPmessenger-0_4-32-bit.exe used to send commands from the Explorer context menus to QAP (this file should be saved in the same folder as the QAP executable file)
@@ -4303,7 +4303,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite3=Folder|Program Files|%A_ProgramFiles%
 			Favorite4=Folder|User Profile|`%USERPROFILE`%
 			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
-			Favorite6=URL|%g_strAppNameText% web site|http://www.QuickAccessPopup.com|||||||||||||||||+^Q|:X*:#qap#|
+			Favorite6=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^Q|:X*:#qap#|
 			Favorite7=Z
 
 ) ; leave the last extra line above
@@ -4335,8 +4335,8 @@ else
 			Gui, Add, Text, w500 , This change will allow the use of extended characters in favorite's name, location or content, etc.
 			Gui, Add, Text, w500 , If you encounter issues with special characters in your menu after the conversion, you can revert to the previous file.
 			Gui, Add, Link, w500 , % L("See this <a href=""~1~"">FAQ page</a> for help now. Or search the <a href=""~1~"">FAQ</a> for ""Unicode"" later."
-				, "http://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/"
-				, "http://www.quickaccesspopup.com/frequently-asked-questions/")
+				, "https://www.quickaccesspopup.com/why-converting-the-settings-file-to-unicode-and-conversion-troubleshooting/"
+				, "https://www.quickaccesspopup.com/frequently-asked-questions/")
 			Gui, Font
 			Gui, Add, Button, y+20 gConvertSettingsEncoding vf_btnConvertSettingsEncodingYes, %g_strConvertSettingsEncodingYes%
 			Gui, Add, Button, yp x+10 gConvertSettingsEncoding vf_btnConvertSettingsEncodingNo, %g_strConvertSettingsEncodingNo%
@@ -6211,7 +6211,7 @@ return
 
 ;------------------------------------------------------------
 RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
-; see http://www.quickaccesspopup.com/add-total-commander-hotlist-menu-to-fp-menu/
+; see https://www.quickaccesspopup.com/add-total-commander-hotlist-menu-to-fp-menu/
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
@@ -7061,7 +7061,7 @@ Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseBut
 GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
 GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
@@ -7092,7 +7092,7 @@ Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "http://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
+Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "https://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
 Gui, 2:Font
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultProcessEOLTab, %lDialogFavoriteSnippetProcessEOLTab%
@@ -7256,7 +7256,7 @@ Gui, 2:Font
 Gui, 2:Add, Text, x10 y+10 w595 center, % L(lOptionsExclusionTitle, Hotkey2Text(g_arrPopupHotkeys1))
 Gui, 2:Add, Edit, x10 y+5 w600 r10 vf_strExclusionMouseList, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
 Gui, 2:Add, Link, x10 y+10 w595, % L(lOptionsExclusionDetail1, Hotkey2Text(g_arrPopupHotkeys1))
-Gui, 2:Add, Link, x10 y+10 w595, % L(lOptionsExclusionDetail2, Hotkey2Text(g_arrPopupHotkeys1), "http://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
+Gui, 2:Add, Link, x10 y+10 w595, % L(lOptionsExclusionDetail2, Hotkey2Text(g_arrPopupHotkeys1), "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
 Gui, 2:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, %lMenuGetWinInfo%
 
 GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnGetWinInfo")
@@ -7350,17 +7350,17 @@ GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
 if (f_radActiveFileManager2) ; DirectoryOpus
 {
 	g_intClickedFileManager := 2
-	strHelpUrl := "http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/"
+	strHelpUrl := "https://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/"
 }
 else if (f_radActiveFileManager3) ; TotalCommander
 {
 	g_intClickedFileManager := 3
-	strHelpUrl := "http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/"
+	strHelpUrl := "https://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/"
 }
 else if (f_radActiveFileManager4) ; QAPconnect
 {
 	g_intClickedFileManager := 4
-	strHelpUrl := "http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/"
+	strHelpUrl := "https://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/"
 }
 else ; f_radActiveFileManager1
 	g_intClickedFileManager := 1
@@ -8134,7 +8134,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 
 			; Add context menus for Quick Access Popup
 			; For more information:
-			; http://www.quickaccesspopup.com/explorer-context-menus-help/
+			; https://www.quickaccesspopup.com/what-else-should-i-know-about-explorer-context-menus/
 
 			;--------------------------------------
 			; ADD FILE
@@ -8276,7 +8276,7 @@ else ; DisableExplorerContextMenus
 	FileAppend,
 		(LTrim Join`r`n
 			:: BATCH START - DELETE QUICK ACCESS POPUP REGISTRY KEYS
-			:: http://www.quickaccesspopup.com/explorer-context-menus-help/
+			:: https://www.quickaccesspopup.com/what-else-should-i-know-about-explorer-context-menus/
 			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express" /f
 			REG DELETE "HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu" /f
@@ -9799,7 +9799,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 		Gui, 2:Add, Text, x20 y+5 w500, %lDialogExternalLocationReadOnly%
 	else
 		Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, %lDialogBrowseButton%
-	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
+	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
 Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : "20") . " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
@@ -9963,14 +9963,14 @@ if !(blnIsGroupMember)
 	if (g_objEditedFavorite.FavoriteType <> "Text")
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
-		Gui, 2:Add, Link, x+5 yp, (<a href="http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/">%lGuiHelp%</a>)
+		Gui, 2:Add, Link, x+5 yp, (<a href="https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/">%lGuiHelp%</a>)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
 		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
 		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 		Gui, 2:Add, Text, x20 y+20, %lDialogHotstringTriggerOptions%
-		Gui, 2:Add, Link, x+5 yp, (<a href="http://www.quickaccesspopup.com/what-are-hotstrings/">%lGuiHelp%</a>)
+		Gui, 2:Add, Link, x+5 yp, (<a href="https://www.quickaccesspopup.com/what-are-hotstrings/">%lGuiHelp%</a>)
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotstringTrigger gButtonChangeFavoriteHotstring, %g_strNewFavoriteHotstringTrigger%
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotstring, %lOptionsChangeHotkey%
 		Gui, 2:Add, Text, x20 y+5 w300 h46 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
@@ -10108,7 +10108,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 		
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
+		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/")
 	}
 	else if !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
@@ -10137,7 +10137,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
 	}
 	
-	Gui, 2:Add, Link, x20 y+10, % L(lDialogSoundLabel, "http://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", lGuiHelp)
+	Gui, 2:Add, Link, x20 y+10, % L(lDialogSoundLabel, "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", lGuiHelp)
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w400 h20, % g_objEditedFavorite.FavoriteSoundLocation
 	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, %lDialogBrowseButton%
 
@@ -10162,7 +10162,7 @@ if (g_objEditedFavorite.FavoriteType = "External")
 
 	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
 		Gui, 2:Add, Text, x20 y50 w500, % L(lDialogFavoriteExternalSaveNote, (InStr(strGuiFavoriteLabel, "Add") ? lDialogAdd : lDialogOK))
-	Gui, 2:Add, Link, x20 y+10 w500, % L(lDialogFavoriteExternalHelpWeb, "http://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
+	Gui, 2:Add, Link, x20 y+10 w500, % L(lDialogFavoriteExternalHelpWeb, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 	
 	Gui, 2:Add, Text, x20 y+10 w500, %lDialogExternalTypesTitle%
 	Loop, 3 ; no default type
@@ -10620,7 +10620,7 @@ if (A_GuiEvent = "S")
 	{
 		GuiControl, , f_tvQAPDescription, % g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureDescription
 		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
-		GuiControl, , f_tvQAPFeatureURL, % "<a href=""http://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
+		GuiControl, , f_tvQAPFeatureURL, % "<a href=""https://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL . "/"">" . lDialogQAPFeaturesHelpLink . "</a>"
 	}
 }
 else if (A_GuiEvent = "DoubleClick")
@@ -10690,7 +10690,7 @@ if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
 }
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "http://www.quickaccesspopup.com/what-are-snippets/")
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/")
 
 strSnippetFormatBefore := ""
 
@@ -12800,8 +12800,8 @@ arrShortcutsHotstrings2 := lDialogHotstrings
 StringSplit, arrShortcutHotstringLower, lDialogHotkeysManageShortcutHotstringLower, |
 arrHotkeysHeader1 := L(lDialogHotkeysManageListHeader, arrShortcutsHotstrings1)
 arrHotkeysHeader2 := L(lDialogHotkeysManageListHeader, lDialogHotkeysManageListHeaderHotstrings)
-arrHotkeysUrl1 := "http://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
-arrHotkeysUrl2 := "http://www.quickaccesspopup.com/what-are-hotstrings/"
+arrHotkeysUrl1 := "https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
+arrHotkeysUrl2 := "https://www.quickaccesspopup.com/what-are-hotstrings/"
 
 Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460 vf_HotkeysTab AltSubmit", %arrShortcutsHotstrings1%|%arrShortcutsHotstrings2%
 
@@ -13995,7 +13995,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	Gui, Add, Text, x10 y10 w400 center, %SH_strGuiTitle%
 	Gui, Font
 	
-	Gui, Add, Link, y+15 x10, % (P_blnDefaultOptions ? L(lDialogChangeHotstringDefaultOptionsPrompt, "http://www.quickaccesspopup.com/what-are-hotstrings/#options") : lDialogTriggerFor)
+	Gui, Add, Link, y+15 x10, % (P_blnDefaultOptions ? L(lDialogChangeHotstringDefaultOptionsPrompt, "https://www.quickaccesspopup.com/what-are-hotstrings/#options") : lDialogTriggerFor)
 	
 	if !(P_blnDefaultOptions)
 	{
@@ -14649,7 +14649,7 @@ if (g_blnDiagMode)
 Gosub, InsertColumnBreaks
 
 /*
-; Tentative solution against "close menu issue" (see http://www.quickaccesspopup.com/what-is-the-close-menu-issue/)
+; Tentative solution against "close menu issue" (see https://www.quickaccesspopup.com/what-is-the-close-menu-issue/)
 ; This cause side effects espcially when QAP runs in compiled mode (scripts hidden window or main GUI being randomly shown inavertandly)
 
 DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
@@ -17490,11 +17490,11 @@ Check4Update:
 Check4UpdateNow:
 ;------------------------------------------------------------
 
-strUrlCheck4Update := "http://quickaccesspopup.com/latest/latest-version-4.php"
+strUrlCheck4Update := "https://www.quickaccesspopup.com/latest/latest-version-4.php"
 
-g_strUrlAppLandingPage := "http://quickaccesspopup.com" ; must be here if user select Check for update from tray menu
-strBetaLandingPage := "http://quickaccesspopup.com/latest/check4update-beta-redirect.html"
-strAlphaLandingPage := "http://quickaccesspopup.com/latest/check4update-alpha-redirect.html"
+g_strUrlAppLandingPage := "https://www.quickaccesspopup.com" ; must be here if user select Check for update from tray menu
+strBetaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-beta-redirect.html"
+strAlphaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-alpha-redirect.html"
 
 IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
 IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
@@ -17738,7 +17738,7 @@ Time2Donate(intStartups, g_blnDonor)
 Check4UpdateDialogProd:
 ;------------------------------------------------------------
 
-strChangeLog := Url2Var("http://www.quickaccesspopup.com/changelog/changelog.txt")
+strChangeLog := Url2Var("https://www.quickaccesspopup.com/changelog/changelog.txt")
 
 if StrLen(strChangeLog)
 {
@@ -17792,9 +17792,9 @@ UpdateGuiClose:
 UpdateGuiEscape:
 ;------------------------------------------------------------
 
-strUrlChangeLog := "http://www.quickaccesspopup.com/change-log/"
-strUrlDownloadSetup := "http://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html"
-strUrlDownloadPortable:= "http://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html"
+strUrlChangeLog := "https://www.quickaccesspopup.com/change-log/"
+strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html"
+strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html"
 
 if InStr("ButtonCheck4UpdateDialogChangeLog|ButtonCheck4UpdateDialogVisit|ButtonCheck4UpdateDialogDownloadSetup|ButtonCheck4UpdateDialogDownloadPortable", A_ThisLabel)
 {
@@ -17831,7 +17831,7 @@ return
 OpenWebSiteSupport:
 ;------------------------------------------------------------
 
-Run, http://www.quickaccesspopup.com/support/
+Run, https://www.quickaccesspopup.com/support/
 
 return
 ;------------------------------------------------------------
@@ -18233,7 +18233,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(lDonateText1, g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "http://www.quickaccesspopup.com/why-support-freeware/")
+Gui, 2:Add, Link, x175 w185 y+10, % L(lDonateText2, "https://www.quickaccesspopup.com/why-support-freeware/")
 loop, Parse, % "4|1|2|3", |
 {
 	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % lDonatePlatformName%A_LoopField%
@@ -18264,7 +18264,7 @@ loop, 3
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . lDonateReviewNameRight%A_Index% . "</a>"
 
-Gui, 2:Add, Link, y+10 x130, <a href="http://www.quickaccesspopup.com/why-support-freeware/">%lDonateText5%</a>
+Gui, 2:Add, Link, y+10 x130, <a href="https://www.quickaccesspopup.com/why-support-freeware/">%lDonateText5%</a>
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGuiCloseAmpersand%
@@ -18294,7 +18294,7 @@ ButtonDonate4:
 strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"
 strDonatePlatformUrl2 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"
 strDonatePlatformUrl3 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"
-strDonatePlatformUrl4 := "http://www.quickaccesspopup.com/why-support-freeware/"
+strDonatePlatformUrl4 := "https://www.quickaccesspopup.com/why-support-freeware/"
 
 StringReplace, intButton, A_ThisLabel, ButtonDonate
 Run, % strDonatePlatformUrl%intButton%
