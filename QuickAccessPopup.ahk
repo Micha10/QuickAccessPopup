@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.0.9.12 (2018-08-09)
+- create the sample "My Windows Apps" menu only the first time launching QAP on Windows 10
+- make QAP menu available by left-clicking the QAP icon in the Notification before refreshing Windows Apps list, checking for updates and refreshing startup shortcut
+- fix bug adding duplicates "Settings" and "Add This Folder or Link" if they already existed in the main menu (this should not happen except if DefaultMenuBuilt value is removed form ini file)
+- when saving a favorite, before saving check if icon resource is empty, if yes, set default icon for type (safety check)
+
 Version BETA: 9.0.9.11 (2018-08-05)
  
 Sound
@@ -2416,7 +2422,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.0.9.11
+;@Ahk2Exe-SetVersion 9.0.9.12
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2511,7 +2517,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.0.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.0.9.12" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2692,7 +2698,10 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 
 g_blnMenuReady := true
 
-; the next gosubs can be done aftrer menu is declared ready
+; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
+OnMessage(0x404, "AHK_NOTIFYICON")
+
+; the next gosubs can be done after menu is declared ready
 
 if (g_blnCheck4Update)
 	Gosub, Check4Update
@@ -2719,9 +2728,6 @@ OnMessage(0x200, "WM_MOUSEMOVE")
 ; To prevent double-click on image static controls to copy their path to the clipboard - See WM_LBUTTONDBLCLK function below
 ; see http://www.autohotkey.com/board/topic/94962-doubleclick-on-gui-pictures-puts-their-path-in-your-clipboard/#entry682595
 OnMessage(0x203, "WM_LBUTTONDBLCLK")
-
-; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
-OnMessage(0x404, "AHK_NOTIFYICON")
 
 ; Respond to SendMessage sent by ImportFPsettings to signal that QAP is running
 ; No specific reason for 0x2224, except that is is > 0x1000 (http://ahkscript.org/docs/commands/OnMessage.htm)
