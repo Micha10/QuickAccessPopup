@@ -4438,7 +4438,7 @@ IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; defa
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
-if !(blnDefaultWindowsAppsMenuBuilt)
+if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
  	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
