@@ -4775,9 +4775,9 @@ AddToIniOneDefaultMenu("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "", "Special") 
 AddToIniOneDefaultMenu("{645FF040-5081-101B-9F08-00AA002F954E}", "", "Special") ; Recycle Bin
 AddToIniOneDefaultMenu("", "", "Z") ; close special menu
 
-strThisMenuName := lMenuSettings . "..."
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
-if (strThisMenuName = lMenuSettings . "...") ; if equal, it means that this menu is not already there
+strThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."] ; QAP feature code used here for comparison only, not for menu name
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
+if (strDefaultMenu = g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."]) ; if equal, it means that this menu is not already there
 ; (we cannot have this menu twice with "+" because, as all QAP features, lMenuSettings always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
@@ -4794,8 +4794,14 @@ if (g_intActiveFileManager = 3) ; TotalCommander
 		AddToIniOneDefaultMenu("{TC Directory hotlist}", lTCMenuName . "...", "QAP")
 	}
 }
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP", true)
+strThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."] ; QAP feature code used here for comparison only, not for menu name
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
+if (strDefaultMenu = g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."]) ; if equal, it means that this menu is not already there
+; (we cannot have this menu twice with "+" because, as all QAP features, lMenuAddThisFolder always have the same menu name)
+{
+	AddToIniOneDefaultMenu("", "", "X")
+	AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP", true)
+}
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
