@@ -2469,6 +2469,10 @@ SendMode, Input
 StringCaseSense, Off
 ComObjError(False) ; we will do our own error handling
 
+; SQLite from just_me wrapper for UsageDb
+; https://autohotkey.com/boards/viewtopic.php?t=1064
+#Include %A_ScriptDir%\Class_SQLiteDB.ahk
+
 ; avoid error message when shortcut destination is missing
 ; see http://ahkscript.org/boards/viewtopic.php?f=5&t=4477&p=25239#p25236
 DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
@@ -2788,6 +2792,30 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, F1, SettingsF1, On UseErrorLevel
 
 Hotkey, If
+
+;---------------------------------
+; Background task collecting recent items
+
+g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
+g_intUsageDbRecentItemsInterval := 30 ; in seconds
+g_intUsageDbRecentLimit := 150
+g_blnUsageDbError := false
+
+g_blnUsageDbDebug := true
+g_blnUsageDbDebugBeep := false
+
+Loop ; stops when QAP is exited or if error or when the stop file exists
+	if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
+	{
+		if (g_blnUsageDbDebugBeep)
+		{
+			SoundBeep
+			SoundBeep
+		}
+		break
+	}
+	else
+		gosub, CollectRecentItems
 
 return
 
@@ -18934,6 +18962,185 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+CollectRecentItems:
+;------------------------------------------------------------
+
+/*
+SQL CODE SNIPPETS
+
+strSQL := "CREATE TABLE Test (Name, Fname, Phone, Room, PRIMARY KEY(Name ASC, FName ASC));"
+If !g_objUsageDb.Exec(strSQL)
+	MsgBox, 16, SQLite Error Exec, % "Msg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode
+Db.Exec("BEGIN TRANSACTION;")
+SQL := "INSERT INTO Test VALUES('Näme#', 'Fname#', 'Phone#', 'Room#');"
+If !Db.Exec(SQLStr)
+	MsgBox, 16, SQLite Error, % "Msg:`t" . Db.ErrorMsg . "`nCode:`t" . Db.ErrorCode
+SQL := "SELECT COUNT(*) FROM Test;"
+Db.Exec(SQL, "SQLiteExecCallBack")
+
+If !Db.GetTable(SQL, Result)
+   MsgBox, 16, SQLite Error: GetTable, % "Msg:`t" . Db.ErrorMsg . "`nCode:`t" . Db.ErrorCode
+
+If (Table.HasRows)
+{
+	Loop, % Table.RowCount
+	{
+		RowCount := LV_Add("", "")
+		Table.Next(Row)
+		Loop, % Table.ColumnCount
+			LV_Modify(RowCount, "Col" . A_Index, Row[A_Index])
+	}
+}
+
+SQL := "SELECT * FROM Test;"
+If !Db.Query(SQL, RecordSet)
+	MsgBox, 16, SQLite Error: Query, % "Msg:`t" . RecordSet.ErrorMsg . "`nCode:`t" . RecordSet.ErrorCode
+Loop, % RecordSet.ColumnCount
+	LV_Add("", RecordSet.ColumnNames[A_Index])
+RecordSet.Free()
+
+*/
+
+; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
+
+g_objUsageDb := New SQLiteDb
+
+blnUsageDbExist := FileExist(g_strUsageDbFile)
+if !g_objUsageDb.OpenDb(g_strUsageDbFile)
+{
+	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	g_objUsageDb.Exec("ROLLBACK;")
+	return
+}
+
+if !(blnUsageDbExist)
+{
+	g_objUsageDb.Exec("BEGIN TRANSACTION;")
+	
+	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY, SourceDateTime, SourceDetail, SourceType, TargetDateTime, TargetPath, TargetAttributes, TargetType, TargetExtension);"
+	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS Metadata (LatestCollected);"
+	strUsageDbSQL .= "`nINSERT INTO Metadata VALUES('0');"
+
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbError := true
+		g_objUsageDb.Exec("ROLLBACK;")
+		return
+	}
+	g_objUsageDb.Exec("COMMIT;")
+}
+
+RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+Loop, %strUsageDbRecentsFolder%\*.*
+	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+Sort, strUsageDbItemsList, R
+
+if (g_blnUsageDbDebug)
+{
+	strUsageDbReport := ""
+	intUsageDbtNbItems := 0
+}
+
+strUsageDbSQL := "SELECT LatestCollected FROM Metadata;"
+IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+{
+	Oops("SQLite QUERY METADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	g_blnUsageDbError := true
+	return
+}
+Loop
+{
+	objMetadataRecordSet.Next(objMetadataRow)
+	; ###_V("objMetadataRecordSet - objMetadataRow", objMetadataRow[A_Index])
+	strUsageDbPreviousLatestCollected := objMetadataRow[A_Index]
+	break
+}
+objMetadataRecordSet.Free()
+
+strUsageDbSQL := ""
+Loop, parse, strUsageDbItemsList, `n
+{
+	if !StrLen(A_LoopField) ; last line is empty
+		continue
+	if (A_Index > g_intUsageDbRecentLimit)
+		break
+
+	arrUsageDbShortcutFullPath := StrSplit(A_LoopField, A_Tab)
+	strUsageDbShortcutDateTime := arrUsageDbShortcutFullPath[1]
+	strUsageDbShortcutPath := arrUsageDbShortcutFullPath[2]
+	
+	if (A_Index = 1) ; because sorted by shortcut date reveres, first is most recent
+		strUsageDbLatestCollected := strUsageDbShortcutDateTime
+	if (strUsageDbShortcutDateTime <= strUsageDbPreviousLatestCollected)
+		break
+	
+	FileGetShortcut, %strUsageDbShortcutPath%, strUsageDbTargetPath
+	strUsageDbTargetAttributes := FileExist(strUsageDbTargetPath)
+	if StrLen(strUsageDbTargetAttributes)
+	{
+		strUsageDbTargetType := (LocationIsDocument(strUsageDbTargetPath) ? "doc" : "folder")
+		FileGetTime, strUsageDbTargetDateTime, %strUsageDbTargetPath%
+		SplitPath, strUsageDbTargetPath, , , strUsageDbTargetExtension
+
+		if (g_blnUsageDbDebug)
+			strUsageDbReport .= strUsageDbTargetPath . "`n"
+
+		strUsageDbSQL .= "INSERT INTO Usage VALUES(NULL,'" . strUsageDbShortcutDateTime . "','" . EscapeQuote(strUsageDbShortcutPath) . "','RecentItems','"
+			. strUsageDbTargetDateTime . "','" . EscapeQuote(strUsageDbTargetPath) . "','" . strUsageDbTargetAttributes . "','" . strUsageDbTargetType . "','" . EscapeQuote(strUsageDbTargetExtension) . "');"
+			. "`n"
+		if (g_blnUsageDbDebug)
+			intUsageDbtNbItems++
+	}
+}
+
+g_objUsageDb.Exec("BEGIN TRANSACTION;")
+
+if (g_blnUsageDbDebug)
+	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
+If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
+{
+	Oops("SQLite INSERT Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	g_objUsageDb.Exec("ROLLBACK;")
+	return
+}	
+
+strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
+; IniWrite, %strUsageDbLatestCollected%, %g_strIniFile%, Global, UsageDbLatestCollected
+strUsageDbSQL := "UPDATE Metadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
+ToolTip, %strUsageDbSQL%
+; ###_V("strUsageDbSQL", strUsageDbSQL)
+If !g_objUsageDb.Exec(strUsageDbSQL)
+{
+	Oops("SQLite UPDATE METADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	g_blnUsageDbError := true
+	g_objUsageDb.Exec("ROLLBACK;")
+	return
+}
+
+; we had no error
+g_objUsageDb.Exec("COMMIT;")
+
+if (g_blnUsageDbDebug)
+{
+	if (g_blnUsageDbDebugBeep)
+		SoundBeep, 300
+	ToolTip, % "Items added: " . intUsageDbtNbItems . "`n`n" . StringLeftDotDotDot(strUsageDbReport, 2000)
+	Sleep, % (intUsageDbtNbItems = 0 ? 500 : 5000)
+	ToolTip
+}
+
+Sleep, % (g_intUsageDbRecentItemsInterval * 1000)
+
+return
+;------------------------------------------------------------
+
+
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -19624,6 +19831,15 @@ DecodeSnippet(strSnippet, blnWithCarriageReturn := false)
 	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A		; restore double-backticks
 	
 	return strSnippet
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+EscapeQuote(str)
+;------------------------------------------------------------
+{
+	return ReplaceAllInString(str, "'", "''")
 }
 ;------------------------------------------------------------
 
