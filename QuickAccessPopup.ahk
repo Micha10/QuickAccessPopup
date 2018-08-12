@@ -2751,10 +2751,28 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 IfExist, %A_Startup%\FoldersPopup.lnk
 	FileDelete, %A_Startup%\FoldersPopup.lnk
 
+;---------------------------------
+; Init SQLite database to collect recent items
+
+g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
+g_intUsageDbRecentItemsInterval := 30 ; in seconds
+g_intUsageDbRecentLimit := 150
+g_blnUsageDbError := false
+
+g_blnUsageDbDebug := true
+g_blnUsageDbDebugBeep := false
+
+gosub, InitUsageDb ; creates g_objUsageDb
+
+;---------------------------------
+; Refresh Windows Apps list
+
 if (g_blnRefreshWindowsAppsListAtStartup)
 	Gosub, ButtonRefreshWindowsAppsListAtStartup
 
+;---------------------------------
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
+
 g_objHandCursor := DllCall("LoadCursor", "UInt", NULL, "Int", 32649, "UInt") ; IDC_HAND
 OnMessage(0x200, "WM_MOUSEMOVE")
 
@@ -2794,15 +2812,7 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 Hotkey, If
 
 ;---------------------------------
-; Background task collecting recent items
-
-g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
-g_intUsageDbRecentItemsInterval := 30 ; in seconds
-g_intUsageDbRecentLimit := 150
-g_blnUsageDbError := false
-
-g_blnUsageDbDebug := true
-g_blnUsageDbDebugBeep := false
+; Start task collecting recent items
 
 Loop ; stops when QAP is exited or if error or when the stop file exists
 	if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
@@ -2815,7 +2825,7 @@ Loop ; stops when QAP is exited or if error or when the stop file exists
 		break
 	}
 	else
-		gosub, CollectRecentItems
+		gosub, UsageDbCollectRecentItems
 
 return
 
@@ -15396,6 +15406,7 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 {
 	gosub, PasteSnippet
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, CollectUsageDbMenu
 	return
 }
 
@@ -15556,6 +15567,7 @@ if (g_blnAlternativeMenu)
 		}
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
+		gosub, CollectUsageDbMenu
 		gosub, OpenFavoriteCleanup
 		
 		return
@@ -15569,6 +15581,7 @@ if (g_blnAlternativeMenu)
 			TrayTip, %g_strAppNameText%, %lCopyLocationCopiedToClipboard%, , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 		}		
+		gosub, CollectUsageDbMenu
 		gosub, OpenFavoriteCleanup
 		return
 	}
@@ -15605,6 +15618,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15626,6 +15640,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 			gosub, OpenFavoriteWindowResize
 		}
 
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15636,6 +15651,7 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 {
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+	gosub, CollectUsageDbMenu
 
 	gosub, OpenFavoriteCleanup
 	return
@@ -15669,6 +15685,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 			gosub, OpenFavoriteWindowResize
 		}
 
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15696,6 +15713,7 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
 
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoriteCleanup
 	return
 }
@@ -15706,6 +15724,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15715,6 +15734,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15724,6 +15744,7 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetect
 if (g_objThisFavorite.FavoriteType = "Special") and (g_strHokeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15736,6 +15757,7 @@ if (g_strHokeyTypeDetected = "Launch")
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
 	; if (g_arrFavoriteWindowPosition1)
 	;	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
+	gosub, CollectUsageDbMenu
 	gosub, OpenFavoriteWindowResize
 }
 
@@ -16778,6 +16800,58 @@ strWindowPath := ""
 strWindowID := ""
 strControlFocus := ""
 intFocusRow := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CollectUsageDbMenu:
+;------------------------------------------------------------
+; add action to UsageDB
+
+strUsageMenuDateTime := A_Now
+strUsageDbMenuPath :=  A_ThisMenu
+strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
+GetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+strUsageDbQapFavoriteType := g_objThisFavorite.FavoriteType
+strUsageDbQapMenuHotkey :=  A_ThisHotkey
+strUsageBdQapAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
+
+if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+{
+	strUsageDbSQL := "INSERT INTO Usage VALUES(NULL"
+		. ",'" . strUsageMenuDateTime . "'"
+		. ",'" . strUsageDbMenuPath . "'"
+		. ",'Menu'"
+		. ",'" . strUsageDbTargetDateTime . "'"
+		. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+		. ",'" . strUsageDbTargetAttributes . "'"
+		. ",'" . strUsageDbTargetType . "'"
+		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+		. ",'" . strUsageDbQapFavoriteType . "'"
+		. ",'" . strUsageDbQapMenuHotkey . "'"
+		. ",'" . strUsageBdQapAlternative . "'"
+		. ");"
+
+	if (g_blnUsageDbDebug)
+		ToolTip, %strUsageDbSQL%
+	
+	g_objUsageDb.Exec("BEGIN TRANSACTION;")
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbError := true
+		g_objUsageDb.Exec("ROLLBACK;")
+		return
+	}	
+	g_objUsageDb.Exec("COMMIT;")
+	if (g_blnUsageDbDebug)
+	{
+		Sleep, 2000
+		ToolTip
+	}
+}
 
 return
 ;------------------------------------------------------------
@@ -18963,7 +19037,45 @@ return
 
 
 ;------------------------------------------------------------
-CollectRecentItems:
+InitUsageDb:
+;------------------------------------------------------------
+g_objUsageDb := New SQLiteDb
+
+blnUsageDbExist := FileExist(g_strUsageDbFile)
+if !g_objUsageDb.OpenDb(g_strUsageDbFile)
+{
+	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	g_objUsageDb.Exec("ROLLBACK;")
+	return
+}
+
+if !(blnUsageDbExist)
+{
+	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY,SourceDateTime,SourcePath,SourceType"
+		. ",TargetDateTime,TargetPath,TargetAttributes,TargetType,TargetExtension"
+		. ",MenuQapFavoriteType,MenuQapHotkey,MenuQapAlternative"
+		. ");"
+	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
+	strUsageDbSQL .= "`nINSERT INTO zMetadata VALUES('0');"
+
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbError := true
+		g_objUsageDb.Exec("ROLLBACK;")
+		return
+	}
+}
+
+blnUsageDbExist := ""
+strUsageDbSQL := ""
+
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UsageDbCollectRecentItems:
 ;------------------------------------------------------------
 
 /*
@@ -19004,35 +19116,6 @@ RecordSet.Free()
 
 ; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
 
-g_objUsageDb := New SQLiteDb
-
-blnUsageDbExist := FileExist(g_strUsageDbFile)
-if !g_objUsageDb.OpenDb(g_strUsageDbFile)
-{
-	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
-	g_blnUsageDbError := true
-	g_objUsageDb.Exec("ROLLBACK;")
-	return
-}
-
-if !(blnUsageDbExist)
-{
-	g_objUsageDb.Exec("BEGIN TRANSACTION;")
-	
-	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY, SourceDateTime, SourceDetail, SourceType, TargetDateTime, TargetPath, TargetAttributes, TargetType, TargetExtension);"
-	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS Metadata (LatestCollected);"
-	strUsageDbSQL .= "`nINSERT INTO Metadata VALUES('0');"
-
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
-		g_blnUsageDbError := true
-		g_objUsageDb.Exec("ROLLBACK;")
-		return
-	}
-	g_objUsageDb.Exec("COMMIT;")
-}
-
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
 Loop, %strUsageDbRecentsFolder%\*.*
 	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
@@ -19044,10 +19127,10 @@ if (g_blnUsageDbDebug)
 	intUsageDbtNbItems := 0
 }
 
-strUsageDbSQL := "SELECT LatestCollected FROM Metadata;"
+strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
-	Oops("SQLite QUERY METADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
 	g_blnUsageDbError := true
 	return
 }
@@ -19078,18 +19161,26 @@ Loop, parse, strUsageDbItemsList, `n
 		break
 	
 	FileGetShortcut, %strUsageDbShortcutPath%, strUsageDbTargetPath
-	strUsageDbTargetAttributes := FileExist(strUsageDbTargetPath)
+	GetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+	
 	if StrLen(strUsageDbTargetAttributes)
 	{
-		strUsageDbTargetType := (LocationIsDocument(strUsageDbTargetPath) ? "doc" : "folder")
-		FileGetTime, strUsageDbTargetDateTime, %strUsageDbTargetPath%
-		SplitPath, strUsageDbTargetPath, , , strUsageDbTargetExtension
-
 		if (g_blnUsageDbDebug)
 			strUsageDbReport .= strUsageDbTargetPath . "`n"
 
-		strUsageDbSQL .= "INSERT INTO Usage VALUES(NULL,'" . strUsageDbShortcutDateTime . "','" . EscapeQuote(strUsageDbShortcutPath) . "','RecentItems','"
-			. strUsageDbTargetDateTime . "','" . EscapeQuote(strUsageDbTargetPath) . "','" . strUsageDbTargetAttributes . "','" . strUsageDbTargetType . "','" . EscapeQuote(strUsageDbTargetExtension) . "');"
+		strUsageDbSQL .= "INSERT INTO Usage VALUES(NULL"
+			. ",'" . strUsageDbShortcutDateTime . "'"
+			. ",'" . EscapeQuote(strUsageDbShortcutPath) . "'"
+			. ",'RecentItems'"
+			. ",'" . strUsageDbTargetDateTime . "'"
+			. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+			. ",'" . strUsageDbTargetAttributes . "'"
+			. ",'" . strUsageDbTargetType . "'"
+			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ");"
 			. "`n"
 		if (g_blnUsageDbDebug)
 			intUsageDbtNbItems++
@@ -19110,12 +19201,11 @@ If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
 
 strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
 ; IniWrite, %strUsageDbLatestCollected%, %g_strIniFile%, Global, UsageDbLatestCollected
-strUsageDbSQL := "UPDATE Metadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
-ToolTip, %strUsageDbSQL%
+strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
 ; ###_V("strUsageDbSQL", strUsageDbSQL)
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
-	Oops("SQLite UPDATE METADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
@@ -19137,8 +19227,6 @@ Sleep, % (g_intUsageDbRecentItemsInterval * 1000)
 
 return
 ;------------------------------------------------------------
-
-
 
 
 ;========================================================================================================================
@@ -21138,6 +21226,21 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	
 	return true
 
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension)
+;------------------------------------------------------------
+{
+	strAttributes := FileExist(strPath)
+	if StrLen(strAttributes)
+	{
+		strType := (LocationIsDocument(strPath) ? "doc" : "folder")
+		FileGetTime, strDateTime, %strPath%
+		SplitPath, strPath, , , strExtension
+	}
 }
 ;------------------------------------------------------------
 
