@@ -2469,10 +2469,6 @@ SendMode, Input
 StringCaseSense, Off
 ComObjError(False) ; we will do our own error handling
 
-; SQLite from just_me wrapper for UsageDb
-; https://autohotkey.com/boards/viewtopic.php?t=1064
-#Include %A_ScriptDir%\Class_SQLiteDB.ahk
-
 ; avoid error message when shortcut destination is missing
 ; see http://ahkscript.org/boards/viewtopic.php?f=5&t=4477&p=25239#p25236
 DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
@@ -2759,10 +2755,16 @@ g_intUsageDbRecentItemsInterval := 30 ; in seconds
 g_intUsageDbRecentLimit := 150
 g_blnUsageDbError := false
 
-g_blnUsageDbDebug := true
-g_blnUsageDbDebugBeep := false
+; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
+IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
+g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
+g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 gosub, InitUsageDb ; creates g_objUsageDb
+
+; SQLite from just_me wrapper for UsageDb
+; https://autohotkey.com/boards/viewtopic.php?t=1064
+#Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
 ;---------------------------------
 ; Refresh Windows Apps list
@@ -16819,6 +16821,7 @@ strUsageDbQapMenuHotkey :=  A_ThisHotkey
 strUsageBdQapAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
 if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+	; for Folder, Document and Application, file must exist, not for other types
 {
 	strUsageDbSQL := "INSERT INTO Usage VALUES(NULL"
 		. ",'" . strUsageMenuDateTime . "'"
@@ -19039,7 +19042,23 @@ return
 ;------------------------------------------------------------
 InitUsageDb:
 ;------------------------------------------------------------
-g_objUsageDb := New SQLiteDb
+
+str64or32 := (A_Is64bitOS ? "64" : "32")
+strError := ""
+loop, parse, % "dll|def", |
+	if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
+		if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
+			FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%
+		else
+			strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField . "`n"
+
+if StrLen(strError)
+{
+	Oops(lOopsUsageDbSQLiteMissing, strError)
+	ExitApp
+}
+else ; init SQLite wraper object
+	g_objUsageDb := New SQLiteDb
 
 blnUsageDbExist := FileExist(g_strUsageDbFile)
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
@@ -19068,6 +19087,8 @@ if !(blnUsageDbExist)
 	}
 }
 
+str64or32 := ""
+strError := ""
 blnUsageDbExist := ""
 strUsageDbSQL := ""
 
@@ -19117,6 +19138,7 @@ RecordSet.Free()
 ; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
 
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+strUsageDbItemsList := ""
 Loop, %strUsageDbRecentsFolder%\*.*
 	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strUsageDbItemsList, R
@@ -19139,7 +19161,7 @@ Loop
 	objMetadataRecordSet.Next(objMetadataRow)
 	; ###_V("objMetadataRecordSet - objMetadataRow", objMetadataRow[A_Index])
 	strUsageDbPreviousLatestCollected := objMetadataRow[A_Index]
-	break
+	break ; read only first record
 }
 objMetadataRecordSet.Free()
 
@@ -19155,7 +19177,7 @@ Loop, parse, strUsageDbItemsList, `n
 	strUsageDbShortcutDateTime := arrUsageDbShortcutFullPath[1]
 	strUsageDbShortcutPath := arrUsageDbShortcutFullPath[2]
 	
-	if (A_Index = 1) ; because sorted by shortcut date reveres, first is most recent
+	if (A_Index = 1) ; because sorted by shortcut date reverse, first is most recent
 		strUsageDbLatestCollected := strUsageDbShortcutDateTime
 	if (strUsageDbShortcutDateTime <= strUsageDbPreviousLatestCollected)
 		break
@@ -19200,9 +19222,8 @@ If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
 }	
 
 strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
-; IniWrite, %strUsageDbLatestCollected%, %g_strIniFile%, Global, UsageDbLatestCollected
+
 strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
-; ###_V("strUsageDbSQL", strUsageDbSQL)
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
