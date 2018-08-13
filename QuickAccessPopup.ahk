@@ -16816,7 +16816,10 @@ CollectUsageDbMenu:
 strUsageMenuDateTime := A_Now
 strUsageDbMenuPath :=  A_ThisMenu
 strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
-GetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+
+GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
+	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+
 strUsageDbQapFavoriteType := g_objThisFavorite.FavoriteType
 strUsageDbQapMenuHotkey :=  A_ThisHotkey
 strUsageBdQapAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
@@ -21270,6 +21273,12 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		strType := (LocationIsDocument(strPath) ? "doc" : "folder")
 		FileGetTime, strDateTime, %strPath%
 		SplitPath, strPath, , , strExtension
+	}
+	else
+	{
+		strType := ""
+		strDateTime := ""
+		strExtension := ""
 	}
 }
 ;------------------------------------------------------------
