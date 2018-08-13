@@ -2451,7 +2451,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1
+;@Ahk2Exe-SetVersion 9.1.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2546,8 +2546,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -2751,12 +2751,13 @@ IfExist, %A_Startup%\FoldersPopup.lnk
 ; Init SQLite database to collect recent items
 
 g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
-g_intUsageDbRecentItemsInterval := 30 ; in seconds
 g_intUsageDbRecentLimit := 150
 g_blnUsageDbError := false
 
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
+IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
+
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
@@ -19043,14 +19044,23 @@ return
 InitUsageDb:
 ;------------------------------------------------------------
 
+strError := ""
+; In portable mode, the two files sqlite.dll and sqlite.def are distributed in the zip file in their 32-bit (sqlite-32-bit.dll) and 64-bit (sqlite-64bit.dll) versions.
+; If sqlite.dll does not exit in program's directory, copy the 32-bit or 64-bit file depending on OS (same for sqlite.def).
 str64or32 := (A_Is64bitOS ? "64" : "32")
 strError := ""
 loop, parse, % "dll|def", |
-	if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
-		if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
-			FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%
-		else
-			strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField . "`n"
+	if (g_blnPortableMode)
+	{
+		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
+			if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
+				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%
+			else
+				strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField . "`n"
+	}
+	else
+		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
+			strError .= A_ScriptDir . "\sqlite3." . A_LoopField . "`n"
 
 if StrLen(strError)
 {
@@ -19208,7 +19218,6 @@ Loop, parse, strUsageDbItemsList, `n
 			intUsageDbtNbItems++
 	}
 }
-
 g_objUsageDb.Exec("BEGIN TRANSACTION;")
 
 if (g_blnUsageDbDebug)
