@@ -16814,30 +16814,63 @@ CollectUsageDbMenu:
 
 strUsageMenuDateTime := A_Now
 strUsageDbMenuPath :=  A_ThisMenu
-strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
+strUsageDbMenuHotkey :=  A_ThisHotkey
+strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
+strUsageDbMenuTargetClass := g_strTargetClass
+strUsageDbMenuHokeyTypeDetected := g_strHokeyTypeDetected
+strUsageDbMenuTargetAppName := g_strTargetAppName
+
+strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
 GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
 	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
 
-strUsageDbQapFavoriteType := g_objThisFavorite.FavoriteType
-strUsageDbQapMenuHotkey :=  A_ThisHotkey
-strUsageBdQapAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
+strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
+strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
+strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
+strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
+strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
+strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
+strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
+strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
+strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
 
 if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
 	; for Folder, Document and Application, file must exist, not for other types
 {
 	strUsageDbSQL := "INSERT INTO Usage VALUES(NULL"
-		. ",'" . strUsageMenuDateTime . "'"
-		. ",'" . strUsageDbMenuPath . "'"
-		. ",'Menu'"
-		. ",'" . strUsageDbTargetDateTime . "'"
+		; target file and date-time
 		. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+		. ",'" . strUsageDbTargetDateTime . "'"
+		
+		; collect type, time and menu path
+		. ",'Menu'"
+		. ",'" . strUsageMenuDateTime . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
+		
+		; target file info
 		. ",'" . strUsageDbTargetAttributes . "'"
 		. ",'" . strUsageDbTargetType . "'"
 		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-		. ",'" . strUsageDbQapFavoriteType . "'"
-		. ",'" . strUsageDbQapMenuHotkey . "'"
-		. ",'" . strUsageBdQapAlternative . "'"
+
+		; QAP launch info
+		. ",'" . EscapeQuote(strUsageDbMenuHotkey) . "'"
+		. ",'" . strUsageDbMenuHokeyTypeDetected . "'"
+		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
+
+		; QAP favorite info
+		. ",'" . strUsageDbMenuFavoriteType . "'"
+		. ",'" . strUsageDbMenuLiveLevels . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
+		
+		. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
 		. ");"
 
 	if (g_blnUsageDbDebug)
@@ -19083,9 +19116,13 @@ if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 
 if !(blnUsageDbExist)
 {
-	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY,SourceDateTime,SourcePath,SourceType"
-		. ",TargetDateTime,TargetPath,TargetAttributes,TargetType,TargetExtension"
-		. ",MenuQapFavoriteType,MenuQapHotkey,MenuQapAlternative"
+	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
+		. ",TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuFavoriteType,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ");"
 	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
 	strUsageDbSQL .= "`nINSERT INTO zMetadata VALUES('0');"
@@ -19203,19 +19240,37 @@ Loop, parse, strUsageDbItemsList, `n
 			strUsageDbReport .= strUsageDbTargetPath . "`n"
 
 		strUsageDbSQL .= "INSERT INTO Usage VALUES(NULL"
+			; target file and date-time
+			. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+			. ",'" . strUsageDbTargetDateTime . "'"
+			; collect type, time and shortcut file
+			. ",'RecentItems'"
 			. ",'" . strUsageDbShortcutDateTime . "'"
 			. ",'" . EscapeQuote(strUsageDbShortcutPath) . "'"
-			. ",'RecentItems'"
-			. ",'" . strUsageDbTargetDateTime . "'"
-			. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+			
+			; target file info
 			. ",'" . strUsageDbTargetAttributes . "'"
 			. ",'" . strUsageDbTargetType . "'"
 			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+		
+			; unused for recent items
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
+			. ",''"
 			. ",''"
 			. ",''"
 			. ",''"
 			. ");"
 			. "`n"
+
 		if (g_blnUsageDbDebug)
 			intUsageDbtNbItems++
 	}
