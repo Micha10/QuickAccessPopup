@@ -35,3 +35,7 @@ FileInstall/BK_old_classic/
 .git - Copy/
 Promo/
 WindowsAppsList.*
+*.def
+CollectWindowsAppsList.ps1
+QAP_Usage.DB
+*.NO
