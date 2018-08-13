@@ -15398,8 +15398,8 @@ if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollect
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
+	gosub, CollectUsageDbMenu
 	gosub, OpenGroupOfFavorites
-	
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15408,8 +15408,8 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet
-	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, CollectUsageDbMenu
+	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
 
@@ -15655,7 +15655,6 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 	gosub, CollectUsageDbMenu
-
 	gosub, OpenFavoriteCleanup
 	return
 }
@@ -21270,15 +21269,20 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 	strAttributes := FileExist(strPath)
 	if StrLen(strAttributes)
 	{
-		strType := (LocationIsDocument(strPath) ? "doc" : "folder")
+		strExtension := GetFileExtension(strPath)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
+			strType := "Application"
+		else if LocationIsDocument(strPath)
+			strType := "Document"
+		else
+			strType := "Folder"
 		FileGetTime, strDateTime, %strPath%
-		SplitPath, strPath, , , strExtension
 	}
 	else
 	{
+		strExtension := ""
 		strType := ""
 		strDateTime := ""
-		strExtension := ""
 	}
 }
 ;------------------------------------------------------------
