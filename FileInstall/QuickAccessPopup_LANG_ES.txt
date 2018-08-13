@@ -140,6 +140,7 @@ lDialogExternalTypes	Personnel (Menú compartido en equipos diferentes para el mi
 lDialogExternalTypesLabel	Tipo de Menú Compartido
 lDialogExternalWriteAccessMessage	Mensaje sobre el permiso de escritura en el menú compartido
 lDialogExternalWriteAccessUsers	Los usuarios con permiso de escritura a este menú
+lDialogFavoriteDisabled	Desactivar este favorito
 lDialogFavoriteDisabledGroupMember	Desactivar este elemento en el grupo
 lDialogFavoriteDoesNotExistEdit	¿Quieres editar este favorito?
 lDialogFavoriteDoesNotExistPrompt	El favorito "~1~" no existe o no está disponible.`n`nSi este favorito está ubicado en una unidad de red, por favor, inténtalo de nuevo después de la autenticación de red.
@@ -191,6 +192,7 @@ lDialogFavoriteTypesHelp1	Crear un acceso directo a "Carpeta" de uso frecuente.`
 lDialogFavoriteTypesHelp13	Crear un "Fragmento". Proporcionar el nombre, el contenido y varias opciones.`n`nEn las configuraciones avanzadas, seleccione "Modo de texto" para pegar un trozo de texto al igual que con el portapapeles o elige "Modo macro" para enviar el fragmento como pulsaciones de teclas en el teclado (incluyendo teclas especiales, consulte la Ayuda).
 lDialogFavoriteTypesHelp14	Crear un "Menú compartido" para utilizar favoritos en varios sistemas desde el mismo archivo de configuración en una ubicación externa. Defina el nombre del menú compartido para el menú, la ubicación del archivo de configuración externa y varias opciones.`n`nLos menús compartidos se pueden utilizar en los modos "Personal", "Colaborativo" o "Centralizado". Se puede configurar un Catálogo de Menús Compartidos en la pestaña Opciones "General" para facilitar las adiciones de Menús Compartidos.`n`nLos menús compartidos se pueden editar como menús normales. Sólo los usuarios seleccionados pueden editar menús compartidos Centralizados. Consulte las FAQ del sitio web para obtener más ayuda.
 lDialogFavoriteTypesHelp15	Crear un "Separador de Texto" para insertar cabeceras que dan más claridad a su menú.`n`nPor defecto, los separadores de texto no tienen ningún icono, pero puede seleccionar uno en la pestaña "Opciones de Menú".
+lDialogFavoriteTypesHelp16	Cree un acceso directo a "Windows App".`n`nSeleccione la aplicación Windows App de la lista de aplicaciones instaladas en su sistema.`n`nEsta lista se actualiza al inicio de QAP y se puede actualizar a petición.
 lDialogFavoriteTypesHelp2	Crear un acceso directo a un "Documento".`n`nEstablecer el nombre del menú del favorito, la ruta y varias opciones del menú.`n`nLa configuración avanzada le permite elegir una aplicación específica para iniciar el documento y añadir parámetros opcionales. 
 lDialogFavoriteTypesHelp3	Creaun acceso directo a una "Aplicación" (programa, script o archivo batch).`n`nBusque el archivo ejecutable o seleccione uno de los programas que se están ejecutando actualmente. Configurar varias opciones de menú.`n`nLos ajustes avanzados permiten seleccionar un directorio "Iniciar en" y añadir parámetros.
 lDialogFavoriteTypesHelp4	Crear un atajo hacia una de las 50 "Carpetas especiales" de Windows tales como: Bibliotecas, Mis Imágenes, Papelera, Descargas, etc.`n`nConfigure las diferentes opciones del menú. Ajustes avanzados permiten configurar las opciones de posición de la ventana y del gestor de archivos.
@@ -199,6 +201,7 @@ lDialogFavoriteTypesHelp6	Crear un acceso directo a un "FTP Sitio".`n`nEstablece
 lDialogFavoriteTypesHelp7	Insertar en cualquier lugar de su menú "Quick Access Popup Características" such as: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nVer descripciones y enlaces de ayuda para más información. 
 lDialogFavoriteTypesHelp8	Reúne los favoritos relacionados en un "Submenú".`n`nAsigne un nombre a su submenú y seleccione opciones de menú.`n`nAgregue favoritos a su submenú. Mover un favorito a otro submenú o grupo utilizando el botón "Mover" o la pestaña "Opciones de menú" de la ventana "Editar favorito". 
 lDialogFavoriteTypesHelp9	Lanzar un "Grupo" de favoritos, todo en un solo acceso directo!`n`nAsigne un nombre a su grupo y establezca varias opciones para su grupo.`n`nAñadir favoritos a su grupo. Mover un favorito a otro grupo o submenú mediante el botón "Mover" o la pestaña "Opciones de menú" de la ventana "Editar favorito".`n`nLa configuración avanzada le permite controlar la velocidad de restauración insertando un retardo entre cada uno de los favoritos para restaurar. 
+lDialogFavoriteTypesShortNames	Carpeta|Doc|App|Especial|Link|FTP|QAP|Menú|Grupo|Separador|Salto de columna|..|Fragmento|Compartido|Texto|Win App
 lDialogFavoriteWorkingDirNotFoundPrompt	La configuración avanzada "Iniciar en" del favorito "~1~" no se encuentra:`n~2~
 lDialogFavoriteWorkingDirNotFoundTitle	No se encuentra el parametro Inicio en - ~1~
 lDialogFileExtension	File Extensión
@@ -315,6 +318,9 @@ lDialogWindowPositionRight	Derecha
 lDialogWindowPositionW	Ancho
 lDialogWindowPositionX	Izquuierda
 lDialogWindowPositionY	Arriba
+lDialogWindowsAppsList	Seleccione la aplicación Windows App de esta lista de aplicaciones instaladas en su sistema
+lDialogWindowsAppsListError	La lista de Windows App no se ha podido actualizar. Se ha producido un error al ejecutar el script de PowerShell.
+lDialogWindowsAppsListSuccess	La lista de Windows App se ha actualizado.
 lDialogWindowsFolderIconCreate	crear
 lDialogWindowsFolderIconNoRoot	El icono de la carpeta de Windows no se puede establecer en el directorio raíz de la unidad (~1~).
 lDialogWindowsFolderIconPrompt	Este comando abrirá ~1~ el sistema de archivos:`n~2~`n`nEl icono de la carpeta de Windows se establecerá en el icono seleccionado para este favorito. ¿Quieres continuar?
