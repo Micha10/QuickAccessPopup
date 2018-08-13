@@ -16821,7 +16821,11 @@ strUsageDbMenuTargetClass := g_strTargetClass
 strUsageDbMenuHokeyTypeDetected := g_strHokeyTypeDetected
 strUsageDbMenuTargetAppName := g_strTargetAppName
 
+; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
 strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
+if InStr("|Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
+	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPath) ; FileExistInPath updates strUsageDbTargetPath and return the file's atributes
 GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
 	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
 
@@ -16862,6 +16866,7 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 
 		; QAP favorite info
 		. ",'" . strUsageDbMenuFavoriteType . "'"
+		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
 		. ",'" . strUsageDbMenuLiveLevels . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
@@ -19121,7 +19126,7 @@ if !(blnUsageDbExist)
 		. ",CollectType,CollectDateTime,CollectPath"
 		. ",TargetAttributes,TargetType,TargetExtension"
 		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-		. ",MenuFavoriteType,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuFavoriteType,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ");"
 	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
@@ -19268,6 +19273,7 @@ Loop, parse, strUsageDbItemsList, `n
 			. ",''"
 			. ",''"
 			. ",''"
+			. ",''"
 			. ");"
 			. "`n"
 
@@ -19306,11 +19312,11 @@ if (g_blnUsageDbDebug)
 	if (g_blnUsageDbDebugBeep)
 		SoundBeep, 300
 	ToolTip, % "Items added: " . intUsageDbtNbItems . "`n`n" . StringLeftDotDotDot(strUsageDbReport, 2000)
-	Sleep, % (intUsageDbtNbItems = 0 ? 500 : 5000)
+	Sleep, % (intUsageDbtNbItems = 0 ? 500 : 3000)
 	ToolTip
 }
 
-Sleep, % (g_intUsageDbRecentItemsInterval * 1000)
+Sleep, % (g_intUsageDbRecentItemsInterval * 1000) ; delay before repeating UsageDbCollectRecentItems
 
 return
 ;------------------------------------------------------------
