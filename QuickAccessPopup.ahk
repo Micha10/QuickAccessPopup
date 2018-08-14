@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.1 (2018-08-14)
+ 
+Usage DB
+- add a background task to collect (for personel user's usage) Windows Recent Items and QAP usage in an SQLite local database named QAP_Usage.DB, using Class_SQLiteDB.ahk library
+- collect periodically the last 150 recent items info, rejecting files not found
+- collect QAP actions with target info and various indicators on the favorite and options used to launch it
+- ini variables to set debugging (UsageDbDebug=0, 1 tooltips or 2 beep) and recent items collect interval (UsageDbIntervalSecond)
+- QAP is now distributed with files sqlite3.dll and sqlite3.def in 32-bit or 64-bit (appropriate version is used according to system)
+
 Version: 9.1 (2018-08-10)
  
 Windows Apps
@@ -16843,22 +16852,30 @@ if InStr("|Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
 GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
 	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
 
-strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
-strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
-strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
-strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
-strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
-strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
-strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
-strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
-strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
-
 if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
 	; for Folder, Document and Application, file must exist, not for other types
 {
-	strUsageDbSQL := "INSERT INTO Usage VALUES(NULL"
+	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
+	strUsageDbMenuFavoriteName := g_objThisFavorite.FavoriteName
+	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
+	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
+	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
+	strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
+	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
+	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
+	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
+	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
+
+	strUsageDbSQL := "INSERT INTO Usage ("
+		. "TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ") VALUES("
 		; target file and date-time
-		. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
+		. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
 		. ",'" . strUsageDbTargetDateTime . "'"
 		
 		; collect type, time and menu path
@@ -16880,6 +16897,7 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 
 		; QAP favorite info
 		. ",'" . strUsageDbMenuFavoriteType . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
 		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
 		. ",'" . strUsageDbMenuLiveLevels . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
@@ -19133,18 +19151,18 @@ if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 	return
 }
 
-if !(blnUsageDbExist)
+if !(blnUsageDbExist) ; create database if it does not exist
 {
 	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
 		. ",TargetPath,TargetDateTime"
 		. ",CollectType,CollectDateTime,CollectPath"
 		. ",TargetAttributes,TargetType,TargetExtension"
 		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-		. ",MenuFavoriteType,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ");"
-	strUsageDbSQL .= "`nCREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
-	strUsageDbSQL .= "`nINSERT INTO zMetadata VALUES('0');"
+	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
+	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
@@ -19153,6 +19171,35 @@ if !(blnUsageDbExist)
 		g_objUsageDb.Exec("ROLLBACK;")
 		return
 	}
+}
+else ; add column "FavoriteName" if it does not exist
+{
+	if !GetUsageDbColumnExist("MenuFavoriteName")
+	{
+		strUsageDbSQL := "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+		If !g_objUsageDb.Exec(strUsageDbSQL)
+		{
+			Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+			g_blnUsageDbError := true
+			g_objUsageDb.Exec("ROLLBACK;")
+			return
+		}
+	}
+}
+
+; create views
+strUsageDbSQL := "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
+	. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
+	. " FROM Usage"
+	. " WHERE CollectType='Menu'"
+	. " ORDER BY CollectDateTime DESC"
+	. ";"
+If !g_objUsageDb.Exec(strUsageDbSQL)
+{
+	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	g_objUsageDb.Exec("ROLLBACK;")
+	return
 }
 
 str64or32 := ""
@@ -19273,6 +19320,7 @@ Loop, parse, strUsageDbItemsList, `n
 			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
 		
 			; unused for recent items
+			. ",''"
 			. ",''"
 			. ",''"
 			. ",''"
@@ -21359,6 +21407,23 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		strType := ""
 		strDateTime := ""
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetUsageDbColumnExist(strColumnName)
+;------------------------------------------------------------
+{
+	global g_objUsageDb
+	
+	g_objUsageDb.GetTable("PRAGMA table_info('Usage');", objRecordSet)
+	
+	for intRow, objRow in objRecordSet.Rows
+		if (objRow[2] = strColumnName)
+			return true
+		
+	return false
 }
 ;------------------------------------------------------------
 
