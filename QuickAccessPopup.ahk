@@ -15538,7 +15538,10 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 	}
 }
 
-gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
+if InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
+	gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
+else
+	g_strTargetAppName := ""
 ; Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
 ; if (g_blnDiagMode)
 	; Diag("g_strTargetAppName", g_strTargetAppName)
@@ -16837,11 +16840,11 @@ CollectUsageDbMenu:
 
 strUsageMenuDateTime := A_Now
 strUsageDbMenuPath :=  A_ThisMenu
-strUsageDbMenuHotkey :=  A_ThisHotkey
+strUsageDbMenuTrigger :=  A_ThisHotkey
 strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
 strUsageDbMenuTargetClass := g_strTargetClass
-strUsageDbMenuHokeyTypeDetected := g_strHokeyTypeDetected
+strUsageDbMenuHotkeyTypeDetected := g_strHokeyTypeDetected
 strUsageDbMenuTargetAppName := g_strTargetAppName
 
 ; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
@@ -16870,7 +16873,7 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 		. "TargetPath,TargetDateTime"
 		. ",CollectType,CollectDateTime,CollectPath"
 		. ",TargetAttributes,TargetType,TargetExtension"
-		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
 		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ") VALUES("
@@ -16889,8 +16892,8 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
 
 		; QAP launch info
-		. ",'" . EscapeQuote(strUsageDbMenuHotkey) . "'"
-		. ",'" . strUsageDbMenuHokeyTypeDetected . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
+		. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
 		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
@@ -19157,7 +19160,7 @@ if !(blnUsageDbExist) ; create database if it does not exist
 		. ",TargetPath,TargetDateTime"
 		. ",CollectType,CollectDateTime,CollectPath"
 		. ",TargetAttributes,TargetType,TargetExtension"
-		. ",MenuHokey,MenuHokeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
 		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ");"
