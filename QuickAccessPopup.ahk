@@ -1358,7 +1358,7 @@ Settings window
 - New color buttons in Settings window and a new option (first tab) to "Use  classic QAP buttons" (black & white) if you prefer the old style buttons
 - Stop rebuilding all menus after each add or edit favorite
 - Replace the "Save" button in Settings with two buttons: "Save & Close" and "Save & Reload", the latter keeping the Settings window open after reloading the menu (this replaces holding the Shift or Alt modifier keys when clicking the Save button in previous versions)
-- When changes are unsaved in the Settings window, if the QAP menu is called or if a favorite is launched via hokey, QAP will prompt user for one of these actions: "Save" - save settings, "Settings" - go to settings or "Cancel" - just cancel the requested action
+- When changes are unsaved in the Settings window, if the QAP menu is called or if a favorite is launched via hotkey, QAP will prompt user for one of these actions: "Save" - save settings, "Settings" - go to settings or "Cancel" - just cancel the requested action
 - Add a confirmation prompt before deleting a group in Settings
 
 Manage Hotkeys window
@@ -1447,7 +1447,7 @@ Version BETA: 7.9.1.2 (2016-11-16)
 Version BETA: 7.9.1.1 (2016-11-13)
 - use icons from new JLicons.dll file installed with QAP or included in the portable ZIP file
 - save favorite icons reference in ini file using index name for icons from JLicon.dll
-- when settings changes are unsaved and menu is called or favorite is launched via hokey, ask user if save settings, go to settings or cancel requested action
+- when settings changes are unsaved and menu is called or favorite is launched via hotkey, ask user if save settings, go to settings or cancel requested action
 - add cmd extension to supported application when adding favorite by drag and drop or using context menu
 - record window position when adding a folder from context menu
 
@@ -1594,7 +1594,7 @@ Other changes or bug fixes
 - QAP feature to "Switch" applications now excludes "ghost" Windows 10 apps (pre-loaded by Windows but never used)
 - context menus now use QAPmessenger.exe v1.1 with diagnostic code saved to QAP working directory when debugging is activated
 - addition of xplorer2 (v3.2.0.2) to list of supported alternative file managers in QAPconnect.ini
-- include external menus in hokeys manager list
+- include external menus in hotkeys manager list
 - display localized favorite type in hotkeys manager list
 - German language update
 
@@ -14668,17 +14668,17 @@ if (A_ThisLabel = "LaunchFromTrayIcon")
 {
 	g_strTargetWinId := "" ; never use target window when launched from the tray icon
 	g_strTargetClass := "" ;  re-init for safety
-	g_strHokeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
+	g_strHotkeyTypeDetected := "Launch" ; never navigate when launched from the tray icon
 }
 else if (A_ThisLabel = "LaunchFromAlternativeMenu")
-	g_strHokeyTypeDetected := "Alternative"
+	g_strHotkeyTypeDetected := "Alternative"
 else if InStr(A_ThisLabel, "FromMsg")
-	g_strHokeyTypeDetected := (InStr(A_ThisLabel, "Navigate") ? "Navigate" : "Launch")
+	g_strHotkeyTypeDetected := (InStr(A_ThisLabel, "Navigate") ? "Navigate" : "Launch")
 else
-	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
+	g_strHotkeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
 if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId))
-	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate")
+	and InStr(A_ThisLabel, "Mouse") and (g_strHotkeyTypeDetected = "Navigate")
 {
 	Click ; to make sure the DOpus lister or TC pane under the mouse become active
 	Sleep, 20
@@ -14738,7 +14738,7 @@ AlternativeHotkeyKeyboard:
 ;------------------------------------------------------------
 
 g_blnAlternativeMenu := true
-g_strHokeyTypeDetected := "Alternative"
+g_strHotkeyTypeDetected := "Alternative"
 
 SetTargetWinInfo(A_ThisLabel = "AlternativeHotkeyMouse")
 Gosub, SetMenuPosition
@@ -15363,7 +15363,7 @@ DiagWindowInfo(A_ThisLabel . " After WinActivate")
 if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFavorites
 {
 	g_strTargetWinId := "" ; never use target window when launched in a group
-	g_strHokeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
+	g_strHotkeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
 }
 else if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have g_objThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
@@ -15401,7 +15401,7 @@ if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavo
 if (blnShiftPressed or blnControlPressed)
 {
 	g_blnAlternativeMenu := true
-	g_strHokeyTypeDetected := "Alternative"
+	g_strHotkeyTypeDetected := "Alternative"
 	
 	if (blnShiftPressed and blnControlPressed) ; as if user selected lMenuAlternativeEditFavorite in Alternative menu
 		g_strAlternativeMenu := lMenuAlternativeEditFavorite
@@ -15442,7 +15442,7 @@ if (g_blnFileManagerAlwaysNavigate and (g_strAlternativeMenu <> lMenuAlternative
 {
 	; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
 	GetTargetWinIdAndClass(g_strTargetWinId, g_strTargetClass, true, true) ; get and activate last used file manager
-	g_strHokeyTypeDetected := "Navigate"
+	g_strHotkeyTypeDetected := "Navigate"
 }
 
 strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
@@ -15483,7 +15483,7 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 {
 	g_strTargetWinId := "" ; never use target window when launched from alternative menu with new window
-	g_strHokeyTypeDetected := "Launch"
+	g_strHotkeyTypeDetected := "Launch"
 }
 
 if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
@@ -15527,9 +15527,9 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 		g_objThisFavorite := objContainingFavorite ; replace the current favorite object
 
 		if (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent) and CanNavigate(A_ThisHotkey)
-			g_strHokeyTypeDetected := "Navigate"
+			g_strHotkeyTypeDetected := "Navigate"
 		else
-			g_strHokeyTypeDetected := "Launch"
+			g_strHotkeyTypeDetected := "Launch"
 	}
 	else
 	{
@@ -15539,7 +15539,7 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 }
 
 if InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
-	gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHokeyTypeDetected to "Launch"
+	gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
 else
 	g_strTargetAppName := ""
 ; Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
@@ -15563,7 +15563,7 @@ strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,
 ; Diag("strFavoriteWindowPosition", strFavoriteWindowPosition)
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
-; Diag(A_ThisLabel . " After WinActivate - Location", g_strHokeyTypeDetected . "`t" . g_strFullLocation)
+; Diag(A_ThisLabel . " After WinActivate - Location", g_strHotkeyTypeDetected . "`t" . g_strFullLocation)
 
 ; === ACTIONS ===
 
@@ -15759,7 +15759,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 
 ; --- Navigate Folder ---
 
-if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetected = "Navigate")
+if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
 	gosub, CollectUsageDbMenu
@@ -15769,7 +15769,7 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHokeyTypeDetect
 
 ; --- Navigate Special Folder ---
 
-if (g_objThisFavorite.FavoriteType = "Special") and (g_strHokeyTypeDetected = "Navigate")
+if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
 	gosub, CollectUsageDbMenu
@@ -15779,7 +15779,7 @@ if (g_objThisFavorite.FavoriteType = "Special") and (g_strHokeyTypeDetected = "N
 
 ; --- New window ---
 
-if (g_strHokeyTypeDetected = "Launch")
+if (g_strHotkeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
@@ -15878,7 +15878,7 @@ else if WindowIsQuickAccessPopup(g_strTargetClass)
 		g_strTargetAppName := "QAPconnect"
 	else
 		g_strTargetAppName := "Explorer"
-	g_strHokeyTypeDetected := "Launch"
+	g_strHotkeyTypeDetected := "Launch"
 }
 else
 	g_strTargetAppName := "Unknown"
@@ -15886,10 +15886,10 @@ else
 if (g_strTargetAppName = "Desktop")
 {
 	g_strTargetWinId := "" ; never use target window when clicked on the desktop
-	g_strHokeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
+	g_strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
 }
 
-if (g_strHokeyTypeDetected = "Launch")
+if (g_strHotkeyTypeDetected = "Launch")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
 		g_strTargetAppName := "Explorer"
 	else if InStr("Desktop|Dialog|Console|Unknown", g_strTargetAppName) ; these targets cannot launch in a new window
@@ -15970,14 +15970,14 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotstring")
 	{
 		g_strTargetWinId := "" ; never use target window when launched from hotstring
-		g_strHokeyTypeDetected := "Launch"
+		g_strHotkeyTypeDetected := "Launch"
 	}
 	else if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
-		g_strHokeyTypeDetected := "Navigate"
+		g_strHotkeyTypeDetected := "Navigate"
 	else if CanLaunch(A_ThisHotkey)
 	{
 		g_strTargetWinId := "" ; never use target window when launched from hotkey
-		g_strHokeyTypeDetected := "Launch"
+		g_strHotkeyTypeDetected := "Launch"
 	}
 	else
 	{
@@ -16000,7 +16000,7 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 		; open in a new window
 		g_strTargetWinId := ""
 		g_strTargetClass := ""
-		g_strHokeyTypeDetected := "Launch"
+		g_strHotkeyTypeDetected := "Launch"
 	}
 
 	g_objThisFavorite := Object() ; temporary favorite object
@@ -16112,7 +16112,7 @@ else
 		return ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
 	}
 	else if (g_objThisFavorite.FavoriteType = "Special")
-		g_strFullLocation := GetSpecialFolderLocation(g_strHokeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHokeyTypeDetected and g_strTargetAppName
+		g_strFullLocation := GetSpecialFolderLocation(g_strHotkeyTypeDetected, g_strTargetAppName, g_objThisFavorite) ; can change values of g_strHotkeyTypeDetected and g_strTargetAppName
 	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
 
 if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet", g_objThisFavorite.FavoriteType) ; ignore for Application or Snippet favorites
@@ -16159,7 +16159,7 @@ return
 
 
 ;------------------------------------------------------------
-GetSpecialFolderLocation(ByRef strHokeyTypeDetected, ByRef strTargetName, objFavorite)
+GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objSpecialFolders
@@ -16185,7 +16185,7 @@ GetSpecialFolderLocation(ByRef strHokeyTypeDetected, ByRef strTargetName, objFav
 	if (strUse = "NEW") ; re-assign values as if it was a new window request to be open in *Explorer*
 	{
 		strUse := objSpecialFolder.Use4NewExplorer
-		strHokeyTypeDetected := "Launch"
+		strHotkeyTypeDetected := "Launch"
 		strTargetName := "Explorer"
 	}
 	
@@ -16844,7 +16844,7 @@ strUsageDbMenuTrigger :=  A_ThisHotkey
 strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
 strUsageDbMenuTargetClass := g_strTargetClass
-strUsageDbMenuHotkeyTypeDetected := g_strHokeyTypeDetected
+strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
 strUsageDbMenuTargetAppName := g_strTargetAppName
 
 ; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
