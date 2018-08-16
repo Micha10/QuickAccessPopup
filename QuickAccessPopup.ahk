@@ -10139,8 +10139,9 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 	}
 	
 	Gui, 2:Add, Link, x20 y+10, % L(lDialogSoundLabel, "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", lGuiHelp)
-	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w400 h20, % g_objEditedFavorite.FavoriteSoundLocation
+	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % g_objEditedFavorite.FavoriteSoundLocation
 	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, %lDialogBrowseButton%
+	Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, %lDialogPlay%
 
 }
 
@@ -10786,6 +10787,17 @@ ButtonSelectFavoriteLocationCleanup:
 strNewLocation := ""
 strDefault := ""
 strType := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonPlayFavoriteSoundLocation:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+OpenFavoritePlaySound(f_strFavoriteSoundLocation)
 
 return
 ;------------------------------------------------------------
@@ -15714,35 +15726,7 @@ if (g_strHokeyTypeDetected = "Launch")
 OpenFavoritePlaySoundAndCleanup:
 
 if StrLen(g_objThisFavorite.FavoriteSoundLocation)
-{
-	if (SubStr(g_objThisFavorite.FavoriteSoundLocation, 1, 2) = "*|")
-		intFavoriteSoundType := 1 ; sequence
-	else if (SubStr(g_objThisFavorite.FavoriteSoundLocation, 1, 1) = "*")
-		intFavoriteSoundType := 2 ; system
-	else
-		intFavoriteSoundType := 3 ; file
-
-	if (intFavoriteSoundType = 1)
-		Loop, Parse, % g_objThisFavorite.FavoriteSoundLocation, |, *
-			if StrLen(A_LoopField)
-			{
-				StringSplit, arrThisSound, A_LoopField, @
-				SoundBeep, %arrThisSound2%, %arrThisSound1%
-			}
-	
-	if (intFavoriteSoundType > 1) ; do not use else with previous if(s)
-	{
-		strFavoriteSoundLocationExpanded := (intFavoriteSoundType = 2
-			? g_objThisFavorite.FavoriteSoundLocation ; system
-			: PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteSoundLocation))) ; file
-			
-		if (intFavoriteSoundType = 3) ; if file do not exist play system sound
-			if !FileExist(strFavoriteSoundLocationExpanded)
-				strFavoriteSoundLocationExpanded := "*16" ; Hand (stop/error)
-			
-		SoundPlay, %strFavoriteSoundLocationExpanded%
-	}
-}
+	OpenFavoritePlaySound(g_objThisFavorite.FavoriteSoundLocation)
 
 OpenFavoriteCleanup:
 
@@ -15761,8 +15745,6 @@ intMinMax := ""
 g_blnLaunchFromTrayIcon := ""
 objIApplicationActivationManager := ""
 intProcessId := ""
-intFavoriteSoundType := ""
-strFavoriteSoundLocationExpanded := ""
 
 return
 ;------------------------------------------------------------
@@ -20924,6 +20906,42 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OpenFavoritePlaySound(strSound)
+;------------------------------------------------------------
+{
+	if (SubStr(strSound, 1, 2) = "*|")
+		intFavoriteSoundType := 1 ; sequence
+	else if (SubStr(strSound, 1, 1) = "*")
+		intFavoriteSoundType := 2 ; system
+	else
+		intFavoriteSoundType := 3 ; file
+
+	if (intFavoriteSoundType = 1)
+		Loop, Parse, % strSound, |, *
+			if StrLen(A_LoopField)
+			{
+				StringSplit, arrThisSound, A_LoopField, @
+				SoundBeep, %arrThisSound2%, %arrThisSound1%
+			}
+	
+	if (intFavoriteSoundType > 1) ; do not use else with previous if(s)
+	{
+		strFavoriteSoundLocationExpanded := (intFavoriteSoundType = 2
+			? strSound ; system
+			: PathCombine(A_WorkingDir, EnvVars(strSound))) ; file
+			
+		if (intFavoriteSoundType = 3) ; if file do not exist play system sound
+			if !FileExist(strFavoriteSoundLocationExpanded)
+				strFavoriteSoundLocationExpanded := "*16" ; Hand (stop/error)
+			
+		SoundPlay, %strFavoriteSoundLocationExpanded%
+	}
+}
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================
