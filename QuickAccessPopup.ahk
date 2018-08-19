@@ -9127,6 +9127,7 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 {
 	global g_strModernBrowsers
 	global g_strLegacyBrowsers
+	global g_intActiveFileManager
 	
 	DetectHiddenWindows, Off
 	WinGet, strIDs, list
@@ -9138,7 +9139,9 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 	{
 		intThisIDIndex := A_Index
 		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
-		if WindowIsExplorer(strThisClass) or WindowIsTotalCommander(strThisClass) or WindowIsDirectoryOpus(strThisClass)
+		if WindowIsExplorer(strThisClass)
+			or (WindowIsDirectoryOpus(strThisClass) and g_intActiveFileManager = 2)
+			or (WindowIsTotalCommander(strThisClass) and g_intActiveFileManager = 3)
 			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
