@@ -19196,7 +19196,12 @@ strUsageDbSQL := "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
 	. " FROM Usage"
 	. " WHERE CollectType='Menu'"
 	. " ORDER BY CollectDateTime DESC"
-	. ";"
+	. ";`n"
+	. "CREATE VIEW IF NOT EXISTS vLocationTop10 AS"
+	. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
+	. " GROUP BY TargetPath"
+	. " ORDER BY COUNT(Id) DESC"
+	. " LIMIT 10"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
