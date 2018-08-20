@@ -31,6 +31,20 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.2 (2018-08-19)
+ 
+Usage DB
+- add a background task to collect (for personel user's usage) Windows Recent Items and QAP usage in an SQLite local database named QAP_Usage.DB, using Class_SQLiteDB.ahk library
+- collect periodically the last 150 recent items info, rejecting files not found
+- collect QAP actions with target info and various indicators on the favorite and options used to launch it
+- ini variables to set debugging (UsageDbDebug=0, 1 tooltips or 2 beep) and recent items collect interval (UsageDbIntervalSecond)
+- add SQLite views to view only menu items (vMenuItemsShort) and to view top 25 locations (vLocationTop25)
+- QAP is now distributed with files sqlite3.dll and sqlite3.def in 32-bit or 64-bit (appropriate version is used according to system)
+ 
+Various
+- add a Play button beside the play sound option in "Add/Edit favorite" dialog box, "Advanced Settings" tab;
+- fix bug when file manager option is "the current Window Explorer" and DOpus or TC are active window
+
 Version BETA: 9.1.9.1 (2018-08-14)
  
 Usage DB
@@ -2460,7 +2474,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.1
+;@Ahk2Exe-SetVersion 9.1.9.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2555,7 +2569,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -19176,17 +19190,20 @@ else ; add column "FavoriteName" if it does not exist
 }
 
 ; create views
-strUsageDbSQL := "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
+strUsageDbSQL := ""
+	. "DROP VIEW vMenuItemsShort;"
+	. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
 	. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
 	. " FROM Usage"
 	. " WHERE CollectType='Menu'"
 	. " ORDER BY CollectDateTime DESC"
 	. ";`n"
-	. "CREATE VIEW IF NOT EXISTS vLocationTop10 AS"
+	. "DROP VIEW vLocationTop10;"
+	. "CREATE VIEW IF NOT EXISTS vLocationTop25 AS"
 	. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
 	. " GROUP BY TargetPath"
 	. " ORDER BY COUNT(Id) DESC"
-	. " LIMIT 10"
+	. " LIMIT 25"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
