@@ -2784,9 +2784,9 @@ IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbInterva
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
-gosub, InitUsageDb ; creates g_objUsageDb
+gosub, UsageDbInit ; creates g_objUsageDb
 
-; SQLite from just_me wrapper for UsageDb
+; SQLite wrapper from just_me for UsageDb
 ; https://autohotkey.com/boards/viewtopic.php?t=1064
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
@@ -2836,6 +2836,11 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, F1, SettingsF1, On UseErrorLevel
 
 Hotkey, If
+
+;---------------------------------
+; Update FavoriteUsageDb properties with data from UsageDb
+
+gosub, UsageDbUpdateFavorites
 
 ;---------------------------------
 ; Start task collecting recent items
@@ -4708,7 +4713,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
 		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
-		; 24 FavoriteDateCreated, 25 FavoriteDateModified
+		; 24 FavoriteDateCreated, 25 FavoriteDateModified, 26 FavoriteUsageDb
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -4816,6 +4821,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteSoundLocation := ReplaceAllInString(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
 		objLoadIniFavorite.FavoriteDateCreated := arrThisFavorite24 ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 		objLoadIniFavorite.FavoriteDateModified := arrThisFavorite25 ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+		objLoadIniFavorite.FavoriteUsageDb := arrThisFavorite26 ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -13652,6 +13658,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateCreated . "|" ; 24
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
+			strIniLine .= objCurrentMenu[A_Index].FavoriteUsageDb . "|" ; 26
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
@@ -15460,7 +15467,7 @@ if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollect
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenGroupOfFavorites
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
@@ -15470,7 +15477,7 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15635,7 +15642,7 @@ if (g_blnAlternativeMenu)
 		}
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
-		gosub, CollectUsageDbMenu
+		gosub, UsageDbCollectMenu
 		gosub, OpenFavoriteCleanup
 		
 		return
@@ -15649,7 +15656,7 @@ if (g_blnAlternativeMenu)
 			TrayTip, %g_strAppNameText%, %lCopyLocationCopiedToClipboard%, , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 		}		
-		gosub, CollectUsageDbMenu
+		gosub, UsageDbCollectMenu
 		gosub, OpenFavoriteCleanup
 		return
 	}
@@ -15686,7 +15693,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15708,7 +15715,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 			gosub, OpenFavoriteWindowResize
 		}
 
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15719,7 +15726,7 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 {
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteCleanup
 	return
 }
@@ -15752,7 +15759,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 			gosub, OpenFavoriteWindowResize
 		}
 
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15780,7 +15787,7 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
 
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteCleanup
 	return
 }
@@ -15791,7 +15798,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15801,7 +15808,7 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15811,7 +15818,7 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetec
 if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
 }
@@ -15824,7 +15831,7 @@ if (g_strHotkeyTypeDetected = "Launch")
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
 	; if (g_arrFavoriteWindowPosition1)
 	;	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
-	gosub, CollectUsageDbMenu
+	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteWindowResize
 }
 
@@ -16843,7 +16850,7 @@ return
 
 
 ;------------------------------------------------------------
-CollectUsageDbMenu:
+UsageDbCollectMenu:
 ;------------------------------------------------------------
 ; add action to UsageDB
 
@@ -19125,7 +19132,7 @@ return
 
 
 ;------------------------------------------------------------
-InitUsageDb:
+UsageDbInit:
 ;------------------------------------------------------------
 
 strError := ""
@@ -19297,7 +19304,7 @@ if (g_blnUsageDbDebug)
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
-	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
 	g_blnUsageDbError := true
 	return
 }
@@ -19390,7 +19397,7 @@ strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
 strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
-	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objDB.ErrorMsg . "`nCode: " . g_objDB.ErrorCode)
+	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
@@ -19411,6 +19418,20 @@ if (g_blnUsageDbDebug)
 Sleep, % (g_intUsageDbRecentItemsInterval * 1000) ; delay before repeating UsageDbCollectRecentItems
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UsageDbUpdateFavorites:
+;------------------------------------------------------------
+
+for strUsageDbUpdateMenuName, objUsageDbUpdateMenu in g_objMenusIndex
+	for intUsageDbUpdateIndex, objUsageDbUpdateFavorite in objUsageDbUpdateMenu
+		objUsageDbUpdateFavorite.FavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
+
+SoundBeep, 1000
+
+Exit
 ;------------------------------------------------------------
 
 
@@ -21489,6 +21510,54 @@ GetUsageDbColumnExist(strColumnName)
 			return true
 		
 	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetUsageDbFavoriteUsage(objFavorite)
+;------------------------------------------------------------
+{
+	global g_objUsageDb
+	
+	if !(InStr("|Folder|Document", "|" . objFavorite.FavoriteType) and StrLen(objFavorite.FavoriteLocation))
+		return
+
+	strGetUsageDbSQL := "SELECT count(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . objFavorite.FavoriteLocation . "' COLLATE NOCASE;"
+	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
+	{
+		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbError := true
+		return
+	}
+	Loop
+	{
+		objRecordSet.Next(objRow)
+		strValue := objRow[A_Index]
+		break ; read only first record
+	}
+	if (strValue)
+		###_V("objFavorite.FavoriteLocation", objFavorite.FavoriteLocation, strValue)
+
+/*
+strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
+IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+{
+	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	return
+}
+Loop
+{
+	objMetadataRecordSet.Next(objMetadataRow)
+	; ###_V("objMetadataRecordSet - objMetadataRow", objMetadataRow[A_Index])
+	strUsageDbPreviousLatestCollected := objMetadataRow[A_Index]
+	break ; read only first record
+}
+objMetadataRecordSet.Free()
+*/
+	
+	return 0
 }
 ;------------------------------------------------------------
 
