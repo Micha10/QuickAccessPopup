@@ -19163,6 +19163,7 @@ if !(blnUsageDbExist) ; create database if it does not exist
 		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
 		. ");"
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
 	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
 
@@ -19176,9 +19177,13 @@ if !(blnUsageDbExist) ; create database if it does not exist
 }
 else ; add column "FavoriteName" if it does not exist
 {
+	strUsageDbSQL := ""
 	if !GetUsageDbColumnExist("MenuFavoriteName")
-	{
-		strUsageDbSQL := "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+	
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
+	
+	if StrLen(strUsageDbSQL)
 		If !g_objUsageDb.Exec(strUsageDbSQL)
 		{
 			Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
@@ -19186,19 +19191,24 @@ else ; add column "FavoriteName" if it does not exist
 			g_objUsageDb.Exec("ROLLBACK;")
 			return
 		}
-	}
 }
 
 ; create views
 strUsageDbSQL := ""
-	. "DROP VIEW vMenuItemsShort;"
+	; drop older views
+	. "DROP VIEW IF EXISTS vLocationTop10;"
+	
+	; drop current views that will be re-created
+	. "DROP VIEW IF EXISTS vMenuItemsShort;" ; for v9.1.9.1 only
+	. "DROP VIEW IF EXISTS vLocationTop25;" ; f0r v9.1.9.2+
+	
+	; (re)create current views
 	. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
 	. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
 	. " FROM Usage"
 	. " WHERE CollectType='Menu'"
 	. " ORDER BY CollectDateTime DESC"
 	. ";`n"
-	. "DROP VIEW vLocationTop10;"
 	. "CREATE VIEW IF NOT EXISTS vLocationTop25 AS"
 	. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
 	. " GROUP BY TargetPath"
