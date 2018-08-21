@@ -2628,7 +2628,6 @@ g_objQAPFeatures := Object()
 g_objQAPFeaturesCodeByDefaultName := Object()
 g_objQAPFeaturesDefaultNameByCode := Object()
 g_objQAPFeaturesAlternativeCodeByOrder := Object()
-g_strQAPFeaturesList := ""
 
 g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
 g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
@@ -2721,6 +2720,7 @@ Gosub, BuildRecentFilesMenuInit
 
 ; Menus refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit
+Gosub, BuildPopularFoldersMenuInit
 Gosub, BuildSwitchMenuInit 
 Gosub, BuildReopenFolderMenuInit
 Gosub, BuildLastActionsMenuInit
@@ -4001,6 +4001,10 @@ InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 	
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
+; new in v9.2
+InitQAPFeatureObject("Popular Folders",			lMenuPopularFolders,		lMenuPopularFolders,	"PopularFoldersMenuShortcut",			"2-DynamicMenus"
+	, lMenuPopularFoldersDescription, 0, "iconFavorites", "+^P")
+
 ; Command features
 
 InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"7-QAPManagement"
@@ -4117,17 +4121,6 @@ InitQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCu
 	, "", 9, "iconSpecialFolders")
 InitQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", ""
 	, "", 10, "iconSpecialFolders")
-
-
-;--------------------------------
-; Build folders list for dropdown
-
-g_strQAPFeaturesList := ""
-for strQAPFeatureName, strThisQAPFeatureCode in g_objQAPFeaturesCodeByDefaultName
-	if !(g_objQAPFeatures[strThisQAPFeatureCode].QAPFeatureAlternativeOrder) ; exclude Alternative menu features
-		g_strQAPFeaturesList .= strQAPFeatureName . "|"
-
-StringTrimRight, g_strQAPFeaturesList, g_strQAPFeaturesList, 1
 
 strQAPFeatureName := ""
 strThisQAPFeatureCode := ""
@@ -5398,6 +5391,7 @@ BuildSwitchMenuInit:
 BuildReopenFolderMenuInit:
 BuildLastActionsMenuInit:
 BuildTotalCommanderHotlistInit:
+BuildPopularFoldersMenuInit:
 ;------------------------------------------------------------
 
 strMenuItemLabel := lDialogNone
@@ -5420,6 +5414,8 @@ if (A_ThisLabel = "BuildLastActionsMenuInit")
 	strMenuName := lMenuLastActions ; g_menuLastActions
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
 	strMenuName := lTCMenuName ; lTCMenuName
+if (A_ThisLabel = "BuildPopularFoldersMenuInit")
+	strMenuName := lMenuPopularFolders
 
 Menu, %strMenuName%, Add 
 Menu, %strMenuName%, DeleteAll
@@ -5451,6 +5447,78 @@ g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_st
 Gosub, RefreshTotalCommanderHotlist
 
 strAlternativeWinCmdIniFile := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+PopularFoldersMenuShortcut:
+;------------------------------------------------------------
+
+Gosub, RefreshPopularFoldersMenuShortcut
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lMenuPopularFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshPopularFoldersMenuShortcut:
+;------------------------------------------------------------
+
+if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
+	return
+
+strMenuItemsList := "" ; menu name|menu item name|label|icon
+
+SetWaitCursor(true)
+
+; SQLite GetTable
+; Parse table
+strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='Folder' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
+IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularFoldersTable)
+{
+	Oops("SQLite QUERY POPULAR FOLDERS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	g_blnUsageDbError := true
+	return
+}
+
+If (objPopularFoldersTable.HasNames)
+{
+	Loop, % objPopularFoldersTable.RowCount
+	{
+		objPopularFoldersTable.Next(objPopularFoldersRow) ; at the beginning to skip header row
+		strPath := objPopularFoldersRow[1]
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberDrivesMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberDrivesMenu) . " " : "") . strPath
+		strIcon := "iconFolder"
+		strMenuItemsList .= lMenuPopularFolders . "|" . strMenuItemName . "|OpenPopularFolder|" . strIcon . "`n"
+	}
+}
+
+Menu, %lMenuPopularFolders%, Add
+Menu, %lMenuPopularFolders%, DeleteAll
+Loop, Parse, strMenuItemsList, `n
+	if StrLen(A_LoopField)
+	{
+		StringSplit, arrMenuItemsList, A_LoopField, |
+		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+	}
+AddCloseMenu(lMenuPopularFolders)
+
+SetWaitCursor(false)
+
+strPath := ""
+strMenuItemName := ""
+strIcon := ""
+ResetArray("arrMenuItemsList")
+strUsageDbSQL := ""
+objMetadataRecordSet := ""
+objPopularFoldersTable := ""
+objPopularFoldersRow := ""
 
 return
 ;------------------------------------------------------------
@@ -8130,7 +8198,7 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	ResetArray("arrMenu") ; free object's memory
 }
-Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update accrding to g_blnRefreshedMenusAttached
+Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update according to g_blnRefreshedMenusAttached
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
@@ -8139,6 +8207,7 @@ Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
+Gosub, RefreshPopularFoldersMenuShortcut
 
 if (g_blnRefreshedMenusAttached)
 {
@@ -14727,6 +14796,7 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
 Gosub, RefreshLastActionsMenu
+Gosub, RefreshPopularFoldersMenuShortcut
 
 if (g_blnRefreshedMenusAttached)
 {
@@ -15352,6 +15422,7 @@ OpenFavoriteHotlist:
 OpenReopenCurrentFolder:
 OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
+OpenPopularFolder:
 ;------------------------------------------------------------
 
 if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
@@ -16033,7 +16104,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
-else ; OpenRecentFolder, OpenRecentFiles or OpenClipboard
+else ; OpenRecentFolder, OpenRecentFiles, OpenClipboard or OpenPopularFolder
 {
 	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
 		strFavoriteType := "URL"
