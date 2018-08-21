@@ -8625,7 +8625,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalPath
 		}
 		
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey, strGuiMenuLocation)
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_intUsageDbDebug ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
@@ -8638,7 +8638,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, strThisType, strThisHotkey
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_intUsageDbDebug ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
@@ -21604,10 +21604,10 @@ GetUsageDbFavoriteUsage(objFavorite)
 {
 	global g_objUsageDb
 	
-	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . objFavorite.FavoriteLocation . "' COLLATE NOCASE;"
+	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
 	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
-		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
 		g_blnUsageDbError := true
 		return
 	}
