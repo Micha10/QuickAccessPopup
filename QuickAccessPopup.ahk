@@ -2587,7 +2587,7 @@ g_intGuiDefaultHeight := 601
 g_blnMenuReady := false
 g_blnChangeShortcutInProgress := false
 g_blnChangeHotstringInProgress := false
-g_blnSaveRequiredOnExit := false
+g_blnUsageDbFavoritesUpdated := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -2839,25 +2839,9 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 Hotkey, If
 
 ;---------------------------------
-; Update FavoriteUsageDb properties with data from UsageDb
-
-gosub, UsageDbUpdateFavorites
-
-;---------------------------------
 ; Start task collecting recent items
 
-Loop ; stops when QAP is exited or if error or when the stop file exists
-	if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
-	{
-		if (g_blnUsageDbDebugBeep)
-		{
-			SoundBeep
-			SoundBeep
-		}
-		break
-	}
-	else
-		gosub, UsageDbCollectRecentItems
+SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbRecentItemsInterval * 1000), -100 ; delay before repeating UsageDbCollectRecentItems
 
 return
 
@@ -5310,7 +5294,8 @@ if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh
 	}
 	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 	
-	if (g_blnSaveRequiredOnExit)
+	if (g_blnUsageDbFavoritesUpdated) and !InStr("Single|Reload", A_ExitReason)
+		; do not save if reloading immediately (Single or Reload) to avoid "Could not close the previous instance of this script.  Keep waiting?"
 		Gosub, GuiSaveAndDoNothing
 }
 
@@ -13549,7 +13534,7 @@ IniDelete, %g_strIniFile%, Favorites
 g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
-g_blnSaveRequiredOnExit := false
+g_blnUsageDbFavoritesUpdated := false
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -16855,109 +16840,6 @@ return
 
 
 ;------------------------------------------------------------
-UsageDbCollectMenu:
-;------------------------------------------------------------
-; add action to UsageDB
-
-strUsageMenuDateTime := A_Now
-strUsageDbMenuPath :=  A_ThisMenu
-strUsageDbMenuTrigger :=  A_ThisHotkey
-strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
-
-strUsageDbMenuTargetClass := g_strTargetClass
-strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
-strUsageDbMenuTargetAppName := g_strTargetAppName
-
-; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
-strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
-if InStr("|Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
-	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
-	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPath) ; FileExistInPath updates strUsageDbTargetPath and return the file's atributes
-GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
-	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
-
-if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
-	; for Folder, Document and Application, file must exist, not for other types
-{
-	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
-	strUsageDbMenuFavoriteName := g_objThisFavorite.FavoriteName
-	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
-	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
-	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
-	strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
-	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
-	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
-	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
-	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
-
-	strUsageDbSQL := "INSERT INTO Usage ("
-		. "TargetPath,TargetDateTime"
-		. ",CollectType,CollectDateTime,CollectPath"
-		. ",TargetAttributes,TargetType,TargetExtension"
-		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
-		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
-		. ") VALUES("
-		; target file and date-time
-		. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
-		. ",'" . strUsageDbTargetDateTime . "'"
-		
-		; collect type, time and menu path
-		. ",'Menu'"
-		. ",'" . strUsageMenuDateTime . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
-		
-		; target file info
-		. ",'" . strUsageDbTargetAttributes . "'"
-		. ",'" . strUsageDbTargetType . "'"
-		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-
-		; QAP launch info
-		. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
-		. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
-		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
-
-		; QAP favorite info
-		. ",'" . strUsageDbMenuFavoriteType . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
-		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
-		. ",'" . strUsageDbMenuLiveLevels . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
-		
-		. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
-		. ");"
-
-	if (g_blnUsageDbDebug)
-		ToolTip, %strUsageDbSQL%
-	
-	g_objUsageDb.Exec("BEGIN TRANSACTION;")
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
-		g_blnUsageDbError := true
-		g_objUsageDb.Exec("ROLLBACK;")
-		return
-	}	
-	g_objUsageDb.Exec("COMMIT;")
-	if (g_blnUsageDbDebug)
-	{
-		Sleep, 2000
-		ToolTip
-	}
-}
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 DoNothing:
 ;------------------------------------------------------------
 
@@ -19293,6 +19175,16 @@ RecordSet.Free()
 */
 
 ; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
+if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
+{
+	if (g_blnUsageDbDebugBeep)
+	{
+		SoundBeep
+		SoundBeep
+	}
+	SetTimer, UsageDbCollectRecentItems, Off
+	return
+}
 
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
 strUsageDbItemsList := ""
@@ -19416,11 +19308,117 @@ if (g_blnUsageDbDebug)
 	if (g_blnUsageDbDebugBeep)
 		SoundBeep, 300
 	ToolTip, % "Items added: " . intUsageDbtNbItems . "`n`n" . StringLeftDotDotDot(strUsageDbReport, 2000)
-	Sleep, % (intUsageDbtNbItems = 0 ? 500 : 3000)
+	Sleep, % (intUsageDbtNbItems = 0 ? 300 : 2000)
 	ToolTip
 }
 
-Sleep, % (g_intUsageDbRecentItemsInterval * 1000) ; delay before repeating UsageDbCollectRecentItems
+; Update FavoriteUsageDb properties with data from UsageDb
+
+if !(g_blnUsageDbFavoritesUpdated) ; to call it only one time when launching
+	SetTimer, UsageDbUpdateFavorites, -1000, -100 ; -1000 to run only once in 1 sec, at priority -100
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UsageDbCollectMenu:
+;------------------------------------------------------------
+; add action to UsageDB
+
+strUsageMenuDateTime := A_Now
+strUsageDbMenuPath :=  A_ThisMenu
+strUsageDbMenuTrigger :=  A_ThisHotkey
+strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
+
+strUsageDbMenuTargetClass := g_strTargetClass
+strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
+strUsageDbMenuTargetAppName := g_strTargetAppName
+
+; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
+strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
+if InStr("|Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
+	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPath) ; FileExistInPath updates strUsageDbTargetPath and return the file's atributes
+GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
+	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+
+if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+	; for Folder, Document and Application, file must exist, not for other types
+{
+	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
+	strUsageDbMenuFavoriteName := g_objThisFavorite.FavoriteName
+	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
+	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
+	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
+	strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
+	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
+	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
+	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
+	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
+
+	strUsageDbSQL := "INSERT INTO Usage ("
+		. "TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ") VALUES("
+		; target file and date-time
+		. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
+		. ",'" . strUsageDbTargetDateTime . "'"
+		
+		; collect type, time and menu path
+		. ",'Menu'"
+		. ",'" . strUsageMenuDateTime . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
+		
+		; target file info
+		. ",'" . strUsageDbTargetAttributes . "'"
+		. ",'" . strUsageDbTargetType . "'"
+		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+
+		; QAP launch info
+		. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
+		. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
+		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
+
+		; QAP favorite info
+		. ",'" . strUsageDbMenuFavoriteType . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
+		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
+		. ",'" . strUsageDbMenuLiveLevels . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
+		
+		. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
+		. ");"
+
+	if (g_blnUsageDbDebug)
+		ToolTip, !!! %strUsageDbSQL%
+	
+	g_objUsageDb.Exec("BEGIN TRANSACTION;")
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbError := true
+		g_objUsageDb.Exec("ROLLBACK;")
+		return
+	}	
+	g_objUsageDb.Exec("COMMIT;")
+	if (g_blnUsageDbDebug)
+	{
+		Sleep, 2000
+		ToolTip
+	}
+}
 
 return
 ;------------------------------------------------------------
@@ -19435,11 +19433,15 @@ for strUsageDbUpdateMenuName, objUsageDbUpdateMenu in g_objMenusIndex
 		if StrLen(objUsageDbUpdateFavorite.FavoriteLocation)
 			objUsageDbUpdateFavorite.FavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
 
-; ToolTip, %A_ThisLabel%: done...
-; Sleep, 2000
-; ToolTip
-
-g_blnSaveRequiredOnExit := true
+if (g_blnUsageDbDebug)
+{
+	ToolTip, %A_ThisLabel%: done...
+	if (g_blnUsageDbDebugBeep)
+		SoundBeep, 1200
+	Sleep, 2000
+	ToolTip
+}
+g_blnUsageDbFavoritesUpdated := true
 
 Exit
 ;------------------------------------------------------------
