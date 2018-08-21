@@ -2587,6 +2587,7 @@ g_intGuiDefaultHeight := 601
 g_blnMenuReady := false
 g_blnChangeShortcutInProgress := false
 g_blnChangeHotstringInProgress := false
+g_blnSaveRequiredOnExit := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -5308,6 +5309,9 @@ if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh
 		}
 	}
 	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
+	
+	if (g_blnSaveRequiredOnExit)
+		Gosub, GuiSaveAndDoNothing
 }
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
@@ -13545,6 +13549,7 @@ IniDelete, %g_strIniFile%, Favorites
 g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
+g_blnSaveRequiredOnExit := false
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -19427,9 +19432,14 @@ UsageDbUpdateFavorites:
 
 for strUsageDbUpdateMenuName, objUsageDbUpdateMenu in g_objMenusIndex
 	for intUsageDbUpdateIndex, objUsageDbUpdateFavorite in objUsageDbUpdateMenu
-		objUsageDbUpdateFavorite.FavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
+		if StrLen(objUsageDbUpdateFavorite.FavoriteLocation)
+			objUsageDbUpdateFavorite.FavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
 
-SoundBeep, 1000
+; ToolTip, %A_ThisLabel%: done...
+; Sleep, 2000
+; ToolTip
+
+g_blnSaveRequiredOnExit := true
 
 Exit
 ;------------------------------------------------------------
@@ -21516,14 +21526,12 @@ GetUsageDbColumnExist(strColumnName)
 
 ;------------------------------------------------------------
 GetUsageDbFavoriteUsage(objFavorite)
+; 2018-08-20 Take 1: one point per occurence of the location in usage (RecentItems or Menu)
 ;------------------------------------------------------------
 {
 	global g_objUsageDb
 	
-	if !(InStr("|Folder|Document", "|" . objFavorite.FavoriteType) and StrLen(objFavorite.FavoriteLocation))
-		return
-
-	strGetUsageDbSQL := "SELECT count(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . objFavorite.FavoriteLocation . "' COLLATE NOCASE;"
+	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . objFavorite.FavoriteLocation . "' COLLATE NOCASE;"
 	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
 		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
@@ -21536,28 +21544,8 @@ GetUsageDbFavoriteUsage(objFavorite)
 		strValue := objRow[A_Index]
 		break ; read only first record
 	}
-	if (strValue)
-		###_V("objFavorite.FavoriteLocation", objFavorite.FavoriteLocation, strValue)
 
-/*
-strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
-IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
-{
-	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
-	g_blnUsageDbError := true
-	return
-}
-Loop
-{
-	objMetadataRecordSet.Next(objMetadataRow)
-	; ###_V("objMetadataRecordSet - objMetadataRow", objMetadataRow[A_Index])
-	strUsageDbPreviousLatestCollected := objMetadataRow[A_Index]
-	break ; read only first record
-}
-objMetadataRecordSet.Free()
-*/
-	
-	return 0
+	return strValue
 }
 ;------------------------------------------------------------
 
