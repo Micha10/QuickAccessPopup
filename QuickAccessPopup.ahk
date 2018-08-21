@@ -31,28 +31,30 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.1.9.2 (2018-08-19)
+Version BETA: 9.1.9.2 (2018-08-21)
  
 Usage DB
 - add a background task to collect (for personel user's usage) Windows Recent Items and QAP usage in an SQLite local database named QAP_Usage.DB, using Class_SQLiteDB.ahk library
 - collect periodically the last 150 recent items info, rejecting files not found
 - collect QAP actions with target info and various indicators on the favorite and options used to launch it
-- ini variables to set debugging (UsageDbDebug=0, 1 tooltips or 2 beep) and recent items collect interval (UsageDbIntervalSecond)
-- add SQLite views to view only menu items (vMenuItemsShort) and to view top 25 locations (vLocationTop25)
+- add FavoriteUsageDb favorite property with a value of one point per occurence of the favorite location in usage database (RecentItems or Menu)
+- add "Popular Folders" QAP feature (add it from the "Dynamic Menus" section of QAP features
+- when launching QAP, update the favorite's FavoriteUsageDb property and saving values to ini file when exiting the app if user never saved favorites before
+- ini variable for recent items collect interval (UsageDbIntervalSecond, 600 by default)
+- ini variables to set debugging (UsageDbDebug 0 off, 1 tooltips or 2 tooltips and beep, 0 by default)
+- if UsageDbDebug is on, display current number of points of favorites in Settings window after favorite names
+- add SQLite views vMenuItemsShort to view only menu items and vLocationTop25 to view top 25 locations (use the free app http://sqlitebrowser.org/ to browse the database - not required for normal users)
 - QAP is now distributed with files sqlite3.dll and sqlite3.def in 32-bit or 64-bit (appropriate version is used according to system)
  
 Various
+- add date created and date modified to favorite properties, using UTC time (for future use, aloowing to sort favorites by date)
 - add a Play button beside the play sound option in "Add/Edit favorite" dialog box, "Advanced Settings" tab;
 - fix bug when file manager option is "the current Window Explorer" and DOpus or TC are active window
 
 Version BETA: 9.1.9.1 (2018-08-14)
  
 Usage DB
-- add a background task to collect (for personel user's usage) Windows Recent Items and QAP usage in an SQLite local database named QAP_Usage.DB, using Class_SQLiteDB.ahk library
-- collect periodically the last 150 recent items info, rejecting files not found
-- collect QAP actions with target info and various indicators on the favorite and options used to launch it
-- ini variables to set debugging (UsageDbDebug=0, 1 tooltips or 2 beep) and recent items collect interval (UsageDbIntervalSecond)
-- QAP is now distributed with files sqlite3.dll and sqlite3.def in 32-bit or 64-bit (appropriate version is used according to system)
+- ground work; see v9.1.9.2 for details
 
 Version: 9.1 (2018-08-10)
  
