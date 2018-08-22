@@ -4401,11 +4401,13 @@ IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
 
-IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
-IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
-
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
+
+IniRead, g_blnAlternativeMenuShowNotification, %g_strIniFile%, Global, AlternativeMenuShowNotification, 1 ; default true
+
+IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
+IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
 
 ; ---------------------
 ; Options Tab 5 Exclusion List
@@ -7240,7 +7242,13 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 }
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Text, x10 y+25 w610, %lDialogOtherHotkeys%
+Gui, 2:Add, Text, x15 y+20 w610, %lOptionsAlternativeMenuOptions%
+Gui, 2:Font
+Gui, 2:Add, CheckBox, y+10 x15 vf_blnAlternativeMenuShowNotification, %lOptionsAlternativeMenuShowNotification%
+GuiControl, , f_blnAlternativeMenuShowNotification, %g_blnAlternativeMenuShowNotification%
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Text, x15 y+20 w610, %lDialogOtherHotkeys%
 Gui, 2:Font
 Gui, 2:Add, Text, y+10 x15, %lOptionsControlDoublePressed%
 Gui, 2:Add, CheckBox, y+5 x15 vf_blnLeftControlDoublePressed, %lOptionsControlDoublePressedLeft%
@@ -7933,6 +7941,9 @@ for strThisAlternativeCode, strNewShortcut in g_objQAPFeaturesNewShortcuts
 		IniWrite, %strNewShortcut%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 	else
 		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
+
+g_blnAlternativeMenuShowNotification := f_blnAlternativeMenuShowNotification
+IniWrite, %g_blnAlternativeMenuShowNotification%, %g_strIniFile%, Global, AlternativeMenuShowNotification
 
 g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
 IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
@@ -15071,6 +15082,9 @@ return
 ;------------------------------------------------------------
 OpenAlternativeMenuTrayTip:
 ;------------------------------------------------------------
+
+if !(g_blnAlternativeMenuShowNotification)
+	return
 
 if (g_strAlternativeMenu = lMenuCopyLocation)
 	strMessage := lAlternativeMenuTrayTipCopyLocation
