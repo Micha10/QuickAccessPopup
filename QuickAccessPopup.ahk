@@ -4644,6 +4644,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
 		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
+		; 24 FavoriteDateCreated, 25 FavoriteDateModified
 		StringSplit, arrThisFavorite, strLoadIniLine, |
 
 		if (arrThisFavorite1 = "Z")
@@ -4747,8 +4748,10 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
 		objLoadIniFavorite.FavoriteHotstring := ReplaceAllInString(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
-		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ;  two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
+		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
 		objLoadIniFavorite.FavoriteSoundLocation := ReplaceAllInString(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
+		objLoadIniFavorite.FavoriteDateCreated := arrThisFavorite24 ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+		objLoadIniFavorite.FavoriteDateModified := arrThisFavorite25 ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 
 		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
@@ -9458,6 +9461,8 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 		strGroupSettings := g_objEditedFavorite.FavoriteGroupSettings . ",,,," ; ,,, to make sure all fields are re-init
 		StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 	}
+	
+	g_objEditedFavorite.FavoriteDateModified := A_NowUTC
 }
 else ; add favorite
 {
@@ -9587,6 +9592,9 @@ else ; add favorite
 		g_strNewFavoriteIconResource := GetFolderIcon(g_objEditedFavorite.FavoriteLocation)
 		g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	}
+	
+	g_objEditedFavorite.FavoriteDateCreated := A_NowUTC
+	g_objEditedFavorite.FavoriteDateModified := g_objEditedFavorite.FavoriteDateCreated
 }
 
 ; Gosub, GuiFavoriteIconDefault DO NOT INIT DEFAULT ICON HERE BECAUSE WE NEED f_strFavoriteLocation TO BE SET BEFORE WHEN CREATING THE 1ST TAB
@@ -13577,7 +13585,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveSort . "|" ; 22
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) ; 23
+			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
+			strIniLine .= objCurrentMenu[A_Index].FavoriteDateCreated . "|" ; 24
+			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
 
 			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
 			g_intIniLine++
