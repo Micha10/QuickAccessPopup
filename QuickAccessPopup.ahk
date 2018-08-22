@@ -15801,7 +15801,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
 		strCurrentAppWorkingDir := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 	else
-		strCurrentAppWorkingDir := g_objThisFavorite.FavoriteAppWorkingDir
+		strCurrentAppWorkingDir := PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteAppWorkingDir))
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
 	Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
