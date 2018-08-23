@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.1.1 (2018-08-24)
+ 
+Various
+- add an option in "Alternative Hotkeys" tab of the "Options" dialog box to determine if notifications are displayed or not when using the Atlernative Menu (default true)
+- add a "Play" button beside the play sound optino in "Add/Edit favorite" dialog box, "Advanced Settings" tab
+- add to date created and date modified properties to favorites, using universal time (UTC), allowing in a future version to sort favorites by created or last modified date
+- rename the QAP feature "Add This Folder or Link" to "Add Active Folder or Web page"
+- update to Spanish language file
+ 
+Bug fixes
+- support for environment variables (like %TEMP%) and relative paths (relative to QAP working directory) in "Start In" option, in "Advanced Settings" of favorites of "Application" type
+- fix bug when file manager option is always in current window and DOpus or TC are active window
+
 Version: 9.1 (2018-08-10)
  
 Windows Apps
@@ -2451,7 +2464,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1
+;@Ahk2Exe-SetVersion 9.1.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2546,7 +2559,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4303,7 +4316,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite2=Folder|Windows|%A_WinDir%
 			Favorite3=Folder|Program Files|%A_ProgramFiles%
 			Favorite4=Folder|User Profile|`%USERPROFILE`%
-			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
+			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe
 			Favorite6=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^Q|:X*:#qap#|
 			Favorite7=Z
 
