@@ -2708,10 +2708,7 @@ if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin be
 IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (g_blnDiagMode)
-{
 	Gosub, InitDiagMode
-	; Diag("A_ScriptHwnd", A_ScriptHwnd)
-}
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
 
@@ -5794,8 +5791,6 @@ strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
 
-; Diag("strRecentsFolder", strRecentsFolder)
-; Diag("strRecentsFolder Tick", A_TickCount)
 RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
 
 /*
@@ -5815,8 +5810,6 @@ for ObjItem in ComObjGet("winmgmts:")
 Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
 	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strItemsList, R
-; Diag("strItemsList", strItemsList)
-; Diag("strItemsList Tick", A_TickCount)
 
 intMenuNumberFolders := 0
 intMenuNumberFiles := 0
@@ -5832,9 +5825,6 @@ Loop, parse, strItemsList, `n
 	strShortcutFullPath := arrShortcutFullPath[2]
 	
 	FileGetShortcut, %strShortcutFullPath%, strTargetPath
-	; Diag("intRecentFoldersCount/intRecentFilesCount", intRecentFoldersCount . "/" . intRecentFilesCount)
-	; Diag("strShortcutFullPath", strShortcutFullPath)
-	; Diag("strShortcutFullPath Tick", A_TickCount)
 	
 	if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
 		continue
@@ -5882,8 +5872,6 @@ Loop, parse, strItemsList, `n
 		; break
 }
 
-; Diag("strRecentFoldersMenuItemsList", strRecentFoldersMenuItemsList)
-; Diag("strRecentFoldersMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
 	Menu, %lMenuRecentFolders%, Add
@@ -5897,8 +5885,6 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 	AddCloseMenu(lMenuRecentFolders)
 }
 
-; Diag("strRecentFilesMenuItemsList", strRecentFilesMenuItemsList)
-; Diag("strRecentFilesMenuItemsList Tick", A_TickCount)
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 {
 	Menu, %lMenuRecentFiles%, Add
@@ -5912,7 +5898,6 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-; Diag("RefreshRecentFoldersAndFilesMenus Finished Tick", A_TickCount)
 SetWaitCursor(false)
 
 strRecentsFolder := ""
@@ -8220,15 +8205,6 @@ if (g_blnRefreshedMenusAttached)
 	Gosub, RefreshRecentFoldersAndFilesMenus
 }
 
-/*
-if (g_blnDiagMode)
-{
-	Diag("Save Options: Recent/Drives/Clipboard/Switch", g_intRecentFoldersMenuTickCount . "`t" . g_intDrivesMenuTickCount . "`t" . g_intClipboardMenuTickCount . "`t" . g_intSwitchReopenMenuTickCount)
-	; TrayTip, Recent/Drives/Clipboard/Switch menus refresh, % g_intRecentFoldersMenuTickCount . " ms + " . g_intDrivesMenuTickCount . " ms + " . g_intClipboardMenuTickCount . " ms + " . g_intSwitchReopenMenuTickCount
-	;	. " = " . g_intRecentFoldersMenuTickCount + g_intDrivesMenuTickCount + g_intClipboardMenuTickCount + g_intSwitchReopenMenuTickCount . " ms"
-}
-*/
-
 Gosub, 2GuiClose
 
 g_blnMenuReady := true
@@ -8573,7 +8549,6 @@ if !(g_blnDonor)
 IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
 StringSplit, arrSettingsPosition, strSettingsPosition, |
 
-; Diag(A_ThisLabel, "Hide")
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
 	? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
@@ -13241,7 +13216,6 @@ if !(g_intIconsManageRowsSettings)
 {
 	ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
 	g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
-	; Diag("ManageIcons - g_intIconsManageRows", (intMonitorHeight - 250) // intIconsManageRowsHeight)
 }
 else
 	g_intIconsManageRows:= g_intIconsManageRowsSettings
@@ -14751,8 +14725,6 @@ LaunchFromTrayIcon:			; g_strTargetWinId set empty (not required)
 LaunchFromAlternativeMenu:	; g_strTargetWinId set by AlternativeHotkeyMouse/AlternativeHotkeyKeyboard
 ;------------------------------------------------------------
 
-; DiagWindowInfo(A_ThisLabel . " Begin")
-
 if SettingsUnsaved()
 	if SettingsNotSavedReturn()
 		return
@@ -14810,32 +14782,7 @@ if (g_blnRefreshedMenusAttached)
 	gosub, RefreshRecentFoldersAndFilesMenus
 }
 
-/*
-if (g_blnDiagMode)
-{
-	Diag("Popup menu: Clipboard/Switch",  "`t`t" . g_intClipboardMenuTickCount . "`t" . g_intSwitchReopenMenuTickCount)
-	; TrayTip, Clipboard/Switch menus refresh, % g_intClipboardMenuTickCount . " ms + " . g_intSwitchReopenMenuTickCount
-	;	. " = " . g_intClipboardMenuTickCount + g_intSwitchReopenMenuTickCount . " ms"
-}
-*/
-
 Gosub, InsertColumnBreaks
-
-/*
-; Tentative solution against "close menu issue" (see https://www.quickaccesspopup.com/what-is-the-close-menu-issue/)
-; This cause side effects espcially when QAP runs in compiled mode (scripts hidden window or main GUI being randomly shown inavertandly)
-
-DllCall("SwitchToThisWindow", "UInt", A_ScriptHwnd, "UInt", 1)
-
-DetectHiddenWindows, Off
-WinGet, intNbWindows, Count, ahk_id %A_ScriptHwnd%
-Diag(A_ThisLabel . " Before WinHide - Nb A_ScriptHwnd", intNbWindows)
-WinHide, ahk_id %A_ScriptHwnd%
-WinGet, intNbWindows, Count, ahk_id %A_ScriptHwnd%
-DetectHiddenWindows, On
-Diag(A_ThisLabel . " After WinHide - Nb A_ScriptHwnd", intNbWindows)
-DiagWindowInfo(A_ThisLabel . " After SwitchToThisWindow")
-*/
 
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
@@ -14906,13 +14853,9 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	; DiagWindowInfo("CanNavigate Begin")
 	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
 	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
 
-	; Diag("CanNavigate Begin - strMouseOrKeyboard", strMouseOrKeyboard)
-	; Diag("CanNavigate Begin - g_strTargetClass", g_strTargetClass)
-	
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
 		or (g_intActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
@@ -14929,9 +14872,6 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	else
 		g_blnShowChangeFolderInDialogAlert := false
 	
-	; DiagWindowInfo("CanNavigate End")
-	; Diag("CanNavigate End - blnCanNavigate", blnCanNavigate)
-	
 	return blnCanNavigate
 }
 ;------------------------------------------------------------
@@ -14943,9 +14883,6 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	; DiagWindowInfo("CanLaunch")
-	; Diag("CanLaunch Begin - g_strTargetClass", g_strTargetClass)
-
 	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
@@ -14954,13 +14891,9 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 				or InStr(g_strTargetProcessName, A_LoopField))
 				return false
 
-	; Diag("CanLaunch End1 - g_blnClickOnTrayIcon / g_blnOpenMenuOnTaskbar", g_blnClickOnTrayIcon . " / " . g_blnOpenMenuOnTaskbar)
-	; Diag("CanLaunch End2 - WindowIsTray(g_strTargetClass)", WindowIsTray(g_strTargetClass))
-	
 	if WindowIsTray(g_strTargetClass)
 		return g_blnOpenMenuOnTaskbar
 
-	; Diag("CanLaunch End3 - WindowIsTreeview(g_strTargetWinId)", WindowIsTreeview(g_strTargetWinId))
 	if WindowIsTreeview(g_strTargetWinId)
 		return false
 	
@@ -15458,20 +15391,6 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 	Gosub, InsertColumnBreaks
 }
 
-/*
-Counterpart of the SwitchToThisWindow command trying to fight against the "close menu issue" (see commented code with "SwitchToThisWindow" above)
-
-DiagWindowInfo(A_ThisLabel . " Before WinActivate")
-if StrLen(g_strTargetWinId)
-	and (g_strTargetWinId <> A_ScriptHwnd)
-	and (g_strTargetWinId <> g_strAppHwnd)
-	WinActivate, ahk_id %g_strTargetWinId%
-DiagWindowInfo(A_ThisLabel . " After WinActivate")
-*/
-
-; if (g_blnDiagMode)
-;	Diag("OpenFavoriteHotlist", "---------")
-
 if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFavorites
 {
 	g_strTargetWinId := "" ; never use target window when launched in a group
@@ -15480,21 +15399,12 @@ if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFa
 else if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have g_objThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define g_objThisFavorite
 
-/*
-if (g_blnDiagMode)
-{
-	Diag("g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName)
-	Diag("g_objThisFavorite.FavoriteLocation", g_objThisFavorite.FavoriteLocation)
-}
-*/
-
 if !IsObject(g_objThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	or (g_objThisFavorite.FavoriteType = "Folder") and !StrLen(g_objThisFavorite.FavoriteLocation) ; no current location found
 {
 	gosub, OpenFavoriteCleanup
 	return
 }
-; Diag(A_ThisLabel . ":g_objThisFavorite.FavoriteName", g_objThisFavorite.FavoriteName)
 
 ; before opening the favorite, check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder or special
 if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavorite.FavoriteType))
@@ -15654,9 +15564,6 @@ if InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
 	gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
 else
 	g_strTargetAppName := ""
-; Diag(A_ThisLabel . ":g_strTargetAppName", g_strTargetAppName)
-; if (g_blnDiagMode)
-	; Diag("g_strTargetAppName", g_strTargetAppName)
 
 if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 {
@@ -15672,10 +15579,7 @@ if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have locat
 ; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
 ; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
-; Diag("strFavoriteWindowPosition", strFavoriteWindowPosition)
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
-
-; Diag(A_ThisLabel . " After WinActivate - Location", g_strHotkeyTypeDetected . "`t" . g_strFullLocation)
 
 ; === ACTIONS ===
 
@@ -15751,8 +15655,6 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
 	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
 	
-	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-	Diag(A_ThisLabel . ":activate", strAppID)
 	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
 	WinGet, intMinMax, MinMax, ahk_id %strAppID%
 	if (intMinMax = -1) ; restore if window is minimized
@@ -15807,9 +15709,6 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		strCurrentAppWorkingDir := PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteAppWorkingDir))
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
-	Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
-	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-	Diag(A_ThisLabel . ":strCurrentAppWorkingDir", strCurrentAppWorkingDir)
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 	{
@@ -15895,8 +15794,6 @@ if (g_strHotkeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
-	; if (g_arrFavoriteWindowPosition1)
-	;	Diag(A_ThisLabel . " after OpenFavoriteInNewWindow - g_strNewWindowId", g_strNewWindowId)
 	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteWindowResize
 }
@@ -16048,7 +15945,6 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 		}
 	}
 
-	; DiagWindowInfo(A_ThisLabel . " - AVANT CanNavigate")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotstring")
 	{
 		g_strTargetWinId := "" ; never use target window when launched from hotstring
@@ -16066,7 +15962,6 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 		gosub, OpenFavoriteGetFavoriteObjectCleanup
 		return ; active window is on exclusion list
 	}
-	; DiagWindowInfo(A_ThisLabel . " - APRÈS CanNavigate")
 }
 else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
 {
@@ -16605,9 +16500,6 @@ StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 
 WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
-; Diag(A_ThisLabel . " Start - g_blnLaunchFromTrayIcon / strClassSnippet", g_blnLaunchFromTrayIcon . " / " . strClassSnippet)
-; DiagWindowInfo(A_ThisLabel . " Start")
-
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
 	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
@@ -16638,7 +16530,6 @@ if (blnTextSnippet)
 	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation, true)
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
-	; Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
 	if (intErrorLevel)
 	{
 		Gosub, PasteSnippetCleanup
@@ -16654,13 +16545,11 @@ if (blnTextSnippet)
 	Sleep, 100 ; safety
 	
 	Clipboard := objPrevClipboard ; Restore the original clipboard
-	; Diag("Send (text) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 }
 else ; snippet of type Macro
 {
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
-	; Diag("Send (macro) After - g_objThisFavorite.FavoriteLocation", StringLeftDotDotDot(g_objThisFavorite.FavoriteLocation, 80))
 
 	Loop
 	{
@@ -17247,7 +17136,6 @@ if (g_arrFavoriteWindowPosition1)
 	; when run -> pid? if not scan Explorer ids
 	gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
-	; Diag(A_ThisLabel . " strExplorerIDsBefore", strExplorerIDsBefore)
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
@@ -17261,7 +17149,6 @@ else
 
 if (g_arrFavoriteWindowPosition1)
 {
-	; Diag(A_ThisLabel . " g_arrFavoriteWindowPosition7", g_arrFavoriteWindowPosition7)
 	Loop
 	{
 		if (A_Index > 25)
@@ -17272,9 +17159,7 @@ if (g_arrFavoriteWindowPosition1)
 		}
 		Sleep, %g_arrFavoriteWindowPosition7%
 		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
-		; Diag(A_ThisLabel . " g_strExplorerIDs take " . A_Index, g_strExplorerIDs)
 		Loop, Parse, g_strExplorerIDs, |
-			; Diag(A_ThisLabel . " A_LoopField", A_LoopField)
 			if !InStr(strExplorerIDsBefore, A_LoopField . "|")
 			{
 				g_strNewWindowId  := "ahk_id " . A_LoopField
@@ -19263,6 +19148,7 @@ if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
 }
 
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+Diag(#####)
 strUsageDbItemsList := ""
 Loop, %strUsageDbRecentsFolder%\*.*
 	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
@@ -19872,15 +19758,16 @@ PrepareHotstringForFunction(strHotstring, objFavorite)
 ;-----------------------------------------------------------
 
 
+/*
 ;------------------------------------------------
 DiagWindowInfo(strName)
+; never called as of v9.1.9.3
 ;------------------------------------------------
 {
 	global g_strTargetWinId
 	
 	WinGetClass, strClass, ahk_id %g_strTargetWinId%
 	WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-	; Diag(strName . " - Window Info", g_strTargetWinId . "`t" . strClass . "`t" . strTitle)
 	
 	strActiveWindowId := WinActive("A")
 	WinGetClass, strClass, ahk_id %strActiveWindowId%
@@ -19888,6 +19775,7 @@ DiagWindowInfo(strName)
 	; Diag(strName . " - Active Window", strActiveWindowId . "`t" . strClass . "`t" . strTitle)
 }
 ;------------------------------------------------
+*/
 
 
 ;------------------------------------------------
@@ -20439,20 +20327,16 @@ SetTargetWinInfo(blnMouseElseKeyboard)
 	{
 		MouseGetPos, , , g_strTargetWinId, g_strTargetControl
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
-		; TrayTip, Navigate Mouse, %strMouseOrKeyboard% = %g_strMouseNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%`n%g_strTargetControl%
-		; WinGetTitle, strTitle, ahk_id %g_strTargetWinId%
-		; DiagWindowInfo("SetTargetWinInfo - Mouse")
 	}
 	else ; Keyboard
 	{
 		g_strTargetWinId := WinExist("A")
 		g_strTargetControl := ""
 		WinGetClass, g_strTargetClass, % "ahk_id " . g_strTargetWinId
-		; TrayTip, Navigate Keyboard, %strMouseOrKeyboard% = %g_strKeyboardNavigateHotkey% (%g_intCounter%)`n%g_strTargetWinId%`n%g_strTargetClass%
-		; DiagWindowInfo("SetTargetWinInfo - Keyboard")
 	}
 
 	WinGetTitle, g_strTargetWinTitle, % "ahk_id " . g_strTargetWinId
+	WinGet, g_strTargetProcessName, ProcessName, % "ahk_id " . g_strTargetWinId
 	WinGet, g_strTargetProcessName, ProcessName, % "ahk_id " . g_strTargetWinId
 }
 ;------------------------------------------------------------
@@ -20847,7 +20731,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 	CoordMode, Mouse, Screen
 	MouseGetPos, intMouseX, intMouseY
 	SysGet, intMonitorsCount, MonitorCount
-	; Diag("ActiveMonitorInfo - intMonitorsCount", intMonitorsCount)
 	Loop %intMonitorsCount%
     {
 		SysGet, arrCurrentMonitor, Monitor, %A_Index%
@@ -20857,9 +20740,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			intLeft := arrCurrentMonitorLeft
 			intHeight := arrCurrentMonitorBottom - arrCurrentMonitorTop
 			intWidth := arrCurrentMonitorRight  - arrCurrentMonitorLeft
-			; Diag("ActiveMonitorInfo - Monitor Index", A_Index)
-			; Diag("ActiveMonitorInfo - MouseX,MouseY", intMouseX . "," . intMouseY)
-			; Diag("ActiveMonitorInfo - Top,Left,Bottom,Right", arrCurrentMonitorTop . "," . arrCurrentMonitorLeft . "," . arrCurrentMonitorBottom . "," . arrCurrentMonitorRight)
 			
 			return
 		}
@@ -21758,7 +21638,6 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
-	; Diag("REPLY_QAPISRUNNING:wParam/lParam", wParam . "/" . lParam)
 	return true
 } 
 ;------------------------------------------------------------
@@ -21776,13 +21655,9 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	global g_strTargetWinId
 	
 	SetTargetWinInfo(false) ; as if keyboard because mouse position can go out of Explorer window where menu was called
-	; Diag(A_ThisFunc . " - g_strTargetClass", g_strTargetClass)
-	; Diag(A_ThisFunc . " - g_strTargetWinId", g_strTargetWinId)
 
-	; Diag("RECEIVE_QAPMESSENGER:wParam/lParam", wParam . "/" . lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
-	; Diag("RECEIVE_QAPMESSENGER:strCopyOfData", strCopyOfData)
 	
 	StringSplit, arrData, strCopyOfData, |
 	
