@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.4 (2018-08-24)
+- fix bug in Popular Folders menu when menu numeric shortcuts are enabled
+- add diagnostic code when collecting recent items
+- execute first recent items collection and favorites properties update at launch time (before making the popup menu available) instead of using a timer
+- stop saving favorites when existing if favorites usage was updated
+
 Version BETA: 9.1.9.3 (2018-08-23)
 - update with some changes introduced in master version v9.1.1
 
@@ -2479,7 +2485,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.3
+;@Ahk2Exe-SetVersion 9.1.9.4
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2574,7 +2580,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2592,7 +2598,7 @@ g_intGuiDefaultHeight := 601
 g_blnMenuReady := false
 g_blnChangeShortcutInProgress := false
 g_blnChangeHotstringInProgress := false
-g_blnUsageDbFavoritesUpdated := false
+; g_blnUsageDbFavoritesUpdated := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -2751,7 +2757,38 @@ IniRead, g_blnRefreshQAPMenuDebugBeep, %g_strIniFile%, Global, RefreshQAPMenuDeb
 if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
 
+;---------------------------------
+; Init SQLite database to collect recent items
+
+g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
+g_intUsageDbRecentLimit := 150
+g_blnUsageDbError := false
+
+; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
+IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
+IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
+
+g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
+g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
+
+gosub, UsageDbInit ; creates g_objUsageDb
+
+; SQLite wrapper from just_me for UsageDb
+; https://autohotkey.com/boards/viewtopic.php?t=1064
+#Include %A_ScriptDir%\Class_SQLiteDB.ahk
+
+; Update FavoriteUsageDb properties with data from UsageDb
+
+; if !(g_blnUsageDbFavoritesUpdated) ; to call it only one time when launching
+	; SetTimer, UsageDbUpdateFavorites, -1000, -100 ; -1000 to run only once in 1 sec, at priority -100
+
+Diag("Launch", "UsageDbCollectRecentItems")
+Gosub, UsageDbCollectRecentItems
+Gosub, UsageDbUpdateFavorites
+
+;---------------------------------
 g_blnMenuReady := true
+;---------------------------------
 
 ; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
 OnMessage(0x404, "AHK_NOTIFYICON")
@@ -2772,26 +2809,6 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
 	FileDelete, %A_Startup%\FoldersPopup.lnk
-
-;---------------------------------
-; Init SQLite database to collect recent items
-
-g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
-g_intUsageDbRecentLimit := 150
-g_blnUsageDbError := false
-
-; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
-IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
-IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
-
-g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
-g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-
-gosub, UsageDbInit ; creates g_objUsageDb
-
-; SQLite wrapper from just_me for UsageDb
-; https://autohotkey.com/boards/viewtopic.php?t=1064
-#Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
 ;---------------------------------
 ; Refresh Windows Apps list
@@ -2843,7 +2860,8 @@ Hotkey, If
 ;---------------------------------
 ; Start task collecting recent items
 
-SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbRecentItemsInterval * 1000), -100 ; delay before repeating UsageDbCollectRecentItems
+Diag("SetTimer", "UsageDbCollectRecentItems")
+SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbRecentItemsInterval * 1000), -100 ; delay before repeating UsageDbCollectRecentItems / priority -100 (not sure?)
 
 return
 
@@ -5289,9 +5307,9 @@ if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh
 	}
 	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
 	
-	if (g_blnUsageDbFavoritesUpdated) and !InStr("Single|Reload", A_ExitReason)
+	; if (g_blnUsageDbFavoritesUpdated) and !InStr("Single|Reload", A_ExitReason)
 		; do not save if reloading immediately (Single or Reload) to avoid "Could not close the previous instance of this script.  Keep waiting?"
-		Gosub, GuiSaveAndDoNothing
+		; Gosub, GuiSaveAndDoNothing
 }
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
@@ -5491,11 +5509,12 @@ IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularFoldersTable)
 
 If (objPopularFoldersTable.HasNames)
 {
+	intMenuNumberPopularsMenu := 0
 	Loop, % objPopularFoldersTable.RowCount
 	{
 		objPopularFoldersTable.Next(objPopularFoldersRow) ; at the beginning to skip header row
 		strPath := objPopularFoldersRow[1]
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberDrivesMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberDrivesMenu) . " " : "") . strPath
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
 		strIcon := "iconFolder"
 		strMenuItemsList .= lMenuPopularFolders . "|" . strMenuItemName . "|OpenPopularFolder|" . strIcon . "`n"
 	}
@@ -5521,6 +5540,7 @@ strUsageDbSQL := ""
 objMetadataRecordSet := ""
 objPopularFoldersTable := ""
 objPopularFoldersRow := ""
+intMenuNumberPopularsMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -5807,7 +5827,7 @@ for ObjItem in ComObjGet("winmgmts:")
 
 ; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
 
-Loop, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
+Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
 	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strItemsList, R
 
@@ -13582,7 +13602,7 @@ IniDelete, %g_strIniFile%, Favorites
 g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
-g_blnUsageDbFavoritesUpdated := false
+; g_blnUsageDbFavoritesUpdated := false
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -19092,6 +19112,7 @@ strError := ""
 blnUsageDbExist := ""
 strUsageDbSQL := ""
 
+return
 ;------------------------------------------------------------
 
 
@@ -19138,6 +19159,7 @@ RecordSet.Free()
 ; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
 if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
 {
+	Diag(A_ThisLabel, (g_blnUsageDbError ? "Error" : "QAP_Usage.NO"))
 	if (g_blnUsageDbDebugBeep)
 	{
 		SoundBeep
@@ -19148,13 +19170,15 @@ if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
 }
 
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-Diag(#####)
+Diag(A_ThisLabel . ":strUsageDbRecentsFolder" , strUsageDbRecentsFolder)
+
 strUsageDbItemsList := ""
-Loop, %strUsageDbRecentsFolder%\*.*
+Loop, Files, %strUsageDbRecentsFolder%\*.*
 	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strUsageDbItemsList, R
+Diag(A_ThisLabel . ":strUsageDbItemsList", StringLeftDotDotDot(strUsageDbItemsList, 500))
 
-if (g_blnUsageDbDebug)
+if (g_blnUsageDbDebug or g_blnDiagMode)
 {
 	strUsageDbReport := ""
 	intUsageDbtNbItems := 0
@@ -19175,6 +19199,8 @@ Loop
 	break ; read only first record
 }
 objMetadataRecordSet.Free()
+Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
+Diag(A_ThisLabel . ":g_intUsageDbRecentLimit", g_intUsageDbRecentLimit)
 
 strUsageDbSQL := ""
 Loop, parse, strUsageDbItemsList, `n
@@ -19235,11 +19261,15 @@ Loop, parse, strUsageDbItemsList, `n
 			. ");"
 			. "`n"
 
-		if (g_blnUsageDbDebug)
+		if (g_blnUsageDbDebug or g_blnDiagMode)
 			intUsageDbtNbItems++
 	}
 }
 g_objUsageDb.Exec("BEGIN TRANSACTION;")
+Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected)
+Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
+Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
+Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems)
 
 if (g_blnUsageDbDebug)
 	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
@@ -19273,11 +19303,6 @@ if (g_blnUsageDbDebug)
 	Sleep, % (intUsageDbtNbItems = 0 ? 300 : 2000)
 	ToolTip
 }
-
-; Update FavoriteUsageDb properties with data from UsageDb
-
-if !(g_blnUsageDbFavoritesUpdated) ; to call it only one time when launching
-	SetTimer, UsageDbUpdateFavorites, -1000, -100 ; -1000 to run only once in 1 sec, at priority -100
 
 return
 ;------------------------------------------------------------
@@ -19403,9 +19428,10 @@ if (g_blnUsageDbDebug)
 	Sleep, 2000
 	ToolTip
 }
-g_blnUsageDbFavoritesUpdated := true
+; g_blnUsageDbFavoritesUpdated := true
 
-Exit
+; was Exit when launched by SetTimer
+return
 ;------------------------------------------------------------
 
 
@@ -19761,7 +19787,7 @@ PrepareHotstringForFunction(strHotstring, objFavorite)
 /*
 ;------------------------------------------------
 DiagWindowInfo(strName)
-; never called as of v9.1.9.3
+; never called as of v9.1.9.4
 ;------------------------------------------------
 {
 	global g_strTargetWinId
