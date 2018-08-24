@@ -19047,6 +19047,7 @@ if !(blnUsageDbExist) ; create database if it does not exist
 		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
 		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ",MenuDateCreated,MenuDateModified"
 		. ");"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
@@ -19065,6 +19066,11 @@ else ; add column "FavoriteName" if it does not exist
 	strUsageDbSQL := ""
 	if !GetUsageDbColumnExist("MenuFavoriteName")
 		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+	if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified
+	{
+		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateCreated;"
+		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateModified;"
+	}
 	
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	
@@ -19200,7 +19206,6 @@ Loop
 }
 objMetadataRecordSet.Free()
 Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
-Diag(A_ThisLabel . ":g_intUsageDbRecentLimit", g_intUsageDbRecentLimit)
 
 strUsageDbSQL := ""
 Loop, parse, strUsageDbItemsList, `n
@@ -19242,6 +19247,8 @@ Loop, parse, strUsageDbItemsList, `n
 			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
 		
 			; unused for recent items
+			. ",''"
+			. ",''"
 			. ",''"
 			. ",''"
 			. ",''"
@@ -19314,23 +19321,22 @@ UsageDbCollectMenu:
 ; add action to UsageDB
 
 strUsageMenuDateTime := A_Now
-strUsageDbMenuPath :=  A_ThisMenu
-strUsageDbMenuTrigger :=  A_ThisHotkey
+strUsageDbMenuPath :=  A_ThisMenu ; remember this could be older value if favorite was launched by an hotkey
+strUsageDbMenuTrigger :=  A_ThisHotkey ; remember this could be older value if favorite was launched by a menu
 strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
 strUsageDbMenuTargetClass := g_strTargetClass
 strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
 strUsageDbMenuTargetAppName := g_strTargetAppName
 
-; strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
-strUsageDbTargetPath := g_objThisFavorite.FavoriteLocation
-if InStr("|Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+strUsageDbTargetPathExpanded := g_objThisFavorite.FavoriteLocation
+if InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType)
 	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
-	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPath) ; FileExistInPath updates strUsageDbTargetPath and return the file's atributes
-GetUsageDbTargetFileInfo((g_objThisFavorite.FavoriteType = "QAP" ? "" : strUsageDbTargetPath)
+	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPathExpanded) ; FileExistInPath expands strUsageDbTargetPathExpanded and returns the file's atributes
+GetUsageDbTargetFileInfo((InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType) ? strUsageDbTargetPathExpanded : "") ; setting 1st param empty makes remainings empty
 	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
 
-if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType) ; include Special even if no attributes
 	; for Folder, Document and Application, file must exist, not for other types
 {
 	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
@@ -19343,6 +19349,8 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
 	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
 	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
+	strUsageDbMenuDateCreated := g_objThisFavorite.FavoriteDateCreated
+	strUsageDbMenuDateModified := g_objThisFavorite.FavoriteDateModified
 
 	strUsageDbSQL := "INSERT INTO Usage ("
 		. "TargetPath,TargetDateTime"
@@ -19351,9 +19359,10 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
 		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
 		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ",MenuDateCreated,MenuDateModified"
 		. ") VALUES("
 		; target file and date-time
-		. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
+		. "'" . EscapeQuote(strUsageDbTargetPathExpanded) . "'"
 		. ",'" . strUsageDbTargetDateTime . "'"
 		
 		; collect type, time and menu path
@@ -19386,6 +19395,8 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
+		. ",'" . strUsageDbMenuDateCreated . "'"
+		. ",'" . strUsageDbMenuDateModified . "'"
 		. ");"
 
 	if (g_blnUsageDbDebug)
@@ -20381,7 +20392,7 @@ LocationIsHTTP(strLocation)
 FileExistInPath(ByRef strFile)
 ;------------------------------------------------------------
 {
-	if !StrLen(strFile) or InStr(strFile, "://") ; this is not a file - caution some URLs in WhereIs cause an infinite loop
+	if (!StrLen(strFile) or InStr(strFile, "://") or SubStr(strFile, 1, 1) = "{") ; this is not a file - caution some URLs in WhereIs cause an infinite loop
 		return, False
 	
 	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%
