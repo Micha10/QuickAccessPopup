@@ -2728,7 +2728,7 @@ Gosub, BuildRecentFilesMenuInit
 
 ; Menus refreshed at each popup menu call
 Gosub, BuildClipboardMenuInit
-Gosub, BuildPopularFoldersMenuInit
+Gosub, BuildPopularMenusInit
 Gosub, BuildSwitchMenuInit 
 Gosub, BuildReopenFolderMenuInit
 Gosub, BuildLastActionsMenuInit
@@ -2767,7 +2767,7 @@ g_blnUsageDbError := false
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
 IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
-
+g_intUsageDbRecentItemsInterval := (g_intUsageDbRecentItemsInterval < 60 ? 60 : g_intUsageDbRecentItemsInterval)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
@@ -4022,8 +4022,12 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
 ; new in v9.2
-InitQAPFeatureObject("Popular Folders",			lMenuPopularFolders,		lMenuPopularFolders,	"PopularFoldersMenuShortcut",			"2-DynamicMenus"
-	, lMenuPopularFoldersDescription, 0, "iconFavorites", "+^P")
+loop, parse, % lMenuPopularFolders, | ; % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
+{
+	###_V(A_LoopField, L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)))
+	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), "Popular" . A_LoopField . "MenuShortcut", "2-DynamicMenus"
+	, L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0, "iconFavorites")
+}
 
 ; Command features
 
@@ -5411,7 +5415,7 @@ BuildSwitchMenuInit:
 BuildReopenFolderMenuInit:
 BuildLastActionsMenuInit:
 BuildTotalCommanderHotlistInit:
-BuildPopularFoldersMenuInit:
+BuildPopularMenusInit:
 ;------------------------------------------------------------
 
 strMenuItemLabel := lDialogNone
@@ -5434,15 +5438,19 @@ if (A_ThisLabel = "BuildLastActionsMenuInit")
 	strMenuName := lMenuLastActions ; g_menuLastActions
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
 	strMenuName := lTCMenuName ; lTCMenuName
-if (A_ThisLabel = "BuildPopularFoldersMenuInit")
-	strMenuName := lMenuPopularFolders
+if (A_ThisLabel = "BuildPopularMenusInit")
+	strMenuName := lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications
 
-Menu, %strMenuName%, Add 
-Menu, %strMenuName%, DeleteAll
-if (g_blnUseColors)
-    Menu, %strMenuName%, Color, %g_strMenuBackgroundColor%
-AddMenuIcon(strMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-AddCloseMenu(strMenuName)
+loop, parse, strMenuName, |
+{
+	###_D(A_LoopField)
+	Menu, %A_LoopField%, Add 
+	Menu, %A_LoopField%, DeleteAll
+	if (g_blnUseColors)
+		Menu, %A_LoopField%, Color, %g_strMenuBackgroundColor%
+	AddMenuIcon(A_LoopField, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddCloseMenu(A_LoopField)
+}
 
 strMenuName := ""
 strMenuItemLabel := ""
@@ -6700,6 +6708,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		}
 		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
+			###_V("g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName", g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName
