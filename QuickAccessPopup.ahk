@@ -4022,12 +4022,10 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
 ; new in v9.2
-loop, parse, % lMenuPopularFolders, | ; % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
-{
-	###_V(A_LoopField, L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)))
-	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), "Popular" . A_LoopField . "MenuShortcut", "2-DynamicMenus"
-	, L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0, "iconFavorites")
-}
+loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
+	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField)
+		, "Popular" . A_LoopField . "MenuShortcut", "2-DynamicMenus", L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0
+		, (A_LoopField = lMenuPopularFolders ? "iconFavorites" : (A_LoopField = lMenuPopularFiles ? "iconDocuments" : "iconApplication")))
 
 ; Command features
 
@@ -5421,38 +5419,39 @@ BuildPopularMenusInit:
 strMenuItemLabel := lDialogNone
 if (A_ThisLabel = "BuildClipboardMenuInit")
 {
-	strMenuName := lMenuClipboard ; g_menuClipboard
+	strMenuNames := lMenuClipboard
 	strMenuItemLabel := lMenuNoClipboard
 }
 if (A_ThisLabel = "BuildDrivesMenuInit")
-	strMenuName := lMenuDrives ; g_menuDrives
+	strMenuNames := lMenuDrives
 if (A_ThisLabel = "BuildRecentFoldersMenuInit")
-	strMenuName := lMenuRecentFolders ; g_menuRecentFolders
+	strMenuNames := lMenuRecentFolders
 if (A_ThisLabel = "BuildRecentFilesMenuInit")
-	strMenuName := lMenuRecentFiles ; g_menuRecentFiles
+	strMenuNames := lMenuRecentFiles
 if (A_ThisLabel = "BuildSwitchMenuInit")
-	strMenuName := lMenuSwitchFolderOrApp ; g_menuSwitchFolderOrApp
+	strMenuNames := lMenuSwitchFolderOrApp
 if (A_ThisLabel = "BuildReopenFolderMenuInit")
-	strMenuName := lMenuCurrentFolders ; g_menuReopenFolder
+	strMenuNames := lMenuCurrentFolders
 if (A_ThisLabel = "BuildLastActionsMenuInit")
-	strMenuName := lMenuLastActions ; g_menuLastActions
+	strMenuNames := lMenuLastActions
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
-	strMenuName := lTCMenuName ; lTCMenuName
+	strMenuNames := lTCMenuName
 if (A_ThisLabel = "BuildPopularMenusInit")
-	strMenuName := lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications
+	strMenuNames := lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications
 
-loop, parse, strMenuName, |
+loop, parse, strMenuNames, |
 {
-	###_D(A_LoopField)
-	Menu, %A_LoopField%, Add 
-	Menu, %A_LoopField%, DeleteAll
+	strThisMenuName := (A_ThisLabel = "BuildPopularMenusInit" ? L(lMenuPopularMenus, A_LoopField) : A_LoopField)
+	Menu, %strThisMenuName%, Add 
+	Menu, %strThisMenuName%, DeleteAll
 	if (g_blnUseColors)
-		Menu, %A_LoopField%, Color, %g_strMenuBackgroundColor%
-	AddMenuIcon(A_LoopField, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-	AddCloseMenu(A_LoopField)
+		Menu, %strThisMenuName%, Color, %g_strMenuBackgroundColor%
+	AddMenuIcon(strThisMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	AddCloseMenu(strThisMenuName)
 }
 
-strMenuName := ""
+strMenuNames := ""
+strThisMenuName := ""
 strMenuItemLabel := ""
 
 return
@@ -5484,7 +5483,7 @@ return
 PopularFoldersMenuShortcut:
 ;------------------------------------------------------------
 
-Gosub, RefreshPopularFoldersMenuShortcut
+Gosub, RefreshPopularMenusShortcut
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
@@ -5495,48 +5494,58 @@ return
 
 
 ;------------------------------------------------------------
-RefreshPopularFoldersMenuShortcut:
+RefreshPopularMenusShortcut:
 ;------------------------------------------------------------
 
 if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
 	return
 
-strMenuItemsList := "" ; menu name|menu item name|label|icon
-
 SetWaitCursor(true)
 
-; SQLite GetTable
-; Parse table
-strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='Folder' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
-IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularFoldersTable)
+loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
 {
-	Oops("SQLite QUERY POPULAR FOLDERS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
-	g_blnUsageDbError := true
-	return
-}
+	strMenuItemsList := "" ; menu name|menu item name|label|icon
 
-If (objPopularFoldersTable.HasNames)
-{
-	intMenuNumberPopularsMenu := 0
-	Loop, % objPopularFoldersTable.RowCount
-	{
-		objPopularFoldersTable.Next(objPopularFoldersRow) ; at the beginning to skip header row
-		strPath := objPopularFoldersRow[1]
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
-		strIcon := "iconFolder"
-		strMenuItemsList .= lMenuPopularFolders . "|" . strMenuItemName . "|OpenPopularFolder|" . strIcon . "`n"
-	}
-}
+	if (A_LoopField = lMenuPopularFolders)
+		strTargetType := "Folder"
+	else if (A_LoopField = lMenuPopularFiles)
+		strTargetType := "Document"
+	else if (A_LoopField = lMenuPopularApplications)
+		strTargetType := "Application"
 
-Menu, %lMenuPopularFolders%, Add
-Menu, %lMenuPopularFolders%, DeleteAll
-Loop, Parse, strMenuItemsList, `n
-	if StrLen(A_LoopField)
+	; SQLite GetTable
+	; Parse table
+	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
+	IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularMenuTable)
 	{
-		StringSplit, arrMenuItemsList, A_LoopField, |
-		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		g_blnUsageDbError := true
+		return
 	}
-AddCloseMenu(lMenuPopularFolders)
+
+	If (objPopularMenuTable.HasNames)
+	{
+		intMenuNumberPopularsMenu := 0
+		Loop, % objPopularMenuTable.RowCount
+		{
+			objPopularMenuTable.Next(objPopularMenuRow) ; at the beginning to skip header row
+			strPath := objPopularMenuRow[1]
+			strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
+			strIcon := (A_Loopfield = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+			strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		}
+	}
+
+	Menu, % L(lMenuPopularMenus, A_Loopfield), Add
+	Menu, % L(lMenuPopularMenus, A_Loopfield), DeleteAll
+	Loop, Parse, strMenuItemsList, `n
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrMenuItemsList, A_LoopField, |
+			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
+}
 
 SetWaitCursor(false)
 
@@ -5545,10 +5554,10 @@ strMenuItemName := ""
 strIcon := ""
 ResetArray("arrMenuItemsList")
 strUsageDbSQL := ""
-objMetadataRecordSet := ""
-objPopularFoldersTable := ""
-objPopularFoldersRow := ""
+objPopularMenuTable := ""
+objPopularMenuRow := ""
 intMenuNumberPopularsMenu := ""
+strTargetType := ""
 
 return
 ;------------------------------------------------------------
@@ -6708,7 +6717,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		}
 		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
-			###_V("g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName", g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName
@@ -8226,7 +8234,7 @@ Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularFoldersMenuShortcut
+Gosub, RefreshPopularMenusShortcut
 
 if (g_blnRefreshedMenusAttached)
 {
@@ -14802,7 +14810,7 @@ if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTarge
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularFoldersMenuShortcut
+Gosub, RefreshPopularMenusShortcut
 
 if (g_blnRefreshedMenusAttached)
 {
@@ -15389,7 +15397,7 @@ OpenFavoriteHotlist:
 OpenReopenCurrentFolder:
 OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
-OpenPopularFolder:
+OpenPopularMenus:
 ;------------------------------------------------------------
 
 if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
@@ -16033,7 +16041,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
-else ; OpenRecentFolder, OpenRecentFiles, OpenClipboard or OpenPopularFolder
+else ; OpenRecentFolder, OpenRecentFiles, OpenClipboard or OpenPopularMenus
 {
 	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
 		strFavoriteType := "URL"
@@ -19041,7 +19049,7 @@ else ; init SQLite wraper object
 blnUsageDbExist := FileExist(g_strUsageDbFile)
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
-	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . g_strUsageDbFile)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
@@ -19064,7 +19072,7 @@ if !(blnUsageDbExist) ; create database if it does not exist
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
-		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbError := true
 		g_objUsageDb.Exec("ROLLBACK;")
 		return
@@ -19086,7 +19094,7 @@ else ; add column "FavoriteName" if it does not exist
 	if StrLen(strUsageDbSQL)
 		If !g_objUsageDb.Exec(strUsageDbSQL)
 		{
-			Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+			Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 			g_blnUsageDbError := true
 			g_objUsageDb.Exec("ROLLBACK;")
 			return
@@ -19116,7 +19124,7 @@ strUsageDbSQL := ""
 	. " LIMIT 25"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
-	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
@@ -19202,7 +19210,7 @@ if (g_blnUsageDbDebug or g_blnDiagMode)
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
-	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbError := true
 	return
 }
@@ -19302,7 +19310,7 @@ strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
 strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
-	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
