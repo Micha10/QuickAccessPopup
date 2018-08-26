@@ -40,6 +40,19 @@ Version BETA: 9.1.9.4 (2018-08-24)
 Version BETA: 9.1.9.3 (2018-08-23)
 - update with some changes introduced in master version v9.1.1
 
+Version: 9.1.1 (2018-08-23)
+ 
+Various
+- add an option in "Alternative Hotkeys" tab of the "Options" dialog box to determine if notifications are displayed or not when using the Atlernative Menu (default true)
+- add a "Play" button beside the play sound optino in "Add/Edit favorite" dialog box, "Advanced Settings" tab
+- add to date created and date modified properties to favorites, using universal time (UTC), allowing in a future version to sort favorites by created or last modified date
+- rename the QAP feature "Add This Folder or Link" to "Add Active Folder or Web page"
+- update to Spanish language file
+ 
+Bug fixes
+- support for environment variables (like %TEMP%) and relative paths (relative to QAP working directory) in "Start In" option, in "Advanced Settings" of favorites of "Application" type
+- fix bug when file manager option is always in current window and DOpus or TC are active window
+
 Version BETA: 9.1.9.2 (2018-08-21)
  
 Usage DB
