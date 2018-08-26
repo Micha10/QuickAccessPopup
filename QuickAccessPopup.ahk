@@ -2755,16 +2755,6 @@ Gosub, BuildAlternativeMenu
 Gosub, BuildGui
 Gosub, BuildTrayMenu
 
-if (g_blnDisplayTrayTip)
-{
-	GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
-		
-	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
-		, , 17 ; 1 info icon + 16 no sound
-	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-}
-
 IniRead, g_intRefreshQAPMenuIntervalSec, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec, 0
 IniRead, g_blnRefreshQAPMenuDebugBeep, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep, 0
 if (g_intRefreshQAPMenuIntervalSec > 0)
@@ -2801,6 +2791,17 @@ Gosub, UsageDbUpdateFavorites
 
 ;---------------------------------
 g_blnMenuReady := true
+
+if (g_blnDisplayTrayTip)
+{
+	GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
+		
+	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
+		, % L(lTrayTipInstalledDetail, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
+		, , 17 ; 1 info icon + 16 no sound
+	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+}
+
 ;---------------------------------
 
 ; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
@@ -4038,7 +4039,7 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
 	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField)
 		, "Popular" . A_LoopField . "MenuShortcut", "2-DynamicMenus", L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0
-		, (A_LoopField = lMenuPopularFolders ? "iconFavorites" : (A_LoopField = lMenuPopularFiles ? "iconDocuments" : "iconApplication")))
+		, (A_LoopField = lMenuPopularFolders ? "iconFolder" : (A_LoopField = lMenuPopularFiles ? "iconDocuments" : "iconApplication")))
 
 ; Command features
 
@@ -4340,6 +4341,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	strAlternativeHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults4 ; "+#W"
 	
 	g_intIconSize := 32
+	strPopularMenuLabel := L(lMenuPopularMenus, "")
 
 	FileAppend,
 		(LTrim Join`r`n
@@ -4381,13 +4383,19 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Folder|C:\|C:\
-			Favorite2=Folder|Windows|%A_WinDir%
-			Favorite3=Folder|Program Files|%A_ProgramFiles%
-			Favorite4=Folder|User Profile|`%USERPROFILE`%
-			Favorite5=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
-			Favorite6=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^Q|:X*:#qap#|
-			Favorite7=Z
+			Favorite1=Menu|%strPopularMenuLabel%|> Popular|iconFavorites
+			Favorite2=QAP||{Popular Folders}
+			Favorite3=QAP||{Popular Files}
+			Favorite4=QAP||{Popular Applications}
+			Favorite5=Z
+			Favorite6=X
+			Favorite7=Folder|C:\|C:\
+			Favorite8=Folder|Windows|%A_WinDir%
+			Favorite9=Folder|Program Files|%A_ProgramFiles%
+			Favorite10=Folder|User Profile|`%USERPROFILE`%
+			Favorite11=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
+			Favorite12=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^Q|:X*:#qap#|
+			Favorite13=Z
 
 ) ; leave the last extra line above
 			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
@@ -4604,6 +4612,7 @@ strFileEncoding := ""
 strIniFileContent := ""
 blnDoNotConvertSettingsToUnicode := ""
 strWaitDelayInSnippet := ""
+strPopularMenuLabel := ""
 
 return
 ;------------------------------------------------------------
@@ -19215,10 +19224,9 @@ Sort, strUsageDbItemsList, R
 Diag(A_ThisLabel . ":strUsageDbItemsList", StringLeftDotDotDot(strUsageDbItemsList, 500))
 
 if (g_blnUsageDbDebug or g_blnDiagMode)
-{
 	strUsageDbReport := ""
-	intUsageDbtNbItems := 0
-}
+
+intUsageDbtNbItems := 0
 
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
@@ -19298,8 +19306,7 @@ Loop, parse, strUsageDbItemsList, `n
 			. ");"
 			. "`n"
 
-		if (g_blnUsageDbDebug or g_blnDiagMode)
-			intUsageDbtNbItems++
+		intUsageDbtNbItems++
 	}
 }
 g_objUsageDb.Exec("BEGIN TRANSACTION;")
