@@ -4341,8 +4341,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 	strAlternativeHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults4 ; "+#W"
 	
 	g_intIconSize := 32
-	strPopularMenuLabel := L(lMenuPopularMenus, "")
-
+	
 	FileAppend,
 		(LTrim Join`r`n
 			[Global]
@@ -4352,6 +4351,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Theme=Windows
 			NameLocationHotkeysUpgraded=1
 			WaitDelayInSnippet=40|80|180
+			DefaultPopularMenusBuilt=1
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -4383,7 +4383,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%strPopularMenuLabel%|> Popular|iconFavorites
+			Favorite1=Menu|%lMenuPopularContentsMenus%|> %lMenuPopularContentsMenus%|iconFavorites
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
 			Favorite4=QAP||{Popular Applications}
@@ -4561,12 +4561,15 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
 IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
-IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
-if !(blnDefaultMenuBuilt)
- 	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
+IniRead, blnDefaultPopularMenusBuilt, %g_strIniFile%, Global, DefaultPopularMenusBuilt, 0 ; default false
+if !(blnDefaultPopularMenusBuilt)
+ 	Gosub, AddToIniPopularDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
 if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
  	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
+IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
+if !(blnDefaultMenuBuilt)
+ 	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
@@ -4598,7 +4601,6 @@ strAlternativeHotkeyMouseDefault := ""
 strAlternativeHotkeyKeyboardDefault := ""
 strPopupFixPosition := ""
 blnDefaultMenuBuilt := ""
-blnMyQAPFeaturesBuilt := ""
 ResetArray("arrThisFavorite")
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
@@ -4612,7 +4614,6 @@ strFileEncoding := ""
 strIniFileContent := ""
 blnDoNotConvertSettingsToUnicode := ""
 strWaitDelayInSnippet := ""
-strPopularMenuLabel := ""
 
 return
 ;------------------------------------------------------------
@@ -4864,101 +4865,17 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 
 
 ;------------------------------------------------------------
-AddToIniDefaultMenu:
-;------------------------------------------------------------
-
-strThisMenuName := lMenuMyQAPMenu
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
-g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
-
-; do not save QAP feature menus name to ini file and keep default names
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Add Favorite - QAP}", "", "QAP", true)
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) 
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Last Actions}", "", "QAP")
-AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true)
-AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true)
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true)
-AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
-AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true)
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Drives}", "", "QAP")
-AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
-
-strThisMenuName := lMenuMySpecialMenu
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
-
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
-AddToIniOneDefaultMenu("{Add Favorite - Special}", "", "QAP", true)
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(A_Desktop, lMenuDesktop, "Special") ; Desktop
-AddToIniOneDefaultMenu("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "", "Special") ; Documents
-AddToIniOneDefaultMenu(g_strMyPicturesPath, "", "Special") ; Pictures
-AddToIniOneDefaultMenu(g_strDownloadPath, "", "Special") ; Downloads
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "", "Special") ; Computer
-AddToIniOneDefaultMenu("{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}", "", "Special") ; Network
-AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "", "Special") ; Control Panel
-AddToIniOneDefaultMenu("{645FF040-5081-101B-9F08-00AA002F954E}", "", "Special") ; Recycle Bin
-AddToIniOneDefaultMenu("", "", "Z") ; close special menu
-
-strThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."] ; QAP feature code used here for comparison only, not for menu name
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (strDefaultMenu = g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."]) ; if equal, it means that this menu is not already there
-; (we cannot have this menu twice with "+" because, as all QAP features, lMenuSettings always have the same menu name)
-{
-	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP", true) ; back in main menu
-}
-if (g_intActiveFileManager = 3) ; TotalCommander
-{
-	strThisMenuName := lTCMenuName . "..."
-	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
-	if (strThisMenuName = lTCMenuName . "...") ; if equal, it means that this menu is not already there
-	; (we cannot have this menu twice with "+" because, as all QAP features, lTCMenuName always have the same menu name)
-	{
-		AddToIniOneDefaultMenu("", "", "X")
-		AddToIniOneDefaultMenu("{TC Directory hotlist}", lTCMenuName . "...", "QAP")
-	}
-}
-strThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."] ; QAP feature code used here for comparison only, not for menu name
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (strDefaultMenu = g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."]) ; if equal, it means that this menu is not already there
-; (we cannot have this menu twice with "+" because, as all QAP features, lMenuAddThisFolder always have the same menu name)
-{
-	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP", true)
-}
-
-AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
-
-IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
-
-g_intNextFavoriteNumber := ""
-strThisMenuName := ""
-strDefaultMenu := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 AddToIniWindowsAppsDefaultMenu:
 ; Technical debt: this menu is created with IDs found in Windows 10 Version 1803 (same as in 1709) as-of 2018-08-01.
 ; We have no way to check if these IDs are OK on users' system (IDs in future releases may change). 
 ;------------------------------------------------------------
 
-strThisMenuName := lMenuMyWindowsAppsMenu
-Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if strThisMenuName menu name exists
+g_strAddThisMenuName := lMenuMyWindowsAppsMenu
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
 g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
 
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . strDefaultMenu, strDefaultMenu, "Menu")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
 
 AddToIniOneDefaultMenu("{Add Favorite - WindowsApp}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
@@ -4983,9 +4900,119 @@ AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 IniWrite, 1, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt
 
 g_intNextFavoriteNumber := ""
-strThisMenuName := ""
-strDefaultMenu := ""
+g_strAddThisMenuName := ""
 
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+AddToIniDefaultMenu:
+;------------------------------------------------------------
+
+g_strAddThisMenuName := lMenuMyQAPMenu
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
+g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
+
+; do not save QAP feature menus name to ini file and keep default names
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
+AddToIniOneDefaultMenu("{Add Favorite - QAP}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) 
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Last Actions}", "", "QAP")
+AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true)
+AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true)
+AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
+AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Drives}", "", "QAP")
+AddToIniOneDefaultMenu("", "", "Z") ; close QAP menu
+
+g_strAddThisMenuName := lMenuMySpecialMenu
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
+
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
+AddToIniOneDefaultMenu("{Add Favorite - Special}", "", "QAP", true)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu(A_Desktop, lMenuDesktop, "Special") ; Desktop
+AddToIniOneDefaultMenu("{450D8FBA-AD25-11D0-98A8-0800361B1103}", "", "Special") ; Documents
+AddToIniOneDefaultMenu(g_strMyPicturesPath, "", "Special") ; Pictures
+AddToIniOneDefaultMenu(g_strDownloadPath, "", "Special") ; Downloads
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{20D04FE0-3AEA-1069-A2D8-08002B30309D}", "", "Special") ; Computer
+AddToIniOneDefaultMenu("{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}", "", "Special") ; Network
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "", "Special") ; Control Panel
+AddToIniOneDefaultMenu("{645FF040-5081-101B-9F08-00AA002F954E}", "", "Special") ; Recycle Bin
+AddToIniOneDefaultMenu("", "", "Z") ; close special menu
+
+g_strAddThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."] ; QAP feature code used here for comparison only, not for menu name
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
+if (g_strAddThisMenuNameWithInstance = g_objQAPFeaturesCodeByDefaultName[lMenuSettings . "..."]) ; if equal, it means that this menu is not already there
+; (we cannot have this menu twice with "+" because, as all QAP features, lMenuSettings always have the same menu name)
+{
+	AddToIniOneDefaultMenu("", "", "X")
+	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP", true) ; back in main menu
+}
+if (g_intActiveFileManager = 3) ; TotalCommander
+{
+	g_strAddThisMenuName := lTCMenuName . "..."
+	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
+	if (g_strAddThisMenuName = lTCMenuName . "...") ; if equal, it means that this menu is not already there
+	; (we cannot have this menu twice with "+" because, as all QAP features, lTCMenuName always have the same menu name)
+	{
+		AddToIniOneDefaultMenu("", "", "X")
+		AddToIniOneDefaultMenu("{TC Directory hotlist}", lTCMenuName . "...", "QAP")
+	}
+}
+g_strAddThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."] ; QAP feature code used here for comparison only, not for menu name
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
+if (g_strAddThisMenuNameWithInstance = g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."]) ; if equal, it means that this menu is not already there
+; (we cannot have this menu twice with "+" because, as all QAP features, lMenuAddThisFolder always have the same menu name)
+{
+	AddToIniOneDefaultMenu("", "", "X")
+	AddToIniOneDefaultMenu("{Add This Folder}", lMenuAddThisFolder . "...", "QAP", true)
+}
+
+AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
+
+IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
+
+g_intNextFavoriteNumber := ""
+g_strAddThisMenuName := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+AddToIniPopularDefaultMenu:
+;------------------------------------------------------------
+
+g_strAddThisMenuName := lMenuPopularContentsMenus
+Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
+g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
+
+; AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
+
+AddToIniOneDefaultMenu("{Popular Folders}", "", "QAP")
+AddToIniOneDefaultMenu("{Popular Files}", "", "QAP")
+AddToIniOneDefaultMenu("{Popular Applications}", "", "QAP")
+AddToIniOneDefaultMenu("", "", "Z") ; close Popular Contents menu
+
+AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
+
+IniWrite, 1, %g_strIniFile%, Global, DefaultPopularMenusBuilt
+
+g_strAddThisMenuNameWithInstance := "" ; last used here
+
+return
 ;------------------------------------------------------------
 
 
@@ -4998,7 +5025,7 @@ strInstance := ""
 Loop
 {
 	IniRead, strIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
-	if InStr(strIniLine, strThisMenuName . strInstance)
+	if InStr(strIniLine, g_strAddThisMenuName . strInstance)
 		strInstance .= "+"
 	if (strIniLine = "ERROR")
 	{
@@ -5006,7 +5033,7 @@ Loop
 		Break
 	}
 }
-strDefaultMenu := strThisMenuName . strInstance
+g_strAddThisMenuNameWithInstance := g_strAddThisMenuName . strInstance
 
 strInstance := ""
 
