@@ -4393,7 +4393,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%lMenuPopularContentsMenus%|> %lMenuPopularContentsMenus%|iconFavorites
+			Favorite1=Menu|%lMenuPopularContentsMenus%|> %lMenuPopularContentsMenus%|iconFavorites||||||||||0||||||+^p
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
 			Favorite4=QAP||{Popular Applications}
@@ -4403,8 +4403,8 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Favorite8=Folder|Windows|%A_WinDir%
 			Favorite9=Folder|Program Files|%A_ProgramFiles%
 			Favorite10=Folder|User Profile|`%USERPROFILE`%
-			Favorite11=Application|Notepad|%A_WinDir%\system32\notepad.exe|||||||||||||||||+^N
-			Favorite12=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^Q|:X*:#qap#|
+			Favorite11=Application|Notepad|%A_WinDir%\system32\notepad.exe
+			Favorite12=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^q|:X*:#qap#|
 			Favorite13=Z
 
 ) ; leave the last extra line above
@@ -5009,7 +5009,7 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 ; AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu", 0, "+^p")
 
 AddToIniOneDefaultMenu("{Popular Folders}", "", "QAP")
 AddToIniOneDefaultMenu("{Popular Files}", "", "QAP")
@@ -5052,7 +5052,7 @@ return
 
 
 ;------------------------------------------------------------
-AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
+AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false, strCustomShortcut := "")
 ;------------------------------------------------------------
 {
 	global g_strIniFile
@@ -5088,7 +5088,9 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 			else
 				strName := g_objQAPFeatures[strLocation].DefaultName
 
-		if (blnAddShortcut)
+		if StrLen(strCustomShortcut)
+			strShortcut := strCustomShortcut
+		else if (blnAddShortcut)
 			strShortcut := g_objQAPFeatures[strLocation].DefaultShortcut
 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
