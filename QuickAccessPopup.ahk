@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.5 (2018-08-27)
+- add QAP features "Popular Files" and "Popular Applications"
+- add "Popular Stuff" menu at the top of default menu created at first launch with sub menus "Popular Folders", Popular Files" and "Popular Applications"
+- add "Popular Stuff" menu at the end of menu for existing users upgrading to this (or future) version
+- process relative location, files in PATH and system variables before logging to usage database
+- validate minimum interval to 60 seconds for usage database recent items collection
+- display QAP ready notification only after usagedb launch work is finished
+- add favorite date created and date modified to Usage database (for future use)
+- some changes introduced in master version v9.1.1 that were forgotten in v9.1.9.3
+
 Version BETA: 9.1.9.4 (2018-08-24)
 - fix bug in Popular Folders menu when menu numeric shortcuts are enabled
 - add diagnostic code when collecting recent items
@@ -2498,7 +2508,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.4
+;@Ahk2Exe-SetVersion 9.1.9.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2593,7 +2603,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2770,7 +2780,7 @@ g_blnUsageDbError := false
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
 IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
-g_intUsageDbRecentItemsInterval := (g_intUsageDbRecentItemsInterval < 60 ? 60 : g_intUsageDbRecentItemsInterval)
+g_intUsageDbRecentItemsInterval := ((g_intUsageDbRecentItemsInterval < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbRecentItemsInterval)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
@@ -5057,10 +5067,12 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 	else
 	{
 		if (strFavoriteType = "Menu")
-			if (strName = lMenuMyQAPMenu)
+			if InStr(strName, lMenuMyQAPMenu) ; use InStr in case strName has "+" added
 				strIconResource := "iconApplication"
-			else if (strName = lMenuMySpecialMenu)
+			else if InStr(strName, lMenuMySpecialMenu)
 				strIconResource := "iconSpecialFolders"
+			else if InStr(strName, lMenuPopularContentsMenus)
+				strIconResource := "iconFavorites"
 			else ; lMenuMyWindowsAppsMenu
 				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
