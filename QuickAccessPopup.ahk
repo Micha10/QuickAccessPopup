@@ -2621,7 +2621,6 @@ g_intGuiDefaultHeight := 601
 g_blnMenuReady := false
 g_blnChangeShortcutInProgress := false
 g_blnChangeHotstringInProgress := false
-; g_blnUsageDbFavoritesUpdated := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
@@ -2791,9 +2790,6 @@ gosub, UsageDbInit ; creates g_objUsageDb
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
 ; Update FavoriteUsageDb properties with data from UsageDb
-
-; if !(g_blnUsageDbFavoritesUpdated) ; to call it only one time when launching
-	; SetTimer, UsageDbUpdateFavorites, -1000, -100 ; -1000 to run only once in 1 sec, at priority -100
 
 Diag("Launch", "UsageDbCollectRecentItems")
 Gosub, UsageDbCollectRecentItems
@@ -5371,10 +5367,6 @@ if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh
 		}
 	}
 	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
-	
-	; if (g_blnUsageDbFavoritesUpdated) and !InStr("Single|Reload", A_ExitReason)
-		; do not save if reloading immediately (Single or Reload) to avoid "Could not close the previous instance of this script.  Keep waiting?"
-		; Gosub, GuiSaveAndDoNothing
 }
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
@@ -13682,7 +13674,6 @@ IniDelete, %g_strIniFile%, Favorites
 g_blnWorkingToolTip := true
 g_intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
-; g_blnUsageDbFavoritesUpdated := false
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -19517,7 +19508,6 @@ if (g_blnUsageDbDebug)
 	Sleep, 2000
 	ToolTip
 }
-; g_blnUsageDbFavoritesUpdated := true
 
 ; was Exit when launched by SetTimer
 return
