@@ -20396,7 +20396,8 @@ ExpandPlaceholders(strArguments, strLocation, strCurrentLocation)
 {
 	strExpanded := ExpandPlaceholdersForThis(strArguments, strLocation, "")
 	strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
-	
+	strExpanded := StrReplace(strExpanded, "{Clipboard}", Clipboard)
+
 	return strExpanded
 }
 ;------------------------------------------------------------
@@ -20409,12 +20410,12 @@ ExpandPlaceholdersForThis(strArguments, strThisLocation, strPrefix := "")
 	SplitPath, strThisLocation, strOutFileName, strOutDir, strOutExtension, strOutNameNoExt, strOutDrive
 	
 	strExpanded := strArguments
-	StringReplace, strExpanded, strExpanded, {%strPrefix%LOC}, %strThisLocation%, All
-	StringReplace, strExpanded, strExpanded, {%strPrefix%NAME}, %strOutFileName%, All
-	StringReplace, strExpanded, strExpanded, {%strPrefix%DIR}, %strOutDir%, All
-	StringReplace, strExpanded, strExpanded, {%strPrefix%EXT}, %strOutExtension%, All
-	StringReplace, strExpanded, strExpanded, {%strPrefix%NOEXT}, %strOutNameNoExt%, All
-	StringReplace, strExpanded, strExpanded, {%strPrefix%DRIVE}, %strOutDrive%, All
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "LOC}", strThisLocation) ; default all
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "NAME}", strOutFileName)
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "DIR}", strOutDir)
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "EXT}", strOutExtension)
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "NOEXT}", strOutNameNoExt)
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "DRIVE}", strOutDrive)
 	
 	return strExpanded
 }
