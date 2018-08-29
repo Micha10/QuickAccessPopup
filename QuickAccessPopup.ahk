@@ -10931,7 +10931,7 @@ strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z_]*}") ? "Show" : "Hid
 
 GuiControl, %strCommand%, f_PlaceholdersCheckLabel
 GuiControl, %strCommand%, f_strPlaceholdersCheck 
-GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample)
+GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample, lDialogArgumentsPlaceholdersSelectedExample)
 
 strCommand := ""
 
@@ -14850,10 +14850,14 @@ else if InStr(A_ThisLabel, "FromMsg")
 else
 	g_strHotkeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
-if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId))
-	and InStr(A_ThisLabel, "Mouse") and (g_strHotkeyTypeDetected = "Navigate")
+if InStr(A_ThisLabel, "Mouse")
+	and (WindowIsExplorer(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId)
+		or (WindowIsTotalCommander(g_strTargetClass) and g_strHotkeyTypeDetected = "Navigate"))
+	
 {
-	Click ; to make sure the DOpus lister or TC pane under the mouse become active
+	; to make sure the item and Explorer window, DOpus lister or under the mouse become active,
+	; and for TC only if navigate (to avoid disrupting GetSelectedLocation)
+	Click
 	Sleep, 20
 }
 
@@ -15566,9 +15570,8 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 	and !(SubStr(g_objThisFavorite.FavoriteLocation, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 {	
-	if InStr(strTempLocation, "{CUR_")
-		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation
-			, GetCurrentLocation(g_strTargetClass, g_strTargetWinId)) ; let user enter double-quotes as required by his arguments
+	if InStr(strTempLocation, "{CUR_") ; here, expand only if current location is used
+		strTempLocation := ExpandPlaceholders(strTempLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
@@ -15835,10 +15838,13 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 	
 	; from https://www.reddit.com/r/windows/comments/4aac5b/how_do_i_run_edge_browser_with_autohotkey/
 	objIApplicationActivationManager := ComObjCreate("{45BA127D-10A8-46EA-8AB7-56EA9078943C}", "{2e941141-7f97-4756-ba1d-9decde894a3d}")
+	strTempArguments := ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
+		, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : "")
+		, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : ""))
 	DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
 		, "Ptr", objIApplicationActivationManager
 		, "Str", g_strFullLocation
-		, "Str", ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		, "Str", strTempArguments
 		, "UInt", 0
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
@@ -15902,6 +15908,7 @@ ResetArray("g_arrFavoriteWindowPosition")
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
 strTempLocation := ""
+strTempArguments := ""
 blnShiftPressed := ""
 blnControlPressed := ""
 strCurrentAppWorkingDir := ""
@@ -16161,9 +16168,8 @@ else
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; not for URL, Special Folder and others
 		and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (like WebDAV)
 	{
-		if InStr(g_strFullLocation, "{CUR_")
-			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation
-				, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		if InStr(g_strFullLocation, "{CUR_") ; here, expand only if current location is used
+			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
 		
 		; expand system variables
 		; make the location absolute based on the current working directory
@@ -16206,9 +16212,12 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
+{
 	; let user enter double-quotes as required by his arguments
 	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
-		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : ""))
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : "")
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : ""))
+}
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -19524,6 +19533,62 @@ return
 return
 ;========================================================================================================================
 
+;------------------------------------------------------------
+GetSelectedLocation(strClass, strWinId)
+; LearningOne and jethrow on https://autohotkey.com/board/topic/60723-can-autohotkey-retrieve-file-path-of-the-selected-file/page-2
+;------------------------------------------------------------
+{
+	if WindowIsExplorer(strClass)
+	{
+		for objWindow in ComObjCreate("Shell.Application").Windows
+			if (objWindow.hwnd = strWinId)
+			{
+				objSelectedItems := objWindow.Document.SelectedItems
+				break
+			}
+		for objItem in objSelectedItems
+		{
+			strFirstItem := objItem.path
+			if StrLen(strFirstItem)
+				break
+		}
+	}
+	else if WindowIsDesktop(strClass)
+	{
+		ControlGet, objFiles, List, Selected Col1, SysListView321, ahk_class %strClass%
+		Loop, Parse, objFiles, `n, `r
+		{
+			strFirstItem := A_Desktop . "\" A_LoopField
+			if StrLen(strFirstItem)
+				break
+		}
+	}
+	else if WindowIsTotalCommander(strClass) or WindowIsDirectoryOpus(strClass)
+		; not reliable in dialog boxes: or WindowIsDialog(strClass, strWinID)
+	{
+		blnIsClipEmpty := (Clipboard = "" ? true : false)
+		if !(blnIsClipEmpty)
+		{
+			objClipboardBackup := ClipboardAll
+			While !(Clipboard = "")
+			{
+				Clipboard := ""
+				Sleep, 10
+			}
+		}
+		Send, ^c
+		ClipWait, 1
+		strFirstItem := Clipboard
+		Clipboard := objClipboardBackup
+		if !(blnIsClipEmpty)
+			ClipWait, 1, 1
+	}
+
+    return strFirstItem
+}
+;------------------------------------------------------------
+
+
 ;------------------------------------------------
 L(strMessage, objVariables*)
 ;------------------------------------------------
@@ -20389,13 +20454,18 @@ ComUnHTML(html)
 
 
 ;------------------------------------------------------------
-ExpandPlaceholders(strArguments, strLocation, strCurrentLocation)
+ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLocation := -1)
+; strOriginal: string to be expanded
 ; strLocation: {LOC} (full location), {NAME} (file name), {DIR} (directory), {EXT} (extension), {NOEXT} (file name without extension) or {DRIVE} (drive)
-; or strCurrentLocation: same with prefix "CUR_" like {CUR_LOC} (full current location), {CUR_NAME} (current file name), etc.
+; strCurrentLocation: same with prefix "CUR_" like {CUR_LOC} (full current location in file manager), {CUR_NAME} (current file name), etc.
+; or strSelectedLocation: same with prefix "SEL_" like {SEL_LOC} (full location of selected item in file manager), {SEL_NAME} (selected file name), etc.
 ;------------------------------------------------------------
 {
-	strExpanded := ExpandPlaceholdersForThis(strArguments, strLocation, "")
-	strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
+	strExpanded := ExpandPlaceholdersForThis(strOriginal, strLocation, "")
+	if StrLen(strCurrentLocation)
+		strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
+	if (strSelectedLocation <> -1)
+		strExpanded := ExpandPlaceholdersForThis(strExpanded, strSelectedLocation, "SEL_")
 	strExpanded := StrReplace(strExpanded, "{Clipboard}", Clipboard)
 
 	return strExpanded
@@ -20410,7 +20480,7 @@ ExpandPlaceholdersForThis(strArguments, strThisLocation, strPrefix := "")
 	SplitPath, strThisLocation, strOutFileName, strOutDir, strOutExtension, strOutNameNoExt, strOutDrive
 	
 	strExpanded := strArguments
-	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "LOC}", strThisLocation) ; default all
+	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "LOC}", strThisLocation) ; default replace all occurences
 	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "NAME}", strOutFileName)
 	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "DIR}", strOutDir)
 	strExpanded := StrReplace(strExpanded, "{" . strPrefix . "EXT}", strOutExtension)
