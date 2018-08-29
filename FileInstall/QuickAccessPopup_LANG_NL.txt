@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ is ontwikkeld door Jean Lalonde gebruikmakend van de <a href="http://ahkscript.org/">ahk script</a> programmeertaal.`n`nVertalingen: `nBraziliaans Portugees: Igor Ruckert`nChinees (Manderijn en Traditioneel): Jess Yang`nDuits: Edgar "Fast Edi" Hoffmann`nFrans: Jean Lalonde`nItaliaans: Riccardo Leone`nPortugees: Luis Neves`nNederlands: Ric Roggeveen`nSpaans: kiketrucker`nVoor overige talen: <a href="http://www.quickaccesspopup.com/quick-access-popup-translation/">Meld je aan als vertaler!</a>`n`nEngelse grammatica: <a href="http://www.quickaccesspopup.com/quick-access-popup-translation/">(hulp is welkom)</a>`n`nPictogrammen van: <a href="https://icons8.com/">Icons8</a>`nInstallatieprogramma van: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> van jrsoftware.org`nAutoHotkey_L v~2~ bronnen: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	~1~ is ontwikkeld door Jean Lalonde gebruikmakend van de <a href="http://ahkscript.org/">ahk script</a> programmeertaal.`n`nVertalingen: `nBraziliaans Portugees: Igor Ruckert`nChinees (Manderijn en Traditioneel): Jess Yang`nDuits: Edgar "Fast Edi" Hoffmann`nFrans: Jean Lalonde`nItaliaans: Riccardo Leone`nPortugees: Luis Neves`nNederlands: Ric Roggeveen`nSpaans: kiketrucker`nKorean translation: Maeng Bong Kyun`n`nEngelse grammatica: <a href="http://www.quickaccesspopup.com/quick-access-popup-translation/">(hulp is welkom)</a>`n`nPictogrammen van: <a href="https://icons8.com/">Icons8</a>`nInstallatieprogramma van: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> van jrsoftware.org`nAutoHotkey_L v~2~ bronnen: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nQuick Access Popup bevat componenten welke onder de Apache Licentie, versie 2.0 vallen. Het gebruik van dit bestand is alleen toegestaan in naleving van de licentie. Tenzij de toepasselijke wetgeving dit vereist of de partijen dit vooraf schriftelijk zijn overeengekomen, wordt de software op een "AS IS" -basis ZONDER WAARBORG OF VOORWAARDEN van welke aard dan ook hetzij uitdrukkelijk of impliciet onder de licentie uitgegeven. Refereer naar de licentie voor de specifieke bevoegdheden en/of beperkingen die de licentie heeft.`nEen kopie (site is in het Engels) van de licentie is te verkrijgen op: <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a>
 lAboutText4	Meer informatie is te vinden op: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Over ~1~ ~2~
@@ -43,7 +43,7 @@ lDialogAddFavoriteTabsExternal	Openbaar menu
 lDialogAddFavoriteTabsLive	Opties voor de huidige map
 lDialogAddFileSelect	Selecteer het nieuwe document:
 lDialogAddFolderManuallyPrompt	Sorry, we kunnen de huidige map niet opvragen in dit venstertype.`n`nWilt u de map handmatig toevoegen?
-lDialogAddFolderManuallyTitle	Voeg deze map of link toe - ~1~ ~2~
+lDialogAddFolderManuallyTitle	Voeg actieve map of webpagina toe - ~1~ ~2~
 lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
 lDialogAdmnistrator	Administrator
 lDialogAdmnistratorNot	Gebruiker
@@ -194,6 +194,8 @@ lDialogFavoriteSnippetSendModeText	Tekst modus
 lDialogFavoritesParentMenuCopy	KopieÃ«r ~1~ favorieten naar dit menu
 lDialogFavoritesParentMenuMove	Verplaats ~1~ favoriet naar dit menu
 lDialogFavoriteType	Favoriet type
+lDialogFavoriteTypeNoteApplication	Nb: Er is een nieuwe soort Windows Applicatie welke geen gebruik meer maakt van de traditionele executables (*.exe). Deze applicaties dragen de naam "Windows Apps" en zijn voorgeÃ¯nstalleerd in Windows 8 en 10 of deze kunnen gedownload worden vanuit de Windows Store. Deze Apps kunnen ook aan QAP worden toegevoegd door het nieuwe favoriettype "Windows Apps".
+lDialogFavoriteTypeNoteWindowsApps	Nb: "Windows Apps" zijn een nieuwe soort Windows Applicaties welke geen gebruik meer maakt van de traditionele executables (*.exe).en zijn voorgeÃ¯nstalleerd in Windows 8 en 10 of deze kunnen gedownload worden vanuit de Windows Store. Als u een traditioneel bestand (.exe, .com, .bat en andere script-bestanden) wilt toevoegen aan QAP dan selecteert u het favoriettype: "Applicatie".
 lDialogFavoriteTypesHelp1	Creër een snelkoppeling naar de veel gebruikte "map".`n`nConfigureer de naam van het favoriet, pad en de verschillende menu opties.`n`nLive map opties zorgen voor een automatisch aanpasbaar menu aan de hand van de aangepaste mapstuctuur op het station.`n`nGeavanceerde Opties zorgen o.a. voor de selectie van bestandsbeheerders en locatie van het venster op het scherm.
 lDialogFavoriteTypesHelp13	Creër een "fragment".`n`nConfigureer het fragment's titel voor het menu, zijn inhoud en de verschillende menu opties.`n`nIn Geavanceerde Opties kunt u aangeven of u gebruik wilt maken van de "Tekst Modus", welke toestaat om normale stukken tekst te plakken zoals u doet met het klembord óf kies voor "Macro Modus" om toetsaanslagen te typen inclusief "speciale toetsen" (zie help).
 lDialogFavoriteTypesHelp14	Creër een "Openbaar menu" om op verschillende computers favorieten te delen vanuit een op het netwerk opgeslagen instellingenbestand.`n`nOpenbare menu's kunnen als "Persoonlijk", "In teamverband" of in "Gecentraliseerd" worden geconfigureerd. Een catalogus kan ingesteld worden om de verschillende opties voor het "Openbaar menu" op te slaan, deze vindt u in "Opties" -> "Algemeen".`n`nOpenbare menu's kunnen als standaard favorieten worden bewerkt. Alleen geselecteerde gebruikers met de juiste rechten mogen een "Gecentraliseerd" menu aanpassen (zie help of FAQ).
@@ -287,6 +289,7 @@ lDialogOpenThisGroup	Open deze groep
 lDialogOpenThisMenu	Open dit menu
 lDialogOr	of
 lDialogOtherHotkeys	Andere sneltoetsen voor het hoofdmenu
+lDialogPlay	Afspelen
 lDialogQAPFeatureCategoriesNames	Opties|Dynamische Menu's|QAP Menu opmaak|Favoriet toevoegen van type|Venstermanagement|Windows Opties|Verschillende Opties|QAP management
 lDialogQAPFeaturesHelpLink	Hulp bij deze opties
 lDialogReadOnly	Alleen lezen
@@ -309,6 +312,7 @@ lDialogShortcuts	sneltoetsen
 lDialogShortcutsDescription	Geeft het venster weer met een overzicht van de sneltoetsen voor uw toetsenbord of muis. U kunt favorieten sorteren door op de kop te klikken.`n`nDubbelklik op een sneltoets om de toegewezen sneltoets te wijzigen of te verwijderen.`n`nKlik op het selectievakje "Alle favorieten weergeven" om sneltoetsen aan andere favorieten toe te wijzen.
 lDialogSortBy	Sorteer volgens
 lDialogSortOrder	Sorteervolgorde
+lDialogSoundLabel	Speel dit geluid af bij het selecteren van dit favoriet (<a href="~1~">~2~</a>)
 lDialogSpecialFoldersCategoriesNames	Basis|Power User|Sysadmin|Contents|Hardware
 lDialogState	Vensterstatus:
 lDialogSubmenuNameEmpty	Voor dit submenu is geen naam geselecteerd, selecteer een naam...
@@ -332,6 +336,7 @@ lDialogWindowPositionW	Breedte
 lDialogWindowPositionX	Links
 lDialogWindowPositionY	Top
 lDialogWindowsAppsList	Selecteer de gewenste Windows App vanuit de lijst van geÃ¯nstalleerde Apps op uw systeem.
+lDialogWindowsAppsListCustom	Windows App identificator (Applicatie User Model ID - AUMID)
 lDialogWindowsAppsListError	De lijst van Windows Apps kon niet worden ververst. Een kritieke fout heeft zich voorgedaan tijdens het draaien van het Powershell script.
 lDialogWindowsAppsListSuccess	De lijst van Windows App is ververst.
 lDialogWindowsFolderIconCreate	maken
@@ -429,7 +434,7 @@ lHelpText13	Om het openen van een map in een nieuw venster te forceren, kunt u g
 lHelpText14	Kies "Instellingen" om uw Quick Access Popup menu aan te passen aan uw persoonlijke wensen. U kunt hier favorieten toevoegen aan uw menu of u kunt deze verplaatsen, hernoemen of verwijderen. Ook kunt u SUBMENU'S, GROEPEN of OPENBARE MENU'S toevoegen. Kies het aan te passen menu onder: "Menu of groep om te wijzigen" en sla uw wijzigingen op door op "Opslaan" te drukken.
 lHelpText21	Om een favoriet toe te voegen selecteert u in het "Instellingen"-menu de knop: "Toevoegen".`nSelecteer het gewenste type van de nieuwe favoriet en lees de tips aan de rechterkant van dit scherm.`nKlik op "Volgende" om het "Toevoegen Favoriet"-venster te openen.
 lHelpText22	In de 4 tabs van het venster "Toevoegen Favoriet" kunnen de "Basis Opties", "Menu Opties", "Venster Opties" en "Geavanceerde Opties" gewijzigd worden.`nKlik op "Toevoegen" om de favoriet toe te voegen en op "Opslaan" om de favoriet op te slaan.
-lHelpText23	VOEG DEZE MAP OF LINK TOE`n`nOm snel een nieuwe MAP of LINK toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map of webpagina.`n2) Klik op de QAP-sneltoets [~1~] of [~2~], en kies "Voeg deze map of link toe".`n3) Geef de favoriet een verkorte naam, klik op "Toevoegen", en hierna op "Opslaan" in het Instellingen venster.
+lHelpText23	VOEG ACTIEVE MAP OF WEBPAGINA TOE`n`nOm snel een nieuwe MAP of LINK toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map of webpagina.`n2) Klik op de QAP-sneltoets [~1~] of [~2~] en selecteer "Voeg actieve map of webpagina toe".`n3) Geef de favoriet een verkorte naam, klik op "Toevoegen" en hierna op "Opslaan" in het Instellingen venster.
 lHelpText31	In het "Mijn QAP Essentials"-menu:
 lHelpText32	- Gebruik "Schakelen..." in het menu om te schakelen tussen openstaande vensters zoals Windows Verkenners of andere applicaties.`n- Gebruik "Een map openen..." om snel te schakelen naar een openstaande map (erg handig in dialoogboxen)`n- Gebruik "Recent bezochte mappen..." voor een geüpdatet lijst van recent bezochte mappen`n- Gebruik de functie "Klembord" in het menu om informatie opgeslagen in het geheugen op te roepen en te gebruiken`n- En tot slot het menu "Stations" voor een lijst van bekende stations op deze computer met informatie over de vrije ruimte.
 lHelpText33	PAS UW QAP FUNCTIES MENU AAN
@@ -481,10 +486,10 @@ lMenuAboutAmpersand	&Over
 lMenuAddFavorite	Favoriet toevoegen
 lMenuAddFavoriteDescription	Toont een lijst met verschillende favoriettypes, hierbij kunt u het type favoriet selecteren om toe te voegen.`n`nIn het volgende venster voert u in:`n- Een naam voor de favoriet`n- De inhoud`n- Het configureren van verschillende instellingen zoals pictogram, sneltoets, hotstring, parameters etcetera.`n`nAfhankelijk van het geselecteerde type favoriet kan de inhoud van de favoriet een map, document- of applicatiebestandspad, webkoppeling, fragmenttekst, of een submenunaam zijn.
 lMenuAddFavoriteOfTypeDescription	Voeg een favoriet toe van type "~1~".`n`nTyp in het venster "Favoriet toevoegen" de naam en inhoud in (afhankelijk van uw geselecteerde type).`nStel de verscheidene opties in zoals pictogram, sneltoets, hotstring, parameters, etcetera in.
-lMenuAddThisFolder	Voeg deze Map of Link toe
+lMenuAddThisFolder	Voeg actieve map of webpagina toe
 lMenuAddThisFolderDescription	Voeg op een snelle manier de actieve map of webpagina toe aan uw menu.`n`nU kunt via deze manier mappen toevoegen in Windows-vensters van de Verkenner of in bestandsvensters. U kunt links toevoegen naar webpagina's vanuit de meeste browsers.`n`nVoer in het venster "Favoriet toevoegen" de naam voor uw favoriet in en configureer verschillende instellingen zoals pictogram, snelkoppeling, hotstring, parameters, enz.`n`nStandaard is deze functie opgenomen in het hoofdmenu.
-lMenuAddThisFolderXpress	Voeg deze Map of Link toe aan Qap-Express
-lMenuAddThisFolderXpressDescription	Deze functie is gelijk aan de functie "Deze map of link toevoegen", het verschil met deze functie is dat de nieuwe favoriet automatisch boven aan het hoofdmenu wordt toegevoegd.`n`nAls u de standaardinstellingen wilt wijzigen, drukt u op de knop "Bewerken" om de naam, positie en de verschillende instellingen van de geselecteerde favoriet te wijzigen.`n`nIn "Opties" kunt u instellen dat nieuwe favorieten standaard onder in het hoofdmenu worden toegevoegd.
+lMenuAddThisFolderXpress	Voeg actieve map of webpagina toe aan QAP-Express
+lMenuAddThisFolderXpressDescription	Deze functie is gelijk aan de functie "Voeg actieve map of webpagina toe", het verschil van deze functie is dat de nieuwe favoriet automatisch boven aan het hoofdmenu wordt toegevoegd.`n`nAls u de standaardinstellingen wilt wijzigen, drukt u op de knop "Bewerken" om de naam, positie en de verschillende instellingen van de geselecteerde favoriet te wijzigen.`n`nIn "Opties" kunt u instellen dat nieuwe favorieten standaard onder in het hoofdmenu worden toegevoegd.
 lMenuAlternativeEditFavorite	Een favoriet wijzigen
 lMenuAlternativeNewWindow	Open in een nieuw venster
 lMenuAlternativeOpenContainingCurrent	Open de map in het openstaande venster
@@ -539,6 +544,12 @@ lMenuMyWindowsAppsMenu	Mijn Windows Apps
 lMenuNoClipboard	Het klembord bevat geen pad of website...
 lMenuNoCurrentFolder	Geen open mappen gevonden...
 lMenuPictures	Afbeeldingen
+lMenuPopularApplications	Applicaties
+lMenuPopularContentsMenus	Populaire dingen
+lMenuPopularFiles	Bestanden
+lMenuPopularFolders	Mappen
+lMenuPopularMenus	Populair ~1~
+lMenuPopularMenusDescription	Geeft een dynamisch menu weer met de meest gebruikte ~1~ als bekend bij Windows en QAP. Dit menu wordt ververst wanneer het QAP-Menu wordt geopend.
 lMenuProgramFiles	Programmabestanden
 lMenuProgramsFolderStartMenu	Programma Map (Start Menu)
 lMenuPublicLibraries	Openbare Bibliotheken
@@ -584,7 +595,7 @@ lMenuUserPinned	User Pinned
 lMenuWebSiteSupport	QAP Support Groep
 lNavigateFileError	Er is een fout opgetreden tijdens het openen van deze map:`n~1~.
 lNavigateSpecialError	Er is een fout opgetreden tijdens het openen van deze speciale map:`n#~1~.
-lOopsAddThisFolderTip	Voor betere resultaten van het "Voeg deze map of link toe" commando:`n`n1)Activeer het ~1~ venster met de map of link om toe te voegen aan het menu.`n2)Open het popup-menu gebruikmakend van ~2~.`n3)Selecteer "Voeg deze map of link toe" and sla de wijzigingen op.
+lOopsAddThisFolderTip	Voor betere resultaten van het "Voeg actieve map of webpagina toe" commando:`n`n1)Activeer het ~1~ venster met de map of link om toe te voegen aan het menu.`n2)Open het popup-menu gebruikmakend van ~2~.`n3)Selecteer "Voeg actieve map of webpagina toe" en sla de nieuwe favoriet op.
 lOopsAmpersandInName	Het karakter ampersand "&" in Windows menu's wordt gebruikt om sneltoetsen te definiëren. Om een ampersand "&" weer te geven in een menunaam dient u gebruik te maken van een dubbele ampersand "&&".`n`nVoor meer informatie, raadpleeg de FAQ op onze Engelstalige website en zoek naar: "Ampersand".
 lOopsCannotCopyFavorite	Favorieten van het type: "~1~" kunnen niet worden gekopieërd.
 lOopsCannotCopyMoveToSelf	U kunt een favoriet niet kopiÃ«ren naar de bestaande locatie. Selecteer een andere locatie alstublieft.
@@ -627,6 +638,7 @@ lOopsQAPfeature	QAP functies
 lOopsRestoreEditCopyMoveWindowPosition	Herstel de wijzig, kopie en verplaats-venster posities?`n`nDit zal ~1~ laten herstarten waarbij onopgeslagen wijzigen verloren zullen gaan.`n`nReset en herstart ~1~.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Er is een fout opgetreden tijdens het openen van deze favoriet, probeer het alstublieft opnieuw...
+lOopsUsageDbSQLiteMissing	SQLite-bronbestanden missen:`n`n~1~`nHet was niet mogelijk om Quick Access Popup te starten.
 lOopsWriteProtectedError	Het lijkt erop dat ~1~ uitgevoerd wordt in een SCHRIJF-BEVEILIGDE map waar het bestand "~1~.ini" niet aangemaakt kan worden.`n`nVerplaats het ~1~ .EXE bestand naar een locatie met SCHRIJF-RECHTEN van uw keuze en start ~1~ opnieuw.`n`n~1~ wordt nu afgesloten.
 lOopsWrongThirdPartyPath	Foutieve pad of bestandsnaam ingevoerd voor ~1~:`n~2~.`n`nControleer het .exe bestand welke geselecteerd is voor ~1~ in "Instellingen"-tab: "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Foutieve pad of bestandsnaam ingevoerd voor de QAP-connect applicatie`n~1~:`n~2~. Controleer de gegevens voor [~1~] in ~3~, gebruik de "~4~"-muistoets in "Opties"-tab "~5~".
@@ -637,6 +649,8 @@ lOptionsAddAutoTopOfMenu	de bovenkant van het menu
 lOptionsAddCloseToDynamicMenus	Voeg "Menu sluiten" toe aan de menu's
 lOptionsAlternativeMenuFeatures	Alternatieve sneltoetsen
 lOptionsAlternativeMenuFeaturesIntro	Configureer hier de muis en snel-toetsen welke het QAP-alternatieve menu zal oproepen.
+lOptionsAlternativeMenuOptions	Alternatieve Menu Opties
+lOptionsAlternativeMenuShowNotification	Notificatie weergeven bij het gebruik van het Alternatieve Menu
 lOptionsCatalogueHelp	Openbaar Menu (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Bronmap van de Catalogus
 lOptionsChangeFolderInDialog	Schakel QAP-mapnavigatie voor dialoogboxen in
@@ -672,7 +686,7 @@ lOptionsHotstringsDefaultSelect	Selecteren
 lOptionsIconSize	Pictogramgrootte
 lOptionsIconsManageRows	Beheer de pictogramvenster-regels`n(0 voor maximaal beschikbare ruimte)
 lOptionsLanguage	&Taal
-lOptionsLanguageLabels	Engels|Frans|Duits|Spaans|Braziliaans Portugees|Italiaans|Traditioneel Chinees|Portugees|Manderijns|Nederlands
+lOptionsLanguageLabels	Engels|Frans|Duits|Spaans|Braziliaans Portugees|Italiaans|Traditioneel Chinees|Portugees|Manderijns|Nederlands|Korean
 lOptionsMenuActiveWindow	&Linksboven van het actieve venster
 lOptionsMenuFixPosition	Op een v&aste plaats
 lOptionsMenuNearMouse	In de buurt van de muispi&jl
@@ -694,7 +708,7 @@ lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mo
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
 lOptionsRefreshQAPMenuIntervalSec	Verversinterval (in secondes)`n(minimaal 300 seconde wordt geadviseerd)
 lOptionsRefreshQAPMenuTitle	Automatisch verversen van het QAP-menu inschakelen
-lOptionsRememberSettingsPosition	Onthoud venster&positie
+lOptionsRememberSettingsPosition	Onthoud de positie van het &instellingenvenster
 lOptionsRunAsAdmin	Als Administrator uitvoeren
 lOptionsRunAsAdminAlert	Waarschuwing: Het uitvoeren van ~1~ in Administrator mode kan leiden tot ongewenste consequenties bij het laden van programma's welke kwaadaardige en/of geÃ¯nfecteerde code bevat. Dit zou kwaadaardige programma's administratieve rechten tot uw computer kunnen geven en hierdoor uw computer kunnen infecteren of over kunnen nemen. Wees voorzichtig met het draaien van ~1~ in Administrator mode.
 lOptionsRunAsAdminExit	~1~ zal de volgende start worden geladen zonder administratieve rechten.`n`nWilt u ~1~ nu afsluiten? Onopgeslagen wijzigingen zullen verloren gaan.
