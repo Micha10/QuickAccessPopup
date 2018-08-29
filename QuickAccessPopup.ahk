@@ -9732,7 +9732,7 @@ else ; add favorite
 	{
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
 		
-		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(g_strExternalMenusCataloguePath)
+		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(EnvVars(g_strExternalMenusCataloguePath))
 		{
 			Gosub, AddExternalMenusFromCatalogue
 			g_blnAbordEdit := true
