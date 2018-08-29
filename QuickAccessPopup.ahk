@@ -4027,9 +4027,13 @@ InitQAPFeatures:
 ; Submenus features
 
 ; init refreshed menus attached or detached
-IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Recent Folders", "Recent Files" and "Drives" menu in detached menu
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Drives" menu in detached menu
 Gosub, InitQAPFeaturesRefreshed
 
+InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders, lMenuRecentFolders,	"RecentFoldersMenuShortcut",	"2-DynamicMenus~5-WindowsFeature"
+	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^R")
+InitQAPFeatureObject("Recent Files",	lMenuRecentFiles, lMenuRecentFiles,	"RecentFilesMenuShortcut",		"2-DynamicMenus~5-WindowsFeature"
+	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
 	, lMenuClipboardDescription, 0, "iconClipboard", "+^V")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
@@ -4042,10 +4046,9 @@ InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"Tot
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
 
 ; new in v9.2
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
-	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField)
-		, "Popular" . A_LoopField . "MenuShortcut", "2-DynamicMenus", L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0
-		, (A_LoopField = lMenuPopularFolders ? "iconFolder" : (A_LoopField = lMenuPopularFiles ? "iconDocuments" : "iconApplication")))
+loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
+	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), "Popular" . A_LoopField . "MenuShortcut"
+	, "2-DynamicMenus", L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0, "iconFavorites")
 
 ; Command features
 
@@ -4178,12 +4181,6 @@ InitQAPFeaturesRefreshed:
 ; This command is called again when options are saved
 ;------------------------------------------------------------
 
-InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : ""),	"RecentFoldersMenuShortcut",	"2-DynamicMenus~5-WindowsFeature"
-	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^R")
-InitQAPFeatureObject("Recent Files",	lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""),	"RecentFilesMenuShortcut",		"2-DynamicMenus~5-WindowsFeature"
-	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
 	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus~5-WindowsFeature"
 	, lMenuDrivesDescription, 0, "iconDrives",		"+^D")
@@ -4357,7 +4354,7 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			Theme=Windows
 			NameLocationHotkeysUpgraded=1
 			WaitDelayInSnippet=40|80|180
-			DefaultPopularMenusBuilt=1
+			DefaultDynamicMenusBuilt=1
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -4389,19 +4386,23 @@ IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2Q
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%lMenuPopularContentsMenus%|> %lMenuPopularContentsMenus%|iconFavorites||||||||||0||||||+^p
+			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^d
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
-			Favorite4=QAP||{Popular Applications}
-			Favorite5=Z
-			Favorite6=X
-			Favorite7=Folder|C:\|C:\
-			Favorite8=Folder|Windows|%A_WinDir%
-			Favorite9=Folder|Program Files|%A_ProgramFiles%
-			Favorite10=Folder|User Profile|`%USERPROFILE`%
-			Favorite11=Application|Notepad|%A_WinDir%\system32\notepad.exe
-			Favorite12=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^q|:X*:#qap#|
-			Favorite13=Z
+			Favorite4=X
+			Favorite5=QAP||{Recent Folders}
+			Favorite6=QAP||{Recent Files}
+			Favorite7=X
+			Favorite8=QAP||{Switch Folder or App}
+			Favorite9=Z
+			Favorite10=X
+			Favorite11=Folder|C:\|C:\
+			Favorite12=Folder|Windows|%A_WinDir%
+			Favorite13=Folder|Program Files|%A_ProgramFiles%
+			Favorite14=Folder|User Profile|`%USERPROFILE`%
+			Favorite15=Application|Notepad|%A_WinDir%\system32\notepad.exe
+			Favorite16=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^q|:X*:#qap#|
+			Favorite17=Z
 
 ) ; leave the last extra line above
 			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
@@ -4567,9 +4568,9 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
 IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
-IniRead, blnDefaultPopularMenusBuilt, %g_strIniFile%, Global, DefaultPopularMenusBuilt, 0 ; default false
-if !(blnDefaultPopularMenusBuilt)
- 	Gosub, AddToIniPopularDefaultMenu ; modify the ini file Favorites section before reading it
+IniRead, blnDefaultDynamicMenusBuilt, %g_strIniFile%, Global, DefaultDynamicMenusBuilt, 0 ; default false
+if !(blnDefaultDynamicMenusBuilt)
+ 	Gosub, AddToIniDynamicDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
 if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
  	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
@@ -4736,7 +4737,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			objCurrentMenu.MenuLoaded := true
         g_intIniLine++
 		
-		strLoadIniLine := strLoadIniLine . "|||||||||||||" ; additional "|" to make sure we have all empty items
+		strLoadIniLine := strLoadIniLine . "||||||||||||||||||||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
 		; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
 		; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
@@ -4925,14 +4926,10 @@ AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu")
 AddToIniOneDefaultMenu("{Add Favorite - QAP}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP", true) 
-AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Last Actions}", "", "QAP")
 AddToIniOneDefaultMenu("{ReopenCurrentFolder}", "", "QAP", true)
 AddToIniOneDefaultMenu("{Current Folders}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP", true)
-AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
 AddToIniOneDefaultMenu("{Clipboard}", "", "QAP", true)
 AddToIniOneDefaultMenu("", "", "X")
 AddToIniOneDefaultMenu("{Drives}", "", "QAP")
@@ -4996,25 +4993,29 @@ return
 
 
 ;------------------------------------------------------------
-AddToIniPopularDefaultMenu:
+AddToIniDynamicDefaultMenu:
 ;------------------------------------------------------------
 
-g_strAddThisMenuName := lMenuPopularContentsMenus
+g_strAddThisMenuName := lMenuDynamicMenus
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
 g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main menu marker
 
 ; AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu", 0, "+^p")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu", 0, "+^d")
 
 AddToIniOneDefaultMenu("{Popular Folders}", "", "QAP")
 AddToIniOneDefaultMenu("{Popular Files}", "", "QAP")
-AddToIniOneDefaultMenu("{Popular Applications}", "", "QAP")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Recent Folders}", "", "QAP")
+AddToIniOneDefaultMenu("{Recent Files}", "", "QAP")
+AddToIniOneDefaultMenu("", "", "X")
+AddToIniOneDefaultMenu("{Switch Folder or App}", "", "QAP")
 AddToIniOneDefaultMenu("", "", "Z") ; close Popular Contents menu
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
-IniWrite, 1, %g_strIniFile%, Global, DefaultPopularMenusBuilt
+IniWrite, 1, %g_strIniFile%, Global, DefaultDynamicMenusBuilt
 
 g_strAddThisMenuNameWithInstance := "" ; last used here
 
@@ -5067,8 +5068,8 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 				strIconResource := "iconApplication"
 			else if InStr(strName, lMenuMySpecialMenu)
 				strIconResource := "iconSpecialFolders"
-			else if InStr(strName, lMenuPopularContentsMenus)
-				strIconResource := "iconFavorites"
+			else if InStr(strName, lMenuDynamicMenus)
+				strIconResource := "iconQAP"
 			else ; lMenuMyWindowsAppsMenu
 				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
@@ -5492,7 +5493,7 @@ if (A_ThisLabel = "BuildLastActionsMenuInit")
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
 	strMenuNames := lTCMenuName
 if (A_ThisLabel = "BuildPopularMenusInit")
-	strMenuNames := lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications
+	strMenuNames := lMenuPopularFolders . "|" . lMenuPopularFiles
 
 loop, parse, strMenuNames, |
 {
@@ -5557,16 +5558,14 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this Q
 
 SetWaitCursor(true)
 
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles . "|" . lMenuPopularApplications, |
+loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 {
 	strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 	if (A_LoopField = lMenuPopularFolders)
 		strTargetType := "Folder"
-	else if (A_LoopField = lMenuPopularFiles)
+	else ; lMenuPopularFiles
 		strTargetType := "Document"
-	else if (A_LoopField = lMenuPopularApplications)
-		strTargetType := "Application"
 
 	; SQLite GetTable
 	; Parse table
@@ -7367,7 +7366,7 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!g_blnAddAutoAtTop ? 
 
 ; column 2
 
-Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuDrives)
 GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
@@ -7883,7 +7882,7 @@ return
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
-Oops(lOptionsRefreshedMenusAttachedInfo, lMenuRecentFolders, lMenuRecentFiles, lMenuDrives)
+Oops(lOptionsRefreshedMenusAttachedInfo, lMenuDrives)
 
 return
 ;------------------------------------------------------------
@@ -8292,10 +8291,8 @@ Gosub, RefreshLastActionsMenu
 Gosub, RefreshPopularMenusShortcut
 
 if (g_blnRefreshedMenusAttached)
-{
 	Gosub, RefreshDrivesMenu
-	Gosub, RefreshRecentFoldersAndFilesMenus
-}
+	; not since v9.2 Gosub, RefreshRecentFoldersAndFilesMenus
 
 Gosub, 2GuiClose
 
@@ -14874,7 +14871,7 @@ if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
-	gosub, RefreshRecentFoldersAndFilesMenus
+	; not since v9.2 gosub, RefreshRecentFoldersAndFilesMenus
 }
 
 Gosub, InsertColumnBreaks
