@@ -56,6 +56,7 @@ global lDialogArgumentsPlaceholders := "You can insert the location of this favo
 global lDialogArgumentsPlaceholdersCheckLabel := "Current parameters with expanded placeholders"
 global lDialogArgumentsPlaceholdersCurrent := "You can also insert placeholders for the current folder location where this favorite is launched: {CUR_LOC} (full folder), {CUR_NAME} (last folder), {CUR_DIR} (folder containing last folder) or {CUR_DRIVE}"
 global lDialogArgumentsPlaceholdersCurrentExample := "x:\containing_folder\last_folder" ; you can translate "containing_folder" and "last_folder"
+global lDialogArgumentsPlaceholdersSelectedExample := "x:\containing_folder\selected_file_or_folder" ; you can translate "containing_folder" and "selected_file_or_folder"
 global lDialogAscending := "Ascending"
 global lDialogBrowseButton := "Browse"
 global lDialogBrowseOrSelectApplication := "Browse for an executable file or`nselect a running application in this list"
