@@ -544,8 +544,6 @@ lMenuMyWindowsAppsMenu	Mijn Windows Apps
 lMenuNoClipboard	Het klembord bevat geen pad of website...
 lMenuNoCurrentFolder	Geen open mappen gevonden...
 lMenuPictures	Afbeeldingen
-lMenuPopularApplications	Applicaties
-lMenuPopularContentsMenus	Populaire dingen
 lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
 lMenuPopularMenus	Populair ~1~
