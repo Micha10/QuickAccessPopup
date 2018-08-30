@@ -14665,10 +14665,14 @@ else if InStr(A_ThisLabel, "FromMsg")
 else
 	g_strHokeyTypeDetected := SubStr(A_ThisLabel, 1, InStr(A_ThisLabel, "Hotkey") - 1) ; "Navigate" or "Launch"
 
-if (WindowIsDirectoryOpus(g_strTargetClass) or WindowIsTotalCommander(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId))
-	and InStr(A_ThisLabel, "Mouse") and (g_strHokeyTypeDetected = "Navigate")
+if InStr(A_ThisLabel, "Mouse")
+	and (WindowIsExplorer(g_strTargetClass) or WindowIsDirectoryOpus(g_strTargetClass) or WindowIsQAPconnect(g_strTargetWinId)
+		or (WindowIsTotalCommander(g_strTargetClass) and g_strHotkeyTypeDetected = "Navigate"))
+	
 {
-	Click ; to make sure the DOpus lister or TC pane under the mouse become active
+	; to make sure the item and Explorer window, DOpus lister or under the mouse become active,
+	; and for TC only if navigate (to avoid disrupting GetSelectedLocation)
+	Click
 	Sleep, 20
 }
 
@@ -18970,6 +18974,62 @@ return
 !_095_VARIOUS_FUNCTIONS:
 return
 ;========================================================================================================================
+
+;------------------------------------------------------------
+GetSelectedLocation(strClass, strWinId)
+; LearningOne and jethrow on https://autohotkey.com/board/topic/60723-can-autohotkey-retrieve-file-path-of-the-selected-file/page-2
+;------------------------------------------------------------
+{
+	if WindowIsExplorer(strClass)
+	{
+		for objWindow in ComObjCreate("Shell.Application").Windows
+			if (objWindow.hwnd = strWinId)
+			{
+				objSelectedItems := objWindow.Document.SelectedItems
+				break
+			}
+		for objItem in objSelectedItems
+		{
+			strFirstItem := objItem.path
+			if StrLen(strFirstItem)
+				break
+		}
+	}
+	else if WindowIsDesktop(strClass)
+	{
+		ControlGet, objFiles, List, Selected Col1, SysListView321, ahk_class %strClass%
+		Loop, Parse, objFiles, `n, `r
+		{
+			strFirstItem := A_Desktop . "\" A_LoopField
+			if StrLen(strFirstItem)
+				break
+		}
+	}
+	else if WindowIsTotalCommander(strClass) or WindowIsDirectoryOpus(strClass)
+		; not reliable in dialog boxes: or WindowIsDialog(strClass, strWinID)
+	{
+		blnIsClipEmpty := (Clipboard = "" ? true : false)
+		if !(blnIsClipEmpty)
+		{
+			objClipboardBackup := ClipboardAll
+			While !(Clipboard = "")
+			{
+				Clipboard := ""
+				Sleep, 10
+			}
+		}
+		Send, ^c
+		ClipWait, 1
+		strFirstItem := Clipboard
+		Clipboard := objClipboardBackup
+		if !(blnIsClipEmpty)
+			ClipWait, 1, 1
+	}
+
+    return strFirstItem
+}
+;------------------------------------------------------------
+
 
 ;------------------------------------------------
 L(strMessage, objVariables*)
