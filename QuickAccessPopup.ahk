@@ -10744,7 +10744,7 @@ strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z_]*}") ? "Show" : "Hid
 
 GuiControl, %strCommand%, f_PlaceholdersCheckLabel
 GuiControl, %strCommand%, f_strPlaceholdersCheck 
-GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample)
+GuiControl, 2:, f_strPlaceholdersCheck, % ExpandPlaceholders(f_strFavoriteArguments, f_strFavoriteLocation, lDialogArgumentsPlaceholdersCurrentExample, lDialogArgumentsPlaceholdersSelectedExample)
 
 strCommand := ""
 
@@ -15440,9 +15440,8 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 	and !(SubStr(g_objThisFavorite.FavoriteLocation, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 {	
-	if InStr(strTempLocation, "{CUR_")
-		strTempLocation := ExpandPlaceholders(strTempLocation, strTempLocation
-			, GetCurrentLocation(g_strTargetClass, g_strTargetWinId)) ; let user enter double-quotes as required by his arguments
+	if InStr(strTempLocation, "{CUR_") ; here, expand only if current location is used
+		strTempLocation := ExpandPlaceholders(strTempLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
 	
 	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
@@ -15710,12 +15709,15 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 			; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 		; }
 	
+	strTempArguments := ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
+		, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+		, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
 	; from https://www.reddit.com/r/windows/comments/4aac5b/how_do_i_run_edge_browser_with_autohotkey/
 	objIApplicationActivationManager := ComObjCreate("{45BA127D-10A8-46EA-8AB7-56EA9078943C}", "{2e941141-7f97-4756-ba1d-9decde894a3d}")
 	DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
 		, "Ptr", objIApplicationActivationManager
 		, "Str", g_strFullLocation
-		, "Str", ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		, "Str", strTempArguments
 		, "UInt", 0
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
@@ -15785,6 +15787,7 @@ intMinMax := ""
 g_blnLaunchFromTrayIcon := ""
 objIApplicationActivationManager := ""
 intProcessId := ""
+strTempArguments := ""
 
 return
 ;------------------------------------------------------------
@@ -16037,9 +16040,8 @@ else
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; not for URL, Special Folder and others
 		and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (like WebDAV)
 	{
-		if InStr(g_strFullLocation, "{CUR_")
-			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, g_strFullLocation
-				, GetCurrentLocation(g_strTargetClass, g_strTargetWinId))
+		if InStr(g_strFullLocation, "{CUR_") ; here, expand only if current location is used
+			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
 		
 		; expand system variables
 		; make the location absolute based on the current working directory
@@ -16082,9 +16084,12 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
+{
 	; let user enter double-quotes as required by his arguments
 	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
-		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : ""))
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+		, (InStr(g_objThisFavorite.FavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+}
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -19820,14 +19825,21 @@ ComUnHTML(html)
 
 
 ;------------------------------------------------------------
-ExpandPlaceholders(strArguments, strLocation, strCurrentLocation)
+ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLocation)
+; strOriginal: string to be expanded
 ; strLocation: {LOC} (full location), {NAME} (file name), {DIR} (directory), {EXT} (extension), {NOEXT} (file name without extension) or {DRIVE} (drive)
-; or strCurrentLocation: same with prefix "CUR_" like {CUR_LOC} (full current location), {CUR_NAME} (current file name), etc.
+; strCurrentLocation: same with prefix "CUR_" like {CUR_LOC} (full current location in file manager), {CUR_NAME} (current file name), etc.
+; strSelectedLocation: same with prefix "SEL_" like {SEL_LOC} (full location of selected item in file manager), {SEL_NAME} (selected file name), etc.
+; Do not process strCurrentLocation or strSelectedLocation if = -1
 ;------------------------------------------------------------
 {
-	strExpanded := ExpandPlaceholdersForThis(strArguments, strLocation, "")
-	strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
-	
+	strExpanded := ExpandPlaceholdersForThis(strOriginal, strLocation, "")
+	if (strCurrentLocation <> -1)
+		strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
+	if (strSelectedLocation <> -1)
+		strExpanded := ExpandPlaceholdersForThis(strExpanded, strSelectedLocation, "SEL_")
+	strExpanded := StrReplace(strExpanded, "{Clipboard}", Clipboard)
+
 	return strExpanded
 }
 ;------------------------------------------------------------
