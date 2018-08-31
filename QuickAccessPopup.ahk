@@ -2801,7 +2801,7 @@ g_blnUsageDbError := false
 
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
-IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 600 ; in seconds, default 600 (10 minutes)
+IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
 g_intUsageDbRecentItemsInterval := ((g_intUsageDbRecentItemsInterval < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbRecentItemsInterval)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
