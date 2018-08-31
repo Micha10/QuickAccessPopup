@@ -31,6 +31,29 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.6 (2018-08-30)
+ 
+Usage DB
+- rename the "Popular Stuff" menu to "Dynamic Menus" (still created at top of the menu for new installations or at the bottom for those upgrading)
+- assign QAP icon and Shift+Control+D shortcut to "Dynamic Menus"
+- move "Recent Folders", "Recent Files", and "Switch" menus from "My QAP Essentials" to "Dynamic Menus"
+- always attach "Recent Folders" and "Recent Files" submenus to main menu (because they will now be built more reliably with UsageDB in the next release)
+- remove "Popular Applications" QAP Feature
+ 
+Various
+- replace the placeholder "{Clipboard}" (not case sensitive) with the current content of the Windows Clipboard in "Location", "Parameters" and "Start In" fields, for all types of favorites supporting these options
+- expand placeholders "{SEL_LOC}" with the full path of item currently under the mouse pointer or selected in the current file manager window
+- expand parts of the selected item with placeholders "{SEL_NAME}" (file name only), "{SEL_DIR}" (directory), "{SEL_EXT}" (extension), "{SEL_NOEXT}" (file name without extension) or "{SEL_DRIVE}" (drive letter)
+- support placeholders in parameters for Windows Apps favorites
+ 
+Bug fixes
+- fix bug with shared menu catalogue path and environment variables
+- when extractiong the default name of a favorite folder from its location, stop stripping after the last dot of the folder name
+ 
+Language
+- addition of Korean translation, thanks to Maeng Bong Kyun
+- update to NL language file
+
 Version BETA: 9.1.9.5 (2018-08-27)
 - add QAP features "Popular Files" and "Popular Applications"
 - add "Popular Stuff" menu at the top of default menu created at first launch with sub menus "Popular Folders", Popular Files" and "Popular Applications"
@@ -2508,7 +2531,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.5
+;@Ahk2Exe-SetVersion 9.1.9.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2603,7 +2626,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
