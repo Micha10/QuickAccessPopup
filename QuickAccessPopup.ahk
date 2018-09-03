@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.7 (2018-09-03)
+ 
+Usage DB
+- fix a bug preventing the "Recent Folders" and "Recent Files" dynamic menus from being populated and refreshed
+
 Version BETA: 9.1.9.6 (2018-08-30)
  
 Usage DB
@@ -2531,7 +2536,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.6
+;@Ahk2Exe-SetVersion 9.1.9.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2626,7 +2631,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8314,8 +8319,10 @@ Gosub, RefreshLastActionsMenu
 Gosub, RefreshPopularMenusShortcut
 
 if (g_blnRefreshedMenusAttached)
+{
 	Gosub, RefreshDrivesMenu
-	; not since v9.2 Gosub, RefreshRecentFoldersAndFilesMenus
+	Gosub, RefreshRecentFoldersAndFilesMenus
+}
 
 Gosub, 2GuiClose
 
@@ -14894,7 +14901,7 @@ if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
-	; not since v9.2 gosub, RefreshRecentFoldersAndFilesMenus
+	gosub, RefreshRecentFoldersAndFilesMenus
 }
 
 Gosub, InsertColumnBreaks
