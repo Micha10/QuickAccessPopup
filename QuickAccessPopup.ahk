@@ -3381,7 +3381,7 @@ if FileExist(strDebugLanguageFile)
 }
 else
 {
-	IfNotExist, %g_strIniFile%
+	if !FileExist(g_strIniFile)
 		; read language code from ini file created by the Inno Setup script in the user data folder
 		IniRead, g_strLanguageCode, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , LanguageCode, EN
 	else
@@ -4357,7 +4357,8 @@ Gosub, BackupIniFile
 ; reinit after Settings save if already exist
 g_objMenuInGui := Object() ; object of menu currently in Gui
 
-IfNotExist, %g_strIniFile% ; if it exists, it was created by ImportFavoritesFP2QAP.ahk during install
+g_blnIniFileCreation := !FileExist(g_strIniFile)
+if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was created by ImportFavoritesFP2QAP.ahk during install
 {
 	g_strIniBefore := "NEW"
 	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
@@ -4692,7 +4693,7 @@ LoadMenuFromIni:
 LoadMenuFromIniWithStatus:
 ;------------------------------------------------------------
 
-IfNotExist, %g_strIniFile%
+if !FileExist(g_strIniFile)
 {
 	Oops(lOopsWriteProtectedError, g_strAppNameText)
 	ExitApp
@@ -5086,6 +5087,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 	global g_intNextFavoriteNumber
 	global g_objJLiconsByName
 	global lMenuMyQAPMenu
+	global g_blnIniFileCreation
 
 	if (strFavoriteType = "Z")
 		strNewIniLine := strFavoriteType
@@ -5113,10 +5115,11 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 			else
 				strName := g_objQAPFeatures[strLocation].DefaultName
 
-		if StrLen(strCustomShortcut)
-			strShortcut := strCustomShortcut
-		else if (blnAddShortcut)
-			strShortcut := g_objQAPFeatures[strLocation].DefaultShortcut
+		if (g_blnIniFileCreation) ; do not add shortcut if not creation of ini file at first launch
+			if StrLen(strCustomShortcut)
+				strShortcut := strCustomShortcut
+			else if (blnAddShortcut)
+				strShortcut := g_objQAPFeatures[strLocation].DefaultShortcut
 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
