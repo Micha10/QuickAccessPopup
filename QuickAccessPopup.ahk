@@ -2817,10 +2817,11 @@ gosub, UsageDbInit ; creates g_objUsageDb
 ; https://autohotkey.com/boards/viewtopic.php?t=1064
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
-; Update FavoriteUsageDb properties with data from UsageDb
-
+; collect recent intems in UsageDb
 Diag("Launch", "UsageDbCollectRecentItems")
 Gosub, UsageDbCollectRecentItems
+
+; Update FavoriteUsageDb properties with data from UsageDb
 Gosub, UsageDbUpdateFavorites
 
 ;---------------------------------
@@ -4059,19 +4060,19 @@ IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAtta
 Gosub, InitQAPFeaturesRefreshed
 
 InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders, lMenuRecentFolders,	"RecentFoldersMenuShortcut",	"2-DynamicMenus~5-WindowsFeature"
-	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^R")
+	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^r")
 InitQAPFeatureObject("Recent Files",	lMenuRecentFiles, lMenuRecentFiles,	"RecentFilesMenuShortcut",		"2-DynamicMenus~5-WindowsFeature"
 	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
-	, lMenuClipboardDescription, 0, "iconClipboard", "+^V")
+	, lMenuClipboardDescription, 0, "iconClipboard", "+^v")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
-	, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^W")
+	, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^w")
 InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
-	, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^F")
+	, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^f")
 InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
-	, lTCMenuNameDescription, 0, "iconSubmenu", "+^T")
+	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
 
 ; new in v9.2
 loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
@@ -4085,7 +4086,7 @@ InitQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								
 InitQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
 	, lMenuAddFavoriteDescription, 0, "iconAddFavorite")
 InitQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
-	, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^A")
+	, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^a")
 InitQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					"3-QAPMenuEditing"
 	, lMenuAddThisFolderXpressDescription, 0, "iconAddThisFolder")
 InitQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
@@ -4101,7 +4102,7 @@ InitQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsMan
 InitQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"7-QAPManagement"
 	, lGuiOptionsDescription, 0, "iconOptions")
 InitQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~7-QAPManagement"
-	, lMenuSettingsDescription, 0, "iconSettings", "+^S")
+	, lMenuSettingsDescription, 0, "iconSettings", "+^s")
 InitQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"7-QAPManagement"
 	, lGuiDonateDescription, 0, "iconDonate")
 InitQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"6-Utility"
@@ -4121,7 +4122,7 @@ InitQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu
 InitQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 	, lMenuExternalCatalogueDescription, 0, "iconAddFavorite")
 InitQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
-	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^C")
+	, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^c")
 InitQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"6-Utility"
 	, lMenuLastActionDescription, 0, "iconReload", "")
 InitQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
@@ -4211,7 +4212,7 @@ InitQAPFeaturesRefreshed:
 
 InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
 	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus~5-WindowsFeature"
-	, lMenuDrivesDescription, 0, "iconDrives",		"+^D")
+	, lMenuDrivesDescription, 0, "iconDrives",		"+^d")
 
 return
 ;------------------------------------------------------------
@@ -4415,7 +4416,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^d
+			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^m
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
 			Favorite4=X
@@ -5031,7 +5032,7 @@ g_intNextFavoriteNumber -= 1 ; minus one to overwrite the existing end of main m
 
 ; AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false)
 AddToIniOneDefaultMenu("", "", "X")
-AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu", 0, "+^d")
+AddToIniOneDefaultMenu(g_strMenuPathSeparator . " " . g_strAddThisMenuNameWithInstance, g_strAddThisMenuNameWithInstance, "Menu", 0, "+^m")
 
 AddToIniOneDefaultMenu("{Popular Folders}", "", "QAP")
 AddToIniOneDefaultMenu("{Popular Files}", "", "QAP")
@@ -5596,7 +5597,7 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	if (A_LoopField = lMenuPopularFolders)
 		strTargetType := "Folder"
 	else ; lMenuPopularFiles
-		strTargetType := "Document"
+		strTargetType := "File"
 
 	; SQLite GetTable
 	; Parse table
@@ -5616,8 +5617,13 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 			objPopularMenuTable.Next(objPopularMenuRow) ; at the beginning to skip header row
 			strPath := objPopularMenuRow[1]
 			strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
+			if (g_intUsageDbDebug)
+				strMenuItemName .= " (" . objPopularMenuRow[2] . ")" ; ##### menu could not be used in this case
 			strIcon := (A_Loopfield = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
-			strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+			if (objPopularMenuRow[2] > 1)
+				strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+			else
+				blnPopularMenuIncomplete := true
 		}
 	}
 
@@ -5628,6 +5634,11 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		}
+		if (blnPopularMenuIncomplete)
+		{
+			strMenuItemLabel := L(lMenuPopularMenusWillImprove, L(lMenuPopularMenus, A_LoopField), g_strAppNameText)
+			AddMenuIcon(L(lMenuPopularMenus, A_Loopfield), strMenuItemLabel, "GuiShowNeverCalled", "iconAbout", false) ; will never be called because disabled
 		}
 	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
 }
@@ -5643,6 +5654,9 @@ objPopularMenuTable := ""
 objPopularMenuRow := ""
 intMenuNumberPopularsMenu := ""
 strTargetType := ""
+strMenuItemsList := ""
+blnPopularMenuIncomplete := ""
+strMenuItemLabel := ""
 
 return
 ;------------------------------------------------------------
@@ -5880,7 +5894,7 @@ RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
 Gosub, SetMenuPosition
-Gosub, RefreshRecentItemsMenu
+Gosub, RefreshRecentItemsMenus
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
 Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? lMenuRecentFolders : lMenuRecentFiles), Show, %g_intMenuPosX%, %g_intMenuPosY%
@@ -5893,78 +5907,99 @@ return
 RefreshRecentItemsMenus: ; attached, refresh both {Recent Folders} and {Recent Files} if one is present in menu
 ;------------------------------------------------------------
 
-if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}")
+if !g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMenus.HasKey("{Recent Files}")
 	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
-intRecentFoldersMenuStartTickCount := A_TickCount
+blnUseSQLite := (g_intUsageDbRecentItemsInterval > 0)
 
-strMenuItemsList := "" ; menu name|menu item name|label|icon
+; prepare data source
 
-SetWaitCursor(true)
-
-intRecentFoldersCount := 0
-intRecentFilesCount := 0
-intMenuNumberFolders := 0
-intMenuNumberFiles := 0
-strRecentFoldersMenuItemsList := ""
-strRecentFilesMenuItemsList := ""
-
-if (UsageDbIntervalSeconds = 0) ; gather recent items the old way, directly from Windows
+if (blnUseSQLite) ; use SQLite usage database
 {
-	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-
-	; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
-
-	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
-		strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
-	Sort, strItemsList, R
-
-	Loop, parse, strItemsList, `n
+	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
+	IF !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
-		if !StrLen(A_LoopField) ; last line is empty
-			continue
+		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		return
+	}
+	objDuplicatesFinder := Object()
+}
+else ; gather recent items the old way, directly from Windows
+{
+	strShortcutsItemsList := "" ; menu name|menu item name|label|icon
+	SetWaitCursor(true)
+	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
+		strShortcutsItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+	Sort, strShortcutsItemsList, R
+	; a `n ends the last line of the list
+}
 
-		arrShortcutFullPath := StrSplit(A_LoopField, A_Tab)
+; loop data source
+
+strRecentFoldersMenuItemsList := ""
+intRecentFoldersCount := 0
+intMenuNumberFolders := 0
+strRecentFilesMenuItemsList := ""
+intRecentFilesCount := 0
+intMenuNumberFiles := 0
+
+Loop
+{
+	; get next item
+	if (blnUseSQLite)
+	{
+		if objRecordSet.Next(objRow) = -1 ; end of recordset
+			break
+		strTargetPath := objRow[1]
+		strTargetType := objRow[2]
+		if (objDuplicatesFinder.HasKey(strTargetPath))
+			continue
+		else ; new item
+			objDuplicatesFinder[strTargetPath] := strTargetType ; value is not used
+	}
+	else
+	{
+		if !StrLen(strShortcutsItemsList)
+			break
+		strItem := SubStr(strShortcutsItemsList, 1, InStr(strShortcutsItemsList, "`n") - 1)
+		strShortcutsItemsList := SubStr(strShortcutsItemsList, InStr(strShortcutsItemsList, "`n") + 1)
+		
+		arrShortcutFullPath := StrSplit(strItem, A_Tab)
 		strShortcutFullPath := arrShortcutFullPath[2]
 		
 		FileGetShortcut, %strShortcutFullPath%, strTargetPath
 		
-		if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
+		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
 			continue
 		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
 			continue
 		
-		if LocationIsDocument(strTargetPath) ; add to recent files
-		{
-			if (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
-			{
-				strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . NextMenuShortcut(intMenuNumberFiles) . " " : "") . strTargetPath
-				strIcon := GetIcon4Location(strTargetPath)
-				strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
-				intRecentFilesCount++
-			}
-		}
-		else ; add to recent folders
-		{
-			if (intRecentFoldersCount < g_intRecentFoldersMax)
-			{
-				strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFolders <= 35) ? "&" . NextMenuShortcut(intMenuNumberFolders) . " " : "") . strTargetPath
-				strIcon := GetFolderIcon(strTargetPath)
-				strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
-				intRecentFoldersCount++
-			}
-		}
-
-		if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
-			break ; both Folders and Files menus are complete
+		strTargetType := (LocationIsDocument(strTargetPath) ? "File" : "Folder")
 	}
-}
-else ; gather recent items from UsageDb
-{
-	#####
-	SELECT TargetPath FROM Usage WHERE TargetType='Folder' ORDER BY CollectDateTime DESC;
-	keep only RecentFoldersMax first unique items
+
+	if (strTargetType = "Folder")
+		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
+	else ; File
+		strNumericShortcut := NextMenuShortcut(intMenuNumberFiles)
+		
+	strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . strNumericShortcut . " " : "") . strTargetPath
+	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
+	if (strTargetType = "Folder") and (intRecentFoldersCount < g_intRecentFoldersMax)
+	{
+		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		intRecentFoldersCount++
+	}
+	; do not "else"
+	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
+	{
+		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		intRecentFilesCount++
+	}
+
+	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
+		break ; both Folders and Files menus are complete
 }
 
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
@@ -5993,22 +6028,31 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-SetWaitCursor(false)
+if !(blnUseSQLite)
+	SetWaitCursor(false)
 
+blnUseSQLite := ""
+strUsageDbSQL := ""
+objRecordSet := ""
+objRow := ""
+strTargetPath := ""
+strTargetType := ""
+objDuplicatesFinder := ""
+strShortcutsItemsList := ""
 strRecentsFolder := ""
-strItemsList := ""
-strRecentFoldersMenuItemsList := ""
-strRecentFilesMenuItemsList := ""
-intMenuNumberFolders := ""
-intMenuNumberFiles := ""
 ResetArray("arrShortcutFullPath")
 strShortcutFullPath := ""
-strTargetPath := ""
+strNumericShortcut := ""
 strMenuName := ""
 strIcon := ""
+strRecentFoldersMenuItemsList := ""
+intRecentFoldersCount := ""
+intMenuNumberFolders := ""
+strRecentFilesMenuItemsList := ""
+intRecentFilesCount := ""
+intMenuNumberFiles := ""
+ResetArray("arrMenuItemsList")
 
-g_intRecentItemsMenuTickCount := A_TickCount - intRecentFoldersMenuStartTickCount
-; TrayTip, RecentFolders menu refresh, % g_intRecentFoldersMenuTickCount . " ms"
 return
 ;------------------------------------------------------------
 
@@ -8293,12 +8337,9 @@ Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
 Gosub, RefreshPopularMenusShortcut
-
+Gosub, RefreshRecentItemsMenus
 if (g_blnRefreshedMenusAttached)
-{
 	Gosub, RefreshDrivesMenu
-	Gosub, RefreshRecentItemsMenus
-}
 
 Gosub, 2GuiClose
 
@@ -14872,13 +14913,11 @@ Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
 Gosub, RefreshLastActionsMenu
 Gosub, RefreshPopularMenusShortcut
+Gosub, RefreshRecentItemsMenus
 
 if (g_blnRefreshedMenusAttached)
-{
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
-	gosub, RefreshRecentItemsMenus
-}
 
 Gosub, InsertColumnBreaks
 
@@ -16109,7 +16148,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
-else ; OpenRecentFolder, OpenRecentFiles, OpenClipboard or OpenPopularMenus
+else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
 {
 	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
 		strFavoriteType := "URL"
@@ -19151,15 +19190,15 @@ if !(blnUsageDbExist) ; create database if it does not exist
 else ; add column "FavoriteName" if it does not exist
 {
 	strUsageDbSQL := ""
-	if !GetUsageDbColumnExist("MenuFavoriteName")
+	if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
 		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
-	if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified
+	if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified, for user of firsts beta versions
 	{
 		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateCreated;"
 		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateModified;"
 	}
 	
-	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);" ; for user of firsts beta versions
 	
 	if StrLen(strUsageDbSQL)
 		If !g_objUsageDb.Exec(strUsageDbSQL)
@@ -19171,15 +19210,20 @@ else ; add column "FavoriteName" if it does not exist
 		}
 }
 
-; create views
+; maintenance for beta versions
 strUsageDbSQL := ""
 	; drop older views
-	. "DROP VIEW IF EXISTS vLocationTop10;"
+	. "DROP VIEW IF EXISTS vLocationTop10;`n" ; for user of firsts beta versions
 	
 	; drop current views that will be re-created
-	. "DROP VIEW IF EXISTS vMenuItemsShort;" ; for v9.1.9.1 only
-	. "DROP VIEW IF EXISTS vLocationTop25;" ; f0r v9.1.9.2+
+	. "DROP VIEW IF EXISTS vMenuItemsShort;`n" ; for v9.1.9.1 only
+	. "DROP VIEW IF EXISTS vLocationTop25;`n" ; f0r v9.1.9.2+
 	
+	; replace TargetType "Document" with "File"
+	. "UPDATE Usage SET TargetType='File' WHERE TargetType='Document';`n" ; for pre-v9.1.9.8
+	
+; create views
+strUsageDbSQL .= ""
 	; (re)create current views
 	. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
 	. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
@@ -19192,6 +19236,7 @@ strUsageDbSQL := ""
 	. " GROUP BY TargetPath"
 	. " ORDER BY COUNT(Id) DESC"
 	. " LIMIT 25"
+
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
@@ -21635,7 +21680,7 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
 			strType := "Application"
 		else if LocationIsDocument(strPath)
-			strType := "Document"
+			strType := "File"
 		else
 			strType := "Folder"
 		FileGetTime, strDateTime, %strPath%
