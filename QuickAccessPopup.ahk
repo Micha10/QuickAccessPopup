@@ -5880,11 +5880,7 @@ RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
 Gosub, SetMenuPosition
-
-if (A_ThisLabel = "RecentFoldersMenuShortcut")
-	Gosub, RefreshRecentFoldersMenu
-else ; RecentFilesMenuShortcut
-	Gosub, RefreshRecentFilesMenu
+Gosub, RefreshRecentItemsMenu
 
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
 Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? lMenuRecentFolders : lMenuRecentFiles), Show, %g_intMenuPosX%, %g_intMenuPosY%
@@ -5894,104 +5890,81 @@ return
 
 
 ;------------------------------------------------------------
-RefreshRecentFoldersMenu: ; on demand, refresh only Folders
-RefreshRecentFilesMenu: ; on demand, refresh only Files
-RefreshRecentFoldersAndFilesMenus: ; attached, refresh both if present in menu
+RefreshRecentItemsMenus: ; attached, refresh both {Recent Folders} and {Recent Files} if one is present in menu
 ;------------------------------------------------------------
 
-if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and A_ThisLabel = "RefreshRecentFoldersMenu")
-	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFilesMenu")
-	or (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMenus.HasKey("{Recent Files}") and A_ThisLabel = "RefreshRecentFoldersAndFilesMenus")
-	; we don't have Recent Folders and/or Recent Files QAP features in at least one menu
+if (!g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and (!g_objQAPfeaturesInMenus.HasKey("{Recent Files}")
+	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
 intRecentFoldersMenuStartTickCount := A_TickCount
 
-intRecentFoldersCount := 0
-intRecentFilesCount := 0
 strMenuItemsList := "" ; menu name|menu item name|label|icon
 
 SetWaitCursor(true)
 
-RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-
-/*
-; Alternative to collect recent files *** NOT WORKING with XP and SLOWER because all shortcuts are resolved before getting the list
-; See: post from Skan http://ahkscript.org/boards/viewtopic.php?f=5&t=4477#p25261
-; Implement for Win7+ if FileGetShortcut still produce Windows errors when external drive is not available (despite DllCall in initialization)
-
-strWinPathRecent := RegExReplace(SubStr(strRecentsFolder, 3) . "\", "\\", "\\")
-strDirList := ""
-for ObjItem in ComObjGet("winmgmts:")
-	.ExecQuery("Select * from Win32_ShortcutFile where path = '" . strWinPathRecent . "'")
-	strDirList .= ObjItem.LastModified . A_Tab . ObjItem.Extension . A_Tab . ObjItem.Target . "`n"
-*/
-
-; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
-
-Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
-	strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
-Sort, strItemsList, R
-
+intRecentFoldersCount := 0
+intRecentFilesCount := 0
 intMenuNumberFolders := 0
 intMenuNumberFiles := 0
 strRecentFoldersMenuItemsList := ""
 strRecentFilesMenuItemsList := ""
 
-Loop, parse, strItemsList, `n
+if (UsageDbIntervalSeconds = 0) ; gather recent items the old way, directly from Windows
 {
-	if !StrLen(A_LoopField) ; last line is empty
-		continue
+	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
 
-	arrShortcutFullPath := StrSplit(A_LoopField, A_Tab)
-	strShortcutFullPath := arrShortcutFullPath[2]
-	
-	FileGetShortcut, %strShortcutFullPath%, strTargetPath
-	
-	if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
-		continue
-	if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
-		continue
-	
-	if (A_ThisLabel = "RefreshRecentFoldersMenu" or (A_ThisLabel = "RefreshRecentFoldersAndFilesMenus" and g_objQAPfeaturesInMenus.HasKey("{Recent Folders}")))
-		and (intRecentFoldersCount < g_intRecentFoldersMax)
-		and !LocationIsDocument(strTargetPath) ; add to recent folders
-	{
-		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFolders <= 35) ? "&" . NextMenuShortcut(intMenuNumberFolders) . " " : "") . strTargetPath
-		strIcon := GetFolderIcon(strTargetPath)
-		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
-		intRecentFoldersCount++
-	}
+	; gather info for menu (can be long if many recent items) before refreshing the menu with Critical On
 
-	if (A_ThisLabel = "RefreshRecentFilesMenu" or (A_ThisLabel = "RefreshRecentFoldersAndFilesMenus" and g_objQAPfeaturesInMenus.HasKey("{Recent Files}")))
-		and (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
-		and LocationIsDocument(strTargetPath) ; add to recent files
-	{
-		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . NextMenuShortcut(intMenuNumberFiles) . " " : "") . strTargetPath
-		strIcon := GetIcon4Location(strTargetPath)
-		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
-		intRecentFilesCount++
-	}
+	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
+		strItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+	Sort, strItemsList, R
 
-	if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+	Loop, parse, strItemsList, `n
 	{
+		if !StrLen(A_LoopField) ; last line is empty
+			continue
+
+		arrShortcutFullPath := StrSplit(A_LoopField, A_Tab)
+		strShortcutFullPath := arrShortcutFullPath[2]
+		
+		FileGetShortcut, %strShortcutFullPath%, strTargetPath
+		
+		if (errorlevel) ; hidden or system files (like desktop.ini) returns an error
+			continue
+		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
+			continue
+		
+		if LocationIsDocument(strTargetPath) ; add to recent files
+		{
+			if (intRecentFilesCount < g_intRecentFoldersMax) ; use the same max as for folders
+			{
+				strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . NextMenuShortcut(intMenuNumberFiles) . " " : "") . strTargetPath
+				strIcon := GetIcon4Location(strTargetPath)
+				strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+				intRecentFilesCount++
+			}
+		}
+		else ; add to recent folders
+		{
+			if (intRecentFoldersCount < g_intRecentFoldersMax)
+			{
+				strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFolders <= 35) ? "&" . NextMenuShortcut(intMenuNumberFolders) . " " : "") . strTargetPath
+				strIcon := GetFolderIcon(strTargetPath)
+				strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+				intRecentFoldersCount++
+			}
+		}
+
 		if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
 			break ; both Folders and Files menus are complete
 	}
-	else if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
-	{
-		if (intRecentFoldersCount >= g_intRecentFoldersMax)
-			break ; Folders menu is complete
-	}
-	else if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
-	{
-		if (intRecentFilesCount >= g_intRecentFoldersMax) ; we use the same max for both folders and files
-			break ; Files menu is complete
-	}
-	
-	; bug between v8.7.0.9.2 and v9.0.2.9)
-	; if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
-		; break
+}
+else ; gather recent items from UsageDb
+{
+	#####
+	SELECT TargetPath FROM Usage WHERE TargetType='Folder' ORDER BY CollectDateTime DESC;
+	keep only RecentFoldersMax first unique items
 }
 
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
@@ -8324,7 +8297,7 @@ Gosub, RefreshPopularMenusShortcut
 if (g_blnRefreshedMenusAttached)
 {
 	Gosub, RefreshDrivesMenu
-	Gosub, RefreshRecentFoldersAndFilesMenus
+	Gosub, RefreshRecentItemsMenus
 }
 
 Gosub, 2GuiClose
@@ -14904,7 +14877,7 @@ if (g_blnRefreshedMenusAttached)
 {
 	; displays the wait cursor
 	Gosub, RefreshDrivesMenu
-	gosub, RefreshRecentFoldersAndFilesMenus
+	gosub, RefreshRecentItemsMenus
 }
 
 Gosub, InsertColumnBreaks
