@@ -15419,6 +15419,16 @@ if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 	return
 }
 
+; expand placeholders for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME},
+; {CUR_...}, etc, selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
+; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
+
+; copy to g_strLocationWithPlaceholders to avoid modification of location in g_objThisFavorite 
+g_strLocationWithPlaceholders := ExpandPlaceholders(g_objThisFavorite.FavoriteLocation, ""
+	, (InStr(g_objThisFavorite.FavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+	, (InStr(g_objThisFavorite.FavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+
+
 if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
@@ -15436,25 +15446,20 @@ if (g_blnFileManagerAlwaysNavigate and (g_strAlternativeMenu <> lMenuAlternative
 	g_strHokeyTypeDetected := "Navigate"
 }
 
-strTempLocation := g_objThisFavorite.FavoriteLocation ; to avoid modification by ByRef in FileExistInPath
-
 if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for these favorites, file/folder must exist
 	and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite) ; except if we edit the favorite
-	and !LocationIsHTTP(g_objThisFavorite.FavoriteLocation) ; except if the folder location is on a server (WebDAV)
-	and !(SubStr(g_objThisFavorite.FavoriteLocation, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
+	and !LocationIsHTTP(g_strLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
+	and !(SubStr(g_strLocationWithPlaceholders, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 {	
-	if InStr(strTempLocation, "{CUR_") ; here, expand only if current location is used
-		strTempLocation := ExpandPlaceholders(strTempLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
-	
-	if !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
+	if !FileExistInPath(g_strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
 		Gui, 1:+OwnDialogs
 		MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
 			, % L(lDialogFavoriteDoesNotExistTitle, g_strAppNameText)
 			, % L(lDialogFavoriteDoesNotExistPrompt, g_objThisFavorite.FavoriteLocation
-				, (StrLen(strTempLocation) and strTempLocation <> g_objThisFavorite.FavoriteLocation ? " (" . strTempLocation . ")" : ""))
+				, (StrLen(g_strLocationWithPlaceholders) and g_strLocationWithPlaceholders <> g_objThisFavorite.FavoriteLocation ? " (" . g_strLocationWithPlaceholders . ")" : ""))
 				. (g_objThisFavorite.FavoritePseudo ? "" : "`n`n" . lDialogFavoriteDoesNotExistEdit)
 		IfMsgBox, Yes
 		{
@@ -15476,29 +15481,35 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeNewWindow)
 	g_strHokeyTypeDetected := "Launch"
 }
 
-if (g_objThisFavorite.FavoriteType = "Application") and StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
+if (g_objThisFavorite.FavoriteType = "Application")
 {
-	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
-		strTempLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
-	else
-		strTempLocation := g_objThisFavorite.FavoriteAppWorkingDir
-	if StrLen(strTempLocation) and !FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, also search in PATH
-		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
+	strAppWorkingDirWithPlaceholders := g_objThisFavorite.FavoriteAppWorkingDir
+	if StrLen(g_objThisFavorite.FavoriteAppWorkingDir)
 	{
-		Gui, 1:+OwnDialogs
-		MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
-			, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
-			, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, strTempLocation)
-			. (g_objThisFavorite.FavoritePseudo ? "" : "`n`n" . lDialogFavoriteDoesNotExistEdit)
-		IfMsgBox, Yes
+		strAppWorkingDirWithPlaceholders := ExpandPlaceholders(g_objThisFavorite.FavoriteAppWorkingDir, g_strLocationWithPlaceholders
+			, (InStr(g_objThisFavorite.FavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+			, (InStr(g_objThisFavorite.FavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+
+		strAppWorkingDirBeforeFileExist := strAppWorkingDirWithPlaceholders
+		if StrLen(strAppWorkingDirWithPlaceholders) and !FileExistInPath(strAppWorkingDirWithPlaceholders) ; return strAppWorkingDirWithPlaceholders with expanded relative path and envvars, also search in PATH
+			and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 		{
-			g_blnAlternativeMenu := true
-			g_strAlternativeMenu := lMenuAlternativeEditFavorite
-		}
-		else
-		{
-			gosub, OpenFavoriteCleanup
-			return
+			Gui, 1:+OwnDialogs
+			MsgBox, % (g_objThisFavorite.FavoritePseudo ? 0 : 4)
+				, % L(lDialogFavoriteWorkingDirNotFoundTitle, g_strAppNameText)
+				, % L(lDialogFavoriteWorkingDirNotFoundPrompt, g_objThisFavorite.FavoriteName, g_objThisFavorite.FavoriteAppWorkingDir
+				. (g_objThisFavorite.FavoriteAppWorkingDir <> strAppWorkingDirBeforeFileExist ? " (" . strAppWorkingDirBeforeFileExist . ")": ""))
+				. (g_objThisFavorite.FavoritePseudo ? "" : "`n`n" . lDialogFavoriteDoesNotExistEdit)
+			IfMsgBox, Yes
+			{
+				g_blnAlternativeMenu := true
+				g_strAlternativeMenu := lMenuAlternativeEditFavorite
+			}
+			else
+			{
+				gosub, OpenFavoriteCleanup
+				return
+			}
 		}
 	}
 }
@@ -15511,10 +15522,11 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 		objContainingFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 		objContainingFavorite.FavoriteType := "Folder"
 		objContainingFavorite.FavoriteName := "Containing Folder" ; not shown
-		strContainingFolder := g_objThisFavorite.FavoriteLocation
+		strContainingFolder := g_strLocationWithPlaceholders
 		SplitPath, strContainingFolder, , strContainingFolder
 		objContainingFavorite.FavoriteLocation := strContainingFolder . "\"
 		g_objThisFavorite := objContainingFavorite ; replace the current favorite object
+		g_strLocationWithPlaceholders := g_objThisFavorite.FavoriteLocation
 
 		if (g_strAlternativeMenu = lMenuAlternativeOpenContainingCurrent) and CanNavigate(A_ThisHotkey)
 			g_strHokeyTypeDetected := "Navigate"
@@ -15672,16 +15684,12 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 
 if (g_objThisFavorite.FavoriteType = "Application")
 {
-	if (g_objThisFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
-		strCurrentAppWorkingDir := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
-	else
-		strCurrentAppWorkingDir := PathCombine(A_WorkingDir, EnvVars(g_objThisFavorite.FavoriteAppWorkingDir))
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
 	Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
 	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
 	Diag(A_ThisLabel . ":strCurrentAppWorkingDir", strCurrentAppWorkingDir)
-	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strCurrentAppWorkingDir%, UseErrorLevel, intPid
+	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strAppWorkingDirWithPlaceholders%, UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 	{
 		if (A_LastError <> 1223)
@@ -15781,7 +15789,8 @@ strFavoriteWindowPosition := ""
 ResetArray("g_arrFavoriteWindowPosition")
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
-strTempLocation := ""
+strAppWorkingDirWithPlaceholders := ""
+strAppWorkingDirBeforeFileExist := ""
 blnShiftPressed := ""
 blnControlPressed := ""
 strCurrentAppWorkingDir := ""
@@ -16018,7 +16027,7 @@ return
 OpenFavoriteGetFullLocation:
 ;------------------------------------------------------------
 
-g_strFullLocation := g_objThisFavorite.FavoriteLocation
+g_strFullLocation := g_strLocationWithPlaceholders
 
 if (g_objThisFavorite.FavoriteType = "FTP")
 {
@@ -16088,12 +16097,10 @@ if StrLen(g_objThisFavorite.FavoriteLaunchWith) and !InStr("Application|Snippet"
 }
 
 if StrLen(g_objThisFavorite.FavoriteArguments)
-{
 	; let user enter double-quotes as required by his arguments
 	g_strFullLocation .= " " . ExpandPlaceholders(g_objThisFavorite.FavoriteArguments, g_strFullLocation
 		, (InStr(g_objThisFavorite.FavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
 		, (InStr(g_objThisFavorite.FavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-}
 
 OpenFavoriteGetFullLocationCleanup:
 strArguments := ""
@@ -16506,7 +16513,7 @@ if (blnTextSnippet)
 	ClipBoard := ""
 	Sleep, %g_arrWaitDelayInSnippet2% ; safety delay default 80 ms
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-	ClipBoard := DecodeSnippet(g_objThisFavorite.FavoriteLocation, true)
+	ClipBoard := DecodeSnippet(g_strLocationWithPlaceholders, true) ; g_strLocationWithPlaceholders contains g_objThisFavorite.FavoriteLocation with expanded placeholders
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 	intErrorLevel := ErrorLevel
 	; Diag("ClipWait After - intErrorLevel / StrLen(Clipboard)", intErrorLevel . " / " . StrLen(Clipboard))
