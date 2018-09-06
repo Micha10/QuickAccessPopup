@@ -31,10 +31,29 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.8 (2018-09-05)
+ 
+Usage DB and Recent menus
+- refresh recent items menus (folders and files) with usage db if SQLite is enabled (keeping the previous method otherwise)
+- store "File" in usage DB instead of "Document" and update existing values
+- disable recent items collection if UsageDbIntervalSeconds=0 (will be in Options in future release)
+- change default usage db collection interval to 1 minute (was done in v9.1.9.7 but not documented here)
+ 
+Popular menus
+- improvements for Popular menus on new installations
+- display only items with popularity index greater than 1 (to avoid random recent items in early executions of QAP)
+- if items in Popular menus were skipped because of a small index, add to the menu a notice saying that the menu is incomplete and will improve
+- append the popularity index between parenthesis to menu names in Popular menus if UsageDbDebug > 0 (will be an option in a future release)
+ 
+Various
+- add shortcuts to items added automatically to menu only when the menu is created at first launch
+- German, Dutch, Italian, Korean and French language update
+
 Version BETA: 9.1.9.7 (2018-09-03)
  
 Usage DB
 - fix a bug preventing the "Recent Folders" and "Recent Files" dynamic menus from being populated and refreshed
+- change default usage db collection interval to 1 minute
 
 Version BETA: 9.1.9.6 (2018-08-30)
  
@@ -2536,7 +2555,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.7
+;@Ahk2Exe-SetVersion 9.1.9.8
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2631,7 +2650,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -2807,9 +2826,11 @@ g_blnUsageDbError := false
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
 IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
-g_intUsageDbRecentItemsInterval := ((g_intUsageDbRecentItemsInterval < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbRecentItemsInterval)
+g_intUsageDbRecentItemsInterval := ((g_intUsageDbRecentItemsInterval <> 0 and g_intUsageDbRecentItemsInterval < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbRecentItemsInterval)
+g_blnUseSQLite := (g_intUsageDbRecentItemsInterval > 0)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
+g_blnUsageDbShowPopularityIndex := (g_intUsageDbDebug > 0) ; will become an option in Usage db section
 
 gosub, UsageDbInit ; creates g_objUsageDb
 
@@ -2819,7 +2840,8 @@ gosub, UsageDbInit ; creates g_objUsageDb
 
 ; collect recent intems in UsageDb
 Diag("Launch", "UsageDbCollectRecentItems")
-Gosub, UsageDbCollectRecentItems
+if (g_blnUseSQLite)
+	Gosub, UsageDbCollectRecentItems
 
 ; Update FavoriteUsageDb properties with data from UsageDb
 Gosub, UsageDbUpdateFavorites
@@ -2910,7 +2932,8 @@ Hotkey, If
 ; Start task collecting recent items
 
 Diag("SetTimer", "UsageDbCollectRecentItems")
-SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbRecentItemsInterval * 1000), -100 ; delay before repeating UsageDbCollectRecentItems / priority -100 (not sure?)
+if (g_blnUseSQLite)
+	SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbRecentItemsInterval * 1000), -100 ; delay before repeating UsageDbCollectRecentItems / priority -100 (not sure?)
 
 return
 
@@ -5911,11 +5934,9 @@ if !g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMe
 	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
-blnUseSQLite := (g_intUsageDbRecentItemsInterval > 0)
-
 ; prepare data source
 
-if (blnUseSQLite) ; use SQLite usage database
+if (g_blnUseSQLite) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
 	IF !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
@@ -5948,7 +5969,7 @@ intMenuNumberFiles := 0
 Loop
 {
 	; get next item
-	if (blnUseSQLite)
+	if (g_blnUseSQLite)
 	{
 		if objRecordSet.Next(objRow) = -1 ; end of recordset
 			break
@@ -6028,10 +6049,9 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-if !(blnUseSQLite)
+if !(g_blnUseSQLite)
 	SetWaitCursor(false)
 
-blnUseSQLite := ""
 strUsageDbSQL := ""
 objRecordSet := ""
 objRow := ""
@@ -16040,6 +16060,8 @@ if (g_blnDisplayNumericShortcuts)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
+if (g_blnUsageDbShowPopularityIndex) ; remove popularity index
+	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " (", false, 0) - 1) ; strip " (n)" from end
 
 if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 {
