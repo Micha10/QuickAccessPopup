@@ -9482,7 +9482,7 @@ else ; add favorite
 	strOriginalExtension := GetFileExtension(g_strNewLocation)
 	if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
 	{
-		strShortcutFilename := GetDeepestFolderName(g_strNewLocation) ; save the name of the lnk as new favorite name
+		strShortcutFilename := GetLocationPathName(g_strNewLocation) ; save the name of the lnk as new favorite name
 		; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
 		FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
 	}
@@ -9518,7 +9518,7 @@ else ; add favorite
 		{
 			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
 			IniRead, strExternalMenuName, %g_strNewLocation%, Global, MenuName, %A_Space%
-			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetDeepestFolderName(g_strNewLocation))
+			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetLocationPathName(g_strNewLocation))
 			g_objEditedFavorite.FavoriteType := "External"
 			g_strNewFavoriteIconResource := "iconSubmenu"
 		}
@@ -9536,7 +9536,7 @@ else ; add favorite
 				g_strNewFavoriteIconResource := g_strURLIconFileIndex
 			}
 			else
-				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetDeepestFolderName(g_strNewLocation))
+				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetLocationPathName(g_strNewLocation))
 		}
 	}
 	g_strNewFavoriteShortcut := "None" ; internal name
@@ -10686,7 +10686,7 @@ if (g_objEditedFavorite.FavoriteType = "URL")
 	return
 
 if !StrLen(f_strFavoriteShortName)
-	GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
+	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
 	gosub, GuiFavoriteIconDefault
@@ -10815,7 +10815,7 @@ else ; ButtonSelectFavoriteLocation
 {
 	GuiControl, 2:, f_strFavoriteLocation, %strNewLocation%
 	if !StrLen(f_strFavoriteShortName)
-		GuiControl, 2:, f_strFavoriteShortName, % GetDeepestFolderName(strNewLocation)
+		GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName(strNewLocation)
 }
 
 ButtonSelectFavoriteLocationCleanup:
@@ -19485,14 +19485,15 @@ LocationIsDocument(strLocation)
 
 
 ;------------------------------------------------------------
-GetDeepestFolderName(strLocation)
+GetLocationPathName(strLocation)
 ;------------------------------------------------------------
 {
-	SplitPath, strLocation, , , , strDeepestName, strDrive
-	if !StrLen(strDeepestName) ; we are probably at the root of a drive
+	SplitPath, strLocation, strOutFileName, , , strOutNameNoExt, strDrive
+	strName := (InStr(FileExist(strLocation), "D") ? strOutFileName : strOutNameNoExt)
+	if !StrLen(strName) ; we are probably at the root of a drive
 		return strDrive
 	else
-		return strDeepestName
+		return strName
 }
 ;------------------------------------------------------------
 
