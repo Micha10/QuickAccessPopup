@@ -31,6 +31,25 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.1.2 (2018-09-07)
+ 
+Placeholders in file and folder paths
+- in favorite's "Location", "Parameters" and "Start In" fields (for all types of favorites supporting these options):
+  - [NEW] replace the following placeholders with the path (or part of it) of the item currently under the mouse pointer or selected in the current file manager window: "{SEL_LOC}" (full path), "{SEL_NAME}" (file name only), "{SEL_DIR}" (directory), "{SEL_EXT}" (extension), "{SEL_NOEXT}" (file name without extension) or "{SEL_DRIVE}" (drive letter)
+  - [NEW] replace the placeholder "{Clipboard}" with the current content of the Windows Clipboard (if it contains text)
+  - [IMPROVED] now replace the placeholders "{LOC}", "{NAME}", "{DIR}", "{EXT}", "{NOEXT}" and "{DRIVE}" with favorite's location (etc.) in all fields listed above
+  - [IMPROVED] now replace the placeholders "{CUR_LOC}", etc. with current location (Explorer window under mouse pointer or active Explorer window) in all fields listed above
+- also replace these placeholders in Windows Apps parameters and in Snippet's content
+ 
+Bug fixes
+- fix bug with shared menu catalogue path and environment variables
+- when extracting the "Short name for menu" of a favorite folder from its location, stop stripping the text after the last dot of the folder name
+ 
+Language files
+- addition of Korean translation, thanks to Maeng Bong Kyun (https://blog.naver.com/meangkim)
+- update of Dutch, German, Italian and French language files
+- add Korean and Dutch language to setup program
+
 Version: 9.1.1 (2018-08-24)
  
 Various
@@ -2464,7 +2483,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.1
+;@Ahk2Exe-SetVersion 9.1.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2559,7 +2578,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
