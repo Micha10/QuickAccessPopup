@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.1.2 (2018-09-07)
+Version: 9.1.2 (2018-09-10)
  
 Placeholders in file and folder paths
 - in favorite's "Location", "Parameters" and "Start In" fields (for all types of favorites supporting these options):
