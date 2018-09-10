@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	~1~ ha sido desarrollado por Jean Lalonde usando la plataforma`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al Alemán: Edgar "Fast Edi" Hoffmann`nTraducción al Francés: Jean Lalonde`nTraducción al italiano: Riccardo Leone`nTraducción al español: Kiketrucker (AccionglobalXSoft)`nTraducción al brasileño y portugues: Igor Ruckert`nTraducción al chino tradicional: Jess Yang`nOtras traducciones: (tu ayuda es bienvenida)`nComprobación de Inglés: (tu ayuda es bienvenida)`n`nIconos por: <a href="https://icons8.com/">Icons8</a>`nInstalador del programa: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v~2~ sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>  
+lAboutText2	~1~ ha sido desarrollado por Jean Lalonde usando la plataforma`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTraducción al Alemán: Edgar "Fast Edi" Hoffmann`nTraducción al Francés: Jean Lalonde`nTraducción al italiano: Riccardo Leone`nTraducción al español: Kiketrucker (AccionglobalXSoft)`nTraducción al brasileño y portugues: Igor Ruckert`nTraducción al chino tradicional: Jess Yang`nKorean translation: Maeng Bong Kyun`nComprobación de Inglés: (tu ayuda es bienvenida)`n`nIconos por: <a href="https://icons8.com/">Icons8</a>`nInstalador del programa: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nAutoHotkey_L v~2~ sources: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>  
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Soporte en línea: <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Acerca de - ~1~ ~2~
@@ -43,7 +43,6 @@ lDialogAddFavoriteTabsExternal	Menú compartido
 lDialogAddFavoriteTabsLive	Opciones de carpeta dinámica
 lDialogAddFileSelect	elegir un nuevo documento:
 lDialogAddFolderManuallyPrompt	Lo sentimos, no podemos detectar la carpeta actual en este tipo de ventana.`n`n¿Quiere añadir una carpeta favorita ahora manualmente?
-lDialogAddFolderManuallyTitle	Añadir esta Carpeta o Link - ~1~ ~2~
 lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
 lDialogAdmnistrator	Administrador
 lDialogAdmnistratorNot	No Administrador
@@ -52,9 +51,7 @@ lDialogApplicationLabel	Aplicación
 lDialogAppWorkingDirCurrent	Iniciar la aplicación en la ubicación de la carpeta en la que se puso en marcha este favorito
 lDialogArgumentsLabel	Ajustes
 lDialogArgumentsLabelHelp	(poner cada elemento entre comillas si es necesario)
-lDialogArgumentsPlaceholders	Puede incluir la ubicación de este favorito en su totalidad o en parte, en el entorno a través de estos códigos: {LOC} (ubicación completa), {NAME} (nombre de la carpeta), {DIR} (carpeta), {EXT} (extensión), {NOEXT} (nombre de la carpeta sin extensión) o {DRIVE} (lector)
 lDialogArgumentsPlaceholdersCheckLabel	Ajustes actuales reemplazados por los códigos de ubicación
-lDialogArgumentsPlaceholdersCurrent	También puede insertar marcadores de posición para la ubicación de la carpeta actual en la que se puso en marcha este favorito: {CUR_LOC} (ubicación completa), {CUR_NAME} (última carpeta), {CUR_DIR} (carpeta contenedora de la última carpeta) o {CUR_DRIVE} 
 lDialogArgumentsPlaceholdersCurrentExample	x:\contenedor_carpeta\última_carpeta
 lDialogAscending	Ascendente
 lDialogBrowseButton	Revisar
@@ -218,7 +215,6 @@ lDialogFileLabel	Documento
 lDialogFileName	Nombre del archivo
 lDialogFileSize	Tamaño del archivo
 lDialogFolderLabel	Carpeta
-lDialogFoldersPlaceholders	Puede insertar el marcador de posición {CUR_LOC} para insertar la ubicación donde se ha lanzado este favorito
 lDialogGetWebPageTitle	Obtener título
 lDialogGetWinInfo	Para identificar la ventana de la que desea obtener el título, clase o nombre del proceso, haga clic en la ventana de destino con la tecla de acceso directo del menú QAP [~1~].
 lDialogGetWInInfo2Clippoard	Título de la ventana:`n"~1~"`n`nClass:`n"~2~"`n`nNombre del proceso:`n"~3~"`n`n¿Copiar esta información al portapapeles?
@@ -430,7 +426,6 @@ lHelpText13	Para forzar la apertura de la carpeta en una ventana nueva, pulsar l
 lHelpText14	Elija "Configuración" para personalizar el menú emergente de Quick Access Popup. Puede añadir los favoritos a su menú. Puede mover, renombrar, borrar. Puede también añadir los SUB-MENUS, de los GRUPOS o de los SUB-MENUS COMPARTIDOS. Elija "Menú o grupo para modificar:" en la lista desplegable. Clique en "Guardar" para conservar los cambios.
 lHelpText21	Para añadir favoritos, en la ventana "Configuración", haga clic en el botón "Añadir". Seleccione el tipo del nuevo favorito y ver la esquina en el lado derecho de la ventana. Haga clic en "Continuar" para abrir el cuadro de diálogo "Añadir favorito".
 lHelpText22	En las cuatro fichas del "Añadir favorito" cuadro de diálogo, introduzca los "Ajustes básicos", "Opciones de menú", "Opciones de Ventana" y "Configuración avanzada". Haga clic en "Añadir" para insertar el favorito en su menú y "Guardar" en la ventana Configuración.
-lHelpText23	AÑADIR ESTA CARPETA O LINK`n`nAÑADIDO rápido de una nueva CARPETA o LINK favoritos al menú emergente:`n1) Ir a una carpeta o página web usada con frecuencia.`n2) Clicar en atajo de QAP [~1~] or [~2~], y elegir "Añadir esta Carpeta o Link".`n3) Dar al favorito un nombre corto, haga clic en "Añadir", despues "Guardar" en la ventana Configuración.
 lHelpText31	En mi "Mi QAP Básicos" menú:
 lHelpText32	- Pulse el "Cambiar..." menú para cambiar a cualquier otro que ejecuta ventana del explorador o aplicación.`n- Utilice el menú "Volver a abrir una carpeta" para volver a abrir una de las carpetas ya abierta en una ventana del Explorador (muy útil en los cuadros de diálogo de archivos).`n- Elija las "carpetas recientes ..." del menú para mostrar una lista actualizada de las carpetas de Windows recientes.`n- Acceder a los archivos o direcciones URL en el portapapeles con el menú "Portapapeles".`n- Haga clic en el menú "Unidades de disco" para ver la lista de unidades con el espacio de disco actual. 
 lHelpText33	PERSONALIZA TU QAP FUNCIONES DEL MENU
@@ -482,10 +477,7 @@ lMenuAboutAmpersand	&Acerca de
 lMenuAddFavorite	Añadir Favorito
 lMenuAddFavoriteDescription	Muestra la lista de tipos favoritos entre los que puede elegir el tipo de favorito que desea agregar.`n`nEn la siguiente ventana, escriba: `n- el nombre del favorito, `n- su contenido`n- varias opciones como ícono, atajo, cadena de sustitución, varios parámetros, etc.`n`n Dependiendo del tipo de favorito, el contenido puede ser la ubicación de una carpeta, documento o aplicación, un enlace web, un fragmento de texto, un submenú, etc.
 lMenuAddFavoriteOfTypeDescription	Agregar un tipo de favorito "~1~".`n`nEn el cuadro de diálogo "Agregar favorito", escriba `n- un nombre para su favorito`n- un contenido, dependiendo del tipo de favorito`n- varias opciones tales como un icono, un acceso directo, una cadena de sustitución, ajustes, etc.
-lMenuAddThisFolder	Añadir esta Carpeta o Link
 lMenuAddThisFolderDescription	Añada instantáneamente la carpeta o página web activa al escritorio.`n`nTambién puede agregar carpetas habilitando el menú QAP en las ventanas del Explorador de Windows o en los cuadros de diálogo de archivos. Puede añadir enlaces web en la mayoría de los navegadores. `n`n En el cuadro de diálogo "Añadir favorito", confirme el nombre del favorito e introduzca varias opciones como el icono, el acceso directo, la cadena de sustitución, la configuración, etc. `n`n` Por defecto, esta función está presente en el menú principal.
-lMenuAddThisFolderXpress	Añadir esta Carpeta o Link Rápido 
-lMenuAddThisFolderXpressDescription	Similar al comando "Agregar esta carpeta o enlace al menú", excepto que el nuevo favorito se agrega automáticamente al principio del menú principal sin interrupción.`n`n`nSi desea cambiar los valores predeterminados, puede hacer clic en el botón "Editar" para cambiar el nombre, la posición o varias configuraciones del favorito.`n`n En la pestaña "Opciones", "Menú", puede elegir agregar automáticamente los nuevos favoritos al principio o al final del menú principal.
 lMenuAlternativeEditFavorite	Editar un Favorito
 lMenuAlternativeNewWindow	Abrir en nueva ventana
 lMenuAlternativeOpenContainingCurrent	Abrir la carpeta principal en la ventana actual
@@ -585,7 +577,6 @@ lMenuUserPinned	Adherido al Usuario
 lMenuWebSiteSupport	Grupo de soporte de QAP 
 lNavigateFileError	Se produjo un error al abrir la carpeta:`n~1~.
 lNavigateSpecialError	Se produjo un error al abrir la carpeta especial #~1~.
-lOopsAddThisFolderTip	Para obtener mejores resultados con el comando "Añadir Esta Carpeta o Link":`n`n1) Activar la ~1~ ventana que contiene la carpeta o el enlace para agregar a su menú.`n2) Abrir el menú emergente usando ~2~.`n3) Seleccionar "Añadir esta Carpeta o Link" y gaurdar su nuevo favorito.
 lOopsAmpersandInName	El signo "&" en los nombres de menús de Windows se utiliza para establecer atajos de teclado. Para mostrar un símbolo de unión en un nombre de menú, introduzca "&&".`n`nPara más información, buscar "ampersand" en FAQ del sitio web de QAP's.
 lOopsCannotCopyFavorite	Tipos de favoritos "~1~" cannot be copied.
 lOopsCannotCopyMoveToSelf	You no se puede mover ni copiar favoritos a su ubicación real. Por favor, seleccione otro destino.
@@ -673,7 +664,7 @@ lOptionsHotstringsDefaultSelect	Seleccionar
 lOptionsIconSize	Tamaño de iconos del menú
 lOptionsIconsManageRows	Gestión de filas Iconos de la ventana`n(0 para máximo disponible) 
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglés|Francés|Alemán|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified|Holandés
+lOptionsLanguageLabels	Inglés|Francés|Alemán|Español|Portugués brasileño|Italiano|Chino tradicional|Portugués|Chino Simplified|Holandés|Korean
 lOptionsMenuActiveWindow	En la ventana activa
 lOptionsMenuFixPosition	En una posición fija
 lOptionsMenuNearMouse	Cerca del puntero del ratón
@@ -695,7 +686,6 @@ lOptionsRefreshedMenusAttachedInfo	Si habilita esta opción, puede haber un liger
 lOptionsRefreshQAPMenuDebugBeep	Bip antes y después de la actualización (depurar)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualización en segundos`n(recomendamos 300 segundos o más)
 lOptionsRefreshQAPMenuTitle	Habilitar actualización programada del menú QAP
-lOptionsRememberSettingsPosition	Memorizar la posición de la ventana
 lOptionsRunAsAdmin	Ejecutar como administrador
 lOptionsRunAsAdminAlert	Atención: Ejecutando ~1~ en modo Administrador puede tener consecuencias inesperadas al ejecutar programas que pueden estar infectados con código malicioso. Esto podría permitir que los programas maliciosos hereden privilegios administrativos e infecten o tomen el control de tu computadora. Tenga cuidado cuando se ejecuta ~1~ en modo Administrador.
 lOptionsRunAsAdminExit	~1~ se lanzará sin derecho administrativo la próxima vez que lo lances.`n`nQuieres salir ~1~ ahora? Los cambios no guardados en el menú se perderán.
