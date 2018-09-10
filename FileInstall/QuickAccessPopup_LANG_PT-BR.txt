@@ -1,5 +1,5 @@
 lAboutText1	~1~ ~2~ (~3~ bits)
-lAboutText2	O ~1~ é escrito por Jean Lalonde usando a linguagem de programação`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução para o Alemão: Edgar "Fast Edi" Hoffmann`nTradução para o Francês: Jean Lalonde`nTradução para o Holandês: Pieter Dejonghe`nTradução para o Italiano: Riccardo Leone`nTradução para o Espanhol: kiketrucker`nTradução para Português (Brasil): Igor Rückert`nTradução para Chinês Tradicional e Simplificado: Jess Yang`nTradução para Português: Luis Neves`nDutch translation: Ric Roggeveen`nOutras traduções de idioma: (ajuda sempre bem-vinda)`nVerificação do inglês: (ajuda sempre bem-vinda)`n`nÍcones por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nPrograma de instalação: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nFontes AutoHotkey_L v~2~: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
+lAboutText2	O ~1~ é escrito por Jean Lalonde usando a linguagem de programação`n<a href="http://ahkscript.org/">AutoHotkey</a>.`n`nTradução para o Alemão: Edgar "Fast Edi" Hoffmann`nTradução para o Francês: Jean Lalonde`nTradução para o Holandês: Pieter Dejonghe`nTradução para o Italiano: Riccardo Leone`nTradução para o Espanhol: kiketrucker`nTradução para Português (Brasil): Igor Rückert`nTradução para Chinês Tradicional e Simplificado: Jess Yang`nTradução para Português: Luis Neves`nDutch translation: Ric Roggeveen`nKorean translation: Maeng Bong Kyun`nVerificação do inglês: (ajuda sempre bem-vinda)`n`nÍcones por: <a href="http://www.visualpharm.com">Visual Pharm</a>`nPrograma de instalação: <a href="http://www.jrsoftware.org/isinfo.php">Inno Setup</a> por jrsoftware.org`nFontes AutoHotkey_L v~2~: <a href="https://github.com/JnLlnd/QuickAccessPopup">GitHub</a>
 lAboutText3	~1~ Jean Lalonde 2013-~2~`nLicensed under the Apache License, Version 2.0 (the "License"). You may not use this file except in compliance with the License. You may obtain a copy of the License at:`n    http://www.apache.org/licenses/LICENSE-2.0`nUnless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 lAboutText4	Suporte em <a href="http://www.quickaccesspopup.com">www.quickaccesspopup.com</a>
 lAboutTitle	Sobre - ~1~ ~2~
@@ -43,7 +43,6 @@ lDialogAddFavoriteTabsExternal	Menu Compartilhado
 lDialogAddFavoriteTabsLive	Opções da Pasta Ativa
 lDialogAddFileSelect	Escolha o novo documento:
 lDialogAddFolderManuallyPrompt	Desculpe, não detectamos a pasta atual neste tipo de janela.`n`nDeseja adicionar uma pasta favorita manualmenet agora?
-lDialogAddFolderManuallyTitle	Adicionar esta Pasta ou Link - ~1~ ~2~
 lDialogAddFolderSelect	Escolha ou crie a nova pasta:
 lDialogAdmnistrator	Administrador
 lDialogAdmnistratorNot	Não Administrador
@@ -52,9 +51,7 @@ lDialogApplicationLabel	Aplicativo
 lDialogAppWorkingDirCurrent	Iniciar aplicativo no local da pasta onde seu favorito foi iniciado
 lDialogArgumentsLabel	Parâmetros
 lDialogArgumentsLabelHelp	(coloque cada parâmetro entre aspas, se necessário)
-lDialogArgumentsPlaceholders	Você pode inserir a localização deste favorito ou parte dele nos parâmetros  usando estes marcadores: {LOC} (localização completa), {NAME} (nome do arquivo), {DIR} (pasta), {EXT} (extensão), {NOEXT} (nome do arquivo sem extensão) or {DRIVE} (unidade)
 lDialogArgumentsPlaceholdersCheckLabel	Parâmetros atuais com marcadores expandidos
-lDialogArgumentsPlaceholdersCurrent	Você também pode inserir espaços reservados para o local da pasta atual onde seu favorito foi iniciado: {CUR_LOC} (pasta completa), {CUR_NAME} (última pasta), {CUR_DIR} (pasta contendo última pasta) ou {CUR_DRIVE}
 lDialogArgumentsPlaceholdersCurrentExample	x:\pasta_contendo\última_pasta
 lDialogAscending	Ascendente
 lDialogBrowseButton	Procurar
@@ -218,7 +215,6 @@ lDialogFileLabel	Documento
 lDialogFileName	File Nome
 lDialogFileSize	File Tamanho
 lDialogFolderLabel	Pasta
-lDialogFoldersPlaceholders	Você pode inserir o marcador de posição {CUR_LOC} para inserir o local de onde este favorito é iniciado
 lDialogGetWebPageTitle	Obter título
 lDialogGetWinInfo	Para identificar a janela da qual deseja obter título, classe ou nome do processo, clique na janela de destino com a tecla de atalho do menu QAP [~1~].
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nNome do processo:`n"~3~"`n`nCopiar informações para a Área de Transferência?
@@ -430,7 +426,6 @@ lHelpText13	Para forçar a abertura da pasta em uma nova janela, aperte as teclas
 lHelpText14	Escolha "Configurações" para personalizar o menu do Quick Access Popup. Você pode adicionar favoritos em seu menu. Você pode mover, renomear ou excluir favoritos. Também pode adicionar SUBMENUS, GRUPOS ou MENUS COMPARTILHADOS. Escolha "Menu ou grupo para editar:" na lista suspensa. Clique "Salvar" para manter suas alterações. 
 lHelpText21	Para adicionar favoritos, na janela "Configurações", clique no botão "Adicionar". Selecione o tipo do novo favorito e veja as dicas no lado direito da janela. Clique "Continuar" para abrir a caixa de diálogo "Adicionar Favorito".
 lHelpText22	Nas quatro abas da caixa de diálogo "Adicionar favorito", entre as "Configurações Básicas", "Opções de Menu", "Opções da Janela" e "Configurações Avançadas". Clique "Adicionar" para inserir o favorito em seu menu e "Salvar" na janela de Configurações.
-lHelpText23	ADICIONAR ESTA PASTA`n`nPara ADICIONAR rapidamente uma nova PASTA ou LINK favorito ao menu popup:`n1) Vá até uma pasta ou página da web usada com frequência.`n2) Clique na tecla de atalho do QAP [~1~] ou [~2~] e escolha "Adicionar esta Pasta ou Link".`n3) Dê um nome curto para a pasta, clique "Adicionar", então "Salvar" na janela Configurações.
 lHelpText31	No menu "Meus Essenciais do QAP":
 lHelpText32	- Acesse o menu "Alterar..." para mudar para qualquer outra janela do Explorer ou aplicativo em execução.`n- Use o menu "Reabrir Pasta" para reabrir uma das pastas já abertas em uma janela do Explorer (muito útil em caixas de diálogo de arquivo).`n- Escolha o menu "Pastas recentes..." para exibir uma lista atualizada das pastas recentes do Windows.`n- Acesse os arquivos ou URLs em sua Área de Transferência pelo menu "Área de Transferência".`n- Clique no menu "Discos" para ver a lista de unidades com o espaço em disco atual.
 lHelpText33	PERSONALIZE O MENU DE RECURSOS DO QAP
@@ -482,10 +477,7 @@ lMenuAboutAmpersand	So&bre
 lMenuAddFavorite	Adicionar Favorito
 lMenuAddFavoriteDescription	Exibe uma lista de tipos de favoritos onde você seleciona o tipo de favorito para adicionar.`n`nNa próxima janela, você entra :`n- um nome para o seu favorito`n- um conteúdo`n- várias configurações, como ícone, atalho, string de substituição, parâmetros, etc.`n`nDependendo do tipo de favorito selecionado, o conteúdo do favorito pode ser uma pasta, documento ou caminho do arquivo do aplicativo, link da web, texto recortado, nome do submenu, etc.
 lMenuAddFavoriteOfTypeDescription	Adiciona um favorito do tipo "~1~".`n`nNa caixa de diálogo "Adicionar Favorito", entre :`n- um nome para o seu favorito`n- um conteúdo, dependendo do tipo de favorito selecionado`n- várias configurações, como ícone, atalho, string de substituição, parâmetros, etc.
-lMenuAddThisFolder	Adicionar esta Pasta ou Link
 lMenuAddThisFolderDescription	Adiciona rapidamente ao seu menu a pasta ou página da web ativa.`n`nVocê pode adicionar pastas desta maneira nas janelas do Explorer ou nas caixas de diálogo de arquivo. Você pode adicionar links para páginas da web a partir da maioria dos navegadores.`n`nNa caixa de diálogo "Adicionar favorito", confirme o nome do seu favorito e entre várias configurações, como ícone, atalho, string de substituição, parâmetros, etc.`n`nPor padrão, este recurso é incluído no menu Principal.
-lMenuAddThisFolderXpress	Adicionar Esta Pasta ou Link Expresso
-lMenuAddThisFolderXpressDescription	Similar ao recurso "Adicionar esta Pasta ou Link", exceto que o novo favorito será automaticamente adicionado ao início do menu Principal sem nenhum a interrupção.`n`nSe você precisar alterar as configurações padrão, você pode clicar no botão "Editar" para mudar o nome, posição ou várias configurações dos favoritos.`n`nEm "Opções", você pode definir o novo favorito para ser adicionado por padrão no final do menu Principal.
 lMenuAlternativeEditFavorite	Editar um Favorito
 lMenuAlternativeNewWindow	Abrir em uma nova janela
 lMenuAlternativeOpenContainingCurrent	Abrir Pasta na Janela Atual
@@ -585,7 +577,6 @@ lMenuUserPinned	Fixado pelo Usuário
 lMenuWebSiteSupport	QAP Grupo de Suporte
 lNavigateFileError	Ocorreu um erro ao abrir a pasta:`n~1~.
 lNavigateSpecialError	Ocorreu um erro ao abrir a pasta especial #~1~.
-lOopsAddThisFolderTip	Para melhores resultados com o comando "Adicionar esta Pasta ou Link":`n`n1) Ative a janela ~1~ contendo a pasta ou link para adicionar ao seu menu.`n2) Abra o menu popup menu usando ~2~.`n3) Selecione "Adicionar esta Pasta ou Link" e salve seu novo favorito.
 lOopsAmpersandInName	O 'e' comercial "&" em nomes do menu do Windows é usado para definir atalhos de teclado. Para exibir um 'e' comercial no nome do menu, entre "&&".`n`nPara mais informações, pesquise "ampersand" no FAQ do site do QAP.
 lOopsCannotCopyFavorite	Favoritos do tipo "~1~" não podem ser copiados.
 lOopsCannotCopyMoveToSelf	Você não pode mover ou copiar favoritos para sua localização atual. Por favor, selecione outro destino.
@@ -673,7 +664,7 @@ lOptionsHotstringsDefaultSelect	Selecionar
 lOptionsIconSize	Tamanho dos ícones no menu
 lOptionsIconsManageRows	Linhas da janela 'Gerenciar Ícones'`n(0 para espaço máximo disponível)
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Espanhol|Português (Brasil)|Italiano|Chinês Tradicional|Português|Chinês Simplified|Holandês
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Espanhol|Português (Brasil)|Italiano|Chinês Tradicional|Português|Chinês Simplified|Holandês|Korean
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela ativa
 lOptionsMenuFixPosition	Em uma posição fixa
 lOptionsMenuNearMouse	Próximo do ponteiro do mouse
@@ -695,7 +686,6 @@ lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um p
 lOptionsRefreshQAPMenuDebugBeep	Aviso sonoro antes e após atualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre atualizações em segundos`n(300 segundos ou mais recomendado)
 lOptionsRefreshQAPMenuTitle	Habilitar Atualização Agendada de Menu do QAP
-lOptionsRememberSettingsPosition	Lembrar posição da janela
 lOptionsRunAsAdmin	Executar como Administrador
 lOptionsRunAsAdminAlert	Aviso: Executar o ~1~ como Administrador pode resultar em consequências inesperadas ao executar programas que podem estar infectados com código malicioso. Isto pode permitir que programas maliciosos herdem privilégios administrativos e infectem ou controlem o seu computador. Seja cauteloso ao executar o ~1~ como Administrador.
 lOptionsRunAsAdminExit	O ~1~ será executado sem direitos administrativos da próxima vez que for iniciado.`n`nDeseja sair do ~1~ agora? Alterações não salvas no menu serão perdidas.

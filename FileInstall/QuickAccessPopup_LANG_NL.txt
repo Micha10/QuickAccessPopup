@@ -52,9 +52,7 @@ lDialogApplicationLabel	Applicatie
 lDialogAppWorkingDirCurrent	Start de applicatie op de locatie waar deze favoriet is gestart
 lDialogArgumentsLabel	Parameters
 lDialogArgumentsLabelHelp	(Bij het gebruik van meerdere parameters dient elke parameter van dubbele aanhalingstekens voorzien te zijn)
-lDialogArgumentsPlaceholders	Het is mogelijk om de locatie van deze favoriet of een deel daarvan toe te voegen door de volgende structuur te gebruiken: {LOC} (volledige locatie), {NAAM} (bestandsnaam), {MAP} (map), {EXT} (extentie), {GEENEXT} (bestandsnaam zonder extentie) of {STATION} (station)
 lDialogArgumentsPlaceholdersCheckLabel	Huidige parameters met dubbele aanhalingstekens
-lDialogArgumentsPlaceholdersCurrent	Ook kunnen accolades gebruikt worden voor de huidige map waar de favoriet is gestart: {HUIDIGE_LOC} (volledige map), {HUIDIGE_NAAM} (laatste map), {HUIDIGE_MAP} (map met laatste map) of {HUIDIG_STATION}
 lDialogArgumentsPlaceholdersCurrentExample	x:\Hoofdmap\Submap
 lDialogAscending	Oplopend
 lDialogBrowseButton	Bladeren...
@@ -220,7 +218,6 @@ lDialogFileLabel	Document
 lDialogFileName	Bestandsnaam
 lDialogFileSize	Bestandsformaat
 lDialogFolderLabel	Map
-lDialogFoldersPlaceholders	Accolades {HUIDIG_LOC} kan gebruikt worden om de locatie toe te voegen waar deze favoriet wordt gestart
 lDialogGetWebPageTitle	Haal titel op
 lDialogGetWinInfo	Klik in het doelvenster met de QAP-menusneltoets [~1~] om de titel, klasse of procesnaam van het venster te identificeren.
 lDialogGetWInInfo2Clippoard	Venstertitel:`n"~1~"`n`nKlasse:`n"~2~"`n`nProcesnaam:`n"~3~"`n`nDeze informatie naar het klembord kopiëren?
