@@ -9747,7 +9747,7 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, %lDialogBrowseButton%
 
 		if !InStr("Snippet|WindowsApp|", g_objEditedFavorite.FavoriteType . "|")
-			Gui, 2:Add, Text, x20 y+5 w500, %lDialogFoldersPlaceholders%.
+			Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogPlaceholders, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 		
         if (g_objEditedFavorite.FavoriteType = "Application")
 		{
@@ -10147,6 +10147,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		Gui, 2:Add, Checkbox, x20 y+5 w500 vf_blnAppWorkingDirCurrent gButtonAppWorkingDirCurrentChanged, %lDialogAppWorkingDirCurrent%.
 		GuiControl, , f_blnAppWorkingDirCurrent, % (g_objEditedFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
 		Gosub, ButtonAppWorkingDirCurrentChanged
+		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogPlaceholders, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 	{
@@ -10162,8 +10163,6 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(lDialogFavoriteSnippetPromptLabel, (arrFavoriteSnippetOptions1 = 1 ? lDialogFavoriteSnippetPromptLabelLaunching : lDialogFavoriteSnippetPromptLabelPasting))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
-		
-		Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/")
 	}
 	else if !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
@@ -10177,8 +10176,7 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 		Gui, 2:Add, Text, y+20 x20 w400, %lDialogArgumentsLabel%
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
 		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsLabelHelp%
-		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsPlaceholders%.
-		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsPlaceholdersCurrent%.
+		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogPlaceholders, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 		
 		Gui, 2:Add, Text, x20 y+10 w500 vf_PlaceholdersCheckLabel, %lDialogArgumentsPlaceholdersCheckLabel%
 		Gui, 2:Add, Edit, x20 y+5 w500 vf_strPlaceholdersCheck ReadOnly
@@ -10746,7 +10744,9 @@ if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
 }
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" . L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/")
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" 
+	. L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/"
+		, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 
 strSnippetFormatBefore := ""
 
