@@ -35,7 +35,6 @@ Version: 9.1.2 (2018-09-07)
  
 Placeholders in file and folder paths
 - in favorite's "Location", "Parameters" and "Start In" fields (for all types of favorites supporting these options):
-  - [NEW] replace the following placeholders with the path (or part of it) of the item currently under the mouse pointer or selected in the current file manager window: "{SEL_LOC}" (full path), "{SEL_NAME}" (file name only), "{SEL_DIR}" (directory), "{SEL_EXT}" (extension), "{SEL_NOEXT}" (file name without extension) or "{SEL_DRIVE}" (drive letter)
   - [NEW] replace the placeholder "{Clipboard}" with the current content of the Windows Clipboard (if it contains text)
   - [IMPROVED] now replace the placeholders "{LOC}", "{NAME}", "{DIR}", "{EXT}", "{NOEXT}" and "{DRIVE}" with favorite's location (etc.) in all fields listed above
   - [IMPROVED] now replace the placeholders "{CUR_LOC}", etc. with current location (Explorer window under mouse pointer or active Explorer window) in all fields listed above
