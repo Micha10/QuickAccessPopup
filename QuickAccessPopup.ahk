@@ -2847,12 +2847,12 @@ g_blnUsageDbError := false
 
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
+IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
 IniRead, g_intUsageDbRecentItemsInterval, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
 g_intUsageDbRecentItemsInterval := ((g_intUsageDbRecentItemsInterval <> 0 and g_intUsageDbRecentItemsInterval < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbRecentItemsInterval)
 g_blnUseSQLite := (g_intUsageDbRecentItemsInterval > 0)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-g_blnUsageDbShowPopularityIndex := (g_intUsageDbDebug > 0) ; will become an option in Usage db section
 
 gosub, UsageDbInit ; creates g_objUsageDb
 
@@ -5661,9 +5661,11 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 		{
 			objPopularMenuTable.Next(objPopularMenuRow) ; at the beginning to skip header row
 			strPath := objPopularMenuRow[1]
+			if !FileExistInPath(strPath) ; skip if not exits, menu may have less than g_intRecentFoldersMax items
+				continue
 			strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
-			if (g_intUsageDbDebug)
-				strMenuItemName .= " (" . objPopularMenuRow[2] . ")" ; ##### menu could not be used in this case
+			if (g_blnUsageDbShowPopularityIndex)
+				strMenuItemName .= " (" . objPopularMenuRow[2] . ")"
 			strIcon := (A_Loopfield = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 			if (objPopularMenuRow[2] > 1)
 				strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
@@ -8783,7 +8785,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalPath
 		}
 		
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_intUsageDbDebug ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
@@ -8796,7 +8798,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_intUsageDbDebug ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex ? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
