@@ -16506,6 +16506,9 @@ WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
 if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
 {
+	arrFavoriteSnippetOptions2 := ExpandPlaceholders(arrFavoriteSnippetOptions2, ""
+		, (InStr(arrFavoriteSnippetOptions2, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+		, (InStr(arrFavoriteSnippetOptions2, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
 	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
 		. (arrFavoriteSnippetOptions1 = 1 ? lTooltipSnippetWaitMacro : lTooltipSnippetWaitText), lTooltipSnippetWaitEnter, lTooltipSnippetWaitSpace, strWaitTime, lTooltipSnippetWaitEscape)
 	Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
