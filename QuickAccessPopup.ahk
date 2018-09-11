@@ -6159,7 +6159,7 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Current Folders}") or g_objQAPfeaturesInMe
 
 if (g_intActiveFileManager = 2) ; DirectoryOpus
 {
-	Gosub, RefreshDOpusListText
+	Gosub, RefreshDOpusListersListText
 	objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 }
 
@@ -6334,18 +6334,26 @@ return
 
 
 ;------------------------------------------------------------
-RefreshDOpusListText:
+RefreshDOpusListersListText:
+RefreshDOpusSelectedListText:
 ;------------------------------------------------------------
 
-FileDelete, %g_strDOpusTempFilePath%
-RunDOpusRt("/info", g_strDOpusTempFilePath, ",paths") ; list opened listers in a text file
-; Run, "%strDirectoryOpusRtPath%" /info "%g_strDOpusTempFilePath%"`,paths
+strDOpusTempFile := g_strTempDir .  "\dopus-" . (A_ThisLabel = "RefreshDOpusListersListText" ? "listers" : "selected") . "-list.txt"
+
+FileDelete, %strDOpusTempFile%
+RunDOpusRt("/info", strDOpusTempFile, "," . (A_ThisLabel = "RefreshDOpusListersListText" ? "paths" : "listsel")) ; list opened listers or selected files in a text file
 loop, 10
-	if FileExist(g_strDOpusTempFilePath)
+	if FileExist(strDOpusTempFile)
 		Break
 	else
 		Sleep, 50 ; was 10 and had some gliches with FP - is 50 enough?
-FileRead, g_strDOpusListText, %g_strDOpusTempFilePath%
+
+if (A_ThisLabel = "RefreshDOpusListersListText")
+	FileRead, g_strDOpusListText, %strDOpusTempFile%
+else ; RefreshDOpusSelectedListText
+	FileRead, g_strDOpusSelectedListText, %strDOpusTempFile%
+	
+strDOpusTempFile := ""
 
 return
 ;------------------------------------------------------------
@@ -18800,10 +18808,7 @@ else ; DirectoryOpus or TotalCommander
 	IniRead, g_str%strActiveFileManagerSystemName%NewTabOrWindow, %g_strIniFile%, Global, %strActiveFileManagerSystemName%NewTabOrWindow, %A_Space% ; should be already intialized here, empty if error
 
 	if (g_intActiveFileManager = 2) ; DirectoryOpus
-	{
-		g_strDOpusTempFilePath := g_strTempDir . "\dopus-list.txt"
 		StringReplace, g_strDirectoryOpusRtPath, g_strDirectoryOpusPath, \dopus.exe, \dopusrt.exe
-	}
 
 	; additional icon for DirectoryOpus and TotalCommander
 	g_objJLiconsByName[strActiveFileManagerSystemName] := g_str%strActiveFileManagerSystemName%Path . ",1"
@@ -18865,7 +18870,7 @@ GetCurrentLocation(strClass, strWinID)
 	{
 		if WindowIsDirectoryOpus(strClass)
 		{
-			Gosub, RefreshDOpusListText
+			Gosub, RefreshDOpusListersListText
 			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 			
 			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
@@ -19646,6 +19651,8 @@ GetSelectedLocation(strClass, strWinId)
 ; LearningOne and jethrow on https://autohotkey.com/board/topic/60723-can-autohotkey-retrieve-file-path-of-the-selected-file/page-2
 ;------------------------------------------------------------
 {
+	global g_strDOpusSelectedListText
+	
 	if WindowIsExplorer(strClass)
 	{
 		for objWindow in ComObjCreate("Shell.Application").Windows
@@ -19671,26 +19678,18 @@ GetSelectedLocation(strClass, strWinId)
 				break
 		}
 	}
-	else if WindowIsTotalCommander(strClass) or WindowIsDirectoryOpus(strClass)
-		; not reliable in dialog boxes: or WindowIsDialog(strClass, strWinID)
+	else if WindowIsDirectoryOpus(strClass)
 	{
-		blnIsClipEmpty := (Clipboard = "" ? true : false)
-		if !(blnIsClipEmpty)
-		{
-			objClipboardBackup := ClipboardAll
-			While !(Clipboard = "")
-			{
-				Clipboard := ""
-				Sleep, 10
-			}
-		}
-		Send, ^c
-		ClipWait, 1
-		strFirstItem := Clipboard
-		Clipboard := objClipboardBackup
-		if !(blnIsClipEmpty)
-			ClipWait, 1, 1
+		gosub, RefreshDOpusSelectedListText
+		strFirstItem := SubStr(g_strDOpusSelectedListText, InStr(g_strDOpusSelectedListText, "<item id="))
+		strFirstItem := SubStr(strFirstItem, InStr(strFirstItem, "path=""") + 6)
+		strFirstItem := SubStr(strFirstItem, 1, InStr(strFirstItem, """ type=") - 1)
 	}
+	; no reliable technique to retrieve the active item in dialog boxes and Total Commander
+	else if WindowIsTotalCommander(strClass)
+		Oops(lOopsSelectedItemTotalCommander)
+	else if WindowIsDialog(strClass, strWinId)
+		Oops(lOopsSelectedItemDialogBoxes)
 
     return strFirstItem
 }
