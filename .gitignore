@@ -39,3 +39,4 @@ WindowsAppsList.*
 CollectWindowsAppsList.ps1
 QAP_Usage.DB
 *.NO
+*.DB
