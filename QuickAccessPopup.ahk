@@ -2856,7 +2856,7 @@ g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsage
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-IniRead, g_intUsageDbMaximumDays, %g_strIniFile%, Global, UsageDbMaximumDays, 30
+IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
 IniRead, g_intUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 3
 IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
 
@@ -5660,7 +5660,9 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 
 	; SQLite GetTable
 	; Parse table
-	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
+	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
+		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE "
+		. "ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
 	IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularMenuTable)
 	{
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
@@ -7471,7 +7473,8 @@ Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 Gui, 2:Add, Text, y+15 xs w300, %lMenuLastActions%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
 Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, %g_intNbLastActions%
-Gui, 2:Add, Text, yp x+10 w235, %lOptionsNbLastActions%
+StringReplace, strOptionsLastActions, lOptionsRecentFolders, & ; remove ampersand
+Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsAddAutoAtTop%
 
@@ -7643,7 +7646,7 @@ Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %l
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
-Gui, 2:Add, Edit, vf_intUsageDbMaximumDays hidden, %g_intUsageDbMaximumDays%
+Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
 Gui, 2:Add, Edit, vf_intUsageDbMaximumSize hidden, %g_intUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
 
@@ -7670,6 +7673,7 @@ intOrder := ""
 strAlternativeCode := ""
 intMaxWidth := ""
 ResetArray("arrPos")
+strOptionsLastActions := ""
 
 return
 ;------------------------------------------------------------
@@ -8137,9 +8141,9 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbIntervalSecondsMoreEdit
 	Gui, 3:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSecondsMore, %f_intUsageDbIntervalSeconds%
 	
-	Gui, 3:Add, Text, x10 y+5 vf_lblUsageDbMaximumDaysMore, %lOptionsUsageDbMaximumDays%
-	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbMaximumDaysMoreEdit
-	Gui, 3:Add, UpDown, Range1-9999 h20 vf_intUsageDbMaximumDaysMore, %f_intUsageDbMaximumDays%
+	Gui, 3:Add, Text, x10 y+5 vf_lblUsageDbDaysInPopularMore, %lOptionsUsageDbDaysInPopular%
+	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbDaysInPopularMoreEdit
+	Gui, 3:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopularMore, %f_intUsageDbDaysInPopular%
 	
 	Gui, 3:Add, Text, x10 y+5 vf_lblUsageDbMaximumSizeMore, %lOptionsUsageDbMaximumSize%
 	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbMaximumSizeMoreEdit
@@ -8177,9 +8181,9 @@ strAction := (f_blnOptionUsageDbEnable ? "Show" : "Hide")
 GuiControl, %strAction%, f_lblUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMoreEdit
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMore
-GuiControl, %strAction%, f_lblUsageDbMaximumDaysMore
-GuiControl, %strAction%, f_intUsageDbMaximumDaysMoreEdit
-GuiControl, %strAction%, f_intUsageDbMaximumDaysMore
+GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
+GuiControl, %strAction%, f_intUsageDbDaysInPopularMoreEdit
+GuiControl, %strAction%, f_intUsageDbDaysInPopularMore
 GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_intUsageDbMaximumSizeMoreEdit
 GuiControl, %strAction%, f_intUsageDbMaximumSizeMore
@@ -8206,7 +8210,7 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 	else if (g_strMoreWindowName = "UsageDb")
 	{
 		GuiControl, 2:, f_intUsageDbIntervalSeconds, % (f_blnOptionUsageDbEnable ? (f_intUsageDbIntervalSecondsMore < 60 ? 60 : f_intUsageDbIntervalSecondsMore) : 0) 
-		GuiControl, 2:, f_intUsageDbMaximumDays, % (f_intUsageDbMaximumDaysMore < 1 ? 1 : f_intUsageDbMaximumDaysMore)
+		GuiControl, 2:, f_intUsageDbDaysInPopular, % (f_intUsageDbDaysInPopularMore < 1 ? 1 : f_intUsageDbDaysInPopularMore)
 		GuiControl, 2:, f_intUsageDbMaximumSize, % (f_intUsageDbMaximumSizeMore < 1 ? 1 : f_intUsageDbMaximumSizeMore)
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
 	}
@@ -8484,8 +8488,8 @@ SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExc
 g_intUsageDbIntervalSeconds := f_intUsageDbIntervalSeconds
 IniWrite, %g_intUsageDbIntervalSeconds%, %g_strIniFile%, Global, UsageDbIntervalSeconds
 
-g_intUsageDbMaximumDays := f_intUsageDbMaximumDays
-IniWrite, %g_intUsageDbMaximumDays%, %g_strIniFile%, Global, UsageDbMaximumDays
+g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
+IniWrite, %g_intUsageDbDaysInPopular%, %g_strIniFile%, Global, UsageDbDaysInPopular
 
 g_intUsageDbMaximumSize := f_intUsageDbMaximumSize
 IniWrite, %g_intUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
