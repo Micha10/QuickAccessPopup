@@ -5619,23 +5619,24 @@ return
 
 ;------------------------------------------------------------
 PopularFoldersMenuShortcut:
+PopularFilesMenuShortcut:
 ;------------------------------------------------------------
 
 if !(g_blnUsageDbEnabled)
 	return
 
-Gosub, RefreshPopularMenusShortcut
+Gosub, RefreshPopularMenus
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-Menu, %lMenuPopularFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % L(lMenuPopularMenus, (A_ThisLabel = "PopularFoldersMenuShortcut" ? lMenuPopularFolders : lMenuPopularFiles)), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-RefreshPopularMenusShortcut:
+RefreshPopularMenus:
 ;------------------------------------------------------------
 
 if !(g_blnUsageDbEnabled)
@@ -8572,7 +8573,7 @@ Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularMenusShortcut
+Gosub, RefreshPopularMenus
 Gosub, RefreshRecentItemsMenus
 if (g_blnRefreshedMenusAttached)
 	Gosub, RefreshDrivesMenu
@@ -15152,7 +15153,7 @@ if InStr(A_ThisLabel, "Mouse")
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularMenusShortcut
+Gosub, RefreshPopularMenus
 Gosub, RefreshRecentItemsMenus
 
 if (g_blnRefreshedMenusAttached)
