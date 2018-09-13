@@ -5682,7 +5682,7 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 				continue
 			strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
 			if (g_blnUsageDbShowPopularityIndex)
-				strMenuItemName .= " (" . objPopularMenuRow[2] . ")"
+				strMenuItemName .= " [" . objPopularMenuRow[2] . "]"
 			strIcon := (A_Loopfield = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 			if (objPopularMenuRow[2] > 1)
 				strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
@@ -8981,7 +8981,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex and g_objMenuInGui[A_Index].FavoriteUsageDb
-			? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
+			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
@@ -8995,7 +8995,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 		
 	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex and g_objMenuInGui[A_Index].FavoriteUsageDb
-			? " (" . g_objMenuInGui[A_Index].FavoriteUsageDb . ")" : ""), strThisType, strThisHotkey
+			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
 
@@ -16293,9 +16293,9 @@ if (g_blnDisplayNumericShortcuts)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
-if (g_blnUsageDbShowPopularityIndex) ; remove popularity index
-	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " (", false, 0) - 1) ; strip " (n)" from end
-
+if (g_blnUsageDbShowPopularityIndex)
+	and (A_ThisMenu = L(lMenuPopularMenus,  lMenuPopularFolders) or A_ThisMenu = L(lMenuPopularMenus,  lMenuPopularFiles)) ; remove popularity index
+	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " [", false, 0) - 1) ; strip " [n]" from end
 if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 {
 	strThisMenuItem :=  SubStr(A_ThisMenuItem, 1, InStr(A_ThisMenuItem, g_strGroupIndicatorPrefix) - 2) ; remove indicator with nb of group members
