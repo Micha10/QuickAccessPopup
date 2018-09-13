@@ -2856,7 +2856,7 @@ g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsage
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-IniRead, g_intUsageDbMaximumDays, %g_strIniFile%, Global, UsageDbMaximumDays, 90
+IniRead, g_intUsageDbMaximumDays, %g_strIniFile%, Global, UsageDbMaximumDays, 30
 IniRead, g_intUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 3
 IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
 
@@ -19407,9 +19407,8 @@ else ; init SQLite wraper object
 blnUsageDbExist := FileExist(g_strUsageDbFile)
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
-	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . g_strUsageDbFile)
+	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
 	g_blnUsageDbError := true
-	g_objUsageDb.Exec("ROLLBACK;")
 	return
 }
 
@@ -19425,6 +19424,7 @@ if !(blnUsageDbExist) ; create database if it does not exist
 		. ",MenuDateCreated,MenuDateModified"
 		. ");"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
 	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
 
@@ -19432,7 +19432,6 @@ if !(blnUsageDbExist) ; create database if it does not exist
 	{
 		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbError := true
-		g_objUsageDb.Exec("ROLLBACK;")
 		return
 	}
 }
@@ -19448,15 +19447,14 @@ else ; add column "FavoriteName" if it does not exist
 	}
 	
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);" ; for user of firsts beta versions
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);" ; for user of firsts beta versions
 	
-	if StrLen(strUsageDbSQL)
-		If !g_objUsageDb.Exec(strUsageDbSQL)
-		{
-			Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-			g_blnUsageDbError := true
-			g_objUsageDb.Exec("ROLLBACK;")
-			return
-		}
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		g_blnUsageDbError := true
+		return
+	}
 }
 
 ; maintenance for beta versions
@@ -19494,10 +19492,77 @@ If !g_objUsageDb.Exec(strUsageDbSQL)
 	return
 }
 
+IniRead, blnUsageDbDatesConverted, %g_strIniFile%, Global, UsageDbDatesConverted, 0
+if !(blnUsageDbDatesConverted)
+	gosub, UsageDbConvertDateFormat
+
 str64or32 := ""
 strError := ""
 blnUsageDbExist := ""
 strUsageDbSQL := ""
+blnUsageDbDatesConverted := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UsageDbConvertDateFormat:
+;------------------------------------------------------------
+
+Oops("QAP will convert the dates format in Popular Menus database from releases pre-v9.1.9.10.`n`nThis may take a few minutes...")
+
+strUsageDbSQL := "SELECT id, TargetDateTime, CollectDateTime FROM Usage ORDER BY id;"
+if !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
+{
+	Oops("SQLite GetTable Error`n`nMsg:`t" . g_objDB.ErrorMsg . "`nCode:`t" . g_objDB.ErrorCode . "`n" . strUsageDbSQL)
+	return
+}
+
+Loop, % objUsageDbTable.RowCount
+{
+	ToolTip, % "Updating dates in database: " . A_Index . " / " . objUsageDbTable.RowCount
+	
+	objUsageDbTable.Next(objUsageDbRow)
+	intUsageDbID := objUsageDbRow[1]
+	strTargetDateTimeOri := objUsageDbRow[2]
+	strCollectDateTimeOri := objUsageDbRow[3]
+	; convert from "20180911162859" to "YYYY-MM-DD HH:MM:SS"
+	strTargetDateTimeNew := (!StrLen(strTargetDateTimeOri) or InStr(strTargetDateTimeOri, " ") ? strTargetDateTimeOri : ""
+		. SubStr(strTargetDateTimeOri, 1, 4) . "-"
+		. SubStr(strTargetDateTimeOri, 5, 2) . "-"
+		. SubStr(strTargetDateTimeOri, 7, 2) . " "
+		. SubStr(strTargetDateTimeOri, 9, 2) . ":"
+		. SubStr(strTargetDateTimeOri, 11, 2) . ":"
+		. SubStr(strTargetDateTimeOri, 13, 2)
+		. "")
+	strCollectDateTimeNew := (!StrLen(strCollectDateTimeOri) or InStr(strCollectDateTimeOri, " ") ? strCollectDateTimeOri : ""
+		. SubStr(strCollectDateTimeOri, 1, 4) . "-"
+		. SubStr(strCollectDateTimeOri, 5, 2) . "-"
+		. SubStr(strCollectDateTimeOri, 7, 2) . " "
+		. SubStr(strCollectDateTimeOri, 9, 2) . ":"
+		. SubStr(strCollectDateTimeOri, 11, 2) . ":"
+		. SubStr(strCollectDateTimeOri, 13, 2)
+		. "")
+	
+	strUsageDbSQL := "UPDATE Usage SET TargetDateTime='" . strTargetDateTimeNew . "', CollectDateTime='" . strCollectDateTimeNew . "' WHERE id=" . intUsageDbID . ";"
+	if !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite UPDATE Error`n`nMsg:`t" . g_objDB.ErrorMsg . "`nCode:`t" . g_objDB.ErrorCode . "`n" . strUsageDbSQL)
+		return
+	}
+}
+
+ToolTip
+IniWrite, 1, %g_strIniFile%, Global, UsageDbDatesConverted
+
+objUsageDbTable := ""
+objUsageDbRow := ""
+strTargetDateTimeOri := ""
+strCollectDateTimeOri := ""
+strTargetDateTimeNew := ""
+strCollectDateTimeNew := ""
+intUsageDbID := ""
 
 return
 ;------------------------------------------------------------
@@ -19615,39 +19680,23 @@ Loop, parse, strUsageDbItemsList, `n
 		if (g_blnUsageDbDebug)
 			strUsageDbReport .= strUsageDbTargetPath . "`n"
 
-		strUsageDbSQL .= "INSERT INTO Usage VALUES(NULL"
+		strUsageDbSQL .= "INSERT INTO Usage ("
+		. "TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ") VALUES("
 			; target file and date-time
-			. ",'" . EscapeQuote(strUsageDbTargetPath) . "'"
-			. ",'" . strUsageDbTargetDateTime . "'"
+			. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
+			. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
 			; collect type, time and shortcut file
 			. ",'RecentItems'"
-			. ",'" . strUsageDbShortcutDateTime . "'"
+			. ",'" . ConvertUsageDbDateFormat(strUsageDbShortcutDateTime) . "'"
 			. ",'" . EscapeQuote(strUsageDbShortcutPath) . "'"
 			
 			; target file info
 			. ",'" . strUsageDbTargetAttributes . "'"
 			. ",'" . strUsageDbTargetType . "'"
 			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-		
-			; unused for recent items
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
-			. ",''"
 			. ");"
 			. "`n"
 
@@ -19664,7 +19713,7 @@ if (g_blnUsageDbDebug)
 	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
 If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
 {
-	Oops("SQLite INSERT Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
+	Oops("SQLite INSERT Recent Items Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbError := true
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
@@ -19748,11 +19797,11 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 		. ") VALUES("
 		; target file and date-time
 		. "'" . EscapeQuote(strUsageDbTargetPathExpanded) . "'"
-		. ",'" . strUsageDbTargetDateTime . "'"
+		. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
 		
 		; collect type, time and menu path
 		. ",'Menu'"
-		. ",'" . strUsageMenuDateTime . "'"
+		. ",'" . ConvertUsageDbDateFormat(strUsageMenuDateTime) . "'"
 		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
 		
 		; target file info
@@ -21983,6 +22032,21 @@ GetUsageDbFavoriteUsage(objFavorite)
 	}
 
 	return strValue
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ConvertUsageDbDateFormat(strDate)
+;------------------------------------------------------------
+{
+	return (!StrLen(strDate) or InStr(strDate, " ") ? strDate : ""
+		. SubStr(strDate, 1, 4) . "-"
+		. SubStr(strDate, 5, 2) . "-"
+		. SubStr(strDate, 7, 2) . " "
+		. SubStr(strDate, 9, 2) . ":"
+		. SubStr(strDate, 11, 2) . ":"
+		. SubStr(strDate, 13, 2))
 }
 ;------------------------------------------------------------
 
