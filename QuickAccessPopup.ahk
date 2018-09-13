@@ -19440,8 +19440,9 @@ if !(blnUsageDbExist) ; create database if it does not exist
 		return
 	}
 }
-else ; add column "FavoriteName" if it does not exist
+else
 {
+	; maintenance for beta versions
 	strUsageDbSQL := ""
 	if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
 		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
@@ -19497,15 +19498,36 @@ If !g_objUsageDb.Exec(strUsageDbSQL)
 	return
 }
 
+; maintenance for beta versions
 IniRead, blnUsageDbDatesConverted, %g_strIniFile%, Global, UsageDbDatesConverted, 0
 if !(blnUsageDbDatesConverted)
 	gosub, UsageDbConvertDateFormat
+
+; check maximum size
+
+FileGetSize, intSizeBeforeDelete, %g_strUsageDbFile%
+if (intSizeBeforeDelete > (g_intUsageDbMaximumSize * 1024 * 1024))
+{
+	strUsageDbSQL := "SELECT id FROM Usage;"
+	If !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
+		Oops("SQLite GetTable Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+	
+	strUsageDbSQL := "DELETE FROM Usage WHERE id in (SELECT id FROM Usage ORDER BY id LIMIT "
+		. Round(objUsageDbTable.RowCount / 10, 0) . ");" ; delete 10% latest entries of the database
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite DELETE Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+	
+	strUsageDbSQL := "VACUUM;"
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite VACUUM Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+}
 
 str64or32 := ""
 strError := ""
 blnUsageDbExist := ""
 strUsageDbSQL := ""
 blnUsageDbDatesConverted := ""
+intSizeBeforeDelete := ""
 
 return
 ;------------------------------------------------------------
