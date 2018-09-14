@@ -31,6 +31,36 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.10 (2018-09-??)
+ 
+Popular Menus
+- reorganize "Options" window tabs: add "More" tab with options for "Exclusions list" and "Popular Menus Dabatase" to in Options
+- add "Popular Menus Database" options:
+  - enable database checkbox
+  - recent items collection interval (in seconds)
+  - number of days to take into account in Popular Menus (default 30)
+  - maximum size of the database (in MB), default 1
+  - checkbox to Show popularity index in Popular Menus and Settings window
+- SQLite files are not required if Popular Menus Database option is disabled
+- if Popular Menus Database is disabled, recent items are collected directly when refreshing the Recent items menus
+- hide in Popular Menus files or folders not found
+- convert dates in database to SQLite format (for users of previous beta releases, this could take a few minutes to execute when launching QAP)
+- rename database "QAP_Popular.DB" after dates are converted
+- implement number of days to take into account when builing in Popular Menus
+- when launching QAP, delete 10% latest entries of Popular Menus databse if database size exceeds maximum value
+ 
+Placeholders
+- replace placeholders help text with links in basic and Advanced Settings tab of Add/Edit Favorite dialog box
+- add placeholder help to Snippet Basic Settings tab
+- when using placeholders "{SEL_...}, get selected file in DOpus using DOpus internal command (DOpurRt)
+- remove support for selected file in Total Commander
+- display error message if user try to use selected file placeholders with in Total Commander or in a dialog box
+- when displaying prompt before launching a Snippet, expand placeholders in prompt text for current location and selected item
+ 
+Other
+- fix bug for shortcut of Popular folders and Popular files menus
+- update QAP Messenger v1.1.9 BETA: English language for QAPmessenger that can now be localized; only French translation is included in this release
+
 Version BETA: 9.1.9.9 (2018-09-07)
  
 Changes that will soon be released in master v9.1.2 (some changes were already included in previous beta releases)
