@@ -52,8 +52,9 @@ lDialogApplicationLabel	Application
 lDialogAppWorkingDirCurrent	Lancer l'application dans le dossier où le favori a été cliqué
 lDialogArgumentsLabel	Paramètres
 lDialogArgumentsLabelHelp	(mettre chaque paramètre entre guillemets si nécessaire)
-lDialogArgumentsPlaceholdersCheckLabel	Paramètres actuels avec les codes d'emplacement remplacés
-lDialogArgumentsPlaceholdersCurrentExample	x:\dossier_contenant\dernier_dossier
+lDialogArgumentsPlaceholdersCheckLabel	Paramètres actuels incluant les codes de remplacement
+lDialogArgumentsPlaceholdersCurrentExample	x:\dossier_parent\dernier_dossier
+lDialogArgumentsPlaceholdersSelectedExample	x:\dossier_parent\fichier_ou_dossier_sélectionné
 lDialogAscending	Ascendant
 lDialogBrowseButton	Parcourir
 lDialogBrowseOrSelectApplication	Parcourir pour sélectionner un fichier exécutable ou`nchoisir une application active dans cette liste
@@ -180,7 +181,7 @@ lDialogFavoriteSnippetFixedFont	Police à largeur fixe
 lDialogFavoriteSnippetFontSize	Taille de la police
 lDialogFavoriteSnippetHelpNoProcess	Insérez `` n pour une fin de ligne et ``t pour une tabulation. Insérez `` (double accent grave) pour un accent grave.
 lDialogFavoriteSnippetHelpProcess	Pressez Ctrl-Tab pour insérer une tabulation et Entrée pour insérer une fin de ligne
-lDialogFavoriteSnippetHelpWeb	Voir l'<a href="~1~">aide sur les fragments</a> (anglais) pour les caractères spéciaux et l'encodage des commandes.
+lDialogFavoriteSnippetHelpWeb	Voir l'aide (en anglais) sur <a href="~1~">les fragments</a> (snippets) and <a href="~2~">les codes de remplacements</a> (placeholders).
 lDialogFavoriteSnippetProcessEOLTab	Encoder automatiquement les fins de ligne et les tabulations
 lDialogFavoriteSnippetPromptLabel	Faire une pause avant ~1~ le fragment
 lDialogFavoriteSnippetPromptLabelLaunching	de lancer
@@ -271,6 +272,8 @@ lDialogMenuKey	Touche Menu
 lDialogMenuNotMoveUnderItself	Le menu "~1~" ne peut être déplacé sous lui-même.
 lDialogMinimized	Minimisée
 lDialogModifiedDate	Date de modification
+lDialogMore	Autres
+lDialogMoreOptions	D'autres options
 lDialogMouse	Souris
 lDialogMouseButtonsText	Bouton de gauche de la souris|Bouton du milieu de la souris|Bouton de droite de la souris|Bouton spécial 1 de la souris|Bouton spécial 2 de la souris|Molette vers le haut|Molette vers le bas|Molette à gauche|Molette à droite|
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
@@ -286,6 +289,7 @@ lDialogOpenThisGroup	Ouvrir ce groupe
 lDialogOpenThisMenu	Ouvrir ce menu
 lDialogOr	ou
 lDialogOtherHotkeys	Autres raccourcis pour le menu principal
+lDialogPlaceholders	Voir l'<a href="~1~">aide sur les codes de remplacement</a>.
 lDialogPlay	Jouer
 lDialogQAPFeatureCategoriesNames	En vedette|Menus dynamiques|Édition du menu de QAP|Ajouter un favori avec type|Gestion des fenêtres|Fonctionnalités de Windows|Fermeture de l'ordinateur|Divers utilitaires|Gestion de QAP
 lDialogQAPFeaturesHelpLink	Aide sur cette fonctionnalité
@@ -409,7 +413,7 @@ lGuiLvFavoritesHeaderFiltered	Nom|Menu|Type|Raccourci|Emplacement ou contenu
 lGuiMove	Déplacer
 lGuiMoveAmpersand	&Déplacer
 lGuiOptions	Options
-lGuiOptionsDescription	Afficher la fenêtre "Options" qui permet d'adapter QAP à vos préférences.`n`nLes options sont regroupées en onglets: "Général", "Menu", "Déclencheurs", "Menu alternatif", "Exclusions" and "Gestionnaires".
+lGuiOptionsDescription	Afficher la fenêtre "Options" qui permet d'adapter QAP à vos préférences.`n`nLes options sont regroupées en onglets: "Général", "Menu", "Déclencheurs", "Menu alternatif", "Gestionnaires" et "Autres".
 lGuiPassword	Mot de passe
 lGuiPasswordNotEncripted	Note: Le mot de passe ne sera PAS encrypté lorsqu'il sera transmis sur Internet.
 lGuiRemoveFavorite	Supprimer
@@ -515,6 +519,7 @@ lMenuDownloads	Téléchargements
 lMenuDrives	Disques
 lMenuDrivesDescription	Afficher un menu dynamique présentant les lecteurs de disques de votre système avec leur nom, l'espace libre, la capacité et un icône indiquant le type de lecteur.`n`nCe menu est actualisé chaque fois que vous ouvrez le menu de QAP.
 lMenuDrivesSpace	(~1~ GB libres / ~2~ GB)
+lMenuDynamicMenus	Menus dynamiques
 lMenuEditIniFile	Modifier ~1~
 lMenuEditIniFileDescription	Modifier le fichier de configuration (.ini) de Quick Access Popup actuellement en vigueur.
 lMenuExitApp	Quitter ~1~
@@ -524,7 +529,7 @@ lMenuExternalCatalogueDescription	Sélectionner un sous-menu dans le Catalogue de
 lMenuFavoritesInternet	Favoris (Internet)
 lMenuFonts	Polices
 lMenuGetWinInfo	Lire les renseignements sur une fenêtre
-lMenuGetWinInfoDescription	Identifier une fenêtre à rendre hors de portés du raccourci souris qui affiche le menu QAP (par défaut, le bouton du milieu de la souris).`n`nCette commande vous invite à cliquer la fenêtre visée avec le bouton du menu QAP et à copier dans le Presse-papiers les renseignements sur cette fenêtre (titre, classe et nom du processus).`n`nVoyez l'onglet "Exclusions" dans la boîte de dialogue "Options" pour plus de détails.
+lMenuGetWinInfoDescription	Identifier une fenêtre à rendre hors de portés du raccourci souris qui affiche le menu QAP (par défaut, le bouton du milieu de la souris).`n`nCette commande vous invite à cliquer la fenêtre visée avec le bouton du menu QAP et à copier dans le Presse-papiers les renseignements sur cette fenêtre (titre, classe et nom du processus).`n`nVoyez "Liste d'exclusions" dans l'onglet "Autres" de la boîte de dialogue "Options" pour plus de détails.
 lMenuHelp	Aide
 lMenuHistory	Historique
 lMenuLastAction	Répéter la dernière action
@@ -546,6 +551,7 @@ lMenuPopularFiles	Fichiers
 lMenuPopularFolders	Dossiers
 lMenuPopularMenus	~1~ populaires
 lMenuPopularMenusDescription	Affiche un menu dynamique contenant les ~1~ les plus utilisés tel que mémorisés par Windows ou utilisés avec QAP. Ce menu est actualisé chaque fois que vous affichez le menu de QAP.
+lMenuPopularMenusWillImprove	Le menu ~1~ s'améliore à mesure que vous utilisez ~2~...
 lMenuProgramFiles	Programmes
 lMenuProgramsFolderStartMenu	Dossier Programmes (menu Démarrer)
 lMenuPublicLibraries	Bibliothèques (public)
@@ -589,6 +595,10 @@ lMenuUpdateNoAmpersandDescription	Vérifier sur le site web de Quick Access Popup
 lMenuUserFolder	Dossier de l'utilisateur
 lMenuUserPinned	Epinglé par l'utilisateur
 lMenuWebSiteSupport	Groupe de soutien sur QAP
+lMessengerCloseQAPSettings	Une fenêtre de paramètres est ouverte dans ~1~, peut-être avec des changements non enregistrés.`n`nVeuillez fermer les fenêtres de paramètres avant d'utiliser ce menu contextuel.
+lMessengerDoNotRun	N'exécutez pas ~1~ directement. Vous pouvez:`n`n- faire un clic-droite sur l'icône d'un fichier ou d'un dossier dans l'Explorateur pour l'ajouter au menu`n- clic-droite dans le fond d'une fenêtre de l'Explorateur pour ajouter le dossier affiché`n- clic-droite sur le fond du Bureau pour afficher le menu.`n`nAssurez-vous que ~2~ est lancé avant d'utiliser ses menus contextuels. Voir la case à cocher "Menus contextuels" dans la fenêtre "Options" de ~2~.
+lMessengerError	Une erreur s'est produite.`n`nAssurez-vous que ~1~ est lancé avant d'utiliser ses menus contextuels.
+lMessengerHelp	Recherchez "Messenger" sur www.QuickAccessPopup.com pour de l'aide.
 lNavigateFileError	Une erreur s'est produite lors de l'ouverture du dossier:`n~1~.
 lNavigateSpecialError	Une erreur s'est produite lors de l'ouverture du dossier spécial #~1~.
 lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter le dossier actif ou la page web active":`n`n1) Activez la fenêtre ~1~ contenant le dossier ou la page à ajouter au menu.`n2) Ouvrez le menu popup avec ~2~.`n3) Choisissez "Ajouter le dossier actif ou la page web active" et enregistrez votre nouveau favori.
@@ -632,9 +642,11 @@ lOopsNotAdmin	~1~ ne peut être exécuté en tant qu'administrateur.`n`nL'applicati
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
 lOopsRestoreEditCopyMoveWindowPosition	Restaurer la position des boîtes de dialoue Éditer, Copier et Déplacer?`n`nCeci relancera ~1~ et les changements de paramètres non enregistrés seront perdus.`n`nRestaurer et redémarrer ~1~.
+lOopsSelectedItemDialogBoxes	L'item sélectionné ne peut pas être détecté dans une boîte de dialogue.
+lOopsSelectedItemTotalCommander	L'item sélectionné ne peut pas être détecté dans Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Une erreur s'est produite pendant l'ouverture de ce favori. Veuillez essayer à nouveau...
-lOopsUsageDbSQLiteMissing	Fichier ressource SQLite absent:`n`n~1~`nImpossible de lancer Quick Access Popup.
+lOopsUsageDbSQLiteMissing	Fichier ressource SQLite absent:`n`n~1~`nImpossible de construire les Menus Populaires.
 lOopsWriteProtectedError	Il semble que ~1~ a été lancé depuis un dossier en ÉCRITURE SEULEMENT où il est impossible de créer le fichier de configuration "~1~.ini".`n`nDéplacez le fichier .EXE de ~1~ dans un dossier RÉGULIER de votre choix, puis exécutez l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
 lOopsWrongThirdPartyPath	Chemin ou nom de fichier incorrect pour ~1~:`n~2~.`n`nVérifiez le fichier .exe sélectionné pour ~1~ dans les "Options", onglet "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Fichier de l'application invalide dans QAPconnect`n~1~:`n~2~.`n`nVérifiez les valeurs pour [~1~] dans ~3~. Utilisez le bouton "~4~" dans "Options", onglet "~5~".
@@ -663,7 +675,7 @@ lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
 lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
-lOptionsExclusionList	Exclusions
+lOptionsExclusionList	Liste d'exclusions
 lOptionsExclusionTitle	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExplorerContextMenus	Activer les menus contextuels
 lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer:
@@ -689,7 +701,6 @@ lOptionsMenuNearMouse	Près du pointeur de la souris
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
-lOptionsNbLastActions	Nombre d'items dans le menu "Répéter les dernières actions"
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu en cliquant sur la barre des tâches
 lOptionsOtherOptions	Général
 lOptionsPopupFixPositionX	Position X:
@@ -698,9 +709,9 @@ lOptionsPopupHotkeyTitles	Bouton de souris du menu Quick Access Popup|Raccourci 
 lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où  (sauf dans les  <a>applications exclues</a>) et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce raccourci clavier affiche le menu n'importe où  et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce bouton de la souris affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où (sans exception).|Ce raccourci clavier affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où.
 lOptionsQAPTempFolder	Dossier temporaire
 lOptionsRecentFolders	Nombre d'items récents dans le menu
-lOptionsRecentFoldersPrompt	Emplacements et fichiers récents:
-lOptionsRefreshedMenusAttached	Attacher les menus "~1~", "~2~" et "~3~" au menu de QAP
-lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~" et "~3~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
+lOptionsRecentFoldersPrompt	Items récents et items populaires
+lOptionsRefreshedMenusAttached	Attacher le menu "~1~" au menu de QAP
+lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, le menu "~1~" sera raffraîchi seulement sur demande et sera affiché détaché du menu de QAP.
 lOptionsRefreshQAPMenuDebugBeep	Faire un bip avant et après les actualisation (déboguage)
 lOptionsRefreshQAPMenuIntervalSec	Intervalle entre les actualisations (suggéré: 300 secondes ou plus)
 lOptionsRefreshQAPMenuTitle	Activer l'actualisation périodique du menu de QAP
@@ -728,6 +739,14 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
+lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les Menus Populaires:
+lOptionsUsageDbDescription	Paramètres pour les Menus Populaires and Récents
+lOptionsUsageDbDisabling	Les changements à la base de données des Menus Populaires seront complétés lorsque vous relancerez ~1~.
+lOptionsUsageDbEnable	Activer la base de données des Menus Populaires
+lOptionsUsageDbIntervalSeconds	Intervalle de collecte (en secondes):
+lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
+lOptionsUsageDbShowPopularityIndex	Afficher l'index de popularité dans la fenêtre Paramètres et dans les menus
+lOptionsUsageDbTitle	Base de données des Menus Populaires
 lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
