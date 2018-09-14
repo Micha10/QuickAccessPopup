@@ -2875,9 +2875,9 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 ; https://autohotkey.com/boards/viewtopic.php?t=1064
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
-g_strUsageDbFile := A_WorkingDir . "\QAP_Usage.DB"
+g_strUsageOldDbFile := A_WorkingDir . "\QAP_Usage.DB"
+g_strUsageDbFile := A_WorkingDir . "\QAP_Popular.DB"
 g_intUsageDbRecentLimit := 150
-g_blnUsageDbError := false
 
 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
@@ -5697,7 +5697,7 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularMenuTable)
 	{
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbError := true
+		g_blnUsageDbEnabled := false
 		return
 	}
 
@@ -8530,6 +8530,8 @@ IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShow
 
 blnUseSQLiteBefore := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
+if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
+	gosub, UsageDbInit
 if (blnUseSQLiteBefore <> g_blnUsageDbEnabled)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
@@ -19440,98 +19442,113 @@ else ; init SQLite wraper object
 	g_objUsageDb := New SQLiteDb
 
 blnUsageDbExist := FileExist(g_strUsageDbFile)
+
+if !(blnUsageDbExist)
+{
+	blnUsageOldDbExist := FileExist(g_strUsageOldDbFile)
+
+	if !g_objUsageDb.OpenDb(g_strUsageOldDbFile)
+	{
+		Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageOldDbFile)
+		g_blnUsageDbEnabled := false
+		return
+	}
+
+	if !(blnUsageOldDbExist) ; create database if it does not exist
+	{
+		strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
+			. ",TargetPath,TargetDateTime"
+			. ",CollectType,CollectDateTime,CollectPath"
+			. ",TargetAttributes,TargetType,TargetExtension"
+			. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+			. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+			. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+			. ",MenuDateCreated,MenuDateModified"
+			. ");"
+		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
+		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
+		strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
+		strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
+
+		If !g_objUsageDb.Exec(strUsageDbSQL)
+		{
+			Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+			g_blnUsageDbEnabled := false
+			return
+		}
+	}
+	else
+	{
+		; maintenance for beta versions
+		strUsageDbSQL := ""
+		if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
+			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+		if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified, for user of firsts beta versions
+		{
+			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateCreated;"
+			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateModified;"
+		}
+		
+		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);" ; for user of firsts beta versions
+		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);" ; for user of firsts beta versions
+		
+		If !g_objUsageDb.Exec(strUsageDbSQL)
+		{
+			Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+			g_blnUsageDbEnabled := false
+			return
+		}
+	}
+
+	; maintenance for beta versions
+	strUsageDbSQL := ""
+		; drop older views
+		. "DROP VIEW IF EXISTS vLocationTop10;`n" ; for user of firsts beta versions
+		
+		; drop current views that will be re-created
+		. "DROP VIEW IF EXISTS vMenuItemsShort;`n" ; for v9.1.9.1 only
+		. "DROP VIEW IF EXISTS vLocationTop25;`n" ; f0r v9.1.9.2+
+		
+		; replace TargetType "Document" with "File"
+		. "UPDATE Usage SET TargetType='File' WHERE TargetType='Document';`n" ; for pre-v9.1.9.8
+		
+	; create views
+	strUsageDbSQL .= ""
+		; (re)create current views
+		. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
+		. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
+		. " FROM Usage"
+		. " WHERE CollectType='Menu'"
+		. " ORDER BY CollectDateTime DESC"
+		. ";`n"
+		. "CREATE VIEW IF NOT EXISTS vLocationTop25 AS"
+		. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
+		. " GROUP BY TargetPath"
+		. " ORDER BY COUNT(Id) DESC"
+		. " LIMIT 25"
+
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		g_blnUsageDbEnabled := false
+		g_objUsageDb.Exec("ROLLBACK;")
+		return
+	}
+	
+	if (blnUsageOldDbExist)
+		gosub, UsageDbConvertDateFormat
+
+	g_objUsageDb.CloseDb()
+	FileCopy, %g_strUsageOldDbFile%, %g_strUsageDbFile%
+	blnUsageDbExist := true
+}
+
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
 	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
-	g_blnUsageDbError := true
+	g_blnUsageDbEnabled := false
 	return
 }
-
-if !(blnUsageDbExist) ; create database if it does not exist
-{
-	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
-		. ",TargetPath,TargetDateTime"
-		. ",CollectType,CollectDateTime,CollectPath"
-		. ",TargetAttributes,TargetType,TargetExtension"
-		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
-		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
-		. ",MenuDateCreated,MenuDateModified"
-		. ");"
-	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
-	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
-	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
-	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
-
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbError := true
-		return
-	}
-}
-else
-{
-	; maintenance for beta versions
-	strUsageDbSQL := ""
-	if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
-		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
-	if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified, for user of firsts beta versions
-	{
-		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateCreated;"
-		strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateModified;"
-	}
-	
-	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);" ; for user of firsts beta versions
-	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);" ; for user of firsts beta versions
-	
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbError := true
-		return
-	}
-}
-
-; maintenance for beta versions
-strUsageDbSQL := ""
-	; drop older views
-	. "DROP VIEW IF EXISTS vLocationTop10;`n" ; for user of firsts beta versions
-	
-	; drop current views that will be re-created
-	. "DROP VIEW IF EXISTS vMenuItemsShort;`n" ; for v9.1.9.1 only
-	. "DROP VIEW IF EXISTS vLocationTop25;`n" ; f0r v9.1.9.2+
-	
-	; replace TargetType "Document" with "File"
-	. "UPDATE Usage SET TargetType='File' WHERE TargetType='Document';`n" ; for pre-v9.1.9.8
-	
-; create views
-strUsageDbSQL .= ""
-	; (re)create current views
-	. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
-	. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
-	. " FROM Usage"
-	. " WHERE CollectType='Menu'"
-	. " ORDER BY CollectDateTime DESC"
-	. ";`n"
-	. "CREATE VIEW IF NOT EXISTS vLocationTop25 AS"
-	. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
-	. " GROUP BY TargetPath"
-	. " ORDER BY COUNT(Id) DESC"
-	. " LIMIT 25"
-
-If !g_objUsageDb.Exec(strUsageDbSQL)
-{
-	Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-	g_blnUsageDbError := true
-	g_objUsageDb.Exec("ROLLBACK;")
-	return
-}
-
-; maintenance for beta versions
-IniRead, blnUsageDbDatesConverted, %g_strIniFile%, Global, UsageDbDatesConverted, 0
-if !(blnUsageDbDatesConverted)
-	gosub, UsageDbConvertDateFormat
 
 ; check maximum size
 
@@ -19555,8 +19572,8 @@ if (intSizeBeforeDelete > (g_intUsageDbMaximumSize * 1024 * 1024))
 str64or32 := ""
 strError := ""
 blnUsageDbExist := ""
+blnUsageOldDbExist := ""
 strUsageDbSQL := ""
-blnUsageDbDatesConverted := ""
 intSizeBeforeDelete := ""
 
 return
@@ -19630,53 +19647,7 @@ UsageDbCollectRecentItems:
 ;------------------------------------------------------------
 
 if !(g_blnUsageDbEnabled)
-	return
-
-/*
-SQL CODE SNIPPETS
-
-strSQL := "CREATE TABLE Test (Name, Fname, Phone, Room, PRIMARY KEY(Name ASC, FName ASC));"
-If !g_objUsageDb.Exec(strSQL)
-	MsgBox, 16, SQLite Error Exec, % "Msg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode
-Db.Exec("BEGIN TRANSACTION;")
-SQL := "INSERT INTO Test VALUES('Näme#', 'Fname#', 'Phone#', 'Room#');"
-If !Db.Exec(SQLStr)
-	MsgBox, 16, SQLite Error, % "Msg:`t" . Db.ErrorMsg . "`nCode:`t" . Db.ErrorCode
-SQL := "SELECT COUNT(*) FROM Test;"
-Db.Exec(SQL, "SQLiteExecCallBack")
-
-If !Db.GetTable(SQL, Result)
-   MsgBox, 16, SQLite Error: GetTable, % "Msg:`t" . Db.ErrorMsg . "`nCode:`t" . Db.ErrorCode
-
-If (Table.HasRows)
 {
-	Loop, % Table.RowCount
-	{
-		RowCount := LV_Add("", "")
-		Table.Next(Row)
-		Loop, % Table.ColumnCount
-			LV_Modify(RowCount, "Col" . A_Index, Row[A_Index])
-	}
-}
-
-SQL := "SELECT * FROM Test;"
-If !Db.Query(SQL, RecordSet)
-	MsgBox, 16, SQLite Error: Query, % "Msg:`t" . RecordSet.ErrorMsg . "`nCode:`t" . RecordSet.ErrorCode
-Loop, % RecordSet.ColumnCount
-	LV_Add("", RecordSet.ColumnNames[A_Index])
-RecordSet.Free()
-
-*/
-
-; IniRead, strUsageDbPreviousLatestCollected, %g_strIniFile%, Global, UsageDbLatestCollected, %A_Space%
-if (g_blnUsageDbError or FileExist(A_WorkingDir . "\QAP_Usage.NO"))
-{
-	Diag(A_ThisLabel, (g_blnUsageDbError ? "Error" : "QAP_Usage.NO"))
-	if (g_blnUsageDbDebugBeep)
-	{
-		SoundBeep
-		SoundBeep
-	}
 	SetTimer, UsageDbCollectRecentItems, Off
 	return
 }
@@ -19699,7 +19670,7 @@ strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
 	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-	g_blnUsageDbError := true
+	g_blnUsageDbEnabled := false
 	return
 }
 Loop
@@ -19771,7 +19742,7 @@ if (g_blnUsageDbDebug)
 If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite INSERT Recent Items Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-	g_blnUsageDbError := true
+	g_blnUsageDbEnabled := false
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
 }	
@@ -19782,7 +19753,7 @@ strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCo
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
 	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-	g_blnUsageDbError := true
+	g_blnUsageDbEnabled := false
 	g_objUsageDb.Exec("ROLLBACK;")
 	return
 }
@@ -19893,15 +19864,12 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 	if (g_blnUsageDbDebug)
 		ToolTip, !!! %strUsageDbSQL%
 	
-	g_objUsageDb.Exec("BEGIN TRANSACTION;")
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
 		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
-		g_blnUsageDbError := true
-		g_objUsageDb.Exec("ROLLBACK;")
+		g_blnUsageDbEnabled := false
 		return
 	}	
-	g_objUsageDb.Exec("COMMIT;")
 	if (g_blnUsageDbDebug)
 	{
 		Sleep, 2000
@@ -22078,7 +22046,7 @@ GetUsageDbFavoriteUsage(objFavorite)
 	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
 		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
-		g_blnUsageDbError := true
+		g_blnUsageDbEnabled := false
 		return
 	}
 	Loop
