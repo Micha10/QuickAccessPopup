@@ -8221,6 +8221,10 @@ GuiControl, %strAction%, f_lblUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMoreEdit
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
+GuiControl, %strAction%, f_intUsageDbDaysInPopularMoreEdit
+GuiControl, %strAction%, f_intUsageDbDaysInPopularMore
+GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
+GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_fltUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
 GuiControl, %strAction%, f_btnUsageDbFlush
@@ -8562,12 +8566,10 @@ IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
 
+blnUseSQLiteBefore := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
-{
-	
 	gosub, UsageDbInit
-}
 if (intUsageDbIntervalSecondsBefore <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularBefore <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
@@ -8668,6 +8670,7 @@ ResetArray("arrMenu")
 strNewHotstringsDefaultOptions := ""
 intUsageDbIntervalSecondsBefore := ""
 intUsageDbDaysInPopularBefore := ""
+blnUseSQLiteBefore := ""
 
 return
 ;------------------------------------------------------------
