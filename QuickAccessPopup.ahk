@@ -2882,7 +2882,6 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 ; https://autohotkey.com/boards/viewtopic.php?t=1064
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
-g_strUsageOldDbFile := A_WorkingDir . "\QAP_Usage.DB"
 g_strUsageDbFile := A_WorkingDir . "\QAP_Popular.DB"
 g_intUsageDbRecentLimit := 150
 
@@ -2894,7 +2893,7 @@ g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
-IniRead, g_intUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 3
+IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 1
 IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
 
 if (g_blnUsageDbEnabled)
@@ -7684,7 +7683,7 @@ Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %l
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
-Gui, 2:Add, Edit, vf_intUsageDbMaximumSize hidden, %g_intUsageDbMaximumSize%
+Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
 
 ; End of more
@@ -8185,8 +8184,7 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopularMore, %f_intUsageDbDaysInPopular%
 	
 	Gui, 3:Add, Text, x10 y+5 vf_lblUsageDbMaximumSizeMore, %lOptionsUsageDbMaximumSize%
-	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbMaximumSizeMoreEdit
-	Gui, 3:Add, UpDown, Range1-9999 h20 vf_intUsageDbMaximumSizeMore, %f_intUsageDbMaximumSize%
+	Gui, 3:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSizeMore, %f_fltUsageDbMaximumSize%
 
 	Gui, 3:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndexMore, %lOptionsUsageDbShowPopularityIndex%
 	GuiControl, , f_blnUsageDbShowPopularityIndexMore, %f_blnUsageDbShowPopularityIndex%
@@ -8223,11 +8221,7 @@ GuiControl, %strAction%, f_lblUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMoreEdit
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
-GuiControl, %strAction%, f_intUsageDbDaysInPopularMoreEdit
-GuiControl, %strAction%, f_intUsageDbDaysInPopularMore
-GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
-GuiControl, %strAction%, f_intUsageDbMaximumSizeMoreEdit
-GuiControl, %strAction%, f_intUsageDbMaximumSizeMore
+GuiControl, %strAction%, f_fltUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
 GuiControl, %strAction%, f_btnUsageDbFlush
 
@@ -8273,12 +8267,19 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 	{
 		GuiControl, 2:, f_intUsageDbIntervalSeconds, % (f_blnOptionUsageDbEnable ? (f_intUsageDbIntervalSecondsMore < 60 ? 60 : f_intUsageDbIntervalSecondsMore) : 0) 
 		GuiControl, 2:, f_intUsageDbDaysInPopular, % (f_intUsageDbDaysInPopularMore < 1 ? 1 : f_intUsageDbDaysInPopularMore)
-		GuiControl, 2:, f_intUsageDbMaximumSize, % (f_intUsageDbMaximumSizeMore < 1 ? 1 : f_intUsageDbMaximumSizeMore)
+		f_fltUsageDbMaximumSizeMore := StrReplace(f_fltUsageDbMaximumSizeMore, ",", ".") ;  convert 1,5 to 1.5
+		if f_fltUsageDbMaximumSizeMore is not Number
+			blnNotANumber := true
+		if (blnNotANumber or f_fltUsageDbMaximumSizeMore <= 0)
+			Oops(lOptionsUsageDbMaximumSizeInvalid, f_fltUsageDbMaximumSizeMore)
+		else
+			GuiControl, 2:, f_fltUsageDbMaximumSize, %f_fltUsageDbMaximumSizeMore% ; save Edit control's value (not UpDown control) to allow fractions
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
 	}
 }
 
 g_strMoreWindowName := ""
+blnNotANumber := ""
 
 Gosub, 3GuiClose
 
@@ -8555,15 +8556,18 @@ intUsageDbDaysInPopularBefore := g_intUsageDbDaysInPopular
 g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
 IniWrite, %g_intUsageDbDaysInPopular%, %g_strIniFile%, Global, UsageDbDaysInPopular
 
-g_intUsageDbMaximumSize := f_intUsageDbMaximumSize
-IniWrite, %g_intUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
+g_fltUsageDbMaximumSize := f_fltUsageDbMaximumSize
+IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
 
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
+{
+	
 	gosub, UsageDbInit
+}
 if (intUsageDbIntervalSecondsBefore <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularBefore <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
@@ -19474,111 +19478,7 @@ if StrLen(strError)
 else ; init SQLite wraper object
 	g_objUsageDb := New SQLiteDb
 
-blnUsageDbExist := FileExist(g_strUsageDbFile)
-
-if !(blnUsageDbExist)
-{
-	blnUsageOldDbExist := FileExist(g_strUsageOldDbFile)
-
-	if !g_objUsageDb.OpenDb(g_strUsageOldDbFile)
-	{
-		Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageOldDbFile)
-		g_blnUsageDbEnabled := false
-		return
-	}
-
-	if !(blnUsageOldDbExist) ; create database if it does not exist
-	{
-		strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
-			. ",TargetPath,TargetDateTime"
-			. ",CollectType,CollectDateTime,CollectPath"
-			. ",TargetAttributes,TargetType,TargetExtension"
-			. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-			. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
-			. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
-			. ",MenuDateCreated,MenuDateModified"
-			. ");"
-		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
-		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
-		strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
-		strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
-
-		If !g_objUsageDb.Exec(strUsageDbSQL)
-		{
-			Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-			g_blnUsageDbEnabled := false
-			return
-		}
-	}
-	else
-	{
-		; maintenance for beta versions
-		strUsageDbSQL := ""
-		if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
-			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
-		if !GetUsageDbColumnExist("MenuDateCreated") ; includes MenuDateModified, for user of firsts beta versions
-		{
-			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateCreated;"
-			strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuDateModified;"
-		}
-		
-		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);" ; for user of firsts beta versions
-		strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);" ; for user of firsts beta versions
-		
-		If !g_objUsageDb.Exec(strUsageDbSQL)
-		{
-			Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-			g_blnUsageDbEnabled := false
-			return
-		}
-	}
-
-	; maintenance for beta versions
-	strUsageDbSQL := ""
-		; drop older views
-		. "DROP VIEW IF EXISTS vLocationTop10;`n" ; for user of firsts beta versions
-		
-		; drop current views that will be re-created
-		. "DROP VIEW IF EXISTS vMenuItemsShort;`n" ; for v9.1.9.1 only
-		. "DROP VIEW IF EXISTS vLocationTop25;`n" ; f0r v9.1.9.2+
-		
-		; replace TargetType "Document" with "File"
-		. "UPDATE Usage SET TargetType='File' WHERE TargetType='Document';`n" ; for pre-v9.1.9.8
-		
-	; create views
-	strUsageDbSQL .= ""
-		; (re)create current views
-		. "CREATE VIEW IF NOT EXISTS vMenuItemsShort AS"
-		. " SELECT CollectDateTime,CollectPath,MenuFavoriteName,MenuFavoriteType,MenuLiveLevels,TargetPath,TargetAttributes,TargetType,TargetExtension"
-		. " FROM Usage"
-		. " WHERE CollectType='Menu'"
-		. " ORDER BY CollectDateTime DESC"
-		. ";`n"
-		. "CREATE VIEW IF NOT EXISTS vLocationTop25 AS"
-		. " SELECT TargetPath AS 'Favorite Location', COUNT(TargetPath) AS 'Nb'  FROM Usage"
-		. " GROUP BY TargetPath"
-		. " ORDER BY COUNT(Id) DESC"
-		. " LIMIT 25"
-
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite ADD COLUMN Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbEnabled := false
-		g_objUsageDb.Exec("ROLLBACK;")
-		return
-	}
-	
-	if (blnUsageOldDbExist)
-		gosub, UsageDbConvertDateFormat
-
-	If !g_objUsageDb.CloseDb()
-	{
-		Oops("SQLite CLOSE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
-		g_blnUsageDbEnabled := false
-	}
-	FileCopy, %g_strUsageOldDbFile%, %g_strUsageDbFile%
-	blnUsageDbExist := true
-}
+blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
@@ -19587,10 +19487,47 @@ if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 	return
 }
 
+if (blnUsageDbIsNew)
+{
+	strUsageDbSQL := "CREATE TABLE IF NOT EXISTS Usage (id INTEGER PRIMARY KEY"
+		. ",TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ",MenuDateCreated,MenuDateModified"
+		. ");"
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
+	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
+	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected);"
+	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
+
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		g_blnUsageDbEnabled := false
+		return
+	}
+}
+; else ; notes if modifications are required in a future release
+; {
+	; strUsageDbSQL := ""
+	; if !GetUsageDbColumnExist("MenuFavoriteName") ; for user of firsts beta versions
+		; strUsageDbSQL .= "`n" . "ALTER TABLE Usage ADD COLUMN MenuFavoriteName;"
+		
+	; If !g_objUsageDb.Exec(strUsageDbSQL)
+	; {
+		; Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		; g_blnUsageDbEnabled := false
+		; return
+	; }
+; }
+
 ; check maximum size
 
 FileGetSize, intSizeBeforeDelete, %g_strUsageDbFile%
-if (intSizeBeforeDelete > (g_intUsageDbMaximumSize * 1024 * 1024))
+if (intSizeBeforeDelete > (g_fltUsageDbMaximumSize * 1048576)) ; = * 1 MB
 {
 	strUsageDbSQL := "SELECT id FROM Usage;"
 	If !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
@@ -19608,72 +19545,9 @@ if (intSizeBeforeDelete > (g_intUsageDbMaximumSize * 1024 * 1024))
 
 str64or32 := ""
 strError := ""
-blnUsageDbExist := ""
-blnUsageOldDbExist := ""
+blnUsageDbIsNew := ""
 strUsageDbSQL := ""
 intSizeBeforeDelete := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-UsageDbConvertDateFormat:
-;------------------------------------------------------------
-
-Oops("QAP will convert the dates format in Popular Menus database from releases pre-v9.1.9.10.`n`nThis may take a few minutes...")
-
-strUsageDbSQL := "SELECT id, TargetDateTime, CollectDateTime FROM Usage ORDER BY id;"
-if !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
-{
-	Oops("SQLite GetTable Error`n`nMsg:`t" . g_objDB.ErrorMsg . "`nCode:`t" . g_objDB.ErrorCode . "`n" . strUsageDbSQL)
-	return
-}
-
-Loop, % objUsageDbTable.RowCount
-{
-	ToolTip, % "Updating dates in database: " . A_Index . " / " . objUsageDbTable.RowCount
-	
-	objUsageDbTable.Next(objUsageDbRow)
-	intUsageDbID := objUsageDbRow[1]
-	strTargetDateTimeOri := objUsageDbRow[2]
-	strCollectDateTimeOri := objUsageDbRow[3]
-	; convert from "20180911162859" to "YYYY-MM-DD HH:MM:SS"
-	strTargetDateTimeNew := (!StrLen(strTargetDateTimeOri) or InStr(strTargetDateTimeOri, " ") ? strTargetDateTimeOri : ""
-		. SubStr(strTargetDateTimeOri, 1, 4) . "-"
-		. SubStr(strTargetDateTimeOri, 5, 2) . "-"
-		. SubStr(strTargetDateTimeOri, 7, 2) . " "
-		. SubStr(strTargetDateTimeOri, 9, 2) . ":"
-		. SubStr(strTargetDateTimeOri, 11, 2) . ":"
-		. SubStr(strTargetDateTimeOri, 13, 2)
-		. "")
-	strCollectDateTimeNew := (!StrLen(strCollectDateTimeOri) or InStr(strCollectDateTimeOri, " ") ? strCollectDateTimeOri : ""
-		. SubStr(strCollectDateTimeOri, 1, 4) . "-"
-		. SubStr(strCollectDateTimeOri, 5, 2) . "-"
-		. SubStr(strCollectDateTimeOri, 7, 2) . " "
-		. SubStr(strCollectDateTimeOri, 9, 2) . ":"
-		. SubStr(strCollectDateTimeOri, 11, 2) . ":"
-		. SubStr(strCollectDateTimeOri, 13, 2)
-		. "")
-	
-	strUsageDbSQL := "UPDATE Usage SET TargetDateTime='" . strTargetDateTimeNew . "', CollectDateTime='" . strCollectDateTimeNew . "' WHERE id=" . intUsageDbID . ";"
-	if !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Oops("SQLite UPDATE Error`n`nMsg:`t" . g_objDB.ErrorMsg . "`nCode:`t" . g_objDB.ErrorCode . "`n" . strUsageDbSQL)
-		return
-	}
-}
-
-ToolTip
-IniWrite, 1, %g_strIniFile%, Global, UsageDbDatesConverted
-
-objUsageDbTable := ""
-objUsageDbRow := ""
-strTargetDateTimeOri := ""
-strCollectDateTimeOri := ""
-strTargetDateTimeNew := ""
-strCollectDateTimeNew := ""
-intUsageDbID := ""
 
 return
 ;------------------------------------------------------------
