@@ -31,34 +31,39 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.1.9.10 (2018-09-??)
+Version BETA: 9.1.9.10 (2018-09-14)
  
 Popular Menus
-- reorganize "Options" window tabs: add "More" tab with options for "Exclusions list" and "Popular Menus Dabatase" to in Options
-- add "Popular Menus Database" options:
-  - enable database checkbox
-  - recent items collection interval (in seconds)
+- reorganize "Options" dialog box tabs:
+  - remove "Exclusions" tab
+  - add "More" tab with buttons for "Exclusions list" and "Popular Menus Dabatase" options dialog boxes
+- options for "Popular Menus Database":
+  - enable Popular Menus database checkbox
+  - recent items collection interval (in seconds, minimum 60, default 60)
   - number of days to take into account in Popular Menus (default 30)
-  - maximum size of the database (in MB), default 1
-  - checkbox to Show popularity index in Popular Menus and Settings window
+  - maximum size of the database in MB (default 1)
+  - checkbox to show popularity index in Popular Menus and Settings window
 - SQLite files are not required if Popular Menus Database option is disabled
-- if Popular Menus Database is disabled, recent items are collected directly when refreshing the Recent items menus
-- hide in Popular Menus files or folders not found
-- convert dates in database to SQLite format (for users of previous beta releases, this could take a few minutes to execute when launching QAP)
-- rename database "QAP_Popular.DB" after dates are converted
-- implement number of days to take into account when builing in Popular Menus
-- when launching QAP, delete 10% latest entries of Popular Menus databse if database size exceeds maximum value
+- if Popular Menus database is disabled, recent items are collected directly from Windows when refreshing the Recent items menus
+- when building Popular Menus, hide files or folders not found
+- implement number of days taken into account when building the Popular Menus
+- when launching QAP, delete 10% oldest entries of Popular Menus database if its size exceeds the maximum value
+- for this release only:
+  - convert dates columns in database to SQLite date format (for users of previous beta releases, this could take a few minutes the first time you execute this version of QAP)
+  - rename database file from "QAP_Usage.DB" to "QAP_Popular.DB" after dates are converted (keep old file as backup)
+  - IMPORTANT: users of previous beta v9.1.9.x versions MUST RUN THIS VERSION to keep their historical data (if they don't, the next version of QAP will create a new, empty database)
  
 Placeholders
-- replace placeholders help text with links in basic and Advanced Settings tab of Add/Edit Favorite dialog box
-- add placeholder help to Snippet Basic Settings tab
-- when using placeholders "{SEL_...}, get selected file in DOpus using DOpus internal command (DOpurRt)
-- remove support for selected file in Total Commander
-- display error message if user try to use selected file placeholders with in Total Commander or in a dialog box
-- when displaying prompt before launching a Snippet, expand placeholders in prompt text for current location and selected item
+- in "Basic Settings" and "Advanced Settings" tab of "Add/Edit Favorite" dialog box, replace placeholders help text with links to FAQ on web site
+- in Snippet "Basic Settings" tab, add a link for placeholder help
+- when using placeholders "{SEL_...}", get selected file in DOpus using a more reliable DOpus internal command (DOpusRt)
+- remove support for selected file in Total Commander because this was not enough reliable
+- display an error message if user try to use selected file placeholders in Total Commander or in a dialog box
+- when displaying prompt before launching a Snippet, expand placeholders in prompt text for current location "{CUR_...}" and selected item "{SEL_...}"
  
 Other
-- fix bug for shortcut of Popular folders and Popular files menus
+- fix bug in shortcut of "Popular Folders" and "Popular Files" menus
+- fix bug when using Popular Menus QAP features in other language than English
 - update QAP Messenger v1.1.9 BETA: English language for QAPmessenger that can now be localized; only French translation is included in this release
 
 Version BETA: 9.1.9.9 (2018-09-07)
@@ -2607,7 +2612,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.9
+;@Ahk2Exe-SetVersion 9.1.9.10
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2702,7 +2707,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4153,11 +4158,10 @@ InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 	
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
-
-; new in v9.2
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
-	InitQAPFeatureObject(L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), L(lMenuPopularMenus, A_LoopField), "Popular" . A_LoopField . "MenuShortcut"
-	, "2-DynamicMenus", L(lMenuPopularMenusDescription, Format("{:U}", A_LoopField)), 0, "iconFavorites")
+InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFolders), "PopularFoldersMenuShortcut", "2-DynamicMenus"
+	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites")
+InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles), L(lMenuPopularMenus, lMenuPopularFiles), "PopularFilesMenuShortcut", "2-DynamicMenus"
+	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites")
 
 ; Command features
 
