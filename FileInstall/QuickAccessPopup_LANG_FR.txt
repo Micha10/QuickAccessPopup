@@ -743,9 +743,13 @@ lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les Menus Populai
 lOptionsUsageDbDescription	Paramètres pour les Menus Populaires and Récents
 lOptionsUsageDbDisabling	Les changements à la base de données des Menus Populaires seront complétés lorsque vous relancerez ~1~.
 lOptionsUsageDbEnable	Activer la base de données des Menus Populaires
+lOptionsUsageDbFlushDatabase	Vider la base de données des Menus Populaires
+lOptionsUsageDbFlushDatabaseConfirm	Effacer le contenu de la base de données des Menus Populaires?
+lOptionsUsageDbFlushDatabaseDone	Données effacées
 lOptionsUsageDbIntervalSeconds	Intervalle de collecte (en secondes):
 lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
 lOptionsUsageDbShowPopularityIndex	Afficher l'index de popularité dans la fenêtre Paramètres et dans les menus
+lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données des menus populaires sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
 lOptionsUsageDbTitle	Base de données des Menus Populaires
 lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
