@@ -17,6 +17,9 @@ See RECEIVE_QAPMESSENGER function in QuickAccessPopup.ahk for details.
 HISTORY
 =======
 
+Version: 1.2 (2018-09-15)
+- add localization using QAP language files
+
 Version: 1.1.9 BETA (2018-09-14)
 - add localization using QAP language files
 
@@ -55,7 +58,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 1.1.9
+;@Ahk2Exe-SetVersion 1.2
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -70,8 +73,8 @@ ListLines, Off
 
 g_strAppNameText := "Quick Access Popup Messenger"
 g_strAppNameFile := "QAPmessenger"
-g_strAppVersion := "1.1.9"
-g_strAppVersionBranch := "beta"
+g_strAppVersion := "1.2"
+g_strAppVersionBranch := "prod"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
 g_stTargetAppTitleDev := "Quick Access Popup ahk_class AutoHotkeyGUI"
