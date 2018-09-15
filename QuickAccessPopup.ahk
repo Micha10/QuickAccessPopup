@@ -43,6 +43,8 @@ Popular Menus
   - number of days to take into account in Popular Menus (default 30)
   - maximum size of the database in MB (default 1)
   - checkbox to show popularity index in Popular Menus and Settings window
+  - button to Flush Popular Menus database
+  - privacy statement
 - SQLite files are not required if Popular Menus Database option is disabled
 - if Popular Menus database is disabled, recent items are collected directly from Windows when refreshing the Recent items menus
 - when building Popular Menus, hide files or folders not found
@@ -8169,6 +8171,8 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, Text, x10 y10 w600, %lOptionsUsageDbTitle%
 	Gui, 3:Font
 	
+	Gui, 3:Add, Text, x10 y+10 w600, %lOptionsUsageDbStatement%
+	
 	Gui, 3:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, %lOptionsUsageDbEnable%
 	GuiControl, , f_blnOptionUsageDbEnable, % (g_intUsageDbIntervalSeconds > 0)
 	
@@ -8183,10 +8187,12 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, Text, x10 y+5 vf_lblUsageDbMaximumSizeMore, %lOptionsUsageDbMaximumSize%
 	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbMaximumSizeMoreEdit
 	Gui, 3:Add, UpDown, Range1-9999 h20 vf_intUsageDbMaximumSizeMore, %f_intUsageDbMaximumSize%
-	
+
 	Gui, 3:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndexMore, %lOptionsUsageDbShowPopularityIndex%
 	GuiControl, , f_blnUsageDbShowPopularityIndexMore, %f_blnUsageDbShowPopularityIndex%
 	
+	Gui, 3:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, %lOptionsUsageDbFlushDatabase%
+
 	Gosub, OptionUsageDbEnableClicked
 }
 
@@ -8223,8 +8229,29 @@ GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_intUsageDbMaximumSizeMoreEdit
 GuiControl, %strAction%, f_intUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
+GuiControl, %strAction%, f_btnUsageDbFlush
 
 strAction := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonUsageDbFlushClicked:
+;------------------------------------------------------------
+
+MsgBox, 36, %g_strAppNameText%, %lOptionsUsageDbFlushDatabaseConfirm%
+IfMsgBox, Yes
+{
+	strUsageDbSQL := "DELETE FROM Usage;" ; do not delete zMetadata (and if yes in the future, do not delete record, empty LatestCollected)
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite FLUSH Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	else
+		Oops(lOptionsUsageDbFlushDatabaseDone)
+}
+
+strUsageDbSQL := ""
 
 return
 ;------------------------------------------------------------
@@ -8520,9 +8547,11 @@ SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExc
 
 ; UsageDb
 
+intUsageDbIntervalSecondsBefore := g_intUsageDbIntervalSeconds
 g_intUsageDbIntervalSeconds := f_intUsageDbIntervalSeconds
 IniWrite, %g_intUsageDbIntervalSeconds%, %g_strIniFile%, Global, UsageDbIntervalSeconds
 
+intUsageDbDaysInPopularBefore := g_intUsageDbDaysInPopular
 g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
 IniWrite, %g_intUsageDbDaysInPopular%, %g_strIniFile%, Global, UsageDbDaysInPopular
 
@@ -8532,11 +8561,10 @@ IniWrite, %g_intUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
 
-blnUseSQLiteBefore := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
 	gosub, UsageDbInit
-if (blnUseSQLiteBefore <> g_blnUsageDbEnabled)
+if (intUsageDbIntervalSecondsBefore <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularBefore <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
 ; End of More
@@ -8634,7 +8662,8 @@ strNewShortcut := ""
 strMenuName := ""
 ResetArray("arrMenu")
 strNewHotstringsDefaultOptions := ""
-blnUseSQLiteBefore := ""
+intUsageDbIntervalSecondsBefore := ""
+intUsageDbDaysInPopularBefore := ""
 
 return
 ;------------------------------------------------------------
@@ -19542,7 +19571,11 @@ if !(blnUsageDbExist)
 	if (blnUsageOldDbExist)
 		gosub, UsageDbConvertDateFormat
 
-	g_objUsageDb.CloseDb()
+	If !g_objUsageDb.CloseDb()
+	{
+		Oops("SQLite CLOSE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode)
+		g_blnUsageDbEnabled := false
+	}
 	FileCopy, %g_strUsageOldDbFile%, %g_strUsageDbFile%
 	blnUsageDbExist := true
 }
@@ -19677,13 +19710,9 @@ IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 	g_blnUsageDbEnabled := false
 	return
 }
-Loop
-{
-	objMetadataRecordSet.Next(objMetadataRow)
-	; ###_V("objMetadataRecordSet - objMetadataRow", objMetadataRow[A_Index])
-	strUsageDbPreviousLatestCollected := objMetadataRow[A_Index]
-	break ; read only first record
-}
+
+objMetadataRecordSet.Next(objMetadataRow)
+strUsageDbPreviousLatestCollected := objMetadataRow[1] ; first (and only) field is LatestCollected
 objMetadataRecordSet.Free()
 Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
 
@@ -22045,20 +22074,18 @@ GetUsageDbFavoriteUsage(objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objUsageDb
-	
-	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
+	global g_intUsageDbDaysInPopular
+
+	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
+		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
 	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
 		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
-	Loop
-	{
-		objRecordSet.Next(objRow)
-		strValue := objRow[A_Index]
-		break ; read only first record
-	}
+	objRecordSet.Next(objRow)
+	strValue := objRow[1] ; COUNT(*) is the first (and only) field
 
 	return strValue
 }
