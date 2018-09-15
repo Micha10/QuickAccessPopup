@@ -16,7 +16,7 @@
 #define MyAppURL "http://www.QuickAccessPopup.com"
 #define MyAppExeName "QuickAccessPopup.exe"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
-#define QAPmessengerVersionFileName "QAPmessenger-1_1-32-bit.exe"
+#define QAPmessengerVersionFileName "QAPmessenger-1_1_9-32-bit.exe"
 #define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_4.dll"
 #define SQLite "sqlite3"
