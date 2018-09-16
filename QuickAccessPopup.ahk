@@ -6098,6 +6098,7 @@ Loop
 	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
 		break ; both Folders and Files menus are complete
 }
+objRecordSet.Free()
 
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
@@ -19530,14 +19531,18 @@ if (blnUsageDbIsNew)
 ; check maximum size
 
 FileGetSize, intSizeBeforeDelete, %g_strUsageDbFile%
-if (intSizeBeforeDelete > (g_fltUsageDbMaximumSize * 1048576)) ; = * 1 MB
+intMaximumSizeBytes := Round(g_fltUsageDbMaximumSize * 1048576, 0) ; = * 1 MB
+if (intSizeBeforeDelete > intMaximumSizeBytes)
 {
 	strUsageDbSQL := "SELECT id FROM Usage;"
 	If !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
 		Oops("SQLite GetTable Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
 	
+	fltProportionOfRecordsToDelete := ((intSizeBeforeDelete - intMaximumSizeBytes) / intSizeBeforeDelete)
+	intRecordsToDelete := Round(objUsageDbTable.RowCount * fltProportionOfRecordsToDelete, 0) + Round(objUsageDbTable.RowCount / 10, 0) ;  difference + 10%
+	
 	strUsageDbSQL := "DELETE FROM Usage WHERE id in (SELECT id FROM Usage ORDER BY id LIMIT "
-		. Round(objUsageDbTable.RowCount / 10, 0) . ");" ; delete 10% latest entries of the database
+		. intRecordsToDelete . ");" ; delete 10% latest entries of the database
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 		Oops("SQLite DELETE Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
 	
@@ -19551,6 +19556,9 @@ strError := ""
 blnUsageDbIsNew := ""
 strUsageDbSQL := ""
 intSizeBeforeDelete := ""
+intMaximumSizeBytes := ""
+fltProportionOfRecordsToDelete := ""
+intRecordsToDelete := ""
 
 return
 ;------------------------------------------------------------
