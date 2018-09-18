@@ -5491,6 +5491,18 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
+if (g_blnUsageDbEnabled)
+{
+	; before backup the db, close it to avoid lock
+	if !g_objUsageDb.CloseDb()
+	{
+		Oops("SQLite Error CloseDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
+		g_blnUsageDbEnabled := false
+		return
+	}
+	FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
+}
+
 if (g_blnDiagMode)
 {
 	MsgBox, 52, %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
