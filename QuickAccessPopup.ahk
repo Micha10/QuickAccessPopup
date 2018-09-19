@@ -4784,7 +4784,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteDateCreated := arrThisFavorite24 ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 		objLoadIniFavorite.FavoriteDateModified := arrThisFavorite25 ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 
-		if !StrLen(objLoadIniFavorite.FavoriteIconResource) ; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
+		if (!StrLen(objLoadIniFavorite.FavoriteIconResource) or objLoadIniFavorite.FavoriteIconResource = "iconUnknown")
+		; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
 		
 		; this is a submenu favorite, link to the submenu object
@@ -20320,7 +20321,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
-	else if (objFavorite.FavoriteType = "Text")
+	else if (objFavorite.FavoriteType = "Text" or objFavorite.FavoriteType = "X" or objFavorite.FavoriteType = "K")
 		return "iconNoIcon"
 	else if (objFavorite.FavoriteType = "WindowsApp")
 		return "iconDesktop"
