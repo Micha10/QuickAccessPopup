@@ -5694,8 +5694,9 @@ SetWaitCursor(true)
 loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 {
 	strMenuItemsList := "" ; menu name|menu item name|label|icon
+	strFoldersOrFiles := A_Loopfield
 
-	if (A_LoopField = lMenuPopularFolders)
+	if (strFoldersOrFiles = lMenuPopularFolders)
 		if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
@@ -5709,34 +5710,34 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	; SQLite GetTable
 	; Parse table
 	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
-		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE "
-		. "ORDER BY COUNT(TargetPath) DESC LIMIT " . g_intRecentFoldersMax . ";"
-	IF !g_objUsageDb.GetTable(strUsageDbSQL, objPopularMenuTable)
+		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
+	IF !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
 
-	If (objPopularMenuTable.HasNames)
+	intMenuNumberPopularsMenu := 0
+	intPopularItemsCount := 0
+	Loop
 	{
-		intMenuNumberPopularsMenu := 0
-		Loop, % objPopularMenuTable.RowCount
-		{
-			objPopularMenuTable.Next(objPopularMenuRow) ; at the beginning to skip header row
-			strPath := objPopularMenuRow[1]
-			if !FileExistInPath(strPath) ; skip if not exits, menu may have less than g_intRecentFoldersMax items
-				continue
-			strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
-			if (g_blnUsageDbShowPopularityIndex)
-				strMenuItemName .= " [" . objPopularMenuRow[2] . "]"
-			strIcon := (A_Loopfield = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
-			if (objPopularMenuRow[2] > 1)
-				strMenuItemsList .= L(lMenuPopularMenus, A_Loopfield) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
-			else
-				blnPopularMenuIncomplete := true
-		}
+		if objRecordSet.Next(objRow) = -1 ; end of recordset
+			break
+		strPath := objRow[1]
+		strTargetType := objRow[2]
+		if (objRow[2] <= 1 or !FileExistInPath(strPath)) ; skip if not enough frequent or if not exits
+			continue
+		intPopularItemsCount++
+		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberPopularsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberPopularsMenu) . " " : "") . strPath
+		if (g_blnUsageDbShowPopularityIndex)
+			strMenuItemName .= " [" . objRow[2] . "]"
+		strIcon := (strFoldersOrFiles = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		strMenuItemsList .= L(lMenuPopularMenus, strFoldersOrFiles) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		if (intPopularItemsCount >= g_intRecentFoldersMax)
+			break ; Folders or Files menus is complete
 	}
+	blnPopularMenuIncomplete := (intPopularItemsCount < g_intRecentFoldersMax)
 
 	Menu, % L(lMenuPopularMenus, A_Loopfield), Add
 	Menu, % L(lMenuPopularMenus, A_Loopfield), DeleteAll
@@ -5746,11 +5747,11 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 			StringSplit, arrMenuItemsList, A_LoopField, |
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-		if (blnPopularMenuIncomplete)
-		{
-			strMenuItemLabel := L(lMenuPopularMenusWillImprove, L(lMenuPopularMenus, A_LoopField), g_strAppNameText)
-			AddMenuIcon(L(lMenuPopularMenus, A_Loopfield), strMenuItemLabel, "GuiShowNeverCalled", "iconAbout", false) ; will never be called because disabled
-		}
+	if (blnPopularMenuIncomplete)
+	{
+		strMenuItemLabel := L(lMenuPopularMenusWillImprove, L(lMenuPopularMenus, A_LoopField), g_strAppNameText)
+		AddMenuIcon(L(lMenuPopularMenus, A_Loopfield), strMenuItemLabel, "GuiShowNeverCalled", "iconAbout", false) ; will never be called because disabled
+	}
 	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
 }
 
@@ -5761,8 +5762,8 @@ strMenuItemName := ""
 strIcon := ""
 ResetArray("arrMenuItemsList")
 strUsageDbSQL := ""
-objPopularMenuTable := ""
-objPopularMenuRow := ""
+objRecordSet := ""
+objRow := ""
 intMenuNumberPopularsMenu := ""
 strTargetType := ""
 strMenuItemsList := ""
