@@ -4501,7 +4501,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^m
+			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^w
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
 			Favorite4=X
