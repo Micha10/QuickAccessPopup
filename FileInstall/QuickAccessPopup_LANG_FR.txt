@@ -673,10 +673,10 @@ lOptionsControlDoublePressedRight	Avec la touche Contrôle de droite
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
-lOptionsExclusionDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
-lOptionsExclusionList	Liste d'exclusions
-lOptionsExclusionTitle	Liste d'exclusions pour le bouton de souris [~1~]
+lOptionsExclusionMouseList	Liste d'exclusions
+lOptionsExclusionMouseListDescription	Liste d'exclusions pour le bouton de souris [~1~]
+lOptionsExclusionMouseListDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionMouseListDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
 lOptionsExplorerContextMenus	Activer les menus contextuels
 lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer:
 lOptionsFileManagerNavigateCurrent	la fenêtre actuelle de ~1~
@@ -739,6 +739,7 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
+lOptionsUsageDb	Base de données des Menus Populaires
 lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les Menus Populaires:
 lOptionsUsageDbDescription	Paramètres pour les Menus Populaires and Récents
 lOptionsUsageDbDisabling	Les changements à la base de données des Menus Populaires seront complétés lorsque vous relancerez ~1~.
@@ -750,8 +751,6 @@ lOptionsUsageDbIntervalSeconds	Intervalle de collecte (en secondes):
 lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
 lOptionsUsageDbShowPopularityIndex	Afficher l'index de popularité dans la fenêtre Paramètres et dans les menus
 lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données des menus populaires sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
-lOptionsUsageDbTitle	Base de données des Menus Populaires
-lOptionsUseClassicButtons	Afficher les boutons QAP classiques
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
 lTCMenuName	TC Directory Hotlist

@@ -179,7 +179,6 @@ lDialogFavoriteSnippetFixedFont	Fonte com largura fixa
 lDialogFavoriteSnippetFontSize	Tamanho da fonte
 lDialogFavoriteSnippetHelpNoProcess	Insira ``n para final da linha e ``t para tabulação. Insira ```` (aspas invertidas duplas) para aspas invertidas.
 lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações e Enter para inserir finais de linhas
-lDialogFavoriteSnippetHelpWeb	Veja <a href="~1~">Ajuda para Recortes</a> para codificação de caracteres especiais e comandos.
 lDialogFavoriteSnippetProcessEOLTab	Automaticamente codificar finais de linhas e tabulações
 lDialogFavoriteSnippetPromptLabel	Perguntar antes de ~1~ o recorte
 lDialogFavoriteSnippetPromptLabelLaunching	iniciar
@@ -403,7 +402,6 @@ lGuiLvFavoritesHeaderFiltered	Nome|Menu|Tipo|Tecla de atalho|Local ou conteúdo
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opções
-lGuiOptionsDescription	Exibe a caixa de diálogo "Opções" para fazer o QAP funcionar do jeito que quiser.`n`nAs opções estão agrupadas em abas: "Geral", "Menu", "Atalhos", "Atalhos alternativos", "Exclusões" e "Gerenciadores de arquivos".
 lGuiPassword	Senha
 lGuiPasswordNotEncripted	Nota: a senha NÃO será criptografada ao ser enviada pela Internet.
 lGuiRemoveFavorite	Remover
@@ -514,7 +512,6 @@ lMenuExternalCatalogueDescription	Adiciona ao seu menu um menu compartilhado do 
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fontes
 lMenuGetWinInfo	Obter informações da janela
-lMenuGetWinInfoDescription	Ajuda a identificar uma janela que você deseja excluir o atalho do mouse do menu do QAP.`n`nEste recurso solicitará que você clique na janela de destino com o atalho do menu do QAP (por padrão, botão do meio do mouse) e copie o título da janela e nome da classe em sua área de transferência.`n`nVeja a aba "Exclusões" na caixa de diálogo "Opções" para explicações completas.
 lMenuHelp	Ajuda
 lMenuHistory	Histórico
 lMenuLastAction	Repetir Última Ação
@@ -643,10 +640,9 @@ lOptionsControlDoublePressedRight	Usando tecla Control direita
 lOptionsDisplayIcons	Ex&ibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos de Menu
 lOptionsEnableExternalMenusCatalogue	Habilitar o Catálogo de Menus Compartilhados
-lOptionsExclusionDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	A tecla de atalho do QAP será desativada nestes aplicativos e o clique [~1~] será enviado para a janela de destino se o QAP não estiver em execução. Você também pode excluir janelas pelo nome da sua classe ou nome do processo (nome do arquivo EXE). Prefixe o título ou classe com * (asterisco) para excluir também caixas de diálogo de aplicativos. Você pode encontrar ajuda e suporte deste recurso no <a href="~2~">site do QAP</a>.
-lOptionsExclusionList	Lista de exclusões
-lOptionsExclusionTitle	Lista de exclusões para disparador do Mouse [~1~]
+lOptionsExclusionMouseListDescription	Lista de exclusões para disparador do Mouse [~1~]
+lOptionsExclusionMouseListDetail1	Para bloquear o menu pelo botão do mouse do QAP [~1~] em um aplicativo, entre qualquer parte do título da janela do aplicativo. Você pode entrar múltiplas exclusões, uma por linha. Por exemplo, para excluir o Chrome e Word, entre as seguintes duas linhas na lista de exclusão:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionMouseListDetail2	A tecla de atalho do QAP será desativada nestes aplicativos e o clique [~1~] será enviado para a janela de destino se o QAP não estiver em execução. Você também pode excluir janelas pelo nome da sua classe ou nome do processo (nome do arquivo EXE). Prefixe o título ou classe com * (asterisco) para excluir também caixas de diálogo de aplicativos. Você pode encontrar ajuda e suporte deste recurso no <a href="~2~">site do QAP</a>.
 lOptionsExplorerContextMenus	Habilitar menus de contexto
 lOptionsExplorerContextMenusHeader	Menus de Contexto do Windows Explorer:
 lOptionsFileManagerNavigateCurrent	a janela ~1~ atual
@@ -671,7 +667,6 @@ lOptionsMenuNearMouse	Próximo do ponteiro do mouse
 lOptionsMenuOptions	Opções do menu
 lOptionsMenuPositionPrompt	Abrir o menu:
 lOptionsMouseAndKeyboard	Teclas de atalho do menu
-lOptionsNbLastActions	Número de itens no menu Repetir Últimas Ações
 lOptionsOpenMenuOnTaskbar	&Abrir menu ao clicar na barra de tarefas
 lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
@@ -680,9 +675,6 @@ lOptionsPopupHotkeyTitles	Botão do Mouse do Quick Access Popup|Atalho de Teclado
 lOptionsPopupHotkeyTitlesSub	Este botão do mouse exibe o menu em qualquer lugar (exceto sobre <a>aplicativos excluídos</a>) e inicia seu favorito ou navega para sua pasta.|Esta tecla de atalho exibe o menu em qualquer lugar e inicia seu favorito ou navega para sua pasta.|Este botão do mouse exibe um menu alteranativo oferecendo vários recursos. Este menu pode ser exibido em qualquer lugar (sem exceção).|Esta tecla de atalho exibe um menu alternativo oferecendo vários recursos. Este menu pode ser exibido em qualquer lugar.
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens nos menus
-lOptionsRecentFoldersPrompt	Pastas Recentes e Arquivos Recentes:
-lOptionsRefreshedMenusAttached	Anexar menus "~1~", "~2~" e "~3~" ao menu do QAP
-lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu (lista de itens recentes e espaço disponível nas unidades atuais). Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, os menus "~1~", "~2~" e "~3~" serão atualizados somente sob demanda e serão exibidos destacados do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Aviso sonoro antes e após atualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre atualizações em segundos`n(300 segundos ou mais recomendado)
 lOptionsRefreshQAPMenuTitle	Habilitar Atualização Agendada de Menu do QAP
@@ -709,7 +701,6 @@ lOptionsThirdPartySelectedHelp	Gerenciador de Arquivos Selecionado: ~1~ (<a href
 lOptionsThirdPartySelectFile	Por favor, selecione o arquivo executável do ~1~ usando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Use abas em vez de abrir em uma nova janela
 lOptionsTrayTip	Exibir &Dicas na Inicialização
-lOptionsUseClassicButtons	Usar botões clássicos do QAP
 lPickIconNoLocation	Selecione primeiro um favorito antes de escolher um ícone.
 lReloadPrompt	~1~ foi alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? Alterações não salvas no menu serão perdidas.
 lTCMenuName	Lista de Acesso de Pastas do TC

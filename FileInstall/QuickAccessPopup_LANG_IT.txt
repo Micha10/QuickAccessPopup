@@ -180,7 +180,6 @@ lDialogFavoriteSnippetFixedFont	Font a larghezza fissa
 lDialogFavoriteSnippetFontSize	Dimensione del font
 lDialogFavoriteSnippetHelpNoProcess	Inserisci `` n come fine-linea e ``t per tab. Inserisci `` (doppio doppio apice all'indietro) per il doppio apice.
 lDialogFavoriteSnippetHelpProcess	Usa Ctrl-Tab per inserire tab ed Enter per inserire fine-linea.
-lDialogFavoriteSnippetHelpWeb	Vedi <a href="~1~">Aiuto Frammenti</a> per la codifica di comandi e caratteri speciali.
 lDialogFavoriteSnippetProcessEOLTab	Codifica automaticamente fine-linea (EOL) e tab
 lDialogFavoriteSnippetPromptLabel	Mostra il Prompt prima di ~1~ lo snippet
 lDialogFavoriteSnippetPromptLabelLaunching	eseguire
@@ -409,7 +408,6 @@ lGuiLvFavoritesHeaderFiltered	Nome|Menù|Tipo|Combinazione|Posizione o contenuto
 lGuiMove	Sposta
 lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
-lGuiOptionsDescription	Visualizza la casella di dialogo "Opzioni" per consentire a QAP di comportarsi nel modo desiderato.`n`nLe opzioni sono raggruppate in tab: "Generale", "Menù", "Sequenze di sostituzione", "Sequenze di sostituzione alternative", "Esclusioni" e "File manager".
 lGuiPassword	Password
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
@@ -524,7 +522,6 @@ lMenuExternalCatalogueDescription	Aggiungi al menù un menù condiviso preso dal C
 lMenuFavoritesInternet	Preferiti (Internet)
 lMenuFonts	Font di caratteri
 lMenuGetWinInfo	Leggi le informazioni della finestra
-lMenuGetWinInfoDescription	Aiuta a riconoscere la finestra che vuoi togliere dal tasto attivatore del mouse per il menù QAP.`n`nQuesta funzionalità ti richiederà di cliccare nella finestra destinazione con tal tasto per il menù QAP (quello centrale, come impostazione predefinita) e copiare il titolo della finestra e il nome della classe negli Appunti.`n`nVedi il tab "Esclusioni" nella casella di dialogo "Opzioni" per avere spiegazioni complete.
 lMenuHelp	Aiuto
 lMenuHistory	Cronologia
 lMenuLastAction	Ripeti l'ultima azione
@@ -634,7 +631,6 @@ lOopsQAPfeature	Funzionalità di QAP
 lOopsRestoreEditCopyMoveWindowPosition	Ripristinare la posizione della finestra delle caselle di dialogo di Modifica, Copia e Sposta?`n`nQuesto comporterà il riavvio di ~1~ e le modifiche non salvate alle impostazioni verranno perse.`n`nResetta e riavvia ~1~.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	C'è stato un errore cercando di aprire questo preferito. Per favore, prova di nuovo...
-lOopsUsageDbSQLiteMissing	File di risorsa SQLite mancanti:`n`n~1~`nNon è stato possibile eseguire Quick Access Popup.
 lOopsWriteProtectedError	Sembra che ~1~ sia eseguito da una cartella PROTETTA-IN-SCRITTURA perchè non è stato possibile creare il file di configurazione "~1~.ini".`n`nSposta il file ~1~ .EXE in una cartella NON-PROTETTA di tua scelta e ri-eseguilo da quest'ultima.`n`n~1~ verrà chiuso.
 lOopsWrongThirdPartyPath	Nome del file o percorso sbagliato per ~1~:`n~2~.`n`nControlla il file .exe selezionato per ~1~ nelle "Opzioni", tab "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Wrong percorso o nome del file per l'applicazione di QAPconnect`n~1~:`n~2~.`n`nControlla i valori per [~1~] in ~3~. Clicca su "~4~" in "Opzioni", tab "~5~".
@@ -661,10 +657,9 @@ lOptionsControlDoublePressedRight	Tasto CTRL destro attivo
 lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsEnableExternalMenusCatalogue	Abilita il Catalogo del Menù Condiviso
-lOptionsExclusionDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	La combinazione per aprire QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra indicata come se QAP non fosse in esecuzione. Puoi anche escludere finestre usando il nome della loro classe o del loro processo (nome del file EXE). Usa * (asterisco) come prefisso per il titolo o la classe per escludere anche le caselle di dialogo dell'applicazione. Puoi trovare aiuto e supporto per questa funzionalità qui <a href="~2~">sul sito web QAP</a>.
-lOptionsExclusionList	Lista delle esclusioni
-lOptionsExclusionTitle	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
+lOptionsExclusionMouseListDescription	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
+lOptionsExclusionMouseListDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionMouseListDetail2	La combinazione per aprire QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra indicata come se QAP non fosse in esecuzione. Puoi anche escludere finestre usando il nome della loro classe o del loro processo (nome del file EXE). Usa * (asterisco) come prefisso per il titolo o la classe per escludere anche le caselle di dialogo dell'applicazione. Puoi trovare aiuto e supporto per questa funzionalità qui <a href="~2~">sul sito web QAP</a>.
 lOptionsExplorerContextMenus	Abilita i menù contestuali
 lOptionsExplorerContextMenusHeader	Menú contestuali di Windows Explorer:
 lOptionsFileManagerNavigateCurrent	la finestra attuale ~1~
@@ -689,7 +684,6 @@ lOptionsMenuNearMouse	Vicino al puntatore del mouse
 lOptionsMenuOptions	Menù opzioni
 lOptionsMenuPositionPrompt	Apri il menù popup:
 lOptionsMouseAndKeyboard	Menù scorciatoie
-lOptionsNbLastActions	Numero degli elementi nel menù Ripeti le ultime azioni
 lOptionsOpenMenuOnTaskbar	&Apri il menù cliccando sulla barra delle applicazioni
 lOptionsOtherOptions	Generale
 lOptionsPopupFixPositionX	Posizione X:
@@ -698,9 +692,6 @@ lOptionsPopupHotkeyTitles	Tasto del Mouse di Quick Access Popup|Scorciatoia da t
 lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere.
 lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di oggetti nei Menù
-lOptionsRecentFoldersPrompt	Cartelle recenti e File recenti:
-lOptionsRefreshedMenusAttached	Aggiungi i menu "~1~", "~2~" e "~3~" al menu di QAP
-lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~" e "~3~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
 lOptionsRefreshQAPMenuIntervalSec	Intervallo di aggiornamento del menù in secondi (consigliato 300s o più)
 lOptionsRefreshQAPMenuTitle	Abilita l'aggiornamento programmato del menù QAP
@@ -728,7 +719,6 @@ lOptionsThirdPartySelectedHelp	File Manager selezionato: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Puoi selezionare il file dell'applicazione di ~1~ usando il tasto "Sfoglia"
 lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
-lOptionsUseClassicButtons	Usa i pulsanti classici di QAP
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù verranno perse.
 lTCMenuName	Hotlist Cartelle di TC

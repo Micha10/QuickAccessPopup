@@ -672,10 +672,10 @@ lOptionsControlDoublePressedRight	Gebruik de rechter "Control" toets
 lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
-lOptionsExclusionDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
-lOptionsExclusionDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
-lOptionsExclusionList	Uitsluitingslijst
-lOptionsExclusionTitle	Uitsluitlijst voor muistoets: [~1~].
+lOptionsExclusionMouseList	Uitsluitingslijst
+lOptionsExclusionMouseListDescription	Uitsluitlijst voor muistoets: [~1~].
+lOptionsExclusionMouseListDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
+lOptionsExclusionMouseListDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
 lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's:
 lOptionsFileManagerNavigateCurrent	het huidige ~1~ venster
@@ -738,6 +738,7 @@ lOptionsThirdPartySelectedHelp	Geselecteerde bestandsbeheerder is: ~1~ (<a href=
 lOptionsThirdPartySelectFile	Selecteer de ~1~ applicatiebestand door middel van de de toets: "Bladeren..."
 lOptionsThirdPartyUseTabs	Gebruik tabs in plaats van het openen van een nieuw venster
 lOptionsTrayTip	"Tips tijdens opstarten" in Systeembalk weergeven
+lOptionsUsageDb	Populaire Menu Database
 lOptionsUsageDbDaysInPopular	Maximum aantal geregistreerde dagen voor het Populaire menus:
 lOptionsUsageDbDescription	Parameter voor Populaire en recente itemsmenu instellen
 lOptionsUsageDbDisabling	Wijzigingen aan de "Populaire Menu-database" instellingen worden pas na een herstart van ~1~ van kracht.
@@ -749,8 +750,6 @@ lOptionsUsageDbIntervalSeconds	Verzamelinterval (seconden):
 lOptionsUsageDbMaximumSize	Maximale grootte van de database (in MB):
 lOptionsUsageDbShowPopularityIndex	Geef populariteitsindex weer in het menu en onder Instellingen
 lOptionsUsageDbStatement	Privacy Verklaring: De data welke voor het Populaire Menus database is verzameld wordt alleen gebruikt om u te voorzien van snelle links naar uw gebruikte locaties. Deze data wordt lokaal op uw computer opgeslagen en NIETS van deze informatie wordt verzonden naar een locatie op het internet.
-lOptionsUsageDbTitle	Populaire Menu Database
-lOptionsUseClassicButtons	Gebruik de klassieke QAP-muistoetsen
 lPickIconNoLocation	Selecteer eerst een favoriet alvorens een pictogram te kiezen.
 lReloadPrompt	~1~ gewijzigd in ~2~. Wilt u ~3~ herladen naar ~2~? Niet opgeslagen wijzigingen gaan verloren.
 lTCMenuName	TC Directory hotlist
