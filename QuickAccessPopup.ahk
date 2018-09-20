@@ -2885,17 +2885,6 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 g_strUsageDbFile := A_WorkingDir . "\QAP_Popular.DB"
 g_intUsageDbRecentLimit := 150
 
-; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
-IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0
-IniRead, g_intUsageDbIntervalSeconds, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
-g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
-g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
-g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
-g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
-IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 1
-IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
-
 if (g_blnUsageDbEnabled)
 	gosub, UsageDbInit ; creates g_objUsageDb
 
@@ -4622,14 +4611,7 @@ IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoubl
 IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
 
 ; ---------------------
-; Options Tab 5 Exclusion List
-
-IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
-SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
-; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
-
-; ---------------------
-; Load Options Tab 6 File Managers
+; Load Options Tab 5 File Managers
 
 IniRead, g_intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
 
@@ -4677,6 +4659,43 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 		g_intActiveFileManager := 1 ; must be after previous line
 	}
 
+; ---------------------
+; Options Tab 6 More
+
+; ExclusionMouseList
+
+IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
+SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
+; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
+
+; UsageDb
+IniRead, g_intUsageDbIntervalSeconds, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
+g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
+g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
+IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
+IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 1
+IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
+IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
+g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
+g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
+
+; UserVariables
+IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
+if !StrLen(g_strUserVariablesList)
+{
+	if FileExist(EnvVars("%LOCALAPPDATA%\Dropbox\info.json"))
+		FileRead, strDropboxJsonFileContent, % EnvVars("%LOCALAPPDATA%\Dropbox\info.json")
+	else if FileExist(EnvVars("%APPDATA%\Dropbox\info.json"))
+		FileRead, strDropboxJsonFileContent, % EnvVars("%APPDATA%\Dropbox\info.json")
+	
+	if StrLen(strDropboxJsonFileContent)
+	{
+		g_strUserVariablesList := SubStr(strDropboxJsonFileContent, InStr(strDropboxJsonFileContent, """path"": """) + 9)
+		g_strUserVariablesList := SubStr(g_strUserVariablesList, 1, InStr(g_strUserVariablesList, """") - 1)
+		g_strUserVariablesList := "{Dropbox}=" . StrReplace(g_strUserVariablesList, "\\", "\") . "|"
+	}
+}
+	
 ; ---------------------
 ; Load internal flags and various values
 
@@ -7676,30 +7695,31 @@ Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavi
 ;---------------------------------------
 ; Tab 6: More
 
-; Exclusion list
-
 Gui, 2:Tab, 6
 
 Gui, 2:Font, w600
 Gui, 2:Add, Text, y+10 x15 w300 Section, %lDialogMoreOptions%
 Gui, 2:Font
 
-Gui, 2:Add, Button, y90 x15 vf_btnExclusionList gGuiOptionsMoreExclusionList, %lOptionsExclusionList%
-GuiControlGet, arrPos, Pos, f_btnExclusionList
-intMaxWidth := arrPosW
-Gui, 2:Add, Button, y130 x15 vf_btnUsageBd gGuiOptionsMoreUsageDb, %lOptionsUsageDbTitle%
-GuiControlGet, arrPos, Pos, f_btnUsageBd
-intMaxWidth := (arrPosW > intMaxWidth ? arrPosW : intMaxWidth)
+; Buttons
+OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, true) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
+OptionsMoreShowButton("UsageDb", intMaxWidth) ; f_btnUsageBd GuiOptionsMoreUsageBd
+OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList GuiOptionsMoreUserVariablesList
 
-Gui, 2:Add, Text, % "y90 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionTitle, Hotkey2Text(g_arrPopupHotkeys1))
+; Descriptions
+Gui, 2:Add, Text, % "y90 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
 Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUsageDbDescription%
+Gui, 2:Add, Text, % "y170 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
+
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
 Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
+
+Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
 
 ; End of more
 
@@ -7727,6 +7747,24 @@ ResetArray("arrPos")
 strOptionsLastActions := ""
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OptionsMoreShowButton(strTag, ByRef intMaxWidth, blnFirstCall := false)
+;------------------------------------------------------------
+{
+	global
+	
+	static intY
+	if (blnFirstCall)
+		intY := 50 ; first item will be at 90, next at 130...
+
+	intY := intY + 40
+	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag, % lOptions%strTag%
+	GuiControlGet, arrPos, Pos, f_btn%strTag%
+	intMaxWidth := (arrPosW > intMaxWidth ? arrPosW : intMaxWidth)
+}
 ;------------------------------------------------------------
 
 
@@ -7887,7 +7925,7 @@ OptionsTitlesSubClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, Choose, f_intOptionsTab, 5
+GuiControl, Choose, f_intOptionsTab, 6
 
 return
 ;------------------------------------------------------------
@@ -8151,14 +8189,15 @@ return
 
 
 ;------------------------------------------------------------
-GuiOptionsMoreExclusionList:
+GuiOptionsMoreExclusionMouseList:
 GuiOptionsMoreUsageDb:
+GuiOptionsMoreUserVariablesList:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
 g_intGui2WinID := WinExist("A")
 
-StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionList", etc.
+StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
 strMoreWindowTitle := lDialogMore . " - " . g_strAppNameText . " " . g_strAppVersion
 
 Gui, 3:New, , %strMoreWindowTitle%
@@ -8167,14 +8206,14 @@ Gui, 3:+Owner2
 if (g_blnUseColors)
 	Gui, 3:Color, %g_strGuiWindowColor%
 
-if (g_strMoreWindowName = "ExclusionList")
+if (g_strMoreWindowName = "ExclusionMouseList")
 {
 	Gui, 3:Font, s8 w700
-	Gui, 3:Add, Text, x10 y10 w600, % L(lOptionsExclusionTitle, Hotkey2Text(g_arrPopupHotkeys1))
+	Gui, 3:Add, Text, x10 y10 w600, % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
 	Gui, 3:Font
 	Gui, 3:Add, Edit, x10 y+5 w600 r10 vf_strExclusionMouseListMore, %f_strExclusionMouseList%
-	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionDetail1, Hotkey2Text(g_arrPopupHotkeys1))
-	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionDetail2, Hotkey2Text(g_arrPopupHotkeys1), "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
+	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail1, Hotkey2Text(g_arrPopupHotkeys1))
+	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, Hotkey2Text(g_arrPopupHotkeys1), "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
 	Gui, 3:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, %lMenuGetWinInfo%
 
 	GuiCenterButtons(strMoreWindowTitle, 10, 5, 20, "f_btnGetWinInfo")
@@ -8182,7 +8221,7 @@ if (g_strMoreWindowName = "ExclusionList")
 else if (g_strMoreWindowName = "UsageDb")
 {
 	Gui, 3:Font, s8 w700
-	Gui, 3:Add, Text, x10 y10 w600, %lOptionsUsageDbTitle%
+	Gui, 3:Add, Text, x10 y10 w600, %lOptionsUsageDb%
 	Gui, 3:Font
 	
 	Gui, 3:Add, Text, x10 y+10 w600, %lOptionsUsageDbStatement%
@@ -8207,6 +8246,14 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, %lOptionsUsageDbFlushDatabase%
 
 	Gosub, OptionUsageDbEnableClicked
+}
+else if (g_strMoreWindowName = "UserVariablesList")
+{
+	Gui, 3:Font, s8 w700
+	Gui, 3:Add, Link, x10 y10 w600, % lOptionsUserVariablesList . " (<a href=""https://www.QuickAccessPopup.com"">" . lGuiHelp . "</a>)"
+	Gui, 3:Font
+	Gui, 3:Add, Link, x10 y+10 w600, %lOptionsUserVariablesListInstructions%
+	Gui, 3:Add, Edit, x10 y+10 w600 r10 vf_strUserVariablesListMore, % (StrLen(f_strUserVariablesList) ? f_strUserVariablesList : "{MyVariable}=MyContent")
 }
 
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gGuiOptionsMoreTemplateOK, %lDialogOKAmpersand%
@@ -8278,7 +8325,7 @@ Gui, 3:Submit, NoHide
 
 if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 {
-	if (g_strMoreWindowName = "ExclusionList")
+	if (g_strMoreWindowName = "ExclusionMouseList")
 		
 		GuiControl, 2:, f_strExclusionMouseList, %f_strExclusionMouseListMore%
 		
@@ -8295,6 +8342,10 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 			GuiControl, 2:, f_fltUsageDbMaximumSize, %f_fltUsageDbMaximumSizeMore% ; save Edit control's value (not UpDown control) to allow fractions
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
 	}
+	else if (g_strMoreWindowName = "UserVariablesList")
+		
+		GuiControl, 2:, f_strUserVariablesList, %f_strUserVariablesListMore%
+		
 }
 
 g_strMoreWindowName := ""
@@ -8554,14 +8605,8 @@ IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerA
 ;---------------------------------------
 ; Save Tab 6: More
 
-; Exclusion list
-
-strExclusionCleanup := ReplaceAllInString(f_strExclusionMouseList, "`n", "|")
-g_strExclusionMouseList := ""
-Loop, Parse, strExclusionCleanup, |
-	if StrLen(A_LoopField)
-		g_strExclusionMouseList .= Trim(A_LoopField) . "|"
-StringTrimRight, g_strExclusionMouseList, g_strExclusionMouseList, 1 ; remove last |
+; ExclusionList
+g_strExclusionMouseList := OptionsListCleanup(f_strExclusionMouseList)
 IniWrite, %g_strExclusionMouseList%, %g_strIniFile%, Global, ExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 
@@ -8587,6 +8632,11 @@ if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
 	gosub, UsageDbInit
 if (intUsageDbIntervalSecondsBefore <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularBefore <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
+
+; UserVariablesList
+
+g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
+IniWrite, %g_strUserVariablesList%, %g_strIniFile%, Global, UserVariablesList
 
 ; End of More
 
@@ -8701,6 +8751,21 @@ loop, 4
 Gosub, 2GuiClose
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+OptionsListCleanup(strList)
+;------------------------------------------------------------
+{
+	strListCleanup := ReplaceAllInString(strList, "`n", "|")
+	strList := ""
+	Loop, Parse, strListCleanup, |
+		if StrLen(A_LoopField)
+			strList .= Trim(A_LoopField) . "|"
+	StringTrimRight, strList, strList, 1 ; remove last |
+	return strList
+}
 ;------------------------------------------------------------
 
 
@@ -20770,6 +20835,8 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 ; Do not process strCurrentLocation or strSelectedLocation if = -1
 ;------------------------------------------------------------
 {
+	global g_strUserVariablesList
+	
 	strExpanded := ExpandPlaceholdersForThis(strOriginal, strLocation, "")
 	if (strCurrentLocation <> -1)
 		strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
@@ -20777,6 +20844,14 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 		strExpanded := ExpandPlaceholdersForThis(strExpanded, strSelectedLocation, "SEL_")
 	strExpanded := StrReplace(strExpanded, "{Clipboard}", Clipboard)
 
+	loop, parse, g_strUserVariablesList, |
+		if StrLen(A_LoopField)
+		{
+			StringSplit, arrUserVariable, A_LoopField, =
+			if (SubStr(arrUserVariable1, 1, 1) = "{" and SubStr(arrUserVariable1, StrLen(arrUserVariable1), 1) = "}")
+				strExpanded := StrReplace(strExpanded, arrUserVariable1, arrUserVariable2)
+		}
+			
 	return strExpanded
 }
 ;------------------------------------------------------------
