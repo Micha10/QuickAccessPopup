@@ -15980,7 +15980,7 @@ g_strLocationWithPlaceholders := ExpandPlaceholders(g_objThisFavorite.FavoriteLo
 if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
-	gosub, PasteSnippet
+	gosub, PasteSnippet ; using g_strLocationWithPlaceholders
 	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
 	return
@@ -17091,7 +17091,7 @@ if (blnTextSnippet)
 else ; snippet of type Macro
 {
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-	strTemp := DecodeSnippet(g_objThisFavorite.FavoriteLocation)
+	strTemp := DecodeSnippet(g_strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
 
 	Loop
 	{
@@ -20899,6 +20899,9 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 {
 	global g_strUserVariablesList
 	
+	; protect escaped open curly brackets `{
+	StringReplace, strOriginal, strOriginal, ````{, !r4nd0mt3xt!, A ; original tick was doubled by EncodeSnippet
+
 	strExpanded := ExpandPlaceholdersForThis(strOriginal, strLocation, "")
 	if (strCurrentLocation <> -1)
 		strExpanded := ExpandPlaceholdersForThis(strExpanded, strCurrentLocation, "CUR_")
@@ -20913,7 +20916,10 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 			if (SubStr(arrUserVariable1, 1, 1) = "{" and SubStr(arrUserVariable1, StrLen(arrUserVariable1), 1) = "}")
 				strExpanded := StrReplace(strExpanded, arrUserVariable1, arrUserVariable2)
 		}
-			
+
+	; restore escaped open curly brackets and remove tick {
+	StringReplace, strExpanded, strExpanded, !r4nd0mt3xt!, {, A ; restore ticked open curly brackets
+
 	return strExpanded
 }
 ;------------------------------------------------------------
