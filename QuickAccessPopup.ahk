@@ -4682,19 +4682,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 ; UserVariables
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
 if !StrLen(g_strUserVariablesList)
-{
-	if FileExist(EnvVars("%LOCALAPPDATA%\Dropbox\info.json"))
-		FileRead, strDropboxJsonFileContent, % EnvVars("%LOCALAPPDATA%\Dropbox\info.json")
-	else if FileExist(EnvVars("%APPDATA%\Dropbox\info.json"))
-		FileRead, strDropboxJsonFileContent, % EnvVars("%APPDATA%\Dropbox\info.json")
-	
-	if StrLen(strDropboxJsonFileContent)
-	{
-		g_strUserVariablesList := SubStr(strDropboxJsonFileContent, InStr(strDropboxJsonFileContent, """path"": """) + 9)
-		g_strUserVariablesList := SubStr(g_strUserVariablesList, 1, InStr(g_strUserVariablesList, """") - 1)
-		g_strUserVariablesList := "{Dropbox}=" . StrReplace(g_strUserVariablesList, "\\", "\") . "|"
-	}
-}
+	gosub, DetectCloudUserVariables
 	
 ; ---------------------
 ; Load internal flags and various values
@@ -5731,7 +5719,7 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	; Parse table
 	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
-	IF !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
@@ -6048,7 +6036,7 @@ if !g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMe
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
-	IF !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
 		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		return
@@ -19668,7 +19656,7 @@ if (g_blnUsageDbDebug or g_blnDiagMode)
 intUsageDbtNbItems := 0
 
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
-IF !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
 	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
@@ -19897,6 +19885,80 @@ if (g_blnUsageDbDebug)
 }
 
 ; was Exit when launched by SetTimer
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DetectCloudUserVariables:
+;------------------------------------------------------------
+
+g_strUserVariablesList := ""
+
+; detect Dropbox
+if FileExist(EnvVars("%LOCALAPPDATA%\Dropbox\info.json"))
+	FileRead, strDropboxJsonFileContent, % EnvVars("%LOCALAPPDATA%\Dropbox\info.json")
+else if FileExist(EnvVars("%APPDATA%\Dropbox\info.json"))
+	FileRead, strDropboxJsonFileContent, % EnvVars("%APPDATA%\Dropbox\info.json")
+if StrLen(strDropboxJsonFileContent)
+{
+	strDropboxJsonFileContent := SubStr(strDropboxJsonFileContent, InStr(strDropboxJsonFileContent, """path"": """) + 9)
+	strDropboxJsonFileContent := SubStr(strDropboxJsonFileContent, 1, InStr(strDropboxJsonFileContent, """") - 1)
+	g_strUserVariablesList .= "{Dropbox}=" . StrReplace(strDropboxJsonFileContent, "\\", "\") . "|"
+}
+
+; detect OneDrive/SkyDrive
+; from https://stackoverflow.com/a/29562190/2327946
+Loop, parse, % "Software\Microsoft\OneDrive|Software\Microsoft\Windows\CurrentVersion\SkyDrive|Software\Microsoft\SkyDrive", |
+; use the first valid value found
+{
+	RegRead, strOneDrive, HKCU, %A_LoopField%, UserFolder
+	if StrLen(strOneDrive) and FileExist(strOneDrive)
+	{
+		g_strUserVariablesList .= "{OneDrive}=" . strOneDrive . "|"
+		break
+	}
+}
+
+; detect Google Drive
+; from https://stackoverflow.com/a/29562861/2327946
+strGoogleDriveDbFile := EnvVars("%LOCALAPPDATA%\Google\Drive\user_default\sync_config.db")
+if FileExist(strGoogleDriveDbFile)
+{
+	strGoogleDriveDbFileCopy := g_strTempDir . "\Temp_GoogleDrive_Database.DB"
+	FileCopy, %strGoogleDriveDbFile%, %strGoogleDriveDbFileCopy%, 1
+	objGoogleDriveDb := New SQLiteDb
+	if !objGoogleDriveDb.OpenDb(strGoogleDriveDbFileCopy)
+		Oops("SQLite Error Opening Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nFile: " . strGoogleDriveDbFileCopy)
+	else
+	{
+		strSQLGoogleDriveQuery := "SELECT data_value FROM data WHERE entry_key='local_sync_root_path'"
+		If !objGoogleDriveDb.Query(strSQLGoogleDriveQuery, objGoogleDriveRecordSet)
+			Oops("SQLite Error Reading Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
+		else
+		{
+			objGoogleDriveRecordSet.Next(objGoogleDriveRow)
+			g_strUserVariablesList .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
+		}
+		objGoogleDriveDb.CloseDb()
+	}
+
+}
+
+; detect iCloud
+strICloudDrive := EnvVars("%USERPROFILE%\iCloudDrive")
+if FileExist(strICloudDrive)
+	g_strUserVariablesList .= "{iCloudDrive}=" . strICloudDrive . "|"
+
+strDropboxJsonFileContent := ""
+strOneDrive := ""
+strGoogleDriveDbFile := ""
+objGoogleDriveDb := ""
+strSQLGoogleDriveQuery := ""
+objGoogleDriveRecordSet := ""
+objGoogleDriveRow := ""
+strICloudDrive := ""
+
 return
 ;------------------------------------------------------------
 
@@ -22052,7 +22114,7 @@ GetUsageDbFavoriteUsage(objFavorite)
 
 	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
-	IF !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
+	if !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
 		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
 		g_blnUsageDbEnabled := false
