@@ -756,7 +756,7 @@ global lOptionsUsageDbStatement := "Privacy Statement: The data in the Popular M
 global lOptionsUsageDb := "Popular Menus Database"
 global lOptionsUserVariablesList := "User Variables"
 global lOptionsUserVariablesListDescription := "Pieces of text that can be inserted as placeholders, e.g.: {MyVariable}"
-global lOptionsUserVariablesListInstructions := "List your user variables one by line. Each line must start with the variable name (e.g. ""{MyVariable}""), followed by ""="" and the variable content (e.g. ""MyContent""). This can be of great help for shared folders users.`n`nFor example, if one line contains ""{MySharedFolder}=S:\MyFolder"", the placeholder {MySharedFolder} will be replaced by ""S:\MyFolder"" in favorites paths or snippets content."
+global lOptionsUserVariablesListInstructions := "Enter your user variables, one by line. Each line must start with the variable name between curly brackets (e.g. ""{MyVariable}""), followed by the equal sign ""="" and the variable content (e.g. ""{MyVariable}=MyContent"").`n`nFor example, if one line contains ""{OurSharedFolder}=S:\ThisFolder"", the placeholder {OurSharedFolder} will be replaced by ""S:\ThisFolder"" in favorites paths or snippets content."
 global lPickIconNoLocation := "First select a favorite before choosing an icon."
 global lReloadPrompt := "~1~ changed to ~2~. Do you want to reload ~3~ in ~2~ now? Unsaved changes to the menu will be lost."
 global lTCMenuName := "TC Directory hotlist"
