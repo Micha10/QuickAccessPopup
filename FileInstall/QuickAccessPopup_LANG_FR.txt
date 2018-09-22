@@ -519,7 +519,7 @@ lMenuDownloads	Téléchargements
 lMenuDrives	Disques
 lMenuDrivesDescription	Afficher un menu dynamique présentant les lecteurs de disques de votre système avec leur nom, l'espace libre, la capacité et un icône indiquant le type de lecteur.`n`nCe menu est actualisé chaque fois que vous ouvrez le menu de QAP.
 lMenuDrivesSpace	(~1~ GB libres / ~2~ GB)
-lMenuDynamicMenus	Menus dynamiques
+lMenuDynamicMenus	Travaux en cours
 lMenuEditIniFile	Modifier ~1~
 lMenuEditIniFileDescription	Modifier le fichier de configuration (.ini) de Quick Access Popup actuellement en vigueur.
 lMenuExitApp	Quitter ~1~
@@ -549,7 +549,7 @@ lMenuNoCurrentFolder	Aucun dossier ouvert actuellement…
 lMenuPictures	Images
 lMenuPopularFiles	Fichiers
 lMenuPopularFolders	Dossiers
-lMenuPopularMenus	~1~ populaires
+lMenuPopularMenus	~1~ fréquemment utilisés
 lMenuPopularMenusDescription	Affiche un menu dynamique contenant les ~1~ les plus utilisés tel que mémorisés par Windows ou utilisés avec QAP. Ce menu est actualisé chaque fois que vous affichez le menu de QAP.
 lMenuPopularMenusWillImprove	Le menu ~1~ s'améliore à mesure que vous utilisez ~2~...
 lMenuProgramFiles	Programmes
@@ -580,7 +580,7 @@ lMenuSettingsFileOptions	Options de fichier de paramètres
 lMenuStartMenu	Menu Démarrer
 lMenuStartup	Démarrage
 lMenuSuspendHotkeys	Suspendre les déclencheurs (Hotkeys)
-lMenuSwitchFolderOrApp	Basculer
+lMenuSwitchFolderOrApp	Fenêtre ouvertes
 lMenuSwitchFolderOrAppDescription	Afficher un menu dynamique en deux sections:`n1) les dossiers actuellement ouverts dans Windows Explorer et Directory Opus `n2) les applications actives sur le système (en commençant par la fenêtre la plus récemment activée).`n`nLorsque vous sélectionnez un item, cette fenêtre est automatiquement amenée au premier plan et activée.`n`nCe menu est actualisé à chaque fois que vous affichez le menu de QAP.
 lMenuSwitchSettings	Changer de fichier de configuration
 lMenuSwitchSettingsDefault	Revenir au fichier de paramètres par défaut
@@ -646,7 +646,7 @@ lOopsSelectedItemDialogBoxes	L'item sélectionné ne peut pas être détecté dans un
 lOopsSelectedItemTotalCommander	L'item sélectionné ne peut pas être détecté dans Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Une erreur s'est produite pendant l'ouverture de ce favori. Veuillez essayer à nouveau...
-lOopsUsageDbSQLiteMissing	Fichier ressource SQLite absent:`n`n~1~`nImpossible de construire les Menus Populaires.
+lOopsUsageDbSQLiteMissing	Fichier ressource SQLite absent:`n`n~1~`nImpossible de construire les menus des items fréquemment utilisés.
 lOopsWriteProtectedError	Il semble que ~1~ a été lancé depuis un dossier en ÉCRITURE SEULEMENT où il est impossible de créer le fichier de configuration "~1~.ini".`n`nDéplacez le fichier .EXE de ~1~ dans un dossier RÉGULIER de votre choix, puis exécutez l'application à nouveau depuis ce dossier.`n`n~1~ va être fermé.
 lOopsWrongThirdPartyPath	Chemin ou nom de fichier incorrect pour ~1~:`n~2~.`n`nVérifiez le fichier .exe sélectionné pour ~1~ dans les "Options", onglet "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Fichier de l'application invalide dans QAPconnect`n~1~:`n~2~.`n`nVérifiez les valeurs pour [~1~] dans ~3~. Utilisez le bouton "~4~" dans "Options", onglet "~5~".
@@ -709,7 +709,7 @@ lOptionsPopupHotkeyTitles	Bouton de souris du menu Quick Access Popup|Raccourci 
 lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où  (sauf dans les  <a>applications exclues</a>) et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce raccourci clavier affiche le menu n'importe où  et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce bouton de la souris affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où (sans exception).|Ce raccourci clavier affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où.
 lOptionsQAPTempFolder	Dossier temporaire
 lOptionsRecentFolders	Nombre d'items récents dans le menu
-lOptionsRecentFoldersPrompt	Items récents et items populaires
+lOptionsRecentFoldersPrompt	Items récents et fréquemment utilisés
 lOptionsRefreshedMenusAttached	Attacher le menu "~1~" au menu de QAP
 lOptionsRefreshedMenusAttachedInfo	Si vous activez cette option, il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, le menu "~1~" sera raffraîchi seulement sur demande et sera affiché détaché du menu de QAP.
 lOptionsRefreshQAPMenuDebugBeep	Faire un bip avant et après les actualisation (déboguage)
@@ -739,18 +739,22 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
-lOptionsUsageDb	Base de données des Menus Populaires
-lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les Menus Populaires:
-lOptionsUsageDbDescription	Paramètres pour les Menus Populaires and Récents
-lOptionsUsageDbDisabling	Les changements à la base de données des Menus Populaires seront complétés lorsque vous relancerez ~1~.
-lOptionsUsageDbEnable	Activer la base de données des Menus Populaires
-lOptionsUsageDbFlushDatabase	Vider la base de données des Menus Populaires
-lOptionsUsageDbFlushDatabaseConfirm	Effacer le contenu de la base de données des Menus Populaires?
+lOptionsUsageDb	Base de données des items fréquemment utilisés
+lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les menus des items fréquemment utilisés:
+lOptionsUsageDbDescription	Paramètres pour les menus des items fréquemment utilisés et récents
+lOptionsUsageDbDisabling	Les changements à la base de données des items fréquemment utilisés seront complétés lorsque vous relancerez ~1~.
+lOptionsUsageDbEnable	Activer la base de données des items fréquemment utilisés
+lOptionsUsageDbFlushDatabase	Vider la base de données des items fréquemment utilisés
+lOptionsUsageDbFlushDatabaseConfirm	Effacer le contenu de la base de données des items fréquemment utilisés?
 lOptionsUsageDbFlushDatabaseDone	Données effacées
 lOptionsUsageDbIntervalSeconds	Intervalle de collecte (en secondes):
 lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
-lOptionsUsageDbShowPopularityIndex	Afficher l'index de popularité dans la fenêtre Paramètres et dans les menus
-lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données des menus populaires sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
+lOptionsUsageDbMaximumSizeInvalid	La taille maximale de la base de données n'est pas un nombre valide: ~1~
+lOptionsUsageDbShowPopularityIndex	Afficher l'index de fréquence dans la fenêtre Paramètres et dans les menus
+lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données des items fréquemment utilisés sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
+lOptionsUserVariablesList	Variables de l'utilisateur
+lOptionsUserVariablesListDescription	Court texte qui peut être insérée en remplacement d'un code, par exemple: {MaVariable}
+lOptionsUserVariablesListInstructions	Saisissez les variables de l'utilisateur, une variable par ligne. Chaque ligne doit commencer par le nom de la variable entre accolades (par exemple "{MaVariable}"), suivi du signe d'égalité "=" et du contenu de la variable (par exemple "{MaVariable}=Mon Contenu").`n`nPar exemple, si une ligne contient "{NotreDossierPartage}=S:\NotreDossier", le code de remplacement {NotreDossierPartage} sera remplacé par "S:\NotreDossier" dans les chemins d'accès des favoris et dans les fragments de texte.
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
 lTCMenuName	TC Directory Hotlist
