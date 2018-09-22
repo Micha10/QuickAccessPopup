@@ -54,6 +54,7 @@ lDialogArgumentsLabel	Parametri
 lDialogArgumentsLabelHelp	(racchiudi ciascun parametro fra doppi apici, se richiesto)
 lDialogArgumentsPlaceholdersCheckLabel	Parametri correnti con segnaposto estesi
 lDialogArgumentsPlaceholdersCurrentExample	x:\cartella_contenitore\ultima_cartella
+lDialogArgumentsPlaceholdersSelectedExample	x:\cartella_contenitore\cartella_o_file_selezionato
 lDialogAscending	Ascendente
 lDialogBrowseButton	Sfoglia
 lDialogBrowseOrSelectApplication	Ricerca un file eseguibile o`nseleziona una applicazione in esecuzione in questo elenco
@@ -180,6 +181,7 @@ lDialogFavoriteSnippetFixedFont	Font a larghezza fissa
 lDialogFavoriteSnippetFontSize	Dimensione del font
 lDialogFavoriteSnippetHelpNoProcess	Inserisci `` n come fine-linea e ``t per tab. Inserisci `` (doppio doppio apice all'indietro) per il doppio apice.
 lDialogFavoriteSnippetHelpProcess	Usa Ctrl-Tab per inserire tab ed Enter per inserire fine-linea.
+lDialogFavoriteSnippetHelpWeb	Vedere le pagine di Aiuto <a href="~1~">Frammenti e <a href="~2~">Segnaposti</a>.
 lDialogFavoriteSnippetProcessEOLTab	Codifica automaticamente fine-linea (EOL) e tab
 lDialogFavoriteSnippetPromptLabel	Mostra il Prompt prima di ~1~ lo snippet
 lDialogFavoriteSnippetPromptLabelLaunching	eseguire
@@ -270,6 +272,8 @@ lDialogMenuKey	Tasto del Menú
 lDialogMenuNotMoveUnderItself	Il menù "~1~" non può essere posizionato sotto se stesso.
 lDialogMinimized	Minimizzato
 lDialogModifiedDate	Data modificata
+lDialogMore	Altre
+lDialogMoreOptions	Altre opzioni
 lDialogMouse	Mouse
 lDialogMouseButtonsText	Tasto Sinistro del Mouse|Tasto Centrale del Mouse|Tasto destro del Mouse|Tasto Speciale 1 del Mouse|Tasto Speciale 2 del Mouse|Rotellina Su|Rotellina Giù|Rotellina Sinistra|Rotellina Destra|
 lDialogMoveFavoritesTitle	Sposta i Preferiti - ~1~ ~2~
@@ -285,6 +289,7 @@ lDialogOpenThisGroup	Apri questo gruppo
 lDialogOpenThisMenu	Apri questo menù
 lDialogOr	o
 lDialogOtherHotkeys	Altre scorciatoie per il menú principale
+lDialogPlaceholders	Vedere le pagine di Aiuto <a href="~1~">Segnaposti</a>.
 lDialogPlay	Esegui
 lDialogQAPFeatureCategoriesNames	Funzionalità|Menù Dinamici|Modifica Menù QAP|Aggiungi Preferito del Tipo|Gestione finestra|Funzionalità delle finestre|Chiudi Comandi del Computer|Utilità varie|Gestione QAP
 lDialogQAPFeaturesHelpLink	Aiuto su questa funzionalità
@@ -408,6 +413,7 @@ lGuiLvFavoritesHeaderFiltered	Nome|Menù|Tipo|Combinazione|Posizione o contenuto
 lGuiMove	Sposta
 lGuiMoveAmpersand	&Sposta
 lGuiOptions	Opzioni
+lGuiOptionsDescription	Visualizza la casella di dialogo "Opzioni" per consentire a QAP di comportarsi nel modo desiderato.`n`nLe opzioni sono raggruppate in tab: "Generale", "Menù", "Sequenze di sostituzione", "Sequenze di sostituzione alternative", "File manager" e "Altre" per altre opzioni.
 lGuiPassword	Password
 lGuiPasswordNotEncripted	Nota: la password non verrà criptata prima di inviarla in Internet.
 lGuiRemoveFavorite	Elimina
@@ -513,6 +519,7 @@ lMenuDownloads	Download
 lMenuDrives	Unità disco
 lMenuDrivesDescription	Visualizza un menù dinamico che mostra i dischi montati nel tuo computer con etichetta, spazio libero, capacità ed un'icona che dipende dal tipo di unità disco.`n`nQuesto menù viene rigenerato ogni volta che apri il menù QAP.
 lMenuDrivesSpace	(~1~ GB liberi / ~2~ GB)
+lMenuDynamicMenus	Menù Dinamici
 lMenuEditIniFile	Modifica ~1~
 lMenuEditIniFileDescription	Modifica il file di impostazioni (.ini) attivo di Quick Access Popup (QAP).
 lMenuExitApp	Esci da ~1~
@@ -522,6 +529,7 @@ lMenuExternalCatalogueDescription	Aggiungi al menù un menù condiviso preso dal C
 lMenuFavoritesInternet	Preferiti (Internet)
 lMenuFonts	Font di caratteri
 lMenuGetWinInfo	Leggi le informazioni della finestra
+lMenuGetWinInfoDescription	Aiuta a riconoscere la finestra che vuoi togliere dal tasto attivatore del mouse per il menù QAP.`n`nQuesta funzionalità ti richiederà di cliccare nella finestra destinazione col predetto tasto per il menù QAP (quello centrale, come impostazione predefinita) e copiare il titolo della finestra e il nome della classe negli Appunti.`n`nVedi il tab "Lista Esclusioni" sotto il tab "Altre" nella casella di dialogo "Opzioni" per avere spiegazioni complete.
 lMenuHelp	Aiuto
 lMenuHistory	Cronologia
 lMenuLastAction	Ripeti l'ultima azione
@@ -543,6 +551,7 @@ lMenuPopularFiles	File
 lMenuPopularFolders	Cartelle
 lMenuPopularMenus	~1~ popolare
 lMenuPopularMenusDescription	Visualizza un menù dinamico che mostra la ~1~ usata più di frequente secondo quanto stimato da Windows, e usata in QAP. Questo menù viene aggiornato ogni volta che apri il menù QAP.
+lMenuPopularMenusWillImprove	Il menù ~1~ migliorerà usando ~2~...
 lMenuProgramFiles	Programmi
 lMenuProgramsFolderStartMenu	Programmi (Menù Avvio)
 lMenuPublicLibraries	Raccolte Pubbliche
@@ -586,6 +595,10 @@ lMenuUpdateNoAmpersandDescription	Controlla sul sito web di Quick Access Popup s
 lMenuUserFolder	Cartella Utente
 lMenuUserPinned	Collegamenti evidenziati dall'utente
 lMenuWebSiteSupport	Gruppo di Supporto QAP
+lMessengerCloseQAPSettings	Una finestra delle Impostazioni è aperta in ~1~, eventualmente con modifiche non salvate.`n`nSi consiglia di chiudere le finestre di impostazioni prima di usare questo menù contestuale.
+lMessengerDoNotRun	Non eseguire ~1~ direttamente. Puoi in alternativa:`n`n- fare un click-destro su un'icona di file/cartella in Explorer per aggiungerli al menù`n- click-destro in una finestra di Explorer (ossia sul suo sfondo) per aggiungere tale cartella`n- click-destro sullo sfondo del Desktop per aprire il menù a popup.`n`nAssicurati che ~2~ sia in esecuzione prima di usare i suoi menù contestuali. Vedere la casella di spunta  "Menù contestuali" nella finestra "Opzioni" ~2~.
+lMessengerError	Si è verificato un errore.`n`nAssicurati che ~1~ sia in esecuzione prima di usare i suoi menù contestuali.
+lMessengerHelp	Cerca "Messenger" su www.QuickAccessPopup.com per aiuto.
 lNavigateFileError	C'è stato un errore nell'aprire la cartella:`n~1~.
 lNavigateSpecialError	C'è stato un errore nell'aprire la cartella speciale #~1~.
 lOopsAddThisFolderTip	Per ottenere un risultato migliore dal comando "Aggiungi Cartella Attiva o Pagina Web":`n`n1) Attiva la finestra ~1~ contenente la cartella o link da aggiungere al menù.`n2) Apri il menù popup usando ~2~.`n3) Seleziona "Aggiungi Cartella Attiva o Pagina web" e salva il nuovo Preferito.
@@ -629,8 +642,11 @@ lOopsNotAdmin	Non é stato possibile ~1~ come Amministratore.`n`nE' pertanto in e
 lOopsOSVerrsionError	~1~ richiede Window 7 o un sistema operativo più recente. Windows Vista e utenti XP sono invitati ad usare il Folders Popup che è compatibile con queste versioni.`n`nVuoi visitare il sito web di Folders Popup?
 lOopsQAPfeature	Funzionalità di QAP
 lOopsRestoreEditCopyMoveWindowPosition	Ripristinare la posizione della finestra delle caselle di dialogo di Modifica, Copia e Sposta?`n`nQuesto comporterà il riavvio di ~1~ e le modifiche non salvate alle impostazioni verranno perse.`n`nResetta e riavvia ~1~.
+lOopsSelectedItemDialogBoxes	L'oggetto selezionato non può essere individuato in caselle di dialogo.
+lOopsSelectedItemTotalCommander	L'oggetto selezionato non può essere individuato in finestre di Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	C'è stato un errore cercando di aprire questo preferito. Per favore, prova di nuovo...
+lOopsUsageDbSQLiteMissing	File di risorsa SQLite mancanti:`n`n~1~`nNon è stato possibile costruire i menù Popolari.
 lOopsWriteProtectedError	Sembra che ~1~ sia eseguito da una cartella PROTETTA-IN-SCRITTURA perchè non è stato possibile creare il file di configurazione "~1~.ini".`n`nSposta il file ~1~ .EXE in una cartella NON-PROTETTA di tua scelta e ri-eseguilo da quest'ultima.`n`n~1~ verrà chiuso.
 lOopsWrongThirdPartyPath	Nome del file o percorso sbagliato per ~1~:`n~2~.`n`nControlla il file .exe selezionato per ~1~ nelle "Opzioni", tab "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Wrong percorso o nome del file per l'applicazione di QAPconnect`n~1~:`n~2~.`n`nControlla i valori per [~1~] in ~3~. Clicca su "~4~" in "Opzioni", tab "~5~".
@@ -657,6 +673,7 @@ lOptionsControlDoublePressedRight	Tasto CTRL destro attivo
 lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsEnableExternalMenusCatalogue	Abilita il Catalogo del Menù Condiviso
+lOptionsExclusionMouseList	Lista delle esclusioni
 lOptionsExclusionMouseListDescription	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
 lOptionsExclusionMouseListDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La combinazione per aprire QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra indicata come se QAP non fosse in esecuzione. Puoi anche escludere finestre usando il nome della loro classe o del loro processo (nome del file EXE). Usa * (asterisco) come prefisso per il titolo o la classe per escludere anche le caselle di dialogo dell'applicazione. Puoi trovare aiuto e supporto per questa funzionalità qui <a href="~2~">sul sito web QAP</a>.
@@ -692,6 +709,9 @@ lOptionsPopupHotkeyTitles	Tasto del Mouse di Quick Access Popup|Scorciatoia da t
 lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere.
 lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di oggetti nei Menù
+lOptionsRecentFoldersPrompt	Oggetti recenti e e Menù Popolari:
+lOptionsRefreshedMenusAttached	Aggiungi il menù "~1~" al menu di QAP
+lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni aggiornate, richieste per costruire il menu. Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, il menu "~1~" sarà aggiornati solo su richiesta e visualizzato separatamente dal menu principale.
 lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
 lOptionsRefreshQAPMenuIntervalSec	Intervallo di aggiornamento del menù in secondi (consigliato 300s o più)
 lOptionsRefreshQAPMenuTitle	Abilita l'aggiornamento programmato del menù QAP
@@ -719,6 +739,18 @@ lOptionsThirdPartySelectedHelp	File Manager selezionato: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Puoi selezionare il file dell'applicazione di ~1~ usando il tasto "Sfoglia"
 lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
+lOptionsUsageDb	Database dei Menù Popolari
+lOptionsUsageDbDaysInPopular	Numero di giorni da tenere in conto nei menù Popolari:
+lOptionsUsageDbDescription	Imposta i parametri per gli elementi dei menù Popolari e Recenti
+lOptionsUsageDbDisabling	Modifiche alle impostazioni del database dei menù Popolari saranno completate dopo che ricarichi ~1~.
+lOptionsUsageDbEnable	Abilita il Database dei Menù Popolari
+lOptionsUsageDbFlushDatabase	Svuota il database dei Menù Populari
+lOptionsUsageDbFlushDatabaseConfirm	Cancellare il contenuto dei databaae dei Menù Popolari?
+lOptionsUsageDbFlushDatabaseDone	Contenuto del database cancellato.
+lOptionsUsageDbIntervalSeconds	Intervallo di Osservazione (secondi):
+lOptionsUsageDbMaximumSize	Dimensione massima del database (in MB):
+lOptionsUsageDbShowPopularityIndex	Mostra l'indice di popolarità nelle Impostazioni e menù
+lOptionsUsageDbStatement	Informazioni sulla Privacy: i dati nel database dei Menù Popolari vengono raccolti esclusivamente allo scopo di presentarti menù che riflettano il tuo personale uso del computer. Tali dati risiedono SOLTANTO nel tuo computer e NESSUNA informazione viene trasmessa ad un server remoto.
 lPickIconNoLocation	Seleziona il preferito prima di scegliere un'icona.
 lReloadPrompt	~1~ cambiato in ~2~. Vuoi ricaricare ~3~ in ~2~ ora? Le modifiche non salvate al menù verranno perse.
 lTCMenuName	Hotlist Cartelle di TC
