@@ -519,7 +519,7 @@ lMenuDownloads	Transferências
 lMenuDrives	Unidades
 lMenuDrivesDescription	Exibe um menu dinâmico mostrando as unidades do seu sistema com etiqueta, espaço livre, capacidade e ícone mostrando o tipo de unidade.`n`nEste menu é actualizado sempre que abrir o menu QAP.
 lMenuDrivesSpace	(~1~ GB livres / ~2~ GB)
-lMenuDynamicMenus	Menus Dinâmicos
+lMenuDynamicMenus	A trabalhar
 lMenuEditIniFile	Editar ~1~
 lMenuEditIniFileDescription	Edita o ficheiro de definições (.ini) activo do Quick Access Popup.
 lMenuExitApp	Sair ~1~
@@ -549,7 +549,7 @@ lMenuNoCurrentFolder	Não há pastas abertas actualmente...
 lMenuPictures	Imagens
 lMenuPopularFiles	Ficheiros
 lMenuPopularFolders	Pastas
-lMenuPopularMenus	~1~ Populares
+lMenuPopularMenus	~1~ Frequentes
 lMenuPopularMenusDescription	Exibe um menu dinâmico mostrando as ~1~ usadas mais frequentemente de acordo com o registo do Windows e usadas no QAP. Este menu é actualizado sempre que abrir o menu QAP.
 lMenuPopularMenusWillImprove	O menu ~1~ vai melhorar a sua utilização do ~2~...
 lMenuProgramFiles	Programas
@@ -580,7 +580,7 @@ lMenuSettingsFileOptions	Opções do ficheiro de definições
 lMenuStartMenu	Menu Iniciar
 lMenuStartup	Arranque
 lMenuSuspendHotkeys	Suspender Teclas de Atalho
-lMenuSwitchFolderOrApp	Mudar
+lMenuSwitchFolderOrApp	Janelas Actuais
 lMenuSwitchFolderOrAppDescription	Exibe um menu dinâmico em duas partes:`n1) as pastas já abertas nas janelas do Windows Explorer e Directory Opus`n2) as aplicações actualmente em execução no seu sistema (começando pela janela activada mais recentemente).`n`nQuando seleccionar um item, a sua janela é trazida automaticamente para primeiro plano.`n`nEste menu é actualizado sempre que abrir o menu QAP.
 lMenuSwitchSettings	Mudar de ficheiro de definições
 lMenuSwitchSettingsDefault	Mudar para o ficheiro de definições padrão
@@ -646,7 +646,7 @@ lOopsSelectedItemDialogBoxes	Não é possível detectar o item seleccionado em caix
 lOopsSelectedItemTotalCommander	Não é possível detectar o item seleccionado nas janelas do Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Ocorreu um erro ao tentar abrir este favorito. Por favor, tente de novo...
-lOopsUsageDbSQLiteMissing	Ficheiros de recursos do SQLite em falta:`n`n~1~`nNão foi possível construir os menus Populares.
+lOopsUsageDbSQLiteMissing	Ficheiros de recursos do SQLite em falta:`n`n~1~`nNão foi possível construir os menus de Itens Frequentes.
 lOopsWriteProtectedError	Parece que o ~1~ está a ser executado de uma pasta PROTEGIDA CONTRA ESCRITA onde não pode ser criado o ficheiro de configuração "~1~.ini".`n`nMova o ficheiro ~1~ .EXE para uma pasta NORMAL à sua escolha e volte a executá-lo dessa pasta.`n`nO ~1~ vai ser encerrado.
 lOopsWrongThirdPartyPath	Atalho ou nome de ficheiro errados para ~1~:`n~2~.`n`nVerifique o ficheiro .exe seleccionado para ~1~ em "Opções", separador "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Atalho ou nome de ficheiro errados para a aplicação QAPconnect`n~1~:`n~2~.`n`nVerifique os valores para [~1~] em ~3~. Utilize o botão "~4~" em "Opções", separador "~5~".
@@ -709,7 +709,7 @@ lOptionsPopupHotkeyTitles	Quick Access Popup Botão do rato|Quick Access Popup At
 lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (excepto nas <a>aplicações excluídas</a>) e abre os seus favoritos ou navega para as pastas.|Esta tecla de atalho mostra o menu em toda a parte e abre os seus favoritos ou navega para as pastas.|Este botão do rato exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte (sem excepções).|Esta tecla de atalho exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte.
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens em menus
-lOptionsRecentFoldersPrompt	Itens Recentes e Menus Populares:
+lOptionsRecentFoldersPrompt	Itens Recentes e Menus Frequentes:
 lOptionsRefreshedMenusAttached	Anexar o menu "~1~" ao menu QAP
 lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu. Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, o menu "~1~" menu será actualizado  on demand only e exibido separadamente do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Bipar antes e depois de actualizar (depuração)
@@ -739,18 +739,22 @@ lOptionsThirdPartySelectedHelp	Gestor de Ficheiros Seleccionado: ~1~ (<a href="~
 lOptionsThirdPartySelectFile	Por favor, seleccione o ficheiro da aplicação ~1~ utilizando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Usar separadores em vez de abrir numa nova janela
 lOptionsTrayTip	&Exibir Dica da Área de Notificação
-lOptionsUsageDb	Base de Dados Menus Populares
-lOptionsUsageDbDaysInPopular	Número de dias a ter em conta nos menus Populares:
-lOptionsUsageDbDescription	Define os parâmetros para os menus Populares e Itens Recentes
-lOptionsUsageDbDisabling	As alterações na base de dados de definições de Menus Populares serão concluídas depois de reiniciar o ~1~.
-lOptionsUsageDbEnable	Activar Base de Dados de Menus Populares
-lOptionsUsageDbFlushDatabase	Apagar base de dados Menus Populares
-lOptionsUsageDbFlushDatabaseConfirm	Eliminar o conteÃºdo da base de dados Menus Populares?
+lOptionsUsageDb	Base de Dados Itens Frequentes
+lOptionsUsageDbDaysInPopular	Número de dias a ter em conta nos menus Itens Frequentes:
+lOptionsUsageDbDescription	Define os parâmetros para a base de dados de Itens Frequentes
+lOptionsUsageDbDisabling	As alterações na base de dados de definições dos Itens Frequentes serão concluídas depois de reiniciar o ~1~.
+lOptionsUsageDbEnable	Activar Base de Dados de de Itens Frequentes
+lOptionsUsageDbFlushDatabase	Apagar base de dados Itens Frequentes
+lOptionsUsageDbFlushDatabaseConfirm	Eliminar o conteúdo da base de dados Itens Frequentes?
 lOptionsUsageDbFlushDatabaseDone	ConteÃºdo da Base de dados eliminado.
 lOptionsUsageDbIntervalSeconds	Intervalo de recolha (segundos):
 lOptionsUsageDbMaximumSize	Tamanho máximo da base de dados (em MB):
-lOptionsUsageDbShowPopularityIndex	Mostrar índice de popularidade nas definições e no menu
-lOptionsUsageDbStatement	DeclaraÃ§Ã£o de Privacidade: Os dados da base de dados Menus Populares sÃ£o recolhidos apenas para fins de apresentaÃ§Ã£o com os seus menus reflectindo o uso do seu computador pessoal. Estes dados residem APENAS no seu computador e NÃƒO Ã© transmitida qualquer informaÃ§Ã£o a um servidor remoto.
+lOptionsUsageDbMaximumSizeInvalid	O temanho máximo da base de dados não é um número válido: ~1~
+lOptionsUsageDbShowPopularityIndex	Mostrar índice de frequência nas definições e no menu
+lOptionsUsageDbStatement	Declaração de Privacidade: Os dados da base de dados Itens Frequentes são recolhidos e guardados localmente, apenas para elaborar os menus "Pastas Frequentes" e "Ficheiros Frequentes" que se baseiam no uso do seu computador pessoal. Estes dados residem APENAS no seu computador e não é transmitida qualquer informação a um servidor remoto.
+lOptionsUserVariablesList	Variáveis do Utilizador
+lOptionsUserVariablesListDescription	Peças de texto que podem ser inseridas como espaços reservados, p.e.: {MyVariable}
+lOptionsUserVariablesListInstructions	Introduza as suas variáveis, uma por linha. Cada linha deve começar com o nome da variável entre chavetas (p.e. "{MyVariable}"), seguido do sinal igual "=" e o conteúdo da variável (p.e. "{MyVariable}=MyContent").`n`nPor exemplo, se uma linha contém "{OurSharedFolder}=S:\ThisFolder", o espaço reservado {OurSharedFolder} será substituído por "S:\ThisFolder" nos atalhos dos favoritos ou conteúdo dos snippets.
 lPickIconNoLocation	Escolha primeiro um favorito antes de escolher um ícone.
 lReloadPrompt	~1~ alterado para ~2~. Deseja recarregar ~3~ em ~2~ agora? As alterações ao menu não guardadas serão perdidas.
 lTCMenuName	Lista de Pasta Favoritas do TC
