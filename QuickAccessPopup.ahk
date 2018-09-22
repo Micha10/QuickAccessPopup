@@ -2882,7 +2882,8 @@ if (g_intRefreshQAPMenuIntervalSec > 0)
 ; https://autohotkey.com/boards/viewtopic.php?t=1064
 #Include %A_ScriptDir%\Class_SQLiteDB.ahk
 
-g_strUsageDbFile := A_WorkingDir . "\QAP_Popular.DB"
+g_strUsageDbFile := A_WorkingDir . "\QAP_Frequent.DB"
+g_strUsageDbFileOld := A_WorkingDir . "\QAP_Popular.DB"
 g_intUsageDbRecentLimit := 150
 
 if (g_blnUsageDbEnabled)
@@ -4673,7 +4674,7 @@ IniRead, g_intUsageDbIntervalSeconds, %g_strIniFile%, Global, UsageDbIntervalSec
 g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
 IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
-IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 1
+IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 3
 IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
 IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
@@ -19548,6 +19549,10 @@ if StrLen(strError)
 }
 else ; init SQLite wraper object
 	g_objUsageDb := New SQLiteDb
+
+; for pre-v9.1.9.10 version upgrading to v9.1.9.11
+if !FileExist(g_strUsageDbFile) and FileExist(g_strUsageDbFileOld)
+	FileCopy, %g_strUsageDbFileOld%, %g_strUsageDbFile%
 
 blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
