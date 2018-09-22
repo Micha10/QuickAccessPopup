@@ -518,7 +518,7 @@ lMenuDownloads	Downloads
 lMenuDrives	Stations
 lMenuDrivesDescription	Geeft een dynamisch menu weer met de schijven van uw systeem met label, vrije ruimte, capaciteit en een pictogram dat het stationstype toont.`n`nDit menu wordt vernieuwd telkens wanneer u het QAP-menu opent.
 lMenuDrivesSpace	(~1~ GB vrij / ~2~ GB) GB staat voor Giga-Bytes
-lMenuDynamicMenus	Dynamische Menus
+lMenuDynamicMenus	In het werk...
 lMenuEditIniFile	Wijzig ~1~...
 lMenuEditIniFileDescription	Wijzigen van het actieve "Quick Access Popup instellingenbestand (.ini).
 lMenuExitApp	~1~ afsluiten 
@@ -548,7 +548,7 @@ lMenuNoCurrentFolder	Geen open mappen gevonden...
 lMenuPictures	Afbeeldingen
 lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
-lMenuPopularMenus	Populair ~1~
+lMenuPopularMenus	Frequent gebruikt ~1~
 lMenuPopularMenusDescription	Geeft een dynamisch menu weer met de meest gebruikte ~1~ als bekend bij Windows en QAP. Dit menu wordt ververst wanneer het QAP-Menu wordt geopend.
 lMenuPopularMenusWillImprove	Het ~1~ menu zal verbeteren bij gebruik van ~2~...
 lMenuProgramFiles	Programmabestanden
@@ -579,7 +579,7 @@ lMenuSettingsFileOptions	Opties voor instellingenbestand
 lMenuStartMenu	Startmenu
 lMenuStartup	Start op
 lMenuSuspendHotkeys	Sneltoetsen tijdelijk uitschakelen
-lMenuSwitchFolderOrApp	Schakelen
+lMenuSwitchFolderOrApp	Momenteel Open
 lMenuSwitchFolderOrAppDescription	Geeft een dynamisch menu in twee delen weer:`n1) De mappen die al zijn geopend in de Windows Verkenner en/of Directory Opus`n2) De toepassingen die momenteel op uw systeem worden uitgevoerd (beginnend met de meest recent geactiveerde venster).`n`nWanneer u een item selecteert, wordt het venster automatisch naar de voorgrond gebracht.`n`nDit menu wordt vernieuwd telkens wanneer u het QAP-menu opent.
 lMenuSwitchSettings	Schakel tussen instellingenbestand
 lMenuSwitchSettingsDefault	Schakel naar standaard instellingenbestand
@@ -645,7 +645,7 @@ lOopsSelectedItemDialogBoxes	De geselecteerde item kan niet worden gevonden in d
 lOopsSelectedItemTotalCommander	De geselecteerde item kan niet worden gevonden in Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Er is een fout opgetreden tijdens het openen van deze favoriet, probeer het alstublieft opnieuw...
-lOopsUsageDbSQLiteMissing	SQLite bestanden missen:`n`n~1~`nHet was niet mogelijk om de Populaire menus op te bouwen.
+lOopsUsageDbSQLiteMissing	SQLite bestanden kunnen niet gevonden worden:`n`n~1~`nHet was niet mogelijk om de "Frequente Items" menus op te bouwen.
 lOopsWriteProtectedError	Het lijkt erop dat ~1~ uitgevoerd wordt in een SCHRIJF-BEVEILIGDE map waar het bestand "~1~.ini" niet aangemaakt kan worden.`n`nVerplaats het ~1~ .EXE bestand naar een locatie met SCHRIJF-RECHTEN van uw keuze en start ~1~ opnieuw.`n`n~1~ wordt nu afgesloten.
 lOopsWrongThirdPartyPath	Foutieve pad of bestandsnaam ingevoerd voor ~1~:`n~2~.`n`nControleer het .exe bestand welke geselecteerd is voor ~1~ in "Instellingen"-tab: "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Foutieve pad of bestandsnaam ingevoerd voor de QAP-connect applicatie`n~1~:`n~2~. Controleer de gegevens voor [~1~] in ~3~, gebruik de "~4~"-muistoets in "Opties"-tab "~5~".
@@ -708,7 +708,7 @@ lOptionsPopupHotkeyTitles	Quick Access Popup Muistoets|Quick Access Popup Snelto
 lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen (zonder excepties) en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).
 lOptionsQAPTempFolder	Tijdelijke map
 lOptionsRecentFolders	Numm&er van items in de menu's
-lOptionsRecentFoldersPrompt	Recente Items en Populaire Menus:
+lOptionsRecentFoldersPrompt	"Recente" en "Frequente"-Items menus:
 lOptionsRefreshedMenusAttached	Koppel het "~1~"-menu aan het QAP-menu
 lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu. Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, dan zal het "~1~"-menu alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
@@ -738,18 +738,22 @@ lOptionsThirdPartySelectedHelp	Geselecteerde bestandsbeheerder is: ~1~ (<a href=
 lOptionsThirdPartySelectFile	Selecteer de ~1~ applicatiebestand door middel van de de toets: "Bladeren..."
 lOptionsThirdPartyUseTabs	Gebruik tabs in plaats van het openen van een nieuw venster
 lOptionsTrayTip	"Tips tijdens opstarten" in Systeembalk weergeven
-lOptionsUsageDb	Populaire Menu Database
-lOptionsUsageDbDaysInPopular	Maximum aantal geregistreerde dagen voor het Populaire menus:
-lOptionsUsageDbDescription	Parameter voor Populaire en recente itemsmenu instellen
-lOptionsUsageDbDisabling	Wijzigingen aan de "Populaire Menu-database" instellingen worden pas na een herstart van ~1~ van kracht.
-lOptionsUsageDbEnable	Populaire Menu Database inschakelen
-lOptionsUsageDbFlushDatabase	Populaire Menus database leegmaken
-lOptionsUsageDbFlushDatabaseConfirm	Verwijder de inhoud van de Populaire Menus database?
+lOptionsUsageDb	"Frequente Items" menudatabase
+lOptionsUsageDbDaysInPopular	Maximum aantal geregistreerde dagen voor de "Frequente Items" menus:
+lOptionsUsageDbDescription	Parameter voor "Recente" en "Frequente"-Items menus instellen
+lOptionsUsageDbDisabling	Nieuwe instellingen aan de "Frequente Items" menudatabase worden pas na een herstart van ~1~ van kracht.
+lOptionsUsageDbEnable	Menudatabase voor "Frequente Items" inschakelen
+lOptionsUsageDbFlushDatabase	"Frequente Items" menudatabase leegmaken
+lOptionsUsageDbFlushDatabaseConfirm	De inhoud van de "Frequente Items" menudatabase verwijderen?
 lOptionsUsageDbFlushDatabaseDone	Database content verwijderd.
 lOptionsUsageDbIntervalSeconds	Verzamelinterval (seconden):
 lOptionsUsageDbMaximumSize	Maximale grootte van de database (in MB):
-lOptionsUsageDbShowPopularityIndex	Geef populariteitsindex weer in het menu en onder Instellingen
-lOptionsUsageDbStatement	Privacy Verklaring: De data welke voor het Populaire Menus database is verzameld wordt alleen gebruikt om u te voorzien van snelle links naar uw gebruikte locaties. Deze data wordt lokaal op uw computer opgeslagen en NIETS van deze informatie wordt verzonden naar een locatie op het internet.
+lOptionsUsageDbMaximumSizeInvalid	De ingestelde maximale grootte van de database is geen juiste grootte: ~1~
+lOptionsUsageDbShowPopularityIndex	Geef de populariteitsindex weer in menu en instellingenscherm
+lOptionsUsageDbStatement	Privacy Verklaring: De data welke voor het "Frequente Items" menudatabase zijn verzameld worden alleen gebruikt om u te voorzien van snelle links naar uw gebruikte locaties. Deze data wordt lokaal op uw computer opgeslagen en NIETS van deze informatie wordt verzonden naar een locatie op het internet.
+lOptionsUserVariablesList	Gebruikersvariabelen
+lOptionsUserVariablesListDescription	Voorgedefinieerde tekst die als variabelen op de voorgedefinieerde locaties kunnen worden ingevoegd, bijvoorbeeld: {MijnVariabelen}
+lOptionsUserVariablesListInstructions	Voer uw gebruikersvariabelen in, 1 per regel. Elke regel dient te starten met de variabele naam tussen accolades (bijvoorbeeld: "{MijnVariabele}"), gevolgd door een gelijkteken "=" en de variabele content (bijvoorbeeld: "{MijnVariabele}=MijnContent").`n`nAls voorbeeld, een regel bevat: "{OnzeOpenbareMap}=S:\DezeMap", de variabele {OnzeOpenbareMap} zal worden vervangen door "S:\DezeMap" in de favorietpaden en/of fragmenten. 
 lPickIconNoLocation	Selecteer eerst een favoriet alvorens een pictogram te kiezen.
 lReloadPrompt	~1~ gewijzigd in ~2~. Wilt u ~3~ herladen naar ~2~? Niet opgeslagen wijzigingen gaan verloren.
 lTCMenuName	TC Directory hotlist
