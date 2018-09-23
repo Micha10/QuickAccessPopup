@@ -31,6 +31,30 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.1.9.11 (2018-09-22)
+ 
+Placeholders
+- add options dialog box under More to manage User Variables used as placeholders in favorites locations and snippets content
+- at first usage (or when user variables list is empty), create user variables for these cloud drives (if detected): Dropbox, Google Drive, OneDrive (SkyDrive) and iCoudDrive
+- expand placeholders (user variables and previously existing placeholders) in snippets of type macro
+- allow to insert placeholders themselves in the content of snippet of type text by preceeding the opening bracket with backtick (eg: "`{Clipboard}");
+ 
+Frequent Items Menus (aka Popular Menus)
+- change the default size limit of the database to 3 MB
+- support for decimals in maximal database size
+- when maximal database size is exceeded, remove old items until the max size minus 10% is respected, also after reducing the maximum in options
+- create a backup of the database, always overwriting the previous copy, allowing scheduled backup programs to copy the backup file even if the live database is locked by QAP
+ 
+Bug fixes
+- fix bug to avoid database lock error message
+- when loading a favorite with iconUnknown, get default icon (occurs if an error occured when saving favorites earlier)
+ 
+Language
+- new name "In the Works" for new top menu (instead of "Dynamic Menus") with new shortcut Shift + Control + W (for new users only)
+- new names "Frequent Folders" and "Frequent Files" (instead of "Popular ...") and new name "Current Windows) for the "Switch" QAP feature
+- in user interface and documentation name SQLite database "Frequent Items database" and rename SQLite database file to "QAP_Frequent.DB"
+- language files update for Korean, Dutch, German, Italian, Portuguese and French
+
 Version BETA: 9.1.9.10 (2018-09-14)
  
 Popular Menus
@@ -2614,7 +2638,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.10
+;@Ahk2Exe-SetVersion 9.1.9.11
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2709,7 +2733,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.1.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
