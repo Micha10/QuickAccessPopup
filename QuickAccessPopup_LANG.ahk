@@ -610,6 +610,7 @@ global lOopsCannotCopyMoveToSelf := "You cannot move or copy favorites to their 
 global lOopsChangeFolderInDialogAlert := "Did you want to change folder in this dialog box? In order to navigate inside a dialog box, you have to enable an option (first checkbox in the ""General"" tab).`n`nDo you want to open the Options window?"
 global lOopsCouldNotOpenSpecialFolder := "~1~ could not open the special folder: ""~2~""."
 global lOopsEmpty := "empty" ; (no capital)
+global lOopsErrorIniFileDisplayErrorMessage := "Display this error message again for this Shared Menu?"
 global lOopsErrorIniFileModified := "This shared menu was modified since it was loaded. The menu will be refreshed but your last change cannot be saved."
 global lOopsErrorIniFileReadOnly := "This shared menu settings file or this location is READ-ONLY."
 global lOopsErrorIniFileRetry := "If the settings file is on a network drive, try reloading ~1~ when the network drive becomes available."

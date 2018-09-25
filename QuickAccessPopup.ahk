@@ -2756,8 +2756,7 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 ; Init settings file name
 
 g_strAppNameFile := "QuickAccessPopup"
-g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini"
-
+g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
 ; Set developement ini file
 
 ;@Ahk2Exe-IgnoreBegin
@@ -2769,7 +2768,7 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-g_strIniFileDefault := g_strIniFile
+g_strIniFileMain := g_strIniFile ; value never changed
 
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
@@ -2880,6 +2879,7 @@ g_strQAPconnectAppPath := ""
 g_strQAPconnectCommandLine := ""
 g_strQAPconnectNewTabSwitch := ""
 g_strQAPconnectCompanionPath := ""
+g_strQAPconnectNeverQuotes := ""
 
 g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
 g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
@@ -2888,6 +2888,8 @@ g_objLastActions := Object()
 
 g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
 g_objWindowsAppsIDsByName := Object()
+
+g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 ;---------------------------------
 ; Initial validation
@@ -4923,6 +4925,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	global g_strEscapePipe
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_strAppNameText
+	global g_strIniFileMain
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
@@ -4937,7 +4940,15 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if (objCurrentMenu.MenuType = "External") and !FileExist(g_strIniFile)
 		{
 			objCurrentMenu.MenuLoaded := false
-			Oops(lOopsErrorIniFileUnavailable . ":`n`n" . g_strIniFile . "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText))
+			IniRead, strExternalErrorMessageExclusions, %g_strIniFileMain%, Global, ExternalErrorMessageExclusions, %A_Space%
+			if !InStr(strExternalErrorMessageExclusions, g_strIniFile)
+			{
+				MsgBox, 52, %g_strAppNameText%, % lOopsErrorIniFileUnavailable . ":`n`n" . g_strIniFile
+					. "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText)
+					. "`n`n" . lOopsErrorIniFileDisplayErrorMessage
+				IfMsgBox, No
+					IniWrite, %strExternalErrorMessageExclusions%%g_strIniFile%|, %g_strIniFileMain%, Global, ExternalErrorMessageExclusions
+			}
 			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
 		}
 			
@@ -9139,7 +9150,7 @@ Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, %lGuiLvFavoritesHeader% ; SysHeader321 / SysListView321
 Gui, 1:Add, ListView
-	, % "vf_lvFavoritesListFiltered Count32 AltSubmit NoSortHdr LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
+	, % "vf_lvFavoritesListFiltered Count32 AltSubmit LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
 	, %lGuiLvFavoritesHeaderFiltered%|Object Position (hidden) ; SysHeader321 / SysListView321
 
 Gui, 1:Font, s8 w600, Verdana
@@ -17562,7 +17573,7 @@ return
 OpenFavoriteNavigateQAPconnect:
 ;------------------------------------------------------------
 
-if InStr(g_strFullLocation, " ")
+if InStr(g_strFullLocation, " ") and !(g_strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
 StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
 StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%"
@@ -17972,7 +17983,7 @@ OpenFavoriteInNewWindowQAPconnect:
 ;------------------------------------------------------------
 
 ; old Run, %g_strQAPconnectPath% %g_strFullLocation% /new
-if InStr(g_strFullLocation, " ")
+if InStr(g_strFullLocation, " ") and !(g_strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
 StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
 StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%", %g_strQAPconnectNewTabSwitch%
@@ -18538,7 +18549,7 @@ if SettingsUnsaved()
 }
 
 if (A_ThisLabel = "SwitchSettingsDefault")
-	g_strSwitchSettingsFile := g_strIniFileDefault
+	g_strSwitchSettingsFile := g_strIniFileMain
 else
 {
 	IniRead, strSwitchSettingsFolder, %g_strIniFile%, Global, SwitchSettingsFolder, %A_WorkingDir%
@@ -19209,6 +19220,7 @@ AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
 CommandLine=/O /A=%Path%
 NewTabSwitch=
 CompanionPath=EFCWT.EXE
+NeverQuotes=
 */
 
 IniRead, g_strQAPconnectAppPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
@@ -19216,6 +19228,7 @@ blnFileExist := FileExistInPath(g_strQAPconnectAppPath) ; return g_strQAPconnect
 IniRead, g_strQAPconnectCommandLine, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
 IniRead, g_strQAPconnectNewTabSwitch, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
 IniRead, g_strQAPconnectCompanionPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+IniRead, g_strQAPconnectNeverQuotes, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
 if StrLen(g_strQAPconnectCompanionPath)
 	blnFileExist := FileExistInPath(g_strQAPconnectCompanionPath) ; return g_strQAPconnectCompanionPath expanded and searched in PATH
 SplitPath, g_strQAPconnectCompanionPath, g_strQAPconnectCompanionFilename
@@ -19394,7 +19407,10 @@ AdjustColumnsWidth:
 ;------------------------------------------------------------
 
 Loop, % LV_GetCount("Column")
-	LV_ModifyCol(A_Index, "AutoHdr") ; adjust column width
+	if (StrLen(GetFavoritesListFilter()) and A_Index = LV_GetCount("Column"))
+		LV_ModifyCol(LV_GetCount("Column"), 0) ; when filtered, hide last column "Object Position (hidden)"
+	else
+		LV_ModifyCol(A_Index, "AutoHdr") ; adjust other columns width
 
 /*
 FOLLOWING NOT REQUIRED ANYMORE
