@@ -31,6 +31,78 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.2 (2018-09-??)
+ 
+FREQUENT ITEMS
+ 
+Frequent Items new menus
+- new "Frequent Folders" and "Frequent Files" submenus showing the ten most frequently used folders or files (excluding folders or files not found) sorted by frequency
+- add "Frequent Folders" and "Frequent Files" items to the new "In the Works" menu and to the QAP features list under the section "Dynamic Menus" in the "Add/Edit Favorite" dialog box
+- if, in early usage, "Frequent Folders" and "Frequent Files" menus are incomplete add a notice is added saying that the menus will improve with QAP usage
+ 
+Frequent Items menus options
+- reorganize "Options" dialog box tabs: remove "Exclusions" tab and add the "More" tab with buttons for "Exclusions list", "Frequent Items Dabatase" and "User Variables" options dialog boxes
+- in the "Frequent Items Database" options dialog box:
+  - QAP Privacy Statement
+  - enable/disable Frequent Items database checkbox
+  - Windows Recent Items collection interval (in seconds, minimum 60, default 60)
+  - number of days to take into account when building the Frequent Items menus (default 30 days)
+  - maximum size of the database in MB, decimal values allowed (default 3 MB)
+  - checkbox to show the favorites frequency index in Frequent Items menus and in "Settings" window
+  - button to "Flush Recent Items database"
+ 
+Frequent Items database technical notes
+- a background task collects (for user's usage only) Windows Recent Items and QAP usage in an SQLite local database names QAP_Frequent.DB
+- QAP is now distributed with files sqlite3.dll and sqlite3.def in 32-bit or 64-bit (appropriate version is installed according to user's system)
+- when maximal database size is exceeded, QAP removes oldest items until the maximal size minus 10% is respected
+- when exiting QAP, it creates a backup of the database under the name QAP_Frequent.DB-BK, always overwriting the previous copy (this allows scheduled backup programs to copy the backup file even when the live database is locked by QAP)
+ 
+"In the Works" menu
+- at first launch of QAP, a new "In the Works" menu is added to Main menu including items "Frequent Folders", "Frequent Files", "Recent Folders", "Recent Files" and "Current Windows" (aka "Switch")
+- this menu is added at the top of Main menu for new users or at the bottom of Main menu for users upgrading to v9.2+
+- assign to this menu the QAP icon and the Shift + Control + W shortcut
+ 
+Recent Items menus
+- "Recent Folders" and "Recent Files" are now refreshed from the Frequent Items database (keeping the previous method if Frequent Items database is disabled)
+- Recent Items menus are now always attached to the Main menu (because they are now built more reliably from the database)
+- if Frequent Items database is disabled, Recent Items menus are collected directly from Windows when refreshing the Recent items menus
+ 
+PLACEHOLDERS
+ 
+New {Clipboard} and {SEL_LOC} Placeholders
+- the new "{Clipboard}" placeholder is replaced with the current content of the Windows Clipboard (if it contains text) in favorites paths and snippets content
+- the new placeholders "{SEL_LOC}" and its variants are replaced with the path (or part of it) of the item currently under the mouse pointer or selected in the current file manager window
+- the "{SEL_LOC}" placeholder variants are: "{SEL_LOC}" (full path), "{SEL_NAME}" (file name only), "{SEL_DIR}" (directory), "{SEL_EXT}" (extension), "{SEL_NOEXT}" (file name without extension) and "{SEL_DRIVE}" (drive letter)
+- the "{SEL_LOC}" placeholder is supported when using Windows Explorer and Directory Opus (this feature is currently not enough reliable in Total Commander)
+ 
+Improved Placeholders
+- replace all placeholders ("{Clipboard}", "{LOC}", "{CUR_LOC}" and "{SEL_LOC}" and their variants) in favorite's "Location", "Parameters" and "Start In" fields (for all types of favorites supporting these options)
+- also replace these placeholders in Windows Apps parameters and in Snippet's content
+ 
+Placeholders in Snippets
+- placeholders "{Clipboard}", current location "{CUR_LOC}", selected item "{SEL_LOC}" and their variants are now replaced in Snippet
+- placeholders can be inserted in both in "Text" and "Macro" modes Snippets
+- when displaying a prompt before launching a Snippet, expand location placeholders in prompt text
+- tip: if a Snippet includes a location placeholder, use the "Prompt before launching the snippet" option in "Advanced Settigns" to allow moving from the Explorer window to the window where the snippet must be pasted
+- tip: if you need to insert the name of a placeholder "as-is" in a Snippet, preceeds the opening bracket with backtick (eg: "`{Clipboard}")
+ 
+User Variables and Cloud Drives Placeholders
+- user variables are placeholders that can be inserted in favorites properties and snippet content
+- the button "User Variables" under the "More" tab of the "Options" dialog box opens the "User Variables" dialog box
+- at its first launch (or when user variables list is empty), QAP creates user variables for these cloud drives (if detected): "{Dropbox}", "{Google Drive}", "{OneDrive}" (SkyDrive) and "{iCoudDrive}"
+ 
+VARIOUS
+ 
+Improvements
+- rename the QAP feature "Switch" to "Current Windows"
+- stop adding shortcuts to items added automatically to menu when the menu already exists (only do it at first launch)
+- update QAP Messenger v1.1.9 BETA: English language for QAPmessenger that can now be localized; only French translation is included in this release
+ 
+Language
+- addition of Korean translation, thanks to Maeng Bong Kyun (https://blog.naver.com/meangkim)
+- update of Dutch, German, Italian, Portuguese  and French language files
+- add Korean and Dutch language to Setup program
+
 Version BETA: 9.1.9.11 (2018-09-22)
  
 Placeholders
@@ -4393,9 +4465,9 @@ InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  195)
 InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
 InsertGuiControlPos("f_picPreviousMenu",				  10,   84)
 InsertGuiControlPos("f_picUpMenu",						  25,   84)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -215)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -215)
-InsertGuiControlPos("f_picSortFavorites",				  10,  -185)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -185)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -185)
+InsertGuiControlPos("f_picSortFavorites",				  10,  -215)
 
 InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -84, , true)
 InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -84, , true)
@@ -9029,12 +9101,12 @@ Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempD
 g_objToolTipsMessages["Static15"] := lControlToolTipColumnBreak
 Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
 g_objToolTipsMessages["Static16"] := lControlToolTipTextSeparator
+Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static19
+g_objToolTipsMessages["Static19"] := lControlToolTipSortFavorites
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static17
 g_objToolTipsMessages["Static17"] := lControlToolTipAlwaysOnTopOn
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static18
 g_objToolTipsMessages["Static18"] := lControlToolTipAlwaysOnTopOff
-Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static19
-g_objToolTipsMessages["Static19"] := lControlToolTipSortFavorites
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static20
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static21
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
@@ -9204,6 +9276,8 @@ if !StrLen(strFavoritesListFilter)
 	GuiControl, Show, f_picMoveFavoriteDown
 	GuiControl, Show, f_picAddSeparator
 	GuiControl, Show, f_picAddColumnBreak
+	GuiControl, Show, f_picAddTextSeparator
+	GuiControl, Show, f_picSortFavorites
 
 	GuiControl, Hide, f_lvFavoritesListFiltered
 	GuiControl, Show, f_lvFavoritesList
@@ -9215,6 +9289,8 @@ GuiControl, Hide, f_picMoveFavoriteUp
 GuiControl, Hide, f_picMoveFavoriteDown
 GuiControl, Hide, f_picAddSeparator
 GuiControl, Hide, f_picAddColumnBreak
+GuiControl, Hide, f_picAddTextSeparator
+GuiControl, Hide, f_picSortFavorites
 
 GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
