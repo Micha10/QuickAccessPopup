@@ -94,13 +94,16 @@ User Variables and Cloud Drives Placeholders
 VARIOUS
  
 Improvements
+- allow sorting favorites in filtered fav list
+- update QAP Messenger v1.2: language for QAPmessenger is now be translated
+- when a Shared menu ini file is not found, offer to skip future messages for the same Shared menu file
+- add "NeverQuotes=1" to QAPconnect file manager property to skip enclosing location between in double-quotes if it includes space
 - rename the QAP feature "Switch" to "Current Windows"
-- stop adding shortcuts to items added automatically to menu when the menu already exists (only do it at first launch)
-- update QAP Messenger v1.1.9 BETA: English language for QAPmessenger that can now be localized; only French translation is included in this release
- 
+
 Language
 - addition of Korean translation, thanks to Maeng Bong Kyun (https://blog.naver.com/meangkim)
-- update of Dutch, German, Italian, Portuguese  and French language files
+- update of Dutch, German, Italian, Portuguese, Spanish, Brazilian Portugueze and French language files
+- language files include messages for QAP Messenger v1.2
 - add Korean and Dutch language to Setup program
 
 Version BETA: 9.1.9.11 (2018-09-22)
@@ -2710,7 +2713,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.1.9.11
+;@Ahk2Exe-SetVersion 9.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2804,8 +2807,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.1.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
