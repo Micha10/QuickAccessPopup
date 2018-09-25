@@ -43,6 +43,7 @@ lDialogAddFavoriteTabsExternal	Menú compartido
 lDialogAddFavoriteTabsLive	Opciones de carpeta dinámica
 lDialogAddFileSelect	elegir un nuevo documento:
 lDialogAddFolderManuallyPrompt	Lo sentimos, no podemos detectar la carpeta actual en este tipo de ventana.`n`n¿Quiere añadir una carpeta favorita ahora manualmente?
+lDialogAddFolderManuallyTitle	Añadir Carpeta Activa o Página web - ~1~ ~2~
 lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
 lDialogAdmnistrator	Administrador
 lDialogAdmnistratorNot	No Administrador
@@ -53,6 +54,7 @@ lDialogArgumentsLabel	Ajustes
 lDialogArgumentsLabelHelp	(poner cada elemento entre comillas si es necesario)
 lDialogArgumentsPlaceholdersCheckLabel	Ajustes actuales reemplazados por los códigos de ubicación
 lDialogArgumentsPlaceholdersCurrentExample	x:\contenedor_carpeta\última_carpeta
+lDialogArgumentsPlaceholdersSelectedExample	x:\carpeta_contenedora\archivo_o_carpeta_seleccionado 
 lDialogAscending	Ascendente
 lDialogBrowseButton	Revisar
 lDialogBrowseOrSelectApplication	Examinar para seleccionar un archivo ejecutable o elegir una aplicación activa en esta lista
@@ -179,6 +181,7 @@ lDialogFavoriteSnippetFixedFont	Tamaño de fuente fijado
 lDialogFavoriteSnippetFontSize	Tamaño de fuente
 lDialogFavoriteSnippetHelpNoProcess	Insertar `` n para final de linea y ``t para tabulador. Insertar `` (doble barra posterior) para dorso.
 lDialogFavoriteSnippetHelpProcess	Oprima Ctrl-Tab para insertar pestañas y Enter para insertar fin de linea
+lDialogFavoriteSnippetHelpWeb	Ver <a href="~1~">Fragmentos</a> y <a href="~2~">Marcadores</a> de páginas de ayuda.
 lDialogFavoriteSnippetProcessEOLTab	Codificará automáticamente fin de línea y tabuladores
 lDialogFavoriteSnippetPromptLabel	Preguntar antes de ~1~ el código 
 lDialogFavoriteSnippetPromptLabelLaunching	lanzando
@@ -190,6 +193,8 @@ lDialogFavoriteSnippetSendModeText	Modo texto
 lDialogFavoritesParentMenuCopy	Copiar ~1~ favoritos a este menú
 lDialogFavoritesParentMenuMove	Mover ~1~ favoritos hacia este menú
 lDialogFavoriteType	Tipo de favorito
+lDialogFavoriteTypeNoteApplication	Nota: Hay un nuevo tipo de aplicación de Windows que ya no utiliza los archivos ejecutables tradicionales. Las llamadas "aplicaciones de Windows" están preinstaladas en Windows 8 y 10 o se han descargado de la tienda de Windows. Puede añadirlos usando el nuevo tipo favorito "Windows App".
+lDialogFavoriteTypeNoteWindowsApps	Nota: "Windows Apps" es un nuevo tipo de aplicación de Windows que ya no utiliza los archivos ejecutables tradicionales. Están preinstalados en Windows 8 y 10 o se descargaron de la tienda de Windows. Si desea añadir archivos ejecutables tradicionales (archivos.exe,.com,.bat y otros archivos de script), puede añadirlos utilizando el tipo favorito " Aplicación ".
 lDialogFavoriteTypesHelp1	Crear un acceso directo a "Carpeta" de uso frecuente.`n`nEstablecer el nombre del menú favorito, ruta de acceso y varias opciones de menú.`n`nOpciones de Live Folder permite actualizar el contenido del menú con el contenido actual de la carpeta.`n`nLa configuración avanzada permite definir la posición de la ventana y las opciones del gestor de archivos. 
 lDialogFavoriteTypesHelp13	Crear un "Fragmento". Proporcionar el nombre, el contenido y varias opciones.`n`nEn las configuraciones avanzadas, seleccione "Modo de texto" para pegar un trozo de texto al igual que con el portapapeles o elige "Modo macro" para enviar el fragmento como pulsaciones de teclas en el teclado (incluyendo teclas especiales, consulte la Ayuda).
 lDialogFavoriteTypesHelp14	Crear un "Menú compartido" para utilizar favoritos en varios sistemas desde el mismo archivo de configuración en una ubicación externa. Defina el nombre del menú compartido para el menú, la ubicación del archivo de configuración externa y varias opciones.`n`nLos menús compartidos se pueden utilizar en los modos "Personal", "Colaborativo" o "Centralizado". Se puede configurar un Catálogo de Menús Compartidos en la pestaña Opciones "General" para facilitar las adiciones de Menús Compartidos.`n`nLos menús compartidos se pueden editar como menús normales. Sólo los usuarios seleccionados pueden editar menús compartidos Centralizados. Consulte las FAQ del sitio web para obtener más ayuda.
@@ -267,6 +272,8 @@ lDialogMenuKey	Tecla de menú
 lDialogMenuNotMoveUnderItself	El menú "~1~" no se pueden mover sobre sí mismo.
 lDialogMinimized	Minimizado
 lDialogModifiedDate	Modified fecha
+lDialogMore	Más
+lDialogMoreOptions	More opciones
 lDialogMouse	Ratón
 lDialogMouseButtonsText	Botón izquierdo del ratón|Botón central del ratón|Botón derecho del ratón|Botón especial del ratón 1|Botón especial del ratón 2|Rueda hacia arriba|Rueda hacia abajo|Rueda Izquierda|Rueda Derecha|
 lDialogMoveFavoritesTitle	Mueva los favoritos - ~1~ ~2~
@@ -282,6 +289,8 @@ lDialogOpenThisGroup	Abrir este grupo
 lDialogOpenThisMenu	Abrir este menú
 lDialogOr	o
 lDialogOtherHotkeys	Otras teclas de acceso rápido para menú principal
+lDialogPlaceholders	See <a href="~1~">marcadores de página de ayuda</a>.
+lDialogPlay	Reproducir
 lDialogQAPFeatureCategoriesNames	Destacados|Menús Dinámicos|Edición del menú QAP|Añadir Tipo de Favorito|Gestión de ventanas|Características de Windows|Cerrar Comandos del Ordenador|Varias Utilidades|Gestión de QAP 
 lDialogQAPFeaturesHelpLink	Ayuda sobre esta función
 lDialogReadOnly	Sólo lectura
@@ -304,6 +313,7 @@ lDialogShortcuts	Accesos directos
 lDialogShortcutsDescription	Mostrar una ventana de diálogo que ofrece una visión general de los métodos abreviados de teclado o ratón. Puede ordenar los favoritos haciendo clic en el encabezado de la columna.`n`nDoble clic en un favorito para cambiar su acceso directo.`nClic en la casilla "Ver todos los favoritos" para asignar accesos directos a otros favoritos.
 lDialogSortBy	Ordenar por
 lDialogSortOrder	Clasificar por orden
+lDialogSoundLabel	Reproducir este sonido al iniciar el favorito (<a href="~1~">~2~</a>)
 lDialogSpecialFoldersCategoriesNames	Básico|Administrador|Sysadmin|Contenido|Hardware
 lDialogState	Posición de la ventana:
 lDialogSubmenuNameEmpty	El nombre del sub-menú está vacio. Porfavor indique un nombre corto para esta carpeta.
@@ -327,6 +337,7 @@ lDialogWindowPositionW	Ancho
 lDialogWindowPositionX	Izquuierda
 lDialogWindowPositionY	Arriba
 lDialogWindowsAppsList	Seleccione la aplicación Windows App de esta lista de aplicaciones instaladas en su sistema
+lDialogWindowsAppsListCustom	Identificador personalizado de Windows App (Application User Model ID - AUMID)
 lDialogWindowsAppsListError	La lista de Windows App no se ha podido actualizar. Se ha producido un error al ejecutar el script de PowerShell.
 lDialogWindowsAppsListSuccess	La lista de Windows App se ha actualizado.
 lDialogWindowsFolderIconCreate	crear
@@ -402,6 +413,7 @@ lGuiLvFavoritesHeaderFiltered	Name|Menú|Tipo|Atajo|Ubicación o contenido
 lGuiMove	Mover
 lGuiMoveAmpersand	&Mover
 lGuiOptions	Opciones
+lGuiOptionsDescription	Mostrar el cuadro de diálogo "Opciones" que permite hacer que QAP funcione de la forma deseada`n`nLas opciones están agrupadas en pestañas: "General", "Menú", "Teclas rápidas", "Teclas rápidas alternativas", "Gestores de archivos" y "Más" para otras opciones.
 lGuiPassword	Contraseña
 lGuiPasswordNotEncripted	Nota: La contraseña no será encriptada cuando se envía por Internet.
 lGuiRemoveFavorite	Suprimir
@@ -424,6 +436,7 @@ lHelpText13	Para forzar la apertura de la carpeta en una ventana nueva, pulsar l
 lHelpText14	Elija "Configuración" para personalizar el menú emergente de Quick Access Popup. Puede añadir los favoritos a su menú. Puede mover, renombrar, borrar. Puede también añadir los SUB-MENUS, de los GRUPOS o de los SUB-MENUS COMPARTIDOS. Elija "Menú o grupo para modificar:" en la lista desplegable. Clique en "Guardar" para conservar los cambios.
 lHelpText21	Para añadir favoritos, en la ventana "Configuración", haga clic en el botón "Añadir". Seleccione el tipo del nuevo favorito y ver la esquina en el lado derecho de la ventana. Haga clic en "Continuar" para abrir el cuadro de diálogo "Añadir favorito".
 lHelpText22	En las cuatro fichas del "Añadir favorito" cuadro de diálogo, introduzca los "Ajustes básicos", "Opciones de menú", "Opciones de Ventana" y "Configuración avanzada". Haga clic en "Añadir" para insertar el favorito en su menú y "Guardar" en la ventana Configuración.
+lHelpText23	AÑADIR CARPETA ACTIVA O PAGINA WEB`n`nPara AÑADIR rápidamente una nueva CARPETA o PÁGINA WEB favorita al menú emergente:`n1) Vaya a una carpeta o página web de uso frecuente.`n2) Haga clic en la tecla de acceso directo QAP [~1~] o [~2~], y seleccione "Añadir Carpeta Activa o Página web".`n3) Dé un nombre corto al favorito, haga clic en "Añadir", y después "Guardar" en la ventana de Configuración.
 lHelpText31	En mi "Mi QAP Básicos" menú:
 lHelpText32	- Pulse el "Cambiar..." menú para cambiar a cualquier otro que ejecuta ventana del explorador o aplicación.`n- Utilice el menú "Volver a abrir una carpeta" para volver a abrir una de las carpetas ya abierta en una ventana del Explorador (muy útil en los cuadros de diálogo de archivos).`n- Elija las "carpetas recientes ..." del menú para mostrar una lista actualizada de las carpetas de Windows recientes.`n- Acceder a los archivos o direcciones URL en el portapapeles con el menú "Portapapeles".`n- Haga clic en el menú "Unidades de disco" para ver la lista de unidades con el espacio de disco actual. 
 lHelpText33	PERSONALIZA TU QAP FUNCIONES DEL MENU
@@ -475,7 +488,10 @@ lMenuAboutAmpersand	&Acerca de
 lMenuAddFavorite	Añadir Favorito
 lMenuAddFavoriteDescription	Muestra la lista de tipos favoritos entre los que puede elegir el tipo de favorito que desea agregar.`n`nEn la siguiente ventana, escriba: `n- el nombre del favorito, `n- su contenido`n- varias opciones como ícono, atajo, cadena de sustitución, varios parámetros, etc.`n`n Dependiendo del tipo de favorito, el contenido puede ser la ubicación de una carpeta, documento o aplicación, un enlace web, un fragmento de texto, un submenú, etc.
 lMenuAddFavoriteOfTypeDescription	Agregar un tipo de favorito "~1~".`n`nEn el cuadro de diálogo "Agregar favorito", escriba `n- un nombre para su favorito`n- un contenido, dependiendo del tipo de favorito`n- varias opciones tales como un icono, un acceso directo, una cadena de sustitución, ajustes, etc.
+lMenuAddThisFolder	Añadir Carpeta Activa o Página web
 lMenuAddThisFolderDescription	Añada instantáneamente la carpeta o página web activa al escritorio.`n`nTambién puede agregar carpetas habilitando el menú QAP en las ventanas del Explorador de Windows o en los cuadros de diálogo de archivos. Puede añadir enlaces web en la mayoría de los navegadores. `n`n En el cuadro de diálogo "Añadir favorito", confirme el nombre del favorito e introduzca varias opciones como el icono, el acceso directo, la cadena de sustitución, la configuración, etc. `n`n` Por defecto, esta función está presente en el menú principal.
+lMenuAddThisFolderXpress	Añadir Carpeta Activa o Página web Rápido
+lMenuAddThisFolderXpressDescription	Similar a "Añadir Carpeta Activa o Página web" excepto que el nuevo favorito se añadirá automáticamente en la parte superior del menú principal sin ninguna interrupción.`n`nSi necesita cambiar los ajustes predeterminados, puede hacer clic en el botón "Editar" para cambiar el nombre, la posición o varios ajustes de los favoritos.`n`nEn "Opciones", puede establecer el nuevo favorito que se agregará de forma predeterminada en la parte inferior del Menú principal.
 lMenuAlternativeEditFavorite	Editar un Favorito
 lMenuAlternativeNewWindow	Abrir en nueva ventana
 lMenuAlternativeOpenContainingCurrent	Abrir la carpeta principal en la ventana actual
@@ -503,6 +519,7 @@ lMenuDownloads	Descarga
 lMenuDrives	Unidades de disco 
 lMenuDrivesDescription	Muestra un menú dinámico que muestra las unidades de disco en su sistema con su nombre, espacio libre, capacidad y un icono que indica el tipo de unidad. `n`n Este menú se actualiza cada vez que abre el menú QAP.
 lMenuDrivesSpace	(~1~ GB libre / ~2~ GB) 
+lMenuDynamicMenus	En ejecución
 lMenuEditIniFile	Editar ~1~
 lMenuEditIniFileDescription	Cambie el archivo de configuración de la ventana emergente de acceso rápido (.ini) actualmente en vigor.
 lMenuExitApp	Cerrar ~1~
@@ -512,6 +529,7 @@ lMenuExternalCatalogueDescription	Seleccione un submenú del Catálogo de menús co
 lMenuFavoritesInternet	Favoritos (Internet)
 lMenuFonts	Fuentes
 lMenuGetWinInfo	Obtener información de la ventana
+lMenuGetWinInfoDescription	Ayudarle a identificar una ventana que desea excluir del menú QAP con tecla de acceso directo del ratón.`n`nEsta característica le pedirá que haga clic en la ventana de destino con la tecla de acceso directo del menú QAP (por defecto, botón central del ratón) y copie el título de la ventana y el nombre de la clase en su Portapapeles.`n`nVer "Lista de exclusiones" en la pestaña "Más" del cuadro de diálogo "Opciones" para una explicación completa.
 lMenuHelp	Ayuda
 lMenuHistory	Historial
 lMenuLastAction	Repetir Última Acción
@@ -529,6 +547,11 @@ lMenuMyWindowsAppsMenu	Mis Apps de Windows
 lMenuNoClipboard	Portapapeles no contiene ninguna ruta o URL...
 lMenuNoCurrentFolder	No hay carpetas abiertas actualmente...
 lMenuPictures	Imágenes
+lMenuPopularFiles	Archivos
+lMenuPopularFolders	Carpetas
+lMenuPopularMenus	Frequent ~1~
+lMenuPopularMenusDescription	Visualizar un menú dinámico que muestra los más utilizados ~1~ recopilados por Windows y utilizados en QAP. Este menú se actualiza cada vez que se abre el menú QAP.
+lMenuPopularMenusWillImprove	~1~ mejorará a medida que utilice el menú ~2~...
 lMenuProgramFiles	Programas
 lMenuProgramsFolderStartMenu	Carpeta Programas (menú Inicio)
 lMenuPublicLibraries	Bibliotecas (publico)
@@ -557,7 +580,7 @@ lMenuSettingsFileOptions	Opciones de archivo de configuración
 lMenuStartMenu	Menú de Inicio
 lMenuStartup	Inicio
 lMenuSuspendHotkeys	Suspender atajos de teclado (Hotkeys)
-lMenuSwitchFolderOrApp	Cambiar 
+lMenuSwitchFolderOrApp	Ventana Actual
 lMenuSwitchFolderOrAppDescription	Mostrar un menú dinámico en dos secciones:`n1) las carpetas abiertas actualmente en el Explorador de Windows y Directorio Opus `n2) las aplicaciones activas en el sistema (comenzando con la ventana activada más recientemente).`n`n`Cuando se selecciona un elemento, esta ventana se pone automáticamente en primer plano y se activa.`n`Este menú se actualiza cada vez que se muestra el menú QAP.
 lMenuSwitchSettings	Changer del archivo de configuración
 lMenuSwitchSettingsDefault	Cambiar al archivo de configuración predeterminado
@@ -572,8 +595,13 @@ lMenuUpdateNoAmpersandDescription	Compruebe en el sitio web de Quick Access Popu
 lMenuUserFolder	Carpeta de Usuario
 lMenuUserPinned	Adherido al Usuario
 lMenuWebSiteSupport	Grupo de soporte de QAP 
+lMessengerCloseQAPSettings	Se abre una ventana de Configuración en ~1~, posiblemente con cambios no guardados.`n`nPor favor, cierre las ventanas de configuración antes de utilizar este menú contextual.
+lMessengerDoNotRun	No ejecutar ~1~ directamente. Usted puede:`n`n- hacer clic con el botón derecho en un archivo o en un icono de carpeta en el Explorador para agregarlos al menú`n- hacer clic con el botón derecho en el fondo de la ventana del Explorador para agregar la carpeta actual`n- hacer clic con el botón derecho del ratón en el fondo del escritorio para abrir el menú.`n`nAsegúrese de que ~2~ se lanza antes de usar sus menús contextuales. Ver casilla de selección de"Menús contextuales" en ~2~ la ventana de "Opciones".
+lMessengerError	Ha ocurrido un error.`n`nAsegúrese de que ~1~ se está ejecutando antes de usar sus menús contextuales.
+lMessengerHelp	Buscar por "Messenger" en www.QuickAccessPopup.com para ayuda.
 lNavigateFileError	Se produjo un error al abrir la carpeta:`n~1~.
 lNavigateSpecialError	Se produjo un error al abrir la carpeta especial #~1~.
+lOopsAddThisFolderTip	Para obtener mejores resultados con el "Añadir Carpeta Activa o Página web" comando:`n`n1) Active la ~1~ ventana que contiene la carpeta o enlace para añadir a su menú.`n2) Abra el menú emergente usando ~2~.`n3) Seleccione "Añadir Carpeta Activa o Página web" y guarde su nuevo favorito.
 lOopsAmpersandInName	El signo "&" en los nombres de menús de Windows se utiliza para establecer atajos de teclado. Para mostrar un símbolo de unión en un nombre de menú, introduzca "&&".`n`nPara más información, buscar "ampersand" en FAQ del sitio web de QAP's.
 lOopsCannotCopyFavorite	Tipos de favoritos "~1~" cannot be copied.
 lOopsCannotCopyMoveToSelf	You no se puede mover ni copiar favoritos a su ubicación real. Por favor, seleccione otro destino.
@@ -614,8 +642,11 @@ lOopsNotAdmin	~1~ no se pudo iniciar como administrador.`n`nIt ahora se ejecuta 
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
 lOopsRestoreEditCopyMoveWindowPosition	Restaurar la posición de la ventana de los cuadros de diálogo Editar, Copiar y Mover? `n`nEsto reiniciará ~1~ y se perderán los cambios no guardados en la configuración. n`nRestaurar y reiniciar ~1~.
+lOopsSelectedItemDialogBoxes	El elemento seleccionado no se puede detectar en las ventanas de diálogo.
+lOopsSelectedItemTotalCommander	El elemento seleccionado no se puede detectar en las ventanas de Total Commander.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Se ha producido un error durante la apertura de este favorito. Por favor, inténtelo de nuevo...
+lOopsUsageDbSQLiteMissing	Faltan los archivos fuente de SQLite:`n`n~1~`nNo se pudieron crear menús de Elementos Frecuentes.
 lOopsWriteProtectedError	Parece ser que ~1~ fué lanzado desde una carpeta SOLO DE ESCRITURA de forma que es imposible crear el archivo de configuración "~1~.ini".`n`nMueva el archivo .EXE de ~1~ a una carpeta REGULAR a vuestra elección, a continuación, ejecute de nuevo la aplicación de esta carpeta.`n`n~1~ estará cerrada.
 lOopsWrongThirdPartyPath	Ruta o nombre de archivo incorrecto para ~1~:`n~2~.`n`nVerifique el archivo .exe seleccionado para ~1~ en las "Opciones", pestaña "~3~".
 lOopsWrongThirdPartyPathQAPconnect	Ruta equivocada o nombre de archivo para QAPconnect application`n ~1~: `n ~2~ .`n`nCompruebe valores para [~1~] en ~3~. Utilice el botón "~4~" en "Opciones", pestaña "~5~".
@@ -626,6 +657,8 @@ lOptionsAddAutoTopOfMenu	Arriba del menú
 lOptionsAddCloseToDynamicMenus	Añadir "Cerrar" a los menús
 lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
+lOptionsAlternativeMenuOptions	Opciones de menú alternativas
+lOptionsAlternativeMenuShowNotification	Mostrar notificación cuando se utiliza el menú alternativo
 lOptionsCatalogueHelp	Catálogo de los menús compartidos (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Carpeta principal del catálogo
 lOptionsChangeFolderInDialog	Cambiar las carpetas en la caja de diálogo con los principales QAP ratón y teclado teclas de acceso rápido
@@ -640,6 +673,7 @@ lOptionsControlDoublePressedRight	Uso de la Tecla de Control Derecha
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsEnableExternalMenusCatalogue	Activar el Catálogo de los menús compartidos
+lOptionsExclusionMouseList	Lista de exclusiones
 lOptionsExclusionMouseListDescription	Lista de Exclusiones de ratón del disparador [~1~]
 lOptionsExclusionMouseListDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y el [~1~] click se enviará a la ventana de destino como si QAP no estuviera ejecutándose. También puede excluir ventanas por su nombre de clase o nombre de proceso (nombre de archivo EXE). Prefija el título o la clase con * (asterisco) para excluir también los cuadros de diálogo de la aplicación. Puede encontrar ayuda y soporte para esta función <a href="~2~">en el sitio web de QAP</a>.
@@ -675,9 +709,13 @@ lOptionsPopupHotkeyTitles	Quick Access Popup Botón del mouse|Quick Access Popup 
 lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace aparecer el menú en cualquier parte (excepto sobre <a> aplicaciones excluidas </a>) y lanzar su favorito o navegar a la carpeta |. Esta tecla de acceso directo abre el menú en cualquier lugar y lanzar su favorito o navegar a la carpeta |. Pops Este ratón un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar (sin excepción) |. Esta tecla de acceso directo hace aparecer un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar.
 lOptionsQAPTempFolder	Carpeta Temporal
 lOptionsRecentFolders	Número de elementos en el menú 
+lOptionsRecentFoldersPrompt	Recent Elementos y menús Frecuentes:
+lOptionsRefreshedMenusAttached	Adjuntar "~1~" menú al menú de QAP 
+lOptionsRefreshedMenusAttachedInfo	Si activa esta opción, puede haber un ligero retardo de actualización (dependiendo de la configuración de su sistema) cada vez que muestre el menú emergente..`n`nLa duración del retardo depende del tiempo que Windows tarda en proporcionar la información actualizada necesaria para crear el menú. Esta duración puede variar para cada llamada.`n`nSi usted desactiva esta opción, el "~1~" menú se actualizará sólo bajo demanda y se mostrará separado del menú principal.
 lOptionsRefreshQAPMenuDebugBeep	Bip antes y después de la actualización (depurar)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualización en segundos`n(recomendamos 300 segundos o más)
 lOptionsRefreshQAPMenuTitle	Habilitar actualización programada del menú QAP
+lOptionsRememberSettingsPosition	Recordar Opciones &de posición de la ventana
 lOptionsRunAsAdmin	Ejecutar como administrador
 lOptionsRunAsAdminAlert	Atención: Ejecutando ~1~ en modo Administrador puede tener consecuencias inesperadas al ejecutar programas que pueden estar infectados con código malicioso. Esto podría permitir que los programas maliciosos hereden privilegios administrativos e infecten o tomen el control de tu computadora. Tenga cuidado cuando se ejecuta ~1~ en modo Administrador.
 lOptionsRunAsAdminExit	~1~ se lanzará sin derecho administrativo la próxima vez que lo lances.`n`nQuieres salir ~1~ ahora? Los cambios no guardados en el menú se perderán.
@@ -701,6 +739,22 @@ lOptionsThirdPartySelectedHelp	Seleccionado el Administrador de archivos: ~1~ (<
 lOptionsThirdPartySelectFile	Por favor, seleccione el ~1~ archivo de la aplicación mediante el botón "Examinar"
 lOptionsThirdPartyUseTabs	Utilice las pestañas en lugar de abrir una nueva ventana
 lOptionsTrayTip	Mostrar notificación al inicio
+lOptionsUsageDb	Base de Datos de Elementos Frecuentes
+lOptionsUsageDbDaysInPopular	Número de días a tener en cuenta en los menús Frecuentes:
+lOptionsUsageDbDescription	Establecer parámetros para los Frecuentes y Recientes elementos de los menús
+lOptionsUsageDbDisabling	Los cambios en la configuración de la base de datos de Menús Frecuentes se completarán después de recargarla ~1~.
+lOptionsUsageDbEnable	Habilitar Base de Datos de Menús Frecuentes
+lOptionsUsageDbFlushDatabase	Limpiar la Base de Datos de Elementos Frecuentes
+lOptionsUsageDbFlushDatabaseConfirm	Delete Contenido de la base de datos de Elementos Frecuentes?
+lOptionsUsageDbFlushDatabaseDone	Contenido de la base de datos eliminado.
+lOptionsUsageDbIntervalSeconds	Intervalo de recopilación (seconds):
+lOptionsUsageDbMaximumSize	Tamaño máximo de la base de datos (en MB):
+lOptionsUsageDbMaximumSizeInvalid	El tamaño máximo de la base de datos no es un número válido: ~1~
+lOptionsUsageDbShowPopularityIndex	Mostrar el índice de Frecuencia en las Opciones y el menú
+lOptionsUsageDbStatement	Declaración de privacidad: Los datos de la base de datos de elementos frecuentes se recopilan y almacenan localmente, únicamente para crear menús de "Carpetas Frecuentes" y "Archivos Frecuentes" que se basan en el uso de su ordenador personal. Estos datos residen SOLAMENTE en su ordenador y NO se transmite ninguna información a un servidor remoto.
+lOptionsUserVariablesList	Variables de Usuario
+lOptionsUserVariablesListDescription	Piezas de texto que se pueden insertar como marcadores, e.g.: {MiVariable}
+lOptionsUserVariablesListInstructions	Introduzca sus variables de usuario, una por línea. Cada línea debe comenzar con el nombre de la variable entre corchetes. (e.g. "{MiVariable}"), seguido del signo igual "=" y del contenido variable (e.g. "{MiVariable}=MiContenido").`n`nPor ejemplo, si una línea contiene "{SuCarpetaCompartida}=S:\EstaCarpeta", el marcador{SuCarpetaCompartida} se sustituirá por "S:\EstaCarpeta" en las rutas o fragmentos de contenido de los favoritos.
 lPickIconNoLocation	Por favor, primero elegir un favorito antes de seleccionar un icono.
 lReloadPrompt	Cambio de ~1~ guardado: ~2~. Quieres relanzar ~3~ en ~2~ ahora? Los cambios no guardados en el menú se perderán.
 lTCMenuName	TC Lista de sitios Favoritos 
