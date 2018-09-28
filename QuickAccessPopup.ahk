@@ -4250,9 +4250,9 @@ InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 	
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
-InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFolders), "PopularFoldersMenuShortcut", "2-DynamicMenus"
+InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFolders), "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites")
-InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles), L(lMenuPopularMenus, lMenuPopularFiles), "PopularFilesMenuShortcut", "2-DynamicMenus"
+InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles), L(lMenuPopularMenus, lMenuPopularFiles), "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
 	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites")
 
 ; Command features
@@ -4607,7 +4607,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			Favorite13=Folder|Program Files|%A_ProgramFiles%
 			Favorite14=Folder|User Profile|`%USERPROFILE`%
 			Favorite15=Application|Notepad|%A_WinDir%\system32\notepad.exe
-			Favorite16=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^q|:X*:#qap#|
+			Favorite16=URL|%g_strAppNameText% web site|https://www.quickaccesspopup.com|||||||||||||||||+^q
 			Favorite17=Z
 
 ) ; leave the last extra line above
@@ -7543,7 +7543,7 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabOtherOptionsIntro, g_strA
 
 ; column 1
 
-Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, %lOptionsChangeFolderInDialog%
+Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
 GuiControl, , f_blnChangeFolderInDialog, %g_blnChangeFolderInDialog%
 
 Gui, 2:Add, Text, y+10 xs, %lOptionsLanguage%
@@ -13455,7 +13455,7 @@ Loop, Parse, strSelectedRows, |
 		break
 	intRowsToSort++
 	strSortedRows .= arrSelectedRows%A_Index% . "|"
-	objNewOrder[CleanFavoriteName(g_objMenuInGui[A_LoopField].FavoriteName)] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
+	objNewOrder[GuiSortCleanFavoriteName(g_objMenuInGui[A_LoopField].FavoriteName)] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
 }
 StringTrimRight, strSortedRows, strSortedRows, 1
 
@@ -13500,7 +13500,7 @@ return
 
 
 ;------------------------------------------------------------
-CleanFavoriteName(strFavoriteName)
+GuiSortCleanFavoriteName(strFavoriteName)
 ;------------------------------------------------------------
 {
 	if InStr(strFavoriteName, "&")
