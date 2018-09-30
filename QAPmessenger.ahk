@@ -17,11 +17,9 @@ See RECEIVE_QAPMESSENGER function in QuickAccessPopup.ahk for details.
 HISTORY
 =======
 
-Version: 1.2.0.2 (2018-09-30)
+Version: 1.3 (2018-09-30)
 - save script as UTF-8 (with BOM) to support foreign language charsets
-
-Version: 1.2.0.1 (2018-09-30)
-- launch optimisation by setting language variables in the main script (English only in this interim release)
+- insert language variables in main script
 
 Version: 1.2 (2018-09-15)
 - add localization using QAP language files
