@@ -1,4 +1,4 @@
-;===============================================
+﻿;===============================================
 /*
 
 Quick Access Popup Messenger
@@ -16,6 +16,9 @@ See RECEIVE_QAPMESSENGER function in QuickAccessPopup.ahk for details.
 
 HISTORY
 =======
+
+Version: 1.2.0.2 (2018-09-30)
+- save script as UTF-8 (with BOM) to support foreign language charsets
 
 Version: 1.2.0.1 (2018-09-30)
 - launch optimisation by setting language variables in the main script (English only in this interim release)
@@ -61,7 +64,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 1.2.1
+;@Ahk2Exe-SetVersion 1.2.0.2
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -76,7 +79,7 @@ ListLines, Off
 
 g_strAppNameText := "Quick Access Popup Messenger"
 g_strAppNameFile := "QAPmessenger"
-g_strAppVersion := "1.2.1"
+g_strAppVersion := "1.2.0.2"
 g_strAppVersionBranch := "prod"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
@@ -85,6 +88,15 @@ g_stTargetAppName := "Quick Access Popup"
 g_strQAPNameFile := "QuickAccessPopup"
 
 gosub, SetQAPWorkingDirectory
+
+; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
+;@Ahk2Exe-IgnoreBegin
+; Start of code for development environment only - won't be compiled
+; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
+SetWorkingDir, %A_ScriptDir%
+; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
+; / End of code for developement enviuronment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
@@ -101,11 +113,12 @@ else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-gosub, InitLanguageVariables
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
+IniRead, g_strLanguageCode, %g_strIniFile%, Global, LanguageCode, EN
 
-; ###_V("QAP diag mode:", A_ComputerName, A_WorkingDir, A_ScriptDir, g_strIniFile, g_blnDiagMode)
+gosub, InitLanguageVariables
+
 if QAPisRunning()
 {
 	; Use traditional method, not expression
@@ -147,12 +160,74 @@ return
 InitLanguageVariables:
 ;-----------------------------------------------------------
 
-lMessengerCloseQAPSettings := StrReplace("A settings window is open in ~1~, possibly with unsaved changes.`n`nPlease, close the settings windows before using this context menu.", "``n", "`n")
-lMessengerDoNotRun := StrReplace("Do not run ~1~ directly. You can:`n`n- right-click a file or a folder icon in Explorer to add them to the menu`n- right-click Explorer window background to add the current folder`n- right-click the Desktop background to popup the menu.`n`nMake sure ~2~ is launched before using its context menus. See ""Context menus"" checkbox in ~2~ ""Options"" window.", "``n", "`n")
-lMessengerError := StrReplace("An error occurred.`n`nMake sure ~1~ is running before using its context menus.", "``n", "`n")
-lMessengerHelp := StrReplace("Search for ""Messenger"" on www.QuickAccessPopup.com for help.", "``n", "`n")
+if (g_strLanguageCode = "DE")
+{
+	lMessengerCloseQAPSettings := "Ein Einstellungsfenster ist offen in ~1~, möglicherweise mit ungespeicherten Änderungen.`n`nSchliessen Sie bitte das Einstellungsfenster, bevor Sie dieses Kontextmenü verwenden."
+	lMessengerDoNotRun := "Starten Sie ~1~ nicht direkt. Sie können:`n`n- eine Datei oder einen Ordner per Rechtsklick im Explorer zum Menü hinzufügen`n- im Explorerfenster-Hintergrund rechtsklicken um den aktuellen Ordner hinzuzufügen`n- auf dem Desktop-Hintergrund rechtsklicken um das Menü anzuzeigen.`n`nStellen Sie sicher, daß ~2~ gestartet ist, bevor Sie dessen Kontextmenüs verwenden. Siehe ""Kontextmenüs"" Kontrollkästchen im ~2~ ""Optionen"" Fenster."
+	lMessengerError := "Ein Fehler ist aufgetreten.`n`nStellen Sie sicher, daß ~1~ läuft, bevor Sie dessen Kontextmenüs verwenden."
+	lMessengerHelp := "Suche nach ""Messenger"" auf www.QuickAccessPopup.com für Unterstützung."
+}
+else if (g_strLanguageCode = "ES")
+{
+	lMessengerCloseQAPSettings := "Se abre una ventana de Configuración en ~1~, posiblemente con cambios no guardados.`n`nPor favor, cierre las ventanas de configuración antes de utilizar este menú contextual."
+	lMessengerDoNotRun := "No ejecutar ~1~ directamente. Usted puede:`n`n- hacer clic con el botón derecho en un archivo o en un icono de carpeta en el Explorador para agregarlos al menú`n- hacer clic con el botón derecho en el fondo de la ventana del Explorador para agregar la carpeta actual`n- hacer clic con el botón derecho del ratón en el fondo del escritorio para abrir el menú.`n`nAsegúrese de que ~2~ se lanza antes de usar sus menús contextuales. Ver casilla de selección de""Menús contextuales"" en ~2~ la ventana de ""Opciones""."
+	lMessengerError := "Ha ocurrido un error.`n`nAsegúrese de que ~1~ se está ejecutando antes de usar sus menús contextuales."
+	lMessengerHelp := "Buscar por ""Messenger"" en www.QuickAccessPopup.com para ayuda."
+}
+else if (g_strLanguageCode = "FR")
+{
+	lMessengerCloseQAPSettings := "Une fenêtre de paramètres est ouverte dans ~1~, peut-être avec des changements non enregistrés.`n`nVeuillez fermer les fenêtres de paramètres avant d'utiliser ce menu contextuel."
+	lMessengerDoNotRun := "N'exécutez pas ~1~ directement. Vous pouvez:`n`n- faire un clic-droite sur l'icône d'un fichier ou d'un dossier dans l'Explorateur pour l'ajouter au menu`n- clic-droite dans le fond d'une fenêtre de l'Explorateur pour ajouter le dossier affiché`n- clic-droite sur le fond du Bureau pour afficher le menu.`n`nAssurez-vous que ~2~ est lancé avant d'utiliser ses menus contextuels. Voir la case à cocher ""Menus contextuels"" dans la fenêtre ""Options"" de ~2~."
+	lMessengerError := "Une erreur s'est produite.`n`nAssurez-vous que ~1~ est lancé avant d'utiliser ses menus contextuels."
+	lMessengerHelp := "Recherchez ""Messenger"" sur www.QuickAccessPopup.com pour de l'aide."
+}
+else if (g_strLanguageCode = "IT")
+{
+	lMessengerCloseQAPSettings := "Una finestra delle Impostazioni è aperta in ~1~, eventualmente con modifiche non salvate.`n`nSi consiglia di chiudere le finestre di impostazioni prima di usare questo menù contestuale."
+	lMessengerDoNotRun := "Non eseguire ~1~ direttamente. Puoi in alternativa:`n`n- fare un click-destro su un'icona di file/cartella in Explorer per aggiungerli al menù`n- click-destro in una finestra di Explorer (ossia sul suo sfondo) per aggiungere tale cartella`n- click-destro sullo sfondo del Desktop per aprire il menù a popup.`n`nAssicurati che ~2~ sia in esecuzione prima di usare i suoi menù contestuali. Vedere la casella di spunta  ""Menù contestuali"" nella finestra ""Opzioni"" ~2~."
+	lMessengerError := "Si è verificato un errore.`n`nAssicurati che ~1~ sia in esecuzione prima di usare i suoi menù contestuali."
+	lMessengerHelp := "Cerca ""Messenger"" su www.QuickAccessPopup.com per aiuto."
+}
+else if (g_strLanguageCode = "KO")
+{
+	lMessengerCloseQAPSettings := "설정 창이 ~1~에서 열리고 저장되지 않은 변경 사항이 있을 수 있습니다..`n`n이 상황에 맞는 메뉴를 사용하기 전에 설정 창을 닫으세요."
+	lMessengerDoNotRun := "~1~을 직접 실행하지 마세요. 실행 방식:`n`n- 탐색기에서 파일이나 폴더 아이콘을 마우스 오른쪽 단추로 클릭하여 메뉴에 추가.`n- 현재 폴더를 추가하려면 탐색기 창 배경을 마우스 오른쪽 단추로 클릭.`n- 바탕 화면 배경을 마우스 오른쪽 버튼으로 클릭하여 메뉴 팝업.`n`n컨텍스트 메뉴를 사용하기 전에 ~2~가 시작되었는지 확인하세요. ~2~ ""옵션""창에서 ""컨텍스트 메뉴""확인란을 참조하세요."
+	lMessengerError := "에러 발생.`n`n컨텍스트 메뉴를 사용하기 전에 ~1~이 실행 중인지 확인하세요."
+	lMessengerHelp := "도움을 받으려면 www.QuickAccessPopup.com에서 ""Messenger""를 검색하세요."
+}
+else if (g_strLanguageCode = "NL")
+{
+	lMessengerCloseQAPSettings := "Een instellingenvenster is open in ~1~, mogelijk met onopgeslagen wijzingen.`n`nSluit alstublieft het venster alvorens het context menu te gebruiken."
+	lMessengerDoNotRun := "Start ~1~ niet direct. U kunt gebruik maken van:`n`n- Klik met de rechtermuistoets op een bestand of map in Explorer om deze toe te voegen aan het menu`n- Klik met de rechtermuistoets op de achtergrond van Explorer om de geopende map toe te voegen`n- Klik met de rechtermuistoets op het bureaublad om QAP te openen.`n`nZorg ervoor dat ~2~ geopend is voordat de contextmenus gebruikt kunnen worden. Zie de ""Context menus""-optie in ~2~ ""Instellingen""."
+	lMessengerError := "Er is een fout opgetreden.`n`nZorg er alstublieft voor dat ~1~ geladen is voor het gebruik van het context menu."
+	lMessengerHelp := "Zoek naar ""Messenger"" op www.QuickAccessPopup.com voor hulp."
+}
+else if (g_strLanguageCode = "PT")
+{
+	lMessengerCloseQAPSettings := "É aberta uma janela em ~1~, possivelmente com alterações não guardadas.`n`nPor favor, feche as janelas de definições antes, usando este menu de contexto."
+	lMessengerDoNotRun := "Não execute o ~1~ directamente. Pode:`n`n- clicar com o botão direito do rato num ícone de ficheiro ou pasta no Explorador para adicioná-los ao menu`n- clicar com o botão direito do rato no fundo da janela do Explorador para adicionar a pasta actual`n- clicar com o botão direito do rato no fundo do Ambiente de Trabalho para fazer emergir o menu.`n`nCertifique-se que o ~2~ está aberto antes de usar os seus menus de contexto. Ver caixa de selecção ""Menus de Contexto"" na janela ""Opções"" do ~2~."
+	lMessengerError := "Ocorreu um erro.`n`nCertifique-se de que o ~1~ está em execução antes de usar os seus menus de contexto."
+	lMessengerHelp := "Procure o ""Messenger"" em www.QuickAccessPopup.com para ajuda."
+}
+else if (g_strLanguageCode = "PT-BR")
+{
+	lMessengerCloseQAPSettings := "Uma janela de configurações ~1~ é aberta, possivelmente com alterações não salvas.`n`nPor favor, feche a janela de configurações antes de usar este menu de contexto."
+	lMessengerDoNotRun := "Não execute o ~1~ diretamente. Você pode:`n`n- clicar com o botão direito do mouse em um arquivo ou ícone de pasta no Explorer para adicioná-los ao menu`n- clicar com o botão direito do mouse no fundo da janela do Explorer para adicionar a pasta atual`n- clicar com o botão direito no plano de fundo da área de trabalho para abrir o menu.`n`nCertifique-se de que o ~2~ foi executado antes de usar seus menus de contexto. Veja a caixa de marcação ""Menus de contexto"" na janela de ""Opções"" ~2~."
+	lMessengerError := "Ocorreu um erro.`n`nCerifique-se de que o ~1~ está em execução antes de usar seus menus de contexto."
+	lMessengerHelp := "Pesquise por ""Messenger"" em www.QuickAccessPopup.com para ajuda."
+}
+else ; if (g_strLanguageCode = "EN")
+{
+	lMessengerCloseQAPSettings := "A settings window is open in ~1~, possibly with unsaved changes.`n`nPlease, close the settings windows before using this context menu."
+	lMessengerDoNotRun := "Do not run ~1~ directly. You can:`n`n- right-click a file or a folder icon in Explorer to add them to the menu`n- right-click Explorer window background to add the current folder`n- right-click the Desktop background to popup the menu.`n`nMake sure ~2~ is launched before using its context menus. See ""Context menus"" checkbox in ~2~ ""Options"" window."
+	lMessengerError := "An error occurred.`n`nMake sure ~1~ is running before using its context menus."
+	lMessengerHelp := "Search for ""Messenger"" on www.QuickAccessPopup.com for help."
+}
 
-; StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, ``n, `n, All
+lMessengerCloseQAPSettings := StrReplace(lMessengerCloseQAPSettings, "``n", "`n")
+lMessengerDoNotRun := StrReplace(lMessengerDoNotRun, "``n", "`n")
+lMessengerError := StrReplace(lMessengerError, "``n", "`n")
+lMessengerHelp := StrReplace(lMessengerHelp, "``n", "`n")
 
 return
 ;-----------------------------------------------------------
