@@ -3000,6 +3000,9 @@ if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change i
 	Gosub, UsageDbUpdateFavorites
 }
 
+if !StrLen(g_strUserVariablesList)
+	gosub, DetectCloudUserVariables ; must be after UsageDbInit because it uses SQLite files for Google Drive database
+
 ;---------------------------------
 g_blnMenuReady := true
 
@@ -4781,10 +4784,8 @@ IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0 ; UsageDbDeb
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
-; UserVariables
+; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit)
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
-if !StrLen(g_strUserVariablesList)
-	gosub, DetectCloudUserVariables
 	
 ; ---------------------
 ; Load internal flags and various values
