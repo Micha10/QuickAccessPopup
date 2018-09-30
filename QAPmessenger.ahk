@@ -17,6 +17,9 @@ See RECEIVE_QAPMESSENGER function in QuickAccessPopup.ahk for details.
 HISTORY
 =======
 
+Version: 1.2.0.1 (2018-09-30)
+- launch optimisation by setting language variables in the main script (English only in this interim release)
+
 Version: 1.2 (2018-09-15)
 - add localization using QAP language files
 
@@ -58,7 +61,7 @@ Version: 0.1 beta (2016-04-25)
 
 ;@Ahk2Exe-SetName QAP Messenger
 ;@Ahk2Exe-SetDescription Send messages to Quick Access Popup
-;@Ahk2Exe-SetVersion 1.2
+;@Ahk2Exe-SetVersion 1.2.1
 ;@Ahk2Exe-SetOrigFilename QAPmessenger.exe
 
 
@@ -73,7 +76,7 @@ ListLines, Off
 
 g_strAppNameText := "Quick Access Popup Messenger"
 g_strAppNameFile := "QAPmessenger"
-g_strAppVersion := "1.2"
+g_strAppVersion := "1.2.1"
 g_strAppVersionBranch := "prod"
 g_strAppVersionLong := "v" . g_strAppVersion . (g_strAppVersionBranch <> "prod" ? " " . g_strAppVersionBranch : "")
 g_stTargetAppTitle := "Quick Access Popup ahk_class JeanLalonde.ca"
@@ -82,15 +85,6 @@ g_stTargetAppName := "Quick Access Popup"
 g_strQAPNameFile := "QuickAccessPopup"
 
 gosub, SetQAPWorkingDirectory
-
-; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
-;@Ahk2Exe-IgnoreBegin
-; Start of code for development environment only - won't be compiled
-; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
-SetWorkingDir, %A_ScriptDir%
-; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
-; / End of code for developement enviuronment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
@@ -107,14 +101,7 @@ else if InStr(A_ComputerName, "STIC") ; for my work hotkeys
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAPMessenger_temp_" . RandomBetween()
-FileCreateDir, %g_strTempDir%
-
-OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
-
-gosub, InitFileInstall
 gosub, InitLanguageVariables
-gosub, InitLanguages
 
 IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
 
@@ -157,92 +144,18 @@ return
 
 
 ;-----------------------------------------------------------
-InitFileInstall:
-;-----------------------------------------------------------
-
-; Adding a new language:
-; 1- add the FileInstall line below
-; 2- update strOptionsLanguageCodes
-; 3- edit lOptionsLanguageLabels in all languages
-
-FileInstall, FileInstall\QuickAccessPopup_LANG_DE.txt, %g_strTempDir%\QuickAccessPopup_LANG_DE.txt, 1 ; do not replace
-FileInstall, FileInstall\QuickAccessPopup_LANG_FR.txt, %g_strTempDir%\QuickAccessPopup_LANG_FR.txt, 1
-; FileInstall, FileInstall\QuickAccessPopup_LANG_SV.txt, %g_strTempDir%\QuickAccessPopup_LANG_SV.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_ES.txt, %g_strTempDir%\QuickAccessPopup_LANG_ES.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_PT-BR.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT-BR.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_IT.txt, %g_strTempDir%\QuickAccessPopup_LANG_IT.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-TW.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-TW.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_PT.txt, %g_strTempDir%\QuickAccessPopup_LANG_PT.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_ZH-CN.txt, %g_strTempDir%\QuickAccessPopup_LANG_ZH-CN.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_NL.txt, %g_strTempDir%\QuickAccessPopup_LANG_NL.txt, 1
-FileInstall, FileInstall\QuickAccessPopup_LANG_KO.txt, %g_strTempDir%\QuickAccessPopup_LANG_KO.txt, 1
-	
-return
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
 InitLanguageVariables:
 ;-----------------------------------------------------------
 
-#Include %A_ScriptDir%\QuickAccessPopup_LANG.ahk
+lMessengerCloseQAPSettings := StrReplace("A settings window is open in ~1~, possibly with unsaved changes.`n`nPlease, close the settings windows before using this context menu.", "``n", "`n")
+lMessengerDoNotRun := StrReplace("Do not run ~1~ directly. You can:`n`n- right-click a file or a folder icon in Explorer to add them to the menu`n- right-click Explorer window background to add the current folder`n- right-click the Desktop background to popup the menu.`n`nMake sure ~2~ is launched before using its context menus. See ""Context menus"" checkbox in ~2~ ""Options"" window.", "``n", "`n")
+lMessengerError := StrReplace("An error occurred.`n`nMake sure ~1~ is running before using its context menus.", "``n", "`n")
+lMessengerHelp := StrReplace("Search for ""Messenger"" on www.QuickAccessPopup.com for help.", "``n", "`n")
+
+; StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, ``n, `n, All
 
 return
 ;-----------------------------------------------------------
-
-
-;------------------------------------------------------------
-InitLanguages:
-;------------------------------------------------------------
-
-strDebugLanguageFile := A_WorkingDir . "\" . g_strQAPNameFile . "_LANG_ZZ.txt"
-if FileExist(strDebugLanguageFile)
-{
-	strLanguageFile := strDebugLanguageFile
-	g_strLanguageCode := "EN"
-}
-else
-{
-	if !FileExist(g_strIniFile)
-		g_strLanguageCode := "EN"
-	else
-		IniRead, g_strLanguageCode, %g_strIniFile%, Global, LanguageCode, EN
-
-	strLanguageFile := g_strTempDir . "\" . g_strQAPNameFile . "_LANG_" . g_strLanguageCode . ".txt"
-}
-
-strReplacementForSemicolon := "!r4nd0mt3xt!" ; for non-comment semi-colons ";" escaped as ";;"
-
-if FileExist(strLanguageFile)
-{
-	FileRead, strLanguageStrings, %strLanguageFile%
-	Loop, Parse, strLanguageStrings, `n, `r
-	{
-		if (SubStr(A_LoopField, 1, 1) <> ";") ; skip comment lines
-		{
-			StringSplit, arrLanguageBit, A_LoopField, `t
-			if SubStr(arrLanguageBit1, 1, 10) = "lMessenger"
-				%arrLanguageBit1% := arrLanguageBit2
-			StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, ``n, `n, All
-			
-			if InStr(%arrLanguageBit1%, ";;") ; preserve escaped ; in string
-				StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, % ";;", %strReplacementForSemicolon%, A
-			if InStr(%arrLanguageBit1%, ";")
-				%arrLanguageBit1% := Trim(SubStr(%arrLanguageBit1%, 1, InStr(%arrLanguageBit1%, ";") - 1)) ; trim comment from ; and trim spaces and tabs
-			if InStr(%arrLanguageBit1%, strReplacementForSemicolon) ; restore escaped ; in string
-				StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, %strReplacementForSemicolon%, % ";", A
-		}
-	}
-}
-else
-	g_strLanguageCode := "EN"
-
-strLanguageFile := ""
-strReplacementForSemicolon := ""
-strLanguageStrings := ""
-
-return
-;------------------------------------------------------------
 
 
 ;-----------------------------------------------------------
@@ -366,57 +279,5 @@ Diag(strName, strData)
 	until !ErrorLevel or (A_Index > 50) ; after 1 second (20ms x 50), we have a problem
 }
 ;------------------------------------------------
-
-
-;------------------------------------------------------------
-PathCombine(strAbsolutePath, strRelativePath)
-; see http://www.autohotkey.com/board/topic/17922-func-relativepath-absolutepath/page-3#entry117355
-; and http://stackoverflow.com/questions/29783202/combine-absolute-path-with-a-relative-path-with-ahk/
-;------------------------------------------------------------
-{
-    VarSetCapacity(strCombined, (A_IsUnicode ? 2 : 1) * 260, 1) ; MAX_PATH
-    DllCall("Shlwapi.dll\PathCombine", "UInt", &strCombined, "UInt", &strAbsolutePath, "UInt", &strRelativePath)
-    Return, strCombined
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-EnvVars(str)
-; from Lexikos http://www.autohotkey.com/board/topic/40115-func-envvars-replace-environment-variables-in-text/#entry310601
-;------------------------------------------------------------
-{
-    if sz:=DllCall("ExpandEnvironmentStrings", "uint", &str
-                    , "uint", 0, "uint", 0)
-    {
-        VarSetCapacity(dst, A_IsUnicode ? sz*2:sz)
-        if DllCall("ExpandEnvironmentStrings", "uint", &str
-                    , "str", dst, "uint", sz)
-            return dst
-    }
-    return str
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RandomBetween(intMin := 0, intMax := 2147483647)
-;------------------------------------------------------------
-{
-	Random, intValue, %intMin%, %intMax%
-	
-	return intValue
-}
-;------------------------------------------------------------
-
-
-;-----------------------------------------------------------
-CleanUpBeforeExit:
-;-----------------------------------------------------------
-
-FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
-
-ExitApp
-;-----------------------------------------------------------
 
 
