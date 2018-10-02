@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.2 (2018-09-??)
+Version: 9.2 (2018-10-02)
  
 FREQUENT ITEMS
  
