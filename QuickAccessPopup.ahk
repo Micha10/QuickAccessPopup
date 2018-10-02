@@ -5611,7 +5611,7 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-if (g_blnUsageDbEnabled)
+if IsObject(g_objUsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it was turned false in this session
 {
 	; before backup the db, close it to avoid lock
 	if !g_objUsageDb.CloseDb()
@@ -10068,6 +10068,15 @@ if StrLen(strDialogPosition)
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
 
+if (g_objEditedFavorite.FavoriteName = lToolTipRetrievingWebPageTitle)
+{
+	GuiControl, Disable, f_strFavoriteShortName
+	g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
+	GuiControl, , f_strFavoriteShortName, % g_objEditedFavorite.FavoriteName
+	GuiControl, Enable, f_strFavoriteShortName
+}
+
+
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
 ResetArray("arrTop")
@@ -10260,7 +10269,7 @@ else ; add favorite
 			if LocationIsHttp(g_strNewLocation)
 			{
 				g_objEditedFavorite.FavoriteType := "URL"
-				g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
+				g_objEditedFavorite.FavoriteName := lToolTipRetrievingWebPageTitle
 				g_strNewFavoriteIconResource := g_strURLIconFileIndex
 			}
 			else
