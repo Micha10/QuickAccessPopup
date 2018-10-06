@@ -5614,13 +5614,24 @@ Gosub, ExternalMenusRelease ; release reserved external menus
 if IsObject(g_objUsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it was turned false in this session
 {
 	; before backup the db, close it to avoid lock
-	if !g_objUsageDb.CloseDb()
-	{
-		Oops("SQLite Error CloseDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
-		g_blnUsageDbEnabled := false
-		return
-	}
-	FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
+	Loop
+		if g_objUsageDb.CloseDb()
+		{
+			blnDbClosed := true
+			break
+		}
+		else ; no error messge if close fails - not needed when quitting
+		{
+			if (A_Index = 3) ; try 3 times in case background task is writing to the file
+			{
+				blnDbClosed := false
+				break
+			}
+			Sleep, 500
+		}
+
+	if (blnDbClosed)
+		FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
 }
 
 if (g_blnDiagMode)
