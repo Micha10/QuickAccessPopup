@@ -7777,7 +7777,7 @@ Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
 if StrLen(g_strQAPconnectFileManager)
 	GuiControl, ChooseString, f_drpQAPconnectFileManager, %g_strQAPconnectFileManager%
 Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath hidden, %lDialogBrowseButton%
-Gui, 2:Add, Checkbox, y+10 x32 w590 vf_blnFileManagerUseTabs hidden, %lOptionsThirdPartyUseTabs%
+Gui, 2:Add, Checkbox, y+10 x32 w590 vf_blnFileManagerUseTabs gFileManagerNavigateClicked hidden, %lOptionsThirdPartyUseTabs%
 Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(lMenuEditIniFile, "QAPconnect.ini")
 Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, %lTCWinCmdLocation%
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
@@ -7956,10 +7956,13 @@ return
 ;------------------------------------------------------------
 FileManagerNavigateClicked:
 ;------------------------------------------------------------
+Gui, 2:Submit, NoHide
 
 GuiControl, , f_lblFileManagerNavigate, % L(lOptionsFileManagerNavigateIntro, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
-GuiControl, Text, f_radFileManagerNavigateCurrent, % L(lOptionsFileManagerNavigateCurrent, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
-GuiControl, Text, f_radFileManagerNavigateNew, % L(lOptionsFileManagerNavigateNew, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
+GuiControl, Text, f_radFileManagerNavigateCurrent, % L((f_blnFileManagerUseTabs ? lOptionsFileManagerNavigateCurrentTab : lOptionsFileManagerNavigateCurrent)
+	, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
+GuiControl, Text, f_radFileManagerNavigateNew, % L((f_blnFileManagerUseTabs ? lOptionsFileManagerNavigateNewTab : lOptionsFileManagerNavigateNew)
+	, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%)
 
 return
 ;------------------------------------------------------------
@@ -15848,6 +15851,7 @@ if (g_blnGroupReplaceWindows)
 	
 objThisGroupFavoritesList := g_objMenusIndex[lMainMenuName . " " . objThisGroupFavorite.FavoriteLocation]
 
+intFolderItemsCount := 0
 loop, % objThisGroupFavoritesList.MaxIndex() - 1 ; skip first item backlink
 {
 	g_objThisFavorite := objThisGroupFavoritesList[A_Index + 1] ; skip first item backlink
@@ -15857,7 +15861,9 @@ loop, % objThisGroupFavoritesList.MaxIndex() - 1 ; skip first item backlink
 	
 	Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
 	
-	g_blnFirstItemOfGroup := (A_Index = 1)
+	If InStr("Folder|Special|FTP", g_objThisFavorite.FavoriteType)
+		intFolderItemsCount++
+	g_blnFirstFolderOfGroup := (intFolderItemsCount = 1) 
 
 	if !(g_objThisFavorite.FavoriteDisabled)
 		gosub, OpenFavoriteFromGroup
@@ -15868,6 +15874,8 @@ objThisGroupFavorite := ""
 objThisGroupFavoritesList := ""
 strGroupSettings := ""
 ResetArray("g_arrGroupSettingsOpen")
+intFolderItemsCount := "" ; reset after group is completely open
+g_blnFirstFolderOfGroup := "" ; reset after group is completely open
 
 return
 ;------------------------------------------------------------
@@ -15882,7 +15890,7 @@ Tooltip, %lGuiGroupClosing%
 
 if (g_arrGroupSettingsOpen2 = "Other")
 {
-	if (g_intActiveFileManager = 2)
+	if (g_intActiveFileManager = 2) ; Directory Opus
 	{
 		WinGet, arrIDs, List, ahk_class dopus.lister
 		Loop, %arrIDs%
@@ -15891,7 +15899,7 @@ if (g_arrGroupSettingsOpen2 = "Other")
 			Sleep, %intSleepTime%
 		}
 	}
-	else if (g_intActiveFileManager = 3)
+	else if (g_intActiveFileManager = 3) ; Total Commander
 	{
 		WinGet, arrIDs, List, ahk_class TTOTAL_CMD
 		Loop, %arrIDs%
@@ -17874,7 +17882,14 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
 {
-	if (g_blnFirstItemOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
+	if (g_blnFirstFolderOfGroup) and !(g_blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
+	; for the first member of the group, if we add to existing tabs, make sure a lister is running
+	{
+		Run, %g_strDirectoryOpusPath%
+		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+	}
+		
+	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
 		strTabParameter := "NEW=nodual"
 	else
 	{
@@ -17895,6 +17910,8 @@ else
 
 StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instead of activating by QAP as in previous versions
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
+if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
+	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
@@ -17926,7 +17943,7 @@ if g_strFullLocation is integer
 {
 	if !WinExist("ahk_class TTOTAL_CMD") ; open a first instance
 		or InStr(g_strTotalCommanderNewTabOrWindow, "/N") ; or open a new instance
-		or (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and (g_blnFirstItemOfGroup and g_blnGroupReplaceWindows))
+		or (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows))
 	{
 		Run, %g_strTotalCommanderPath%
 		WinWaitActive, ahk_class TTOTAL_CMD, , 10
@@ -17959,7 +17976,7 @@ if g_strFullLocation is integer
 else ; normal folder
 {
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-		if (g_blnFirstItemOfGroup and g_blnGroupReplaceWindows)
+		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows)
 			strTabParameter := "/N" ; /N new window
 		else
 			strTabParameter := "/O /T" ; /O same instance, /T new tab
@@ -18050,7 +18067,7 @@ if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
 	; with RegEx: for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
 	; (because by default, regular expressions find a match anywhere in the target string).
 	SetTitleMatchMode, RegEx
-	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstItemOfGroup ? 2 : 1)
+	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
 	else if (g_arrFavoriteWindowPosition2 = 1) ; Maximized
