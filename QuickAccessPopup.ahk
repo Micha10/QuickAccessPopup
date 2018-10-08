@@ -2963,6 +2963,8 @@ Gosub, BuildReopenFolderMenuInit
 Gosub, BuildLastActionsMenuInit
 Gosub, BuildTotalCommanderHotlistInit
 Gosub, BuildTotalCommanderHotlistPrepare
+Gosub, BuildDirectoryOpusFavoritesInit
+Gosub, BuildDirectoryOpusFavoritesPrepare
 
 ; Other menus
 
@@ -4185,6 +4187,7 @@ g_objQAPFeaturesURL["Close All Windows"] := "can-i-close-all-running-application
 g_objQAPFeaturesURL["Close Computer Control"] := "can-i-control-how-my-computer-is-closed-with-qap"
 g_objQAPFeaturesURL["CloseMenu"] := "what-is-the-close-menu-issue"
 g_objQAPFeaturesURL["Current Folders"] := "how-is-built-the-current-folders-menu"
+g_objQAPFeaturesURL["DOpus Favorites"] := "how-to-i-enable-directory-opus-support-in-quick-access-popup"
 g_objQAPFeaturesURL["Drives"] := "what-are-these-features-in-the-my-qap-essentials-menu"
 g_objQAPFeaturesURL["Edit Settings File"] := "how-can-i-edit-the-file-quickaccesspopup-ini"
 g_objQAPFeaturesURL["Exclusions Mouse"] := "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps"
@@ -4253,6 +4256,8 @@ InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 	
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
+InitQAPFeatureObject("DOpus Favorites",			lDOpusMenuName,				lDOpusMenuName,			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
+	, lDOpusMenuNameDescription, 0, "iconSubmenu")
 InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFolders), "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites")
 InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles), L(lMenuPopularMenus, lMenuPopularFiles), "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
@@ -5196,15 +5201,17 @@ if (g_strAddThisMenuNameWithInstance = g_objQAPFeaturesCodeByDefaultName[lMenuSe
 	AddToIniOneDefaultMenu("", "", "X")
 	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP", true) ; back in main menu
 }
-if (g_intActiveFileManager = 3) ; TotalCommander
+if (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; Directory Opus or Total Commander
 {
-	g_strAddThisMenuName := lTCMenuName . "..."
+	strDOpusOrTCMenuName := (g_intActiveFileManager = 2 ? lDOpusMenuName : lTCMenuName) . "..."
+	
+	g_strAddThisMenuName := strDOpusOrTCMenuName
 	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
-	if (g_strAddThisMenuName = lTCMenuName . "...") ; if equal, it means that this menu is not already there
+	if (g_strAddThisMenuName = strDOpusOrTCMenuName) ; if equal, it means that this menu is not already there
 	; (we cannot have this menu twice with "+" because, as all QAP features, lTCMenuName always have the same menu name)
 	{
 		AddToIniOneDefaultMenu("", "", "X")
-		AddToIniOneDefaultMenu("{TC Directory hotlist}", lTCMenuName . "...", "QAP")
+		AddToIniOneDefaultMenu((g_intActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
 	}
 }
 g_strAddThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."] ; QAP feature code used here for comparison only, not for menu name
@@ -5222,6 +5229,7 @@ IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
 
 g_intNextFavoriteNumber := ""
 g_strAddThisMenuName := ""
+strDOpusOrTCMenuName := ""
 
 return
 ;------------------------------------------------------------
@@ -5718,6 +5726,7 @@ BuildSwitchMenuInit:
 BuildReopenFolderMenuInit:
 BuildLastActionsMenuInit:
 BuildTotalCommanderHotlistInit:
+BuildDirectoryOpusFavoritesInit:
 BuildPopularMenusInit:
 ;------------------------------------------------------------
 
@@ -5741,6 +5750,8 @@ if (A_ThisLabel = "BuildLastActionsMenuInit")
 	strMenuNames := lMenuLastActions
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
 	strMenuNames := lTCMenuName
+if (A_ThisLabel = "BuildDirectoryOpusFavoritesInit")
+	strMenuNames := lDOpusMenuName
 if (A_ThisLabel = "BuildPopularMenusInit")
 	strMenuNames := lMenuPopularFolders . "|" . lMenuPopularFiles
 
@@ -5779,6 +5790,19 @@ g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_st
 Gosub, RefreshTotalCommanderHotlist
 
 strAlternativeWinCmdIniFile := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildDirectoryOpusFavoritesPrepare:
+;------------------------------------------------------------
+
+g_strDOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
+g_blnDOpusFavoritesFileExist := FileExist(g_strDOpusFavoritesFile)
+
+Gosub, RefreshDirectoryOpusFavorites
 
 return
 ;------------------------------------------------------------
@@ -6679,6 +6703,10 @@ RefreshTotalCommanderHotlist:
 RefreshTotalCommanderHotlistScheduled:
 ;------------------------------------------------------------
 
+if !g_objQAPfeaturesInMenus.HasKey("{TC Directory hotlist}")
+	; we don't have this QAP features in at least one menu
+	return
+
 ; Init TC Directory hotlist if wincmd.ini file exists
 
 Menu, %lTCMenuName%, Add 
@@ -6791,6 +6819,239 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 		;	if (objLoadIniFavorite.FavoriteType <> "X") ; menu separators does not use a item position numeric shortcut number
 		;	intMenuItemPos++
 	}
+}
+;-----------------------------------------------------------
+
+
+;------------------------------------------------------------
+DirectoryOpusFavoritesMenuShortcut:
+;------------------------------------------------------------
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+Menu, %lDOpusMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RefreshDirectoryOpusFavorites:
+RefreshDirectoryOpusFavoritesScheduled:
+;------------------------------------------------------------
+
+if !g_objQAPfeaturesInMenus.HasKey("{DOpus Favorites}")
+	; we don't have this QAP features in at least one menu
+	return
+
+Menu, %lDOpusMenuName%, Add 
+Menu, %lDOpusMenuName%, DeleteAll
+
+If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
+{
+	g_objDOpusMenu := Object() ; object of menu structure entry point
+	g_objDOpusMenu.MenuPath := lDOpusMenuName ; localized name of the DOpus menu
+	g_objDOpusMenu.MenuType := "Menu"
+	
+	g_objQAPFeatures["{DOpus Favorites}"].DefaultIcon := g_objJLiconsByName["DirectoryOpus"]
+
+	FileRead, g_strDirectoryOpusFavorites, %g_strDOpusFavoritesFile%
+	; take g_strDirectoryOpusFavorites to start
+	GetNextXMLTag(g_strDirectoryOpusFavorites, "favorites")
+	if (RecursiveLoadDirectoryOpusFavoritesFromFile(g_objDOpusMenu) <> "EOM") ; build menu tree
+		Oops("An error occurred while reading the Directory Opus favorites.")
+	
+	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
+	
+	RecursiveBuildOneMenu(g_objDOpusMenu) ; recurse for submenus
+	Tooltip
+}
+else
+	AddMenuIcon(lDOpusMenuName, lDialogNone, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+
+AddCloseMenu(lDOpusMenuName)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
+;------------------------------------------------------------
+{
+	global g_objMenusIndex
+	global g_objSpecialFolders
+	global g_strDirectoryOpusFavorites
+	global g_strMenuPathSeparator
+	
+	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
+	; ###_V("In - " . A_ThisFunc, SubStr(g_strDirectoryOpusFavorites, 1, 200))
+
+	Loop
+	{
+		strType := "Folder" ; could be replaced by "Menu" or "X"
+		
+		strTag := GetNextXMLTag(g_strDirectoryOpusFavorites)
+		; ###_V("Loop " . A_Index . " " . A_ThisFunc, strTag, SubStr(g_strDirectoryOpusFavorites, 1, 200))
+
+		if (strTag = "</favorites>")
+			; ###_O("objCurrentMenu: " . objCurrentMenu.MenuPath, objCurrentMenu, "FavoriteName")
+			Return, "EOM" ; end of file, last menu item
+	
+		if (strTag = "</folder>")
+			; ###_O("objCurrentMenu: " . objCurrentMenu.MenuPath, objCurrentMenu, "FavoriteName")
+			return, "EOM" ; end of menu
+		
+		if InStr(strTag, "<folder") ; can be <folder> or <folder label="...">
+		{
+			strFolder := GetFolderTagContent(g_strDirectoryOpusFavorites)
+			
+			if InStr(strFolder, "<separator />")
+			{
+				strType := "X"
+				strName := ""
+			}
+			else ; submenu
+			{
+				strMenuName := GetXMLLabel(strTag)
+				objNewMenu := Object() ; create the submenu object
+				objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . strMenuName
+				objNewMenu.MenuType := "Menu"
+				
+				; create a navigation entry to navigate to the parent menu
+				; (not used in Settings for this menu - but keep for code reusability)
+				objNewMenuBack := Object()
+				objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
+				objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
+				objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
+				objNewMenu.Insert(objNewMenuBack)
+				
+				; build the submenu
+				; ###_V("Down in", objNewMenu.MenuPath)
+				strResult := RecursiveLoadDirectoryOpusFavoritesFromFile(objNewMenu) ; RECURSIVE
+				; ###_V("Up from", objNewMenu.MenuPath, strResult)
+				
+				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+					Return, %strResult%
+				
+				strType := "Menu"
+				strName := ""
+			}
+		}
+		else if !InStr(strTag, "path")
+			
+			continue ; not a path, submenu or separator
+		
+		; else strTag = "path"
+		
+		if (strType = "X")
+		{
+			strMenuName := ""
+			strPath := ""
+			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
+			
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "separator /")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "/folder")
+		}
+		; else if (strType = "Menu") ; no new value needed and no text to skip in g_strDirectoryOpusFavorites
+		; {
+			; strMenuName := GetXMLLabel(strTag)
+			; strPath := objCurrentMenu.MenuPath
+			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
+		; }
+		else ; (strType = "Folder")
+		{
+			/* #####
+			EXCEPTION IF:
+				<path label="Ce PC">
+					<dir>
+						<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
+					</dir>
+				</path>
+			*/
+			strMenuName := GetXMLLabel(strTag)
+			; take g_strDirectoryOpusFavorites to next dir and pathstring tags
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "dir")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "pathstring")
+			
+			strPath := SubStr(g_strDirectoryOpusFavorites, 1, InStr(g_strDirectoryOpusFavorites, "</") - 1)
+			if !StrLen(strMenuName )
+				strMenuName := strPath
+			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
+			
+			; take g_strDirectoryOpusFavorites after closing pathstring, dir and path tags
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "/pathstring")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "/dir")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, "/path")
+		}
+		
+		objLoadDOpusFavorite := Object() ; new favorite item
+		
+		objLoadDOpusFavorite.FavoriteType := strType
+		objLoadDOpusFavorite.FavoriteName := strMenuName
+		objLoadDOpusFavorite.FavoriteLocation := strPath
+		if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 2) = "::") ; ##### see EXCEPTION above
+		{
+			objLoadDOpusFavorite.FavoriteLocation := SubStr(objLoadDOpusFavorite.FavoriteLocation, 3)
+			objLoadDOpusFavorite.FavoriteIconResource := g_objSpecialFolders[objLoadDOpusFavorite.FavoriteLocation].DefaultIcon
+			objLoadDOpusFavorite.FavoriteType := "Special"
+		}
+		
+		; this is a submenu, link to the submenu object
+		if (strType = "Menu")
+			objLoadDOpusFavorite.SubMenu := objNewMenu
+		
+		; update the current menu object
+		objCurrentMenu.Insert(objLoadDOpusFavorite)
+		; ###_O("Insert objLoadDOpusFavorite in: " . objCurrentMenu.MenuPath, objLoadDOpusFavorite)
+	}
+}
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+GetNextXMLTag(ByRef strXML, strTagName := "")
+; return next tag or specific tag if strTagName is specified
+;-----------------------------------------------------------
+{
+	intNextTagBegin := InStr(strXML, "<" . (StrLen(strTagName) ? strTagName . ">" : ""))
+	intNextTagEnd := InStr(strXML, ">", , intNextTagBegin)
+	strTag := SubStr(strXML, intNextTagBegin, intNextTagEnd - intNextTagBegin + 1)
+	strXML := SubStr(strXML, intNextTagEnd + 1)
+	; ###_V(A_ThisFunc . " - " strTagName, strTag, intNextTagBegin, intNextTagEnd, SubStr(strXML, 1, 200))
+	
+	return strTag
+}
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+GetXMLLabel(strTag)
+; return the content of label="content"
+;-----------------------------------------------------------
+{
+	if !InStr(strTag, "label=")
+		return
+	
+	intLabelBegin := InStr(strTag, """")
+	intLabelEnd := InStr(strTag, """", , intLabelBegin + 1)
+	strLabel := SubStr(strTag, intLabelBegin + 1, intLabelEnd - intLabelBegin - 1)
+	; ###_V(A_ThisFunc, strTag, intLabelBegin, intLabelEnd, strLabel)
+	
+	return strLabel
+}
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+GetFolderTagContent(strXml)
+;-----------------------------------------------------------
+; return the content of label="content"
+{
+	strFolderContent :=  SubStr(strXml, 1, InStr(strXml, "</folder>") - 1)
+	; ###_V(A_ThisFunc, strXml, strFolderContent)
+	
+	return strFolderContent
 }
 ;-----------------------------------------------------------
 
