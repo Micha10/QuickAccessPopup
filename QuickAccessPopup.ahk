@@ -4236,13 +4236,10 @@ InitQAPFeatures:
 ; Submenus features
 
 ; init refreshed menus attached or detached
-IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0 ; default false, display "Drives" menu in detached menu
+; default false, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" menu in detached menu
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0
 Gosub, InitQAPFeaturesRefreshed
 
-InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders, lMenuRecentFolders,	"RecentFoldersMenuShortcut",	"2-DynamicMenus~5-WindowsFeature"
-	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^r")
-InitQAPFeatureObject("Recent Files",	lMenuRecentFiles, lMenuRecentFiles,	"RecentFilesMenuShortcut",		"2-DynamicMenus~5-WindowsFeature"
-	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
 	, lMenuClipboardDescription, 0, "iconClipboard", "+^v")
 InitQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
@@ -4253,10 +4250,6 @@ InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 	
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
-InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFolders), "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
-	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites")
-InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles), L(lMenuPopularMenus, lMenuPopularFiles), "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
-	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites")
 
 ; Command features
 
@@ -4389,9 +4382,31 @@ InitQAPFeaturesRefreshed:
 ; This command is called again when options are saved
 ;------------------------------------------------------------
 
-InitQAPFeatureObject("Drives",			lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
-	, (g_blnRefreshedMenusAttached ? lMenuDrives : ""),		"DrivesMenuShortcut",				"2-DynamicMenus~5-WindowsFeature"
-	, lMenuDrivesDescription, 0, "iconDrives",		"+^d")
+; InitQAPFeatureObject(strQAPFeatureCode, strThisDefaultName
+;	, strQAPFeatureMenuName
+;	, strQAPFeatureCommand, strQAPFeatureCategories
+; 	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut)
+
+InitQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : "")
+	, "RecentFoldersMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
+	, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^r")
+InitQAPFeatureObject("Recent Files", lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : "")
+	, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
+	, lMenuRecentFilesDescription, 0, "iconRecentFolders",	"")
+InitQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders) . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFolders) : "")
+	, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
+	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites")
+InitQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles) . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFiles) : "")
+	, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
+	, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites")
+InitQAPFeatureObject("Drives", lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
+	, (g_blnRefreshedMenusAttached ? lMenuDrives : "")
+	, "DrivesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
+	, lMenuDrivesDescription, 0, "iconDrives", "+^d")
 
 return
 ;------------------------------------------------------------
@@ -7653,7 +7668,7 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!g_blnAddAutoAtTop ? 
 
 ; column 2
 
-Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % L(lOptionsRefreshedMenusAttached, lMenuDrives)
+Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, %lOptionsRefreshedMenusAttached%
 GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
@@ -8207,7 +8222,9 @@ return
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
-Oops(lOptionsRefreshedMenusAttachedInfo, lMenuDrives)
+Oops(lOptionsRefreshedMenusAttachedInfo, lMenuRecentFolders, lMenuRecentFiles
+	, L(lMenuPopularMenus, lMenuPopularFolders), L(lMenuPopularMenus, lMenuPopularFiles)
+	, lMenuDrives)
 
 return
 ;------------------------------------------------------------
@@ -8808,10 +8825,12 @@ Gosub, RefreshClipboardMenu
 Gosub, RefreshSwitchFolderOrAppMenu
 Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularMenus
-Gosub, RefreshRecentItemsMenus
 if (g_blnRefreshedMenusAttached)
+{
+	Gosub, RefreshPopularMenus
+	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
+}
 Gosub, LoadMenuInGui ; in case show popularity index changed
 
 Gosub, 2GuiClose
@@ -15418,12 +15437,14 @@ if InStr(A_ThisLabel, "Mouse")
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
 Gosub, RefreshLastActionsMenu
-Gosub, RefreshPopularMenus
-Gosub, RefreshRecentItemsMenus
 
 if (g_blnRefreshedMenusAttached)
+{
 	; displays the wait cursor
+	Gosub, RefreshPopularMenus
+	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
+}
 
 Gosub, InsertColumnBreaks
 
