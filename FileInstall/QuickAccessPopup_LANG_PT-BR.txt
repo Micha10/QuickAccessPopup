@@ -711,7 +711,7 @@ lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens nos menus
 lOptionsRecentFoldersPrompt	Menus de Itens Recentes e Populares:
 lOptionsRefreshedMenusAttached	Anexar menu "~1~" ao menu do QAP
-lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu. Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, o menu "~1~" será atualizado somente sob demanda e será exibido destacado do menu principal.
+lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu (lista de itens recentes e espaço disponível nas unidades atuais). Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, os menus "~1~", "~2~", "~3~", "~4~" e "~5~" serão atualizados somente sob demanda e serão exibidos destacados do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Aviso sonoro antes e após atualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre atualizações em segundos`n(300 segundos ou mais recomendado)
 lOptionsRefreshQAPMenuTitle	Habilitar Atualização Agendada de Menu do QAP
