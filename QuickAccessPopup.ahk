@@ -2993,7 +2993,6 @@ if (g_blnUsageDbEnabled)
 if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change in UsageDbInit
 {
 	; collect recent intems in UsageDb
-	Diag("Launch", "UsageDbCollectRecentItems")
 	Gosub, UsageDbCollectRecentItems
 
 	; Update FavoriteUsageDb properties with data from UsageDb
@@ -3088,7 +3087,7 @@ Hotkey, If
 ;---------------------------------
 ; Start task collecting recent items
 
-Diag("SetTimer", "UsageDbCollectRecentItems")
+Diag("SetTimer:UsageDbCollectRecentItems", g_intUsageDbIntervalSeconds)
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectRecentItems, % (g_intUsageDbIntervalSeconds * 1000), -100 ; delay before repeating UsageDbCollectRecentItems / priority -100 (not sure?)
 
@@ -5526,10 +5525,8 @@ if !FileExist(g_strDiagFile)
 {
 	FileAppend, DateTime`tType`tData`n, %g_strDiagFile%
 	Diag("DIAGNOSTIC FILE", lDiagModeIntro)
-	Diag("AppNameFile", g_strAppNameFile)
-	Diag("AppNameText", g_strAppNameText)
-	Diag("AppVersion", g_strAppVersion)
 	Diag("A_ScriptFullPath", A_ScriptFullPath)
+	Diag("AppVersion", g_strAppVersion)
 	Diag("A_WorkingDir", A_WorkingDir)
 	Diag("A_AhkVersion", A_AhkVersion)
 	Diag("A_OSVersion", A_OSVersion)
@@ -5537,6 +5534,8 @@ if !FileExist(g_strDiagFile)
 	Diag("A_IsUnicode", A_IsUnicode)
 	Diag("A_Language", A_Language)
 	Diag("A_IsAdmin", A_IsAdmin)
+	RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+	Diag("Recent Items Folder" , strUsageDbRecentsFolder)
 }
 
 FileRead, strIniFileContent, %g_strIniFile%
@@ -5625,7 +5624,7 @@ if IsObject(g_objUsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case 
 
 if (g_blnDiagMode)
 {
-	MsgBox, 52, %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
+	MsgBox, % 52 + 256 , %g_strAppNameText%, % L(lDiagModeExit, g_strAppNameText, g_strDiagFile) . "`n`n" . lDiagModeIntro . "`n`n" . lDiagModeSee
 	IfMsgBox, Yes
 		Run, %g_strDiagFile%
 }
@@ -5809,6 +5808,8 @@ RefreshPopularMenus:
 if !(g_blnUsageDbEnabled)
 	return
 
+Diag(A_ThisLabel, "", "START")
+
 SetWaitCursor(true)
 
 loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
@@ -5833,6 +5834,7 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
 	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
+		Diag(A_ThisLabel, "SQLite QUERY POPULAR MENUS Error", "STOP")
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
@@ -5890,6 +5892,7 @@ strMenuItemsList := ""
 blnPopularMenuIncomplete := ""
 strMenuItemLabel := ""
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -5911,12 +5914,13 @@ return
 ;------------------------------------------------------------
 RefreshClipboardMenu:
 ;------------------------------------------------------------
-intClipboardMenuStartTickCount := A_TickCount
 
 if !g_objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP feature in at least one menu
 	or !StrLen(Clipboard) ; clipboard is empty (or contains only binary data)
 	or (StrLen(Clipboard) > 50000) ; Clipboard is too large - 50K of text with 600 file paths takes 0,3 sec to process on my dev machine
 	return
+
+Diag(A_ThisLabel, "", "START")
 
 intMenuNumberClipboardMenu := 0
 strContentsInClipboard := ""
@@ -5972,8 +5976,7 @@ strContentsInClipboard := ""
 strClipboardLineExpanded := ""
 strURLSearchString := ""
 
-g_intClipboardMenuTickCount := A_TickCount - intClipboardMenuStartTickCount
-; TrayTip, Clipboard menu refresh, % g_intClipboardMenuTickCount . " ms"
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -6061,7 +6064,7 @@ RefreshDrivesMenu:
 if !(g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP features in at least one menu
 	return
 
-intDrivesMenuStartTickCount := A_TickCount
+Diag(A_ThisLabel, "", "START")
 
 intMenuNumberDrivesMenu := 0
 strMenuItemsList := "" ; menu name|menu item name|label|icon
@@ -6114,8 +6117,7 @@ strMenuItemName := ""
 strIcon := ""
 ResetArray("arrMenuItemsList")
 
-g_intDrivesMenuTickCount := A_TickCount - intDrivesMenuStartTickCount
-; TrayTip, Drives menu refresh, % g_intDrivesMenuTickCount . " ms"
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -6143,6 +6145,8 @@ if !g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !g_objQAPfeaturesInMe
 	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
+Diag(A_ThisLabel, "", "START")
+
 ; prepare data source
 
 if (g_blnUsageDbEnabled) ; use SQLite usage database
@@ -6150,6 +6154,7 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
 	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
+		Diag(A_ThisLabel, "SQLite QUERY Build menu Error", "STOP")
 		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		return
 	}
@@ -6283,6 +6288,7 @@ intRecentFilesCount := ""
 intMenuNumberFiles := ""
 ResetArray("arrMenuItemsList")
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -6335,11 +6341,12 @@ RefreshReopenFolderMenu:
 ; This command build two menus: "Reopen a Folder" and "Switch".
 ; The first part of "Switch" has the same items as "Reopen a Folder" but with a "switch" command instead of "open".
 ;------------------------------------------------------------
-intSwitchReopenMenuStartTickCount := A_TickCount
 
 if !(g_objQAPfeaturesInMenus.HasKey("{Current Folders}") or g_objQAPfeaturesInMenus.HasKey("{Switch Folder or App}"))
 	; we don't have one of these QAP features in at least one menu
 	return
+
+Diag(A_ThisLabel, "", "START")
 
 ; Gather Explorer and DOpus windows/listers
 
@@ -6513,8 +6520,7 @@ strDiagFile := ""
 intExStyle := ""
 strWinTitlesWinApps := ""
 
-g_intSwitchReopenMenuTickCount := A_TickCount - intSwitchReopenMenuStartTickCount
-; TrayTip, SwitchReopen menu refresh, % g_intSwitchReopenMenuTickCount . " ms"
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -6679,6 +6685,8 @@ RefreshTotalCommanderHotlist:
 RefreshTotalCommanderHotlistScheduled:
 ;------------------------------------------------------------
 
+Diag(A_ThisLabel, "", "START")
+
 ; Init TC Directory hotlist if wincmd.ini file exists
 
 Menu, %lTCMenuName%, Add 
@@ -6705,6 +6713,7 @@ else
 
 AddCloseMenu(lTCMenuName)
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -6818,6 +6827,8 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP 
 	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
 	return
 
+Diag(A_ThisLabel, "", "START")
+
 intMenuNumberLastActionsMenu := 0
 
 Menu, %lMenuLastActions%, Add
@@ -6833,6 +6844,7 @@ AddCloseMenu(lMenuLastActions)
 intMenuNumberLastActionsMenu := ""
 strMenuItemName := ""
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -7423,13 +7435,17 @@ RefreshQAPMenuExternalOnly:
 ;------------------------------------------------------------
 
 if (SettingsUnsaved() or !g_blnMenuReady ; these two required
+	or (g_blnRefreshQAPMenuInProgress)
 	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
 	return
+
+Diag(A_ThisLabel, "", "START-FULL")
 
 if (g_blnRefreshQAPMenuDebugBeep)
 	SoundBeep, 330
 
 g_blnMenuReady := false
+g_blnRefreshQAPMenuInProgress := true
 
 for strMenuName, objThisMenu in g_objMenusIndex
 	if (objThisMenu.MenuType = "External") and ExternalMenuModifiedSinceLoaded(objThisMenu) ; refresh only if changed
@@ -7448,10 +7464,12 @@ if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	}
 
 g_blnMenuReady := true
+g_blnRefreshQAPMenuInProgress := false
 
 if (g_blnRefreshQAPMenuDebugBeep)
 	SoundBeep, 440
 
+Diag(A_ThisLabel, "", "STOP-FULL")
 return
 ;------------------------------------------------------------
 
@@ -8377,7 +8395,7 @@ OptionUsageDbEnableClicked:
 ;------------------------------------------------------------
 Gui, 3:Submit, NoHide
 
-strAction := (f_blnOptionUsageDbEnable ? "Show" : "Hide")
+strAction := (f_blnOptionUsageDbEnable ? "Enable" : "Disable")
 
 GuiControl, %strAction%, f_lblUsageDbIntervalSecondsMore
 GuiControl, %strAction%, f_intUsageDbIntervalSecondsMoreEdit
@@ -8401,6 +8419,8 @@ return
 ButtonUsageDbFlushClicked:
 ;------------------------------------------------------------
 
+Diag(A_ThisLabel, "", "START")
+
 MsgBox, 36, %g_strAppNameText%, %lOptionsUsageDbFlushDatabaseConfirm%
 IfMsgBox, Yes
 {
@@ -8413,6 +8433,7 @@ IfMsgBox, Yes
 
 strUsageDbSQL := ""
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -16359,9 +16380,9 @@ if (g_objThisFavorite.FavoriteType = "Application")
 {
 	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
 	; see RunAs doc remarks
-	Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
-	Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-	Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
+	; Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
+	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+	; Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strAppWorkingDirWithPlaceholders%, UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 	{
@@ -19652,6 +19673,8 @@ return
 UsageDbInit:
 ;------------------------------------------------------------
 
+Diag(A_ThisLabel, "", "START", true)
+
 strError := ""
 ; In portable mode, the two files sqlite.dll and sqlite.def are distributed in the zip file in their 32-bit (sqlite-32-bit.dll) and 64-bit (sqlite-64bit.dll) versions.
 ; If sqlite.dll does not exit in program's directory, copy the 32-bit or 64-bit file depending on OS (same for sqlite.def).
@@ -19672,6 +19695,7 @@ loop, parse, % "dll|def", |
 
 if StrLen(strError)
 {
+	Diag(A_ThisLabel, "lOopsUsageDbSQLiteMissing", "STOP", true)
 	Oops(lOopsUsageDbSQLiteMissing, strError)
 	g_blnUsageDbEnabled := false
 	return
@@ -19687,6 +19711,7 @@ blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
+	Diag(A_ThisLabel, "SQLite Error OpenDb", "STOP", true)
 	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
 	g_blnUsageDbEnabled := false
 	return
@@ -19710,6 +19735,7 @@ if (blnUsageDbIsNew)
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
+		Diag(A_ThisLabel, "SQLite CREATE Error", "STOP", true)
 		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
@@ -19761,6 +19787,7 @@ intMaximumSizeBytes := ""
 fltProportionOfRecordsToDelete := ""
 intRecordsToDelete := ""
 
+Diag(A_ThisLabel, "", "STOP", true)
 return
 ;------------------------------------------------------------
 
@@ -19772,17 +19799,19 @@ UsageDbCollectRecentItems:
 if !(g_blnUsageDbEnabled)
 {
 	SetTimer, UsageDbCollectRecentItems, Off
+	Diag(A_ThisLabel . ":g_blnUsageDbEnabled" , g_blnUsageDbEnabled)
 	return
 }
 
+Diag(A_ThisLabel, "", "START")
 RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-Diag(A_ThisLabel . ":strUsageDbRecentsFolder" , strUsageDbRecentsFolder)
 
 strUsageDbItemsList := ""
 Loop, Files, %strUsageDbRecentsFolder%\*.*
 	strUsageDbItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
 Sort, strUsageDbItemsList, R
-Diag(A_ThisLabel . ":strUsageDbItemsList", StringLeftDotDotDot(strUsageDbItemsList, 500))
+; Diag(A_ThisLabel . ":strUsageDbItemsList", StrReplace(StringLeftDotDotDot(strUsageDbItemsList, 500), "`n", "|"))
+Diag(A_ThisLabel . ":strUsageDbItemsList (after)", "", "ELAPSED")
 
 if (g_blnUsageDbDebug or g_blnDiagMode)
 	strUsageDbReport := ""
@@ -19792,6 +19821,7 @@ intUsageDbtNbItems := 0
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
 if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
+	Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
 	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
 	return
@@ -19800,7 +19830,7 @@ if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 objMetadataRecordSet.Next(objMetadataRow)
 strUsageDbPreviousLatestCollected := objMetadataRow[1] ; first (and only) field is LatestCollected
 objMetadataRecordSet.Free()
-Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
+; Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
 
 strUsageDbSQL := ""
 Loop, parse, strUsageDbItemsList, `n
@@ -19852,14 +19882,15 @@ Loop, parse, strUsageDbItemsList, `n
 }
 g_objUsageDb.Exec("BEGIN TRANSACTION;")
 Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected)
-Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
-Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
+; Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
+; Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
 Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems)
 
 if (g_blnUsageDbDebug)
 	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
 If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
 {
+	Diag(A_ThisLabel, "SQLite INSERT Recent Items Error: " . strUsageDbSQL, "STOP")
 	Oops("SQLite INSERT Recent Items Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
 	g_objUsageDb.Exec("ROLLBACK;")
@@ -19871,6 +19902,7 @@ strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
 strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
 If !g_objUsageDb.Exec(strUsageDbSQL)
 {
+	Diag(A_ThisLabel, "SQLite UPDATE zMETADATA Error: " . strUsageDbSQL, "STOP")
 	Oops("SQLite UPDATE zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
 	g_objUsageDb.Exec("ROLLBACK;")
@@ -19889,6 +19921,7 @@ if (g_blnUsageDbDebug)
 	ToolTip
 }
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -19900,6 +19933,8 @@ UsageDbCollectMenu:
 
 if !(g_blnUsageDbEnabled)
 	return
+
+Diag(A_ThisLabel, "", "START")
 
 strUsageMenuDateTime := A_Now
 strUsageDbMenuPath :=  A_ThisMenu ; remember this could be older value if favorite was launched by an hotkey
@@ -19985,7 +20020,8 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 	
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
-		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode)
+		Diag(A_ThisLabel, "SQLite INSERT ACTION Error: " . strUsageDbSQL, "STOP")
+		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}	
@@ -19996,6 +20032,7 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 	}
 }
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -20003,6 +20040,8 @@ return
 ;------------------------------------------------------------
 UsageDbUpdateFavorites:
 ;------------------------------------------------------------
+
+Diag(A_ThisLabel, "", "START")
 
 for strUsageDbUpdateMenuName, objUsageDbUpdateMenu in g_objMenusIndex
 	for intUsageDbUpdateIndex, objUsageDbUpdateFavorite in objUsageDbUpdateMenu
@@ -20018,7 +20057,7 @@ if (g_blnUsageDbDebug)
 	ToolTip
 }
 
-; was Exit when launched by SetTimer
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -20026,6 +20065,8 @@ return
 ;------------------------------------------------------------
 DetectCloudUserVariables:
 ;------------------------------------------------------------
+
+Diag(A_ThisLabel, "", "START", true)
 
 g_strUserVariablesList := ""
 
@@ -20060,23 +20101,20 @@ strGoogleDriveDbFile := EnvVars("%LOCALAPPDATA%\Google\Drive\user_default\sync_c
 if FileExist(strGoogleDriveDbFile)
 {
 	strGoogleDriveDbFileCopy := g_strTempDir . "\Temp_GoogleDrive_Database.DB"
-	FileCopy, %strGoogleDriveDbFile%, %strGoogleDriveDbFileCopy%, 1
+	FileCopy, %strGoogleDriveDbFile%, %strGoogleDriveDbFileCopy%, 1 ; no need to delete because is in the QAP temp directory
 	objGoogleDriveDb := New SQLiteDb
-	if !objGoogleDriveDb.OpenDb(strGoogleDriveDbFileCopy)
-		Oops("SQLite Error Opening Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nFile: " . strGoogleDriveDbFileCopy)
-	else
+	if objGoogleDriveDb.OpenDb(strGoogleDriveDbFileCopy)
+	; no error message if false - Oops("SQLite Error Opening Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nFile: " . strGoogleDriveDbFileCopy)
 	{
 		strSQLGoogleDriveQuery := "SELECT data_value FROM data WHERE entry_key='local_sync_root_path'"
-		If !objGoogleDriveDb.Query(strSQLGoogleDriveQuery, objGoogleDriveRecordSet)
-			Oops("SQLite Error Reading Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
-		else
+		If objGoogleDriveDb.Query(strSQLGoogleDriveQuery, objGoogleDriveRecordSet)
+		; no error message if false - Oops("SQLite Error Reading Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
 		{
 			objGoogleDriveRecordSet.Next(objGoogleDriveRow)
 			g_strUserVariablesList .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
 		}
 		objGoogleDriveDb.CloseDb()
 	}
-
 }
 
 ; detect iCloud
@@ -20093,6 +20131,7 @@ objGoogleDriveRecordSet := ""
 objGoogleDriveRow := ""
 strICloudDrive := ""
 
+Diag(A_ThisLabel, "", "STOP", true)
 return
 ;------------------------------------------------------------
 
@@ -20517,23 +20556,51 @@ DiagWindowInfo(strName)
 
 
 ;------------------------------------------------
-Diag(strName, strData)
+Diag(strName, strData, strStartElapsedStop := "", blnForceIfNotDiag := false)
 ;------------------------------------------------
 {
 	global g_blnDiagMode
 	global g_strDiagFile
+	static g_intStartTick
+	static g_intStartFullTick
 
-	if !(g_blnDiagMode)
+	if !(g_blnDiagMode or blnForceIfNotDiag)
 		return
-
+	
 	FormatTime, strNow, %A_Now%, yyyyMMdd@HH:mm:ss
+	strDiag := strNow . "." . A_MSec . "`t" . strName . "`t" . strData
+	
+	if StrLen(strStartElapsedStop)
+	{
+		strDiag .= "`t" . strStartElapsedStop . "`t" . A_TickCount
+		if (strStartElapsedStop = "START-FULL")
+			g_intStartFullTick := A_TickCount
+		else if (strStartElapsedStop = "START")
+			g_intStartTick := A_TickCount
+		else if InStr(strStartElapsedStop, "-FULL")
+		{
+			intTicksAll := A_TickCount - g_intStartFullTick
+			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "***" : "")
+		}
+		else
+		{
+			intTicks := A_TickCount - g_intStartTick
+			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 ? "*FLAG*" : "")
+		}
+	}
+
 	loop
 	{
-		FileAppend, %strNow%.%A_MSec%`t%strName%`t%strData%`n, %g_strDiagFile%
+		FileAppend, %strDiag%`n, %g_strDiagFile%
 		if ErrorLevel
 			Sleep, 20
 	}
 	until !ErrorLevel or (A_Index > 50) ; after 1 second (20ms x 50), we have a problem
+	
+	if (strStartElapsedStop = "STOP")
+		g_intStartTick := ""
+	else if (strStartElapsedStop = "STOP-FULL")
+		g_intStartFullTick := ""
 }
 ;------------------------------------------------
 
