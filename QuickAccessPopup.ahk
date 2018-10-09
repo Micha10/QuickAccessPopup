@@ -6685,6 +6685,10 @@ RefreshTotalCommanderHotlist:
 RefreshTotalCommanderHotlistScheduled:
 ;------------------------------------------------------------
 
+if !g_objQAPfeaturesInMenus.HasKey("{TC Directory hotlist}")
+    ; we don't have this QAP features in at least one menu
+    return
+
 Diag(A_ThisLabel, "", "START")
 
 ; Init TC Directory hotlist if wincmd.ini file exists
