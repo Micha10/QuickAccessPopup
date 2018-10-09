@@ -6723,6 +6723,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	g_intIniLine := 1
 	if (RecursiveLoadTotalCommanderHotlistFromIni(g_objTCMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
+	; ###_O("objCurrentMenu: " . g_objTCMenu.MenuPath, g_objTCMenu, "FavoriteName")
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	RecursiveBuildOneMenu(g_objTCMenu) ; recurse for submenus
@@ -6860,6 +6861,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 	GetNextXMLTag(g_strDirectoryOpusFavorites, "favorites")
 	if (RecursiveLoadDirectoryOpusFavoritesFromFile(g_objDOpusMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Directory Opus favorites.")
+	; ###_O("objCurrentMenu: " . g_objDOpusMenu.MenuPath, g_objDOpusMenu, "FavoriteName")
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
@@ -6895,7 +6897,6 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 		; ###_V("Loop " . A_Index . " " . A_ThisFunc, strTag, SubStr(g_strDirectoryOpusFavorites, 1, 200))
 
 		if (strTag = "</favorites>")
-			; ###_O("objCurrentMenu: " . objCurrentMenu.MenuPath, objCurrentMenu, "FavoriteName")
 			Return, "EOM" ; end of file, last menu item
 	
 		if (strTag = "</folder>")
@@ -6904,9 +6905,9 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 		
 		if InStr(strTag, "<folder") ; can be <folder> or <folder label="...">
 		{
-			strFolder := GetFolderTagContent(g_strDirectoryOpusFavorites)
+			strFolderTagContent := GetFolderTagContent(g_strDirectoryOpusFavorites)
 			
-			if InStr(strFolder, "<separator />")
+			if InStr(strFolderTagContent, "<separator />")
 			{
 				strType := "X"
 				strName := ""
@@ -6961,6 +6962,12 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 		; }
 		else ; (strType = "Folder")
 		{
+			strPathTagContent := GetFolderTagContent(g_strDirectoryOpusFavorites)
+			
+			if InStr(strPathTagContent, "<pidl>")
+				strType := "Special" ; ##### ?
+			blnIsDOpusPidl := InStr(strPathTagContent, "<pidl>")
+			
 			/* #####
 			EXCEPTION IF:
 				<path label="Ce PC">
@@ -6972,15 +6979,16 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 			strMenuName := GetXMLLabel(strTag)
 			; take g_strDirectoryOpusFavorites to next dir and pathstring tags
 			GetNextXMLTag(g_strDirectoryOpusFavorites, "dir")
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "pathstring")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, (blnIsDOpusPidl ? "pidl" : "pathstring"))
 			
 			strPath := SubStr(g_strDirectoryOpusFavorites, 1, InStr(g_strDirectoryOpusFavorites, "</") - 1)
+			; ###_V("strPath", strPath)
 			if !StrLen(strMenuName )
 				strMenuName := strPath
 			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
 			
 			; take g_strDirectoryOpusFavorites after closing pathstring, dir and path tags
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "/pathstring")
+			GetNextXMLTag(g_strDirectoryOpusFavorites, (blnIsDOpusPidl ? "/pidl" : "/pathstring"))
 			GetNextXMLTag(g_strDirectoryOpusFavorites, "/dir")
 			GetNextXMLTag(g_strDirectoryOpusFavorites, "/path")
 		}
@@ -6990,12 +6998,6 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 		objLoadDOpusFavorite.FavoriteType := strType
 		objLoadDOpusFavorite.FavoriteName := strMenuName
 		objLoadDOpusFavorite.FavoriteLocation := strPath
-		if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 2) = "::") ; ##### see EXCEPTION above
-		{
-			objLoadDOpusFavorite.FavoriteLocation := SubStr(objLoadDOpusFavorite.FavoriteLocation, 3)
-			objLoadDOpusFavorite.FavoriteIconResource := g_objSpecialFolders[objLoadDOpusFavorite.FavoriteLocation].DefaultIcon
-			objLoadDOpusFavorite.FavoriteType := "Special"
-		}
 		
 		; this is a submenu, link to the submenu object
 		if (strType = "Menu")
@@ -7049,6 +7051,19 @@ GetFolderTagContent(strXml)
 ; return the content of label="content"
 {
 	strFolderContent :=  SubStr(strXml, 1, InStr(strXml, "</folder>") - 1)
+	; ###_V(A_ThisFunc, strXml, strFolderContent)
+	
+	return strFolderContent
+}
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+GetPathTagContent(strXml)
+;-----------------------------------------------------------
+; return the content of label="content"
+{
+	strFolderContent :=  SubStr(strXml, 1, InStr(strXml, "</path>") - 1)
 	; ###_V(A_ThisFunc, strXml, strFolderContent)
 	
 	return strFolderContent
@@ -7326,7 +7341,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			else
 			{
 				blnIsTotalCommanderHotlist := (SubStr(objCurrentMenu.MenuPath, 1, StrLen(lTCMenuName)) = lTCMenuName)
-				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" : "OpenFavorite")
+				blnIsDOpusFavorite := (SubStr(objCurrentMenu.MenuPath, 1, StrLen(lDOpusMenuName)) = lDOpusMenuName)
+				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % (blnIsTotalCommanderHotlist ? "OpenFavoriteHotlist" : (blnIsDOpusFavorite ? "OpenDOpusFavorite" : "OpenFavorite"))
 			}
 
 			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
@@ -16269,6 +16285,7 @@ OpenReopenFolder:
 OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
+OpenDOpusFavorite:
 OpenReopenCurrentFolder:
 OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
@@ -16394,6 +16411,8 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 	and !LocationIsHTTP(g_strLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
 	and !(SubStr(g_strLocationWithPlaceholders, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
+	and !(SubStr(g_strLocationWithPlaceholders, 1, 1) = "?" and A_ThisLabel = "OpenDOpusFavorite")
+		; except if the location is a DOpus Favorite special folder identified with <pidl>
 {	
 	if !FileExistInPath(g_strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
@@ -16836,7 +16855,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 	strThisMenuItem .=  " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix ; add empty indicators to retrieve fav name in objects
 }
 
-if InStr("OpenFavorite|OpenFavoriteHotlist|OpenFavoriteGroup", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteHotlist|OpenDOpusFavorite|OpenFavoriteGroup", g_strOpenFavoriteLabel)
 	
 	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
 	
@@ -17140,7 +17159,7 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 
 	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
 
-	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
+	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName or A_ThisMenu = lDOpusMenuName ? 0 : 1)
 		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
