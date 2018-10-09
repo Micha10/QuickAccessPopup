@@ -710,8 +710,7 @@ lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (e
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens em menus
 lOptionsRecentFoldersPrompt	Itens Recentes e Menus Frequentes:
-lOptionsRefreshedMenusAttached	Anexar o menu "~1~" ao menu QAP
-lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu. Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, o menu "~1~" menu será actualizado  on demand only e exibido separadamente do menu principal.
+lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu (lista de itens recentes e espaço disponível nas unidades actuais). Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, os menus "~1~", "~2~", "~3~", "~4~" e "~5~" serão actualizados apenas a pedido e exibidos separadamente do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Bipar antes e depois de actualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualizações em segundos`n(recomendado 300 segundos ou mais)
 lOptionsRefreshQAPMenuTitle	Activar actualização agendada do Menu QAP
