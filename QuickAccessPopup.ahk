@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.2.0.1 (2018-10-08)
+Version: 9.2.0.1 (2018-10-09)
 - change attached/detached menu option to include "Frequent Folders", "Frequent Files", "Recent Folders", "Recent Files" and "Drives" menus
 - disable controls in Options instead of hiding when UsageDb is disabled
 - add diagnostic code and timers for to UsageDb, refresh dynamyc menus and refresh full menu
