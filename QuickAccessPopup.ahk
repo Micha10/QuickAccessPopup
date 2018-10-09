@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.2.0.1 (2018-10-08)
+- change attached/detached menu option to include "Frequent Folders", "Frequent Files", "Recent Folders", "Recent Files" and "Drives" menus
+- disable controls in Options instead of hiding when UsageDb is disabled
+- add diagnostic code and timers for to UsageDb, refresh dynamyc menus and refresh full menu
+- add diagnostic at first launch of the application saved to a specific diag file
+- do not show error message on error closing the database when exiting and do not backup if the database is not closed properly
+- when initializing User Variables, stop display an error message in case of database error when getting Google Drive root
+- prevent re-entering in refresh menu when refresh is already in progress
+- stop Total Commander Hotlist menu refresh if it is not used in menu
+
 Version: 9.2 (2018-10-02)
  
 FREQUENT ITEMS
@@ -2713,7 +2723,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2
+;@Ahk2Exe-SetVersion 9.2.0.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2807,7 +2817,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8852,7 +8862,9 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	ResetArray("arrMenu") ; free object's memory
 }
-Gosub, InitQAPFeaturesRefreshed ; re-init before rebuilding main menu to update according to g_blnRefreshedMenusAttached
+; next line would re-init g_objQAPFeatures according to g_blnRefreshedMenusAttached
+; but it has no effect because it does not update the existing g_objMainMenu and submenus objects 
+; Gosub, InitQAPFeaturesRefreshed
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
@@ -19709,7 +19721,7 @@ return
 UsageDbInit:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel, "", "START", true)
+Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
 
 strError := ""
 ; In portable mode, the two files sqlite.dll and sqlite.def are distributed in the zip file in their 32-bit (sqlite-32-bit.dll) and 64-bit (sqlite-64bit.dll) versions.
@@ -19731,7 +19743,7 @@ loop, parse, % "dll|def", |
 
 if StrLen(strError)
 {
-	Diag(A_ThisLabel, "lOopsUsageDbSQLiteMissing", "STOP", true)
+	Diag(A_ThisLabel, "Db SQLite Missing", "STOP", g_blnIniFileCreation) ; force if first launch
 	Oops(lOopsUsageDbSQLiteMissing, strError)
 	g_blnUsageDbEnabled := false
 	return
@@ -19747,7 +19759,7 @@ blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
 if !g_objUsageDb.OpenDb(g_strUsageDbFile)
 {
-	Diag(A_ThisLabel, "SQLite Error OpenDb", "STOP", true)
+	Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . g_objUsageDb.ErrorMsg . " Code: " . g_objUsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
 	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
 	g_blnUsageDbEnabled := false
 	return
@@ -19771,7 +19783,7 @@ if (blnUsageDbIsNew)
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
-		Diag(A_ThisLabel, "SQLite CREATE Error", "STOP", true)
+		Diag(A_ThisLabel, "SQLite CREATE Error Message: " . g_objUsageDb.ErrorMsg . " Code: " . g_objUsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
 		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
@@ -19823,7 +19835,7 @@ intMaximumSizeBytes := ""
 fltProportionOfRecordsToDelete := ""
 intRecordsToDelete := ""
 
-Diag(A_ThisLabel, "", "STOP", true)
+Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
 return
 ;------------------------------------------------------------
 
@@ -20102,7 +20114,7 @@ return
 DetectCloudUserVariables:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel, "", "START", true)
+Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
 
 g_strUserVariablesList := ""
 
@@ -20167,7 +20179,7 @@ objGoogleDriveRecordSet := ""
 objGoogleDriveRow := ""
 strICloudDrive := ""
 
-Diag(A_ThisLabel, "", "STOP", true)
+Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
 return
 ;------------------------------------------------------------
 
@@ -20592,7 +20604,7 @@ DiagWindowInfo(strName)
 
 
 ;------------------------------------------------
-Diag(strName, strData, strStartElapsedStop := "", blnForceIfNotDiag := false)
+Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := false)
 ;------------------------------------------------
 {
 	global g_blnDiagMode
@@ -20600,7 +20612,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceIfNotDiag := false)
 	static g_intStartTick
 	static g_intStartFullTick
 
-	if !(g_blnDiagMode or blnForceIfNotDiag)
+	if !(g_blnDiagMode or blnForceForFirstStartup)
 		return
 	
 	FormatTime, strNow, %A_Now%, yyyyMMdd@HH:mm:ss
@@ -20625,9 +20637,11 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceIfNotDiag := false)
 		}
 	}
 
+	; g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
+	strDiagFile := (blnForceForFirstStartup ? StrReplace(g_strDiagFile, "DIAG", "1st_STARTUP") : g_strDiagFile)
 	loop
 	{
-		FileAppend, %strDiag%`n, %g_strDiagFile%
+		FileAppend, %strDiag%`n, %strDiagFile%
 		if ErrorLevel
 			Sleep, 20
 	}
