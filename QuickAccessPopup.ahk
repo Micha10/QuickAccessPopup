@@ -15440,6 +15440,8 @@ if SettingsUnsaved()
 if (!g_blnMenuReady or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
 	return
 
+Diag(A_ThisLabel, "", "START-SHOW")
+
 if (g_blnGetWinInfo)
 {
 	gosub, GetWinInfo2Clippoard
@@ -15496,6 +15498,7 @@ if (g_blnRefreshedMenusAttached)
 
 Gosub, InsertColumnBreaks
 
+Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 return
@@ -20611,6 +20614,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 	global g_strDiagFile
 	static g_intStartTick
 	static g_intStartFullTick
+	static g_intStartShowTick
 
 	if !(g_blnDiagMode or blnForceForFirstStartup)
 		return
@@ -20621,14 +20625,22 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 	if StrLen(strStartElapsedStop)
 	{
 		strDiag .= "`t" . strStartElapsedStop . "`t" . A_TickCount
+		
 		if (strStartElapsedStop = "START-FULL")
 			g_intStartFullTick := A_TickCount
+		else if (strStartElapsedStop = "START-SHOW")
+			g_intStartShowTick := A_TickCount
 		else if (strStartElapsedStop = "START")
 			g_intStartTick := A_TickCount
-		else if InStr(strStartElapsedStop, "-FULL")
+		else if InStr(strStartElapsedStop, "-FULL") ; ELAPSED-FULL or STOP-FULL
 		{
 			intTicksAll := A_TickCount - g_intStartFullTick
-			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "***" : "")
+			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "*FLAG*" : "")
+		}
+		else if InStr(strStartElapsedStop, "-SHOW") ; ELAPSED-SHOW or STOP-SHOW
+		{
+			intTicksShow := A_TickCount - g_intStartShowTick
+			strDiag .= "`t" . intTicksShow . "`t" . (intTicksShow > 1500 ? "*FLAG*" : "")
 		}
 		else
 		{
