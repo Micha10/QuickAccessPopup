@@ -7716,6 +7716,7 @@ if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
 	{
 		Gosub, RefreshTotalCommanderHotlistScheduled
+		Gosub, RefreshDirectoryOpusFavoritesScheduled
 		Gosub, BuildMainMenuScheduled
 	}
 	else
@@ -16413,7 +16414,7 @@ if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; for th
 		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
 	and !(SubStr(g_strLocationWithPlaceholders, 1, 1) = "?" and A_ThisLabel = "OpenDOpusFavorite")
 		; except if the location is a DOpus Favorite special folder identified with <pidl>
-{	
+{
 	if !FileExistInPath(g_strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 		and (g_strAlternativeMenu <> lMenuAlternativeEditFavorite)
 	{
@@ -16502,19 +16503,29 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 	}
 }
 
-if InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
-	gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
-else
-	g_strTargetAppName := ""
-
-if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
+if (g_intActiveFileManager = 2 and SubStr(g_objThisFavorite.FavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
 {
-	gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
+	g_strFullLocation := g_objThisFavorite.FavoriteLocation
+	g_strTargetAppName := "DirectoryOpus"
+	if (g_strHotkeyTypeDetected = "Navigate" and !WindowIsDirectoryOpus(g_strTargetClass))
+		g_strHotkeyTypeDetected := "Launch"
+}
+else
+{
+	if InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
+		gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
+	else
+		g_strTargetAppName := ""
 
-	if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+	if (g_objThisFavorite.FavoriteType <> "Text") ; text separators don't have location
 	{
-		gosub, OpenFavoriteCleanup
-		return
+		gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
+
+		if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+		{
+			gosub, OpenFavoriteCleanup
+			return
+		}
 	}
 }
 
@@ -19458,6 +19469,7 @@ if (intFileManager = 2) ; DirectoryOpus
 else ; 3 TotalCommander
 {
 	strCheckPath := GetTotalCommanderPath()
+	strTCIniFile := GetTotalCommanderIniFile()
 	strCheckPathShort := ""
 }
 
@@ -19489,6 +19501,9 @@ if (blnFileExist)
 		else ; 3 TotalCommander
 			g_strTotalCommanderNewTabOrWindow := "/O /T" ; to open in a new tab
 		IniWrite, % g_str%strFileManagerSystemName%NewTabOrWindow, %g_strIniFile%, Global, %strFileManagerSystemName%NewTabOrWindow
+		
+		if (g_intActiveFileManager = 3) and FileExist(strTCIniFile) ; TotalCommander
+			IniWrite, %strTCIniFile%, %g_strIniFile%, Global, TotalCommanderWinCmd
 	}
 }
 
@@ -19497,6 +19512,7 @@ strFileManagerDisplayName := ""
 strCheckPath := ""
 strCheckPathShort := ""
 blnFileExist := ""
+strTCIniFile := ""
 
 return
 ;------------------------------------------------------------
@@ -19515,6 +19531,19 @@ GetTotalCommanderPath()
 	else
 		strPath := strPath . "\TOTALCMD.EXE"
 	return strPath
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetTotalCommanderIniFile()
+;------------------------------------------------------------
+{
+	RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
+	If !StrLen(strPath)
+		RegRead, strIniFile, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, IniFileName
+
+	return EnvVars(strIniFile)
 }
 ;------------------------------------------------------------
 
