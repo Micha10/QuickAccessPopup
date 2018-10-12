@@ -7843,7 +7843,7 @@ OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList
 
 ; Descriptions
 Gui, 2:Add, Text, % "y90 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
-Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUsageDbDescription%
+Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
 Gui, 2:Add, Text, % "y170 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
 
 ; hidden
@@ -7896,7 +7896,8 @@ OptionsMoreShowButton(strTag, ByRef intMaxWidth, blnFirstCall := false)
 		intY := 50 ; first item will be at 90, next at 130...
 
 	intY := intY + 40
-	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag, % lOptions%strTag%
+	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag
+		, % (strTag = "UsageDb" ? L(lOptionsUsageDb, g_strAppNameText) : lOptions%strTag%)
 	GuiControlGet, arrPos, Pos, f_btn%strTag%
 	intMaxWidth := (arrPosW > intMaxWidth ? arrPosW : intMaxWidth)
 }
@@ -8358,12 +8359,12 @@ if (g_strMoreWindowName = "ExclusionMouseList")
 else if (g_strMoreWindowName = "UsageDb")
 {
 	Gui, 3:Font, s8 w700
-	Gui, 3:Add, Text, x10 y10 w600, %lOptionsUsageDb%
+	Gui, 3:Add, Text, x10 y10 w600, % L(lOptionsUsageDb, g_strAppNameText)
 	Gui, 3:Font
 	
-	Gui, 3:Add, Text, x10 y+10 w600, %lOptionsUsageDbStatement%
+	Gui, 3:Add, Text, x10 y+10 w600, % L(lOptionsUsageDbStatement, g_strAppNameText)
 	
-	Gui, 3:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, %lOptionsUsageDbEnable%
+	Gui, 3:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, % L(lOptionsUsageDbEnable, g_strAppNameText)
 	GuiControl, , f_blnOptionUsageDbEnable, % (g_intUsageDbIntervalSeconds > 0)
 	
 	Gui, 3:Add, Text, x10 y+10 vf_lblUsageDbIntervalSecondsMore, %lOptionsUsageDbIntervalSeconds%
