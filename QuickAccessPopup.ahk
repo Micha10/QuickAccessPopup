@@ -5910,43 +5910,57 @@ RefreshClipboardMenu:
 
 if !g_objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP feature in at least one menu
 	or !StrLen(Clipboard) ; clipboard is empty (or contains only binary data)
-	or (StrLen(Clipboard) > 50000) ; Clipboard is too large - 50K of text with 600 file paths takes 0,3 sec to process on my dev machine
 	return
 
 Diag(A_ThisLabel, "", "START")
 
-intMenuNumberClipboardMenu := 0
+intClipboardMaxSize := 10000
 strContentsInClipboard := ""
-
-; gather info for menu (can be long if large Clipboard) before refreshing the menu with Critical On
-; parse Clipboard for folder, document or application filenames (filenames alone on one line)
-Loop, parse, Clipboard, `n, `r%A_Space%%A_Tab%/?:*`"><|
+if (StrLen(Clipboard) <= intClipboardMaxSize) ; Clipboard is too large - 22 000 bytes of AHK code took close to 2 seconds
 {
-	strClipboardLineExpanded := A_LoopField ; only for FileExistInPath - will not be displayed in menu
+	intMenuNumberClipboardMenu := 0
 
-	if FileExistInPath(strClipboardLineExpanded) ; rerturn strClipboardLineExpanded with expanded relative path and envvars, and search in PATH
+	; gather info for menu (can be long if large Clipboard) before refreshing the menu with Critical On
+	; parse Clipboard for folder, document or application filenames (filenames alone on one line)
+	Loop, parse, Clipboard, `n, `r%A_Space%%A_Tab%/?:*`"><|
 	{
-		strContentsInClipboard .= "`n" . A_LoopField
-		
-		if (g_blnDisplayIcons)
-			if LocationIsDocument(strClipboardLineExpanded)
-				strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
-			else
-				strContentsInClipboard .= "`t" . "iconFolder"
-	}
+		strClipboardLineExpanded := A_LoopField ; only for FileExistInPath - will not be displayed in menu
 
-	; Parse Clipboard line for URLs (anywhere on the line)
-	strURLSearchString := A_LoopField
-	Gosub, GetURLsInClipboardLine
+		if FileExistInPath(strClipboardLineExpanded) ; rerturn strClipboardLineExpanded with expanded relative path and envvars, and search in PATH
+		{
+			strContentsInClipboard .= "`n" . A_LoopField
+			
+			if (g_blnDisplayIcons)
+				if LocationIsDocument(strClipboardLineExpanded)
+					strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
+				else
+					strContentsInClipboard .= "`t" . "iconFolder"
+		}
+
+		; Parse Clipboard line for URLs (anywhere on the line)
+		strURLSearchString := A_LoopField
+		Gosub, GetURLsInClipboardLine
+	}
 }
 
-if StrLen(strContentsInClipboard)
+; Critical, On
+Menu, %lMenuClipboard%, Add
+Menu, %lMenuClipboard%, DeleteAll
+
+if !StrLen(strContentsInClipboard)
+{
+	if !StrLen(Clipboard)
+		strMenuName := lMenuClipboardEmpty
+	if (StrLen(Clipboard) > intClipboardMaxSize)
+		strMenuName := L(lMenuClipboardTooLarge, intClipboardMaxSize)
+	else
+		strMenuName := lMenuClipboardNoContent
+	
+	AddMenuIcon(lMenuClipboard, strMenuName, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+}
+else
 {
 	Sort, strContentsInClipboard
-
-	; Critical, On
-	Menu, %lMenuClipboard%, Add
-	Menu, %lMenuClipboard%, DeleteAll
 
 	Loop, parse, strContentsInClipboard, `n
 	{
@@ -5968,6 +5982,7 @@ intMenuNumberClipboardMenu := ""
 strContentsInClipboard := ""
 strClipboardLineExpanded := ""
 strURLSearchString := ""
+intClipboardMaxSize := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
