@@ -5827,10 +5827,15 @@ PopularFilesMenuShortcut:
 if !(g_blnUsageDbEnabled)
 	return
 
+SetWaitCursor(true)
+
 Gosub, RefreshPopularMenus
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, % L(lMenuPopularMenus, (A_ThisLabel = "PopularFoldersMenuShortcut" ? lMenuPopularFolders : lMenuPopularFiles)), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -5845,8 +5850,6 @@ if !(g_blnUsageDbEnabled)
 	return
 
 Diag(A_ThisLabel, "", "START")
-
-; SetWaitCursor(true)
 
 loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 {
@@ -5878,8 +5881,6 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
 }
 
-; SetWaitCursor(false)
-
 ResetArray("arrMenuItemsList")
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
@@ -5894,10 +5895,15 @@ return
 ClipboardMenuShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
 Gosub, RefreshClipboardMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lMenuClipboard%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6054,11 +6060,15 @@ return
 DrivesMenuShortcut:
 ;------------------------------------------------------------
 
-Gosub, SetMenuPosition
+SetWaitCursor(true)
 
 Gosub, RefreshDrivesMenu
 
+Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lMenuDrives%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6107,10 +6117,15 @@ RecentFoldersMenuShortcut:
 RecentFilesMenuShortcut:
 ;------------------------------------------------------------
 
-Gosub, SetMenuPosition
+SetWaitCursor(true)
+
 Gosub, RefreshRecentItemsMenus
 
+Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? lMenuRecentFolders : lMenuRecentFiles), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6143,7 +6158,6 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 else ; gather recent items the old way, directly from Windows
 {
 	strShortcutsItemsList := "" ; menu name|menu item name|label|icon
-	SetWaitCursor(true)
 	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
 	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
 		strShortcutsItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
@@ -6244,9 +6258,6 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-if !(g_blnUsageDbEnabled)
-	SetWaitCursor(false)
-
 strUsageDbSQL := ""
 objRecordSet := ""
 objRow := ""
@@ -6277,10 +6288,15 @@ return
 ReopenFolderMenuShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
 Gosub, RefreshReopenFolderMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lMenuCurrentFolders%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6291,10 +6307,15 @@ return
 RepeatLastActionsShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
 Gosub, RefreshLastActionsMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6305,10 +6326,15 @@ return
 SwitchFolderOrAppMenuShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
 Gosub, RefreshSwitchFolderOrAppMenu
 
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lMenuSwitchFolderOrApp%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6652,8 +6678,15 @@ CollectExplorers(pExplorers)
 TotalCommanderHotlistMenuShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
+Gosub, RefreshTotalCommanderHotlist
+
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lTCMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -15392,6 +15425,8 @@ if (g_blnGetWinInfo)
 	return
 }
 
+SetWaitCursor(true)
+
 g_blnAlternativeMenu := (A_ThisLabel = "LaunchFromAlternativeMenu")
 g_blnLaunchFromTrayIcon := (A_ThisLabel = "LaunchFromTrayIcon") ; make sure it is initialized true or false
 
@@ -15443,6 +15478,8 @@ if (g_blnRefreshedMenusAttached)
 Gosub, InsertColumnBreaks
 
 Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
+SetWaitCursor(false) 
+
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 return
