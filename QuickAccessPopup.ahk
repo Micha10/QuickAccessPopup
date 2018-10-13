@@ -31,6 +31,20 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.2.0.2 and 9.2.0.3 (2018-10-12)
+- restricted distribution
+- add diagnostic code and timers to measure menu refresh performance
+- refactor the background task collecting recent items to also preprocess Frequent menus and Drives menu
+- refresh Frequent menus and Drives menu from a field of the zMetadata table in SQLite database
+- add columns to zMetadata table to hold preprocessed dynamic menus data
+- escape quotes when saving to zMetadata
+- in refresh clipboard menu, reduce max size from 50000 to 10000 and display various messages in Clipboard menu if Clipboard empy, too large or has no path/url
+- clean up calls to SetWaitCursor, keep them in all show refreshed submenus launched by shortcuts and at begin/end of show main menu
+- in Options, database options dialog box, update labels as QAP database instead of Freuent Items menus database
+- default attach dynamic menus to true
+- fix bug update dynamic menu names when attached/detached before reloading after saving options
+- fix bug creating SQLite files on 64-bit system when user runs QAP with 32-bit ecevutable; fix bug when creating zMetadata file
+
 Version: 9.2.0.1 (2018-10-08)
 - change attached/detached menu option to include "Frequent Folders", "Frequent Files", "Recent Folders", "Recent Files" and "Drives" menus
 - disable controls in Options instead of hiding when UsageDb is disabled
