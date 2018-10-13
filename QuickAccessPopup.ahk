@@ -2723,7 +2723,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.2
+;@Ahk2Exe-SetVersion 9.2.0.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2817,7 +2817,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -4245,8 +4245,8 @@ InitQAPFeatures:
 ; Submenus features
 
 ; init refreshed menus attached or detached
-; default false, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" menu in detached menu
-IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 0
+; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
+IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 1
 Gosub, InitQAPFeaturesRefreshed
 
 InitQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
@@ -6993,6 +6993,10 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		intMenuItemsCount++ ; for objMenuColumnBreak
 		
+		if (objCurrentMenu[A_Index].FavoriteType = "QAP")
+			; if QAP feature attach menu option was changed when saving options
+			objCurrentMenu[A_Index].FavoriteName := g_objQAPFeatures[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
+
 		strMenuName := objCurrentMenu[A_Index].FavoriteName
 		if StrLen(strMenuName)
 			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . strMenuName
@@ -8840,9 +8844,8 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	ResetArray("arrMenu") ; free object's memory
 }
-; next line would re-init g_objQAPFeatures according to g_blnRefreshedMenusAttached
-; but it has no effect because it does not update the existing g_objMainMenu and submenus objects 
-; Gosub, InitQAPFeaturesRefreshed
+; next line re-init g_objQAPFeatures according to g_blnRefreshedMenusAttached before rebuilding the menus
+Gosub, InitQAPFeaturesRefreshed
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
@@ -19375,11 +19378,11 @@ Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
 strError := ""
 ; In portable mode, the two files sqlite.dll and sqlite.def are distributed in the zip file in their 32-bit (sqlite-32-bit.dll) and 64-bit (sqlite-64bit.dll) versions.
 ; If sqlite.dll does not exit in program's directory, copy the 32-bit or 64-bit file depending on OS (same for sqlite.def).
-str64or32 := (A_Is64bitOS ? "64" : "32")
 strError := ""
 loop, parse, % "dll|def", |
 	if (g_blnPortableMode)
 	{
+		str64or32 := A_PtrSize * 8 ; 4 (32-bit) or 8 (64-bit0), do not use (A_Is64bitOS ? "64" : "32") because 32-bit executable coulr run on a 64-bit system
 		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
 			if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
 				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%
@@ -19428,7 +19431,7 @@ if (blnUsageDbIsNew)
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected, PopularFoldersMenuData, PopularFilesMenuData, DrivesMenuData);"
-	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0');"
+	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0', '', '', '');" ; make sure it has values for all columns
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
