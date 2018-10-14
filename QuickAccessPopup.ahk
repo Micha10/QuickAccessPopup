@@ -19395,10 +19395,15 @@ strError := ""
 loop, parse, % "dll|def", |
 	if (g_blnPortableMode)
 	{
-		str64or32 := A_PtrSize * 8 ; 4 (32-bit) or 8 (64-bit0), do not use (A_Is64bitOS ? "64" : "32") because 32-bit executable coulr run on a 64-bit system
-		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
+		str64or32 := A_PtrSize * 8 ; executable running is 32-bit (4 * 8) or 64-bit (8 * 8), do not use A_Is64bitOS because it shows the system's spec, not the running executable's spec
+		if FileExist(A_ScriptDir . "\sqlite3." . A_LoopField) ; if prod file exists
+		{
+			FileGetSize, intSizeSQLiteCurrent, %A_ScriptDir%\sqlite3.%A_LoopField% ; check size of file in prod, in bytes
+			FileGetSize, intSizeSQLiteRequired, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField% ; check size of file required for running executable, in bytes
+		}
+		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField) or (intSizeSQLiteCurrent <> intSizeSQLiteRequired) ; if no file in prod or wrong file for current executable
 			if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
-				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%
+				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%, 1 ; overwrite if wrong file exists
 			else
 				strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField . "`n"
 	}
@@ -19502,6 +19507,8 @@ intSizeBeforeDelete := ""
 intMaximumSizeBytes := ""
 fltProportionOfRecordsToDelete := ""
 intRecordsToDelete := ""
+intSizeSQLiteCurrent := ""
+intSizeSQLiteRequired := ""
 
 Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
 return
