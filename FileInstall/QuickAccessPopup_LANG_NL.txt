@@ -709,8 +709,7 @@ lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve b
 lOptionsQAPTempFolder	Tijdelijke map
 lOptionsRecentFolders	Numm&er van items in de menu's
 lOptionsRecentFoldersPrompt	"Recente" en "Frequente"-Items menus:
-lOptionsRefreshedMenusAttached	Koppel het "~1~"-menu aan het QAP-menu
-lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu. Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, dan zal het "~1~"-menu alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
+lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~", "~3~", "~4~" en "~5~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
 lOptionsRefreshQAPMenuIntervalSec	Verversinterval (in secondes)`n(minimaal 300 seconde wordt geadviseerd)
 lOptionsRefreshQAPMenuTitle	Automatisch verversen van het QAP-menu inschakelen

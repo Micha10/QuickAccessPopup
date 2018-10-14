@@ -710,8 +710,7 @@ lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovu
 lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di oggetti nei Menù
 lOptionsRecentFoldersPrompt	Menù di file/cartelle Recenti e Frequenti:
-lOptionsRefreshedMenusAttached	Aggiungi il menù "~1~" al menu di QAP
-lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni aggiornate, richieste per costruire il menu. Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, il menu "~1~" sarà aggiornati solo su richiesta e visualizzato separatamente dal menu principale.
+lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~", "~3~", "~4~" e "~5~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
 lOptionsRefreshQAPMenuIntervalSec	Intervallo di aggiornamento del menù in secondi (consigliato 300s o più)
 lOptionsRefreshQAPMenuTitle	Abilita l'aggiornamento programmato del menù QAP

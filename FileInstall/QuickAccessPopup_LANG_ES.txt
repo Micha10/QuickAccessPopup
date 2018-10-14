@@ -710,8 +710,7 @@ lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace aparecer el menú en cualq
 lOptionsQAPTempFolder	Carpeta Temporal
 lOptionsRecentFolders	Número de elementos en el menú 
 lOptionsRecentFoldersPrompt	Recent Elementos y menús Frecuentes:
-lOptionsRefreshedMenusAttached	Adjuntar "~1~" menú al menú de QAP 
-lOptionsRefreshedMenusAttachedInfo	Si activa esta opción, puede haber un ligero retardo de actualización (dependiendo de la configuración de su sistema) cada vez que muestre el menú emergente..`n`nLa duración del retardo depende del tiempo que Windows tarda en proporcionar la información actualizada necesaria para crear el menú. Esta duración puede variar para cada llamada.`n`nSi usted desactiva esta opción, el "~1~" menú se actualizará sólo bajo demanda y se mostrará separado del menú principal.
+lOptionsRefreshedMenusAttachedInfo	Si habilita esta opción, puede haber un ligero retardo de actualización (dependiendo de la configuración del sistema) cada vez que aparezca el menú emergente.`n`nLa duración del retardo depende del tiempo que Windows toma para proporcionar la información refrescada requerida para construir el menú (lista de elementos recientes y espacio disponible en unidades actuales). Esta duración puede variar para cada llamada.`n`nIf deshabilite esta opción en "~1~", "~2~", "~3~", "~4~" y "~5~" menús se actualizará sólo bajo demanda y se mostrará separado del menú principal.
 lOptionsRefreshQAPMenuDebugBeep	Bip antes y después de la actualización (depurar)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualización en segundos`n(recomendamos 300 segundos o más)
 lOptionsRefreshQAPMenuTitle	Habilitar actualización programada del menú QAP
