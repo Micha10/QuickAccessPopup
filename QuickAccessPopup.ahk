@@ -6097,19 +6097,26 @@ if !(g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP featur
 
 Diag(A_ThisLabel, "", "START")
 
-strUsageDbSQL := "SELECT DrivesMenuData FROM zMetadata;"
-if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+; prepare data source
+
+if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
-	Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
-	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	strUsageDbSQL := "SELECT DrivesMenuData FROM zMetadata;"
+	if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+	{
+		Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
+		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	}
+	objMetadataRecordSet.Next(objMetadataRow)
+	g_strMenuItemsListDrives := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
+	objMetadataRecordSet.Free()
 }
-objMetadataRecordSet.Next(objMetadataRow)
-strMenuItemsList := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
-objMetadataRecordSet.Free()
+else ; get data directly from Windows (with variable response time)
+	gosub, GetDrivesMenuListRefreshMenu ; update g_strMenuItemsListDrives
 
 Menu, %lMenuDrives%, Add
 Menu, %lMenuDrives%, DeleteAll
-Loop, Parse, strMenuItemsList, `n
+Loop, Parse, g_strMenuItemsListDrives, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
@@ -6121,6 +6128,7 @@ strUsageDbSQL := ""
 ResetArray("arrMenuItemsList")
 
 Diag(A_ThisLabel, "", "STOP")
+
 return
 ;------------------------------------------------------------
 
@@ -19856,31 +19864,8 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 
 if (g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP features in at least one menu
 {
-	intMenuNumberMenu := 0
-	strMenuItemsListDrives := "" ; menu name|menu item name|label|icon
-
-	DriveGet, strDrivesList, List
-
-	; gather info for menu (can be long for CD/DVD drives)
-	Loop, parse, strDrivesList
-	{
-		strPath := A_LoopField . ":"
-		DriveGet, intCapacity, Capacity, %strPath%
-		DriveSpaceFree, intFreeSpace,  %strPath%
-		DriveGet, strDriveLabel, Label, %strPath%
-		DriveGet, strDriveType, Type, %strPath% ; Unknown, Removable, Fixed, Network, CDROM, RAMDisk
-		
-		strMenuItemName := strPath . " " . strDriveLabel
-		if StrLen(intFreeSpace) and StrLen(intCapacity)
-			strMenuItemName .= " " . L(lMenuDrivesSpace, intFreeSpace // 1024, intCapacity // 1024)
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strMenuItemName
-		if InStr("Fixed|Unknown", strDriveType)
-			strIcon := "iconDrives"
-		else
-			strIcon := "icon" . strDriveType
-		strMenuItemsListDrives .= lMenuDrives . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
-	}
-	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(strMenuItemsListDrives) . "', " ; DrivesMenuData
+	gosub, GetDrivesMenuListPreprocessMenu ; update g_strMenuItemsListDrives
+	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', " ; DrivesMenuData
 }
 
 StringTrimRight, strDynamicDbSQL, strDynamicDbSQL, 2 ; remove ", "
@@ -19902,13 +19887,50 @@ intMenuNumberMenu := ""
 strTargetType := ""
 strMenuItemsList := ""
 strDynamicDbSQL := ""
+g_strMenuItemsListDrives := ""
+
+Diag(A_ThisLabel, "", "STOP")
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetDrivesMenuListPreprocessMenu:
+GetDrivesMenuListRefreshMenu:
+;------------------------------------------------------------
+
+intMenuNumberMenu := 0
+g_strMenuItemsListDrives := "" ; menu name|menu item name|label|icon
+
+DriveGet, strDrivesList, List
+
+; gather info for menu (can be long for CD/DVD drives)
+Loop, parse, strDrivesList
+{
+	strPath := A_LoopField . ":"
+	DriveGet, intCapacity, Capacity, %strPath%
+	DriveSpaceFree, intFreeSpace,  %strPath%
+	DriveGet, strDriveLabel, Label, %strPath%
+	DriveGet, strDriveType, Type, %strPath% ; Unknown, Removable, Fixed, Network, CDROM, RAMDisk
+	
+	strMenuItemName := strPath . " " . strDriveLabel
+	if StrLen(intFreeSpace) and StrLen(intCapacity)
+		strMenuItemName .= " " . L(lMenuDrivesSpace, intFreeSpace // 1024, intCapacity // 1024)
+	strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strMenuItemName
+	if InStr("Fixed|Unknown", strDriveType)
+		strIcon := "iconDrives"
+	else
+		strIcon := "icon" . strDriveType
+	g_strMenuItemsListDrives .= lMenuDrives . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
+}
+
 strDrivesList := ""
+strPath := ""
 intCapacity := ""
 intFreeSpace := ""
 strDriveLabel := ""
 strDriveType := ""
 
-Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
