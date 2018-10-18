@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.0.5 (2018-10-18)
+- refresh Recent Folders and Recent Files from a preprocessed field in the database
+- refactor the background task collecting recent items to also preprocess Recent Folders and Recent Files menus
+- fix bug when returning to database options after enabling or disabling the database
+- French, German, Korean and Portuguese-Brazilian language updates
+
 Version BETA: 9.2.0.4 (2018-10-17)
 - fix bug when preprocessing dynamic menus and QAP menu contains none of the "Frequent folders", "Frequent files" and "Drives" menus
 
@@ -2739,7 +2745,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.4
+;@Ahk2Exe-SetVersion 9.2.0.5
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2833,7 +2839,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
