@@ -8307,7 +8307,7 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, Text, x10 y+10 w600, % L(lOptionsUsageDbStatement, g_strAppNameText)
 	
 	Gui, 3:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, % L(lOptionsUsageDbEnable, g_strAppNameText)
-	GuiControl, , f_blnOptionUsageDbEnable, % (g_intUsageDbIntervalSeconds > 0)
+	GuiControl, , f_blnOptionUsageDbEnable, % (f_intUsageDbIntervalSeconds > 0)
 	
 	Gui, 3:Add, Text, x10 y+10 vf_lblUsageDbIntervalSecondsMore, %lOptionsUsageDbIntervalSeconds%
 	Gui, 3:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbIntervalSecondsMoreEdit
@@ -8794,6 +8794,7 @@ Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshLastActionsMenu
 if (g_blnRefreshedMenusAttached)
 {
+	Gosub, DynamicMenusPreProcess
 	Gosub, RefreshPopularMenus
 	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
@@ -19578,7 +19579,7 @@ if (g_blnUsageDbDebug)
 }
 
 
-; preprocess PopularFolders, PopularFiles and Drives menu data
+; preprocess Frequent Folders, Frequent Files, Recent Folders, Recent Files and Drives menu data
 Gosub, DynamicMenusPreProcess
 
 Diag(A_ThisLabel, "", "STOP-COLLECT")
