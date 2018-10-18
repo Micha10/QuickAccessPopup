@@ -6115,7 +6115,7 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 	objMetadataRecordSet.Free()
 }
 else ; get data directly from Windows (with variable response time)
-	gosub, GetDrivesMenuListRefreshMenu ; update g_strMenuItemsListDrives
+	gosub, GetDrivesMenuListRefresh ; update g_strMenuItemsListDrives
 
 Menu, %lMenuDrives%, Add
 Menu, %lMenuDrives%, DeleteAll
@@ -6169,98 +6169,29 @@ Diag(A_ThisLabel, "", "START")
 ; prepare data source
 
 if (g_blnUsageDbEnabled) ; use SQLite usage database
-{
-	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
-	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	Loop, Parse, % "Folders|Files", |
 	{
-		Diag(A_ThisLabel, "SQLite QUERY Build menu Error", "STOP")
-		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		return
+		if (g_objQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} or {Recent Files}
+		{
+			strUsageDbSQL := "SELECT Recent" . A_LoopField . "MenuData FROM zMetadata;" ; RecentFoldersMenuData and RecentFilesMenuData
+			if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+			{
+				Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
+				Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+			}
+			objMetadataRecordSet.Next(objMetadataRow)
+			g_strMenuItemsListRecent%A_LoopField% := objMetadataRow[1] ; g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
+			objMetadataRecordSet.Free()
+		}
 	}
-	objDuplicatesFinder := Object()
-}
-else ; gather recent items the old way, directly from Windows
-{
-	strShortcutsItemsList := "" ; menu name|menu item name|label|icon
-	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
-		strShortcutsItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
-	Sort, strShortcutsItemsList, R
-	; a `n ends the last line of the list
-}
-
-; loop data source
-
-strRecentFoldersMenuItemsList := ""
-intRecentFoldersCount := 0
-intMenuNumberFolders := 0
-strRecentFilesMenuItemsList := ""
-intRecentFilesCount := 0
-intMenuNumberFiles := 0
-
-Loop
-{
-	; get next item
-	if (g_blnUsageDbEnabled)
-	{
-		if objRecordSet.Next(objRow) = -1 ; end of recordset
-			break
-		strTargetPath := objRow[1]
-		strTargetType := objRow[2]
-		if (objDuplicatesFinder.HasKey(strTargetPath))
-			continue
-		else ; new item
-			objDuplicatesFinder[strTargetPath] := strTargetType ; value is not used
-	}
-	else
-	{
-		if !StrLen(strShortcutsItemsList)
-			break
-		strItem := SubStr(strShortcutsItemsList, 1, InStr(strShortcutsItemsList, "`n") - 1)
-		strShortcutsItemsList := SubStr(strShortcutsItemsList, InStr(strShortcutsItemsList, "`n") + 1)
-		
-		arrShortcutFullPath := StrSplit(strItem, A_Tab)
-		strShortcutFullPath := arrShortcutFullPath[2]
-		
-		FileGetShortcut, %strShortcutFullPath%, strTargetPath
-		
-		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
-			continue
-		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
-			continue
-		
-		strTargetType := (LocationIsDocument(strTargetPath) ? "File" : "Folder")
-	}
-
-	if (strTargetType = "Folder")
-		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
-	else ; File
-		strNumericShortcut := NextMenuShortcut(intMenuNumberFiles)
-		
-	strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . strNumericShortcut . " " : "") . strTargetPath
-	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
-	if (strTargetType = "Folder") and (intRecentFoldersCount < g_intRecentFoldersMax)
-	{
-		strRecentFoldersMenuItemsList .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
-		intRecentFoldersCount++
-	}
-	; do not "else"
-	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
-	{
-		strRecentFilesMenuItemsList .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
-		intRecentFilesCount++
-	}
-
-	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
-		break ; both Folders and Files menus are complete
-}
-objRecordSet.Free()
+else ; get data directly from Windows (with variable response time)
+	gosub, GetMenusListRecentItemsRefresh ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
 	Menu, %lMenuRecentFolders%, Add
 	Menu, %lMenuRecentFolders%, DeleteAll
-	Loop, Parse, strRecentFoldersMenuItemsList, `n
+	Loop, Parse, g_strMenuItemsListRecentFolders, `n
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
@@ -6273,7 +6204,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 {
 	Menu, %lMenuRecentFiles%, Add
 	Menu, %lMenuRecentFiles%, DeleteAll
-	Loop, Parse, strRecentFilesMenuItemsList, `n
+	Loop, Parse, g_strMenuItemsListRecentFiles, `n
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
@@ -6282,25 +6213,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 	AddCloseMenu(lMenuRecentFiles)
 }
 
-strUsageDbSQL := ""
-objRecordSet := ""
-objRow := ""
-strTargetPath := ""
-strTargetType := ""
-objDuplicatesFinder := ""
-strShortcutsItemsList := ""
-strRecentsFolder := ""
-ResetArray("arrShortcutFullPath")
-strShortcutFullPath := ""
-strNumericShortcut := ""
-strMenuName := ""
-strIcon := ""
-strRecentFoldersMenuItemsList := ""
-intRecentFoldersCount := ""
-intMenuNumberFolders := ""
-strRecentFilesMenuItemsList := ""
-intRecentFilesCount := ""
-intMenuNumberFiles := ""
+g_strMenuItemsListRecentFolders := ""
+g_strMenuItemsListRecentFiles := ""
 ResetArray("arrMenuItemsList")
 
 Diag(A_ThisLabel, "", "STOP")
@@ -8781,11 +8695,11 @@ SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExc
 
 ; UsageDb
 
-intUsageDbIntervalSecondsBefore := g_intUsageDbIntervalSeconds
+intUsageDbIntervalSecondsPrev := g_intUsageDbIntervalSeconds
 g_intUsageDbIntervalSeconds := f_intUsageDbIntervalSeconds
 IniWrite, %g_intUsageDbIntervalSeconds%, %g_strIniFile%, Global, UsageDbIntervalSeconds
 
-intUsageDbDaysInPopularBefore := g_intUsageDbDaysInPopular
+intUsageDbDaysInPopularPrev := g_intUsageDbDaysInPopular
 g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
 IniWrite, %g_intUsageDbDaysInPopular%, %g_strIniFile%, Global, UsageDbDaysInPopular
 
@@ -8795,11 +8709,11 @@ IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
 
-blnUseSQLiteBefore := g_blnUsageDbEnabled
+blnUseSQLitePrev := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
-if (!blnUseSQLiteBefore and g_blnUsageDbEnabled)
+if (!blnUseSQLitePrev and g_blnUsageDbEnabled)
 	gosub, UsageDbInit
-if (intUsageDbIntervalSecondsBefore <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularBefore <> g_intUsageDbDaysInPopular)
+if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularPrev <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
 ; UserVariablesList
@@ -8812,7 +8726,7 @@ IniWrite, %g_strUserVariablesList%, %g_strIniFile%, Global, UserVariablesList
 ;---------------------------------------
 ; End of tabs
 
-; if language, theme or temporary folder changed, offer to restart the app
+; if language, theme, temporary folder or database collect interval changed, offer to restart the app
 if (strLanguageCodePrev <> g_strLanguageCode)
 	or (strThemePrev <> g_strTheme)
 	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
@@ -8905,9 +8819,10 @@ strNewShortcut := ""
 strMenuName := ""
 ResetArray("arrMenu")
 strNewHotstringsDefaultOptions := ""
-intUsageDbIntervalSecondsBefore := ""
-intUsageDbDaysInPopularBefore := ""
-blnUseSQLiteBefore := ""
+intUsageDbIntervalSecondsPrev := ""
+intUsageDbDaysInPopularPrev := ""
+blnRunAsAdminPrev := ""
+blnUseSQLitePrev := ""
 
 return
 ;------------------------------------------------------------
@@ -19459,7 +19374,7 @@ if (blnUsageDbIsNew)
 		. ");"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
-	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected, PopularFoldersMenuData, PopularFilesMenuData, DrivesMenuData);"
+	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected, PopularFoldersMenuData, PopularFilesMenuData, DrivesMenuData, RecentFoldersMenuData, RecentFilesMenuData);"
 	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0', '', '', '');" ; make sure it has values for all columns
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
@@ -19473,18 +19388,24 @@ if (blnUsageDbIsNew)
 else ; modifications for previous versions
 {
 	strUsageDbSQL := ""
-	if !GetUsageDbColumnExist("zMetadata", "PopularFoldersMenuData")
+	if !GetUsageDbColumnExist("zMetadata", "PopularFoldersMenuData") ; added in v9.2.0.2
 	{
 		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN PopularFoldersMenuData;"
 		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN PopularFilesMenuData;"
 		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN DrivesMenuData;"
 	}
-	If !g_objUsageDb.Exec(strUsageDbSQL)
+	if !GetUsageDbColumnExist("zMetadata", "RecentFoldersMenuData") ; added in v9.2.0.5
 	{
-		Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbEnabled := false
-		return
+		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN RecentFoldersMenuData;"
+		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN RecentFilesMenuData;"
 	}
+	If StrLen(strUsageDbSQL)
+		!g_objUsageDb.Exec(strUsageDbSQL)
+		{
+			Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+			g_blnUsageDbEnabled := false
+			return
+		}
 }
 
 ; check maximum size
@@ -19866,14 +19787,23 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 }
 ; Diag(A_ThisLabel . ":pre-strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
-if (g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP features in at least one menu
+if (g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we have this QAP features in at least one menu
 {
-	gosub, GetDrivesMenuListPreprocessMenu ; update g_strMenuItemsListDrives
-	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', " ; DrivesMenuData
+	gosub, GetDrivesMenuListPreprocess ; update g_strMenuItemsListDrives
+	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', "
 }
 ; Diag(A_ThisLabel . ":g_strMenuItemsListDrives", StrReplace(g_strMenuItemsListDrives, "`n", "``n"))
 
-if StrLen(strDynamicDbSQL) ; if menu does not contain Drives or Popular menus, strDynamicDbSQL is empty
+if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenus.HasKey("{Recent Files}")) ; we have one of these QAP features in at least one menu
+{
+	gosub, GetMenusListRecentItemsPreprocess ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
+	strDynamicDbSQL .= "RecentFoldersMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFolders) . "', "
+	strDynamicDbSQL .= "RecentFilesMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFiles) . "', "
+}
+Diag(A_ThisLabel . ":g_strMenuItemsListRecentFolders", StrReplace(g_strMenuItemsListRecentFolders, "`n", "``n"))
+Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsListRecentFiles, "`n", "``n"))
+
+if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent menus, strDynamicDbSQL is empty
 {
 	StringTrimRight, strDynamicDbSQL, strDynamicDbSQL, 2 ; remove last ", "
 	strDynamicDbSQL := "UPDATE zMetadata SET " . strDynamicDbSQL . ";" ; add opening command and ending semi-colon
@@ -19905,8 +19835,8 @@ return
 
 
 ;------------------------------------------------------------
-GetDrivesMenuListPreprocessMenu:
-GetDrivesMenuListRefreshMenu:
+GetDrivesMenuListPreprocess:
+GetDrivesMenuListRefresh:
 ;------------------------------------------------------------
 
 intMenuNumberMenu := 0
@@ -19940,6 +19870,129 @@ intCapacity := ""
 intFreeSpace := ""
 strDriveLabel := ""
 strDriveType := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetMenusListRecentItemsPreprocess:
+GetMenusListRecentItemsRefresh:
+;------------------------------------------------------------
+
+if (g_blnUsageDbEnabled) ; use SQLite usage database
+{
+	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
+	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	{
+		Diag(A_ThisLabel, "SQLite QUERY Build menu Error", "STOP")
+		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		return
+	}
+	objDuplicatesFinder := Object()
+}
+else ; gather recent items the old way, directly from Windows
+{
+	strShortcutsItemsList := "" ; menu name|menu item name|label|icon
+	RegRead, strRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
+	Loop, Files, %strRecentsFolder%\*.* ; tried to limit to number of recent but they are not sorted chronologically
+		strShortcutsItemsList .= A_LoopFileTimeModified . "`t" . A_LoopFileFullPath . "`n"
+	Sort, strShortcutsItemsList, R
+	; a `n ends the last line of the list
+}
+
+; loop data source
+
+g_strMenuItemsListRecentFolders := ""
+intRecentFoldersCount := 0
+intMenuNumberFolders := 0
+g_strMenuItemsListRecentFiles := ""
+intRecentFilesCount := 0
+intMenuNumberFiles := 0
+
+Loop
+{
+	; get next item
+	if (g_blnUsageDbEnabled)
+	{
+		if objRecordSet.Next(objRow) = -1 ; end of recordset
+			break
+		strTargetPath := objRow[1]
+		strTargetType := objRow[2]
+		if (objDuplicatesFinder.HasKey(strTargetPath))
+			continue
+		else ; new item
+			objDuplicatesFinder[strTargetPath] := strTargetType ; value is not used, only the key is checked
+	}
+	else
+	{
+		if !StrLen(strShortcutsItemsList)
+			break
+		strItem := SubStr(strShortcutsItemsList, 1, InStr(strShortcutsItemsList, "`n") - 1)
+		strShortcutsItemsList := SubStr(strShortcutsItemsList, InStr(strShortcutsItemsList, "`n") + 1)
+		
+		arrShortcutFullPath := StrSplit(strItem, A_Tab)
+		strShortcutFullPath := arrShortcutFullPath[2]
+		
+		FileGetShortcut, %strShortcutFullPath%, strTargetPath
+		
+		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
+			continue
+		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
+			continue
+		
+		strTargetType := (LocationIsDocument(strTargetPath) ? "File" : "Folder")
+	}
+
+	if (strTargetType = "Folder")
+		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
+	else ; File
+		strNumericShortcut := NextMenuShortcut(intMenuNumberFiles)
+	
+	strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . strNumericShortcut . " " : "") . strTargetPath
+	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
+	if (strTargetType = "Folder") and (intRecentFoldersCount < g_intRecentFoldersMax)
+	{
+		g_strMenuItemsListRecentFolders .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		intRecentFoldersCount++
+	}
+	; do not "else"
+	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
+	{
+		g_strMenuItemsListRecentFiles .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		intRecentFilesCount++
+	}
+
+	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
+		break ; both Folders and Files menus are complete
+}
+if (g_blnUsageDbEnabled) ; use SQLite usage database
+	objRecordSet.Free()
+
+intRecentFoldersCount := ""
+intMenuNumberFolders := ""
+intRecentFilesCount := ""
+intMenuNumberFiles := ""
+
+strUsageDbSQL := ""
+objRecordSet := ""
+objRow := ""
+strTargetPath := ""
+strTargetType := ""
+objDuplicatesFinder := ""
+strShortcutsItemsList := ""
+strRecentsFolder := ""
+ResetArray("arrShortcutFullPath")
+strShortcutFullPath := ""
+strNumericShortcut := ""
+strMenuName := ""
+strIcon := ""
+intRecentFoldersCount := ""
+intMenuNumberFolders := ""
+intRecentFilesCount := ""
+intMenuNumberFiles := ""
+ResetArray("arrMenuItemsList")
+
 
 return
 ;------------------------------------------------------------
