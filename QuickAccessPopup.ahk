@@ -7527,7 +7527,7 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabOtherOptionsIntro, g_strA
 
 ; column 1
 
-Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, %lOptionsChangeFolderInDialog%
 GuiControl, , f_blnChangeFolderInDialog, %g_blnChangeFolderInDialog%
 
 Gui, 2:Add, Text, y+10 xs, %lOptionsLanguage%
@@ -8099,7 +8099,7 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
 g_intGui2WinID := WinExist("A")
 
-Gui, 3:New, , %lOptionsChangeFolderInDialog%
+Gui, 3:New, , % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
