@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.0.6 (2018-10-18)
+- fix bug when refreshing Frequent menus when running QAP in non-English language
+
 Version BETA: 9.2.0.5 (2018-10-18)
 - refresh Recent Folders and Recent Files from a preprocessed field in the database
 - refactor the background task collecting recent items to also preprocess Recent Folders and Recent Files menus
@@ -2745,7 +2748,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.5
+;@Ahk2Exe-SetVersion 9.2.0.6
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2839,7 +2842,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5873,7 +5876,7 @@ if !(g_blnUsageDbEnabled)
 
 Diag(A_ThisLabel, "", "START")
 
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
+loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
 	
@@ -19739,7 +19742,7 @@ if !(g_blnUsageDbEnabled)
 Diag(A_ThisLabel, "", "START")
 
 strDynamicDbSQL := ""
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
+loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
