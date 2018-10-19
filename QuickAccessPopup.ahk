@@ -33,6 +33,7 @@ HISTORY
 
 Version BETA: 9.2.0.6/9.2.0.7 (2018-10-18)
 - fix bug when refreshing Frequent menus when running QAP in non-English language
+- fix display bug when tabs in Options dialog box take more than one row
 - Italian language update
 
 Version BETA: 9.2.0.5 (2018-10-18)
