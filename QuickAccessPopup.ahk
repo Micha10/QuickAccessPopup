@@ -7786,18 +7786,19 @@ Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavi
 Gui, 2:Tab, 6
 
 Gui, 2:Font, w600
-Gui, 2:Add, Text, y+10 x15 w300 Section, %lDialogMoreOptions%
+Gui, 2:Add, Text, y+10 x15 w300 vf_MoreOptions, %lDialogMoreOptions%
+GuiControlGet, arrMoreOptionsPos, Pos, f_MoreOptions
 Gui, 2:Font
 
 ; Buttons
-OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, true) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
+OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, arrMoreOptionsPosY) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
 OptionsMoreShowButton("UsageDb", intMaxWidth) ; f_btnUsageBd GuiOptionsMoreUsageBd
 OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList GuiOptionsMoreUserVariablesList
 
 ; Descriptions
-Gui, 2:Add, Text, % "y90 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
-Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
-Gui, 2:Add, Text, % "y170 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
@@ -7833,22 +7834,24 @@ strAlternativeCode := ""
 intMaxWidth := ""
 ResetArray("arrPos")
 strOptionsLastActions := ""
+arrMoreOptionsPos := ""
 
 return
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-OptionsMoreShowButton(strTag, ByRef intMaxWidth, blnFirstCall := false)
+OptionsMoreShowButton(strTag, ByRef intMaxWidth, intFirstCallY := 0)
 ;------------------------------------------------------------
 {
 	global
 	
 	static intY
-	if (blnFirstCall)
-		intY := 50 ; first item will be at 90, next at 130...
-
-	intY := intY + 40
+	if (intFirstCallY)
+		intY := intFirstCallY + 30
+	else
+		intY := intY + 40
+	
 	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag
 		, % (strTag = "UsageDb" ? L(lOptionsUsageDb, g_strAppNameText) : lOptions%strTag%)
 	GuiControlGet, arrPos, Pos, f_btn%strTag%
