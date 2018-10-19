@@ -31,8 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.2.0.6 (2018-10-18)
+Version BETA: 9.2.0.6/9.2.0.7 (2018-10-18)
 - fix bug when refreshing Frequent menus when running QAP in non-English language
+- Italian language update
 
 Version BETA: 9.2.0.5 (2018-10-18)
 - refresh Recent Folders and Recent Files from a preprocessed field in the database
@@ -2748,7 +2749,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.6
+;@Ahk2Exe-SetVersion 9.2.0.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2842,7 +2843,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5879,6 +5880,7 @@ Diag(A_ThisLabel, "", "START")
 loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
+	strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, (strFoldersOrFiles = "Folders" ? lMenuPopularFolders : lMenuPopularFiles))
 	
 	if !(g_objQAPfeaturesInMenus.HasKey("{Popular " . strFoldersOrFiles . "}")) ; we don't have this QAP features in at least one menu
 		continue
@@ -5895,15 +5897,15 @@ loop, parse, % "Folders|Files", |
 	strMenuItemsList := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
 	objMetadataRecordSet.Free()
 
-	Menu, % L(lMenuPopularMenus, A_Loopfield), Add
-	Menu, % L(lMenuPopularMenus, A_Loopfield), DeleteAll
+	Menu, %strFoldersOrFilesMenuNameLocalized%, Add
+	Menu, %strFoldersOrFilesMenuNameLocalized%, DeleteAll
 	Loop, Parse, strMenuItemsList, `n
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
+	AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
 }
 
 ResetArray("arrMenuItemsList")
@@ -19587,7 +19589,6 @@ if (g_blnUsageDbDebug)
 	ToolTip
 }
 
-
 ; preprocess Frequent Folders, Frequent Files, Recent Folders, Recent Files and Drives menu data
 Gosub, DynamicMenusPreProcess
 
@@ -19747,16 +19748,22 @@ loop, parse, % "Folders|Files", |
 	strFoldersOrFiles := A_Loopfield
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
 
-	if (strFoldersOrFiles = lMenuPopularFolders)
+	if (strFoldersOrFiles = "Folders")
 		if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
+		{
 			strTargetType := "Folder"
-	else ; lMenuPopularFiles
+			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFolders)
+		}
+	else ; "Files"
 		if !(g_objQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
+		{
 			strTargetType := "File"
+			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFiles)
+		}
 
 	; SQLite GetTable
 	; Parse table
@@ -19784,13 +19791,13 @@ loop, parse, % "Folders|Files", |
 		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
 		if (g_blnUsageDbShowPopularityIndex)
 			strMenuItemName .= " [" . objRow[2] . "]"
-		strIcon := (strFoldersOrFiles = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
-		strMenuItemsList%strFoldersOrFiles% .= L(lMenuPopularMenus, strFoldersOrFiles) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
 			break ; Folders or Files menus is complete
 	}
 	if (intPopularItemsCount < g_intRecentFoldersMax)
-		strMenuItemsList%strFoldersOrFiles% .= L(lMenuPopularMenus, strFoldersOrFiles) . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|" . iconAbout . "`n"
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|" . iconAbout . "`n"
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
