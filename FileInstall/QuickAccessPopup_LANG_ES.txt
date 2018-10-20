@@ -501,6 +501,9 @@ lMenuAppData	Datos de la aplicación
 lMenuCache	Cache
 lMenuClipboard	Portapapeles
 lMenuClipboardDescription	Mostrar un menú dinámico con el contenido actual del portapapeles de Windows.`n`nSi el Portapapeles contiene ubicaciones de documentos, aplicaciones o carpetas, QAP muestra una lista de ellas en el menú, lo que le permite abrir un documento, aplicación o carpeta que se encuentre en el Portapapeles.
+lMenuClipboardEmpty	Portapapeles vacio
+lMenuClipboardNoContent	No hay ruta o URL en el Portapapeles
+lMenuClipboardTooLarge	Portapapeles demasiado grande para ser procesado (max. ~1~ caracter)
 lMenuCloseAllWindows	Cerrar todas las ventanas
 lMenuCloseAllWindowsDescription	Ver una lista de las ventanas abiertas actualmente. Desactive la casilla de verificación de las ventanas que desea mantener y haga clic en "Cerrar ventanas seleccionadas" para cerrar las demás ventanas. Haga doble clic o pulse Intro para cerrar una ventana o ver su información.
 lMenuCloseThisMenu	Cerrar este menú
@@ -551,6 +554,7 @@ lMenuPopularFiles	Archivos
 lMenuPopularFolders	Carpetas
 lMenuPopularMenus	Frequent ~1~
 lMenuPopularMenusDescription	Visualizar un menú dinámico que muestra los más utilizados ~1~ recopilados por Windows y utilizados en QAP. Este menú se actualiza cada vez que se abre el menú QAP.
+lMenuPopularMenusWillImprove	Este menú mejorará a medida que se utilice ~1~...
 lMenuProgramFiles	Programas
 lMenuProgramsFolderStartMenu	Carpeta Programas (menú Inicio)
 lMenuPublicLibraries	Bibliotecas (publico)
@@ -607,6 +611,7 @@ lOopsCannotCopyMoveToSelf	You no se puede mover ni copiar favoritos a su ubicaci
 lOopsChangeFolderInDialogAlert	¿Usted desea cambiar la carpeta en este cuadro de diálogo? Para navegar dentro de una caja de diálogo, tiene que habilitar una opción (primera casilla de verificación en la pestaña "General") .`n`nDo desea abrir la ventana Opciones?
 lOopsCouldNotOpenSpecialFolder	~1~ no se puede abrir la carpeta especial: "~2~".
 lOopsEmpty	vacio 
+lOopsErrorIniFileDisplayErrorMessage	¿Mostrar este mensaje de error de nuevo para este Menú Compartido?
 lOopsErrorIniFileModified	Este menú compartido se ha modificado desde que se cargó. El menú se actualizará, pero su último cambio no se puede guardar.
 lOopsErrorIniFileReadOnly	Este archivo de configuración del menú compartido o esta ubicación es de SOLO LECTURA.
 lOopsErrorIniFileRetry	Si el archivo de configuración externo en una unidad de red, pruebe a reiniciar ~ 1 ~ cuando la unidad de red está disponible.
@@ -709,6 +714,7 @@ lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace aparecer el menú en cualq
 lOptionsQAPTempFolder	Carpeta Temporal
 lOptionsRecentFolders	Número de elementos en el menú 
 lOptionsRecentFoldersPrompt	Recent Elementos y menús Frecuentes:
+lOptionsRefreshedMenusAttached	Adjuntar todos los menús dinámicos al menú principal de QAP
 lOptionsRefreshedMenusAttachedInfo	Si habilita esta opción, puede haber un ligero retardo de actualización (dependiendo de la configuración del sistema) cada vez que aparezca el menú emergente.`n`nLa duración del retardo depende del tiempo que Windows toma para proporcionar la información refrescada requerida para construir el menú (lista de elementos recientes y espacio disponible en unidades actuales). Esta duración puede variar para cada llamada.`n`nIf deshabilite esta opción en "~1~", "~2~", "~3~", "~4~" y "~5~" menús se actualizará sólo bajo demanda y se mostrará separado del menú principal.
 lOptionsRefreshQAPMenuDebugBeep	Bip antes y después de la actualización (depurar)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualización en segundos`n(recomendamos 300 segundos o más)
@@ -737,19 +743,19 @@ lOptionsThirdPartySelectedHelp	Seleccionado el Administrador de archivos: ~1~ (<
 lOptionsThirdPartySelectFile	Por favor, seleccione el ~1~ archivo de la aplicación mediante el botón "Examinar"
 lOptionsThirdPartyUseTabs	Utilice las pestañas en lugar de abrir una nueva ventana
 lOptionsTrayTip	Mostrar notificación al inicio
-lOptionsUsageDb	Base de Datos de Elementos Frecuentes
+lOptionsUsageDb	~1~ Base de datos
 lOptionsUsageDbDaysInPopular	Número de días a tener en cuenta en los menús Frecuentes:
-lOptionsUsageDbDescription	Establecer parámetros para los Frecuentes y Recientes elementos de los menús
-lOptionsUsageDbDisabling	Los cambios en la configuración de la base de datos de Menús Frecuentes se completarán después de recargarla ~1~.
-lOptionsUsageDbEnable	Habilitar Base de Datos de Menús Frecuentes
-lOptionsUsageDbFlushDatabase	Limpiar la Base de Datos de Elementos Frecuentes
-lOptionsUsageDbFlushDatabaseConfirm	Delete Contenido de la base de datos de Elementos Frecuentes?
+lOptionsUsageDbDescription	Ajustar parámetros para ~1~ Base de Datos
+lOptionsUsageDbDisabling	Los cambios en los ajustes de la Base de Datos se completarán después de recargarlos ~1~.
+lOptionsUsageDbEnable	Habilitar ~1~ Base de Datos
+lOptionsUsageDbFlushDatabase	Limpiar Elementos Frecuentes de la Base de Datos
+lOptionsUsageDbFlushDatabaseConfirm	¿Eliminar Elementos Frecuentes del contenido de la Base de Datos?
 lOptionsUsageDbFlushDatabaseDone	Contenido de la base de datos eliminado.
-lOptionsUsageDbIntervalSeconds	Intervalo de recopilación (seconds):
+lOptionsUsageDbIntervalSeconds	Intervalo de captura y actualización (segundos):
 lOptionsUsageDbMaximumSize	Tamaño máximo de la base de datos (en MB):
 lOptionsUsageDbMaximumSizeInvalid	El tamaño máximo de la base de datos no es un número válido: ~1~
 lOptionsUsageDbShowPopularityIndex	Mostrar el índice de Frecuencia en las Opciones y el menú
-lOptionsUsageDbStatement	Declaración de privacidad: Los datos de la base de datos de elementos frecuentes se recopilan y almacenan localmente, únicamente para crear menús de "Carpetas Frecuentes" y "Archivos Frecuentes" que se basan en el uso de su ordenador personal. Estos datos residen SOLAMENTE en su ordenador y NO se transmite ninguna información a un servidor remoto.
+lOptionsUsageDbStatement	Declaración de privacidad: Los datos en la base de datos ~1~ son capturados y almacenados localmente, únicamente para construir menús dinámicos y aumentar el rendimiento. Estos datos residen SOLAMENTE en su ordenador y NO se transmite ninguna información a un servidor remoto.
 lOptionsUserVariablesList	Variables de Usuario
 lOptionsUserVariablesListDescription	Piezas de texto que se pueden insertar como marcadores, e.g.: {MiVariable}
 lOptionsUserVariablesListInstructions	Introduzca sus variables de usuario, una por línea. Cada línea debe comenzar con el nombre de la variable entre corchetes. (e.g. "{MiVariable}"), seguido del signo igual "=" y del contenido variable (e.g. "{MiVariable}=MiContenido").`n`nPor ejemplo, si una línea contiene "{SuCarpetaCompartida}=S:\EstaCarpeta", el marcador{SuCarpetaCompartida} se sustituirá por "S:\EstaCarpeta" en las rutas o fragmentos de contenido de los favoritos.
