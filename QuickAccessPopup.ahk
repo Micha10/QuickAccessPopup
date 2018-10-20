@@ -6856,6 +6856,7 @@ return
 RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 ;------------------------------------------------------------
 {
+	global objDopusXML
 	global g_objMenusIndex
 	global g_objSpecialFolders
 	global g_strDirectoryOpusFavorites
