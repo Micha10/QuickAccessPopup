@@ -2763,6 +2763,8 @@ SendMode, Input
 StringCaseSense, Off
 ComObjError(False) ; we will do our own error handling
 
+#Include %A_ScriptDir%\XML_Class.ahk ; by Maestrith (Chad) https://autohotkey.com/boards/viewtopic.php?f=62&t=33114
+
 ; avoid error message when shortcut destination is missing
 ; see http://ahkscript.org/boards/viewtopic.php?f=5&t=4477&p=25239#p25236
 DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
@@ -5856,6 +5858,8 @@ return
 BuildDirectoryOpusFavoritesPrepare:
 ;------------------------------------------------------------
 
+objDopusXML := New XML("xml")
+
 g_strDOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
 g_blnDOpusFavoritesFileExist := FileExist(g_strDOpusFavoritesFile)
 
@@ -6824,8 +6828,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 
 	FileRead, g_strDirectoryOpusFavorites, %g_strDOpusFavoritesFile%
 	; take g_strDirectoryOpusFavorites to start
-	GetNextXMLTag(g_strDirectoryOpusFavorites, "favorites")
-	if (RecursiveLoadDirectoryOpusFavoritesFromFile(g_objDOpusMenu) <> "EOM") ; build menu tree
+	if (RecursiveLoadDirectoryOpusFavoritesFromXML(g_objDOpusMenu, g_strDirectoryOpusFavorites) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Directory Opus favorites.")
 	; ###_O("objCurrentMenu: " . g_objDOpusMenu.MenuPath, g_objDOpusMenu, "FavoriteName")
 	
@@ -6844,7 +6847,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
+RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
@@ -6855,85 +6858,51 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; ###_V("In - " . A_ThisFunc, SubStr(g_strDirectoryOpusFavorites, 1, 200))
 
-	Loop
+	objDopusXML.XML.LoadXML(strNodeXml)
+	objNodeAll := objDopusXML.SN("//path[not(@label)]") ; to select only "path" nodes without "label"
+	; objNodeAll := objDopusXML.SN("//path") ; select all "path" nodes -- ? (overwrite unsupported path's "Name" labels from DOpus)
+	while (objItem := objNodeAll.Item[A_Index-1])
+	; fill all empty path's "label" attribute with the descendant's pathstring text
 	{
-		strType := "Folder" ; could be replaced by "Menu" or "X"
-		
-		strTag := GetNextXMLTag(g_strDirectoryOpusFavorites)
-		; ###_V("Loop " . A_Index . " " . A_ThisFunc, strTag, SubStr(g_strDirectoryOpusFavorites, 1, 200))
-
-		if (strTag = "</favorites>")
-			Return, "EOM" ; end of file, last menu item
+		objItemAttributes := XML.EA(objItem)
+		objItem.SetAttribute("label", SSN(objItem, "descendant::pathstring").text)
+	}
 	
-		if (strTag = "</folder>")
-			; ###_O("objCurrentMenu: " . objCurrentMenu.MenuPath, objCurrentMenu, "FavoriteName")
-			return, "EOM" ; end of menu
-		
-		if InStr(strTag, "<folder") ; can be <folder> or <folder label="...">
-		{
-			strFolderTagContent := GetFolderTagContent(g_strDirectoryOpusFavorites)
+	objNodeAll := objDopusXML.SN("/*/*") ; select all nodes
+	while (objItem := objNodeAll.Item[A_Index-1])
+	{
+		blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
+		objItemAttributes := objDopusXML.EA(objItem)
 			
-			if InStr(strFolderTagContent, "<separator />")
-			{
-				strType := "X"
-				strName := ""
-			}
-			else ; submenu
-			{
-				strMenuName := GetXMLLabel(strTag)
-				objNewMenu := Object() ; create the submenu object
-				objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . strMenuName
-				objNewMenu.MenuType := "Menu"
+		if (blnItemIsMenu)
+		{
+			objNewMenu := Object() ; create the submenu object
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . objItemAttributes.label
+			objNewMenu.MenuType := "Menu"
+			
+			; create a navigation entry to navigate to the parent menu
+			; (not used in Settings for this menu - but keep for code reusability)
+			objNewMenuBack := Object()
+			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
+			objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
+			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
+			objNewMenu.Insert(objNewMenuBack)
 				
-				; create a navigation entry to navigate to the parent menu
-				; (not used in Settings for this menu - but keep for code reusability)
-				objNewMenuBack := Object()
-				objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-				objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
-				objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
-				objNewMenu.Insert(objNewMenuBack)
-				
-				; build the submenu
-				; ###_V("Down in", objNewMenu.MenuPath)
-				strResult := RecursiveLoadDirectoryOpusFavoritesFromFile(objNewMenu) ; RECURSIVE
-				; ###_V("Up from", objNewMenu.MenuPath, strResult)
-				
-				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
-					Return, %strResult%
-				
-				strType := "Menu"
-				strName := ""
-			}
+			strResult := RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, objItem.xml) ; RECURSIVE
 		}
-		else if !InStr(strTag, "path")
-			
-			continue ; not a path, submenu or separator
 		
-		; else strTag = "path"
+		objLoadDOpusFavorite := Object() ; new favorite item
 		
-		if (strType = "X")
+		if !StrLen(objItemAttributes.label) ; separator ### must be better way to detect separator
+			
+			objLoadDOpusFavorite.FavoriteType := "X"
+
+		else ; menu or folder (what if unexpected node?)
 		{
-			strMenuName := ""
-			strPath := ""
-			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
-			
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "separator /")
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "/folder")
-		}
-		; else if (strType = "Menu") ; no new value needed and no text to skip in g_strDirectoryOpusFavorites
-		; {
-			; strMenuName := GetXMLLabel(strTag)
-			; strPath := objCurrentMenu.MenuPath
-			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
-		; }
-		else ; (strType = "Folder")
-		{
-			strPathTagContent := GetFolderTagContent(g_strDirectoryOpusFavorites)
-			
-			if InStr(strPathTagContent, "<pidl>")
-				strType := "Special" ; ##### ?
-			blnIsDOpusPidl := InStr(strPathTagContent, "<pidl>")
-			
+			objLoadDOpusFavorite.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder")
+			objLoadDOpusFavorite.FavoriteName := objItemAttributes.label
+			if !(objItem.NodeName = "folder")
+				objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
 			/* #####
 			EXCEPTION IF:
 				<path label="Ce PC">
@@ -6942,97 +6911,20 @@ RecursiveLoadDirectoryOpusFavoritesFromFile(objCurrentMenu)
 					</dir>
 				</path>
 			*/
-			strMenuName := GetXMLLabel(strTag)
-			; take g_strDirectoryOpusFavorites to next dir and pathstring tags
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "dir")
-			GetNextXMLTag(g_strDirectoryOpusFavorites, (blnIsDOpusPidl ? "pidl" : "pathstring"))
-			
-			strPath := SubStr(g_strDirectoryOpusFavorites, 1, InStr(g_strDirectoryOpusFavorites, "</") - 1)
-			; ###_V("strPath", strPath)
-			if !StrLen(strMenuName )
-				strMenuName := strPath
-			; ###_V("strMenuName / strPath / strType", strMenuName, strPath, strType)
-			
-			; take g_strDirectoryOpusFavorites after closing pathstring, dir and path tags
-			GetNextXMLTag(g_strDirectoryOpusFavorites, (blnIsDOpusPidl ? "/pidl" : "/pathstring"))
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "/dir")
-			GetNextXMLTag(g_strDirectoryOpusFavorites, "/path")
+			if InStr(strPathTagContent, "<pidl>")
+				objLoadDOpusFavorite.FavoriteType := "Special" ; process new type of Special #####
 		}
 		
-		objLoadDOpusFavorite := Object() ; new favorite item
-		
-		objLoadDOpusFavorite.FavoriteType := strType
-		objLoadDOpusFavorite.FavoriteName := strMenuName
-		objLoadDOpusFavorite.FavoriteLocation := strPath
-		
 		; this is a submenu, link to the submenu object
-		if (strType = "Menu")
+		if (blnItemIsMenu)
 			objLoadDOpusFavorite.SubMenu := objNewMenu
 		
 		; update the current menu object
 		objCurrentMenu.Insert(objLoadDOpusFavorite)
 		; ###_O("Insert objLoadDOpusFavorite in: " . objCurrentMenu.MenuPath, objLoadDOpusFavorite)
 	}
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-GetNextXMLTag(ByRef strXML, strTagName := "")
-; return next tag or specific tag if strTagName is specified
-;-----------------------------------------------------------
-{
-	intNextTagBegin := InStr(strXML, "<" . (StrLen(strTagName) ? strTagName . ">" : ""))
-	intNextTagEnd := InStr(strXML, ">", , intNextTagBegin)
-	strTag := SubStr(strXML, intNextTagBegin, intNextTagEnd - intNextTagBegin + 1)
-	strXML := SubStr(strXML, intNextTagEnd + 1)
-	; ###_V(A_ThisFunc . " - " strTagName, strTag, intNextTagBegin, intNextTagEnd, SubStr(strXML, 1, 200))
 	
-	return strTag
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-GetXMLLabel(strTag)
-; return the content of label="content"
-;-----------------------------------------------------------
-{
-	if !InStr(strTag, "label=")
-		return
-	
-	intLabelBegin := InStr(strTag, """")
-	intLabelEnd := InStr(strTag, """", , intLabelBegin + 1)
-	strLabel := SubStr(strTag, intLabelBegin + 1, intLabelEnd - intLabelBegin - 1)
-	; ###_V(A_ThisFunc, strTag, intLabelBegin, intLabelEnd, strLabel)
-	
-	return strLabel
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-GetFolderTagContent(strXml)
-;-----------------------------------------------------------
-; return the content of label="content"
-{
-	strFolderContent :=  SubStr(strXml, 1, InStr(strXml, "</folder>") - 1)
-	; ###_V(A_ThisFunc, strXml, strFolderContent)
-	
-	return strFolderContent
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-GetPathTagContent(strXml)
-;-----------------------------------------------------------
-; return the content of label="content"
-{
-	strFolderContent :=  SubStr(strXml, 1, InStr(strXml, "</path>") - 1)
-	; ###_V(A_ThisFunc, strXml, strFolderContent)
-	
-	return strFolderContent
+	return, "EOM" ; end of XML, last menu item
 }
 ;-----------------------------------------------------------
 
