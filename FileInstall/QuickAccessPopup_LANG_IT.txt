@@ -554,7 +554,6 @@ lMenuPopularFiles	File
 lMenuPopularFolders	Cartelle
 lMenuPopularMenus	~1~ Frequenti
 lMenuPopularMenusDescription	Visualizza un menù dinamico che mostra la ~1~ usata più di frequente secondo quanto stimato da Windows, e usata in QAP. Questo menù viene aggiornato ogni volta che apri il menù QAP.
-lMenuPopularMenusWillImprove	Il menù ~1~ migliorerà usando ~2~...
 lMenuProgramFiles	Programmi
 lMenuProgramsFolderStartMenu	Programmi (Menù Avvio)
 lMenuPublicLibraries	Raccolte Pubbliche
