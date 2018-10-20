@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.0.6/9.2.0.7 (2018-10-18)
+- fix bug when refreshing Frequent menus when running QAP in non-English language
+- fix display bug when tabs in Options dialog box take more than one row
+- Italian language update
+
 Version BETA: 9.2.0.5 (2018-10-18)
 - refresh Recent Folders and Recent Files from a preprocessed field in the database
 - refactor the background task collecting recent items to also preprocess Recent Folders and Recent Files menus
@@ -2745,7 +2750,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.5
+;@Ahk2Exe-SetVersion 9.2.0.7
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2841,7 +2846,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -5901,9 +5906,10 @@ if !(g_blnUsageDbEnabled)
 
 Diag(A_ThisLabel, "", "START")
 
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
+loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
+	strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, (strFoldersOrFiles = "Folders" ? lMenuPopularFolders : lMenuPopularFiles))
 	
 	if !(g_objQAPfeaturesInMenus.HasKey("{Popular " . strFoldersOrFiles . "}")) ; we don't have this QAP features in at least one menu
 		continue
@@ -5920,15 +5926,15 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 	strMenuItemsList := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
 	objMetadataRecordSet.Free()
 
-	Menu, % L(lMenuPopularMenus, A_Loopfield), Add
-	Menu, % L(lMenuPopularMenus, A_Loopfield), DeleteAll
+	Menu, %strFoldersOrFilesMenuNameLocalized%, Add
+	Menu, %strFoldersOrFilesMenuNameLocalized%, DeleteAll
 	Loop, Parse, strMenuItemsList, `n
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-	AddCloseMenu(L(lMenuPopularMenus, A_Loopfield))
+	AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
 }
 
 ResetArray("arrMenuItemsList")
@@ -7947,18 +7953,19 @@ Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavi
 Gui, 2:Tab, 6
 
 Gui, 2:Font, w600
-Gui, 2:Add, Text, y+10 x15 w300 Section, %lDialogMoreOptions%
+Gui, 2:Add, Text, y+10 x15 w300 vf_MoreOptions, %lDialogMoreOptions%
+GuiControlGet, arrMoreOptionsPos, Pos, f_MoreOptions
 Gui, 2:Font
 
 ; Buttons
-OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, true) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
+OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, arrMoreOptionsPosY) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
 OptionsMoreShowButton("UsageDb", intMaxWidth) ; f_btnUsageBd GuiOptionsMoreUsageBd
 OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList GuiOptionsMoreUserVariablesList
 
 ; Descriptions
-Gui, 2:Add, Text, % "y90 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
-Gui, 2:Add, Text, % "y130 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
-Gui, 2:Add, Text, % "y170 x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
@@ -7994,22 +8001,24 @@ strAlternativeCode := ""
 intMaxWidth := ""
 ResetArray("arrPos")
 strOptionsLastActions := ""
+arrMoreOptionsPos := ""
 
 return
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-OptionsMoreShowButton(strTag, ByRef intMaxWidth, blnFirstCall := false)
+OptionsMoreShowButton(strTag, ByRef intMaxWidth, intFirstCallY := 0)
 ;------------------------------------------------------------
 {
 	global
 	
 	static intY
-	if (blnFirstCall)
-		intY := 50 ; first item will be at 90, next at 130...
-
-	intY := intY + 40
+	if (intFirstCallY)
+		intY := intFirstCallY + 30
+	else
+		intY := intY + 40
+	
 	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag
 		, % (strTag = "UsageDb" ? L(lOptionsUsageDb, g_strAppNameText) : lOptions%strTag%)
 	GuiControlGet, arrPos, Pos, f_btn%strTag%
@@ -19798,7 +19807,6 @@ if (g_blnUsageDbDebug)
 	ToolTip
 }
 
-
 ; preprocess Frequent Folders, Frequent Files, Recent Folders, Recent Files and Drives menu data
 Gosub, DynamicMenusPreProcess
 
@@ -19953,21 +19961,27 @@ if !(g_blnUsageDbEnabled)
 Diag(A_ThisLabel, "", "START")
 
 strDynamicDbSQL := ""
-loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
+loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
 
-	if (strFoldersOrFiles = lMenuPopularFolders)
+	if (strFoldersOrFiles = "Folders")
 		if !(g_objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
+		{
 			strTargetType := "Folder"
-	else ; lMenuPopularFiles
+			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFolders)
+		}
+	else ; "Files"
 		if !(g_objQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
+		{
 			strTargetType := "File"
+			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFiles)
+		}
 
 	; SQLite GetTable
 	; Parse table
@@ -19995,13 +20009,13 @@ loop, parse, % lMenuPopularFolders . "|" . lMenuPopularFiles, |
 		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
 		if (g_blnUsageDbShowPopularityIndex)
 			strMenuItemName .= " [" . objRow[2] . "]"
-		strIcon := (strFoldersOrFiles = lMenuPopularFolders ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
-		strMenuItemsList%strFoldersOrFiles% .= L(lMenuPopularMenus, strFoldersOrFiles) . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
 			break ; Folders or Files menus is complete
 	}
 	if (intPopularItemsCount < g_intRecentFoldersMax)
-		strMenuItemsList%strFoldersOrFiles% .= L(lMenuPopularMenus, strFoldersOrFiles) . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|" . iconAbout . "`n"
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|" . iconAbout . "`n"
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
