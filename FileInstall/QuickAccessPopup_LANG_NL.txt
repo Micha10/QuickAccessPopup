@@ -553,6 +553,7 @@ lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
 lMenuPopularMenus	Frequent gebruikt ~1~
 lMenuPopularMenusDescription	Geeft een dynamisch menu weer met de meest gebruikte ~1~ als bekend bij Windows en QAP. Dit menu wordt ververst wanneer het QAP-Menu wordt geopend.
+lMenuPopularMenusWillImprove	Dit menu zal verbeteren bij gebruik van ~1~...
 lMenuProgramFiles	Programmabestanden
 lMenuProgramsFolderStartMenu	Programma Map (Start Menu)
 lMenuPublicLibraries	Openbare Bibliotheken
