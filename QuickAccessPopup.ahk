@@ -2835,11 +2835,12 @@ SplitPath, g_strIniFile, g_strIniFileNameExtOnly
 
 IfExist, %g_strIniFile%
 	IniRead, g_strQAPTempFolderParent, %g_strIniFile%, Global, QAPTempFolder, %A_Space% ; empty by default
-else if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
-	g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
 
 if !StrLen(g_strQAPTempFolderParent)
-	g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
+	if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
+		g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
+	else
+		g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
 
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
 g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
@@ -18844,6 +18845,7 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 	global g_strAppNameText
 	global g_strImpExpSourceFile
 	global g_strImpExpDestinationFile
+	global g_strIniFile
 	
 	if blnAbort
 		return
@@ -18876,6 +18878,11 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 	{
 		IniWrite, %strSourceIniSection%, %g_strImpExpDestinationFile%, %strSectionName%
 		blnContentTransfered := true
+		
+		if (g_strImpExpDestinationFile = g_strIniFile) ; this is an import
+			and strSectionName = "Global") ; of Global section
+			; delete QAPTempFolder value to avoid dependency on local folder from other system (value will default to %TEMP%)
+			IniDelete, %g_strIniFile%, Global, QAPTempFolder
 	}
 }
 ;------------------------------------------------------------
