@@ -1,0 +1,8 @@
+The file in the folder "C:\ProgramData\JeanLalonde" are used by programs developped
+by Jean Lalonde. As of October 2018, this folder contains only one file (JLicons.dll)
+used by only Quick Access Popup.
+
+Do not delete this file unless you properly uninstalled Quick Access Popup and it was
+not removed by the uninstall program.
+
+More info: https://www.QuickAccessPopup.com
