@@ -501,6 +501,9 @@ lMenuAppData	Application Data
 lMenuCache	Cache
 lMenuClipboard	Presse-papiers
 lMenuClipboardDescription	Afficher un menu dynamique avec le contenu actuel du Presse-papiers de Windows.`n`nSi le Presse-Papiers contient des emplacements de documents, d'applications ou de dossiers, QAP en affiche la liste dans le menu, permettant d'ouvrir un document, une application ou un dossier trouvé dans le Presse-papiers.
+lMenuClipboardEmpty	Le Presse-papiers est vide
+lMenuClipboardNoContent	Aucun fichier ou URL dans le Presse-papiers
+lMenuClipboardTooLarge	Le Presse-papiers est trop grand pour être traité (max. ~1~ car.)
 lMenuCloseAllWindows	Fermer toutes les fenêtres
 lMenuCloseAllWindowsDescription	Afficher une liste des fenêtres actuellement ouvertes. Retirez la case à cocher des fenêtres à conserver et cliquez sur "Fermer les fenêtres sélectionnées" pour fermer les autres fenêtres. Faites un double-clic ou appuyez sur Entrée pour fermer une fenêtre ou voir ses renseignements.
 lMenuCloseThisMenu	Fermer ce menu
@@ -519,7 +522,7 @@ lMenuDownloads	Téléchargements
 lMenuDrives	Disques
 lMenuDrivesDescription	Afficher un menu dynamique présentant les lecteurs de disques de votre système avec leur nom, l'espace libre, la capacité et un icône indiquant le type de lecteur.`n`nCe menu est actualisé chaque fois que vous ouvrez le menu de QAP.
 lMenuDrivesSpace	(~1~ GB libres / ~2~ GB)
-lMenuDynamicMenus	Travaux en cours
+lMenuDynamicMenus	En cours
 lMenuEditIniFile	Modifier ~1~
 lMenuEditIniFileDescription	Modifier le fichier de configuration (.ini) de Quick Access Popup actuellement en vigueur.
 lMenuExitApp	Quitter ~1~
@@ -551,7 +554,7 @@ lMenuPopularFiles	Fichiers
 lMenuPopularFolders	Dossiers
 lMenuPopularMenus	~1~ fréquemment utilisés
 lMenuPopularMenusDescription	Affiche un menu dynamique contenant les ~1~ les plus utilisés tel que mémorisés par Windows ou utilisés avec QAP. Ce menu est actualisé chaque fois que vous affichez le menu de QAP.
-lMenuPopularMenusWillImprove	Le menu ~1~ s'améliore à mesure que vous utilisez ~2~...
+lMenuPopularMenusWillImprove	Ce menu s'améliorera à mesure que vous utiliserez ~1~...
 lMenuProgramFiles	Programmes
 lMenuProgramsFolderStartMenu	Dossier Programmes (menu Démarrer)
 lMenuPublicLibraries	Bibliothèques (public)
@@ -608,6 +611,7 @@ lOopsCannotCopyMoveToSelf	Vous ne pouvez pas déplacer ou copier un favori dans s
 lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide
+lOopsErrorIniFileDisplayErrorMessage	Afficher ce message d'erreur à nouveau pour ce menu partagé?
 lOopsErrorIniFileModified	Ce menu partagé a été modifié depuis qu'il a été chargé. Ce menu sera raffraîchi mais vos derniers changements ne pourront pas être enregistrés.
 lOopsErrorIniFileReadOnly	Le fichier de paramètres de ce menu partagé ou cet emplacement est en LECTURE seulement.
 lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible.
@@ -710,6 +714,7 @@ lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où
 lOptionsQAPTempFolder	Dossier temporaire
 lOptionsRecentFolders	Nombre d'items récents dans le menu
 lOptionsRecentFoldersPrompt	Items récents et fréquemment utilisés
+lOptionsRefreshedMenusAttached	Attacher les menus dynamiques au menu de QAP
 lOptionsRefreshedMenusAttachedInfo	lOptionsRefreshedMenusAttachedInfo Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~", "~3~", "~4~" et "~5~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
 lOptionsRefreshQAPMenuDebugBeep	Faire un bip avant et après les actualisation (déboguage)
 lOptionsRefreshQAPMenuIntervalSec	Intervalle entre les actualisations (suggéré: 300 secondes ou plus)
@@ -738,19 +743,19 @@ lOptionsThirdPartySelectedHelp	Gestionnaire de fichiers: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Veuillez choisir le fichier exécutable de l'application ~1~ à l'aide du bouton "Parcourir"
 lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvelle fenêtre
 lOptionsTrayTip	Afficher la notification au démarrage
-lOptionsUsageDb	Base de données des items fréquemment utilisés
+lOptionsUsageDb	Base de données de ~1~
 lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les menus des items fréquemment utilisés:
-lOptionsUsageDbDescription	Paramètres pour les menus des items fréquemment utilisés et récents
-lOptionsUsageDbDisabling	Les changements à la base de données des items fréquemment utilisés seront complétés lorsque vous relancerez ~1~.
-lOptionsUsageDbEnable	Activer la base de données des items fréquemment utilisés
-lOptionsUsageDbFlushDatabase	Vider la base de données des items fréquemment utilisés
-lOptionsUsageDbFlushDatabaseConfirm	Effacer le contenu de la base de données des items fréquemment utilisés?
+lOptionsUsageDbDescription	Paramètres de la base de données de ~1~
+lOptionsUsageDbDisabling	Les changements à la base de données seront complétés lorsque vous relancerez ~1~.
+lOptionsUsageDbEnable	Activer la base de données de ~1~
+lOptionsUsageDbFlushDatabase	Vider les items fréquemment utilisés de la base de données
+lOptionsUsageDbFlushDatabaseConfirm	Effacer les items fréquemment utilisés de la base de données?
 lOptionsUsageDbFlushDatabaseDone	Données effacées
-lOptionsUsageDbIntervalSeconds	Intervalle de collecte (en secondes):
+lOptionsUsageDbIntervalSeconds	Intervalle de collecte et d'actualisation (en secondes):
 lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
 lOptionsUsageDbMaximumSizeInvalid	La taille maximale de la base de données n'est pas un nombre valide: ~1~
 lOptionsUsageDbShowPopularityIndex	Afficher l'index de fréquence dans la fenêtre Paramètres et dans les menus
-lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données des items fréquemment utilisés sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
+lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données de ~1~ sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
 lOptionsUserVariablesList	Variables de l'utilisateur
 lOptionsUserVariablesListDescription	Court texte qui peut être insérée en remplacement d'un code, par exemple: {MaVariable}
 lOptionsUserVariablesListInstructions	Saisissez les variables de l'utilisateur, une variable par ligne. Chaque ligne doit commencer par le nom de la variable entre accolades (par exemple "{MaVariable}"), suivi du signe d'égalité "=" et du contenu de la variable (par exemple "{MaVariable}=Mon Contenu").`n`nPar exemple, si une ligne contient "{NotreDossierPartage}=S:\NotreDossier", le code de remplacement {NotreDossierPartage} sera remplacé par "S:\NotreDossier" dans les chemins d'accès des favoris et dans les fragments de texte.

@@ -501,6 +501,9 @@ lMenuAppData	Dati Applicazioni
 lMenuCache	Cache
 lMenuClipboard	Appunti di Windows
 lMenuClipboardDescription	Visualizza un menù dinamico con il contenuto attuale degli Appunti di Windows.`n`nSe gli Appunti contengono documenti, applicazioni o il percorso di cartelle di file, QAP mostrerà questo elenco nel menù, consentendoti di aprire un documento, eseguire un'applicazione o spostarti in una cartella trovata negli Appunti.
+lMenuClipboardEmpty	Gli Appunti sono vuoti
+lMenuClipboardNoContent	Nessun percorso o URL trovato negli Appunti
+lMenuClipboardTooLarge	Appunti troppo estesi per poter essere elaborati (max. ~1~ caratteri)
 lMenuCloseAllWindows	Chiudi tutte le finestre
 lMenuCloseAllWindowsDescription	Mostra l'elenco delle finestre attualmente aperte. Deseleziona quelle da preservare e clicca "Chiudi le finestre selezionate" per chiudere le altre restanti. Con un doppio click o premendo Invio puoi chiudere una finestra o vederne i dettagli.
 lMenuCloseThisMenu	Chiudi questo menù
@@ -551,7 +554,6 @@ lMenuPopularFiles	File
 lMenuPopularFolders	Cartelle
 lMenuPopularMenus	~1~ Frequenti
 lMenuPopularMenusDescription	Visualizza un menù dinamico che mostra la ~1~ usata più di frequente secondo quanto stimato da Windows, e usata in QAP. Questo menù viene aggiornato ogni volta che apri il menù QAP.
-lMenuPopularMenusWillImprove	Il menù ~1~ migliorerà usando ~2~...
 lMenuProgramFiles	Programmi
 lMenuProgramsFolderStartMenu	Programmi (Menù Avvio)
 lMenuPublicLibraries	Raccolte Pubbliche
@@ -608,6 +610,7 @@ lOopsCannotCopyMoveToSelf	Non puoi spostare o copiare preferiti nella loro attua
 lOopsChangeFolderInDialogAlert	Hai intenzione di cambiare cartella in questa casella di dialogo? Per poter navigare da una casella di dialogo, è necessario abilitare un'opzione (prima casella di selezione nel tab "Generale").`n`nVuoi aprire la finestra delle Opzioni?
 lOopsCouldNotOpenSpecialFolder	~1~ non è riuscito ad aprire la Cartella Speciale: "~2~".
 lOopsEmpty	vuoto
+lOopsErrorIniFileDisplayErrorMessage	Vuoi visualizzare di nuovo questo messaggio di errore per questo Menù Condiviso?
 lOopsErrorIniFileModified	Questo menù condiviso è stato modificato dopo essere stato aperto. Il menù verrà aggiornato con le modifiche apportate, che però NON saranno salvate e verranno perse.
 lOopsErrorIniFileReadOnly	Questo file delle impostazioni del menù condiviso o questa posizione è di SOLA-LETTURA.
 lOopsErrorIniFileRetry	Se il file delle impostazioni si trova su un disco di rete, prova a ricaricare ~1~ quando il disco di rete sarà disponibile.
@@ -710,6 +713,7 @@ lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovu
 lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di oggetti nei Menù
 lOptionsRecentFoldersPrompt	Menù di file/cartelle Recenti e Frequenti:
+lOptionsRefreshedMenusAttached	Aggiungi tutti i menù dinamici al menù principale di QAP
 lOptionsRefreshedMenusAttachedInfo	Se abiliti questa opzione, ci potrebbe essere un leggero ritardo nell'aggiornamento (a seconda della configurazione del tuo sistema) ogni volta che visualizzi il menu a popup.`n`nLa durata del ritardo dipende dal tempo che Windows impiega per fornire le informazioni richieste aggiornate per costruire il menu (lista degli oggetti recenti e spazio attualmente disponibile nei dischi). Questo ritardo puó avere durata variabile di volta in volta.`n`nSe disabiliti questa opzione, i menu "~1~", "~2~", "~3~", "~4~" e "~5~" saranno aggiornati solo su richiesta e visualizzati separatamente dal menu principale.
 lOptionsRefreshQAPMenuDebugBeep	Bip prima e dopo l'aggiornamento menù (debug)
 lOptionsRefreshQAPMenuIntervalSec	Intervallo di aggiornamento del menù in secondi (consigliato 300s o più)
@@ -738,19 +742,19 @@ lOptionsThirdPartySelectedHelp	File Manager selezionato: ~1~ (<a href="~2~">~3~<
 lOptionsThirdPartySelectFile	Puoi selezionare il file dell'applicazione di ~1~ usando il tasto "Sfoglia"
 lOptionsThirdPartyUseTabs	Usa i tab invece di aprire (in) una nuova finestra
 lOptionsTrayTip	All'avvio, &Mostra popup dall'area notifiche
-lOptionsUsageDb	Database dei Menù di file/cartelle Frequenti
+lOptionsUsageDb	Database ~1~
 lOptionsUsageDbDaysInPopular	Numero di giorni da tenere in conto nei Menù di file/cartelle Frequenti:
-lOptionsUsageDbDescription	Imposta i parametri per gli elementi dei Menù di file/cartelle Frequenti
-lOptionsUsageDbDisabling	Modifiche alle impostazioni del database dei Menù di file/cartelle Frequenti saranno completate dopo aver ricaricato ~1~.
-lOptionsUsageDbEnable	Abilita il Database dei Menù di file/cartelle Frequenti
-lOptionsUsageDbFlushDatabase	Svuota il database dei Menù di file/cartelle Frequenti
-lOptionsUsageDbFlushDatabaseConfirm	Cancellare il contenuto dei database dei Menù di file/cartelle Frequenti?
+lOptionsUsageDbDescription	Imposta i parametri per il database ~1~
+lOptionsUsageDbDisabling	Le modifiche alle impostazioni del database saranno attive dopo aver ricaricato ~1~.
+lOptionsUsageDbEnable	Abilita il Database ~1~
+lOptionsUsageDbFlushDatabase	Elimina gli Oggetti Frequenti dal database
+lOptionsUsageDbFlushDatabaseConfirm	Cancellare gli Oggetti Frequenti dal contenuto del database?
 lOptionsUsageDbFlushDatabaseDone	Contenuto del database cancellato.
-lOptionsUsageDbIntervalSeconds	Intervallo di Osservazione (secondi):
+lOptionsUsageDbIntervalSeconds	Intervallo di Raccolta e di Aggiornamento (secondi):
 lOptionsUsageDbMaximumSize	Dimensione massima del database (in MB):
 lOptionsUsageDbMaximumSizeInvalid	La dimensione massima del database non è un numero valido: ~1~
 lOptionsUsageDbShowPopularityIndex	Mostra l'indice di frequenza nelle Impostazioni e menù
-lOptionsUsageDbStatement	Informazioni sulla Privacy: i dati nel database dei Menù di file/cartelle Frequenti vengono raccolti esclusivamente allo scopo di presentarti menù di file/cartelle Frequenti che riflettano il tuo personale uso del computer. Tali dati risiedono SOLTANTO nel tuo computer e NESSUNA informazione viene trasmessa ad un server remoto.
+lOptionsUsageDbStatement	Informazioni sulla Privacy: i dati nel database ~1~ vengono raccolti e memorizzati localmente, esclusivamente allo scopo di costruire i menù dinamici e migliorare le prestazioni. Tali dati risiedono SOLTANTO nel tuo computer e NESSUNA informazione viene mai trasmessa ad un server remoto.
 lOptionsUserVariablesList	Variabili Utente
 lOptionsUserVariablesListDescription	Esempi di testo che può essere usato per denominare i segnaposti, e.g.: {MiaVariabile}
 lOptionsUserVariablesListInstructions	Inserire le variabili utente, una per linea. Ciascuna linea deve iniziare con il nome della variabile tra parentesi graffe (e.g. "{MiaVariabile}"), seguita dal segno di uguale "=" ed il contenuto della variabile (e.g. "{MiaVariabile}=Contenuto").`n`nPer esempio, se una linea contiene "{NostraCartellaCondivisa}=S:\QuestaCartella", il segnaposto {NostraCartellaCondivisa} verrà sostituito da "S:\QuestaCartella" in percorsi preferiti o contenuto di ritagli (snippets).

@@ -501,6 +501,9 @@ lMenuAppData	Dados de Aplicativos
 lMenuCache	Cache
 lMenuClipboard	Área de Transferência
 lMenuClipboardDescription	Exibe um menu dinâmico com o conteúdo atual da Área de Transferência do Windows.`n`nSe a Área de Transferência contiver o caminho para documentos, aplicativos ou pastas, o QAP mostra esta lista no menu, permitindo a você abrir um documento, iniciar um aplicativo ou navegar até uma pasta encontrada na Área de Transferência.
+lMenuClipboardEmpty	A Área de Transferência está vazia
+lMenuClipboardNoContent	Nenhum caminho ou URL na Área de Transferência
+lMenuClipboardTooLarge	Área de Transferência muito grande para ser processada (máx. ~1~ caract.)
 lMenuCloseAllWindows	Fechar todas as janelas
 lMenuCloseAllWindowsDescription	Exibe uma lista de janelas atualmente abertas. Desmarque estas para manter e clique "Fechar janelas selecionadas" para fechar as outras janelas. Clique duplo ou pressione Enter para fechar uma janela ou ver seus detalhes.
 lMenuCloseThisMenu	Fechar este menu
@@ -519,7 +522,7 @@ lMenuDownloads	Downloads
 lMenuDrives	Discos
 lMenuDrivesDescription	Exibe um menu dinâmico mostrando as unidades em seu sistema com rótulo, espaço livre, capacidade e um ícone para mostrar o tipo de unidade.`n`nEste menu é atualizado a cada vez que você abre o menu do QAP.
 lMenuDrivesSpace	(~1~ GB livre(s) / ~2~ GB)
-lMenuDynamicMenus	No trabalho
+lMenuDynamicMenus	No Trabalho
 lMenuEditIniFile	Editar ~1~
 lMenuEditIniFileDescription	Edite o arquivo atual (.ini) de configurações do Quick Access Popup.
 lMenuExitApp	Sair do ~1~
@@ -551,7 +554,7 @@ lMenuPopularFiles	Arquivos
 lMenuPopularFolders	Pastas
 lMenuPopularMenus	~1~ Frequente
 lMenuPopularMenusDescription	Exibe um menu dinâmico mostrando os ~1~ usados com mais frequência como coletado pelo Windows e usado no QAP. Este menu é atualizado toda vez que o menu do QAP é aberto.
-lMenuPopularMenusWillImprove	O menu ~1~ irá melhorar conforme usar o ~2~...
+lMenuPopularMenusWillImprove	Este menu irá melhorar conforme usar o ~1~...
 lMenuProgramFiles	Arquivos de Programas
 lMenuProgramsFolderStartMenu	Pasta de Programas (Menu Iniciar)
 lMenuPublicLibraries	Bibliotecas Públicas
@@ -608,6 +611,7 @@ lOopsCannotCopyMoveToSelf	Você não pode mover ou copiar favoritos para sua local
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro de uma caixa de diálogo, você precisa habilitar esta opção (primeira caixa de seleção na aba "Geral").`n`nDeseja abrir a janela de opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não pôde abrir a pasta especial: "~2~".
 lOopsEmpty	vazio
+lOopsErrorIniFileDisplayErrorMessage	Exibir esta mensagem de erro novamente para este Menu Compartilhado?
 lOopsErrorIniFileModified	Este menu compartilhado foi modificado desde que foi carregado. O menu será atualizado mas a sua última alteração não pode ser salva.
 lOopsErrorIniFileReadOnly	Este arquivo de configurações de menu compartilhado ou este local é SOMENTE LEITURA.
 lOopsErrorIniFileRetry	Se o arquivo de configurações está em uma unidade de rede, tente recarregar o ~1~ quando a unidade de rede estiver disponível.
@@ -710,6 +714,7 @@ lOptionsPopupHotkeyTitlesSub	Este botão do mouse exibe o menu em qualquer lugar 
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens nos menus
 lOptionsRecentFoldersPrompt	Menus de Itens Recentes e Populares:
+lOptionsRefreshedMenusAttached	Anexar todos os menus dinâmicos ao menu do QAP
 lOptionsRefreshedMenusAttachedInfo	Se você habilitar esta opção, pode haver um pequeno atraso na atualização (dependendo da configuração do seu sistema) a cada vez que o menu popup for exibido.`n`nA duração do atraso depende do tempo que o Windows leva para fornecer as informações atualizadas necessárias para criar o menu (lista de itens recentes e espaço disponível nas unidades atuais). Esta duração pode variar a cada chamado.`n`nSe você desabilitar esta opção, os menus "~1~", "~2~", "~3~", "~4~" e "~5~" serão atualizados somente sob demanda e serão exibidos destacados do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Aviso sonoro antes e após atualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre atualizações em segundos`n(300 segundos ou mais recomendado)
@@ -738,19 +743,19 @@ lOptionsThirdPartySelectedHelp	Gerenciador de Arquivos Selecionado: ~1~ (<a href
 lOptionsThirdPartySelectFile	Por favor, selecione o arquivo executável do ~1~ usando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Use abas em vez de abrir em uma nova janela
 lOptionsTrayTip	Exibir &Dicas na Inicialização
-lOptionsUsageDb	Banco de dados de Itens FRequentes
+lOptionsUsageDb	Banco de dados de ~1~
 lOptionsUsageDbDaysInPopular	Número de dias a considerar nos menus Populares:
-lOptionsUsageDbDescription	Defina as parâmetros para os menus de itens Populares e Recentes
-lOptionsUsageDbDisabling	As alterações nas configurações do banco de dados dos Menus Populares serão concluídas após recarregar o ~1~.
-lOptionsUsageDbEnable	Habilitar Banco de Dados de Menus Populares
-lOptionsUsageDbFlushDatabase	Limpar banco de dados de Itens Frequentes
-lOptionsUsageDbFlushDatabaseConfirm	Excluir o conteúdo do banco de dados de Itens Frequentes?
+lOptionsUsageDbDescription	Defina as parâmetros para o banco de dados de ~1~
+lOptionsUsageDbDisabling	As alterações nas configurações do banco de dados serão concluídas após recarregar o ~1~.
+lOptionsUsageDbEnable	Habilitar Banco de Dados de ~1~
+lOptionsUsageDbFlushDatabase	Limpar os Itens Frequentes do banco de dados
+lOptionsUsageDbFlushDatabaseConfirm	Excluir os Itens Frequentes do conteúdo do banco de dados?
 lOptionsUsageDbFlushDatabaseDone	Conteúdo do banco de dados excluído.
-lOptionsUsageDbIntervalSeconds	Intervalo de coleta (segundos):
+lOptionsUsageDbIntervalSeconds	Intervalo de coleta e atualização (segundos):
 lOptionsUsageDbMaximumSize	Tamanho máximo do banco de dados (em MB):
 lOptionsUsageDbMaximumSizeInvalid	O tamanho máximo do banco de dados não é um número válido: ~1~
 lOptionsUsageDbShowPopularityIndex	Exibir índice de popularidade nas Configurações e menus
-lOptionsUsageDbStatement	Declaração de privacidade: Os dados do banco de dados de Itens Frequentes são coletados e armazenados localmente, exclusivamente para criar os menus "Pastas Frequentes" e "Arquivos Frequentes" que são baseados no uso de seu computador pessoal. Esses dados residem APENAS no seu computador e nenhuma informação é transmitida para um servidor remoto.
+lOptionsUsageDbStatement	Declaração de privacidade: Os dados do banco de dados de ~1~ são coletados e armazenados localmente, exclusivamente para criar menus dinâmicos e aumentar o desempenho. Esses dados residem APENAS no seu computador e NENHUMA informação é transmitida para um servidor remoto.
 lOptionsUserVariablesList	Variáveis do Usuário
 lOptionsUserVariablesListDescription	Pedaços de texto que podem ser inseridos como espaços reservados, ex.: {MyVariable}
 lOptionsUserVariablesListInstructions	Entre suas variáveis de usuário, uma por linha. Cada linha deve iniciar pelo nome da variável entre chaves (ex. "{MyVariable}"), seguido pelo sinal de igual "=" e o conteúdo da variável (ex. "{MyVariable}=MyContent").`n`nPor exemplo, Se uma linha contém "{OurSharedFolder}=S:\ThisFolder", o espaço reservado {OurSharedFolder} será substituído por "S:\ThisFolder" nos caminhos de favoritos ou no conteúdo de recortes.

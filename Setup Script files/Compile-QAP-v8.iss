@@ -84,6 +84,7 @@ Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#QAPmesse
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\Setup-Only\_do_not_remove_or_rename.txt"; DestDir: "{app}"; DestName: "_do_not_remove_or_rename.txt"; Flags: ignoreversion
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#MyAppNameNoSpace}.ico"; DestDir: "{app}"; DestName: "{#MyAppNameNoSpace}.ico"; Flags: ignoreversion
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#JLicons}"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "JLicons.dll"; Flags: sharedfile ignoreversion signonce
+Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\Setup-Only\_JeanLalonde_read-me.txt"; DestDir: "{commonappdata}\{#JLdir}"; DestName: "_read-me.txt"; Flags: sharedfile ignoreversion
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#SQLite}-64-bit.dll"; DestDir: "{app}"; DestName: "{#SQLite}.dll"; Check: IsWin64; Flags: 64bit ignoreversion signonce
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#SQLite}-32-bit.dll"; DestDir: "{app}"; DestName: "{#SQLite}.dll"; Check: not IsWin64; Flags: 32bit ignoreversion signonce
 Source: "E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\{#SQLite}-64-bit.def"; DestDir: "{app}"; DestName: "{#SQLite}.def"; Check: IsWin64; Flags: 64bit ignoreversion
