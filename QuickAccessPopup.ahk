@@ -6804,8 +6804,15 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 DirectoryOpusFavoritesMenuShortcut:
 ;------------------------------------------------------------
 
+SetWaitCursor(true)
+
+Gosub, RefreshDirectoryOpusFavorites
+
 Gosub, SetMenuPosition
 CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+
+SetWaitCursor(false)
+
 Menu, %lDOpusMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6863,24 +6870,17 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 	global g_strMenuPathSeparator
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
-	; ###_V("In - " . A_ThisFunc, SubStr(g_strDirectoryOpusFavorites, 1, 200))
 
 	objDopusXML.XML.LoadXML(strNodeXml)
-	objNodeAll := objDopusXML.SN("//path[not(@label)]") ; to select only "path" nodes without "label"
-	; objNodeAll := objDopusXML.SN("//path") ; select all "path" nodes -- ? (overwrite unsupported path's "Name" labels from DOpus)
-	while (objItem := objNodeAll.Item[A_Index-1])
-	; fill all empty path's "label" attribute with the descendant's pathstring text
-	{
-		objItemAttributes := XML.EA(objItem)
-		objItem.SetAttribute("label", SSN(objItem, "descendant::pathstring").text)
-	}
 	
 	objNodeAll := objDopusXML.SN("/*/*") ; select all nodes
 	while (objItem := objNodeAll.Item[A_Index-1])
 	{
-		blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
 		objItemAttributes := objDopusXML.EA(objItem)
 			
+		blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
+			and StrLen(objItemAttributes.label) ; to skip "<folder><separator/></folder>"
+
 		if (blnItemIsMenu)
 		{
 			objNewMenu := Object() ; create the submenu object
@@ -6894,32 +6894,49 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 			objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
 			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
-				
+			
 			strResult := RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, objItem.xml) ; RECURSIVE
 		}
 		
 		objLoadDOpusFavorite := Object() ; new favorite item
 		
-		if !StrLen(objItemAttributes.label) ; separator ### must be better way to detect separator
+		if (!blnItemIsMenu and objItem.NodeName = "folder"
+			and SSN(objItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
 			
 			objLoadDOpusFavorite.FavoriteType := "X"
 
 		else ; menu or folder (what if unexpected node?)
 		{
-			objLoadDOpusFavorite.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder")
 			objLoadDOpusFavorite.FavoriteName := objItemAttributes.label
-			if !(objItem.NodeName = "folder")
-				objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
-			/* #####
-			EXCEPTION IF:
-				<path label="Ce PC">
-					<dir>
-						<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
-					</dir>
-				</path>
-			*/
-			if InStr(strPathTagContent, "<pidl>")
-				objLoadDOpusFavorite.FavoriteType := "Special" ; process new type of Special #####
+			if (blnItemIsMenu)
+				objLoadDOpusFavorite.FavoriteType := "Menu"
+			else
+			{
+				if (SSN(objItem, "descendant::pathstring").NodeName = "pathstring")
+				{
+					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
+					objLoadDOpusFavorite.FavoriteType := "Folder"
+				}
+				else if (SSN(objItem, "descendant::pidl").NodeName = "pidl")
+				/*
+					<path label="Ce PC">
+						<dir>
+							<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
+						</dir>
+					</path>
+				*/
+				{
+					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pidl").text
+					objLoadDOpusFavorite.FavoriteType := "Special"
+				}
+				else
+				{
+					objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . objItemAttributes.label . """ / node: """ . objItem.NodeName . """"
+					objLoadDOpusFavorite.FavoriteType := "Text"
+				}
+			}
+			if !StrLen(objLoadDOpusFavorite.FavoriteName)
+				objLoadDOpusFavorite.FavoriteName := objLoadDOpusFavorite.FavoriteLocation
 		}
 		
 		; this is a submenu, link to the submenu object
@@ -6928,7 +6945,6 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 		
 		; update the current menu object
 		objCurrentMenu.Insert(objLoadDOpusFavorite)
-		; ###_O("Insert objLoadDOpusFavorite in: " . objCurrentMenu.MenuPath, objLoadDOpusFavorite)
 	}
 	
 	return, "EOM" ; end of XML, last menu item
