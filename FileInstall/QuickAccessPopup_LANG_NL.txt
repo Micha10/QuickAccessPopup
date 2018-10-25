@@ -500,6 +500,9 @@ lMenuAppData	Applicatiegegevens
 lMenuCache	Cache
 lMenuClipboard	Klembord
 lMenuClipboardDescription	Geeft een dynamisch menu weer met de inhoud van uw huidige Windows-klembord.`n`nAls het klembord bestanden, toepassingen of mappen bevat, toont QAP deze lijst in het menu. U kunt deze documenten snel openen, een toepassing starten of naar de desbetreffende map kunt navigeren.
+lMenuClipboardEmpty	Klembord is leeg
+lMenuClipboardNoContent	Geen pad of URL in het klembord beschikbaar
+lMenuClipboardTooLarge	Klembord is te groot om verwerkt te kunnen worden (max. ~1~ karakters)
 lMenuCloseAllWindows	Sluit alle vensters
 lMenuCloseAllWindowsDescription	Toont een lijst met vensters die momenteel zijn geopend. Om vensters te sluiten selecteert u de gewenste vensters om te sluiten en klikt u op "Geselecteerde vensters sluiten". Ook kunt u dubbelklikken of op "Enter" drukken om de geselecteerde venster te sluiten of details hiervan te bekijken.
 lMenuCloseThisMenu	Menu sluiten
@@ -518,7 +521,7 @@ lMenuDownloads	Downloads
 lMenuDrives	Stations
 lMenuDrivesDescription	Geeft een dynamisch menu weer met de schijven van uw systeem met label, vrije ruimte, capaciteit en een pictogram dat het stationstype toont.`n`nDit menu wordt vernieuwd telkens wanneer u het QAP-menu opent.
 lMenuDrivesSpace	(~1~ GB vrij / ~2~ GB) GB staat voor Giga-Bytes
-lMenuDynamicMenus	In het werk...
+lMenuDynamicMenus	Dagelijks Gebruik
 lMenuEditIniFile	Wijzig ~1~...
 lMenuEditIniFileDescription	Wijzigen van het actieve "Quick Access Popup instellingenbestand (.ini).
 lMenuExitApp	~1~ afsluiten 
@@ -550,7 +553,7 @@ lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
 lMenuPopularMenus	Frequent gebruikt ~1~
 lMenuPopularMenusDescription	Geeft een dynamisch menu weer met de meest gebruikte ~1~ als bekend bij Windows en QAP. Dit menu wordt ververst wanneer het QAP-Menu wordt geopend.
-lMenuPopularMenusWillImprove	Het ~1~ menu zal verbeteren bij gebruik van ~2~...
+lMenuPopularMenusWillImprove	Dit menu zal verbeteren bij gebruik van ~1~...
 lMenuProgramFiles	Programmabestanden
 lMenuProgramsFolderStartMenu	Programma Map (Start Menu)
 lMenuPublicLibraries	Openbare Bibliotheken
@@ -607,6 +610,7 @@ lOopsCannotCopyMoveToSelf	U kunt een favoriet niet kopiëren naar de bestaande l
 lOopsChangeFolderInDialogAlert	Wilde u gebruik maken van mapnavigatie in deze dialoogbox? Om in een dialoogbox te kunnen navigeren, dient u een optie in te schakelen (eerste checkbox onder tab "Algemeen")`n`nWilt u het instellingen-menu openen?
 lOopsCouldNotOpenSpecialFolder	~1~ kan de speciale map "~2~" niet openen.
 lOopsEmpty	leeg
+lOopsErrorIniFileDisplayErrorMessage	Dit bericht nogmaals weergeven voor dit openbare menu?
 lOopsErrorIniFileModified	Dit openbare menu is aangepast sinds deze geladen is. Het menu zal worden ververst echter uw laatst aangepaste instellingen zullen verloren gaan.
 lOopsErrorIniFileReadOnly	Dit "Openbaar Menu" -instellingenbestand of deze locatie is ALLEEN-LEZEN.
 lOopsErrorIniFileRetry	Als het instellingenbestand opgeslagen is op een netwerkstation, probeer ~1~ te herladen wanneer het netwerkstation beschikbaar is.
@@ -709,6 +713,7 @@ lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve b
 lOptionsQAPTempFolder	Tijdelijke map
 lOptionsRecentFolders	Numm&er van items in de menu's
 lOptionsRecentFoldersPrompt	"Recente" en "Frequente"-Items menus:
+lOptionsRefreshedMenusAttached	Koppel alle dynamische menus aan het QAP-hoofdmenu
 lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~", "~3~", "~4~" en "~5~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
 lOptionsRefreshQAPMenuIntervalSec	Verversinterval (in secondes)`n(minimaal 300 seconde wordt geadviseerd)
@@ -737,19 +742,19 @@ lOptionsThirdPartySelectedHelp	Geselecteerde bestandsbeheerder is: ~1~ (<a href=
 lOptionsThirdPartySelectFile	Selecteer de ~1~ applicatiebestand door middel van de de toets: "Bladeren..."
 lOptionsThirdPartyUseTabs	Gebruik tabs in plaats van het openen van een nieuw venster
 lOptionsTrayTip	"Tips tijdens opstarten" in Systeembalk weergeven
-lOptionsUsageDb	"Frequente Items" menudatabase
+lOptionsUsageDb	~1~ database
 lOptionsUsageDbDaysInPopular	Maximum aantal geregistreerde dagen voor de "Frequente Items" menus:
-lOptionsUsageDbDescription	Parameter voor "Recente" en "Frequente"-Items menus instellen
-lOptionsUsageDbDisabling	Nieuwe instellingen aan de "Frequente Items" menudatabase worden pas na een herstart van ~1~ van kracht.
-lOptionsUsageDbEnable	Menudatabase voor "Frequente Items" inschakelen
-lOptionsUsageDbFlushDatabase	"Frequente Items" menudatabase leegmaken
-lOptionsUsageDbFlushDatabaseConfirm	De inhoud van de "Frequente Items" menudatabase verwijderen?
+lOptionsUsageDbDescription	Parameters voor ~1~ database instellen
+lOptionsUsageDbDisabling	Nieuwe instellingen voor de database worden pas na een herstart van ~1~ van kracht.
+lOptionsUsageDbEnable	~1~ database inschakelen 
+lOptionsUsageDbFlushDatabase	Frequente items in database verwijderen
+lOptionsUsageDbFlushDatabaseConfirm	Frequente items in database verwijderen?
 lOptionsUsageDbFlushDatabaseDone	Database content verwijderd.
-lOptionsUsageDbIntervalSeconds	Verzamelinterval (seconden):
+lOptionsUsageDbIntervalSeconds	Ververs & verzamelinterval (seconden):
 lOptionsUsageDbMaximumSize	Maximale grootte van de database (in MB):
 lOptionsUsageDbMaximumSizeInvalid	De ingestelde maximale grootte van de database is geen juiste grootte: ~1~
 lOptionsUsageDbShowPopularityIndex	Geef de populariteitsindex weer in menu en instellingenscherm
-lOptionsUsageDbStatement	Privacy Verklaring: De data welke voor het "Frequente Items" menudatabase zijn verzameld worden alleen gebruikt om u te voorzien van snelle links naar uw gebruikte locaties. Deze data wordt lokaal op uw computer opgeslagen en NIETS van deze informatie wordt verzonden naar een locatie op het internet.
+lOptionsUsageDbStatement	Privacy Statement: The data in the ~1~ database is collected and stored locally, solely to build dynamic menus and increase performance. This data resides ONLY on your computer and NO information is transmitted to a remote server.
 lOptionsUserVariablesList	Gebruikersvariabelen
 lOptionsUserVariablesListDescription	Voorgedefinieerde tekst die als variabelen op de voorgedefinieerde locaties kunnen worden ingevoegd, bijvoorbeeld: {MijnVariabelen}
 lOptionsUserVariablesListInstructions	Voer uw gebruikersvariabelen in, 1 per regel. Elke regel dient te starten met de variabele naam tussen accolades (bijvoorbeeld: "{MijnVariabele}"), gevolgd door een gelijkteken "=" en de variabele content (bijvoorbeeld: "{MijnVariabele}=MijnContent").`n`nAls voorbeeld, een regel bevat: "{OnzeOpenbareMap}=S:\DezeMap", de variabele {OnzeOpenbareMap} zal worden vervangen door "S:\DezeMap" in de favorietpaden en/of fragmenten. 

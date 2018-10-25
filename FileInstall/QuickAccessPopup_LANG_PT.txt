@@ -501,6 +501,9 @@ lMenuAppData	Dados de Aplicações
 lMenuCache	Cache
 lMenuClipboard	Área de Transferência
 lMenuClipboardDescription	Exibe um menu dinâmico com o conteúdo actual da área de transferência do Windows.`n`nSe a área de transferência contiver atalhos de documentos, aplicações ou pastas, o QAP mostra esta lista no menu, permitindo-lhe abrir um documento, carregar uma aplicação ou navegar para uma pasta encontrada na área de transferência.
+lMenuClipboardEmpty	A Área de Transferências está vazia
+lMenuClipboardNoContent	Não existem atalhos ou URLs na Área de Transferências
+lMenuClipboardTooLarge	A Área de Transferências é demasiado grande para ser processada (máx. ~1~ caracteres)
 lMenuCloseAllWindows	Fechar todas as janelas
 lMenuCloseAllWindowsDescription	Exibe uma lista das janelas actualmente abertas. Desmarque as janelas a manter e clique "Fechar Janelas Seleccionadas" para fechar as restantes. Faça duplo clique ou prima Enter para fechar uma janela ou ver os seus detalhes.
 lMenuCloseThisMenu	Fechar este menu
@@ -551,7 +554,7 @@ lMenuPopularFiles	Ficheiros
 lMenuPopularFolders	Pastas
 lMenuPopularMenus	~1~ Frequentes
 lMenuPopularMenusDescription	Exibe um menu dinâmico mostrando as ~1~ usadas mais frequentemente de acordo com o registo do Windows e usadas no QAP. Este menu é actualizado sempre que abrir o menu QAP.
-lMenuPopularMenusWillImprove	O menu ~1~ vai melhorar a sua utilização do ~2~...
+lMenuPopularMenusWillImprove	Este menu vai melhorar a sua utilização do ~1~...
 lMenuProgramFiles	Programas
 lMenuProgramsFolderStartMenu	Pasta de Programas (Menu Iniciar)
 lMenuPublicLibraries	Bibliotecas Públicas
@@ -608,6 +611,7 @@ lOopsCannotCopyMoveToSelf	Não pode mover ou copiar favoritos para a sua localiza
 lOopsChangeFolderInDialogAlert	Deseja alterar a pasta nesta caixa de diálogo? Para poder navegar dentro desta caixa de diálogo, tem que activar uma opção (1ª caixa de marcação do separador "Geral").`n`nDeseja abrir a janela de Opções?
 lOopsCouldNotOpenSpecialFolder	O ~1~ não conseguiu abrir a pasta especial: "~2~".
 lOopsEmpty	vazia
+lOopsErrorIniFileDisplayErrorMessage	Exibir de novo esta mensagem de erro para este Menu Partilhado?
 lOopsErrorIniFileModified	Este menu partilhado foi modificado desde o seu carregamento. O menu será actualizado mas a sua última alteração não poderá ser guardada.
 lOopsErrorIniFileReadOnly	Este ficheiro de definições de menu partilhado ou esta localização é SÓ-DE-LEITURA.
 lOopsErrorIniFileRetry	Se o ficheiro de definições estiver numa unidade de rede, tente reiniciar o ~1~ quando a unidade de rede estiver disponível.
@@ -710,6 +714,7 @@ lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (e
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens em menus
 lOptionsRecentFoldersPrompt	Itens Recentes e Menus Frequentes:
+lOptionsRefreshedMenusAttached	Anexar todos os menus dinÃ¢micos ao menu principal do QAP
 lOptionsRefreshedMenusAttachedInfo	Se activar esta opção, pode ocorrer um ligeiro atraso na actualização (dependendo da configuração do seu sistema) cada vez que exibir o menu emergente.`n`nA duração do atraso depende do tempo que o Windows leva a fornecer a informação de actualização necessária para a construção do menu (lista de itens recentes e espaço disponível nas unidades actuais). Esta duração pode variar em cada caso.`n`nSe desactivar esta opção, os menus "~1~", "~2~", "~3~", "~4~" e "~5~" serão actualizados apenas a pedido e exibidos separadamente do menu principal.
 lOptionsRefreshQAPMenuDebugBeep	Bipar antes e depois de actualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualizações em segundos`n(recomendado 300 segundos ou mais)
@@ -738,19 +743,19 @@ lOptionsThirdPartySelectedHelp	Gestor de Ficheiros Seleccionado: ~1~ (<a href="~
 lOptionsThirdPartySelectFile	Por favor, seleccione o ficheiro da aplicação ~1~ utilizando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Usar separadores em vez de abrir numa nova janela
 lOptionsTrayTip	&Exibir Dica da Área de Notificação
-lOptionsUsageDb	Base de Dados Itens Frequentes
+lOptionsUsageDb	Base de Dados ~1~
 lOptionsUsageDbDaysInPopular	Número de dias a ter em conta nos menus Itens Frequentes:
-lOptionsUsageDbDescription	Define os parâmetros para a base de dados de Itens Frequentes
-lOptionsUsageDbDisabling	As alterações na base de dados de definições dos Itens Frequentes serão concluídas depois de reiniciar o ~1~.
-lOptionsUsageDbEnable	Activar Base de Dados de de Itens Frequentes
-lOptionsUsageDbFlushDatabase	Apagar base de dados Itens Frequentes
-lOptionsUsageDbFlushDatabaseConfirm	Eliminar o conteúdo da base de dados Itens Frequentes?
+lOptionsUsageDbDescription	Define os parâmetros para a base de dados ~1~
+lOptionsUsageDbDisabling	As alterações às definições da base de dados serão concluídas depois de reiniciar o ~1~.
+lOptionsUsageDbEnable	Activar Base de Dados ~1~
+lOptionsUsageDbFlushDatabase	Apagar Itens Frequentes da base de dados 
+lOptionsUsageDbFlushDatabaseConfirm	Eliminar Itens Frequentes do conteúdo da base de dados?
 lOptionsUsageDbFlushDatabaseDone	ConteÃºdo da Base de dados eliminado.
-lOptionsUsageDbIntervalSeconds	Intervalo de recolha (segundos):
+lOptionsUsageDbIntervalSeconds	Intervalo de recolha e actualização (segundos):
 lOptionsUsageDbMaximumSize	Tamanho máximo da base de dados (em MB):
 lOptionsUsageDbMaximumSizeInvalid	O temanho máximo da base de dados não é um número válido: ~1~
 lOptionsUsageDbShowPopularityIndex	Mostrar índice de frequência nas definições e no menu
-lOptionsUsageDbStatement	Declaração de Privacidade: Os dados da base de dados Itens Frequentes são recolhidos e guardados localmente, apenas para elaborar os menus "Pastas Frequentes" e "Ficheiros Frequentes" que se baseiam no uso do seu computador pessoal. Estes dados residem APENAS no seu computador e não é transmitida qualquer informação a um servidor remoto.
+lOptionsUsageDbStatement	Declaração de Privacidade: Os dados da base de dados ~1~ são recolhidos e guardados localmente, apenas para elaborar os menus dinâmicos e aumentar o desempenho. Estes dados residem APENAS no seu computador e não é transmitida qualquer informação a um servidor remoto.
 lOptionsUserVariablesList	Variáveis do Utilizador
 lOptionsUserVariablesListDescription	Peças de texto que podem ser inseridas como espaços reservados, p.e.: {MyVariable}
 lOptionsUserVariablesListInstructions	Introduza as suas variáveis, uma por linha. Cada linha deve começar com o nome da variável entre chavetas (p.e. "{MyVariable}"), seguido do sinal igual "=" e o conteúdo da variável (p.e. "{MyVariable}=MyContent").`n`nPor exemplo, se uma linha contém "{OurSharedFolder}=S:\ThisFolder", o espaço reservado {OurSharedFolder} será substituído por "S:\ThisFolder" nos atalhos dos favoritos ou conteúdo dos snippets.

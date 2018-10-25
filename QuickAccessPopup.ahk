@@ -31,6 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.2.1 (2018-10-23)
+- optimized the code refreshing QAP menus using new tools offered by the SQLite database
+- refresh "Recent folders", "Recent files", "Frequent folders", "Frequent files" and "Drives" menus from a preprocessed field in the database
+- refactor the background task collecting recent items to also preprocess "Recent folders", "Recent files", "Frequent folders", "Frequent files" and "Drives" menus
+- in "Options", change database options button name in the "More" tab from "Frequent Items database" to "Quick Access Popup database"
+- the option to attach dynamic menus to main menu is now true by default ("Settings", "Options" button, "Menu" tab, first check box in second column)
+- when refreshing the "Clipboard" menu, reduce the maximum size accepted to handle Windows Clipboard data from 50,000 to 10,000 characters (this could become an option in future release) and display specific messages in "Clipboard" menu if Clipboard is empty, too large or has no path/url
+- fix bug creating SQLite files on 64-bit system when user runs QAP with 32-bit executable
+- update to German, Korean, Portuguese, Brazilian Portuguese, Italian, Spanish, Dutch and French language files
+
 Version BETA: 9.2.0.6/9.2.0.7 (2018-10-18)
 - fix bug when refreshing Frequent menus when running QAP in non-English language
 - fix display bug when tabs in Options dialog box take more than one row
@@ -2750,7 +2760,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.0.7
+;@Ahk2Exe-SetVersion 9.2.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2846,8 +2856,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -19577,23 +19587,33 @@ strError := ""
 ; If sqlite.dll does not exit in program's directory, copy the 32-bit or 64-bit file depending on OS (same for sqlite.def).
 strError := ""
 loop, parse, % "dll|def", |
+{
+	strExtension := A_LoopField
 	if (g_blnPortableMode)
 	{
 		str64or32 := A_PtrSize * 8 ; executable running is 32-bit (4 * 8) or 64-bit (8 * 8), do not use A_Is64bitOS because it shows the system's spec, not the running executable's spec
-		if FileExist(A_ScriptDir . "\sqlite3." . A_LoopField) ; if prod file exists
+		if FileExist(A_ScriptDir . "\sqlite3." . strExtension) ; if prod file exists
 		{
-			FileGetSize, intSizeSQLiteCurrent, %A_ScriptDir%\sqlite3.%A_LoopField% ; check size of file in prod, in bytes
-			FileGetSize, intSizeSQLiteRequired, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField% ; check size of file required for running executable, in bytes
+			FileGetSize, intSizeSQLiteCurrent, %A_ScriptDir%\sqlite3.%strExtension% ; check size of file in prod, in bytes
+			FileGetSize, intSizeSQLiteRequired, %A_ScriptDir%\sqlite3-%str64or32%-bit.%strExtension% ; check size of file required for running executable, in bytes
 		}
-		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField) or (intSizeSQLiteCurrent <> intSizeSQLiteRequired) ; if no file in prod or wrong file for current executable
-			if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField)
-				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%A_LoopField%, %A_ScriptDir%\sqlite3.%A_LoopField%, 1 ; overwrite if wrong file exists
+		if !FileExist(A_ScriptDir . "\sqlite3." . strExtension) or (intSizeSQLiteCurrent <> intSizeSQLiteRequired) ; if no file in prod or wrong file for current executable
+			if FileExist(A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . strExtension)
+			{
+				FileCopy, %A_ScriptDir%\sqlite3-%str64or32%-bit.%strExtension%, %A_ScriptDir%\sqlite3.%strExtension%, 1 ; overwrite if wrong file exists
+				if (ErrorLevel)
+				{
+					Oops("Exit ~1~ properly before retstarting it with a different bitsize build (32-bit or 64-bit)", g_strAppNameText)
+					ExitApp
+				}
+			}
 			else
-				strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . A_LoopField . "`n"
+				strError .= A_ScriptDir . "\sqlite3-" . str64or32 . "-bit." . strExtension . "`n"
 	}
 	else
-		if !FileExist(A_ScriptDir . "\sqlite3." . A_LoopField)
-			strError .= A_ScriptDir . "\sqlite3." . A_LoopField . "`n"
+		if !FileExist(A_ScriptDir . "\sqlite3." . strExtension)
+			strError .= A_ScriptDir . "\sqlite3." . strExtension . "`n"
+}
 
 if StrLen(strError)
 {
@@ -19633,7 +19653,7 @@ if (blnUsageDbIsNew)
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iTargetPath ON Usage (TargetPath);"
 	strUsageDbSQL .= "`n" . "CREATE INDEX IF NOT EXISTS iCollectDateTime ON Usage (CollectDateTime);"
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected, PopularFoldersMenuData, PopularFilesMenuData, DrivesMenuData, RecentFoldersMenuData, RecentFilesMenuData);"
-	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0', '', '', '');" ; make sure it has values for all columns
+	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0', '', '', '', '', '');" ; make sure it has values for all columns
 
 	If !g_objUsageDb.Exec(strUsageDbSQL)
 	{
@@ -19690,6 +19710,7 @@ if (intSizeBeforeDelete > intMaximumSizeBytes)
 }
 
 str64or32 := ""
+strExtension := ""
 strError := ""
 blnUsageDbIsNew := ""
 strUsageDbSQL := ""
@@ -20043,7 +20064,7 @@ loop, parse, % "Folders|Files", |
 			break ; Folders or Files menus is complete
 	}
 	if (intPopularItemsCount < g_intRecentFoldersMax)
-		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|" . iconAbout . "`n"
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
