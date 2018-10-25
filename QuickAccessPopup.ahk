@@ -6915,6 +6915,7 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 				if (SSN(objItem, "descendant::pathstring").NodeName = "pathstring")
 				{
 					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
+					objLoadDOpusFavorite.FavoriteIconResource := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation)
 					objLoadDOpusFavorite.FavoriteType := "Folder"
 				}
 				else if (SSN(objItem, "descendant::pidl").NodeName = "pidl")
@@ -6927,6 +6928,16 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 				*/
 				{
 					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pidl").text
+					
+					if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
+						objLoadDOpusFavorite.FavoriteLocation := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
+					else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfWA0aLPAhvlBDiLBzZ/yW7zwAAA==")
+						objLoadDOpusFavorite.FavoriteLocation := "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" ; DOpus alias "network"
+					else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfeEDwX2SBUBsQnwgAqgAvlU4AAA==")
+						objLoadDOpusFavorite.FavoriteLocation := "{645FF040-5081-101B-9F08-00AA002F954E}" ; DOpus alias "trash"
+					
+					if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 1) = "{")
+						objLoadDOpusFavorite.FavoriteIconResource := GetIconForClassId(objLoadDOpusFavorite.FavoriteLocation)
 					objLoadDOpusFavorite.FavoriteType := "Special"
 				}
 				else
