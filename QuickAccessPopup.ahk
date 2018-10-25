@@ -7635,6 +7635,7 @@ if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	else
 	{
 		Gosub, RefreshTotalCommanderHotlist
+		Gosub, RefreshDirectoryOpusFavorites
 		Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 	}
 
@@ -9009,18 +9010,9 @@ Gosub, InitQAPFeaturesRefreshed
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
 
-; and rebuild dynamic menus
-Gosub, RefreshClipboardMenu
-Gosub, RefreshSwitchFolderOrAppMenu
-Gosub, RefreshTotalCommanderHotlist
-Gosub, RefreshLastActionsMenu
-if (g_blnRefreshedMenusAttached)
-{
-	Gosub, DynamicMenusPreProcess
-	Gosub, RefreshPopularMenus
-	Gosub, RefreshRecentItemsMenus
-	Gosub, RefreshDrivesMenu
-}
+; and preprocess these dynamic menus
+Gosub, DynamicMenusPreProcess ; in case the number of items in Frequent and Recent menus was changed in Options
+
 Gosub, LoadMenuInGui ; in case show popularity index changed
 
 Gosub, 2GuiClose
@@ -14453,7 +14445,6 @@ if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 Gosub, ExternalMenusRelease ; release reserved external menus
 Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
 
-Gosub, RefreshTotalCommanderHotlist ; because ReloadIniFile resets g_objMenusIndex
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 
 GuiControl, Enable, f_btnGuiCancel
@@ -15625,17 +15616,15 @@ if InStr(A_ThisLabel, "Mouse")
 	Sleep, 20
 }
 
-; ####
-
 ; refresh the dynamic menus before showing the main menu
-; in order of estimated avverage time required to refresh
 Gosub, RefreshSwitchFolderOrAppMenu ; also refreshes menu lMenuCurrentFolders
 Gosub, RefreshClipboardMenu
+Gosub, RefreshTotalCommanderHotlist
+Gosub, RefreshDirectoryOpusFavorites
 Gosub, RefreshLastActionsMenu
 
 if (g_blnRefreshedMenusAttached)
 {
-	; displays the wait cursor
 	Gosub, RefreshPopularMenus
 	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
