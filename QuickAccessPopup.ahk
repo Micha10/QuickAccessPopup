@@ -19092,7 +19092,7 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 		IniWrite, %strSourceIniSection%, %g_strImpExpDestinationFile%, %strSectionName%
 		blnContentTransfered := true
 		
-		if (g_strImpExpDestinationFile = g_strIniFile) ; this is an import
+		if (g_strImpExpDestinationFile = g_strIniFile ; this is an import
 			and strSectionName = "Global") ; of Global section
 			; delete QAPTempFolder value to avoid dependency on local folder from other system (value will default to %TEMP%)
 			IniDelete, %g_strIniFile%, Global, QAPTempFolder
