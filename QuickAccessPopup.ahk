@@ -18229,13 +18229,10 @@ strUrlCheck4Update := "https://www.quickaccesspopup.com/latest/latest-version-4.
 
 g_strUrlAppLandingPage := "https://www.quickaccesspopup.com" ; must be here if user select Check for update from tray menu
 strBetaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-beta-redirect.html"
-strAlphaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-alpha-redirect.html"
 
 IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
 IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
-IniRead, strLatestUsedProd, %g_strIniFile%, Global, LastVersionUsedProd, 0.0
 IniRead, strLatestUsedBeta, %g_strIniFile%, Global, LastVersionUsedBeta, 0.0
-IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
 
 IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
 
@@ -18253,8 +18250,8 @@ if (A_ThisMenuItem <> lMenuUpdateAmpersand)
 
 blnSetup := (FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt") = "" ? 0 : 1)
 
-FileGetTime, strShell32Date, %A_WinDir%\System32\shell32.dll
-FileGetTime, strImageresDate, %A_WinDir%\System32\imageres.dll
+; FileGetTime, strShell32Date, %A_WinDir%\System32\shell32.dll
+; FileGetTime, strImageresDate, %A_WinDir%\System32\imageres.dll
 
 strLatestVersions := Url2Var(strUrlCheck4Update
 	. "?v=" . g_strCurrentVersion
@@ -18267,8 +18264,8 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 				+ (16 * (g_intActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
 	. "&lsys=" . A_Language
 	. "&lfp=" . g_strLanguageCode
-	. "&shd=" . strShell32Date
-	. "&ird=" . strImageresDate
+	. "&shd=" . "" ; strShell32Date not needed but keep empty value for MySQL database
+	. "&ird=" . "" ; strImageresDate not needed but keep empty value for MySQL database
 	. "&ini1=" . g_strIniBefore
 	. "&ini2=" . g_strIniAfter)
 if !StrLen(strLatestVersions)
@@ -18299,36 +18296,46 @@ Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only c
 StringSplit, arrLatestVersions, strLatestVersions, |
 strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
-strLatestVersionAlpha := arrLatestVersions3
 
+; TEST VALUES
+strLatestUsedBeta := "0.0"
+g_strCurrentVersion := "1.5"
+
+strLatestVersionProd := "1.6"
+strLatestSkippedProd := "1.6"
+
+strLatestVersionBeta := ""
+strLatestSkippedBeta := ""
+
+###_V(A_ThisLabel, "*strLatestUsedBeta", strLatestUsedBeta, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
+	, "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
+	, "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
+	; , "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
+	; , "*Propose BETA?", ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
+	, "*", "")
+if ((strLatestUsedBeta <> "0.0") and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
+	or (A_ThisMenuItem = lMenuUpdateAmpersand)
+	Go4Update("beta")
+else if ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd)
+	Go4Update("prod")
+else
+	###_V(A_ThisLabel, "no")
+
+ExitApp
+
+Check4UpdateCleanup:
+strLatestSkippedBeta := ""
+strLatestSkippedProd := ""
+strLatestUsedBeta := ""
+intStartups := ""
+
+return
 /*
-if (strLatestUsedAlpha <> "0.0")
 {
-	if FirstVsSecondIs(strLatestVersionAlpha, g_strCurrentVersion) = 1
-	{
-		SetTimer, Check4UpdateChangeButtonNames, 50
-
-		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add Alpha to keep buttons rename working
-			, % l(lUpdatePromptAlpha, g_strAppNameText, g_strCurrentVersion, strLatestVersionAlpha)
-		IfMsgBox, Yes
-			Run, %strAlphaLandingPage%
-		IfMsgBox, Cancel ; Remind me
-			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedAlpha
-		IfMsgBox, No
-		{
-			IniWrite, %strLatestVersionAlpha%, %g_strIniFile%, Global, LatestVersionSkippedAlpha
-			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " Alpha"), %lUpdatePromptAlphaContinue%
-			IfMsgBox, No
-				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedAlpha
-		}
-	}
-}
-*/
-
-; ###_V(strLatestVersions, g_strCurrentVersion, strLatestUsedBeta, strLatestSkippedBeta, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
-if (strLatestUsedBeta <> "0.0")
-{
+	
+	
 	if (FirstVsSecondIs(strLatestSkippedBeta, strLatestVersionBeta) >= 0 and (A_ThisMenuItem <> lMenuUpdateAmpersand))
+	; returns -1 if first smaller, 0 if equal, 1 if first greater
 	{
 		gosub, Check4UpdateCleanup
 		return
@@ -18354,7 +18361,7 @@ if (strLatestUsedBeta <> "0.0")
 	}
 }
 
-; ###_V(strLatestVersions, g_strCurrentVersion, strLatestSkippedProd, strLatestVersionProd, strLatestVersionBeta, strLatestVersionAlpha)
+; ###_V(strLatestVersions, g_strCurrentVersion, strLatestSkippedProd, strLatestVersionProd, strLatestVersionBeta)
 if (FirstVsSecondIs(strLatestSkippedProd, strLatestVersionProd) >= 0 and (A_ThisMenuItem <> lMenuUpdateAmpersand))
 {
 	gosub, Check4UpdateCleanup
@@ -18376,7 +18383,8 @@ if FirstVsSecondIs(strLatestVersionProd, g_strCurrentVersion) = 1
 		IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkipped ; do not add "Prod" to ini variable for backward compatibility
 }
 */
-	gosub, Check4UpdateDialogProd
+/*
+gosub, Check4UpdateDialogProd
 	
 else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateNow")
 {
@@ -18385,22 +18393,58 @@ else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateN
 		Run, %g_strUrlAppLandingPage%
 }
 
-Check4UpdateCleanup:
-strLatestSkippedProd := ""
-strLatestSkippedBeta := ""
-strLatestUsedProd := ""
-strLatestUsedBeta := ""
-strLatestUsedAlpha := ""
-intStartups := ""
-strShell32Date := ""
-strImageresDate := ""
-
 return 
+*/
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ProposeUpdate(strVersionNew, strVersionRunning, strVersionSkipped)
+	; si (version_nouveau_beta > version_installe_beta) / il y a une nouvelle version
+		; et (version_nouveau_beta <= version_sautee_beta / et elle n'a pas été sautée
+;------------------------------------------------------------
+{
+	###_V(A_ThisFunc, strVersionNew, strVersionRunning, strVersionSkipped
+		, FirstVsSecondIs(strVersionNew, strVersionRunning), FirstVsSecondIs(strVersionNew, strVersionSkipped)
+		, (FirstVsSecondIs(strVersionNew, strVersionRunning) = 1 and FirstVsSecondIs(strVersionNew, strVersionSkipped) > 0))
+	; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
+	; return (strVersionNew > strVersionRunning) and (strVersionNew >= strVersionSkipped)
+	return (FirstVsSecondIs(strVersionNew, strVersionRunning) = 1
+		and FirstVsSecondIs(strVersionNew, strVersionSkipped) > 0)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+Go4Update(str)
+;------------------------------------------------------------
+{
+	/*
+			SetTimer, Check4UpdateChangeButtonNames, 50
+
+		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
+			, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
+		IfMsgBox, Yes
+			Run, %strBetaLandingPage%
+		IfMsgBox, Cancel ; Remind me
+			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
+		IfMsgBox, No
+		{
+			IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
+			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+			IfMsgBox, No
+				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+		}
+*/
+
+	###_V(str)
+}
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
 FirstVsSecondIs(strFirstVersion, strSecondVersion)
+; returns -1 if first smaller, 0 if equal, 1 if first greater
 ; supports from 1 to 5 version sub-numbers of up to 3 digits each
 ; examples: "1", "1.2", 1.22.333.444.555"
 ;------------------------------------------------------------
