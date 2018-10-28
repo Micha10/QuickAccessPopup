@@ -18298,30 +18298,36 @@ strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
 
 ; TEST VALUES
-strLatestUsedBeta := "0.0"
-g_strCurrentVersion := "1.5"
+g_strCurrentVersion := "9.2.1"
+strLatestUsedBeta := "8"
 
-strLatestVersionProd := "1.6"
-strLatestSkippedProd := "1.6"
+strLatestVersionProd := "9.2.1"
+strLatestSkippedProd := ""
 
-strLatestVersionBeta := ""
+strLatestVersionBeta := "9.2.1.9.1"
 strLatestSkippedBeta := ""
 
-###_V(A_ThisLabel, "*strLatestUsedBeta", strLatestUsedBeta, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
-	, "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
-	, "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
+; ###_V(A_ThisLabel, "*strLatestUsedBeta", strLatestUsedBeta, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
+	; , "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
+	; , "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
 	; , "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
 	; , "*Propose BETA?", ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
-	, "*", "")
+	; , "*", "")
 if ((strLatestUsedBeta <> "0.0") and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
 	or (A_ThisMenuItem = lMenuUpdateAmpersand)
-	Go4Update("beta")
+{
+	g_strUpdateProdOrBeta := "beta"
+	g_strUpdateLatestVersion := strLatestVersionBeta
+	Gosub, GuiUpdate
+}
 else if ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd)
-	Go4Update("prod")
+{
+	g_strUpdateProdOrBeta := "prod"
+	g_strUpdateLatestVersion := strLatestVersionProd
+	Gosub, GuiUpdate
+}
 else
 	###_V(A_ThisLabel, "no")
-
-ExitApp
 
 Check4UpdateCleanup:
 strLatestSkippedBeta := ""
@@ -18416,29 +18422,72 @@ ProposeUpdate(strVersionNew, strVersionRunning, strVersionSkipped)
 
 
 ;------------------------------------------------------------
-Go4Update(str)
+GuiUpdate:
 ;------------------------------------------------------------
-{
-	/*
-			SetTimer, Check4UpdateChangeButtonNames, 50
+/*
+		SetTimer, Check4UpdateChangeButtonNames, 50
 
-		MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
-			, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
-		IfMsgBox, Yes
-			Run, %strBetaLandingPage%
-		IfMsgBox, Cancel ; Remind me
-			IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
+	MsgBox, 3, % l(lUpdateTitle, g_strAppNameText) ; do not add BETA to keep buttons rename working
+		, % l(lUpdatePromptBeta, g_strAppNameText, g_strCurrentVersion, strLatestVersionBeta)
+	IfMsgBox, Yes
+		Run, %strBetaLandingPage%
+	IfMsgBox, Cancel ; Remind me
+		IniWrite, 0.0, %g_strIniFile%, Global, LatestVersionSkippedBeta
+	IfMsgBox, No
+	{
+		IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
+		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
 		IfMsgBox, No
-		{
-			IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
-			MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
-			IfMsgBox, No
-				IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
-		}
+			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+	}
 */
 
-	###_V(str)
+###_V(g_strUpdateProdOrBeta)
+
+strChangeLog := Url2Var("https://www.quickaccesspopup.com/changelog/changelog" . (g_strUpdateProdOrBeta = "beta" ? "-beta" : "") . ".txt")
+
+if StrLen(strChangeLog)
+{
+	intPos := InStr(strChangeLog, "Version" . (g_strUpdateProdOrBeta = "beta" ? " BETA" : "") . ": " . g_strUpdateLatestVersion . " ")
+	strChangeLog := SubStr(strChangeLog, intPos)
+	intPos := InStr(strChangeLog, "`n`n")
+	strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
 }
+
+Gui, Update:New, , % L(lUpdateTitle, g_strAppNameText)
+; Do not use g_strMenuBackgroundColor here because it is not set yet
+
+Gui, Update:Font, s10 w700, Verdana
+Gui, Update:Add, Text, x10 y10 w640, % L(lUpdateTitle, g_strAppNameText)
+Gui, Update:Font
+Gui, Update:Add, Text, x10 w640, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion, g_strUpdateLatestVersion)
+Gui, Update:Add, Edit, x8 y+10 w640 h300 ReadOnly, %strChangeLog%
+Gui, Update:Font
+
+Gui, Update:Add, Button, % "y+20 x10 vf_btnCheck4UpdateDialogChangeLog gButtonCheck4UpdateDialogChangeLog" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : ""), %lUpdateButtonChangeLog%
+Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogVisit gButtonCheck4UpdateDialogVisit, %lUpdateButtonVisit%
+
+GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogChangeLog", "f_btnCheck4UpdateDialogVisit")
+
+if (g_strUpdateProdOrBeta = "prod")
+{
+	Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogDownloadSetup gButtonCheck4UpdateDialogDownloadSetup, %lUpdateButtonDownloadSetup%
+	Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogDownloadPortable gButtonCheck4UpdateDialogDownloadPortable, %lUpdateButtonDownloadPortable%
+
+	GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogDownloadSetup", "f_btnCheck4UpdateDialogDownloadPortable")
+}
+
+Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogSkipVersion gButtonCheck4UpdateDialogSkipVersion, %lUpdateButtonSkipVersion%
+Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogRemind gButtonCheck4UpdateDialogRemind, %lUpdateButtonRemind%
+Gui, Update:Add, Text
+
+GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
+
+GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
+Gui, Update:Show, AutoSize Center
+
+return
+
 ;------------------------------------------------------------
 
 
@@ -18562,6 +18611,7 @@ return
 
 ;------------------------------------------------------------
 ButtonCheck4UpdateDialogChangeLog:
+ButtonCheck4UpdateDialogChangeLogBeta:
 ButtonCheck4UpdateDialogVisit:
 ButtonCheck4UpdateDialogDownloadSetup:
 ButtonCheck4UpdateDialogDownloadPortable:
@@ -18571,13 +18621,14 @@ UpdateGuiClose:
 UpdateGuiEscape:
 ;------------------------------------------------------------
 
-strUrlChangeLog := "https://www.quickaccesspopup.com/change-log/"
+###_V("A_ThisLabel", A_ThisLabel)
+strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (A_ThisLabel = "ButtonCheck4UpdateDialogChangeLogBeta" ? "-beta-version" : "") . "/"
 strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html"
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html"
 
-if InStr("ButtonCheck4UpdateDialogChangeLog|ButtonCheck4UpdateDialogVisit|ButtonCheck4UpdateDialogDownloadSetup|ButtonCheck4UpdateDialogDownloadPortable", A_ThisLabel)
+if InStr("ButtonCheck4UpdateDialogChangeLogBeta|ButtonCheck4UpdateDialogVisit|ButtonCheck4UpdateDialogDownloadSetup|ButtonCheck4UpdateDialogDownloadPortable", A_ThisLabel)
 {
-	if (A_ThisLabel = "ButtonCheck4UpdateDialogChangeLog")
+	if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 		Run, %strUrlChangeLog%
 	else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
 		Run, %g_strUrlAppLandingPage%
