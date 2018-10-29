@@ -5842,14 +5842,20 @@ BuildTotalCommanderHotlistPrepare:
 g_strWinCmdIniFileExpanded := EnvVars(g_strWinCmdIniFile)
 if StrLen(g_strWinCmdIniFileExpanded)
 {
-	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni
-	if (strAlternativeWinCmdIniFile <> "ERROR")
-		g_strWinCmdIniFileExpanded := EnvVars(strAlternativeWinCmdIniFile)
+	IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, Configuration, AlternateUserIni, %A_Space% ; empty by default
+	if !StrLen(strAlternativeWinCmdIniFile)
+		IniRead, strAlternativeWinCmdIniFile, %g_strWinCmdIniFileExpanded%, DirMenu, RedirectSection, %A_Space% ; empty by default
+	if StrLen(strAlternativeWinCmdIniFile)
+	{
+		SplitPath, g_strWinCmdIniFileExpanded, , strTCDir
+		g_strWinCmdIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
+	}
 }
 g_blnWinCmdIniFileExist := StrLen(g_strWinCmdIniFileExpanded) and FileExist(g_strWinCmdIniFileExpanded) ; TotalCommander settings file exists
 
 Gosub, RefreshTotalCommanderHotlist
 
+strTCDir := ""
 strAlternativeWinCmdIniFile := ""
 
 return
