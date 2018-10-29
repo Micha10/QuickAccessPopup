@@ -5778,6 +5778,8 @@ Menu, Tray, Add, %lMenuSettingsFileOptions%..., :menuTraySettingsFileOptions
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
 Menu, Tray, Add
+Menu, Tray, Add, %lMenuRefreshMenu%, RefreshQAPMenu
+Menu, Tray, Add
 Menu, Tray, Add, %lMenuRunAtStartupAmpersand%, RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
