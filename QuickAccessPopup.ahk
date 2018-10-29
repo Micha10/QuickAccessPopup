@@ -18297,16 +18297,6 @@ StringSplit, arrLatestVersions, strLatestVersions, |
 strLatestVersionProd := arrLatestVersions1
 strLatestVersionBeta := arrLatestVersions2
 
-; TEST VALUES
-g_strCurrentVersion := "9.2"
-strLatestUsedBeta := "8"
-
-strLatestVersionProd := "9.2"
-strLatestSkippedProd := ""
-
-strLatestVersionBeta := "9.2.0.5"
-; strLatestSkippedBeta := ""
-
 ; ###_V(A_ThisLabel, "*strLatestUsedBeta", strLatestUsedBeta, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
 	; , "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
 	; , "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
@@ -18486,39 +18476,30 @@ strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-dow
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html" ; prod only
 strUrlAppLandingPageBeta := "https://groups.google.com/forum/#!forum/qap-betatesters"
 
-if InStr("ButtonCheck4UpdateDialogChangeLog|ButtonCheck4UpdateDialogVisit|ButtonCheck4UpdateDialogDownloadSetup|ButtonCheck4UpdateDialogDownloadPortable", A_ThisLabel)
+if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
+	Run, %strUrlChangeLog%
+else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
+	Run, % (g_strUpdateProdOrBeta = "beta" ? strUrlAppLandingPageBeta : g_strUrlAppLandingPage)
+else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadSetup")
+	Run, %strUrlDownloadSetup%
+else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
+	Run, %strUrlDownloadPortable%
+else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 {
-	if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
-		Run, %strUrlChangeLog%
-	else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
-		Run, % (g_strUpdateProdOrBeta = "beta" ? strUrlAppLandingPageBeta : g_strUrlAppLandingPage)
-	else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadSetup")
-		Run, %strUrlDownloadSetup%
-	else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
-		Run, %strUrlDownloadPortable%
+	IniWrite, % (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd), %g_strIniFile%, Global
+		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
+	if (g_strUpdateProdOrBeta = "beta")
+	{
+		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+		IfMsgBox, No
+			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+	}
 }
-else ; UpdateGuiClose, UpdateGuiEscape, ButtonCheck4UpdateDialogRemind or ButtonCheck4UpdateDialogSkipVersion
-{
-	if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
-		IniWrite, % (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd), %g_strIniFile%, Global
-			, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
-	else ; ButtonCheck4UpdateDialogRemind, UpdateGuiClose or UpdateGuiEscape
-		IniWrite, 0.0, %g_strIniFile%, Global
-			, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
+else ; ButtonCheck4UpdateDialogRemind, UpdateGuiClose or UpdateGuiEscape
+	IniWrite, 0.0, %g_strIniFile%, Global
+		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
 
-	Gui, Destroy
-}
-
-/*
-        IfMsgBox, No
-        {
-            IniWrite, %strLatestVersionBeta%, %g_strIniFile%, Global, LatestVersionSkippedBeta
-            MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
-            IfMsgBox, No
-                IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
-        }
-
-*/
+Gui, Destroy
 
 Check4UpdateDialogCleanup:
 strChangelog := ""
