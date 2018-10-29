@@ -2997,6 +2997,9 @@ if (g_blnDiagMode)
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
 
+if (g_blnCheck4Update)
+	Gosub, Check4Update
+
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
@@ -3055,7 +3058,15 @@ if !StrLen(g_strUserVariablesList)
 	gosub, DetectCloudUserVariables ; must be after UsageDbInit because it uses SQLite files for Google Drive database
 
 ;---------------------------------
+; Refresh Windows Apps list
+
+if (g_blnRefreshWindowsAppsListAtStartup)
+	Gosub, ButtonRefreshWindowsAppsListAtStartup
+
+;---------------------------------
 g_blnMenuReady := true
+
+Gosub, SetTrayMenuIcon
 
 if (g_blnDisplayTrayTip)
 {
@@ -3074,9 +3085,6 @@ OnMessage(0x404, "AHK_NOTIFYICON")
 
 ; the next gosubs can be done after menu is declared ready
 
-if (g_blnCheck4Update)
-	Gosub, Check4Update
-
 ; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
 IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 {
@@ -3088,12 +3096,6 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
 	FileDelete, %A_Startup%\FoldersPopup.lnk
-
-;---------------------------------
-; Refresh Windows Apps list
-
-if (g_blnRefreshWindowsAppsListAtStartup)
-	Gosub, ButtonRefreshWindowsAppsListAtStartup
 
 ;---------------------------------
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
@@ -4886,7 +4888,7 @@ StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
-IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 1 ; default true
+IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
 
 ; ---------------------
 ; Load favorites
@@ -5180,6 +5182,8 @@ AddToIniWindowsAppsDefaultMenu:
 ; Technical debt: this menu is created with IDs found in Windows 10 Version 1803 (same as in 1709) as-of 2018-08-01.
 ; We have no way to check if these IDs are OK on users' system (IDs in future releases may change). 
 ;------------------------------------------------------------
+
+Gosub, ButtonRefreshWindowsAppsListAtStartup
 
 g_strAddThisMenuName := lMenuMyWindowsAppsMenu
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
@@ -5735,7 +5739,7 @@ ExitApp
 ;========================================================================================================================
 
 ;------------------------------------------------------------
-BuildTrayMenu:
+SetTrayMenuIcon:
 ;------------------------------------------------------------
 
 Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
@@ -5754,6 +5758,14 @@ if (strAlternativeTrayIcon <> "ERROR")
 	if FileExist(strAlternativeTrayIcon)
 		Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 	
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildTrayMenu:
+;------------------------------------------------------------
+
 Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettings%..., SwitchSettings
 Menu, menuTraySettingsFileOptions, Add, %lMenuSwitchSettingsDefault%, SwitchSettingsDefault
 Menu, menuTraySettingsFileOptions, Add
@@ -6845,6 +6857,8 @@ if !g_objQAPfeaturesInMenus.HasKey("{DOpus Favorites}")
 	; we don't have this QAP features in at least one menu
 	return
 
+Diag(A_ThisLabel, "", "START")
+
 Menu, %lDOpusMenuName%, Add 
 Menu, %lDOpusMenuName%, DeleteAll
 
@@ -6872,6 +6886,7 @@ else
 
 AddCloseMenu(lDOpusMenuName)
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -11468,6 +11483,8 @@ ButtonRefreshWindowsAppsList:
 ButtonRefreshWindowsAppsListAtStartup:
 ;------------------------------------------------------------
 
+Diag(A_ThisLabel, "", "START")
+
 strPsScriptFile := ".\CollectWindowsAppsList.ps1" ; must start with ".\", start PowerShell in g_strTempDir
 ; changed in v9.0.9.11 strPsScriptPathFile := g_strTempDir . "\" . strPsScriptFile
 strPsScriptPathFile := A_WorkingDir . "\" . strPsScriptFile
@@ -11530,6 +11547,7 @@ strPsScriptFile := ""
 strPsScriptPathFile := ""
 strWindowsAppsListFile := ""
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -19812,6 +19830,7 @@ if (g_blnUsageDbDebug)
 Gosub, DynamicMenusPreProcess
 
 Diag(A_ThisLabel, "", "STOP-COLLECT")
+
 return
 ;------------------------------------------------------------
 
