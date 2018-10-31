@@ -31,6 +31,34 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.1 (2018-10-31)
+ 
+Directory Opus Favorites menu
+- add QAP feature "Directory Opus Favorites" under the "Dynamic Menus" category
+- build Directory Opus menu parsing the DOPus favorites XML file using Maestrith XML_Class
+- at first QAP launch, add the QAP feature "Directory Opus Favorites" to main menu if DOpus is selected as supported manager (users upgrading must add the QAP feature manualy)
+- in DOpus Favorites menu, show custom folder icons and special folders default icons
+- when parsing DOpus favorites, replace PIDL entries with CLSID for special folders like "Computer", "Network" or "Recycle Bin"
+- refresh DOpus favorites menu before showing QAP menu
+- fix bug when opening a group of folders in Directory Opus and DOpus is not launched, or when the first group item is not a folder
+ 
+Total Commander
+- when builing Total Commander Hotlist menu, support path redirected by "RedirectSection=" value under [DirMenu] (in addition to supporting "AlternateUserIni=" under [Configuration]), with path relative to folder of wincmd.ini
+- stop refreshing the Total Commander Hotlist menu if this QAP Feature is not in menu
+- at first QAP launch, detect Total Commander ini file location and save it to settings
+- fix bug when opening a group of folders in Total Commander when the first group item is not a folder
+ 
+Various improvements and bug fixes
+- add "Refresh Live Folders and Shared menus" item to Tray (system) menu
+- stop refreshing the Windows Apps list at each startup, do it at first startup before adding the Windows Apps menu to ini file, when RefreshWindowsAppsListAtStartup=1 or on demand when user adds a Windows App favorite
+- when saving options and favorites, stop refreshing some dynamic menus that will be refreshed before showing menu
+- display Update dialog box (with list of changes) when check for update detects a new beta version
+- always close Update dialog box after one of the buttons is clicked
+- fix bug in Options, stop changing QAP temporary folder from %TEMP% to QAP working folder by error
+- after Settings import, reset QAP temporary folder to %TEMP% to avoid dependency on local folder from other system
+- clarify label for the file manager preference "when clicking outside the file manager" with distinction between window and tab
+- clarify label for group option "replace existing windows", targeting specifically folders
+
 Version: 9.2.1 (2018-10-23)
 - optimized the code refreshing QAP menus using new tools offered by the SQLite database
 - refresh "Recent folders", "Recent files", "Frequent folders", "Frequent files" and "Drives" menus from a preprocessed field in the database
@@ -2760,7 +2788,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.1
+;@Ahk2Exe-SetVersion 9.2.9.1 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2857,8 +2885,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
