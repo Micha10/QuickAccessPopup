@@ -9370,12 +9370,12 @@ Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempD
 g_objToolTipsMessages["Static15"] := lControlToolTipColumnBreak
 Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
 g_objToolTipsMessages["Static16"] := lControlToolTipTextSeparator
-Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static19
-g_objToolTipsMessages["Static19"] := lControlToolTipSortFavorites
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static17
-g_objToolTipsMessages["Static17"] := lControlToolTipAlwaysOnTopOn
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static18
-g_objToolTipsMessages["Static18"] := lControlToolTipAlwaysOnTopOff
+Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static17
+g_objToolTipsMessages["Static17"] := lControlToolTipSortFavorites
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static18
+g_objToolTipsMessages["Static18"] := lControlToolTipAlwaysOnTopOn
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static19
+g_objToolTipsMessages["Static19"] := lControlToolTipAlwaysOnTopOff
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static20
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static21
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
