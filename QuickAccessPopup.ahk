@@ -4901,6 +4901,8 @@ if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
 IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
+IniRead, g_intClipboardMaxSize, %g_strIniFile%, Global, ClipboardMaxSize, 10000 ; default 10000 chars
+
 
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
@@ -6035,9 +6037,8 @@ if !g_objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP featu
 
 Diag(A_ThisLabel, "", "START")
 
-intClipboardMaxSize := 10000
 strContentsInClipboard := ""
-if (StrLen(Clipboard) <= intClipboardMaxSize) ; Clipboard is too large - 22 000 bytes of AHK code took close to 2 seconds
+if (StrLen(Clipboard) <= g_intClipboardMaxSize) ; Clipboard is too large - 22 000 bytes of AHK code took close to 2 seconds
 {
 	intMenuNumberClipboardMenu := 0
 
@@ -6072,8 +6073,8 @@ if !StrLen(strContentsInClipboard)
 {
 	if !StrLen(Clipboard)
 		strMenuName := lMenuClipboardEmpty
-	if (StrLen(Clipboard) > intClipboardMaxSize)
-		strMenuName := L(lMenuClipboardTooLarge, intClipboardMaxSize)
+	if (StrLen(Clipboard) > g_intClipboardMaxSize)
+		strMenuName := L(lMenuClipboardTooLarge, g_intClipboardMaxSize)
 	else
 		strMenuName := lMenuClipboardNoContent
 	
@@ -6103,7 +6104,6 @@ intMenuNumberClipboardMenu := ""
 strContentsInClipboard := ""
 strClipboardLineExpanded := ""
 strURLSearchString := ""
-intClipboardMaxSize := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
