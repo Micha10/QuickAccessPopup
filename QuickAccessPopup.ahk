@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.2 (2018-11-??)
+-
+
 Version BETA: 9.2.9.1 (2018-10-31)
  
 Directory Opus Favorites menu
@@ -2788,7 +2791,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.1 
+;@Ahk2Exe-SetVersion 9.2.9.2 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2885,7 +2888,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3528,6 +3531,9 @@ FileInstall, FileInstall\conference-32_c.png, %g_strTempDir%\conference-32_c.png
 FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 
 FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
+
+FileInstall, FileInstall\QuickAccessPopup.ico, %g_strTempDir%\QuickAccessPopup.ico
+FileInstall, FileInstall\QuickAccessPopup-beta.ico, %g_strTempDir%\QuickAccessPopup-beta.ico
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
@@ -5776,17 +5782,17 @@ Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, NoStandard
 if (A_IsAdmin and g_blnRunAsAdmin)
 	Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
+IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
+if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
+	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
+else
+	Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup" . (g_strCurrentBranch ? "-beta" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
 Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
-Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
-if (strAlternativeTrayIcon <> "ERROR")
-	if FileExist(strAlternativeTrayIcon)
-		Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 	
 return
 ;------------------------------------------------------------
