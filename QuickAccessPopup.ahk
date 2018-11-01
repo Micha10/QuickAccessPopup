@@ -2883,6 +2883,10 @@ FileCreateDir, %g_strTempDir%
 ; Init temporary folder and language files
 
 Gosub, InitFileInstall
+
+; now that we have a temp dire and fileinstall done
+Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+
 Gosub, InitLanguageVariables
 
 ; --- Global variables
@@ -3534,6 +3538,7 @@ FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 
 FileInstall, FileInstall\QuickAccessPopup.ico, %g_strTempDir%\QuickAccessPopup.ico
 FileInstall, FileInstall\QuickAccessPopup-beta.ico, %g_strTempDir%\QuickAccessPopup-beta.ico
+FileInstall, FileInstall\QuickAccessPopup-loading.ico, %g_strTempDir%\QuickAccessPopup-loading.ico
 
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
@@ -22886,6 +22891,11 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		strType := ""
 		strDateTime := ""
 	}
+	Diag(A_ThisFunc, strPath . "`t"
+		. strAttributes . "`t"
+		. strType . "`t"
+		. strDateTime . "`t"
+		. "")
 }
 ;------------------------------------------------------------
 
