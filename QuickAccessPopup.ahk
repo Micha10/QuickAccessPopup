@@ -31,8 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.2.9.2 (2018-11-??)
--
+Version BETA: 9.2.9.2 (2018-11-01)
+- fix bug Settings window icon tool tips inversed between Sort and Always on top
+- make the ClipboardMaxSize an option in the ini file (not in the Options dialog box) with a default value of 10000
+- change QAP icon to gray "loading" icon at the beginning of QAP load sequence and set the normal blue (et beta green) icon when loading is complete and menu can be open
+- add diag code to GetUsageDbTargetFileInfo
 
 Version BETA: 9.2.9.1 (2018-10-31)
  
