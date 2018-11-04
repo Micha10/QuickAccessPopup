@@ -6067,7 +6067,7 @@ if (StrLen(Clipboard) <= g_intClipboardMaxSize) ; Clipboard is too large - 22 00
 			strContentsInClipboard .= "`n" . A_LoopField
 			
 			if (g_blnDisplayIcons)
-				if LocationIsDocument(strClipboardLineExpanded)
+				if RecentLocationIsDocument(strClipboardLineExpanded, A_ThisLabel) ; RecentLocationIsDocument to check if on an offline server
 					strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
 				else
 					strContentsInClipboard .= "`t" . "iconFolder"
@@ -19797,7 +19797,8 @@ Loop, parse, strUsageDbItemsList, `n
 		break
 	
 	FileGetShortcut, %strUsageDbShortcutPath%, strUsageDbTargetPath
-	GetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+	; RecentGetUsageDbTargetFileInfo to check if on an offline server
+	RecentGetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension, A_ThisLabel)
 	
 	if StrLen(strUsageDbTargetAttributes)
 	{
@@ -20066,7 +20067,8 @@ loop, parse, % "Folders|Files", |
 			break
 		strPath := objRow[1]
 		strTargetType := objRow[2]
-		if (objRow[2] <= 1 or !FileExistInPath(strPath)) ; skip if not enough frequent or if not exits
+		; RecentFileExistInPath to check if on an offline server
+		if (objRow[2] <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
 			continue
 		intPopularItemsCount++
 		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
@@ -20236,10 +20238,11 @@ Loop
 		
 		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
 			continue
-		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
+		; RecentFileExist to check if on an offline server
+		if !RecentFileExist(strTargetPath, A_ThisLabel) ; if folder/document was deleted or on a removable drive
 			continue
-		
-		strTargetType := (LocationIsDocument(strTargetPath) ? "File" : "Folder")
+		; RecentLocationIsDocument to check if on an offline server
+		strTargetType := (RecentLocationIsDocument(strTargetPath, A_ThisLabel) ? "File" : "Folder")
 	}
 
 	if (strTargetType = "Folder")
@@ -21338,6 +21341,19 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 
 
 ;------------------------------------------------------------
+RecentLocationIsDocument(strLocation, strSource)
+;------------------------------------------------------------
+{
+	; check if on an offline server
+	if (SubStr(strLocation, 1, 2) = "\\")
+		###_V(A_ThisFunc, strLocation, strSource)
+	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
+    return LocationIsDocument(strLocation)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 LocationIsDocument(strLocation)
 ;------------------------------------------------------------
 {
@@ -21784,6 +21800,19 @@ LocationIsHTTP(strLocation)
 
 
 ;------------------------------------------------------------
+RecentFileExistInPath(ByRef strFile, strSource)
+;------------------------------------------------------------
+{
+	; check if on an offline server
+	if (SubStr(strFile, 1, 2) = "\\")
+		###_V(A_ThisFunc, strFile, strSource)
+	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
+	return, FileExistInPath(strFile)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 FileExistInPath(ByRef strFile)
 ;------------------------------------------------------------
 {
@@ -21802,11 +21831,24 @@ FileExistInPath(ByRef strFile)
 		intPos := InStr(strFile, "\", false, 3)
 		if !(intPos) ; there is no "\" after the domain or IP address, this is the UNC root
 			return true
-		if !StrLen(strTemp) ; there is nothing after the "\" following the domain or IP address, this is the UNC root
-			return true
+		; if !StrLen(strTemp) ; removed 2018-11-04 this was a bug returning true for any \\ location
+			; return true
 	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecentFileExist(strTargetPath, strSource)
+;------------------------------------------------------------
+{
+	; check if on an offline server
+	if (SubStr(strTargetPath, 1, 2) = "\\")
+		###_V(A_ThisFunc, strTargetPath, strSource)
+	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
+	return, FileExist(strTargetPath)
 }
 ;------------------------------------------------------------
 
@@ -22867,6 +22909,19 @@ OpenFavoritePlaySound(strSound)
 			
 		SoundPlay, %strFavoriteSoundLocationExpanded%
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension, strSource)
+;------------------------------------------------------------
+{
+	; check if on an offline server
+	if (SubStr(strPath, 1, 2) = "\\")
+		###_V(A_ThisFunc, strPath, strSource)
+	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
+	GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension)
 }
 ;------------------------------------------------------------
 
