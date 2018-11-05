@@ -32,7 +32,7 @@ HISTORY
 =======
 
 Version BETA: 9.2.9.3 (2018-11-04)
-- when checking if file info (file exist, file is document, file info) in background task, return info without accessing file if it is on network drive (in future version, QAP with check only if network drive is online)
+- in background task, when checking file info (file exist, file is document, file info) for file on network drive ("\\..."), return available info without accessing the network (this release is to validate that delays were caused by accessing offline network drives; in future version, QAP with check file info only if network drive is online)
 - remove debug code forgotten in check for update dialog box
 
 Version BETA: 9.2.9.2 (2018-11-01)
@@ -21813,7 +21813,7 @@ RecentFileExistInPath(ByRef strFile, strSource)
 ;------------------------------------------------------------
 {
 	if (SubStr(strFile, 1, 2) = "\\")
-		Diag((A_ThisFunc . " always return TRUE from: " . strSource, strFile)
+		Diag(A_ThisFunc . " always return TRUE from: " . strSource, strFile)
 	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
 	return, (SubStr(strFile, 1, 2) = "\\" or FileExistInPath(strFile))
 }
