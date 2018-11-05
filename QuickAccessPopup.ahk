@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.3 (2018-11-04)
+- when checking if file info (file exist, file is document, file info) in background task, return info without accessing file if it is on network drive (in future version, QAP with check only if network drive is online)
+- remove debug code forgotten in check for update dialog box
+
 Version BETA: 9.2.9.2 (2018-11-01)
 - fix bug Settings window icon tool tips inversed between Sort and Always on top
 - make the ClipboardMaxSize an option in the ini file (not in the Options dialog box) with a default value of 10000
@@ -2794,7 +2798,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.2 
+;@Ahk2Exe-SetVersion 9.2.9.3 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2895,7 +2899,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -21348,7 +21352,7 @@ RecentLocationIsDocument(strLocation, strSource)
 	if (SubStr(strLocation, 1, 2) = "\\")
 	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
 	{
-		###_V(A_ThisFunc . " based on extension", strSource, strLocation, GetFileExtension(strLocation), StrLen(GetFileExtension(strLocation)))
+		Diag(A_ThisFunc . " based on extension from: " . strSource, strLocation)
 		return StrLen(GetFileExtension(strLocation))
 	}
 	else
@@ -21809,7 +21813,7 @@ RecentFileExistInPath(ByRef strFile, strSource)
 ;------------------------------------------------------------
 {
 	if (SubStr(strFile, 1, 2) = "\\")
-		###_V(A_ThisFunc . " always return TRUE", strSource, strFile)
+		Diag((A_ThisFunc . " always return TRUE from: " . strSource, strFile)
 	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
 	return, (SubStr(strFile, 1, 2) = "\\" or FileExistInPath(strFile))
 }
@@ -21850,7 +21854,7 @@ RecentFileExist(strTargetPath, strSource)
 ;------------------------------------------------------------
 {
 	if (SubStr(strTargetPath, 1, 2) = "\\")
-		###_V(A_ThisFunc . " always return TRUE", strSource, strTargetPath)
+		Diag(A_ThisFunc . " always return TRUE from: " . strSource, strTargetPath)
 	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
 	return, (SubStr(strTargetPath, 1, 2) = "\\" or FileExist(strTargetPath))
 }
@@ -22934,7 +22938,7 @@ RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRe
 		else
 			strType := "Folder"
 		strDateTime := ""
-		###_V(A_ThisFunc . " based on extension or dummy data", strSource, strPath, strAttributes, strType, strDateTime, strExtension)
+		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath)
 	}
 	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
 	else
