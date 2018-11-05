@@ -21342,13 +21342,17 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 
 ;------------------------------------------------------------
 RecentLocationIsDocument(strLocation, strSource)
+; check atrtributes except if on network offline check file extension
 ;------------------------------------------------------------
 {
-	; check if on an offline server
 	if (SubStr(strLocation, 1, 2) = "\\")
-		###_V(A_ThisFunc, strLocation, strSource)
-	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
-    return LocationIsDocument(strLocation)
+	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
+	{
+		###_V(A_ThisFunc . " based on extension", strSource, strLocation, GetFileExtension(strLocation), StrLen(GetFileExtension(strLocation)))
+		return StrLen(GetFileExtension(strLocation))
+	}
+	else
+		return LocationIsDocument(strLocation)
 }
 ;------------------------------------------------------------
 
@@ -21801,13 +21805,13 @@ LocationIsHTTP(strLocation)
 
 ;------------------------------------------------------------
 RecentFileExistInPath(ByRef strFile, strSource)
+; always return true if file si on an offline network drive
 ;------------------------------------------------------------
 {
-	; check if on an offline server
 	if (SubStr(strFile, 1, 2) = "\\")
-		###_V(A_ThisFunc, strFile, strSource)
-	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
-	return, FileExistInPath(strFile)
+		###_V(A_ThisFunc . " always return TRUE", strSource, strFile)
+	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
+	return, (SubStr(strFile, 1, 2) = "\\" or FileExistInPath(strFile))
 }
 ;------------------------------------------------------------
 
@@ -21842,13 +21846,13 @@ FileExistInPath(ByRef strFile)
 
 ;------------------------------------------------------------
 RecentFileExist(strTargetPath, strSource)
+; always return true if file si on an offline network drive
 ;------------------------------------------------------------
 {
-	; check if on an offline server
 	if (SubStr(strTargetPath, 1, 2) = "\\")
-		###_V(A_ThisFunc, strTargetPath, strSource)
-	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
-	return, FileExist(strTargetPath)
+		###_V(A_ThisFunc . " always return TRUE", strSource, strTargetPath)
+	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
+	return, (SubStr(strTargetPath, 1, 2) = "\\" or FileExist(strTargetPath))
 }
 ;------------------------------------------------------------
 
@@ -22919,9 +22923,22 @@ RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRe
 {
 	; check if on an offline server
 	if (SubStr(strPath, 1, 2) = "\\")
-		###_V(A_ThisFunc, strPath, strSource)
+	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
+	{
+		strAttributes := "???" ; do not leave empty - file will be processed and added to database
+		strExtension := GetFileExtension(strPath)
+		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
+			strType := "Application"
+		else if RecentLocationIsDocument(strPath, strSource)
+			strType := "File"
+		else
+			strType := "Folder"
+		strDateTime := ""
+		###_V(A_ThisFunc . " based on extension or dummy data", strSource, strPath, strAttributes, strType, strDateTime, strExtension)
+	}
 	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
-	GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension)
+	else
+		GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension)
 }
 ;------------------------------------------------------------
 
