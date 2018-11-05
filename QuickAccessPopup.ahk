@@ -20136,6 +20136,7 @@ return
 GetDrivesMenuListPreprocess:
 GetDrivesMenuListRefresh:
 ;------------------------------------------------------------
+Diag(A_ThisLabel, "", "START")
 
 intMenuNumberMenu := 0
 g_strMenuItemsListDrives := "" ; menu name|menu item name|label|icon
@@ -20146,10 +20147,21 @@ DriveGet, strDrivesList, List
 Loop, parse, strDrivesList
 {
 	strPath := A_LoopField . ":"
-	DriveGet, intCapacity, Capacity, %strPath%
-	DriveSpaceFree, intFreeSpace,  %strPath%
-	DriveGet, strDriveLabel, Label, %strPath%
-	DriveGet, strDriveType, Type, %strPath% ; Unknown, Removable, Fixed, Network, CDROM, RAMDisk
+	DriveGet, strStatus, Status, %strPath%
+	if (strStatus = "Ready")
+	{
+		DriveGet, intCapacity, Capacity, %strPath%
+		DriveSpaceFree, intFreeSpace,  %strPath%
+		DriveGet, strDriveLabel, Label, %strPath%
+		DriveGet, strDriveType, Type, %strPath% ; Unknown, Removable, Fixed, Network, CDROM, RAMDisk
+	}
+	else
+	{
+		strDriveLabel := strStatus
+		intCapacity := ""
+		intFreeSpace := ""
+		strDriveType := ""
+	}
 	
 	strMenuItemName := strPath . " " . strDriveLabel
 	if StrLen(intFreeSpace) and StrLen(intCapacity)
@@ -20164,11 +20176,13 @@ Loop, parse, strDrivesList
 
 strDrivesList := ""
 strPath := ""
+strStatus := ""
 intCapacity := ""
 intFreeSpace := ""
 strDriveLabel := ""
 strDriveType := ""
 
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -21802,8 +21816,8 @@ FileExistInPath(ByRef strFile)
 		intPos := InStr(strFile, "\", false, 3)
 		if !(intPos) ; there is no "\" after the domain or IP address, this is the UNC root
 			return true
-		if !StrLen(strTemp) ; there is nothing after the "\" following the domain or IP address, this is the UNC root
-			return true
+		; if !StrLen(strTemp) ; removed 2018-11-04 this was a bug returning true for any \\ location
+			; return true
 	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
