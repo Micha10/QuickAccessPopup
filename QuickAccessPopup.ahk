@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.7 (2018-11-06)
+- skip custom icon retrieving if folder path ends with "$" (administrative share)
+
 Version BETA: 9.2.9.6 (2018-11-06)
 - add diag code for preprocess popular and recent menus
 
@@ -2807,7 +2810,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.6 
+;@Ahk2Exe-SetVersion 9.2.9.7 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2908,7 +2911,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -12245,6 +12248,12 @@ return
 GetFolderIcon(strFolderLocation)
 ;------------------------------------------------------------
 {
+	; do not try to rertrieve custom icon if last char is a network administrative share like \\server.domain.net\e$ (Markus)
+	; return QAP network icon instead
+	; https://en.wikipedia.org/wiki/Administrative_share
+	if (SubStr(strFolderLocation, 0, 1) = "$")
+		return "iconNetwork"
+	
 	; if strFolderLocation has a relative path, make it absolute based on the working directry before reading desktop.ini
 	strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
 	
