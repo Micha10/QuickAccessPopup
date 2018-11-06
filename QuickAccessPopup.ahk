@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.6 (2018-11-06)
+- add diag code for preprocess popular and recent menus
+
 Version BETA: 9.2.9.5 (2018-11-05)
 - fix bug in v9.2.9.3 when collecting data
 
@@ -2804,7 +2807,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.5 
+;@Ahk2Exe-SetVersion 9.2.9.6 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2905,7 +2908,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -20037,6 +20040,7 @@ Diag(A_ThisLabel, "", "START")
 strDynamicDbSQL := ""
 loop, parse, % "Folders|Files", |
 {
+	Diag(A_ThisLabel . ":StartPopular", A_Loopfield, "ELAPSED")
 	strFoldersOrFiles := A_Loopfield
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
 
@@ -20068,6 +20072,7 @@ loop, parse, % "Folders|Files", |
 		g_blnUsageDbEnabled := false
 		return
 	}
+	Diag(A_ThisLabel . ":After SQLiteQuery", objRecordSet.HasRows, "ELAPSED")
 
 	intMenuNumberMenu := 0
 	intPopularItemsCount := 0
@@ -20076,16 +20081,18 @@ loop, parse, % "Folders|Files", |
 		if objRecordSet.Next(objRow) = -1 ; end of recordset
 			break
 		strPath := objRow[1]
-		strTargetType := objRow[2]
+		strTargetNb := objRow[2]
+		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
 		; RecentFileExistInPath to check if on an offline server
-		if (objRow[2] <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
+		if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
 			continue
 		intPopularItemsCount++
 		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
 		if (g_blnUsageDbShowPopularityIndex)
-			strMenuItemName .= " [" . objRow[2] . "]"
+			strMenuItemName .= " [" . strTargetNb . "]"
 		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
 			break ; Folders or Files menus is complete
 	}
@@ -20094,6 +20101,7 @@ loop, parse, % "Folders|Files", |
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
+	Diag(A_ThisLabel . ":FinishPopular", A_Loopfield, "ELAPSED")
 }
 ; Diag(A_ThisLabel . ":pre-strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
@@ -20102,14 +20110,17 @@ if (g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we have this QAP features in a
 	gosub, GetDrivesMenuListPreprocess ; update g_strMenuItemsListDrives
 	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', "
 }
+Diag(A_ThisLabel . ":After GetDrivesMenuListPreprocess", intPopularItemsCount, "ELAPSED")
 ; Diag(A_ThisLabel . ":g_strMenuItemsListDrives", StrReplace(g_strMenuItemsListDrives, "`n", "``n"))
 
+Diag(A_ThisLabel . ":StartRecent", A_Loopfield, "ELAPSED")
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenus.HasKey("{Recent Files}")) ; we have one of these QAP features in at least one menu
 {
 	gosub, GetMenusListRecentItemsPreprocess ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 	strDynamicDbSQL .= "RecentFoldersMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFolders) . "', "
 	strDynamicDbSQL .= "RecentFilesMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFiles) . "', "
 }
+Diag(A_ThisLabel . ":FinishProcessing", A_Loopfield, "ELAPSED")
 Diag(A_ThisLabel . ":g_strMenuItemsListRecentFolders", StrReplace(g_strMenuItemsListRecentFolders, "`n", "``n"))
 Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsListRecentFiles, "`n", "``n"))
 
@@ -20126,6 +20137,7 @@ if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent 
 		return
 	}
 }
+Diag(A_ThisLabel . ":FinishRecent", A_Loopfield, "ELAPSED")
 
 strPath := ""
 strMenuItemName := ""
@@ -20212,6 +20224,7 @@ else ; gather recent items the old way, directly from Windows
 	Sort, strShortcutsItemsList, R
 	; a `n ends the last line of the list
 }
+Diag(A_ThisLabel . ":AfterSelect", A_Loopfield, "ELAPSED")
 
 ; loop data source
 
@@ -20232,7 +20245,10 @@ Loop
 		strTargetPath := objRow[1]
 		strTargetType := objRow[2]
 		if (objDuplicatesFinder.HasKey(strTargetPath))
+		{
+			Diag(A_ThisLabel . ":Skip Duplicate", strTargetPath . " " . strTargetType, "ELAPSED")
 			continue
+		}
 		else ; new item
 			objDuplicatesFinder[strTargetPath] := strTargetType ; value is not used, only the key is checked
 	}
@@ -20256,6 +20272,7 @@ Loop
 		; RecentLocationIsDocument to check if on an offline server
 		strTargetType := (RecentLocationIsDocument(strTargetPath, A_ThisLabel) ? "File" : "Folder")
 	}
+	Diag(A_ThisLabel . ":ProcessingStart", strTargetPath . " " . strTargetType, "ELAPSED")
 
 	if (strTargetType = "Folder")
 		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
@@ -20268,12 +20285,14 @@ Loop
 	{
 		g_strMenuItemsListRecentFolders .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
+		Diag(A_ThisLabel . ":ProcessingFinish-Folder", intRecentFoldersCount, "ELAPSED")
 	}
 	; do not "else"
 	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
 	{
 		g_strMenuItemsListRecentFiles .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
+		Diag(A_ThisLabel . ":ProcessingFinish-File", intRecentFoldersCount, "ELAPSED")
 	}
 
 	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
@@ -21192,7 +21211,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 		else
 		{
 			intTicks := A_TickCount - g_intStartTick
-			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 and strStartElapsedStop <> "ELAPSED" ? "*FLAG*" : "")
 		}
 	}
 
