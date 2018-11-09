@@ -31,6 +31,31 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.9 (2018-11-09)
+- undo skip custom icon retrieving if folder is on a network share (in v9.2.9.7/8)
+- when checking if a path in Recent Items is a document, if path is on a server (starting with "\\"), check if server is offline and if yes check if path has an extension to determine if it is a document (instead of checking the "D" attribute of folders)
+- when checking if a file in Recent Items exists, if path is on a server, return that file does not exist if server is offline
+- when retrieving file info when adding an item from Recent Items to the database, if path is on an offline server, return file type (file or folder) based on path extension, empty date and emptu unknown attributes
+
+Version BETA: 9.2.9.8 (2018-11-08)
+- skip custom icon retrieving if folder is on a network share (all paths starting with "\\")
+
+Version BETA: 9.2.9.7 (2018-11-06)
+- skip custom icon retrieving if folder path ends with "$" (administrative share)
+
+Version BETA: 9.2.9.6 (2018-11-06)
+- add diag code for preprocess popular and recent menus
+
+Version BETA: 9.2.9.5 (2018-11-05)
+- fix bug in v9.2.9.3 when collecting data
+
+Version BETA: 9.2.9.4 (2018-11-05)
+- add diag code for preprocess drive menu
+
+Version BETA: 9.2.9.3 (2018-11-04)
+- in background task, when checking file info (file exist, file is document, file info) for file on network drive ("\\..."), return available info without accessing the network (this release is to validate that delays were caused by accessing offline network drives; in future version, QAP with check file info only if network drive is online)
+- remove debug code forgotten in check for update dialog box
+
 Version BETA: 9.2.9.2 (2018-11-01)
 - fix bug Settings window icon tool tips inversed between Sort and Always on top
 - make the ClipboardMaxSize an option in the ini file (not in the Options dialog box) with a default value of 10000
@@ -2794,7 +2819,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.2 
+;@Ahk2Exe-SetVersion 9.2.9.9 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2895,7 +2920,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -6067,7 +6092,7 @@ if (StrLen(Clipboard) <= g_intClipboardMaxSize) ; Clipboard is too large - 22 00
 			strContentsInClipboard .= "`n" . A_LoopField
 			
 			if (g_blnDisplayIcons)
-				if LocationIsDocument(strClipboardLineExpanded)
+				if RecentLocationIsDocument(strClipboardLineExpanded, A_ThisLabel) ; RecentLocationIsDocument to check if on an offline server
 					strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
 				else
 					strContentsInClipboard .= "`t" . "iconFolder"
@@ -12232,6 +12257,11 @@ return
 GetFolderIcon(strFolderLocation)
 ;------------------------------------------------------------
 {
+	; do not try to retrieve custom icon if file is on a network (path starting with "\\")
+	; return standard folder icon instead
+	if (SubStr(strFolderLocation, 1, 2) = "\\")
+		return "iconFolder"
+	
 	; if strFolderLocation has a relative path, make it absolute based on the working directry before reading desktop.ini
 	strFolderDesktopIni := PathCombine(A_WorkingDir, EnvVars(strFolderLocation)) . "\desktop.ini"
 	
@@ -19797,7 +19827,8 @@ Loop, parse, strUsageDbItemsList, `n
 		break
 	
 	FileGetShortcut, %strUsageDbShortcutPath%, strUsageDbTargetPath
-	GetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+	; RecentGetUsageDbTargetFileInfo to check if on an offline server
+	RecentGetUsageDbTargetFileInfo(strUsageDbTargetPath, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension, A_ThisLabel)
 	
 	if StrLen(strUsageDbTargetAttributes)
 	{
@@ -19827,7 +19858,7 @@ Loop, parse, strUsageDbItemsList, `n
 		intUsageDbtNbItems++
 	}
 }
-Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected)
+Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected, "ELAPSED")
 ; Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
 ; Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
 Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems)
@@ -20026,6 +20057,7 @@ Diag(A_ThisLabel, "", "START")
 strDynamicDbSQL := ""
 loop, parse, % "Folders|Files", |
 {
+	Diag(A_ThisLabel . ":StartPopular", A_Loopfield, "ELAPSED")
 	strFoldersOrFiles := A_Loopfield
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
 
@@ -20057,6 +20089,7 @@ loop, parse, % "Folders|Files", |
 		g_blnUsageDbEnabled := false
 		return
 	}
+	Diag(A_ThisLabel . ":After SQLiteQuery", objRecordSet.HasRows, "ELAPSED")
 
 	intMenuNumberMenu := 0
 	intPopularItemsCount := 0
@@ -20065,15 +20098,18 @@ loop, parse, % "Folders|Files", |
 		if objRecordSet.Next(objRow) = -1 ; end of recordset
 			break
 		strPath := objRow[1]
-		strTargetType := objRow[2]
-		if (objRow[2] <= 1 or !FileExistInPath(strPath)) ; skip if not enough frequent or if not exits
+		strTargetNb := objRow[2]
+		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
+		; RecentFileExistInPath to check if on an offline server
+		if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
 			continue
 		intPopularItemsCount++
 		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
 		if (g_blnUsageDbShowPopularityIndex)
-			strMenuItemName .= " [" . objRow[2] . "]"
+			strMenuItemName .= " [" . strTargetNb . "]"
 		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
 			break ; Folders or Files menus is complete
 	}
@@ -20082,6 +20118,7 @@ loop, parse, % "Folders|Files", |
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
+	Diag(A_ThisLabel . ":FinishPopular", A_Loopfield, "ELAPSED")
 }
 ; Diag(A_ThisLabel . ":pre-strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
@@ -20090,14 +20127,17 @@ if (g_objQAPfeaturesInMenus.HasKey("{Drives}")) ; we have this QAP features in a
 	gosub, GetDrivesMenuListPreprocess ; update g_strMenuItemsListDrives
 	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', "
 }
+Diag(A_ThisLabel . ":After GetDrivesMenuListPreprocess", intPopularItemsCount, "ELAPSED")
 ; Diag(A_ThisLabel . ":g_strMenuItemsListDrives", StrReplace(g_strMenuItemsListDrives, "`n", "``n"))
 
+Diag(A_ThisLabel . ":StartRecent", A_Loopfield, "ELAPSED")
 if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenus.HasKey("{Recent Files}")) ; we have one of these QAP features in at least one menu
 {
 	gosub, GetMenusListRecentItemsPreprocess ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 	strDynamicDbSQL .= "RecentFoldersMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFolders) . "', "
 	strDynamicDbSQL .= "RecentFilesMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFiles) . "', "
 }
+Diag(A_ThisLabel . ":FinishProcessing", A_Loopfield, "ELAPSED")
 Diag(A_ThisLabel . ":g_strMenuItemsListRecentFolders", StrReplace(g_strMenuItemsListRecentFolders, "`n", "``n"))
 Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsListRecentFiles, "`n", "``n"))
 
@@ -20114,6 +20154,7 @@ if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent 
 		return
 	}
 }
+Diag(A_ThisLabel . ":FinishRecent", A_Loopfield, "ELAPSED")
 
 strPath := ""
 strMenuItemName := ""
@@ -20212,6 +20253,7 @@ else ; gather recent items the old way, directly from Windows
 	Sort, strShortcutsItemsList, R
 	; a `n ends the last line of the list
 }
+Diag(A_ThisLabel . ":AfterSelect", A_Loopfield, "ELAPSED")
 
 ; loop data source
 
@@ -20232,7 +20274,10 @@ Loop
 		strTargetPath := objRow[1]
 		strTargetType := objRow[2]
 		if (objDuplicatesFinder.HasKey(strTargetPath))
+		{
+			Diag(A_ThisLabel . ":Skip Duplicate", strTargetPath . " " . strTargetType, "ELAPSED")
 			continue
+		}
 		else ; new item
 			objDuplicatesFinder[strTargetPath] := strTargetType ; value is not used, only the key is checked
 	}
@@ -20250,11 +20295,13 @@ Loop
 		
 		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
 			continue
-		if !FileExist(strTargetPath) ; if folder/document was deleted or on a removable drive
+		; RecentFileExist to check if on an offline server
+		if !RecentFileExist(strTargetPath, A_ThisLabel) ; if folder/document was deleted, on a removable drive or offline server
 			continue
-		
-		strTargetType := (LocationIsDocument(strTargetPath) ? "File" : "Folder")
+		; RecentLocationIsDocument to check if on an offline server
+		strTargetType := (RecentLocationIsDocument(strTargetPath, A_ThisLabel) ? "File" : "Folder")
 	}
+	Diag(A_ThisLabel . ":ProcessingStart", strTargetPath . " " . strTargetType, "ELAPSED")
 
 	if (strTargetType = "Folder")
 		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
@@ -20267,12 +20314,14 @@ Loop
 	{
 		g_strMenuItemsListRecentFolders .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
+		Diag(A_ThisLabel . ":ProcessingFinish-Folder", intRecentFoldersCount, "ELAPSED")
 	}
 	; do not "else"
 	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
 	{
 		g_strMenuItemsListRecentFiles .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
+		Diag(A_ThisLabel . ":ProcessingFinish-File", intRecentFoldersCount, "ELAPSED")
 	}
 
 	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
@@ -20285,7 +20334,6 @@ intRecentFoldersCount := ""
 intMenuNumberFolders := ""
 intRecentFilesCount := ""
 intMenuNumberFiles := ""
-
 strUsageDbSQL := ""
 objRecordSet := ""
 objRow := ""
@@ -20299,10 +20347,6 @@ strShortcutFullPath := ""
 strNumericShortcut := ""
 strMenuName := ""
 strIcon := ""
-intRecentFoldersCount := ""
-intMenuNumberFolders := ""
-intRecentFilesCount := ""
-intMenuNumberFiles := ""
 ResetArray("arrMenuItemsList")
 
 
@@ -21196,7 +21240,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 		else
 		{
 			intTicks := A_TickCount - g_intStartTick
-			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 and strStartElapsedStop <> "ELAPSED" ? "*FLAG*" : "")
 		}
 	}
 
@@ -21258,7 +21302,8 @@ GetIcon4Location(strLocation)
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	blnFileExist := FileExistInPath(strLocation) ; expand strLocation and search in PATH
+	if (SubStr(strLocation, 1, 2) <> "\\") ;  for files not on a server, search in path
+		FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
 		return "iconUnknown"
@@ -21347,6 +21392,27 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
 	}
 	return strList
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecentLocationIsDocument(strLocation, strSource)
+; check atrtributes except if on network offline check file extension
+;------------------------------------------------------------
+{
+	if (SubStr(strLocation, 1, 2) = "\\")
+	{
+		blnOffline := ServerIsOffline(strLocation)
+		Diag(A_ThisFunc . " check if server is offline, if yes use extension from: " . strSource, strLocation . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			; if server is offline, we must assume that if there is an extension, it is a file (could be misleading for foler like "\\server\path.ext")
+			return StrLen(GetFileExtension(strLocation)) 
+
+	}
+	; do not else
+	
+	return LocationIsDocument(strLocation)
 }
 ;------------------------------------------------------------
 
@@ -21798,6 +21864,25 @@ LocationIsHTTP(strLocation)
 
 
 ;------------------------------------------------------------
+RecentFileExistInPath(ByRef strFile, strSource)
+; always return true if file si on an offline network drive
+;------------------------------------------------------------
+{
+	if (SubStr(strFile, 1, 2) = "\\")
+	{
+		blnOffline := ServerIsOffline(strFile)
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strFile . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			return false
+	}
+	; do not else
+	
+	return FileExistInPath(strFile)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 FileExistInPath(ByRef strFile)
 ;------------------------------------------------------------
 {
@@ -21821,6 +21906,40 @@ FileExistInPath(ByRef strFile)
 	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecentFileExist(strPath, strSource)
+; if file is on server, check if server is online
+;------------------------------------------------------------
+{
+	if (SubStr(strPath, 1, 2) = "\\")
+	{
+		blnOffline := ServerIsOffline(strPath)
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			return false
+	}
+	; do not else
+
+	return FileExist(strPath)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ServerIsOffline(strPath)
+;------------------------------------------------------------
+{
+	SplitPath, strPath, , strDir ; extract the folder because DriveGet check status for folders, not files
+	; DriveGet Status returns: Unknown (might indicate unformatted/RAW), Ready, NotReady (typical for removable drives that don't contain media),
+	; Invalid (Path does not exist or is a network drive that is presently inaccessible, etc.)
+	DriveGet, strStatus, Status, %strDir%
+	; ###_V(A_ThisFunc, strPath, strDir, strStatus)
+	
+	return (strStatus <> "Ready")
 }
 ;------------------------------------------------------------
 
@@ -22881,6 +23000,38 @@ OpenFavoritePlaySound(strSound)
 			
 		SoundPlay, %strFavoriteSoundLocationExpanded%
 	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension, strSource)
+;------------------------------------------------------------
+{
+	if (SubStr(strPath, 1, 2) = "\\")
+	; if on network, if server is offline, return data based on path only
+	{
+		blnOffline := ServerIsOffline(strPath)
+		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+		{
+			strAttributes := "???" ; do not leave empty - file will be processed and added to database
+			strExtension := GetFileExtension(strPath)
+			if StrLen(strExtension)
+				if InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
+					strType := "Application"
+				else ; we must assume that if there is an extension, it is a file (could be misleading for foler like "\\server\path.ext")
+					strType := "File"
+			else
+				strType := "Folder"
+			strDateTime := "" ; unknown
+			
+			return
+		}
+	}
+	; do not else
+
+	GetUsageDbTargetFileInfo(strPath, strAttributes, strType, strDateTime, strExtension)
 }
 ;------------------------------------------------------------
 
