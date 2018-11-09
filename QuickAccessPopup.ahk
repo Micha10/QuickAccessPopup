@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.9 (2018-11-09)
+- undo skip custom icon retrieving if folder is on a network share (in v9.2.9.7/8)
+- when checking if a path in Recent Items is a document, if path is on a server (starting with "\\"), check if server is offline and if yes check if path has an extension to determine if it is a document (instead of checking the "D" attribute of folders)
+- when checking if a file in Recent Items exists, if path is on a server, return that file does not exist if server is offline
+- when retrieving file info when adding an item from Recent Items to the database, if path is on an offline server, return file type (file or folder) based on path extension, empty date and emptu unknown attributes
+
 Version BETA: 9.2.9.8 (2018-11-08)
 - skip custom icon retrieving if folder is on a network share (all paths starting with "\\")
 
@@ -2813,7 +2819,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.8 
+;@Ahk2Exe-SetVersion 9.2.9.9 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2914,7 +2920,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -20278,7 +20284,7 @@ Loop
 		if (ErrorLevel) ; hidden or system files (like desktop.ini) returns an error
 			continue
 		; RecentFileExist to check if on an offline server
-		if !RecentFileExist(strTargetPath, A_ThisLabel) ; if folder/document was deleted or on a removable drive
+		if !RecentFileExist(strTargetPath, A_ThisLabel) ; if folder/document was deleted, on a removable drive or offline server
 			continue
 		; RecentLocationIsDocument to check if on an offline server
 		strTargetType := (RecentLocationIsDocument(strTargetPath, A_ThisLabel) ? "File" : "Folder")
@@ -21284,7 +21290,8 @@ GetIcon4Location(strLocation)
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	blnFileExist := FileExistInPath(strLocation) ; expand strLocation and search in PATH
+	if (SubStr(strLocation, 1, 2) <> "\\") ;  for files not on a server, search in path
+		FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
 		return "iconUnknown"
@@ -21383,13 +21390,17 @@ RecentLocationIsDocument(strLocation, strSource)
 ;------------------------------------------------------------
 {
 	if (SubStr(strLocation, 1, 2) = "\\")
-	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
 	{
-		Diag(A_ThisFunc . " based on extension from: " . strSource, strLocation)
-		return StrLen(GetFileExtension(strLocation))
+		blnOffline := ServerIsOffline(strLocation)
+		Diag(A_ThisFunc . " check if server is offline, if yes use extension from: " . strSource, strLocation . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			; if server is offline, we must assume that if there is an extension, it is a file (could be misleading for foler like "\\server\path.ext")
+			return StrLen(GetFileExtension(strLocation)) 
+
 	}
-	else
-		return LocationIsDocument(strLocation)
+	; do not else
+	
+	return LocationIsDocument(strLocation)
 }
 ;------------------------------------------------------------
 
@@ -21846,9 +21857,15 @@ RecentFileExistInPath(ByRef strFile, strSource)
 ;------------------------------------------------------------
 {
 	if (SubStr(strFile, 1, 2) = "\\")
-		Diag(A_ThisFunc . " always return TRUE from: " . strSource, strFile)
-	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
-	return, (SubStr(strFile, 1, 2) = "\\" or FileExistInPath(strFile))
+	{
+		blnOffline := ServerIsOffline(strFile)
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strFile . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			return false
+	}
+	; do not else
+	
+	return FileExistInPath(strFile)
 }
 ;------------------------------------------------------------
 
@@ -21882,14 +21899,35 @@ FileExistInPath(ByRef strFile)
 
 
 ;------------------------------------------------------------
-RecentFileExist(strTargetPath, strSource)
-; always return true if file si on an offline network drive
+RecentFileExist(strPath, strSource)
+; if file is on server, check if server is online
 ;------------------------------------------------------------
 {
-	if (SubStr(strTargetPath, 1, 2) = "\\")
-		Diag(A_ThisFunc . " always return TRUE from: " . strSource, strTargetPath)
-	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
-	return, (SubStr(strTargetPath, 1, 2) = "\\" or FileExist(strTargetPath))
+	if (SubStr(strPath, 1, 2) = "\\")
+	{
+		blnOffline := ServerIsOffline(strPath)
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+			return false
+	}
+	; do not else
+
+	return FileExist(strPath)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ServerIsOffline(strPath)
+;------------------------------------------------------------
+{
+	SplitPath, strPath, , strDir ; extract the folder because DriveGet check status for folders, not files
+	; DriveGet Status returns: Unknown (might indicate unformatted/RAW), Ready, NotReady (typical for removable drives that don't contain media),
+	; Invalid (Path does not exist or is a network drive that is presently inaccessible, etc.)
+	DriveGet, strStatus, Status, %strDir%
+	; ###_V(A_ThisFunc, strPath, strDir, strStatus)
+	
+	return (strStatus <> "Ready")
 }
 ;------------------------------------------------------------
 
@@ -22958,24 +22996,30 @@ OpenFavoritePlaySound(strSound)
 RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension, strSource)
 ;------------------------------------------------------------
 {
-	; check if on an offline server
 	if (SubStr(strPath, 1, 2) = "\\")
-	; if on network, check if network on up, if yes remember and continue, if no remember and return "no" values
+	; if on network, if server is offline, return data based on path only
 	{
-		strAttributes := "???" ; do not leave empty - file will be processed and added to database
-		strExtension := GetFileExtension(strPath)
-		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
-			strType := "Application"
-		else if RecentLocationIsDocument(strPath, strSource)
-			strType := "File"
-		else
-			strType := "Folder"
-		strDateTime := ""
-		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath)
+		blnOffline := ServerIsOffline(strPath)
+		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		if (blnOffline)
+		{
+			strAttributes := "???" ; do not leave empty - file will be processed and added to database
+			strExtension := GetFileExtension(strPath)
+			if StrLen(strExtension)
+				if InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
+					strType := "Application"
+				else ; we must assume that if there is an extension, it is a file (could be misleading for foler like "\\server\path.ext")
+					strType := "File"
+			else
+				strType := "Folder"
+			strDateTime := "" ; unknown
+			
+			return
+		}
 	}
-	; check if on network, if yes check if network on up, if yes remember and continue, if no remember and return "no" values
-	else
-		GetUsageDbTargetFileInfo(strPath, strAttributes, strType, strDateTime, strExtension)
+	; do not else
+
+	GetUsageDbTargetFileInfo(strPath, strAttributes, strType, strDateTime, strExtension)
 }
 ;------------------------------------------------------------
 
