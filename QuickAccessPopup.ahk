@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.2.9.10 (2018-11-12)
+- small improvements in diag and timers code
+
 Version BETA: 9.2.9.9 (2018-11-09)
 - undo skip custom icon retrieving if folder is on a network share (in v9.2.9.7/8)
 - when checking if a path in Recent Items is a document, if path is on a server (starting with "\\"), check if server is offline and if yes check if path has an extension to determine if it is a document (instead of checking the "D" attribute of folders)
@@ -2819,7 +2822,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.9 
+;@Ahk2Exe-SetVersion 9.2.9.10 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2920,7 +2923,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3204,7 +3207,7 @@ Hotkey, If
 ;---------------------------------
 ; Start task collecting recent items
 
-Diag("SetTimer:UsageDbCollectMenuData", g_intUsageDbIntervalSeconds)
+; Diag("SetTimer:UsageDbCollectMenuData", g_intUsageDbIntervalSeconds)
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectMenuData, % (g_intUsageDbIntervalSeconds * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
@@ -5670,23 +5673,23 @@ IfMsgBox, No
 if !FileExist(g_strDiagFile)
 {
 	FileAppend, DateTime`tType`tData`n, %g_strDiagFile%
-	Diag("DIAGNOSTIC FILE", lDiagModeIntro)
-	Diag("A_ScriptFullPath", A_ScriptFullPath)
-	Diag("AppVersion", g_strAppVersion)
-	Diag("A_WorkingDir", A_WorkingDir)
-	Diag("A_AhkVersion", A_AhkVersion)
-	Diag("A_OSVersion", A_OSVersion)
-	Diag("A_Is64bitOS", A_Is64bitOS)
-	Diag("A_IsUnicode", A_IsUnicode)
-	Diag("A_Language", A_Language)
-	Diag("A_IsAdmin", A_IsAdmin)
+	Diag("DIAGNOSTIC FILE", lDiagModeIntro, "")
+	Diag("A_ScriptFullPath", A_ScriptFullPath, "")
+	Diag("AppVersion", g_strAppVersion, "")
+	Diag("A_WorkingDir", A_WorkingDir, "")
+	Diag("A_AhkVersion", A_AhkVersion, "")
+	Diag("A_OSVersion", A_OSVersion, "")
+	Diag("A_Is64bitOS", A_Is64bitOS, "")
+	Diag("A_IsUnicode", A_IsUnicode, "")
+	Diag("A_Language", A_Language, "")
+	Diag("A_IsAdmin", A_IsAdmin, "")
 	RegRead, strUsageDbRecentsFolder, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Recent
-	Diag("Recent Items Folder" , strUsageDbRecentsFolder)
+	Diag("Recent Items Folder" , strUsageDbRecentsFolder, "")
 }
 
 FileRead, strIniFileContent, %g_strIniFile%
 StringReplace, strIniFileContent, strIniFileContent, `", `"`"
-Diag("IniFile", "`n""" . strIniFileContent . """`n")
+Diag("IniFile", "`n""" . strIniFileContent . """`n", "")
 FileAppend, `n, %g_strDiagFile% ; required when the last line of the existing file ends with "
 
 strIniFileContent := ""
@@ -7704,7 +7707,7 @@ if (SettingsUnsaved() or !g_blnMenuReady ; these two required
 	or g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress) ; these two by safety (required?)
 	return
 
-Diag(A_ThisLabel, "", "START-FULL")
+Diag(A_ThisLabel, "", "START-REFRESH")
 
 if (g_blnRefreshQAPMenuDebugBeep)
 	SoundBeep, 330
@@ -7736,7 +7739,7 @@ g_blnRefreshQAPMenuInProgress := false
 if (g_blnRefreshQAPMenuDebugBeep)
 	SoundBeep, 440
 
-Diag(A_ThisLabel, "", "STOP-FULL")
+Diag(A_ThisLabel, "", "STOP-REFRESH")
 return
 ;------------------------------------------------------------
 
@@ -19776,7 +19779,7 @@ UsageDbCollectMenuData:
 if !(g_blnUsageDbEnabled)
 {
 	SetTimer, UsageDbCollectMenuData, Off
-	Diag(A_ThisLabel . ":g_blnUsageDbEnabled" , g_blnUsageDbEnabled)
+	Diag(A_ThisLabel . ":g_blnUsageDbEnabled" , g_blnUsageDbEnabled, "")
 	return
 }
 
@@ -19861,7 +19864,7 @@ Loop, parse, strUsageDbItemsList, `n
 Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected, "ELAPSED")
 ; Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
 ; Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
-Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems)
+Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems, "ELAPSED")
 
 if (g_blnUsageDbDebug)
 	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
@@ -20138,8 +20141,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}") or g_objQAPfeaturesInMenu
 	strDynamicDbSQL .= "RecentFilesMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFiles) . "', "
 }
 Diag(A_ThisLabel . ":FinishProcessing", A_Loopfield, "ELAPSED")
-Diag(A_ThisLabel . ":g_strMenuItemsListRecentFolders", StrReplace(g_strMenuItemsListRecentFolders, "`n", "``n"))
-Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsListRecentFiles, "`n", "``n"))
+Diag(A_ThisLabel . ":g_strMenuItemsListRecentFolders", StrReplace(g_strMenuItemsListRecentFolders, "`n", "``n"), "ELAPSED")
+Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsListRecentFiles, "`n", "``n"), "ELAPSED")
 
 if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent menus, strDynamicDbSQL is empty
 {
@@ -20177,7 +20180,7 @@ return
 GetDrivesMenuListPreprocess:
 GetDrivesMenuListRefresh:
 ;------------------------------------------------------------
-Diag(A_ThisLabel, "", "START")
+Diag(A_ThisLabel, "", "ELAPSED")
 
 intMenuNumberMenu := 0
 g_strMenuItemsListDrives := "" ; menu name|menu item name|label|icon
@@ -20223,7 +20226,7 @@ intFreeSpace := ""
 strDriveLabel := ""
 strDriveType := ""
 
-Diag(A_ThisLabel, "", "STOP")
+Diag(A_ThisLabel, "", "ELAPSED")
 return
 ;------------------------------------------------------------
 
@@ -21194,7 +21197,7 @@ DiagWindowInfo(strName)
 
 
 ;------------------------------------------------
-Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := false)
+Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 ;------------------------------------------------
 {
 	global g_blnDiagMode
@@ -21214,7 +21217,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 	{
 		strDiag .= "`t" . strStartElapsedStop . "`t" . A_TickCount
 		
-		if (strStartElapsedStop = "START-FULL")
+		if (strStartElapsedStop = "START-REFRESH")
 			g_intStartFullTick := A_TickCount
 		else if (strStartElapsedStop = "START-SHOW")
 			g_intStartShowTick := A_TickCount
@@ -21222,25 +21225,25 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 			g_intStartCollectTick := A_TickCount
 		else if (strStartElapsedStop = "START")
 			g_intStartTick := A_TickCount
-		else if InStr(strStartElapsedStop, "-FULL") ; ELAPSED-FULL or STOP-FULL
+		else if InStr(strStartElapsedStop, "-REFRESH") ; ELAPSED-REFRESH or STOP-REFRESH
 		{
 			intTicksAll := A_TickCount - g_intStartFullTick
-			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "*FLAG1*" : "")
 		}
 		else if InStr(strStartElapsedStop, "-SHOW") ; ELAPSED-SHOW or STOP-SHOW
 		{
 			intTicksShow := A_TickCount - g_intStartShowTick
-			strDiag .= "`t" . intTicksShow . "`t" . (intTicksShow > 1500 ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicksShow . "`t" . (intTicksShow > 1000 ? "*FLAG2*" : "")
 		}
 		else if InStr(strStartElapsedStop, "-COLLECT") ; ELAPSED-COLLECT or STOP-COLLECT
 		{
 			intTicksCollect := A_TickCount - g_intStartCollectTick
-			strDiag .= "`t" . intTicksCollect . "`t" . (intTicksCollect > 1000 ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicksCollect . "`t" . (intTicksCollect > 2000 ? "*FLAG3*" : "")
 		}
-		else
+		else ; ELAPSED
 		{
 			intTicks := A_TickCount - g_intStartTick
-			strDiag .= "`t" . intTicks . "`t" . (intTicks > 500 and strStartElapsedStop <> "ELAPSED" ? "*FLAG*" : "")
+			strDiag .= "`t" . intTicks . "`t" . (intTicks > 2000 and strStartElapsedStop <> "ELAPSED" ? "*FLAG4*" : "")
 		}
 	}
 
@@ -21256,7 +21259,7 @@ Diag(strName, strData, strStartElapsedStop := "", blnForceForFirstStartup := fal
 	
 	if (strStartElapsedStop = "STOP")
 		g_intStartTick := ""
-	else if (strStartElapsedStop = "STOP-FULL")
+	else if (strStartElapsedStop = "STOP-REFRESH")
 		g_intStartFullTick := ""
 	else if (strStartElapsedStop = "STOP-SHOW")
 		g_intStartShowTick := ""
@@ -21404,7 +21407,7 @@ RecentLocationIsDocument(strLocation, strSource)
 	if (SubStr(strLocation, 1, 2) = "\\")
 	{
 		blnOffline := ServerIsOffline(strLocation)
-		Diag(A_ThisFunc . " check if server is offline, if yes use extension from: " . strSource, strLocation . " " . (blnOffline ? "OFFLINE" : ""))
+		Diag(A_ThisFunc . " check if server is offline, if yes use extension from: " . strSource, strLocation . " " . (blnOffline ? "(OFFLINE)" : "(ONLINE)"), "ELAPSED")
 		if (blnOffline)
 			; if server is offline, we must assume that if there is an extension, it is a file (could be misleading for foler like "\\server\path.ext")
 			return StrLen(GetFileExtension(strLocation)) 
@@ -21871,7 +21874,7 @@ RecentFileExistInPath(ByRef strFile, strSource)
 	if (SubStr(strFile, 1, 2) = "\\")
 	{
 		blnOffline := ServerIsOffline(strFile)
-		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strFile . " " . (blnOffline ? "OFFLINE" : ""))
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strFile . " " . (blnOffline ? "(OFFLINE)" : "(ONLINE)"), "ELAPSED")
 		if (blnOffline)
 			return false
 	}
@@ -21918,7 +21921,7 @@ RecentFileExist(strPath, strSource)
 	if (SubStr(strPath, 1, 2) = "\\")
 	{
 		blnOffline := ServerIsOffline(strPath)
-		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strPath . " " . (blnOffline ? "(OFFLINE)" : "(ONLINE)"), "ELAPSED")
 		if (blnOffline)
 			return false
 	}
@@ -23012,7 +23015,7 @@ RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRe
 	; if on network, if server is offline, return data based on path only
 	{
 		blnOffline := ServerIsOffline(strPath)
-		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath . " " . (blnOffline ? "OFFLINE" : ""))
+		Diag(A_ThisFunc . " based on extension or dummy data from: " . strSource, strPath . " " . (blnOffline ? "(OFFLINE)" : "(ONLINE)"), "ELAPSED")
 		if (blnOffline)
 		{
 			strAttributes := "???" ; do not leave empty - file will be processed and added to database
@@ -23062,7 +23065,7 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		. strAttributes . "`t"
 		. strType . "`t"
 		. strDateTime . "`t"
-		. "")
+		. "", "ELAPSED")
 }
 ;------------------------------------------------------------
 
