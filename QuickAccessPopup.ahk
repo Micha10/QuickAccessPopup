@@ -5867,6 +5867,7 @@ Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosi
 Menu, Tray, Add, %lMenuRestoreEditCopyMoveWindowPosition%, RestoreEditCopyMoveWindowPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
+Menu, Tray, Add, %lMenuOpenWorkingDirectory%, OpenWorkingDirectory
 Menu, Tray, Add, %lMenuWebSiteSupport%, OpenWebSiteSupport
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuHelp%, GuiHelp
@@ -16329,6 +16330,7 @@ OpenReopenCurrentFolder:
 OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
 OpenPopularMenus:
+OpenWorkingDirectory:
 ;------------------------------------------------------------
 
 if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
@@ -17004,6 +17006,15 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite.FavoriteName := strThisMenuItem
 	g_objThisFavorite.FavoriteLocation := strThisMenuItem
 	g_objThisFavorite.FavoriteType := strFavoriteType
+}
+else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
+{
+	g_objThisFavorite := Object() ; temporary favorite object
+	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
+	g_objThisFavorite.FavoriteName := lMenuOpenWorkingDirectory
+	g_objThisFavorite.FavoriteLocation := A_WorkingDir
+	g_objThisFavorite.FavoriteType :=  "Folder"
+	g_strHotkeyTypeDetected := "Launch"
 }
 else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
 {
