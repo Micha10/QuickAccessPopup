@@ -31,8 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-
-Version BETA: 9.2.9.11 (2018-11-12)
+Version BETA: 9.2.9.11 (2018-11-13)
 - fix loading icon bug by moving build gui before setting temporary loading icon
 - keep custom tray icon when running QAP as admin
 - free database record set in background task to preprocess dynamic menu (potential source of memory leak)
@@ -20381,7 +20380,6 @@ strMenuName := ""
 strIcon := ""
 ResetArray("arrMenuItemsList")
 
-
 return
 ;------------------------------------------------------------
 
@@ -23091,10 +23089,10 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 		strType := ""
 		strDateTime := ""
 	}
-	Diag(A_ThisFunc, strPath . "`t"
-		. strAttributes . "`t"
-		. strType . "`t"
-		. strDateTime . "`t"
+	Diag(A_ThisFunc, strPath . " | "
+		. strAttributes . " | "
+		. strType . " | "
+		. strDateTime . " | "
 		. "", "ELAPSED")
 }
 ;------------------------------------------------------------
