@@ -4845,6 +4845,7 @@ IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
 IniRead, g_intNbLastActions, %g_strIniFile%, Global, NbLastActions, 10
 
 IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
+IniRead, g_blnDisplayNumericShortcutsFromOne, %g_strIniFile%, Global, DisplayMenuShortcutsFromOne, 0
 IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
 IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
 
@@ -6142,7 +6143,7 @@ else
 		; arrContentsInClipboard1 = path or URL, arrContentsInClipboard2 = icon (file,index or icon code)
 		StringSplit, arrContentsInClipboard, A_LoopField, `t
 		
-		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberClipboardMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberClipboardMenu) . " " : "") . arrContentsInClipboard1
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumberClipboardMenu, arrContentsInClipboard1)
 		if StrLen(strMenuName) < 260 ; skip too long URLs
 			AddMenuIcon(lMenuClipboard, strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
@@ -6572,7 +6573,7 @@ if (intWindowsIdIndex)
 			Menu, %lMenuSwitchFolderOrApp%, Add
 		else
 		{
-			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . objFolderOrApp.Name
+			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, objFolderOrApp.Name)
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
@@ -7109,7 +7110,7 @@ Menu, %lMenuLastActions%, DeleteAll
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 	{
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberLastActionsMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberLastActionsMenu) . " " : "") . A_LoopField
+		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberLastActionsMenu, A_LoopField)
 		AddMenuIcon(lMenuLastActions, strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
 	}
 AddCloseMenu(lMenuLastActions)
@@ -7137,8 +7138,7 @@ Loop
 		strThisHotkey := g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
 		
 ; .LocalizedName OK because Alternative
-		strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "")
-			. g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName)
 		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
 			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Hotkey2Text(strThisHotkey, true)) . ")"
 			; hotkey reminder " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
@@ -7255,7 +7255,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 
 		strMenuName := objCurrentMenu[A_Index].FavoriteName
 		if StrLen(strMenuName)
-			strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35) ? "&" . NextMenuShortcut(intMenuNumber) . " " : "") . strMenuName
+			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, strMenuName)
 		
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
@@ -7954,8 +7954,12 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!g_blnAddAutoAtTop ? 
 Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, %lOptionsRefreshedMenusAttached%
 GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts, %lOptionsDisplayMenuShortcuts%
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, %lOptionsDisplayMenuShortcuts%
 GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcutsFromOne, %lOptionsDisplayMenuShortcutsFromOne%
+GuiControl, , f_blnDisplayNumericShortcutsFromOne, %g_blnDisplayNumericShortcutsFromOne%
+gosub, DisplayMenuShortcutsClicked
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
 GuiControl, , f_blnOpenMenuOnTaskbar, %g_blnOpenMenuOnTaskbar%
@@ -8521,6 +8525,17 @@ return
 
 
 ;------------------------------------------------------------
+DisplayMenuShortcutsClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, % (f_blnDisplayNumericShortcuts ? "Enable" : "Disable"), f_blnDisplayNumericShortcutsFromOne
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ButtonExternalMenuSelectCataloguePath:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
@@ -8915,6 +8930,8 @@ g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
 IniWrite, %g_blnRefreshedMenusAttached%, %g_strIniFile%, Global, RefreshedMenusAttached
 g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
 IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
+g_blnDisplayNumericShortcutsFromOne := f_blnDisplayNumericShortcutsFromOne
+IniWrite, %g_blnDisplayNumericShortcutsFromOne%, %g_strIniFile%, Global, DisplayMenuShortcutsFromOne
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
 g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
@@ -20145,7 +20162,7 @@ loop, parse, % "Folders|Files", |
 		if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
 			continue
 		intPopularItemsCount++
-		strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strPath
+		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strPath)
 		if (g_blnUsageDbShowPopularityIndex)
 			strMenuItemName .= " [" . strTargetNb . "]"
 		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
@@ -20249,7 +20266,7 @@ Loop, parse, strDrivesList
 	strMenuItemName := strPath . " " . strDriveLabel
 	if StrLen(intFreeSpace) and StrLen(intCapacity)
 		strMenuItemName .= " " . L(lMenuDrivesSpace, intFreeSpace // 1024, intCapacity // 1024)
-	strMenuItemName := (g_blnDisplayNumericShortcuts and (intMenuNumberMenu <= 35) ? "&" . NextMenuShortcut(intMenuNumberMenu) . " " : "") . strMenuItemName
+	strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strMenuItemName)
 	if InStr("Fixed|Unknown", strDriveType)
 		strIcon := "iconDrives"
 	else
@@ -20346,11 +20363,10 @@ Loop
 	Diag(A_ThisLabel . ":ProcessingStart", strTargetPath . " " . strTargetType, "ELAPSED")
 
 	if (strTargetType = "Folder")
-		strNumericShortcut := NextMenuShortcut(intMenuNumberFolders)
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumberFolders, strTargetPath)
 	else ; File
-		strNumericShortcut := NextMenuShortcut(intMenuNumberFiles)
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumberFiles, strTargetPath)
 	
-	strMenuName := (g_blnDisplayNumericShortcuts and (intMenuNumberFiles <= 35) ? "&" . strNumericShortcut . " " : "") . strTargetPath
 	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
 	if (strTargetType = "Folder") and (intRecentFoldersCount < g_intRecentFoldersMax)
 	{
@@ -21495,11 +21511,30 @@ GetDeepestMenuPath(strPath)
 
 
 ;------------------------------------------------------------
+MenuNameWithNumericShortcut(ByRef intMenuNumber, strMenuName)
+;------------------------------------------------------------
+{
+	global g_blnDisplayNumericShortcuts
+	
+	if (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35))
+		return "&" . NextMenuShortcut(intMenuNumber) . " " . StrReplace(strMenuName, "&")
+	else
+		return strMenuName
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 NextMenuShortcut(ByRef intMenuNumber)
 ;------------------------------------------------------------
 {
+	global g_blnDisplayNumericShortcutsFromOne
+	
 	if (intMenuNumber < 10)
-		strShortcut := intMenuNumber ; 0 .. 9
+	{
+		; 0 .. 9 (or 1 .. 9 . 0 if g_blnDisplayNumericShortcutsFromOne )
+		strShortcut := Mod(intMenuNumber + (g_blnDisplayNumericShortcutsFromOne ? 1 : 0), 10) ; 0 .. 9
+	}
 	else
 		strShortcut := Chr(intMenuNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
 	
