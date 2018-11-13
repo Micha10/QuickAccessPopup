@@ -37,12 +37,11 @@ if 0 = 0
 ; %2% = "-beta" ou est vide
 AhkFile := "E:\Dropbox\AutoHotkey\QuickAccessPopup\QuickAccessPopup.ahk"
 ExeFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%2%\QuickAccessPopup-%1%-bit.exe ; PAS expression
-; IcoFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\QuickAccessPopup-loading.ico
 IcoFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\QuickAccessPopup%2%.ico
 CustomBinFile := true
 BinFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Unicode %1%-bit-JL.bin
 CLIMode := true ; command line mode
-; ###_V("", AhkFile, ExeFile, IcoFile, BinFile)
+; ###_V("Ahk2Exe", AhkFile, ExeFile, IcoFile, BinFile)
 ; ----------------------------------------------
 
 if !UsesCustomBin
