@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+
+Version BETA: 9.2.9.11 (2018-11-12)
+- fix loading icon bug by moving build gui before setting temporary loading icon
+- keep custom tray icon when running QAP as admin
+- free database record set in background task to preprocess dynamic menu (potential source of memory leak)
+- free database record set in startup task updating usage data in favorites objects (potential source of memory leak)
+- free variables in background task
+
 Version BETA: 9.2.9.10 (2018-11-12)
 - small improvements in diag and timers code
 
@@ -2822,7 +2830,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.10 
+;@Ahk2Exe-SetVersion 9.2.9.11 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2915,15 +2923,12 @@ FileCreateDir, %g_strTempDir%
 
 Gosub, InitFileInstall
 
-; now that we have a temp dire and fileinstall done
-Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
-
 Gosub, InitLanguageVariables
 
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.2.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3066,6 +3071,11 @@ if (g_blnUseColors)
 if (g_blnCheck4Update)
 	Gosub, Check4Update
 
+; Build Settings Gui
+Gosub, BuildGui
+; now that the Gui is built, temporary change the tray icon to loading icon
+Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
@@ -3086,10 +3096,8 @@ Gosub, BuildDirectoryOpusFavoritesInit
 Gosub, BuildDirectoryOpusFavoritesPrepare
 
 ; Other menus
-
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
-Gosub, BuildGui
 Gosub, BuildTrayMenu
 
 IniRead, g_intRefreshQAPMenuIntervalSec, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec, 0
@@ -5814,15 +5822,15 @@ ExitApp
 SetTrayMenuIcon:
 ;------------------------------------------------------------
 
-Menu, Tray, Icon, , , 1 ; last 1 to freeze icon during pause or suspend
 Menu, Tray, NoStandard
-if (A_IsAdmin and g_blnRunAsAdmin)
-	Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
 IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
 if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
-	Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup" . (g_strCurrentBranch ? "-beta" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+	if (A_IsAdmin and g_blnRunAsAdmin)
+		Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
+	else
+		Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup" . (g_strCurrentBranch <> "prod" ? "-beta" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
 Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
@@ -6269,6 +6277,7 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 AddCloseMenu(lMenuDrives)
 
 strUsageDbSQL := ""
+objMetadataRecordSet := ""
 ResetArray("arrMenuItemsList")
 
 Diag(A_ThisLabel, "", "STOP")
@@ -6357,6 +6366,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 g_strMenuItemsListRecentFolders := ""
 g_strMenuItemsListRecentFiles := ""
 ResetArray("arrMenuItemsList")
+objMetadataRecordSet := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -19766,6 +19776,7 @@ fltProportionOfRecordsToDelete := ""
 intRecordsToDelete := ""
 intSizeSQLiteCurrent := ""
 intSizeSQLiteRequired := ""
+objUsageDbTable := ""
 
 Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
 return
@@ -19905,6 +19916,23 @@ if (g_blnUsageDbDebug)
 
 ; preprocess Frequent Folders, Frequent Files, Recent Folders, Recent Files and Drives menu data
 Gosub, DynamicMenusPreProcess
+
+strUsageDbRecentsFolder := ""
+strUsageDbItemsList := ""
+strUsageDbReport := ""
+intUsageDbtNbItems := ""
+strUsageDbSQL := ""
+objMetadataRecordSet := ""
+ResetArray("arrUsageDbShortcutFullPath")
+strUsageDbShortcutDateTime := ""
+strUsageDbShortcutPath := ""
+strUsageDbLatestCollected := ""
+strUsageDbTargetPath := ""
+strUsageDbTargetAttributes := ""
+strUsageDbTargetType := ""
+strUsageDbTargetDateTime := ""
+strUsageDbTargetExtension := ""
+strUsageDbPreviousLatestCollected := ""
 
 Diag(A_ThisLabel, "", "STOP-COLLECT")
 
@@ -20116,6 +20144,7 @@ loop, parse, % "Folders|Files", |
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
 			break ; Folders or Files menus is complete
 	}
+	objRecordSet.Free()
 	if (intPopularItemsCount < g_intRecentFoldersMax)
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
 
@@ -20754,6 +20783,7 @@ if FileExist(strGoogleDriveDbFile)
 			objGoogleDriveRecordSet.Next(objGoogleDriveRow)
 			g_strUserVariablesList .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
 		}
+		objGoogleDriveRecordSet.Free()
 		objGoogleDriveDb.CloseDb()
 	}
 }
@@ -23105,6 +23135,7 @@ GetUsageDbFavoriteUsage(objFavorite)
 	}
 	objRecordSet.Next(objRow)
 	strValue := objRow[1] ; COUNT(*) is the first (and only) field
+	objRecordSet.Free()
 
 	return strValue
 }
