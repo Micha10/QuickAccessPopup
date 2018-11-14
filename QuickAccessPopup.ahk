@@ -31,6 +31,35 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3 (2018-11-14)
+ 
+Directory Opus Favorites menu
+- add the new QAP feature "Directory Opus Favorites" under the "Dynamic Menus" category
+- at first QAP launch, add the QAP feature "Directory Opus Favorites" to main menu if DOpus is selected as supported manager (NOTE: users upgrading to this release must add the QAP feature manualy)
+- fix bug when opening a group of folders in Directory Opus and DOpus is not launched, or when the first group item is not a folder
+ 
+Total Commander Hotlist menu
+- when builing Total Commander Hotlist menu, support path redirected by "RedirectSection=" value under [DirMenu] (in addition to supporting "AlternateUserIni=" under [Configuration]), with path relative to folder of wincmd.ini
+- at first QAP launch, detect Total Commander ini file location and save it to the settings file
+- fix bug when opening a group of folders in Total Commander when the first group item is not a folder
+ 
+Various improvements
+- add the option "Start Numeric Menu Shortcuts at 1 (instead of 0)" in "Options", "Menu" tab
+- add "Refresh Live Folders and Shared menus" and "Open QAP working directory" items to Tray menu (QAP system menu)
+- always close the "Update Quick Access Popup" dialog box after any buttons is clicked
+- change QAP icon to gray "loading" icon at the beginning of QAP load sequence and set the normal blue icon when loading is complete and menu can be open
+ 
+Performance improvements
+- when checking if a path in Windows Recent Items is a document, if path is on a server (starting with "\\"), check if server is offline and if yes avoid trying to retreive info from the file
+- when checking if a file in Windows Recent Items exists, if path is on a server, return that file does not exist if server is offline
+- stop refreshing the Windows Apps list at each startup, do it at first QAP launch before adding the "My Windows Apps" menu to ini file, on demand when user adds a Windows App favorite or when RefreshWindowsAppsListAtStartup=1 in settings file
+- when refreshing the "Clipboard" menu, do not refresh the menu if the Clipboard size is greater than 10,000 bytes to avoid too long delay before showing the menu (the maximum value can be changed using "ClipboardMaxSize=" in settings file)
+ 
+Bug fixes
+- fix bug in "Options", stop changing the QAP temporary folder from %TEMP% to QAP working folder by error
+- after Settings import, reset the QAP temporary folder to %TEMP% to avoid dependency on local folder from other system
+- fix bug in "Settings" tool tips labels were inversed for "Sort" and "Always on top" buttons
+
 Version BETA: 9.2.9.11 (2018-11-13)
 - fix loading icon bug by moving build gui before setting temporary loading icon
 - keep custom tray icon when running QAP as admin
@@ -2829,7 +2858,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.2.9.11 
+;@Ahk2Exe-SetVersion 9.3 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2927,8 +2956,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.2.9.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
