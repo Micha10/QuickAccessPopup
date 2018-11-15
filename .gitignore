@@ -1,44 +1,19 @@
-*.PRJ
-quickaccesspopup*.ini
-Divers/
-BK/
-Language/
-FileInstall/*-BK-*.txt
-QAPconnect-default.ini
-debug.txt
-QuickAccessPopup-DIAG.txt
-??todo.txt
-ScreenCaptures/
-_temp/
 *.ini
+*.txt
+*.ps1
+*.PRJ
+*.bk
 *.ico
-Setup Script files/OLD/
-Build-v8-beta/QAP-v*.txt
-Build-v8-beta/quickaccesspopup-*.zip
-Build-v8/QAP-v*.txt
-Build-v8/quickaccesspopup.zip
-Setup Script files/Ahk2Exe-Custom/Ahk2Exe.ahk
-Setup Script files/Ahk2Exe-Custom/COPYING
-Setup Script files/Ahk2Exe-Custom/Compiler.ahk
-Setup Script files/Ahk2Exe-Custom/Directives.ahk
-Setup Script files/Ahk2Exe-Custom/ErrorCodes.md
-Setup Script files/Ahk2Exe-Custom/IconChanger.ahk
-Setup Script files/Ahk2Exe-Custom/README.md
-Setup Script files/Ahk2Exe-Custom/ScriptParser.ahk
-Setup Script files/Ahk2Exe-Custom/logo.png
-Setup Script files/Ahk2Exe-Custom/Lib/
-Setup Script files/Ahk2Exe-Custom/.gitignore
-Build-beta-old/
-Build-old/
-Inno Setup files/OLD/
-FileInstall/BK_old_classic/
-.git - Copy/
-Promo/
-WindowsAppsList.*
-*.def
-CollectWindowsAppsList.ps1
-QAP_Usage.DB
-*.NO
 *.DB
-*.DB-BK
+*.def
+*.tsv
+.git - Copy/
+BK/
 Build-v8/
+Build-v8-beta/
+Divers/
+FileInstall/BK_old_classic/
+Language/
+Promo/
+ScreenCaptures/
+Setup Script files/OLD/
