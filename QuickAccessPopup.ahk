@@ -4409,9 +4409,9 @@ InitQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFold
 InitQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
 	, lMenuLastActionsDescription, 0, "iconReload", "")
 InitQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
-	, lTCMenuNameDescription, 0, "iconSubmenu", "+^t")
+	, lTCMenuNameDescription, 0, "TotalCommander", "+^t")
 InitQAPFeatureObject("DOpus Favorites",			lDOpusMenuName,				lDOpusMenuName,			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
-	, lDOpusMenuNameDescription, 0, "iconSubmenu")
+	, lDOpusMenuNameDescription, 0, "DirectoryOpus")
 
 ; Command features
 
@@ -6837,8 +6837,6 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	objTCMenu.MenuPath := lTCMenuName ; localized name of the TC menu
 	objTCMenu.MenuType := "Menu"
 	
-	g_objQAPFeatures["{TC Directory hotlist}"].DefaultIcon := g_objJLiconsByName["TotalCommander"]
-
 	g_intIniLine := 1
 	if (RecursiveLoadTotalCommanderHotlistFromIni(objTCMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
@@ -6984,8 +6982,6 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 	objDOpusMenu.MenuPath := lDOpusMenuName ; localized name of the DOpus menu
 	objDOpusMenu.MenuType := "Menu"
 	
-	g_objQAPFeatures["{DOpus Favorites}"].DefaultIcon := g_objJLiconsByName["DirectoryOpus"]
-
 	FileRead, strDirectoryOpusFavoritesXml, %g_strDOpusFavoritesFile%
 	if (RecursiveLoadDirectoryOpusFavoritesFromXML(objDOpusMenu, strDirectoryOpusFavoritesXml) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Directory Opus Favorites file.")
@@ -19792,9 +19788,10 @@ else ; DirectoryOpus or TotalCommander
 	if (g_intActiveFileManager = 2) ; DirectoryOpus
 		StringReplace, g_strDirectoryOpusRtPath, g_strDirectoryOpusPath, \dopus.exe, \dopusrt.exe
 
-	; additional icon for DirectoryOpus and TotalCommander
-	g_objJLiconsByName[strActiveFileManagerSystemName] := g_str%strActiveFileManagerSystemName%Path . ",1"
 }
+; additional icon for DirectoryOpus and TotalCommander
+g_objJLiconsByName["TotalCommander"] := g_strTotalCommanderPath . ",1"
+g_objJLiconsByName["DirectoryOpus"] := g_strDirectoryOpusPath . ",1"
 
 strActiveFileManagerSystemName := ""
 
