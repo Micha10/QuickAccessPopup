@@ -19879,7 +19879,11 @@ strUsageDbPreviousLatestCollected := objMetadataRow[1] ; first (and only) field 
 objMetadataRecordSet.Free()
 ; Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
 
-strUsageDbSQL := ""
+strUsageDbSQL := "INSERT INTO Usage ("
+		. "TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ") VALUES`n"
 Loop, parse, strUsageDbItemsList, `n
 {
 	if !StrLen(A_LoopField) ; last line is empty
@@ -19905,11 +19909,7 @@ Loop, parse, strUsageDbItemsList, `n
 		if (g_blnUsageDbDebug)
 			strUsageDbReport .= strUsageDbTargetPath . "`n"
 
-		strUsageDbSQL .= "INSERT INTO Usage ("
-		. "TargetPath,TargetDateTime"
-		. ",CollectType,CollectDateTime,CollectPath"
-		. ",TargetAttributes,TargetType,TargetExtension"
-		. ") VALUES("
+		strUsageDbSQL .= "("
 			; target file and date-time
 			. "'" . EscapeQuote(strUsageDbTargetPath) . "'"
 			. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
@@ -19922,12 +19922,12 @@ Loop, parse, strUsageDbItemsList, `n
 			. ",'" . strUsageDbTargetAttributes . "'"
 			. ",'" . strUsageDbTargetType . "'"
 			. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-			. ");"
-			. "`n"
+			. "),`n"
 
 		intUsageDbtNbItems++
 	}
 }
+strUsageDbSQL := SubStr(strUsageDbSQL, 1, StrLen(strUsageDbSQL) - 2) ; remove last ",`n"
 Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (after)", strUsageDbPreviousLatestCollected, "ELAPSED")
 ; Diag(A_ThisLabel . ":strUsageDbShortcutDateTime (last)", strUsageDbShortcutDateTime)
 ; Diag(A_ThisLabel . ":strUsageDbSQL (last)", StringLeftDotDotDot(strUsageDbSQL, 1000))
