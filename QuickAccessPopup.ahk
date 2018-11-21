@@ -4941,6 +4941,7 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 			Oops(lOopsWrongThirdPartyPath, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, g_str%strActiveFileManagerSystemName%Path, lOptionsThirdParty)
 		g_intActiveFileManager := 1 ; must be after previous line
 	}
+IniRead, g_blnFileManagerDOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
 
 ; ---------------------
 ; Options Tab 6 More
@@ -6991,7 +6992,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	If (g_blnDOpusLayoutsFileExist) ; Directory Opus layouts order file exists, create submenu with layouts
+	If (g_blnFileManagerDOpusShowLayouts and g_blnDOpusLayoutsFileExist) ; Directory Opus layouts order file exists, create submenu with layouts
 	{
 		objLoadDOpusFavorite := Object() ; new separator item
 		objLoadDOpusFavorite.FavoriteType := "X"
@@ -8236,6 +8237,8 @@ Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % 
 Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, %lTCWinCmdLocation%
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, %lDialogBrowseButton%
+Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDOpusShowLayouts gFileManagerNavigateClicked hidden, % L(lDopusMenuNameShowLayout, lDOpusLayoutsName)
+GuiControl, , f_blnFileManagerDOpusShowLayouts, %g_blnFileManagerDOpusShowLayouts%
 
 Gui, Font, w600
 Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsTabFileManagersPreferences%
@@ -8340,6 +8343,9 @@ strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hid
 GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
 GuiControl, %strShowHideCommand%, f_btnFileManagerPath
 GuiControl, %strShowHideCommand%, f_strFileManagerPath
+
+strShowHideCommand := (!f_radActiveFileManager2 ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_blnFileManagerDOpusShowLayouts
 
 strShowHideCommand := (!f_radActiveFileManager3 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnTotalCommanderWinCmd
@@ -9175,6 +9181,8 @@ else if (g_intActiveFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 	}
 	IniWrite, % g_str%strActiveFileManagerSystemName%NewTabOrWindow, %g_strIniFile%, Global, %strActiveFileManagerSystemName%NewTabOrWindow
 }
+g_blnFileManagerDOpusShowLayouts := f_blnFileManagerDOpusShowLayouts
+IniWrite, %g_blnFileManagerDOpusShowLayouts%, %g_strIniFile%, Global, FileManagerDOpusShowLayouts
 if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconnect
 	Gosub, SetActiveFileManager
 
