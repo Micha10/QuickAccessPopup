@@ -3096,11 +3096,11 @@ if (g_blnDiagMode)
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
 
-if (g_blnCheck4Update)
-	Gosub, Check4Update
-
 ; Build Settings Gui
 Gosub, BuildGui
+if (g_blnCheck4Update) ; must be after BuildGui
+	Gosub, Check4Update
+
 ; now that the Gui is built, temporary change the tray icon to loading icon
 Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
 
