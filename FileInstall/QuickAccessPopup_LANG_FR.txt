@@ -645,7 +645,7 @@ lOopsMenuExternalReservedBy	Ce ~1~ est RÉSERVÉ par l'utilisateur: ~2~.`n`nAttend
 lOopsNotAdmin	~1~ ne peut être exécuté en tant qu'administrateur.`n`nL'application est maintenant exécutée avec les privilèges normaux.
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
 lOopsQAPfeature	Fonctions de QAP
-lOopsRestoreEditCopyMoveWindowPosition	Restaurer la position des boîtes de dialoue Éditer, Copier et Déplacer?`n`nCeci relancera ~1~ et les changements de paramètres non enregistrés seront perdus.`n`nRestaurer et redémarrer ~1~.
+lOopsRestoreEditCopyMoveWindowPosition	Restaurer la position des boîtes de dialoue Éditer, Copier et Déplacer?
 lOopsSelectedItemDialogBoxes	L'item sélectionné ne peut pas être détecté dans une boîte de dialogue.
 lOopsSelectedItemTotalCommander	L'item sélectionné ne peut pas être détecté dans Total Commander.
 lOopsTitle	~1~ (~2~)
@@ -784,10 +784,7 @@ lUpdateButtonSkipVersion	Sauter cette version
 lUpdateButtonVisit	Visiter le site web
 lUpdateError	Une erreur est survenue lors de la vérification du numéro de la plus récente version. La vérification de la mise à jour est interrompue.
 lUpdatePrompt	Mettre à jour ~1~ de la version v~2~ à la version v~3~?
-lUpdatePromptAlpha	Il y a une nouvelle version ALPHA de ~1~.`n`nMettre à jour ~1~ de la version v~2~ à la version v~3~?
-lUpdatePromptAlphaContinue	Désirez-vous toujours être informé des futures versions alpha?
 lUpdatePromptBeta	Il y a une nouvelle version BETA de ~1~.`n`nMettre à jour ~1~ de la version v~2~ à la version v~3~?
-lUpdatePromptBetaContinue	Désirez-vous toujours être informé des futures versions beta?
 lUpdateTitle	Mettre à jour ~1~?
 lUpdateYouHaveLatest	Vous avez la version la plus récente: ~1~.`n`nVisiter la page web de ~2~ quand même?
 lWindowIsTreeviewText	Désolé... À cause d'une limitation de Windows, ce type de boîte de dialogue (TreeView) n'est pas compatible avec ~1~ pour le moment.

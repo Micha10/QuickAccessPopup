@@ -5780,17 +5780,8 @@ CleanUpBeforeExit:
 
 if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh one, this avoids creating an ini file with just this value
 {
-	strSettingsPosition := "-1" ; center at minimal size
-	if (g_blnRememberSettingsPosition)
-	{
-		WinGet, intMinMax, MinMax, ahk_id %g_strAppHwnd%
-		if (intMinMax <> 1) ; if window is maximized, we keep the default position and size (center at minimal size)
-		{
-			WinGetPos, intX, intY, intW, intH, ahk_id %g_strAppHwnd%
-			strSettingsPosition := intX . "|" . intY . "|" . intW . "|" . intH
-		}
-	}
-	IniWrite, %strSettingsPosition%, %g_strIniFile%, Global, SettingsPosition
+	SaveWindowPosition("SettingsPosition", "ahk_id " . g_strAppHwnd)
+	IniWrite, % GetScreenConfiguration(), %g_strIniFile%, Global, LastScreenConfiguration
 }
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
@@ -9652,8 +9643,7 @@ if !(g_blnDonor)
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static36
 }
 
-IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
-StringSplit, arrSettingsPosition, strSettingsPosition, |
+GetSavedWindowPosition("SettingsPosition", arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
 
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
@@ -9663,7 +9653,6 @@ sleep, 100
 if (arrSettingsPosition1 <> -1)
 	WinMove, ahk_id %g_strAppHwnd%, , , , %arrSettingsPosition3%, %arrSettingsPosition4%
 
-strSettingsPosition := ""
 ResetArray("arrSettingsPosition")
 strTextColor := ""
 
@@ -10536,13 +10525,14 @@ else
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
-Gosub, ShowGui2AndDisableGui1
 
-IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition, %A_Space% ; empty by default
-if StrLen(strDialogPosition)
+GetSavedWindowPosition("AddEditCopyFavoriteDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
+if (arrDialogPosition1 = "-1")
+	Gosub, ShowGui2AndDisableGui1
+else
 {
-	StringSplit, arrDialogPosition, strDialogPosition, |
-	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in v8.7.0.9.2 by restoring saved height of previous version
+	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
+	if (arrDialogPosition4 < 544) ; minimum height since v8.7.0.9.2
 		arrDialogPosition4 := 544
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
@@ -11571,12 +11561,13 @@ g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
-Gosub, ShowGui2AndDisableGui1
 
-IniRead, strDialogPosition, %g_strIniFile%, Global, CopyMoveDialogPosition, %A_Space% ; empty by default
-if StrLen(strDialogPosition)
+GetSavedWindowPosition("CopyMoveDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
+if (arrDialogPosition1 = "-1")
+	Gosub, ShowGui2AndDisableGui1
+else
 {
-	StringSplit, arrDialogPosition, strDialogPosition, |
+	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
 
@@ -12429,7 +12420,7 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-Gui, 1:Show, % (A_ThisLabel = "GuiShowRestoreDefaultPosition" ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
+Gui, 1:Show, % ((A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged()) ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
 
 GuiShowCleanup:
 blnSaveEnabled := ""
@@ -12802,14 +12793,12 @@ return
 RestoreEditCopyMoveWindowPosition:
 ;------------------------------------------------------------
 
-MsgBox, 4, %g_strAppNameText%, % L(lOopsRestoreEditCopyMoveWindowPosition, g_strAppNameText)
+MsgBox, 4, %g_strAppNameText%, % L(lOopsRestoreEditCopyMoveWindowPosition)
 IfMsgBox, No
 	return
 
 IniDelete, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition
 IniDelete, %g_strIniFile%, Global, CopyMoveDialogPosition
-
-Gosub, ReloadQAP
 
 return
 ;------------------------------------------------------------
@@ -15535,9 +15524,10 @@ HotstringValidate(strActualHotstring, strNewHotstring)
 
 ;------------------------------------------------------------
 ShowGui2AndDisableGui1:
+ShowGui2AndDisableGui1KeepPosition:
 ;------------------------------------------------------------
 
-Gui, 2:Show, AutoSize Center
+Gui, 2:Show, % (A_ThisLabel = "ShowGui2AndDisableGui1KeepPosition" ? "" : "AutoSize Center")
 Gui, 1:+Disabled
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, Off, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
@@ -15641,15 +15631,7 @@ blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
 blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
 
 if (blnIsAddEditCopyFavorite or blnIsToMenuDialogBox)
-{
-	WinGet, intMinMax, MinMax, A
-	if (intMinMax <> 1) ; ignore if window is maximized (it should not be but for safety)
-	{
-		WinGetPos, intX, intY, intW, intH, A
-		strDialogPosition := intX . "|" . intY . "|" . intW . "|" . intH
-		IniWrite, %strDialogPosition%, %g_strIniFile%, Global, % (blnIsToMenuDialogBox ? "CopyMoveDialogPosition" : "AddEditCopyFavoriteDialogPosition")
-	}
-}
+	SaveWindowPosition((blnIsToMenuDialogBox ? "CopyMoveDialogPosition" : "AddEditCopyFavoriteDialogPosition"), "A")
 
 Gui, 1:-Disabled
 Gui, 2:Destroy
@@ -23371,6 +23353,103 @@ ConvertUsageDbDateFormat(strDate)
 		. SubStr(strDate, 13, 2))
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ScreenConfigurationChanged()
+; used when showing Settings window only, using current (not saved) g_strLastConfiguration
+;------------------------------------------------------------
+{
+	global g_strLastConfiguration
+	
+	strCurrentScreenConfiguration := GetScreenConfiguration()
+	blnConfigurationChanged := (strCurrentScreenConfiguration <> g_strLastConfiguration)
+	g_strLastConfiguration := strCurrentScreenConfiguration
+	
+	return blnConfigurationChanged
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
+; used when building Settings, Add, Edit, Copy or Move Favorites dialog boxes
+; use LastScreenConfiguration and window position from ini file
+; if screen configuration changed, return -1 instead of the saved position
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	global g_strLastConfiguration
+	global g_blnRememberSettingsPosition
+	
+	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset dialog boxes position if screen config changed since last session
+	
+	strCurrentScreenConfiguration := GetScreenConfiguration()
+	if !StrLen(g_strLastScreenConfiguration) or (strCurrentScreenConfiguration <> g_strLastScreenConfiguration)
+	{
+		IniWrite, %strCurrentScreenConfiguration%, %g_strIniFile%, Global, LastScreenConfiguration ; always save in case QAP is not closed properly
+		arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
+	}
+	else
+		if (g_blnRememberSettingsPosition)
+		{
+			IniRead, strSettingsPosition, %g_strIniFile%, Global, %strThisWindow%, -1 ; by default -1 to center at minimal size
+			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
+		}
+		else
+		{
+			IniDelete, %g_strIniFile%, Global, %strThisWindow%
+			arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
+		}
+	
+	g_strLastConfiguration := strCurrentScreenConfiguration
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetScreenConfiguration()
+;------------------------------------------------------------
+{
+	SysGet, intNbMonitors, MonitorCount
+	SysGet, intIdPrimaryDisplay, MonitorPrimary
+
+	strMonitorConfiguration := intNbMonitors . "," . intIdPrimaryDisplay . ":"
+	Loop %intNbMonitors%
+	{
+		SysGet, arrMonitor, Monitor, %A_index%
+		Loop, Parse, % "Left|Top|Right|Bottom", |
+			strMonitorConfiguration .= arrMonitor%A_LoopField% . (A_Index < 4 ? "," : "")
+		strMonitorConfiguration .= (A_Index < intNbMonitors ? "|" : "")
+	}
+	
+	return strMonitorConfiguration
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SaveWindowPosition(strThisWindow, strWindowHandle)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	global g_blnRememberSettingsPosition
+	
+	if (g_blnRememberSettingsPosition)
+	{
+		WinGet, intMinMax, MinMax, %strWindowHandle%
+		if (intMinMax <> 1) ; if window is maximized, we keep the last saved position and size
+		{
+			WinGetPos, intX, intY, intW, intH, %strWindowHandle%
+			strPosition := intX . "|" . intY . "|" . intW . "|" . intH
+			IniWrite, %strPosition%, %g_strIniFile%, Global, %strThisWindow%
+		}
+	}
+	else
+		IniDelete, %g_strIniFile%, Global, %strThisWindow%
+}
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================

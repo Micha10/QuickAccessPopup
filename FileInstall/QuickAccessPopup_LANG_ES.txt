@@ -645,7 +645,7 @@ lOopsMenuExternalReservedBy	Este ~1~ esta RESERVADO para el usuario: ~2~.`n`nEsp
 lOopsNotAdmin	~1~ no se pudo iniciar como administrador.`n`nIt ahora se ejecuta como Normal.
 lOopsOSVerrsionError	~1~ se requiere Windows 7 o un sistema operativo más reciente. Se invita a los usuarios de Windows Vista y XP de usar Folders Popup que es compatible con estos versions.`n`n¿Quiere visitar el sitio web de Folders Popup?
 lOopsQAPfeature	QAP Función
-lOopsRestoreEditCopyMoveWindowPosition	Restaurar la posición de la ventana de los cuadros de diálogo Editar, Copiar y Mover? `n`nEsto reiniciará ~1~ y se perderán los cambios no guardados en la configuración. n`nRestaurar y reiniciar ~1~.
+lOopsRestoreEditCopyMoveWindowPosition	Restaurar la posición de la ventana de los cuadros de diálogo Editar, Copiar y Mover?
 lOopsSelectedItemDialogBoxes	El elemento seleccionado no se puede detectar en las ventanas de diálogo.
 lOopsSelectedItemTotalCommander	El elemento seleccionado no se puede detectar en las ventanas de Total Commander.
 lOopsTitle	~1~ (~2~)
@@ -784,10 +784,7 @@ lUpdateButtonSkipVersion	Saltar esta versión
 lUpdateButtonVisit	Visitar sitio web 
 lUpdateError	Se produjo un error al verificar el número de la última versión. La verificación de la actualización se ha interrumpido.
 lUpdatePrompt	Actualizar ~1~ de la versión v~2~ à la versión v~3~?
-lUpdatePromptAlpha	Hay una nueva ~1~ versión ALPHA.`n`nActualizar ~1~ desde v~2~ a v~3~?
-lUpdatePromptAlphaContinue	¿quiere estar informado de las próximas versiones alfa?
 lUpdatePromptBeta	Hay una nueva versión BETA de ~1~.`n`nActualizar ~1~ de la versión v~2~ à la versión v~3~?
-lUpdatePromptBetaContinue	Desea estar informado sobre futuras versiones BETA?
 lUpdateTitle	Actualizar ~1~?
 lUpdateYouHaveLatest	Usted tiene la versión más reciente: ~1~.`n`nVisitar la página de ~2~ todavía?
 lWindowIsTreeviewText	Lo sentimos... A causa de una limitación de Windows, este tipo de caja de diálogo (TreeView) no es compatible con ~1~ de momento.

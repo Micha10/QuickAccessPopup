@@ -645,7 +645,7 @@ lOopsMenuExternalReservedBy	Questo ~1~ è RISERVATO dall'utente: ~2~.`n`nAspetta 
 lOopsNotAdmin	Non é stato possibile ~1~ come Amministratore.`n`nE' pertanto in esecuzione in modalitá Normale.
 lOopsOSVerrsionError	~1~ richiede Window 7 o un sistema operativo più recente. Windows Vista e utenti XP sono invitati ad usare il Folders Popup che è compatibile con queste versioni.`n`nVuoi visitare il sito web di Folders Popup?
 lOopsQAPfeature	Funzionalità di QAP
-lOopsRestoreEditCopyMoveWindowPosition	Ripristinare la posizione della finestra delle caselle di dialogo di Modifica, Copia e Sposta?`n`nQuesto comporterà il riavvio di ~1~ e le modifiche non salvate alle impostazioni verranno perse.`n`nResetta e riavvia ~1~.
+lOopsRestoreEditCopyMoveWindowPosition	Ripristinare la posizione della finestra delle caselle di dialogo di Modifica, Copia e Sposta?
 lOopsSelectedItemDialogBoxes	L'oggetto selezionato non può essere individuato in caselle di dialogo.
 lOopsSelectedItemTotalCommander	L'oggetto selezionato non può essere individuato in finestre di Total Commander.
 lOopsTitle	~1~ (~2~)
@@ -784,10 +784,7 @@ lUpdateButtonSkipVersion	Salta questa versione
 lUpdateButtonVisit	Vai al sito web di QAP
 lUpdateError	C'è stato un errore nell'accesso al numero di versione più recente. Ricerca aggiornamenti interrotta.
 lUpdatePrompt	Aggiornare ~1~ dalla v~2~ alla v~3~?
-lUpdatePromptAlpha	C'è una nuova ver sione ALPHA ~1~.`n`nVuoi aggiornare ~1~ dalla v~2~ alla v~3~?
-lUpdatePromptAlphaContinue	Vuoi continuare ad essere avvisato della disponibilità di future versioni ALPHA?
 lUpdatePromptBeta	C'è una nuova versione BETA ~1~.`n`nVuoi aggiornare ~1~ dalla v~2~ alla v~3~?
-lUpdatePromptBetaContinue	Vuoi continuare ad essere informato di future versioni beta?
 lUpdateTitle	Aggiornare ~1~?
 lUpdateYouHaveLatest	Hai la versione più recente: ~1~.`n`nVuoi visitare la pagina web ~2~ ugualmente?
 lWindowIsTreeviewText	Mi spiace... A causa di una limitazione di  Windows, questo tipo di casella di dialogo (con vista ad albero) non è attualmente supportata da ~1~.
