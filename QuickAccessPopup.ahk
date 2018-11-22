@@ -9525,8 +9525,7 @@ if !(g_blnDonor)
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static36
 }
 
-IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; center at minimal size
-StringSplit, arrSettingsPosition, strSettingsPosition, |
+GetSavedWindowPosition("SettingsPosition", arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
 
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
@@ -9536,7 +9535,6 @@ sleep, 100
 if (arrSettingsPosition1 <> -1)
 	WinMove, ahk_id %g_strAppHwnd%, , , , %arrSettingsPosition3%, %arrSettingsPosition4%
 
-strSettingsPosition := ""
 ResetArray("arrSettingsPosition")
 strTextColor := ""
 
@@ -10409,13 +10407,14 @@ else
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
-Gosub, ShowGui2AndDisableGui1
 
-IniRead, strDialogPosition, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition, %A_Space% ; empty by default
-if StrLen(strDialogPosition)
+GetSavedWindowPosition("AddEditCopyFavoriteDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
+if (arrDialogPosition1 = "-1")
+	Gosub, ShowGui2AndDisableGui1
+else
 {
-	StringSplit, arrDialogPosition, strDialogPosition, |
-	if (arrDialogPosition4 < 544) ; avoid canceling the height augmentation in v8.7.0.9.2 by restoring saved height of previous version
+	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
+	if (arrDialogPosition4 < 544) ; minimum height since v8.7.0.9.2
 		arrDialogPosition4 := 544
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
@@ -11444,12 +11443,13 @@ g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
-Gosub, ShowGui2AndDisableGui1
 
-IniRead, strDialogPosition, %g_strIniFile%, Global, CopyMoveDialogPosition, %A_Space% ; empty by default
-if StrLen(strDialogPosition)
+GetSavedWindowPosition("CopyMoveDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
+if (arrDialogPosition1 = "-1")
+	Gosub, ShowGui2AndDisableGui1
+else
 {
-	StringSplit, arrDialogPosition, strDialogPosition, |
+	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
 	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
 }
 
@@ -15408,9 +15408,10 @@ HotstringValidate(strActualHotstring, strNewHotstring)
 
 ;------------------------------------------------------------
 ShowGui2AndDisableGui1:
+ShowGui2AndDisableGui1KeepPosition:
 ;------------------------------------------------------------
 
-Gui, 2:Show, AutoSize Center
+Gui, 2:Show, % (A_ThisLabel = "ShowGui2AndDisableGui1" ? "" : "AutoSize Center")
 Gui, 1:+Disabled
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, Off, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
@@ -23228,6 +23229,19 @@ ConvertUsageDbDateFormat(strDate)
 		. SubStr(strDate, 13, 2))
 }
 ;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSavedWindowPosition(strWindow, ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	
+	IniRead, strSettingsPosition, %g_strIniFile%, Global, %strWindow%, -1 ; by default -1 to center at minimal size
+	StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
+}
+;------------------------------------------------------------
+
 
 
 ;========================================================================================================================
