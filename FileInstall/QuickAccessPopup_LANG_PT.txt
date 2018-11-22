@@ -645,7 +645,7 @@ lOopsMenuExternalReservedBy	Este ~1~ está RESERVADO pelo utilizador: ~2~.`n`nAgu
 lOopsNotAdmin	Não foi possível carregar ~1~ como Administrador.`n`nEstá agora a ser executado como Normal.
 lOopsOSVerrsionError	O ~1~ requer o Window 7 ou mais recente. Os utilizadores do Windows Vista e XP users devem usar o Folders Popup que é compatível com essas versões.`n`nDeseja visitar o site do Folders Popup?
 lOopsQAPfeature	Função QAP
-lOopsRestoreEditCopyMoveWindowPosition	Restaurar a posição das janelas das caixas de diálogo Editar, Copiar e Mover?`n`nIsto irá reiniciar o ~1~ e as alteração não guardadas serão perdidas.`n`nRepor e reiniciar o ~1~.
+lOopsRestoreEditCopyMoveWindowPosition	Restaurar a posição das janelas das caixas de diálogo Editar, Copiar e Mover?
 lOopsSelectedItemDialogBoxes	Não é possível detectar o item seleccionado em caixas de diálogo.
 lOopsSelectedItemTotalCommander	Não é possível detectar o item seleccionado nas janelas do Total Commander.
 lOopsTitle	~1~ (~2~)
@@ -784,10 +784,7 @@ lUpdateButtonSkipVersion	Ignorar esta versão
 lUpdateButtonVisit	Visitar site web
 lUpdateError	Ocorreu um erro ao aceder ao número da última versão. Interrompida a procura de actualizações.
 lUpdatePrompt	Actualizar ~1~ de v~2~ para v~3~?
-lUpdatePromptAlpha	Existe uma nova versão ALFA do ~1~.`n`nActualizar o ~1~ da v~2~ para a v~3~?
-lUpdatePromptAlphaContinue	Deseja ser informado sobre futuras versões alfa?
 lUpdatePromptBeta	Existe uma nova versão BETA do ~1~.`n`nActualizar o ~1~ da v~2~ para a v~3~?
-lUpdatePromptBetaContinue	Deseja ser informado sobre futuras versões beta?
 lUpdateTitle	Actualizar o ~1~?
 lUpdateYouHaveLatest	Já possui a versão mais recente: ~1~.`n`nDeseja visitar a página web do ~2~?
 lWindowIsTreeviewText	Limitações do Windows...

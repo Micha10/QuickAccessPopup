@@ -644,7 +644,7 @@ lOopsMenuExternalReservedBy	Deze sessie van ~1~ is GERESERVEERD door gebruiker: 
 lOopsNotAdmin	~1~ kon niet worden geladen als Administrator.`n`nHet is geladen in de normale modus.
 lOopsOSVerrsionError	~1~ kan worden uitgevoerd op Windows 7 of een recentere versie van Windows. Windows Vista en XP gebruikers zijn uitgenodigd om "Folders Popup" te downloaden, dit programma is geschikt voor oudere versies van Windows.`n`nWilt u de website bezoeken van Folders Popup?
 lOopsQAPfeature	QAP functies
-lOopsRestoreEditCopyMoveWindowPosition	Herstel de wijzig, kopie en verplaats-venster posities?`n`nDit zal ~1~ laten herstarten waarbij onopgeslagen wijzigen verloren zullen gaan.`n`nReset en herstart ~1~.
+lOopsRestoreEditCopyMoveWindowPosition	Herstel de wijzig, kopie en verplaats-venster posities?
 lOopsSelectedItemDialogBoxes	De geselecteerde item kan niet worden gevonden in de dialoogvensters.
 lOopsSelectedItemTotalCommander	De geselecteerde item kan niet worden gevonden in Total Commander.
 lOopsTitle	~1~ (~2~)
@@ -783,10 +783,7 @@ lUpdateButtonSkipVersion	Sla deze versie over
 lUpdateButtonVisit	Website bezoeken
 lUpdateError	Er is een fout opgetreden tijdens het controleren van nieuwe versies. De update is onderbroken...
 lUpdatePrompt	Update ~1~ van v~2~ naar v~3~?
-lUpdatePromptAlpha	Er is een nieuwe ~1~ ALPHA versie.`n`nUpdate ~1~ van v~2~ naar v~3~?
-lUpdatePromptAlphaContinue	Wilt u op de hoogte gehouden worden bij toekomstige alpha versies?
 lUpdatePromptBeta	Er is een nieuwe ~1~ BETA versie.`n`nUpdate ~1~ van v~2~ naar v~3~?
-lUpdatePromptBetaContinue	Wilt u op de hoogte gehouden worden bij toekomstige beta versies?
 lUpdateTitle	Update ~1~?
 lUpdateYouHaveLatest	U heeft de laatste versie: ~1~.`n`nWilt u de website van ~2~ bezoeken?
 lWindowIsTreeviewText	Sorry... Door een Windows beperking kunnen Boomstructuur-vensters niet ondersteund worden.
