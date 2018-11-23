@@ -2903,7 +2903,8 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
-Gosub, CollectCommandLineParameters ; updates g_objCommandLineParams["/Settings:"] and g_objCommandLineParams["/AdminSilent"]
+; updates g_objCommandLineParams["/Settings:"], g_objCommandLineParams["/AdminSilent"] and g_objCommandLineParams["/Working:"]
+Gosub, CollectCommandLineParameters
 
 Gosub, SetQAPWorkingDirectory
 
@@ -3426,6 +3427,7 @@ return
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
 ; each param must begin with "/" and be separated by a space
+; supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[folder_path]
 ;-----------------------------------------------------------
 
 g_objCommandLineParams := Object()
@@ -3457,10 +3459,18 @@ return
 ;-----------------------------------------------------------
 SetQAPWorkingDirectory:
 ;-----------------------------------------------------------
-
 /*
 
 First, the whole story...
+
+WORKING PARAMETER
+
+If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"), this value have
+precedence. It allows to set a registry value to autostart QAP, for example:
+key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
+Value:	C:\\path\\Quick Access Popup\\QuickAccessPopup.exe C:\\another_path"
+
+INSTALL MODE
 
 Check in what mode QAP is running:
 - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
@@ -3517,6 +3527,15 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 
 ; Now, step-by-step...
 
+; If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"), this value have
+; precedence. It allows to set a registry value to autostart QAP, for example:
+; key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
+; Value:	C:\\path\\Quick Access Popup\\QuickAccessPopup.exe C:\\another_path"
+
+###_V("g_objCommandLineParams[""/Working:""]", g_objCommandLineParams["/Working:"])
+if StrLen(g_objCommandLineParams["/Working:"])
+	SetWorkingDir, % g_objCommandLineParams["/Working:"]
+
 ; Check in what mode QAP is running:
 ; - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
 ; - else we are in Portable mode.
@@ -3529,6 +3548,9 @@ if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
 }
 else
 	g_blnPortableMode := false ; set this variable for use later during init
+
+if StrLen(g_objCommandLineParams["/Working:"]) ; we don't need to continue
+	return
 
 ; Now we are in Setup mode
 
