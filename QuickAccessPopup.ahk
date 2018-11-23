@@ -11644,7 +11644,6 @@ Gui, 2:Submit, NoHide ; updates f_intAddFavoriteTab
 
 if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external menu values
 {
-
 	if !StrLen(g_strNewFavoriteIconResource) and (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(f_strFavoriteLocation)
 		g_strNewFavoriteIconResource := GetFolderIcon(f_strFavoriteLocation)
 	
@@ -11861,8 +11860,11 @@ if (A_GuiEvent = "S")
 		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
-		g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeatures[strLocation].DefaultIcon : g_objSpecialFolders[strLocation].DefaultIcon)
-		g_strDefaultIconResource := g_strNewFavoriteIconResource 
+		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
+		{
+			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? g_objQAPFeatures[strLocation].DefaultIcon : g_objSpecialFolders[strLocation].DefaultIcon)
+			g_strDefaultIconResource := g_strNewFavoriteIconResource
+		}
 		
 		if (A_ThisLabel = "TreeViewQAPChanged")
 		{
@@ -22493,9 +22495,11 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		; default icon for the selected file in add/edit favorite
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
-		return g_objSpecialFolders[objFavorite.FavoriteLocation].DefaultIcon
+		; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
+		return g_objSpecialFolders[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
-		return g_objQAPFeatures[objFavorite.FavoriteLocation].DefaultIcon
+		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
+		return g_objQAPFeatures[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "Text" or objFavorite.FavoriteType = "X" or objFavorite.FavoriteType = "K")
 		return "iconNoIcon"
 	else if (objFavorite.FavoriteType = "WindowsApp")
