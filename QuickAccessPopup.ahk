@@ -5904,7 +5904,6 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
-Menu, Tray, Add, %lMenuRestoreEditCopyMoveWindowPosition%, RestoreEditCopyMoveWindowPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuOpenWorkingDirectory%, OpenWorkingDirectory
@@ -7980,7 +7979,7 @@ StringSplit, g_arrOptionsTitlesSub, lOptionsPopupHotkeyTitlesSub, |
 ;---------------------------------------
 ; Build Gui header
 Gui, 1:Submit, NoHide
-Gui, 2:New, , % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -9661,7 +9660,7 @@ if !(g_blnDonor)
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static36
 }
 
-GetSavedWindowPosition("SettingsPosition", arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
+GetSavedSettingsWindowPosition(arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
 
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
@@ -10136,7 +10135,7 @@ Gui, 1:Submit, NoHide
 Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered already but seems not to be?
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
-Gui, 2:New, , % L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10467,7 +10466,7 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %g_strFavoriteDialogTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505 +Hwndg_strGui2Hwnd, %g_strFavoriteDialogTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10544,16 +10543,11 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
 
-GetSavedWindowPosition("AddEditCopyFavoriteDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
-if (arrDialogPosition1 = "-1")
-	Gosub, ShowGui2AndDisableGui1
-else
-{
-	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
-	if (arrDialogPosition4 < 544) ; minimum height since v8.7.0.9.2
-		arrDialogPosition4 := 544
-	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
-}
+GetGui2Size("AddEditCopyFavoriteDialogPosition", intGui2Width, intGui2Height)
+if (intGui2Height < 544) ; minimum height since v8.7.0.9.2
+	intGui2Height := 544
+WinMove, ahk_id %g_strGui2Hwnd%, , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
+Gosub, ShowGui2AndDisableGui1
 
 if (g_objEditedFavorite.FavoriteName = lToolTipRetrievingWebPageTitle)
 {
@@ -10571,7 +10565,8 @@ g_strNewLocation := ""
 g_blnAbordEdit := ""
 objExternalMenu := ""
 strDialogPosition := ""
-ResetArray("arrDialogPosition")
+intGui2Width := ""
+intGui2Height := ""
 
 return
 ;------------------------------------------------------------
@@ -11555,7 +11550,7 @@ blnMove := InStr(A_ThisLabel, "GuiMove")
 
 strGuiTitle := L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogMoveFavoriteTitle : lDialogMoveFavoritesTitle)
 	: lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
-Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, %strGuiTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160 +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -11580,14 +11575,9 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
 
-GetSavedWindowPosition("CopyMoveDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
-if (arrDialogPosition1 = "-1")
-	Gosub, ShowGui2AndDisableGui1
-else
-{
-	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
-	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
-}
+GetGui2Size("CopyMoveDialogPosition", intGui2Width, intGui2Height)
+WinMove, ahk_id %g_strGui2Hwnd%, , , , %intGui2Width% ; restore only width, always position relative to Settings window
+Gosub, ShowGui2AndDisableGui1
 
 blnMove := ""
 ResetArray("arrDialogPosition")
@@ -12669,7 +12659,7 @@ else
 
 g_intGui1WinID := WinExist("A")
 
-Gui, 2:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -12802,21 +12792,6 @@ ButtonAddExternalMenusFromCatalogueClose:
 ;------------------------------------------------------------
 
 Gosub, 2GuiClose
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RestoreEditCopyMoveWindowPosition:
-;------------------------------------------------------------
-
-MsgBox, 4, %g_strAppNameText%, % L(lOopsRestoreEditCopyMoveWindowPosition)
-IfMsgBox, No
-	return
-
-IniDelete, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition
-IniDelete, %g_strIniFile%, Global, CopyMoveDialogPosition
 
 return
 ;------------------------------------------------------------
@@ -14068,7 +14043,7 @@ intWidth := 980
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -14363,7 +14338,7 @@ intFavoriteNameWidth := 300
 intButtonsHeight := 20
 intButtonsWidth := 150
 
-Gui, 2:New, , % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -15545,10 +15520,20 @@ ShowGui2AndDisableGui1:
 ShowGui2AndDisableGui1KeepPosition:
 ;------------------------------------------------------------
 
-Gui, 2:Show, % (A_ThisLabel = "ShowGui2AndDisableGui1KeepPosition" ? "" : "AutoSize Center")
+if (A_ThisLabel = "ShowGui2AndDisableGui1")
+{
+	CalculateGui2Position(intX, intY)
+	Gui, 2:Show, AutoSize x%intX% y%intY%
+}
+else ; KeepPosition
+	Gui, 2:Show
+
 Gui, 1:+Disabled
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, Off, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+
+intX := ""
+intY := ""
 
 return
 ;------------------------------------------------------------
@@ -19405,7 +19390,7 @@ GuiAbout:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lAboutTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lAboutTitle, g_strAppNameText, g_strAppVersion)
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19440,7 +19425,7 @@ GuiDonate:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lDonateTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lDonateTitle, g_strAppNameText, g_strAppVersion)
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19524,7 +19509,7 @@ GuiHelp:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lHelpTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, % L(lHelpTitle, g_strAppNameText, g_strAppVersion)
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -23390,8 +23375,39 @@ ScreenConfigurationChanged()
 
 
 ;------------------------------------------------------------
-GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
-; used when building Settings, Add, Edit, Copy or Move Favorites dialog boxes
+GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	
+	IniRead, strPosition, %g_strIniFile%, Global, %strThisDialog%
+	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CalculateGui2Position(ByRef intGui2X, ByRef intGui2Y)
+;------------------------------------------------------------
+{
+	global g_strAppHwnd
+	global g_strGui2Hwnd
+	
+	WinGet, intGui1MinMax, MinMax, ahk_id %g_strAppHwnd%
+	WinGetPos, intGui1X, intGui1Y, intGui1W, intGui1H, ahk_id %g_strAppHwnd%
+
+	intGui1CenterX := intGui1X + (intGui1W / 2)
+	intGui1CenterY := intGui1Y + (intGui1H / 2)
+
+	WinGetPos, , , intGui2W, intGui2H, ahk_id %g_strGui2Hwnd%
+	intGui2X := intGui1CenterX - (intGui2W / 2)
+	intGui2Y := intGui1CenterY - (intGui2H / 2)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
 ; use LastScreenConfiguration and window position from ini file
 ; if screen configuration changed, return -1 instead of the saved position
 ;------------------------------------------------------------
@@ -23400,7 +23416,7 @@ GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSetti
 	global g_strLastConfiguration
 	global g_blnRememberSettingsPosition
 	
-	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset dialog boxes position if screen config changed since last session
+	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset position if screen config changed since last session
 	
 	strCurrentScreenConfiguration := GetScreenConfiguration()
 	if !StrLen(g_strLastScreenConfiguration) or (strCurrentScreenConfiguration <> g_strLastScreenConfiguration)
@@ -23411,12 +23427,12 @@ GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSetti
 	else
 		if (g_blnRememberSettingsPosition)
 		{
-			IniRead, strSettingsPosition, %g_strIniFile%, Global, %strThisWindow%, -1 ; by default -1 to center at minimal size
+			IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; by default -1 to center at minimal size
 			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
 		}
-		else
+		else ; delete Settings position
 		{
-			IniDelete, %g_strIniFile%, Global, %strThisWindow%
+			IniDelete, %g_strIniFile%, Global, SettingsPosition
 			arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
 		}
 	
@@ -23453,7 +23469,8 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 	global g_strIniFile
 	global g_blnRememberSettingsPosition
 	
-	if (g_blnRememberSettingsPosition)
+	if (strThisWindow <> "SettingsPosition" or g_blnRememberSettingsPosition)
+	; always for Add, Edit, Copy or Move Favorites dialog boxes, only if remember for Settings
 	{
 		WinGet, intMinMax, MinMax, %strWindowHandle%
 		if (intMinMax <> 1) ; if window is maximized, we keep the last saved position and size
@@ -23463,7 +23480,7 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 			IniWrite, %strPosition%, %g_strIniFile%, Global, %strThisWindow%
 		}
 	}
-	else
+	else ; delete Settings position
 		IniDelete, %g_strIniFile%, Global, %strThisWindow%
 }
 ;------------------------------------------------------------
