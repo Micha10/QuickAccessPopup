@@ -31,6 +31,24 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3.1 (2018-11-22)
+ 
+QAP windows management 
+- restore Add, Edit, Copy or Move Favorites dialog boxes and Settings window to their default position (center of main monitor) after screen configuration changes to make sure QAP windows remain visible in the new configuration; screen configuration changes are adding or removing monitor, changing screen resolution and changing primary monitor
+- resetting the dialog box positions from QAP tray menu does not require a QAP reboot anymore
+ 
+Directory Opus
+- add "Layouts" submenu to QAP Feature "Directory Opus Favorites" menu
+- add option to add or not the "Layouts" submenu to "Directory Opus Favorites" menu
+- fix bug when setting up icons for the QAP features "Directory Opus Favorites"
+ 
+Total Commander
+- fix bug when setting up icons for the QAP features "Total Commander Hotlist"
+ 
+Bug fixes and other improvements
+- change load sequence to fix bug when showing the donate dialog box at startup (aka "Invalid owner error")
+- optimize writing to database when collecting usage data from Windows Recent Items
+
 Version: 9.3 (2018-11-14)
  
 Directory Opus Favorites menu
@@ -2858,7 +2876,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3 
+;@Ahk2Exe-SetVersion 9.3.1 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2956,7 +2974,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
