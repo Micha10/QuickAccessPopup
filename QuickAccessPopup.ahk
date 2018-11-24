@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3.2 (2018-11-??)
+- 
+
 Version: 9.3.1 (2018-11-22)
  
 QAP windows management 
@@ -2876,7 +2879,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1 
+;@Ahk2Exe-SetVersion 9.3.2 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2975,7 +2978,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3427,7 +3430,7 @@ return
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
 ; each param must begin with "/" and be separated by a space
-; supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[folder_path]
+; supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[working_dir_path]
 ;-----------------------------------------------------------
 
 g_objCommandLineParams := Object()
@@ -3465,10 +3468,10 @@ First, the whole story...
 
 WORKING PARAMETER
 
-If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"), this value have
-precedence. It allows to set a registry value to autostart QAP, for example:
-key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
-Value:	C:\\path\\Quick Access Popup\\QuickAccessPopup.exe C:\\another_path"
+If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"),
+this value have precedence. It allows to set a registry value to autostart QAP, for example:
+Key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
+Value:	"C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
 INSTALL MODE
 
@@ -3529,10 +3532,9 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 
 ; If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"), this value have
 ; precedence. It allows to set a registry value to autostart QAP, for example:
-; key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
-; Value:	C:\\path\\Quick Access Popup\\QuickAccessPopup.exe C:\\another_path"
+; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
+; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
-###_V("g_objCommandLineParams[""/Working:""]", g_objCommandLineParams["/Working:"])
 if StrLen(g_objCommandLineParams["/Working:"])
 	SetWorkingDir, % g_objCommandLineParams["/Working:"]
 
