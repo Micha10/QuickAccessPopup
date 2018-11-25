@@ -4892,6 +4892,7 @@ IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
+g_blnOpenFavoritesOnActiveMonitor := true ; #####
 
 IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
 IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
@@ -15872,6 +15873,8 @@ if (!g_blnMenuReady or g_blnChangeShortcutInProgress or g_blnChangeHotstringInPr
 
 Diag(A_ThisLabel, "", "START-SHOW")
 
+g_strMenuTriggerLabel := A_ThisLabel
+
 if (g_blnGetWinInfo)
 {
 	gosub, GetWinInfo2Clippoard
@@ -16760,10 +16763,35 @@ else
 	}
 }
 
+; preparation for window position
+
 ; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
 ; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
+
+if (g_strTargetAppName = "Explorer") ; if we need to position the new Explorer window on the active monitor
+{
+	SysGet, g_intNbMonitors, MonitorCount
+	if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1)
+	; get current mouse position (if favorite was open with mouse) or active window position (if favorite was open with keyboard)
+	{
+		if !StrLen(g_strMenuTriggerLabel) ; when g_strMenuTriggerLabel is empty, if A_ThisHotkey contains "Button" or "Wheel", check mouse position
+			strPositionReference := (InStr(A_ThisHotkey, "Button") or InStr(A_ThisHotkey, "Wheel") ? "Mouse" : "Window")
+		else if InStr(g_strMenuTriggerLabel, "Keyboard")
+			strPositionReference := "Window" ; check active window position
+		else
+			strPositionReference := "Mouse" ; all other menu triggers, check mouse position
+		
+		if (strPositionReference = "Mouse")
+		{
+			CoordMode, Mouse, Screen
+			MouseGetPos, intMonitorReferencePositionX, intMonitorReferencePositionY
+		}
+		else
+			WinGetPos, intMonitorReferencePositionX, intMonitorReferencePositionY, , , A ; window top-left position
+	}
+}
 
 ; === ACTIONS ===
 
@@ -16872,7 +16900,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 		if (intPid)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowResize
+			gosub, OpenFavoriteWindowPosition
 		}
 
 	gosub, UsageDbCollectMenu
@@ -16912,7 +16940,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		if (intPid)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowResize
+			gosub, OpenFavoriteWindowPosition
 		}
 
 	gosub, UsageDbCollectMenu
@@ -16992,7 +17020,7 @@ if (g_strHotkeyTypeDetected = "Launch")
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
 	gosub, UsageDbCollectMenu
-	gosub, OpenFavoriteWindowResize
+	gosub, OpenFavoriteWindowPosition
 }
 
 OpenFavoritePlaySoundAndCleanup:
@@ -17020,6 +17048,10 @@ g_blnLaunchFromTrayIcon := ""
 objIApplicationActivationManager := ""
 intProcessId := ""
 strTempArguments := ""
+g_intNbMonitors := ""
+strPositionReference := ""
+intMonitorReferencePositionX := ""
+intMonitorReferencePositionY := ""
 
 return
 ;------------------------------------------------------------
@@ -18345,7 +18377,7 @@ http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
 OpenFavoriteInNewWindowExplorer:
 ;------------------------------------------------------------
 
-if (g_arrFavoriteWindowPosition1)
+if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	; get new window ID
 	; when run -> pid? if not scan Explorer ids
@@ -18353,16 +18385,10 @@ if (g_arrFavoriteWindowPosition1)
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
 }
 
-if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
-	; Note 1: this technique creates a new Explorer instance at every call; it is used only if the Alternative menu was
-	;         called to open the folder in a new window or if there is an argument in favorite advanced options
-	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
-	Run, % "Explorer """ . g_strFullLocation . """"
-else
-	; Note: this technique is preferred because it uses the same Explorer instance created by QAP if call multiple times
-	Run, %g_strFullLocation%
+; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10)
+Run, % "Explorer """ . g_strFullLocation . """", , Hide
 
-if (g_arrFavoriteWindowPosition1)
+if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	Loop
 	{
@@ -18595,18 +18621,17 @@ return
 
 
 ;------------------------------------------------------------
-OpenFavoriteWindowResize:
+OpenFavoriteWindowPosition:
 ;------------------------------------------------------------
 
-; WinGetActiveStats, Title, Width, Height, X, Y
-; ###_V("",  Title, Width, Height, X, Y)
-
-if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
+if !StrLen(g_strNewWindowId) ; we can't access the new Explorer window
 {
-	intPreviousTitleMatchMode := A_TitleMatchMode
-	; with RegEx: for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
-	; (because by default, regular expressions find a match anywhere in the target string).
-	SetTitleMatchMode, RegEx
+	WinShow, A
+	return
+}
+
+if (g_arrFavoriteWindowPosition1) ; the window position in window options has precedence on g_blnOpenFavoritesOnActiveMonitor
+{
 	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
@@ -18623,10 +18648,55 @@ if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
 			, %g_arrFavoriteWindowPosition5% ; width
 			, %g_arrFavoriteWindowPosition6% ; height
 	}
-	SetTitleMatchMode, %intPreviousTitleMatchMode%
 }
+else if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1 and g_strTargetAppName = "Explorer" and g_strHotkeyTypeDetected = "Launch")
+{
+	WinGetPos, intNewWindowX, intNewWindowY, intNewWindowWidth, intNewWindowHeight, %g_strNewWindowId% ; new Explorer window
+	
+	strScreenConfiguration := GetScreenConfiguration()
+	; "n,p:left,top,right,bottom|left,top,right,bottom|...": nb of monitors, primary display, and coordinates of each monitor
+	; "(nb monitors),(primary monitor):(coordinates of first monitor)|(coordinates of second monitor)|(etc.)
+	StringSplit, arrConfig, strScreenConfiguration, : ; 1: "n,p" / 2: (coordinates)
+	StringSplit, arrMonitorsNbPrimary, arrConfig1, `, ; 1: "n" / 2: "p"
+	StringSplit, arrMonitorsCoordinates, arrConfig2, | ; 1: coordinates of first monitor / 2: coordinates of second monitor
 
-intPreviousTitleMatchMode := ""
+	Loop, % arrMonitorsNbPrimary1
+	{
+		StringSplit, arrThisMonitor, arrMonitorsCoordinates%A_Index%, `,
+
+		if  (intMonitorReferencePositionX >= arrThisMonitor1 and intMonitorReferencePositionX < arrThisMonitor3
+			and intMonitorReferencePositionY >= arrThisMonitor2 and intMonitorReferencePositionY < arrThisMonitor4)
+		{
+			intNewWindowX := arrThisMonitor1 + (((arrThisMonitor3 - arrThisMonitor1) - intNewWindowWidth) / 2)
+			intNewWindowY := arrThisMonitor2 + (((arrThisMonitor4 - arrThisMonitor2) - intNewWindowHeight) / 2)
+			break
+		}
+	}
+
+	Sleep, 200
+	WinMove, %g_strNewWindowId%,
+		, %intNewWindowX% ; left
+		, %intNewWindowY% ; top
+		, %intNewWindowWidth% ; width
+		, %intNewWindowHeight% ; height
+		
+	
+}
+else
+	; TargetName is not Explorer, or no window position, or only one monitor, etc.
+	; do nothing
+
+WinShow, %g_strNewWindowId%
+
+intNewWindowX := ""
+intNewWindowY := ""
+intNewWindowWidth := ""
+intNewWindowHeight := ""
+strScreenConfiguration := ""
+ResetArray("arrConfig")
+ResetArray("arrMonitorsNbPrimary")
+ResetArray("arrMonitorsCoordinates")
+ResetArray("arrThisMonitor")
 
 return
 ;------------------------------------------------------------
@@ -23471,6 +23541,9 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 
 ;------------------------------------------------------------
 GetScreenConfiguration()
+; return the current monitor configuration in the following format:
+; n,p:left,top,right,bottom|left,top,right,bottom|...
+; nb of monitors, primary display, and coordinates of each monitor
 ;------------------------------------------------------------
 {
 	SysGet, intNbMonitors, MonitorCount
