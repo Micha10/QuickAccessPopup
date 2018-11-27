@@ -31,8 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.2 (2018-11-??)
+Version: 9.3.1.9.1 (2018-11-??)
 - 
+fix bug when displaying default QAP feature or Special folder icon in Edit favorite even if another icon has been selected
+fix bug to return correct default icon when changing QAP feature or Special folder in Edit favorite tree view
+always position all secondary windows (Options, Select favorite type, Add/Edit/Copy/Move Favorite, Add Shared menu from catalogue, Manage Hotkeys, Manage Icons, About, Donate and Help) relative to the center of the main gui (Settings window)
+remember width of Add/Edit/Copy/Move Favorite window in ini file
+remove tray menu command to restore dialog box position
+check for command line parameter "/Working:[path]"; if it exists, use it as QAP working directory
+add boolean to open on active monitor when  multiple monitor (have to add it to Options window and save it to ini)
+before opening a folder in Explorer (only), get number of monitors and if multiple get info about active monitor based on mouse position if favorite launched with mouse trigger or else based on position of active window
+when launching a folder in a new Explorer always run it with the "Explorer" command and get the window ID by looping Explorer windows instances
+hide new Explorer window when opening folder and show it after moving (or not moving) it
+center the position of the new Explorer window based on the size of the new window and the size of the active monitor
 
 Version: 9.3.1 (2018-11-22)
  
@@ -2879,7 +2890,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.2 
+;@Ahk2Exe-SetVersion 9.3.1.9.1 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2978,8 +2989,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.3.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -3064,6 +3075,8 @@ g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
 g_objWindowsAppsIDsByName := Object()
 
 g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
+
+g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
 ;---------------------------------
 ; Initial validation
@@ -3171,7 +3184,7 @@ if (g_blnUsageDbEnabled)
 
 if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change in UsageDbInit
 {
-	; collect recent items and prodynamic menus data
+	; collect recent items and dynamic menus data
 	Gosub, UsageDbCollectMenuData
 
 	; Update FavoriteUsageDb properties with data from UsageDb
@@ -4892,7 +4905,7 @@ IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
-g_blnOpenFavoritesOnActiveMonitor := true ; #####
+IniRead, g_blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 1
 
 IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
 IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
@@ -8067,6 +8080,9 @@ Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenFavoritesOnActiveMonitor, %lOptionsOpenFavoritesOnActiveMonitor%
+GuiControl, , f_blnOpenFavoritesOnActiveMonitor, %g_blnOpenFavoritesOnActiveMonitor%
+
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
@@ -9036,6 +9052,8 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+g_blnOpenFavoritesOnActiveMonitor := f_blnOpenFavoritesOnActiveMonitor
+IniWrite, %g_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
@@ -16601,9 +16619,10 @@ if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollect
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
-	gosub, UsageDbCollectMenu
 	gosub, OpenGroupOfFavorites
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16621,8 +16640,9 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet ; using g_strLocationWithPlaceholders
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16824,8 +16844,9 @@ if (g_blnAlternativeMenu)
 		}
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
-		gosub, UsageDbCollectMenu
+		
 		gosub, OpenFavoriteCleanup
+		gosub, UsageDbCollectMenu
 		
 		return
 	}
@@ -16837,9 +16858,10 @@ if (g_blnAlternativeMenu)
 			Clipboard := g_strFullLocation
 			TrayTip, %g_strAppNameText%, %lCopyLocationCopiedToClipboard%, , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-		}		
-		gosub, UsageDbCollectMenu
+		}
+		
 		gosub, OpenFavoriteCleanup
+		gosub, UsageDbCollectMenu
 		return
 	}
 	
@@ -16861,8 +16883,9 @@ if (g_objThisFavorite.FavoriteType = "Text")
 if (A_ThisLabel = "OpenDOpusLayout")
 {
 	Run, % """" . g_strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16881,8 +16904,8 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16897,14 +16920,15 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 		Oops(lOopsUnknownTargetAppName)
 	else
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (intPid)
+		if (g_arrFavoriteWindowPosition1 and intPid)
+		; g_arrFavoriteWindowPosition1 should not happen since v7.0.1 (removed favorite window options for document, application and link favorite types)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
 			gosub, OpenFavoriteWindowPosition
 		}
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16914,8 +16938,9 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 {
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoriteCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16928,7 +16953,9 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
 	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
 	; Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
+	
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strAppWorkingDirWithPlaceholders%, UseErrorLevel, intPid
+	
 	if (ErrorLevel = "ERROR")
 	{
 		if (A_LastError <> 1223)
@@ -16936,15 +16963,16 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
 	else
+		if (g_arrFavoriteWindowPosition1 and intPid)
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (intPid)
+		; g_arrFavoriteWindowPosition1 should not happen since v7.0.1 (removed favorite window options for document, application and link favorite types)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
 			gosub, OpenFavoriteWindowPosition
 		}
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16977,8 +17005,8 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16988,8 +17016,9 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16998,8 +17027,9 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17008,8 +17038,9 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetec
 if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17018,9 +17049,12 @@ if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "
 if (g_strHotkeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
-	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
+	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
+	if ((g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor) ;  we need to position window
+		and StrLen(g_strNewWindowId)) ; we can access the new Explorer window
+		gosub, OpenFavoriteWindowPosition
+		
 	gosub, UsageDbCollectMenu
-	gosub, OpenFavoriteWindowPosition
 }
 
 OpenFavoritePlaySoundAndCleanup:
@@ -18386,18 +18420,18 @@ if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 }
 
 ; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10)
-Run, % "Explorer """ . g_strFullLocation . """", , Hide
+Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
 
 if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	Loop
 	{
 		if (A_Index > 25)
-		{
-			TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText), % L(lDialogErrorMoving, g_strFullLocation), , 2 ; warning icon with sound
-			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 			Break
-		}
+			; TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText), % L(lDialogErrorMoving, g_strFullLocation), , 2 ; warning icon with sound
+			; Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+			; stop showing tray message from v9.3.1.9.1
+			
 		Sleep, %g_arrFavoriteWindowPosition7%
 		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
 		Loop, Parse, g_strExplorerIDs, |
@@ -18410,6 +18444,13 @@ if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 			Break ; we have a new window
 	}
 }
+if !StrLen(g_strNewWindowId)
+{
+	Sleep, 100
+	WinShow, A
+	WinActivate, A ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
+}
+; ###_V(A_ThisLabel, g_strFullLocation, g_strNewWindowId)
 
 strExplorerIDsBefore := ""
 
@@ -18625,10 +18666,7 @@ OpenFavoriteWindowPosition:
 ;------------------------------------------------------------
 
 if !StrLen(g_strNewWindowId) ; we can't access the new Explorer window
-{
-	WinShow, A
 	return
-}
 
 if (g_arrFavoriteWindowPosition1) ; the window position in window options has precedence on g_blnOpenFavoritesOnActiveMonitor
 {
@@ -18653,22 +18691,35 @@ else if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1 and g_strTarg
 {
 	WinGetPos, intNewWindowX, intNewWindowY, intNewWindowWidth, intNewWindowHeight, %g_strNewWindowId% ; new Explorer window
 	
-	strScreenConfiguration := GetScreenConfiguration()
+	; strScreenConfiguration := GetScreenConfiguration()
+
 	; "n,p:left,top,right,bottom|left,top,right,bottom|...": nb of monitors, primary display, and coordinates of each monitor
 	; "(nb monitors),(primary monitor):(coordinates of first monitor)|(coordinates of second monitor)|(etc.)
-	StringSplit, arrConfig, strScreenConfiguration, : ; 1: "n,p" / 2: (coordinates)
-	StringSplit, arrMonitorsNbPrimary, arrConfig1, `, ; 1: "n" / 2: "p"
-	StringSplit, arrMonitorsCoordinates, arrConfig2, | ; 1: coordinates of first monitor / 2: coordinates of second monitor
+	; StringSplit, arrConfig, strScreenConfiguration, : ; 1: "n,p" / 2: (coordinates)
+	; StringSplit, arrMonitorsCoordinates, arrConfig2, | ; 1: coordinates of first monitor / 2: coordinates of second monitor
 
-	Loop, % arrMonitorsNbPrimary1
+	Loop, % g_intNbMonitors
 	{
-		StringSplit, arrThisMonitor, arrMonitorsCoordinates%A_Index%, `,
+		SysGet, arrThisMonitor, Monitor, %A_Index% ; 1: Left 2: Top 3: Right 4: Bottom
+		Loop, Parse, % "Left|Top|Right|Bottom", |
+			strMonitorConfiguration .= arrMonitor%A_LoopField% . (A_Index < 4 ? "," : "")
 
-		if  (intMonitorReferencePositionX >= arrThisMonitor1 and intMonitorReferencePositionX < arrThisMonitor3
-			and intMonitorReferencePositionY >= arrThisMonitor2 and intMonitorReferencePositionY < arrThisMonitor4)
+		if  (intMonitorReferencePositionX >= arrThisMonitorLeft and intMonitorReferencePositionX < arrThisMonitorRight
+			and intMonitorReferencePositionY >= arrThisMonitorTop and intMonitorReferencePositionY < arrThisMonitorBottom)
 		{
-			intNewWindowX := arrThisMonitor1 + (((arrThisMonitor3 - arrThisMonitor1) - intNewWindowWidth) / 2)
-			intNewWindowY := arrThisMonitor2 + (((arrThisMonitor4 - arrThisMonitor2) - intNewWindowHeight) / 2)
+			; calculate Explorer window position relative to center of screen
+			intNewWindowX := arrThisMonitorLeft + (((arrThisMonitorRight - arrThisMonitorLeft) - intNewWindowWidth) / 2)
+			intNewWindowY := arrThisMonitorTop + (((arrThisMonitorBottom - arrThisMonitorTop) - intNewWindowHeight) / 2)
+			
+			; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
+			g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
+			intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
+			intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
+			; make sure window is not out of screen
+			if (intNewWindowX < 0)
+				intNewWindowX := 0
+			if (intNewWindowY < 0)
+				intNewWindowY = 0
 			break
 		}
 	}
@@ -18679,14 +18730,13 @@ else if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1 and g_strTarg
 		, %intNewWindowY% ; top
 		, %intNewWindowWidth% ; width
 		, %intNewWindowHeight% ; height
-		
-	
 }
-else
+; else
 	; TargetName is not Explorer, or no window position, or only one monitor, etc.
 	; do nothing
 
 WinShow, %g_strNewWindowId%
+WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
 
 intNewWindowX := ""
 intNewWindowY := ""
@@ -18694,7 +18744,6 @@ intNewWindowWidth := ""
 intNewWindowHeight := ""
 strScreenConfiguration := ""
 ResetArray("arrConfig")
-ResetArray("arrMonitorsNbPrimary")
 ResetArray("arrMonitorsCoordinates")
 ResetArray("arrThisMonitor")
 
@@ -23552,7 +23601,7 @@ GetScreenConfiguration()
 	strMonitorConfiguration := intNbMonitors . "," . intIdPrimaryDisplay . ":"
 	Loop %intNbMonitors%
 	{
-		SysGet, arrMonitor, Monitor, %A_index%
+		SysGet, arrMonitor, Monitor, %A_Index%
 		Loop, Parse, % "Left|Top|Right|Bottom", |
 			strMonitorConfiguration .= arrMonitor%A_LoopField% . (A_Index < 4 ? "," : "")
 		strMonitorConfiguration .= (A_Index < intNbMonitors ? "|" : "")
