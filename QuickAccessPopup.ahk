@@ -2890,7 +2890,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1.9.1 
+;@Ahk2Exe-SetVersion 9.3.1.9.1
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -4905,7 +4905,6 @@ IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
-IniRead, g_blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 1
 
 IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
 IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
@@ -4958,6 +4957,8 @@ if (g_intActiveFileManager = "ERROR") ; no selection
 	Gosub, CheckActiveFileManager
 
 ; Read values for all options: if user switch back to a previou option we can preset previous values
+IniRead, g_blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
+
 IniRead, g_strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
 Gosub, LoadIniQAPconnectValues
 
@@ -8080,9 +8081,6 @@ Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
-Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenFavoritesOnActiveMonitor, %lOptionsOpenFavoritesOnActiveMonitor%
-GuiControl, , f_blnOpenFavoritesOnActiveMonitor, %g_blnOpenFavoritesOnActiveMonitor%
-
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
@@ -8268,9 +8266,11 @@ loop, %g_arrActiveFileManagerSystemNames0%
 	Gui, 2:Add, Radio, % "y+10 x20 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (g_intActiveFileManager = A_Index ? " checked" : ""), % g_arrActiveFileManagerDisplayNames%A_Index%
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp hidden
+Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp ; hidden
 Gui, 2:Font
 Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
+Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor, %lOptionsOpenFavoritesOnActiveMonitor%
+GuiControl, , f_blnOpenFavoritesOnActiveMonitor, %g_blnOpenFavoritesOnActiveMonitor%
 Gui, 2:Add, Text, y+10 x32 vf_lblFileManagerPrompt hidden, %lDialogApplicationLabel%:
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
 Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
@@ -8379,10 +8379,13 @@ ActiveFileManagerClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+strShowHideCommand := (f_radActiveFileManager1 ? "Show" : "Hide")
+GuiControl, %strShowHideCommand%, f_blnOpenFavoritesOnActiveMonitor
+
 strShowHideCommand := (f_radActiveFileManager1 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_lblFileManagerDetail
 GuiControl, %strShowHideCommand%, f_lblFileManagerPrompt
-GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
+; GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
 
 strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
@@ -8417,8 +8420,12 @@ else if (f_radActiveFileManager4) ; QAPconnect
 	strHelpUrl := "https://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/"
 }
 else ; f_radActiveFileManager1
+{
 	g_intClickedFileManager := 1
+	strHelpUrl := "https://www.quickaccesspopup.com/how-does-qap-work-on-multi-monitor-systems/"
+}
 
+GuiControl, , f_lnkFileManagerHelp, % L(lOptionsThirdPartySelectedHelp, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%, strHelpUrl, lGuiHelp)
 if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 {
 	strClickedFileManagerSystemNames := g_arrActiveFileManagerSystemNames%g_intClickedFileManager%
@@ -8426,7 +8433,6 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 	if !StrLen(g_str%strClickedFileManagerSystemNames%Path)
 		IniRead, g_str%strClickedFileManagerSystemNames%Path, %g_strIniFile%, Global, %strClickedFileManagerSystemNames%Path, %A_Space% ; empty if error
 	
-	GuiControl, , f_lnkFileManagerHelp, % L(lOptionsThirdPartySelectedHelp, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%, strHelpUrl, lGuiHelp)
 	GuiControl, , f_lblFileManagerDetail, % (f_radActiveFileManager4 ? L(lOptionsThirdPartyDetailQAPconnect, "QAPconnect.ini") : L(lOptionsThirdPartyDetail, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%))
 	GuiControl, , f_strFileManagerPath, % g_str%strClickedFileManagerSystemNames%PathBeforeEnvVars
 	if (f_radActiveFileManager4) ; QAPconnect
@@ -9052,8 +9058,6 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
-g_blnOpenFavoritesOnActiveMonitor := f_blnOpenFavoritesOnActiveMonitor
-IniWrite, %g_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
@@ -9235,6 +9239,9 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 
 g_blnFileManagerAlwaysNavigate := f_radFileManagerNavigateCurrent ; same as !f_radFileManagerNavigateNew
 IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
+
+g_blnOpenFavoritesOnActiveMonitor := f_blnOpenFavoritesOnActiveMonitor
+IniWrite, %g_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
 
 ;---------------------------------------
 ; Save Tab 6: More
