@@ -31,19 +31,22 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.1.9.1 (2018-11-??)
-- 
-fix bug when displaying default QAP feature or Special folder icon in Edit favorite even if another icon has been selected
-fix bug to return correct default icon when changing QAP feature or Special folder in Edit favorite tree view
-always position all secondary windows (Options, Select favorite type, Add/Edit/Copy/Move Favorite, Add Shared menu from catalogue, Manage Hotkeys, Manage Icons, About, Donate and Help) relative to the center of the main gui (Settings window)
-remember width of Add/Edit/Copy/Move Favorite window in ini file
-remove tray menu command to restore dialog box position
-check for command line parameter "/Working:[path]"; if it exists, use it as QAP working directory
-add boolean to open on active monitor when  multiple monitor (have to add it to Options window and save it to ini)
-before opening a folder in Explorer (only), get number of monitors and if multiple get info about active monitor based on mouse position if favorite launched with mouse trigger or else based on position of active window
-when launching a folder in a new Explorer always run it with the "Explorer" command and get the window ID by looping Explorer windows instances
-hide new Explorer window when opening folder and show it after moving (or not moving) it
-center the position of the new Explorer window based on the size of the new window and the size of the active monitor
+Version: 9.3.1.9.1 (2018-11-28)
+ 
+Opening Explorer windows on multi-monitor systems
+- new option in "File Managers" tab to open new Explorer windows on the active monitor when system has more than one monitor
+- detect the active monitor based on the mouse position (if favorite launched with mouse trigger) or else based on the active window's position
+ 
+QAP windows position
+- add option "Open Settings window on Active monitor" on "General" tab to open the Settings window on the active monitor when system has more than one monitor
+- detect the active monitor based on mouse or active window position (as above)
+- always position secondary QAP windows (Options, Select favorite type, Add/Edit/Copy/Move Favorite, Add Shared menu from catalogue, Manage Hotkeys, Manage Icons, About, Donate and Help) relative to the center of the main Settings window
+- remember width of Add/Edit/Copy/Move Favorite window in ini file
+- remove tray menu command to restore dialog box position
+ 
+Other improvements and bug fixes
+- add command line parameter "/Working:[path]" used to set QAP working directory (useful when creating a "Run" registry key to autostart QAP without using Startup shortcut file)
+- fix bug when displaying default QAP feature or Special folder icon in Edit favorite dialog box
 
 Version: 9.3.1 (2018-11-22)
  
@@ -4905,6 +4908,7 @@ IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
+IniRead, g_blnOpenSettingsOnActiveMonitor, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor, 1
 
 IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
 IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
@@ -8081,6 +8085,9 @@ Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
 
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenSettingsOnActiveMonitor, %lOptionsOpenSettingsOnActiveMonitor%
+GuiControl, , f_blnOpenSettingsOnActiveMonitor, %g_blnOpenSettingsOnActiveMonitor%
+
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
@@ -9058,6 +9065,8 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+g_blnOpenSettingsOnActiveMonitor := f_blnOpenSettingsOnActiveMonitor
+IniWrite, %g_blnOpenSettingsOnActiveMonitor%, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
@@ -12480,11 +12489,32 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-Gui, 1:Show, % ((A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged()) ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
+if (A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged())
+	Gui, 1:Show, % "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
+else
+{
+	GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intActiveX, intActiveY)
+	if (g_blnOpenSettingsOnActiveMonitor and GetWindowPositionOnActiveMonitor("ahk_id " . g_strAppHwnd, intActiveX, intActiveY, intPositionX, intPositionY))
+	{
+		; make sure window is not out of screen
+		if (intPositionX < 0)
+			intPositionX := 0
+		if (intPositionY < 0)
+			intPositionY = 0
+		; display at center of active monitor
+		Gui, 1:Show, % "x" . intPositionX . " y" . intPositionY
+	}
+	else ; keep existing position
+		Gui, 1:Show
+}
 
 GuiShowCleanup:
 blnSaveEnabled := ""
 strThisMenu := ""
+intActiveX := ""
+intActiveY := ""
+intPositionX := ""
+intPositionY := ""
 
 return
 ;------------------------------------------------------------
@@ -16799,25 +16829,9 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
 if (g_strTargetAppName = "Explorer") ; if we need to position the new Explorer window on the active monitor
 {
-	SysGet, g_intNbMonitors, MonitorCount
-	if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1)
-	; get current mouse position (if favorite was open with mouse) or active window position (if favorite was open with keyboard)
-	{
-		if !StrLen(g_strMenuTriggerLabel) ; when g_strMenuTriggerLabel is empty, if A_ThisHotkey contains "Button" or "Wheel", check mouse position
-			strPositionReference := (InStr(A_ThisHotkey, "Button") or InStr(A_ThisHotkey, "Wheel") ? "Mouse" : "Window")
-		else if InStr(g_strMenuTriggerLabel, "Keyboard")
-			strPositionReference := "Window" ; check active window position
-		else
-			strPositionReference := "Mouse" ; all other menu triggers, check mouse position
-		
-		if (strPositionReference = "Mouse")
-		{
-			CoordMode, Mouse, Screen
-			MouseGetPos, intMonitorReferencePositionX, intMonitorReferencePositionY
-		}
-		else
-			WinGetPos, intMonitorReferencePositionX, intMonitorReferencePositionY, , , A ; window top-left position
-	}
+	SysGet, intNbMonitors, MonitorCount
+	if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
+		GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intMonitorReferencePositionX, intMonitorReferencePositionY)
 }
 
 ; === ACTIONS ===
@@ -17089,7 +17103,7 @@ g_blnLaunchFromTrayIcon := ""
 objIApplicationActivationManager := ""
 intProcessId := ""
 strTempArguments := ""
-g_intNbMonitors := ""
+intNbMonitors := ""
 strPositionReference := ""
 intMonitorReferencePositionX := ""
 intMonitorReferencePositionY := ""
@@ -18694,49 +18708,22 @@ if (g_arrFavoriteWindowPosition1) ; the window position in window options has pr
 			, %g_arrFavoriteWindowPosition6% ; height
 	}
 }
-else if (g_blnOpenFavoritesOnActiveMonitor and g_intNbMonitors > 1 and g_strTargetAppName = "Explorer" and g_strHotkeyTypeDetected = "Launch")
+else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTargetAppName = "Explorer" and g_strHotkeyTypeDetected = "Launch")
+	and GetWindowPositionOnActiveMonitor(g_strNewWindowId, intMonitorReferencePositionX, intMonitorReferencePositionY, intNewWindowX, intNewWindowY)
 {
-	WinGetPos, intNewWindowX, intNewWindowY, intNewWindowWidth, intNewWindowHeight, %g_strNewWindowId% ; new Explorer window
+	; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
+	g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
+	intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
+	intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
 	
-	; strScreenConfiguration := GetScreenConfiguration()
-
-	; "n,p:left,top,right,bottom|left,top,right,bottom|...": nb of monitors, primary display, and coordinates of each monitor
-	; "(nb monitors),(primary monitor):(coordinates of first monitor)|(coordinates of second monitor)|(etc.)
-	; StringSplit, arrConfig, strScreenConfiguration, : ; 1: "n,p" / 2: (coordinates)
-	; StringSplit, arrMonitorsCoordinates, arrConfig2, | ; 1: coordinates of first monitor / 2: coordinates of second monitor
-
-	Loop, % g_intNbMonitors
-	{
-		SysGet, arrThisMonitor, Monitor, %A_Index% ; 1: Left 2: Top 3: Right 4: Bottom
-		Loop, Parse, % "Left|Top|Right|Bottom", |
-			strMonitorConfiguration .= arrMonitor%A_LoopField% . (A_Index < 4 ? "," : "")
-
-		if  (intMonitorReferencePositionX >= arrThisMonitorLeft and intMonitorReferencePositionX < arrThisMonitorRight
-			and intMonitorReferencePositionY >= arrThisMonitorTop and intMonitorReferencePositionY < arrThisMonitorBottom)
-		{
-			; calculate Explorer window position relative to center of screen
-			intNewWindowX := arrThisMonitorLeft + (((arrThisMonitorRight - arrThisMonitorLeft) - intNewWindowWidth) / 2)
-			intNewWindowY := arrThisMonitorTop + (((arrThisMonitorBottom - arrThisMonitorTop) - intNewWindowHeight) / 2)
-			
-			; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
-			g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
-			intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
-			intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
-			; make sure window is not out of screen
-			if (intNewWindowX < 0)
-				intNewWindowX := 0
-			if (intNewWindowY < 0)
-				intNewWindowY = 0
-			break
-		}
-	}
-
+	; make sure window is not out of screen
+	if (intNewWindowX < 0)
+		intNewWindowX := 0
+	if (intNewWindowY < 0)
+		intNewWindowY = 0
+	
 	Sleep, 200
-	WinMove, %g_strNewWindowId%,
-		, %intNewWindowX% ; left
-		, %intNewWindowY% ; top
-		, %intNewWindowWidth% ; width
-		, %intNewWindowHeight% ; height
+	WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
 }
 ; else
 	; TargetName is not Explorer, or no window position, or only one monitor, etc.
@@ -18747,12 +18734,9 @@ WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unex
 
 intNewWindowX := ""
 intNewWindowY := ""
-intNewWindowWidth := ""
-intNewWindowHeight := ""
 strScreenConfiguration := ""
 ResetArray("arrConfig")
 ResetArray("arrMonitorsCoordinates")
-ResetArray("arrThisMonitor")
 
 return
 ;------------------------------------------------------------
@@ -23639,6 +23623,77 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 	}
 	else ; delete Settings position
 		IniDelete, %g_strIniFile%, Global, %strThisWindow%
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetWindowPositionOnActiveMonitor(strWindowId, intActivePositionX, intActivePositionY, ByRef intWindowX, ByRef intWindowY)
+; returns true if more than one monitor and success retrieving new X-Y position on active monitor else returns false
+; returns ByRef new or unmodified X and Y
+;------------------------------------------------------------
+{
+	WinGetPos, intWindowX, intWindowY, intWindowWidth, intWindowHeight, %strWindowId%
+	
+	intActiveMonitorForWindow := GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors)
+	intActiveMonitorForPosition := GetActiveMonitorForPosition(intActivePositionX, intActivePositionY, intNbMonitors)
+	
+	if (intNbMonitors > 1) and (intActiveMonitorForWindow <> intActiveMonitorForPosition)
+	{
+		; calculate Explorer window position relative to center of screen
+		SysGet, arrThisMonitor, Monitor, %intActiveMonitorForPosition% ; Left, Top, Right, Bottom
+		intWindowX := arrThisMonitorLeft + (((arrThisMonitorRight - arrThisMonitorLeft) - intWindowWidth) / 2)
+		intWindowY := arrThisMonitorTop + (((arrThisMonitorBottom - arrThisMonitorTop) - intWindowHeight) / 2)
+		
+		; ###_V(A_ThisFunc . " True", strWindowId, intNbMonitors, intActiveMonitorForWindow, intActiveMonitorForPosition, "", intActivePositionX, intActivePositionY, "ByRef", intWindowX, intWindowY)
+		return true
+	}
+	
+	; ###_V(A_ThisFunc . " False", strWindowId, intNbMonitors, intActiveMonitorForWindow, intActiveMonitorForPosition, "", intActivePositionX, intActivePositionY, "ByRef", intWindowX, intWindowY)
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetActiveMonitorForPosition(intX, intY, ByRef intNbMonitors)
+;------------------------------------------------------------
+{
+	SysGet, intNbMonitors, MonitorCount
+	Loop, % intNbMonitors
+	{
+		SysGet, arrThisMonitor, Monitor, %A_Index% ; Left, Top, Right, Bottom
+
+		if  (intX >= arrThisMonitorLeft and intX < arrThisMonitorRight
+			and intY >= arrThisMonitorTop and intY < arrThisMonitorBottom)
+			
+			return A_Index
+	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetPositionFromMouseOrKeyboard(strMenuTriggerLabel, strThisHotkey, ByRef intPositionX, ByRef intPositionY)
+; get current mouse position (if favorite was open with mouse) or active window position (if favorite was open with keyboard)
+;------------------------------------------------------------
+{
+	if !StrLen(strMenuTriggerLabel) ; when strMenuTriggerLabel is empty, if strThisHotkey contains "Button" or "Wheel", check mouse position
+		strPositionReference := (InStr(strThisHotkey, "Button") or InStr(strThisHotkey, "Wheel") ? "Mouse" : "Window")
+	else if InStr(strMenuTriggerLabel, "Keyboard")
+		strPositionReference := "Window" ; check active window position
+	else
+		strPositionReference := "Mouse" ; all other menu triggers, check mouse position
+	
+	if (strPositionReference = "Mouse")
+	{
+		CoordMode, Mouse, Screen
+		MouseGetPos, intPositionX, intPositionY
+	}
+	else
+		WinGetPos, intPositionX, intPositionY, , , A ; window top-left position
+	
+	; ###_V(A_ThisFunc, strMenuTriggerLabel, strThisHotkey, "ByRef", intPositionX, intPositionY)
 }
 ;------------------------------------------------------------
 
