@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.1.9.1 (2018-11-28)
+Version: 9.3.1.9.1 (2018-11-29)
  
 Opening Explorer windows on multi-monitor systems
 - new option in "File Managers" tab to open new Explorer windows on the active monitor when system has more than one monitor
@@ -18440,20 +18440,34 @@ if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
 }
 
-; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10)
+; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
+; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
+; The negative side of this technique is that it uses some memory each time a new Explorer window is created.
 Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
+
+/*
+Before v9.3.1.9.1:
+if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
+	; Note 1: this technique creates a new Explorer instance at every call; it is used only if the Alternative menu was
+	;         called to open the folder in a new window or if there is an argument in favorite advanced options
+	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
+	Run, % "Explorer """ . g_strFullLocation . """"
+else
+	; Note: this technique is preferred because it uses the same Explorer instance created by QAP if call multiple times
+	Run, %g_strFullLocation%
+*/
 
 if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	Loop
 	{
-		if (A_Index > 25)
-			Break
+		if (A_Index > 20)
+			; stop showing tray message from v9.3.1.9.1
 			; TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText), % L(lDialogErrorMoving, g_strFullLocation), , 2 ; warning icon with sound
 			; Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-			; stop showing tray message from v9.3.1.9.1
+			Break
 			
-		Sleep, %g_arrFavoriteWindowPosition7%
+		Sleep, % (g_arrFavoriteWindowPosition1 ? g_arrFavoriteWindowPosition7 : 400) ; 400 ms if opening window on the active monitor
 		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
 		Loop, Parse, g_strExplorerIDs, |
 			if !InStr(strExplorerIDsBefore, A_LoopField . "|")
@@ -18471,7 +18485,6 @@ if !StrLen(g_strNewWindowId)
 	WinShow, A
 	WinActivate, A ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
 }
-; ###_V(A_ThisLabel, g_strFullLocation, g_strNewWindowId)
 
 strExplorerIDsBefore := ""
 
@@ -18483,7 +18496,8 @@ return
 SetExplorersIDs:
 ;------------------------------------------------------------
 g_strExplorerIDs := ""
-for objExplorer in ComObjCreate("Shell.Application").Windows
+objExplorerWindows := ComObjCreate("Shell.Application").Windows
+for objExplorer in objExplorerWindows
 {
 	strType := ""
 	try strType := objExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
@@ -18492,6 +18506,7 @@ for objExplorer in ComObjCreate("Shell.Application").Windows
 	if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
 		g_strExplorerIDs .= objExplorer.HWND . "|"
 }
+ObjRelease(objExplorerWindows) ; free memory used by the object
 
 objExplorer := ""
 strType := ""
