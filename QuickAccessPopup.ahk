@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.1.9.1 (2018-11-29)
+Version: 9.3.1.9.1 (2018-11-30)
  
 Opening Explorer windows on multi-monitor systems
 - new option in "File Managers" tab to open new Explorer windows on the active monitor when system has more than one monitor
@@ -43,9 +43,10 @@ QAP windows position
 - always position secondary QAP windows (Options, Select favorite type, Add/Edit/Copy/Move Favorite, Add Shared menu from catalogue, Manage Hotkeys, Manage Icons, About, Donate and Help) relative to the center of the main Settings window
 - remember width of Add/Edit/Copy/Move Favorite window in ini file
 - remove tray menu command to restore dialog box position
- 
-Other improvements and bug fixes
+
+Version: 9.3.1.1 (2018-11-29)
 - add command line parameter "/Working:[path]" used to set QAP working directory (useful when creating a "Run" registry key to autostart QAP without using Startup shortcut file)
+- fix bug when items in dynamic menus (like "Recent Folders", "Last Actions", etc.) contained an ampersand
 - fix bug when displaying default QAP feature or Special folder icon in Edit favorite dialog box
 
 Version: 9.3.1 (2018-11-22)
@@ -2893,7 +2894,11 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
+<<<<<<< HEAD
 ;@Ahk2Exe-SetVersion 9.3.1.9.1
+=======
+;@Ahk2Exe-SetVersion 9.3.1.1 
+>>>>>>> master
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2992,8 +2997,13 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
+<<<<<<< HEAD
 g_strCurrentVersion := "9.3.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+=======
+g_strCurrentVersion := "9.3.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+>>>>>>> master
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -7818,6 +7828,8 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 
 	if !StrLen(strMenuItemName)
 		return
+	
+	strMenuItemName := DoubleAmpersand(strMenuItemName) ; double ampersand in menu item name
 	
 	; The names of menus and menu items can be up to 260 characters long.
 	if StrLen(strMenuItemName) > 260
@@ -17290,7 +17302,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
-	g_objThisFavorite.FavoriteLocation := strThisMenuItem
+	g_objThisFavorite.FavoriteLocation := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
@@ -17318,6 +17330,7 @@ else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
+	strThisMenuItem := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
 	g_objThisFavorite.FavoriteLocation := (g_strOpenFavoriteLabel = "OpenDrives" ? SubStr(strThisMenuItem, 1, 1) . ":\" : strThisMenuItem)
 	g_objThisFavorite.FavoriteType :=  (g_strOpenFavoriteLabel = "OpenDrives" ? "Folder" : strFavoriteType)
 }
@@ -17556,7 +17569,7 @@ else
 {
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+	strLastActionLabel := DoubleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
 }
 objNewLastAction.OpenTimeStamp := A_Now
 
@@ -23643,6 +23656,7 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 
 
 ;------------------------------------------------------------
+<<<<<<< HEAD
 GetWindowPositionOnActiveMonitor(strWindowId, intActivePositionX, intActivePositionY, ByRef intWindowX, ByRef intWindowY)
 ; returns true if more than one monitor and success retrieving new X-Y position on active monitor else returns false
 ; returns ByRef new or unmodified X and Y
@@ -23709,6 +23723,18 @@ GetPositionFromMouseOrKeyboard(strMenuTriggerLabel, strThisHotkey, ByRef intPosi
 		WinGetPos, intPositionX, intPositionY, , , A ; window top-left position
 	
 	; ###_V(A_ThisFunc, strMenuTriggerLabel, strThisHotkey, "ByRef", intPositionX, intPositionY)
+=======
+DoubleAmpersand(str)
+; for ampersand in menu item names
+;------------------------------------------------------------
+{
+	strReplacementForDoubleAmpersand := "!r4nd0mt3xt!"
+	
+	str := StrReplace(str, "&&", strReplacementForDoubleAmpersand) ; preserve existing double ampersand
+	str := StrReplace(str, "&", "&&") ; double simgle ampersand
+	
+	return StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
+>>>>>>> master
 }
 ;------------------------------------------------------------
 
