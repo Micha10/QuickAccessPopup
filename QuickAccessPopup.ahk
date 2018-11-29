@@ -7799,6 +7799,8 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 	if !StrLen(strMenuItemName)
 		return
 	
+	strMenuItemName := DoubleAmpersand(strMenuItemName) ; double ampersand in menu item name
+	
 	; The names of menus and menu items can be up to 260 characters long.
 	if StrLen(strMenuItemName) > 260
 		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-)
@@ -17216,7 +17218,7 @@ else if (g_strOpenFavoriteLabel = "OpenReopenFolder")
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
-	g_objThisFavorite.FavoriteLocation := strThisMenuItem
+	g_objThisFavorite.FavoriteLocation := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
 	g_objThisFavorite.FavoriteType := strFavoriteType
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
@@ -17244,6 +17246,7 @@ else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_objThisFavorite.FavoriteName := strThisMenuItem
+	strThisMenuItem := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
 	g_objThisFavorite.FavoriteLocation := (g_strOpenFavoriteLabel = "OpenDrives" ? SubStr(strThisMenuItem, 1, 1) . ":\" : strThisMenuItem)
 	g_objThisFavorite.FavoriteType :=  (g_strOpenFavoriteLabel = "OpenDrives" ? "Folder" : strFavoriteType)
 }
@@ -17482,7 +17485,7 @@ else
 {
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-	strLastActionLabel := A_ThisMenu . " > " . g_objThisFavorite.FavoriteName
+	strLastActionLabel := DoubleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
 }
 objNewLastAction.OpenTimeStamp := A_Now
 
@@ -23491,6 +23494,21 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 	}
 	else
 		IniDelete, %g_strIniFile%, Global, %strThisWindow%
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+DoubleAmpersand(str)
+; for ampersand in menu item names
+;------------------------------------------------------------
+{
+	strReplacementForDoubleAmpersand := "!r4nd0mt3xt!"
+	
+	str := StrReplace(str, "&&", strReplacementForDoubleAmpersand) ; preserve existing double ampersand
+	str := StrReplace(str, "&", "&&") ; double simgle ampersand
+	
+	return StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
 }
 ;------------------------------------------------------------
 
