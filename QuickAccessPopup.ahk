@@ -3546,8 +3546,8 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 
 ; Now, step-by-step...
 
-; If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"), this value have
-; precedence. It allows to set a registry value to autostart QAP, for example:
+; If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"),
+; this value have precedence. It allows to set a registry value to autostart QAP, for example:
 ; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
 ; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
