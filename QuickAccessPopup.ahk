@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3.1.9.2 (2018-11-30)
+- center Options third level dialog boxes on top of the Options window
+- fix bug positioning the Settings window or new Explorer window when the secondary monitor is at the left of, or above the primary monitor
+
 Version: 9.3.1.9.1 (2018-11-30)
  
 Opening Explorer windows on multi-monitor systems
@@ -2897,7 +2901,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1.9.1
+;@Ahk2Exe-SetVersion 9.3.1.9.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2996,7 +3000,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.1.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.1.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -8646,7 +8650,7 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
 g_intGui2WinID := WinExist("A")
 
-Gui, 3:New, , % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+Gui, 3:New, +Hwndg_strGui3Hwnd, % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8663,7 +8667,8 @@ Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDia
 GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
-Gui, 3:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, intX, intY)
+Gui, 3:Show, AutoSize x%intX% y%intY%
 Gui, 2:+Disabled
 
 return
@@ -8844,7 +8849,7 @@ g_intGui2WinID := WinExist("A")
 StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
 strMoreWindowTitle := lDialogMore . " - " . g_strAppNameText . " " . g_strAppVersion
 
-Gui, 3:New, , %strMoreWindowTitle%
+Gui, 3:New, +Hwndg_strGui3Hwnd, %strMoreWindowTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8907,10 +8912,14 @@ GuiCenterButtons(strMoreWindowTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
 Gui, 3:Add, Text
-Gui, 3:Show, AutoSize Center
+
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, intX, intY)
+Gui, 3:Show, AutoSize x%intX% y%intY%
 Gui, 2:+Disabled
 
 strMoreWindowTitle := ""
+intX := ""
+intY := ""
 
 return
 ;------------------------------------------------------------
@@ -12501,15 +12510,8 @@ else
 {
 	GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intActiveX, intActiveY)
 	if (g_blnOpenSettingsOnActiveMonitor and GetWindowPositionOnActiveMonitor("ahk_id " . g_strAppHwnd, intActiveX, intActiveY, intPositionX, intPositionY))
-	{
-		; make sure window is not out of screen
-		if (intPositionX < 0)
-			intPositionX := 0
-		if (intPositionY < 0)
-			intPositionY = 0
 		; display at center of active monitor
 		Gui, 1:Show, % "x" . intPositionX . " y" . intPositionY
-	}
 	else ; keep existing position
 		Gui, 1:Show
 }
@@ -15610,7 +15612,7 @@ ShowGui2AndDisableGui1KeepPosition:
 
 if (A_ThisLabel = "ShowGui2AndDisableGui1")
 {
-	CalculateGui2Position(intX, intY)
+	CalculateTopGuiPosition(g_strGui2Hwnd, g_strAppHwnd, intX, intY)
 	Gui, 2:Show, AutoSize x%intX% y%intY%
 }
 else ; KeepPosition
@@ -18737,12 +18739,6 @@ else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTarget
 	g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
 	intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
 	intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
-	
-	; make sure window is not out of screen
-	if (intNewWindowX < 0)
-		intNewWindowX := 0
-	if (intNewWindowY < 0)
-		intNewWindowY = 0
 	
 	WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
 	Sleep, 100
@@ -23544,21 +23540,16 @@ GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
 
 
 ;------------------------------------------------------------
-CalculateGui2Position(ByRef intGui2X, ByRef intGui2Y)
+CalculateTopGuiPosition(g_strTopHwnd, g_strRefHwnd, ByRef intTopGuiX, ByRef intTopGuiY)
 ;------------------------------------------------------------
 {
-	global g_strAppHwnd
-	global g_strGui2Hwnd
-	
-	WinGet, intGui1MinMax, MinMax, ahk_id %g_strAppHwnd%
-	WinGetPos, intGui1X, intGui1Y, intGui1W, intGui1H, ahk_id %g_strAppHwnd%
+	WinGetPos, intRefGuiX, intRefGuiY, intRefGuiW, intRefGuiH, ahk_id %g_strRefHwnd%
+	intRefGuiCenterX := intRefGuiX + (intRefGuiW / 2)
+	intRefGuiCenterY := intRefGuiY + (intRefGuiH / 2)
 
-	intGui1CenterX := intGui1X + (intGui1W / 2)
-	intGui1CenterY := intGui1Y + (intGui1H / 2)
-
-	WinGetPos, , , intGui2W, intGui2H, ahk_id %g_strGui2Hwnd%
-	intGui2X := intGui1CenterX - (intGui2W / 2)
-	intGui2Y := intGui1CenterY - (intGui2H / 2)
+	WinGetPos, , , intTopGuiW, intTopGuiH, ahk_id %g_strTopHwnd%
+	intTopGuiX := intRefGuiCenterX - (intTopGuiW / 2)
+	intTopGuiY := intRefGuiCenterY - (intTopGuiH / 2)
 }
 ;------------------------------------------------------------
 
@@ -23656,6 +23647,7 @@ GetWindowPositionOnActiveMonitor(strWindowId, intActivePositionX, intActivePosit
 	
 	intActiveMonitorForWindow := GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors)
 	intActiveMonitorForPosition := GetActiveMonitorForPosition(intActivePositionX, intActivePositionY, intNbMonitors)
+	; ###_V(A_ThisFunc, "*intActiveMonitorForWindow", intActiveMonitorForWindow, "*intActiveMonitorForPosition", intActiveMonitorForPosition)
 	
 	if (intNbMonitors > 1) and (intActiveMonitorForWindow <> intActiveMonitorForPosition)
 	{
@@ -23682,6 +23674,9 @@ GetActiveMonitorForPosition(intX, intY, ByRef intNbMonitors)
 	Loop, % intNbMonitors
 	{
 		SysGet, arrThisMonitor, Monitor, %A_Index% ; Left, Top, Right, Bottom
+		; ###_V(A_ThisFunc . " monitor " . A_Index, arrThisMonitorLeft, intX, arrThisMonitorRight, "", arrThisMonitorTop, intY, arrThisMonitorBottom, ""
+			; , (intX >= arrThisMonitorLeft and intX < arrThisMonitorRight
+				; and intY >= arrThisMonitorTop and intY < arrThisMonitorBottom))
 
 		if  (intX >= arrThisMonitorLeft and intX < arrThisMonitorRight
 			and intY >= arrThisMonitorTop and intY < arrThisMonitorBottom)
