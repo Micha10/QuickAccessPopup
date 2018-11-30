@@ -18447,22 +18447,21 @@ if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
 }
 
-; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
-; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
-; The negative side of this technique is that it uses some memory each time a new Explorer window is created.
-Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
-
-/*
-Before v9.3.1.9.1:
-if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
-	; Note 1: this technique creates a new Explorer instance at every call; it is used only if the Alternative menu was
-	;         called to open the folder in a new window or if there is an argument in favorite advanced options
-	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
-	Run, % "Explorer """ . g_strFullLocation . """"
+if (StrLen(g_objThisFavorite.FavoriteArguments)
+	or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
+	or g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
+	; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
+	; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
+	Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
 else
-	; Note: this technique is preferred because it uses the same Explorer instance created by QAP if call multiple times
+{
+	; When moving the window is not required and there is no parameter, this technique is preferred because, if call multiple times, it uses the
+	; same Explorer instance created by QAP.
 	Run, %g_strFullLocation%
-*/
+	g_strNewWindowId := ""
+	return
+}
+; */
 
 if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
@@ -18486,7 +18485,8 @@ if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 			Break ; we have a new window
 	}
 }
-if !StrLen(g_strNewWindowId)
+if !StrLen(g_strNewWindowId) and (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
+; we will not be able to move the window, just show it now
 {
 	Sleep, 100
 	WinShow, A
@@ -18721,13 +18721,13 @@ if (g_arrFavoriteWindowPosition1) ; the window position in window options has pr
 	else ; Normal
 	{
 		; see WinRestore doc PostMessage, 0x112, 0xF120,,, %g_strNewWindowId% ; 0x112 = WM_SYSCOMMAND, 0xF120 = SC_RESTORE
-		WinRestore, %g_strNewWindowId%
-		Sleep, %g_arrFavoriteWindowPosition7%
 		WinMove, %g_strNewWindowId%,
 			, %g_arrFavoriteWindowPosition3% ; left
 			, %g_arrFavoriteWindowPosition4% ; top
 			, %g_arrFavoriteWindowPosition5% ; width
 			, %g_arrFavoriteWindowPosition6% ; height
+		WinRestore, %g_strNewWindowId%
+		Sleep, %g_arrFavoriteWindowPosition7%
 	}
 }
 else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTargetAppName = "Explorer" and g_strHotkeyTypeDetected = "Launch")
@@ -18744,12 +18744,9 @@ else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTarget
 	if (intNewWindowY < 0)
 		intNewWindowY = 0
 	
-	Sleep, 200
 	WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
+	Sleep, 100
 }
-; else
-	; TargetName is not Explorer, or no window position, or only one monitor, etc.
-	; do nothing
 
 WinShow, %g_strNewWindowId%
 WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
@@ -23650,7 +23647,6 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 
 
 ;------------------------------------------------------------
-<<<<<<< HEAD
 GetWindowPositionOnActiveMonitor(strWindowId, intActivePositionX, intActivePositionY, ByRef intWindowX, ByRef intWindowY)
 ; returns true if more than one monitor and success retrieving new X-Y position on active monitor else returns false
 ; returns ByRef new or unmodified X and Y
@@ -23717,7 +23713,11 @@ GetPositionFromMouseOrKeyboard(strMenuTriggerLabel, strThisHotkey, ByRef intPosi
 		WinGetPos, intPositionX, intPositionY, , , A ; window top-left position
 	
 	; ###_V(A_ThisFunc, strMenuTriggerLabel, strThisHotkey, "ByRef", intPositionX, intPositionY)
-=======
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 DoubleAmpersand(str)
 ; for ampersand in menu item names
 ;------------------------------------------------------------
@@ -23728,7 +23728,6 @@ DoubleAmpersand(str)
 	str := StrReplace(str, "&", "&&") ; double simgle ampersand
 	
 	return StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
->>>>>>> master
 }
 ;------------------------------------------------------------
 
