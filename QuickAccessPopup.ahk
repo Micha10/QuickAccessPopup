@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3.1.2 (2018-11-29)
+- fix bug when items in Live Folders menus contained an ampersand
+
 Version: 9.3.1.1 (2018-11-29)
 - add command line parameter "/Working:[path]" used to set QAP working directory (useful when creating a "Run" registry key to autostart QAP without using Startup shortcut file)
 - fix bug when items in dynamic menus (like "Recent Folders", "Last Actions", etc.) contained an ampersand
@@ -2881,7 +2884,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1.1 
+;@Ahk2Exe-SetVersion 9.3.1.2 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2980,7 +2983,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -7646,7 +7649,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	; self Live Folder item
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . objLiveFolder.FavoriteName . " " . g_strFolderLiveIndicator
+	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . DoubleAmpersand(objLiveFolder.FavoriteName) . " " . g_strFolderLiveIndicator
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
 	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
@@ -7728,7 +7731,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		{
 			objNewMenuItem := Object()
 			objNewMenuItem.FavoriteType := arrItem2
-			objNewMenuItem.FavoriteName := arrItem3
+			objNewMenuItem.FavoriteName := DoubleAmpersand(arrItem3)
 			objNewMenuItem.FavoriteLocation := arrItem4
 			objNewMenuItem.FavoriteIconResource := arrItem5
 			if (arrItem2 = "Folder") ; make it a live folder
