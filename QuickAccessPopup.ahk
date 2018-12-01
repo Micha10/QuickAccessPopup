@@ -31,11 +31,17 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.1.9.2 (2018-11-30)
+Version BETA: 9.3.1.9.3 (2018-11-30)
+- merge change in v9.3.1.3 to fix bug in dynamic menus when menu numeric shortcuts are enabled
+
+Version: 9.3.1.3 (2018-12-01)
+- fix bug in dynamic menus when menu numeric shortcuts are enabled
+
+Version BETA: 9.3.1.9.2 (2018-11-30)
 - center Options third level dialog boxes on top of the Options window
 - fix bug positioning the Settings window or new Explorer window when the secondary monitor is at the left of, or above the primary monitor
 
-Version: 9.3.1.9.1 (2018-11-30)
+Version BETA: 9.3.1.9.1 (2018-11-30)
  
 Opening Explorer windows on multi-monitor systems
 - new option in "File Managers" tab to open new Explorer windows on the active monitor when system has more than one monitor
@@ -2901,7 +2907,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1.9.2
+;@Ahk2Exe-SetVersion 9.3.1.9.3
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -3000,7 +3006,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.1.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.1.9.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -23717,12 +23723,20 @@ DoubleAmpersand(str)
 ; for ampersand in menu item names
 ;------------------------------------------------------------
 {
+	global g_blnDisplayNumericShortcuts
+	
+	if (g_blnDisplayNumericShortcuts and SubStr(str, 1, 1) = "&")
+	{
+		str := SubStr(str, 2)
+		blnRestoreNumericShortcut := true
+	}
 	strReplacementForDoubleAmpersand := "!r4nd0mt3xt!"
 	
 	str := StrReplace(str, "&&", strReplacementForDoubleAmpersand) ; preserve existing double ampersand
-	str := StrReplace(str, "&", "&&") ; double simgle ampersand
-	
-	return StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
+	str := StrReplace(str, "&", "&&") ; double single ampersand
+	str := StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
+
+	return (blnRestoreNumericShortcut ? "&" : "") . str
 }
 ;------------------------------------------------------------
 
