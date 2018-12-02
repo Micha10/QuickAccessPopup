@@ -8656,7 +8656,8 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
 g_intGui2WinID := WinExist("A")
 
-Gui, 3:New, +Hwndg_strGui3Hwnd, % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+strGuiTitle := ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+Gui, 3:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8670,7 +8671,7 @@ Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogCheckbox%
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOKAmpersand%
 Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancelAmpersand%
 	
-GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
 CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, intX, intY)
@@ -9646,10 +9647,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
-
-Gui, +LastFound
-g_strAppHwnd := WinExist()
+Gui, 1:New, +Hwndg_strAppHwnd +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
 
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
@@ -15008,7 +15006,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 	g_intGui2WinID := WinExist("A")
 
-	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:New, +Hwndg_strGui3Hwnd, % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -15016,7 +15014,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if (g_blnUseColors)
 		Gui, Color, %g_strGuiWindowColor%
 	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeShortcutTitle, g_strAppNameText)
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
 	Gui, Font
 
 	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
@@ -15088,7 +15086,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeShortcutOK
-	Gui, Show, AutoSize Center
+	CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, SS_intX, SS_intY)
+	Gui, Show, AutoSize x%SS_intX% y%SS_intY%
 
 	Gui, 2:+Disabled
 	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
@@ -15123,6 +15122,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strMouseValue := ""
 	SS_strThisLabel := ""
 	SS_strThisSymbol := ""
+	SS_intX := ""
+	SS_intY := ""
 
 	return SS_strNewShortcut ; returning value
 	
@@ -15335,7 +15336,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	g_intGui2WinID := WinExist("A")
 
-	Gui, 3:New, , %SH_strGuiTitle%
+	Gui, 3:New, +Hwndg_strGui3Hwnd, %SH_strGuiTitle%
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -15390,7 +15391,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeHotkeyOK
-	Gui, Show, AutoSize Center
+	CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, SH_intX, SH_intY)
+	Gui, Show, AutoSize x%SH_intX% y%SH_intY%
 
 	Gui, 2:+Disabled
 	WinWaitClose,  %SH_strGuiTitle% ; waiting for Gui to close
@@ -15418,6 +15420,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	SH_blnHotstringWaitEndingKey := ""
 	SH_blnHotstringKeepTrigger := ""
 	SH_strTempOptions := ""
+	SH_intX := ""
+	SH_intY := ""
 	
 	return SH_strNewHotstring ; returning value
 	
@@ -17638,7 +17642,7 @@ return
 CloseComputerControl:
 ;------------------------------------------------------------
 
-Gui, CloseComputer:New, , % lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseComputer:New, +Hwndg_strGui3Hwnd, % lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
 Gui, CloseComputer:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseComputer:Color, %g_strGuiWindowColor%
@@ -17671,10 +17675,13 @@ Gui, CloseComputer:Add, Text, y+10
 
 GuiCenterButtons(lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseComputerCancel")
 
-Gui, CloseComputer:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, CloseComputer:Show, AutoSize x%intX% y%intY%
 
 ResetArray("arrGroup1Pos")
 ResetArray("arrGroupLastPos")
+intX := ""
+intY := ""
 
 return
 ;------------------------------------------------------------
@@ -17956,7 +17963,7 @@ return
 CloseAllWindows:
 ;------------------------------------------------------------
 
-Gui, CloseAllWindows:New, , % lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseAllWindows:New, +Hwndg_strGui3Hwnd, % lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
 Gui, CloseAllWindows:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseAllWindows:Color, %g_strGuiWindowColor%
@@ -17989,8 +17996,12 @@ LV_ModifyCol(1, "Auto")
 GuiCenterButtons(lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
 
 GuiControl, CloseAllWindows:Focus, f_lvCloseAllWindows
-Gui, CloseAllWindows:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, CloseAllWindows:Show, AutoSize x%intX% y%intY%
 
+intX := ""
+intY := ""
+ 
 return
 ;------------------------------------------------------------
 
@@ -19087,7 +19098,7 @@ if StrLen(strChangeLog)
 	strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
 }
 
-Gui, Update:New, , % L(lUpdateTitle, g_strAppNameText)
+Gui, Update:New, +Hwndg_strGui3Hwnd, % L(lUpdateTitle, g_strAppNameText)
 ; Do not use g_strMenuBackgroundColor here because it is not set yet
 
 Gui, Update:Font, s10 w700, Verdana
@@ -19118,7 +19129,8 @@ Gui, Update:Add, Text
 GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
 
 GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
-Gui, Update:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, Update:Show, AutoSize x%intX% y%intY%
 
 return
 
@@ -19246,7 +19258,7 @@ if SettingsUnsaved()
 	return
 }
 
-Gui, ImpExp:New, , % L(lImpExpTitle, g_strAppNameText)
+Gui, ImpExp:New, +Hwndg_strGui3Hwnd, % L(lImpExpTitle, g_strAppNameText)
 if (g_blnUseColors)
 	Gui, ImpExp:Color, %g_strGuiWindowColor%
 
@@ -19276,7 +19288,11 @@ Gui, ImpExp:Add, Text
 
 ; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
 gosub, ImpExpClicked
-Gui, ImpExp:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, ImpExp:Show, AutoSize x%intX% y%intY%
+
+intX := ""
+intY := ""
 
 return
 ;------------------------------------------------------------
@@ -23556,6 +23572,14 @@ CalculateTopGuiPosition(g_strTopHwnd, g_strRefHwnd, ByRef intTopGuiX, ByRef intT
 	WinGetPos, , , intTopGuiW, intTopGuiH, ahk_id %g_strTopHwnd%
 	intTopGuiX := intRefGuiCenterX - (intTopGuiW / 2)
 	intTopGuiY := intRefGuiCenterY - (intTopGuiH / 2)
+	
+	WinGetPos, intWindowX, intWindowY, intWindowWidth, intWindowHeight, ahk_id %g_strRefHwnd%
+	WinGetTitle, v, ahk_id %g_strRefHwnd%
+	SysGet, arrCurrentMonitor, Monitor, % GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors)
+
+	; ###_V(A_ThisFunc, v, g_strRefHwnd, intWindowX, intWindowY, GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors))
+	intTopGuiX := (intTopGuiX < arrCurrentMonitorLeft ? arrCurrentMonitorLeft : intTopGuiX)
+	intTopGuiY := (intTopGuiY < arrCurrentMonitorTop ? arrCurrentMonitorTop : intTopGuiY)
 }
 ;------------------------------------------------------------
 
