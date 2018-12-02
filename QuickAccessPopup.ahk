@@ -7685,16 +7685,33 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 					Break
 				; favorite type Document is OK for Application items
 
-				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tDocument" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				if (A_LoopFileExt = "lnk")
+				{
+					SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
+					; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+					FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
+				}
+				else
+				{
+					strFileName := A_LoopFileName
+					strFileLocation := A_LoopFileLongPath
+				}
 				
-				; get links or shortcuts icons
+				strExtension := GetFileExtension(strFileLocation)
+				if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
+					strFavoriteType := "Application"
+				else
+					strFavoriteType := "Document"
+				
+				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`t" . strFavoriteType . "`t" . strFileName . "`t"
+					. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				
+				; get icon for link or shortcut, and add start in directory and args for applications
 				if (A_LoopFileExt = "url")
 					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 				else if (A_LoopFileExt = "lnk")
-				{
-					FileGetShortcut, %A_LoopFileLongPath%, strShortcutLocation
-					strFiles .= GetIcon4Location(strShortcutLocation)
-				}
+					strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
+						. "`t" . strArguments . "`t" . strAppWorkingDir
 				; else icon resource will be set when building menu
 				
 				strFiles .= "`n"
@@ -7715,7 +7732,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		if !StrLen(A_LoopField)
 			break
 		
-		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk)
+		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
 		StringSplit, arrItem, A_LoopField, `t
 		
 		if (objLiveFolder.FavoriteFolderLiveColumns and !Mod(A_Index + 1, objLiveFolder.FavoriteFolderLiveColumns)) ; insert column break
@@ -7737,6 +7754,11 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 			objNewMenuItem.FavoriteName := DoubleAmpersand(arrItem3)
 			objNewMenuItem.FavoriteLocation := arrItem4
 			objNewMenuItem.FavoriteIconResource := arrItem5
+			if (arrItem2 = "Application")
+			{
+				objNewMenuItem.FavoriteArguments := arrItem6
+				objNewMenuItem.FavoriteAppWorkingDir := arrItem7
+			}
 			if (arrItem2 = "Folder") ; make it a live folder
 			{
 				objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
@@ -10838,11 +10860,12 @@ else ; add favorite
 		}
 		
 		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
+			; as of v9.3.1, the "AddShortcut" context menu (calling this code) has not been fully deployed in setup and portable install scripts
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 			g_objEditedFavorite.FavoriteAppWorkingDir := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutWorkingDir : "")
 			g_objEditedFavorite.FavoriteArguments := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutArgs : "")
-			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? strShortcutIconFile . "," . strShortcutIconIndex : "")
+			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : "")
 			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 			if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 			{
