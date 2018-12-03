@@ -31,8 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.3.1.9.3 (2018-11-30)
-- merge change in v9.3.1.3 to fix bug in dynamic menus when menu numeric shortcuts are enabled
+Version BETA: 9.3.1.9.3 (2018-12-03)
+- center the following dialog boxes on top of the parent dialog box: Select shortcut, Select hotstring, Close computer, Close all windows, Update and Import-export
+- avoid top-left of dialog boxes to be displayed outside of active monitor
+- fix bug retrieving icon from file shortcut in Live Folders
+- retrieve "Start In" and "Arguments" (parameters) properties from file shortcuts when building Live Folders
+- fix bug buttons not centered in some dialog boxes
+- fix bug set icon for Repeat actions menu when dynamic menu items are open
+- fix bug display Directory Opus icon for DOpus Favorites or Total Commander icon for TC Hotlists when Explorer is selected as file manager
+- fix bug in dynamic menus when menu numeric shortcuts are enabled (merge from master release v9.3.1.3)
 
 Version: 9.3.1.3 (2018-12-01)
 - fix bug in dynamic menus when menu numeric shortcuts are enabled
