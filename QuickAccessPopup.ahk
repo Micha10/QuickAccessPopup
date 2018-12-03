@@ -3012,6 +3012,7 @@ g_objJLiconsByName := Object()
 g_objJLiconsNames := Object()
 
 g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
+g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
 g_strGuiMenuSeparator := "----------------" ;  single-line displayed as line separators, allowed in item names
 g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separators, allowed in item names
 g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
@@ -5155,7 +5156,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	global g_objQAPfeaturesInMenus
 	global g_strIniFile
 	global g_intIniLine
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	global g_strEscapePipe
@@ -5222,7 +5223,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if InStr("Menu|Group|External", arrThisFavorite1, true) ; begin a submenu / case sensitive because type X is included in External ...
 		{
 			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			objNewMenu.MenuType := arrThisFavorite1
 			if (objNewMenu.MenuType = "External")
 			{
@@ -6908,7 +6909,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 	global g_objSpecialFolders
 	global g_strWinCmdIniFileExpanded
 	global g_intIniLine
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
@@ -6932,7 +6933,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 		{
 			strWinCmdItemName := SubStr(strWinCmdItemName, 2)
 			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . strWinCmdItemName
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . strWinCmdItemName
 			objNewMenu.MenuType := "Menu"
 			
 			; create a navigation entry to navigate to the parent menu
@@ -7038,7 +7039,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 
 		objDOpusLayoutsMenu := Object() ; object of menu structure entry point
 		objDOpusLayoutsMenu.FavoriteName := lDOpusLayoutsName ; localized name of the DOpus menu
-		objDOpusLayoutsMenu.MenuPath := lDOpusMenuName . " " . g_strMenuPathSeparator . " " . lDOpusLayoutsName ; localized name of the DOpus menu
+		objDOpusLayoutsMenu.MenuPath := lDOpusMenuName . g_strMenuPathSeparatorWithSpaces . lDOpusLayoutsName ; localized name of the DOpus menu
 		objDOpusLayoutsMenu.MenuType := "Menu"
 		
 		FileRead, strDirectoryOpusLayoutsXml, %g_strDOpusLayoutsFile%
@@ -7074,7 +7075,7 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 	global objDopusXML
 	global g_objMenusIndex
 	global g_objSpecialFolders
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 
@@ -7091,7 +7092,7 @@ RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
 		if (blnItemIsMenu)
 		{
 			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . objItemAttributes.label
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.label
 			objNewMenu.MenuType := "Menu"
 			
 			; create a navigation entry to navigate to the parent menu
@@ -7175,7 +7176,7 @@ RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml, strLayoutMe
 ;-----------------------------------------------------------
 {
 	global objDopusXML
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	global g_objMenusIndex
 
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
@@ -7195,7 +7196,7 @@ RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml, strLayoutMe
 			if (blnItemIsMenu)
 			{
 				objNewMenu := Object() ; create the submenu object
-				objNewMenu.MenuPath := objCurrentMenu.MenuPath . " " . g_strMenuPathSeparator . " " . objItemAttributes.name
+				objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.name
 				objNewMenu.MenuType := "Menu"
 				
 				; create a navigation entry to navigate to the parent menu
@@ -7404,7 +7405,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intHotkeyReminders
 	global g_objFavoritesObjectsByShortcut
 	global g_objFavoritesObjectsByHotstring
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	global g_objMenusIndex
 	global g_strAppNameText
 	global g_blnWorkingToolTip
@@ -7537,7 +7538,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavoriteGroup
 			else
 			{
-				srLayoutMenuName := lDOpusMenuName . " " . g_strMenuPathSeparator . " " . lDOpusLayoutsName
+				srLayoutMenuName := lDOpusMenuName . g_strMenuPathSeparatorWithSpaces . lDOpusLayoutsName
 				if (SubStr(objCurrentMenu.MenuPath, 1, StrLen(srLayoutMenuName)) = srLayoutMenuName)
 					strCommandName := "OpenDOpusLayout"
 				else if (SubStr(objCurrentMenu.MenuPath, 1, StrLen(lDOpusMenuName)) = lDOpusMenuName)
@@ -7629,7 +7630,7 @@ LiveFolderHasContent(objLiveFolder)
 BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	global g_strFolderLiveIndicator
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
@@ -7640,7 +7641,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenu.IsLiveMenu := true
 	objNewMenu.LiveMenuParentPath := strMenuParentPath
 	objNewMenu.LiveMenuParentPosition := intMenuParentPosition
-	objNewMenu.MenuPath := strMenuParentPath . " " . g_strMenuPathSeparator . " "  . objLiveFolder.FavoriteName
+	objNewMenu.MenuPath := strMenuParentPath . g_strMenuPathSeparatorWithSpaces  . objLiveFolder.FavoriteName
 	objNewMenu.MenuType := "Menu"
 	
 	; fake back menu
@@ -13234,7 +13235,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 ; check that a menu cannot be moved under itself when part of a multiple move (not copy because menu cannot be copied)
 if (strThisLabel = "GuiMoveOneFavoriteSave")
 	and InStr("|Menu|External", "|" . g_objEditedFavorite.FavoriteType)
-	if (InStr(strDestinationMenu, strOriginalMenu . " " . g_strMenuPathSeparator " " . g_objEditedFavorite.FavoriteName) = 1) ; = 1 to check if equal from start only
+	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . g_objEditedFavorite.FavoriteName) = 1) ; = 1 to check if equal from start only
 		and !InStr("K|X", g_objEditedFavorite.FavoriteType) ; no risk with separators
 	{
 		Oops(lDialogMenuNotMoveUnderItself, g_objEditedFavorite.FavoriteName)
@@ -13248,7 +13249,7 @@ if (strThisLabel = "GuiMoveOneFavoriteSave")
 if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
 	objNewMenu := Object() ; object for the new menu or group
-	objNewMenu.MenuPath := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
+	objNewMenu.MenuPath := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . strNewFavoriteShortName
 		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
@@ -13323,7 +13324,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
 	{
-		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . strNewFavoriteShortName
+		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . strNewFavoriteShortName
 			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
 		
@@ -13421,7 +13422,7 @@ else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because 
 		; strPreviousName := (g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName) ; save it to be able to remove hotkey if there is one for this location
 		; strPreviousLocation := g_objEditedFavorite.FavoriteLocation ; save it to be able to remove hotkey if there is one for this location
 		
-		strMenuLocation := strDestinationMenu . " " . g_strMenuPathSeparator . " " . g_objEditedFavorite.FavoriteName
+		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . g_objEditedFavorite.FavoriteName
 			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
 
@@ -13644,7 +13645,7 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ; update submenus and their childrens and groups to the new path of the parent menu
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	
@@ -13664,7 +13665,7 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 		
 		if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
 			RecursiveUpdateMenuPathAndLocation(objEditedFavorite.SubMenu[A_Index]
-				, objEditedFavorite.SubMenu.MenuPath . " " . g_strMenuPathSeparator . " " . objEditedFavorite.SubMenu[A_Index].FavoriteName
+				, objEditedFavorite.SubMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objEditedFavorite.SubMenu[A_Index].FavoriteName
 				. (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
 	}
 }
@@ -17442,11 +17443,11 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
 	global g_objMenusIndex
-	global g_strMenuPathSeparator
+	global g_strMenuPathSeparatorWithSpaces
 
 	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
 
-	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName or A_ThisMenu = lDOpusMenuName or A_ThisMenu = lDOpusMenuName . " " . g_strMenuPathSeparator . " " . lDOpusLayoutsName ? 0 : 1)
+	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName or A_ThisMenu = lDOpusMenuName or A_ThisMenu = lDOpusMenuName . g_strMenuPathSeparatorWithSpaces . lDOpusLayoutsName ? 0 : 1)
 		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
