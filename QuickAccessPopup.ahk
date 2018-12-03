@@ -4983,9 +4983,11 @@ Gosub, LoadIniQAPconnectValues
 
 IniRead, g_strDirectoryOpusPathBeforeEnvVars, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
 g_strDirectoryOpusPath := EnvVars(g_strDirectoryOpusPathBeforeEnvVars)
+g_objJLiconsByName["DirectoryOpus"] := g_strDirectoryOpusPath . ",1" ; additional icon for DirectoryOpus
 IniRead, g_blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
 IniRead, g_strTotalCommanderPathBeforeEnvVars, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
 g_strTotalCommanderPath := EnvVars(g_strTotalCommanderPathBeforeEnvVars)
+g_objJLiconsByName["TotalCommander"] := g_strTotalCommanderPath . ",1" ; additional icon for TotalCommander
 IniRead, g_blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
 IniRead, g_strWinCmdIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
 
@@ -19981,9 +19983,6 @@ else ; DirectoryOpus or TotalCommander
 		StringReplace, g_strDirectoryOpusRtPath, g_strDirectoryOpusPath, \dopus.exe, \dopusrt.exe
 
 }
-; additional icon for DirectoryOpus and TotalCommander
-g_objJLiconsByName["TotalCommander"] := g_strTotalCommanderPath . ",1"
-g_objJLiconsByName["DirectoryOpus"] := g_strDirectoryOpusPath . ",1"
 
 strActiveFileManagerSystemName := ""
 
