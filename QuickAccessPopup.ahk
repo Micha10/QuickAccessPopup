@@ -17262,6 +17262,10 @@ else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
 	g_objThisFavorite.FavoriteLocation := (g_strOpenFavoriteLabel = "OpenDrives" ? SubStr(strThisMenuItem, 1, 1) . ":\" : strThisMenuItem)
 	g_objThisFavorite.FavoriteType :=  (g_strOpenFavoriteLabel = "OpenDrives" ? "Folder" : strFavoriteType)
 }
+; pseudo favorite object, set an icon ressource for repeat actions menu
+if (g_objThisFavorite.FavoritePseudo)
+	g_objThisFavorite.FavoriteIconResource := (g_objThisFavorite.FavoriteType = "Folder" ? GetFolderIcon(g_objThisFavorite.FavoriteLocation)
+		: GetIcon4Location(g_objThisFavorite.FavoriteLocation))
 
 OpenFavoriteGetFavoriteObjectCleanup:
 strThisMenuItem := ""
