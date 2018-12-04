@@ -7,6 +7,8 @@
 *.DB
 *.def
 *.tsv
+*.DB-BK
+_*.*
 .git - Copy/
 BK/
 Build-v8/
@@ -17,6 +19,4 @@ Language/
 Promo/
 ScreenCaptures/
 Setup Script files/OLD/
-*.DB-BK
 Distribution-files/Old/
-_*.*
