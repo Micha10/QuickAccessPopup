@@ -37,6 +37,7 @@ Version BETA: 9.3.1.9.4 (2018-12-??)
 - handle the situation where user cancels the enable/disable context menu batch when asked for admin prvivilege
 - update with the "Import Shortcut" registry keys the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
 - removed the QuickAccessPopup-InstallContextMenus.reg and QuickAccessPopup-RemoveContextMenus.bat (replaced by ManageContextMenu.bat) from portable installation zip file
+- remove ampersand (menu shortcut) from menu name when an item is added to the Repeat Last Actions menus
 
 Version BETA: 9.3.1.9.3 (2018-12-03)
 - center the following dialog boxes on top of the parent dialog box: Select shortcut, Select hotstring, Close computer, Close all windows, Update and Import-export
@@ -3054,6 +3055,7 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+g_strEscapeReplacement := "!r4nd0mt3xt!"
 g_strFolderLiveIndicator := "!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
@@ -3817,7 +3819,7 @@ else
 	strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . g_strLanguageCode . ".txt"
 }
 	
-strReplacementForSemicolon := "!r4nd0mt3xt!" ; for non-comment semi-colons ";" escaped as ";;"
+strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
 
 if FileExist(strLanguageFile)
 {
@@ -17657,7 +17659,7 @@ else
 {
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-	strLastActionLabel := DoubleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
+	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
 }
 objNewLastAction.OpenTimeStamp := A_Now
 
@@ -23843,19 +23845,34 @@ DoubleAmpersand(str)
 ;------------------------------------------------------------
 {
 	global g_blnDisplayNumericShortcuts
+	global g_strEscapeReplacement
 	
 	if (g_blnDisplayNumericShortcuts and SubStr(str, 1, 1) = "&")
 	{
 		str := SubStr(str, 2)
 		blnRestoreNumericShortcut := true
 	}
-	strReplacementForDoubleAmpersand := "!r4nd0mt3xt!"
 	
-	str := StrReplace(str, "&&", strReplacementForDoubleAmpersand) ; preserve existing double ampersand
+	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
 	str := StrReplace(str, "&", "&&") ; double single ampersand
-	str := StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
+	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
 
 	return (blnRestoreNumericShortcut ? "&" : "") . str
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RemoveSingleAmpersand(str)
+;------------------------------------------------------------
+{
+	global g_strEscapeReplacement
+	
+	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
+	str := StrReplace(str, "&", "") ; remove single ampersand
+	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
+
+	return str
 }
 ;------------------------------------------------------------
 
