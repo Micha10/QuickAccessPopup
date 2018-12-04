@@ -44,6 +44,7 @@ Various improvements
 - check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
 - for folders, documents and applications, trim unneeded double quotes if location is enclosed with double quotes
 - expand user variables when expanding environement variables in EnvVars
+- when displaying the AppsKey hotkey text, replace "AppsKey" with "Menu key" (localized string) in addition to the keyboard scan code for Menu key "sc15D"
  
 Bug fixes
 - remove ampersand (menu shortcut) from menu name when an item is added to the Repeat Last Actions menus
