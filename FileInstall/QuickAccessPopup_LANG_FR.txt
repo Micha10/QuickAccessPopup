@@ -14,7 +14,8 @@ lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
 lContextAddFileXpress	Ajouter ce fichier au menu Quick Access Popup (Express)
 lContextAddFolder	Ajouter ce dossier au menu Quick Access Popup
 lContextAddFolderXpress	Ajouter ce dossier au menu Quick Access Popup (Express)
-lContextAddShortcut	Importer le Raccourci Windows dans le menu Quick Access Popup
+lContextAddShortcut	Importer le Raccourci dans le menu Quick Access Popup
+lContextCancelled	L'activation ou la désactivation des menus contextuels de Windows Explorer a été annulée par l'utilisateur.
 lContextShowMenu	Afficher le menu de Quick Access Popup
 lContextShowMenuAternative	Afficher le menu Alternatif de Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Garder cette fenêtre toujours visible
@@ -379,6 +380,10 @@ lDonateText4	Rédigez un avis favorable à ~1~ sur :
 lDonateText5	Envoyez-moi votre lien
 lDonateThankyou	Merci pour cette marque d'appréciation!
 lDonateTitle	Soutenez ce gratuiciel! - ~1~ ~2~
+lDOpusLayoutsName	Dispositions
+lDOpusMenuName	Favoris Directory Opus
+lDopusMenuNameDescription	Pour les utilisateurs de Directory Opus (DOpus), affiche un menu dynamique comportant les dossiers ajoutés aux Favoris de DOpus. Si DOpus était sélectionné quand QAP a été installé, les Favoris Directory Opus ont été automatiquement ajoutés à votre menu.
+lDopusMenuNameShowLayout	Afficher les Dispositions dans les ~1~
 lGuiAbout	À propos
 lGuiAboutDescription	Afficher les crédits pour le développement, la traduction et autres contributions, les numéros de version de l'application et de l'environnement d'exécution, la licence, les noms de l'utilisateur et de l'ordinateur, un lien vers le site web de l'application.`n`nCette information est aussi disponible à l'aide du bouton "À propos" dans la fenêtre Paramètres.
 lGuiAddFavorite	Ajouter
@@ -397,9 +402,9 @@ lGuiGroupClosing	Fermeture des fenêtres de l'Explorateur
 lGuiGroupRestoreDelay	Délai entre la restauration des favoris:
 lGuiGroupRestoreDelayMilliseconds	millisecondes
 lGuiGroupRestoreSide	Afficher de quel côté de ~1~?
-lGuiGroupSaveAddWindowsLabel	Ajouter aux fenêtres existantes
-lGuiGroupSaveReplaceWindowsLabel	Remplacer les fenêtres existantes
-lGuiGroupSaveRestoreOption	Lors de la restauration du groupe:
+lGuiGroupSaveAddWindowsLabel	Ajouter les dossiers aux fenêtres existantes
+lGuiGroupSaveReplaceWindowsLabel	Remplacer les dossiers dans les fenêtres existantes
+lGuiGroupSaveRestoreOption	Lors de la restauration des dossiers du groupe:
 lGuiGroupSaveRestoreWith	Restaurer les dossier avec:
 lGuiHelp	Aide
 lGuiHelpDescription	Afficher la fenêtre d'aide.
@@ -549,6 +554,7 @@ lMenuMyVideo	Mes vidéos
 lMenuMyWindowsAppsMenu	Mes Applis Windows
 lMenuNoClipboard	Le Presse-papiers ne contient aucun emplacement de fichier ou d'URL
 lMenuNoCurrentFolder	Aucun dossier ouvert actuellement…
+lMenuOpenWorkingDirectory	Ouvrir le dossier de travail de QAP
 lMenuPictures	Images
 lMenuPopularFiles	Fichiers
 lMenuPopularFolders	Dossiers
@@ -625,6 +631,8 @@ lOopsExternalReadOnlyAlert	Les menus partagés de type "Centralisé" ne peuvent êt
 lOopsExternalReadOnlyAlertUsernameAdded	Votre nom d'utilisateur a été ajouté automatiquement dans la liste "Utilisateurs avec les droits d'écriture pour ce menu".
 lOopsExternalSelectType	Veuillez sélectionner le type de menu partagé dans l'onglet "Menu partagé".
 lOopsFavoritesCopied	~1~ favoris copiés.
+lOopsFileExpandedFrom	Étendu à partir de
+lOopsFileNotFound	Cet emplacement n'existe pas
 lOopsFirstEnterUrl	Veuillez d'abord saisir une addresse dans le champ "~1~".
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
 lOopsGroup	groupe
@@ -676,16 +684,19 @@ lOptionsControlDoublePressedLeft	Avec la touche Contrôle de gauche
 lOptionsControlDoublePressedRight	Avec la touche Contrôle de droite
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
+lOptionsDisplayMenuShortcutsFromOne	Commencer les raccourcis numériques à 1 (au lieu de 0)
 lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
 lOptionsExclusionMouseList	Liste d'exclusions
 lOptionsExclusionMouseListDescription	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExclusionMouseListDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
 lOptionsExplorerContextMenus	Activer les menus contextuels
-lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer:
+lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer
 lOptionsFileManagerNavigateCurrent	la fenêtre actuelle de ~1~
+lOptionsFileManagerNavigateCurrentTab	l'onglet actuel de ~1~
 lOptionsFileManagerNavigateIntro	Lorsque vous ouvrez le menu QAP hors de ~1~, ouvrez les dossiers dans:
 lOptionsFileManagerNavigateNew	une nouvelle fenêtre de ~1~
+lOptionsFileManagerNavigateNewTab	un nouvel onglet de ~1~
 lOptionsFtpEncoding	Encoder le code d'utilisateur et le mot de passe FTP (recommandé)
 lOptionsFtpEncodingTC	Encoder le code d'utilisateur et le mot de passe FTP (déconseillé aux utilisateurs de Total Commander)
 lOptionsGuiTitle	Options - ~1~ ~2~
@@ -705,7 +716,9 @@ lOptionsMenuNearMouse	Près du pointeur de la souris
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
+lOptionsOpenFavoritesOnActiveMonitor	Sur un système avec plusieurs moniteurs, toujours ouvrir les fenêtres de l'Explorateur sur le moniteur actif
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu en cliquant sur la barre des tâches
+lOptionsOpenSettingsOnActiveMonitor	Ouvrir la fenêtre des Paramètres sur le moniteur actif
 lOptionsOtherOptions	Général
 lOptionsPopupFixPositionX	Position X:
 lOptionsPopupFixPositionY	Y:
@@ -785,6 +798,7 @@ lUpdateButtonVisit	Visiter le site web
 lUpdateError	Une erreur est survenue lors de la vérification du numéro de la plus récente version. La vérification de la mise à jour est interrompue.
 lUpdatePrompt	Mettre à jour ~1~ de la version v~2~ à la version v~3~?
 lUpdatePromptBeta	Il y a une nouvelle version BETA de ~1~.`n`nMettre à jour ~1~ de la version v~2~ à la version v~3~?
+lUpdatePromptBetaContinue	Désirez-vous toujours être informé des futures versions beta?
 lUpdateTitle	Mettre à jour ~1~?
 lUpdateYouHaveLatest	Vous avez la version la plus récente: ~1~.`n`nVisiter la page web de ~2~ quand même?
 lWindowIsTreeviewText	Désolé... À cause d'une limitation de Windows, ce type de boîte de dialogue (TreeView) n'est pas compatible avec ~1~ pour le moment.
