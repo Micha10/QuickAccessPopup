@@ -32,11 +32,19 @@ HISTORY
 =======
 
 Version BETA: 9.3.1.9.4 (2018-12-??)
+ 
+Windows File Shortcuts
 - add context menu entry "Import Shortcut to Quick Access Popup menu" to import a Windows file shortcut into a new favorite with its icon, name and, for applications, its "Start In" and "Arguments" (parameters) properties
 - add entries to add or delete "Import Shortcut" regitry keys when enabling or disabling context menus in "Options", "Menu" tab (must use HKLM entries because HKCR not supported for "lnkfile" in Inno Setup)
 - handle the situation where user cancels the enable/disable context menu batch when asked for admin prvivilege
 - update with the "Import Shortcut" registry keys the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
 - removed the QuickAccessPopup-InstallContextMenus.reg and QuickAccessPopup-RemoveContextMenus.bat (replaced by ManageContextMenu.bat) from portable installation zip file
+ 
+Various improvements
+- check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
+- expand user variables when expanding environement variables in EnvVars
+ 
+Bug fixes
 - remove ampersand (menu shortcut) from menu name when an item is added to the Repeat Last Actions menus
 
 Version BETA: 9.3.1.9.3 (2018-12-03)
