@@ -42,6 +42,7 @@ Windows File Shortcuts
  
 Various improvements
 - check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
+- for folders, documents and applications, trim unneeded double quotes if location is enclosed with double quotes
 - expand user variables when expanding environement variables in EnvVars
  
 Bug fixes
@@ -12065,7 +12066,11 @@ if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
+{
+	if RegExMatch(f_strFavoriteLocation, """.*""") ; trim unneeded double quotes if location is enclosed with double quotes
+		GuiControl, 2:, f_strFavoriteLocation, % Trim(f_strFavoriteLocation, """")
 	gosub, GuiFavoriteIconDefault
+}
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
 {
