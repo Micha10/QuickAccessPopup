@@ -716,7 +716,7 @@ lOptionsMenuNearMouse	Près du pointeur de la souris
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
-lOptionsOpenFavoritesOnActiveMonitor	Sur un système avec plusieurs moniteurs, toujours ouvrir les fenêtres de l'Explorateur sur le moniteur actif
+lOptionsOpenFavoritesOnActiveMonitor	Sur un système multi-moniteurs, toujours ouvrir les fenêtres de l'Explorateur sur le moniteur actif
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu en cliquant sur la barre des tâches
 lOptionsOpenSettingsOnActiveMonitor	Ouvrir la fenêtre des Paramètres sur le moniteur actif
 lOptionsOtherOptions	Général
