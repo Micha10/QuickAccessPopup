@@ -18,3 +18,5 @@ Promo/
 ScreenCaptures/
 Setup Script files/OLD/
 *.DB-BK
+_*.*
+Distribution-files/Old/
