@@ -43,6 +43,7 @@ Windows File Shortcuts
 Various improvements
 - check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
 - for folders, documents and applications, trim unneeded double quotes if location is enclosed with double quotes
+- remove exclamation marks enclosing live folder names in menu; replace "!Folder!" with "Live Folder" in Settings window Type column
 - expand user variables when expanding environement variables in EnvVars
 - when displaying the AppsKey hotkey text, replace "AppsKey" with "Menu key" (localized string) in addition to the keyboard scan code for Menu key "sc15D"
  
@@ -3066,7 +3067,6 @@ g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupInd
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
 g_strEscapeReplacement := "!r4nd0mt3xt!"
-g_strFolderLiveIndicator := "!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -7684,7 +7684,6 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparatorWithSpaces
-	global g_strFolderLiveIndicator
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	
@@ -7706,7 +7705,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	; self Live Folder item
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . DoubleAmpersand(objLiveFolder.FavoriteName) . " " . g_strFolderLiveIndicator
+	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
 	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
@@ -22718,11 +22717,11 @@ GetFavoriteTypeForList(objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objFavoriteTypesShortNames
-	global g_strFolderLiveIndicator
 	
-	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
 	if (objFavorite.FavoriteFolderLiveLevels)
-		strType := g_strFolderLiveIndicator . strType . g_strFolderLiveIndicator
+		strType := lDialogFavoriteFolderLiveType
+	else
+		strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
 	if (objFavorite.FavoriteDisabled)
 		strType := BetweenParenthesis(strType)
 	
