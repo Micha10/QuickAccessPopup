@@ -14,7 +14,7 @@ lContextAddFile	Añadir este archivo al menú de Quick Access Popup
 lContextAddFileXpress	Añadir este archivo al menú de Quick Access Popup Express 
 lContextAddFolder	Añadir esta carpeta al menú de Quick Access Popup 
 lContextAddFolderXpress	Añadir esta carpeta al menú de Quick Access Popup Express 
-lContextAddShortcut	Importar accesos directos de Windows al menú de Quick Access Popup 
+lContextAddShortcut	Importar accesos directos al menú de Quick Access Popup 
 lContextShowMenu	Mostrar el menú de Quick Access Popup 
 lContextShowMenuAternative	Mostrar menú Alternativo de Quick Access Popup 
 lControlToolTipAlwaysOnTopOff	Mantener esta ventana visible siempre arriba
@@ -160,6 +160,7 @@ lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensiones (extensiones separadas con espacios, por ejemplo "bak bk")
 lDialogFavoriteFolderLiveInclude	Incluir
 lDialogFavoriteFolderLiveLevels	Número de niveles de subcarpetas a incluir en el menú Carpeta dinámica 
+lDialogFavoriteFolderLiveType	Carpeta dinámica
 lDialogFavoriteLocationEmpty	La ubicación está vacía. Quiere indicar la ubicación de la carpeta.
 lDialogFavoriteMenuPosition	Insertar el favorito antes de este elemento
 lDialogFavoriteNameEmpty	El nombre del favorito está vacio. Quiere indicar un nombre corto para este favorito.
@@ -397,9 +398,6 @@ lGuiGroupClosing	Cerrando explorador de Windows
 lGuiGroupRestoreDelay	Retardo entre los favoritos para restaurar:
 lGuiGroupRestoreDelayMilliseconds	milisegundos
 lGuiGroupRestoreSide	Pantalla de qué lado ~1~?
-lGuiGroupSaveAddWindowsLabel	Añadir a ventanas existentes
-lGuiGroupSaveReplaceWindowsLabel	Reemplazar ventanas existentes
-lGuiGroupSaveRestoreOption	Durante la restauración del grupo:
 lGuiGroupSaveRestoreWith	Restaurar carpetas con:
 lGuiHelp	Ayuda
 lGuiHelpDescription	Muestra la ventana de ayuda.
@@ -682,7 +680,7 @@ lOptionsExclusionMouseListDescription	Lista de Exclusiones de ratón del disparad
 lOptionsExclusionMouseListDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y el [~1~] click se enviará a la ventana de destino como si QAP no estuviera ejecutándose. También puede excluir ventanas por su nombre de clase o nombre de proceso (nombre de archivo EXE). Prefija el título o la clase con * (asterisco) para excluir también los cuadros de diálogo de la aplicación. Puede encontrar ayuda y soporte para esta función <a href="~2~">en el sitio web de QAP</a>.
 lOptionsExplorerContextMenus	Activar Menús Contextuales
-lOptionsExplorerContextMenusHeader	Menús Contextuales de Windows Explorer:
+lOptionsExplorerContextMenusHeader	Menús Contextuales de Windows Explorer
 lOptionsFileManagerNavigateCurrent	la actual ~1~ ventana
 lOptionsFileManagerNavigateIntro	Cuando abra el menú QAP fuera de ~1~, abra las carpetas en:
 lOptionsFileManagerNavigateNew	una nueva ~1~ ventana
@@ -785,6 +783,7 @@ lUpdateButtonVisit	Visitar sitio web
 lUpdateError	Se produjo un error al verificar el número de la última versión. La verificación de la actualización se ha interrumpido.
 lUpdatePrompt	Actualizar ~1~ de la versión v~2~ à la versión v~3~?
 lUpdatePromptBeta	Hay una nueva versión BETA de ~1~.`n`nActualizar ~1~ de la versión v~2~ à la versión v~3~?
+lUpdatePromptBetaContinue	Desea estar informado sobre futuras versiones BETA?
 lUpdateTitle	Actualizar ~1~?
 lUpdateYouHaveLatest	Usted tiene la versión más reciente: ~1~.`n`nVisitar la página de ~2~ todavía?
 lWindowIsTreeviewText	Lo sentimos... A causa de una limitación de Windows, este tipo de caja de diálogo (TreeView) no es compatible con ~1~ de momento.
