@@ -21353,7 +21353,7 @@ Hotkey2Text(strHotkey, blnShort := false)
 HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 ;------------------------------------------------------------
 {
-	if (strKey = "sc15D")
+	if (strKey = "sc15D" or strKey = "AppsKey")
 		strKey := lDialogMenuKey
 	
 	if (strMouseButton = "None") ; do not compare with lDialogNone because it is translated
