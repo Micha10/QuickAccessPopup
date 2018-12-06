@@ -3020,7 +3020,6 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
-g_strFolderLiveIndicator := "!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -7635,7 +7634,6 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
 	global g_strMenuPathSeparatorWithSpaces
-	global g_strFolderLiveIndicator
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	
@@ -7657,7 +7655,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	; self Live Folder item
 	objNewMenuItem := Object()
 	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := g_strFolderLiveIndicator . " " . DoubleAmpersand(objLiveFolder.FavoriteName) . " " . g_strFolderLiveIndicator
+	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
 	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
@@ -22569,11 +22567,11 @@ GetFavoriteTypeForList(objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objFavoriteTypesShortNames
-	global g_strFolderLiveIndicator
 	
-	strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
 	if (objFavorite.FavoriteFolderLiveLevels)
-		strType := g_strFolderLiveIndicator . strType . g_strFolderLiveIndicator
+		strType := lDialogFavoriteFolderLiveType
+	else
+		strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
 	if (objFavorite.FavoriteDisabled)
 		strType := BetweenParenthesis(strType)
 	
