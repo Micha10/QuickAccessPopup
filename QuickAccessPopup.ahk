@@ -2887,7 +2887,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.1.3 
+;@Ahk2Exe-SetVersion 9.3.2 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -2986,7 +2986,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -7685,16 +7685,33 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 					Break
 				; favorite type Document is OK for Application items
 
-				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tDocument" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				if (A_LoopFileExt = "lnk")
+				{
+					SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
+					; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+					FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
+				}
+				else
+				{
+					strFileName := A_LoopFileName
+					strFileLocation := A_LoopFileLongPath
+				}
 				
-				; get links or shortcuts icons
+				strExtension := GetFileExtension(strFileLocation)
+				if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
+					strFavoriteType := "Application"
+				else
+					strFavoriteType := "Document"
+				
+				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`t" . strFavoriteType . "`t" . strFileName . "`t"
+					. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				
+				; get icon for link or shortcut, and add start in directory and args for applications
 				if (A_LoopFileExt = "url")
 					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 				else if (A_LoopFileExt = "lnk")
-				{
-					FileGetShortcut, %A_LoopFileLongPath%, strShortcutLocation
-					strFiles .= GetIcon4Location(strShortcutLocation)
-				}
+					strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
+						. "`t" . strArguments . "`t" . strAppWorkingDir
 				; else icon resource will be set when building menu
 				
 				strFiles .= "`n"
@@ -7715,7 +7732,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 		if !StrLen(A_LoopField)
 			break
 		
-		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk)
+		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
 		StringSplit, arrItem, A_LoopField, `t
 		
 		if (objLiveFolder.FavoriteFolderLiveColumns and !Mod(A_Index + 1, objLiveFolder.FavoriteFolderLiveColumns)) ; insert column break
@@ -7737,6 +7754,11 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 			objNewMenuItem.FavoriteName := DoubleAmpersand(arrItem3)
 			objNewMenuItem.FavoriteLocation := arrItem4
 			objNewMenuItem.FavoriteIconResource := arrItem5
+			if (arrItem2 = "Application")
+			{
+				objNewMenuItem.FavoriteArguments := arrItem6
+				objNewMenuItem.FavoriteAppWorkingDir := arrItem7
+			}
 			if (arrItem2 = "Folder") ; make it a live folder
 			{
 				objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
@@ -9117,7 +9139,6 @@ if !(g_blnPortableMode)
 	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
 		gosub, DisableExplorerContextMenus
 		; else already disabled
-	g_blnExplorerContextMenus := f_blnExplorerContextMenus
 	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
 }
 
@@ -9533,6 +9554,17 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddFolderXpress \"`%V\""
 			;--------------------------------------
 
+			;--------------------------------------
+			; IMPORT SHORTCUT
+			;--------------------------------------
+			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Shortcut to Quick Access Popup menu]
+			@="%lContextAddShortcut%"
+			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
+
+			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Shortcut to Quick Access Popup menu\command]
+			@="\"%strQAPPathDoubleBackslash%\\QAPmessenger.exe\" AddShortcut \"`%1\""
+			;--------------------------------------
+
 )
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
@@ -9540,7 +9572,11 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		if (blnOptionsGuiWasActive)
 			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
-		RunWait, %g_strTempDir%\enable-qap-context-menus.reg
+		RunWait, %g_strTempDir%\enable-qap-context-menus.reg, , UseErrorLevel
+		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
+			Oops(lContextCancelled)
+		else
+			g_blnExplorerContextMenus := true ; enabling succeeded
 		if (blnOptionsGuiWasActive)
 			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 }
@@ -9561,6 +9597,7 @@ else ; DisableExplorerContextMenus
 			REG DELETE "HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu" /f
 			REG DELETE "HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express" /f
+			REG DELETE "HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Shortcut to Quick Access Popup menu" /f
 			:: BATCH END
 
 )
@@ -9570,7 +9607,11 @@ else ; DisableExplorerContextMenus
 		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
 		if (blnOptionsGuiWasActive)
 			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
-		RunWait, *RunAs %g_strTempDir%\disable-qap-context-menus.bat
+		RunWait, *RunAs %g_strTempDir%\disable-qap-context-menus.bat, , UseErrorLevel
+		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
+			Oops(lContextCancelled)
+		else
+			g_blnExplorerContextMenus := false ; disabling succeeded
 		if (blnOptionsGuiWasActive)
 			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
 }
@@ -10305,13 +10346,13 @@ if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 
 ; if A_ThisLabel contains "Msg", we already have g_strNewLocation set by RECEIVE_QAPMESSENGER
 
-if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg and AddThisFileFromMsg
+if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg, AddThisFileFromMsg and AddThisShortcutFromMsg
 	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 
 g_strNewLocationSpecialName := ""
 if g_objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
 {
-	; we have a known special folder (there are not yet known like "Bibliothèques\Images" or "Libraries\Pictures")
+	; we have a known special folder (some special folders like "Bibliothèques\Images" or "Libraries\Pictures" are not known yet)
 	g_strNewLocationSpecialName := g_strNewLocation
 	g_strNewLocation := g_objClassIdOrPathByDefaultName[g_strNewLocation]
 }
@@ -10474,6 +10515,10 @@ GuiAddExternalOtherExternal:
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
+; must be before GuiFavoriteInit and GuiAddFavoriteSaveXpress
+g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
+g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|QAP|Group|WindowsApp" ; must start with "|"
+
 Gosub, GuiFavoriteInit
 
 if (g_blnAbordEdit)
@@ -10481,10 +10526,6 @@ if (g_blnAbordEdit)
 	gosub, GuiAddFavoriteCleanup
 	return
 }
-
-; must be before GuiAddFavoriteSaveXpress
-g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
-g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|QAP|Group|WindowsApp" ; must start with "|"
 
 if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 {
@@ -10838,18 +10879,19 @@ else ; add favorite
 		}
 		
 		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
+			; as of v9.3.1, the "AddShortcut" context menu (calling this code) has not been fully deployed in setup and portable install scripts
 		{
 			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
 			g_objEditedFavorite.FavoriteAppWorkingDir := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutWorkingDir : "")
 			g_objEditedFavorite.FavoriteArguments := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutArgs : "")
-			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? strShortcutIconFile . "," . strShortcutIconIndex : "")
+			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : "")
 			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 			if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 			{
 				; before: intShortcutRunState = Shortcut RunState -> 1 Normal / 3 Maximized / 7 Minimized
-				intShortcutRunState := (intShortcutRunState = 3 ? 1 : (intShortcutRunState = 7 ? -1 : 0))
-				; after: intShortcutRunState = QAP RunState -> -1 Minimized / 0 Normal / 1 Maximized
-				g_strNewFavoriteWindowPosition :=  (intShortcutRunState <> 0 ? "1" : "0") . "," . intShortcutRunState ; if state is not normal enable Windows options for Min or Max
+				intShortcutRunStateWindowsOptions := (intShortcutRunState = 3 ? 1 : (intShortcutRunState = 7 ? -1 : 0))
+				; after: intShortcutRunStateWindowsOptions = QAP RunState -> -1 Minimized / 0 Normal / 1 Maximized
+				g_strNewFavoriteWindowPosition :=  (intShortcutRunStateWindowsOptions <> 0 ? "1" : "0") . "," . intShortcutRunStateWindowsOptions ; if state is not normal enable Windows options for Min or Max
 			}
 			; else g_strNewFavoriteWindowPosition keeps ",,,,,,,"
 			g_objEditedFavorite.FavoriteWindowPosition := g_strNewFavoriteWindowPosition
@@ -10884,6 +10926,7 @@ strShortcutArgs := ""
 strShortcutIconFile := ""
 strShortcutIconIndex := ""
 intShortcutRunState := ""
+intShortcutRunStateWindowsOptions := ""
 
 return
 ;------------------------------------------------------------

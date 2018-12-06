@@ -1,6 +1,6 @@
 :: -----------------------------------------------------------------------
 :: Quick Access Popup Context Menu Manager
-:: by Doğan Çelik https://github.com/dogancelik/qap-utils
+:: by Dogan �elik https://github.com/dogancelik/qap-utils
 ::
 :: DESCRIPTION
 :: -----------
@@ -31,6 +31,7 @@ set "reg_wildcard=HKEY_CLASSES_ROOT\*\shell\"
 set "reg_desktop_bg=HKEY_CLASSES_ROOT\DesktopBackground\Shell\"
 set "reg_dir_bg=HKEY_CLASSES_ROOT\Directory\Background\shell\"
 set "reg_folder=HKEY_CLASSES_ROOT\Folder\shell\"
+:: For lnk files, use HKEY_LOCAL_MACHINE\SOFTWARE\Classes\, not HKEY_CLASSES_ROOT\
 set "reg_lnkfile=HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\"
 
 set "reg1=Add File to Quick Access Popup menu"
@@ -39,6 +40,7 @@ set "reg3=Show Quick Access Popup menu"
 set "reg4=Show Quick Access Popup Alternative menu"
 set "reg5=Add Folder to Quick Access Popup menu"
 set "reg6=Add Folder to Quick Access Popup menu Express"
+set "reg7=Import Shortcut to Quick Access Popup menu"
 
 set "sep=========================="
 
@@ -78,6 +80,8 @@ call :regadd "%reg_dir_bg%" "%reg4%" "ShowMenuAlternative" 1 2
 call :regadd "%reg_dir_bg%" "%reg5%" "AddFolder" 0 1
 call :regadd "%reg_dir_bg%" "%reg6%" "AddFolderXpress" 1 1
 
+call :regadd "%reg_lnkfile%" "%reg7%" "AddShortcut" 0 0
+
 echo Installed QAP context menu items
 goto end
 
@@ -93,6 +97,7 @@ reg delete "%reg_dir_bg%%reg3%" /f
 reg delete "%reg_dir_bg%%reg4%" /f
 reg delete "%reg_dir_bg%%reg5%" /f
 reg delete "%reg_dir_bg%%reg6%" /f
+reg delete "%reg_lnkfile%%reg7%" /f
 
 echo Uninstalled QAP context menu items
 goto end
