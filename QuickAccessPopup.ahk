@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.3.1.9.4 (2018-12-??)
+Version BETA: 9.3.1.9.4 (2018-12-06)
  
 Windows File Shortcuts
 - add context menu entry "Import Shortcut to Quick Access Popup menu" to import a Windows file shortcut into a new favorite with its icon, name and, for applications, its "Start In" and "Arguments" (parameters) properties
@@ -39,6 +39,13 @@ Windows File Shortcuts
 - handle the situation where user cancels the enable/disable context menu batch when asked for admin prvivilege
 - update with the "Import Shortcut" registry keys the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
 - removed the QuickAccessPopup-InstallContextMenus.reg and QuickAccessPopup-RemoveContextMenus.bat (replaced by ManageContextMenu.bat) from portable installation zip file
+ 
+Folders window position (Explorer and Total Commander)
+- show the "Window Options" tab in "Add/Edit favorite" dialog box only for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager
+- select on which monitor to position the new Explorer or Total Commander window (monitor 1 by default) when window state is "Maximized" or "Minimized" in "Window Options" tab
+- when opening a new Explorer or Total Commander window maximimized or minimize, position it (even if it is hidden) at top left of the selected monitor
+- if sected monitor is not available, position the window on the primary monitor
+- fix bug stop showing minimized favorites
  
 Various improvements
 - check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
@@ -48,7 +55,7 @@ Various improvements
 - when displaying the AppsKey hotkey text, replace "AppsKey" with "Menu key" (localized string) in addition to the keyboard scan code for Menu key "sc15D"
  
 Bug fixes
-- remove ampersand (menu shortcut) from menu name when an item is added to the Repeat Last Actions menus
+- remove ampersand (menu shortcut) from menu name when an item is added to the "Repeat Last Actions" menus
 
 Version BETA: 9.3.1.9.3 (2018-12-03)
 - center the following dialog boxes on top of the parent dialog box: Select shortcut, Select hotstring, Close computer, Close all windows, Update and Import-export
