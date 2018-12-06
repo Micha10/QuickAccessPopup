@@ -4860,7 +4860,8 @@ else
 			g_strConvertSettingsEncodingYes := "Yes convert to Unicode"
 			g_strConvertSettingsEncodingNo := "No keep ANSI encoding"
 			g_strConvertSettingsEncodingLater := "Ask me next time"
-			Gui, New, , %g_strAppNameText% %g_strAppVersion%
+			strGuiTitle := g_strAppNameText . " " . g_strAppVersion
+			Gui, New, , %strGuiTitle%
 			Gui, Color, White
 			Gui, Font, w700 s9, Segoe UI
 			Gui, Add, Text, w500 , % L("~1~ ""one-time"" maintenance", g_strAppNameText)
@@ -4877,7 +4878,7 @@ else
 			Gui, Add, Button, yp x+10 gConvertSettingsEncoding vf_btnConvertSettingsEncodingNo, %g_strConvertSettingsEncodingNo%
 			Gui, Add, Button, yp x+10 gConvertSettingsEncoding vf_btnConvertSettingsEncodingLater default, %g_strConvertSettingsEncodingLater%
 			Gui, Add, Text
-			GuiCenterButtons(g_strAppNameText . " " . g_strAppVersion, 10, 5, 20, "f_btnConvertSettingsEncodingYes", "f_btnConvertSettingsEncodingNo", "f_btnConvertSettingsEncodingLater")
+			GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnConvertSettingsEncodingYes", "f_btnConvertSettingsEncodingNo", "f_btnConvertSettingsEncodingLater")
 			Gui, Show, AutoSize Center
 		}
 	}
@@ -5078,6 +5079,7 @@ strFileEncoding := ""
 strIniFileContent := ""
 blnDoNotConvertSettingsToUnicode := ""
 strWaitDelayInSnippet := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -8037,7 +8039,8 @@ StringSplit, g_arrOptionsTitlesSub, lOptionsPopupHotkeyTitlesSub, |
 ;---------------------------------------
 ; Build Gui header
 Gui, 1:Submit, NoHide
-Gui, 2:New, , % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+g_strOptionsGuiTitle := L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %g_strOptionsGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -8353,7 +8356,7 @@ GuiControlGet, arrTabPos, Pos, f_intOptionsTab
 Gui, 2:Add, Button, % "y" . arrTabPosY + arrTabPosH + 10 . " x10 vf_btnOptionsSave gButtonOptionsSave Default", %lGuiSaveAmpersand%
 Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, %lGuiCancelAmpersand%
 Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, %lDonateButtonAmpersand%
-GuiCenterButtons(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
+GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
 
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
@@ -8644,7 +8647,8 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
 g_intGui2WinID := WinExist("A")
 
-Gui, 3:New, , % ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+strGuiTitle := ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
+Gui, 3:New, , %strGuiTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8658,11 +8662,13 @@ Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogCheckbox%
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOKAmpersand%
 Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, %lGuiCancelAmpersand%
 	
-GuiCenterButtons(lOptionsChangeFolderInDialog, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
 Gui, 3:Show, AutoSize Center
 Gui, 2:+Disabled
+
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -8840,9 +8846,9 @@ Gui, 2:Submit, NoHide
 g_intGui2WinID := WinExist("A")
 
 StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
-strMoreWindowTitle := lDialogMore . " - " . g_strAppNameText . " " . g_strAppVersion
 
-Gui, 3:New, , %strMoreWindowTitle%
+strGuiTitle := lDialogMore . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, 3:New, , %strGuiTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8858,7 +8864,7 @@ if (g_strMoreWindowName = "ExclusionMouseList")
 	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, Hotkey2Text(g_arrPopupHotkeys1), "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
 	Gui, 3:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, %lMenuGetWinInfo%
 
-	GuiCenterButtons(strMoreWindowTitle, 10, 5, 20, "f_btnGetWinInfo")
+	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
 }
 else if (g_strMoreWindowName = "UsageDb")
 {
@@ -8901,14 +8907,14 @@ else if (g_strMoreWindowName = "UserVariablesList")
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gGuiOptionsMoreTemplateOK, %lDialogOKAmpersand%
 Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gGuiOptionsMoreTemplateCancel, %lGuiCancelAmpersand%
 	
-GuiCenterButtons(strMoreWindowTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
 Gui, 3:Add, Text
 Gui, 3:Show, AutoSize Center
 Gui, 2:+Disabled
 
-strMoreWindowTitle := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -9569,16 +9575,16 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 		, %g_strTempDir%\enable-qap-context-menus.reg
 		
 		; blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
-		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(g_strOptionsGuiTitle) ; main Gui title
 		if (blnOptionsGuiWasActive)
-			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+			WinMinimize, %g_strOptionsGuiTitle%
 		RunWait, %g_strTempDir%\enable-qap-context-menus.reg, , UseErrorLevel
 		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
 			Oops(lContextCancelled)
 		else
 			g_blnExplorerContextMenus := true ; enabling succeeded
 		if (blnOptionsGuiWasActive)
-			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+			WinActivate, %g_strOptionsGuiTitle%
 }
 else ; DisableExplorerContextMenus
 {
@@ -9604,16 +9610,16 @@ else ; DisableExplorerContextMenus
 		, %g_strTempDir%\disable-qap-context-menus.bat
 
 		; blnMainGuiWasActive := WinActive(L(lGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
-		blnOptionsGuiWasActive := WinActive(L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)) ; main Gui title
+		blnOptionsGuiWasActive := WinActive(g_strOptionsGuiTitle) ; main Gui title
 		if (blnOptionsGuiWasActive)
-			WinMinimize, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+			WinMinimize, %g_strOptionsGuiTitle%
 		RunWait, *RunAs %g_strTempDir%\disable-qap-context-menus.bat, , UseErrorLevel
 		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
 			Oops(lContextCancelled)
 		else
 			g_blnExplorerContextMenus := false ; disabling succeeded
 		if (blnOptionsGuiWasActive)
-			WinActivate, % L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
+			WinActivate, %g_strOptionsGuiTitle%
 }
 
 ; blnMainGuiWasActive := ""
@@ -10212,7 +10218,8 @@ Gui, 1:Submit, NoHide
 Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered already but seems not to be?
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
-Gui, 2:New, , % L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10246,10 +10253,11 @@ Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, 
 Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h290, % L(lDialogFavoriteSelectType, lDialogContinue)
 
-GuiCenterButtons(L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAddFavoriteSelectTypeContinue", "f_btnAddFavoriteSelectTypeCancel")
 Gosub, ShowGui2AndDisableGui1
 
 objExternalMenu := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -10540,10 +10548,10 @@ Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
 
-g_strFavoriteDialogTitle := L(lDialogAddEditFavoriteTitle
+strGuiTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %g_strFavoriteDialogTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10583,21 +10591,21 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, %lDialogOKAmpersand%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogEdit, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnEditFavoriteSave", "f_btnAddFavoriteCancel")
+	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnEditFavoriteSave", "f_btnAddFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
 	Gui, 2:Add, Button, y%intButtonsY% vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, %lDialogCopyAmpersand%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogCopy, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
+	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
 	Gui, 2:Add, Button, y%intButtonsY% vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, %lDialogAddAmpersand%
 	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogAddEditFavoriteTitle, lDialogAdd, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType), 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
+	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
 }
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
@@ -10648,6 +10656,7 @@ g_blnAbordEdit := ""
 objExternalMenu := ""
 strDialogPosition := ""
 ResetArray("arrDialogPosition")
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -11670,6 +11679,7 @@ else
 blnMove := ""
 ResetArray("arrDialogPosition")
 strDialogPosition := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -12749,7 +12759,8 @@ else
 
 g_intGui1WinID := WinExist("A")
 
-Gui, 2:New, , % L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -12778,12 +12789,13 @@ Loop, Files, %strExpandedPath%\*.ini, R
 }
 LV_ModifyCol(, "")
 
-GuiCenterButtons(L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion), 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btnAddExternalMenusFromCatalogueClose")
+GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnAddExternalMenusFromCatalogue", "f_btnAddExternalMenusNotFromCatalogue", "f_btnAddExternalMenusFromCatalogueClose")
 
 Gosub, ShowGui2AndDisableGui1
 
 strExpandedPath := ""
 strName := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -14160,7 +14172,8 @@ intWidth := 980
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -14202,7 +14215,7 @@ Gosub, HotkeysManageListLoad
 
 Gui, 2:Tab
 Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose gGuiHotkeysManageClose h33 Default, %lGuiCloseAmpersand%
-GuiCenterButtons(L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion), , , , "f_btnHotkeysManageClose")
+GuiCenterButtons(strGuiTitle, , , , "f_btnHotkeysManageClose")
 GuiControl, Focus, f_btnHotkeysManageClose
 Gui, 2:Add, Text, x10, %A_Space%
 
@@ -14212,6 +14225,7 @@ if InStr(A_ThisLabel, "Hotstrings")
 Gosub, ShowGui2AndDisableGui1
 
 intWidth := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -14455,7 +14469,8 @@ intFavoriteNameWidth := 300
 intButtonsHeight := 20
 intButtonsWidth := 150
 
-Gui, 2:New, , % L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -14491,7 +14506,7 @@ Gui, 2:Add, Text, x10, %A_Space%
 Gosub, LoadIconsManageList
 
 ; GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMargin := 0, intDistanceBetweenButtons := 20, arrControls*)
-GuiCenterButtons(L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion), 20, 10, 40, "f_btnIconsManagePrev", "f_btnIconsManageNext", "f_btnIconsManageClose")
+GuiCenterButtons(strGuiTitle, 20, 10, 40, "f_btnIconsManagePrev", "f_btnIconsManageNext", "f_btnIconsManageClose")
 Gosub, ShowGui2AndDisableGui1
 
 intTop := ""
@@ -14507,6 +14522,7 @@ intMenuPathWidth := ""
 intFavoriteNameWidth := ""
 intButtonsWidth := ""
 intButtonsHeight := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -15028,8 +15044,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SplitHotkey(P_strActualShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
 
 	g_intGui2WinID := WinExist("A")
-
-	Gui, 3:New, , % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
+	
+	SS_strGuiTitle := L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
+	Gui, 3:New, , %SS_strGuiTitle%
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -15081,12 +15098,12 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if StrLen(P_strDefaultShortcut)
 	{
 		Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnResetShortcut gButtonResetShortcut", %lGuiResetDefault%
-		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
+		GuiCenterButtons(SS_strGuiTitle, 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
 	}
 	else
 	{
 		Gui, Add, Text, % "x10 y" . SS_arrTopY + 100
-		GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNoneShortcut")
+		GuiCenterButtons(SS_strGuiTitle, 10, 5, 20, "f_btnNoneShortcut")
 	}
 	
 	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
@@ -15105,14 +15122,14 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, %lGuiCancelAmpersand%
 	
-	GuiCenterButtons(L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
+	GuiCenterButtons(SS_strGuiTitle, 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeShortcutOK
 	Gui, Show, AutoSize Center
 
 	Gui, 2:+Disabled
-	WinWaitClose,  % L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion) ; waiting for Gui to close
+	WinWaitClose, %SS_strGuiTitle% ; waiting for Gui to close
 	
 	if (SS_strNewShortcut <> P_strActualShortcut)
 		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, P_strFavoriteName)
@@ -15144,6 +15161,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strMouseValue := ""
 	SS_strThisLabel := ""
 	SS_strThisSymbol := ""
+	SS_strGuiTitle := ""
 
 	return SS_strNewShortcut ; returning value
 	
@@ -15347,7 +15365,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	global
 	
 	g_blnChangeHotstringInProgress := !(P_blnDefaultOptions)
-	SH_strGuiTitle := L((P_blnDefaultOptions ? lDialogChangeHotstringTitleDefaultOptions : lDialogChangeHotstringTitle), g_strAppNameText) 
+	SH_strGuiTitle := L((P_blnDefaultOptions ? lDialogChangeHotstringTitleDefaultOptions : lDialogChangeHotstringTitle), g_strAppNameText)
 
 	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	if !StrLen(P_strActualHotstring) ; if new hotstring, use default options
@@ -17618,7 +17636,8 @@ return
 CloseComputerControl:
 ;------------------------------------------------------------
 
-Gui, CloseComputer:New, , % lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
+strGuiTitle := lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseComputer:New, , %strGuiTitle%
 Gui, CloseComputer:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseComputer:Color, %g_strGuiWindowColor%
@@ -17649,12 +17668,13 @@ Gui, CloseComputer:Add, Button, % "x10 y" . arrGroupLastPosY + 25 . " gCloseComp
 Gui, CloseComputer:Add, Button, x10 yp gCloseComputerGuiEscape vf_btnCloseComputerCancel, %lDialogCancelButton%
 Gui, CloseComputer:Add, Text, y+10
 
-GuiCenterButtons(lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseComputerCancel")
+GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseComputerCancel")
 
 Gui, CloseComputer:Show, AutoSize Center
 
 ResetArray("arrGroup1Pos")
 ResetArray("arrGroupLastPos")
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -17936,7 +17956,8 @@ return
 CloseAllWindows:
 ;------------------------------------------------------------
 
-Gui, CloseAllWindows:New, , % lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
+strGuiTitle := lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
+Gui, CloseAllWindows:New, , %strGuiTitle%
 Gui, CloseAllWindows:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseAllWindows:Color, %g_strGuiWindowColor%
@@ -17966,10 +17987,12 @@ Loop, %strWinIDs%
 		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
-GuiCenterButtons(lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
+GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
 
 GuiControl, CloseAllWindows:Focus, f_lvCloseAllWindows
 Gui, CloseAllWindows:Show, AutoSize Center
+
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -19038,7 +19061,8 @@ if StrLen(strChangeLog)
 	strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
 }
 
-Gui, Update:New, , % L(lUpdateTitle, g_strAppNameText)
+strGuiTitle := L(lUpdateTitle, g_strAppNameText)
+Gui, Update:New, , %strGuiTitle%
 ; Do not use g_strMenuBackgroundColor here because it is not set yet
 
 Gui, Update:Font, s10 w700, Verdana
@@ -19052,24 +19076,26 @@ Gui, Update:Font
 Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogChangeLog gButtonCheck4UpdateDialogChangeLog, %lUpdateButtonChangeLog%
 Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogVisit gButtonCheck4UpdateDialogVisit, %lUpdateButtonVisit%
 
-GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogChangeLog", "f_btnCheck4UpdateDialogVisit")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCheck4UpdateDialogChangeLog", "f_btnCheck4UpdateDialogVisit")
 
 if (g_strUpdateProdOrBeta = "prod")
 {
 	Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogDownloadSetup gButtonCheck4UpdateDialogDownloadSetup, %lUpdateButtonDownloadSetup%
 	Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogDownloadPortable gButtonCheck4UpdateDialogDownloadPortable, %lUpdateButtonDownloadPortable%
 
-	GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogDownloadSetup", "f_btnCheck4UpdateDialogDownloadPortable")
+	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCheck4UpdateDialogDownloadSetup", "f_btnCheck4UpdateDialogDownloadPortable")
 }
 
 Gui, Update:Add, Button, y+20 x10 vf_btnCheck4UpdateDialogSkipVersion gButtonCheck4UpdateDialogSkipVersion, %lUpdateButtonSkipVersion%
 Gui, Update:Add, Button, yp x+20 vf_btnCheck4UpdateDialogRemind gButtonCheck4UpdateDialogRemind, %lUpdateButtonRemind%
 Gui, Update:Add, Text
 
-GuiCenterButtons(L(lUpdateTitle, g_strAppNameText), 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
 
 GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
 Gui, Update:Show, AutoSize Center
+
+strGuiTitle := ""
 
 return
 
@@ -19197,7 +19223,8 @@ if SettingsUnsaved()
 	return
 }
 
-Gui, ImpExp:New, , % L(lImpExpTitle, g_strAppNameText)
+strGuiTitle := L(lImpExpTitle, g_strAppNameText)
+Gui, ImpExp:New, , %strGuiTitle%
 if (g_blnUseColors)
 	Gui, ImpExp:Color, %g_strGuiWindowColor%
 
@@ -19222,12 +19249,14 @@ Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, %lImpExpFil
 
 Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, %lImpExpExportAmpersand%
 Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, %lGuiCloseAmpersand%
-GuiCenterButtons(L(lImpExpTitle, g_strAppNameText), 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpClose")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpClose")
 Gui, ImpExp:Add, Text
 
 ; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
 gosub, ImpExpClicked
 Gui, ImpExp:Show, AutoSize Center
+
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -19498,7 +19527,8 @@ GuiAbout:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lAboutTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lAboutTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19515,12 +19545,13 @@ Gui, 2:Font, s8 w400, Verdana
 
 Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, %lDonateButtonAmpersand%
 Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, %lGuiCloseAmpersand%
-GuiCenterButtons(L(lAboutTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnAboutDonate", "f_btnAboutClose")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAboutDonate", "f_btnAboutClose")
 
 GuiControl, Focus, f_btnAboutClose
 Gosub, ShowGui2AndDisableGui1
 
 strYear := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -19533,7 +19564,8 @@ GuiDonate:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lDonateTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lDonateTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19575,7 +19607,7 @@ Gui, 2:Add, Link, y+10 x130, <a href="https://www.quickaccesspopup.com/why-suppo
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, %lGuiCloseAmpersand%
-GuiCenterButtons(L(lDonateTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnDonateClose")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateClose")
 
 GuiControl, Focus, btnDonateDefault
 Gosub, ShowGui2AndDisableGui1
@@ -19586,6 +19618,7 @@ strDonateReviewUrlLeft3 := ""
 strDonateReviewUrlRight1 := ""
 strDonateReviewUrlRight2 := ""
 strDonateReviewUrlRight3 := ""
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -19617,7 +19650,8 @@ GuiHelp:
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
-Gui, 2:New, , % L(lHelpTitle, g_strAppNameText, g_strAppVersion)
+strGuiTitle := L(lHelpTitle, g_strAppNameText, g_strAppVersion)
+Gui, 2:New, , %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19637,14 +19671,14 @@ Gui, 2:Add, Link, w%intWidth%, % lHelpText12
 Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4))
 Gui, 2:Add, Link, w%intWidth%, % lHelpText14
 Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, %lDialogTabNext%
-GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext1")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % lHelpText21
 Gui, 2:Add, Link, w%intWidth%, % lHelpText22
 Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, %lDialogTabNext%
-GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext2")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
 Gui, 2:Tab, 3
 Gui, 2:Add, Link, w%intWidth%, % lHelpText31
@@ -19652,7 +19686,7 @@ Gui, 2:Add, Link, w%intWidth% y+3, % lHelpText32
 Gui, 2:Add, Link, w%intWidth%, % lHelpText33
 Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")))
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
-GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext3")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext3")
 
 Gui, 2:Tab, 4 ; has text numbered 51, 52, etc.
 Gui, 2:Add, Link, w%intWidth%, % lHelpText51
@@ -19664,7 +19698,7 @@ Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText52
 Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText53
 Gui, 2:Add, Link, y+5 w%intWidth%, % lHelpText54
 Gui, 2:Add, Button, y+25 vf_btnNext4 gNextHelpButtonClicked, %lDialogTabNext%
-GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnNext4")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext4")
 
 Gui, 2:Tab, 5 ; has text numbered 41, 42, etc.
 Gui, 2:Add, Link, w%intWidth%, % lHelpText41
@@ -19677,13 +19711,14 @@ Gui, 2:Tab
 GuiControlGet, arrTabPos, Pos, f_intHelpTab
 Gui, 2:Add, Button, % "x180 y" . arrTabPosY + arrTabPosH + 10. " vf_btnHelpDonate gGuiDonate", %lDonateButtonAmpersand%
 Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, %lGuiCloseAmpersand%
-GuiCenterButtons(L(lHelpTitle, g_strAppNameText, g_strAppVersion), 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
 
 GuiControl, Focus, btnHelpClose
 Gosub, ShowGui2AndDisableGui1
 
 ResetArray("arrSharedMenuTypes")
 ResetArray("arrTabPos")
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
