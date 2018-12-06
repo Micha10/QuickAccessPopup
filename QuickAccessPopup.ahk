@@ -13061,6 +13061,17 @@ else
 	strDestinationMenu := f_drpParentMenu
 }
 
+if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for these favorites, file/folder must exist
+{
+	strExpandedNewFavoriteLocation := strNewFavoriteLocation
+	if !FileExistInPath(strExpandedNewFavoriteLocation)
+	{
+		Oops(lOopsFileNotFound . ":`n" . strExpandedNewFavoriteLocation
+			. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . lOopsFileExpandedFrom . ":`n" . strNewFavoriteLocation : ""))
+		return
+	}
+}
+
 ; now that we know original and destination menus, check if we need to lock them
 if FavoriteIsUnderExternalMenu(g_objMenusIndex[strDestinationMenu], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 ; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
@@ -13595,6 +13606,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strLoopCriteria := ""
 	strExternalFilenameNoExt := ""
 	strNewFavoriteSoundLocation := ""
+	strExpandedNewFavoriteLocation := ""
 	
 	; make sure all gui variables are flushed before next fav add or edit
 	Gosub, GuiAddFavoriteFlush
@@ -17356,7 +17368,7 @@ else
 		
 		; expand system variables
 		; make the location absolute based on the current working directory
-		blnFileExist := FileExistInPath(g_strFullLocation) ; return g_strFullLocation with expanded relative path and envvars, and absolute location if in PATH
+		blnFileExist := FileExistInPath(g_strFullLocation) ; return g_strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
 		; was g_strFullLocation := PathCombine(A_WorkingDir, EnvVars(g_strFullLocation))
 	}
 	else if (g_objThisFavorite.FavoriteType = "WindowsApp")
@@ -22111,8 +22123,6 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 ; Do not process strCurrentLocation or strSelectedLocation if = -1
 ;------------------------------------------------------------
 {
-	global g_strUserVariablesList
-	
 	; protect escaped open curly brackets `{
 	StringReplace, strOriginal, strOriginal, ````{, !r4nd0mt3xt!, A ; original tick was doubled by EncodeSnippet
 
@@ -22123,13 +22133,7 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 		strExpanded := ExpandPlaceholdersForThis(strExpanded, strSelectedLocation, "SEL_")
 	strExpanded := StrReplace(strExpanded, "{Clipboard}", Clipboard)
 
-	loop, parse, g_strUserVariablesList, |
-		if StrLen(A_LoopField)
-		{
-			StringSplit, arrUserVariable, A_LoopField, =
-			if (SubStr(arrUserVariable1, 1, 1) = "{" and SubStr(arrUserVariable1, StrLen(arrUserVariable1), 1) = "}")
-				strExpanded := StrReplace(strExpanded, arrUserVariable1, arrUserVariable2)
-		}
+	strExpanded := ExpandUserVariables(strExpanded)
 
 	; restore escaped open curly brackets and remove tick {
 	StringReplace, strExpanded, strExpanded, !r4nd0mt3xt!, {, A ; restore ticked open curly brackets
@@ -22216,10 +22220,10 @@ RecentFileExistInPath(ByRef strFile, strSource)
 FileExistInPath(ByRef strFile)
 ;------------------------------------------------------------
 {
+	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%, and user variables like {DropBox}
 	if (!StrLen(strFile) or InStr(strFile, "://") or SubStr(strFile, 1, 1) = "{") ; this is not a file - caution some URLs in WhereIs cause an infinite loop
 		return, False
 	
-	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%
 	if !InStr(strFile, "\") ; if no path in filename
 		strFile := WhereIs(strFile) ; search if file exists in path env variable or registry app paths
 	else
@@ -22231,8 +22235,6 @@ FileExistInPath(ByRef strFile)
 		intPos := InStr(strFile, "\", false, 3)
 		if !(intPos) ; there is no "\" after the domain or IP address, this is the UNC root
 			return true
-		; if !StrLen(strTemp) ; removed 2018-11-04 this was a bug returning true for any \\ location
-			; return true
 	}
 	
 	return, FileExist(strFile) ; returns the file's attributes if file exists or empty (false) is not
@@ -22331,16 +22333,36 @@ PathCombine(strAbsolutePath, strRelativePath)
 ;------------------------------------------------------------
 EnvVars(str)
 ; from Lexikos http://www.autohotkey.com/board/topic/40115-func-envvars-replace-environment-variables-in-text/#entry310601
+; adapted from from Lexikos http://www.autohotkey.com/board/topic/40115-func-envvars-replace-environment-variables-in-text/#entry310601
+; in addition to environment variables, it expands QAP user variables like {Dropbox}
 ;------------------------------------------------------------
 {
-    if sz:=DllCall("ExpandEnvironmentStrings", "uint", &str
-                    , "uint", 0, "uint", 0)
+    if sz:=DllCall("ExpandEnvironmentStrings", "uint", &str, "uint", 0, "uint", 0)
     {
         VarSetCapacity(dst, A_IsUnicode ? sz*2:sz)
-        if DllCall("ExpandEnvironmentStrings", "uint", &str
-                    , "str", dst, "uint", sz)
-            return dst
+        if DllCall("ExpandEnvironmentStrings", "uint", &str, "str", dst, "uint", sz)
+            return ExpandUserVariables(dst)
     }
+	
+    return ExpandUserVariables(str)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ExpandUserVariables(str)
+;------------------------------------------------------------
+{
+    global g_strUserVariablesList
+    
+    loop, parse, g_strUserVariablesList, |
+        if StrLen(A_LoopField)
+        {
+            StringSplit, arrUserVariable, A_LoopField, =
+            if (SubStr(arrUserVariable1, 1, 1) = "{" and SubStr(arrUserVariable1, StrLen(arrUserVariable1), 1) = "}")
+                str := StrReplace(str, arrUserVariable1, arrUserVariable2)
+        }
+	
     return str
 }
 ;------------------------------------------------------------
