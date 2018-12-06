@@ -5353,7 +5353,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
-		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
+		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
 		objLoadIniFavorite.FavoriteLoginName := ReplaceAllInString(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
@@ -10739,7 +10739,8 @@ BuildTabsList(strFavoriteType)
 	
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
-	if InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
+	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
+		and (g_intActiveFileManager = 1 or g_intActiveFileManager = 3)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
@@ -10868,7 +10869,7 @@ else ; add favorite
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
-		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
+		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height; for example: "1,0,100,50,640,480,200"
 		; record position but keep "use default position"
 		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
@@ -11196,7 +11197,7 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	and (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
 	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (g_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
@@ -11451,7 +11452,7 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
 	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
@@ -11470,9 +11471,10 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 	Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lGuiGroupRestoreDelayMilliseconds%
 	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogWindowPositionMayFail%
 	
-	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPosition%
+	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogWindowPosition%
 
 	Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionX%
+	Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 <> 0 ? "" : "hidden"), % BuildMonitorsList(arrNewFavoriteWindowPosition8)
 	Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionY%
 	Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionW%
 	Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionH%
@@ -12412,10 +12414,10 @@ GuiControl, %strShowHideCommand%, f_lblWindowPositionDelayLabel
 GuiControl, %strShowHideCommand%, f_lblWindowPositionDelay
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMillisecondsLabel
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMayFail
+GuiControl, %strShowHideCommand%, f_lblWindowPosition
 
 strShowHideCommand := (!f_blnUseDefaultWindowPosition and f_lblWindowPositionMinMax1 and !f_blnFavoriteFolderLive ? "Show" : "Hide")
 
-GuiControl, %strShowHideCommand%, f_lblWindowPosition
 GuiControl, %strShowHideCommand%, f_lblWindowPositionX
 GuiControl, %strShowHideCommand%, f_intWindowPositionX
 GuiControl, %strShowHideCommand%, f_lblWindowPositionY
@@ -12424,6 +12426,10 @@ GuiControl, %strShowHideCommand%, f_lblWindowPositionW
 GuiControl, %strShowHideCommand%, f_intWindowPositionW
 GuiControl, %strShowHideCommand%, f_lblWindowPositionH
 GuiControl, %strShowHideCommand%, f_intWindowPositionH
+
+strShowHideCommand := (!f_blnUseDefaultWindowPosition and !f_lblWindowPositionMinMax1 and !f_blnFavoriteFolderLive ? "Show" : "Hide")
+
+GuiControl, %strShowHideCommand%, f_drpWindowMonitor
 
 strShowHideCommand := ""
 
@@ -13282,11 +13288,13 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
 		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
 			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
-			
+		
 		GuiControlGet, intRadioGroupRestoreSide, , f_intRadioGroupRestoreSide
 		if !(ErrorLevel) ; if errorlevel, control does not exist
 			strNewFavoriteWindowPosition .= "," . (f_intRadioGroupRestoreSide = 1 ? "L" : "R")
-		
+		else
+			strNewFavoriteWindowPosition .= "," . StrReplace(f_drpWindowMonitor, lDialogWindowMonitor . " ", "")
+
 		if !ValidateWindowPosition(strNewFavoriteWindowPosition)
 		{
 			Oops(lOopsInvalidWindowPosition)
@@ -13806,8 +13814,9 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ValidateWindowPosition(strPosition)
 ;------------------------------------------------------------
 {
-	; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+	; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+	; L Left / R Right / 1 primary monitor / 2 secondary monitor...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 	StringSplit, arrPosition, strPosition, `,
 	if !(arrPosition1) or (arrPosition2 <> 0) ; no position to validate
 		return true
@@ -13822,6 +13831,7 @@ ValidateWindowPosition(strPosition)
 		blnOK := false
 	else if arrPosition7 is not integer
 		blnOK := false
+	; arrPosition8 can be letter or number
 	else
 		blnOK := true
 
@@ -16703,7 +16713,7 @@ if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
  	return
 
 g_strOpenFavoriteLabel := A_ThisLabel
-g_strNewWindowId := "" ; start fresh for any new favorite to open
+g_strNewWindowId := "" ; start fresh for any new favorite to open, used to position Explorer and Total Commander windows only
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
 if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
@@ -16945,12 +16955,13 @@ else
 
 ; preparation for window position
 
-; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
-; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
+; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 
-if (g_strTargetAppName = "Explorer") ; if we need to position the new Explorer window on the active monitor
+if InStr("Explorer|TotalCommander", g_strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
 {
 	SysGet, intNbMonitors, MonitorCount
 	if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
@@ -17062,14 +17073,6 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 	Run, %g_strFullLocation%, , UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 		Oops(lOopsUnknownTargetAppName)
-	else
-		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (g_arrFavoriteWindowPosition1 and intPid)
-		; g_arrFavoriteWindowPosition1 should not happen since v7.0.1 (removed favorite window options for document, application and link favorite types)
-		{
-			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowPosition
-		}
 
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -17106,14 +17109,6 @@ if (g_objThisFavorite.FavoriteType = "Application")
 			Oops(lOopsUnknownTargetAppName)
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
-	else
-		if (g_arrFavoriteWindowPosition1 and intPid)
-		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		; g_arrFavoriteWindowPosition1 should not happen since v7.0.1 (removed favorite window options for document, application and link favorite types)
-		{
-			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowPosition
-		}
 
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -17195,7 +17190,7 @@ if (g_strHotkeyTypeDetected = "Launch")
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
 	if ((g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor) ;  we need to position window
-		and StrLen(g_strNewWindowId)) ; we can access the new Explorer window
+		and InStr("Explorer|TotalCommander", g_strTargetAppName) and StrLen(g_strNewWindowId)) ; we can access the new Explorer or Total Commander window
 		gosub, OpenFavoriteWindowPosition
 		
 	gosub, UsageDbCollectMenu
@@ -18675,7 +18670,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 		strTabParameter := "NEW=nodual"
 	else
 	{
-		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 		strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
 		StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 		if StrLen(arrFavoriteWindowPosition8)
@@ -18712,7 +18707,7 @@ OpenFavoriteInNewWindowTotalCommander:
 
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 {
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
 	StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 	if StrLen(arrFavoriteWindowPosition8)
@@ -18805,7 +18800,7 @@ Run, %g_strQAPconnectAppPath% %strQAPconnectParamString%
 if StrLen(g_strQAPconnectWindowID)
 ; g_strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
 ; It must contain at least some characters of the connected app title, and enough to be specific to this window.
-; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId
+; It is used here to wait for the FM window as identified in QAPconnect.ini.
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
@@ -18813,10 +18808,7 @@ if StrLen(g_strQAPconnectWindowID)
 	; (because by default, regular expressions find a match anywhere in the target string).
 	WinWaitActive, ahk_exe %g_strQAPconnectAppFilename%, , 10 ; wait for the window as identified in QAPconnect.ini
 	SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
-	g_strNewWindowId := g_strQAPconnectWindowID
 }
-else
-	g_strNewWindowId := ""
 
 intPreviousTitleMatchMode := ""
 strQAPconnectParamString := ""
@@ -18840,12 +18832,21 @@ return
 OpenFavoriteWindowPosition:
 ;------------------------------------------------------------
 
-if !StrLen(g_strNewWindowId) ; we can't access the new Explorer window
+if !StrLen(g_strNewWindowId) ; we can't access the new Explorer or Total Commander window
 	return
 
-if (g_arrFavoriteWindowPosition1) ; the window position in window options has precedence on g_blnOpenFavoritesOnActiveMonitor
+if (g_arrFavoriteWindowPosition1) ; the has precedence on g_blnOpenFavoritesOnActiveMonitor
 {
 	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
+	
+	if (g_arrFavoriteWindowPosition8 and g_arrFavoriteWindowPosition8 <= intNbMonitors) ; maximize or minimize on this monitor
+	{
+		SysGet, arrMonitorsCoordinates, Monitor, %g_arrFavoriteWindowPosition8%
+		WinMove, %g_strNewWindowId%,
+			, %arrMonitorsCoordinatesLeft% ; left
+			, %arrMonitorsCoordinatesTop% ; top
+	}
+	; no else
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
 	else if (g_arrFavoriteWindowPosition2 = 1) ; Maximized
@@ -18874,8 +18875,11 @@ else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTarget
 	Sleep, 100
 }
 
-WinShow, %g_strNewWindowId%
-WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
+if (g_arrFavoriteWindowPosition2 <> -1) ; not Minimized
+{
+	WinShow, %g_strNewWindowId%
+	WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
+}
 
 intNewWindowX := ""
 intNewWindowY := ""
@@ -23907,6 +23911,21 @@ RemoveSingleAmpersand(str)
 	str := StrReplace(str, "&", "") ; remove single ampersand
 	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
 
+	return str
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildMonitorsList(intDefault)
+;------------------------------------------------------------
+{
+	if !(intDefault)
+		intDefault := 1
+	SysGet, intNbMonitors, MonitorCount
+	Loop, %intNbMonitors%
+		str .= lDialogWindowMonitor . " " . A_Index . "|" . (A_Index = intDefault ? "|" : "")
+	
 	return str
 }
 ;------------------------------------------------------------

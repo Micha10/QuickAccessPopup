@@ -330,6 +330,7 @@ global lDialogTreeView := "tree view"
 global lDialogTriggerFor := "Trigger for:"
 global lDialogUseDefaultWindowPosition := "Use default window position"
 global lDialogWin := "Windows" ; this is the windows key
+global lDialogWindowMonitor := "Monitor"
 global lDialogWindowPosition := "Window position:"
 global lDialogWindowPositionDelay := "Delay"
 global lDialogWindowPositionH := "Height"
