@@ -32,6 +32,8 @@ HISTORY
 =======
 
 Version BETA: 9.3.2.9.1 (2018-12-07)
+- add ini value TryWindowPosition=1 to show the "Add/Edit Favorite" tab "Window Options" for favorite types Document, Application, URL and WindowsApp;
+- when TryWindowPosition=1, get the new window ID and "try" to position the window of these favorites (if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander)
 
 Version: 9.3.2 (2018-12-07)
  
