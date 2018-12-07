@@ -15079,7 +15079,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if (g_blnUseColors)
 		Gui, Color, %g_strGuiWindowColor%
 	Gui, Font, s10 w700, Verdana
-	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeShortcutTitle, g_strAppNameText)
+	Gui, Add, Text, x10 y10 w400 center, % L(lDialogChangeHotkeyTitle, g_strAppNameText)
 	Gui, Font
 
 	Gui, Add, Text, y+15 x10, %lDialogTriggerFor%
