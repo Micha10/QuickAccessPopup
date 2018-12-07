@@ -14,7 +14,7 @@ lContextAddFile	Bestand toevoegen aan het Quick Access Popup menu
 lContextAddFileXpress	Bestand toevoegen aan het Quick Access Popup Express menu 
 lContextAddFolder	Map toevoegen aan het Quick Access Popup menu
 lContextAddFolderXpress	Map toevoegen aan het Quick Access Popup Express menu 
-lContextAddShortcut	Importeer de Windows-snelkoppeling naar het Quick Access Popup menu
+lContextAddShortcut	Importeer de snelkoppeling naar het Quick Access Popup menu
 lContextShowMenu	Quick Access Popup menu weergeven
 lContextShowMenuAternative	Alternatief QAP-menu weergeven
 lControlToolTipAlwaysOnTopOff	Dit venster altijd op de voorgrond weergeven
@@ -160,6 +160,7 @@ lDialogFavoriteFolderLiveExclude	Uitsluiten
 lDialogFavoriteFolderLiveExtensions	deze extenties (meerdere extenties kunnen worden toegevoegd door middel van spaties tussen de extenties, als voorbeeld "bak bk")
 lDialogFavoriteFolderLiveInclude	Bijvoegen
 lDialogFavoriteFolderLiveLevels	Aantal submapniveau's om in te voegen in Live mapmenu
+lDialogFavoriteFolderLiveType	Live map
 lDialogFavoriteLocationEmpty	Deze locatie is leeg, selecteer een locatie alsublieft.
 lDialogFavoriteMenuPosition	Voeg het favoriet toe vóór het geselecteerde item
 lDialogFavoriteNameEmpty	Er is geen naam geselecteerd voor de favoriet, voer een naam in alstublieft.
@@ -397,9 +398,6 @@ lGuiGroupClosing	Windows Explorer sluiten
 lGuiGroupRestoreDelay	Herstelvertraging tussen favorieten:
 lGuiGroupRestoreDelayMilliseconds	milliseconde
 lGuiGroupRestoreSide	Aan welke zijde van ~1~ weergeven?
-lGuiGroupSaveAddWindowsLabel	Aan bestaande venster toevoegen
-lGuiGroupSaveReplaceWindowsLabel	Vervang bestaande vensters
-lGuiGroupSaveRestoreOption	Indien deze groep wordt opgeroepen:
 lGuiGroupSaveRestoreWith	Herstel mappen met:
 lGuiHelp	Help
 lGuiHotkeysHelp	Hulp voor sneltoetsen
@@ -681,7 +679,7 @@ lOptionsExclusionMouseListDescription	Uitsluitlijst voor muistoets: [~1~].
 lOptionsExclusionMouseListDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
-lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's:
+lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's
 lOptionsFileManagerNavigateCurrent	het huidige ~1~ venster
 lOptionsFileManagerNavigateIntro	Bij het openen van het QAP menu buiten ~1~, open dan de mappen in:
 lOptionsFileManagerNavigateNew	een nieuw ~1~ venster
@@ -784,7 +782,6 @@ lUpdateButtonVisit	Website bezoeken
 lUpdateError	Er is een fout opgetreden tijdens het controleren van nieuwe versies. De update is onderbroken...
 lUpdatePrompt	Update ~1~ van v~2~ naar v~3~?
 lUpdatePromptBeta	Er is een nieuwe ~1~ BETA versie.`n`nUpdate ~1~ van v~2~ naar v~3~?
-lUpdateTitle	Update ~1~?
 lUpdateYouHaveLatest	U heeft de laatste versie: ~1~.`n`nWilt u de website van ~2~ bezoeken?
 lWindowIsTreeviewText	Sorry... Door een Windows beperking kunnen Boomstructuur-vensters niet ondersteund worden.
 lWindowIsTreeviewTitle	Boomstructuur-vensters worden niet ondersteund

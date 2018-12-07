@@ -14,7 +14,7 @@ lContextAddFile	Adicionar Ficheiro ao menu do Quick Access Popup
 lContextAddFileXpress	Adicionar Ficheiro ao menu do Quick Access Popup (Expresso)
 lContextAddFolder	Adicionar Pasta ao menu do Quick Access Popup
 lContextAddFolderXpress	Adicionar Pasta ao menu do Quick Access Popup (Expresso)
-lContextAddShortcut	Importar Atalho do Windows para o menu Quick Access Popup
+lContextAddShortcut	Importar Atalho para o menu Quick Access Popup
 lContextShowMenu	Mostrar o menu do Quick Access Popup
 lContextShowMenuAternative	Mostrar o menu Alternativo do Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Mantem esta janela sempre visível em primeiro plano
@@ -160,6 +160,7 @@ lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensões (separar as extensões com espaços, por exemplo "bak bk")
 lDialogFavoriteFolderLiveInclude	Incluir
 lDialogFavoriteFolderLiveLevels	Número de níveis de subpastas a incluir no menu Pasta Live
+lDialogFavoriteFolderLiveType	Pasta Live
 lDialogFavoriteLocationEmpty	A localização está vazia. Por favor, escolha outra.
 lDialogFavoriteMenuPosition	Inserir o favorito antes deste item
 lDialogFavoriteNameEmpty	O nome do favorito está em branco. Por favor, escolha um nome.
@@ -397,9 +398,6 @@ lGuiGroupClosing	Fechar janelas do Explorador
 lGuiGroupRestoreDelay	Atraso entre os favoritos para restaurar:
 lGuiGroupRestoreDelayMilliseconds	milisegundos
 lGuiGroupRestoreSide	Exibir em que lado do ~1~?
-lGuiGroupSaveAddWindowsLabel	Adicionar a janelas existentes
-lGuiGroupSaveReplaceWindowsLabel	Substituir janelas existentes
-lGuiGroupSaveRestoreOption	Ao restaurar este grupo:
 lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Mostra a janela reduzida da "Ajuda" do QAP.
@@ -682,7 +680,7 @@ lOptionsExclusionMouseListDescription	Lista de Exclusões para desencadeador do R
 lOptionsExclusionMouseListDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa aplicação, introduza qualquer parte to título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir o Chrome e o Word, introduza as duas seguintes linhas na lista de exclusões:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	A combinação do QAP será desactivada nestas aplicações e o clique [~1~] será enviado para a janela alvo como se o QAP não estivesse a ser executado. Pode também excluir janelas pelo nome da sua classe ou processo (nome do ficheiro EXE. Insira * (asterisco) antes do título ou classe para também excluir caixas de diálogo de programas. Pode encontrar ajuda para esta função <a href="~2~">no site do QAP</a>.
 lOptionsExplorerContextMenus	Activar menus de contexto
-lOptionsExplorerContextMenusHeader	Menus de Contexto do Explorador do Windows:
+lOptionsExplorerContextMenusHeader	Menus de Contexto do Explorador do Windows
 lOptionsFileManagerNavigateCurrent	a actual janela do ~1~
 lOptionsFileManagerNavigateIntro	Ao abrir o menu QAP fora do ~1~, abrir pastas em:
 lOptionsFileManagerNavigateNew	nova janela do ~1~
@@ -785,6 +783,7 @@ lUpdateButtonVisit	Visitar site web
 lUpdateError	Ocorreu um erro ao aceder ao número da última versão. Interrompida a procura de actualizações.
 lUpdatePrompt	Actualizar ~1~ de v~2~ para v~3~?
 lUpdatePromptBeta	Existe uma nova versão BETA do ~1~.`n`nActualizar o ~1~ da v~2~ para a v~3~?
+lUpdatePromptBetaContinue	Deseja ser informado sobre futuras versões beta?
 lUpdateTitle	Actualizar o ~1~?
 lUpdateYouHaveLatest	Já possui a versão mais recente: ~1~.`n`nDeseja visitar a página web do ~2~?
 lWindowIsTreeviewText	Limitações do Windows...

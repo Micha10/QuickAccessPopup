@@ -14,7 +14,8 @@ lContextAddFile	Añadir este archivo al menú de Quick Access Popup
 lContextAddFileXpress	Añadir este archivo al menú de Quick Access Popup Express 
 lContextAddFolder	Añadir esta carpeta al menú de Quick Access Popup 
 lContextAddFolderXpress	Añadir esta carpeta al menú de Quick Access Popup Express 
-lContextAddShortcut	Importar accesos directos de Windows al menú de Quick Access Popup 
+lContextAddShortcut	Importar accesos directos al menú de Quick Access Popup 
+lContextCancelled	El usuario canceló la activación o desactivación de los menús contextuales del Explorador de Windows.
 lContextShowMenu	Mostrar el menú de Quick Access Popup 
 lContextShowMenuAternative	Mostrar menú Alternativo de Quick Access Popup 
 lControlToolTipAlwaysOnTopOff	Mantener esta ventana visible siempre arriba
@@ -160,6 +161,7 @@ lDialogFavoriteFolderLiveExclude	Excluir
 lDialogFavoriteFolderLiveExtensions	estas extensiones (extensiones separadas con espacios, por ejemplo "bak bk")
 lDialogFavoriteFolderLiveInclude	Incluir
 lDialogFavoriteFolderLiveLevels	Número de niveles de subcarpetas a incluir en el menú Carpeta dinámica 
+lDialogFavoriteFolderLiveType	Carpeta dinámica
 lDialogFavoriteLocationEmpty	La ubicación está vacía. Quiere indicar la ubicación de la carpeta.
 lDialogFavoriteMenuPosition	Insertar el favorito antes de este elemento
 lDialogFavoriteNameEmpty	El nombre del favorito está vacio. Quiere indicar un nombre corto para este favorito.
@@ -379,6 +381,10 @@ lDonateText4	Escribe una opinión a favor ~1~ a :
 lDonateText5	Enviadme vuestro link
 lDonateThankyou	Gracias por esta señal de aprecio!
 lDonateTitle	Donar! - ~1~ ~2~
+lDOpusLayoutsName	Disposiciones
+lDOpusMenuName	Directorios Favoritos de Opus
+lDopusMenuNameDescription	Para los usuarios de Directory Opus (DOpus), mostrar un menú dinámico construido con las carpetas añadidas a los Favoritos de DOpus. Si se seleccionó DOpus cuando instaló QAP, el directorio Favoritos de Opus se ha añadido automáticamente a su menú.
+lDopusMenuNameShowLayout	Mostrar Disposiciones en ~1~ menús
 lGuiAbout	Acerca de
 lGuiAboutDescription	Muestre los créditos por desarrollo, traducción y otras contribuciones, versión de la aplicación y números de entorno de tiempo de ejecución, licencia, nombres de usuario y de ordenador, un enlace al sitio web de la aplicación. `n`nEsta información también está disponible mediante el botón "Acerca de" de la ventana Configuración.
 lGuiAddFavorite	Añadir
@@ -397,9 +403,9 @@ lGuiGroupClosing	Cerrando explorador de Windows
 lGuiGroupRestoreDelay	Retardo entre los favoritos para restaurar:
 lGuiGroupRestoreDelayMilliseconds	milisegundos
 lGuiGroupRestoreSide	Pantalla de qué lado ~1~?
-lGuiGroupSaveAddWindowsLabel	Añadir a ventanas existentes
-lGuiGroupSaveReplaceWindowsLabel	Reemplazar ventanas existentes
-lGuiGroupSaveRestoreOption	Durante la restauración del grupo:
+lGuiGroupSaveAddWindowsLabel	Añadir carpetas a ventanas existentes
+lGuiGroupSaveReplaceWindowsLabel	Reemplazar carpetas en ventanas existentes
+lGuiGroupSaveRestoreOption	Al restaurar carpetas de este grupo:
 lGuiGroupSaveRestoreWith	Restaurar carpetas con:
 lGuiHelp	Ayuda
 lGuiHelpDescription	Muestra la ventana de ayuda.
@@ -549,6 +555,7 @@ lMenuMyVideo	Mis videos
 lMenuMyWindowsAppsMenu	Mis Apps de Windows
 lMenuNoClipboard	Portapapeles no contiene ninguna ruta o URL...
 lMenuNoCurrentFolder	No hay carpetas abiertas actualmente...
+lMenuOpenWorkingDirectory	Abrir QAP en directorio de trabajo
 lMenuPictures	Imágenes
 lMenuPopularFiles	Archivos
 lMenuPopularFolders	Carpetas
@@ -625,6 +632,8 @@ lOopsExternalReadOnlyAlert	Los menús compartidos de tipo "Centralizado" no se pu
 lOopsExternalReadOnlyAlertUsernameAdded	Su nombre de usuario se agregó automáticamente a la lista "usuarios con acceso de escritura".
 lOopsExternalSelectType	Seleccione el tipo de Menú Compartido en la ficha "Menú Compartido".
 lOopsFavoritesCopied	~1~ favoritos copiado.
+lOopsFileExpandedFrom	Expandido desde
+lOopsFileNotFound	Esta ubicación no existe
 lOopsFirstEnterUrl	Primero, entre una dirección en el "~1~" campo.
 lOopsFtpLocationProtocol	Ubicación FTP debe comenzar con "ftp://".
 lOopsGroup	grupo
@@ -676,16 +685,19 @@ lOptionsControlDoublePressedLeft	Uso de la tecla de Control Izquierda
 lOptionsControlDoublePressedRight	Uso de la Tecla de Control Derecha
 lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
+lOptionsDisplayMenuShortcutsFromOne	Iniciar los Accesos Directos del Menú Numérico en 1 (en lugar de 0)
 lOptionsEnableExternalMenusCatalogue	Activar el Catálogo de los menús compartidos
 lOptionsExclusionMouseList	Lista de exclusiones
 lOptionsExclusionMouseListDescription	Lista de Exclusiones de ratón del disparador [~1~]
 lOptionsExclusionMouseListDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y el [~1~] click se enviará a la ventana de destino como si QAP no estuviera ejecutándose. También puede excluir ventanas por su nombre de clase o nombre de proceso (nombre de archivo EXE). Prefija el título o la clase con * (asterisco) para excluir también los cuadros de diálogo de la aplicación. Puede encontrar ayuda y soporte para esta función <a href="~2~">en el sitio web de QAP</a>.
 lOptionsExplorerContextMenus	Activar Menús Contextuales
-lOptionsExplorerContextMenusHeader	Menús Contextuales de Windows Explorer:
+lOptionsExplorerContextMenusHeader	Menús Contextuales de Windows Explorer
 lOptionsFileManagerNavigateCurrent	la actual ~1~ ventana
+lOptionsFileManagerNavigateCurrentTab	activa ~1~ pestaña
 lOptionsFileManagerNavigateIntro	Cuando abra el menú QAP fuera de ~1~, abra las carpetas en:
 lOptionsFileManagerNavigateNew	una nueva ~1~ ventana
+lOptionsFileManagerNavigateNewTab	una nueva ~1~ pestaña
 lOptionsFtpEncoding	Codificar Nombre de usuario y contraseña FTP (recomendado)
 lOptionsFtpEncodingTC	Codificar Nombre de usuario y contraseña FTP (no recommendado para Total Commander)
 lOptionsGuiTitle	Opciones - ~1~ ~2~
@@ -705,7 +717,9 @@ lOptionsMenuNearMouse	Cerca del puntero del ratón
 lOptionsMenuOptions	Opciones del menú
 lOptionsMenuPositionPrompt	Mostrar el menú popup:
 lOptionsMouseAndKeyboard	Lanzadores de menú
+lOptionsOpenFavoritesOnActiveMonitor	En un sistema multimonitor, abra siempre la ventana del Explorador en el monitor activo.
 lOptionsOpenMenuOnTaskbar	&Abrir menú al hacer clic en la Barra de tareas
+lOptionsOpenSettingsOnActiveMonitor	Abrir la ventana Configuración en &Monitor activo
 lOptionsOtherOptions	General
 lOptionsPopupFixPositionX	Posición X:
 lOptionsPopupFixPositionY	Y:
@@ -785,6 +799,7 @@ lUpdateButtonVisit	Visitar sitio web
 lUpdateError	Se produjo un error al verificar el número de la última versión. La verificación de la actualización se ha interrumpido.
 lUpdatePrompt	Actualizar ~1~ de la versión v~2~ à la versión v~3~?
 lUpdatePromptBeta	Hay una nueva versión BETA de ~1~.`n`nActualizar ~1~ de la versión v~2~ à la versión v~3~?
+lUpdatePromptBetaContinue	Desea estar informado sobre futuras versiones BETA?
 lUpdateTitle	Actualizar ~1~?
 lUpdateYouHaveLatest	Usted tiene la versión más reciente: ~1~.`n`nVisitar la página de ~2~ todavía?
 lWindowIsTreeviewText	Lo sentimos... A causa de una limitación de Windows, este tipo de caja de diálogo (TreeView) no es compatible con ~1~ de momento.
