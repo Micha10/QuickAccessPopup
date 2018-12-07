@@ -5121,7 +5121,6 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, g_intClipboardMaxSize, %g_strIniFile%, Global, ClipboardMaxSize, 10000 ; default 10000 chars
 
-
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
 if (g_intNbLiveFolderItemsMax = "ERROR")
@@ -5137,6 +5136,7 @@ IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
 IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
+IniRead, g_blnTryWindowPosition, %g_strIniFile%, Global, TryWindowPosition, 0 ; default false
 
 ; ---------------------
 ; Load favorites
@@ -10626,7 +10626,7 @@ strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
 ; must be before GuiFavoriteInit and GuiAddFavoriteSaveXpress
-g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
+g_strTypesForTabWindowOptions := "|Folder|Special|FTP" . (g_blnTryWindowPosition ? "|Document|Application|URL|WindowsApp" : "") ; must start with "|"
 g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|QAP|Group|WindowsApp" ; must start with "|"
 
 Gosub, GuiFavoriteInit
@@ -10773,7 +10773,7 @@ BuildTabsList(strFavoriteType)
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
-		and (g_intActiveFileManager = 1 or g_intActiveFileManager = 3)) ; Explorer or Total Commander
+		and ((g_intActiveFileManager = 1 or g_intActiveFileManager = 3) or g_blnTryWindowPosition)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
@@ -17106,6 +17106,13 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 	Run, %g_strFullLocation%, , UseErrorLevel, intPid
 	if (ErrorLevel = "ERROR")
 		Oops(lOopsUnknownTargetAppName)
+	else
+		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
+		if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
+		{
+			g_strNewWindowId := "ahk_pid " . intPid
+			gosub, OpenFavoriteWindowPosition
+		}
 
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -17141,6 +17148,11 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		if (A_LastError <> 1223)
 			Oops(lOopsUnknownTargetAppName)
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
+	}
+    else if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
+	{
+		g_strNewWindowId := "ahk_pid " . intPid
+		gosub, OpenFavoriteWindowPosition
 	}
 
 	gosub, OpenFavoritePlaySoundAndCleanup
@@ -17223,7 +17235,7 @@ if (g_strHotkeyTypeDetected = "Launch")
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
 	if ((g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor) ;  we need to position window
-		and InStr("Explorer|TotalCommander", g_strTargetAppName) and StrLen(g_strNewWindowId)) ; we can access the new Explorer or Total Commander window
+		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or g_blnTryWindowPosition)) ; we can access new Explorer or Total Commander windows, or try with other apps
 		gosub, OpenFavoriteWindowPosition
 		
 	gosub, UsageDbCollectMenu
@@ -18722,6 +18734,7 @@ StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instea
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
 if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
 	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+g_strNewWindowId := "ahk_class dopus.lister"
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
@@ -18833,7 +18846,7 @@ Run, %g_strQAPconnectAppPath% %strQAPconnectParamString%
 if StrLen(g_strQAPconnectWindowID)
 ; g_strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
 ; It must contain at least some characters of the connected app title, and enough to be specific to this window.
-; It is used here to wait for the FM window as identified in QAPconnect.ini.
+; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId.
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
@@ -18841,7 +18854,10 @@ if StrLen(g_strQAPconnectWindowID)
 	; (because by default, regular expressions find a match anywhere in the target string).
 	WinWaitActive, ahk_exe %g_strQAPconnectAppFilename%, , 10 ; wait for the window as identified in QAPconnect.ini
 	SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
+	g_strNewWindowId := g_strQAPconnectWindowID
 }
+else
+	g_strNewWindowId := ""
 
 intPreviousTitleMatchMode := ""
 strQAPconnectParamString := ""
@@ -18865,7 +18881,7 @@ return
 OpenFavoriteWindowPosition:
 ;------------------------------------------------------------
 
-if !StrLen(g_strNewWindowId) ; we can't access the new Explorer or Total Commander window
+if !StrLen(g_strNewWindowId) ; we can't access the new window
 	return
 
 if (g_arrFavoriteWindowPosition1) ; the has precedence on g_blnOpenFavoritesOnActiveMonitor
@@ -18879,7 +18895,7 @@ if (g_arrFavoriteWindowPosition1) ; the has precedence on g_blnOpenFavoritesOnAc
 			, %arrMonitorsCoordinatesLeft% ; left
 			, %arrMonitorsCoordinatesTop% ; top
 	}
-	; no else
+	; do not else
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
 	else if (g_arrFavoriteWindowPosition2 = 1) ; Maximized
