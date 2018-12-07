@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.1.4 (2018-12-06)
+Version: 9.3.2 (2018-12-07)
  
 Windows file shortcuts in Live Folders
 - retrieve "Name" (without .lnk extension), "Start In" and "Arguments" (parameters) properties from file shortscuts when building Live folders
@@ -39,21 +39,21 @@ Windows file shortcuts in Live Folders
  
 Import Windows file shortcuts to menu
 - add context menu entry "Import Shortcut to Quick Access Popup menu" to import a Windows file shortcut into a new favorite with its name (without the .lnk extension), its icon and, for applications, its "Start In" and "Arguments" (parameters) properties
-- update with the Import Shortcut registry keys in the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
+- add registry keys for the "Import Shortcut" command in the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
 - removed the QuickAccessPopup-InstallContextMenus.reg and QuickAccessPopup-RemoveContextMenus.bat (replaced by ManageContextMenu.bat) from portable installation zip file
  
 Various improvements
-- before saving a new favorite, check if location exists and, if not, return to the "Add/Edit favorite" dialog box
-- in "Add/Edit favorite" dialog box for folders, documents and applications, trim unneeded double quotes if they enclose the favorite location
+- before saving a new favorite of types Folder, Document and Application, check if location exists and, if not, return to the "Add/Edit favorite" dialog box
+- in "Add/Edit favorite" dialog box for types Folder, Document and Application, trim unneeded double quotes if they enclose the favorite location
 - remove exclamation marks enclosing Live folder names in menu; replace "!Folder!" with "Live Folder" in Settings window "Type" column
-- user variables (like "{Dropbox}", see the "More" tab in "Options") are now supported in every file path where environmemnnt variables (like "%TEMP%") are supported in QAP (icon files, shared menu names, etc.)
+- user variables (like "{Dropbox}") are now supported in every file path where environmemnnt variables (like "%TEMP%") are supported in QAP (icon files, shared menu names, etc.)
  
 Bug fixes
 - handle correctly the situation where user cancels the command when asked for admin prvivilege after enabling or disabling the context menus (in "Options", "Menu" tab)
 - set icon for "Repeat Last Actions" menu when dynamic menu items are open
 - center buttons correctly in some dialog boxes
 - when Explorer is selected as file manager, display Directory Opus icon for DOpus Favorites and Total Commander icon for TC Hotlists
-- when displaying the "Menu key" hotkey text, replace internal name "AppsKey" with "Menu key" as well as the other internal "sc15D"
+- when displaying the "Menu key" hotkey text, replace internal name "AppsKey" with "Menu key" as well as the other internal name "sc15D"
 
 Version: 9.3.1.3 (2018-12-01)
 - fix bug in dynamic menus when menu numeric shortcuts are enabled
