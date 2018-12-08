@@ -15360,10 +15360,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonChangeShortcutCancel:
 	;------------------------------------------------------------
-	SS_strNewShortcut := ""
 
-	g_blnChangeShortcutInProgress := false
-	Gosub, 3GuiClose
+	; called here if user click Cancel, called also directlry if user hit Escape
+	Gosub, 3GuiEscape
   
 	return
 	;------------------------------------------------------------
@@ -15519,10 +15518,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	ButtonChangeHotstringCancel:
 	;------------------------------------------------------------
 	
-	SH_strNewHotstring := P_strActualHotstring
-
-	g_blnChangeHotstringInProgress := false
-	Gosub, 3GuiClose
+	; called here if user click Cancel, called also directlry if user hit Escape
+	Gosub, 3GuiEscape
   
 	return
 	;------------------------------------------------------------
@@ -15812,6 +15809,18 @@ return
 3GuiClose:
 3GuiEscape:
 ;------------------------------------------------------------
+
+if (A_ThisLabel = "3GuiEscape")
+	if (g_blnChangeShortcutInProgress) ; coming from SelectShortcut
+	{
+		SS_strNewShortcut := ""
+		g_blnChangeShortcutInProgress := false
+	}
+	else if (g_blnChangeHotstringInProgress) ; coming from SelectHotstring
+	{
+		SH_strNewHotstring := P_strActualHotstring
+		g_blnChangeHotstringInProgress := false
+	}
 
 Gui, 2:-Disabled
 Gui, 3:Destroy
