@@ -181,7 +181,7 @@ lDialogFavoriteSnippetEmpty	Er is geen inhoud beschikbaar voor dit fragment, voe
 lDialogFavoriteSnippetFixedFont	Vaste breedte voor het lettertype
 lDialogFavoriteSnippetFontSize	Grootte voor lettertype
 lDialogFavoriteSnippetHelpNoProcess	Gebruik ``n voor het einde van de zin, en ''t voor een tab. Gebruik ```` (dubbele  accent grave) voor een accent grave.
-lDialogFavoriteSnippetHelpProcess	Gebruik "Ctrl-Tab" om tabs in te voegen en "Enter" voor een nieuwe regel
+lDialogFavoriteSnippetHelpProcess	Gebruik "Ctrl-Tab" om tabs in te voegen en "Enter" voor een nieuwe regel.
 lDialogFavoriteSnippetHelpWeb	Browse naar <a href="~1~">Snippets</a> en <a href="~2~">Placeholders</a> voor hulp.
 lDialogFavoriteSnippetProcessEOLTab	Configureer Einde-van-de-Zin en Tabs automatisch
 lDialogFavoriteSnippetPromptLabel	Prompt voor ~1~ het fragment

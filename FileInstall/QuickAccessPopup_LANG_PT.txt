@@ -181,7 +181,7 @@ lDialogFavoriteSnippetEmpty	O conteúdo está vazio. Por favor, introduza o conteú
 lDialogFavoriteSnippetFixedFont	Fonte de largura fixa
 lDialogFavoriteSnippetFontSize	Tamanho da fonte
 lDialogFavoriteSnippetHelpNoProcess	Insira ``n para fim de linha e ``t para tabulação. Insira ```` (duplo acento grave) para acento grave (backtick).
-lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações ou Enter para inserir fins de linha
+lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações ou Enter para inserir fins de linha.
 lDialogFavoriteSnippetHelpWeb	Ver as páginas de ajuda <a href="~1~">Snippets</a> e <a href="~2~">Espaços reservados</a>.
 lDialogFavoriteSnippetProcessEOLTab	Codificar automaticamente fins de linha e tabulações
 lDialogFavoriteSnippetPromptLabel	Notificar antes de ~1~ o snippet
