@@ -11026,26 +11026,14 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 			
 			Gui, Font
-			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
-			GuiControlGet, arrPosFixedFont, Pos, f_blnFixedFont
-			g_intContentLabelY := arrPosFixedFontY
-			Gui, 2:Add, Text, x+20 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
-			GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
-			Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
-			GuiControlGet, arrPosFontSize, Pos, f_intFontSize
-            Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
-			GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
 			Gui, Font, w700
-			Gui, 2:Add, Button, x+20 yp vf_btnEnlarge gEnlargeSnippetContent, +
+			Gui, 2:Add, Button, x500 yp h18 w20 vf_btnEnlarge gEnlargeSnippetContent, +
 			Gui, Font
 			GuiControlGet, arrPosEnlarge, Pos, f_btnEnlarge
+			g_intContentLabelY := arrPosEnlargeY
 			
-			intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
-			GuiControl, Move, f_blnFixedFont, % "x" . arrPosFixedFontX + intMoveRight
-			GuiControl, Move, f_intFontSize, % "x" . arrPosFontSizeX + intMoveRight
-			GuiControl, Move, f_intFontUpDown, % "x" . arrPosUpDownX + intMoveRight
-			GuiControl, Move, f_lblFontSize, % "x" . arrPosFontSizeLabelX + intMoveRight
-			GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
+			; intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
+			; GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
 		}
 		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
@@ -11082,8 +11070,17 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
-		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
-		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
+		Gui, 2:Add, Checkbox, % "x20 y+10 w320 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Checkbox, % "x360 yp w160 vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
+		
+		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w320, `n`n ; keep `n to make sure a second line is available for the control
+		Gui, 2:Add, Text, x360 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
+		GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
+		Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
+		GuiControlGet, arrPosFontSize, Pos, f_intFontSize
+		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
+		GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
+		
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
 }
@@ -11174,7 +11171,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : "20") . " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : (g_objEditedFavorite.FavoriteType = "Snippet" ? "30" : "20"))
+	. " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 ResetArray("arrNewFavoriteWindowPosition")
@@ -11292,10 +11290,6 @@ GuiControl, Move, f_strFavoriteLocation, % "y" . (strEnlargeLabel = "+" ? g_intT
 	. " h" . (strEnlargeLabel = "+" ? g_intSnippetContentH + (g_intContentLabelY - g_intTypeHelpY) : g_intSnippetContentH)
 
 GuiControl, Move, f_lblLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_blnFixedFont, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_intFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_intFontUpDown, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_lblFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
 GuiControl, Move, f_btnEnlarge, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
 
 GuiControl, , f_btnEnlarge, % (strEnlargeLabel = "+" ? "-" : "+")
@@ -12068,7 +12062,7 @@ if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
 }
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" 
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . ". " 
 	. L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/"
 		, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 
