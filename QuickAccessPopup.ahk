@@ -22500,7 +22500,6 @@ SetWaitCursor(blnOnOff)
 			strCursors := "32650,32512,32515,32649,32651,32513,32648,32646,32643,32645,32642,32644,32516,32514"
 			Loop, Parse, strCursors, `,
 				DllCall("SetSystemCursor", "Uint", DllCall("CopyImage", "Uint", objWaitCursor, "Uint", 2, "Int", 0, "Int", 0, "Uint", 0), "Uint", A_LoopField)
-			Sleep, 50
 			
 			blnCursorWaitAlreadyOn := true
 		}
