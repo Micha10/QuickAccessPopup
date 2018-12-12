@@ -31,6 +31,18 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.3.2.9.2 (2018-12-07)
+- merge bug fixes and changes from master release v9.3.2.1 (no new features related to this beta test phase)
+
+Version: 9.3.2.1 (2018-12-11)
+- in "Add/Edit Favorite" dialog box for type Snippet, moved "Fix width font" and "Font size" controls under the content box
+- fix bug introduced in v9.3.2 when moving a favorite of types Folder, Document or Application or when copying multiple favorites of the same types
+- fix bug title not shown in Select Shortcut and Select Hotstring dialog boxes
+- fix bug in Select Shortcut and Select Hotstring dialog boxes when user cancels by hitting the Escape key instead of clicking the Cancel button
+- fix label missing for Live Folders in Settings
+- pause 50 ms when restoring from Wait to Normal cursor after menu refresh to give time to Windows to pass the change to other apps in some situatione (for example, when video recording is running)
+- update Portuguese language file
+
 Version BETA: 9.3.2.9.1 (2018-12-07)
 - add ini value TryWindowPosition=1 to show the "Add/Edit Favorite" tab "Window Options" for favorite types Document, Application, URL and WindowsApp;
 - when TryWindowPosition=1, get the new window ID and "try" to position the window of these favorites (if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander)
@@ -2968,7 +2980,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.2.9.1
+;@Ahk2Exe-SetVersion 9.3.2.9.2
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -3067,7 +3079,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
