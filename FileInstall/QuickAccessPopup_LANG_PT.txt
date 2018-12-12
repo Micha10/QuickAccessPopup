@@ -15,6 +15,7 @@ lContextAddFileXpress	Adicionar Ficheiro ao menu do Quick Access Popup (Expresso
 lContextAddFolder	Adicionar Pasta ao menu do Quick Access Popup
 lContextAddFolderXpress	Adicionar Pasta ao menu do Quick Access Popup (Expresso)
 lContextAddShortcut	Importar Atalho para o menu Quick Access Popup
+lContextCancelled	A activaÃ§Ã£o ou desactivaÃ§Ã£o dos menus de contexto do Windows Explorer foi cancelada pelo utilizador.
 lContextShowMenu	Mostrar o menu do Quick Access Popup
 lContextShowMenuAternative	Mostrar o menu Alternativo do Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Mantem esta janela sempre visível em primeiro plano
@@ -380,6 +381,10 @@ lDonateText4	Faça uma avaliação favorável do ~1~ em:
 lDonateText5	Envie-me o seu link
 lDonateThankyou	Obrigado por apoiar o freeware!
 lDonateTitle	Apoie o freeware! - ~1~ ~2~
+lDOpusLayoutsName	Esquemas
+lDOpusMenuName	Favoritos Directory Opus
+lDopusMenuNameDescription	Para utilizadores do Directory Opus (DOpus), exibe um menu dinÃ¢mico construÃ­do com as pastas adicionadas aos Favoritos DOpus. Se o DOpus foi seleccionado quando instalou o QAP, os Favoritos Directory Opus foram adicionados automaticamente ao seu menu.
+lDopusMenuNameShowLayout	Exibir Esquemas nos menus ~1~
 lGuiAbout	Acerca
 lGuiAboutDescription	Exibe o desenvolvimento, traduções e outros créditos, versão da aplicação e runtime, licença, nome do utilizador actual e do PC, ligação para a página de suporte.`n`nEsta funcionalidade também está disponível através do botão "Acerca" da janela principal "Definições".
 lGuiAddFavorite	Adicionar
@@ -398,6 +403,9 @@ lGuiGroupClosing	Fechar janelas do Explorador
 lGuiGroupRestoreDelay	Atraso entre os favoritos para restaurar:
 lGuiGroupRestoreDelayMilliseconds	milisegundos
 lGuiGroupRestoreSide	Exibir em que lado do ~1~?
+lGuiGroupSaveAddWindowsLabel	Adicionar pastas a janelas existentes
+lGuiGroupSaveReplaceWindowsLabel	Substituir pastas em janelas existentes
+lGuiGroupSaveRestoreOption	Ao restaurar pastas neste grupo:
 lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Mostra a janela reduzida da "Ajuda" do QAP.
@@ -547,6 +555,7 @@ lMenuMyVideo	Os Meus Vídeos
 lMenuMyWindowsAppsMenu	As minhas Apps Windows
 lMenuNoClipboard	A Área de transferência não tem nenhum atalho ou URL...
 lMenuNoCurrentFolder	Não há pastas abertas actualmente...
+lMenuOpenWorkingDirectory	Abrir directÃ³rio de trabalho do QAP
 lMenuPictures	Imagens
 lMenuPopularFiles	Ficheiros
 lMenuPopularFolders	Pastas
@@ -623,6 +632,8 @@ lOopsExternalReadOnlyAlert	Os menus partilhados do tipo "Centralizado" só podem 
 lOopsExternalReadOnlyAlertUsernameAdded	O seu nome de utilizador foi adicionado automaticamente à lista de "Utilizadores com acesso de escrita".
 lOopsExternalSelectType	Por favor seleccione o tipo de menu partilhado no separador "Menu partilhado".
 lOopsFavoritesCopied	~1~ favoritos copiados.
+lOopsFileExpandedFrom	Expandido a partir de
+lOopsFileNotFound	Esta localizaÃ§Ã£o nÃ£o existe
 lOopsFirstEnterUrl	Primeiro, introduza um endereço no campo "~1~".
 lOopsFtpLocationProtocol	A localização FTP deve começar com "ftp://".
 lOopsGroup	grupo
@@ -674,6 +685,7 @@ lOptionsControlDoublePressedLeft	Usando a tecla Control Esquerda
 lOptionsControlDoublePressedRight	Usando a tecla Control Direita
 lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
+lOptionsDisplayMenuShortcutsFromOne	Iniciar Atalhos do Menu NumÃ©rico em 1 (em vez de 0)
 lOptionsEnableExternalMenusCatalogue	Activar Catálogo de Menus Partilhados
 lOptionsExclusionMouseList	Lista de Exclusões
 lOptionsExclusionMouseListDescription	Lista de Exclusões para desencadeador do Rato [~1~]
@@ -682,8 +694,10 @@ lOptionsExclusionMouseListDetail2	A combinação do QAP será desactivada nestas ap
 lOptionsExplorerContextMenus	Activar menus de contexto
 lOptionsExplorerContextMenusHeader	Menus de Contexto do Explorador do Windows
 lOptionsFileManagerNavigateCurrent	a actual janela do ~1~
+lOptionsFileManagerNavigateCurrentTab	o actual separador ~1~
 lOptionsFileManagerNavigateIntro	Ao abrir o menu QAP fora do ~1~, abrir pastas em:
 lOptionsFileManagerNavigateNew	nova janela do ~1~
+lOptionsFileManagerNavigateNewTab	um novo separador ~1~
 lOptionsFtpEncoding	Codificar utilizador e palavra-passe FTP (recomendado)
 lOptionsFtpEncodingTC	Codificar utilizador e palavra-passe FTP (não recomendado para o Total Commander)
 lOptionsGuiTitle	Opções - ~1~ ~2~
@@ -703,7 +717,9 @@ lOptionsMenuNearMouse	Junto ao cursor do rato
 lOptionsMenuOptions	Opções do Menu
 lOptionsMenuPositionPrompt	Menu emergente:
 lOptionsMouseAndKeyboard	Teclas de Atalho do menu
+lOptionsOpenFavoritesOnActiveMonitor	Num sistema multi-monitor, abrir sempre a janela do Explorador no monitor activo
 lOptionsOpenMenuOnTaskbar	Abrir menu ao clicar na barra de tarefas
+lOptionsOpenSettingsOnActiveMonitor	Abrir janela de DefiniÃ§Ãµes no monitor &Activo
 lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:

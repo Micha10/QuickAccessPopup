@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.3.2.1 (2018-12-11)
+- in "Add/Edit Favorite" dialog box for type Snippet, moved "Fix width font" and "Font size" controls under the content box
+- fix bug introduced in v9.3.2 when moving a favorite of types Folder, Document or Application or when copying multiple favorites of the same types
+- fix bug title not shown in Select Shortcut and Select Hotstring dialog boxes
+- fix bug in Select Shortcut and Select Hotstring dialog boxes when user cancels by hitting the Escape key instead of clicking the Cancel button
+- fix label missing for Live Folders in Settings
+- pause 50 ms when restoring from Wait to Normal cursor after menu refresh to give time to Windows to pass the change to other apps in some situatione (for example, when video recording is running)
+- update Portuguese language file
+
 Version: 9.3.2 (2018-12-07)
  
 Windows file shortcuts in Live Folders
@@ -2911,7 +2920,7 @@ f_typNameOfVariable
 
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.2.0.1 
+;@Ahk2Exe-SetVersion 9.3.2.1 
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
 
 
@@ -3010,7 +3019,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
