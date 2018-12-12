@@ -14978,31 +14978,11 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if !StrLen(g_intIniLine)
 					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
-				if FileExist(g_strIniFile)
-				{
-					gosub, BackupIniFile ; backup external settings ini file, if required
-					
-					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
-					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
-					IniDelete, %g_strIniFile%, Favorites
-					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore)
-				}
-				else ; new external menu file, init external menu values
-				{
-					; not required - strIniDateTimeBefore := ""
-                    ; IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly - DEPRECATED since v8.1.9.1
-					/*
-					IniWrite, % objCurrentMenu[A_Index].FavoriteName, %g_strIniFile%, Global, SharedMenuName
-					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly ; default false
-					IniWrite, % "", %g_strIniFile%, Global, WriteAccessUsers ; default empty
-					IniWrite, % "", %g_strIniFile%, Global, WriteAccessMessage ; default empty
-					###_V(A_ThisLabel, g_strIniFile, f_strExternalMenuName)
-					IniWrite, %f_blnExternalMenuReadOnly%, %g_strIniFile%, Global, MenuReadOnly
-					IniWrite, %f_strExternalMenuName%, %g_strIniFile%, Global, MenuName
-					IniWrite, %f_strExternalWriteAccessUsers%, %g_strIniFile%, Global, WriteAccessUsers
-					IniWrite, %f_strExternalWriteAccessMessage%, %g_strIniFile%, Global, WriteAccessMessage
-					*/
-				}
+				gosub, BackupIniFile ; backup external settings ini file, if required
+				
+				IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
+				IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
+				IniDelete, %g_strIniFile%, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
