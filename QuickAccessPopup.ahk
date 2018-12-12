@@ -11103,26 +11103,14 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
 			
 			Gui, Font
-			Gui, 2:Add, Checkbox, % "x+20 yp vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
-			GuiControlGet, arrPosFixedFont, Pos, f_blnFixedFont
-			g_intContentLabelY := arrPosFixedFontY
-			Gui, 2:Add, Text, x+20 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
-			GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
-			Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
-			GuiControlGet, arrPosFontSize, Pos, f_intFontSize
-            Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
-			GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
 			Gui, Font, w700
-			Gui, 2:Add, Button, x+20 yp vf_btnEnlarge gEnlargeSnippetContent, +
+			Gui, 2:Add, Button, x500 yp h18 w20 vf_btnEnlarge gEnlargeSnippetContent, +
 			Gui, Font
 			GuiControlGet, arrPosEnlarge, Pos, f_btnEnlarge
+			g_intContentLabelY := arrPosEnlargeY
 			
-			intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
-			GuiControl, Move, f_blnFixedFont, % "x" . arrPosFixedFontX + intMoveRight
-			GuiControl, Move, f_intFontSize, % "x" . arrPosFontSizeX + intMoveRight
-			GuiControl, Move, f_intFontUpDown, % "x" . arrPosUpDownX + intMoveRight
-			GuiControl, Move, f_lblFontSize, % "x" . arrPosFontSizeLabelX + intMoveRight
-			GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
+			; intMoveRight := 500 - (arrPosFixedFontX + arrPosFixedFontW + arrPosFontSizeW + arrPosUpDownW + arrPosFontSizeLabelW + 10 + arrPosEnlargeW)
+			; GuiControl, Move, f_btnEnlarge, % "x" . arrPosEnlargeX + intMoveRight
 		}
 		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
@@ -11159,8 +11147,17 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 	if (g_objEditedFavorite.FavoriteType = "Snippet")
 	{
 		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
-		Gui, 2:Add, Checkbox, % "x20 y+10 w500 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
-		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w500, `n ; keep `n to make sure a second line is available for the control
+		Gui, 2:Add, Checkbox, % "x20 y+10 w320 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), %lDialogFavoriteSnippetProcessEOLTab%
+		Gui, 2:Add, Checkbox, % "x360 yp w160 vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), %lDialogFavoriteSnippetFixedFont%
+		
+		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w320, `n`n ; keep `n to make sure a second line is available for the control
+		Gui, 2:Add, Text, x360 yp vf_lblFontSize, %lDialogFavoriteSnippetFontSize%
+		GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
+		Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
+		GuiControlGet, arrPosFontSize, Pos, f_intFontSize
+		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
+		GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
+		
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
 	}
 }
@@ -11251,7 +11248,8 @@ if (g_objEditedFavorite.FavoriteType = "External")
 	Gui, 2:Add, Link, x20 y+15 w500, % L(lDialogFavoriteExternalHelpWeb, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : "20") . " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : (g_objEditedFavorite.FavoriteType = "Snippet" ? "30" : "20"))
+	. " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? lDialogFavoriteDisabledGroupMember : lDialogFavoriteDisabled)
 
 ResetArray("arrNewFavoriteWindowPosition")
@@ -11369,10 +11367,6 @@ GuiControl, Move, f_strFavoriteLocation, % "y" . (strEnlargeLabel = "+" ? g_intT
 	. " h" . (strEnlargeLabel = "+" ? g_intSnippetContentH + (g_intContentLabelY - g_intTypeHelpY) : g_intSnippetContentH)
 
 GuiControl, Move, f_lblLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_blnFixedFont, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_intFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_intFontUpDown, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
-GuiControl, Move, f_lblFontSize, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
 GuiControl, Move, f_btnEnlarge, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
 
 GuiControl, , f_btnEnlarge, % (strEnlargeLabel = "+" ? "-" : "+")
@@ -12145,7 +12139,7 @@ if (strSnippetFormatBefore = "display" and !f_blnProcessEOLTab)
 }
 
 ; change help text according to encoding state
-GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . "`n" 
+GuiControl, 2:, f_lblSnippetHelp, % (f_blnProcessEOLTab ? lDialogFavoriteSnippetHelpProcess : lDialogFavoriteSnippetHelpNoProcess) . " " 
 	. L(lDialogFavoriteSnippetHelpWeb, "https://www.quickaccesspopup.com/what-are-snippets/"
 		, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 
@@ -15068,31 +15062,11 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if !StrLen(g_intIniLine)
 					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
-				if FileExist(g_strIniFile)
-				{
-					gosub, BackupIniFile ; backup external settings ini file, if required
-					
-					IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
-					IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
-					IniDelete, %g_strIniFile%, Favorites
-					; ###_V("DateTime", g_strIniFile, strIniDateTimeBefore)
-				}
-				else ; new external menu file, init external menu values
-				{
-					; not required - strIniDateTimeBefore := ""
-                    ; IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly - DEPRECATED since v8.1.9.1
-					/*
-					IniWrite, % objCurrentMenu[A_Index].FavoriteName, %g_strIniFile%, Global, SharedMenuName
-					IniWrite, 0, %g_strIniFile%, Global, MenuReadOnly ; default false
-					IniWrite, % "", %g_strIniFile%, Global, WriteAccessUsers ; default empty
-					IniWrite, % "", %g_strIniFile%, Global, WriteAccessMessage ; default empty
-					###_V(A_ThisLabel, g_strIniFile, f_strExternalMenuName)
-					IniWrite, %f_blnExternalMenuReadOnly%, %g_strIniFile%, Global, MenuReadOnly
-					IniWrite, %f_strExternalMenuName%, %g_strIniFile%, Global, MenuName
-					IniWrite, %f_strExternalWriteAccessUsers%, %g_strIniFile%, Global, WriteAccessUsers
-					IniWrite, %f_strExternalWriteAccessMessage%, %g_strIniFile%, Global, WriteAccessMessage
-					*/
-				}
+				gosub, BackupIniFile ; backup external settings ini file, if required
+				
+				IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
+				IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
+				IniDelete, %g_strIniFile%, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -15447,10 +15421,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonChangeShortcutCancel:
 	;------------------------------------------------------------
-	SS_strNewShortcut := ""
 
-	g_blnChangeShortcutInProgress := false
-	Gosub, 3GuiClose
+	; called here if user click Cancel, called also directlry if user hit Escape
+	Gosub, 3GuiEscape
   
 	return
 	;------------------------------------------------------------
@@ -15609,10 +15582,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	ButtonChangeHotstringCancel:
 	;------------------------------------------------------------
 	
-	SH_strNewHotstring := P_strActualHotstring
-
-	g_blnChangeHotstringInProgress := false
-	Gosub, 3GuiClose
+	; called here if user click Cancel, called also directlry if user hit Escape
+	Gosub, 3GuiEscape
   
 	return
 	;------------------------------------------------------------
@@ -15912,6 +15883,18 @@ return
 3GuiClose:
 3GuiEscape:
 ;------------------------------------------------------------
+
+if (A_ThisLabel = "3GuiEscape")
+	if (g_blnChangeShortcutInProgress) ; coming from SelectShortcut
+	{
+		SS_strNewShortcut := ""
+		g_blnChangeShortcutInProgress := false
+	}
+	else if (g_blnChangeHotstringInProgress) ; coming from SelectHotstring
+	{
+		SH_strNewHotstring := P_strActualHotstring
+		g_blnChangeHotstringInProgress := false
+	}
 
 Gui, 2:-Disabled
 Gui, 3:Destroy
@@ -22681,6 +22664,7 @@ SetWaitCursor(blnOnOff)
 		; SystemParametersInfo() (with option 0x0057) changes the set of system cursors to the system defaults. 
 		; We are loading a system cursor, so there is no need to destroy it. Also the copies we are creating with CopyImage() are destroyed by SetSystemCursor() itself.
 		DllCall("SystemParametersInfo", "Uint", 0x0057, "Uint", 0, "Uint", 0, "Uint", 0)
+		Sleep, 50
 		
 		objWaitCursor := ""
 		blnCursorWaitAlreadyOn := false

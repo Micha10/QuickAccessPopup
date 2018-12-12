@@ -182,7 +182,7 @@ lDialogFavoriteSnippetEmpty	Contenuto vuoto. Per favore, inserisci il contenuto 
 lDialogFavoriteSnippetFixedFont	Font a larghezza fissa
 lDialogFavoriteSnippetFontSize	Dimensione del font
 lDialogFavoriteSnippetHelpNoProcess	Inserisci `` n come fine-linea e ``t per tab. Inserisci `` (doppio doppio apice all'indietro) per il doppio apice.
-lDialogFavoriteSnippetHelpProcess	Usa Ctrl-Tab per inserire tab ed Enter per inserire fine-linea.
+lDialogFavoriteSnippetHelpProcess	Usa Ctrl-Tab per inserire tab ed Enter per inserire fine-linea..
 lDialogFavoriteSnippetHelpWeb	Vedere le pagine di Aiuto <a href="~1~">Frammenti e <a href="~2~">Segnaposti</a>.
 lDialogFavoriteSnippetProcessEOLTab	Codifica automaticamente fine-linea (EOL) e tab
 lDialogFavoriteSnippetPromptLabel	Mostra il Prompt prima di ~1~ lo snippet

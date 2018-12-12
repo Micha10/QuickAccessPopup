@@ -182,7 +182,7 @@ global lDialogFavoriteSnippetEmpty := "The content is empty. Please enter the sn
 global lDialogFavoriteSnippetFixedFont := "Fixed width font"
 global lDialogFavoriteSnippetFontSize := "Font size"
 global lDialogFavoriteSnippetHelpNoProcess := "Insert ``n for end-of-line and ``t for tab. Insert ```` (double backtick) for backtick."
-global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines"
+global lDialogFavoriteSnippetHelpProcess := "Use Ctrl-Tab to insert tabs and Enter to insert end-of-lines."
 global lDialogFavoriteSnippetHelpWeb := "See <a href=""~1~"">Snippets</a> and <a href=""~2~"">Placeholders</a> help pages."
 global lDialogFavoriteSnippetProcessEOLTab := "Automatically encode end-of-lines and tabs"
 global lDialogFavoriteSnippetPromptLabel := "Prompt before ~1~ the snippet"

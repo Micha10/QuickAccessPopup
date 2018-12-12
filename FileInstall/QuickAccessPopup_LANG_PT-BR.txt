@@ -182,7 +182,7 @@ lDialogFavoriteSnippetEmpty	O conteúdo está vazio. Por favor, entre o conteúdo r
 lDialogFavoriteSnippetFixedFont	Fonte com largura fixa
 lDialogFavoriteSnippetFontSize	Tamanho da fonte
 lDialogFavoriteSnippetHelpNoProcess	Insira ``n para final da linha e ``t para tabulação. Insira ```` (aspas invertidas duplas) para aspas invertidas.
-lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações e Enter para inserir finais de linhas
+lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações e Enter para inserir finais de linhas.
 lDialogFavoriteSnippetHelpWeb	Veja as páginas de ajuda <a href="~1~">Recortes</a> e <a href="~2~">Espaços Reservados</a>.
 lDialogFavoriteSnippetProcessEOLTab	Automaticamente codificar finais de linhas e tabulações
 lDialogFavoriteSnippetPromptLabel	Perguntar antes de ~1~ o recorte
