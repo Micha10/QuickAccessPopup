@@ -13093,6 +13093,7 @@ else
 }
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for these favorites, file/folder must exist
+	and StrLen(strNewFavoriteLocation) ; to exclude situations (like move) where strNewFavoriteLocation is empty
 {
 	strExpandedNewFavoriteLocation := strNewFavoriteLocation
 	if !FileExistInPath(strExpandedNewFavoriteLocation)
