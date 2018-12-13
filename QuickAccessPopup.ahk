@@ -4991,8 +4991,9 @@ if (g_blnChangeFolderInDialog)
 IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
-
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
+
 IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
@@ -8174,6 +8175,11 @@ Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
 Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
 GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
 
+Gui, 2:Add, Text, y+10 xs, %lOptionsBackupFolder%:
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strBackupFolder
+Gui, 2:Add, Button, x+5 yp w75 gButtonBackupFolder, %lDialogBrowseButton%
+GuiControl, 2:, f_strBackupFolder, %g_strBackupFolder%
+
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
@@ -8830,25 +8836,6 @@ return
 
 
 ;------------------------------------------------------------
-ButtonQAPTempFolderParentPath:
-;------------------------------------------------------------
-Gui, 2:Submit, NoHide
-
-strExpandQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(f_strQAPTempFolderParentPath))
-FileSelectFolder, strNewQAPTempFolderParentPath, *%strExpandQAPTempFolderParent%, 3, %lOptionsSelectQAPTempFolder%
-if !StrLen(strNewQAPTempFolderParentPath)
-	return
-
-GuiControl, 2:, f_strQAPTempFolderParentPath, %strNewQAPTempFolderParentPath%
-
-strNewQAPTempFolderParentPath := ""
-strExpandQAPTempFolderParent := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
@@ -8872,18 +8859,39 @@ return
 
 
 ;------------------------------------------------------------
+ButtonQAPTempFolderParentPath:
 ButtonExternalMenuSelectCataloguePath:
+ButtonBackupFolder:
 ;------------------------------------------------------------
+Gui, 2:+OwnDialogs
 Gui, 2:Submit, NoHide
 
-FileSelectFolder, strNewExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
-if !StrLen(strNewExternalMenusCataloguePath)
+if (A_ThisLabel = "ButtonQAPTempFolderParentPath")
+{
+	strControlName := "f_strQAPTempFolderParentPath"
+	strPrompt := lOptionsSelectQAPTempFolder
+}
+else if (A_ThisLabel = "ButtonExternalMenuSelectCataloguePath")
+{
+	strControlName := "f_strExternalMenusCataloguePath"
+	strPrompt := lOptionsSelectCatalogueRoot
+}
+else
+{
+	strControlName := "f_strBackupFolder"
+	strPrompt := lOptionsSelectBackupFolder
+}
+
+strPreviousFolderExpand := PathCombine(A_WorkingDir, EnvVars(%strControlName%))
+FileSelectFolder, strNewFolder, *%strPreviousFolderExpand%, 3, %strPrompt%
+if !StrLen(strNewFolder)
 	return
-; else continue
 
-GuiControl, 2:, f_strExternalMenusCataloguePath, %strNewExternalMenusCataloguePath%
+GuiControl, 2:, %strControlName%, %strNewFolder%
 
-strNewExternalMenusCataloguePath := ""
+strControlName := ""
+strPreviousFolderExpand := ""
+strPrompt := ""
 
 return
 ;------------------------------------------------------------
@@ -9217,6 +9225,9 @@ if StrLen(f_strQAPTempFolderParentPath)
 	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
 	IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
 }
+
+g_strBackupFolder := f_strBackupFolder
+IniWrite, %g_strBackupFolder%, %g_strIniFile%, Global, BackupFolder
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
@@ -15075,7 +15086,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if !StrLen(g_intIniLine)
 					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
-				gosub, BackupIniFile ; backup external settings ini file, if required
+				gosub, BackupExternalIniFile ; backup external settings ini file, if required
 				
 				IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 				IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
@@ -21060,12 +21071,22 @@ return
 
 ;------------------------------------------------------------
 BackupIniFile:
-;------------------------------------------------------------
-
+BackupExternalIniFile:
 ; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
+;------------------------------------------------------------
 
 ; delete old backup files (keep only 5/10 most recent files)
 StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+
+; if g_strIniFile is the main ini file, set the destination to backup folder
+; this excludes External ini files and alternative ini file (using the switch command) that are backuped in their own folder
+; but this includes main ini file when the working directory is set from the command line with "/Working:"
+if (A_ThisLabel = "BackupIniFile") and (g_strIniFile = g_strIniFileMain)
+{
+	IniRead, g_strBackupFolder, %g_strIniFile%, Global, BackupFolder, %A_WorkingDir%
+	StringReplace, strIniBackupFile, strIniBackupFile, %A_WorkingDir%, %g_strBackupFolder%
+}
+
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
@@ -21082,6 +21103,7 @@ if !FileExist(strIniBackupFile)
 
 strIniBackupFile := ""
 strFileList := ""
+intNumberOfBackups := ""
 
 return
 ;------------------------------------------------------------
