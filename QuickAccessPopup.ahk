@@ -31,7 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.2.1 (2018-12-11)
+Version: 9.3.2.1 (2018-12-11) 
 - in "Add/Edit Favorite" dialog box for type Snippet, moved "Fix width font" and "Font size" controls under the content box
 - fix bug introduced in v9.3.2 when moving a favorite of types Folder, Document or Application or when copying multiple favorites of the same types
 - fix bug title not shown in Select Shortcut and Select Hotstring dialog boxes
