@@ -2986,10 +2986,12 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetName Quick Access Popup
-;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
 ;@Ahk2Exe-SetVersion 9.3.2.9.4
+;@Ahk2Exe-SetName Quick Access Popup
+;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
+;@Ahk2Exe-SetCopyright (c) Jean Lalonde since 2013
+;@Ahk2Exe-SetCompanyName Jean Lalonde
 
 
 ;========================================================================================================================
