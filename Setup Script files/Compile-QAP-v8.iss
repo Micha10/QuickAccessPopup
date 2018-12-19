@@ -15,6 +15,9 @@
 #define MyAppPublisher "Jean Lalonde"
 #define MyAppURL "http://www.QuickAccessPopup.com"
 #define MyAppExeName "QuickAccessPopup.exe"
+#define MyDateYearString GetDateTimeString('yyyy', '', '');
+#define MyAppCopyright "Copyright (c) Jean Lalonde 2013-"
+#define MyAppDescription "Quick Access Popup (Windows freeware)"
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_3-32-bit.exe"
 #define JLdir "JeanLalonde"
@@ -36,6 +39,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+AppCopyright={#MyAppCopyright}{#MyDateYearString}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=E:\Dropbox\AutoHotkey\{#MyAppNameNoSpace}\Distribution-files\license.txt
@@ -57,6 +61,9 @@ DisableProgramGroupPage=auto
 AlwaysShowGroupOnReadyPage=yes
 SignTool=JeanLalondeCustom sign /t http://timestamp.digicert.com /a $f
 VersionInfoVersion={#MyAppVersionNumber}
+VersionInfoCopyright={#MyAppCopyright}{#MyDateYearString}
+VersionInfoCompany={#MyAppPublisher}
+VersionInfoDescription={#MyAppDescription}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
