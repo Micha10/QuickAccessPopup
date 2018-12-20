@@ -21,7 +21,7 @@
 #define FPImportVersionFileName "ImportFPsettings-1_0-32-bit.exe"
 #define QAPmessengerVersionFileName "QAPmessenger-1_3-32-bit.exe"
 #define JLdir "JeanLalonde"
-#define JLicons "JLicons-1_4.dll"
+#define JLicons "JLicons-1_5.dll"
 #define SQLite "sqlite3"
 
 [CustomMessages]
