@@ -3827,6 +3827,10 @@ StringSplit, g_arrMouseButtons, g_strMouseButtons, |
 ; ----------------------
 ; Icon files and index tested on Win 7 and Win 10. Win 8.1 assumed as Win 7.
 
+IniRead, g_strAlternativeJLiconsLocation, %g_strIniFile%, Global, JLiconsLocation, %A_Space% ; default empty
+if StrLen(g_strAlternativeJLiconsLocation)
+	g_strJLiconsFile := g_strAlternativeJLiconsLocation
+
 strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
 	. "|iconDesktop|iconDocuments|iconDonate|iconDownloads|iconDrives"
@@ -5154,7 +5158,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit)
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
-	
+
 ; ---------------------
 ; Load internal flags and various values
 
@@ -21914,7 +21918,6 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
 	; if strExpandedIconResource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
-	; ###_V(A_ThisFuync, "*strIconResource", strIconResource, "*intComaPos", intComaPos, "*strIconFile", strIconFile, "*intIconIndex", intIconIndex)
 }
 ;------------------------------------------------------------
 
