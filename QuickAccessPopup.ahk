@@ -31,7 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.4 (2018-12-20)
+Version: 9.4 (2018-12-??)
+* Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
  
 Opening Explorer windows on multi-monitor systems
 - in "File Managers" tab when the default file manager is Windows Explorer, new option "On a multi-monitor system, always open the Explorer window on the active monitor" when system has more than one monitor
@@ -53,12 +54,18 @@ QAP windows position
 - when TryWindowPosition=1, QAP "tries" to position the window of these favorites if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander
  
 Other changes and bug foxes
+- new version of JLicons.dll v1.5 with new icons for QAP (regular, beta, dev, loading, admin); stop copying these QAP icon files to temporary folder
+- use QAP loading, QAP master and QAP beta icons from JLicons.dll inhstead of from the QAP temporary folder
 - in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are backuped in their own folder
 - in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
-- fix bug stop showing minimized favorites in some circumstances
+- add copyright and company name, and update description in file version info of QAP executable and setup file
+- fix bug showing minimized favorites in some circumstances
 
 Version BETA: 9.3.2.9.5 (2018-12-19)
-- 
+* Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
+- new version of JLicons.dll v1.5 with new icons for QAP (regular, beta, dev, loading, admin); stop copying these QAP icon files to temporary folder
+- use QAP loading, QAP master and QAP beta icons from JLicons.dll inhstead of from the QAP temporary folder
+- add copyright, company name to file version info of QAP .exe files and setup file, update description
 
 Version BETA: 9.3.2.9.4 (2018-12-13)
 - in Live Folders and in Add/Edit Favorite, when resolving a .lnk file that does not return a target location, keep the .lnk file name as location
@@ -3015,7 +3022,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.3.2.9.4
+;@Ahk2Exe-SetVersion 9.3.2.9.5
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3118,7 +3125,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3826,10 +3833,6 @@ StringSplit, g_arrMouseButtons, g_strMouseButtons, |
 
 ; ----------------------
 ; Icon files and index tested on Win 7 and Win 10. Win 8.1 assumed as Win 7.
-
-IniRead, g_strAlternativeJLiconsLocation, %g_strIniFile%, Global, JLiconsLocation, %A_Space% ; default empty
-if StrLen(g_strAlternativeJLiconsLocation)
-	g_strJLiconsFile := g_strAlternativeJLiconsLocation
 
 strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
@@ -6043,16 +6046,16 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 55 : 56), 1 ; 55 is iconQAPadmin and 56 is iconQAPadminBeta, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 	else
-		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 1 : 58), 1 ; 1 is iconQAP and 58 is iconQAPbeta, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
 Menu, Tray, Icon, %g_strJLiconsFile%, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-	
+
 return
 ;------------------------------------------------------------
 
