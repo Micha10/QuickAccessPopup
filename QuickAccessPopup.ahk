@@ -31,6 +31,35 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4 (2018-12-20)
+ 
+Opening Explorer windows on multi-monitor systems
+- in "File Managers" tab when the default file manager is Windows Explorer, new option "On a multi-monitor system, always open the Explorer window on the active monitor" when system has more than one monitor
+- detect the active monitor based on the mouse position (if favorite folder is launched with mouse trigger) or else based on the active window position
+ 
+Maximize folder on multiple-monitors systems
+- show the "Window Options" tab in "Add/Edit favorite" dialog box only for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager (Directory Opus are invited to use DOpus Layouts instead)
+- when, the "Window Options" tab, the window state is "Maximized" or "Minimized", allow to select on which monitor to open the new Explorer or Total Commander window (monitor 1 by default)
+ 
+QAP windows position
+- on "General" tab of the "Options" window, add the option "Open Settings window on Active monitor" to open the QAP "Settings" window on the active monitor when system has more than one monitor
+- detect the active monitor based on mouse or active window position
+- always position secondary QAP windows ("Options", "Select favorite type", "Add/Edit/Copy/Move Favorite", "Add Shared menu from catalogue", "Manage Hotkeys", "Manage Icons", "About", "Donate" and "Help") relative to the center of the main "Settings" window
+- remember width of the "Add/Edit/Copy/Move Favorite" window in ini file
+- center third level dialog boxes of the "Options" window on top of that window
+- center the following dialog boxes on top of their parent dialog box: "Select shortcut", "Select hotstring", "Close computer", "Close all windows", "Update" and "Import-export"
+- remove tray menu command to "Restore dialog box position"
+- add the "TryWindowPosition=1" option in quickaccesspopup.ini to show the "Add/Edit Favorite" tab "Window Options" for favorite types "Document", "Application", "URL" and "Windows Apps"; but there is no official support for the Windows options with these favorite types because most applications other than Windows Explorer and Total Commander block window positioning; use this option to try it and... all the better if it works for some apps!
+- when TryWindowPosition=1, QAP "tries" to position the window of these favorites if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander
+ 
+Other changes and bug foxes
+- in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are backuped in their own folder
+- in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
+- fix bug stop showing minimized favorites in some circumstances
+
+Version BETA: 9.3.2.9.5 (2018-12-19)
+- 
+
 Version BETA: 9.3.2.9.4 (2018-12-13)
 - in Live Folders and in Add/Edit Favorite, when resolving a .lnk file that does not return a target location, keep the .lnk file name as location
 
@@ -3238,7 +3267,7 @@ if (g_blnCheck4Update) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
-Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, %g_strJLiconsFile%, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
@@ -3759,10 +3788,6 @@ FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 
 FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 
-FileInstall, FileInstall\QuickAccessPopup.ico, %g_strTempDir%\QuickAccessPopup.ico
-FileInstall, FileInstall\QuickAccessPopup-beta.ico, %g_strTempDir%\QuickAccessPopup-beta.ico
-FileInstall, FileInstall\QuickAccessPopup-loading.ico, %g_strTempDir%\QuickAccessPopup-loading.ico
-
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
 else
@@ -3812,7 +3837,8 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo|iconQAPadmin"
+	. "|iconQAPadminBeta|iconQAPadminDev|iconQAPbeta|iconQAPdev|iconQAPloading"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -6013,12 +6039,12 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 55 : 56), 1 ; 55 is iconQAPadmin and 56 is iconQAPadminBeta, last 1 to freeze icon during pause or suspend
 	else
-		Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup" . (g_strCurrentBranch <> "prod" ? "-beta" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 1 : 58), 1 ; 1 is iconQAP and 58 is iconQAPbeta, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
-Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, %g_strJLiconsFile%, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
