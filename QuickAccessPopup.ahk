@@ -53,13 +53,20 @@ QAP windows position
 - add the "TryWindowPosition=1" option in quickaccesspopup.ini to show the "Add/Edit Favorite" tab "Window Options" for favorite types "Document", "Application", "URL" and "Windows Apps"; but there is no official support for the Windows options with these favorite types because most applications other than Windows Explorer and Total Commander block window positioning; use this option to try it and... all the better if it works for some apps!
 - when TryWindowPosition=1, QAP "tries" to position the window of these favorites if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander
  
+QAP icons
+- new version of JLicons.dll v1.5 with new icons for QAP (regular, loading, admin, beta, etc.); stop copying these QAP icon files to temporary folder
+- use icons QAP loading, QAP master and QAP beta from JLicons.dll instead of from the QAP temporary folder
+- JLicons.dll v1.5 also include an improved Live Folder and Live Folder opened icons
+ 
 Other changes and bug foxes
-- new version of JLicons.dll v1.5 with new icons for QAP (regular, beta, dev, loading, admin); stop copying these QAP icon files to temporary folder
-- use QAP loading, QAP master and QAP beta icons from JLicons.dll inhstead of from the QAP temporary folder
-- in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are backuped in their own folder
+- in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are still backuped in their own folder
 - in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
 - add copyright and company name, and update description in file version info of QAP executable and setup file
-- fix bug showing minimized favorites in some circumstances
+
+Version BETA: 9.3.2.9.6 (2018-12-20)
+* Note: User installing the portable version (ZIP file) must update AGAIN the JLicons.dll file to v1.5. *
+- new version of JLicons.dll (keeping v1.5 during this beta phase) with an improved Live Folder and Live Folder opened icons
+- adapting Add/Edit favorite fialog box and Live Folder menu building to include the new Live Folder icons
 
 Version BETA: 9.3.2.9.5 (2018-12-19)
 * Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
@@ -3022,7 +3029,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.3.2.9.5
+;@Ahk2Exe-SetVersion 9.3.2.9.6
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3125,7 +3132,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.3.2.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3846,6 +3853,7 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
 	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo|iconQAPadmin"
 	. "|iconQAPadminBeta|iconQAPadminDev|iconQAPbeta|iconQAPdev|iconQAPloading"
+	. "|iconFolderLiveOpened"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -7798,7 +7806,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenuItem.FavoriteType := "Folder"
 	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
-	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
+	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
@@ -11911,6 +11919,15 @@ if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external 
 		gosub, FavoriteArgumentChanged
 	
 }
+else if (intFromTab = 3 and g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive)
+{
+	; back from Live Folder tab, check if we replace default iconFolder with iconFolderLive
+	if (g_strNewFavoriteIconResource = "iconFolder")
+	{
+		g_strNewFavoriteIconResource := "iconFolderLive"
+		Gosub, GuiFavoriteIconDisplay
+	}
+}
 else ; to tab 1
 	if (g_objEditedFavorite.FavoriteType = "Special")
 		GuiControl, 2:Focus, f_tvSpecial
@@ -13239,9 +13256,14 @@ else
 	strNewFavoriteLocation := f_strFavoriteLocation
 	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 	strNewFavoriteSoundLocation := f_strFavoriteSoundLocation
-
+	
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
+
+	; if gui was closed from Live Folder Options tab (without changing tab), update Live folder icon
+	if (g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive
+		and g_strNewFavoriteIconResource = "iconFolder")
+			g_strNewFavoriteIconResource := "iconFolderLive"
 }
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for these favorites, file/folder must exist
