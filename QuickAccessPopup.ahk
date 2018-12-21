@@ -59,6 +59,7 @@ Other changes and bug fixes
 - in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are still backuped in their own folder
 - in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
 - add copyright and company name, and update description in file version info of QAP executable and setup files
+- update language files for French, German, Spanish, Brazilian Portuguese, Italian, Portuguese and Korean
 
 Version BETA: 9.3.2.9.6 (2018-12-20)
 * Note: User installing the portable version (ZIP file) must update AGAIN the JLicons.dll file to v1.5. *
@@ -3026,7 +3027,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.3.2.9.6
+;@Ahk2Exe-SetVersion 9.4
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3129,8 +3130,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
