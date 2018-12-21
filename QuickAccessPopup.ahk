@@ -2947,8 +2947,10 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
-; updates g_objCommandLineParams["/Settings:"], g_objCommandLineParams["/AdminSilent"] and g_objCommandLineParams["/Working:"]
-Gosub, CollectCommandLineParameters
+;---------------------------------
+; Init class for command line parameters
+; "/Settings:file_path", "/AdminSilent" and "/Working:path"
+o_CmdLineParams := new CommandLineParameters()
 
 Gosub, SetQAPWorkingDirectory
 
@@ -2986,8 +2988,8 @@ g_strIniFileMain := g_strIniFile ; value never changed
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
-if StrLen(g_objCommandLineParams["/Settings:"])
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(g_objCommandLineParams["/Settings:"]))
+if StrLen(o_CmdLineParams.GetParam("Settings"))
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CmdLineParams.GetParam("Settings")))
 
 ; set file name used for Edit settings label
 SplitPath, g_strIniFile, g_strIniFileNameExtOnly
@@ -3143,7 +3145,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin and !g_objCommandLineParams.HasKey("/AdminSilent")
+if (A_IsAdmin and !o_CmdLineParams.ParamExist("AdminSilent")
 	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
 	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
 if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
@@ -3469,38 +3471,6 @@ return
 ;========================================================================================================================
 
 ;-----------------------------------------------------------
-CollectCommandLineParameters:
-; each param must begin with "/" and be separated by a space
-; supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[working_dir_path]
-;-----------------------------------------------------------
-
-g_objCommandLineParams := Object()
-
-for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
-{
-	if !StrLen(strOneArg)
-		continue
-	intColon := InStr(strOneArg, ":")
-	if (intColon)
-	{
-		strParamKey := SubStr(strOneArg, 1, intColon) ; including the starting slash and ending colon
-		strParamValue := SubStr(strOneArg, intColon + 1)
-		g_objCommandLineParams[strParamKey] := strParamValue
-	}
-	else
-		g_objCommandLineParams[strOneArg] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strOneArg)
-}
-
-intArg := ""
-strOneArg := ""
-strParamKey := ""
-strParamValue := ""
-
-return
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
 SetQAPWorkingDirectory:
 ;-----------------------------------------------------------
 
@@ -3577,8 +3547,8 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 ; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
 ; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
-if StrLen(g_objCommandLineParams["/Working:"])
-	SetWorkingDir, % g_objCommandLineParams["/Working:"]
+if StrLen(o_CmdLineParams.GetParam("Working"))
+	SetWorkingDir, % o_CmdLineParams.GetParam("Working")
 
 ; Check in what mode QAP is running:
 ; - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
@@ -3593,7 +3563,7 @@ if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
 else
 	g_blnPortableMode := false ; set this variable for use later during init
 
-if StrLen(g_objCommandLineParams["/Working:"]) ; we don't need to continue
+if StrLen(o_CmdLineParams.GetParam("Working")) ; we don't need to continue
 	return
 
 ; Now we are in Setup mode
@@ -18793,10 +18763,10 @@ SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
 	; update Settings param
-	g_objCommandLineParams["/Settings:"] := g_strSwitchSettingsFile
+	o_CmdLineParams.GetParam("Settings") := g_strSwitchSettingsFile
 
-; keep other params received from command-line as collected in g_objCommandLineParams
-strCurrentCommandLineParameters := ConcatenateParamsString(g_objCommandLineParams)
+; keep other params received from command-line as collected in o_CmdLineParams
+strCurrentCommandLineParameters := o_CmdLineParams.strParams
 
 ; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered "No" to
 ; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
@@ -18860,8 +18830,7 @@ CreateStartupShortcut:
 ;------------------------------------------------------------
 
 FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-	, % ConcatenateParamsString(g_objCommandLineParams) ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
-; ###_V("ConcatenateParamsString(g_objCommandLineParams)", ConcatenateParamsString(g_objCommandLineParams))
+	, % o_CmdLineParams.strParams ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
 
 return
 ;------------------------------------------------------------
@@ -23247,22 +23216,6 @@ RandomBetween(intMin := 0, intMax := 2147483647)
 
 
 ;------------------------------------------------------------
-ConcatenateParamsString(objParams)
-;------------------------------------------------------------
-{
-	strConcat := ""
-	for strParam, strValue in objParams
-	{
-		strQuotes := (InStr(strParam . strValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
-		strConcat .= strQuotes . strParam . strValue . strQuotes . " " ; separate params with space
-	}
-	StringTrimRight, strConcat, strConcat, 1 ; remove last space
-	return strConcat
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 ResetArray(ByRef arr)
 ;------------------------------------------------------------
 {
@@ -23857,6 +23810,91 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 		return 0
 
 	return 1
+}
+;------------------------------------------------------------
+
+
+
+;========================================================================================================================
+; END OF ONMESSAGE_FUNCTIONS
+;========================================================================================================================
+
+
+;========================================================================================================================
+!_700_CLASSES:
+return
+;========================================================================================================================
+
+
+;------------------------------------------------------------
+class CommandLineParameters
+;------------------------------------------------------------
+/*
+Methods
+	- __New(): collect the command line parameters in internal object and concat strParams
+	  each param must begin with "/" and be separated by a space
+	  supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[working_dir_path]
+	- GetParam(strKey): return the value for strKey
+	- ParamExist(strArg): return true if key strArg exists
+
+Property
+	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if requiree
+*/
+;------------------------------------------------------------
+{
+	static oParam
+	
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+		oParam := Object()
+		this.strParams := ""
+		
+		for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
+		{
+			if !StrLen(strOneArg)
+				continue
+			
+			intColon := InStr(strOneArg, ":")
+			if (intColon)
+			{
+				strParamKey := SubStr(strOneArg, 2, intColon - 2) ; excluding the starting slash and ending colon
+				strParamValue := SubStr(strOneArg, intColon + 1)
+				This.oParam[strParamKey] := strParamValue
+			}
+			else
+			{
+				strParamKey := SubStr(strOneArg, 2)
+				This.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
+			}
+			
+			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
+			strConcat .= strQuotes . "/" . strParamKey
+			strConcat .= (StrLen(strParamValue) ? ":" . strParamValue : "") ; if value, separate with :
+			strConcat .= strQuotes . " " ; ending quote and separate with next params with space
+		}
+		
+		StringTrimRight, strConcat, strConcat, 1 ; remove last space
+		This.strParams := strConcat
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	GetParam(strKey)
+	;---------------------------------------------------------
+	{
+		return This.oParam[strKey]
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	ParamExist(strArg)
+	;---------------------------------------------------------
+	{
+		return This.oParam.HasKey(strArg)
+	}
+	;---------------------------------------------------------
 }
 ;------------------------------------------------------------
 
