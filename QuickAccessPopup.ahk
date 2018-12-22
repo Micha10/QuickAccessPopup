@@ -3060,7 +3060,7 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 ; make sure the default system mouse pointer are used after a QAP reload
 SetWaitCursor(false)
 
-; updates g_objCommandLineParams["/Settings:"], g_objCommandLineParams["/AdminSilent"] and g_objCommandLineParams["/Working:"]
+; updates g_objCommandLineParams["/Settings:"] (must end with ".ini"), g_objCommandLineParams["/AdminSilent"] and g_objCommandLineParams["/Working:"]
 Gosub, CollectCommandLineParameters
 
 Gosub, SetQAPWorkingDirectory
@@ -3587,7 +3587,7 @@ return
 ;-----------------------------------------------------------
 CollectCommandLineParameters:
 ; each param must begin with "/" and be separated by a space
-; supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[working_dir_path]
+; supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and /Working:[working_dir_path]
 ;-----------------------------------------------------------
 
 g_objCommandLineParams := Object()
@@ -3606,6 +3606,9 @@ for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
 	else
 		g_objCommandLineParams[strOneArg] := "" ; keep it empty, check param with g_objCommandLineParams.HasKey(strOneArg)
 }
+
+if (GetFileExtension(g_objCommandLineParams["/Settings:"]) <> "ini")
+	g_objCommandLineParams.Delete("/Settings:")
 
 intArg := ""
 strOneArg := ""
