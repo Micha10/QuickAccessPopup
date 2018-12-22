@@ -15,6 +15,7 @@ lContextAddFileXpress	Bestand toevoegen aan het Quick Access Popup Express menu
 lContextAddFolder	Map toevoegen aan het Quick Access Popup menu
 lContextAddFolderXpress	Map toevoegen aan het Quick Access Popup Express menu 
 lContextAddShortcut	Importeer de snelkoppeling naar het Quick Access Popup menu
+lContextCancelled	In- of uitschakelen van Windows Context menus is geannuleerd bij de gebruiker.
 lContextShowMenu	Quick Access Popup menu weergeven
 lContextShowMenuAternative	Alternatief QAP-menu weergeven
 lControlToolTipAlwaysOnTopOff	Dit venster altijd op de voorgrond weergeven
@@ -380,6 +381,10 @@ lDonateText4	Geef een positieve review over ~1~ op:
 lDonateText5	Stuur mij uw link
 lDonateThankyou	Dank u voor het steunen van QAP!
 lDonateTitle	Steun freeware! - ~1~ ~2~
+lDOpusLayoutsName	Vensterindelingen
+lDOpusMenuName	Directory Opus Favorieten
+lDopusMenuNameDescription	Voor Directory Opus (DOpus) gebruikers: een dynamisch menu weergeven dat is opgebouwd met de mappen die zijn toegevoegd aan de DOpus-favorieten. Als u DOpus-support tijdens de installatie van QAP heeft geselecteerd dan zijn de Directory Opus-favorieten automatisch aan uw menu toegevoegd.
+lDopusMenuNameShowLayout	Vensterindelingen in ~1~ menus weergeven
 lGuiAbout	Over
 lGuiAboutDescription	Geeft het "Over" venster weer met verschillende informatie over de ontwikkeling, vertaling en andere credits, applicatie- en runtime-versienummers, licentie, de huidige gebruiker en computernaam, links naar de ondersteuningswebsite.`n`nDeze functie is ook beschikbaar via de knop "Over" in het hoofdvenster "Instellingen".
 lGuiAddFavorite	Toevoegen
@@ -398,6 +403,9 @@ lGuiGroupClosing	Windows Explorer sluiten
 lGuiGroupRestoreDelay	Herstelvertraging tussen favorieten:
 lGuiGroupRestoreDelayMilliseconds	milliseconde
 lGuiGroupRestoreSide	Aan welke zijde van ~1~ weergeven?
+lGuiGroupSaveAddWindowsLabel	Mappen aan bestaand venster toevoegen
+lGuiGroupSaveReplaceWindowsLabel	Vervang mappen in bestaande vensters
+lGuiGroupSaveRestoreOption	Bij het verversen van mappen in deze groep:
 lGuiGroupSaveRestoreWith	Herstel mappen met:
 lGuiHelp	Help
 lGuiHotkeysHelp	Hulp voor sneltoetsen
@@ -546,6 +554,7 @@ lMenuMyVideo	Mijn videos
 lMenuMyWindowsAppsMenu	Mijn Windows Apps
 lMenuNoClipboard	Het klembord bevat geen pad of website...
 lMenuNoCurrentFolder	Geen open mappen gevonden...
+lMenuOpenWorkingDirectory	Open de QAP werkmap
 lMenuPictures	Afbeeldingen
 lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
@@ -622,6 +631,8 @@ lOopsExternalReadOnlyAlert	"Openbare menu's" van het type: "gecentraliseerd" kun
 lOopsExternalReadOnlyAlertUsernameAdded	Uw gebruikersnaam is automatisch toegevoegd aan de "gebruikers met schrijfrechten-lijst".
 lOopsExternalSelectType	Selecteer het type voor het Openbare menu in de tab: "Openbaar menu".
 lOopsFavoritesCopied	~1~ favorieten gekopiëerd.
+lOopsFileExpandedFrom	Uitgebreid van
+lOopsFileNotFound	Deze locatie bestaat niet
 lOopsFirstEnterUrl	Selecteer eerst een adres in het "~1~" veld.
 lOopsFtpLocationProtocol	Het FTP-Adres dient te starten met "ftp://".
 lOopsGroup	Groep
@@ -673,6 +684,7 @@ lOptionsControlDoublePressedLeft	Gebruik de linker "Control" toets
 lOptionsControlDoublePressedRight	Gebruik de rechter "Control" toets
 lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
+lOptionsDisplayMenuShortcutsFromOne	Start numerieke menusnelkoppelingen vanaf 1 (i.p.v. 0)
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
 lOptionsExclusionMouseList	Uitsluitingslijst
 lOptionsExclusionMouseListDescription	Uitsluitlijst voor muistoets: [~1~].
@@ -681,8 +693,10 @@ lOptionsExclusionMouseListDetail2	De QAP-muistoets zal uitgeschakeld zijn in de 
 lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
 lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's
 lOptionsFileManagerNavigateCurrent	het huidige ~1~ venster
+lOptionsFileManagerNavigateCurrentTab	de huidige ~1~ tab
 lOptionsFileManagerNavigateIntro	Bij het openen van het QAP menu buiten ~1~, open dan de mappen in:
 lOptionsFileManagerNavigateNew	een nieuw ~1~ venster
+lOptionsFileManagerNavigateNewTab	een nieuwe ~1~ tab
 lOptionsFtpEncoding	Versleutel FTP gebruikernaam en wachtwoord (aangeraden)
 lOptionsFtpEncodingTC	Versleutel FTP gebruikernaam en wachtwoord (niet aangeraden voor Total Commander)
 lOptionsGuiTitle	Instellingen - ~1~ ~2~
@@ -702,7 +716,9 @@ lOptionsMenuNearMouse	In de buurt van de muispi&jl
 lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Popup het menu:
 lOptionsMouseAndKeyboard	Sneltoetsen
+lOptionsOpenFavoritesOnActiveMonitor	Op een multi-monitorsysteem, Windows Explorer altijd starten op de actieve monitor
 lOptionsOpenMenuOnTaskbar	&Open het menu wanneer er op de taakbalk geklikt wordt
+lOptionsOpenSettingsOnActiveMonitor	Open Instellingenvenster op de &Actieve monitor
 lOptionsOtherOptions	Algemeen
 lOptionsPopupFixPositionX	Positie X:
 lOptionsPopupFixPositionY	Y:
