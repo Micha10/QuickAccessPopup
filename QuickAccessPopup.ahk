@@ -2949,7 +2949,7 @@ SetWaitCursor(false)
 
 ;---------------------------------
 ; Init class for command line parameters
-; "/Settings:file_path", "/AdminSilent" and "/Working:path"
+; "/Settings:file_path" (must end with ".ini"), "/AdminSilent" and "/Working:path"
 o_CmdLineParams := new CommandLineParameters()
 
 Gosub, SetQAPWorkingDirectory
@@ -23833,7 +23833,7 @@ class CommandLineParameters
 Methods
 	- __New(): collect the command line parameters in internal object and concat strParams
 	  each param must begin with "/" and be separated by a space
-	  supported parameters: "/Settings:[file_path]", "/AdminSilent" and /Working:[working_dir_path]
+	  supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and /Working:[working_dir_path]
 	- GetParam(strKey): return the value for strKey
 	- ParamExist(strArg): return true if key strArg exists
 
@@ -23861,11 +23861,15 @@ Property
 			{
 				strParamKey := SubStr(strOneArg, 2, intColon - 2) ; excluding the starting slash and ending colon
 				strParamValue := SubStr(strOneArg, intColon + 1)
+				if (strParamKey = "Settings" and GetFileExtension(strParamValue) <> "ini")
+					continue
 				This.oParam[strParamKey] := strParamValue
 			}
 			else
 			{
 				strParamKey := SubStr(strOneArg, 2)
+				if (strParamKey = "Settings")
+					continue
 				This.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
 			}
 			
