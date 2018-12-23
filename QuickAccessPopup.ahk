@@ -31,37 +31,35 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.4 (2018-12-??)
+Version: 9.4 (2018-12-21)
 * Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
  
 Opening Explorer windows on multi-monitor systems
-- in "File Managers" tab when the default file manager is Windows Explorer, new option "On a multi-monitor system, always open the Explorer window on the active monitor" when system has more than one monitor
-- detect the active monitor based on the mouse position (if favorite folder is launched with mouse trigger) or else based on the active window position
+- if the default file manager in "File Managers" tab is Windows Explorer, the tab includes a new option "On a multi-monitor system, always open the Explorer window on the active monitor" when system has more than one monitor
+- detect the active monitor based on the mouse position (if favorite folder was launched with mouse trigger) or else based on the active window position
  
 Maximize folder on multiple-monitors systems
-- show the "Window Options" tab in "Add/Edit favorite" dialog box only for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager (Directory Opus are invited to use DOpus Layouts instead)
-- when, the "Window Options" tab, the window state is "Maximized" or "Minimized", allow to select on which monitor to open the new Explorer or Total Commander window (monitor 1 by default)
+- show the "Window Options" tab in "Add/Edit favorite" dialog box for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager (Directory Opus users should use DOpus Layouts instead)
+- when, in the "Window Options" tab, the window state is "Maximized" or "Minimized", allow to select on which monitor to open the new Explorer or Total Commander window (monitor 1 by default)
  
 QAP windows position
-- on "General" tab of the "Options" window, add the option "Open Settings window on Active monitor" to open the QAP "Settings" window on the active monitor when system has more than one monitor
+- on "General" tab of the "Options" window, new option "Open Settings window on Active monitor" to open the QAP "Settings" window on the active monitor when system has more than one monitor
 - detect the active monitor based on mouse or active window position
-- always position secondary QAP windows ("Options", "Select favorite type", "Add/Edit/Copy/Move Favorite", "Add Shared menu from catalogue", "Manage Hotkeys", "Manage Icons", "About", "Donate" and "Help") relative to the center of the main "Settings" window
-- remember width of the "Add/Edit/Copy/Move Favorite" window in ini file
-- center third level dialog boxes of the "Options" window on top of that window
-- center the following dialog boxes on top of their parent dialog box: "Select shortcut", "Select hotstring", "Close computer", "Close all windows", "Update" and "Import-export"
+- always position other QAP windows relative to the center of the main "Settings" window or of their parent window
+- remember width of the "Add/Edit/Copy/Move Favorite" window in ini file (useful when menu paths become long)
 - remove tray menu command to "Restore dialog box position"
-- add the "TryWindowPosition=1" option in quickaccesspopup.ini to show the "Add/Edit Favorite" tab "Window Options" for favorite types "Document", "Application", "URL" and "Windows Apps"; but there is no official support for the Windows options with these favorite types because most applications other than Windows Explorer and Total Commander block window positioning; use this option to try it and... all the better if it works for some apps!
-- when TryWindowPosition=1, QAP "tries" to position the window of these favorites if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander
+- add the "TryWindowPosition=1" option in quickaccesspopup.ini to show the "Add/Edit Favorite" tab "Window Options" for favorite types "Document", "Application", "URL" and "Windows Apps"; but there is no official support for these options because most applications for these favorite types block window positioning; you can try this option and... all the better if it works for some apps!
  
 QAP icons
-- new version of JLicons.dll v1.5 with new icons for QAP (regular, loading, admin, beta, etc.); stop copying these QAP icon files to temporary folder
+- new version of JLicons.dll v1.5 with new icons for the QAP app itself (regular icon, loading icon, admin icon, etc.)
 - use icons QAP loading, QAP master and QAP beta from JLicons.dll instead of from the QAP temporary folder
-- JLicons.dll v1.5 also include an improved Live Folder and Live Folder opened icons
+- JLicons.dll v1.5 also includes improved "Live Folder" and "Live Folder opened" icons
  
-Other changes and bug foxes
+Other changes and bug fixes
 - in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are still backuped in their own folder
 - in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
-- add copyright and company name, and update description in file version info of QAP executable and setup file
+- add copyright and company name, and update description in file version info of QAP executable and setup files
+- update language files for French, German, Spanish, Brazilian Portuguese, Italian, Portuguese and Korean
 
 Version BETA: 9.3.2.9.6 (2018-12-20)
 * Note: User installing the portable version (ZIP file) must update AGAIN the JLicons.dll file to v1.5. *
@@ -3029,7 +3027,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.3.2.9.6
+;@Ahk2Exe-SetVersion 9.4
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3132,8 +3130,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.9.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
