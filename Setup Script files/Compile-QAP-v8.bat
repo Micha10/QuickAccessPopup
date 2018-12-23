@@ -15,7 +15,6 @@ SET QAPZIPFILEVERSION=quickaccesspopup-%QAPVERSIONFILE%
 rem Check current version file
 IF NOT EXIST "QAP-v%QAPVERSIONPREV%.txt" ECHO QAP-v%QAPVERSIONPREV%.txt INTROUVABLE...
 IF EXIST "QAP-v%QAPVERSIONFILE%.txt" ECHO MAIS QAP-v%QAPVERSIONFILE%.txt EXISTE - OK!
-IF NOT EXIST "QAP-v%QAPVERSIONPREV%.txt" PAUSE
 rem Compile exe files
 ECHO Ahk2Exe-QAP-v8.ahk 32 %QAPBETAPROD%
 "E:\Dropbox\AutoHotkey\QuickAccessPopup\Setup Script files\Ahk2Exe-Custom\Ahk2Exe-QAP-v8.ahk" 32 %QAPBETAPROD%

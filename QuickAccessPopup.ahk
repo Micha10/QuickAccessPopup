@@ -31,7 +31,59 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.3.2.1 (2018-12-11) 
+Version: 9.4 (2018-12-21)
+* Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
+ 
+Opening Explorer windows on multi-monitor systems
+- if the default file manager in "File Managers" tab is Windows Explorer, the tab includes a new option "On a multi-monitor system, always open the Explorer window on the active monitor" when system has more than one monitor
+- detect the active monitor based on the mouse position (if favorite folder was launched with mouse trigger) or else based on the active window position
+ 
+Maximize folder on multiple-monitors systems
+- show the "Window Options" tab in "Add/Edit favorite" dialog box for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager (Directory Opus users should use DOpus Layouts instead)
+- when, in the "Window Options" tab, the window state is "Maximized" or "Minimized", allow to select on which monitor to open the new Explorer or Total Commander window (monitor 1 by default)
+ 
+QAP windows position
+- on "General" tab of the "Options" window, new option "Open Settings window on Active monitor" to open the QAP "Settings" window on the active monitor when system has more than one monitor
+- detect the active monitor based on mouse or active window position
+- always position other QAP windows relative to the center of the main "Settings" window or of their parent window
+- remember width of the "Add/Edit/Copy/Move Favorite" window in ini file (useful when menu paths become long)
+- remove tray menu command to "Restore dialog box position"
+- add the "TryWindowPosition=1" option in quickaccesspopup.ini to show the "Add/Edit Favorite" tab "Window Options" for favorite types "Document", "Application", "URL" and "Windows Apps"; but there is no official support for these options because most applications for these favorite types block window positioning; you can try this option and... all the better if it works for some apps!
+ 
+QAP icons
+- new version of JLicons.dll v1.5 with new icons for the QAP app itself (regular icon, loading icon, admin icon, etc.)
+- use icons QAP loading, QAP master and QAP beta from JLicons.dll instead of from the QAP temporary folder
+- JLicons.dll v1.5 also includes improved "Live Folder" and "Live Folder opened" icons
+ 
+Other changes and bug fixes
+- in "Options", "Basic" tab, add the option "Main settings file backup folder" to select a destination folder for backups of the main settings file (quickaccesspopup.ini); backup are created only for main ini file; Shared menu settings files and Alternative settings files (open with the "Switch Settings file...") are still backuped in their own folder
+- in "Live Folders" and in "Add/Edit Favorite", when resolving a Windows File Shortcut (.lnk file) that does not return a target location, keep the .lnk file name as location
+- add copyright and company name, and update description in file version info of QAP executable and setup files
+- update language files for French, German, Spanish, Brazilian Portuguese, Italian, Portuguese and Korean
+
+Version BETA: 9.3.2.9.6 (2018-12-20)
+* Note: User installing the portable version (ZIP file) must update AGAIN the JLicons.dll file to v1.5. *
+- new version of JLicons.dll (keeping v1.5 during this beta phase) with an improved Live Folder and Live Folder opened icons
+- adapting Add/Edit favorite fialog box and Live Folder menu building to include the new Live Folder icons
+
+Version BETA: 9.3.2.9.5 (2018-12-19)
+* Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
+- new version of JLicons.dll v1.5 with new icons for QAP (regular, beta, dev, loading, admin); stop copying these QAP icon files to temporary folder
+- use QAP loading, QAP master and QAP beta icons from JLicons.dll inhstead of from the QAP temporary folder
+- add copyright, company name to file version info of QAP .exe files and setup file, update description
+
+Version BETA: 9.3.2.9.4 (2018-12-13)
+- in Live Folders and in Add/Edit Favorite, when resolving a .lnk file that does not return a target location, keep the .lnk file name as location
+
+Version BETA: 9.3.2.9.3 (2018-12-13)
+- in "Options", "Basic" tab, add an option to select a destination folder for backups of the main Settings file (quickaccesspopup.ini)
+- create the backups in this folder only for main ini file
+- Shared menu settings files and alternative settings files (open with the "Switch Settings file...") are backuped in their own folder
+
+Version BETA: 9.3.2.9.2 (2018-12-07)
+- merge bug fixes and changes from master release v9.3.2.1 (no new features related to this beta test phase)
+
+Version: 9.3.2.1 (2018-12-11)
 - in "Add/Edit Favorite" dialog box for type Snippet, moved "Fix width font" and "Font size" controls under the content box
 - fix bug introduced in v9.3.2 when moving a favorite of types Folder, Document or Application or when copying multiple favorites of the same types
 - fix bug title not shown in Select Shortcut and Select Hotstring dialog boxes
@@ -39,6 +91,10 @@ Version: 9.3.2.1 (2018-12-11)
 - fix label missing for Live Folders in Settings
 - pause 50 ms when restoring from Wait to Normal cursor after menu refresh to give time to Windows to pass the change to other apps in some situatione (for example, when video recording is running)
 - update Portuguese language file
+
+Version BETA: 9.3.2.9.1 (2018-12-07)
+- add ini value TryWindowPosition=1 to show the "Add/Edit Favorite" tab "Window Options" for favorite types Document, Application, URL and WindowsApp;
+- when TryWindowPosition=1, get the new window ID and "try" to position the window of these favorites (if the target application accepts to be repositioned - which has proven to be fully reliable only in Windows Explorer and Total Commander)
 
 Version: 9.3.2 (2018-12-07)
  
@@ -64,11 +120,64 @@ Bug fixes
 - when Explorer is selected as file manager, display Directory Opus icon for DOpus Favorites and Total Commander icon for TC Hotlists
 - when displaying the "Menu key" hotkey text, replace internal name "AppsKey" with "Menu key" as well as the other internal name "sc15D"
 
+Version BETA: 9.3.1.9.4 (2018-12-06)
+ 
+Windows File Shortcuts
+- add context menu entry "Import Shortcut to Quick Access Popup menu" to import a Windows file shortcut into a new favorite with its icon, name and, for applications, its "Start In" and "Arguments" (parameters) properties
+- add entries to add or delete "Import Shortcut" regitry keys when enabling or disabling context menus in "Options", "Menu" tab (must use HKLM entries because HKCR not supported for "lnkfile" in Inno Setup)
+- handle the situation where user cancels the enable/disable context menu batch when asked for admin prvivilege
+- update with the "Import Shortcut" registry keys the ManageContextMenu.bat batch used by portable installation users to enable or disable context menus
+- removed the QuickAccessPopup-InstallContextMenus.reg and QuickAccessPopup-RemoveContextMenus.bat (replaced by ManageContextMenu.bat) from portable installation zip file
+ 
+Folders window position (Explorer and Total Commander)
+- show the "Window Options" tab in "Add/Edit favorite" dialog box only for favorites of types Folder, Special and FTP when Explorer or Total Commander is the active file manager
+- select on which monitor to position the new Explorer or Total Commander window (monitor 1 by default) when window state is "Maximized" or "Minimized" in "Window Options" tab
+- when opening a new Explorer or Total Commander window maximimized or minimize, position it (even if it is hidden) at top left of the selected monitor
+- if sected monitor is not available, position the window on the primary monitor
+- fix bug stop showing minimized favorites
+ 
+Various improvements
+- check if location exists before saving a new favorite, return to add/edit favorite dialog box if location not found
+- for folders, documents and applications, trim unneeded double quotes if location is enclosed with double quotes
+- remove exclamation marks enclosing live folder names in menu; replace "!Folder!" with "Live Folder" in Settings window Type column
+- expand user variables when expanding environement variables in EnvVars
+- when displaying the AppsKey hotkey text, replace "AppsKey" with "Menu key" (localized string) in addition to the keyboard scan code for Menu key "sc15D"
+ 
+Bug fixes
+- remove ampersand (menu shortcut) from menu name when an item is added to the "Repeat Last Actions" menus
+
+Version BETA: 9.3.1.9.3 (2018-12-03)
+- center the following dialog boxes on top of the parent dialog box: Select shortcut, Select hotstring, Close computer, Close all windows, Update and Import-export
+- avoid top-left of dialog boxes to be displayed outside of active monitor
+- fix bug retrieving icon from file shortcut in Live Folders
+- retrieve "Start In" and "Arguments" (parameters) properties from file shortcuts when building Live Folders
+- fix bug buttons not centered in some dialog boxes
+- fix bug set icon for Repeat actions menu when dynamic menu items are open
+- fix bug display Directory Opus icon for DOpus Favorites or Total Commander icon for TC Hotlists when Explorer is selected as file manager
+- fix bug in dynamic menus when menu numeric shortcuts are enabled (merge from master release v9.3.1.3)
+
 Version: 9.3.1.3 (2018-12-01)
 - fix bug in dynamic menus when menu numeric shortcuts are enabled
 
+Version BETA: 9.3.1.9.2 (2018-11-30)
+- center Options third level dialog boxes on top of the Options window
+- fix bug positioning the Settings window or new Explorer window when the secondary monitor is at the left of, or above the primary monitor
+
+Version BETA: 9.3.1.9.1 (2018-11-30)
+ 
+Opening Explorer windows on multi-monitor systems
+- new option in "File Managers" tab to open new Explorer windows on the active monitor when system has more than one monitor
+- detect the active monitor based on the mouse position (if favorite launched with mouse trigger) or else based on the active window's position
+ 
+QAP windows position
+- add option "Open Settings window on Active monitor" on "General" tab to open the Settings window on the active monitor when system has more than one monitor
+- detect the active monitor based on mouse or active window position (as above)
+- always position secondary QAP windows (Options, Select favorite type, Add/Edit/Copy/Move Favorite, Add Shared menu from catalogue, Manage Hotkeys, Manage Icons, About, Donate and Help) relative to the center of the main Settings window
+- remember width of Add/Edit/Copy/Move Favorite window in ini file
+- remove tray menu command to restore dialog box position
+
 Version: 9.3.1.2 (2018-11-29)
-- fix bug when items in Live Folders menus contained an ampersand
+- also fix bug when items in Live Folders menus contained an ampersand
 
 Version: 9.3.1.1 (2018-11-29)
 - add command line parameter "/Working:[path]" used to set QAP working directory (useful when creating a "Run" registry key to autostart QAP without using Startup shortcut file)
@@ -2918,10 +3027,12 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
+;@Ahk2Exe-SetVersion 9.4
 ;@Ahk2Exe-SetName Quick Access Popup
-;@Ahk2Exe-SetDescription Quick Access Popup (freeware)
-;@Ahk2Exe-SetVersion 9.3.2.1 
+;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
+;@Ahk2Exe-SetCopyright (c) Jean Lalonde since 2013
+;@Ahk2Exe-SetCompanyName Jean Lalonde
 
 
 ;========================================================================================================================
@@ -3021,7 +3132,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.3.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
@@ -3055,6 +3166,7 @@ g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in a
 g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+g_strEscapeReplacement := "!r4nd0mt3xt!"
 
 g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -3107,6 +3219,8 @@ g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
 g_objWindowsAppsIDsByName := Object()
 
 g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
+
+g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
 ;---------------------------------
 ; Initial validation
@@ -3167,7 +3281,7 @@ if (g_blnCheck4Update) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
-Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup-loading.ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, %g_strJLiconsFile%, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
@@ -3214,7 +3328,7 @@ if (g_blnUsageDbEnabled)
 
 if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change in UsageDbInit
 {
-	; collect recent items and prodynamic menus data
+	; collect recent items and dynamic menus data
 	Gosub, UsageDbCollectMenuData
 
 	; Update FavoriteUsageDb properties with data from UsageDb
@@ -3473,7 +3587,6 @@ return
 ;-----------------------------------------------------------
 SetQAPWorkingDirectory:
 ;-----------------------------------------------------------
-
 /*
 
 First, the whole story...
@@ -3657,10 +3770,6 @@ FileInstall, FileInstall\gift-32_c.png, %g_strTempDir%\gift-32_c.png
 
 FileInstall, FileInstall\uac_logo-16.png, %g_strTempDir%\uac_logo-16.png
 
-FileInstall, FileInstall\QuickAccessPopup.ico, %g_strTempDir%\QuickAccessPopup.ico
-FileInstall, FileInstall\QuickAccessPopup-beta.ico, %g_strTempDir%\QuickAccessPopup-beta.ico
-FileInstall, FileInstall\QuickAccessPopup-loading.ico, %g_strTempDir%\QuickAccessPopup-loading.ico
-
 if FileExist(A_WorkingDir . "\QAPconnect.ini")
 	FileInstall, FileInstall\QAPconnect-default.ini, %A_WorkingDir%\QAPconnect-default.ini, 1 ; overwrite
 else
@@ -3710,7 +3819,9 @@ strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
 	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
 	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo"
+	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo|iconQAPadmin"
+	. "|iconQAPadminBeta|iconQAPadminDev|iconQAPbeta|iconQAPdev|iconQAPloading"
+	. "|iconFolderLiveOpened"
 
 ; EXAMPLE
 ; g_objJLiconsByName["iconAbout"] -> "file,2"
@@ -3784,7 +3895,7 @@ else
 	strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . g_strLanguageCode . ".txt"
 }
 	
-strReplacementForSemicolon := "!r4nd0mt3xt!" ; for non-comment semi-colons ";" escaped as ";;"
+strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
 
 if FileExist(strLanguageFile)
 {
@@ -4899,12 +5010,14 @@ if (g_blnChangeFolderInDialog)
 IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
-
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
+
 IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
 IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
 IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
 IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
+IniRead, g_blnOpenSettingsOnActiveMonitor, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor, 1
 
 IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
 IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
@@ -4957,6 +5070,8 @@ if (g_intActiveFileManager = "ERROR") ; no selection
 	Gosub, CheckActiveFileManager
 
 ; Read values for all options: if user switch back to a previou option we can preset previous values
+IniRead, g_blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
+
 IniRead, g_strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
 Gosub, LoadIniQAPconnectValues
 
@@ -5022,7 +5137,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit)
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
-	
+
 ; ---------------------
 ; Load internal flags and various values
 
@@ -5040,7 +5155,6 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 IniRead, g_intClipboardMaxSize, %g_strIniFile%, Global, ClipboardMaxSize, 10000 ; default 10000 chars
 
-
 IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
 IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
 if (g_intNbLiveFolderItemsMax = "ERROR")
@@ -5056,6 +5170,7 @@ IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
 IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
+IniRead, g_blnTryWindowPosition, %g_strIniFile%, Global, TryWindowPosition, 0 ; default false
 
 ; ---------------------
 ; Load favorites
@@ -5305,7 +5420,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
-		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
+		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
 		objLoadIniFavorite.FavoriteLoginName := ReplaceAllInString(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
 		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
@@ -5907,16 +6022,16 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, %g_strJLiconsFile%, 55, 1 ; 55 is iconUAClogo, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 	else
-		Menu, Tray, Icon, % g_strTempDir . "\QuickAccessPopup" . (g_strCurrentBranch <> "prod" ? "-beta" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
-Menu, Tray, Icon, % A_ScriptDir . "\QuickAccessPopup-DEV-red-512" . (A_IsAdmin ? "-ADMIN" : "") . ".ico", 1, 1 ; last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, %g_strJLiconsFile%, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-	
+
 return
 ;------------------------------------------------------------
 
@@ -5944,7 +6059,6 @@ Menu, Tray, Add
 Menu, Tray, Add, %lMenuSuspendHotkeys%, SuspendHotkeys
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuRestoreSettingsWindowPosition%, GuiShowRestoreDefaultPosition
-Menu, Tray, Add, %lMenuRestoreEditCopyMoveWindowPosition%, RestoreEditCopyMoveWindowPosition
 Menu, Tray, Add
 Menu, Tray, Add, %lMenuUpdateAmpersand%, Check4Update
 Menu, Tray, Add, %lMenuOpenWorkingDirectory%, OpenWorkingDirectory
@@ -7660,7 +7774,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenuItem.FavoriteType := "Folder"
 	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
-	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLive")
+	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
@@ -7696,6 +7810,8 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 					SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
 					; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
 					FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
+					if !StrLen(strFileLocation)
+						strFileLocation := A_LoopFileLongPath
 				}
 				else
 				{
@@ -8044,7 +8160,7 @@ StringSplit, g_arrOptionsTitlesSub, lOptionsPopupHotkeyTitlesSub, |
 ; Build Gui header
 Gui, 1:Submit, NoHide
 g_strOptionsGuiTitle := L(lOptionsGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %g_strOptionsGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %g_strOptionsGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -8080,6 +8196,11 @@ Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
 Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
 GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
 
+Gui, 2:Add, Text, y+10 xs, %lOptionsBackupFolder%:
+Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strBackupFolder
+Gui, 2:Add, Button, x+5 yp w75 gButtonBackupFolder, %lDialogBrowseButton%
+GuiControl, 2:, f_strBackupFolder, %g_strBackupFolder%
+
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
@@ -8106,6 +8227,9 @@ Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
 GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
+
+Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenSettingsOnActiveMonitor, %lOptionsOpenSettingsOnActiveMonitor%
+GuiControl, , f_blnOpenSettingsOnActiveMonitor, %g_blnOpenSettingsOnActiveMonitor%
 
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
@@ -8292,9 +8416,11 @@ loop, %g_arrActiveFileManagerSystemNames0%
 	Gui, 2:Add, Radio, % "y+10 x20 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (g_intActiveFileManager = A_Index ? " checked" : ""), % g_arrActiveFileManagerDisplayNames%A_Index%
 
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp hidden
+Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp ; hidden
 Gui, 2:Font
 Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
+Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor, %lOptionsOpenFavoritesOnActiveMonitor%
+GuiControl, , f_blnOpenFavoritesOnActiveMonitor, %g_blnOpenFavoritesOnActiveMonitor%
 Gui, 2:Add, Text, y+10 x32 vf_lblFileManagerPrompt hidden, %lDialogApplicationLabel%:
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
 Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
@@ -8403,10 +8529,13 @@ ActiveFileManagerClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+strShowHideCommand := (f_radActiveFileManager1 ? "Show" : "Hide")
+GuiControl, %strShowHideCommand%, f_blnOpenFavoritesOnActiveMonitor
+
 strShowHideCommand := (f_radActiveFileManager1 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_lblFileManagerDetail
 GuiControl, %strShowHideCommand%, f_lblFileManagerPrompt
-GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
+; GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
 
 strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
@@ -8441,8 +8570,12 @@ else if (f_radActiveFileManager4) ; QAPconnect
 	strHelpUrl := "https://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/"
 }
 else ; f_radActiveFileManager1
+{
 	g_intClickedFileManager := 1
+	strHelpUrl := "https://www.quickaccesspopup.com/how-does-qap-work-on-multi-monitor-systems/"
+}
 
+GuiControl, , f_lnkFileManagerHelp, % L(lOptionsThirdPartySelectedHelp, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%, strHelpUrl, lGuiHelp)
 if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 {
 	strClickedFileManagerSystemNames := g_arrActiveFileManagerSystemNames%g_intClickedFileManager%
@@ -8450,7 +8583,6 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 	if !StrLen(g_str%strClickedFileManagerSystemNames%Path)
 		IniRead, g_str%strClickedFileManagerSystemNames%Path, %g_strIniFile%, Global, %strClickedFileManagerSystemNames%Path, %A_Space% ; empty if error
 	
-	GuiControl, , f_lnkFileManagerHelp, % L(lOptionsThirdPartySelectedHelp, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%, strHelpUrl, lGuiHelp)
 	GuiControl, , f_lblFileManagerDetail, % (f_radActiveFileManager4 ? L(lOptionsThirdPartyDetailQAPconnect, "QAPconnect.ini") : L(lOptionsThirdPartyDetail, g_arrActiveFileManagerDisplayNames%g_intClickedFileManager%))
 	GuiControl, , f_strFileManagerPath, % g_str%strClickedFileManagerSystemNames%PathBeforeEnvVars
 	if (f_radActiveFileManager4) ; QAPconnect
@@ -8652,7 +8784,7 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 g_intGui2WinID := WinExist("A")
 
 strGuiTitle := ReplaceAllInString(lOptionsChangeFolderInDialog, "&", "")
-Gui, 3:New, , %strGuiTitle%
+Gui, 3:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8669,7 +8801,8 @@ Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDia
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnChangeFolderInDialogCancel")
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
-Gui, 3:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, intX, intY)
+Gui, 3:Show, AutoSize x%intX% y%intY%
 Gui, 2:+Disabled
 
 strGuiTitle := ""
@@ -8724,25 +8857,6 @@ return
 
 
 ;------------------------------------------------------------
-ButtonQAPTempFolderParentPath:
-;------------------------------------------------------------
-Gui, 2:Submit, NoHide
-
-strExpandQAPTempFolderParent := PathCombine(A_WorkingDir, EnvVars(f_strQAPTempFolderParentPath))
-FileSelectFolder, strNewQAPTempFolderParentPath, *%strExpandQAPTempFolderParent%, 3, %lOptionsSelectQAPTempFolder%
-if !StrLen(strNewQAPTempFolderParentPath)
-	return
-
-GuiControl, 2:, f_strQAPTempFolderParentPath, %strNewQAPTempFolderParentPath%
-
-strNewQAPTempFolderParentPath := ""
-strExpandQAPTempFolderParent := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
@@ -8766,18 +8880,39 @@ return
 
 
 ;------------------------------------------------------------
+ButtonQAPTempFolderParentPath:
 ButtonExternalMenuSelectCataloguePath:
+ButtonBackupFolder:
 ;------------------------------------------------------------
+Gui, 2:+OwnDialogs
 Gui, 2:Submit, NoHide
 
-FileSelectFolder, strNewExternalMenusCataloguePath, ::{20d04fe0-3aea-1069-a2d8-08002b30309d}, 1, %lOptionsSelectCatalogueRoot%
-if !StrLen(strNewExternalMenusCataloguePath)
+if (A_ThisLabel = "ButtonQAPTempFolderParentPath")
+{
+	strControlName := "f_strQAPTempFolderParentPath"
+	strPrompt := lOptionsSelectQAPTempFolder
+}
+else if (A_ThisLabel = "ButtonExternalMenuSelectCataloguePath")
+{
+	strControlName := "f_strExternalMenusCataloguePath"
+	strPrompt := lOptionsSelectCatalogueRoot
+}
+else
+{
+	strControlName := "f_strBackupFolder"
+	strPrompt := lOptionsSelectBackupFolder
+}
+
+strPreviousFolderExpand := PathCombine(A_WorkingDir, EnvVars(%strControlName%))
+FileSelectFolder, strNewFolder, *%strPreviousFolderExpand%, 3, %strPrompt%
+if !StrLen(strNewFolder)
 	return
-; else continue
 
-GuiControl, 2:, f_strExternalMenusCataloguePath, %strNewExternalMenusCataloguePath%
+GuiControl, 2:, %strControlName%, %strNewFolder%
 
-strNewExternalMenusCataloguePath := ""
+strControlName := ""
+strPreviousFolderExpand := ""
+strPrompt := ""
 
 return
 ;------------------------------------------------------------
@@ -8852,7 +8987,7 @@ g_intGui2WinID := WinExist("A")
 StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
 
 strGuiTitle := lDialogMore . " - " . g_strAppNameText . " " . g_strAppVersion
-Gui, 3:New, , %strGuiTitle%
+Gui, 3:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, 3:+Owner2
 
 if (g_blnUseColors)
@@ -8915,9 +9050,13 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnChangeFolderInDialogOK", "f_btnCh
 
 GuiControl, Focus, f_btnChangeFolderInDialogCancel
 Gui, 3:Add, Text
-Gui, 3:Show, AutoSize Center
+
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, intX, intY)
+Gui, 3:Show, AutoSize x%intX% y%intY%
 Gui, 2:+Disabled
 
+intX := ""
+intY := ""
 strGuiTitle := ""
 
 return
@@ -9079,6 +9218,8 @@ g_blnCheck4Update := f_blnCheck4Update
 IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
 IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+g_blnOpenSettingsOnActiveMonitor := f_blnOpenSettingsOnActiveMonitor
+IniWrite, %g_blnOpenSettingsOnActiveMonitor%, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
@@ -9105,6 +9246,9 @@ if StrLen(f_strQAPTempFolderParentPath)
 	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
 	IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
 }
+
+g_strBackupFolder := f_strBackupFolder
+IniWrite, %g_strBackupFolder%, %g_strIniFile%, Global, BackupFolder
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
@@ -9259,6 +9403,9 @@ if (g_intActiveFileManager > 1) ; 2 DirectoryOpus, 3 TotalCommander or 4 QAPconn
 
 g_blnFileManagerAlwaysNavigate := f_radFileManagerNavigateCurrent ; same as !f_radFileManagerNavigateNew
 IniWrite, %g_blnFileManagerAlwaysNavigate%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
+
+g_blnOpenFavoritesOnActiveMonitor := f_blnOpenFavoritesOnActiveMonitor
+IniWrite, %g_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
 
 ;---------------------------------------
 ; Save Tab 6: More
@@ -9653,10 +9800,7 @@ IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, List
 IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
-Gui, 1:New, +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
-
-Gui, +LastFound
-g_strAppHwnd := WinExist()
+Gui, 1:New, +Hwndg_strAppHwnd +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
 
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
@@ -9747,7 +9891,7 @@ if !(g_blnDonor)
 	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, %lGuiDonate% ; Static36
 }
 
-GetSavedWindowPosition("SettingsPosition", arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
+GetSavedSettingsWindowPosition(arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
 
 Gui, 1:Show, % "Hide "
 	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
@@ -10223,7 +10367,7 @@ Gui, 1:ListView, f_lvFavoritesList ; should be set by LoadFavoritesInGuiFiltered
 g_intOriginalMenuPosition := (LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : 0xFFFF) : 1)
 
 strGuiTitle := L(lDialogAddFavoriteSelectTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10528,7 +10672,7 @@ strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
 ; must be before GuiFavoriteInit and GuiAddFavoriteSaveXpress
-g_strTypesForTabWindowOptions := "|Folder|Special|FTP" ; must start with "|"
+g_strTypesForTabWindowOptions := "|Folder|Special|FTP" . (g_blnTryWindowPosition ? "|Document|Application|URL|WindowsApp" : "") ; must start with "|"
 g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|QAP|Group|WindowsApp" ; must start with "|"
 
 Gosub, GuiFavoriteInit
@@ -10555,7 +10699,7 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 strGuiTitle := L(lDialogAddEditFavoriteTitle
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? lDialogEdit : (strGuiFavoriteLabel = "GuiCopyFavorite" ? lDialogCopy : lDialogAdd))
 	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
-Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505, %strGuiTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505 +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -10632,16 +10776,11 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
 
-GetSavedWindowPosition("AddEditCopyFavoriteDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
-if (arrDialogPosition1 = "-1")
-	Gosub, ShowGui2AndDisableGui1
-else
-{
-	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
-	if (arrDialogPosition4 < 544) ; minimum height since v8.7.0.9.2
-		arrDialogPosition4 := 544
-	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
-}
+GetGui2Size("AddEditCopyFavoriteDialogPosition", intGui2Width, intGui2Height)
+if (intGui2Height < 544) ; minimum height since v8.7.0.9.2
+	intGui2Height := 544
+WinMove, ahk_id %g_strGui2Hwnd%, , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
+Gosub, ShowGui2AndDisableGui1
 
 if (g_objEditedFavorite.FavoriteName = lToolTipRetrievingWebPageTitle)
 {
@@ -10659,6 +10798,8 @@ g_strNewLocation := ""
 g_blnAbordEdit := ""
 objExternalMenu := ""
 strDialogPosition := ""
+intGui2Width := ""
+intGui2Height := ""
 ResetArray("arrDialogPosition")
 strGuiTitle := ""
 
@@ -10677,7 +10818,8 @@ BuildTabsList(strFavoriteType)
 	
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
-	if InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
+	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
+		and ((g_intActiveFileManager = 1 or g_intActiveFileManager = 3) or g_blnTryWindowPosition)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
@@ -10797,7 +10939,10 @@ else ; add favorite
 	{
 		strShortcutFilename := GetLocationPathName(g_strNewLocation) ; save the name of the lnk as new favorite name
 		; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
-		FileGetShortcut, %g_strNewLocation%, g_strNewLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
+		FileGetShortcut, %g_strNewLocation%, strShortcutLocation, strShortcutWorkingDir, strShortcutArgs, , strShortcutIconFile, strShortcutIconIndex, intShortcutRunState
+		if StrLen(strShortcutLocation)
+			g_strNewLocation := strShortcutLocation
+		; else keep the original .lnk path-name
 	}
 		
 	if !WindowIsDialog(g_strTargetClass, g_strTargetWinId)
@@ -10806,7 +10951,7 @@ else ; add favorite
 	{
 		WinGetPos, intX, intY, intWidth, intHeight, ahk_id %g_strTargetWinId%
 		WinGet, intMinMax, MinMax, ahk_id %g_strTargetWinId% ; -1: minimized, 1: maximized, 0: neither minimized nor maximized
-		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited)
+		; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height; for example: "1,0,100,50,640,480,200"
 		; record position but keep "use default position"
 		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
@@ -10940,6 +11085,7 @@ strShortcutIconFile := ""
 strShortcutIconIndex := ""
 intShortcutRunState := ""
 intShortcutRunStateWindowsOptions := ""
+strShortcutLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -11131,7 +11277,7 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	and (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
 	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (g_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
@@ -11383,7 +11529,7 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "1,0,100,50,640,480,200"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
 	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
@@ -11402,9 +11548,10 @@ if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
 	Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lGuiGroupRestoreDelayMilliseconds%
 	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogWindowPositionMayFail%
 	
-	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPosition%
+	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogWindowPosition%
 
 	Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionX%
+	Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 <> 0 ? "" : "hidden"), % BuildMonitorsList(arrNewFavoriteWindowPosition8)
 	Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionY%
 	Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionW%
 	Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %lDialogWindowPositionH%
@@ -11640,7 +11787,7 @@ blnMove := InStr(A_ThisLabel, "GuiMove")
 
 strGuiTitle := L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogMoveFavoriteTitle : lDialogMoveFavoritesTitle)
 	: lDialogCopyFavoritesTitle), g_strAppNameText, g_strAppVersion)
-Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160, %strGuiTitle%
+Gui, 2:New, +Resize -MaximizeBox +MinSize320x160 +MaxSizex160 +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -11665,14 +11812,9 @@ Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 GuiControl, 2:Focus, f_drpParentMenu
 
-GetSavedWindowPosition("CopyMoveDialogPosition", arrDialogPosition1, arrDialogPosition2, arrDialogPosition3, arrDialogPosition4)
-if (arrDialogPosition1 = "-1")
-	Gosub, ShowGui2AndDisableGui1
-else
-{
-	Gosub, ShowGui2AndDisableGui1KeepPosition ; must be before WinMove
-	WinMove, A, , %arrDialogPosition1%, %arrDialogPosition2%, %arrDialogPosition3%, %arrDialogPosition4%
-}
+GetGui2Size("CopyMoveDialogPosition", intGui2Width, intGui2Height)
+WinMove, ahk_id %g_strGui2Hwnd%, , , , %intGui2Width% ; restore only width, always position relative to Settings window
+Gosub, ShowGui2AndDisableGui1
 
 blnMove := ""
 ResetArray("arrDialogPosition")
@@ -11744,6 +11886,15 @@ if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external 
 	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType, true)
 		gosub, FavoriteArgumentChanged
 	
+}
+else if (intFromTab = 3 and g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive)
+{
+	; back from Live Folder tab, check if we replace default iconFolder with iconFolderLive
+	if (g_strNewFavoriteIconResource = "iconFolder")
+	{
+		g_strNewFavoriteIconResource := "iconFolderLive"
+		Gosub, GuiFavoriteIconDisplay
+	}
 }
 else ; to tab 1
 	if (g_objEditedFavorite.FavoriteType = "Special")
@@ -12003,7 +12154,11 @@ if !StrLen(f_strFavoriteShortName)
 	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
+{
+	if RegExMatch(f_strFavoriteLocation, """.*""") ; trim unneeded double quotes if location is enclosed with double quotes
+		GuiControl, 2:, f_strFavoriteLocation, % Trim(f_strFavoriteLocation, """")
 	gosub, GuiFavoriteIconDefault
+}
 
 if (A_ThisLabel = "EditFavoriteExternalLocationChanged")
 {
@@ -12345,10 +12500,10 @@ GuiControl, %strShowHideCommand%, f_lblWindowPositionDelayLabel
 GuiControl, %strShowHideCommand%, f_lblWindowPositionDelay
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMillisecondsLabel
 GuiControl, %strShowHideCommand%, f_lblWindowPositionMayFail
+GuiControl, %strShowHideCommand%, f_lblWindowPosition
 
 strShowHideCommand := (!f_blnUseDefaultWindowPosition and f_lblWindowPositionMinMax1 and !f_blnFavoriteFolderLive ? "Show" : "Hide")
 
-GuiControl, %strShowHideCommand%, f_lblWindowPosition
 GuiControl, %strShowHideCommand%, f_lblWindowPositionX
 GuiControl, %strShowHideCommand%, f_intWindowPositionX
 GuiControl, %strShowHideCommand%, f_lblWindowPositionY
@@ -12357,6 +12512,10 @@ GuiControl, %strShowHideCommand%, f_lblWindowPositionW
 GuiControl, %strShowHideCommand%, f_intWindowPositionW
 GuiControl, %strShowHideCommand%, f_lblWindowPositionH
 GuiControl, %strShowHideCommand%, f_intWindowPositionH
+
+strShowHideCommand := (!f_blnUseDefaultWindowPosition and !f_lblWindowPositionMinMax1 and !f_blnFavoriteFolderLive ? "Show" : "Hide")
+
+GuiControl, %strShowHideCommand%, f_drpWindowMonitor
 
 strShowHideCommand := ""
 
@@ -12526,11 +12685,25 @@ else
 g_blnFavoritesListFilterNeverFocused := true
 GuiControl, 1:, f_strFavoritesListFilter, %lDialogSearch%
 
-Gui, 1:Show, % ((A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged()) ? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight : "")
+if (A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged())
+	Gui, 1:Show, % "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
+else
+{
+	GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intActiveX, intActiveY)
+	if (g_blnOpenSettingsOnActiveMonitor and GetWindowPositionOnActiveMonitor("ahk_id " . g_strAppHwnd, intActiveX, intActiveY, intPositionX, intPositionY))
+		; display at center of active monitor
+		Gui, 1:Show, % "x" . intPositionX . " y" . intPositionY
+	else ; keep existing position
+		Gui, 1:Show
+}
 
 GuiShowCleanup:
 blnSaveEnabled := ""
 strThisMenu := ""
+intActiveX := ""
+intActiveY := ""
+intPositionX := ""
+intPositionY := ""
 
 return
 ;------------------------------------------------------------
@@ -12758,7 +12931,7 @@ else
 g_intGui1WinID := WinExist("A")
 
 strGuiTitle := L(lDialogExternalMenuAddFromCatalogue, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -12892,21 +13065,6 @@ ButtonAddExternalMenusFromCatalogueClose:
 ;------------------------------------------------------------
 
 Gosub, 2GuiClose
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RestoreEditCopyMoveWindowPosition:
-;------------------------------------------------------------
-
-MsgBox, 4, %g_strAppNameText%, % L(lOopsRestoreEditCopyMoveWindowPosition)
-IfMsgBox, No
-	return
-
-IniDelete, %g_strIniFile%, Global, AddEditCopyFavoriteDialogPosition
-IniDelete, %g_strIniFile%, Global, CopyMoveDialogPosition
 
 return
 ;------------------------------------------------------------
@@ -13066,9 +13224,14 @@ else
 	strNewFavoriteLocation := f_strFavoriteLocation
 	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
 	strNewFavoriteSoundLocation := f_strFavoriteSoundLocation
-
+	
 	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
 	strDestinationMenu := f_drpParentMenu
+
+	; if gui was closed from Live Folder Options tab (without changing tab), update Live folder icon
+	if (g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive
+		and g_strNewFavoriteIconResource = "iconFolder")
+			g_strNewFavoriteIconResource := "iconFolderLive"
 }
 
 if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for these favorites, file/folder must exist
@@ -13217,11 +13380,13 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
 		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
 			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
-			
+		
 		GuiControlGet, intRadioGroupRestoreSide, , f_intRadioGroupRestoreSide
 		if !(ErrorLevel) ; if errorlevel, control does not exist
 			strNewFavoriteWindowPosition .= "," . (f_intRadioGroupRestoreSide = 1 ? "L" : "R")
-		
+		else
+			strNewFavoriteWindowPosition .= "," . StrReplace(f_drpWindowMonitor, lDialogWindowMonitor . " ", "")
+
 		if !ValidateWindowPosition(strNewFavoriteWindowPosition)
 		{
 			Oops(lOopsInvalidWindowPosition)
@@ -13741,8 +13906,9 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ValidateWindowPosition(strPosition)
 ;------------------------------------------------------------
 {
-	; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+	; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+	; L Left / R Right / 1 primary monitor / 2 secondary monitor...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 	StringSplit, arrPosition, strPosition, `,
 	if !(arrPosition1) or (arrPosition2 <> 0) ; no position to validate
 		return true
@@ -13757,6 +13923,7 @@ ValidateWindowPosition(strPosition)
 		blnOK := false
 	else if arrPosition7 is not integer
 		blnOK := false
+	; arrPosition8 can be letter or number
 	else
 		blnOK := true
 
@@ -14172,7 +14339,7 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 strGuiTitle := L(lDialogHotkeysManageTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -14469,7 +14636,7 @@ intButtonsHeight := 20
 intButtonsWidth := 150
 
 strGuiTitle := L(lDialogIconsManageTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
 if (g_blnUseColors)
@@ -14958,7 +15125,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				if !StrLen(g_intIniLine)
 					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
-				gosub, BackupIniFile ; backup external settings ini file, if required
+				gosub, BackupExternalIniFile ; backup external settings ini file, if required
 				
 				IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
 				IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
@@ -15025,7 +15192,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	g_intGui2WinID := WinExist("A")
 	
 	SS_strGuiTitle := L(lDialogChangeHotkeyTitle, g_strAppNameText, g_strAppVersion)
-	Gui, 3:New, , %SS_strGuiTitle%
+	Gui, 3:New, +Hwndg_strGui3Hwnd, %SS_strGuiTitle%
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -15105,7 +15272,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeShortcutOK
-	Gui, Show, AutoSize Center
+	CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, SS_intX, SS_intY)
+	Gui, Show, AutoSize x%SS_intX% y%SS_intY%
 
 	Gui, 2:+Disabled
 	WinWaitClose, %SS_strGuiTitle% ; waiting for Gui to close
@@ -15140,6 +15308,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strMouseValue := ""
 	SS_strThisLabel := ""
 	SS_strThisSymbol := ""
+	SS_intX := ""
+	SS_intY := ""
 	SS_strGuiTitle := ""
 
 	return SS_strNewShortcut ; returning value
@@ -15352,7 +15522,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	g_intGui2WinID := WinExist("A")
 
-	Gui, 3:New, , %SH_strGuiTitle%
+	Gui, 3:New, +Hwndg_strGui3Hwnd, %SH_strGuiTitle%
 	Gui, 3:Default
 	Gui, +Owner2
 	Gui, +OwnDialogs
@@ -15407,7 +15577,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	Gui, Add, Text
 	GuiControl, Focus, f_btnChangeHotkeyOK
-	Gui, Show, AutoSize Center
+	CalculateTopGuiPosition(g_strGui3Hwnd, g_strGui2Hwnd, SH_intX, SH_intY)
+	Gui, Show, AutoSize x%SH_intX% y%SH_intY%
 
 	Gui, 2:+Disabled
 	WinWaitClose,  %SH_strGuiTitle% ; waiting for Gui to close
@@ -15435,6 +15606,8 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	SH_blnHotstringWaitEndingKey := ""
 	SH_blnHotstringKeepTrigger := ""
 	SH_strTempOptions := ""
+	SH_intX := ""
+	SH_intY := ""
 	
 	return SH_strNewHotstring ; returning value
 	
@@ -15631,10 +15804,20 @@ ShowGui2AndDisableGui1:
 ShowGui2AndDisableGui1KeepPosition:
 ;------------------------------------------------------------
 
-Gui, 2:Show, % (A_ThisLabel = "ShowGui2AndDisableGui1KeepPosition" ? "" : "AutoSize Center")
+if (A_ThisLabel = "ShowGui2AndDisableGui1")
+{
+	CalculateTopGuiPosition(g_strGui2Hwnd, g_strAppHwnd, intX, intY)
+	Gui, 2:Show, AutoSize x%intX% y%intY%
+}
+else ; KeepPosition
+	Gui, 2:Show
+
 Gui, 1:+Disabled
 if (g_Gui1AlwaysOnTop)
 	WinSet, AlwaysOnTop, Off, % L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+
+intX := ""
+intY := ""
 
 return
 ;------------------------------------------------------------
@@ -15958,6 +16141,8 @@ if (!g_blnMenuReady or g_blnChangeShortcutInProgress or g_blnChangeHotstringInPr
 	return
 
 Diag(A_ThisLabel, "", "START-SHOW")
+
+g_strMenuTriggerLabel := A_ThisLabel
 
 if (g_blnGetWinInfo)
 {
@@ -16609,7 +16794,7 @@ if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
  	return
 
 g_strOpenFavoriteLabel := A_ThisLabel
-g_strNewWindowId := "" ; start fresh for any new favorite to open
+g_strNewWindowId := "" ; start fresh for any new favorite to open, used to position Explorer and Total Commander windows only
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
 if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
@@ -16685,9 +16870,10 @@ if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been coollect
 
 if (g_objThisFavorite.FavoriteType = "Group") and !(g_blnAlternativeMenu)
 {
-	gosub, UsageDbCollectMenu
 	gosub, OpenGroupOfFavorites
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16705,8 +16891,9 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = lMenuAlternativeNewWindow))
 {
 	gosub, PasteSnippet ; using g_strLocationWithPlaceholders
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16847,10 +17034,20 @@ else
 	}
 }
 
-; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide (comma delimited) (7)
-; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms), L Left / R Right; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+; preparation for window position
+
+; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
+; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
 StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
+
+if InStr("Explorer|TotalCommander", g_strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
+{
+	SysGet, intNbMonitors, MonitorCount
+	if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
+		GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intMonitorReferencePositionX, intMonitorReferencePositionY)
+}
 
 ; === ACTIONS ===
 
@@ -16883,8 +17080,9 @@ if (g_blnAlternativeMenu)
 		}
 		gosub, GuiShowFromAlternative
 		gosub, GuiEditFavoriteFromAlternative
-		gosub, UsageDbCollectMenu
+		
 		gosub, OpenFavoriteCleanup
+		gosub, UsageDbCollectMenu
 		
 		return
 	}
@@ -16896,9 +17094,10 @@ if (g_blnAlternativeMenu)
 			Clipboard := g_strFullLocation
 			TrayTip, %g_strAppNameText%, %lCopyLocationCopiedToClipboard%, , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-		}		
-		gosub, UsageDbCollectMenu
+		}
+		
 		gosub, OpenFavoriteCleanup
+		gosub, UsageDbCollectMenu
 		return
 	}
 	
@@ -16920,8 +17119,9 @@ if (g_objThisFavorite.FavoriteType = "Text")
 if (A_ThisLabel = "OpenDOpusLayout")
 {
 	Run, % """" . g_strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16940,8 +17140,8 @@ if (g_objThisFavorite.FavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16956,14 +17156,14 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 		Oops(lOopsUnknownTargetAppName)
 	else
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (intPid)
+		if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowResize
+			gosub, OpenFavoriteWindowPosition
 		}
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16973,8 +17173,9 @@ if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
 {
 	Gosub, SetMenuPosition
 	Menu, %lMainMenuName% %g_strFullLocation%, Show, %g_intMenuPosX%, %g_intMenuPosY%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoriteCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -16987,23 +17188,23 @@ if (g_objThisFavorite.FavoriteType = "Application")
 	; Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "No"))
 	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
 	; Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
+	
 	Run, % (g_objThisFavorite.FavoriteElevate or g_strAlternativeMenu = lMenuAlternativeRunAs ? "*RunAs " : "") . g_strFullLocation, %strAppWorkingDirWithPlaceholders%, UseErrorLevel, intPid
+	
 	if (ErrorLevel = "ERROR")
 	{
 		if (A_LastError <> 1223)
 			Oops(lOopsUnknownTargetAppName)
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
-	else
-		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (intPid)
-		{
-			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowResize
-		}
+    else if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
+	{
+		g_strNewWindowId := "ahk_pid " . intPid
+		gosub, OpenFavoriteWindowPosition
+	}
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17036,8 +17237,8 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 		, "IntP", intProcessId)
 	ObjRelease(objIApplicationActivationManager)
 
-	gosub, UsageDbCollectMenu
 	gosub, OpenFavoriteCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17047,8 +17248,9 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
 	Gosub, % g_objQAPFeatures[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17057,8 +17259,9 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17067,8 +17270,9 @@ if (InStr("Folder|FTP", g_objThisFavorite.FavoriteType) and g_strHotkeyTypeDetec
 if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "Navigate")
 {
 	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	gosub, UsageDbCollectMenu
+	
 	gosub, OpenFavoritePlaySoundAndCleanup
+	gosub, UsageDbCollectMenu
 	return
 }
 
@@ -17077,9 +17281,12 @@ if (g_objThisFavorite.FavoriteType = "Special") and (g_strHotkeyTypeDetected = "
 if (g_strHotkeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
-	gosub, OpenFavoriteInNewWindow%g_strTargetAppName%
+	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
+	if ((g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor) ;  we need to position window
+		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or g_blnTryWindowPosition)) ; we can access new Explorer or Total Commander windows, or try with other apps
+		gosub, OpenFavoriteWindowPosition
+		
 	gosub, UsageDbCollectMenu
-	gosub, OpenFavoriteWindowResize
 }
 
 OpenFavoritePlaySoundAndCleanup:
@@ -17107,6 +17314,10 @@ g_blnLaunchFromTrayIcon := ""
 objIApplicationActivationManager := ""
 intProcessId := ""
 strTempArguments := ""
+intNbMonitors := ""
+strPositionReference := ""
+intMonitorReferencePositionX := ""
+intMonitorReferencePositionY := ""
 
 return
 ;------------------------------------------------------------
@@ -17561,7 +17772,7 @@ else
 {
 	objNewLastAction := Object()
 	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
-	strLastActionLabel := DoubleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
+	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
 }
 objNewLastAction.OpenTimeStamp := A_Now
 
@@ -17629,7 +17840,7 @@ CloseComputerControl:
 ;------------------------------------------------------------
 
 strGuiTitle := lDialogCloseComputerControl . " - " . g_strAppNameText . " " . g_strAppVersion
-Gui, CloseComputer:New, , %strGuiTitle%
+Gui, CloseComputer:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, CloseComputer:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseComputer:Color, %g_strGuiWindowColor%
@@ -17662,10 +17873,13 @@ Gui, CloseComputer:Add, Text, y+10
 
 GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseComputerCancel")
 
-Gui, CloseComputer:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, CloseComputer:Show, AutoSize x%intX% y%intY%
 
 ResetArray("arrGroup1Pos")
 ResetArray("arrGroupLastPos")
+intX := ""
+intY := ""
 strGuiTitle := ""
 
 return
@@ -17949,7 +18163,7 @@ CloseAllWindows:
 ;------------------------------------------------------------
 
 strGuiTitle := lDialogCloseAllWindows . " - " . g_strAppNameText . " " . g_strAppVersion
-Gui, CloseAllWindows:New, , %strGuiTitle%
+Gui, CloseAllWindows:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, CloseAllWindows:+OwnDialogs
 if (g_blnUseColors)
 	Gui, CloseAllWindows:Color, %g_strGuiWindowColor%
@@ -17982,8 +18196,11 @@ LV_ModifyCol(1, "Auto")
 GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnCloseAllWindowsClose", "f_btnCloseAllWindowsCancel")
 
 GuiControl, CloseAllWindows:Focus, f_lvCloseAllWindows
-Gui, CloseAllWindows:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, CloseAllWindows:Show, AutoSize x%intX% y%intY%
 
+intX := ""
+intY := ""
 strGuiTitle := ""
 
 return
@@ -18442,7 +18659,7 @@ http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
 OpenFavoriteInNewWindowExplorer:
 ;------------------------------------------------------------
 
-if (g_arrFavoriteWindowPosition1)
+if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	; get new window ID
 	; when run -> pid? if not scan Explorer ids
@@ -18450,26 +18667,33 @@ if (g_arrFavoriteWindowPosition1)
 	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
 }
 
-if StrLen(g_objThisFavorite.FavoriteArguments) or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
-	; Note 1: this technique creates a new Explorer instance at every call; it is used only if the Alternative menu was
-	;         called to open the folder in a new window or if there is an argument in favorite advanced options
-	; Note 2: there was a bug prior to v3.3.1 because the lack of double-quotes
-	Run, % "Explorer """ . g_strFullLocation . """"
+if (StrLen(g_objThisFavorite.FavoriteArguments)
+	or (g_blnAlternativeMenu and g_strAlternativeMenu = lMenuAlternativeNewWindow)
+	or g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
+	; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
+	; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
+	Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
 else
-	; Note: this technique is preferred because it uses the same Explorer instance created by QAP if call multiple times
+{
+	; When moving the window is not required and there is no parameter, this technique is preferred because, if call multiple times, it uses the
+	; same Explorer instance created by QAP.
 	Run, %g_strFullLocation%
+	g_strNewWindowId := ""
+	return
+}
+; */
 
-if (g_arrFavoriteWindowPosition1)
+if (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
 {
 	Loop
 	{
-		if (A_Index > 25)
-		{
-			TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText), % L(lDialogErrorMoving, g_strFullLocation), , 2 ; warning icon with sound
-			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+		if (A_Index > 20)
+			; stop showing tray message from v9.3.1.9.1
+			; TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText), % L(lDialogErrorMoving, g_strFullLocation), , 2 ; warning icon with sound
+			; Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 			Break
-		}
-		Sleep, %g_arrFavoriteWindowPosition7%
+			
+		Sleep, % (g_arrFavoriteWindowPosition1 ? g_arrFavoriteWindowPosition7 : 400) ; 400 ms if opening window on the active monitor
 		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
 		Loop, Parse, g_strExplorerIDs, |
 			if !InStr(strExplorerIDsBefore, A_LoopField . "|")
@@ -18480,6 +18704,13 @@ if (g_arrFavoriteWindowPosition1)
 		If StrLen(g_strNewWindowId)
 			Break ; we have a new window
 	}
+}
+if !StrLen(g_strNewWindowId) and (g_arrFavoriteWindowPosition1 or g_blnOpenFavoritesOnActiveMonitor)
+; we will not be able to move the window, just show it now
+{
+	Sleep, 100
+	WinShow, A
+	WinActivate, A ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
 }
 
 strExplorerIDsBefore := ""
@@ -18492,7 +18723,8 @@ return
 SetExplorersIDs:
 ;------------------------------------------------------------
 g_strExplorerIDs := ""
-for objExplorer in ComObjCreate("Shell.Application").Windows
+objExplorerWindows := ComObjCreate("Shell.Application").Windows
+for objExplorer in objExplorerWindows
 {
 	strType := ""
 	try strType := objExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
@@ -18501,6 +18733,7 @@ for objExplorer in ComObjCreate("Shell.Application").Windows
 	if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
 		g_strExplorerIDs .= objExplorer.HWND . "|"
 }
+ObjRelease(objExplorerWindows) ; free memory used by the object
 
 objExplorer := ""
 strType := ""
@@ -18530,7 +18763,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 		strTabParameter := "NEW=nodual"
 	else
 	{
-		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 		strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
 		StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 		if StrLen(arrFavoriteWindowPosition8)
@@ -18549,6 +18782,7 @@ StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instea
 RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
 if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
 	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+g_strNewWindowId := "ahk_class dopus.lister"
 
 strTabParameter := ""
 strFavoriteWindowPosition := ""
@@ -18567,7 +18801,7 @@ OpenFavoriteInNewWindowTotalCommander:
 
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 {
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide; for example: "0,,,,,,,L"
+	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
 	StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 	if StrLen(arrFavoriteWindowPosition8)
@@ -18660,7 +18894,7 @@ Run, %g_strQAPconnectAppPath% %strQAPconnectParamString%
 if StrLen(g_strQAPconnectWindowID)
 ; g_strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
 ; It must contain at least some characters of the connected app title, and enough to be specific to this window.
-; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId
+; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId.
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
@@ -18692,19 +18926,24 @@ return
 
 
 ;------------------------------------------------------------
-OpenFavoriteWindowResize:
+OpenFavoriteWindowPosition:
 ;------------------------------------------------------------
 
-; WinGetActiveStats, Title, Width, Height, X, Y
-; ###_V("",  Title, Width, Height, X, Y)
+if !StrLen(g_strNewWindowId) ; we can't access the new window
+	return
 
-if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
+if (g_arrFavoriteWindowPosition1) ; the has precedence on g_blnOpenFavoritesOnActiveMonitor
 {
-	intPreviousTitleMatchMode := A_TitleMatchMode
-	; with RegEx: for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
-	; (because by default, regular expressions find a match anywhere in the target string).
-	SetTitleMatchMode, RegEx
 	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
+	
+	if (g_arrFavoriteWindowPosition8 and g_arrFavoriteWindowPosition8 <= intNbMonitors) ; maximize or minimize on this monitor
+	{
+		SysGet, arrMonitorsCoordinates, Monitor, %g_arrFavoriteWindowPosition8%
+		WinMove, %g_strNewWindowId%,
+			, %arrMonitorsCoordinatesLeft% ; left
+			, %arrMonitorsCoordinatesTop% ; top
+	}
+	; do not else
 	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
 		WinMinimize, %g_strNewWindowId%
 	else if (g_arrFavoriteWindowPosition2 = 1) ; Maximized
@@ -18712,18 +18951,38 @@ if (g_arrFavoriteWindowPosition1 and StrLen(g_strNewWindowId))
 	else ; Normal
 	{
 		; see WinRestore doc PostMessage, 0x112, 0xF120,,, %g_strNewWindowId% ; 0x112 = WM_SYSCOMMAND, 0xF120 = SC_RESTORE
-		WinRestore, %g_strNewWindowId%
-		Sleep, %g_arrFavoriteWindowPosition7%
 		WinMove, %g_strNewWindowId%,
 			, %g_arrFavoriteWindowPosition3% ; left
 			, %g_arrFavoriteWindowPosition4% ; top
 			, %g_arrFavoriteWindowPosition5% ; width
 			, %g_arrFavoriteWindowPosition6% ; height
+		WinRestore, %g_strNewWindowId%
+		Sleep, %g_arrFavoriteWindowPosition7%
 	}
-	SetTitleMatchMode, %intPreviousTitleMatchMode%
+}
+else if (g_blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1 and g_strTargetAppName = "Explorer" and g_strHotkeyTypeDetected = "Launch")
+	and GetWindowPositionOnActiveMonitor(g_strNewWindowId, intMonitorReferencePositionX, intMonitorReferencePositionY, intNewWindowX, intNewWindowY)
+{
+	; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
+	g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
+	intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
+	intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
+	
+	WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
+	Sleep, 100
 }
 
-intPreviousTitleMatchMode := ""
+if (g_arrFavoriteWindowPosition2 <> -1) ; not Minimized
+{
+	WinShow, %g_strNewWindowId%
+	WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
+}
+
+intNewWindowX := ""
+intNewWindowY := ""
+strScreenConfiguration := ""
+ResetArray("arrConfig")
+ResetArray("arrMonitorsCoordinates")
 
 return
 ;------------------------------------------------------------
@@ -19053,7 +19312,7 @@ if StrLen(strChangeLog)
 }
 
 strGuiTitle := L(lUpdateTitle, g_strAppNameText)
-Gui, Update:New, , %strGuiTitle%
+Gui, Update:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 ; Do not use g_strMenuBackgroundColor here because it is not set yet
 
 Gui, Update:Font, s10 w700, Verdana
@@ -19084,7 +19343,8 @@ Gui, Update:Add, Text
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
 
 GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
-Gui, Update:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, Update:Show, AutoSize x%intX% y%intY%
 
 strGuiTitle := ""
 
@@ -19215,7 +19475,7 @@ if SettingsUnsaved()
 }
 
 strGuiTitle := L(lImpExpTitle, g_strAppNameText)
-Gui, ImpExp:New, , %strGuiTitle%
+Gui, ImpExp:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 if (g_blnUseColors)
 	Gui, ImpExp:Color, %g_strGuiWindowColor%
 
@@ -19245,7 +19505,11 @@ Gui, ImpExp:Add, Text
 
 ; GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
 gosub, ImpExpClicked
-Gui, ImpExp:Show, AutoSize Center
+CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
+Gui, ImpExp:Show, AutoSize x%intX% y%intY%
+
+intX := ""
+intY := ""
 
 strGuiTitle := ""
 
@@ -19519,7 +19783,7 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 strGuiTitle := L(lAboutTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19556,7 +19820,7 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 strGuiTitle := L(lDonateTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -19642,7 +19906,7 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 strGuiTitle := L(lHelpTitle, g_strAppNameText, g_strAppVersion)
-Gui, 2:New, , %strGuiTitle%
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
@@ -20845,12 +21109,22 @@ return
 
 ;------------------------------------------------------------
 BackupIniFile:
-;------------------------------------------------------------
-
+BackupExternalIniFile:
 ; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
+;------------------------------------------------------------
 
 ; delete old backup files (keep only 5/10 most recent files)
 StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+
+; if g_strIniFile is the main ini file, set the destination to backup folder
+; this excludes External ini files and alternative ini file (using the switch command) that are backuped in their own folder
+; but this includes main ini file when the working directory is set from the command line with "/Working:"
+if (A_ThisLabel = "BackupIniFile") and (g_strIniFile = g_strIniFileMain)
+{
+	IniRead, g_strBackupFolder, %g_strIniFile%, Global, BackupFolder, %A_WorkingDir%
+	StringReplace, strIniBackupFile, strIniBackupFile, %A_WorkingDir%, %g_strBackupFolder%
+}
+
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
@@ -20867,6 +21141,7 @@ if !FileExist(strIniBackupFile)
 
 strIniBackupFile := ""
 strFileList := ""
+intNumberOfBackups := ""
 
 return
 ;------------------------------------------------------------
@@ -21635,7 +21910,6 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
 	; if strExpandedIconResource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
-	; ###_V(A_ThisFuync, "*strIconResource", strIconResource, "*intComaPos", intComaPos, "*strIconFile", strIconFile, "*intIconIndex", intIconIndex)
 }
 ;------------------------------------------------------------
 
@@ -23503,8 +23777,42 @@ ScreenConfigurationChanged()
 
 
 ;------------------------------------------------------------
-GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
-; used when building Settings, Add, Edit, Copy or Move Favorites dialog boxes
+GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
+;------------------------------------------------------------
+{
+	global g_strIniFile
+	
+	IniRead, strPosition, %g_strIniFile%, Global, %strThisDialog%
+	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+CalculateTopGuiPosition(g_strTopHwnd, g_strRefHwnd, ByRef intTopGuiX, ByRef intTopGuiY)
+;------------------------------------------------------------
+{
+	WinGetPos, intRefGuiX, intRefGuiY, intRefGuiW, intRefGuiH, ahk_id %g_strRefHwnd%
+	intRefGuiCenterX := intRefGuiX + (intRefGuiW / 2)
+	intRefGuiCenterY := intRefGuiY + (intRefGuiH / 2)
+
+	WinGetPos, , , intTopGuiW, intTopGuiH, ahk_id %g_strTopHwnd%
+	intTopGuiX := intRefGuiCenterX - (intTopGuiW / 2)
+	intTopGuiY := intRefGuiCenterY - (intTopGuiH / 2)
+	
+	WinGetPos, intWindowX, intWindowY, intWindowWidth, intWindowHeight, ahk_id %g_strRefHwnd%
+	WinGetTitle, v, ahk_id %g_strRefHwnd%
+	SysGet, arrCurrentMonitor, Monitor, % GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors)
+
+	; ###_V(A_ThisFunc, v, g_strRefHwnd, intWindowX, intWindowY, GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors))
+	intTopGuiX := (intTopGuiX < arrCurrentMonitorLeft ? arrCurrentMonitorLeft : intTopGuiX)
+	intTopGuiY := (intTopGuiY < arrCurrentMonitorTop ? arrCurrentMonitorTop : intTopGuiY)
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
 ; use LastScreenConfiguration and window position from ini file
 ; if screen configuration changed, return -1 instead of the saved position
 ;------------------------------------------------------------
@@ -23513,7 +23821,7 @@ GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSetti
 	global g_strLastConfiguration
 	global g_blnRememberSettingsPosition
 	
-	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset dialog boxes position if screen config changed since last session
+	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset position if screen config changed since last session
 	
 	strCurrentScreenConfiguration := GetScreenConfiguration()
 	if !StrLen(g_strLastScreenConfiguration) or (strCurrentScreenConfiguration <> g_strLastScreenConfiguration)
@@ -23524,12 +23832,12 @@ GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSetti
 	else
 		if (g_blnRememberSettingsPosition)
 		{
-			IniRead, strSettingsPosition, %g_strIniFile%, Global, %strThisWindow%, -1 ; by default -1 to center at minimal size
+			IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; by default -1 to center at minimal size
 			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
 		}
-		else
+		else ; delete Settings position
 		{
-			IniDelete, %g_strIniFile%, Global, %strThisWindow%
+			IniDelete, %g_strIniFile%, Global, SettingsPosition
 			arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
 		}
 	
@@ -23540,6 +23848,9 @@ GetSavedWindowPosition(strThisWindow, ByRef arrSettingsPosition1, ByRef arrSetti
 
 ;------------------------------------------------------------
 GetScreenConfiguration()
+; return the current monitor configuration in the following format:
+; n,p:left,top,right,bottom|left,top,right,bottom|...
+; nb of monitors, primary display, and coordinates of each monitor
 ;------------------------------------------------------------
 {
 	SysGet, intNbMonitors, MonitorCount
@@ -23548,7 +23859,7 @@ GetScreenConfiguration()
 	strMonitorConfiguration := intNbMonitors . "," . intIdPrimaryDisplay . ":"
 	Loop %intNbMonitors%
 	{
-		SysGet, arrMonitor, Monitor, %A_index%
+		SysGet, arrMonitor, Monitor, %A_Index%
 		Loop, Parse, % "Left|Top|Right|Bottom", |
 			strMonitorConfiguration .= arrMonitor%A_LoopField% . (A_Index < 4 ? "," : "")
 		strMonitorConfiguration .= (A_Index < intNbMonitors ? "|" : "")
@@ -23566,7 +23877,8 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 	global g_strIniFile
 	global g_blnRememberSettingsPosition
 	
-	if (g_blnRememberSettingsPosition)
+	if (strThisWindow <> "SettingsPosition" or g_blnRememberSettingsPosition)
+	; always for Add, Edit, Copy or Move Favorites dialog boxes, only if remember for Settings
 	{
 		WinGet, intMinMax, MinMax, %strWindowHandle%
 		if (intMinMax <> 1) ; if window is maximized, we keep the last saved position and size
@@ -23576,8 +23888,83 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 			IniWrite, %strPosition%, %g_strIniFile%, Global, %strThisWindow%
 		}
 	}
-	else
+	else ; delete Settings position
 		IniDelete, %g_strIniFile%, Global, %strThisWindow%
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetWindowPositionOnActiveMonitor(strWindowId, intActivePositionX, intActivePositionY, ByRef intWindowX, ByRef intWindowY)
+; returns true if more than one monitor and success retrieving new X-Y position on active monitor else returns false
+; returns ByRef new or unmodified X and Y
+;------------------------------------------------------------
+{
+	WinGetPos, intWindowX, intWindowY, intWindowWidth, intWindowHeight, %strWindowId%
+	
+	intActiveMonitorForWindow := GetActiveMonitorForPosition(intWindowX, intWindowY, intNbMonitors)
+	intActiveMonitorForPosition := GetActiveMonitorForPosition(intActivePositionX, intActivePositionY, intNbMonitors)
+	; ###_V(A_ThisFunc, "*intActiveMonitorForWindow", intActiveMonitorForWindow, "*intActiveMonitorForPosition", intActiveMonitorForPosition)
+	
+	if (intNbMonitors > 1) and (intActiveMonitorForWindow <> intActiveMonitorForPosition)
+	{
+		; calculate Explorer window position relative to center of screen
+		SysGet, arrThisMonitor, Monitor, %intActiveMonitorForPosition% ; Left, Top, Right, Bottom
+		intWindowX := arrThisMonitorLeft + (((arrThisMonitorRight - arrThisMonitorLeft) - intWindowWidth) / 2)
+		intWindowY := arrThisMonitorTop + (((arrThisMonitorBottom - arrThisMonitorTop) - intWindowHeight) / 2)
+		
+		; ###_V(A_ThisFunc . " True", strWindowId, intNbMonitors, intActiveMonitorForWindow, intActiveMonitorForPosition, "", intActivePositionX, intActivePositionY, "ByRef", intWindowX, intWindowY)
+		return true
+	}
+	
+	; ###_V(A_ThisFunc . " False", strWindowId, intNbMonitors, intActiveMonitorForWindow, intActiveMonitorForPosition, "", intActivePositionX, intActivePositionY, "ByRef", intWindowX, intWindowY)
+	return false
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetActiveMonitorForPosition(intX, intY, ByRef intNbMonitors)
+;------------------------------------------------------------
+{
+	SysGet, intNbMonitors, MonitorCount
+	Loop, % intNbMonitors
+	{
+		SysGet, arrThisMonitor, Monitor, %A_Index% ; Left, Top, Right, Bottom
+		; ###_V(A_ThisFunc . " monitor " . A_Index, arrThisMonitorLeft, intX, arrThisMonitorRight, "", arrThisMonitorTop, intY, arrThisMonitorBottom, ""
+			; , (intX >= arrThisMonitorLeft and intX < arrThisMonitorRight
+				; and intY >= arrThisMonitorTop and intY < arrThisMonitorBottom))
+
+		if  (intX >= arrThisMonitorLeft and intX < arrThisMonitorRight
+			and intY >= arrThisMonitorTop and intY < arrThisMonitorBottom)
+			
+			return A_Index
+	}
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetPositionFromMouseOrKeyboard(strMenuTriggerLabel, strThisHotkey, ByRef intPositionX, ByRef intPositionY)
+; get current mouse position (if favorite was open with mouse) or active window position (if favorite was open with keyboard)
+;------------------------------------------------------------
+{
+	if !StrLen(strMenuTriggerLabel) ; when strMenuTriggerLabel is empty, if strThisHotkey contains "Button" or "Wheel", check mouse position
+		strPositionReference := (InStr(strThisHotkey, "Button") or InStr(strThisHotkey, "Wheel") ? "Mouse" : "Window")
+	else if InStr(strMenuTriggerLabel, "Keyboard")
+		strPositionReference := "Window" ; check active window position
+	else
+		strPositionReference := "Mouse" ; all other menu triggers, check mouse position
+	
+	if (strPositionReference = "Mouse")
+	{
+		CoordMode, Mouse, Screen
+		MouseGetPos, intPositionX, intPositionY
+	}
+	else
+		WinGetPos, intPositionX, intPositionY, , , A ; window top-left position
+	
+	; ###_V(A_ThisFunc, strMenuTriggerLabel, strThisHotkey, "ByRef", intPositionX, intPositionY)
 }
 ;------------------------------------------------------------
 
@@ -23588,19 +23975,49 @@ DoubleAmpersand(str)
 ;------------------------------------------------------------
 {
 	global g_blnDisplayNumericShortcuts
+	global g_strEscapeReplacement
 	
 	if (g_blnDisplayNumericShortcuts and SubStr(str, 1, 1) = "&")
 	{
 		str := SubStr(str, 2)
 		blnRestoreNumericShortcut := true
 	}
-	strReplacementForDoubleAmpersand := "!r4nd0mt3xt!"
 	
-	str := StrReplace(str, "&&", strReplacementForDoubleAmpersand) ; preserve existing double ampersand
+	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
 	str := StrReplace(str, "&", "&&") ; double single ampersand
-	str := StrReplace(str, strReplacementForDoubleAmpersand, "&&") ; restore preserved double ampersand
+	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
 
 	return (blnRestoreNumericShortcut ? "&" : "") . str
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RemoveSingleAmpersand(str)
+;------------------------------------------------------------
+{
+	global g_strEscapeReplacement
+	
+	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
+	str := StrReplace(str, "&", "") ; remove single ampersand
+	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
+
+	return str
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+BuildMonitorsList(intDefault)
+;------------------------------------------------------------
+{
+	if !(intDefault)
+		intDefault := 1
+	SysGet, intNbMonitors, MonitorCount
+	Loop, %intNbMonitors%
+		str .= lDialogWindowMonitor . " " . A_Index . "|" . (A_Index = intDefault ? "|" : "")
+	
+	return str
 }
 ;------------------------------------------------------------
 

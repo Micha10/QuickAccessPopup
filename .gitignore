@@ -9,6 +9,7 @@
 *.tsv
 *.DB-BK
 _*.*
+.git - Copy/
 BK/
 Build-v8/
 Build-v8-beta/
