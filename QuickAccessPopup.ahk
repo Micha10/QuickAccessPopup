@@ -5167,8 +5167,11 @@ IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0 ; UsageDbDeb
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
-; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit)
+; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
+IniRead, g_strIconReplacementList, %g_strIniFile%, Global, IconReplacementList, %A_Space% ; empty string if not found
+Gosub, ProcessIconReplacementList ; ##### replace with class object __New()
+IniRead, g_strSwitchExclusionList, %g_strIniFile%, Global, SwitchExclusionList, %A_Space% ; empty string if not found
 
 ; ---------------------
 ; Load internal flags and various values
@@ -8490,11 +8493,15 @@ Gui, 2:Font
 OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, arrMoreOptionsPosY) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
 OptionsMoreShowButton("UsageDb", intMaxWidth) ; f_btnUsageBd GuiOptionsMoreUsageBd
 OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList GuiOptionsMoreUserVariablesList
+OptionsMoreShowButton("IconReplacementList", intMaxWidth) ; f_btnIconReplacementList GuiOptionsMoreIconReplacementList
+OptionsMoreShowButton("SwitchExclusionList", intMaxWidth) ; f_btnSwitchExclusionList GuiOptionsMoreSwitchExclusionList
 
 ; Descriptions
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsIconReplacementListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsSwitchExclusionListDescription%
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
@@ -8505,6 +8512,8 @@ Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
 
 Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
+Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(g_strIconReplacementList), "|", "`n")
+Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
 
 ; End of more
 
@@ -9011,6 +9020,8 @@ return
 GuiOptionsMoreExclusionMouseList:
 GuiOptionsMoreUsageDb:
 GuiOptionsMoreUserVariablesList:
+GuiOptionsMoreIconReplacementList:
+GuiOptionsMoreSwitchExclusionList:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
@@ -9066,13 +9077,35 @@ else if (g_strMoreWindowName = "UsageDb")
 
 	Gosub, OptionUsageDbEnableClicked
 }
-else if (g_strMoreWindowName = "UserVariablesList")
+else
 {
+	if (g_strMoreWindowName = "UserVariablesList")
+	{
+		strTitleLink := lOptionsUserVariablesList . " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . lGuiHelp . "</a>)"
+		strInstructions := lOptionsUserVariablesListInstructions
+		strControlName := "f_strUserVariablesListMore"
+		strDefaultValue := (StrLen(f_strUserVariablesList) ? f_strUserVariablesList : "{MyVariable}=MyContent")
+	}
+	else if (g_strMoreWindowName = "IconReplacementList")
+	{
+		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.QuickAccessPopup.com/#####"">" . lGuiHelp . "</a>)"
+		strInstructions := lOptionsIconReplacementListInstructions
+		strControlName := "f_strIconReplacementListMore"
+		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconFolderLive=" . g_strJLiconsFile . ",49")
+	}
+	else if (g_strMoreWindowName = "SwitchExclusionList")
+	{
+		strTitleLink := lOptionsSwitchExclusionList . " (<a href=""https://www.QuickAccessPopup.com/#####"">" . lGuiHelp . "</a>)"
+		strInstructions := lOptionsSwitchExclusionListInstructions
+		strControlName := "f_strSwitchExclusionListMore"
+		strDefaultValue := f_strSwitchExclusionList
+	}
+	
 	Gui, 3:Font, s8 w700
-	Gui, 3:Add, Link, x10 y10 w600, % lOptionsUserVariablesList . " (<a href=""https://www.QuickAccessPopup.com"">" . lGuiHelp . "</a>)"
+	Gui, 3:Add, Link, x10 y10 w600, %strTitleLink%
 	Gui, 3:Font
-	Gui, 3:Add, Link, x10 y+10 w600, %lOptionsUserVariablesListInstructions%
-	Gui, 3:Add, Edit, x10 y+10 w600 r10 vf_strUserVariablesListMore, % (StrLen(f_strUserVariablesList) ? f_strUserVariablesList : "{MyVariable}=MyContent")
+	Gui, 3:Add, Link, x10 y+10 w600, %strInstructions%
+	Gui, 3:Add, Edit, x10 y+10 w600 r10 v%strControlName%, %strDefaultValue%
 }
 
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gGuiOptionsMoreTemplateOK, %lDialogOKAmpersand%
@@ -9090,6 +9123,9 @@ Gui, 2:+Disabled
 intX := ""
 intY := ""
 strGuiTitle := ""
+strTitleLink := ""
+strInstructions := ""
+strControlName := ""
 
 return
 ;------------------------------------------------------------
@@ -9169,9 +9205,11 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
 	}
 	else if (g_strMoreWindowName = "UserVariablesList")
-		
 		GuiControl, 2:, f_strUserVariablesList, %f_strUserVariablesListMore%
-		
+	else if (g_strMoreWindowName = "IconReplacementList")
+		GuiControl, 2:, f_strIconReplacementList, %f_strIconReplacementListMore%
+	else if (g_strMoreWindowName = "SwitchExclusionList")
+		GuiControl, 2:, f_strSwitchExclusionList, %f_strSwitchExclusionListMore%
 }
 
 g_strMoreWindowName := ""
@@ -9470,10 +9508,15 @@ if (!blnUseSQLitePrev and g_blnUsageDbEnabled)
 if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularPrev <> g_intUsageDbDaysInPopular)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
-; UserVariablesList
+; UserVariablesList, IconReplacementList and SwitchExclusionList
 
 g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
 IniWrite, %g_strUserVariablesList%, %g_strIniFile%, Global, UserVariablesList
+g_strIconReplacementList := OptionsListCleanup(f_strIconReplacementList)
+Gosub, ProcessIconReplacementList ; ##### replace with class object __New()
+IniWrite, %g_strIconReplacementList%, %g_strIniFile%, Global, IconReplacementList
+g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
+IniWrite, %g_strSwitchExclusionList%, %g_strIniFile%, Global, SwitchExclusionList
 
 ; End of More
 
@@ -21428,6 +21471,28 @@ return
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+ProcessIconReplacementList:
+;------------------------------------------------------------
+
+; ##### replace with class object __New()
+; ##### reset object completely after options save because replacement items couls be removed (return to default icon)
+/*
+loop, parse, g_strIconReplacementList, |
+	if StrLen(A_LoopField)
+	{
+		StringSplit, arrIconReplacement, A_LoopField, =
+		if g_objJLiconsByName.HasKey(arrIconReplacement1)
+			g_objJLiconsByName[arrIconReplacement1] := arrIconReplacement2
+	}
+###_V("g_objJLiconsByName.HasKey(arrIconReplacement1)", arrIconReplacement1, g_objJLiconsByName.HasKey(arrIconReplacement1), arrIconReplacement2)
+###_O("g_objJLiconsByName", g_objJLiconsByName)
+*/
+
+return
+;------------------------------------------------------------
+
+
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -22697,7 +22762,7 @@ ExpandUserVariables(str)
 }
 ;------------------------------------------------------------
 
-
+	
 ;------------------------------------------------------------
 AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Based on Drugoy (https://github.com/Drugoy/Autohotkey-scripts-.ahk/blob/master/DevTools/showPerWindowInfoOfAllWindows.ahk)
@@ -23565,6 +23630,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 {
 	global g_strDirectoryOpusPath
 	global g_intActiveFileManager
+	global g_strSwitchExclusionList
 	
 	static strWinTitlesWinApps
 	if (intIndex = 1)
@@ -23592,6 +23658,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	objWindowProperties.Style := intStyle
 	WinGet, intExStyle, ExStyle, % "ahk_id " . strWinID
 	objWindowProperties.ExStyle := intExStyle
+	WinGetClass, strWindowClass, % "ahk_id " . strWinID ; for Switch only, no need to put in object
 	
     if (strProcessName = "ApplicationFrameHost.exe")
 	{
@@ -23644,6 +23711,14 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	
 	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
 		return false
+	
+	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
+		Loop, parse, g_strSwitchExclusionList, |
+			if StrLen(A_LoopField)
+				and (InStr(strWindowClass, A_LoopField)
+				or InStr(strWindowTitle, A_LoopField)
+				or InStr(strProcessName, A_LoopField))
+				return false
 	
 	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
 		; return false
