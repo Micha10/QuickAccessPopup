@@ -5169,9 +5169,9 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
+IniRead, g_strSwitchExclusionList, %g_strIniFile%, Global, SwitchExclusionList, %A_Space% ; empty string if not found
 IniRead, g_strIconReplacementList, %g_strIniFile%, Global, IconReplacementList, %A_Space% ; empty string if not found
 Gosub, ProcessIconReplacementList ; ##### replace with class object __New()
-IniRead, g_strSwitchExclusionList, %g_strIniFile%, Global, SwitchExclusionList, %A_Space% ; empty string if not found
 
 ; ---------------------
 ; Load internal flags and various values
@@ -8491,20 +8491,21 @@ Gui, 2:Font
 
 ; Buttons
 OptionsMoreShowButton("ExclusionMouseList", intMaxWidth, arrMoreOptionsPosY) ; f_btnExclusionMouseList GuiOptionsMoreExclusionMouseList
+OptionsMoreShowButton("SwitchExclusionList", intMaxWidth) ; f_btnSwitchExclusionList GuiOptionsMoreSwitchExclusionList
 OptionsMoreShowButton("UsageDb", intMaxWidth) ; f_btnUsageBd GuiOptionsMoreUsageBd
 OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList GuiOptionsMoreUserVariablesList
 OptionsMoreShowButton("IconReplacementList", intMaxWidth) ; f_btnIconReplacementList GuiOptionsMoreIconReplacementList
-OptionsMoreShowButton("SwitchExclusionList", intMaxWidth) ; f_btnSwitchExclusionList GuiOptionsMoreSwitchExclusionList
 
 ; Descriptions
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
-Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
-Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
-Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsIconReplacementListDescription%
-Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsSwitchExclusionListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsSwitchExclusionListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsIconReplacementListDescription%
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
+Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
 
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
@@ -8513,7 +8514,6 @@ Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopu
 
 Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
 Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(g_strIconReplacementList), "|", "`n")
-Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
 
 ; End of more
 
@@ -9018,10 +9018,10 @@ return
 
 ;------------------------------------------------------------
 GuiOptionsMoreExclusionMouseList:
+GuiOptionsMoreSwitchExclusionList:
 GuiOptionsMoreUsageDb:
 GuiOptionsMoreUserVariablesList:
 GuiOptionsMoreIconReplacementList:
-GuiOptionsMoreSwitchExclusionList:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
@@ -9036,14 +9036,26 @@ Gui, 3:+Owner2
 if (g_blnUseColors)
 	Gui, 3:Color, %g_strGuiWindowColor%
 
-if (g_strMoreWindowName = "ExclusionMouseList")
+if InStr("ExclusionMouseList|SwitchExclusionList", g_strMoreWindowName)
 {
+	strUrl := (g_strMoreWindowName = "ExclusionMouseList"
+		? "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
+		: "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/")
 	Gui, 3:Font, s8 w700
-	Gui, 3:Add, Text, x10 y10 w600, % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
+	Gui, 3:Add, Link, x10 y10 w600
+		, % (g_strMoreWindowName = "ExclusionMouseList" ? L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1)) : lOptionsSwitchExclusionList)
+		. " (<a href=""" . strUrl . """>" . lGuiHelp . "</a>)"
 	Gui, 3:Font
-	Gui, 3:Add, Edit, x10 y+5 w600 r10 vf_strExclusionMouseListMore, %f_strExclusionMouseList%
-	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail1, Hotkey2Text(g_arrPopupHotkeys1))
-	Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, Hotkey2Text(g_arrPopupHotkeys1), "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/")
+	Gui, 3:Add, Edit, % "x10 y+5 w600 r10 v" . (g_strMoreWindowName = "ExclusionMouseList" ? "f_strExclusionMouseListMore" : "f_strSwitchExclusionListMore")
+		, % (g_strMoreWindowName = "ExclusionMouseList" ? f_strExclusionMouseList : f_strSwitchExclusionList)
+	if (g_strMoreWindowName = "ExclusionMouseList")
+	{
+		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail1, Hotkey2Text(g_arrPopupHotkeys1))
+		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, Hotkey2Text(g_arrPopupHotkeys1), strUrl)
+	}
+	else
+		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsSwitchExclusionListInstructions, strUrl)
+		
 	Gui, 3:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, %lMenuGetWinInfo%
 
 	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
@@ -9092,13 +9104,6 @@ else
 		strInstructions := lOptionsIconReplacementListInstructions
 		strControlName := "f_strIconReplacementListMore"
 		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconFolderLive=" . g_strJLiconsFile . ",49")
-	}
-	else if (g_strMoreWindowName = "SwitchExclusionList")
-	{
-		strTitleLink := lOptionsSwitchExclusionList . " (<a href=""https://www.QuickAccessPopup.com/#####"">" . lGuiHelp . "</a>)"
-		strInstructions := lOptionsSwitchExclusionListInstructions
-		strControlName := "f_strSwitchExclusionListMore"
-		strDefaultValue := f_strSwitchExclusionList
 	}
 	
 	Gui, 3:Font, s8 w700
