@@ -3139,10 +3139,12 @@ g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? "
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 
+;---------------------------------
+; Init class for JLicons
 if (g_blnPortableMode)
-	g_strJLiconsFile := A_ScriptDir . "\JLicons.dll" ; in portable mode, same folder as QAP exe file or script directory in developement environment
+	o_JLicons := new JLIcons(A_ScriptDir . "\JLicons.dll") ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
-	g_strJLiconsFile := A_AppDataCommon . "\JeanLalonde\JLicons.dll" ; in setup mode, shared data folder
+	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -3153,9 +3155,6 @@ g_blnChangeHotstringInProgress := false
 
 g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
-
-g_objJLiconsByName := Object()
-g_objJLiconsNames := Object()
 
 g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
 g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
@@ -3281,7 +3280,7 @@ if (g_blnCheck4Update) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
-Menu, Tray, Icon, %g_strJLiconsFile%, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % o_JLicons.strFileLocation, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
@@ -3805,32 +3804,6 @@ g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in Lo
 g_strMouseButtons := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight|"
 ; leave last | to enable default value on the last item
 StringSplit, g_arrMouseButtons, g_strMouseButtons, |
-
-; ----------------------
-; Icon files and index tested on Win 7 and Win 10. Win 8.1 assumed as Win 7.
-
-strIconsNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
-	. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
-	. "|iconDesktop|iconDocuments|iconDonate|iconDownloads|iconDrives"
-	. "|iconEditFavorite|iconExit|iconFavorites|iconFolder|iconFonts"
-	. "|iconFTP|iconGroup|iconHelp|iconHistory|iconHotkeys"
-	. "|iconAddFavorite|iconMyComputer|iconMyMusic|iconMyVideo|iconNetwork"
-	. "|iconNetworkNeighborhood|iconNoContent|iconOptions|iconPictures|iconRAMDisk"
-	. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
-	. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
-	. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
-	. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo|iconQAPadmin"
-	. "|iconQAPadminBeta|iconQAPadminDev|iconQAPbeta|iconQAPdev|iconQAPloading"
-	. "|iconFolderLiveOpened"
-
-; EXAMPLE
-; g_objJLiconsByName["iconAbout"] -> "file,2"
-; g_objJLiconsNames[2] -> "iconAbout"
-Loop, Parse, strIconsNames, |
-{
-	g_objJLiconsNames.Insert(A_LoopField)
-	g_objJLiconsByName[A_LoopField] := g_strJLiconsFile . "," . A_Index ; change file path
-}
 
 ; ----------------------
 ; ACTIVE FILE MANAGER
@@ -4373,7 +4346,7 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 
 ; strDefaultName: name for menu if path is used, fallback name if CLSID is used to access localized name
 
-; strDefaultIcon: icon in g_objJLiconsByName if path is used, fallback icon (?) if CLSID returns no icon resource
+; strDefaultIcon: icon in o_JLicons if path is used, fallback icon (?) if CLSID returns no icon resource
 
 ; Constants for "use" flags:
 ; 		CLS: Class ID
@@ -4411,9 +4384,9 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 
 ;------------------------------------------------------------
 {
-	global g_objJLiconsByName
 	global g_objClassIdOrPathByDefaultName
 	global g_objSpecialFolders
+	global o_JLicons
 	
 	objOneSpecialFolder := Object()
 	
@@ -4428,8 +4401,8 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 	
 	if (blnIsClsId)
 		strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
-	if !StrLen(strThisDefaultIcon) and StrLen(g_objJLiconsByName[strDefaultIcon])
-		strThisDefaultIcon := g_objJLiconsByName[strDefaultIcon]
+	if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons.GetIconResource(strDefaultIcon))
+		strThisDefaultIcon := o_JLicons.GetIconResource(strDefaultIcon)
 	if !StrLen(strThisDefaultIcon)
 		strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
 	objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
@@ -4762,8 +4735,8 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	global g_objQAPFeaturesCodeByDefaultName
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_objQAPFeaturesAlternativeCodeByOrder
-	global g_objJLiconsByName
 	global g_objQAPFeaturesURL
+	global o_JLicons
 	
 	objOneQAPFeature := Object()
 	
@@ -5077,11 +5050,11 @@ Gosub, LoadIniQAPconnectValues
 
 IniRead, g_strDirectoryOpusPathBeforeEnvVars, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
 g_strDirectoryOpusPath := EnvVars(g_strDirectoryOpusPathBeforeEnvVars)
-g_objJLiconsByName["DirectoryOpus"] := g_strDirectoryOpusPath . ",1" ; additional icon for DirectoryOpus
+o_JLicons.AddIcon("DirectoryOpus", g_strDirectoryOpusPath . ",1")
 IniRead, g_blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
 IniRead, g_strTotalCommanderPathBeforeEnvVars, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
 g_strTotalCommanderPath := EnvVars(g_strTotalCommanderPathBeforeEnvVars)
-g_objJLiconsByName["TotalCommander"] := g_strTotalCommanderPath . ",1" ; additional icon for TotalCommander
+o_JLicons.AddIcon("TotalCommander", g_strTotalCommanderPath . ",1")
 IniRead, g_blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
 IniRead, g_strWinCmdIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
 
@@ -5139,7 +5112,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
 IniRead, g_strSwitchExclusionList, %g_strIniFile%, Global, SwitchExclusionList, %A_Space% ; empty string if not found
 IniRead, g_strIconReplacementList, %g_strIniFile%, Global, IconReplacementList, %A_Space% ; empty string if not found
-Gosub, ProcessIconReplacementList ; ##### replace with class object __New()
+o_JLicons.ProcessReplacements(g_strIconReplacementList)
 
 ; ---------------------
 ; Load internal flags and various values
@@ -5653,7 +5626,6 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
-	global g_objJLiconsByName
 	global lMenuMyQAPMenu
 	global g_blnIniFileCreation
 
@@ -6025,12 +5997,12 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 	else
-		Menu, Tray, Icon, %g_strJLiconsFile%, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
-Menu, Tray, Icon, %g_strJLiconsFile%, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % o_JLicons.strFileLocation, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
@@ -7532,7 +7504,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objMenusIndex
 	global g_strAppNameText
 	global g_blnWorkingToolTip
-	global g_objJLiconsByName
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	global g_strHotstringOptionsSeparator
@@ -7946,13 +7917,12 @@ AddCloseMenu(strMenuName)
 
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-; strIconValue can be an index from g_objJLiconsByName (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
+; strIconValue can be an index from o_JLicons (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ;------------------------------------------------------------
 {
 	global g_intIconSize
 	global g_blnDisplayIcons
 	global g_blnMainIsFirstColumn
-	global g_objJLiconsByName
 
 	if !StrLen(strMenuItemName)
 		return
@@ -9071,7 +9041,7 @@ else
 		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.QuickAccessPopup.com/#####"">" . lGuiHelp . "</a>)"
 		strInstructions := lOptionsIconReplacementListInstructions
 		strControlName := "f_strIconReplacementListMore"
-		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconFolderLive=" . g_strJLiconsFile . ",49")
+		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons.GetIconResource("iconUnknown"))
 	}
 	
 	Gui, 3:Font, s8 w700
@@ -9486,8 +9456,8 @@ if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDb
 g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
 IniWrite, %g_strUserVariablesList%, %g_strIniFile%, Global, UserVariablesList
 g_strIconReplacementList := OptionsListCleanup(f_strIconReplacementList)
-Gosub, ProcessIconReplacementList ; ##### replace with class object __New()
 IniWrite, %g_strIconReplacementList%, %g_strIniFile%, Global, IconReplacementList
+o_JLicons.ProcessReplacements(g_strIconReplacementList)
 g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
 IniWrite, %g_strSwitchExclusionList%, %g_strIniFile%, Global, SwitchExclusionList
 
@@ -12378,7 +12348,7 @@ if (A_ThisLabel = "GuiEditIconDialog")
 else if (A_ThisLabel = "GuiPickIconDialog")
 	strTempNewFavoriteIconResource := PickIconDialog(g_strNewFavoriteIconResource)
 else if (A_ThisLabel = "GuiPickIconDialogJl")
-	strTempNewFavoriteIconResource := PickIconDialog(g_strJLiconsFile)
+	strTempNewFavoriteIconResource := PickIconDialog(o_JLicons.strFileLocation)
 else if (A_ThisLabel = "GuiPickIconDialogNo")
 	strTempNewFavoriteIconResource := "iconNoIcon"
 g_strNewFavoriteIconResource := (StrLen(strTempNewFavoriteIconResource) ? strTempNewFavoriteIconResource : g_strNewFavoriteIconResource)
@@ -12412,7 +12382,7 @@ Gui, 2:Submit, NoHide
 
 g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = g_objJLiconsByName["iconUnknown"])
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.GetIconResource("iconUnknown"))
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
@@ -12427,7 +12397,7 @@ ParseIconResource(g_strNewFavoriteIconResource, strThisIconFile, intThisIconInde
 strExpandedIconFile := EnvVars(strThisIconFile)
 GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
-GuiControl, % (strThisIconFile <> g_strJLiconsFile ? "Show" : "Hide"), f_lblSelectIconJL
+GuiControl, % (strThisIconFile <> o_JLicons.strFileLocation ? "Show" : "Hide"), f_lblSelectIconJL
 
 strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
 blnThisDesktopIniExist := (StrLen(strThisFolder) ? FileExist(strThisFolder . "\desktop.ini") : false)
@@ -15092,10 +15062,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 	global g_strIniFile
 	global g_intIniLine
 	global g_strEscapePipe
-	global g_objJLiconsByName
-	global g_objJLiconsNames
-	global g_strJLiconsFile
 	global g_blnWorkingToolTip
+	global o_JLicons
 
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
@@ -15120,13 +15088,13 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			if StrLen(g_objJLiconsByName[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of g_objJLiconsByName
+			if StrLen(o_JLicons.GetIconResource(objCurrentMenu[A_Index].FavoriteIconResource)) ; save index of o_JLicons
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
-				if (strIconFile = g_strJLiconsFile) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
-					strIniLine .= g_objJLiconsNames[intIconIndex] . "|" ; 4
+				if (strIconFile = o_JLicons.strFileLocation) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
+					strIniLine .= o_JLicons.GetName(intIconIndex) . "|" ; 4
 				else ; use icongroup as is
 					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			}
@@ -21443,28 +21411,6 @@ return
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-ProcessIconReplacementList:
-;------------------------------------------------------------
-
-; ##### replace with class object __New()
-; ##### reset object completely after options save because replacement items couls be removed (return to default icon)
-/*
-loop, parse, g_strIconReplacementList, |
-	if StrLen(A_LoopField)
-	{
-		StringSplit, arrIconReplacement, A_LoopField, =
-		if g_objJLiconsByName.HasKey(arrIconReplacement1)
-			g_objJLiconsByName[arrIconReplacement1] := arrIconReplacement2
-	}
-###_V("g_objJLiconsByName.HasKey(arrIconReplacement1)", arrIconReplacement1, g_objJLiconsByName.HasKey(arrIconReplacement1), arrIconReplacement2)
-###_O("g_objJLiconsByName", g_objJLiconsByName)
-*/
-
-return
-;------------------------------------------------------------
-
-
 ;========================================================================================================================
 ; END OF VARIOUS COMMANDS
 ;========================================================================================================================
@@ -21959,18 +21905,18 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 
 ;------------------------------------------------------------
 ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDefaultType := "")
-; strIconResource can be a icongroup (file,index) or an index in g_objJLiconsByName
+; strIconResource can be a icongroup (file,index) or an index in o_JLicons
 ;------------------------------------------------------------
 {
-	global g_objJLiconsByName
+	global o_JLicons
 	
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
-		strIconResource := g_objJLiconsByName[strDefaultType]
-	If !InStr(strIconResource, ",") ; this is an index from g_objJLiconsByName or the name of a file including icons
-		if StrLen(g_objJLiconsByName[strIconResource]) ; this is an index from g_objJLiconsByName
-			strIconResource := g_objJLiconsByName[strIconResource] ; replace it with file,index format
+		strIconResource := o_JLicons.GetIconResource(strDefaultType)
+	If !InStr(strIconResource, ",") ; this is an index from o_JLicons or the name of a file including icons
+		if StrLen(o_JLicons.GetIconResource(strIconResource)) ; this is an index from o_JLicons
+			strIconResource := o_JLicons.GetIconResource(strIconResource) ; replace it with file,index format
 		else ; this is the name of a file including icons
 			strIconResource := strIconResource . ",1" ; use its first icon
 	
@@ -21986,9 +21932,9 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 ;------------------------------------------------------------
 GetIcon4Location(strLocation)
-; returns an icon resource in icongroup format (file,index) or an index of g_objJLiconsNames
+; returns an icon resource in icongroup format (file,index) or an index of o_JLicons
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
-; index of g_objJLiconsNames will converted to icongroup by ParseIconResource before being splitted
+; index of o_JLicons will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
@@ -22926,7 +22872,6 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 ;------------------------------------------------------------
 {
 	global g_strTempDir
-	global g_objJLiconsByName
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 
@@ -22983,8 +22928,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 PickIconDialog(strFavoriteIconResource)
 ;------------------------------------------------------------
 {
-	global g_objJLiconsNames
-	global g_strJLiconsFile
+	global o_JLicons
 	
 	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
 	VarSetCapacity(strIconFile, 1024) ; must be placed before strIconFile is initialized because VarSetCapacity erase its content
@@ -23001,8 +22945,8 @@ PickIconDialog(strFavoriteIconResource)
 	if (intIconIndex >= 0) ; adjust index for positive index only (not for negative index)
 		intIconIndex := intIconIndex + 1
 
-	if (strIconFile = g_strJLiconsFile)
-		return g_objJLiconsNames[intIconIndex] ; JLicons index "iconXYZ"
+	if (strIconFile = o_JLicons.strFileLocation)
+		return o_JLicons.GetName(intIconIndex) ; JLicons index "iconXYZ"
 	else
 		return strIconFile . "," . intIconIndex
 }
@@ -24394,6 +24338,108 @@ Property
 	;---------------------------------------------------------
 	{
 		return This.oParam.HasKey(strArg)
+	}
+	;---------------------------------------------------------
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+class JLicons
+;------------------------------------------------------------
+/*
+Methods
+	- __New():
+	- GetIconResource(strKey): return the "file,index" value for oJLicons element strKey (was g_objJLiconsByName[strKey] before class)
+	- GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
+	- AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
+	- ProcessReplacements(strReplacements): removes current jlicons replacements and do the replacements in strReplacements
+
+Property
+	- strFileLocation: path and file name of the JLicons library file
+*/
+;------------------------------------------------------------
+{
+	oIcons := Object() ; was g_objJLiconsByName before class
+	oNames := Object() ; was g_objJLiconsNames before class
+	oReplacements := Object()
+	
+	;---------------------------------------------------------
+	__New(strJLiconsFile)
+	;---------------------------------------------------------
+	{
+		This.strFileLocation := strJLiconsFile ; was g_strJLiconsFile
+		
+		strNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
+			. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
+			. "|iconDesktop|iconDocuments|iconDonate|iconDownloads|iconDrives"
+			. "|iconEditFavorite|iconExit|iconFavorites|iconFolder|iconFonts"
+			. "|iconFTP|iconGroup|iconHelp|iconHistory|iconHotkeys"
+			. "|iconAddFavorite|iconMyComputer|iconMyMusic|iconMyVideo|iconNetwork"
+			. "|iconNetworkNeighborhood|iconNoContent|iconOptions|iconPictures|iconRAMDisk"
+			. "|iconRecentFolders|iconRecycleBin|iconReload|iconRemovable|iconSettings"
+			. "|iconSpecialFolders|iconSubmenu|iconSwitch|iconTemplates|iconTemporary"
+			. "|iconTextDocument|iconUnknown|iconWinver|iconFolderLive|iconIcons"
+			. "|iconPaste|iconPasteSpecial|iconNoIcon|iconUAClogo|iconQAPadmin"
+			. "|iconQAPadminBeta|iconQAPadminDev|iconQAPbeta|iconQAPdev|iconQAPloading"
+			. "|iconFolderLiveOpened"
+
+		; EXAMPLE
+		; oIcons["iconAbout"] -> "file,2"
+		; oNames[2] -> "iconAbout"
+		Loop, Parse, strNames, |
+		{
+			This.AddIcon(A_LoopField, strJLiconsFile . "," . A_Index)
+			This.oNames.InsertAt(A_Index, A_LoopField)
+		}
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	GetIconResource(strKey) ; was g_objJLiconsByName[strKey] before class
+	;---------------------------------------------------------
+	{
+		return This.oIcons[strKey]
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	GetName(intKey) ; was g_objJLiconsNames[intKey] before class
+	;---------------------------------------------------------
+	{
+		return This.oNames[intKey]
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
+	;---------------------------------------------------------
+	{
+		This.oIcons[strKey] := strFileIndex
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	ProcessReplacements(strReplacements)
+	;---------------------------------------------------------
+	{
+		; restore previously replaced icons
+		for strKey, strFileIndex in This.oReplacements
+			This.oIcons[strKey] := strFileIndex
+		
+		This.oReplacements := Object() ; reset replacements
+		
+		loop, parse, strReplacements, |
+			if StrLen(A_LoopField)
+			{
+				StringSplit, arrIconReplacement, A_LoopField, =
+				if This.oIcons.HasKey(arrIconReplacement1) and InStr(arrIconReplacement2, ",")
+				; this icon exists and replacement is "file,index" (includes a coma)
+				{
+					This.oReplacements[arrIconReplacement1] := This.oIcons[arrIconReplacement1]
+					This.oIcons[arrIconReplacement1] := arrIconReplacement2
+				}
+			}
 	}
 	;---------------------------------------------------------
 }
