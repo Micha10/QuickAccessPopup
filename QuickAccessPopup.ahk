@@ -2,7 +2,7 @@
 /*
 
 Quick Access Popup
-Written using AutoHotkey v1.1.28+ (http://ahkscript.org/)
+Written using AutoHotkey v1.1.30.01+ (http://ahkscript.org/)
 By Jean Lalonde (JnLlnd on AHKScript.org forum)
 
 Based on FoldersPopup from the same author
@@ -30,6 +30,13 @@ limitations under the License.
 
 HISTORY
 =======
+
+Version BETA: 9.4.0.1 (????-??-??)
+- add new section under the "More" tab of "Options" to set replacements for JLicons.dll
+- add new section under the "More" tab of "Options" to set exclusion for the "Current Windows" menu (aka "Switch")
+- internal changes converting icons and command line parameters using class objects
+- new AutoHotkey runtime executable v1.1.30.01
+- Dutch language file update
 
 Version: 9.4 (2018-12-21)
 * Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
@@ -3027,7 +3034,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4
+;@Ahk2Exe-SetVersion 9.4.0.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3132,8 +3139,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.4.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -3434,7 +3441,8 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanNavigate(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If" condition
+; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -3443,7 +3451,8 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanLaunch(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If" condition
+; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -3452,7 +3461,8 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, WinActive(QAPSettingsString()) ; main Gui title
-; empty - act as a handle for the "Hotkey, If" condition
+; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
 ;------------------------------------------------------------
@@ -5673,6 +5683,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 ;-----------------------------------------------------------
 LoadIniPopupHotkeys:
 ; load from ini file and enable popup hotkeys
+; called at launch by LoadIniFile and after saving options by ButtonOptionsSave
 ;-----------------------------------------------------------
 
 ; Read the values and set hotkey shortcuts
@@ -5684,6 +5695,8 @@ loop, % g_arrPopupHotkeyNames0
 	SplitHotkey(g_arrPopupHotkeys%A_Index%, strModifiers%A_Index%, strOptionsKey%A_Index%, strMouseButton%A_Index%, strMouseButtonsWithDefault%A_Index%)
 }
 
+; 2 hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
+; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasShortcut(g_arrPopupHotkeysPrevious1)
@@ -5716,7 +5729,7 @@ Hotkey, If, CanLaunch(A_ThisHotkey)
 		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
 Hotkey, If
 
-; Then, if QAP hotkey cannot be activated, open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
+; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
 if HasShortcut(g_arrPopupHotkeysPrevious3)
 	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
 if HasShortcut(g_arrPopupHotkeys3)
@@ -5748,8 +5761,7 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
-; .LocalizedName OK because Alternative
-		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName)
+		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName) ; .LocalizedName OK because Alternative
 }
 
 strCode := ""
@@ -9345,6 +9357,7 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 loop, % g_arrPopupHotkeyNames0
+	; the following if is not necessary - remove if and only keep else when reviewing this code
 	if (g_arrPopupHotkeys%A_Index% = "None") ; do not compare with lOptionsMouseNone because it is translated
 		IniWrite, None, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index% ; do not write lOptionsMouseNone because it is translated
 	else
