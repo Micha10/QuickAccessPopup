@@ -3155,7 +3155,7 @@ else ; setup mode
 
 ;---------------------------------
 ; Init class for MouseButtons
-o_MouseButtons := new MouseButtons
+o_MouseButtons := new HotkeysText.MouseButtons
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -24408,112 +24408,120 @@ Property
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-class MouseButtons
+; ------------------------------------------------------------
+class HotkeysText
 /*
 Methods
-	- __New(): load an array of buttons objects with internal and localized names
-	- GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
-	- GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
-	- IsMouseButton: returns true if the parameter is member of the buttons array
-	- GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
+	- __New(): 
 
 Property
-	- (none used outside the class)
-
-See nested class
-	- Button
+	- 
 */
 ;------------------------------------------------------------
 {
-	;---------------------------------------------------------
-	__New()
-	;---------------------------------------------------------
-	{
-		this.oButtons := Object() ; array of Button objects
-		
-		this.oButtonInternalNames := Object() ; array of buttons names
-		strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
-		StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
-		
-		this.oButtonLocalizedNames := Object() ; array of buttons text (localized)
-		strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
-		StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
-
-		loop, % arrMouseButtons0
-		{
-			this.oButtonInternalNames[arrMouseButtonsInternalNames%A_Index%] := A_Index
-			this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
-			oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%)
-			this.oButtons.InsertAt(A_Index, oButton)
-		}
-		
-		this.strMouseButtonsDropDownList := strMouseButtonsInternalNames ; default item not identified
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	GetMouseButtonInternal4LocalizedName(strLocalizedName)
-	;---------------------------------------------------------
-	{
-		return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	GetMouseButtonLocalized4InternalName(strInternalName)
-	;---------------------------------------------------------
-	{
-		return this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	IsMouseButton(strInternalName)
-	;---------------------------------------------------------
-	{
-		return this.oButtonInternalNames.HasKey(strInternalName)
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
-	;---------------------------------------------------------
-	{
-		strDropDownList := this.strMouseButtonsDropDownList
-		if (strDefault = lDialogNone) ; here strDefault contains the localized text
-			StringReplace, strDropDownList, strDropDownList, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is localized
-		else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
-			StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault) . "||"
-		
-		return strDropDownList
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	class Button
+	;--------------------------------------------------------
+	class MouseButtons
 	/*
 	Methods
-		- __New(): initialize button internal and localized names
+		- __New(): load an array of buttons objects with internal and localized names
+		- GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
+		- GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
+		- IsMouseButton: returns true if the parameter is member of the buttons array
+		- GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
 
 	Property
-		- strName: internal name of the mouse button
-		- strText: localized name of the mouse button
+		- (none used outside the class)
 	*/
-	;---------------------------------------------------------
+	;--------------------------------------------------------
 	{
-		;-----------------------------------------------------
-		__New(strThisInternalName, strThisLocalizedName)
-		;-----------------------------------------------------
+		;----------------------------------------------------
+		__New()
+		;----------------------------------------------------
 		{
-			this.strInternalName := strThisInternalName
-			this.strLocalizedName := strThisLocalizedName
-		}
-		;-----------------------------------------------------
-	}
-	;---------------------------------------------------------
+			this.oButtons := Object() ; array of Button objects
+			
+			this.oButtonInternalNames := Object() ; array of buttons names
+			strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
+			StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
+			
+			this.oButtonLocalizedNames := Object() ; array of buttons text (localized)
+			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
+			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
 
+			loop, % arrMouseButtonsInternalNames0
+			{
+				this.oButtonInternalNames[arrMouseButtonsInternalNames%A_Index%] := A_Index
+				this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
+				oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%)
+				this.oButtons.InsertAt(A_Index, oButton)
+			}
+			
+			this.strMouseButtonsDropDownList := strMouseButtonsLocalizedNames ; default item not identified
+		}
+		;----------------------------------------------------
+
+		;----------------------------------------------------
+		GetMouseButtonInternal4LocalizedName(strLocalizedName)
+		;----------------------------------------------------
+		{
+			return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
+		}
+		;----------------------------------------------------
+
+		;----------------------------------------------------
+		GetMouseButtonLocalized4InternalName(strInternalName)
+		;----------------------------------------------------
+		{
+			return this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName
+		}
+		;----------------------------------------------------
+
+		;----------------------------------------------------
+		IsMouseButton(strInternalName)
+		;----------------------------------------------------
+		{
+			return this.oButtonInternalNames.HasKey(strInternalName)
+		}
+		;----------------------------------------------------
+
+		;----------------------------------------------------
+		GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
+		;----------------------------------------------------
+		{
+			strDropDownList := this.strMouseButtonsDropDownList
+			if (strDefault = lDialogNone) ; here strDefault contains the localized text
+				StringReplace, strDropDownList, strDropDownList, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is localized
+			else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
+				StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault) . "||"
+			
+			return strDropDownList
+		}
+		;----------------------------------------------------
+
+		;----------------------------------------------------
+		class Button
+		/*
+		Methods
+			- __New(): initialize button internal and localized names
+
+		Property
+			- strName: internal name of the mouse button
+			- strText: localized name of the mouse button
+		*/
+		;----------------------------------------------------
+		{
+			;------------------------------------------------
+			__New(strThisInternalName, strThisLocalizedName)
+			;------------------------------------------------
+			{
+				this.strInternalName := strThisInternalName
+				this.strLocalizedName := strThisLocalizedName
+			}
+			;------------------------------------------------
+		}
+		;----------------------------------------------------
+	}
+	;--------------------------------------------------------
 }
 ;------------------------------------------------------------
-
 
