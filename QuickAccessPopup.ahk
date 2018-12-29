@@ -3153,6 +3153,10 @@ if (g_blnPortableMode)
 else ; setup mode
 	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
+;---------------------------------
+; Init class for MouseButtons
+o_MouseButtons := new MouseButtons
+
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
 
@@ -3185,10 +3189,6 @@ g_strHotstringOptionsExecute := "X"
 g_strExclusionMouseListDialogIndicator := "*"
 
 g_objGuiControls := Object() ; to build Settings gui
-
-g_strMouseButtons := ""
-ResetArray("g_arrMouseButtons")
-ResetArray("g_arrMouseButtonsText")
 
 g_objClassIdOrPathByDefaultName := Object() ; used by InitSpecialFolders and CollectExplorers
 g_objSpecialFolders := Object()
@@ -3357,7 +3357,7 @@ Gosub, SetTrayMenuIcon
 
 if (g_blnDisplayTrayTip)
 {
-	GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
+	GetHotkeysText(g_arrPopupHotkeys1, strMouseHotkey, g_arrPopupHotkeys2, strKeyboardHotkey)
 		
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
 		, % L(lTrayTipInstalledDetail, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
@@ -3811,10 +3811,6 @@ StringSplit, g_arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
 g_arrPopupHotkeys := Array ; initialized by LoadIniPopupHotkeys
 g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in LoadIniPopupHotkeys
 
-g_strMouseButtons := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight|"
-; leave last | to enable default value on the last item
-StringSplit, g_arrMouseButtons, g_strMouseButtons, |
-
 ; ----------------------
 ; ACTIVE FILE MANAGER
 ; g_arrActiveFileManagerSystemNames: array system names (1-4)
@@ -3930,9 +3926,6 @@ loop, %g_arrOptionsLanguageCodes0%
 			g_strLanguageLabel := g_arrOptionsLanguageLabels%A_Index%
 			break
 		}
-
-lDialogMouseButtonsText := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
-StringSplit, g_arrMouseButtonsText, lDialogMouseButtonsText, |
 
 ; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
 StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
@@ -5687,13 +5680,9 @@ LoadIniPopupHotkeys:
 ;-----------------------------------------------------------
 
 ; Read the values and set hotkey shortcuts
-loop, % g_arrPopupHotkeyNames0
-; NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard
-{
-	; Prepare global arrays used by SplitHotkey function
+loop, % g_arrPopupHotkeyNames0 ; NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard
+	; load global array of current menu hotkeys
 	IniRead, g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%, % g_arrPopupHotkeyDefaults%A_Index%
-	SplitHotkey(g_arrPopupHotkeys%A_Index%, strModifiers%A_Index%, strOptionsKey%A_Index%, strMouseButton%A_Index%, strMouseButtonsWithDefault%A_Index%)
-}
 
 ; 2 hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
 ; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
@@ -8339,7 +8328,7 @@ loop, % g_arrPopupHotkeyNames0
 	Gui, 2:Font, s8 w700
 	Gui, 2:Add, Text, x15 y+20 w610, % g_arrOptionsPopupHotkeyTitles%A_Index%
 	Gui, 2:Font, s9 w500, Courier New
-	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % HotkeySections2Text(strModifiers%A_Index%, strMouseButton%A_Index%, strOptionsKey%A_Index%)
+	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % Hotkey2Text(g_arrPopupHotkeys%A_Index%)
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%A_Index% gButtonOptionsChangeShortcut%A_Index%, %lOptionsChangeHotkey%
 	Gui, 2:Font, s8 w500
@@ -8499,7 +8488,7 @@ return
 OptionsMoreShowButton(strTag, ByRef intMaxWidth, intFirstCallY := 0)
 ;------------------------------------------------------------
 {
-	global
+	global ; for "f_btn" . strTag . " gGuiOptionsMore" . strTag 
 	
 	static intY
 	if (intFirstCallY)
@@ -10549,7 +10538,7 @@ If !StrLen(g_strNewLocation)
 {
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
-		GetHotkeysText(strMouseHotkey, strKeyboardHotkey)
+		GetHotkeysText(g_arrPopupHotkeys1, strMouseHotkey, g_arrPopupHotkeys2, strKeyboardHotkey)
 		Gui, 1:+OwnDialogs 
 		Oops(lOopsAddThisFolderTip, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
 	}
@@ -15216,7 +15205,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strModifiersSymbols := "+|^|!|#"
 	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
 	
-	SplitHotkey(P_strActualShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
+	SplitHotkey(P_strActualShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
 
 	g_intGui2WinID := WinExist("A")
 	
@@ -15253,11 +15242,11 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	}
 
 	if (P_intShortcutType = 1)
-		Gui, Add, DropDownList, % "y" . SS_arrTopY . " x150 w200 vf_drpShortcutMouse gMouseChanged", %SS_strActualMouseButtonsWithDefault%
+		Gui, Add, DropDownList, % "y" . SS_arrTopY . " x150 w200 vf_drpShortcutMouse gMouseChanged", % o_MouseButtons.GetDropDownList(SS_strActualMouseButton)
 	if (P_intShortcutType = 3)
 	{
 		Gui, Add, Text, % "y" . SS_arrTopY . " x150 w60", %lDialogMouse%
-		Gui, Add, DropDownList, yp x+10 w200 vf_drpShortcutMouse gMouseChanged, %SS_strActualMouseButtonsWithDefault%
+		Gui, Add, DropDownList, yp x+10 w200 vf_drpShortcutMouse gMouseChanged, % o_MouseButtons.GetDropDownList(SS_strActualMouseButton)
 		Gui, Add, Text, % "y" . SS_arrTopY + 20 . " x150", %lDialogOr%
 	}
 	if (P_intShortcutType <> 1)
@@ -15325,7 +15314,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strActualKey := ""
 	SS_strActualModifiers := ""
 	SS_strActualMouseButton := ""
-	SS_strActualMouseButtonsWithDefault := ""
 	SS_strHotkeyControl := ""
 	SS_strHotkeyControlKey := ""
 	SS_strHotkeyControlModifiers := ""
@@ -15389,7 +15377,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	GuiControl, , f_strShortcutKey, %lDialogNone%
 	GuiControl, Choose, f_drpShortcutMouse, %lDialogNone%
-	SplitHotkey("None", SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
+	SplitHotkey("None", SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
 
 	return
@@ -15416,9 +15404,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonResetShortcut:
 	;------------------------------------------------------------
-	SplitHotkey(P_strDefaultShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton, SS_strActualMouseButtonsWithDefault)
+	SplitHotkey(P_strDefaultShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
 	GuiControl, , f_strShortcutKey, %SS_strActualKey%
-	GuiControl, Choose, f_drpShortcutMouse, % GetText4MouseButton(SS_strActualMouseButton)
+	GuiControl, Choose, f_drpShortcutMouse, % o_MouseButtons.GetMouseButtonLocalized4InternalName(SS_strActualMouseButton)
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
 	
 	return
@@ -15470,7 +15458,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	GuiControlGet, SS_blnShift, , f_blnShift
 
 	if StrLen(SS_strMouse)
-		SS_strMouse := GetMouseButton4Text(SS_strMouse) ; get mouse button system name from dropdown localized text
+		SS_strMouse := o_MouseButtons.GetMouseButtonInternal4LocalizedName(SS_strMouse) ; get mouse button system name from dropdown localized text
 	
 	SS_strNewShortcut := Trim(SS_strKey . (SS_strMouse = "None" ? "" : SS_strMouse))
 	if !StrLen(SS_strNewShortcut)
@@ -21573,7 +21561,7 @@ GetFavoriteHotkeyFromLocation(strLocation)
 
 
 ;------------------------------------------------------------
-SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton, ByRef strMouseButtonsWithDefault)
+SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
 ;------------------------------------------------------------
 {
 	; safer that declaring individual variables (see "Common source of confusion" in https://www.autohotkey.com/docs/Functions.htm#Locals)
@@ -21584,39 +21572,30 @@ SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton, B
 		strModifiers := ""
 		strKey := ""
 		strMouseButton := "None" ; do not use lDialogNone because it is translated
-		StringReplace, strMouseButtonsWithDefault, lDialogMouseButtonsText, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is displayed
 	}
 	else 
 	{
 		SplitModifiersFromKey(strHotkey, strModifiers, strKey)
 
-		if InStr(g_strMouseButtons, "|" . strKey . "|") ;  we have a mouse button
+		if o_MouseButtons.IsMouseButton(strKey) ; we have a mouse button
 		{
 			strMouseButton := strKey
 			strKey := ""
-			StringReplace, strMouseButtonsWithDefault, lDialogMouseButtonsText, % GetText4MouseButton(strMouseButton) . "|", % GetText4MouseButton(strMouseButton) . "||" ; with default value
 		}
 		else ; we have a key
-		{
 			strMouseButton := ""
-			strMouseButtonsWithDefault := lDialogMouseButtonsText ; no default value
-		}
 	}
 }
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-GetHotkeysText(ByRef strMouseHotkey, ByRef strKeyboardHotkey)
+GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
 ;------------------------------------------------------------
 {
-	global strModifiers1
-	global strMouseButton1
-	global strOptionsKey1
-	global strModifiers2
-	global strMouseButton2
-	global strOptionsKey2
-	
+	SplitHotkey(strHotkey1, strModifiers1, strOptionsKey1, strMouseButton1)
+	SplitHotkey(strHotkey2, strModifiers2, strOptionsKey2, strMouseButton2)
+
 	; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
 	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
 	if (strMouseHotkey = lDialogNone)
@@ -21632,7 +21611,7 @@ GetHotkeysText(ByRef strMouseHotkey, ByRef strKeyboardHotkey)
 Hotkey2Text(strHotkey, blnShort := false)
 ;------------------------------------------------------------
 {
-	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButton, strMouseButtonsWithDefault)
+	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButton)
 
 	return HotkeySections2Text(strModifiers, strMouseButton, strOptionsKey, blnShort)
 }
@@ -21643,6 +21622,8 @@ Hotkey2Text(strHotkey, blnShort := false)
 HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 ;------------------------------------------------------------
 {
+	global o_MouseButtons
+	
 	if (strKey = "sc15D" or strKey = "AppsKey")
 		strKey := lDialogMenuKey
 	
@@ -21664,7 +21645,8 @@ HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 				str := str . (InStr(strModifiers, "<#") ? "<" : InStr(strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
 		}
 		if StrLen(strMouseButton)
-			str := str . GetText4MouseButton(strMouseButton)
+			str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(strMouseButton)
+			
 		if StrLen(strKey)
 		{
 			StringUpper, strKey, strKey
@@ -21673,37 +21655,6 @@ HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 	}
 
 	return str
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetText4MouseButton(strSource)
-; Returns the string in g_arrMouseButtonsText at the same position of strSource in g_arrMouseButtons
-;------------------------------------------------------------
-{
-	; safer that declaring individual variables (see "Common source of confusion" in https://www.autohotkey.com/docs/Functions.htm#Locals)
-	global
-
-	loop, %g_arrMouseButtons0%
-	{
-		if (strSource = g_arrMouseButtons%A_Index%)
-			return g_arrMouseButtonsText%A_Index%
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetMouseButton4Text(strSource)
-; Returns the string in g_arrMouseButtons at the same position of strSource in g_arrMouseButtonsText
-;------------------------------------------------------------
-{
-	global
-
-	loop, %g_arrMouseButtonsText0%
-		if (strSource = g_arrMouseButtonsText%A_Index%)
-			return g_arrMouseButtons%A_Index%
 }
 ;------------------------------------------------------------
 
@@ -24296,8 +24247,6 @@ Property
 */
 ;------------------------------------------------------------
 {
-	static oParam
-	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24455,6 +24404,115 @@ Property
 			}
 	}
 	;---------------------------------------------------------
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+class MouseButtons
+/*
+Methods
+	- __New(): load an array of buttons objects with internal and localized names
+	- GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
+	- GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
+	- IsMouseButton: returns true if the parameter is member of the buttons array
+	- GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
+
+Property
+	- (none used outside the class)
+
+See nested class
+	- Button
+*/
+;------------------------------------------------------------
+{
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+		this.oButtons := Object() ; array of Button objects
+		
+		this.oButtonInternalNames := Object() ; array of buttons names
+		strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
+		StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
+		
+		this.oButtonLocalizedNames := Object() ; array of buttons text (localized)
+		strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
+		StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
+
+		loop, % arrMouseButtons0
+		{
+			this.oButtonInternalNames[arrMouseButtonsInternalNames%A_Index%] := A_Index
+			this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
+			oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%)
+			this.oButtons.InsertAt(A_Index, oButton)
+		}
+		
+		this.strMouseButtonsDropDownList := strMouseButtonsInternalNames ; default item not identified
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	GetMouseButtonInternal4LocalizedName(strLocalizedName)
+	;---------------------------------------------------------
+	{
+		return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	GetMouseButtonLocalized4InternalName(strInternalName)
+	;---------------------------------------------------------
+	{
+		return this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	IsMouseButton(strInternalName)
+	;---------------------------------------------------------
+	{
+		return this.oButtonInternalNames.HasKey(strInternalName)
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
+	;---------------------------------------------------------
+	{
+		strDropDownList := this.strMouseButtonsDropDownList
+		if (strDefault = lDialogNone) ; here strDefault contains the localized text
+			StringReplace, strDropDownList, strDropDownList, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is localized
+		else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
+			StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault) . "||"
+		
+		return strDropDownList
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Button
+	/*
+	Methods
+		- __New(): initialize button internal and localized names
+
+	Property
+		- strName: internal name of the mouse button
+		- strText: localized name of the mouse button
+	*/
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisInternalName, strThisLocalizedName)
+		;-----------------------------------------------------
+		{
+			this.strInternalName := strThisInternalName
+			this.strLocalizedName := strThisLocalizedName
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+
 }
 ;------------------------------------------------------------
 
