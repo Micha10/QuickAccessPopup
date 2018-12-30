@@ -15205,7 +15205,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strModifiersSymbols := "+|^|!|#"
 	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
 	
-	SplitHotkey(P_strActualShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
+	o_HotkeyActual := new HotkeysText.HotkeyParts(P_strActualShortcut, o_MouseButtons)
 
 	g_intGui2WinID := WinExist("A")
 	
@@ -15242,18 +15242,18 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	}
 
 	if (P_intShortcutType = 1)
-		Gui, Add, DropDownList, % "y" . SS_arrTopY . " x150 w200 vf_drpShortcutMouse gMouseChanged", % o_MouseButtons.GetDropDownList(SS_strActualMouseButton)
+		Gui, Add, DropDownList, % "y" . SS_arrTopY . " x150 w200 vf_drpShortcutMouse gMouseChanged", % o_MouseButtons.GetDropDownList(o_HotkeyActual.strMouseButton)
 	if (P_intShortcutType = 3)
 	{
 		Gui, Add, Text, % "y" . SS_arrTopY . " x150 w60", %lDialogMouse%
-		Gui, Add, DropDownList, yp x+10 w200 vf_drpShortcutMouse gMouseChanged, % o_MouseButtons.GetDropDownList(SS_strActualMouseButton)
+		Gui, Add, DropDownList, yp x+10 w200 vf_drpShortcutMouse gMouseChanged, % o_MouseButtons.GetDropDownList(o_HotkeyActual.strMouseButton)
 		Gui, Add, Text, % "y" . SS_arrTopY + 20 . " x150", %lDialogOr%
 	}
 	if (P_intShortcutType <> 1)
 	{
 		Gui, Add, Text, % "y" . SS_arrTopY + (P_intShortcutType = 2 ? 0 : 40) . " x150 w60", %lDialogKeyboard%
 		Gui, Add, Hotkey, yp x+10 w200 vf_strShortcutKey gShortcutChanged section
-		GuiControl, , f_strShortcutKey, %SS_strActualKey%
+		GuiControl, , f_strShortcutKey, % o_HotkeyActual.strKey
 	}
 	if (P_intShortcutType <> 1)
 		Gui, Add, Link, y+5 xs w200 gShortcutInvisibleKeysClicked, % L(lDialogHotkeyInvisibleKeys, "Space", "Tab", "Enter", "Esc", "Menu")
@@ -15281,7 +15281,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SS_arrModifiersLabels%A_Index%, %lDialogChangeHotkeyAny%
 		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SS_arrModifiersLabels%A_Index%, %lDialogWindowPositionRight%
 	}
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 
 	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, %lDialogOKAmpersand%
 	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, %lGuiCancelAmpersand%
@@ -15311,9 +15311,6 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_blnThisRight := ""
 	SS_blnWin := ""
 	SS_intReverseIndex := ""
-	SS_strActualKey := ""
-	SS_strActualModifiers := ""
-	SS_strActualMouseButton := ""
 	SS_strHotkeyControl := ""
 	SS_strHotkeyControlKey := ""
 	SS_strHotkeyControlModifiers := ""
@@ -15375,10 +15372,11 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	SelectNoneShortcutClicked:
 	;------------------------------------------------------------
+	o_HotkeyActual.SplitParts("None", o_MouseButtons)
+	
 	GuiControl, , f_strShortcutKey, %lDialogNone%
 	GuiControl, Choose, f_drpShortcutMouse, %lDialogNone%
-	SplitHotkey("None", SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 
 	return
 	;------------------------------------------------------------
@@ -15404,10 +15402,11 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	ButtonResetShortcut:
 	;------------------------------------------------------------
-	SplitHotkey(P_strDefaultShortcut, SS_strActualModifiers, SS_strActualKey, SS_strActualMouseButton)
-	GuiControl, , f_strShortcutKey, %SS_strActualKey%
-	GuiControl, Choose, f_drpShortcutMouse, % o_MouseButtons.GetMouseButtonLocalized4InternalName(SS_strActualMouseButton)
-	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to SS_strActualModifiers
+	o_HotkeyActual.SplitParts(P_strDefaultShortcut, o_MouseButtons)
+	
+	GuiControl, , f_strShortcutKey, % o_HotkeyActual.strKey
+	GuiControl, Choose, f_drpShortcutMouse, % o_MouseButtons.GetMouseButtonLocalized4InternalName(o_HotkeyActual.strMouseButton)
+	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 	
 	return
 	;------------------------------------------------------------
@@ -15415,16 +15414,16 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	SetModifiersCheckBoxAndRadio:
 	;------------------------------------------------------------
-	loop, 4 ; set modifiers checkboxes according to SS_strActualModifiers
+	loop, 4 ; set modifiers checkboxes according to o_HotkeyActual.strModifiers
 	{
 		SS_strThisLabel := SS_arrModifiersLabels%A_Index%
 		SS_strThisSymbol := SS_arrModifiersSymbols%A_Index%
 		
-		GuiControl, , % "f_bln" . SS_strThisLabel, % InStr(SS_strActualModifiers, SS_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
+		GuiControl, , % "f_bln" . SS_strThisLabel, % InStr(o_HotkeyActual.strModifiers, SS_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
 		
-		GuiControl, , f_radLeft%SS_strThisLabel%, % InStr(SS_strActualModifiers, "<" . SS_strThisSymbol) > 0
-		GuiControl, , f_radAny%SS_strThisLabel%, % !InStr(SS_strActualModifiers, "<" . SS_strThisSymbol) and !InStr(P_strActualShortcut, ">" . SS_strThisSymbol)
-		GuiControl, , f_radRight%SS_strThisLabel%, % InStr(SS_strActualModifiers, ">" . SS_strThisSymbol) > 0
+		GuiControl, , f_radLeft%SS_strThisLabel%, % InStr(o_HotkeyActual.strModifiers, "<" . SS_strThisSymbol) > 0
+		GuiControl, , f_radAny%SS_strThisLabel%, % !InStr(o_HotkeyActual.strModifiers, "<" . SS_strThisSymbol) and !InStr(P_strActualShortcut, ">" . SS_strThisSymbol)
+		GuiControl, , f_radRight%SS_strThisLabel%, % InStr(o_HotkeyActual.strModifiers, ">" . SS_strThisSymbol) > 0
 	}
 	gosub, ModifierClicked
 	
@@ -24411,27 +24410,88 @@ Property
 ; ------------------------------------------------------------
 class HotkeysText
 /*
+TODO
+- SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
+
+GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
+Hotkey2Text(strHotkey, blnShort := false)
+HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
+SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
+GetFirstNotModifier(strHotkey)
+
+GetHotstringReminder(strHotstring)
+GetHotstringTrigger(strHotstring)
+GetHotstringOptions(strHotstring)
+SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
+GetHotstringOptionsLong(strHotstringOptionsShort)
+PrepareHotstringForFunction(strHotstring, objFavorite)
+*/
+
+/*
 Methods
 	- __New(): 
+	- HotkeyParts.__New(): create class object and split parts for parameter
+	- HotkeyParts.SplitParts(): split the parameter strHotkey into parts strModifiers, strKey and strMouseButton
+	- MouseButtons.__New(): load an array of buttons objects with internal and localized names
+	- MouseButtons.GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
+	- MouseButtons.GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
+	- MouseButtons.IsMouseButton: returns true if the parameter is member of the buttons array
+	- MouseButtons.GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
 
-Property
-	- 
+Properties
+	- HotkeyParts.strModifiers:
+	- HotkeyParts.strKey:
+	- HotkeyParts.strMouseButton:
 */
 ;------------------------------------------------------------
 {
+	
+	;------------------------------------------------------------
+	class HotkeyParts
+	; replaces SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
+	;------------------------------------------------------------
+	{
+		__New(strHotkey, oMouseButtons)
+		{
+			this.SplitParts(strHotkey, oMouseButtons)
+		}
+		
+		SplitParts(strHotkey, oMouseButtons)
+		{
+			if (strHotkey = "None") ; do not compare with lDialogNone because it is translated
+			{
+				this.strModifiers := ""
+				this.strKey := ""
+				this.strMouseButton := "None" ; do not use lDialogNone because it is translated
+			}
+			else 
+			{
+				intPosFirstNotModifier := 0
+				loop, Parse, strHotkey
+					if InStr("^!+#<>", A_LoopField)
+						intPosFirstNotModifier++
+					else
+						break ; got first character not a modifier
+				StringLeft, str, strHotkey, %intPosFirstNotModifier%
+				this.strModifiers := str
+				StringMid, str, strHotkey, % (intPosFirstNotModifier + 1)
+				this.strKey := str
+				
+				if oMouseButtons.IsMouseButton(this.strKey) ; we have a mouse button
+				{
+					this.strMouseButton := this.strKey
+					this.strKey := ""
+				}
+				else ; we have a key
+					this.strMouseButton := ""
+			}
+		}
+
+	}
+	;------------------------------------------------------------
+
 	;--------------------------------------------------------
 	class MouseButtons
-	/*
-	Methods
-		- __New(): load an array of buttons objects with internal and localized names
-		- GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
-		- GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
-		- IsMouseButton: returns true if the parameter is member of the buttons array
-		- GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
-
-	Property
-		- (none used outside the class)
-	*/
 	;--------------------------------------------------------
 	{
 		;----------------------------------------------------
@@ -24501,12 +24561,12 @@ Property
 		;----------------------------------------------------
 		class Button
 		/*
-		Methods
+		Methods (used internally only)
 			- __New(): initialize button internal and localized names
 
-		Property
-			- strName: internal name of the mouse button
-			- strText: localized name of the mouse button
+		Properties (used internally only)
+			- strInternalName: internal name of the mouse button
+			- strLocalizedName: localized name of the mouse button
 		*/
 		;----------------------------------------------------
 		{
