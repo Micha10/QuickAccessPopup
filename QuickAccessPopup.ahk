@@ -8734,10 +8734,12 @@ strAlternativeHotkeysBackup := g_objQAPFeaturesNewShortcuts[strThisAlternativeCo
 ; .LocalizedName OK because Alternative
 g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultShortcut)
-objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
 if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+{
+	objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+}
 else
 	g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
