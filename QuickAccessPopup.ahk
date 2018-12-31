@@ -3154,8 +3154,10 @@ else ; setup mode
 	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
 ;---------------------------------
-; Init class for MouseButtons
-o_MouseButtons := new HotkeysText.MouseButtons
+; Init class for Triggers
+o_MouseButtons := new Triggers.MouseButtons
+g_strPopupHotkeyInternalNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
+o_PopupHotkeys := new Triggers.PopupHotkeys
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -3357,10 +3359,9 @@ Gosub, SetTrayMenuIcon
 
 if (g_blnDisplayTrayTip)
 {
-	GetHotkeysText(g_arrPopupHotkeys1, strMouseHotkey, g_arrPopupHotkeys2, strKeyboardHotkey)
-		
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
+		, % L(lTrayTipInstalledDetail, o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyMouse").strPopupHotkeyText
+			. " " . lDialogOr . " " . o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyKeyboard").strPopupHotkeyText)
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -3803,15 +3804,6 @@ InitSystemArrays:
 ;-----------------------------------------------------------
 
 ; ----------------------
-; Hotkeys: ini names, hotkey variables name, default values, gosub label and Gui hotkey titles
-strPopupHotkeyNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
-StringSplit, g_arrPopupHotkeyNames, strPopupHotkeyNames, |
-strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
-StringSplit, g_arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
-g_arrPopupHotkeys := Array ; initialized by LoadIniPopupHotkeys
-g_arrPopupHotkeysPrevious := Array ; initialized by GuiOptions and checked in LoadIniPopupHotkeys
-
-; ----------------------
 ; ACTIVE FILE MANAGER
 ; g_arrActiveFileManagerSystemNames: array system names (1-4)
 ; g_arrActiveFileManagerDisplayNames: array system names (1-4)
@@ -3915,7 +3907,6 @@ InitLanguageArrays:
 
 ; ----------------------
 ; OPTIONS
-StringSplit, g_arrOptionsPopupHotkeyTitles, lOptionsPopupHotkeyTitles, |
 strOptionsLanguageCodes := "EN|FR|DE|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL|KO" ; removed SV - edit lOptionsLanguageLabels in all languages
 StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
@@ -5679,58 +5670,60 @@ LoadIniPopupHotkeys:
 ; called at launch by LoadIniFile and after saving options by ButtonOptionsSave
 ;-----------------------------------------------------------
 
-; Read the values and set hotkey shortcuts
-loop, % g_arrPopupHotkeyNames0 ; NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard
-	; load global array of current menu hotkeys
-	IniRead, g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%, % g_arrPopupHotkeyDefaults%A_Index%
+objPopupHotkey1 := o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyMouse")
+objPopupHotkey2 := o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyKeyboard")
 
-; 2 hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
+; Two hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
 ; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
+
 ; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanNavigate(A_ThisHotkey)
-	if HasShortcut(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(g_arrPopupHotkeys1)
-		Hotkey, % g_arrPopupHotkeys1, NavigateHotkeyMouse, On UseErrorLevel
+	if HasShortcut(objPopupHotkey1.strPopupHotkeyPrevious)
+		Hotkey, % objPopupHotkey1.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
+	if HasShortcut(objPopupHotkey1.strPopupHotkey)
+		Hotkey, % objPopupHotkey1.strPopupHotkey, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
-	if HasShortcut(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(g_arrPopupHotkeys2)
-		Hotkey, % g_arrPopupHotkeys2, NavigateHotkeyKeyboard, On UseErrorLevel
+		Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey1.strPopupHotkey), objPopupHotkey1.strPopupHotkeyLocalizedName)
+	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
+		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+	if HasShortcut(objPopupHotkey2.strPopupHotkey)
+		Hotkey, % objPopupHotkey2.strPopupHotkey, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
+		Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey2.strPopupHotkey), objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
-	if HasShortcut(g_arrPopupHotkeysPrevious1)
-		Hotkey, % g_arrPopupHotkeysPrevious1, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(g_arrPopupHotkeys1)
-		Hotkey, % g_arrPopupHotkeys1, LaunchHotkeyMouse, On UseErrorLevel
+	if HasShortcut(objPopupHotkey1.strPopupHotkeyPrevious)
+		Hotkey, % objPopupHotkey1.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
+	if HasShortcut(objPopupHotkey1.strPopupHotkey)
+		Hotkey, % objPopupHotkey1.strPopupHotkey, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys1, g_arrOptionsPopupHotkeyTitles1)
-	if HasShortcut(g_arrPopupHotkeysPrevious2)
-		Hotkey, % g_arrPopupHotkeysPrevious2, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(g_arrPopupHotkeys2)
-		Hotkey, % g_arrPopupHotkeys2, LaunchHotkeyKeyboard, On UseErrorLevel
+		Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey1.strPopupHotkey), objPopupHotkey1.strPopupHotkeyLocalizedName)
+	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
+		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+	if HasShortcut(objPopupHotkey2.strPopupHotkey)
+		Hotkey, % objPopupHotkey2.strPopupHotkey, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, g_arrPopupHotkeys2, g_arrOptionsPopupHotkeyTitles2)
+		Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey2.strPopupHotkey), objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
+objPopupHotkey3 := o_PopupHotkeys.GetPopupHotkey("AlternativeHotkeyMouse")
+objPopupHotkey4 := o_PopupHotkeys.GetPopupHotkey("AlternativeHotkeyKeyboard")
+
 ; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
-if HasShortcut(g_arrPopupHotkeysPrevious3)
-	Hotkey, % g_arrPopupHotkeysPrevious3, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-if HasShortcut(g_arrPopupHotkeys3)
-	Hotkey, % g_arrPopupHotkeys3, AlternativeHotkeyMouse, On UseErrorLevel
+if HasShortcut(objPopupHotkey3.strPopupHotkeyPrevious)
+	Hotkey, % objPopupHotkey3.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
+if HasShortcut(objPopupHotkey3.strPopupHotkey)
+	Hotkey, % objPopupHotkey3.strPopupHotkey, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys3, g_arrOptionsPopupHotkeyTitles3)
-if HasShortcut(g_arrPopupHotkeysPrevious4)
-	Hotkey, % g_arrPopupHotkeysPrevious4, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-if HasShortcut(g_arrPopupHotkeys4)
-	Hotkey, % g_arrPopupHotkeys4, AlternativeHotkeyKeyboard, On UseErrorLevel
+	Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey3.strPopupHotkey), objPopupHotkey3.strPopupHotkeyLocalizedName)
+if HasShortcut(objPopupHotkey4.strPopupHotkeyPrevious)
+	Hotkey, % objPopupHotkey4.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
+if HasShortcut(objPopupHotkey4.strPopupHotkey)
+	Hotkey, % objPopupHotkey4.strPopupHotkey, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, g_arrPopupHotkeys4, g_arrOptionsPopupHotkeyTitles4)
+	Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(objPopupHotkey4.strPopupHotkey), objPopupHotkey4.strPopupHotkeyLocalizedName)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
@@ -5750,9 +5743,13 @@ for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, strHotkey, g_objQAPFeatures[strCode].LocalizedName) ; .LocalizedName OK because Alternative
+		Oops(lDialogInvalidHotkey, Triggers.Hotkey2Text(strHotkey), g_objQAPFeatures[strCode].LocalizedName) ; .LocalizedName OK because Alternative
 }
 
+objPopupHotkey1 := ""
+objPopupHotkey2 := ""
+objPopupHotkey3 := ""
+objPopupHotkey4 := ""
 strCode := ""
 objThisQAPFeature := ""
 strHotkey := ""
@@ -8120,15 +8117,14 @@ if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 
 g_intGui1WinID := WinExist("A")
 loop, 4
-	g_arrPopupHotkeysPrevious%A_Index% := g_arrPopupHotkeys%A_Index% ; allow to turn off changed hotkeys and to revert g_arrPopupHotkeys if cancel
+	; allow to turn off changed hotkeys and to revert o_PopupHotkeys if cancel
+	o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyPrevious := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey
 
 g_objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	if HasShortcut(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
 		; g_objQAPFeaturesNewShortcuts will be saved to ini file and g_objQAPFeatures will be used to turn off previous hotkeys
 		g_objQAPFeaturesNewShortcuts.Insert(strAlternativeCode, g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
-
-StringSplit, g_arrOptionsTitlesSub, lOptionsPopupHotkeyTitlesSub, |
 
 ;---------------------------------------
 ; Build Gui header
@@ -8323,16 +8319,16 @@ Gui, 2:Tab, 3
 Gui, 2:Font
 Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabMouseAndKeyboardIntro, g_strAppNameText)
 
-loop, % g_arrPopupHotkeyNames0
+Loop, Parse, g_strPopupHotkeyInternalNames, |
 {
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x15 y+20 w610, % g_arrOptionsPopupHotkeyTitles%A_Index%
+	Gui, 2:Add, Text, x15 y+20 w610, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyLocalizedName ; g_arrOptionsPopupHotkeyTitles%A_Index%
 	Gui, 2:Font, s9 w500, Courier New
-	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % Hotkey2Text(g_arrPopupHotkeys%A_Index%)
+	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyText
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%A_Index% gButtonOptionsChangeShortcut%A_Index%, %lOptionsChangeHotkey%
 	Gui, 2:Font, s8 w500
-	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesSubClicked, % g_arrOptionsTitlesSub%A_Index%
+	Gui, 2:Add, Link, x15 ys w240 gOptionsTitlesDescriptionClicked, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyLocalizedDescription
 }
 
 Gui, 2:Font, s8 w700
@@ -8347,13 +8343,12 @@ Gui, 2:Add, Button, x+5 yp gSelectHotstringDefaultOptions, %lOptionsHotstringsDe
 Gui, 2:Tab, 4
 
 Gui, 2:Font
-Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsAlternativeMenuFeaturesIntro, Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4))
+Gui, 2:Add, Text, x15 y+10 w590 center, %lOptionsAlternativeMenuFeaturesIntro%
 
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 {
 	Gui, 2:Font, s8 w700
-; .LocalizedName OK because Alternative
-	Gui, 2:Add, Text, x15 y+10 w240, % g_objQAPFeatures[strAlternativeCode].LocalizedName
+	Gui, 2:Add, Text, x15 y+10 w240, % g_objQAPFeatures[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
 		, % Hotkey2Text(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
@@ -8436,7 +8431,7 @@ OptionsMoreShowButton("UserVariablesList", intMaxWidth) ; f_btnUserVariablesList
 OptionsMoreShowButton("IconReplacementList", intMaxWidth) ; f_btnIconReplacementList GuiOptionsMoreIconReplacementList
 
 ; Descriptions
-Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1))
+Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 30 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsExclusionMouseListDescription, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText)
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 70 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsSwitchExclusionListDescription%
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 110 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % L(lOptionsUsageDbDescription, g_strAppNameText)
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsUserVariablesListDescription%
@@ -8669,7 +8664,7 @@ return
 
 
 ;------------------------------------------------------------
-OptionsTitlesSubClicked:
+OptionsTitlesDescriptionClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
@@ -8700,21 +8695,24 @@ ButtonOptionsChangeShortcut4:
 Gui, 2:Submit, NoHide
 
 StringReplace, intHotkeyIndex, A_ThisLabel, ButtonOptionsChangeShortcut
+objPopupHotkey := o_PopupHotkeys.GetPopupHotkey(intHotkeyIndex)
 
-if InStr(g_arrPopupHotkeyNames%intHotkeyIndex%, "Mouse")
+if InStr(objPopupHotkey.strPopupHotkeyInternalName, "Mouse")
 	intHotkeyType := 1 ; Mouse
 else
 	intHotkeyType := 2 ; Keyboard
 
-strPopupHotkeysBackup := g_arrPopupHotkeys%intHotkeyIndex%
-g_arrPopupHotkeys%intHotkeyIndex% := SelectShortcut(g_arrPopupHotkeys%intHotkeyIndex%, g_arrOptionsPopupHotkeyTitles%intHotkeyIndex%, "", "", intHotkeyType, g_arrPopupHotkeyDefaults%intHotkeyIndex%, g_arrOptionsTitlesSub%intHotkeyIndex%)
+strPopupHotkeysBackup := objPopupHotkey.strPopupHotkey
+objPopupHotkey.strPopupHotkey := SelectShortcut(objPopupHotkey.strPopupHotkey, objPopupHotkey.strPopupHotkeyLocalizedName
+	, "", "", intHotkeyType, objPopupHotkey.strPopupHotkeyDefault, objPopupHotkey.strPopupHotkeyLocalizedDescription)
 
-if StrLen(g_arrPopupHotkeys%intHotkeyIndex%)
-	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % Hotkey2Text(g_arrPopupHotkeys%intHotkeyIndex%)
+if StrLen(objPopupHotkey.strPopupHotkey)
+	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % objPopupHotkey.strPopupHotkeyText
 else
-	g_arrPopupHotkeys%intHotkeyIndex% := strPopupHotkeysBackup
+	objPopupHotkey.strPopupHotkey := strPopupHotkeysBackup
 	
 strPopupHotkeysBackup := ""
+objPopupHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -8772,7 +8770,7 @@ if (g_blnUseColors)
 Gui, 3:Font, s10 w700, Verdana
 Gui, 3:Add, Text, x10 y10 w400, %lOptionsChangeFolderInDialog%
 Gui, 3:Font
-Gui, 3:Add, Text, x10 w400, % L(lOptionsChangeFolderInDialogText , Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4), Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
+Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogText%
 Gui, 3:Add, Text, x10 w400, %lOptionsChangeFolderInDialogCheckbox%
 
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, %lDialogOKAmpersand%
@@ -8982,15 +8980,15 @@ if InStr("ExclusionMouseList|SwitchExclusionList", g_strMoreWindowName)
 		: "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/")
 	Gui, 3:Font, s8 w700
 	Gui, 3:Add, Link, x10 y10 w600
-		, % (g_strMoreWindowName = "ExclusionMouseList" ? L(lOptionsExclusionMouseListDescription, Hotkey2Text(g_arrPopupHotkeys1)) : lOptionsSwitchExclusionList)
+		, % (g_strMoreWindowName = "ExclusionMouseList" ? L(lOptionsExclusionMouseListDescription, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText) : lOptionsSwitchExclusionList)
 		. " (<a href=""" . strUrl . """>" . lGuiHelp . "</a>)"
 	Gui, 3:Font
 	Gui, 3:Add, Edit, % "x10 y+5 w600 r10 v" . (g_strMoreWindowName = "ExclusionMouseList" ? "f_strExclusionMouseListMore" : "f_strSwitchExclusionListMore")
 		, % (g_strMoreWindowName = "ExclusionMouseList" ? f_strExclusionMouseList : f_strSwitchExclusionList)
 	if (g_strMoreWindowName = "ExclusionMouseList")
 	{
-		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail1, Hotkey2Text(g_arrPopupHotkeys1))
-		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, Hotkey2Text(g_arrPopupHotkeys1), strUrl)
+		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail1, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText)
+		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsExclusionMouseListDetail2, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText, strUrl)
 	}
 	else
 		Gui, 3:Add, Link, x10 y+10 w595, % L(lOptionsSwitchExclusionListInstructions, strUrl)
@@ -9345,12 +9343,11 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
 
-loop, % g_arrPopupHotkeyNames0
-	; the following if is not necessary - remove if and only keep else when reviewing this code
-	if (g_arrPopupHotkeys%A_Index% = "None") ; do not compare with lOptionsMouseNone because it is translated
-		IniWrite, None, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index% ; do not write lOptionsMouseNone because it is translated
-	else
-		IniWrite, % g_arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % g_arrPopupHotkeyNames%A_Index%
+loop, parse, g_strPopupHotkeyInternalNames, |
+{
+	IniWrite, % o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey, %g_strIniFile%, Global, %A_LoopField%
+	o_PopupHotkeys.UpdatePopupHotkeyTextValues(A_Index)
+}
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -9567,7 +9564,8 @@ ButtonOptionsCancel:
 ;------------------------------------------------------------
 
 loop, 4
-	g_arrPopupHotkeys%A_Index% := g_arrPopupHotkeysPrevious%A_Index% ; revert to previous content of g_arrPopupHotkeys
+	; revert to previous content of o_PopupHotkeys
+	o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyPrevious
 
 Gosub, 2GuiClose
 
@@ -10538,9 +10536,9 @@ If !StrLen(g_strNewLocation)
 {
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
-		GetHotkeysText(g_arrPopupHotkeys1, strMouseHotkey, g_arrPopupHotkeys2, strKeyboardHotkey)
 		Gui, 1:+OwnDialogs 
-		Oops(lOopsAddThisFolderTip, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, strMouseHotkey . " " . lDialogOr . " " . strKeyboardHotkey)
+		Oops(lOopsAddThisFolderTip, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyMouse").strPopupHotkeyText
+			. " " . lDialogOr . " " . o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyKeyboard").strPopupHotkeyText)
 	}
 	else
 	{
@@ -15205,7 +15203,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strModifiersSymbols := "+|^|!|#"
 	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
 	
-	o_HotkeyActual := new HotkeysText.HotkeyParts(P_strActualShortcut, o_MouseButtons)
+	o_HotkeyActual := new Triggers.HotkeyParts(P_strActualShortcut, o_MouseButtons)
 
 	g_intGui2WinID := WinExist("A")
 	
@@ -21589,24 +21587,6 @@ SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
 
 
 ;------------------------------------------------------------
-GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
-;------------------------------------------------------------
-{
-	SplitHotkey(strHotkey1, strModifiers1, strOptionsKey1, strMouseButton1)
-	SplitHotkey(strHotkey2, strModifiers2, strOptionsKey2, strMouseButton2)
-
-	; 1 NavigateOrLaunchHotkeyMouse, 2 NavigateOrLaunchHotkeyKeyboard
-	strMouseHotkey := HotkeySections2Text(strModifiers1, strMouseButton1, strOptionsKey1)
-	if (strMouseHotkey = lDialogNone)
-		strMouseHotkey := ""
-	strKeyboardHotkey := HotkeySections2Text(strModifiers2, strMouseButton2, strOptionsKey2)
-	if (strKeyboardHotkey = lDialogNone)
-		strKeyboardHotkey := ""
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 Hotkey2Text(strHotkey, blnShort := false)
 ;------------------------------------------------------------
 {
@@ -24230,9 +24210,9 @@ return
 ;========================================================================================================================
 
 
-;------------------------------------------------------------
+;-------------------------------------------------------------
 class CommandLineParameters
-;------------------------------------------------------------
+;-------------------------------------------------------------
 /*
 Methods
 	- __New(): collect the command line parameters in internal object and concat strParams
@@ -24244,7 +24224,7 @@ Methods
 Property
 	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if requiree
 */
-;------------------------------------------------------------
+;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
 	__New()
@@ -24302,12 +24282,12 @@ Property
 	}
 	;---------------------------------------------------------
 }
-;------------------------------------------------------------
+;-------------------------------------------------------------
 
 
-;------------------------------------------------------------
+;-------------------------------------------------------------
 class JLicons
-;------------------------------------------------------------
+;-------------------------------------------------------------
 /*
 Methods
 	- __New():
@@ -24319,7 +24299,7 @@ Methods
 Property
 	- strFileLocation: path and file name of the JLicons library file
 */
-;------------------------------------------------------------
+;-------------------------------------------------------------
 {
 	oIcons := Object() ; was g_objJLiconsByName before class
 	oNames := Object() ; was g_objJLiconsNames before class
@@ -24404,16 +24384,16 @@ Property
 	}
 	;---------------------------------------------------------
 }
-;------------------------------------------------------------
+;-------------------------------------------------------------
 
 
 ; ------------------------------------------------------------
-class HotkeysText
+class Triggers
 /*
 TODO
 - SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
+- GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
 
-GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
 Hotkey2Text(strHotkey, blnShort := false)
 HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
 SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
@@ -24443,20 +24423,159 @@ Properties
 	- HotkeyParts.strKey:
 	- HotkeyParts.strMouseButton:
 */
-;------------------------------------------------------------
+;-------------------------------------------------------------
 {
 	
-	;------------------------------------------------------------
+	;---------------------------------------------------------
+	class PopupHotkeys
+	; replaces g_arrPopupHotkeys and associated arrays
+	;---------------------------------------------------------
+	{
+		__New()
+		{
+			global g_strPopupHotkeyInternalNames
+			
+			g_strPopupHotkeyInternalNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
+			StringSplit, arrPopupHotkeyInternalNames, g_strPopupHotkeyInternalNames, |
+			strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
+			StringSplit, arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
+			StringSplit, arrOptionsPopupHotkeyLocalizedNames, lOptionsPopupHotkeyTitles, |
+			StringSplit, arrOptionsPopupHotkeyLocalizedDescriptions, lOptionsPopupHotkeyTitlesSub, |
+			
+			oPopupHotkeys := Object()
+			oPopupHotkeysByNames := Object()
+			loop, % arrPopupHotkeyInternalNames0
+			{
+				IniRead, arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % arrPopupHotkeyInternalNames%A_Index%, % arrPopupHotkeyDefaults%A_Index%
+				oPopupHotkey := new this.PopupHotkey(arrPopupHotkeyInternalNames%A_Index%, arrPopupHotkeys%A_Index%, arrPopupHotkeyDefaults%A_Index%
+					, arrOptionsPopupHotkeyLocalizedNames%A_Index%, arrOptionsPopupHotkeyLocalizedDescriptions%A_Index%)
+				this.oPopupHotkeys[A_Index] := oPopupHotkey
+				this.oPopupHotkeysByNames[arrPopupHotkeyInternalNames%A_Index%] := oPopupHotkey
+			}
+		}
+		
+		;-----------------------------------------------------
+		GetPopupHotkey(strNameOrIndex)
+		; replaces GetHotkeysText and others
+		;-----------------------------------------------------
+		{
+			if strNameOrIndex is integer
+				return this.oPopupHotkeys[strNameOrIndex]
+			else
+				return this.oPopupHotkeysByNames[strNameOrIndex]
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		UpdatePopupHotkeyTextValues(intIndex)
+		;-----------------------------------------------------
+		{
+			oPopupHotkey := this.oPopupHotkeys[intIndex]
+			
+			oPopupHotkey.strPopupHotkeyText := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey)
+			oPopupHotkey.strPopupHotkeyTextShort := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey, true)
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		class PopupHotkey
+		;-----------------------------------------------------
+		{
+			;-------------------------------------------------
+			__New(strThisInternalName, strThisPopupHotkey, strThisPopupHotkeyDefault, strThisLocalizedName, strThisLocalizedDescription)
+			;-------------------------------------------------
+			{
+				this.strPopupHotkeyInternalName := strThisInternalName
+				this.strPopupHotkey := strThisPopupHotkey
+				this.strPopupHotkeyDefault := strThisPopupHotkeyDefault
+				this.strPopupHotkeyPrevious := ""
+				this.strPopupHotkeyLocalizedName := strThisLocalizedName
+				this.strPopupHotkeyLocalizedDescription := strThisLocalizedDescription
+				this.strPopupHotkeyText := Triggers.Hotkey2Text(this.strPopupHotkey)
+				this.strPopupHotkeyTextShort := Triggers.Hotkey2Text(this.strPopupHotkey, true)
+			}
+			;-------------------------------------------------
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	Hotkey2Text(strPopupHotkey, blnShort := false)
+	; was Hotkey2Text
+	;---------------------------------------------------------
+	{
+		global o_MouseButtons
+		
+		oHotkeyParts := new Triggers.HotkeyParts(strPopupHotkey, o_MouseButtons)
+		
+		return Triggers.HotkeyParts2Text(oHotkeyParts, blnShort)
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	HotkeyParts2Text(oHotkeyParts, blnShort := false)
+	; was HotkeySections2Text
+	;---------------------------------------------------------
+	{
+		global o_MouseButtons
+
+		if (oHotkeyParts.strKey = "sc15D" or oHotkeyParts.strKey = "AppsKey")
+			oHotkeyParts.strKey := lDialogMenuKey
+		
+		if (oHotkeyParts.strMouseButton = "None") ; do not compare with lDialogNone because it is translated
+			or !StrLen(oHotkeyParts.strModifiers . oHotkeyParts.strMouseButton . oHotkeyParts.strKey) ; if all parameters are empty
+			str := lDialogNone ; use lDialogNone because this is displayed
+		else
+		{
+			str := ""
+			loop, parse, % oHotkeyParts.strModifiers
+			{
+				if (A_LoopField = "!")
+					str := str . (InStr(oHotkeyParts.strModifiers, "<!") ? "<" : InStr(oHotkeyParts.strModifiers, ">!") ? ">" : "") . lDialogAlt . "+"
+				if (A_LoopField = "^")
+					str := str . (InStr(oHotkeyParts.strModifiers, "<^") ? "<" : InStr(oHotkeyParts.strModifiers, ">^") ? ">" : "") . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
+				if (A_LoopField = "+")
+					str := str . (InStr(oHotkeyParts.strModifiers, "<+") ? "<" : InStr(oHotkeyParts.strModifiers, ">+") ? ">" : "") . lDialogShift . "+"
+				if (A_LoopField = "#")
+					str := str . (InStr(oHotkeyParts.strModifiers, "<#") ? "<" : InStr(oHotkeyParts.strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
+			}
+			if StrLen(oHotkeyParts.strMouseButton)
+				if (blnShort)
+					str := str . oHotkeyParts.strMouseButton
+				else
+					str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(oHotkeyParts.strMouseButton)
+				
+			if StrLen(oHotkeyParts.strKey)
+			{
+				StringUpper, strUpper, % oHotkeyParts.strKey
+				str := str . strUpper
+			}
+		}
+		
+		if (str = lDialogNone)
+			str := ""
+		
+		return str
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
 	class HotkeyParts
 	; replaces SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
-	;------------------------------------------------------------
+	;---------------------------------------------------------
 	{
+		;-----------------------------------------------------
 		__New(strHotkey, oMouseButtons)
+		;-----------------------------------------------------
 		{
 			this.SplitParts(strHotkey, oMouseButtons)
 		}
+		;-----------------------------------------------------
 		
+		;-----------------------------------------------------
 		SplitParts(strHotkey, oMouseButtons)
+		;-----------------------------------------------------
 		{
 			if (strHotkey = "None") ; do not compare with lDialogNone because it is translated
 			{
@@ -24486,17 +24605,17 @@ Properties
 					this.strMouseButton := ""
 			}
 		}
-
+		;-----------------------------------------------------
 	}
-	;------------------------------------------------------------
+	;---------------------------------------------------------
 
-	;--------------------------------------------------------
+	;---------------------------------------------------------
 	class MouseButtons
-	;--------------------------------------------------------
+	;---------------------------------------------------------
 	{
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		__New()
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
 			this.oButtons := Object() ; array of Button objects
 			
@@ -24518,35 +24637,35 @@ Properties
 			
 			this.strMouseButtonsDropDownList := strMouseButtonsLocalizedNames ; default item not identified
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		GetMouseButtonInternal4LocalizedName(strLocalizedName)
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
 			return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		GetMouseButtonLocalized4InternalName(strInternalName)
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
 			return this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		IsMouseButton(strInternalName)
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
 			return this.oButtonInternalNames.HasKey(strInternalName)
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
 			strDropDownList := this.strMouseButtonsDropDownList
 			if (strDefault = lDialogNone) ; here strDefault contains the localized text
@@ -24556,9 +24675,9 @@ Properties
 			
 			return strDropDownList
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		class Button
 		/*
 		Methods (used internally only)
@@ -24568,20 +24687,20 @@ Properties
 			- strInternalName: internal name of the mouse button
 			- strLocalizedName: localized name of the mouse button
 		*/
-		;----------------------------------------------------
+		;-----------------------------------------------------
 		{
-			;------------------------------------------------
+			;-------------------------------------------------
 			__New(strThisInternalName, strThisLocalizedName)
-			;------------------------------------------------
+			;-------------------------------------------------
 			{
 				this.strInternalName := strThisInternalName
 				this.strLocalizedName := strThisLocalizedName
 			}
-			;------------------------------------------------
+			;-------------------------------------------------
 		}
-		;----------------------------------------------------
+		;-----------------------------------------------------
 	}
-	;--------------------------------------------------------
+	;---------------------------------------------------------
 }
-;------------------------------------------------------------
+;-------------------------------------------------------------
 
