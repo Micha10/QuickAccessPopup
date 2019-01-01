@@ -7414,11 +7414,9 @@ Loop
 	if g_objQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
 		strThisHotkey := g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
-		
-; .LocalizedName OK because Alternative
-		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName)
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
 		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
-			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Hotkey2Text(strThisHotkey, true)) . ")"
+			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : Triggers.Hotkey2Text(strThisHotkey, true)) . ")"
 			; hotkey reminder " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
 		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", g_objQAPFeatures[g_objQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
@@ -7537,10 +7535,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
 		
-		; if (g_intHotkeyReminders > 1) and g_objHotkeysByNameLocation.HasKey(FavoriteNameLocationFromObject(objCurrentMenu[A_Index]))
-			; strMenuName .= " (" . (g_intHotkeyReminders = 2
-				; ? g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])] 
-				; : Hotkey2Text(g_objHotkeysByNameLocation[FavoriteNameLocationFromObject(objCurrentMenu[A_Index])])) . ")"
 		if StrLen(objCurrentMenu[A_Index].FavoriteShortcut)
 		{
 			g_objFavoritesObjectsByShortcut.Insert(objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index])
@@ -7548,7 +7542,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (g_intHotkeyReminders > 1)
 				strMenuName .= " (" . (g_intHotkeyReminders = 2
 					? objCurrentMenu[A_Index].FavoriteShortcut 
-					: Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)) . ")"
+					: Triggers.Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)) . ")"
 					
 			; enable shortcut
 			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
@@ -8351,7 +8345,7 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	Gui, 2:Add, Text, x15 y+10 w240, % g_objQAPFeatures[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
-		, % Hotkey2Text(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
+		, % Triggers.Hotkey2Text(g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, %lOptionsChangeHotkey%
 }
@@ -8738,7 +8732,7 @@ g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAl
 if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
 {
 	objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
-	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Triggers.Hotkey2Text(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
 }
 else
 	g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
@@ -9945,7 +9939,7 @@ if (g_objMenuInGui.MenuType = "External") and ExternalMenuModifiedSinceLoaded(g_
 Loop, % g_objMenuInGui.MaxIndex()
 {
 	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
-	strThisHotkey := Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut, true)
+	strThisHotkey := Triggers.Hotkey2Text(g_objMenuInGui[A_Index].FavoriteShortcut, true)
 	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
 		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objMenuInGui[A_Index].FavoriteHotstring))
 	
@@ -10083,7 +10077,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 		strSearchIn := objCurrentMenu[A_Index].FavoriteName
 		if (strExtended)
 		{
-			strHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
+			strHotkey := Triggers.Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
 			strHotkey := (strHotkey = lDialogNone ? "" : strHotkey)
 			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType]
 				. " " . strHotkey
@@ -10101,7 +10095,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 			and InStr(strSearchIn, strFilter)
 		{
 			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
-			strThisHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
+			strThisHotkey := Triggers.Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
 			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
 			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
@@ -11475,7 +11469,7 @@ if !(blnIsGroupMember)
 	{
 		Gui, 2:Add, Text, x20 y+20, %lDialogShortcut%
 		Gui, 2:Add, Link, x+5 yp, (<a href="https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/">%lGuiHelp%</a>)
-		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Hotkey2Text(g_strNewFavoriteShortcut)
+		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % Triggers.Hotkey2Text(g_strNewFavoriteShortcut)
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, %lOptionsChangeHotkey%
 		
 		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
@@ -11856,7 +11850,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
 g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
 if StrLen(g_strNewFavoriteShortcut)
-	GuiControl, 2:, f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+	GuiControl, 2:, f_strHotkeyText, % Triggers.Hotkey2Text(g_strNewFavoriteShortcut)
 else
 	g_strNewFavoriteShortcut := strBackupFavoriteShortcut
 
@@ -12131,7 +12125,7 @@ if (A_GuiEvent = "S")
 				and !g_objFavoritesObjectsByShortcut.HasKey(g_objQAPFeatures[strLocation].DefaultShortcut) ; and default shortcut is not already used
 				g_strNewFavoriteShortcut := g_objQAPFeatures[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
 				
-			GuiControl, , f_strHotkeyText, % Hotkey2Text(g_strNewFavoriteShortcut)
+			GuiControl, , f_strHotkeyText, % Triggers.Hotkey2Text(g_strNewFavoriteShortcut)
 			
 			strQAPFeatureSelectedLocalizedName := strItemSelectedName ; used when calling SelectShortcut for default shortcut
 		}
@@ -13739,7 +13733,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
-	strThisHotkey := Hotkey2Text(g_objEditedFavorite.FavoriteShortcut)
+	strThisHotkey := Triggers.Hotkey2Text(g_objEditedFavorite.FavoriteShortcut)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
 		strThisHotkey .= GetHotstringReminder(g_objEditedFavorite.FavoriteHotstring)
 	
@@ -14522,13 +14516,13 @@ Loop, 2
 		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 		loop, 4 ; load popup menu triggers
 			LV_Add(, , lDialogNA, g_arrOptionsPopupHotkeyTitles%A_Index%, lDialogHotkeysManagePopup
-				, (f_blnSeeShortHotkeyNames ? g_arrPopupHotkeys%A_Index% : Hotkey2Text(g_arrPopupHotkeys%A_Index%)), lDialogNA)
+				, (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey : Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey)), lDialogNA)
 
 		for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
 			if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
 				if HasShortcut(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
 					LV_Add(, , lDialogHotkeysManageAlternativeMenu, g_objQAPFeatures[strQAPFeatureCode].LocalizedName, lDialogHotkeysManageAlternative
-						, Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
+						, Triggers.Hotkey2Text(g_objQAPFeatures[strQAPFeatureCode].CurrentHotkey), strQAPFeatureCode)
 	}
 	
 	g_intHotkeyListOrder := 0
@@ -14577,7 +14571,7 @@ RecursiveLoadMenuHotkeys(objCurrentMenu, intIndex)
 					, objCurrentMenu.MenuPath
 					, objCurrentMenu[A_Index].FavoriteName
 					, strThisType
-					, (f_blnSeeShortHotkeyNames ? strThisHotkey : Hotkey2Text(strThisHotkey))
+					, (f_blnSeeShortHotkeyNames ? strThisHotkey : Triggers.Hotkey2Text(strThisHotkey))
 					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
 					, A_Index)
 			}
@@ -15359,12 +15353,14 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if !StrLen(SS_strHotkeyControl)
 		return
 
-	SplitModifiersFromKey(SS_strHotkeyControl, SS_strHotkeyControlModifiers, SS_strHotkeyControlKey)
+	o_HotkeyCheckModifiers := new Triggers.HotkeyParts(SS_strHotkeyControl, o_MouseButtons)
 
-	if StrLen(SS_strHotkeyControlModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
+	if StrLen(o_HotkeyCheckModifiers.strModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
 		GuiControl, , %A_GuiControl%, None
 	else ; we have a valid key, empty the mouse dropdown and return
 		GuiControl, Choose, f_drpShortcutMouse, 0
+	
+	o_HotkeyCheckModifiers := ""
 
 	return
 	;------------------------------------------------------------
@@ -15750,7 +15746,7 @@ return
 ShortcutIfAvailable(strShortcut, strFavoriteName)
 ;-----------------------------------------------------------
 {
-	global g_arrPopupHotkeys
+	global o_PopupHotkeys
 	global g_objQAPFeatures
 	global g_arrOptionsPopupHotkeyTitles
 	global g_objFavoritesObjectsByShortcut
@@ -15760,9 +15756,9 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	
 	; check popup menu hotkeys
 	loop, 4
-		if (g_arrPopupHotkeys%A_Index% = strShortcut)
+		if (o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey = strShortcut)
 		{
-			strExistingName := g_arrOptionsPopupHotkeyTitles%A_Index%
+			strExistingName := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyLocalizedName
 			break
 		}
 	
@@ -15781,7 +15777,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 
 	if StrLen(strExistingName)
 	{
-		Oops(lOopsHotkeyAlreadyUsed, Hotkey2Text(strShortcut), strExistingName, strFavoriteName)
+		Oops(lOopsHotkeyAlreadyUsed, Triggers.Hotkey2Text(strShortcut), strExistingName, strFavoriteName)
 		return ""
 	}
 	else
@@ -16123,9 +16119,9 @@ if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
 
 if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(g_arrPopupHotkeys2) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	if CanNavigate(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
-	else if CanLaunch(g_arrPopupHotkeys2) ; fake pressing main QAP kwyboard trigger (Windows + W or custom)
+	else if CanLaunch(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
 	; else do nothing
 }
@@ -16288,8 +16284,8 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	; Mouse hotkey (g_arrPopupHotkeys1 is NavigateOrLaunchHotkeyMouse value in ini file)
-	SetTargetWinInfo(strMouseOrKeyboard = g_arrPopupHotkeys1)
+	; Mouse hotkey (.strPopupHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
+	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey)
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
@@ -16318,7 +16314,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	if (strMouseOrKeyboard = g_arrPopupHotkeys1) ; if hotkey is mouse
+	if (strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
@@ -17829,7 +17825,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, Hotkey2Text(g_arrPopupHotkeys1))
+MsgBox, % 64 + 4096, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey))
 
 return
 ;------------------------------------------------------------
@@ -19937,9 +19933,9 @@ Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, %A_Space%%lHelpTabGettingSt
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Tab, 1
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey), Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey))
 Gui, 2:Add, Link, w%intWidth%, % lHelpText12
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, Hotkey2Text(g_arrPopupHotkeys3), Hotkey2Text(g_arrPopupHotkeys4))
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(3).strPopupHotkey), Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(4).strPopupHotkey))
 Gui, 2:Add, Link, w%intWidth%, % lHelpText14
 Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
@@ -19947,7 +19943,7 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % lHelpText21
 Gui, 2:Add, Link, w%intWidth%, % lHelpText22
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, Hotkey2Text(g_arrPopupHotkeys1), Hotkey2Text(g_arrPopupHotkeys2))
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey), Triggers.Hotkey2Text(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey))
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
@@ -19955,7 +19951,7 @@ Gui, 2:Tab, 3
 Gui, 2:Add, Link, w%intWidth%, % lHelpText31
 Gui, 2:Add, Link, w%intWidth% y+3, % lHelpText32
 Gui, 2:Add, Link, w%intWidth%, % lHelpText33
-Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")))
+Gui, 2:Add, Link, w%intWidth% y+3, % L(lHelpText34, Triggers.Hotkey2Text(GetFavoriteHotkeyFromLocation("{Settings}")))
 Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext3")
 
@@ -21555,113 +21551,6 @@ GetFavoriteHotkeyFromLocation(strLocation)
 			return objFavorite.FavoriteShortcut
 		
 	return lDialogNone
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
-;------------------------------------------------------------
-{
-	; safer that declaring individual variables (see "Common source of confusion" in https://www.autohotkey.com/docs/Functions.htm#Locals)
-	global
-
-	if (strHotkey = "None") ; do not compare with lDialogNone because it is translated
-	{
-		strModifiers := ""
-		strKey := ""
-		strMouseButton := "None" ; do not use lDialogNone because it is translated
-	}
-	else 
-	{
-		SplitModifiersFromKey(strHotkey, strModifiers, strKey)
-
-		if o_MouseButtons.IsMouseButton(strKey) ; we have a mouse button
-		{
-			strMouseButton := strKey
-			strKey := ""
-		}
-		else ; we have a key
-			strMouseButton := ""
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-Hotkey2Text(strHotkey, blnShort := false)
-;------------------------------------------------------------
-{
-	SplitHotkey(strHotkey, strModifiers, strOptionsKey, strMouseButton)
-
-	return HotkeySections2Text(strModifiers, strMouseButton, strOptionsKey, blnShort)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
-;------------------------------------------------------------
-{
-	global o_MouseButtons
-	
-	if (strKey = "sc15D" or strKey = "AppsKey")
-		strKey := lDialogMenuKey
-	
-	if (strMouseButton = "None") ; do not compare with lDialogNone because it is translated
-		or !StrLen(strModifiers . strMouseButton . strKey) ; if all parameters are empty
-		str := lDialogNone ; use lDialogNone because this is displayed
-	else
-	{
-		str := ""
-		loop, parse, strModifiers
-		{
-			if (A_LoopField = "!")
-				str := str . (InStr(strModifiers, "<!") ? "<" : InStr(strModifiers, ">!") ? ">" : "") . lDialogAlt . "+"
-			if (A_LoopField = "^")
-				str := str . (InStr(strModifiers, "<^") ? "<" : InStr(strModifiers, ">^") ? ">" : "") . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
-			if (A_LoopField = "+")
-				str := str . (InStr(strModifiers, "<+") ? "<" : InStr(strModifiers, ">+") ? ">" : "") . lDialogShift . "+"
-			if (A_LoopField = "#")
-				str := str . (InStr(strModifiers, "<#") ? "<" : InStr(strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
-		}
-		if StrLen(strMouseButton)
-			str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(strMouseButton)
-			
-		if StrLen(strKey)
-		{
-			StringUpper, strKey, strKey
-			str := str . strKey
-		}
-	}
-
-	return str
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
-;------------------------------------------------------------
-{
-	intModifiersEnd := GetFirstNotModifier(strHotkey)
-	StringLeft, strModifiers, strHotkey, %intModifiersEnd%
-	StringMid, strKey, strHotkey, % (intModifiersEnd + 1)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetFirstNotModifier(strHotkey)
-;------------------------------------------------------------
-{
-	intPos := 0
-	loop, Parse, strHotkey
-		if InStr("^!+#<>", A_LoopField)
-			intPos++
-		else
-			return intPos
-	return intPos
 }
 ;------------------------------------------------------------
 
@@ -24395,11 +24284,11 @@ class Triggers
 TODO
 - SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
 - GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
-
-Hotkey2Text(strHotkey, blnShort := false)
-HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
-SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
-GetFirstNotModifier(strHotkey)
+- g_arrPopupHotkeys...
+- Hotkey2Text(strHotkey, blnShort := false)
+- HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
+- SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
+- GetFirstNotModifier(strHotkey)
 
 GetHotstringReminder(strHotstring)
 GetHotstringTrigger(strHotstring)
@@ -24554,9 +24443,6 @@ Properties
 				str := str . strUpper
 			}
 		}
-		
-		if (str = lDialogNone)
-			str := ""
 		
 		return str
 	}
