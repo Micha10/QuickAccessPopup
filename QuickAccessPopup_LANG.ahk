@@ -329,6 +329,7 @@ global lDialogTabNext := "Next"
 global lDialogThirdPartyDetected := "~1~ detected that ~2~ is installed on your system.`n`nDo you want to enable ~2~ integration?"
 global lDialogTreeView := "tree view"
 global lDialogTriggerFor := "Trigger for:"
+global lDialogUnavailableWithLiveFolders := "(Unavailable with Live Folders)"
 global lDialogUseDefaultWindowPosition := "Use default window position"
 global lDialogWin := "Windows" ; this is the windows key
 global lDialogWindowMonitor := "Monitor"
