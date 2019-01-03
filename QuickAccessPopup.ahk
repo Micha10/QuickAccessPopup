@@ -10736,7 +10736,8 @@ if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
 intTabHeight := 440
-Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavoriteTabChanged AltSubmit", % " " . BuildTabsList(g_objEditedFavorite.FavoriteType) . " "
+g_strTabsList := BuildTabsList(g_objEditedFavorite.FavoriteType)
+Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavoriteTabChanged AltSubmit", %g_strTabsList%
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
@@ -10844,7 +10845,7 @@ BuildTabsList(strFavoriteType)
 	global
 
 	; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
-	strTabsList := g_arrFavoriteGuiTabs1 . " | " . g_arrFavoriteGuiTabs2
+	strTabsList := " " . g_arrFavoriteGuiTabs1 . " | " . g_arrFavoriteGuiTabs2
 	
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
@@ -10856,7 +10857,7 @@ BuildTabsList(strFavoriteType)
 	if (strFavoriteType = "External")
 		strTabsList .= " | " . lDialogAddFavoriteTabsExternal
 	
-	strTabsList .= " "
+	strTabsList .= "  "
 	
 	return strTabsList
 }
@@ -11508,7 +11509,7 @@ return
 GuiFavoriteTabLiveFolderOptions:
 ;------------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteType = "Folder") and !(blnIsGroupMember) ; when adding folders not in a group
+if InStr(g_strTabsList, lDialogAddFavoriteTabsLive)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -11555,14 +11556,15 @@ return
 GuiFavoriteTabWindowOptions:
 ;------------------------------------------------------------
 
-if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
+if InStr(g_strTabsList, g_arrFavoriteGuiTabs3)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
-	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked"), %lDialogUseDefaultWindowPosition%
+	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked")
+		, %lDialogUseDefaultWindowPosition% %lDialogUnavailableWithLiveFolders% ; last part generally hidden but make room for when visible
 	
 	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), %lDialogState%
 	
@@ -11600,7 +11602,7 @@ return
 GuiFavoriteTabAdvancedSettings:
 ;------------------------------------------------------------
 
-if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType)
+If InStr(g_strTabsList, g_arrFavoriteGuiTabs4)
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -11633,14 +11635,14 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 	}
 	else if !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
-		Gui, 2:Add, Text, x20 y50 w400, %lDialogLaunchWith%
+		Gui, 2:Add, Text, x20 y50 w400 vf_lblFavoriteLaunchWith, %lDialogLaunchWith% %lDialogUnavailableWithLiveFolders% ; last part generally hidden but make room for when visible
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
 		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, %lDialogBrowseButton%
 	}
 
 	if !InStr("Group|Snippet|QAP", g_objEditedFavorite.FavoriteType, true)
 	{
-		Gui, 2:Add, Text, y+20 x20 w400, %lDialogArgumentsLabel%
+		Gui, 2:Add, Text, y+20 x20 w400  vf_lblFavoriteArguments, %lDialogArgumentsLabel% %lDialogUnavailableWithLiveFolders% ; last part generally hidden but make room for when visible
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
 		Gui, 2:Add, Text, x20 y+5 w500, %lDialogArgumentsLabelHelp%
 		Gui, 2:Add, Link, x20 y+5 w500, % L(lDialogPlaceholders, "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
@@ -11661,7 +11663,6 @@ if InStr(g_strTypesForTabAdvancedOptions, "|" . g_objEditedFavorite.FavoriteType
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % g_objEditedFavorite.FavoriteSoundLocation
 	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, %lDialogBrowseButton%
 	Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, %lDialogPlay%
-
 }
 
 strFavoriteSnippetOptions := ""
@@ -11675,7 +11676,7 @@ return
 GuiFavoriteTabExternal:
 ;------------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteType = "External")
+if InStr(g_strTabsList, lDialogAddFavoriteTabsExternal)
 {
 	StringSplit, arrExternalTypes, lDialogExternalTypes, |
 	
@@ -12518,6 +12519,9 @@ CheckboxFolderLiveChangeWindowPositionTab:
 Gui, 2:Submit, NoHide
 
 GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_blnUseDefaultWindowPosition
+GuiControl, , f_blnUseDefaultWindowPosition, % lDialogUseDefaultWindowPosition . (f_blnFavoriteFolderLive ? " " . lDialogUnavailableWithLiveFolders : "")
+GuiControl, , f_lblFavoriteArguments, % lDialogArgumentsLabel . (f_blnFavoriteFolderLive ? " " . lDialogUnavailableWithLiveFolders : "")
+GuiControl, , f_lblFavoriteLaunchWith, % lDialogLaunchWith . (f_blnFavoriteFolderLive ? " " . lDialogUnavailableWithLiveFolders : "")
 
 strShowHideCommand := (!f_blnUseDefaultWindowPosition and (!f_blnFavoriteFolderLive) ? "Show" : "Hide")
 
