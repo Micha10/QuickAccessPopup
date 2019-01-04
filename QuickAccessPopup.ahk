@@ -3162,10 +3162,6 @@ if (g_blnPortableMode)
 else ; setup mode
 	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
-;---------------------------------
-; Init class for MouseButtons
-o_MouseButtons := new MouseButtons
-
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
 
@@ -3270,7 +3266,11 @@ Gosub, InitGuiControls
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
 
-; must be after LoadIniFile
+;---------------------------------
+; Must be after LoadIniFile
+
+; Init class for MouseButtons
+o_MouseButtons := new MouseButtons
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
