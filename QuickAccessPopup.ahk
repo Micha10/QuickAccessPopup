@@ -13747,7 +13747,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
-	strThisHotkey := Triggers.Hotkey2Text(g_objEditedFavorite.FavoriteShortcut)
+	strThisHotkey := Triggers.Hotkey2Text(g_objEditedFavorite.FavoriteShortcut, true)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
 		strThisHotkey .= GetHotstringReminder(g_objEditedFavorite.FavoriteHotstring)
 	
@@ -24446,10 +24446,7 @@ Properties
 					str := str . (InStr(oHotkeyParts.strModifiers, "<#") ? "<" : InStr(oHotkeyParts.strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
 			}
 			if StrLen(oHotkeyParts.strMouseButton)
-				if (blnShort)
-					str := str . oHotkeyParts.strMouseButton
-				else
-					str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(oHotkeyParts.strMouseButton)
+				str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(oHotkeyParts.strMouseButton, blnShort)
 				
 			if StrLen(oHotkeyParts.strKey)
 			{
@@ -24528,12 +24525,14 @@ Properties
 			this.oButtonLocalizedNames := Object() ; array of buttons text (localized)
 			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
 			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
+			strMouseButtonsLocalizedNamesShort := lDialogNone . "|" . lDialogMouseButtonsTextShort ; use lDialogNone because this is displayed
+			StringSplit, arrMouseButtonsLocalizedNamesShort, strMouseButtonsLocalizedNamesShort, |
 
 			loop, % arrMouseButtonsInternalNames0
 			{
 				this.oButtonInternalNames[arrMouseButtonsInternalNames%A_Index%] := A_Index
 				this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
-				oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%)
+				oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%, arrMouseButtonsLocalizedNamesShort%A_Index%)
 				this.oButtons.InsertAt(A_Index, oButton)
 			}
 			
@@ -24550,10 +24549,11 @@ Properties
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		GetMouseButtonLocalized4InternalName(strInternalName)
+		GetMouseButtonLocalized4InternalName(strInternalName, blnShort := false)
 		;-----------------------------------------------------
 		{
-			return this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName
+			return (blnShort ? this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedNameShort
+				: this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName)
 		}
 		;-----------------------------------------------------
 
@@ -24592,11 +24592,12 @@ Properties
 		;-----------------------------------------------------
 		{
 			;-------------------------------------------------
-			__New(strThisInternalName, strThisLocalizedName)
+			__New(strThisInternalName, strThisLocalizedName, strThisLocalizedNameShort)
 			;-------------------------------------------------
 			{
 				this.strInternalName := strThisInternalName
 				this.strLocalizedName := strThisLocalizedName
+				this.strLocalizedNameShort := strThisLocalizedNameShort
 			}
 			;-------------------------------------------------
 		}
