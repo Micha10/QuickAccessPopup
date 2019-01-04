@@ -2,7 +2,7 @@
 /*
 
 Quick Access Popup
-Written using AutoHotkey v1.1.30.01+ (http://ahkscript.org/)
+Written using AutoHotkey v1.1.28.00+ (http://autohotkey.com)
 By Jean Lalonde (JnLlnd on AHKScript.org forum)
 
 Based on FoldersPopup from the same author
@@ -31,12 +31,21 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.4.0.1 (????-??-??)
-- add new section under the "More" tab of "Options" to set replacements for JLicons.dll
-- add new section under the "More" tab of "Options" to set exclusion for the "Current Windows" menu (aka "Switch")
-- internal changes converting icons and command line parameters using class objects
-- new AutoHotkey runtime executable v1.1.30.01
-- Dutch language file update
+Version: 9.4.1 (2019-01-04)
+ 
+New features
+- QAP Icon Replacements: add new section under the "More" tab of "Options" to set replacements for QAP icons (found in JLicons.dll)
+- Current Windows Exclusions: add new section under the "More" tab of "Options" to set application exclusions for the "Current Windows" menu (aka "Switch")
+ 
+Bug fixes
+- fix bug in Add/Edit favorite" dialog box "Windows Options" tab having wrong label and "Advanced Settings" being not available
+- fix bug when, in "Options", open change shortcut dialog box for alternative menu and hit cancel
+ 
+Other changes
+- in "More" tab of "Options" dialog box, remane the "Exclusions list" button "QAP Mouse Button Exclusions"
+- for Folders favorite, when "Live Folders" is selected, show info in some tabs of "Add/Edit favorite" dialog box explaining why some options are not available
+- internal changes converting icons, command line parameters and mouse button names using class objects
+- update to Dutch language file
 
 Version: 9.4 (2018-12-21)
 * Note: User installing the portable version (ZIP file) must update the JLicons.dll file to v1.5. *
@@ -3034,7 +3043,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.0.1
+;@Ahk2Exe-SetVersion 9.4.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3139,8 +3148,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.4.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -3152,12 +3161,6 @@ if (g_blnPortableMode)
 	o_JLicons := new JLIcons(A_ScriptDir . "\JLicons.dll") ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
 	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
-
-;---------------------------------
-; Init class for Triggers
-o_MouseButtons := new Triggers.MouseButtons
-g_strPopupHotkeyInternalNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
-o_PopupHotkeys := new Triggers.PopupHotkeys
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -3263,7 +3266,14 @@ Gosub, InitGuiControls
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
 
-; must be after LoadIniFile
+;---------------------------------
+; Must be after LoadIniFile
+
+;---------------------------------
+; Init class for Triggers
+o_MouseButtons := new Triggers.MouseButtons
+g_strPopupHotkeyInternalNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
+o_PopupHotkeys := new Triggers.PopupHotkeys
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
@@ -22518,7 +22528,7 @@ ExpandUserVariables(str)
 }
 ;------------------------------------------------------------
 
-	
+
 ;------------------------------------------------------------
 AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Based on Drugoy (https://github.com/Drugoy/Autohotkey-scripts-.ahk/blob/master/DevTools/showPerWindowInfoOfAllWindows.ahk)
