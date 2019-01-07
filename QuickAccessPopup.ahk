@@ -19048,7 +19048,7 @@ SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
 	; update Settings param
-	o_CmdLineParams.GetParam("Settings") := g_strSwitchSettingsFile
+	o_CmdLineParams.SetParam("Settings", g_strSwitchSettingsFile)
 
 ; keep other params received from command-line as collected in o_CmdLineParams
 strCurrentCommandLineParameters := o_CmdLineParams.strParams
@@ -24175,7 +24175,20 @@ Property
 					continue
 				This.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
 			}
-			
+		}
+		
+		This.strParams := CommandLineParameters.ConcatParams(oParam)
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	ConcatParams(oParam)
+	;---------------------------------------------------------
+	{
+		strConcat := ""
+		
+		for strParamKey, strParamValue in oParam
+		{
 			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
 			strConcat .= strQuotes . "/" . strParamKey
 			strConcat .= (StrLen(strParamValue) ? ":" . strParamValue : "") ; if value, separate with :
@@ -24183,7 +24196,7 @@ Property
 		}
 		
 		StringTrimRight, strConcat, strConcat, 1 ; remove last space
-		This.strParams := strConcat
+		return strConcat
 	}
 	;---------------------------------------------------------
 	
@@ -24192,6 +24205,15 @@ Property
 	;---------------------------------------------------------
 	{
 		return This.oParam[strKey]
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	SetParam(strKey, strValue)
+	;---------------------------------------------------------
+	{
+		This.oParam[strKey] := strValue
+		This.strParams := CommandLineParameters.ConcatParams(This.oParam)
 	}
 	;---------------------------------------------------------
 	
