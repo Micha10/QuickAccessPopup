@@ -24334,32 +24334,25 @@ Property
 class Triggers
 /*
 TODO
-- SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
-- GetHotkeysText(strHotkey1, ByRef strMouseHotkey, strHotkey2, ByRef strKeyboardHotkey)
-- g_arrPopupHotkeys...
-- Hotkey2Text(strHotkey, blnShort := false)
-- HotkeySections2Text(strModifiers, strMouseButton, strKey, blnShort := false)
-- SplitModifiersFromKey(strHotkey, ByRef strModifiers, ByRef strKey)
-- GetFirstNotModifier(strHotkey)
-
-GetHotstringReminder(strHotstring)
-GetHotstringTrigger(strHotstring)
-GetHotstringOptions(strHotstring)
-SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
-GetHotstringOptionsLong(strHotstringOptionsShort)
-PrepareHotstringForFunction(strHotstring, objFavorite)
 */
 
 /*
 Methods
-	- __New(): 
+	- PopupHotkeys.__New(): 
+	- PopupHotkeys.PopupHotkeys.GetPopupHotkey():
+	- PopupHotkeys.UpdatePopupHotkeyTextValues():
+	- PopupHotkeys.PopupHotkey.__New():
+	
+	- Hotkey2Text():
 	- HotkeyParts.__New(): create class object and split parts for parameter
 	- HotkeyParts.SplitParts(): split the parameter strHotkey into parts strModifiers, strKey and strMouseButton
+	
 	- MouseButtons.__New(): load an array of buttons objects with internal and localized names
 	- MouseButtons.GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
 	- MouseButtons.GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
 	- MouseButtons.IsMouseButton: returns true if the parameter is member of the buttons array
 	- MouseButtons.GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
+	- MouseButtons.Button.__New():
 
 Properties
 	- HotkeyParts.strModifiers:
@@ -24374,7 +24367,9 @@ Properties
 	; replaces g_arrPopupHotkeys and associated arrays
 	;---------------------------------------------------------
 	{
+		;-----------------------------------------------------
 		__New()
+		;-----------------------------------------------------
 		{
 			global g_strPopupHotkeyInternalNames
 			
@@ -24396,6 +24391,7 @@ Properties
 				this.oPopupHotkeysByNames[arrPopupHotkeyInternalNames%A_Index%] := oPopupHotkey
 			}
 		}
+		;-----------------------------------------------------
 		
 		;-----------------------------------------------------
 		GetPopupHotkey(strNameOrIndex)
@@ -24445,24 +24441,13 @@ Properties
 	
 	;---------------------------------------------------------
 	Hotkey2Text(strPopupHotkey, blnShort := false)
-	; was Hotkey2Text
+	; was Hotkey2Text and HotkeySections2Text
 	;---------------------------------------------------------
 	{
 		global o_MouseButtons
 		
 		oHotkeyParts := new Triggers.HotkeyParts(strPopupHotkey, o_MouseButtons)
 		
-		return Triggers.HotkeyParts2Text(oHotkeyParts, blnShort)
-	}
-	;---------------------------------------------------------
-	
-	;---------------------------------------------------------
-	HotkeyParts2Text(oHotkeyParts, blnShort := false)
-	; was HotkeySections2Text
-	;---------------------------------------------------------
-	{
-		global o_MouseButtons
-
 		if (oHotkeyParts.strKey = "sc15D" or oHotkeyParts.strKey = "AppsKey")
 			oHotkeyParts.strKey := lDialogMenuKey
 		
@@ -24645,3 +24630,37 @@ Properties
 }
 ;-------------------------------------------------------------
 
+
+; ------------------------------------------------------------
+class FileManagers
+/*
+TODO
+*/
+
+/*
+Methods
+	- __New(): 
+
+Properties
+	- :
+*/
+;-------------------------------------------------------------
+{
+	
+	;---------------------------------------------------------
+	class FileManager
+	; replaces ...
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+}
+; ------------------------------------------------------------
