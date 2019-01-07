@@ -23450,8 +23450,11 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strProcessName = "ApplicationFrameHost.exe")
 		; si minimisé conserver
 	{
-		return StrLen(intUniversalApplicationID) ; this is a running and normal (or maximized?)
-			or (intMinMax = -1) ; this is a running and minimized
+		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
+			return false
+		else
+			return StrLen(intUniversalApplicationID) ; this is a running and normal (or maximized?)
+				or (intMinMax = -1) ; this is a running and minimized
 	}
 	
 	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
@@ -23461,18 +23464,31 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 		return false
 	
 	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
-		Loop, parse, g_strSwitchExclusionList, |
-			if StrLen(A_LoopField)
-				and (InStr(strWindowClass, A_LoopField)
-				or InStr(strWindowTitle, A_LoopField)
-				or InStr(strProcessName, A_LoopField))
-				return false
+		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
+			return false
 	
 	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
 		; return false
 	
 	return true
+}
+;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
+;------------------------------------------------------------
+{
+	global g_strSwitchExclusionList
+	
+	Loop, parse, g_strSwitchExclusionList, |
+		if StrLen(A_LoopField)
+			and (InStr(strWindowClass, A_LoopField)
+			or InStr(strWindowTitle, A_LoopField)
+			or InStr(strProcessName, A_LoopField))
+			return true
+		
+	return false
 }
 ;------------------------------------------------------------
 
