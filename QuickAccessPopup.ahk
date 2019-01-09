@@ -24140,15 +24140,18 @@ return
 class CommandLineParameters
 ;-------------------------------------------------------------
 /*
-Methods
-	- __New(): collect the command line parameters in internal object and concat strParams
-	  each param must begin with "/" and be separated by a space
-	  supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and /Working:[working_dir_path]
-	- GetParam(strKey): return the value for strKey
-	- ParamExist(strArg): return true if key strArg exists
-
-Property
-	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if requiree
+class CommandLineParameters
+	Methods
+	- CommandLineParameters.__New(): collect the command line parameters in an internal object and concat strParams
+	  - each param must begin with "/" and be separated by a space
+	  - supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and /Working:[working_dir_path]
+	- CommandLineParameters.ConcatParams(oParam): returns a concatenated string of each parameter ready to be used when reloading
+	- CommandLineParameters.GetParam(strKey): return the value for strKey
+	- CommandLineParameters.SetParam(strKey, strValue): set the param strkey to the value strValue
+	- CommandLineParameters.ParamExist(strArg): return true if key strArg exists
+	Properties
+	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if required
+	- oParam: simple array for each parameter from the A_Args object (for internal usage)
 */
 ;-------------------------------------------------------------
 {
@@ -24237,15 +24240,18 @@ Property
 class JLicons
 ;-------------------------------------------------------------
 /*
-Methods
-	- __New():
-	- GetIconResource(strKey): return the "file,index" value for oJLicons element strKey (was g_objJLiconsByName[strKey] before class)
-	- GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
-	- AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
-	- ProcessReplacements(strReplacements): removes current jlicons replacements and do the replacements in strReplacements
-
-Property
+class JLicons
+	Methods
+	- JLicons.__New(strJLiconsFile): create an associative array oIcons "name"->"file,index" for each JLicon.dll and simple array oNames index of names
+	- JLicons.GetIconResource(strKey): return the "file,index" value for oJLicons element strKey (was g_objJLiconsByName[strKey] before class)
+	- JLicons.GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
+	- JLicons.AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
+	- JLicons.ProcessReplacements(strReplacements): removes previous JLicons replacements in oReplacements and do the current replacements in strReplacements
+	Properties
 	- strFileLocation: path and file name of the JLicons library file
+	- oIcons: associative array "strKey->strValue" (iconXYZ->file,index)
+	- oNames: simple array index of icon names (iconXYZ)
+	- oReplacements: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
 */
 ;-------------------------------------------------------------
 {
@@ -24285,6 +24291,14 @@ Property
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
+	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
+	;---------------------------------------------------------
+	{
+		This.oIcons[strKey] := strFileIndex
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
 	GetIconResource(strKey) ; was g_objJLiconsByName[strKey] before class
 	;---------------------------------------------------------
 	{
@@ -24297,14 +24311,6 @@ Property
 	;---------------------------------------------------------
 	{
 		return This.oNames[intKey]
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
-	;---------------------------------------------------------
-	{
-		This.oIcons[strKey] := strFileIndex
 	}
 	;---------------------------------------------------------
 
@@ -24342,34 +24348,68 @@ TODO
 */
 
 /*
-Methods
-	- PopupHotkeys.__New(): 
-	- PopupHotkeys.PopupHotkeys.GetPopupHotkey():
-	- PopupHotkeys.UpdatePopupHotkeyTextValues():
-	- PopupHotkeys.PopupHotkey.__New():
-	
-	- HotkeyParts.__New(): create class object and split parts for parameter
-	- HotkeyParts.SplitParts(): split the parameter strHotkey into parts strModifiers, strKey and strMouseButton
-	- HotkeyParts.Hotkey2Text():
-	
-	- MouseButtons.__New(): load an array of buttons objects with internal and localized names
-	- MouseButtons.GetMouseButtonInternal4LocalizedName: returns corresponding internal name for localized name
-	- MouseButtons.GetMouseButtonLocalized4InternalName: returns corresponding localized name for internal name
-	- MouseButtons.IsMouseButton: returns true if the parameter is member of the buttons array
-	- MouseButtons.GetDropDownList: returns the mouse buttons dropdown list with button in parameter as default button
-	- MouseButtons.Button.__New():
+class Triggers
 
-Properties
-	- HotkeyParts.strModifiers:
-	- HotkeyParts.strKey:
-	- HotkeyParts.strMouseButton:
+class Triggers.PopupHotkeys
+	Methods
+	- Triggers.PopupHotkeys.__New(): create a simple array of 4 objects of class PopupHotkey for the QAP menu triggers
+	- Triggers.PopupHotkeys.GetPopupHotkey(strNameOrIndex): returns the PopupHotkey object for the internal name or the numeric index
+	Properties
+	- oPopupHotkeys: simple array of 4 PopupHotkey objects
+	- oPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
+	
+	class Triggers.PopupHotkeys.PopupHotkey
+		Methods
+		- Triggers.PopupHotkeys.PopupHotkey.__New(): create one PopupHotkeyQAP menu trigger object
+		- Triggers.PopupHotkeys.PopupHotkey.UpdatePopupHotkey(strHotkey): set a new strPopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
+		- Triggers.PopupHotkeys.BackupPopupHotkey(): put strPopupHotkey value in strPopupHotkeyPrevious
+		- Triggers.PopupHotkeys.RestorePopupHotkey(): restore strPopupHotkey with the value in strPopupHotkeyPrevious
+		Properties
+		- strPopupHotkey: mouse (like "MButton") or keyboard (like "#W" for Win + W) hotkey trigger for a the QAP menu
+		- strPopupHotkeyInternalName: one of the two mouse or two keyboard triggers internal names
+		- strPopupHotkeyText: text of default hotkey trigger
+		- strPopupHotkeyTextShort: short text of hotkey trigger
+		- strPopupHotkeyDefault: default hotkey trigger
+		- strPopupHotkeyPrevious: backup of hotkey trigger
+		- strPopupHotkeyLocalizedName: displayed name of QAP menu trigger
+		- strPopupHotkeyLocalizedDescription: description of QAP menu trigger
+
+class Triggers.HotkeyParts
+	Methods
+	- HotkeyParts.__New(strHotkey): create an object and split parts in properties modifier, keyboard or mouse button
+	- HotkeyParts.SplitParts(strHotkey): split strHotkey into parts strModifiers, strKey and strMouseButton
+	- HotkeyParts.Hotkey2Text(blnShort := false): returns localized text for HotkeyParts, in long or short format
+	Properties
+	- strModifiers: modifier part of the hotkey (like "!" for Alt+Q or Alt+MButton)
+	- strKey: keyboard part of hotkey (like "Q" for Alt+Q), empty if hotkey is a mouse button
+	- strMouseButton: mouse button part of hotkey (like "MButton" for Alt+MButton), empty if hotkey is a keyboard key
+
+class Triggers.MouseButtons
+	Methods
+	- Triggers.MouseButtons.__New(): load a simple array of buttons objects with internal and localized names
+	- Triggers.MouseButtons.GetMouseButtonInternal4LocalizedName(strLocalizedName): returns corresponding internal name for localized name
+	- Triggers.MouseButtons.GetMouseButtonLocalized4InternalName(strInternalName, blnShort := false): returns corresponding localized name for internal name
+	- Triggers.MouseButtons.IsMouseButton(strInternalName): returns true if strInternalName is member of the buttons array
+	- Triggers.MouseButtons.GetDropDownList(strDefault): returns the mouse buttons dropdown list with button strDefault as default button
+	Properties
+	- oButtons: simple array of buttons objects with internal and localized names
+	- oButtonInternalNames: associative array "name->object" index of mouse buttons name
+	- oButtonLocalizedNames: associative array "localized name->object" index of mouse buttons localized name
+	- strMouseButtonsDropDownList: mouse buttons dropdown
+	
+	class Triggers.MouseButtons.Button
+		Methods
+		- MouseButtons.Button.__New(): create an object for one mouse button
+		Properties
+		- strInternalName: internal name of button (like "MButton")
+		- strLocalizedName: localized name of button (like "Middle Mouse Button")
+		- strLocalizedNameShort: short localized name of button (like "Middle Mouse")
 */
 ;-------------------------------------------------------------
 {
-	
 	;---------------------------------------------------------
 	class PopupHotkeys
-	; replaces g_arrPopupHotkeys and associated arrays
+	; replaces g_arrPopupHotkeys and related arrays
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
@@ -24470,7 +24510,6 @@ Properties
 		__New(strHotkey)
 		;-----------------------------------------------------
 		{
-			; this.SplitParts(strHotkey, oMouseButtons)
 			this.SplitParts(strHotkey)
 		}
 		;-----------------------------------------------------
@@ -24564,13 +24603,13 @@ Properties
 		__New()
 		;-----------------------------------------------------
 		{
-			this.oButtons := Object() ; array of Button objects
+			this.oButtons := Object() ; simple array of Button objects
 			
-			this.oButtonInternalNames := Object() ; array of buttons names
+			this.oButtonInternalNames := Object() ; associative array "name->index"
 			strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
 			StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
 			
-			this.oButtonLocalizedNames := Object() ; array of buttons text (localized)
+			this.oButtonLocalizedNames := Object() ; associative array of "localized name->index"
 			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
 			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
 			strMouseButtonsLocalizedNamesShort := lDialogNone . "|" . lDialogMouseButtonsTextShort ; use lDialogNone because this is displayed
