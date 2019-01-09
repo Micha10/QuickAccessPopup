@@ -15246,8 +15246,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 	Loop, 4 ; for each modifier add a checkbox
 	{
-		Gui, Add, CheckBox, % "y+" (SS_arrModifiersLabels%A_Index% = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SS_arrModifiersLabels%A_Index%, % lDialog . SS_arrModifiersLabels%A_Index%
-		if (SS_arrModifiersLabels%A_Index% = "Shift")
+		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
+		Gui, Add, CheckBox, % "y+" (SS_strModifiersLabel = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SS_arrModifiersLabels%A_Index%, % lDialog%SS_strModifiersLabel%Short
+		if (SS_strModifiersLabel = "Shift")
 			GuiControlGet, SS_arrTop, Pos, f_blnShift
 	}
 
@@ -15283,7 +15284,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Text, x10 y+25 w400, %lDialogChangeHotkeyLeftAnyRight%
 	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
 	{
-		Gui, Add, Text, y+10 x10 w60 right, % lDialog . SS_arrModifiersLabels%A_Index%
+		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
+		Gui, Add, Text, y+10 x10 w60 right, % lDialog%SS_strModifiersLabel%Short
 		Gui, Font, w700
 		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
 		Gui, Font
@@ -15325,6 +15327,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strHotkeyControlKey := ""
 	SS_strHotkeyControlModifiers := ""
 	SS_strKey := ""
+	SS_strModifiersLabel := ""
 	SS_strModifiersLabels := ""
 	SS_strModifiersSymbols := ""
 	SS_strMouse := ""
