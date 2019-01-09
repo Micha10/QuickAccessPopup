@@ -8134,7 +8134,7 @@ if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 g_intGui1WinID := WinExist("A")
 loop, 4
 	; allow to turn off changed hotkeys and to revert o_PopupHotkeys if cancel
-	o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyPrevious := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey
+	o_PopupHotkeys.GetPopupHotkey(A_Index).BackupPopupHotkey()
 
 g_objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -8719,17 +8719,19 @@ if InStr(objPopupHotkey.strPopupHotkeyInternalName, "Mouse")
 else
 	intHotkeyType := 2 ; Keyboard
 
-strPopupHotkeysBackup := objPopupHotkey.strPopupHotkey
-objPopupHotkey.strPopupHotkey := SelectShortcut(objPopupHotkey.strPopupHotkey, objPopupHotkey.strPopupHotkeyLocalizedName
+strPopupHotkeysLocalBackup := objPopupHotkey.strPopupHotkey
+strNewHotkey := SelectShortcut(objPopupHotkey.strPopupHotkey, objPopupHotkey.strPopupHotkeyLocalizedName
 	, "", "", intHotkeyType, objPopupHotkey.strPopupHotkeyDefault, objPopupHotkey.strPopupHotkeyLocalizedDescription)
+objPopupHotkey.UpdatePopupHotkey(strNewHotkey)
 
 if StrLen(objPopupHotkey.strPopupHotkey)
 	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % objPopupHotkey.strPopupHotkeyText
 else
-	objPopupHotkey.strPopupHotkey := strPopupHotkeysBackup
+	objPopupHotkey.strPopupHotkey := strPopupHotkeysLocalBackup
 	
-strPopupHotkeysBackup := ""
+strPopupHotkeysLocalBackup := ""
 objPopupHotkey := ""
+strNewHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -8761,7 +8763,6 @@ if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
 else
 	g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
-; strPopupHotkeysBackup := ""
 intAlternativeOrder := ""
 strThisAlternativeCode := ""
 strAlternativeHotkeysBackup := ""
@@ -9364,10 +9365,7 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 loop, parse, g_strPopupHotkeyInternalNames, |
-{
 	IniWrite, % o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey, %g_strIniFile%, Global, %A_LoopField%
-	o_PopupHotkeys.UpdatePopupHotkeyTextValues(A_Index)
-}
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -9585,7 +9583,7 @@ ButtonOptionsCancel:
 
 loop, 4
 	; revert to previous content of o_PopupHotkeys
-	o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyPrevious
+	o_PopupHotkeys.GetPopupHotkey(A_Index).RestorePopupHotkey()
 
 Gosub, 2GuiClose
 
@@ -24442,19 +24440,6 @@ Properties
 		;-----------------------------------------------------
 		
 		;-----------------------------------------------------
-		UpdatePopupHotkeyTextValues(intIndex)
-		;-----------------------------------------------------
-		{
-			oPopupHotkey := this.oPopupHotkeys[intIndex]
-			
-			; oPopupHotkey.strPopupHotkeyText := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey)
-			oPopupHotkey.strPopupHotkeyText := new Triggers.HotkeyParts(oPopupHotkey.strPopupHotkey).Hotkey2Text()
-			; oPopupHotkey.strPopupHotkeyTextShort := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey, true)
-			oPopupHotkey.strPopupHotkeyTextShort := new Triggers.HotkeyParts(oPopupHotkey.strPopupHotkey).Hotkey2Text(true)
-		}
-		;-----------------------------------------------------
-		
-		;-----------------------------------------------------
 		class PopupHotkey
 		;-----------------------------------------------------
 		{
@@ -24463,15 +24448,46 @@ Properties
 			;-------------------------------------------------
 			{
 				this.strPopupHotkeyInternalName := strThisInternalName
-				this.strPopupHotkey := strThisPopupHotkey
+				this.UpdatePopupHotkey(strThisPopupHotkey)
+				; this.strPopupHotkey := strThisPopupHotkey
 				this.strPopupHotkeyDefault := strThisPopupHotkeyDefault
 				this.strPopupHotkeyPrevious := ""
 				this.strPopupHotkeyLocalizedName := strThisLocalizedName
 				this.strPopupHotkeyLocalizedDescription := strThisLocalizedDescription
 				; this.strPopupHotkeyText := Triggers.Hotkey2Text(this.strPopupHotkey)
-				this.strPopupHotkeyText := new Triggers.HotkeyParts(this.strPopupHotkey).Hotkey2Text()
+				; this.strPopupHotkeyText := new Triggers.HotkeyParts(this.strPopupHotkey).Hotkey2Text()
 				; this.strPopupHotkeyTextShort := Triggers.Hotkey2Text(this.strPopupHotkey, true)
-				this.strPopupHotkeyTextShort := new Triggers.HotkeyParts(this.strPopupHotkey).Hotkey2Text(true)
+				; this.strPopupHotkeyTextShort := new Triggers.HotkeyParts(this.strPopupHotkey).Hotkey2Text(true)
+			}
+			;-------------------------------------------------
+			
+			;-------------------------------------------------
+			UpdatePopupHotkey(strHotkey)
+			;-------------------------------------------------
+			{
+				this.strPopupHotkey := strHotkey
+				
+				oHotkeyParts := new Triggers.HotkeyParts(strHotkey)
+				; oPopupHotkey.strPopupHotkeyText := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey)
+				this.strPopupHotkeyText := oHotkeyParts.Hotkey2Text()
+				; oPopupHotkey.strPopupHotkeyTextShort := Triggers.Hotkey2Text(oPopupHotkey.strPopupHotkey, true)
+				this.strPopupHotkeyTextShort := oHotkeyParts.Hotkey2Text(true)
+			}
+			;-------------------------------------------------
+			
+			;-------------------------------------------------
+			BackupPopupHotkey()
+			;-------------------------------------------------
+			{
+				this.strPopupHotkeyPrevious := this.strPopupHotkey
+			}
+			;-------------------------------------------------
+		
+			;-------------------------------------------------
+			RestorePopupHotkey()
+			;-------------------------------------------------
+			{
+				this.UpdatePopupHotkey(this.strPopupHotkeyPrevious)
 			}
 			;-------------------------------------------------
 		}
