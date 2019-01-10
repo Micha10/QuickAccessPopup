@@ -24572,17 +24572,12 @@ class Triggers.MouseButtons
 
 			if StrLen(this.strKey) ; localize system key names
 			{
-				strSystemKeyNames := "|sc15D|AppsKey|Space|Enter|Escape|"
-				strLocalizedKeyNames := "|" . lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape
+				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
+				strLocalizedKeyNames := lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape
 				arrLocalizedKeyNames := StrSplit(strLocalizedKeyNames, "|")
-				strBefore := this.strKey
 				Loop, Parse, strSystemKeyNames, |
-				{
 					if (this.strKey = A_LoopField)
 						this.strKey := arrLocalizedKeyNames[A_Index]
-				}
-				if InStr(strSystemKeyNames, "|" . strBefore . "|")
-					###_V(A_ThisFunc, strSystemKeyNames, strLocalizedKeyNames, strBefore, this.strKey)
 			}
 			
 			if (this.strMouseButton = "None") ; do not compare with lDialogNone because it is translated
