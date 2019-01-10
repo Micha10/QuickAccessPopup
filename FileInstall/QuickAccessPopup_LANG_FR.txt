@@ -278,6 +278,7 @@ lDialogMore	Autres
 lDialogMoreOptions	D'autres options
 lDialogMouse	Souris
 lDialogMouseButtonsText	Bouton de gauche de la souris|Bouton du milieu de la souris|Bouton de droite de la souris|Bouton spécial 1 de la souris|Bouton spécial 2 de la souris|Molette vers le haut|Molette vers le bas|Molette à gauche|Molette à droite|
+lDialogMouseButtonsTextShort	Bouton de gauche|Bouton du milieu|Bouton de droite|Bouton spécial 1|Bouton spécial 2|Molette haut|Molette bas|Molette à gauche|Molette à droite|
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
 lDialogMoveFavoriteTitle	Déplacer le favori - ~1~ ~2~
 lDialogNA	n/d

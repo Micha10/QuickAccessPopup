@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.4.1.1.9 (2019-01-10)
+- preliminary release
+
 Version: 9.4.1.1 (2019-01-10)
 - fix bug introduced in v9.4.1 in the "Switch Settings file" command found under the QAP system menu "Settings file options" (right click the QAP icon in the Notification zone)
 - when filtering the "Current Windows" menu for exclusions (intruduced in v9.4.1), fix a bug when excluding Windows Applications (Universal Application Platform)
@@ -3049,7 +3052,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.1
+;@Ahk2Exe-SetVersion 9.4.1.1.9
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3154,8 +3157,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.4.1.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 
 g_blnDiagMode := False
@@ -24426,6 +24429,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			global g_strPopupHotkeyInternalNames
+			global g_strIniFile
 			
 			g_strPopupHotkeyInternalNames := "NavigateOrLaunchHotkeyMouse|NavigateOrLaunchHotkeyKeyboard|AlternativeHotkeyMouse|AlternativeHotkeyKeyboard"
 			StringSplit, arrPopupHotkeyInternalNames, g_strPopupHotkeyInternalNames, |
@@ -24438,8 +24442,8 @@ class Triggers.MouseButtons
 			oPopupHotkeysByNames := Object()
 			loop, % arrPopupHotkeyInternalNames0
 			{
-				IniRead, arrPopupHotkeys%A_Index%, %g_strIniFile%, Global, % arrPopupHotkeyInternalNames%A_Index%, % arrPopupHotkeyDefaults%A_Index%
-				oPopupHotkey := new this.PopupHotkey(arrPopupHotkeyInternalNames%A_Index%, arrPopupHotkeys%A_Index%, arrPopupHotkeyDefaults%A_Index%
+				IniRead, strThisPopupHotkey, %g_strIniFile%, Global, % arrPopupHotkeyInternalNames%A_Index%, % arrPopupHotkeyDefaults%A_Index%
+				oPopupHotkey := new this.PopupHotkey(arrPopupHotkeyInternalNames%A_Index%, strThisPopupHotkey, arrPopupHotkeyDefaults%A_Index%
 					, arrOptionsPopupHotkeyLocalizedNames%A_Index%, arrOptionsPopupHotkeyLocalizedDescriptions%A_Index%)
 				this.oPopupHotkeys[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[arrPopupHotkeyInternalNames%A_Index%] := oPopupHotkey
@@ -24565,11 +24569,21 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			global o_MouseButtons
-			
-			; oHotkeyParts := new Triggers.HotkeyParts(strPopupHotkey, o_MouseButtons)
-			
-			if (this.strKey = "sc15D" or this.strKey = "AppsKey")
-				this.strKey := lDialogMenuKey
+
+			if StrLen(this.strKey) ; localize system key names
+			{
+				strSystemKeyNames := "|sc15D|AppsKey|Space|Enter|Escape|"
+				strLocalizedKeyNames := "|" . lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape
+				arrLocalizedKeyNames := StrSplit(strLocalizedKeyNames, "|")
+				strBefore := this.strKey
+				Loop, Parse, strSystemKeyNames, |
+				{
+					if (this.strKey = A_LoopField)
+						this.strKey := arrLocalizedKeyNames[A_Index]
+				}
+				if InStr(strSystemKeyNames, "|" . strBefore . "|")
+					###_V(A_ThisFunc, strSystemKeyNames, strLocalizedKeyNames, strBefore, this.strKey)
+			}
 			
 			if (this.strMouseButton = "None") ; do not compare with lDialogNone because it is translated
 				or !StrLen(this.strModifiers . this.strMouseButton . this.strKey) ; if all parameters are empty
