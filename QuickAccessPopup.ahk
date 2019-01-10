@@ -8331,7 +8331,7 @@ Loop, Parse, g_strPopupHotkeyInternalNames, |
 	Gui, 2:Font, s8 w700
 	Gui, 2:Add, Text, x15 y+20 w610, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyLocalizedName ; g_arrOptionsPopupHotkeyTitles%A_Index%
 	Gui, 2:Font, s9 w500, Courier New
-	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyText
+	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%A_Index% gButtonOptionsChangeShortcut%A_Index%, % o_PopupHotkeys.GetPopupHotkey(A_LoopField).strPopupHotkeyTextShort
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%A_Index% gButtonOptionsChangeShortcut%A_Index%, %lOptionsChangeHotkey%
 	Gui, 2:Font, s8 w500
@@ -8358,7 +8358,7 @@ for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
 	Gui, 2:Add, Text, x15 y+10 w240, % g_objQAPFeatures[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
-		, % new Triggers.HotkeyParts(g_objQAPFeatures[strAlternativeCode].CurrentHotkey).Hotkey2Text()
+		, % new Triggers.HotkeyParts(g_objQAPFeatures[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, %lOptionsChangeHotkey%
 }
@@ -8715,7 +8715,7 @@ strNewHotkey := SelectShortcut(objPopupHotkey.strPopupHotkey, objPopupHotkey.str
 objPopupHotkey.UpdatePopupHotkey(strNewHotkey)
 
 if StrLen(objPopupHotkey.strPopupHotkey)
-	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % objPopupHotkey.strPopupHotkeyText
+	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % objPopupHotkey.strPopupHotkeyTextShort
 else
 	objPopupHotkey.strPopupHotkey := strPopupHotkeysLocalBackup
 	
@@ -15420,7 +15420,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	o_HotkeyActual.SplitParts(P_strDefaultShortcut)
 	
 	GuiControl, , f_strShortcutKey, % o_HotkeyActual.strKey
-	GuiControl, Choose, f_drpShortcutMouse, % o_MouseButtons.GetMouseButtonLocalized4InternalName(o_HotkeyActual.strMouseButton)
+	GuiControl, Choose, f_drpShortcutMouse, % o_MouseButtons.GetMouseButtonLocalized4InternalName(o_HotkeyActual.strMouseButton, false) ; not short
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 	
 	return
@@ -24390,8 +24390,8 @@ class Triggers.HotkeyParts
 class Triggers.MouseButtons
 	Methods
 	- Triggers.MouseButtons.__New(): load a simple array of buttons objects with internal and localized names
-	- Triggers.MouseButtons.GetMouseButtonInternal4LocalizedName(strLocalizedName): returns corresponding internal name for localized name
-	- Triggers.MouseButtons.GetMouseButtonLocalized4InternalName(strInternalName, blnShort := false): returns corresponding localized name for internal name
+	- Triggers.MouseButtons.GetMouseButtonInternal4LocalizedName(strLocalizedName): returns corresponding internal name for localized name (not the short name)
+	- Triggers.MouseButtons.GetMouseButtonLocalized4InternalName(strInternalName, blnShort): returns corresponding localized name for internal name
 	- Triggers.MouseButtons.IsMouseButton(strInternalName): returns true if strInternalName is member of the buttons array
 	- Triggers.MouseButtons.GetDropDownList(strDefault): returns the mouse buttons dropdown list with button strDefault as default button
 	Properties
@@ -24574,11 +24574,11 @@ class Triggers.MouseButtons
 				loop, parse, % this.strModifiers
 				{
 					if (A_LoopField = "!")
-						str := str . (InStr(this.strModifiers, "<!") ? "<" : InStr(this.strModifiers, ">!") ? ">" : "") . lDialogAlt . "+"
+						str := str . (InStr(this.strModifiers, "<!") ? "<" : InStr(this.strModifiers, ">!") ? ">" : "") . (blnShort ? lDialogAltShort : lDialogAlt) . "+"
 					if (A_LoopField = "^")
 						str := str . (InStr(this.strModifiers, "<^") ? "<" : InStr(this.strModifiers, ">^") ? ">" : "") . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
 					if (A_LoopField = "+")
-						str := str . (InStr(this.strModifiers, "<+") ? "<" : InStr(this.strModifiers, ">+") ? ">" : "") . lDialogShift . "+"
+						str := str . (InStr(this.strModifiers, "<+") ? "<" : InStr(this.strModifiers, ">+") ? ">" : "") . (blnShort ? lDialogShiftShort : lDialogShift) . "+"
 					if (A_LoopField = "#")
 						str := str . (InStr(this.strModifiers, "<#") ? "<" : InStr(this.strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
 				}
@@ -24632,6 +24632,7 @@ class Triggers.MouseButtons
 
 		;-----------------------------------------------------
 		GetMouseButtonInternal4LocalizedName(strLocalizedName)
+		; strLocalizedName must be the normal name, not the short name
 		;-----------------------------------------------------
 		{
 			return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
@@ -24639,7 +24640,8 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		GetMouseButtonLocalized4InternalName(strInternalName, blnShort := false)
+		GetMouseButtonLocalized4InternalName(strInternalName, blnShort)
+		; keep blnShort required to avoid error - do not use short version in mouse buttons dropdown list
 		;-----------------------------------------------------
 		{
 			return (blnShort ? this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedNameShort
@@ -24663,7 +24665,7 @@ class Triggers.MouseButtons
 			if (strDefault = lDialogNone) ; here strDefault contains the localized text
 				StringReplace, strDropDownList, strDropDownList, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is localized
 			else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
-				StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault) . "||"
+				StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault, false) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault, false) . "||"
 			
 			return strDropDownList
 		}
