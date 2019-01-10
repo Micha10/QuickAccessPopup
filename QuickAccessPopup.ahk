@@ -9050,7 +9050,7 @@ else
 	}
 	else if (g_strMoreWindowName = "IconReplacementList")
 	{
-		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.QuickAccessPopup.com/#####"">" . lGuiHelp . "</a>)"
+		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . lGuiHelp . "</a>)"
 		strInstructions := lOptionsIconReplacementListInstructions
 		strControlName := "f_strIconReplacementListMore"
 		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons.GetIconResource("iconUnknown"))
