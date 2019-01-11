@@ -24200,7 +24200,7 @@ class CommandLineParameters
 				strParamKey := SubStr(strOneArg, 2)
 				if (strParamKey = "Settings")
 					continue
-				this.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
+				this.oParam[strParamKey] := "" ; keep it empty, check param with this.oParam.HasKey(strOneArg)
 			}
 		}
 		
@@ -24214,7 +24214,7 @@ class CommandLineParameters
 	{
 		strConcat := ""
 		
-		for strParamKey, strParamValue in This.oParam
+		for strParamKey, strParamValue in this.oParam
 		{
 			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
 			strConcat .= strQuotes . "/" . strParamKey
@@ -24231,7 +24231,7 @@ class CommandLineParameters
 	GetParam(strKey)
 	;---------------------------------------------------------
 	{
-		return This.oParam[strKey]
+		return this.oParam[strKey]
 	}
 	;---------------------------------------------------------
 	
@@ -24239,8 +24239,8 @@ class CommandLineParameters
 	SetParam(strKey, strValue)
 	;---------------------------------------------------------
 	{
-		This.oParam[strKey] := strValue
-		This.strParams := this.ConcatParams()
+		this.oParam[strKey] := strValue
+		this.strParams := this.ConcatParams()
 	}
 	;---------------------------------------------------------
 	
@@ -24248,7 +24248,7 @@ class CommandLineParameters
 	ParamExist(strArg)
 	;---------------------------------------------------------
 	{
-		return This.oParam.HasKey(strArg)
+		return this.oParam.HasKey(strArg)
 	}
 	;---------------------------------------------------------
 }
@@ -24282,7 +24282,7 @@ class JLicons
 	__New(strJLiconsFile)
 	;---------------------------------------------------------
 	{
-		This.strFileLocation := strJLiconsFile ; was g_strJLiconsFile
+		this.strFileLocation := strJLiconsFile ; was g_strJLiconsFile
 		
 		strNames := "iconQAP|iconAbout|iconAddThisFolder|iconApplication|iconCDROM"
 			. "|iconChangeFolder|iconClipboard|iconClose|iconControlPanel|iconCurrentFolders"
@@ -24303,8 +24303,8 @@ class JLicons
 		; oNames[2] -> "iconAbout"
 		Loop, Parse, strNames, |
 		{
-			This.AddIcon(A_LoopField, strJLiconsFile . "," . A_Index)
-			This.oNames.InsertAt(A_Index, A_LoopField)
+			this.AddIcon(A_LoopField, strJLiconsFile . "," . A_Index)
+			this.oNames.InsertAt(A_Index, A_LoopField)
 		}
 	}
 	;---------------------------------------------------------
@@ -24313,7 +24313,7 @@ class JLicons
 	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
 	;---------------------------------------------------------
 	{
-		This.oIcons[strKey] := strFileIndex
+		this.oIcons[strKey] := strFileIndex
 	}
 	;---------------------------------------------------------
 
@@ -24321,7 +24321,7 @@ class JLicons
 	GetIconResource(strKey) ; was g_objJLiconsByName[strKey] before class
 	;---------------------------------------------------------
 	{
-		return This.oIcons[strKey]
+		return this.oIcons[strKey]
 	}
 	;---------------------------------------------------------
 
@@ -24329,7 +24329,7 @@ class JLicons
 	GetName(intKey) ; was g_objJLiconsNames[intKey] before class
 	;---------------------------------------------------------
 	{
-		return This.oNames[intKey]
+		return this.oNames[intKey]
 	}
 	;---------------------------------------------------------
 
@@ -24338,20 +24338,20 @@ class JLicons
 	;---------------------------------------------------------
 	{
 		; restore previously replaced icons
-		for strKey, strFileIndex in This.oReplacements
-			This.oIcons[strKey] := strFileIndex
+		for strKey, strFileIndex in this.oReplacements
+			this.oIcons[strKey] := strFileIndex
 		
-		This.oReplacements := Object() ; reset replacements
+		this.oReplacements := Object() ; reset replacements
 		
 		loop, parse, strReplacements, |
 			if StrLen(A_LoopField)
 			{
 				StringSplit, arrIconReplacement, A_LoopField, =
-				if This.oIcons.HasKey(arrIconReplacement1) and InStr(arrIconReplacement2, ",")
+				if this.oIcons.HasKey(arrIconReplacement1) and InStr(arrIconReplacement2, ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
-					This.oReplacements[arrIconReplacement1] := This.oIcons[arrIconReplacement1]
-					This.oIcons[arrIconReplacement1] := arrIconReplacement2
+					this.oReplacements[arrIconReplacement1] := this.oIcons[arrIconReplacement1]
+					this.oIcons[arrIconReplacement1] := arrIconReplacement2
 				}
 			}
 	}
