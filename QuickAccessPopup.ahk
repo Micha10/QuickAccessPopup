@@ -24156,7 +24156,7 @@ class CommandLineParameters
 	Methods
 	- CommandLineParameters.__New(): collect the command line parameters in an internal object and concat strParams
 	  - each param must begin with "/" and be separated by a space
-	  - supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and /Working:[working_dir_path]
+	  - supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and "/Working:[working_dir_path]"
 	- CommandLineParameters.ConcatParams(oParam): returns a concatenated string of each parameter ready to be used when reloading
 	- CommandLineParameters.GetParam(strKey): return the value for strKey
 	- CommandLineParameters.SetParam(strKey, strValue): set the param strkey to the value strValue
@@ -24171,7 +24171,14 @@ class CommandLineParameters
 	__New()
 	;---------------------------------------------------------
 	{
-		oParam := Object()
+		; singleton design pattern for a single use class
+		; (from nnik https://www.autohotkey.com/boards/viewtopic.php?f=74&t=38151#p175344)
+		static init ;t his is where the instance will be stored
+		if init ; this will return true if the class has already been created
+			return init ; and it will return this instance rather than creating a new one
+		init := This ; this will overwrite the init var with this instance
+
+		this.oParam := Object()
 		this.strParams := ""
 		
 		for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
@@ -24186,28 +24193,28 @@ class CommandLineParameters
 				strParamValue := SubStr(strOneArg, intColon + 1)
 				if (strParamKey = "Settings" and GetFileExtension(strParamValue) <> "ini")
 					continue
-				This.oParam[strParamKey] := strParamValue
+				this.oParam[strParamKey] := strParamValue
 			}
 			else
 			{
 				strParamKey := SubStr(strOneArg, 2)
 				if (strParamKey = "Settings")
 					continue
-				This.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
+				this.oParam[strParamKey] := "" ; keep it empty, check param with This.oParam.HasKey(strOneArg)
 			}
 		}
 		
-		This.strParams := CommandLineParameters.ConcatParams(oParam)
+		this.strParams := this.ConcatParams()
 	}
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	ConcatParams(oParam)
+	ConcatParams()
 	;---------------------------------------------------------
 	{
 		strConcat := ""
 		
-		for strParamKey, strParamValue in oParam
+		for strParamKey, strParamValue in This.oParam
 		{
 			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
 			strConcat .= strQuotes . "/" . strParamKey
@@ -24233,7 +24240,7 @@ class CommandLineParameters
 	;---------------------------------------------------------
 	{
 		This.oParam[strKey] := strValue
-		This.strParams := CommandLineParameters.ConcatParams(This.oParam)
+		This.strParams := this.ConcatParams()
 	}
 	;---------------------------------------------------------
 	
