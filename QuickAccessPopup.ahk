@@ -5702,32 +5702,32 @@ objPopupHotkey2 := o_PopupHotkeys.GetPopupHotkey("NavigateOrLaunchHotkeyKeyboard
 Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasShortcut(objPopupHotkey1.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey1.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(objPopupHotkey1.strPopupHotkey)
-		Hotkey, % objPopupHotkey1.strPopupHotkey, NavigateHotkeyMouse, On UseErrorLevel
+	if HasShortcut(objPopupHotkey1.AhkHotkey)
+		Hotkey, % objPopupHotkey1.AhkHotkey, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.strPopupHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.AhkHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
 	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(objPopupHotkey2.strPopupHotkey)
-		Hotkey, % objPopupHotkey2.strPopupHotkey, NavigateHotkeyKeyboard, On UseErrorLevel
+	if HasShortcut(objPopupHotkey2.AhkHotkey)
+		Hotkey, % objPopupHotkey2.AhkHotkey, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.strPopupHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.AhkHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
 Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasShortcut(objPopupHotkey1.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey1.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(objPopupHotkey1.strPopupHotkey)
-		Hotkey, % objPopupHotkey1.strPopupHotkey, LaunchHotkeyMouse, On UseErrorLevel
+	if HasShortcut(objPopupHotkey1.AhkHotkey)
+		Hotkey, % objPopupHotkey1.AhkHotkey, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.strPopupHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.AhkHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
 	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(objPopupHotkey2.strPopupHotkey)
-		Hotkey, % objPopupHotkey2.strPopupHotkey, LaunchHotkeyKeyboard, On UseErrorLevel
+	if HasShortcut(objPopupHotkey2.AhkHotkey)
+		Hotkey, % objPopupHotkey2.AhkHotkey, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.strPopupHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.AhkHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
 objPopupHotkey3 := o_PopupHotkeys.GetPopupHotkey("AlternativeHotkeyMouse")
@@ -5736,16 +5736,16 @@ objPopupHotkey4 := o_PopupHotkeys.GetPopupHotkey("AlternativeHotkeyKeyboard")
 ; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
 if HasShortcut(objPopupHotkey3.strPopupHotkeyPrevious)
 	Hotkey, % objPopupHotkey3.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-if HasShortcut(objPopupHotkey3.strPopupHotkey)
-	Hotkey, % objPopupHotkey3.strPopupHotkey, AlternativeHotkeyMouse, On UseErrorLevel
+if HasShortcut(objPopupHotkey3.AhkHotkey)
+	Hotkey, % objPopupHotkey3.AhkHotkey, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey3.strPopupHotkey).Hotkey2Text(), objPopupHotkey3.strPopupHotkeyLocalizedName)
+	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey3.AhkHotkey).Hotkey2Text(), objPopupHotkey3.strPopupHotkeyLocalizedName)
 if HasShortcut(objPopupHotkey4.strPopupHotkeyPrevious)
 	Hotkey, % objPopupHotkey4.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-if HasShortcut(objPopupHotkey4.strPopupHotkey)
-	Hotkey, % objPopupHotkey4.strPopupHotkey, AlternativeHotkeyKeyboard, On UseErrorLevel
+if HasShortcut(objPopupHotkey4.AhkHotkey)
+	Hotkey, % objPopupHotkey4.AhkHotkey, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey4.strPopupHotkey).Hotkey2Text(), objPopupHotkey4.strPopupHotkeyLocalizedName)
+	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey4.AhkHotkey).Hotkey2Text(), objPopupHotkey4.strPopupHotkeyLocalizedName)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
@@ -8132,9 +8132,7 @@ if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 	Gosub, GuiShowFromGuiOptions
 
 g_intGui1WinID := WinExist("A")
-loop, 4
-	; allow to turn off changed hotkeys and to revert o_PopupHotkeys if cancel
-	o_PopupHotkeys.GetPopupHotkey(A_Index).BackupPopupHotkey()
+o_PopupHotkeys.BackupPopupHotkeys()
 
 g_objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -8718,15 +8716,15 @@ if InStr(objPopupHotkey.strPopupHotkeyInternalName, "Mouse")
 else
 	intHotkeyType := 2 ; Keyboard
 
-strPopupHotkeysLocalBackup := objPopupHotkey.strPopupHotkey
-strNewHotkey := SelectShortcut(objPopupHotkey.strPopupHotkey, objPopupHotkey.strPopupHotkeyLocalizedName
+strPopupHotkeysLocalBackup := objPopupHotkey.AhkHotkey
+strNewHotkey := SelectShortcut(objPopupHotkey.AhkHotkey, objPopupHotkey.strPopupHotkeyLocalizedName
 	, "", "", intHotkeyType, objPopupHotkey.strPopupHotkeyDefault, objPopupHotkey.strPopupHotkeyLocalizedDescription)
-objPopupHotkey.UpdatePopupHotkey(strNewHotkey)
+objPopupHotkey.AhkHotkey := strNewHotkey
 
-if StrLen(objPopupHotkey.strPopupHotkey)
+if StrLen(objPopupHotkey.AhkHotkey)
 	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % objPopupHotkey.strPopupHotkeyTextShort
 else
-	objPopupHotkey.strPopupHotkey := strPopupHotkeysLocalBackup
+	objPopupHotkey.AhkHotkey := strPopupHotkeysLocalBackup
 	
 strPopupHotkeysLocalBackup := ""
 objPopupHotkey := ""
@@ -9363,7 +9361,7 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 loop, parse, g_strPopupHotkeyInternalNames, |
-	IniWrite, % o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey, %g_strIniFile%, Global, %A_LoopField%
+	IniWrite, % o_PopupHotkeys.GetPopupHotkey(A_Index).AhkHotkey, %g_strIniFile%, Global, %A_LoopField%
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -9579,9 +9577,8 @@ return
 ButtonOptionsCancel:
 ;------------------------------------------------------------
 
-loop, 4
-	; revert to previous content of o_PopupHotkeys
-	o_PopupHotkeys.GetPopupHotkey(A_Index).RestorePopupHotkey()
+; revert to previous content of o_PopupHotkeys
+o_PopupHotkeys.RestorePopupHotkeys()
 
 Gosub, 2GuiClose
 
@@ -14540,7 +14537,7 @@ Loop, 2
 		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 		loop, 4 ; load popup menu triggers
 			LV_Add(, , lDialogNA, g_arrOptionsPopupHotkeyTitles%A_Index%, lDialogHotkeysManagePopup
-				, (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey
+				, (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.GetPopupHotkey(A_Index).AhkHotkey
 				: new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey).Hotkey2Text()), lDialogNA)
 
 		for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
@@ -15784,7 +15781,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	
 	; check popup menu hotkeys
 	loop, 4
-		if (o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey = strShortcut)
+		if (o_PopupHotkeys.GetPopupHotkey(A_Index).AhkHotkey = strShortcut)
 		{
 			strExistingName := o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkeyLocalizedName
 			break
@@ -16147,9 +16144,9 @@ if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
 
 if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	if CanNavigate(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
-	else if CanLaunch(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	else if CanLaunch(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
 	; else do nothing
 }
@@ -16312,8 +16309,8 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	; Mouse hotkey (.strPopupHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
-	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey)
+	; Mouse hotkey (.AhkHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
+	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey)
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
@@ -16342,7 +16339,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	if (strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey) ; if hotkey is mouse
+	if (strMouseOrKeyboard = o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey) ; if hotkey is mouse
 		Loop, Parse, g_strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
@@ -17853,7 +17850,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey).Hotkey2Text())
+MsgBox, % 64 + 4096, %g_strAppNameText% - %lMenuGetWinInfo%, % L(lDialogGetWinInfo, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey).Hotkey2Text())
 
 return
 ;------------------------------------------------------------
@@ -19961,11 +19958,11 @@ Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, %A_Space%%lHelpTabGettingSt
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Tab, 1
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey).Hotkey2Text()
+	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey).Hotkey2Text())
 Gui, 2:Add, Link, w%intWidth%, % lHelpText12
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(3).strPopupHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(4).strPopupHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(3).AhkHotkey).Hotkey2Text()
+	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(4).AhkHotkey).Hotkey2Text())
 Gui, 2:Add, Link, w%intWidth%, % lHelpText14
 Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
@@ -19973,8 +19970,8 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % lHelpText21
 Gui, 2:Add, Link, w%intWidth%, % lHelpText22
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey).Hotkey2Text()
+	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey).Hotkey2Text())
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
@@ -24377,6 +24374,8 @@ class Triggers.PopupHotkeys
 	Methods
 	- Triggers.PopupHotkeys.__New(): create a simple array of 4 objects of class PopupHotkey for the QAP menu triggers
 	- Triggers.PopupHotkeys.GetPopupHotkey(strNameOrIndex): returns the PopupHotkey object for the internal name or the numeric index
+	- BackupPopupHotkeys(): backup hotkeys (used when opening Options)
+	- RestorePopupHotkeys(): restore backuped hotkeys (used when cancelling Options changes)
 	Instance variables
 	- oPopupHotkeys: simple array of 4 PopupHotkey objects
 	- oPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
@@ -24384,9 +24383,8 @@ class Triggers.PopupHotkeys
 	class Triggers.PopupHotkeys.PopupHotkey
 		Methods
 		- Triggers.PopupHotkeys.PopupHotkey.__New(): create one PopupHotkeyQAP menu trigger object
-		- Triggers.PopupHotkeys.PopupHotkey.UpdatePopupHotkey(strHotkey): set a new strPopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
-		- Triggers.PopupHotkeys.BackupPopupHotkey(): put strPopupHotkey value in strPopupHotkeyPrevious
-		- Triggers.PopupHotkeys.RestorePopupHotkey(): restore strPopupHotkey with the value in strPopupHotkeyPrevious
+		Properties
+		- Triggers.PopupHotkeys.PopupHotkey.AhkHotkey: set a new _PopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
 		Instance variables
 		- strPopupHotkey: mouse (like "MButton") or keyboard (like "#W" for Win + W) hotkey trigger for a the QAP menu
 		- strPopupHotkeyInternalName: one of the two mouse or two keyboard triggers internal names
@@ -24477,11 +24475,28 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		
 		;-----------------------------------------------------
+		BackupPopupHotkeys()
+		;-----------------------------------------------------
+		{
+			for intKey, oOnePopupHotkey in this.oPopupHotkeys
+				oOnePopupHotkey.strPopupHotkeyPrevious := oOnePopupHotkey.AhkHotkey
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		RestorePopupHotkeys()
+		;-----------------------------------------------------
+		{
+			for intKey, oOnePopupHotkey in this.oPopupHotkeys
+				oOnePopupHotkey.AhkHotkey := oOnePopupHotkey.strPopupHotkeyPrevious
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
 		class PopupHotkey
 		;-----------------------------------------------------
 		{
 			; Instance variables
-			strPopupHotkey := ""
 			strPopupHotkeyInternalName := ""
 			strPopupHotkeyText := ""
 			strPopupHotkeyTextShort := ""
@@ -24495,7 +24510,7 @@ class Triggers.MouseButtons
 			;-------------------------------------------------
 			{
 				this.strPopupHotkeyInternalName := strThisInternalName
-				this.UpdatePopupHotkey(strThisPopupHotkey)
+				this.AhkHotkey := strThisPopupHotkey
 				
 				this.strPopupHotkeyDefault := strThisPopupHotkeyDefault
 				this.strPopupHotkeyPrevious := ""
@@ -24505,30 +24520,22 @@ class Triggers.MouseButtons
 			;-------------------------------------------------
 			
 			;-------------------------------------------------
-			UpdatePopupHotkey(strHotkey)
+			AhkHotkey[]
 			;-------------------------------------------------
 			{
-				this.strPopupHotkey := strHotkey
+				get
+				{
+					return this._AhkHotkey ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
+				}
 				
-				oHotkeyParts := new Triggers.HotkeyParts(strHotkey)
-				this.strPopupHotkeyText := oHotkeyParts.Hotkey2Text()
-				this.strPopupHotkeyTextShort := oHotkeyParts.Hotkey2Text(true)
-			}
-			;-------------------------------------------------
-			
-			;-------------------------------------------------
-			BackupPopupHotkey()
-			;-------------------------------------------------
-			{
-				this.strPopupHotkeyPrevious := this.strPopupHotkey
-			}
-			;-------------------------------------------------
-		
-			;-------------------------------------------------
-			RestorePopupHotkey()
-			;-------------------------------------------------
-			{
-				this.UpdatePopupHotkey(this.strPopupHotkeyPrevious)
+				set
+				{
+					oHotkeyParts := new Triggers.HotkeyParts(value)
+					this.strPopupHotkeyText := oHotkeyParts.Hotkey2Text()
+					this.strPopupHotkeyTextShort := oHotkeyParts.Hotkey2Text(true)
+					
+					return this._AhkHotkey := value
+				}
 			}
 			;-------------------------------------------------
 		}
