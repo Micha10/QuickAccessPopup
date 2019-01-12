@@ -24161,26 +24161,28 @@ class CommandLineParameters
 	- CommandLineParameters.GetParam(strKey): return the value for strKey
 	- CommandLineParameters.SetParam(strKey, strValue): set the param strkey to the value strValue
 	- CommandLineParameters.ParamExist(strArg): return true if key strArg exists
-	Properties
+	Instance variables
 	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if required
 	- oParam: simple array for each parameter from the A_Args object (for internal usage)
 */
 ;-------------------------------------------------------------
 {
+	; Instance variables
+	oParam := Object()
+	strParams := ""
+	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
 	{
-		; singleton design pattern for a single use class
+		; Singleton design pattern for a single use class
 		; (from nnik https://www.autohotkey.com/boards/viewtopic.php?f=74&t=38151#p175344)
+		; The following lines are note required in the QAP context but I keep it for the reference.
 		static init ;t his is where the instance will be stored
 		if init ; this will return true if the class has already been created
 			return init ; and it will return this instance rather than creating a new one
 		init := This ; this will overwrite the init var with this instance
 
-		this.oParam := Object()
-		this.strParams := ""
-		
 		for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
 		{
 			if !StrLen(strOneArg)
@@ -24266,7 +24268,7 @@ class JLicons
 	- JLicons.GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
 	- JLicons.AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
 	- JLicons.ProcessReplacements(strReplacements): removes previous JLicons replacements in oReplacements and do the current replacements in strReplacements
-	Properties
+	Instance variables
 	- strFileLocation: path and file name of the JLicons library file
 	- oIcons: associative array "strKey->strValue" (iconXYZ->file,index)
 	- oNames: simple array index of icon names (iconXYZ)
@@ -24274,6 +24276,8 @@ class JLicons
 */
 ;-------------------------------------------------------------
 {
+	; Instance variables
+	strFileLocation := ""
 	oIcons := Object() ; was g_objJLiconsByName before class
 	oNames := Object() ; was g_objJLiconsNames before class
 	oReplacements := Object()
@@ -24373,7 +24377,7 @@ class Triggers.PopupHotkeys
 	Methods
 	- Triggers.PopupHotkeys.__New(): create a simple array of 4 objects of class PopupHotkey for the QAP menu triggers
 	- Triggers.PopupHotkeys.GetPopupHotkey(strNameOrIndex): returns the PopupHotkey object for the internal name or the numeric index
-	Properties
+	Instance variables
 	- oPopupHotkeys: simple array of 4 PopupHotkey objects
 	- oPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
 	
@@ -24383,7 +24387,7 @@ class Triggers.PopupHotkeys
 		- Triggers.PopupHotkeys.PopupHotkey.UpdatePopupHotkey(strHotkey): set a new strPopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
 		- Triggers.PopupHotkeys.BackupPopupHotkey(): put strPopupHotkey value in strPopupHotkeyPrevious
 		- Triggers.PopupHotkeys.RestorePopupHotkey(): restore strPopupHotkey with the value in strPopupHotkeyPrevious
-		Properties
+		Instance variables
 		- strPopupHotkey: mouse (like "MButton") or keyboard (like "#W" for Win + W) hotkey trigger for a the QAP menu
 		- strPopupHotkeyInternalName: one of the two mouse or two keyboard triggers internal names
 		- strPopupHotkeyText: text of default hotkey trigger
@@ -24398,7 +24402,7 @@ class Triggers.HotkeyParts
 	- HotkeyParts.__New(strHotkey): create an object and split parts in properties modifier, keyboard or mouse button
 	- HotkeyParts.SplitParts(strHotkey): split strHotkey into parts strModifiers, strKey and strMouseButton
 	- HotkeyParts.Hotkey2Text(blnShort := false): returns localized text for HotkeyParts, in long or short format
-	Properties
+	Instance variables
 	- strModifiers: modifier part of the hotkey (like "!" for Alt+Q or Alt+MButton)
 	- strKey: keyboard part of hotkey (like "Q" for Alt+Q), empty if hotkey is a mouse button
 	- strMouseButton: mouse button part of hotkey (like "MButton" for Alt+MButton), empty if hotkey is a keyboard key
@@ -24410,7 +24414,7 @@ class Triggers.MouseButtons
 	- Triggers.MouseButtons.GetMouseButtonLocalized4InternalName(strInternalName, blnShort): returns corresponding localized name for internal name
 	- Triggers.MouseButtons.IsMouseButton(strInternalName): returns true if strInternalName is member of the buttons array
 	- Triggers.MouseButtons.GetDropDownList(strDefault): returns the mouse buttons dropdown list with button strDefault as default button
-	Properties
+	Instance variables
 	- oButtons: simple array of buttons objects with internal and localized names
 	- oButtonInternalNames: associative array "name->object" index of mouse buttons name
 	- oButtonLocalizedNames: associative array "localized name->object" index of mouse buttons localized name
@@ -24419,13 +24423,17 @@ class Triggers.MouseButtons
 	class Triggers.MouseButtons.Button
 		Methods
 		- MouseButtons.Button.__New(): create an object for one mouse button
-		Properties
+		Instance variables
 		- strInternalName: internal name of button (like "MButton")
 		- strLocalizedName: localized name of button (like "Middle Mouse Button")
 		- strLocalizedNameShort: short localized name of button (like "Middle Mouse")
 */
 ;-------------------------------------------------------------
 {
+	; Instance variables
+	oPopupHotkeys := Object()
+	oPopupHotkeysByNames := Object()
+	
 	;---------------------------------------------------------
 	class PopupHotkeys
 	; replaces g_arrPopupHotkeys and related arrays
@@ -24445,8 +24453,6 @@ class Triggers.MouseButtons
 			StringSplit, arrOptionsPopupHotkeyLocalizedNames, lOptionsPopupHotkeyTitles, |
 			StringSplit, arrOptionsPopupHotkeyLocalizedDescriptions, lOptionsPopupHotkeyTitlesSub, |
 			
-			oPopupHotkeys := Object()
-			oPopupHotkeysByNames := Object()
 			loop, % arrPopupHotkeyInternalNames0
 			{
 				IniRead, strThisPopupHotkey, %g_strIniFile%, Global, % arrPopupHotkeyInternalNames%A_Index%, % arrPopupHotkeyDefaults%A_Index%
@@ -24474,6 +24480,16 @@ class Triggers.MouseButtons
 		class PopupHotkey
 		;-----------------------------------------------------
 		{
+			; Instance variables
+			strPopupHotkey := ""
+			strPopupHotkeyInternalName := ""
+			strPopupHotkeyText := ""
+			strPopupHotkeyTextShort := ""
+			strPopupHotkeyDefault := ""
+			strPopupHotkeyPrevious := ""
+			strPopupHotkeyLocalizedName := ""
+			strPopupHotkeyLocalizedDescription := ""
+			
 			;-------------------------------------------------
 			__New(strThisInternalName, strThisPopupHotkey, strThisPopupHotkeyDefault, strThisLocalizedName, strThisLocalizedDescription)
 			;-------------------------------------------------
@@ -24526,6 +24542,11 @@ class Triggers.MouseButtons
 	; replaces SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
 	;---------------------------------------------------------
 	{
+		; Instance variables
+		strModifiers := ""
+		strKey := ""
+		strMouseButton := ""
+		
 		;-----------------------------------------------------
 		__New(strHotkey)
 		;-----------------------------------------------------
@@ -24624,17 +24645,19 @@ class Triggers.MouseButtons
 	class MouseButtons
 	;---------------------------------------------------------
 	{
+		; Instance variables
+		oButtons := Object() ; simple array of Button objects
+		oButtonInternalNames := Object() ; associative array "name->index"
+		oButtonLocalizedNames := Object() ; associative array of "localized name->index"
+		strMouseButtonsDropDownList := ""
+		
 		;-----------------------------------------------------
 		__New()
 		;-----------------------------------------------------
 		{
-			this.oButtons := Object() ; simple array of Button objects
-			
-			this.oButtonInternalNames := Object() ; associative array "name->index"
 			strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
 			StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
 			
-			this.oButtonLocalizedNames := Object() ; associative array of "localized name->index"
 			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
 			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
 			strMouseButtonsLocalizedNamesShort := lDialogNone . "|" . lDialogMouseButtonsTextShort ; use lDialogNone because this is displayed
@@ -24695,16 +24718,13 @@ class Triggers.MouseButtons
 
 		;-----------------------------------------------------
 		class Button
-		/*
-		Methods (used internally only)
-			- __New(): initialize button internal and localized names
-
-		Properties (used internally only)
-			- strInternalName: internal name of the mouse button
-			- strLocalizedName: localized name of the mouse button
-		*/
 		;-----------------------------------------------------
 		{
+			; Instance variables
+			strInternalName := ""
+			strLocalizedName := ""
+			strLocalizedNameShort := ""
+			
 			;-------------------------------------------------
 			__New(strThisInternalName, strThisLocalizedName, strThisLocalizedNameShort)
 			;-------------------------------------------------
@@ -24729,10 +24749,11 @@ TODO
 */
 
 /*
-Methods
+class FileManagers
+	Methods
 	- __New(): 
 
-Properties
+	Instance variables
 	- :
 */
 ;-------------------------------------------------------------
@@ -24741,6 +24762,82 @@ Properties
 	;---------------------------------------------------------
 	class FileManager
 	; replaces ...
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+}
+; ------------------------------------------------------------
+
+
+; ------------------------------------------------------------
+class Model
+/*
+TODO
+*/
+
+/*
+Methods
+	- __New(): 
+
+Properties
+	- :
+*/
+;-------------------------------------------------------------
+{
+	; Instance variables
+		; Instance variables are declared like normal assignments, but the this. prefix is omitted (only directly within the class body).
+		; To access an instance variable (even within a method), always specify the target object; for example, this.InstanceVar
+		
+	; Static/Class Variables
+		; Static/class variables belong to the class itself, but can be inherited by derived objects (including sub-classes).
+		; They are declared like instance variables, but using the static keyword. Static declarations are evaluated only once, before the auto-execute section, in the order they appear in the script.
+		; Each declaration stores a value in the class object. Any variable references in Expression are assumed to be global.
+		; To assign to a class variable, always specify the class object; for example, ClassName.ClassVar := Value.
+		; If an object x is derived from ClassName and x itself does not contain the key "ClassVar", x.ClassVar may also be used to dynamically retrieve the value of ClassName.ClassVar.
+	
+	;---------------------------------------------------------
+	Method()
+	; Each method has a hidden parameter named this, which typically contains a reference to an object derived from the class.
+	; Inside a method, the pseudo-keyword base can be used to access the super-class versions of methods or properties which are overridden in a derived class.
+	;---------------------------------------------------------
+	{
+		
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	Property[]
+	; obj.Property would call get while obj.Property := value would call set. Within get or set, this refers to the object being invoked. Within set, value contains the value being assigned.
+	; https://autohotkey.com/docs/Objects.htm#Custom_Classes_property
+	; Lexikos: "The "property" doesn't have a value - a "property" is a set of methods which are called when you get or set the property. Not all properties will store a value - some will compute it,
+	; such as from a different property. For instance, a Colour object might have R, G, B and RBG properties, but the first three would be derived from the last one.
+	; https://www.autohotkey.com/boards/viewtopic.php?t=9792#p54480
+	;---------------------------------------------------------
+	{
+		get
+		{
+			return this._propertyname ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
+		}
+		set
+		{
+			return this._propertyname := value
+		}
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class NestedClass
+	; Nested class definitions allow a class object to be stored inside another class object rather than a separate global variable.
+	; In the example above, class NestedClass constructs an object and stores it in ClassName.NestedClass.
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
