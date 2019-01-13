@@ -5750,8 +5750,11 @@ if (ErrorLevel)
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
 	if HasShortcut(objThisQAPFeature.CurrentHotkey)
+	{
 		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
 		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
+		objThisQAPFeature.CurrentHotkey := "" ; will be reset next when reloading from ini file
+	}
 	
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in g_objQAPFeaturesAlternativeCodeByOrder
@@ -8753,10 +8756,7 @@ g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAl
 	, "", 3, objThisAlternative.DefaultShortcut)
 
 if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
-{
-	objThisAlternative.CurrentHotkey := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % Hotkey2Text(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
-}
 else
 	g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
@@ -9376,8 +9376,6 @@ IniDelete, %g_strIniFile%, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewShortcut in g_objQAPFeaturesNewShortcuts
 	if HasShortcut(strNewShortcut)
 		IniWrite, %strNewShortcut%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
-	else
-		IniDelete, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
 g_blnAlternativeMenuShowNotification := f_blnAlternativeMenuShowNotification
 IniWrite, %g_blnAlternativeMenuShowNotification%, %g_strIniFile%, Global, AlternativeMenuShowNotification
