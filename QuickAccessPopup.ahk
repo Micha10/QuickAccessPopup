@@ -24630,21 +24630,17 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			objMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
-			
-			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
-			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
-			strMouseButtonsLocalizedNamesShort := lDialogNone . "|" . lDialogMouseButtonsTextShort ; use lDialogNone because this is displayed
-			StringSplit, arrMouseButtonsLocalizedNamesShort, strMouseButtonsLocalizedNamesShort, |
+			this.strMouseButtonsDropDownList := lDialogNone . "|" . lDialogMouseButtonsText ; default item not identified
+			objMouseButtonsLocalizedNames := StrSplit(this.strMouseButtonsDropDownList, "|")
+			objMouseButtonsLocalizedNamesShort := StrSplit(lDialogNone . "|" . lDialogMouseButtonsTextShort, "|")
 
-			loop, % objMouseButtonsInternalNames0
+			loop, % objMouseButtonsInternalNames.Length()
 			{
-				this.oButtonInternalNames[objMouseButtonsInternalNames%A_Index%] := A_Index
-				this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
-				oButton := new this.Button(objMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%, arrMouseButtonsLocalizedNamesShort%A_Index%)
+				this.oButtonInternalNames[objMouseButtonsInternalNames[A_Index]] := A_Index
+				this.oButtonLocalizedNames[objMouseButtonsLocalizedNames[A_Index]] := A_Index
+				oButton := new this.Button(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
 				this.oButtons.InsertAt(A_Index, oButton)
 			}
-			
-			this.strMouseButtonsDropDownList := strMouseButtonsLocalizedNames ; default item not identified
 		}
 		;-----------------------------------------------------
 
