@@ -5705,13 +5705,13 @@ Hotkey, If, CanNavigate(A_ThisHotkey)
 	if HasShortcut(objPopupHotkey1.AhkHotkey)
 		Hotkey, % objPopupHotkey1.AhkHotkey, NavigateHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.AhkHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, objPopupHotkey1.strPopupHotkeyText, objPopupHotkey1.strPopupHotkeyLocalizedName)
 	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasShortcut(objPopupHotkey2.AhkHotkey)
 		Hotkey, % objPopupHotkey2.AhkHotkey, NavigateHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.AhkHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, objPopupHotkey2.strPopupHotkeyText, objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
 ; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
@@ -5721,13 +5721,13 @@ Hotkey, If, CanLaunch(A_ThisHotkey)
 	if HasShortcut(objPopupHotkey1.AhkHotkey)
 		Hotkey, % objPopupHotkey1.AhkHotkey, LaunchHotkeyMouse, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey1.AhkHotkey).Hotkey2Text(), objPopupHotkey1.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, objPopupHotkey1.strPopupHotkeyText, .strPopupHotkeyLocalizedName)
 	if HasShortcut(objPopupHotkey2.strPopupHotkeyPrevious)
 		Hotkey, % objPopupHotkey2.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 	if HasShortcut(objPopupHotkey2.AhkHotkey)
 		Hotkey, % objPopupHotkey2.AhkHotkey, LaunchHotkeyKeyboard, On UseErrorLevel
 	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey2.AhkHotkey).Hotkey2Text(), objPopupHotkey2.strPopupHotkeyLocalizedName)
+		Oops(lDialogInvalidHotkey, objPopupHotkey2.strPopupHotkeyText, objPopupHotkey2.strPopupHotkeyLocalizedName)
 Hotkey, If
 
 objPopupHotkey3 := o_PopupHotkeys.GetPopupHotkey("AlternativeHotkeyMouse")
@@ -5739,13 +5739,13 @@ if HasShortcut(objPopupHotkey3.strPopupHotkeyPrevious)
 if HasShortcut(objPopupHotkey3.AhkHotkey)
 	Hotkey, % objPopupHotkey3.AhkHotkey, AlternativeHotkeyMouse, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey3.AhkHotkey).Hotkey2Text(), objPopupHotkey3.strPopupHotkeyLocalizedName)
+	Oops(lDialogInvalidHotkey, objPopupHotkey3.strPopupHotkeyText, objPopupHotkey3.strPopupHotkeyLocalizedName)
 if HasShortcut(objPopupHotkey4.strPopupHotkeyPrevious)
 	Hotkey, % objPopupHotkey4.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 if HasShortcut(objPopupHotkey4.AhkHotkey)
 	Hotkey, % objPopupHotkey4.AhkHotkey, AlternativeHotkeyKeyboard, On UseErrorLevel
 if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, new Triggers.HotkeyParts(objPopupHotkey4.AhkHotkey).Hotkey2Text(), objPopupHotkey4.strPopupHotkeyLocalizedName)
+	Oops(lDialogInvalidHotkey, objPopupHotkey4.strPopupHotkeyText, objPopupHotkey4.strPopupHotkeyLocalizedName)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
@@ -14534,9 +14534,11 @@ Loop, 2
 	{
 		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 		loop, 4 ; load popup menu triggers
-			LV_Add(, , lDialogNA, g_arrOptionsPopupHotkeyTitles%A_Index%, lDialogHotkeysManagePopup
-				, (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.GetPopupHotkey(A_Index).AhkHotkey
-				: new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(A_Index).strPopupHotkey).Hotkey2Text()), lDialogNA)
+		{
+			objPopupHotkey := o_PopupHotkeys.GetPopupHotkey(A_Index)
+			LV_Add(, , lDialogNA, objPopupHotkey.strPopupHotkeyLocalizedName, lDialogHotkeysManagePopup, (f_blnSeeShortHotkeyNames ? objPopupHotkey.AhkHotkey
+				: objPopupHotkey.strPopupHotkeyText), lDialogNA)
+		}
 
 		for strQAPFeatureCode in g_objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
 			if (g_objQAPFeatures[strQAPFeatureCode].QAPFeatureAlternativeOrder)
@@ -14559,6 +14561,7 @@ DllCall("LockWindowUpdate", Uint, 0)  ; Pass 0 to unlock the currently locked wi
 
 intHotkeysManageListWinID := ""
 strQAPFeatureCode := ""
+objPopupHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -19956,11 +19959,9 @@ Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, %A_Space%%lHelpTabGettingSt
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Tab, 1
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText11, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText, o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkeyText)
 Gui, 2:Add, Link, w%intWidth%, % lHelpText12
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(3).AhkHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(4).AhkHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText13, o_PopupHotkeys.GetPopupHotkey(3).strPopupHotkeyText, o_PopupHotkeys.GetPopupHotkey(4).strPopupHotkeyText)
 Gui, 2:Add, Link, w%intWidth%, % lHelpText14
 Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
@@ -19968,8 +19969,7 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % lHelpText21
 Gui, 2:Add, Link, w%intWidth%, % lHelpText22
-Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(1).AhkHotkey).Hotkey2Text()
-	, new Triggers.HotkeyParts(o_PopupHotkeys.GetPopupHotkey(2).AhkHotkey).Hotkey2Text())
+Gui, 2:Add, Link, w%intWidth%, % L(lHelpText23, o_PopupHotkeys.GetPopupHotkey(1).strPopupHotkeyText, o_PopupHotkeys.GetPopupHotkey(2).strPopupHotkeyText)
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, %lDialogTabNext%
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
