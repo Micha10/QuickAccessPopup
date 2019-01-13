@@ -8751,7 +8751,7 @@ objThisAlternative := g_objQAPFeatures[strThisAlternativeCode]
 strAlternativeHotkeysBackup := g_objQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
 ; .LocalizedName OK because Alternative
-g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(objThisAlternative.CurrentHotkey, objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
+g_objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode], objThisAlternative.LocalizedName, lDialogHotkeysManageAlternative
 	, "", 3, objThisAlternative.DefaultShortcut)
 
 if StrLen(g_objQAPFeaturesNewShortcuts[strThisAlternativeCode])
