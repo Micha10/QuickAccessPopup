@@ -24206,8 +24206,7 @@ class CommandLineParameters
 			strConcat .= strQuotes . " " ; ending quote and separate with next params with space
 		}
 		
-		StringTrimRight, strConcat, strConcat, 1 ; remove last space
-		return strConcat
+		return SubStr(strConcat, 1, -1) ; remove last space
 	}
 	;---------------------------------------------------------
 	
@@ -24390,20 +24389,19 @@ class Triggers.HotkeyParts
 
 class Triggers.MouseButtons
 	Methods
-	- Triggers.MouseButtons.__New(): load a simple array of buttons objects with internal and localized names
+	- Triggers.MouseButtons.__New(): add an array of objects of class Button to this class
 	- Triggers.MouseButtons.GetMouseButtonInternal4LocalizedName(strLocalizedName): returns corresponding internal name for localized name (not the short name)
 	- Triggers.MouseButtons.GetMouseButtonLocalized4InternalName(strInternalName, blnShort): returns corresponding localized name for internal name
 	- Triggers.MouseButtons.IsMouseButton(strInternalName): returns true if strInternalName is member of the buttons array
 	- Triggers.MouseButtons.GetDropDownList(strDefault): returns the mouse buttons dropdown list with button strDefault as default button
 	Instance variables
-	- oButtons: simple array of buttons objects with internal and localized names
-	- oButtonInternalNames: associative array "name->object" index of mouse buttons name
-	- oButtonLocalizedNames: associative array "localized name->object" index of mouse buttons localized name
-	- strMouseButtonsDropDownList: mouse buttons dropdown
+	- static oMouseButtonInternalNames: associative array "name->object" index of mouse buttons name
+	- static oMouseButtonLocalizedNames: associative array "localized name->object" index of mouse buttons localized name
+	- static strMouseButtonsDropDownList: mouse buttons dropdown
 	
-	class Triggers.MouseButtons.Button
+	class Triggers.MouseButtons.MouseButton
 		Methods
-		- MouseButtons.Button.__New(): create an object for one mouse button
+		- MouseButtons.MouseButton.__New(): create an object for one mouse button
 		Instance variables
 		- strInternalName: internal name of button (like "MButton")
 		- strLocalizedName: localized name of button (like "Middle Mouse Button")
@@ -24620,8 +24618,8 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		; Instance variables
-		static oButtonInternalNames := Object() ; associative array "name->index"
-		static oButtonLocalizedNames := Object() ; associative array of "localized name->index"
+		static oMouseButtonInternalNames := Object() ; associative array "name->index"
+		static oMouseButtonLocalizedNames := Object() ; associative array of "localized name->index"
 		static strMouseButtonsDropDownList := ""
 		
 		;-----------------------------------------------------
@@ -24635,13 +24633,12 @@ class Triggers.MouseButtons
 
 			loop, % objMouseButtonsInternalNames.Length()
 			{
-				this.oButtonInternalNames[objMouseButtonsInternalNames[A_Index]] := A_Index
-				this.oButtonLocalizedNames[objMouseButtonsLocalizedNames[A_Index]] := A_Index
-				oButton := new this.Button(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
-				this[A_Index] := oButton
+				this.oMouseButtonInternalNames[objMouseButtonsInternalNames[A_Index]] := A_Index
+				this.oMouseButtonLocalizedNames[objMouseButtonsLocalizedNames[A_Index]] := A_Index
+				oMouseButton := new this.MouseButton(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
+				this[A_Index] := oMouseButton
 			}
-			###_O("this", this)
-		}
+	}
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
@@ -24649,7 +24646,7 @@ class Triggers.MouseButtons
 		; strLocalizedName must be the normal name, not the short name
 		;-----------------------------------------------------
 		{
-			return this[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
+			return this[this.oMouseButtonLocalizedNames[strLocalizedName]].strInternalName
 		}
 		;-----------------------------------------------------
 
@@ -24658,8 +24655,8 @@ class Triggers.MouseButtons
 		; keep blnShort required to avoid error - do not use short version in mouse buttons dropdown list
 		;-----------------------------------------------------
 		{
-			return (blnShort ? this[this.oButtonInternalNames[strInternalName]].strLocalizedNameShort
-				: this[this.oButtonInternalNames[strInternalName]].strLocalizedName)
+			return (blnShort ? this[this.oMouseButtonInternalNames[strInternalName]].strLocalizedNameShort
+				: this[this.oMouseButtonInternalNames[strInternalName]].strLocalizedName)
 		}
 		;-----------------------------------------------------
 
@@ -24667,7 +24664,7 @@ class Triggers.MouseButtons
 		IsMouseButton(strInternalName)
 		;-----------------------------------------------------
 		{
-			return this.oButtonInternalNames.HasKey(strInternalName)
+			return this.oMouseButtonInternalNames.HasKey(strInternalName)
 		}
 		;-----------------------------------------------------
 
@@ -24679,11 +24676,13 @@ class Triggers.MouseButtons
 				return StrReplace(this.strMouseButtonsDropDownList, lDialogNone . "|", lDialogNone . "||") ; use lDialogNone because this is localized
 			else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
 				return StrReplace(this.strMouseButtonsDropDownList, this.GetMouseButtonLocalized4InternalName(strDefault, false) . "|", this.GetMouseButtonLocalized4InternalName(strDefault, false) . "||")
+			else
+				return this.strMouseButtonsDropDownList
 		}
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		class Button
+		class MouseButton
 		;-----------------------------------------------------
 		{
 			; Instance variables
