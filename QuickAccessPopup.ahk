@@ -24620,10 +24620,9 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		; Instance variables
-		oButtons := Object() ; simple array of Button objects
-		oButtonInternalNames := Object() ; associative array "name->index"
-		oButtonLocalizedNames := Object() ; associative array of "localized name->index"
-		strMouseButtonsDropDownList := ""
+		static oButtonInternalNames := Object() ; associative array "name->index"
+		static oButtonLocalizedNames := Object() ; associative array of "localized name->index"
+		static strMouseButtonsDropDownList := ""
 		
 		;-----------------------------------------------------
 		__New()
@@ -24639,8 +24638,9 @@ class Triggers.MouseButtons
 				this.oButtonInternalNames[objMouseButtonsInternalNames[A_Index]] := A_Index
 				this.oButtonLocalizedNames[objMouseButtonsLocalizedNames[A_Index]] := A_Index
 				oButton := new this.Button(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
-				this.oButtons.InsertAt(A_Index, oButton)
+				this[A_Index] := oButton
 			}
+			###_O("this", this)
 		}
 		;-----------------------------------------------------
 
@@ -24649,7 +24649,7 @@ class Triggers.MouseButtons
 		; strLocalizedName must be the normal name, not the short name
 		;-----------------------------------------------------
 		{
-			return this.oButtons[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
+			return this[this.oButtonLocalizedNames[strLocalizedName]].strInternalName
 		}
 		;-----------------------------------------------------
 
@@ -24658,8 +24658,8 @@ class Triggers.MouseButtons
 		; keep blnShort required to avoid error - do not use short version in mouse buttons dropdown list
 		;-----------------------------------------------------
 		{
-			return (blnShort ? this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedNameShort
-				: this.oButtons[this.oButtonInternalNames[strInternalName]].strLocalizedName)
+			return (blnShort ? this[this.oButtonInternalNames[strInternalName]].strLocalizedNameShort
+				: this[this.oButtonInternalNames[strInternalName]].strLocalizedName)
 		}
 		;-----------------------------------------------------
 
@@ -24675,13 +24675,10 @@ class Triggers.MouseButtons
 		GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
 		;-----------------------------------------------------
 		{
-			strDropDownList := this.strMouseButtonsDropDownList
 			if (strDefault = lDialogNone) ; here strDefault contains the localized text
-				StringReplace, strDropDownList, strDropDownList, % lDialogNone . "|", % lDialogNone . "||" ; use lDialogNone because this is localized
+				return StrReplace(this.strMouseButtonsDropDownList, lDialogNone . "|", lDialogNone . "||") ; use lDialogNone because this is localized
 			else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
-				StringReplace, strDropDownList, strDropDownList, % this.GetMouseButtonLocalized4InternalName(strDefault, false) . "|", % this.GetMouseButtonLocalized4InternalName(strDefault, false) . "||"
-			
-			return strDropDownList
+				return StrReplace(this.strMouseButtonsDropDownList, this.GetMouseButtonLocalized4InternalName(strDefault, false) . "|", this.GetMouseButtonLocalized4InternalName(strDefault, false) . "||")
 		}
 		;-----------------------------------------------------
 
