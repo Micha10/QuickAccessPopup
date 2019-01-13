@@ -24332,12 +24332,12 @@ class JLicons
 		loop, parse, strReplacements, |
 			if StrLen(A_LoopField)
 			{
-				StringSplit, arrIconReplacement, A_LoopField, =
-				if this.oIcons.HasKey(arrIconReplacement1) and InStr(arrIconReplacement2, ",")
+				objIconReplacement := StrSplit(A_LoopField, "=")
+				if this.oIcons.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
-					this.oReplacements[arrIconReplacement1] := this.oIcons[arrIconReplacement1]
-					this.oIcons[arrIconReplacement1] := arrIconReplacement2
+					this.oReplacements[objIconReplacement[1]] := this.oIcons[objIconReplacement[1]]
+					this.oIcons[objIconReplacement[1]] := objIconReplacement[2]
 				}
 			}
 	}
@@ -24428,16 +24428,15 @@ class Triggers.MouseButtons
 			objPopupHotkeyInternalNames := Object()
 			
 			objPopupHotkeyInternalNames := ["NavigateOrLaunchHotkeyMouse", "NavigateOrLaunchHotkeyKeyboard", "AlternativeHotkeyMouse", "AlternativeHotkeyKeyboard"]
-			strPopupHotkeyDefaults := "MButton|#W|+MButton|+#W"
-			StringSplit, arrPopupHotkeyDefaults, strPopupHotkeyDefaults, |
-			StringSplit, arrOptionsPopupHotkeyLocalizedNames, lOptionsPopupHotkeyTitles, |
-			StringSplit, arrOptionsPopupHotkeyLocalizedDescriptions, lOptionsPopupHotkeyTitlesSub, |
+			objPopupHotkeyDefaults := StrSplit("MButton|#W|+MButton|+#W", "|")
+			objOptionsPopupHotkeyLocalizedNames := StrSplit(lOptionsPopupHotkeyTitles, "|")
+			objOptionsPopupHotkeyLocalizedDescriptions := StrSplit(lOptionsPopupHotkeyTitlesSub, "|")
 			
 			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
 			{
-				IniRead, strThisPopupHotkey, %g_strIniFile%, Global, %strThisPopupHotkeyInternalName%, % arrPopupHotkeyDefaults%A_Index%
-				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, arrPopupHotkeyDefaults%A_Index%
-					, arrOptionsPopupHotkeyLocalizedNames%A_Index%, arrOptionsPopupHotkeyLocalizedDescriptions%A_Index%)
+				IniRead, strThisPopupHotkey, %g_strIniFile%, Global, %strThisPopupHotkeyInternalName%, % objPopupHotkeyDefaults[A_Index]
+				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objPopupHotkeyDefaults[A_Index]
+					, objOptionsPopupHotkeyLocalizedNames[A_Index], objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
 				this[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
 			}
@@ -24577,11 +24576,10 @@ class Triggers.MouseButtons
 			if StrLen(this.strKey) ; localize system key names
 			{
 				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
-				strLocalizedKeyNames := lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape
-				arrLocalizedKeyNames := StrSplit(strLocalizedKeyNames, "|")
+				objLocalizedKeyNames := StrSplit(lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape, "|")
 				Loop, Parse, strSystemKeyNames, |
 					if (this.strKey = A_LoopField)
-						this.strKey := arrLocalizedKeyNames[A_Index]
+						this.strKey := objLocalizedKeyNames[A_Index]
 			}
 			
 			if (this.strMouseButton = "None") ; do not compare with lDialogNone because it is translated
@@ -24631,19 +24629,18 @@ class Triggers.MouseButtons
 		__New()
 		;-----------------------------------------------------
 		{
-			strMouseButtonsInternalNames := "None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight"
-			StringSplit, arrMouseButtonsInternalNames, strMouseButtonsInternalNames, |
+			objMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
 			
 			strMouseButtonsLocalizedNames := lDialogNone . "|" . lDialogMouseButtonsText ; use lDialogNone because this is displayed
 			StringSplit, arrMouseButtonsLocalizedNames, strMouseButtonsLocalizedNames, |
 			strMouseButtonsLocalizedNamesShort := lDialogNone . "|" . lDialogMouseButtonsTextShort ; use lDialogNone because this is displayed
 			StringSplit, arrMouseButtonsLocalizedNamesShort, strMouseButtonsLocalizedNamesShort, |
 
-			loop, % arrMouseButtonsInternalNames0
+			loop, % objMouseButtonsInternalNames0
 			{
-				this.oButtonInternalNames[arrMouseButtonsInternalNames%A_Index%] := A_Index
+				this.oButtonInternalNames[objMouseButtonsInternalNames%A_Index%] := A_Index
 				this.oButtonLocalizedNames[arrMouseButtonsLocalizedNames%A_Index%] := A_Index
-				oButton := new this.Button(arrMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%, arrMouseButtonsLocalizedNamesShort%A_Index%)
+				oButton := new this.Button(objMouseButtonsInternalNames%A_Index%, arrMouseButtonsLocalizedNames%A_Index%, arrMouseButtonsLocalizedNamesShort%A_Index%)
 				this.oButtons.InsertAt(A_Index, oButton)
 			}
 			
