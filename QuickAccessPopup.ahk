@@ -3275,8 +3275,8 @@ Gosub, InitGuiControls
 
 ;---------------------------------
 ; Init class for Triggers (must be before LoadIniFile)
-o_MouseButtons := new Triggers.MouseButtons
-o_PopupHotkeys := new Triggers.PopupHotkeys
+global o_MouseButtons := new Triggers.MouseButtons
+o_PopupHotkeys := new Triggers.PopupHotkeys ; load QAP menu triggers from ini file
 
 ;---------------------------------
 ; Load Settings file
@@ -3463,7 +3463,7 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanNavigate(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; empty - act as a handle for the "Hotkey, If, Expression" condition in PopupHotkey.__New() (and elsewhere)
 ; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
@@ -3473,7 +3473,7 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, CanLaunch(A_ThisHotkey)
-; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; empty - act as a handle for the "Hotkey, If, Expression" condition in PopupHotkey.__New() (and elsewhere)
 ; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
@@ -3483,7 +3483,7 @@ return
 ;------------------------------------------------------------
 ;------------------------------------------------------------
 #If, WinActive(QAPSettingsString()) ; main Gui title
-; empty - act as a handle for the "Hotkey, If, Expression" condition in LoadIniPopupHotkeys
+; empty - act as a handle for the "Hotkey, If, Expression" condition in PopupHotkey.__New() (and elsewhere)
 ; ("Expression must be an expression which has been used with the #If directive elsewhere in the script.")
 #If
 ;------------------------------------------------------------
@@ -4986,7 +4986,7 @@ else
 	}
 }
 
-Gosub, LoadIniPopupHotkeys ; load from ini file and enable popup hotkeys
+Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; load from ini file and enable Alternative menu features hotkeys
 
 ; ---------------------
 ; Load Options Tab 1 General
@@ -5686,59 +5686,10 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 
 
 ;-----------------------------------------------------------
-LoadIniPopupHotkeys:
-; load from ini file and enable popup hotkeys
+LoadIniAlternativeMenuFeaturesHotkeys:
+; load and enable Alternative menu features hotkeys
 ; called at launch by LoadIniFile and after saving options by ButtonOptionsSave
 ;-----------------------------------------------------------
-
-; Two hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
-; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
-
-; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
-Hotkey, If, CanNavigate(A_ThisHotkey)
-	if HasShortcut(o_PopupHotkeys[1].strPopupHotkeyPrevious)
-		Hotkey, % o_PopupHotkeys[1].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(o_PopupHotkeys[1].AhkHotkey)
-		Hotkey, % o_PopupHotkeys[1].AhkHotkey, NavigateHotkeyMouse, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, o_PopupHotkeys[1].strPopupHotkeyText, o_PopupHotkeys[1].strPopupHotkeyLocalizedName)
-	if HasShortcut(o_PopupHotkeys[2].strPopupHotkeyPrevious)
-		Hotkey, % o_PopupHotkeys[2].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(o_PopupHotkeys[2].AhkHotkey)
-		Hotkey, % o_PopupHotkeys[2].AhkHotkey, NavigateHotkeyKeyboard, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, o_PopupHotkeys[2].strPopupHotkeyText, o_PopupHotkeys[2].strPopupHotkeyLocalizedName)
-Hotkey, If
-
-; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
-Hotkey, If, CanLaunch(A_ThisHotkey)
-	if HasShortcut(o_PopupHotkeys[1].strPopupHotkeyPrevious)
-		Hotkey, % o_PopupHotkeys[1].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-	if HasShortcut(o_PopupHotkeys[1].AhkHotkey)
-		Hotkey, % o_PopupHotkeys[1].AhkHotkey, LaunchHotkeyMouse, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, o_PopupHotkeys[1].strPopupHotkeyText, .strPopupHotkeyLocalizedName)
-	if HasShortcut(o_PopupHotkeys[2].strPopupHotkeyPrevious)
-		Hotkey, % o_PopupHotkeys[2].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-	if HasShortcut(o_PopupHotkeys[2].AhkHotkey)
-		Hotkey, % o_PopupHotkeys[2].AhkHotkey, LaunchHotkeyKeyboard, On UseErrorLevel
-	if (ErrorLevel)
-		Oops(lDialogInvalidHotkey, o_PopupHotkeys[2].strPopupHotkeyText, o_PopupHotkeys[2].strPopupHotkeyLocalizedName)
-Hotkey, If
-
-; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
-if HasShortcut(o_PopupHotkeys[3].strPopupHotkeyPrevious)
-	Hotkey, % o_PopupHotkeys[3].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-if HasShortcut(o_PopupHotkeys[3].AhkHotkey)
-	Hotkey, % o_PopupHotkeys[3].AhkHotkey, AlternativeHotkeyMouse, On UseErrorLevel
-if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, o_PopupHotkeys[3].strPopupHotkeyText, o_PopupHotkeys[3].strPopupHotkeyLocalizedName)
-if HasShortcut(o_PopupHotkeys[4].strPopupHotkeyPrevious)
-	Hotkey, % o_PopupHotkeys[4].strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
-if HasShortcut(o_PopupHotkeys[4].AhkHotkey)
-	Hotkey, % o_PopupHotkeys[4].AhkHotkey, AlternativeHotkeyKeyboard, On UseErrorLevel
-if (ErrorLevel)
-	Oops(lDialogInvalidHotkey, o_PopupHotkeys[4].strPopupHotkeyText, o_PopupHotkeys[4].strPopupHotkeyLocalizedName)
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in g_objQAPFeatures
@@ -8328,7 +8279,7 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabMouseAndKeyboardIntro, g_
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys
 {
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x15 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName . "!"
+	Gui, 2:Add, Text, x15 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex%, % objThisPopupHotkey.strPopupHotkeyTextShort
 	Gui, 2:Font
@@ -9369,7 +9320,8 @@ g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
 IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
-Gosub, LoadIniPopupHotkeys ; reload from ini file and re-enable popup hotkeys
+Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
+o_PopupHotkeys.EnablePopupHotkeys()
 
 ;---------------------------------------
 ; Save Tab 5: File Managers
@@ -24345,7 +24297,8 @@ class Triggers
 
 class Triggers.PopupHotkeys
 	Methods
-	- Triggers.PopupHotkeys.__New(): add an array of 4 QAP menu triggers objects of class PopupHotkey to this class
+	- Triggers.PopupHotkeys.__New(): add an array of 4 QAP menu triggers objects of class PopupHotkey to this class and enable these hotkeys
+	- Triggers.PopupHotkeys.EnablePopupHotkeys(): enable popup menu hotkeys
 	- BackupPopupHotkeys(): backup hotkeys (used when opening Options)
 	- RestorePopupHotkeys(): restore backuped hotkeys (used when cancelling Options changes)
 	Instance variables
@@ -24354,6 +24307,7 @@ class Triggers.PopupHotkeys
 	class Triggers.PopupHotkeys.PopupHotkey
 		Methods
 		- Triggers.PopupHotkeys.PopupHotkey.__New(): create one PopupHotkeyQAP menu trigger object
+		- Triggers.PopupHotkeys.PopupHotkey.EnableHotkey(): disable previous popup menu hotkey and enable the new hotkey
 		Properties
 		- Triggers.PopupHotkeys.PopupHotkey.AhkHotkey: set a new _PopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
 		Instance variables
@@ -24427,6 +24381,29 @@ class Triggers.MouseButtons
 				this[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
 			}
+			this.EnablePopupHotkeys()
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		EnablePopupHotkeys()
+		;-----------------------------------------------------
+		{
+			; Two hotkey variants for A_ThisHotkey: if CanNavigate or if CanLaunch, else A_ThisHotkey does nothing
+			; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
+			Hotkey, If, CanNavigate(A_ThisHotkey)
+				; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
+				this[1].EnableHotkey("Navigate", "Mouse")
+				this[2].EnableHotkey("Navigate", "Keyboard")
+			Hotkey, If
+			Hotkey, If, CanLaunch(A_ThisHotkey)
+				; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
+				this[1].EnableHotkey("Launch", "Mouse")
+				this[2].EnableHotkey("Launch", "Keyboard")
+			Hotkey, If
+			; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
+			this[3].EnableHotkey("Alternative", "Mouse")
+			this[4].EnableHotkey("Alternative", "Keyboard")
 		}
 		;-----------------------------------------------------
 		
@@ -24494,6 +24471,20 @@ class Triggers.MouseButtons
 				}
 			}
 			;-------------------------------------------------
+			
+			;-------------------------------------------------
+			EnableHotkey(strActionType, strTriggerType)
+			;-------------------------------------------------
+			{
+				strLabel := strActionType . "Hotkey" . strTriggerType
+				if HasShortcut(this.strPopupHotkeyPrevious)
+					Hotkey, % this.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
+				if HasShortcut(this.AhkHotkey)
+					Hotkey, % this.AhkHotkey, %strLabel%, On UseErrorLevel
+				if (ErrorLevel)
+					Oops(lDialogInvalidHotkey, this.strPopupHotkeyText, this.strPopupHotkeyLocalizedName)
+			}
+			;-------------------------------------------------
 		}
 		;-----------------------------------------------------
 	}
@@ -24521,8 +24512,6 @@ class Triggers.MouseButtons
 		SplitParts(strHotkey)
 		;-----------------------------------------------------
 		{
-			global o_MouseButtons
-			
 			if (strHotkey = "None") ; do not compare with lDialogNone because it is translated
 			{
 				this.strModifiers := ""
@@ -24558,8 +24547,6 @@ class Triggers.MouseButtons
 		; was Hotkey2Text and HotkeySections2Text
 		;-----------------------------------------------------
 		{
-			global o_MouseButtons
-
 			if StrLen(this.strKey) ; localize system key names
 			{
 				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
