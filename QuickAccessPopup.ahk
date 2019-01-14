@@ -24203,7 +24203,7 @@ class JLicons
 	Instance variables
 	- strFileLocation: path and file name of the JLicons library file
 	- oNames: simple array index of icon names (iconXYZ)
-	- oReplacements: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
+	- oReplacementPrevious: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
 */
 ;-------------------------------------------------------------
 {
@@ -24273,6 +24273,8 @@ class JLicons
 			if StrLen(A_LoopField)
 			{
 				objIconReplacement := StrSplit(A_LoopField, "=")
+				if This.HasKey(objIconReplacement[2]) ; support replacement with another JLicons item
+					objIconReplacement[2] := This[objIconReplacement[2]]
 				if this.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
