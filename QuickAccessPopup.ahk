@@ -4416,8 +4416,8 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 	
 	if (blnIsClsId)
 		strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
-	if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons.GetIconResource(strDefaultIcon))
-		strThisDefaultIcon := o_JLicons.GetIconResource(strDefaultIcon)
+	if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons[strDefaultIcon])
+		strThisDefaultIcon := o_JLicons[strDefaultIcon]
 	if !StrLen(strThisDefaultIcon)
 		strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
 	objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
@@ -9046,7 +9046,7 @@ else
 		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . lGuiHelp . "</a>)"
 		strInstructions := lOptionsIconReplacementListInstructions
 		strControlName := "f_strIconReplacementListMore"
-		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons.GetIconResource("iconUnknown"))
+		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons["iconUnknown"])
 	}
 	
 	Gui, 3:Font, s8 w700
@@ -12385,7 +12385,7 @@ Gui, 2:Submit, NoHide
 
 g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.GetIconResource("iconUnknown"))
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
@@ -15094,7 +15094,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			if StrLen(o_JLicons.GetIconResource(objCurrentMenu[A_Index].FavoriteIconResource)) ; save index of o_JLicons
+			if StrLen(o_JLicons[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
 			{
@@ -21756,14 +21756,14 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 ;------------------------------------------------------------
 {
 	global o_JLicons
-	
+
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
-		strIconResource := o_JLicons.GetIconResource(strDefaultType)
+		strIconResource := o_JLicons[strDefaultType]
 	If !InStr(strIconResource, ",") ; this is an index from o_JLicons or the name of a file including icons
-		if StrLen(o_JLicons.GetIconResource(strIconResource)) ; this is an index from o_JLicons
-			strIconResource := o_JLicons.GetIconResource(strIconResource) ; replace it with file,index format
+		if StrLen(o_JLicons[strIconResource]) ; this is an index from o_JLicons
+			strIconResource := o_JLicons[strIconResource] ; replace it with file,index format
 		else ; this is the name of a file including icons
 			strIconResource := strIconResource . ",1" ; use its first icon
 	
@@ -24244,24 +24244,21 @@ class JLicons
 /*
 class JLicons
 	Methods
-	- JLicons.__New(strJLiconsFile): create an associative array oIcons "name"->"file,index" for each JLicon.dll and simple array oNames index of names
-	- JLicons.GetIconResource(strKey): return the "file,index" value for oJLicons element strKey (was g_objJLiconsByName[strKey] before class)
+	- JLicons.__New(strJLiconsFile): add array oIcons "name"->"file,index" to class JLicons for each JLicon.dll and to simple array oNames index of names
 	- JLicons.GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
 	- JLicons.AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
 	- JLicons.ProcessReplacements(strReplacements): removes previous JLicons replacements in oReplacements and do the current replacements in strReplacements
 	Instance variables
 	- strFileLocation: path and file name of the JLicons library file
-	- oIcons: associative array "strKey->strValue" (iconXYZ->file,index)
 	- oNames: simple array index of icon names (iconXYZ)
 	- oReplacements: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
 */
 ;-------------------------------------------------------------
 {
 	; Instance variables
-	strFileLocation := ""
-	oIcons := Object() ; was g_objJLiconsByName before class
-	oNames := Object() ; was g_objJLiconsNames before class
-	oReplacements := Object()
+	static strFileLocation := ""
+	static oNames := Object() ; was g_objJLiconsNames before class
+	static oReplacementPrevious := Object() ; original values of replaced icons
 	
 	;---------------------------------------------------------
 	__New(strJLiconsFile)
@@ -24298,15 +24295,7 @@ class JLicons
 	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
 	;---------------------------------------------------------
 	{
-		this.oIcons[strKey] := strFileIndex
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	GetIconResource(strKey) ; was g_objJLiconsByName[strKey] before class
-	;---------------------------------------------------------
-	{
-		return this.oIcons[strKey]
+		this[strKey] := strFileIndex
 	}
 	;---------------------------------------------------------
 
@@ -24323,20 +24312,20 @@ class JLicons
 	;---------------------------------------------------------
 	{
 		; restore previously replaced icons
-		for strKey, strFileIndex in this.oReplacements
-			this.oIcons[strKey] := strFileIndex
+		for strKey, strFileIndex in this.oReplacementPrevious
+			this[strKey] := strFileIndex
 		
-		this.oReplacements := Object() ; reset replacements
+		this.oReplacementPrevious := Object() ; reset replacements
 		
 		loop, parse, strReplacements, |
 			if StrLen(A_LoopField)
 			{
 				objIconReplacement := StrSplit(A_LoopField, "=")
-				if this.oIcons.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
+				if this.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
-					this.oReplacements[objIconReplacement[1]] := this.oIcons[objIconReplacement[1]]
-					this.oIcons[objIconReplacement[1]] := objIconReplacement[2]
+					this.oReplacementPrevious[objIconReplacement[1]] := this[objIconReplacement[1]]
+					this[objIconReplacement[1]] := objIconReplacement[2]
 				}
 			}
 	}
