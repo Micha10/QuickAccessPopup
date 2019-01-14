@@ -24450,13 +24450,14 @@ Property
 		; restore previously replaced icons
 		for strKey, strFileIndex in This.oReplacements
 			This.oIcons[strKey] := strFileIndex
-		
 		This.oReplacements := Object() ; reset replacements
 		
 		loop, parse, strReplacements, |
 			if StrLen(A_LoopField)
 			{
 				StringSplit, arrIconReplacement, A_LoopField, =
+				if This.oIcons.HasKey(arrIconReplacement2) ; support replacement with another JLicons item
+					arrIconReplacement2 := This.oIcons[arrIconReplacement2]
 				if This.oIcons.HasKey(arrIconReplacement1) and InStr(arrIconReplacement2, ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
