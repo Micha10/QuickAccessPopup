@@ -6025,8 +6025,8 @@ else
 		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1
 	else
-		; 59 is iconQAPdev, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 59) : 1), 1
+		; 60 is iconQAPloading, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 60) : 1), 1
 
 g_blnTrayIconError := ErrorLevel or g_blnTrayIconError
 Menu, Tray, UseErrorLevel, Off
