@@ -1,6 +1,13 @@
+rem Check that there is no debug code flag
+>NUL find "#####" ..\QuickAccessPopup.ahk && (ECHO Debug code ##### FOUND in QuickAccessPopup.ahk & PAUSE & EXIT) || (ECHO NO debug code flag found)
 rem Check if version number is OK in source file
->NUL find "SetVersion %QAPVERSIONNUMBER%" ..\QuickAccessPopup.ahk && (ECHO Version number #1 FOUND in QuickAccessPopup.ahk) || (ECHO SetVersion %QAPVERSIONNUMBER% = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
->NUL find """%QAPVERSIONNUMBER%""" ..\QuickAccessPopup.ahk && (ECHO Version number #2 FOUND in QuickAccessPopup.ahk) || (ECHO "%QAPVERSIONNUMBER%" = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+>NUL find "SetVersion %QAPVERSIONNUMBER%" ..\QuickAccessPopup.ahk && (ECHO Version %QAPVERSIONNUMBER% #1 FOUND in QuickAccessPopup.ahk) || (ECHO SetVersion %QAPVERSIONNUMBER% = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+>NUL find """%QAPVERSIONNUMBER%""" ..\QuickAccessPopup.ahk && (ECHO Version %QAPVERSIONNUMBER% #2 FOUND in QuickAccessPopup.ahk) || (ECHO "%QAPVERSIONNUMBER%" = Version number NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+rem Check branch
+IF [%QAPBETAPROD%] == [] >NUL find "g_strCurrentBranch := ""prod""" ..\QuickAccessPopup.ahk && (ECHO Branch "prod" OK in QuickAccessPopup.ahk) || (ECHO Branch "prod" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+IF [%QAPBETAPROD%] == [-beta] >NUL find "g_strCurrentBranch := ""beta""" ..\QuickAccessPopup.ahk && (ECHO Branch "beta" OK in QuickAccessPopup.ahk) || (ECHO Branch "beta" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+IF [%QAPBETAPROD%] == [-alpha] >NUL find "g_strCurrentBranch := ""alpha""" ..\QuickAccessPopup.ahk && (ECHO Branch "alpha" OK in QuickAccessPopup.ahk) || (ECHO Branch "alpha" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
+PAUSE & EXIT
 rem Check if Language files are available
 ECHO Checking language files...
 E:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk
