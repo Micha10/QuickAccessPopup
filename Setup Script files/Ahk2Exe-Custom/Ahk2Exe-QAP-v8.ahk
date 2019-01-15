@@ -34,7 +34,7 @@ if 0 = 0
 	ExitApp, 0x2 ; Compilation cancelled
 }
 ; %1% = "32" ou "64"
-; %2% = "-beta" ou est vide
+; %2% = "alpha", "-beta" ou est vide
 AhkFile := "E:\Dropbox\AutoHotkey\QuickAccessPopup\QuickAccessPopup.ahk"
 ExeFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Build-v8%2%\QuickAccessPopup-%1%-bit.exe ; PAS expression
 IcoFile = E:\Dropbox\AutoHotkey\QuickAccessPopup\Distribution-files\QuickAccessPopup%2%.ico
