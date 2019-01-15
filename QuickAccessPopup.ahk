@@ -3157,6 +3157,7 @@ g_strAppNameText := "Quick Access Popup"
 g_strCurrentVersion := "9.4.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
+g_strJLiconsVersion := "v1.5"
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
@@ -3302,7 +3303,10 @@ if (g_blnCheck4Update) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
+Menu, Tray, UseErrorLevel
 Menu, Tray, Icon, % o_JLicons.strFileLocation, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
+g_blnTrayIconError := ErrorLevel
+Menu, Tray, UseErrorLevel, Off
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
@@ -6009,6 +6013,8 @@ SetTrayMenuIcon:
 
 Menu, Tray, NoStandard
 IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
+
+Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
 if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
@@ -6016,12 +6022,21 @@ else
 		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 	else
 		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+
+g_blnTrayIconError := ErrorLevel or g_blnTrayIconError
+Menu, Tray, UseErrorLevel, Off
+
+if (g_blnTrayIconError)
+	Oops(lOopsJLiconsError, g_strJLiconsVersion)
+
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
 Menu, Tray, Icon, % o_JLicons.strFileLocation, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
 Menu, Tray, Standard
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
+
+g_blnTrayIconError := ""
 
 return
 ;------------------------------------------------------------

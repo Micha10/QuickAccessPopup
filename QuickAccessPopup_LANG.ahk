@@ -650,6 +650,7 @@ global lOopsHotstringTriggerTooLong := "Hotstring trigger too long. Hotstring tr
 global lOopsHttpLocationTransformed := "The http location (URL format) has been transformed to a network path (UNC format) for compatibility with Windows:`n`n~1~`n~2~"
 global lOopsInvalidWinCmdIni := "Total Commander settings file ""wincmd.ini"" not found.`n`nSelect the file in ""Options"", ""File managers"" tab."
 global lOopsInvalidWindowPosition := "Invalid window position value(s)"
+global lOopsJLiconsError := "QAP tray icon not found. Make sure you updated the JLicons.dll file to ~1~."
 global lOopsLaunchWithNotFound := """Launch with this application"" file not found:`n`n~1~`n`nCheck the favorite's advanced settings."
 global lOopsLocation := "location"
 global lOopsMaxLiveFolder := "The maximum number of items in Live folders (~1~) has been exceeded. Please reduce the number of levels of Live folders.`n`nYou could also raise this limit but be careful: a too-large number can produce unpredicable results. Edit the value ""NbLiveFolderItemsMax"" under the [Global] section of the settings file (QuickAccessPop.ini)."
