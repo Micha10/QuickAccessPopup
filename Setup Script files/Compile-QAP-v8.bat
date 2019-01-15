@@ -7,7 +7,6 @@ rem Check branch
 IF [%QAPBETAPROD%] == [] >NUL find "g_strCurrentBranch := ""prod""" ..\QuickAccessPopup.ahk && (ECHO Branch "prod" OK in QuickAccessPopup.ahk) || (ECHO Branch "prod" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
 IF [%QAPBETAPROD%] == [-beta] >NUL find "g_strCurrentBranch := ""beta""" ..\QuickAccessPopup.ahk && (ECHO Branch "beta" OK in QuickAccessPopup.ahk) || (ECHO Branch "beta" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
 IF [%QAPBETAPROD%] == [-alpha] >NUL find "g_strCurrentBranch := ""alpha""" ..\QuickAccessPopup.ahk && (ECHO Branch "alpha" OK in QuickAccessPopup.ahk) || (ECHO Branch "alpha" NOT FOUND in QuickAccessPopup.ahk & PAUSE & EXIT)
-PAUSE & EXIT
 rem Check if Language files are available
 ECHO Checking language files...
 E:\Dropbox\AutoHotkey\QuickAccessPopup\Language\AutoExec-Check4QAPLanguageFilesReady.ahk

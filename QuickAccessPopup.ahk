@@ -31,8 +31,18 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.4.1.1.9 (2019-01-10)
-- preliminary release
+Version ALPHA: 9.9.0.1 (2019-01-15)
+- rewrite portions of code using object oriented programming (OOP) approach (classes):
+  - QAP menu popup hotkeys
+  - QAP icons (JLicons.dll)
+  - mouse button names
+  - command line parameters
+ 
+Changes to be released in v9.4.1.1
+- give a clean error message if user did not update JLicons.dll file to v1.5 and QAP loading icon is missing
+- fix bug fix bug when changing hotkey for alternative menu features leaving obsolete hotkeys alive until QAP was reloaded
+- in "QAP Icon Replacements" ("Options", "More" tab), support replacement with another QAP icon (from JLicons)
+- adding support for alpha branch in "Check for update", use grey QAP icon for tray icon when running the alpha branch
 
 Version: 9.4.1.1 (2019-01-10)
 - fix bug introduced in v9.4.1 in the "Switch Settings file" command found under the QAP system menu "Settings file options" (right click the QAP icon in the Notification zone)
@@ -3052,7 +3062,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.1.9
+;@Ahk2Exe-SetVersion 9.9.0.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3157,8 +3167,8 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.1.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+g_strCurrentVersion := "9.9.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
 
@@ -5969,8 +5979,8 @@ else
 		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1
 	else
-		; 59 is iconQAPdev, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 59) : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		; 60 is iconQAPloading, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 60) : 1), 1
 
 g_blnTrayIconError := ErrorLevel or g_blnTrayIconError
 Menu, Tray, UseErrorLevel, Off
