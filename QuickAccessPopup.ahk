@@ -19242,9 +19242,9 @@ Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only c
 	}
 
 objLatestVersions := StrSplit(strLatestVersions, "|")
-strLatestVersionProd := arrLatestVersions[1]
-strLatestVersionBeta := arrLatestVersions[2]
-strLatestVersionAlpha := arrLatestVersions[3]
+strLatestVersionProd := objLatestVersions[1]
+strLatestVersionBeta := objLatestVersions[2]
+strLatestVersionAlpha := objLatestVersions[3]
 
 ; DEGUG VALUES
 ; g_strCurrentVersion := "9.3"
@@ -19424,7 +19424,7 @@ Gui, Update:Add, Text
 
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCheck4UpdateDialogSkipVersion", "f_btnCheck4UpdateDialogRemind")
 
-GuiControl, Focus, f_btnCheck4UpdateDialogDownloadSetup
+GuiControl, Update:Focus, f_btnCheck4UpdateDialogRemind
 CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
 Gui, Update:Show, AutoSize x%intX% y%intY%
 
