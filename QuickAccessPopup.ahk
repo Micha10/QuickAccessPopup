@@ -3302,7 +3302,7 @@ if (g_blnCheck4Update) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
-Menu, Tray, Icon, % o_JLicons.strFileLocation, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch = "alpha" ? 59 : 60), 1 ; 60 is iconQAPloading, 59 is iconQAPdev (red) if loading alpha branch, last 1 to freeze icon during pause or suspend
 
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
@@ -6016,9 +6016,11 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
+		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1
 	else
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		; 59 is iconQAPdev, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 59) : 1), 1
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
 Menu, Tray, Icon, % o_JLicons.strFileLocation, % (A_IsAdmin ? 57 : 59), 1 ; 57 is iconQAPadminDev and 59 is iconQAPdev, last 1 to freeze icon during pause or suspend
@@ -19229,32 +19231,44 @@ strLatestVersionProd := arrLatestVersions[1]
 strLatestVersionBeta := arrLatestVersions[2]
 strLatestVersionAlpha := arrLatestVersions[3]
 
-###_V(A_ThisLabel, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
-	, "*strLatestUsedAlpha", strLatestUsedAlpha, "*strLatestUsedBeta", strLatestUsedBeta, "*strLatestVersionProd", strLatestVersionProd, "*", ""
-	, "*strLatestSkippedProd", strLatestSkippedProd
-	, "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
-	, "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
-	, "*Propose BETA?", ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta), "*", ""
-	, "*strLatestVersionAlpha", strLatestVersionAlpha, "*strLatestSkippedAlpha", strLatestSkippedAlpha
-	, "*Propose ALPHA?", ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha), "*", ""
-	, "*", "")
-if (strLatestUsedAlpha <> "0.0") and (ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha))
+; DEGUG VALUES
+; g_strCurrentVersion := "9.3"
+; strLatestVersionAlpha := "9.3.1"
+; strLatestUsedAlpha := "1.1"
+; strLatestSkippedAlpha := "9.3.2"
+; strLatestVersionBeta := "9.3.2"
+; strLatestUsedBeta := "1.1"
+; strLatestSkippedBeta := "9.3.1"
+; strLatestVersionProd := "9.2"
+; strLatestSkippedProd := "9.4"
+; DEGUG VALUES
+; ###_V(A_ThisLabel, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
+	; , "*strLatestVersionAlpha", strLatestVersionAlpha, "*strLatestUsedAlpha", strLatestUsedAlpha, "*strLatestSkippedAlpha", strLatestSkippedAlpha
+	; , "*Propose ALPHA?", ((strLatestUsedAlpha <> "0.0" and ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha)) ? "OUI" : ""), "*", ""
+	; , "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestUsedBeta", strLatestUsedBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
+	; , "*Propose BETA?", ((strLatestUsedBeta <> "0.0" and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta)) ? "OUI" : ""), "*", ""
+	; , "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
+	; , "*Propose PROD?", (ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd) ? "OUI" : "")
+	; , "*", "")
+; KEEP DEBUGGING CODE
+	
+if (strLatestUsedAlpha <> "0.0" and ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha))
 {
 	g_strUpdateProdOrBeta := "alpha"
 	g_strUpdateLatestVersion := strLatestVersionAlpha
-	Gosub, GuiUpdate
+	Gosub, GuiCheck4Update
 }
-else if (strLatestUsedBeta <> "0.0") and (ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
+else if (strLatestUsedBeta <> "0.0" and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
 {
 	g_strUpdateProdOrBeta := "beta"
 	g_strUpdateLatestVersion := strLatestVersionBeta
-	Gosub, GuiUpdate
+	Gosub, GuiCheck4Update
 }
 else if ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd)
 {
 	g_strUpdateProdOrBeta := "prod"
 	g_strUpdateLatestVersion := strLatestVersionProd
-	Gosub, GuiUpdate
+	Gosub, GuiCheck4Update
 }
 else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateNow")
 {
@@ -19351,7 +19365,7 @@ Time2Donate(intStartups, g_blnDonor)
 
 
 ;------------------------------------------------------------
-GuiUpdate:
+GuiCheck4Update:
 ;------------------------------------------------------------
 
 strChangeLog := Url2Var("https://www.quickaccesspopup.com/changelog/changelog" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . ".txt")
