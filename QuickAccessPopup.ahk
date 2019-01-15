@@ -3304,7 +3304,7 @@ if (g_blnCheck4Update) ; must be after BuildGui
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
 Menu, Tray, UseErrorLevel
-Menu, Tray, Icon, % o_JLicons.strFileLocation, 60, 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
+Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch = "alpha" ? 59 : 60), 1 ; 60 is iconQAPloading, last 1 to freeze icon during pause or suspend
 g_blnTrayIconError := ErrorLevel
 Menu, Tray, UseErrorLevel, Off
 
@@ -6022,9 +6022,11 @@ if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and g_blnRunAsAdmin)
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1 ; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
+		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1
 	else
-		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 58 : 1), 1 ; 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		; 59 is iconQAPdev, 58 is iconQAPbeta and 1 is iconQAP, last 1 to freeze icon during pause or suspend
+		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ?  (g_strCurrentBranch = "beta" ? 58 : 59) : 1), 1
 
 g_blnTrayIconError := ErrorLevel or g_blnTrayIconError
 Menu, Tray, UseErrorLevel, Off
@@ -19177,6 +19179,8 @@ strBetaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-beta
 IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
 IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
 IniRead, strLatestUsedBeta, %g_strIniFile%, Global, LastVersionUsedBeta, 0.0
+IniRead, strLatestSkippedAlpha, %g_strIniFile%, Global, LatestVersionSkippedAlpha, 0.0
+IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
 
 IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
 
@@ -19237,27 +19241,49 @@ Loop, Parse, strLatestVersions, , 0123456789.| ; strLatestVersions should only c
 		return
 	}
 
-StringSplit, arrLatestVersions, strLatestVersions, |
-strLatestVersionProd := arrLatestVersions1
-strLatestVersionBeta := arrLatestVersions2
+objLatestVersions := StrSplit(strLatestVersions, "|")
+strLatestVersionProd := arrLatestVersions[1]
+strLatestVersionBeta := arrLatestVersions[2]
+strLatestVersionAlpha := arrLatestVersions[3]
 
-; ###_V(A_ThisLabel, "*strLatestUsedBeta", strLatestUsedBeta, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
+; DEGUG VALUES
+; g_strCurrentVersion := "9.3"
+; strLatestVersionAlpha := "9.3.1"
+; strLatestUsedAlpha := "1.1"
+; strLatestSkippedAlpha := "9.3.2"
+; strLatestVersionBeta := "9.3.2"
+; strLatestUsedBeta := "1.1"
+; strLatestSkippedBeta := "9.3.1"
+; strLatestVersionProd := "9.2"
+; strLatestSkippedProd := "9.4"
+; DEGUG VALUES
+; ###_V(A_ThisLabel, "*g_strCurrentVersion", g_strCurrentVersion, "*", ""
+	; , "*strLatestVersionAlpha", strLatestVersionAlpha, "*strLatestUsedAlpha", strLatestUsedAlpha, "*strLatestSkippedAlpha", strLatestSkippedAlpha
+	; , "*Propose ALPHA?", ((strLatestUsedAlpha <> "0.0" and ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha)) ? "OUI" : ""), "*", ""
+	; , "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestUsedBeta", strLatestUsedBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
+	; , "*Propose BETA?", ((strLatestUsedBeta <> "0.0" and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta)) ? "OUI" : ""), "*", ""
 	; , "*strLatestVersionProd", strLatestVersionProd, "*strLatestSkippedProd", strLatestSkippedProd
-	; , "*Propose PROD?", ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd), "*", ""
-	; , "*strLatestVersionBeta", strLatestVersionBeta, "*strLatestSkippedBeta", strLatestSkippedBeta
-	; , "*Propose BETA?", ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
+	; , "*Propose PROD?", (ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd) ? "OUI" : "")
 	; , "*", "")
-if (strLatestUsedBeta <> "0.0") and (ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
+; KEEP DEBUGGING CODE
+	
+if (strLatestUsedAlpha <> "0.0" and ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha))
+{
+	g_strUpdateProdOrBeta := "alpha"
+	g_strUpdateLatestVersion := strLatestVersionAlpha
+	Gosub, GuiCheck4Update
+}
+else if (strLatestUsedBeta <> "0.0" and ProposeUpdate(strLatestVersionBeta, g_strCurrentVersion, strLatestSkippedBeta))
 {
 	g_strUpdateProdOrBeta := "beta"
 	g_strUpdateLatestVersion := strLatestVersionBeta
-	Gosub, GuiUpdate
+	Gosub, GuiCheck4Update
 }
 else if ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd)
 {
 	g_strUpdateProdOrBeta := "prod"
 	g_strUpdateLatestVersion := strLatestVersionProd
-	Gosub, GuiUpdate
+	Gosub, GuiCheck4Update
 }
 else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateNow")
 {
@@ -19268,8 +19294,10 @@ else if (A_ThisMenuItem = lMenuUpdateAmpersand) or (A_ThisLabel = "Check4UpdateN
 ; else do nothing
 
 Check4UpdateCleanup:
+strLatestSkippedAlpha := ""
 strLatestSkippedBeta := ""
 strLatestSkippedProd := ""
+strLatestUsedAlpha := ""
 strLatestUsedBeta := ""
 intStartups := ""
 
@@ -19352,14 +19380,14 @@ Time2Donate(intStartups, g_blnDonor)
 
 
 ;------------------------------------------------------------
-GuiUpdate:
+GuiCheck4Update:
 ;------------------------------------------------------------
 
-strChangeLog := Url2Var("https://www.quickaccesspopup.com/changelog/changelog" . (g_strUpdateProdOrBeta = "beta" ? "-beta" : "") . ".txt")
+strChangeLog := Url2Var("https://www.quickaccesspopup.com/changelog/changelog" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . ".txt")
 
 if StrLen(strChangeLog)
 {
-	intPos := InStr(strChangeLog, "Version" . (g_strUpdateProdOrBeta = "beta" ? " BETA" : "") . ": " . g_strUpdateLatestVersion . " ")
+	intPos := InStr(strChangeLog, "Version" . (g_strUpdateProdOrBeta = "beta" ? " BETA" : (g_strUpdateProdOrBeta = "alpha" ? " ALPHA" : "")) . ": " . g_strUpdateLatestVersion . " ")
 	strChangeLog := SubStr(strChangeLog, intPos)
 	intPos := InStr(strChangeLog, "`n`n")
 	strChangeLog := SubStr(strChangeLog, 1, intPos - 1)
@@ -19373,7 +19401,7 @@ Gui, Update:Font, s10 w700, Verdana
 Gui, Update:Add, Text, x10 y10 w640, % L(lUpdateTitle, g_strAppNameText)
 Gui, Update:Font
 Gui, Update:Add, Text, x10 w640, % l(lUpdatePrompt, g_strAppNameText, g_strCurrentVersion
-	, g_strUpdateLatestVersion . (g_strUpdateProdOrBeta = "beta" ? " BETA" : ""))
+	, g_strUpdateLatestVersion . (g_strUpdateProdOrBeta <> "prod" ? " " . g_strUpdateProdOrBeta : ""))
 Gui, Update:Add, Edit, x8 y+10 w640 h300 ReadOnly, %strChangeLog%
 Gui, Update:Font
 
@@ -19418,7 +19446,7 @@ UpdateGuiClose:
 UpdateGuiEscape:
 ;------------------------------------------------------------
 
-strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta = "beta" ? "-beta-version" : "") . "/"
+strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . "/"
 strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html" ; prod only
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html" ; prod only
 strUrlAppLandingPageBeta := "https://groups.google.com/forum/#!forum/qap-betatesters"
@@ -19426,25 +19454,27 @@ strUrlAppLandingPageBeta := "https://groups.google.com/forum/#!forum/qap-betates
 if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 	Run, %strUrlChangeLog%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
-	Run, % (g_strUpdateProdOrBeta = "beta" ? strUrlAppLandingPageBeta : g_strUrlAppLandingPage)
+	Run, % (g_strUpdateProdOrBeta <> "prod" ? g_strUrlAppLandingPage : strUrlAppLandingPageBeta) ; beta page also for alpha
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadSetup")
 	Run, %strUrlDownloadSetup%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
 	Run, %strUrlDownloadPortable%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 {
-	IniWrite, % (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd), %g_strIniFile%, Global
-		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
-	if (g_strUpdateProdOrBeta = "beta")
+	IniWrite, % (g_strUpdateProdOrBeta = "alpha" ? strLatestVersionAlpha : (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd)), %g_strIniFile%, Global
+		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "alpha" ? "Alpha" : (g_strUpdateProdOrBeta = "beta" ? "Beta" : "")) ; do not add "Prod" to ini variable for backward compatibility
+	if (g_strUpdateProdOrBeta <> "prod")
 	{
-		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " BETA"), %lUpdatePromptBetaContinue%
+		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " " . g_strUpdateProdOrBeta)
+			, (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
+			: lUpdatePromptBetaContinue)
 		IfMsgBox, No
 			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
 	}
 }
 else ; ButtonCheck4UpdateDialogRemind, UpdateGuiClose or UpdateGuiEscape
 	IniWrite, 0.0, %g_strIniFile%, Global
-		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "beta" ? "Beta" : "") ; do not add "Prod" to ini variable for backward compatibility
+		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "alpha" ? "Alpha" : (g_strUpdateProdOrBeta = "beta" ? "Beta" : "")) ; do not add "Prod" to ini variable for backward compatibility
 
 Gui, Destroy
 
@@ -21182,7 +21212,7 @@ if (A_ThisLabel = "BackupIniFile") and (g_strIniFile = g_strIniFileMain)
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch = "beta" ? 10 : 5)
+intNumberOfBackups := (g_strCurrentBranch <> "prod" ? 10 : 5)
 Loop, Parse, strFileList, `n
 	if (A_Index > intNumberOfBackups)
 		if StrLen(A_LoopField)
