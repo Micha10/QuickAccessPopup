@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4.1.2 (2019-01-??)
+DRAFT
+- give a clean error message if user of QAP v9.4+ did not update JLicons.dll file to v1.5 and QAP loading icon is missing
+- fix bug when changing hotkey for Alternative menu features leaving previous hotkeys alive until QAP was reloaded
+- in "QAP Icon Replacements", support replacement with another QAP icon from JLicons (e.g. "iconFolderLive=iconFolder")
+- in "Check for update", add support for Alpha branch (in addition to Beta and Master)
+
 Version: 9.4.1.1 (2019-01-10)
 - fix bug introduced in v9.4.1 in the "Switch Settings file" command found under the QAP system menu "Settings file options" (right click the QAP icon in the Notification zone)
 - when filtering the "Current Windows" menu for exclusions (intruduced in v9.4.1), fix a bug when excluding Windows Applications (Universal Application Platform)
@@ -3049,7 +3056,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.1
+;@Ahk2Exe-SetVersion 9.4.1.2
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3154,7 +3161,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
