@@ -3117,7 +3117,9 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 ; Init settings file name
 
 g_strAppNameFile := "QuickAccessPopup"
-g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
+global g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
+global g_intIniLine := ""
+
 ; Set developement ini file
 
 ;@Ahk2Exe-IgnoreBegin
@@ -3129,7 +3131,7 @@ else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
 ; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-g_strIniFileMain := g_strIniFile ; value never changed
+global g_strIniFileMain := g_strIniFile ; value never changed
 
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
@@ -3181,6 +3183,10 @@ if (g_blnPortableMode)
 	o_JLicons := new JLIcons(A_ScriptDir . "\JLicons.dll") ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
 	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
+
+;---------------------------------
+; Init class for FileManagers (must be after o_JLicons)
+o_FileManagers := new FileManagers
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -5280,15 +5286,12 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 {
 	global g_objMenusIndex
 	global g_objQAPfeaturesInMenus
-	global g_strIniFile
-	global g_intIniLine
 	global g_strMenuPathSeparatorWithSpaces
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	global g_strEscapePipe
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_strAppNameText
-	global g_strIniFileMain
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
@@ -5651,7 +5654,6 @@ return
 AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false, strCustomShortcut := "")
 ;------------------------------------------------------------
 {
-	global g_strIniFile
 	global g_objSpecialFolders
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
@@ -6993,7 +6995,6 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 	global g_objMenusIndex
 	global g_objSpecialFolders
 	global g_strWinCmdIniFileExpanded
-	global g_intIniLine
 	global g_strMenuPathSeparatorWithSpaces
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
@@ -13799,9 +13800,6 @@ return
 LoadExternalMenu(objExternalMenu, strExternalMenuPath)
 ;------------------------------------------------------------
 {
-	global g_strIniFile
-	global g_intIniLine
-	
 	; remove existing menu entries but keep entry #1 (back menu)
 	loop, % objExternalMenu.MaxIndex() -  1
 		objExternalMenu.Delete(objExternalMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
@@ -15044,8 +15042,6 @@ return
 RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 ;------------------------------------------------------------
 {
-	global g_strIniFile
-	global g_intIniLine
 	global g_strEscapePipe
 	global g_blnWorkingToolTip
 	global o_JLicons
@@ -19726,7 +19722,6 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 	global g_strAppNameText
 	global g_strImpExpSourceFile
 	global g_strImpExpDestinationFile
-	global g_strIniFile
 	
 	if blnAbort
 		return
@@ -23674,8 +23669,6 @@ ScreenConfigurationChanged()
 GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
 ;------------------------------------------------------------
 {
-	global g_strIniFile
-	
 	IniRead, strPosition, %g_strIniFile%, Global, %strThisDialog%
 	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
 }
@@ -23711,7 +23704,6 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 ; if screen configuration changed, return -1 instead of the saved position
 ;------------------------------------------------------------
 {
-	global g_strIniFile
 	global g_strLastConfiguration
 	global g_blnRememberSettingsPosition
 	
@@ -23768,7 +23760,6 @@ GetScreenConfiguration()
 SaveWindowPosition(strThisWindow, strWindowHandle)
 ;------------------------------------------------------------
 {
-	global g_strIniFile
 	global g_blnRememberSettingsPosition
 	
 	if (strThisWindow <> "SettingsPosition" or g_blnRememberSettingsPosition)
@@ -24422,7 +24413,6 @@ class Triggers.MouseButtons
 		__New()
 		;-----------------------------------------------------
 		{
-			global g_strIniFile
 			objPopupHotkeyInternalNames := Object()
 			
 			objPopupHotkeyInternalNames := ["NavigateOrLaunchHotkeyMouse", "NavigateOrLaunchHotkeyKeyboard", "AlternativeHotkeyMouse", "AlternativeHotkeyKeyboard"]
@@ -24671,7 +24661,7 @@ class Triggers.MouseButtons
 				oMouseButton := new this.MouseButton(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
 				this[A_Index] := oMouseButton
 			}
-	}
+		}
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
@@ -24747,31 +24737,236 @@ TODO
 */
 
 /*
-class FileManagers
-	Methods
-	- __New(): 
-
-	Instance variables
-	- :
 */
 ;-------------------------------------------------------------
 {
-	
 	;---------------------------------------------------------
-	class FileManager
-	; replaces ...
+	__New()
 	;---------------------------------------------------------
 	{
-		;-----------------------------------------------------
-		__New()
-		;-----------------------------------------------------
+		objActiveFileManagerSystemNames := StrSplit("WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect", "|")
+		objActiveFileManagerDisplayNames := StrSplit("Windows Explorer|Directory Opus|Total Commander|QAPconnect", "|")
+
+		loop, % objActiveFileManagerSystemNames.Length()
 		{
+			oFileManager := new this.FileManager(A_Index, objActiveFileManagerSystemNames[A_Index], objActiveFileManagerDisplayNames[A_Index])
+			this[A_Index] := oFileManager
+			; ###_O("oFileManager", oFileManager)
 		}
-		;-----------------------------------------------------
 		
+		IniRead, intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
+		if (intActiveFileManager = "ERROR") ; no selection
+			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
+		this.ActiveFileManager := intActiveFileManager
+		; ###_O("this / active: " . this.ActiveFileManager, this, "strSystemName")
+
+		IniRead, blnAlwaysNavigate, %g_strIniFile%, Global, FileManagerAlwaysNavigate, 0
+		this.blnFileManagerAlwaysNavigate := blnAlwaysNavigate
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	ActiveFileManager[]
+	; default 1 for "WindowsExplorer"
+	;---------------------------------------------------------
+	{
+		get
+		{
+			return this._ActiveFileManager ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
+		}
+		set
+		{
+			; ###_O("this 2 [value]: " . value, this[value])
+			; ##### read ini values?
+			; ##### write ini values for active manager? or done in save options?
+			if (this[value].blnFileManagerValid)
+				this._ActiveFileManager := value
+			else
+			{
+				if (value = 4) ; QAPconnect
+					Oops(lOopsWrongThirdPartyPathQAPconnect, this[4].strQAPconnectFileManager, this[4].strFileManagerPath, "QAPconnect.ini", L(lMenuEditIniFile, "QAPconnect.ini"), lOptionsThirdParty)
+				else ; 2 DirectoryOpus or 3 TotalCommander
+					Oops(lOopsWrongThirdPartyPath, this[value].strDisplayName, this[value].strFileManagerPath, lOptionsThirdParty)
+				this._ActiveFileManager := 1 ; fall back to Window Explorer
+			}
+			return this._ActiveFileManager
+		}
 	}
 	;---------------------------------------------------------
 
+	;---------------------------------------------------------
+	DetectFileManager()
+	;---------------------------------------------------------
+	{
+		global g_strAppNameText
+		
+		loop, 2
+		{
+			intFileManager := A_Index + 1 ; 2 DirectoryOpus or 3 TotalCommander
+			if (this[intFileManager].blnFileManagerValid)
+			{
+				MsgBox, 52, %g_strAppNameText%, % L(lDialogThirdPartyDetected, g_strAppNameText, this[intFileManager].strDisplayName)
+				IfMsgBox, Yes
+					return intFileManager
+					; IniWrite, %intThisFileManager%, %g_strIniFile%, Global, ActiveFileManager
+					; strThisFileManager := this[A_Index].strSystemName
+					; IniWrite, % g_str%strThisFileManager%Path, %g_strIniFile%, Global, %strThisFileManager%Path
+					; g_bln%strThisFileManager%UseTabs := true ; ##### ?
+					; IniWrite, % g_bln%strThisFileManager%UseTabs, %g_strIniFile%, Global, %strThisFileManager%UseTabs ; ##### ?
+					
+					; if (intFileManager = 2) ; DirectoryOpus
+						; this.??? g_strDirectoryOpusNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
+					; else ; 3 TotalCommander
+						; this.??? g_strTotalCommanderNewTabOrWindow := "/O /T" ; to open in a new tab
+					; IniWrite, % g_str%strThisFileManager%NewTabOrWindow, %g_strIniFile%, Global, %strThisFileManager%NewTabOrWindow
+					
+					; if (intFileManager = 3) and FileExist(this. ??? strTCIniFile) ; TotalCommander
+						; IniWrite, % this. strTCIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd
+			}
+		}
+		return 1 ; by default WindowsExplorer
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	SaveFileManagerConfig()
+	;---------------------------------------------------------
+	{
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class FileManager
+	;---------------------------------------------------------
+	{
+		; Instance variables
+		strSystemName := ""
+		strDisplayName := ""
+		strFileManagerPath := ""
+		blnFileManagerValid := ""
+		; and other file managers specific values
+		
+		;-----------------------------------------------------
+		__New(intThisFileManager, strThisSystemName, strThisDisplayName)
+		;-----------------------------------------------------
+		{
+			global g_strAppNameText
+			global o_JLicons
+			
+			this.strSystemName := strThisSystemName
+			this.strDisplayName := strThisDisplayName
+			
+			if (strThisSystemName = "WindowsExplorer")
+			{
+				strPath := ""
+				IniRead, blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
+				this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
+				this.blnFileManagerValid := true
+			}
+			else if (strThisSystemName = "DirectoryOpus")
+			{
+				IniRead, strPath, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
+				if !StrLen(strPath)
+					strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
+				if !FileExist(strPath)
+					strPath := "dopus.exe"
+				this.strFileManagerPath := strPath
+				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+					
+				if (this.blnFileManagerValid)
+				{
+					this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
+					
+					IniRead, blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
+					this.blnDirectoryOpusUseTabs := blnDirectoryOpusUseTabs
+					
+					IniRead, blnFileManagerDOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
+					this.blnFileManagerDOpusShowLayouts := blnFileManagerDOpusShowLayouts
+					
+					o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
+				}
+			}
+			else if (strThisSystemName = "TotalCommander")
+			{
+				IniRead, strPath, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
+				if !StrLen(strPath)
+				{
+					RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
+					If !StrLen(strPath)
+						RegRead, strPath, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, InstallDir
+					if FileExist(strPath . "\TOTALCMD64.EXE")
+						strPath := strPath . "\TOTALCMD64.EXE"
+					else
+						strPath := strPath . "\TOTALCMD.EXE"
+				}
+				this.strFileManagerPath := strPath
+				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+					
+				if (this.blnFileManagerValid)
+				{
+					IniRead, strIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
+					If !StrLen(strIniFile)
+						RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
+					If !StrLen(strIniFile)
+						RegRead, strIniFile, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, IniFileName
+					this.strTCIniFile := EnvVars(strIniFile) ; ##### g_strWinCmdIniFile
+					
+					IniRead, blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
+					this.blnTotalCommanderUseTabs := blnTotalCommanderUseTabs
+					
+					o_JLicons.AddIcon("TotalCommander", g_strTotalCommanderPath . ",1")
+				}
+			}
+			else if (strThisSystemName = "QAPconnect")
+			{
+				IniRead, strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
+				this.strQAPconnectFileManager := strQAPconnectFileManager
+				this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
+				/* QAPconnect.ini sample:
+				[EF Commander Free (v9.50)]
+				; http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
+				AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
+				CommandLine=/O /A=%Path%
+				NewTabSwitch=
+				CompanionPath=EFCWT.EXE
+				NeverQuotes=
+				*/
+				IniRead, strPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
+				this.strFileManagerPath := strPath
+				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+					
+				if (this.blnFileManagerValid)
+				{
+					SplitPath, strPath, strFilename
+					this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
+					
+					IniRead, strCommandLine, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
+					this.strQAPconnectCommandLine := strCommandLine
+					
+					IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
+					this.strQAPconnectNewTabSwitch := strNewTabSwitch
+					
+					IniRead, strCompanionPath, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+					if StrLen(strCompanionPath)
+						FileExistInPath(strCompanionPath) ; return g_strQAPconnectCompanionPath expanded and searched in PATH
+					SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
+					this.strQAPconnectCompanionPath := strCompanionPath
+					this.strQAPconnectCompanionFilename := strCompanionFilename
+					
+					IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
+					this.strQAPconnectNeverQuotes := strNeverQuotes
+				}
+			}
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
 }
 ; ------------------------------------------------------------
 
@@ -24783,11 +24978,13 @@ TODO
 */
 
 /*
-Methods
-	- __New(): 
-
-Properties
-	- :
+class ClassName
+	Methods
+		- __New(): 
+	Properties
+		- :
+	Instance variables
+		- :
 */
 ;-------------------------------------------------------------
 {
@@ -24847,6 +25044,6 @@ Properties
 		
 	}
 	;---------------------------------------------------------
-
 }
 ; ------------------------------------------------------------
+
