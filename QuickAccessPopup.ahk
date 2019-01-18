@@ -6689,7 +6689,7 @@ if (intWindowsIdIndex)
 			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
 			AddMenuIcon(lMenuSwitchFolderOrApp, strMenuName, "OpenSwitchFolderOrApp"
 				, (objFolderOrApp.WindowType = "EX" ? "iconFolder"
-					: (objFolderOrApp.WindowType = "DO" ?  g_strDirectoryOpusRtPath . ",1"
+					: (objFolderOrApp.WindowType = "DO" ?  o_FileManagers[2].strDirectoryOpusRtPath . ",1"
 					: objFolderOrApp.LocationURL . ",1")))
 		}
 	}
@@ -7062,7 +7062,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	If (g_blnFileManagerDOpusShowLayouts and g_blnDOpusLayoutsFileExist) ; Directory Opus layouts order file exists, create submenu with layouts
+	If (o_FileManagers[2].blnFileManagerDOpusShowLayouts and g_blnDOpusLayoutsFileExist) ; Directory Opus layouts order file exists, create submenu with layouts
 	{
 		objLoadDOpusFavorite := Object() ; new separator item
 		objLoadDOpusFavorite.FavoriteType := "X"
@@ -17017,7 +17017,7 @@ if (g_objThisFavorite.FavoriteType = "Text")
 
 if (A_ThisLabel = "OpenDOpusLayout")
 {
-	Run, % """" . g_strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
+	Run, % """" . o_FileManagers[2].strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
 	
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -18656,7 +18656,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 	if (g_blnFirstFolderOfGroup) and !(g_blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
 	; for the first member of the group, if we add to existing tabs, make sure a lister is running
 	{
-		Run, %g_strDirectoryOpusPath%
+		Run, % o_FileManagers[2].strFileManagerPath
 		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
 	}
 		
@@ -18670,12 +18670,12 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 		if StrLen(arrFavoriteWindowPosition8)
 			strTabParameter := "NEWTAB " . (arrFavoriteWindowPosition8 = "L" ? "OPENINLEFT" : "OPENINRIGHT")
 		else
-			strTabParameter := g_strDirectoryOpusNewTabOrWindow
+			strTabParameter := o_FileManagers[2].strNewTabOrWindow
 	}
 }
 else
 {
-	strTabParameter := g_strDirectoryOpusNewTabOrWindow
+	strTabParameter := o_FileManagers[2].strNewTabOrWindow
 	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
@@ -20115,8 +20115,6 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 ; put A_Space at the beginning of strParam if required - some param (like ",paths") must have no space 
 ;------------------------------------------------------------
 {
-	global g_strDirectoryOpusRtPath
-	
 	if (strCommand = "/info")
 	{
 		Process, Exist, dopus.exe
@@ -20125,8 +20123,8 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 			return
 	}
 	
-	if FileExist(g_strDirectoryOpusRtPath) ; for safety only
-		Run, % """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
+	if FileExist(o_FileManagers[2].strDirectoryOpusRtPath) ; for safety only
+		Run, % """" . o_FileManagers[2].strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
 }
 ;------------------------------------------------------------
 
@@ -23280,7 +23278,6 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 ; strCaller: List All||Switch Menu|Running Applications|Close Applications
 ;------------------------------------------------------------
 {
-	global g_strDirectoryOpusPath
 	global g_strSwitchExclusionList
 	
 	static strWinTitlesWinApps
@@ -23363,7 +23360,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and o_FileManagers.ActiveFileManager = 2)
+	else if (strCaller = "Switch Menu" and strProcessPath = o_FileManagers[2].strFileManagerPath and o_FileManagers.ActiveFileManager = 2)
 		return false
 	
 	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
