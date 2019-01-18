@@ -3844,16 +3844,10 @@ InitSystemArrays:
 ;-----------------------------------------------------------
 
 ; ----------------------
-; ACTIVE FILE MANAGER
+; ACTIVE FILE MANAGER -> now class instance o_FileManagers
 ; g_arrActiveFileManagerSystemNames: array system names (1-4)
 ; g_arrActiveFileManagerDisplayNames: array system names (1-4)
 ; g_intActiveFileManager: default 1 for "WindowsExplorer" (replace "blnUseXYZ" variables from FP)
-
-strActiveFileManagerSystemNames := "WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect"
-StringSplit, g_arrActiveFileManagerSystemNames, strActiveFileManagerSystemNames, |
-
-strActiveFileManagerDisplayNames := "Windows Explorer|Directory Opus|Total Commander|QAPconnect"
-StringSplit, g_arrActiveFileManagerDisplayNames, strActiveFileManagerDisplayNames, |
 
 ; ----------------------
 ; QAP Features categories
@@ -5509,10 +5503,11 @@ if (g_strAddThisMenuNameWithInstance = g_objQAPFeaturesCodeByDefaultName[lMenuSe
 {
 	AddToIniOneDefaultMenu("", "", "X")
 	AddToIniOneDefaultMenu("{Settings}", lMenuSettings . "...", "QAP", true) ; back in main menu
+
 }
-if (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; Directory Opus or Total Commander
+if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; Directory Opus or Total Commander
 {
-	strDOpusOrTCMenuName := (g_intActiveFileManager = 2 ? lDOpusMenuName : lTCMenuName) . "..."
+	strDOpusOrTCMenuName := (o_FileManagers.ActiveFileManager = 2 ? lDOpusMenuName : lTCMenuName) . "..."
 	
 	g_strAddThisMenuName := strDOpusOrTCMenuName
 	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
@@ -5520,7 +5515,7 @@ if (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; Directory Opus o
 	; (we cannot have this menu twice with "+" because, as all QAP features, lTCMenuName always have the same menu name)
 	{
 		AddToIniOneDefaultMenu("", "", "X")
-		AddToIniOneDefaultMenu((g_intActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
+		AddToIniOneDefaultMenu((o_FileManagers.ActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
 	}
 }
 g_strAddThisMenuName := g_objQAPFeaturesCodeByDefaultName[lMenuAddThisFolder . "..."] ; QAP feature code used here for comparison only, not for menu name
@@ -6558,7 +6553,7 @@ Diag(A_ThisLabel, "", "START")
 
 ; Gather Explorer and DOpus windows/listers
 
-if (g_intActiveFileManager = 2) ; DirectoryOpus
+if (o_FileManagers.ActiveFileManager = 2) ; DirectoryOpus
 {
 	Gosub, RefreshDOpusListersListText
 	objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
@@ -6575,7 +6570,7 @@ blnWeHaveFolders := false
 
 ; Process DOpus listers
 
-if (g_intActiveFileManager = 2) ; DirectoryOpus
+if (o_FileManagers.ActiveFileManager = 2) ; DirectoryOpus
 	for intIndex, objLister in objDOpusListers
 	{
 		; if we have no path or a DOpus collection, skip it
@@ -10424,7 +10419,7 @@ If !StrLen(g_strNewLocation)
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
 		Gui, 1:+OwnDialogs 
-		Oops(lOopsAddThisFolderTip, g_arrActiveFileManagerDisplayNames%g_intActiveFileManager%, o_PopupHotkeys[1].strPopupHotkeyText
+		Oops(lOopsAddThisFolderTip, o_FileManagers[o_FileManagers.ActiveFileManager].strDisplayName, o_PopupHotkeys[1].strPopupHotkeyText
 			. " " . lDialogOr . " " . o_PopupHotkeys[2].strPopupHotkeyText)
 	}
 	else
@@ -10505,7 +10500,6 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 {
 	global g_strModernBrowsers
 	global g_strLegacyBrowsers
-	global g_intActiveFileManager
 	
 	DetectHiddenWindows, Off
 	WinGet, strIDs, list
@@ -10518,8 +10512,8 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 		intThisIDIndex := A_Index
 		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass)
-			or (WindowIsDirectoryOpus(strThisClass) and g_intActiveFileManager = 2)
-			or (WindowIsTotalCommander(strThisClass) and g_intActiveFileManager = 3)
+			or (WindowIsDirectoryOpus(strThisClass) and o_FileManagers.ActiveFileManager = 2)
+			or (WindowIsTotalCommander(strThisClass) and o_FileManagers.ActiveFileManager = 3)
 			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
@@ -10725,7 +10719,7 @@ BuildTabsList(strFavoriteType)
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
-		and ((g_intActiveFileManager = 1 or g_intActiveFileManager = 3) or g_blnTryWindowPosition)) ; Explorer or Total Commander
+		and ((o_FileManagers.ActiveFileManager = 1 or o_FileManagers.ActiveFileManager = 3) or g_blnTryWindowPosition)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
@@ -10963,7 +10957,7 @@ else ; add favorite
 	}
 	
 	if (g_strAddFavoriteType = "FTP")
-		g_blnNewFavoriteFtpEncoding := (g_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
+		g_blnNewFavoriteFtpEncoding := (o_FileManagers.ActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
 
 	if (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(g_objEditedFavorite.FavoriteLocation) and !StrLen(g_strNewFavoriteIconResource)
 	{
@@ -11170,23 +11164,23 @@ if (g_objEditedFavorite.FavoriteType = "Group")
 	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupAdd " . (g_arrGroupSettingsGui1 ? "" : "checked"), %lGuiGroupSaveAddWindowsLabel%
 	Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupReplace " . (g_arrGroupSettingsGui1 ? "checked" : ""), %lGuiGroupSaveReplaceWindowsLabel%
 
-	if (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; DirectoryOpus or TotalCommander
+	if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; DirectoryOpus or TotalCommander
 	{
 		Gui, 2:Add, Text, x20 y+20, %lGuiGroupSaveRestoreWith%
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupRestoreWithExplorer " . (g_arrGroupSettingsGui2 = "Windows Explorer" ? "checked" : ""), Windows Explorer
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupRestoreWithOther " . (g_arrGroupSettingsGui2 <> "Windows Explorer" ? "checked" : "")
-			, % g_arrActiveFileManagerDisplayNames%g_intActiveFileManager% ; will be selected by default if empty (when Add)
+			, % o_FileManagers[o_FileManagers.ActiveFileManager].strDisplayName ; will be selected by default if empty (when Add)
 	}
 }
 
 if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding folders or FTP sites
-	and (g_intActiveFileManager = 2 or g_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
+	and (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
-	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (g_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
+	Gui, 2:Add, Text, x20 y+20, % L(lGuiGroupRestoreSide, (o_FileManagers.ActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
 	Gui, 2:Add, Radio, % "x+10 yp vf_intRadioGroupRestoreSide " . (arrNewFavoriteWindowPosition8 <> "R" ? "checked" : ""), %lDialogWindowPositionLeft% ; if "L" or ""
 	Gui, 2:Add, Radio, % "x+10 yp " . (arrNewFavoriteWindowPosition8 = "R" ? "checked" : ""), %lDialogWindowPositionRight%
 }
@@ -11530,7 +11524,7 @@ If InStr(g_strTabsList, g_arrFavoriteGuiTabs4)
 
 	if (g_objEditedFavorite.FavoriteType = "FTP")
 	{
-		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (g_intActiveFileManager = 3 ? lOptionsFtpEncodingTC : lOptionsFtpEncoding)
+		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.ActiveFileManager = 3 ? lOptionsFtpEncodingTC : lOptionsFtpEncoding)
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
 	}
 	
@@ -16182,9 +16176,9 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
-		or (g_intActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
-		or (g_intActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
-		or (g_intActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
+		or (o_FileManagers.ActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
+		or (o_FileManagers.ActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
+		or (o_FileManagers.ActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
 		or WindowIsQuickAccessPopup(g_strTargetClass)
 
 	; check if we will show the "change folder alert" before opening the selected favorite, if the favorite is a folder
@@ -16568,7 +16562,7 @@ Tooltip, %lGuiGroupClosing%
 
 if (g_arrGroupSettingsOpen2 = "Other")
 {
-	if (g_intActiveFileManager = 2) ; Directory Opus
+	if (o_FileManagers.ActiveFileManager = 2) ; Directory Opus
 	{
 		WinGet, arrIDs, List, ahk_class dopus.lister
 		Loop, %arrIDs%
@@ -16577,7 +16571,7 @@ if (g_arrGroupSettingsOpen2 = "Other")
 			Sleep, %intSleepTime%
 		}
 	}
-	else if (g_intActiveFileManager = 3) ; Total Commander
+	else if (o_FileManagers.ActiveFileManager = 3) ; Total Commander
 	{
 		WinGet, arrIDs, List, ahk_class TTOTAL_CMD
 		Loop, %arrIDs%
@@ -16909,7 +16903,7 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = lMenuAlternativeOpenContai
 	}
 }
 
-if (g_intActiveFileManager = 2 and SubStr(g_objThisFavorite.FavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
+if (o_FileManagers.ActiveFileManager = 2 and SubStr(g_objThisFavorite.FavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
 {
 	g_strFullLocation := g_objThisFavorite.FavoriteLocation
 	g_strTargetAppName := "DirectoryOpus"
@@ -17244,19 +17238,19 @@ else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 	g_strTargetAppName := "Dialog"
 ; else if WindowIsTreeview(g_strTargetWinId)
 ;	g_strTargetAppName := "Treeview"
-else if WindowIsDirectoryOpus(g_strTargetClass) and (g_intActiveFileManager = 2)
+else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.ActiveFileManager = 2)
 	g_strTargetAppName := "DirectoryOpus"
-else if WindowIsTotalCommander(g_strTargetClass) and (g_intActiveFileManager = 3)
+else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.ActiveFileManager = 3)
 	g_strTargetAppName := "TotalCommander"
-else if WindowIsQAPconnect(g_strTargetWinId) and (g_intActiveFileManager = 4)
+else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.ActiveFileManager = 4)
 	g_strTargetAppName := "QAPconnect"
 else if WindowIsQuickAccessPopup(g_strTargetClass)
 {
-	if (g_intActiveFileManager = 2)
+	if (o_FileManagers.ActiveFileManager = 2)
 		g_strTargetAppName := "DirectoryOpus"
-	else if (g_intActiveFileManager = 3)
+	else if (o_FileManagers.ActiveFileManager = 3)
 		g_strTargetAppName := "TotalCommander"
-	else if (g_intActiveFileManager = 4)
+	else if (o_FileManagers.ActiveFileManager = 4)
 		g_strTargetAppName := "QAPconnect"
 	else
 		g_strTargetAppName := "Explorer"
@@ -17275,12 +17269,12 @@ if (g_strHotkeyTypeDetected = "Launch")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
 		g_strTargetAppName := "Explorer"
 	else if InStr("Desktop|Dialog|Console|Unknown", g_strTargetAppName) ; these targets cannot launch in a new window
-		or (g_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
-		if (g_intActiveFileManager = 2)
+		or (o_FileManagers.ActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
+		if (o_FileManagers.ActiveFileManager = 2)
 			g_strTargetAppName := "DirectoryOpus"
-		else if (g_intActiveFileManager = 3)
+		else if (o_FileManagers.ActiveFileManager = 3)
 			g_strTargetAppName := "TotalCommander"
-		else if (g_intActiveFileManager = 4)
+		else if (o_FileManagers.ActiveFileManager = 4)
 			g_strTargetAppName := "QAPconnect"
 		else
 			g_strTargetAppName := "Explorer"
@@ -19060,9 +19054,9 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&is64=" . A_Is64bitOS
 	. "&setup=" . (blnSetup)
 				+ (2 * (g_blnDonor ? 1 : 0))
-				+ (4 * (g_intActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
-				+ (8 * (g_intActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
-				+ (16 * (g_intActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
+				+ (4 * (o_FileManagers.ActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
+				+ (8 * (o_FileManagers.ActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
+				+ (16 * (o_FileManagers.ActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
 	. "&lsys=" . A_Language
 	. "&lfp=" . g_strLanguageCode
 	. "&shd=" . "" ; strShell32Date not needed but keep empty value for MySQL database
@@ -23287,7 +23281,6 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 ;------------------------------------------------------------
 {
 	global g_strDirectoryOpusPath
-	global g_intActiveFileManager
 	global g_strSwitchExclusionList
 	
 	static strWinTitlesWinApps
@@ -23370,7 +23363,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
+	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and o_FileManagers.ActiveFileManager = 2)
 		return false
 	
 	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
