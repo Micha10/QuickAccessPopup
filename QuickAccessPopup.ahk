@@ -3233,15 +3233,15 @@ g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing exter
 
 g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
 
-g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
-g_strQAPconnectFileManager := ""
-g_strQAPconnectAppFilename := ""
-g_strQAPconnectCompanionFilename := ""
-g_strQAPconnectAppPath := ""
-g_strQAPconnectCommandLine := ""
-g_strQAPconnectNewTabSwitch := ""
-g_strQAPconnectCompanionPath := ""
-g_strQAPconnectNeverQuotes := ""
+; g_strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
+; g_strQAPconnectFileManager := ""
+; g_strQAPconnectAppFilename := ""
+; g_strQAPconnectCompanionFilename := ""
+; g_strQAPconnectAppPath := ""
+; g_strQAPconnectCommandLine := ""
+; g_strQAPconnectNewTabSwitch := ""
+; g_strQAPconnectCompanionPath := ""
+; g_strQAPconnectNeverQuotes := ""
 
 g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
 g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
@@ -8495,7 +8495,7 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 	GuiControl, , f_strFileManagerPath, % o_FileManagers[g_intClickedFileManager].strFileManagerPath
 	if (f_radActiveFileManager4) ; QAPconnect
 	{
-		IniRead, strQAPconnectFileManagersList, %g_strQAPconnectIniPath%, , , %A_Space% ; list of QAPconnect.ini applications, empty by default
+		IniRead, strQAPconnectFileManagersList, % o_FileManagers[4].strQAPconnectIniPath, , , %A_Space% ; list of QAPconnect.ini applications, empty by default
 		if StrLen(strQAPconnectFileManagersList)
 		{
 			strQAPconnectFileManagersList .= "|"
@@ -16387,8 +16387,8 @@ WindowIsTotalCommander(strClass)
 WindowIsQAPconnect(strWinId)
 ;------------------------------------------------------------
 {
-	global g_strQAPconnectAppFilename
-	global g_strQAPconnectCompanionFilename
+	; global g_strQAPconnectAppFilename
+	; global g_strQAPconnectCompanionFilename
 
 	if (strWinId = 0)
 		return false
@@ -16406,7 +16406,7 @@ WindowIsQAPconnect(strWinId)
 	
 	; get filename only and compare with QAPconnect filename or QAPconnect target filename (see QAPconnect doc)
 	SplitPath, strFCAppFile, strFCAppFile
-	return (strFCAppFile = g_strQAPconnectAppFilename) or (strFCAppFile = g_strQAPconnectCompanionFilename)
+	return (strFCAppFile = o_FileManagers[4].strQAPconnectAppFilename) or (strFCAppFile = o_FileManagers[4].strQAPconnectCompanionFilename)
 }
 ;------------------------------------------------------------
 
@@ -18353,17 +18353,19 @@ return
 OpenFavoriteNavigateQAPconnect:
 ;------------------------------------------------------------
 
-if InStr(g_strFullLocation, " ") and !(g_strQAPconnectNeverQuotes)
+if InStr(g_strFullLocation, " ") and !(o_FileManagers[4].strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
-StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%"
+; StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
+strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation) ; ##### TEST
+; StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%"
+strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%") ; ##### TEST
 
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 {
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 	Sleep, 200
 }
-Run, %g_strQAPconnectAppPath% %strQAPconnectParamString%
+Run, % o_FileManagers[4].strQAPconnectAppPath . " " . strQAPconnectParamString
 
 strQAPconnectParamString :=""
 
@@ -18789,15 +18791,17 @@ OpenFavoriteInNewWindowQAPconnect:
 ;------------------------------------------------------------
 
 ; old Run, %g_strQAPconnectPath% %g_strFullLocation% /new
-if InStr(g_strFullLocation, " ") and !(g_strQAPconnectNeverQuotes)
+if InStr(g_strFullLocation, " ") and !(o_FileManagers[4].strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
-StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%", %g_strQAPconnectNewTabSwitch%
+; StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
+strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation) ; ##### TEST
+; StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%", %g_strQAPconnectNewTabSwitch%
+strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", o_FileManagers[4].strQAPconnectNewTabSwitch) ; ##### TEST
 
-Run, %g_strQAPconnectAppPath% %strQAPconnectParamString%
+Run, % o_FileManagers[4].strQAPconnectAppPath " " . strQAPconnectParamString
 
-if StrLen(g_strQAPconnectWindowID)
-; g_strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
+if StrLen(o_FileManagers[4].strQAPconnectWindowID)
+; strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
 ; It must contain at least some characters of the connected app title, and enough to be specific to this window.
 ; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId.
 {
@@ -18805,9 +18809,9 @@ if StrLen(g_strQAPconnectWindowID)
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
 	; with RegEx, for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
 	; (because by default, regular expressions find a match anywhere in the target string).
-	WinWaitActive, ahk_exe %g_strQAPconnectAppFilename%, , 10 ; wait for the window as identified in QAPconnect.ini
+	WinWaitActive, % o_FileManagers[4].strQAPconnectWindowID, , 10 ; wait for the window as identified in QAPconnect.ini
 	SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
-	g_strNewWindowId := g_strQAPconnectWindowID
+	g_strNewWindowId := o_FileManagers[4].strQAPconnectWindowID
 }
 else
 	g_strNewWindowId := ""
@@ -19930,19 +19934,20 @@ return
 
 
 
+/*
 ;========================================================================================================================
 !_080_THIRD-PARTY:
 ;========================================================================================================================
 
 
 ;------------------------------------------------------------
-CheckActiveFileManager:
+CheckActiveFileManagerXXX:
 ;------------------------------------------------------------
 
 loop, 2
 {
 	intFileManager := A_Index + 1 ; 2 DirectoryOpus or 3 TotalCommander
-	Gosub, CheckOneFileManager
+	; Gosub, CheckOneFileManager ; #####
 	if (g_intActiveFileManager = intFileManager)
 	{
 		Gosub, CheckActiveFileManagerCleanUp
@@ -19963,7 +19968,7 @@ return
 
 
 ;------------------------------------------------------------
-CheckOneFileManager:
+CheckOneFileManagerXXX:
 ;------------------------------------------------------------
 
 strFileManagerSystemName := g_arrActiveFileManagerSystemNames%intFileManager%
@@ -19998,7 +20003,7 @@ if (blnFileExist)
 		IniWrite, %g_intActiveFileManager%, %g_strIniFile%, Global, ActiveFileManager
 		g_str%strFileManagerSystemName%Path := strCheckPath
 		
-		Gosub, SetActiveFileManager
+		; Gosub, SetActiveFileManager ; #####
 		
 		IniWrite, % g_str%strFileManagerSystemName%Path, %g_strIniFile%, Global, %strFileManagerSystemName%Path
 		g_bln%strFileManagerSystemName%UseTabs := true
@@ -20057,58 +20062,58 @@ GetTotalCommanderIniFile()
 
 
 ;------------------------------------------------------------
-LoadIniQAPconnectValues:
+LoadIniQAPconnectValuesXXX:
 ;------------------------------------------------------------
 
-/* QAPconnect.ini sample:
-[EF Commander Free (v9.50)]
-; http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
-AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
-CommandLine=/O /A=%Path%
-NewTabSwitch=
-CompanionPath=EFCWT.EXE
-NeverQuotes=
+; QAPconnect.ini sample:
+; [EF Commander Free (v9.50)]
+http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
+; AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
+; CommandLine=/O /A=%Path%
+; NewTabSwitch=
+; CompanionPath=EFCWT.EXE
+; NeverQuotes=
+
+; IniRead, g_strQAPconnectAppPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
+; blnFileExist := FileExistInPath(g_strQAPconnectAppPath) ; return g_strQAPconnectAppPath expanded and searched in PATH
+; IniRead, g_strQAPconnectCommandLine, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
+; IniRead, g_strQAPconnectNewTabSwitch, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
+; IniRead, g_strQAPconnectCompanionPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+; IniRead, g_strQAPconnectNeverQuotes, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
+; if StrLen(g_strQAPconnectCompanionPath)
+	; blnFileExist := FileExistInPath(g_strQAPconnectCompanionPath) ; return g_strQAPconnectCompanionPath expanded and searched in PATH
+; SplitPath, g_strQAPconnectCompanionPath, g_strQAPconnectCompanionFilename
+
+; blnFileExist := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SetActiveFileManagerXXX:
+;------------------------------------------------------------
+
+; if (g_intActiveFileManager = 4) ; QAPconnect
+; {
+	; SplitPath, g_strQAPconnectAppPath, g_strQAPconnectAppFilename
+	; g_strQAPconnectWindowID := "ahk_exe " . g_strQAPconnectAppFilename ; ahk_exe worked with filename only, not with full exe path
+; }
+; else ; DirectoryOpus or TotalCommander
+; {
+	; strActiveFileManagerSystemName := g_arrActiveFileManagerSystemNames%g_intActiveFileManager%
+	; IniRead, g_str%strActiveFileManagerSystemName%NewTabOrWindow, %g_strIniFile%, Global, %strActiveFileManagerSystemName%NewTabOrWindow, %A_Space% ; should be already intialized here, empty if error
+
+	; if (g_intActiveFileManager = 2) ; DirectoryOpus
+		; StringReplace, g_strDirectoryOpusRtPath, g_strDirectoryOpusPath, \dopus.exe, \dopusrt.exe
+
+; }
+
+; strActiveFileManagerSystemName := ""
+
+return
+;------------------------------------------------------------
 */
-
-IniRead, g_strQAPconnectAppPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
-blnFileExist := FileExistInPath(g_strQAPconnectAppPath) ; return g_strQAPconnectAppPath expanded and searched in PATH
-IniRead, g_strQAPconnectCommandLine, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
-IniRead, g_strQAPconnectNewTabSwitch, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
-IniRead, g_strQAPconnectCompanionPath, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
-IniRead, g_strQAPconnectNeverQuotes, %g_strQAPconnectIniPath%, %g_strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
-if StrLen(g_strQAPconnectCompanionPath)
-	blnFileExist := FileExistInPath(g_strQAPconnectCompanionPath) ; return g_strQAPconnectCompanionPath expanded and searched in PATH
-SplitPath, g_strQAPconnectCompanionPath, g_strQAPconnectCompanionFilename
-
-blnFileExist := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-SetActiveFileManager:
-;------------------------------------------------------------
-
-if (g_intActiveFileManager = 4) ; QAPconnect
-{
-	SplitPath, g_strQAPconnectAppPath, g_strQAPconnectAppFilename
-	g_strQAPconnectWindowID := "ahk_exe " . g_strQAPconnectAppFilename ; ahk_exe worked with filename only, not with full exe path
-}
-else ; DirectoryOpus or TotalCommander
-{
-	strActiveFileManagerSystemName := g_arrActiveFileManagerSystemNames%g_intActiveFileManager%
-	IniRead, g_str%strActiveFileManagerSystemName%NewTabOrWindow, %g_strIniFile%, Global, %strActiveFileManagerSystemName%NewTabOrWindow, %A_Space% ; should be already intialized here, empty if error
-
-	if (g_intActiveFileManager = 2) ; DirectoryOpus
-		StringReplace, g_strDirectoryOpusRtPath, g_strDirectoryOpusPath, \dopus.exe, \dopusrt.exe
-
-}
-
-strActiveFileManagerSystemName := ""
-
-return
-;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -20130,7 +20135,6 @@ RunDOpusRt(strCommand, strLocation := "", strParam := "")
 		Run, % """" . g_strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
 }
 ;------------------------------------------------------------
-
 
 ;========================================================================================================================
 ; END OF THIRD-PARTY
@@ -24839,22 +24843,23 @@ TODO
 				if (this.blnFileManagerValid)
 				{
 					SplitPath, strPath, strFilename
+					this.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
 					this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
 					
-					IniRead, strCommandLine, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
+					IniRead, strCommandLine, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
 					this.strQAPconnectCommandLine := strCommandLine
 					
-					IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
+					IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
 					this.strQAPconnectNewTabSwitch := strNewTabSwitch
 					
-					IniRead, strCompanionPath, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+					IniRead, strCompanionPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
 					if StrLen(strCompanionPath)
-						FileExistInPath(strCompanionPath) ; return g_strQAPconnectCompanionPath expanded and searched in PATH
+						FileExistInPath(strCompanionPath) ; return strQAPconnectCompanionPath expanded and searched in PATH
 					SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
 					this.strQAPconnectCompanionPath := strCompanionPath
 					this.strQAPconnectCompanionFilename := strCompanionFilename
 					
-					IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %g_strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
+					IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
 					this.strQAPconnectNeverQuotes := strNeverQuotes
 				}
 			}
