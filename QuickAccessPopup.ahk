@@ -18820,10 +18820,11 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 	{
 		Run, %g_strDirectoryOpusPath%
 		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+		Sleep, 200 ; sometimes without delay DOpus left the new tab empty
 	}
 		
-	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
-		strTabParameter := "NEW=nodual"
+	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(g_blnDirectoryOpusUseTabs)
+		strTabParameter := "NEW=nodual" ; force left in new lister
 	else
 	{
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
@@ -18910,7 +18911,7 @@ if g_strFullLocation is integer
 else ; normal folder
 {
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows)
+		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(g_blnTotalCommanderUseTabs)
 			strTabParameter := "/N" ; /N new window
 		else
 			strTabParameter := "/O /T" ; /O same instance, /T new tab
@@ -19473,7 +19474,7 @@ else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 	if (g_strUpdateProdOrBeta <> "prod")
 	{
 		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " " . g_strUpdateProdOrBeta)
-			, (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
+			, % (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
 			: lUpdatePromptBetaContinue)
 		IfMsgBox, No
 			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
