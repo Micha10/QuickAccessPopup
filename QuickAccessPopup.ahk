@@ -31,18 +31,27 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.0.1 (2019-01-15)
+Version ALPHA: 9.9.0.1 (2019-01-??)
+DRAFT
 - rewrite portions of code using object oriented programming (OOP) approach (classes):
   - QAP menu popup hotkeys
   - QAP icons (JLicons.dll)
-  - mouse button names
-  - command line parameters
+  - File Managers management ("File managers" tab of "Options")
+  - Mouse button names
+  - Command line parameters
  
-Changes to be released in v9.4.1.1
+Changes to be released in v9.4.1.2
 - give a clean error message if user did not update JLicons.dll file to v1.5 and QAP loading icon is missing
 - fix bug fix bug when changing hotkey for alternative menu features leaving obsolete hotkeys alive until QAP was reloaded
 - in "QAP Icon Replacements" ("Options", "More" tab), support replacement with another QAP icon (from JLicons)
 - adding support for alpha branch in "Check for update", use grey QAP icon for tray icon when running the alpha branch
+
+Version: 9.4.1.2 (2019-01-??)
+DRAFT
+- give a clean error message if user of QAP v9.4+ did not update JLicons.dll file to v1.5 and QAP loading icon is missing
+- fix bug when changing hotkey for Alternative menu features leaving previous hotkeys alive until QAP was reloaded
+- in "QAP Icon Replacements", support replacement with another QAP icon from JLicons (e.g. "iconFolderLive=iconFolder")
+- in "Check for update", add support for Alpha branch (in addition to Beta and Master)
 
 Version: 9.4.1.1 (2019-01-10)
 - fix bug introduced in v9.4.1 in the "Switch Settings file" command found under the QAP system menu "Settings file options" (right click the QAP icon in the Notification zone)
@@ -18639,10 +18648,11 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 	{
 		Run, % o_FileManagers[2].strFileManagerPath
 		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+		Sleep, 200 ; sometimes without delay DOpus left the new tab empty
 	}
 	
-	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
-		strTabParameter := "NEW=nodual"
+	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers[2].blnFileManagerUseTabs)
+		strTabParameter := "NEW=nodual" ; force left in new lister
 	else
 	{
 		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
@@ -18729,7 +18739,7 @@ if g_strFullLocation is integer
 else ; normal folder
 {
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows)
+		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers[3].blnFileManagerUseTabs)
 			strTabParameter := "/N" ; /N new window
 		else
 			strTabParameter := "/O /T" ; /O same instance, /T new tab
@@ -19290,7 +19300,7 @@ else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 	if (g_strUpdateProdOrBeta <> "prod")
 	{
 		MsgBox, 4, % l(lUpdateTitle, g_strAppNameText . " " . g_strUpdateProdOrBeta)
-			, (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
+			, % (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
 			: lUpdatePromptBetaContinue)
 		IfMsgBox, No
 			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
