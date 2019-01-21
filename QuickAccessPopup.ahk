@@ -31,12 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.0.1 (2019-01-??)
-DRAFT
+Version ALPHA: 9.9.0.1 (2019-01-21)
+- first Alpha release including regular release features up to v9.4.1.2
 - rewrite portions of code using object oriented programming (OOP) approach (classes):
   - QAP menu popup hotkeys
   - QAP icons (JLicons.dll)
-  - File Managers management ("File managers" tab of "Options")
+  - File Managers management (Windows Explorer, Directory Opus, Total Commander and others with QAPconnect)
   - Mouse button names
   - Command line parameters
 
