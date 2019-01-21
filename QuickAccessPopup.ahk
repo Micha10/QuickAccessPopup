@@ -6041,10 +6041,11 @@ if StrLen(o_FileManagers[3].strTCIniFileExpanded)
 {
 	IniRead, strAlternativeWinCmdIniFile, % o_FileManagers[3].strTCIniFileExpanded, Configuration, AlternateUserIni, %A_Space% ; empty by default
 	if !StrLen(strAlternativeWinCmdIniFile)
+		;  only wincmd.ini can redirect, redirection is not recursive (https://ghisler.ch/board/viewtopic.php?p=315939#315939)
 		IniRead, strAlternativeWinCmdIniFile, % o_FileManagers[3].strTCIniFileExpanded, DirMenu, RedirectSection, %A_Space% ; empty by default
 	if StrLen(strAlternativeWinCmdIniFile)
 	{
-		SplitPath, % o_FileManagers[3].strTCIniFileExpanded, , strTCDir ; #####
+		SplitPath, % o_FileManagers[3].strTCIniFileExpanded, , strTCDir
 		o_FileManagers[3].strTCIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
 	}
 }
@@ -18331,17 +18332,15 @@ OpenFavoriteNavigateQAPconnect:
 
 if InStr(g_strFullLocation, " ") and !(o_FileManagers[4].strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-; StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
-strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation) ; ##### TEST
-; StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%"
-strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%") ; ##### TEST
+strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation)
+strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%")
 
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 {
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 	Sleep, 200
 }
-Run, % o_FileManagers[4].strQAPconnectAppPath . " " . strQAPconnectParamString
+Run, % o_FileManagers[4].strFileManagerPath . " " . strQAPconnectParamString
 
 strQAPconnectParamString :=""
 
@@ -18641,7 +18640,7 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 		Run, % o_FileManagers[2].strFileManagerPath
 		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
 	}
-		
+	
 	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) ; force left in new lister
 		strTabParameter := "NEW=nodual"
 	else
@@ -18766,20 +18765,16 @@ return
 OpenFavoriteInNewWindowQAPconnect:
 ;------------------------------------------------------------
 
-; old Run, %g_strQAPconnectPath% %g_strFullLocation% /new
 if InStr(g_strFullLocation, " ") and !(o_FileManagers[4].strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-; StringReplace, strQAPconnectParamString, g_strQAPconnectCommandLine, % "%Path%", %g_strFullLocation%
-strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation) ; ##### TEST
-; StringReplace, strQAPconnectParamString, strQAPconnectParamString, % "%NewTabSwitch%", %g_strQAPconnectNewTabSwitch%
-strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", o_FileManagers[4].strQAPconnectNewTabSwitch) ; ##### TEST
+strQAPconnectParamString := StrReplace(o_FileManagers[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation)
+strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", o_FileManagers[4].strQAPconnectNewTabSwitch)
 
-Run, % o_FileManagers[4].strQAPconnectAppPath . " " . strQAPconnectParamString
+Run, % o_FileManagers[4].strFileManagerPath . " " . strQAPconnectParamString
 
 if StrLen(o_FileManagers[4].strQAPconnectWindowID)
-; strQAPconnectWindowID is read in the QAPconnect.ini file for the connected file manager.
-; It must contain at least some characters of the connected app title, and enough to be specific to this window.
-; It is used here to wait for the FM window as identified in QAPconnect.ini. And it is copied to g_strNewWindowId.
+; o_FileManagers[4].strQAPconnectWindowID contains "ahk_exe " and the file name of the FM executable.
+; It is used here to wait for the FM window and it is copied to g_strNewWindowId.
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
