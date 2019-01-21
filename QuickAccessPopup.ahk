@@ -31,15 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.4.1.2 (2019-01-??)
-DRAFT
-- give a clean error message if user of QAP v9.4+ did not update JLicons.dll file to v1.5 and QAP loading icon is missing
+Version: 9.4.1.2 (2019-01-21)
+- display a clean error message if user who installed QAP v9.4+ with portable zip file did not update JLicons.dll file to v1.5 (QAP loading icon missing error)
+- fix bug when opening group of folders in Directory Opus or Total Commander and the "Use tabs" option is disabled, now open each folder in a new window
+- when opening the first folder of a group in Directory Opus, if the app is not running, add a delay after launching it to prevent an intermittent bug leaving the new tab empty
 - fix bug when changing hotkey for Alternative menu features leaving previous hotkeys alive until QAP was reloaded
 - in "QAP Icon Replacements", support replacement with another QAP icon from JLicons (e.g. "iconFolderLive=iconFolder")
-- in "Check for update", add support for Alpha branch (in addition to Beta and Master)
-- fix bug when opening group of folders in Directory Opus or Total Commander, open folder in a new window if the "Use tabs" option if disabled
-- when opening the first folder of a group in Directory Opus, if DOpus is not running, add a delay after launching it (prevent an intermittent bug leaving the new tab empty)
-- when using beta or alpha release, fix bug when asking to confirm update to a newer version
+- in "Check for update", add support for Alpha branch, in addition to Beta and Master (prod) branches
 
 Version: 9.4.1.1 (2019-01-10)
 - fix bug introduced in v9.4.1 in the "Switch Settings file" command found under the QAP system menu "Settings file options" (right click the QAP icon in the Notification zone)
