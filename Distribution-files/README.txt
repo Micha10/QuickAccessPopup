@@ -25,6 +25,8 @@ the quickaccesspopup.ini file in this folder. See Quick Access Popup is a Portab
 4) At your convenience, create a shortcut on your Desktop or your Start menu or select
 "Run at startup" in the Tray menu to launch Quick Access Popup automatically at startup.
 
+See also the file UPDATE_INSTRUCTIONS.TXT for the best way to install a new version over an existing portable installation.
+
 
 Quick Access Popup is a Portable App
 ------------------------------------
