@@ -3339,7 +3339,6 @@ Gosub, BuildLastActionsMenuInit
 Gosub, BuildTotalCommanderHotlistInit
 Gosub, BuildTotalCommanderHotlistPrepare
 Gosub, BuildDirectoryOpusFavoritesInit
-Gosub, BuildDirectoryOpusFavoritesPrepare
 
 ; Other menus
 Gosub, BuildMainMenu
@@ -6062,23 +6061,6 @@ return
 
 
 ;------------------------------------------------------------
-BuildDirectoryOpusFavoritesPrepare:
-;------------------------------------------------------------
-
-objDopusXML := New XML("xml")
-
-g_strDOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
-g_blnDOpusFavoritesFileExist := FileExist(g_strDOpusFavoritesFile)
-g_strDOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
-g_blnDOpusLayoutsFileExist := FileExist(g_strDOpusLayoutsFile)
-
-Gosub, RefreshDirectoryOpusFavorites
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 PopularFoldersMenuShortcut:
 PopularFilesMenuShortcut:
 ;------------------------------------------------------------
@@ -6721,7 +6703,7 @@ RefreshDOpusSelectedListText:
 strDOpusTempFile := g_strTempDir .  "\dopus-" . (A_ThisLabel = "RefreshDOpusListersListText" ? "listers" : "selected") . "-list.txt"
 
 FileDelete, %strDOpusTempFile%
-RunDOpusRt("/info", strDOpusTempFile, "," . (A_ThisLabel = "RefreshDOpusListersListText" ? "paths" : "listsel")) ; list opened listers or selected files in a text file
+o_FileManagers[2].RunDOpusRt("/info", strDOpusTempFile, "," . (A_ThisLabel = "RefreshDOpusListersListText" ? "paths" : "listsel")) ; list opened listers or selected files in a text file
 loop, 10
 	if FileExist(strDOpusTempFile)
 		Break
@@ -7034,14 +7016,13 @@ Diag(A_ThisLabel, "", "START")
 Menu, %lDOpusMenuName%, Add 
 Menu, %lDOpusMenuName%, DeleteAll
 
-If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
+If (o_FileManagers[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
 {
 	objDOpusMenu := Object() ; object of menu structure entry point
 	objDOpusMenu.MenuPath := lDOpusMenuName ; localized name of the DOpus menu
 	objDOpusMenu.MenuType := "Menu"
 	
-	FileRead, strDirectoryOpusFavoritesXml, %g_strDOpusFavoritesFile%
-	if (RecursiveLoadDirectoryOpusFavoritesFromXML(objDOpusMenu, strDirectoryOpusFavoritesXml) <> "EOM") ; build menu tree
+	if (o_FileManagers[2].RecursiveLoadDirectoryOpusFavoritesFromXML(objDOpusMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Directory Opus Favorites file.")
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
@@ -7057,8 +7038,7 @@ If (g_blnDOpusFavoritesFileExist) ; Directory Opus favorites file exists
 		objDOpusLayoutsMenu.MenuPath := lDOpusMenuName . g_strMenuPathSeparatorWithSpaces . lDOpusLayoutsName ; localized name of the DOpus menu
 		objDOpusLayoutsMenu.MenuType := "Menu"
 		
-		FileRead, strDirectoryOpusLayoutsXml, %g_strDOpusLayoutsFile%
-		if (RecursiveLoadDirectoryOpusLayoutsFromXML(objDOpusLayoutsMenu, strDirectoryOpusLayoutsXml) <> "EOM") ; build menu tree
+		if (o_FileManagers[2].RecursiveLoadDirectoryOpusLayoutsFromXML(objDOpusLayoutsMenu) <> "EOM") ; build menu tree
 			Oops("An error occurred while reading the Directory Opus Layouts file")
 		objDOpusMenu.Insert(objDOpusLayoutsMenu) ; add favorite object for Layouts submenu
 		objDOpusMenu[objDOpusMenu.MaxIndex()].SubMenu := objDOpusLayoutsMenu ; link new favorite in DOPus menu to Layouts menu
@@ -7080,201 +7060,6 @@ objDOpusLayoutsMenu := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml)
-;------------------------------------------------------------
-{
-	global objDopusXML
-	global g_objMenusIndex
-	global g_objSpecialFolders
-	global g_strMenuPathSeparatorWithSpaces
-	
-	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
-
-	objDopusXML.XML.LoadXML(strNodeXml)
-	
-	objNodeAll := objDopusXML.SN("/*/*") ; select all nodes
-	while (objItem := objNodeAll.Item[A_Index-1])
-	{
-		objItemAttributes := objDopusXML.EA(objItem)
-			
-		blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
-			and StrLen(objItemAttributes.label) ; to skip "<folder><separator/></folder>"
-
-		if (blnItemIsMenu)
-		{
-			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.label
-			objNewMenu.MenuType := "Menu"
-			
-			; create a navigation entry to navigate to the parent menu
-			; (not used in Settings for this menu - but keep for code reusability)
-			objNewMenuBack := Object()
-			objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-			objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
-			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
-			objNewMenu.Insert(objNewMenuBack)
-			
-			strResult := RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, objItem.xml) ; RECURSIVE
-		}
-		
-		objLoadDOpusFavorite := Object() ; new favorite item
-		
-		if (!blnItemIsMenu and objItem.NodeName = "folder"
-			and SSN(objItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
-			
-			objLoadDOpusFavorite.FavoriteType := "X"
-
-		else ; menu or folder (what if unexpected node?)
-		{
-			objLoadDOpusFavorite.FavoriteName := objItemAttributes.label
-			if (blnItemIsMenu)
-				objLoadDOpusFavorite.FavoriteType := "Menu"
-			else
-			{
-				if (SSN(objItem, "descendant::pathstring").NodeName = "pathstring")
-				{
-					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
-					objLoadDOpusFavorite.FavoriteIconResource := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation)
-					objLoadDOpusFavorite.FavoriteType := "Folder"
-				}
-				else if (SSN(objItem, "descendant::pidl").NodeName = "pidl")
-				/*
-					<path label="Ce PC">
-						<dir>
-							<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
-						</dir>
-					</path>
-				*/
-				{
-					objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pidl").text
-					
-					if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
-						objLoadDOpusFavorite.FavoriteLocation := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
-					else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfWA0aLPAhvlBDiLBzZ/yW7zwAAA==")
-						objLoadDOpusFavorite.FavoriteLocation := "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" ; DOpus alias "network"
-					else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfeEDwX2SBUBsQnwgAqgAvlU4AAA==")
-						objLoadDOpusFavorite.FavoriteLocation := "{645FF040-5081-101B-9F08-00AA002F954E}" ; DOpus alias "trash"
-					
-					if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 1) = "{")
-						objLoadDOpusFavorite.FavoriteIconResource := GetIconForClassId(objLoadDOpusFavorite.FavoriteLocation)
-					objLoadDOpusFavorite.FavoriteType := "Special"
-				}
-				else
-				{
-					objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . objItemAttributes.label . """ / node: """ . objItem.NodeName . """"
-					objLoadDOpusFavorite.FavoriteType := "Text"
-				}
-			}
-			if !StrLen(objLoadDOpusFavorite.FavoriteName)
-				objLoadDOpusFavorite.FavoriteName := objLoadDOpusFavorite.FavoriteLocation
-		}
-		
-		; this is a submenu, link to the submenu object
-		if (blnItemIsMenu)
-			objLoadDOpusFavorite.SubMenu := objNewMenu
-		
-		; update the current menu object
-		objCurrentMenu.Insert(objLoadDOpusFavorite)
-	}
-
-	return, "EOM" ; end of XML, last menu item
-}
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml, strLayoutMenuName := "")
-;-----------------------------------------------------------
-{
-	global objDopusXML
-	global g_strMenuPathSeparatorWithSpaces
-	global g_objMenusIndex
-
-	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
-	
-	objDopusXML.XML.LoadXML(strNodeXml)
-	
-	objNodeAll := objDopusXML.SN("/*/layout") ; select all layout nodes
-	while (objItem := objNodeAll.Item[A_Index-1])
-	{
-		blnItemIsMenu := false
-		objItemAttributes := objDopusXML.EA(objItem)
-		if (objItemAttributes.separator <> "yes")
-		{
-			strFolderNodeXml := SearchDirectoryOpusLayoutsFolder(objItemAttributes.name, strNodeXml)
-			blnItemIsMenu := StrLen(strFolderNodeXml)
-			
-			if (blnItemIsMenu)
-			{
-				objNewMenu := Object() ; create the submenu object
-				objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.name
-				objNewMenu.MenuType := "Menu"
-				
-				; create a navigation entry to navigate to the parent menu
-				; (not used in Settings for this menu - but keep for code reusability)
-				objNewMenuBack := Object()
-				objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-				objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
-				objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
-				objNewMenu.Insert(objNewMenuBack)
-				
-				strResult := RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . objItemAttributes.name . "/") ; RECURSIVE
-			}
-		}
-
-		objLoadDOpusLayout := Object() ; new layout item
-
-		if (objItemAttributes.separator = "yes")
-			
-			objLoadDOpusLayout.FavoriteType := "X"
-
-		else
-		{
-			objLoadDOpusLayout.FavoriteName := objItemAttributes.name
-			if (blnItemIsMenu)
-				objLoadDOpusLayout.FavoriteIconResource := "iconSubmenu"
-			else ; it is a layout
-			{
-				objLoadDOpusLayout.FavoriteIconResource := "iconGroup"
-				objLoadDOpusLayout.FavoriteLocation := strLayoutMenuName . objItemAttributes.name
-			}
-			objLoadDOpusLayout.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder")
-		}
-		
-		; this is a submenu, link to the submenu object
-		if (blnItemIsMenu)
-			objLoadDOpusLayout.SubMenu := objNewMenu
-		
-		; update the current menu object
-		objCurrentMenu.Insert(objLoadDOpusLayout)
-	}
-
-	return, "EOM" ; end of XML, last menu item
-}
-;-----------------------------------------------------------
-
-
-;------------------------------------------------------------
-SearchDirectoryOpusLayoutsFolder(strName, strNodeXml)
-; returns the XML of the folder node strName if it is found in strNodeXml or returns empty if not found
-;------------------------------------------------------------
-{
-	objFolderXML := New XML("xml")
-	objFolderXML.XML.LoadXML(strNodeXml)
-
-	objNodeFolder := objFolderXML.SN("/*/folder")
-	while (objFolderItem := objNodeFolder.Item[A_Index-1])
-	{
-		objFolderItemAttributes := objFolderXML.EA(objFolderItem)
-		if (objFolderItemAttributes.name = strName)
-			return objFolderItem.xml ; return folder node if found
-	}
-	return ; empty if not found
-}
 ;------------------------------------------------------------
 
 
@@ -16614,7 +16399,7 @@ else if (arrFolderWindowId1 = "DO") ; Directory Opus
 	; double % for DOpusRT (http://resource.dopus.com/viewtopic.php?f=3&t=23013#p124395)
 	; StringReplace, strThisMenuItem, strThisMenuItem, % "%", % "%%", A
 	; remove because does not seem to be required anymore?
-	RunDOpusRt("/acmd Go ", strThisMenuItem, " EXISTINGLISTER") ; activate an existing lister listing this path
+	o_FileManagers[2].RunDOpusRt("/acmd Go ", strThisMenuItem, " EXISTINGLISTER") ; activate an existing lister listing this path
 else ; APP
 	WinActivate, % "ahk_id " . arrFolderWindowId2
 
@@ -18297,7 +18082,7 @@ OpenFavoriteNavigateDirectoryOpus:
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 
-RunDOpusRt("/aCmd Go", g_strFullLocation) ; navigate the current lister
+o_FileManagers[2].RunDOpusRt("/aCmd Go", g_strFullLocation) ; navigate the current lister
 
 return
 ;------------------------------------------------------------
@@ -18663,7 +18448,7 @@ else
 }
 
 StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instead of activating by QAP as in previous versions
-RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
+o_FileManagers[2].RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
 if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
 	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
 g_strNewWindowId := "ahk_class dopus.lister"
@@ -23579,25 +23364,6 @@ BuildMonitorsList(intDefault)
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-RunDOpusRt(strCommand, strLocation := "", strParam := "")
-; put A_Space at the beginning of strParam if required - some param (like ",paths") must have no space 
-;------------------------------------------------------------
-{
-	if (strCommand = "/info")
-	{
-		Process, Exist, dopus.exe
-		; abort if DOpus.exe is not running
-		if !(ErrorLevel)
-			return
-	}
-	
-	if FileExist(o_FileManagers[2].strDirectoryOpusRtPath) ; for safety only
-		Run, % """" . o_FileManagers[2].strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
-}
-;------------------------------------------------------------
-
-
 
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
@@ -24651,6 +24417,249 @@ TODO
 			}
 		}
 		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		RunDOpusRt(strCommand, strLocation := "", strParam := "")
+		; put A_Space at the beginning of strParam if required - some param (like ",paths") must have no space 
+		;-----------------------------------------------------
+		{
+			if (strCommand = "/info")
+			{
+				Process, Exist, dopus.exe
+				; abort if DOpus.exe is not running
+				if !(ErrorLevel)
+					return
+			}
+			
+			if FileExist(this.strDirectoryOpusRtPath) ; for safety only
+				Run, % """" . this.strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
+		}
+		;-----------------------------------------------------
+
+		;-----------------------------------------------------
+		DirectoryOpusFavoritesFileExist()
+		;-----------------------------------------------------
+		{
+			this.strDOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
+			return FileExist(this.strDOpusFavoritesFile)
+		}
+		;-----------------------------------------------------
+
+		;-----------------------------------------------------
+		RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml := "")
+		;-----------------------------------------------------
+		{
+			global g_objMenusIndex
+			global g_objSpecialFolders
+			global g_strMenuPathSeparatorWithSpaces
+
+			if !StrLen(strNodeXml) ; first level only
+			{
+				this.objDopusXML := New XML("xml")
+				FileRead, strNodeXml, this.strDOpusFavoritesFile
+			}
+
+
+			g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
+
+			this.objDopusXML.XML.LoadXML(strNodeXml)
+			
+			objNodeAll := this.objDopusXML.SN("/*/*") ; select all nodes
+			while (objItem := objNodeAll.Item[A_Index-1])
+			{
+				objItemAttributes := this.objDopusXML.EA(objItem)
+					
+				blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
+					and StrLen(objItemAttributes.label) ; to skip "<folder><separator/></folder>"
+				
+				if (blnItemIsMenu)
+				{
+					objNewMenu := Object() ; create the submenu object
+					objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.label
+					objNewMenu.MenuType := "Menu"
+					
+					; create a navigation entry to navigate to the parent menu
+					; (not used in Settings for this menu - but keep for code reusability)
+					objNewMenuBack := Object()
+					objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
+					objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
+					objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
+					objNewMenu.Insert(objNewMenuBack)
+					
+					strResult := this.RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, objItem.xml) ; RECURSIVE
+				}
+				
+				objLoadDOpusFavorite := Object() ; new favorite item
+				
+				if (!blnItemIsMenu and objItem.NodeName = "folder"
+					and SSN(objItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
+					
+					objLoadDOpusFavorite.FavoriteType := "X"
+					
+				else ; menu or folder (what if unexpected node?)
+				{
+					objLoadDOpusFavorite.FavoriteName := objItemAttributes.label
+					if (blnItemIsMenu)
+						objLoadDOpusFavorite.FavoriteType := "Menu"
+					else
+					{
+						if (SSN(objItem, "descendant::pathstring").NodeName = "pathstring")
+						{
+							objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
+							objLoadDOpusFavorite.FavoriteIconResource := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation)
+							objLoadDOpusFavorite.FavoriteType := "Folder"
+						}
+						else if (SSN(objItem, "descendant::pidl").NodeName = "pidl")
+						/*
+							<path label="Ce PC">
+								<dir>
+									<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
+								</dir>
+							</path>
+						*/
+						{
+							objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pidl").text
+							
+							if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
+								objLoadDOpusFavorite.FavoriteLocation := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
+							else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfWA0aLPAhvlBDiLBzZ/yW7zwAAA==")
+								objLoadDOpusFavorite.FavoriteLocation := "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" ; DOpus alias "network"
+							else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfeEDwX2SBUBsQnwgAqgAvlU4AAA==")
+								objLoadDOpusFavorite.FavoriteLocation := "{645FF040-5081-101B-9F08-00AA002F954E}" ; DOpus alias "trash"
+							
+							if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 1) = "{")
+								objLoadDOpusFavorite.FavoriteIconResource := GetIconForClassId(objLoadDOpusFavorite.FavoriteLocation)
+							objLoadDOpusFavorite.FavoriteType := "Special"
+						}
+						else
+						{
+							objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . objItemAttributes.label . """ / node: """ . objItem.NodeName . """"
+							objLoadDOpusFavorite.FavoriteType := "Text"
+						}
+					}
+					if !StrLen(objLoadDOpusFavorite.FavoriteName)
+						objLoadDOpusFavorite.FavoriteName := objLoadDOpusFavorite.FavoriteLocation
+				}
+				
+				; this is a submenu, link to the submenu object
+				if (blnItemIsMenu)
+					objLoadDOpusFavorite.SubMenu := objNewMenu
+				
+				; update the current menu object
+				objCurrentMenu.Insert(objLoadDOpusFavorite)
+			}
+
+			return, "EOM" ; end of XML, last menu item
+		}
+		;-----------------------------------------------------
+
+		;-----------------------------------------------------
+		DirectoryOpusLayoutsFileExist()
+		;-----------------------------------------------------
+		{
+			this.strDOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
+			return FileExist(this.strDOpusLayoutsFile)
+		}
+		;-----------------------------------------------------
+
+		;-----------------------------------------------------
+		RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml := "", strLayoutMenuName := "")
+		;-----------------------------------------------------
+		{
+			global g_strMenuPathSeparatorWithSpaces
+			global g_objMenusIndex
+
+			if !StrLen(strNodeXml) ; first level only
+			{
+				this.objDopusXML := New XML("xml") ; could use existing instamce created for favorites?
+				FileRead, strNodeXml, %g_strDOpusLayoutsFile%
+			}
+			
+			g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
+			
+			this.objDopusXML.XML.LoadXML(strNodeXml)
+			
+			objNodeAll := this.objDopusXML.SN("/*/layout") ; select all layout nodes
+			while (objItem := objNodeAll.Item[A_Index-1])
+			{
+				blnItemIsMenu := false
+				objItemAttributes := this.objDopusXML.EA(objItem)
+				if (objItemAttributes.separator <> "yes")
+				{
+					strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(objItemAttributes.name, strNodeXml)
+					blnItemIsMenu := StrLen(strFolderNodeXml)
+					
+					if (blnItemIsMenu)
+					{
+						objNewMenu := Object() ; create the submenu object
+						objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.name
+						objNewMenu.MenuType := "Menu"
+						
+						; create a navigation entry to navigate to the parent menu
+						; (not used in Settings for this menu - but keep for code reusability)
+						objNewMenuBack := Object()
+						objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
+						objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
+						objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
+						objNewMenu.Insert(objNewMenuBack)
+						
+						strResult := this.RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . objItemAttributes.name . "/") ; RECURSIVE
+					}
+				}
+				
+				objLoadDOpusLayout := Object() ; new layout item
+				
+				if (objItemAttributes.separator = "yes")
+					
+					objLoadDOpusLayout.FavoriteType := "X"
+					
+				else
+				{
+					objLoadDOpusLayout.FavoriteName := objItemAttributes.name
+					if (blnItemIsMenu)
+						objLoadDOpusLayout.FavoriteIconResource := "iconSubmenu"
+					else ; it is a layout
+					{
+						objLoadDOpusLayout.FavoriteIconResource := "iconGroup"
+						objLoadDOpusLayout.FavoriteLocation := strLayoutMenuName . objItemAttributes.name
+					}
+					objLoadDOpusLayout.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder")
+				}
+				
+				; this is a submenu, link to the submenu object
+				if (blnItemIsMenu)
+					objLoadDOpusLayout.SubMenu := objNewMenu
+				
+				; update the current menu object
+				objCurrentMenu.Insert(objLoadDOpusLayout)
+			}
+
+			return, "EOM" ; end of XML, last menu item
+		}
+		;-----------------------------------------------------
+
+		;-----------------------------------------------------
+		SearchDirectoryOpusLayoutsFolder(strName, strNodeXml)
+		; returns the XML of the folder node strName if it is found in strNodeXml or returns empty if not found
+		;-----------------------------------------------------
+		{
+			objFolderXML := New XML("xml")
+			objFolderXML.XML.LoadXML(strNodeXml)
+			
+			objNodeFolder := objFolderXML.SN("/*/folder")
+			while (objFolderItem := objNodeFolder.Item[A_Index-1])
+			{
+				objFolderItemAttributes := objFolderXML.EA(objFolderItem)
+				if (objFolderItemAttributes.name = strName)
+					return objFolderItem.xml ; return folder node if found
+			}
+			return ; empty if not found
+		}
+		;-----------------------------------------------------
+
+
+
+
 	}
 	;---------------------------------------------------------
 }
