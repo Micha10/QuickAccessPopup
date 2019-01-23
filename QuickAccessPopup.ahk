@@ -3100,7 +3100,7 @@ SetWaitCursor(false)
 ;---------------------------------
 ; Init class for command line parameters
 ; "/Settings:file_path" (must end with ".ini"), "/AdminSilent" and "/Working:path"
-o_CmdLineParams := new CommandLineParameters()
+global o_CmdLineParams := new CommandLineParameters()
 
 Gosub, SetQAPWorkingDirectory
 
@@ -3199,7 +3199,7 @@ g_arrSubmenuStack := Object()
 g_arrSubmenuStackPosition := Object()
 
 g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
-g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
+global g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
 g_strGuiMenuSeparator := "----------------" ;  single-line displayed as line separators, allowed in item names
 g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separators, allowed in item names
 g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
@@ -3222,7 +3222,7 @@ g_strExclusionMouseListDialogIndicator := "*"
 g_objGuiControls := Object() ; to build Settings gui
 
 g_objClassIdOrPathByDefaultName := Object() ; used by InitSpecialFolders and CollectExplorers
-g_objSpecialFolders := Object()
+global g_objSpecialFolders := Object()
 
 g_objQAPFeatures := Object()
 g_objQAPFeaturesCodeByDefaultName := Object()
@@ -3283,7 +3283,7 @@ Gosub, InitGuiControls
 ;---------------------------------
 ; Init class for Triggers (must be before LoadIniFile)
 global o_MouseButtons := new Triggers.MouseButtons
-o_PopupHotkeys := new Triggers.PopupHotkeys ; load QAP menu triggers from ini file
+global o_PopupHotkeys := new Triggers.PopupHotkeys ; load QAP menu triggers from ini file
 
 ;---------------------------------
 ; Load Settings file
@@ -4397,7 +4397,6 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 ;------------------------------------------------------------
 {
 	global g_objClassIdOrPathByDefaultName
-	global g_objSpecialFolders
 	
 	objOneSpecialFolder := Object()
 	
@@ -5192,7 +5191,7 @@ else
 	g_objMainMenu.MenuPath := lMainMenuName ; localized name of the main menu
 	g_objMainMenu.MenuType := "Menu" ; main menu is not a group
 
-	g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
+	global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	g_objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
@@ -5210,9 +5209,7 @@ return
 RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 ;------------------------------------------------------------
 {
-	global g_objMenusIndex
 	global g_objQAPfeaturesInMenus
-	global g_strMenuPathSeparatorWithSpaces
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	global g_strEscapePipe
@@ -5580,7 +5577,6 @@ return
 AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := false, strCustomShortcut := "")
 ;------------------------------------------------------------
 {
-	global g_objSpecialFolders
 	global g_objQAPFeatures
 	global g_intNextFavoriteNumber
 	global lMenuMyQAPMenu
@@ -6901,10 +6897,6 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 ; see https://www.quickaccesspopup.com/add-total-commander-hotlist-menu-to-fp-menu/
 ;------------------------------------------------------------
 {
-	global g_objMenusIndex
-	global g_objSpecialFolders
-	global g_strMenuPathSeparatorWithSpaces
-	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
 
@@ -7200,8 +7192,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intHotkeyReminders
 	global g_objFavoritesObjectsByShortcut
 	global g_objFavoritesObjectsByHotstring
-	global g_strMenuPathSeparatorWithSpaces
-	global g_objMenusIndex
 	global g_blnWorkingToolTip
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
@@ -7419,7 +7409,6 @@ LiveFolderHasContent(objLiveFolder)
 BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparatorWithSpaces
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
 	
@@ -13540,7 +13529,6 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ; update submenus and their childrens and groups to the new path of the parent menu
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparatorWithSpaces
 	global g_strGroupIndicatorPrefix
 	global g_strGroupIndicatorSuffix
 	
@@ -14575,8 +14563,6 @@ return
 GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 ;------------------------------------------------------------
 {
-	global g_objMenusIndex
-	
 	Gui, 1:ListView, f_lvFavoritesListFiltered
 
 	intPositionInListView := LV_GetNext()
@@ -15396,7 +15382,6 @@ return
 ShortcutIfAvailable(strShortcut, strFavoriteName)
 ;-----------------------------------------------------------
 {
-	global o_PopupHotkeys
 	global g_objQAPFeatures
 	global g_arrOptionsPopupHotkeyTitles
 	global g_objFavoritesObjectsByShortcut
@@ -17313,8 +17298,6 @@ return
 GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFavorite)
 ;------------------------------------------------------------
 {
-	global g_objSpecialFolders
-
 	strLocation := objFavorite.FavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
 	objSpecialFolder := g_objSpecialFolders[strLocation]
 	
@@ -17377,9 +17360,6 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
-	global g_objMenusIndex
-	global g_strMenuPathSeparatorWithSpaces
-
 	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
 
 	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName or A_ThisMenu = lDOpusMenuName or A_ThisMenu = lDOpusMenuName . g_strMenuPathSeparatorWithSpaces . lDOpusLayoutsName ? 0 : 1)
@@ -17394,8 +17374,6 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef intDisabledItemsBeforeThisItem)
 ;------------------------------------------------------------
 {
-	global g_objMenusIndex
-	
 	intColumnBreaksBeforeThisItem := 0
 	intDisabledItemsBeforeThisItem := 0
 	intMenuObjectItemOffset := (A_ThisMenu = lMainMenuName or A_ThisMenu = lTCMenuName ? 0 : 1)
@@ -22165,7 +22143,6 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 ;------------------------------------------------------------
 {
 	global g_strTempDir
-	global g_objSpecialFolders
 	global g_objQAPFeatures
 
 	if InStr("|Menu|External", "|" . objFavorite.FavoriteType, true)
@@ -24420,10 +24397,6 @@ TODO
 		RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml := "")
 		;-----------------------------------------------------
 		{
-			global g_objMenusIndex
-			global g_objSpecialFolders
-			global g_strMenuPathSeparatorWithSpaces
-
 			if !StrLen(strNodeXml) ; first level only
 			{
 				this.objDopusXML := New XML("xml")
@@ -24537,9 +24510,6 @@ TODO
 		RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml := "", strLayoutMenuName := "")
 		;-----------------------------------------------------
 		{
-			global g_strMenuPathSeparatorWithSpaces
-			global g_objMenusIndex
-
 			if !StrLen(strNodeXml) ; first level only
 			{
 				this.objDopusXML := New XML("xml") ; could use existing instamce created for favorites?
