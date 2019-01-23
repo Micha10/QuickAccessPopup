@@ -24158,12 +24158,11 @@ TODO
 		objActiveFileManagerSystemNames := StrSplit("WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect", "|")
 		objActiveFileManagerDisplayNames := StrSplit("Windows Explorer|Directory Opus|Total Commander|QAPconnect", "|")
 		
-		loop, % objActiveFileManagerSystemNames.Length()
-		{
-			oFileManager := new this.FileManager(A_Index, objActiveFileManagerSystemNames[A_Index], objActiveFileManagerDisplayNames[A_Index])
-			this[A_Index] := oFileManager
-		}
-		
+		this[1] := new this.Explorer(objActiveFileManagerSystemNames[1], objActiveFileManagerDisplayNames[1])
+		this[2] := new this.DirectoryOpus(objActiveFileManagerSystemNames[2], objActiveFileManagerDisplayNames[2])
+		this[3] := new this.TotalCommander(objActiveFileManagerSystemNames[3], objActiveFileManagerDisplayNames[3])
+		this[4] := new this.QAPConnect(objActiveFileManagerSystemNames[4], objActiveFileManagerDisplayNames[4])
+			
 		IniRead, intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
@@ -24243,140 +24242,71 @@ TODO
 	class FileManager
 	;---------------------------------------------------------
 	{
-		; Instance variables
-		strSystemName := ""
-		strDisplayName := ""
-		strFileManagerPath := ""
-		blnFileManagerValid := ""
-		; and other file managers specific values
-		
 		;-----------------------------------------------------
-		__New(intThisFileManager, strThisSystemName, strThisDisplayName)
+		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
 			this.strSystemName := strThisSystemName
 			this.strDisplayName := strThisDisplayName
-			
-			if (strThisSystemName = "WindowsExplorer")
-			{
-				strPath := ""
-				IniRead, blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
-				this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
-				this.blnFileManagerValid := true
-			}
-			else if (strThisSystemName = "DirectoryOpus")
-			{
-				IniRead, strPath, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
-				if !StrLen(strPath)
-					strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
-				if !FileExist(strPath)
-					strPath := "dopus.exe"
-				this.strFileManagerPath := strPath
-				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
-					
-				if (this.blnFileManagerValid)
-				{
-					this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
-					
-					IniRead, blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
-					this.blnFileManagerUseTabs := blnDirectoryOpusUseTabs
-					if (this.blnFileManagerUseTabs)
-						this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
-					else
-						this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
-					
-					IniRead, blnFileManagerDirectoryOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
-					this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
-					
-					o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
-				}
-			}
-			else if (strThisSystemName = "TotalCommander")
-			{
-				IniRead, strPath, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
-				if !StrLen(strPath)
-				{
-					RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
-					If !StrLen(strPath)
-						RegRead, strPath, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, InstallDir
-					if FileExist(strPath . "\TOTALCMD64.EXE")
-						strPath := strPath . "\TOTALCMD64.EXE"
-					else
-						strPath := strPath . "\TOTALCMD.EXE"
-				}
-				this.strFileManagerPath := strPath
-				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
-					
-				if (this.blnFileManagerValid)
-				{
-					IniRead, strIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
-					If !StrLen(strIniFile)
-						RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
-					If !StrLen(strIniFile)
-						RegRead, strIniFile, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, IniFileName
-					this.strTCIniFile := strIniFile
-					this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
-					this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
-					
-					IniRead, blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
-					this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
-					if (this.blnFileManagerUseTabs)
-						this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
-					else
-						this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
-					
-					o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
-				}
-			}
-			else if (strThisSystemName = "QAPconnect")
-			{
-				IniRead, strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
-				this.strQAPconnectFileManager := strQAPconnectFileManager
-				this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
-				/* QAPconnect.ini sample:
-				[EF Commander Free (v9.50)]
-				; http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
-				AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
-				CommandLine=/O /A=%Path%
-				NewTabSwitch=
-				CompanionPath=EFCWT.EXE
-				NeverQuotes=
-				*/
-				IniRead, strPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
-				this.strFileManagerPath := strPath
-				this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-				this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-					and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
-					
-				if (this.blnFileManagerValid)
-				{
-					SplitPath, strPath, strFilename
-					this.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
-					this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
-					
-					IniRead, strCommandLine, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
-					this.strQAPconnectCommandLine := strCommandLine
-					
-					IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
-					this.strQAPconnectNewTabSwitch := strNewTabSwitch
-					
-					IniRead, strCompanionPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
-					if StrLen(strCompanionPath)
-						FileExistInPath(strCompanionPath) ; return strQAPconnectCompanionPath expanded and searched in PATH
-					SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
-					this.strQAPconnectCompanionPath := strCompanionPath
-					this.strQAPconnectCompanionFilename := strCompanionFilename
-					
-					IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
-					this.strQAPconnectNeverQuotes := strNeverQuotes
-				}
-			}
 		}
 		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	class Explorer extends FileManagers.FileManager
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisSystemName, strThisDisplayName)
+		;-----------------------------------------------------
+		{
+			base.__New(strThisSystemName, strThisDisplayName)
+			
+			IniRead, blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
+			this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
+			this.blnFileManagerValid := true
+		}
+		;-----------------------------------------------------
+	}
+	
+	;---------------------------------------------------------
+	class DirectoryOpus extends FileManagers.FileManager
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisSystemName, strThisDisplayName)
+		;-----------------------------------------------------
+		{
+			base.__New(strThisSystemName, strThisDisplayName)
+			
+			IniRead, strPath, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
+			if !StrLen(strPath)
+				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
+			if !FileExist(strPath)
+				strPath := "dopus.exe"
+			this.strFileManagerPath := strPath
+			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+				
+			if (this.blnFileManagerValid)
+			{
+				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
+				
+				IniRead, blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
+				this.blnFileManagerUseTabs := blnDirectoryOpusUseTabs
+				if (this.blnFileManagerUseTabs)
+					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
+				else
+					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
+				
+				IniRead, blnFileManagerDirectoryOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
+				this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
+				
+				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
+			}
+		}
 		
 		;-----------------------------------------------------
 		RunDOpusRt(strCommand, strLocation := "", strParam := "")
@@ -24606,6 +24536,111 @@ TODO
 					return objFolderItem.xml ; return folder node if found
 			}
 			return ; empty if not found
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	class TotalCommander extends FileManagers.FileManager
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisSystemName, strThisDisplayName)
+		;-----------------------------------------------------
+		{
+			base.__New(strThisSystemName, strThisDisplayName)
+			
+			IniRead, strPath, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
+			if !StrLen(strPath)
+			{
+				RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
+				If !StrLen(strPath)
+					RegRead, strPath, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, InstallDir
+				if FileExist(strPath . "\TOTALCMD64.EXE")
+					strPath := strPath . "\TOTALCMD64.EXE"
+				else
+					strPath := strPath . "\TOTALCMD.EXE"
+			}
+			this.strFileManagerPath := strPath
+			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+				
+			if (this.blnFileManagerValid)
+			{
+				IniRead, strIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
+				If !StrLen(strIniFile)
+					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
+				If !StrLen(strIniFile)
+					RegRead, strIniFile, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, IniFileName
+				this.strTCIniFile := strIniFile
+				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
+				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
+				
+				IniRead, blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
+				this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
+				if (this.blnFileManagerUseTabs)
+					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
+				else
+					this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
+				
+				o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
+			}
+		}
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	class QAPconnect extends FileManagers.FileManager
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisSystemName, strThisDisplayName)
+		;-----------------------------------------------------
+		{
+			base.__New(strThisSystemName, strThisDisplayName)
+			
+			IniRead, strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
+			this.strQAPconnectFileManager := strQAPconnectFileManager
+			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
+			/* QAPconnect.ini sample:
+			[EF Commander Free (v9.50)]
+			; http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
+			AppPath=..\EF Commander Free\EFCommanderFreePortable.exe
+			CommandLine=/O /A=%Path%
+			NewTabSwitch=
+			CompanionPath=EFCWT.EXE
+			NeverQuotes=
+			*/
+			IniRead, strPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
+			this.strFileManagerPath := strPath
+			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
+				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+				
+			if (this.blnFileManagerValid)
+			{
+				SplitPath, strPath, strFilename
+				this.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
+				this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
+				
+				IniRead, strCommandLine, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
+				this.strQAPconnectCommandLine := strCommandLine
+				
+				IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
+				this.strQAPconnectNewTabSwitch := strNewTabSwitch
+				
+				IniRead, strCompanionPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+				if StrLen(strCompanionPath)
+					FileExistInPath(strCompanionPath) ; return strQAPconnectCompanionPath expanded and searched in PATH
+				SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
+				this.strQAPconnectCompanionPath := strCompanionPath
+				this.strQAPconnectCompanionFilename := strCompanionFilename
+				
+				IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
+				this.strQAPconnectNeverQuotes := strNeverQuotes
+			}
 		}
 		;-----------------------------------------------------
 	}
