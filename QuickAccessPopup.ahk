@@ -7016,7 +7016,7 @@ If o_FileManagers[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorite
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	If (o_FileManagers[2].blnFileManagerDOpusShowLayouts and o_FileManagers[2].DirectoryOpusLayoutsFileExist()) ; Directory Opus layouts order file exists, create submenu with layouts
+	If (o_FileManagers[2].blnFileManagerDirectoryOpusShowLayouts and o_FileManagers[2].DirectoryOpusLayoutsFileExist()) ; Directory Opus layouts order file exists, create submenu with layouts
 	{
 		objLoadDOpusFavorite := Object() ; new separator item
 		objLoadDOpusFavorite.FavoriteType := "X"
@@ -8085,8 +8085,8 @@ Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % 
 Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, %lTCWinCmdLocation%
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, %lDialogBrowseButton%
-Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDOpusShowLayouts gFileManagerNavigateClicked hidden, % L(lDopusMenuNameShowLayout, lDOpusLayoutsName)
-GuiControl, , f_blnFileManagerDOpusShowLayouts, % o_FileManagers[2].blnFileManagerDOpusShowLayouts
+Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gFileManagerNavigateClicked hidden, % L(lDopusMenuNameShowLayout, lDOpusLayoutsName)
+GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % o_FileManagers[2].blnFileManagerDirectoryOpusShowLayouts
 
 Gui, Font, w600
 Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsTabFileManagersPreferences%
@@ -8204,7 +8204,7 @@ GuiControl, %strShowHideCommand%, f_btnFileManagerPath
 GuiControl, %strShowHideCommand%, f_strFileManagerPath
 
 strShowHideCommand := (!f_radActiveFileManager2 ? "Hide" : "Show")
-GuiControl, %strShowHideCommand%, f_blnFileManagerDOpusShowLayouts
+GuiControl, %strShowHideCommand%, f_blnFileManagerDirectoryOpusShowLayouts
 
 strShowHideCommand := (!f_radActiveFileManager3 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnTotalCommanderWinCmd
@@ -9047,7 +9047,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 	IniWrite, %strClickedNewTabOrWindow%, %g_strIniFile%, Global, %strClickedFileManagerSystemName%NewTabOrWindow
 	
 	if (g_intClickedFileManager = 2)
-		IniWrite, %f_blnFileManagerDOpusShowLayouts%, %g_strIniFile%, Global, FileManagerDOpusShowLayouts
+		IniWrite, %f_blnFileManagerDirectoryOpusShowLayouts%, %g_strIniFile%, Global, FileManagerDOpusShowLayouts
 }
 
 IniWrite, %f_radFileManagerNavigateCurrent%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
@@ -15850,6 +15850,7 @@ Gosub, InsertColumnBreaks
 Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
 SetWaitCursor(false) 
 
+; o_FileManagers.CopyClassStructure() ; #####
 Menu, %lMainMenuName%, Show, %g_intMenuPosX%, %g_intMenuPosY% ; at mouse pointer if option 1, 20x20 offset of active window if option 2 and fix location if option 3
 
 return
@@ -24140,7 +24141,7 @@ class Triggers.MouseButtons
 ;-------------------------------------------------------------
 
 
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 class FileManagers
 /*
 TODO
@@ -24157,12 +24158,10 @@ TODO
 		objActiveFileManagerSystemNames := StrSplit("WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect", "|")
 		objActiveFileManagerDisplayNames := StrSplit("Windows Explorer|Directory Opus|Total Commander|QAPconnect", "|")
 		
-		; ###_D("", 1, 1) ; to capture instance values
 		loop, % objActiveFileManagerSystemNames.Length()
 		{
 			oFileManager := new this.FileManager(A_Index, objActiveFileManagerSystemNames[A_Index], objActiveFileManagerDisplayNames[A_Index])
 			this[A_Index] := oFileManager
-			; ###_O("o_FileManagers[" . A_Index . "] (" . oFileManager.strSystemName . ")", oFileManager) ; to capture instance values
 		}
 		
 		IniRead, intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
@@ -24172,11 +24171,24 @@ TODO
 
 		IniRead, blnAlwaysNavigate, %g_strIniFile%, Global, FileManagerAlwaysNavigate, 0
 		this.blnFileManagerAlwaysNavigate := blnAlwaysNavigate
-		; ###_O("o_FileManagers (strSystemName)", this, "strSystemName") ; to capture instance values
-		; ###_D(Clipboard, 1, 1) ; to capture instance values
 	}
 	;---------------------------------------------------------
-	
+
+	;---------------------------------------------------------
+	CopyClassStructure()
+	;---------------------------------------------------------
+	{
+		objActiveFileManagerSystemNames := StrSplit("WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect", "|")
+		objActiveFileManagerDisplayNames := StrSplit("Windows Explorer|Directory Opus|Total Commander|QAPconnect", "|")
+		
+		###_D("", 1, 1) ; to capture instance values
+		###_O("o_FileManagers (strSystemName)", this, "strSystemName") ; to capture instance values
+		loop, % objActiveFileManagerSystemNames.Length()
+			###_O("o_FileManagers[" . A_Index . "] (" . this[A_Index].strSystemName . ")", this[A_Index]) ; to capture instance values
+		###_D(Clipboard, 1, 1) ; to capture instance values
+	}
+	;---------------------------------------------------------
+
 	;---------------------------------------------------------
 	ActiveFileManager[]
 	; default 1 for "WindowsExplorer"
@@ -24275,8 +24287,8 @@ TODO
 					else
 						this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 					
-					IniRead, blnFileManagerDOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
-					this.blnFileManagerDOpusShowLayouts := blnFileManagerDOpusShowLayouts
+					IniRead, blnFileManagerDirectoryOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
+					this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
 					
 					o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
 				}
@@ -24388,8 +24400,8 @@ TODO
 		DirectoryOpusFavoritesFileExist()
 		;-----------------------------------------------------
 		{
-			this.strDOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
-			return FileExist(this.strDOpusFavoritesFile)
+			this.strDirectoryOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
+			return FileExist(this.strDirectoryOpusFavoritesFile)
 		}
 		;-----------------------------------------------------
 
@@ -24399,19 +24411,18 @@ TODO
 		{
 			if !StrLen(strNodeXml) ; first level only
 			{
-				this.objDopusXML := New XML("xml")
-				FileRead, strNodeXml, this.strDOpusFavoritesFile
+				this.objDirectoryOpusXML := New XML("xml")
+				FileRead, strNodeXml, % this.strDirectoryOpusFavoritesFile
 			}
-
 
 			g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 
-			this.objDopusXML.XML.LoadXML(strNodeXml)
+			this.objDirectoryOpusXML.XML.LoadXML(strNodeXml)
 			
-			objNodeAll := this.objDopusXML.SN("/*/*") ; select all nodes
+			objNodeAll := this.objDirectoryOpusXML.SN("/*/*") ; select all nodes
 			while (objItem := objNodeAll.Item[A_Index-1])
 			{
-				objItemAttributes := this.objDopusXML.EA(objItem)
+				objItemAttributes := this.objDirectoryOpusXML.EA(objItem)
 					
 				blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
 					and StrLen(objItemAttributes.label) ; to skip "<folder><separator/></folder>"
@@ -24501,8 +24512,8 @@ TODO
 		DirectoryOpusLayoutsFileExist()
 		;-----------------------------------------------------
 		{
-			this.strDOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
-			return FileExist(this.strDOpusLayoutsFile)
+			this.strDirectoryOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
+			return FileExist(this.strDirectoryOpusLayoutsFile)
 		}
 		;-----------------------------------------------------
 
@@ -24512,19 +24523,19 @@ TODO
 		{
 			if !StrLen(strNodeXml) ; first level only
 			{
-				this.objDopusXML := New XML("xml") ; could use existing instamce created for favorites?
-				FileRead, strNodeXml, %g_strDOpusLayoutsFile%
+				this.objDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
+				FileRead, strNodeXml, % this.strDirectoryOpusLayoutsFile
 			}
 			
 			g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 			
-			this.objDopusXML.XML.LoadXML(strNodeXml)
+			this.objDirectoryOpusXML.XML.LoadXML(strNodeXml)
 			
-			objNodeAll := this.objDopusXML.SN("/*/layout") ; select all layout nodes
+			objNodeAll := this.objDirectoryOpusXML.SN("/*/layout") ; select all layout nodes
 			while (objItem := objNodeAll.Item[A_Index-1])
 			{
 				blnItemIsMenu := false
-				objItemAttributes := this.objDopusXML.EA(objItem)
+				objItemAttributes := this.objDirectoryOpusXML.EA(objItem)
 				if (objItemAttributes.separator <> "yes")
 				{
 					strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(objItemAttributes.name, strNodeXml)
@@ -24597,10 +24608,6 @@ TODO
 			return ; empty if not found
 		}
 		;-----------------------------------------------------
-
-
-
-
 	}
 	;---------------------------------------------------------
 }
