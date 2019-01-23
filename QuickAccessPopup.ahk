@@ -3172,11 +3172,11 @@ Gosub, InitLanguageVariables
 
 ; --- Global variables
 
-g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.9.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
-g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
-g_strJLiconsVersion := "v1.5"
+global g_strAppNameText := "Quick Access Popup"
+global g_strCurrentVersion := "9.9.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
+global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
+global g_strJLiconsVersion := "v1.5"
 
 g_blnDiagMode := False
 g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
@@ -5219,7 +5219,6 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	global g_strGroupIndicatorSuffix
 	global g_strEscapePipe
 	global g_objQAPFeaturesDefaultNameByCode
-	global g_strAppNameText
 	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
@@ -7016,7 +7015,7 @@ Diag(A_ThisLabel, "", "START")
 Menu, %lDOpusMenuName%, Add 
 Menu, %lDOpusMenuName%, DeleteAll
 
-If (o_FileManagers[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
+If o_FileManagers[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
 {
 	objDOpusMenu := Object() ; object of menu structure entry point
 	objDOpusMenu.MenuPath := lDOpusMenuName ; localized name of the DOpus menu
@@ -7027,7 +7026,7 @@ If (o_FileManagers[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorit
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	If (o_FileManagers[2].blnFileManagerDOpusShowLayouts and g_blnDOpusLayoutsFileExist) ; Directory Opus layouts order file exists, create submenu with layouts
+	If (o_FileManagers[2].blnFileManagerDOpusShowLayouts and o_FileManagers[2].DirectoryOpusLayoutsFileExist()) ; Directory Opus layouts order file exists, create submenu with layouts
 	{
 		objLoadDOpusFavorite := Object() ; new separator item
 		objLoadDOpusFavorite.FavoriteType := "X"
@@ -7205,7 +7204,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objFavoritesObjectsByHotstring
 	global g_strMenuPathSeparatorWithSpaces
 	global g_objMenusIndex
-	global g_strAppNameText
 	global g_blnWorkingToolTip
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
@@ -16113,8 +16111,6 @@ WindowIsTreeview(strWinId)
 ; but NOT 100% sure this is a unique signature...
 ;------------------------------------------------------------
 {
-	global g_strAppNameText
-	
 	WinGet, strControlsList, ControlList, ahk_id %strWinId%
 	blnIsTreeView := InStr(strControlsList, "SysTreeView321") and InStr(strControlsList, "SHBrowseForFolder")
 	if (blnIsTreeView)
@@ -19386,7 +19382,6 @@ return
 WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContentTransfered, ByRef blnContentIdentical)
 ;------------------------------------------------------------
 {
-	global g_strAppNameText
 	global g_strImpExpSourceFile
 	global g_strImpExpDestinationFile
 	
@@ -20649,7 +20644,6 @@ return
 SettingsNotSavedReturn()
 ;------------------------------------------------------------
 {
-	global g_strAppNameText
 	global g_strGuiFullTitle
 	
 	GuiControlGet, blnCancelButtonEnabled, 1:Enabled, f_btnGuiCancel ; get Settings Cancel button enabled
@@ -20962,9 +20956,6 @@ L(strMessage, objVariables*)
 Oops(strMessage, objVariables*)
 ;------------------------------------------------
 {
-	global g_strAppNameText
-	global g_strAppVersion
-	
 	Gui, 1:+OwnDialogs
 	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
 }
@@ -22315,8 +22306,6 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 ;------------------------------------------------------------
 {
 	global g_objExternaleMenuToRelease
-	global g_strAppNameText
-	global g_strAppVersion
 	global g_objMenuInGui
 
 	; ###_O(A_ThisFunc . " - objMenu", objMenu)
@@ -22773,9 +22762,6 @@ WindowIsAddEditCopyFavorite(strTitle)
 QAPSettingsString()
 ;------------------------------------------------------------
 {
-	global g_strAppNameText
-	global g_strAppVersion
-	
 	return L(lGuiTitle, g_strAppNameText, g_strAppVersion)
 }
 ;------------------------------------------------------------
@@ -23505,8 +23491,6 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 ; Adapted from AHK documentation (https://autohotkey.com/docs/commands/OnMessage.htm)
 ;------------------------------------------------------------
 {
-	global g_strAppNameText
-	global g_strAppVersion
 	global g_strNewLocation
 	global g_strTargetClass
 	global g_strTargetWinId
@@ -24254,8 +24238,6 @@ TODO
 	DetectFileManager()
 	;---------------------------------------------------------
 	{
-		global g_strAppNameText
-		
 		intSelected := 1
 		loop, 2
 		{
@@ -24291,7 +24273,6 @@ TODO
 		__New(intThisFileManager, strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
-			global g_strAppNameText
 			global o_JLicons
 			
 			this.strSystemName := strThisSystemName
