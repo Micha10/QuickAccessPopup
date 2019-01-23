@@ -3184,9 +3184,9 @@ g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 ;---------------------------------
 ; Init class for JLicons
 if (g_blnPortableMode)
-	o_JLicons := new JLIcons(A_ScriptDir . "\JLicons.dll") ; in portable mode, same folder as QAP exe file or script directory in developement environment
+	global o_JLicons := new JLIcons(A_ScriptDir . "\JLicons.dll") ; in portable mode, same folder as QAP exe file or script directory in developement environment
 else ; setup mode
-	o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
+	global o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
 g_intGuiDefaultWidth := 636
 g_intGuiDefaultHeight := 601
@@ -4398,7 +4398,6 @@ InitSpecialFolderObject(strClassIdOrPath, strShellConstantText, intShellConstant
 {
 	global g_objClassIdOrPathByDefaultName
 	global g_objSpecialFolders
-	global o_JLicons
 	
 	objOneSpecialFolder := Object()
 	
@@ -4748,7 +4747,6 @@ InitQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuN
 	global g_objQAPFeaturesDefaultNameByCode
 	global g_objQAPFeaturesAlternativeCodeByOrder
 	global g_objQAPFeaturesURL
-	global o_JLicons
 	
 	objOneQAPFeature := Object()
 	
@@ -14710,8 +14708,6 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 {
 	global g_strEscapePipe
 	global g_blnWorkingToolTip
-	global o_JLicons
-
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
@@ -21207,8 +21203,6 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 ; strIconResource can be a icongroup (file,index) or an index in o_JLicons
 ;------------------------------------------------------------
 {
-	global o_JLicons
-
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
@@ -22227,8 +22221,6 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 PickIconDialog(strFavoriteIconResource)
 ;------------------------------------------------------------
 {
-	global o_JLicons
-	
 	; Source: http://ahkscript.org/boards/viewtopic.php?f=5&t=5108#p29970
 	VarSetCapacity(strIconFile, 1024) ; must be placed before strIconFile is initialized because VarSetCapacity erase its content
 	ParseIconResource(strFavoriteIconResource, strIconFile, intIconIndex)
@@ -24273,8 +24265,6 @@ TODO
 		__New(intThisFileManager, strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
-			global o_JLicons
-			
 			this.strSystemName := strThisSystemName
 			this.strDisplayName := strThisDisplayName
 			
