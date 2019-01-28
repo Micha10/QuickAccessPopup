@@ -24276,6 +24276,18 @@ class QAPfeatures
 	static objQAPFeaturesNewShortcuts := Object()
 	static objQAPFeaturesCategories := Object()
 	
+	; ---------------------------------------------------------
+	; __Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	; {
+		; funcRef := Func(funcName := this.__class "." function)
+		; if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			; return funcRef.(this, parameters*) ; everything is good
+		; else
+			; return
+	; }
+	; ---------------------------------------------------------
+	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24501,12 +24513,12 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders) . (g_blnRefreshedMenusAttached ? "" : "...")
 			, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFolders) : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
-			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites"
+			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
 		this.AddQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles) . (g_blnRefreshedMenusAttached ? "" : "...")
 			, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFiles) : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
-			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites"
+			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
 		this.AddQAPFeatureObject("Drives", lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
 			, (g_blnRefreshedMenusAttached ? lMenuDrives : ""
@@ -24587,6 +24599,13 @@ class ClassName
 		; If an object x is derived from ClassName and x itself does not contain the key "ClassVar", x.ClassVar may also be used to dynamically retrieve the value of ClassName.ClassVar.
 	
 	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
 	Method()
 	; Each method has a hidden parameter named this, which typically contains a reference to an object derived from the class.
 	; Inside a method, the pseudo-keyword base can be used to access the super-class versions of methods or properties which are overridden in a derived class.
@@ -24633,4 +24652,46 @@ class ClassName
 	;---------------------------------------------------------
 }
 ; ------------------------------------------------------------
+
+CheckParameters(funcRef, funcName, parameters*)
+; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+{
+	if (funcName = "_NewEnum")
+		MsgBox, The __Call() is breaking For loops on the class object.
+		
+	if !IsObject(funcRef) ; check if function exists
+		return CheckParametersMsg(funcName, "")
+	
+	maxIndexFixed := (parameters.MaxIndex() = "" ? 0 : parameters.MaxIndex()) ; if no parameter, MaxIndex() returns "" instead of 0
+	
+	if (maxIndexFixed < funcRef.MinParams-1) ; check if there are enough parameters
+		return CheckParametersMsg(funcRef.Name, "few", parameters[1], maxIndexFixed, funcRef.MinParams-1, funcRef.MaxParams-1)
+	
+	if (maxIndexFixed > funcRef.MaxParams-1 && !funcRef.IsVariadic) ; check that there aren't too many parameters
+		return CheckParametersMsg(funcRef.Name, "many", parameters[1], maxIndexFixed, funcRef.MinParams-1, funcRef.MaxParams-1)
+	
+	return true
+}
+
+CheckParametersMsg(funcName, fewOrMany, firstParam := "", nbPassed := "", minExpected := "", maxExpected := "")
+; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+{
+	if StrLen(fewOrMany)
+		Msgbox, 4, Error, % "Function: " . funcName
+			. "`nError: too " . fewOrMany . " parameters"
+			. (StrLen(firstParam) ? "`nFirst parameter: " . firstParam : "")
+			. "`n`nNumber Passed: " . nbPassed
+			. "`nExpected Min: " . minExpected
+			. "`nExpected Max: " . maxExpected
+			. "`n`nContinue?"
+	else
+		Msgbox, 4, Error, % "Function: " . funcName
+			. "`nError: function does not exist"
+			. "`n`nContinue?"
+	
+	IfMsgBox Yes
+		return false
+	else
+		ExitApp
+}
 
