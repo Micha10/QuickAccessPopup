@@ -4768,7 +4768,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 			else ; lMenuMyWindowsAppsMenu
 				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
-			strIconResource := o_SpecialFolders[strLocation].DefaultIcon
+			strIconResource := o_SpecialFolders.I[strLocation].DefaultIcon
 		else if (strFavoriteType = "WindowsApp")
 			strIconResource := "iconDesktop"
 		else
@@ -4776,7 +4776,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 
 		if !StrLen(strName)
 			if (strFavoriteType = "Special")
-				strName := o_SpecialFolders[strLocation].DefaultName
+				strName := o_SpecialFolders.I[strLocation].DefaultName
 			else
 				strName := o_QAPfeatures[strLocation].DefaultName
 
@@ -6125,7 +6125,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			if (SubStr(objLoadIniFavorite.FavoriteLocation, 1, 2) = "::")
 			{
 				objLoadIniFavorite.FavoriteLocation := SubStr(objLoadIniFavorite.FavoriteLocation, 3)
-				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders[objLoadIniFavorite.FavoriteLocation].DefaultIcon
+				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders.I[objLoadIniFavorite.FavoriteLocation].DefaultIcon
 				objLoadIniFavorite.FavoriteType := "Special"
 			}
 		}
@@ -10155,7 +10155,7 @@ objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.objQAPFeatures
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
-for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures : o_SpecialFolders)
+for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures : o_SpecialFolders.I)
 	if (A_ThisLabel = "LoadTreeviewQAP")
 		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial<
@@ -10197,7 +10197,7 @@ for strCategory, strCategoryLabel in objCategories
 			}
 			else
 			{
-				if (!blnSelectDone and o_SpecialFolders[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
+				if (!blnSelectDone and o_SpecialFolders.I[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -10206,7 +10206,7 @@ for strCategory, strCategoryLabel in objCategories
 					strSelect := ""
 				
 				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
-				g_objTreeViewItemsByIDs[intItemID] := o_SpecialFolders[arrItem2]
+				g_objTreeViewItemsByIDs[intItemID] := o_SpecialFolders.I[arrItem2]
 			}
 		}
 	}
@@ -10925,7 +10925,7 @@ if (A_GuiEvent = "S")
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
 		{
-			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures[strLocation].DefaultIcon : o_SpecialFolders[strLocation].DefaultIcon)
+			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures[strLocation].DefaultIcon : o_SpecialFolders.I[strLocation].DefaultIcon)
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
@@ -16471,7 +16471,7 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 ;------------------------------------------------------------
 {
 	strLocation := objFavorite.FavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
-	objSpecialFolder := o_SpecialFolders[strLocation]
+	objSpecialFolder := o_SpecialFolders.I[strLocation]
 	
 	if (strTargetName = "Explorer")
 		strUse := objSpecialFolder.Use4NavigateExplorer
@@ -20105,7 +20105,7 @@ Oops(strMessage, objVariables*)
 	Gui, 1:+OwnDialogs
 	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
 }
-; ------------------------------------------------
+;------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -21351,7 +21351,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
 		; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
-		return o_SpecialFolders[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
+		return o_SpecialFolders.I[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
 		return o_QAPfeatures[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
@@ -22932,7 +22932,7 @@ class JLicons
 ;-------------------------------------------------------------
 
 
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 class Triggers
 /*
 TODO
@@ -23345,6 +23345,18 @@ TODO
 	I := Object()
 	
 	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
 	{
@@ -23451,6 +23463,18 @@ TODO
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
@@ -23467,6 +23491,18 @@ TODO
 	class DirectoryOpus extends FileManagers.FileManager
 	;---------------------------------------------------------
 	{
+		;-----------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;-----------------------------------------------------
+		
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
@@ -23739,6 +23775,18 @@ TODO
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
@@ -23788,6 +23836,18 @@ TODO
 	class QAPconnect extends FileManagers.FileManager
 	;---------------------------------------------------------
 	{
+		;-----------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;-----------------------------------------------------
+		
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
@@ -23839,16 +23899,29 @@ TODO
 	}
 	;---------------------------------------------------------
 }
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 
 
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 class SpecialFolders
 ;-------------------------------------------------------------
 {
-	static objClassIdOrPathByDefaultName := Object() ; used by InitSpecialFolders and CollectExplorers
-	static strDownloadPath := ""
-	static strMyPicturesPath := ""
+	I := Object()
+	objClassIdOrPathByDefaultName := Object()
+	strDownloadPath := ""
+	strMyPicturesPath := ""
+	
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
 	__New()
@@ -24125,7 +24198,7 @@ class SpecialFolders
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "AHK", "AHK"
 			, "2-Power User")
 			
-		; ----------------------
+		;-----------------------
 		; Special Folders categories
 
 		objSpecialFoldersCategoriesSystemName := StrSplit("1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware", "|")
@@ -24186,7 +24259,7 @@ class SpecialFolders
 	;		strUse4FPc
 
 	; Special Folder Object (objOneSpecialFolder) definition:
-	;		strClassIdOrPath: key to access one Special Folder object (example: o_SpecialFolders[strClassIdOrPath], saved to ini file
+	;		strClassIdOrPath: key to access one Special Folder object (example: o_SpecialFolders.I[strClassIdOrPath], saved to ini file
 	;		objSpecialFolder.ShellConstantText: text constant used to navigate using Explorer or Dialog box? What with DOpus and TC?
 	;		objSpecialFolder.ShellConstantNumeric: numeric ShellSpecialFolderConstants constant 
 	;		objSpecialFolder.AHKConstant: AutoHotkey constant
@@ -24201,7 +24274,7 @@ class SpecialFolders
 	;		objSpecialFolder.Use4DOpus:
 	;		objSpecialFolder.Use4TC:
 	;		objSpecialFolder.Use4FPc:
-	;		objSpecialFolder.Categories: categories, one or many (tilde delimited) of 1-Basic~2-Power User~3-Sysadmin~4-Contents~5-Hardware (populated by InitSpecialFoldersCategories)
+	;		objSpecialFolder.Categories: categories, one or many (tilde delimited) of 1-Basic~2-Power User~3-Sysadmin~4-Contents~5-Hardware
 
 	;---------------------------------------------------------
 	{
@@ -24213,7 +24286,7 @@ class SpecialFolders
 			strThisDefaultName := GetLocalizedNameForClassId(strClassIdOrPath)
 		If !StrLen(strThisDefaultName)
 			strThisDefaultName := strDefaultName
-		this.objClassIdOrPathByDefaultName.Insert(strThisDefaultName, strClassIdOrPath)
+		this.objClassIdOrPathByDefaultName[strThisDefaultName] := strClassIdOrPath
 		objOneSpecialFolder.DefaultName := strThisDefaultName
 		
 		if (blnIsClsId)
@@ -24240,14 +24313,14 @@ class SpecialFolders
 
 		objOneSpecialFolder.Categories := strCategories
 
-		this.Insert(strClassIdOrPath, objOneSpecialFolder)
+		this.I[strClassIdOrPath] := objOneSpecialFolder
 	}
 	;---------------------------------------------------------
 
 }
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 class QAPfeatures
 ;-------------------------------------------------------------
 {
@@ -24258,7 +24331,7 @@ class QAPfeatures
 	static objQAPFeaturesNewShortcuts := Object()
 	static objQAPFeaturesCategories := Object()
 	
-	; ---------------------------------------------------------
+	;----------------------------------------------------------
 	; __Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	; {
@@ -24268,7 +24341,7 @@ class QAPfeatures
 		; else
 			; return
 	; }
-	; ---------------------------------------------------------
+	;----------------------------------------------------------
 	
 	;---------------------------------------------------------
 	__New()
@@ -24452,7 +24525,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", ""
 			, "", 10, "iconSpecialFolders", "", "")
 
-		; ----------------------
+		;-----------------------
 		; QAP Features categories
 
 		objQAPFeaturesCategoriesSystemName := StrSplit("1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement", "|")
@@ -24550,9 +24623,9 @@ class QAPfeatures
 	}
 	;---------------------------------------------------------
 }
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 class Model
 /*
 TODO
@@ -24633,7 +24706,7 @@ class ClassName
 	}
 	;---------------------------------------------------------
 }
-; ------------------------------------------------------------
+;-------------------------------------------------------------
 
 CheckParameters(funcRef, funcName, parameters*)
 ; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
