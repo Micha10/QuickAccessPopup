@@ -3100,7 +3100,7 @@ SetWaitCursor(false)
 ;---------------------------------
 ; Init class for command line parameters
 ; "/Settings:file_path" (must end with ".ini"), "/AdminSilent" and "/Working:path"
-global o_CmdLineParams := new CommandLineParameters()
+global o_CommandLineParameters := new CommandLineParameters()
 
 Gosub, SetQAPWorkingDirectory
 
@@ -3140,8 +3140,8 @@ global g_strIniFileMain := g_strIniFile ; value never changed
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
-if StrLen(o_CmdLineParams.GetParam("Settings"))
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CmdLineParams.GetParam("Settings")))
+if StrLen(o_CommandLineParameters.I["Settings"])
+	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.I["Settings"]))
 
 ; set file name used for Edit settings label
 SplitPath, g_strIniFile, g_strIniFileNameExtOnly
@@ -3290,7 +3290,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to 
 
 if (g_blnRunAsAdmin and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin and !o_CmdLineParams.ParamExist("AdminSilent")
+if (A_IsAdmin and !o_CommandLineParameters.I.HasKey("AdminSilent")
 	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
 	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
 if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
@@ -3695,8 +3695,8 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 ; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
 ; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
-if StrLen(o_CmdLineParams.GetParam("Working"))
-	SetWorkingDir, % o_CmdLineParams.GetParam("Working")
+if StrLen(o_CommandLineParameters.I["Working"])
+	SetWorkingDir, % o_CommandLineParameters.I["Working"]
 
 ; Check in what mode QAP is running:
 ; - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
@@ -3711,7 +3711,7 @@ if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
 else
 	g_blnPortableMode := false ; set this variable for use later during init
 
-if StrLen(o_CmdLineParams.GetParam("Working")) ; we don't need to continue
+if StrLen(o_CommandLineParameters.I["Working"]) ; we don't need to continue
 	return
 
 ; Now we are in Setup mode
@@ -6772,7 +6772,7 @@ AddCloseMenu(strMenuName)
 
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-; strIconValue can be an index from o_JLicons (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
+; strIconValue can be an index from o_JLicons.I (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ;------------------------------------------------------------
 {
 	global g_intIconSize
@@ -7867,7 +7867,7 @@ else
 		strTitleLink := lOptionsIconReplacementList . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . lGuiHelp . "</a>)"
 		strInstructions := lOptionsIconReplacementListInstructions
 		strControlName := "f_strIconReplacementListMore"
-		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons["iconUnknown"])
+		strDefaultValue := (StrLen(f_strIconReplacementList) ? f_strIconReplacementList : "iconUnknown=" . o_JLicons.I["iconUnknown"])
 	}
 	
 	Gui, 3:Font, s8 w700
@@ -11190,7 +11190,7 @@ Gui, 2:Submit, NoHide
 
 g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons["iconUnknown"])
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.I["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
@@ -13889,7 +13889,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			if StrLen(o_JLicons[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons
+			if StrLen(o_JLicons.I[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons.I
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
 			{
@@ -17831,10 +17831,10 @@ SetWaitCursor(false)
 
 if (A_ThisLabel = "ReloadQAPSwitch")
 	; update Settings param
-	o_CmdLineParams.SetParam("Settings", g_strSwitchSettingsFile)
+	o_CommandLineParameters.SetParam("Settings", g_strSwitchSettingsFile)
 
-; keep other params received from command-line as collected in o_CmdLineParams
-strCurrentCommandLineParameters := o_CmdLineParams.strParams
+; keep other params received from command-line as collected in o_CommandLineParameters
+strCurrentCommandLineParameters := o_CommandLineParameters.strParams
 
 ; Why using RunWait instead of Run... AHK Doc: "To keep the script running even if it failed to restart (if user answered "No" to
 ; UAC prompt), remove ExitApp and use RunWait instead of Run. On success, /restart causes the new instance to terminate the old one.
@@ -17898,7 +17898,7 @@ CreateStartupShortcut:
 ;------------------------------------------------------------
 
 FileCreateShortcut, %A_ScriptFullPath%, %A_Startup%\%g_strAppNameFile%.lnk, %A_WorkingDir%
-	, % o_CmdLineParams.strParams ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
+	, % o_CommandLineParameters.strParams ; since version 8.7.1 now includes the changed /Settings: parameter if user switched settings file
 
 return
 ;------------------------------------------------------------
@@ -20350,16 +20350,16 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 
 ;------------------------------------------------------------
 ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDefaultType := "")
-; strIconResource can be a icongroup (file,index) or an index in o_JLicons
+; strIconResource can be a icongroup (file,index) or an index in o_JLicons.I
 ;------------------------------------------------------------
 {
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
-		strIconResource := o_JLicons[strDefaultType]
-	If !InStr(strIconResource, ",") ; this is an index from o_JLicons or the name of a file including icons
-		if StrLen(o_JLicons[strIconResource]) ; this is an index from o_JLicons
-			strIconResource := o_JLicons[strIconResource] ; replace it with file,index format
+		strIconResource := o_JLicons.I[strDefaultType]
+	If !InStr(strIconResource, ",") ; this is an index from o_JLicons.I or the name of a file including icons
+		if StrLen(o_JLicons.I[strIconResource]) ; this is an index from o_JLicons.I
+			strIconResource := o_JLicons.I[strIconResource] ; replace it with file,index format
 		else ; this is the name of a file including icons
 			strIconResource := strIconResource . ",1" ; use its first icon
 	
@@ -20375,9 +20375,9 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 ;------------------------------------------------------------
 GetIcon4Location(strLocation)
-; returns an icon resource in icongroup format (file,index) or an index of o_JLicons
+; returns an icon resource in icongroup format (file,index) or an index of o_JLicons.I
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
-; index of o_JLicons will converted to icongroup by ParseIconResource before being splitted
+; index of o_JLicons.I will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
@@ -22759,32 +22759,22 @@ class CommandLineParameters
 	- CommandLineParameters.__New(): collect the command line parameters in an internal object and concat strParams
 	  - each param must begin with "/" and be separated by a space
 	  - supported parameters: "/Settings:[file_path]" (must end with ".ini"), "/AdminSilent" and "/Working:[working_dir_path]"
-	- CommandLineParameters.ConcatParams(oParam): returns a concatenated string of each parameter ready to be used when reloading
-	- CommandLineParameters.GetParam(strKey): return the value for strKey
+	- CommandLineParameters.ConcatParams(I): returns a concatenated string of each parameter ready to be used when reloading
 	- CommandLineParameters.SetParam(strKey, strValue): set the param strkey to the value strValue
-	- CommandLineParameters.ParamExist(strArg): return true if key strArg exists
 	Instance variables
+	- I: simple array for each item (parameter) from the A_Args object (for internal usage)
 	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if required
-	- oParam: simple array for each parameter from the A_Args object (for internal usage)
 */
 ;-------------------------------------------------------------
 {
 	; Instance variables
-	oParam := Object()
+	I := Object() ; I for Items
 	strParams := ""
 	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
 	{
-		; Singleton design pattern for a single use class
-		; (from nnik https://www.autohotkey.com/boards/viewtopic.php?f=74&t=38151#p175344)
-		; The following lines are note required in the QAP context but I keep it for the reference.
-		static init ;t his is where the instance will be stored
-		if init ; this will return true if the class has already been created
-			return init ; and it will return this instance rather than creating a new one
-		init := This ; this will overwrite the init var with this instance
-
 		for intArg, strOneArg in A_Args ; A_Args requires v1.1.27+
 		{
 			if !StrLen(strOneArg)
@@ -22797,14 +22787,14 @@ class CommandLineParameters
 				strParamValue := SubStr(strOneArg, intColon + 1)
 				if (strParamKey = "Settings" and GetFileExtension(strParamValue) <> "ini")
 					continue
-				this.oParam[strParamKey] := strParamValue
+				this.I[strParamKey] := strParamValue
 			}
 			else
 			{
 				strParamKey := SubStr(strOneArg, 2)
 				if (strParamKey = "Settings")
 					continue
-				this.oParam[strParamKey] := "" ; keep it empty, check param with this.oParam.HasKey(strOneArg)
+				this.I[strParamKey] := "" ; keep it empty, check param with this.I.HasKey(strOneArg)
 			}
 		}
 		
@@ -22818,7 +22808,7 @@ class CommandLineParameters
 	{
 		strConcat := ""
 		
-		for strParamKey, strParamValue in this.oParam
+		for strParamKey, strParamValue in this.I
 		{
 			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
 			strConcat .= strQuotes . "/" . strParamKey
@@ -22831,27 +22821,11 @@ class CommandLineParameters
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	GetParam(strKey)
-	;---------------------------------------------------------
-	{
-		return this.oParam[strKey]
-	}
-	;---------------------------------------------------------
-	
-	;---------------------------------------------------------
 	SetParam(strKey, strValue)
 	;---------------------------------------------------------
 	{
-		this.oParam[strKey] := strValue
+		this.I[strKey] := strValue
 		this.strParams := this.ConcatParams()
-	}
-	;---------------------------------------------------------
-	
-	;---------------------------------------------------------
-	ParamExist(strArg)
-	;---------------------------------------------------------
-	{
-		return this.oParam.HasKey(strArg)
 	}
 	;---------------------------------------------------------
 }
@@ -22870,15 +22844,17 @@ class JLicons
 	- JLicons.ProcessReplacements(strReplacements): removes previous JLicons replacements in oReplacements and do the current replacements in strReplacements
 	Instance variables
 	- strFileLocation: path and file name of the JLicons library file
+	- I: items of JLicons
 	- oNames: simple array index of icon names (iconXYZ)
 	- oReplacementPrevious: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
 */
 ;-------------------------------------------------------------
 {
 	; Instance variables
-	static strFileLocation := ""
-	static oNames := Object() ; was g_objJLiconsNames before class
-	static oReplacementPrevious := Object() ; original values of replaced icons
+	strFileLocation := ""
+	I := Object()
+	oNames := Object() ; was g_objJLiconsNames before class
+	oReplacementPrevious := Object() ; original values of replaced icons
 	
 	;---------------------------------------------------------
 	__New(strJLiconsFile)
@@ -22901,8 +22877,8 @@ class JLicons
 			. "|iconFolderLiveOpened"
 
 		; EXAMPLE
-		; oIcons["iconAbout"] -> "file,2"
-		; oNames[2] -> "iconAbout"
+		; JLicons.I["iconAbout"] -> "file,2"
+		; JLicons.oNames[2] -> "iconAbout"
 		Loop, Parse, strNames, |
 		{
 			this.AddIcon(A_LoopField, strJLiconsFile . "," . A_Index)
@@ -22915,7 +22891,7 @@ class JLicons
 	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
 	;---------------------------------------------------------
 	{
-		this[strKey] := strFileIndex
+		this.I[strKey] := strFileIndex
 	}
 	;---------------------------------------------------------
 
@@ -22933,7 +22909,7 @@ class JLicons
 	{
 		; restore previously replaced icons
 		for strKey, strFileIndex in this.oReplacementPrevious
-			this[strKey] := strFileIndex
+			this.I[strKey] := strFileIndex
 		
 		this.oReplacementPrevious := Object() ; reset replacements
 		
@@ -22941,13 +22917,13 @@ class JLicons
 			if StrLen(A_LoopField)
 			{
 				objIconReplacement := StrSplit(A_LoopField, "=")
-				if This.HasKey(objIconReplacement[2]) ; support replacement with another JLicons item
-					objIconReplacement[2] := This[objIconReplacement[2]]
-				if this.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
+				if This.I.HasKey(objIconReplacement[2]) ; support replacement with another JLicons item
+					objIconReplacement[2] := This.I[objIconReplacement[2]]
+				if this.I.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
-					this.oReplacementPrevious[objIconReplacement[1]] := this[objIconReplacement[1]]
-					this[objIconReplacement[1]] := objIconReplacement[2]
+					this.oReplacementPrevious[objIconReplacement[1]] := this.I[objIconReplacement[1]]
+					this.I[objIconReplacement[1]] := objIconReplacement[2]
 				}
 			}
 	}
@@ -24185,7 +24161,7 @@ class SpecialFolders
 
 	; strDefaultName: name for menu if path is used, fallback name if CLSID is used to access localized name
 
-	; strDefaultIcon: icon in o_JLicons if path is used, fallback icon (?) if CLSID returns no icon resource
+	; strDefaultIcon: icon in o_JLicons.I if path is used, fallback icon (?) if CLSID returns no icon resource
 
 	; Constants for "use" flags:
 	; 		CLS: Class ID
@@ -24236,8 +24212,8 @@ class SpecialFolders
 		
 		if (blnIsClsId)
 			strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
-		if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons[strDefaultIcon])
-			strThisDefaultIcon := o_JLicons[strDefaultIcon]
+		if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons.I[strDefaultIcon])
+			strThisDefaultIcon := o_JLicons.I[strDefaultIcon]
 		if !StrLen(strThisDefaultIcon)
 			strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
 		objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
