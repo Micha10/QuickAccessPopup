@@ -3290,6 +3290,10 @@ global o_SpecialFolders := new SpecialFolders
 global o_QAPfeatures := new QAPfeatures
 
 ;---------------------------------
+; Init class for Favorites (types)
+global o_Favorites := new Favorites
+
+;---------------------------------
 ; Load Settings file
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
@@ -3909,44 +3913,7 @@ loop, %g_arrOptionsLanguageCodes0%
 ; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
 StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
 
-; ----------------------
-; FAVORITE TYPES
-strFavoriteTypes := "Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp"
-StringSplit, g_arrFavoriteTypes, strFavoriteTypes, |
-StringSplit, arrFavoriteTypesLabels, lDialogFavoriteTypesLabels, |
-g_objFavoriteTypesLabels := Object()
-StringSplit, arrFavoriteTypesLocationLabels, lDialogFavoriteTypesLocationLabels, |
-g_objFavoriteTypesLocationLabels := Object()
-StringSplit, arrFavoriteTypesLocationLabelsNoAmpersand, lDialogFavoriteTypesLabelsNoAmpersand, |
-global g_objFavoriteTypesLocationLabelsNoAmpersand := Object()
-; StringSplit, arrFavoriteTypesHelp, lDialogFavoriteTypesHelp, |
-Loop, 9 ; excluding X, K and B
-	arrFavoriteTypesHelp%A_Index% := lDialogFavoriteTypesHelp%A_Index%
-arrFavoriteTypesHelp13 := lDialogFavoriteTypesHelp13
-arrFavoriteTypesHelp14 := lDialogFavoriteTypesHelp14
-arrFavoriteTypesHelp15 := lDialogFavoriteTypesHelp15
-arrFavoriteTypesHelp16 := lDialogFavoriteTypesHelp16
-g_objFavoriteTypesHelp := Object()
-StringSplit, arrFavoriteTypesShortNames, lDialogFavoriteTypesShortNames, |
-g_objFavoriteTypesShortNames := Object()
-Loop, %g_arrFavoriteTypes0%
-{
-	; example to display favorite type label: g_objFavoriteTypesLabels["Folder"], g_objFavoriteTypesLabels["Document"]
-	g_objFavoriteTypesLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLabels%A_Index%)
-	g_objFavoriteTypesLocationLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabels%A_Index%)
-	g_objFavoriteTypesLocationLabelsNoAmpersand.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabelsNoAmpersand%A_Index%)
-	g_objFavoriteTypesHelp.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesHelp%A_Index%)
-	g_objFavoriteTypesShortNames.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesShortNames%A_Index%)
-}
-
 strOptionsLanguageCodes := ""
-strFavoriteTypes := ""
-ResetArray("arrFavoriteTypesLabels")
-ResetArray("arrFavoriteTypesLocationLabels")
-ResetArray("arrFavoriteTypesLocationLabelsNoAmpersand")
-ResetArray("arrFavoriteTypesHelp")
-ResetArray("arrFavoriteTypesShortNames")
-ResetArray("arrQAPFeatureCategoriesNames")
 
 return
 ;------------------------------------------------------------
@@ -8198,7 +8165,7 @@ o_PopupHotkeys.EnablePopupHotkeys()
 
 IniWrite, %g_intClickedFileManager%, %g_strIniFile%, Global, ActiveFileManager
 	
-strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strSystemName
+strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
 
 if (g_intClickedFileManager = 1)
 	IniWrite, %f_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
@@ -8898,7 +8865,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 		{
 			strHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
 			strHotkey := (strHotkey = lDialogNone ? "" : strHotkey)
-			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType]
+			strSearchIn .= " " . o_Favorites.GetFavoriteTypeObject(objCurrentMenu[A_Index].FavoriteType).strFavoriteTypeLocationLabelNoAmpersand
 				. " " . strHotkey
 				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
 				. " " . objCurrentMenu[A_Index].FavoriteLocation
@@ -9210,24 +9177,24 @@ Gui, 2:Add, Text, x10 y+20, %lDialogAdd%:
 Gui, 2:Add, Text, x+10 yp section
 
 ; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|Text
-Gui, 2:Add, Radio, xs yp vf_intRadioFavoriteTypeFolder gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Folder"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSpecial gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Special"]
+Gui, 2:Add, Radio, xs yp vf_intRadioFavoriteTypeFolder gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Folder").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeSpecial gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Special").strFavoriteTypeLabel
 
-Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeDocument gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Document"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeApplication gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Application"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeWindowsApp gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["WindowsApp"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeURL gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["URL"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeFTP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["FTP"]
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeDocument gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Document").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeApplication gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Application").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeWindowsApp gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("WindowsApp").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeURL gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("URL").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeFTP gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("FTP").strFavoriteTypeLabel
 
-Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Snippet"]
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeSnippet gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Snippet").strFavoriteTypeLabel
 
-Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["QAP"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeQAP gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("QAP").strFavoriteTypeLabel
 
-Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Menu"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["External"]
-Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Group"]
+Gui, 2:Add, Radio, y+15 xs vf_intRadioFavoriteTypeMenu gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Menu").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeExternal gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("External").strFavoriteTypeLabel
+Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Group").strFavoriteTypeLabel
 
-Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % g_objFavoriteTypesLabels["Text"]
+Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLabel
 
 Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, %lDialogContinueAmpersand%
 Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, %lGuiCancelAmpersand%
@@ -9251,22 +9218,15 @@ Gui, 2:Submit, NoHide
 
 g_strAddFavoriteType := "" ; start fresh
 
-; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External
-loop, %g_arrFavoriteTypes0%
+; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp
+Loop, % o_Favorites.I.Length()
 {
-	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . g_arrFavoriteTypes%A_Index%
+	strThisType := o_Favorites.I[A_Index].strFavoriteTypeSystemName
+	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . strThisType
 	if (blnThisType)
 	{
-		if (g_arrFavoriteTypes%A_Index% = "QAP")
-			strThisTypeHelp := L(g_objFavoriteTypesHelp["QAP"], lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
-		else if (g_arrFavoriteTypes%A_Index% = "Application")
-			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%] . "`n`n" . lDialogFavoriteTypeNoteApplication
-		else if (g_arrFavoriteTypes%A_Index% = "WindowsApp")
-			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%] . "`n`n" . lDialogFavoriteTypeNoteWindowsApps
-		else
-			strThisTypeHelp := g_objFavoriteTypesHelp[g_arrFavoriteTypes%A_Index%]
-		GuiControl, , f_lblAddFavoriteTypeHelp, %strThisTypeHelp%
-		g_strAddFavoriteType := g_arrFavoriteTypes%A_Index%
+		GuiControl, , f_lblAddFavoriteTypeHelp, % o_Favorites.I[A_Index].strFavoriteTypeHelp
+		g_strAddFavoriteType := strThisType
 		break
 	}
 }
@@ -9274,8 +9234,8 @@ loop, %g_arrFavoriteTypes0%
 if (A_GuiEvent = "DoubleClick")
 	Gosub, GuiAddFavoriteSelectTypeContinue
 
+strThisType := ""
 blnThisType := ""
-strThisTypeHelp := ""
 
 return
 ;------------------------------------------------------------
@@ -9738,7 +9698,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 		g_blnAbordEdit := true
 	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)) ; menu or group cannot be copied
 	{
-		Oops(lOopsCannotCopyFavorite, g_objFavoriteTypesShortNames[g_objEditedFavorite.FavoriteType])
+		Oops(lOopsCannotCopyFavorite, o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeShortName)
 		g_blnAbordEdit := true
 	}
 	
@@ -9931,13 +9891,10 @@ GuiFavoriteTabBasic:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Font, w700
-Gui, 2:Add, Text, x20 y50 w500, % lDialogFavoriteType . ": " . g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType]
+Gui, 2:Add, Text, x20 y50 w500, % lDialogFavoriteType . ": " . o_Favorites.GetFavoriteTypeObject("g_objEditedFavorite.FavoriteType").strFavoriteTypeLabel
 Gui, 2:Font
 
-if (g_objEditedFavorite.FavoriteType = "QAP")
-	Gui, 2:Add, Text, x20 y+10 w500, % "> " . ReplaceAllInString(L(g_objFavoriteTypesHelp["QAP"], lMenuRecentFolders, lMenuCurrentFolders, lMenuAddThisFolder, lMenuSettings, lGuiOptions), "`n`n", "`n> ")
-else
-	Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(g_objFavoriteTypesHelp[g_objEditedFavorite.FavoriteType], "`n`n", "`n> ")
+Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
 
 if (g_objEditedFavorite.FavoriteType = "Snippet")
 {
@@ -9949,7 +9906,7 @@ if (g_objEditedFavorite.FavoriteType = "QAP")
 	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (g_objEditedFavorite.FavoriteType = "Text" ? g_objFavoriteTypesLocationLabels["Text"] : lDialogFavoriteShortNameLabel) . " *"
+	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (g_objEditedFavorite.FavoriteType = "Text" ? o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLocationLabel : lDialogFavoriteShortNameLabel) . " *"
 
 	Gui, 2:Add, Edit
 		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
@@ -9968,7 +9925,7 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 			Gui, Font, w700
 			
-		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType] . " *"
+		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLocationLabel . " *"
 		
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 		{
@@ -10046,7 +10003,7 @@ else ; "Special", "QAP" or "WindowsApp"
 {
 	if (g_objEditedFavorite.FavoriteType <> "WindowsApp")
 		Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
-	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType] . " *"
+	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel . " *"
 
 	if (g_objEditedFavorite.FavoriteType = "WindowsApp")
 	{
@@ -10909,7 +10866,7 @@ Gui, 2:Submit, NoHide
 if StrLen(f_strFavoriteLocation)
 	GuiControl, , f_strFavoriteShortName, % GetWebPageTitle(f_strFavoriteLocation)
 else
-	Oops(lOopsFirstEnterUrl, g_objFavoriteTypesLocationLabels[g_objEditedFavorite.FavoriteType])
+	Oops(lOopsFirstEnterUrl, o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLocationLabel)
 
 return
 ;------------------------------------------------------------
@@ -12106,7 +12063,7 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and g_objEditedFavorite.FavoriteType = "External")
 {
 	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
-		Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", ""))
+		Oops(lDialogFavoriteNameNotAllowed, ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
 	else
 		Oops(lOopsExternalNotAllowedUnderExternal)
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -12189,7 +12146,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		Oops(lDialogFavoriteDropdownEmpty, ReplaceAllInString(g_objFavoriteTypesLabels[g_objEditedFavorite.FavoriteType], "&", "")
+		Oops(lDialogFavoriteDropdownEmpty, ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
 			, (g_objEditedFavorite.FavoriteType = "Special" ? lDialogDropDown : lDialogTreeView))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
@@ -21294,12 +21251,10 @@ SettingsUnsaved()
 GetFavoriteTypeForList(objFavorite)
 ;------------------------------------------------------------
 {
-	global g_objFavoriteTypesShortNames
-	
 	if (objFavorite.FavoriteFolderLiveLevels)
 		strType := lDialogFavoriteFolderLiveType
 	else
-		strType := g_objFavoriteTypesShortNames[objFavorite.FavoriteType]
+		strType := o_Favorites.GetFavoriteTypeObject(objFavorite.FavoriteType).strFavoriteTypeShortName
 	if (objFavorite.FavoriteDisabled)
 		strType := BetweenParenthesis(strType)
 	
@@ -23394,9 +23349,9 @@ TODO
 		
 		###_D("", 1, 1) ; to capture instance values
 		###_O("o_FileManagers", this) ; to capture instance values
-		###_O("o_FileManagers.I (strSystemName)", this.I, "strSystemName") ; to capture instance values
+		###_O("o_FileManagers.I (strFileManagerSystemName)", this.I, "strFileManagerSystemName") ; to capture instance values
 		loop, % objActiveFileManagerSystemNames.Length()
-			###_O("o_FileManagers.I[" . A_Index . "] (" . this.I[A_Index].strSystemName . ")", this.I[A_Index]) ; to capture instance values
+			###_O("o_FileManagers.I[" . A_Index . "] (" . this.I[A_Index].strFileManagerSystemName . ")", this.I[A_Index]) ; to capture instance values
 		###_D(Clipboard, 1, 1) ; to capture instance values
 	}
 	;---------------------------------------------------------
@@ -23459,7 +23414,7 @@ TODO
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
-			this.strSystemName := strThisSystemName
+			this.strFileManagerSystemName := strThisSystemName
 			this.strDisplayName := strThisDisplayName
 		}
 		;-----------------------------------------------------
@@ -24359,8 +24314,6 @@ class QAPfeatures
 		; AddQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
 		; 	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut, strHelpUrl)
 		
-		global g_arrFavoriteTypes0 ; #### to be made global when converted to array object
-		
 		this.AddQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
 			, lMenuClipboardDescription, 0, "iconClipboard", "+^v"
 			, "what-is-in-the-clipboard-menu")
@@ -24510,14 +24463,12 @@ class QAPfeatures
 
 		this.AddAttachedOrDetachedQAPFeatureObject()
 
-		Loop, %g_arrFavoriteTypes0%
-		{
-			if StrLen(g_objFavoriteTypesLocationLabelsNoAmpersand[g_arrFavoriteTypes%A_Index%])
-				this.AddQAPFeatureObject("Add Favorite - " . g_arrFavoriteTypes%A_Index%, lMenuAddFavorite . " - " . g_objFavoriteTypesLocationLabelsNoAmpersand[g_arrFavoriteTypes%A_Index%] . "..."
+		Loop, % o_Favorites.I.Length()
+			if StrLen(o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
+				this.AddQAPFeatureObject("Add Favorite - " . g_arrFavoriteTypes%A_Index%, lMenuAddFavorite . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
 					, "", "GuiAddFavoriteFromQAPFeature" . g_arrFavoriteTypes%A_Index%, "3.1-AddFavoriteOfType"
-					, L(lMenuAddFavoriteOfTypeDescription, g_objFavoriteTypesLocationLabelsNoAmpersand[g_arrFavoriteTypes%A_Index%]), 0, "iconAddFavorite", ""
+					, L(lMenuAddFavoriteOfTypeDescription, o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
-		}
 
 		; Alternative Menu features
 		this.AddQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", ""
@@ -24631,6 +24582,308 @@ class QAPfeatures
 			this.objQAPFeaturesAlternativeCodeByOrder[intQAPFeatureAlternativeOrder] := "{" . strQAPFeatureCode . "}"
 	}
 	;---------------------------------------------------------
+}
+;-------------------------------------------------------------
+
+;-------------------------------------------------------------
+class Favorites
+/*
+TODO
+- move code inside FavoriteSelectTypeRadioButtonsChanged to class
+*/
+/*
+FAVORITE TYPES REPLACED
+- g_arrFavoriteTypes0...
+- g_objFavoriteTypesLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLabels%A_Index%)
+- g_objFavoriteTypesLocationLabels.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabels%A_Index%)
+- g_objFavoriteTypesLocationLabelsNoAmpersand.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesLocationLabelsNoAmpersand%A_Index%)
+- g_objFavoriteTypesHelp.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesHelp%A_Index%)
+- g_objFavoriteTypesShortNames.Insert(g_arrFavoriteTypes%A_Index%, arrFavoriteTypesShortNames%A_Index%)
+*/
+;-------------------------------------------------------------
+{
+	static I := Object()
+	static objFavoriteTypesByName := Object()
+	
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+		objFavoriteTypes := StrSplit("Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp", "|")
+		objFavoriteTypesLabels := StrSplit(lDialogFavoriteTypesLabels, "|")
+		objFavoriteTypesShortNames := StrSplit(lDialogFavoriteTypesShortNames, "|")
+		objFavoriteTypesLocationLabels := StrSplit(lDialogFavoriteTypesLocationLabels, "|")
+		objFavoriteTypesLocationLabelsNoAmpersand := StrSplit(lDialogFavoriteTypesLabelsNoAmpersand, "|")
+		objFavoriteTypesHelp := StrSplit(lDialogFavoriteTypesHelp, "|")
+		
+		Loop, % objFavoriteTypes.Length()
+		{
+			this.I[A_Index] := new Favorites.Type(objFavoriteTypes[A_Index], objFavoriteTypesLabels[A_Index], objFavoriteTypesShortNames[A_Index]
+				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], lDialogFavoriteTypesHelp%A_Index%)
+			this.objFavoriteTypesByName[objFavoriteTypes[A_Index]] := this.I[A_Index]
+		}
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	GetFavoriteTypeObject(strTypeSystemName)
+	;---------------------------------------------------------
+	{
+		return this.objFavoriteTypesByName[strTypeSystemName]
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	class Type
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strThisSystemName, strThisLabel, strThisShortName, strThisLocationLabel, strThisLocationLabelNoAmpersand, strThisHelp)
+		;-----------------------------------------------------
+		{
+			this.strFavoriteTypeSystemName := strThisSystemName
+			this.strFavoriteTypeLabel := strThisLabel
+			this.strFavoriteTypeShortName := strThisShortName
+			this.strFavoriteTypeLocationLabel := strThisLocationLabel
+			this.strFavoriteTypeLocationLabelNoAmpersand := strThisLocationLabelNoAmpersand
+			
+			if (strThisSystemName = "QAP")
+				this.strFavoriteTypeHelp := L(strThisHelp, lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+			else if (strThisSystemName = "Application")
+				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . lDialogFavoriteTypeNoteApplication
+			else if (strThisSystemName = "WindowsApp")
+				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . lDialogFavoriteTypeNoteWindowsApps
+			else
+				this.strFavoriteTypeHelp := strThisHelp
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Folder
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Document
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Application
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Special
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class URL
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class FTP
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class QAP
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Menu
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Group
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class X
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class K
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class B
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Snippet
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class External
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class Text
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class WindowsApp
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New()
+		;-----------------------------------------------------
+		{
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
+
 }
 ;-------------------------------------------------------------
 
