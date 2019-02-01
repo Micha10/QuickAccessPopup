@@ -3109,6 +3109,7 @@ SetWaitCursor(false)
 ; "/Settings:file_path" (must end with ".ini"), "/AdminSilent" and "/Working:path"
 global o_CommandLineParameters := new CommandLineParameters()
 
+global g_blnPortableMode
 Gosub, SetQAPWorkingDirectory
 
 ; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
@@ -3127,7 +3128,7 @@ OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure 
 ;---------------------------------
 ; Init settings file name
 
-g_strAppNameFile := "QuickAccessPopup"
+global g_strAppNameFile := "QuickAccessPopup"
 global g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
 global g_intIniLine := ""
 
@@ -3151,12 +3152,14 @@ if StrLen(o_CommandLineParameters.I["Settings"])
 	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.I["Settings"]))
 
 ; set file name used for Edit settings label
+global g_strIniFileNameExtOnly
 SplitPath, g_strIniFile, g_strIniFileNameExtOnly
 ; ###_V("g_strIniFileNameExtOnly", g_strIniFileNameExtOnly)
 
 ;---------------------------------
 ; Create temporary folder
 
+global g_strQAPTempFolderParent
 IfExist, %g_strIniFile%
 	IniRead, g_strQAPTempFolderParent, %g_strIniFile%, Global, QAPTempFolder, %A_Space% ; empty by default
 
@@ -3167,7 +3170,7 @@ if !StrLen(g_strQAPTempFolderParent)
 		g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
 
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
+global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
@@ -3185,8 +3188,8 @@ global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowerca
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
 
-g_blnDiagMode := False
-g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
+global g_blnDiagMode := False
+global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 
 ;---------------------------------
 ; Init class for JLicons
@@ -3195,58 +3198,58 @@ if (g_blnPortableMode)
 else ; setup mode
 	global o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
-g_intGuiDefaultWidth := 636
-g_intGuiDefaultHeight := 601
+global g_intGuiDefaultWidth := 636
+global g_intGuiDefaultHeight := 601
 
-g_blnMenuReady := false
-g_blnChangeShortcutInProgress := false
-g_blnChangeHotstringInProgress := false
+global g_blnMenuReady := false
+global g_blnChangeShortcutInProgress := false
+global g_blnChangeHotstringInProgress := false
 
-g_arrSubmenuStack := Object()
-g_arrSubmenuStackPosition := Object()
+global g_arrSubmenuStack := Object()
+global g_arrSubmenuStackPosition := Object()
 
-g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
+global g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
 global g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
-g_strGuiMenuSeparator := "----------------" ;  single-line displayed as line separators, allowed in item names
-g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separators, allowed in item names
-g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
-g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in any item name
-g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
-g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
-g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
-g_strEscapeReplacement := "!r4nd0mt3xt!"
+global g_strGuiMenuSeparator := "----------------" ;  single-line displayed as line separators, allowed in item names
+global g_strGuiMenuSeparatorShort := "---" ;  short single-line displayed as line separators, allowed in item names
+global g_strGuiDoubleLine := "===" ;  double-line displayed in column break and end of menu indicators, allowed in item names
+global g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolowed in any item name
+global g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
+global g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
+global g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+global g_strEscapeReplacement := "!r4nd0mt3xt!"
 
-g_strSnippetCommandStart := "{&" ; start of command in macro snippets
-g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
-g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
+global g_strSnippetCommandStart := "{&" ; start of command in macro snippets
+global g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
+global g_strSnippetOptionsSeparator := ":" ; separator between command and options in macro snippets
 
-g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
-g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
-g_strHotstringOptionsExecute := "X"
+global g_strHotstringOptionsSeparator := ":" ; separator between trigger and options in hotstrings
+global g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
+global g_strHotstringOptionsExecute := "X"
 
-g_strExclusionMouseListDialogIndicator := "*"
+global g_strExclusionMouseListDialogIndicator := "*"
 
-g_objGuiControls := Object() ; to build Settings gui
+global g_objGuiControls := Object() ; to build Settings gui
 
-g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
-g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
+global g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
+global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
-g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
-g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
+global g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
+global g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
 
-g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
+global g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
 
-g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
-g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
+global g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
+global g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
-g_objLastActions := Object()
+global g_objLastActions := Object()
 
-g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
-g_objWindowsAppsIDsByName := Object()
+global g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
+global g_objWindowsAppsIDsByName := Object()
 
-g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
+global g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
-g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
+global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
 global g_blnRefreshedMenusAttached := "" ; will be read in ini file by QAPfeature class function AddAttachedOrDetachedQAPFeatureObject
 
@@ -3986,8 +3989,6 @@ return
 InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := false)
 ;------------------------------------------------------------
 {
-	global g_objGuiControls
-	
 	objGuiControl := Object()
 	objGuiControl.Name := strControlName
 	objGuiControl.X := intX
@@ -4360,10 +4361,6 @@ return
 RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 ;------------------------------------------------------------
 {
-	global g_strGroupIndicatorPrefix
-	global g_strGroupIndicatorSuffix
-	global g_strEscapePipe
-	
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
 	
@@ -6333,17 +6330,11 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_intIconSize
 	global g_strMenuBackgroundColor
 	global g_blnUseColors
-	global g_strGroupIndicatorPrefix
-	global g_strGroupIndicatorSuffix
 	global g_objMenuColumnBreaks
 	global g_intHotkeyReminders
-	global g_objFavoritesObjectsByShortcut
-	global g_objFavoritesObjectsByHotstring
 	global g_blnWorkingToolTip
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
-	global g_strHotstringOptionsSeparator
-	global g_strHotstringOptionsExecute
 
 	intMenuNumber := 0
 	
@@ -8855,9 +8846,6 @@ return
 RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparator
-	global g_strGroupIndicatorPrefix
-	
 	Loop, % objCurrentMenu.MaxIndex()
 	{
 		strSearchIn := objCurrentMenu[A_Index].FavoriteName
@@ -9391,9 +9379,6 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 ; with blnExcludeDialogBox true when reopen file manager current location in dialog box
 ;------------------------------------------------------------
 {
-	global g_strModernBrowsers
-	global g_strLegacyBrowsers
-	
 	DetectHiddenWindows, Off
 	WinGet, strIDs, list
 	DetectHiddenWindows, On ; revert to app default
@@ -12666,9 +12651,6 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ; update submenus and their childrens and groups to the new path of the parent menu
 ;------------------------------------------------------------
 {
-	global g_strGroupIndicatorPrefix
-	global g_strGroupIndicatorSuffix
-	
 	objEditedFavorite.SubMenu.MenuPath := strMenuPath
 	StringReplace, strMenuLocation, strMenuPath, %lMainMenuName%%A_Space% ; menu path without main menu localized name
 	objEditedFavorite.FavoriteLocation := strMenuLocation
@@ -13722,8 +13704,6 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 GetFavoritesListFilter()
 ;------------------------------------------------------------
 {
-	global g_blnFavoritesListFilterNeverFocused
-	
 	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
 
 	return ((strFilter = lDialogSearch and g_blnFavoritesListFilterNeverFocused) ? "" : Trim(strFilter))
@@ -13829,7 +13809,6 @@ return
 RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 ;------------------------------------------------------------
 {
-	global g_strEscapePipe
 	global g_blnWorkingToolTip
 	
 	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
@@ -14520,7 +14499,6 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 ;-----------------------------------------------------------
 {
 	global g_arrOptionsPopupHotkeyTitles
-	global g_objFavoritesObjectsByShortcut
 	
 	if !StrLen(strShortcut) or (strShortcut = "None")
 		return strShortcut
@@ -19572,8 +19550,6 @@ GetCurrentLocation(strClass, strWinID)
 ;------------------------------------------------------------
 {
 	global g_strDOpusListText
-	global g_strModernBrowsers
-	global g_strLegacyBrowsers
 
 	strLocation := ""
 	
@@ -20120,8 +20096,6 @@ GetOSVersionInfo()
 GetFavoriteHotkeyFromLocation(strLocation)
 ;------------------------------------------------------------
 {
-	global g_objFavoritesObjectsByShortcut
-	
 	for strShortcut, objFavorite in g_objFavoritesObjectsByShortcut
 		if (objFavorite.FavoriteLocation = strLocation)
 			return objFavorite.FavoriteShortcut
@@ -20186,8 +20160,6 @@ SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
 GetHotstringOptionsLong(strHotstringOptionsShort)
 ;------------------------------------------------------------
 {
-	global g_strHotstringOptionsLongSeparator
-	
 	strTempOptions := strHotstringOptionsShort
 	if InStr(strTempOptions, "C1")
 		StringReplace, strTempOptions, strTempOptions, C1 ; backward compatibility from 8.9 beta to v9.0.2, to avoid ambiguity with "C"
@@ -20208,9 +20180,6 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 PrepareHotstringForFunction(strHotstring, objFavorite)
 ;------------------------------------------------------------
 {
-	global g_strHotstringOptionsSeparator
-	global g_strHotstringOptionsExecute
-	
 	; insert X option as first option (":X...:trigger" or ":X...:trigger") just before creating the hotstring
 	SplitHotstring(strHotstring, strTrigger, strOptionsShort)
 	strPreparedHotstring := g_strHotstringOptionsSeparator . g_strHotstringOptionsExecute . strOptionsShort . g_strHotstringOptionsSeparator . strTrigger
@@ -20244,8 +20213,6 @@ DiagWindowInfo(strName)
 Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 ;------------------------------------------------
 {
-	global g_blnDiagMode
-	global g_strDiagFile
 	static g_intStartTick
 	static g_intStartFullTick
 	static g_intStartShowTick
@@ -20489,8 +20456,6 @@ GetLocationPathName(strLocation)
 GetDeepestMenuPath(strPath)
 ;------------------------------------------------------------
 {
-	global g_strMenuPathSeparator ; only used for menu, not for group
-	
 	return Trim(SubStr(strPath, InStr(strPath, g_strMenuPathSeparator, , 0) + 1, 9999))
 }
 ;------------------------------------------------------------
@@ -20573,9 +20538,6 @@ CollectRunningApplications(strDefaultPath)
 LoadWindowsAppsList(strCurrentAppID)
 ;------------------------------------------------------------
 {
-	global g_strWindosListAppsCacheFile
-	global g_objWindowsAppsIDsByName
-	
 	if !FileExist(g_strWindosListAppsCacheFile)
 		return
 	
@@ -21277,8 +21239,6 @@ GetFileExtension(strFile)
 GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 ;------------------------------------------------------------
 {
-	global g_strTempDir
-
 	if InStr("|Menu|External", "|" . objFavorite.FavoriteType, true)
 		; default submenu icon
 		return "iconSubmenu"
@@ -21385,8 +21345,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 SplitExclusionList(strExclusionMouseList, ByRef g_strExclusionMouseListApp, ByRef g_strExclusionMouseListDialog)
 ;------------------------------------------------------------
 {
-	global g_strExclusionMouseListDialogIndicator
-	
 	g_strExclusionMouseListApp := ""
 	g_strExclusionMouseListDialog := ""
 	
@@ -21408,7 +21366,6 @@ SplitExclusionList(strExclusionMouseList, ByRef g_strExclusionMouseListApp, ByRe
 ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 ;------------------------------------------------------------
 {
-	global g_objExternaleMenuToRelease
 	global g_objMenuInGui
 
 	; ###_O(A_ThisFunc . " - objMenu", objMenu)
@@ -21541,8 +21498,6 @@ ExternalMenuFolderIsReadOnly(strFile)
 ; add folder to object g_objExternalMenuFolderReadOnly to avoid checking same folder again (refreshed only when QAP is restarted)
 ;------------------------------------------------------------
 {
-	global g_objExternalMenuFolderReadOnly
-	
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	SplitPath, strFile, , strFolder
 	
@@ -22406,7 +22361,6 @@ DoubleAmpersand(str)
 ;------------------------------------------------------------
 {
 	global g_blnDisplayNumericShortcuts
-	global g_strEscapeReplacement
 	
 	if (g_blnDisplayNumericShortcuts and SubStr(str, 1, 1) = "&")
 	{
@@ -22427,8 +22381,6 @@ DoubleAmpersand(str)
 RemoveSingleAmpersand(str)
 ;------------------------------------------------------------
 {
-	global g_strEscapeReplacement
-	
 	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
 	str := StrReplace(str, "&", "") ; remove single ampersand
 	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
@@ -22517,8 +22469,6 @@ WM_MOUSEMOVE(wParam, lParam)
 	
 	global g_objHandCursor
 	global g_strGuiFullTitle
-	global g_blnFavoritesListFilterNeverFocused
-	global g_objToolTipsMessages
 	global g_blnEditButtonDisabled
 
 	; get window's titte and exit if it is not the Settings window
