@@ -3126,42 +3126,26 @@ ListLines, On
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
 
 ;---------------------------------
-; Init settings file name
+; App Name
 
 global g_strAppNameFile := "QuickAccessPopup"
-global g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
-global g_intIniLine := ""
 
-; Set developement ini file
-
-;@Ahk2Exe-IgnoreBegin
-; Start of code for developement environment only - won't be compiled
-if (A_ComputerName = "JEAN-PC") ; for my home PC
-	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-HOME.ini"
-else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
-	g_strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
-; / End of code for developement environment only - won't be compiled
-;@Ahk2Exe-IgnoreEnd
-
-global g_strIniFileMain := g_strIniFile ; value never changed
+;---------------------------------
+; Init Settings instance
+global o_Settings := new Settings
 
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
 if StrLen(o_CommandLineParameters.I["Settings"])
-	g_strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.I["Settings"]))
-
-; set file name used for Edit settings label
-global g_strIniFileNameExtOnly
-SplitPath, g_strIniFile, g_strIniFileNameExtOnly
-; ###_V("g_strIniFileNameExtOnly", g_strIniFileNameExtOnly)
+	o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.I["Settings"]))
 
 ;---------------------------------
 ; Create temporary folder
 
 global g_strQAPTempFolderParent
-IfExist, %g_strIniFile%
-	IniRead, g_strQAPTempFolderParent, %g_strIniFile%, Global, QAPTempFolder, %A_Space% ; empty by default
+If FileExist(o_Settings.strIniFile)
+	o_Settings.ReadIni("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General", 90) ; g_strQAPTempFolderParent
 
 if !StrLen(g_strQAPTempFolderParent)
 	if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
@@ -3357,8 +3341,9 @@ Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
 
-IniRead, g_intRefreshQAPMenuIntervalSec, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec, 0
-IniRead, g_blnRefreshQAPMenuDebugBeep, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep, 0
+o_Settings.ReadIni("Menu-Advanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
+o_Settings.ReadIni("Menu-Advanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
+
 if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
 
@@ -3857,7 +3842,7 @@ else
 		; read language code from ini file created by the Inno Setup script in the user data folder
 		IniRead, g_strLanguageCode, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , LanguageCode, EN
 	else
-		IniRead, g_strLanguageCode, %g_strIniFile%, Global, LanguageCode, EN
+		o_Settings.ReadIni("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15) ; g_strLanguageCode
 
 	strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . g_strLanguageCode . ".txt"
 }
@@ -4096,7 +4081,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 else
 {
 	g_strIniBefore := "DONT"
-	IniRead, blnDoNotConvertSettingsToUnicode, %g_strIniFile%, Global, DoNotConvertSettingsToUnicode, 0
+	o_Settings.ReadIni("Setting file", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
 	if !(blnDoNotConvertSettingsToUnicode)
 	{
 		; check if the ini file is Unicode
@@ -4138,26 +4123,26 @@ Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; load from ini file and enable Alt
 ; ---------------------
 ; Load Options Tab 1 General
 
-IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, ChangeFolderInDialog, 0
+o_Settings.ReadIni("Menu Popup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
 if (g_blnChangeFolderInDialog)
-	IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk, 0
+	o_Settings.ReadIni("Menu Popup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
-IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
-IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
+o_Settings.ReadIni("Setting window", "strTheme", "Theme", "Windows", "Setting window", 30) ; g_strTheme
+o_Settings.ReadIni("Setting window", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
-IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
+o_Settings.ReadIni("Settings file", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
 ; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
 
-IniRead, g_blnAddAutoAtTop, %g_strIniFile%, Global, AddAutoAtTop, 0
-IniRead, g_blnDisplayTrayTip, %g_strIniFile%, Global, DisplayTrayTip, 1
-IniRead, g_blnCheck4Update, %g_strIniFile%, Global, Check4Update, % (g_blnPortableMode ? 0 : 1) ; enable by default only in setup install mode
-IniRead, g_blnRememberSettingsPosition, %g_strIniFile%, Global, RememberSettingsPosition, 1
-IniRead, g_blnOpenSettingsOnActiveMonitor, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor, 1
+o_Settings.ReadIni("Settings window", "blnAddAutoAtTop", "AddAutoAtTop", 0, "Settings window", 40) ; g_blnAddAutoAtTop
+o_Settings.ReadIni("Launch", "blnDisplayTrayTip", "DisplayTrayTip", 1, "General", 20) ; g_blnDisplayTrayTip
+o_Settings.ReadIni("Launch", "blnCheck4Update", "Check4Update", (g_blnPortableMode ? 0 : 1), "General", 30) ; g_blnCheck4Update ; enable by default only in setup install mode
+o_Settings.ReadIni("Settings window", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "Settings window", 10) ; g_blnRememberSettingsPosition
+o_Settings.ReadIni("Settings window", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "Settings window", 20) ; g_blnOpenSettingsOnActiveMonitor
 
-IniRead, g_blnSnippetDefaultProcessEOLTab, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab, 1
-IniRead, g_blnSnippetDefaultFixedFont, %g_strIniFile%, Global, SnippetDefaultFixedFont, 0
-IniRead, g_intSnippetDefaultFontSize, %g_strIniFile%, Global, SnippetDefaultFontSize, 10
-IniRead, g_blnSnippetDefaultMacro, %g_strIniFile%, Global, SnippetDefaultMacro, 0
+o_Settings.ReadIni("Snippets", "blnSnippetDefaultProcessEOLTab", "SnippetDefaultProcessEOLTab", 1, "Snippets", 10) ; g_blnSnippetDefaultProcessEOLTab
+o_Settings.ReadIni("Snippets", "blnSnippetDefaultFixedFont", "SnippetDefaultFixedFont", 0, "Snippets", 20) ; g_blnSnippetDefaultFixedFont
+o_Settings.ReadIni("Snippets", "intSnippetDefaultFontSize", "SnippetDefaultFontSize", 10, "Snippets", 30) ; g_intSnippetDefaultFontSize
+o_Settings.ReadIni("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 0, "Snippets", 40) ; g_blnSnippetDefaultMacro
 
 ; ---------------------
 ; Load Options Tab 2 Menu
@@ -5081,7 +5066,7 @@ Menu, menuTraySettingsFileOptions, Add, %lImpExpMenu%..., ImportExport
 
 Menu, Tray, Add, %lMenuSettings%..., GuiShowFromTray
 Menu, Tray, Add
-Menu, Tray, Add, % L(lMenuEditIniFile, g_strIniFileNameExtOnly), ShowSettingsIniFile
+Menu, Tray, Add, % L(lMenuEditIniFile, o_Settings.strIniFileNameExtOnly), ShowSettingsIniFile
 Menu, Tray, Add, %lMenuSettingsFileOptions%..., :menuTraySettingsFileOptions
 Menu, Tray, Add
 Menu, Tray, Add, % L(lMenuReload, g_strAppNameText), ReloadQAP
@@ -6945,6 +6930,7 @@ o_PopupHotkeys.BackupPopupHotkeys()
 o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 	if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
+		; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 		o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
 
 ;---------------------------------------
@@ -8294,7 +8280,7 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	ResetArray("arrMenu") ; free object's memory
 }
-; next line re-init g_objQAPFeatures according to g_blnRefreshedMenusAttached before rebuilding the menus
+; next line re-init o_QAPfeatures according to g_blnRefreshedMenusAttached before rebuilding the menus
 o_QAPfeatures.RefreshAttachedOrDetachedQAPFeatureObject()
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
@@ -24357,7 +24343,7 @@ class QAPfeatures
 			, lMenuRestoreSettingsWindowPositionDescription, 0, "iconSettings", "", "qap-is-running-but-my-settings-window-disappeared-what-happened")
 		this.AddQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"7-QAPManagement"
 			, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "", "")
-		this.AddQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, g_strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
+		this.AddQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, o_Settings.strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
 			, lMenuEditIniFileDescription, 0, "iconSettings", ""
 			, "how-can-i-edit-the-file-quickaccesspopup-ini")
 		this.AddQAPFeatureObject("List Applications", 		lMenuListApplications,				"", "ListApplications",						"7-QAPManagement"
@@ -24843,14 +24829,62 @@ TODO
 */
 ;-------------------------------------------------------------
 {
-	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
 	{
+		this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
+		this.intIniLine := ""
+
+		; Set developement ini file
+;@Ahk2Exe-IgnoreBegin
+		; Start of code for developement environment only - won't be compiled
+		if (A_ComputerName = "JEAN-PC") ; for my home PC
+			this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-HOME.ini"
+		else if InStr(A_ComputerName, "ELITEBOOK-JEAN") ; for my work hotkeys
+			this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
+		; / End of code for developement environment only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
+
+		; set file name used for Edit settings label
+		SplitPath, % this.strIniFile, strIniFileNameExtOnly
+		this.strIniFileNameExtOnly := strIniFileNameExtOnly
+		
+		this.strIniFileMain := this.strIniFile ; value never changed
 	}
 	;---------------------------------------------------------
-	
+
+	;---------------------------------------------------------
+	ReadIni(strObjectGroup, strSettingName, strIniValueName, strDefault := "", strGuiGroup := "", intGuiOrder := "", strSection := "Global", strIniFile := "")
+	;---------------------------------------------------------
+	{
+		###_V(A_ThisFunc, strObjectGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
+		IniRead, strOutValue, % (StrLen(strIniFile) ? strIniFile : this.strIniFile), %strSection%, %strIniValueName%, %strDefault%
+		this[strObjectGroup][strSettingName] := new this.IniValue(strOutValue, strGuiGroup, intGuiOrder)
+		###_O("this", this)
+		###_O("this[strObjectGroup][strSettingName]", this[strObjectGroup][strSettingName])
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	class IniValue
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		__New(strIniValue, strGuiGroup, intGuiOrder)
+		;-----------------------------------------------------
+		{
+			if !IsObject(this[strObjectGroup])
+				this[strObjectGroup] := Object()
+			
+			this.IniValue := strIniValue
+			this.strGuiGroup := strGuiGroup
+			this.intGuiOrder := intGuiOrder
+		}
+		;-----------------------------------------------------
+		
+	}
+	;---------------------------------------------------------
 }
 ;-------------------------------------------------------------
 
