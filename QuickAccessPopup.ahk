@@ -6945,8 +6945,7 @@ o_PopupHotkeys.BackupPopupHotkeys()
 o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 	if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
-		; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
-		o_QAPfeatures.objQAPFeaturesNewShortcuts.Insert(strAlternativeCode, g_objQAPFeatures[strAlternativeCode].CurrentHotkey)
+		o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
 
 ;---------------------------------------
 ; Build Gui header
