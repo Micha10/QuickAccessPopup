@@ -3300,6 +3300,7 @@ global o_Favorites := new Favorites
 ; Load Settings file
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
+global o_Settings := new Settings
 
 ;---------------------------------
 ; Must be after LoadIniFile
@@ -4253,7 +4254,6 @@ if (g_intNbLiveFolderItemsMax = "ERROR")
 }
 IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
 IniRead, strWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 40|80|180 ; default 300 ms (split in three sleep commands)
-IniRead, g_intWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 300 ; default 300 ms (split in two sleep commands 33% and 67%)
 StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
 IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
@@ -24834,6 +24834,24 @@ FAVORITE TYPES REPLACED
 	}
 	;---------------------------------------------------------
 
+}
+;-------------------------------------------------------------
+
+;-------------------------------------------------------------
+class Settings
+/*
+TODO
+*/
+;-------------------------------------------------------------
+{
+	
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+	}
+	;---------------------------------------------------------
+	
 }
 ;-------------------------------------------------------------
 
