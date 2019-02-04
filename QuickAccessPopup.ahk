@@ -4147,28 +4147,28 @@ o_Settings.ReadIni("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 
 ; ---------------------
 ; Load Options Tab 2 Menu
 
-IniRead, g_intPopupMenuPosition, %g_strIniFile%, Global, PopupMenuPosition, 1
-IniRead, strPopupFixPosition, %g_strIniFile%, Global, PopupFixPosition, 20,20
+o_Settings.ReadIni("Menu Popup", "intPopupMenuPosition", "PopupMenuPosition", 1, "Menu Popup", 10) ; g_intPopupMenuPosition
+o_Settings.ReadIni("Menu Popup", "strPopupFixPosition", "PopupFixPosition", "20,20", "Menu Popup", 12) ; strPopupFixPosition
 StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
 
-IniRead, g_intHotkeyReminders, %g_strIniFile%, Global, HotkeyReminders, 3
+o_Settings.ReadIni("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
 
 if !(g_blnPortableMode)
-	IniRead, g_blnExplorerContextMenus, %g_strIniFile%, Global, ExplorerContextMenus, 1 ; enabled by default for setup install mode
+	o_Settings.ReadIni("Menu Popup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "Menu Popup", 20) ; g_blnExplorerContextMenus
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 
-IniRead, g_intRecentFoldersMax, %g_strIniFile%, Global, RecentFoldersMax, 10
-IniRead, g_intNbLastActions, %g_strIniFile%, Global, NbLastActions, 10
+o_Settings.ReadIni("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "Menu appearance", 80) ; g_intRecentFoldersMax
+o_Settings.ReadIni("Menu", "intNbLastActions", "NbLastActions", 10, "Menu appearance", 10) ; g_intNbLastActions
 
-IniRead, g_blnDisplayNumericShortcuts, %g_strIniFile%, Global, DisplayMenuShortcuts, 0
-IniRead, g_blnDisplayNumericShortcutsFromOne, %g_strIniFile%, Global, DisplayMenuShortcutsFromOne, 0
-IniRead, g_blnOpenMenuOnTaskbar, %g_strIniFile%, Global, OpenMenuOnTaskbar, 1
-IniRead, g_blnAddCloseToDynamicMenus, %g_strIniFile%, Global, AddCloseToDynamicMenus, 1
+o_Settings.ReadIni("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
+o_Settings.ReadIni("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
+o_Settings.ReadIni("Menu Popup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
+o_Settings.ReadIni("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
 
-IniRead, g_blnDisplayIcons, %g_strIniFile%, Global, DisplayIcons, 1
-IniRead, g_intIconSize, %g_strIniFile%, Global, IconSize, 32
-IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 0 ; 0 for maximum number of rows
+o_Settings.ReadIni("Menu Icons", "blnDisplayIcons", "DisplayIcons", 1, "Menu Icons", 10) ; g_blnDisplayIcons
+o_Settings.ReadIni("Menu Icons", "intIconSize", "iniName", 32, "Menu Icons", 20) ; g_intIconSize
+o_Settings.ReadIni("Menu Icons", "intIconsManageRowsSettings", "IconsManageRows", 0, "Menu Icons", 30) ; g_intIconsManageRowsSettings
 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
@@ -4176,10 +4176,10 @@ IniRead, g_intIconsManageRowsSettings, %g_strIniFile%, Global, IconsManageRows, 
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
-IniRead, g_blnAlternativeMenuShowNotification, %g_strIniFile%, Global, AlternativeMenuShowNotification, 1 ; default true
+o_Settings.ReadIni("Menu Popup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
 
-IniRead, g_blnLeftControlDoublePressed, %g_strIniFile%, Global, LeftControlDoublePressed, 0
-IniRead, g_blnRightControlDoublePressed, %g_strIniFile%, Global, RightControlDoublePressed, 0
+o_Settings.ReadIni("o_QAPfeatures", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
+o_Settings.ReadIni("o_QAPfeatures", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
 
 ; ---------------------
 ; Load Options Tab 5 File Managers
@@ -4192,25 +4192,25 @@ global o_FileManagers := new FileManagers
 
 ; ExclusionMouseList
 
-IniRead, g_strExclusionMouseList, %g_strIniFile%, Global, ExclusionMouseList, %A_Space% ; empty string if not found
+o_Settings.ReadIni("Menu Popup", "strExclusionMouseList", "ExclusionMouseList", " ", "Menu Popup", 80) ; g_strExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 ; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
 
 ; UsageDb
-IniRead, g_intUsageDbIntervalSeconds, %g_strIniFile%, Global, UsageDbIntervalSeconds, 60 ; in seconds, default 60 (1 minute)
+o_Settings.ReadIni("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
 g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
-IniRead, g_intUsageDbDaysInPopular, %g_strIniFile%, Global, UsageDbDaysInPopular, 30
-IniRead, g_fltUsageDbMaximumSize, %g_strIniFile%, Global, UsageDbMaximumSize, 3
-IniRead, g_blnUsageDbShowPopularityIndex, %g_strIniFile%, Global, UsageDbShowPopularityIndex, 0
-IniRead, g_intUsageDbDebug, %g_strIniFile%, Global, UsageDbDebug, 0 ; UsageDbDebug in ini: 0 no debug, 1 tooltips only, 2 message and sound
+o_Settings.ReadIni("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", 30) ; g_intUsageDbDaysInPopular
+o_Settings.ReadIni("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", 40) ; g_fltUsageDbMaximumSize
+o_Settings.ReadIni("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", 50) ; g_blnUsageDbShowPopularityIndex
+o_Settings.ReadIni("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_strUserVariablesList
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
-IniRead, g_strUserVariablesList, %g_strIniFile%, Global, UserVariablesList, %A_Space% ; empty string if not found
-IniRead, g_strSwitchExclusionList, %g_strIniFile%, Global, SwitchExclusionList, %A_Space% ; empty string if not found
-IniRead, g_strIconReplacementList, %g_strIniFile%, Global, IconReplacementList, %A_Space% ; empty string if not found
+o_Settings.ReadIni("User Variables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
+o_Settings.ReadIni("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
+o_Settings.ReadIni("Menu Icons", "strIconReplacementList", "strIconReplacementList", " ", "Menu Icons", 40) ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(g_strIconReplacementList)
 
 ; ---------------------
