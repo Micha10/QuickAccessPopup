@@ -11842,6 +11842,7 @@ GuiMoveFavoriteToMenu:
 GuiMoveMultipleFavoritesToMenu:
 GuiCopyMultipleFavoritesToMenu:
 ;------------------------------------------------------------
+strGuiFavoriteLabel := A_ThisLabel
 g_intGui1WinID := WinExist("A")
 
 blnMove := InStr(A_ThisLabel, "GuiMove")
@@ -11983,7 +11984,8 @@ Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
 	if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "B") ; skip ".." back link to parent menu
 		or (g_objEditedFavorite.FavoriteName = g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteName)
 			and (g_objMenuInGui.MenuPath = g_objMenusIndex[f_drpParentMenu].MenuPath ; skip edited item itself if not a separator
-			and !InStr("X|K", g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType)) ; but make sure to keep separators
+			and !InStr("X|K", g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType) ; but make sure to keep separators
+			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
 	else if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "X")
 		strDropdownParentMenuItems .= g_strGuiMenuSeparator . g_strGuiMenuSeparator . "|"
