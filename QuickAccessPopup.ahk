@@ -4770,7 +4770,8 @@ for strCode, objThisQAPFeature in o_QAPfeatures.I
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 {
-	IniRead, strHotkey,  % o_Settings.strIniFile, AlternativeMenuHotkeys, %strCode%
+	strHotkey := o_Settings.ReadIniValue(strCode, "", "AlternativeMenuHotkeys")
+
 	if (strHotkey <> "ERROR")
 	{
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
@@ -22921,11 +22922,9 @@ class Triggers.MouseButtons
 			
 			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
 			{
-				IniRead, strThisPopupHotkey, % o_Settings.strIniFile, Global, %strThisPopupHotkeyInternalName%, % objPopupHotkeyDefaults[A_Index]
-				o_Settings.ReadIniOption("o_PopupHotkeys", "str" . strThisPopupHotkeyInternalName, strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index], "Popup Hotkeys", A_Index) ; 
-				; ###_V(A_ThisFunc, o_Settings.o_PopupHotkeys["str" . strThisPopupHotkeyInternalName].IniValue)
-				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, o_Settings.o_PopupHotkeys.AhkHotkey, objPopupHotkeyDefaults[A_Index]
-					, objOptionsPopupHotkeyLocalizedNames[A_Index], objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
+				strThisPopupHotkey := o_Settings.ReadIni(strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index])
+				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objOptionsPopupHotkeyLocalizedNames[A_Index]
+					, objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
 				this.I[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
 			}
@@ -23268,12 +23267,12 @@ TODO
 		this.I[3] := new this.TotalCommander(objActiveFileManagerSystemNames[3], objActiveFileManagerDisplayNames[3])
 		this.I[4] := new this.QAPConnect(objActiveFileManagerSystemNames[4], objActiveFileManagerDisplayNames[4])
 			
-		IniRead, intActiveFileManager, % o_Settings.strIniFile, Global, ActiveFileManager ; if not exist returns "ERROR"
+		intActiveFileManager := o_Settings.ReadIniValue("ActiveFileManager") ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
 		this.ActiveFileManager := intActiveFileManager
 
-		IniRead, blnAlwaysNavigate, % o_Settings.strIniFile, Global, FileManagerAlwaysNavigate, 0
+		blnAlwaysNavigate := o_Settings.ReadIniValue("FileManagerAlwaysNavigate", 0)
 		this.blnFileManagerAlwaysNavigate := blnAlwaysNavigate
 	}
 	;---------------------------------------------------------
@@ -23380,7 +23379,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, blnOpenFavoritesOnActiveMonitor, % o_Settings.strIniFile, Global, OpenFavoritesOnActiveMonitor, 0
+			blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniValue("OpenFavoritesOnActiveMonitor", 0)
 			this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
 			this.blnFileManagerValid := true
 		}
@@ -23409,7 +23408,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strPath, % o_Settings.strIniFile, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
+			strPath := o_Settings.ReadIniValue("DirectoryOpusPath", " ")
 			if !StrLen(strPath)
 				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
 			if !FileExist(strPath)
@@ -23423,14 +23422,14 @@ TODO
 			{
 				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
-				IniRead, blnDirectoryOpusUseTabs, % o_Settings.strIniFile, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
+				blnDirectoryOpusUseTabs := o_Settings.ReadIniValue("DirectoryOpusUseTabs", 1)
 				this.blnFileManagerUseTabs := blnDirectoryOpusUseTabs
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 				else
 					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 				
-				IniRead, blnFileManagerDirectoryOpusShowLayouts, % o_Settings.strIniFile, Global, FileManagerDOpusShowLayouts, 1 ; true by default
+				blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniValue("FileManagerDOpusShowLayouts", 1) ; true by default
 				this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
 				
 				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
@@ -23692,7 +23691,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strPath, % o_Settings.strIniFile, Global, TotalCommanderPath, %A_Space% ; empty string if not found
+			strPath := o_Settings.ReadIniValue("TotalCommanderPath", " ")
 			if !StrLen(strPath)
 			{
 				RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
@@ -23710,7 +23709,7 @@ TODO
 				
 			if (this.blnFileManagerValid)
 			{
-				IniRead, strIniFile, % o_Settings.strIniFile, Global, TotalCommanderWinCmd, %A_Space%
+				strIniFile := o_Settings.ReadIniValue("TotalCommanderWinCmd", " ")
 				If !StrLen(strIniFile)
 					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
 				If !StrLen(strIniFile)
@@ -23719,7 +23718,7 @@ TODO
 				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
 				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				IniRead, blnTotalCommanderUseTabs, % o_Settings.strIniFile, Global, TotalCommanderUseTabs, 1 ; use tabs by default
+				blnTotalCommanderUseTabs := o_Settings.ReadIniValue("TotalCommanderUseTabs", 1)
 				this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
@@ -23754,7 +23753,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strQAPconnectFileManager, % o_Settings.strIniFile, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
+			strQAPconnectFileManager := o_Settings.ReadIniValue("QAPconnectFileManager", " ")
 			this.strQAPconnectFileManager := strQAPconnectFileManager
 			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 			/* QAPconnect.ini sample:
@@ -23766,7 +23765,7 @@ TODO
 			CompanionPath=EFCWT.EXE
 			NeverQuotes=
 			*/
-			IniRead, strPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, AppPath, %A_Space% ; empty by default
+			strPath := o_Settings.ReadIniValue("AppPath", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
 			this.strFileManagerPath := strPath
 			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
 			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
@@ -23778,20 +23777,20 @@ TODO
 				this.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
 				this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
 				
-				IniRead, strCommandLine, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CommandLine, %A_Space% ; empty by default
+				strCommandLine := o_Settings.ReadIniValue("CommandLine", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
 				this.strQAPconnectCommandLine := strCommandLine
 				
-				IniRead, strNewTabSwitch, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NewTabSwitch, %A_Space% ; empty by default
+				strNewTabSwitch := o_Settings.ReadIniValue("NewTabSwitch", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
 				this.strQAPconnectNewTabSwitch := strNewTabSwitch
 				
-				IniRead, strCompanionPath, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, CompanionPath, %A_Space% ; empty by default
+				strCompanionPath := o_Settings.ReadIniValue("CompanionPath", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
 				if StrLen(strCompanionPath)
 					FileExistInPath(strCompanionPath) ; return strQAPconnectCompanionPath expanded and searched in PATH
 				SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
 				this.strQAPconnectCompanionPath := strCompanionPath
 				this.strQAPconnectCompanionFilename := strCompanionFilename
 				
-				IniRead, strNeverQuotes, % this.strQAPconnectIniPath, %strQAPconnectFileManager%, NeverQuotes, 0 ; false by default
+				strNeverQuotes := o_Settings.ReadIniValue("NeverQuotes", 0, strQAPconnectFileManager, this.strQAPconnectIniPath)
 				this.strQAPconnectNeverQuotes := strNeverQuotes
 			}
 		}
