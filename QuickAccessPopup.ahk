@@ -3830,21 +3830,16 @@ return
 InitLanguages:
 ;------------------------------------------------------------
 
+; If o_Settings.strIniFile does not exist yet, read language code from ini file created by the Inno Setup script in the user data folder
+o_Settings.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15, "Global"
+	, (FileExist(o_Settings.strIniFile) ? "" : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini")) ; g_strLanguageCode
+strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . o_Settings.Launch.strLanguageCode.IniValue . ".txt"
+
 strDebugLanguageFile := A_WorkingDir . "\" . g_strAppNameFile . "_LANG_ZZ.txt"
 if FileExist(strDebugLanguageFile)
 {
 	strLanguageFile := strDebugLanguageFile
-	g_strLanguageCode := "EN"
-}
-else
-{
-	if !FileExist(o_Settings.strIniFile)
-		; read language code from ini file created by the Inno Setup script in the user data folder
-		IniRead, g_strLanguageCode, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , LanguageCode, EN
-	else
-		o_Settings.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15) ; g_strLanguageCode
-
-	strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . g_strLanguageCode . ".txt"
+	o_Settings.Launch.strLanguageCode.IniValue := "EN"
 }
 	
 strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
@@ -3871,12 +3866,13 @@ if FileExist(strLanguageFile)
 	}
 }
 else
-	g_strLanguageCode := "EN"
+	o_Settings.Launch.strLanguageCode.IniValue := "EN"
 
 strLanguageFile := ""
 strReplacementForSemicolon := ""
 strLanguageStrings := ""
 ResetArray("arrLanguageBit")
+strDebugLanguageFile := ""
 
 return
 ;------------------------------------------------------------
@@ -3893,7 +3889,7 @@ StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
 StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
 
 loop, %g_arrOptionsLanguageCodes0%
-	if (g_arrOptionsLanguageCodes%A_Index% = g_strLanguageCode)
+	if (g_arrOptionsLanguageCodes%A_Index% = o_Settings.Launch.strLanguageCode.IniValue)
 		{
 			g_strLanguageLabel := g_arrOptionsLanguageLabels%A_Index%
 			break
@@ -4009,6 +4005,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 
 	g_blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
+	strLanguageCode := o_Settings.Launch.strLanguageCode.IniValue
 	strNavigateOrLaunchHotkeyMouseDefault := g_arrPopupHotkeyDefaults1 ; "MButton"
 	strNavigateOrLaunchHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults2 ; "W"
 	strAlternativeHotkeyMouseDefault := g_arrPopupHotkeyDefaults3 ; "+MButton"
@@ -4019,7 +4016,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 	FileAppend,
 		(LTrim Join`r`n
 			[Global]
-			LanguageCode=%g_strLanguageCode%
+			LanguageCode=%strLanguageCode%
 			ExplorerContextMenus=%g_blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
@@ -4252,6 +4249,7 @@ Gosub, LoadMenuFromIni
 
 Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
 
+strLanguageCode := ""
 ResetArray("arrMainMenu")
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
@@ -4358,7 +4356,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if (objCurrentMenu.MenuType = "External") and !FileExist(o_Settings.strIniFile)
 		{
 			objCurrentMenu.MenuLoaded := false
-			IniRead, strExternalErrorMessageExclusions, % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions, %A_Space%
+			strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFileMain)
 			if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
 			{
 				MsgBox, 52, %g_strAppNameText%, % lOopsErrorIniFileUnavailable . ":`n`n" . o_Settings.strIniFile
@@ -4370,7 +4368,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
 		}
 			
-		IniRead, strLoadIniLine, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine ; #####
+		strLoadIniLine := o_Settings.ReadIniValue("Favorite" . o_Settings.intIniLine, "", "Favorites")
 		; ###_V("Loop Begin", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
 		{
@@ -4411,14 +4409,15 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
-				IniRead, strLastModified, % objNewMenu.MenuExternalPath, Global, LastModified, %A_Space%
-				IniRead, blnLastModifiedFromSystem, % objNewMenu.MenuExternalPath, Global, LastModifiedFromSystem, %A_Space%
+				strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objNewMenu.MenuExternalPath)
+				blnLastModifiedFromSystem := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", objNewMenu.MenuExternalPath) ; ##### check
+				; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromSystem)
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
 				objNewMenu.MenuExternalLastModifiedFromSystem := blnLastModifiedFromSystem
 				
 				; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
-				IniRead, strMenuExternalReservedBy, % objNewMenu.MenuExternalPath, Global, MenuReservedBy, %A_Space%
+				strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objNewMenu.MenuExternalPath)
 				if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
 					IniWrite, % "", % objNewMenu.MenuExternalPath, Global, MenuReservedBy
 			}
@@ -4686,7 +4685,7 @@ strInstance := ""
 
 Loop
 {
-	IniRead, strIniLine, % o_Settings.strIniFile, Favorites, Favorite%A_Index%
+	strIniLine := o_Settings.ReadIniValue("Favorite" . A_Index, "", "Favorites")
 	if InStr(strIniLine, g_strAddThisMenuName . strInstance)
 		strInstance .= "+"
 	if (strIniLine = "ERROR")
@@ -4797,17 +4796,17 @@ ConvertLocationHotkeys:
 ;------------------------------------------------------------
 
 ; check if name-location hotkeys need to be converted to v8.8 favorites shortcut format
-IniRead, blnNameLocationHotkeysUpgraded, % o_Settings.strIniFile, Global, NameLocationHotkeysUpgraded, 0 ; default false
+blnNameLocationHotkeysUpgraded := o_Settings.ReadIniValue("NameLocationHotkeysUpgraded", 0) ; default false
 if (blnNameLocationHotkeysUpgraded) ; already upgraded, no need to convert
 	return
 
 ; check if location hotkeys need to be converted to v8.1 "name|location|hotkey" format before converting to v8.8 favorites shortcut format
-IniRead, blnHotkeysUpgradedToNameLocation, % o_Settings.strIniFile, Global, HotkeysUpgradedToNameLocation, 0 ; default false
+blnHotkeysUpgradedToNameLocation := o_Settings.ReadIniValue("HotkeysUpgradedToNameLocation", 0) ; default false
 
 blnNeedToSave := false
 Loop ; convert each LocationHotkeys to shortcut for the first favorites matching name and location
 {
-	IniRead, strLocationHotkey, % o_Settings.strIniFile, LocationHotkeys, Hotkey%A_Index%
+	strLocationHotkey := o_Settings.ReadIniValue("Hotkey" . A_Index, "", "LocationHotkeys")
 	if (strLocationHotkey = "ERROR")
 		break
 	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
@@ -4819,7 +4818,7 @@ Loop ; convert each LocationHotkeys to shortcut for the first favorites matching
 		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
 		Loop
 		{
-			IniRead, strLoadIniLine, % o_Settings.strIniFile, Favorites, Favorite%A_Index%
+			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . A_Index, "", "Favorites")
 			if (strLoadIniLine = "ERROR")
 				break
 			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
@@ -4924,8 +4923,8 @@ return
 LoadThemeGlobal:
 ;------------------------------------------------------------
 
-IniRead, g_strGuiWindowColor, % o_Settings.strIniFile, Gui-%g_strTheme%, WindowColor, E0E0E0
-IniRead, g_strMenuBackgroundColor, % o_Settings.strIniFile, Gui-%g_strTheme%, MenuBackgroundColor, FFFFFF
+g_strGuiWindowColor := o_Settings.ReadIniValue("WindowColor", E0E0E0, "Gui-" g_strTheme)
+g_strMenuBackgroundColor := o_Settings.ReadIniValue("MenuBackgroundColor", FFFFFF, "Gui-" . g_strTheme)
 
 return
 ;------------------------------------------------------------
@@ -8008,15 +8007,15 @@ IniWrite, %g_blnRunAsAdmin%, % o_Settings.strIniFile, Global, RunAsAdmin
 g_strHotstringsDefaultOptions := strNewHotstringsDefaultOptions
 IniWrite, %g_strHotstringsDefaultOptions%, % o_Settings.strIniFile, Global, HotstringsDefaultOptions
 
-strLanguageCodePrev := g_strLanguageCode
+strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
 loop, %g_arrOptionsLanguageLabels0%
 	if (g_arrOptionsLanguageLabels%A_Index% = g_strLanguageLabel)
 		{
-			g_strLanguageCode := g_arrOptionsLanguageCodes%A_Index%
+			o_Settings.Launch.strLanguageCode.IniValue := g_arrOptionsLanguageCodes%A_Index%
 			break
 		}
-IniWrite, %g_strLanguageCode%, % o_Settings.strIniFile, Global, LanguageCode
+IniWrite, % o_Settings.Launch.strLanguageCode.IniValue, % o_Settings.strIniFile, Global, LanguageCode
 
 strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
@@ -8225,12 +8224,12 @@ IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExc
 ; End of tabs
 
 ; if language, theme, temporary folder or database collect interval changed, offer to restart the app
-if (strLanguageCodePrev <> g_strLanguageCode)
+if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	or (strThemePrev <> g_strTheme)
 	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
 	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
 {
-	if (strLanguageCodePrev <> g_strLanguageCode)
+	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsLanguage, &
 		strValue := g_strLanguageLabel
@@ -8256,8 +8255,8 @@ if (strLanguageCodePrev <> g_strLanguageCode)
 		Gosub, ReloadQAP
 	else ; if user declines to reload, restore previous values
 	{
-		if (strLanguageCodePrev <> g_strLanguageCode)
-			g_strLanguageCode := strLanguageCodePrev
+		if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+			o_Settings.Launch.strLanguageCode.IniValue := strLanguageCodePrev
 		else if (strThemePrev <> g_strTheme)
 			g_strTheme := strThemePrev
 		else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
@@ -17894,7 +17893,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 				+ (8 * (o_FileManagers.ActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
 				+ (16 * (o_FileManagers.ActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
 	. "&lsys=" . A_Language
-	. "&lfp=" . g_strLanguageCode
+	. "&lfp=" . o_Settings.Launch.strLanguageCode.IniValue
 	. "&shd=" . "" ; strShell32Date not needed but keep empty value for MySQL database
 	. "&ird=" . "" ; strImageresDate not needed but keep empty value for MySQL database
 	. "&ini1=" . g_strIniBefore
