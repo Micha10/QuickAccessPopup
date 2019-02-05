@@ -3145,7 +3145,7 @@ if StrLen(o_CommandLineParameters.I["Settings"])
 
 global g_strQAPTempFolderParent
 If FileExist(o_Settings.strIniFile)
-	o_Settings.ReadIni("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General", 90) ; g_strQAPTempFolderParent
+	o_Settings.ReadIniOption("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General", 90) ; g_strQAPTempFolderParent
 
 if !StrLen(g_strQAPTempFolderParent)
 	if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
@@ -3300,7 +3300,7 @@ if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin be
 ; Now included in build menu
 ; Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
 
-IniWrite, %g_strCurrentVersion%, %g_strIniFile%, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
+IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (g_blnDiagMode)
 	Gosub, InitDiagMode
@@ -3341,8 +3341,8 @@ Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
 
-o_Settings.ReadIni("Menu-Advanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
-o_Settings.ReadIni("Menu-Advanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
+o_Settings.ReadIniOption("Menu-Advanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
+o_Settings.ReadIniOption("Menu-Advanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
 
 if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
@@ -3838,11 +3838,11 @@ if FileExist(strDebugLanguageFile)
 }
 else
 {
-	if !FileExist(g_strIniFile)
+	if !FileExist(o_Settings.strIniFile)
 		; read language code from ini file created by the Inno Setup script in the user data folder
 		IniRead, g_strLanguageCode, % A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini", Global , LanguageCode, EN
 	else
-		o_Settings.ReadIni("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15) ; g_strLanguageCode
+		o_Settings.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15) ; g_strLanguageCode
 
 	strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . g_strLanguageCode . ".txt"
 }
@@ -3999,7 +3999,7 @@ Gosub, BackupIniFile
 ; reinit after Settings save if already exist
 g_objMenuInGui := Object() ; object of menu currently in Gui
 
-g_blnIniFileCreation := !FileExist(g_strIniFile)
+g_blnIniFileCreation := !FileExist(o_Settings.strIniFile)
 if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was created by ImportFavoritesFP2QAP.ahk during install
 {
 	g_strIniBefore := "NEW"
@@ -4076,16 +4076,16 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			Favorite17=Z
 
 ) ; leave the last extra line above
-			, %g_strIniFile%, % (A_IsUnicode ? "UTF-16" : "")
+			, % o_Settings.strIniFile, % (A_IsUnicode ? "UTF-16" : "")
 }
 else
 {
 	g_strIniBefore := "DONT"
-	o_Settings.ReadIni("Setting file", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
+	o_Settings.ReadIniOption("Setting file", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
 	if !(blnDoNotConvertSettingsToUnicode)
 	{
 		; check if the ini file is Unicode
-		objIniFile := FileOpen(g_strIniFile, "r") ; open the file read-only
+		objIniFile := FileOpen(o_Settings.strIniFile, "r") ; open the file read-only
 		strFileEncoding := (InStr(objIniFile.Encoding, "UTF-") ? objIniFile.Encoding : "")
 		objIniFile.Close()
 		g_strIniBefore := strFileEncoding
@@ -4101,7 +4101,7 @@ else
 			Gui, Add, Text, w500 , % L("~1~ ""one-time"" maintenance", g_strAppNameText)
 			Gui, Font, w400 s9, Segoe UI
 			Gui, Add, Text, w500 , % L("~1~ is about to convert your settings file`n~2~`nfrom ANSI to Unicode encoding."
-				, g_strAppNameText, g_strIniFile)
+				, g_strAppNameText, o_Settings.strIniFile)
 			Gui, Add, Text, w500 , This change will allow the use of extended characters in favorite's name, location or content, etc.
 			Gui, Add, Text, w500 , If you encounter issues with special characters in your menu after the conversion, you can revert to the previous file.
 			Gui, Add, Link, w500 , % L("See this <a href=""~1~"">FAQ page</a> for help now. Or search the <a href=""~1~"">FAQ</a> for ""Unicode"" later."
@@ -4123,52 +4123,52 @@ Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; load from ini file and enable Alt
 ; ---------------------
 ; Load Options Tab 1 General
 
-o_Settings.ReadIni("Menu Popup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
+o_Settings.ReadIniOption("Menu Popup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
 if (g_blnChangeFolderInDialog)
-	o_Settings.ReadIni("Menu Popup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
+	o_Settings.ReadIniOption("Menu Popup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
-o_Settings.ReadIni("Setting window", "strTheme", "Theme", "Windows", "Setting window", 30) ; g_strTheme
-o_Settings.ReadIni("Setting window", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
+o_Settings.ReadIniOption("Setting window", "strTheme", "Theme", "Windows", "Setting window", 30) ; g_strTheme
+o_Settings.ReadIniOption("Setting window", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
-o_Settings.ReadIni("Settings file", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
+o_Settings.ReadIniOption("Settings file", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
 ; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
 
-o_Settings.ReadIni("Settings window", "blnAddAutoAtTop", "AddAutoAtTop", 0, "Settings window", 40) ; g_blnAddAutoAtTop
-o_Settings.ReadIni("Launch", "blnDisplayTrayTip", "DisplayTrayTip", 1, "General", 20) ; g_blnDisplayTrayTip
-o_Settings.ReadIni("Launch", "blnCheck4Update", "Check4Update", (g_blnPortableMode ? 0 : 1), "General", 30) ; g_blnCheck4Update ; enable by default only in setup install mode
-o_Settings.ReadIni("Settings window", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "Settings window", 10) ; g_blnRememberSettingsPosition
-o_Settings.ReadIni("Settings window", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "Settings window", 20) ; g_blnOpenSettingsOnActiveMonitor
+o_Settings.ReadIniOption("Settings window", "blnAddAutoAtTop", "AddAutoAtTop", 0, "Settings window", 40) ; g_blnAddAutoAtTop
+o_Settings.ReadIniOption("Launch", "blnDisplayTrayTip", "DisplayTrayTip", 1, "General", 20) ; g_blnDisplayTrayTip
+o_Settings.ReadIniOption("Launch", "blnCheck4Update", "Check4Update", (g_blnPortableMode ? 0 : 1), "General", 30) ; g_blnCheck4Update ; enable by default only in setup install mode
+o_Settings.ReadIniOption("Settings window", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "Settings window", 10) ; g_blnRememberSettingsPosition
+o_Settings.ReadIniOption("Settings window", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "Settings window", 20) ; g_blnOpenSettingsOnActiveMonitor
 
-o_Settings.ReadIni("Snippets", "blnSnippetDefaultProcessEOLTab", "SnippetDefaultProcessEOLTab", 1, "Snippets", 10) ; g_blnSnippetDefaultProcessEOLTab
-o_Settings.ReadIni("Snippets", "blnSnippetDefaultFixedFont", "SnippetDefaultFixedFont", 0, "Snippets", 20) ; g_blnSnippetDefaultFixedFont
-o_Settings.ReadIni("Snippets", "intSnippetDefaultFontSize", "SnippetDefaultFontSize", 10, "Snippets", 30) ; g_intSnippetDefaultFontSize
-o_Settings.ReadIni("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 0, "Snippets", 40) ; g_blnSnippetDefaultMacro
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultProcessEOLTab", "SnippetDefaultProcessEOLTab", 1, "Snippets", 10) ; g_blnSnippetDefaultProcessEOLTab
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultFixedFont", "SnippetDefaultFixedFont", 0, "Snippets", 20) ; g_blnSnippetDefaultFixedFont
+o_Settings.ReadIniOption("Snippets", "intSnippetDefaultFontSize", "SnippetDefaultFontSize", 10, "Snippets", 30) ; g_intSnippetDefaultFontSize
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 0, "Snippets", 40) ; g_blnSnippetDefaultMacro
 
 ; ---------------------
 ; Load Options Tab 2 Menu
 
-o_Settings.ReadIni("Menu Popup", "intPopupMenuPosition", "PopupMenuPosition", 1, "Menu Popup", 10) ; g_intPopupMenuPosition
-o_Settings.ReadIni("Menu Popup", "strPopupFixPosition", "PopupFixPosition", "20,20", "Menu Popup", 12) ; strPopupFixPosition
+o_Settings.ReadIniOption("Menu Popup", "intPopupMenuPosition", "PopupMenuPosition", 1, "Menu Popup", 10) ; g_intPopupMenuPosition
+o_Settings.ReadIniOption("Menu Popup", "strPopupFixPosition", "PopupFixPosition", "20,20", "Menu Popup", 12) ; strPopupFixPosition
 StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
 
-o_Settings.ReadIni("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
+o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
 
 if !(g_blnPortableMode)
-	o_Settings.ReadIni("Menu Popup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "Menu Popup", 20) ; g_blnExplorerContextMenus
+	o_Settings.ReadIniOption("Menu Popup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "Menu Popup", 20) ; g_blnExplorerContextMenus
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 
-o_Settings.ReadIni("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "Menu appearance", 80) ; g_intRecentFoldersMax
-o_Settings.ReadIni("Menu", "intNbLastActions", "NbLastActions", 10, "Menu appearance", 10) ; g_intNbLastActions
+o_Settings.ReadIniOption("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "Menu appearance", 80) ; g_intRecentFoldersMax
+o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "Menu appearance", 10) ; g_intNbLastActions
 
-o_Settings.ReadIni("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
-o_Settings.ReadIni("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
-o_Settings.ReadIni("Menu Popup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
-o_Settings.ReadIni("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
+o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
+o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
+o_Settings.ReadIniOption("Menu Popup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
+o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
 
-o_Settings.ReadIni("Menu Icons", "blnDisplayIcons", "DisplayIcons", 1, "Menu Icons", 10) ; g_blnDisplayIcons
-o_Settings.ReadIni("Menu Icons", "intIconSize", "iniName", 32, "Menu Icons", 20) ; g_intIconSize
-o_Settings.ReadIni("Menu Icons", "intIconsManageRowsSettings", "IconsManageRows", 0, "Menu Icons", 30) ; g_intIconsManageRowsSettings
+o_Settings.ReadIniOption("Menu Icons", "blnDisplayIcons", "DisplayIcons", 1, "Menu Icons", 10) ; g_blnDisplayIcons
+o_Settings.ReadIniOption("Menu Icons", "intIconSize", "iniName", 32, "Menu Icons", 20) ; g_intIconSize
+o_Settings.ReadIniOption("Menu Icons", "intIconsManageRowsSettings", "IconsManageRows", 0, "Menu Icons", 30) ; g_intIconsManageRowsSettings
 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
@@ -4176,10 +4176,10 @@ o_Settings.ReadIni("Menu Icons", "intIconsManageRowsSettings", "IconsManageRows"
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
-o_Settings.ReadIni("Menu Popup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
+o_Settings.ReadIniOption("Menu Popup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
 
-o_Settings.ReadIni("o_QAPfeatures", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
-o_Settings.ReadIni("o_QAPfeatures", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
+o_Settings.ReadIniOption("o_QAPfeatures", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
+o_Settings.ReadIniOption("o_QAPfeatures", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
 
 ; ---------------------
 ; Load Options Tab 5 File Managers
@@ -4192,59 +4192,58 @@ global o_FileManagers := new FileManagers
 
 ; ExclusionMouseList
 
-o_Settings.ReadIni("Menu Popup", "strExclusionMouseList", "ExclusionMouseList", " ", "Menu Popup", 80) ; g_strExclusionMouseList
+o_Settings.ReadIniOption("Menu Popup", "strExclusionMouseList", "ExclusionMouseList", " ", "Menu Popup", 80) ; g_strExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
-; IniRead, g_strExclusionKeyboardList, %g_strIniFile%, Global, ExclusionKeyboardList, %A_Space% ; empty string if not found
 
 ; UsageDb
-o_Settings.ReadIni("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
+o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
 g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
-o_Settings.ReadIni("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", 30) ; g_intUsageDbDaysInPopular
-o_Settings.ReadIni("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", 40) ; g_fltUsageDbMaximumSize
-o_Settings.ReadIni("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", 50) ; g_blnUsageDbShowPopularityIndex
-o_Settings.ReadIni("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_strUserVariablesList
+o_Settings.ReadIniOption("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", 30) ; g_intUsageDbDaysInPopular
+o_Settings.ReadIniOption("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", 40) ; g_fltUsageDbMaximumSize
+o_Settings.ReadIniOption("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", 50) ; g_blnUsageDbShowPopularityIndex
+o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_strUserVariablesList
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
-o_Settings.ReadIni("User Variables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
-o_Settings.ReadIni("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
-o_Settings.ReadIni("Menu Icons", "strIconReplacementList", "strIconReplacementList", " ", "Menu Icons", 40) ; g_strIconReplacementList
+o_Settings.ReadIniOption("User Variables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
+o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
+o_Settings.ReadIniOption("Menu Icons", "strIconReplacementList", "strIconReplacementList", " ", "Menu Icons", 40) ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(g_strIconReplacementList)
 
 ; ---------------------
 ; Load internal flags and various values
 
-IniRead, g_blnDiagMode, %g_strIniFile%, Global, DiagMode, 0
-IniRead, g_blnDonor, %g_strIniFile%, Global, Donor, 0 ; Please, be fair. Don't cheat with this.
-IniRead, g_strUserBanner, %g_strIniFile%, Global, UserBanner, %A_Space%
-IniRead, blnDefaultDynamicMenusBuilt, %g_strIniFile%, Global, DefaultDynamicMenusBuilt, 0 ; default false
+o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
+o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0) ; Please, be fair. Don't cheat with this.; g_
+o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
+o_Settings.ReadIniOption("Launch", "blnDefaultDynamicMenusBuilt", "DefaultDynamicMenusBuilt", 0) ; blnDefaultDynamicMenusBuilt
 if !(blnDefaultDynamicMenusBuilt)
  	Gosub, AddToIniDynamicDefaultMenu ; modify the ini file Favorites section before reading it
-IniRead, blnDefaultWindowsAppsMenuBuilt, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt, 0 ; default false
+o_Settings.ReadIniOption("Launch", "blnDefaultWindowsAppsMenuBuilt", "DefaultWindowsAppsMenuBuilt", 0) ; blnDefaultWindowsAppsMenuBuilt
 if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
  	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
-IniRead, blnDefaultMenuBuilt, %g_strIniFile%, Global, DefaultMenuBuilt, 0 ; default false
+o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-IniRead, g_intClipboardMaxSize, %g_strIniFile%, Global, ClipboardMaxSize, 10000 ; default 10000 chars
+o_Settings.ReadIniOption("Menu-Advanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
-IniRead, g_intDynamicMenusRefreshRate, %g_strIniFile%, Global, DynamicMenusRefreshRate, 10000 ; default 10000 ms
-IniRead, g_intNbLiveFolderItemsMax, %g_strIniFile%, Global, NbLiveFolderItemsMax ; ERROR if not found
+o_Settings.ReadIniOption("Menu-Advanced", "intDynamicMenusRefreshRate", "DynamicMenusRefreshRate", 10000, "Advanced", 5) ; default 10000 ms ; g_intDynamicMenusRefreshRate
+o_Settings.ReadIniOption("Menu-Advanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (g_intNbLiveFolderItemsMax = "ERROR")
 {
 	g_intNbLiveFolderItemsMax := 500
-	IniWrite, %g_intNbLiveFolderItemsMax%, %g_strIniFile%, Global, NbLiveFolderItemsMax
+	IniWrite, %g_intNbLiveFolderItemsMax%, % o_Settings.strIniFile, Global, NbLiveFolderItemsMax
 }
-IniRead, g_intWaitDelayInDialogBox, %g_strIniFile%, Global, WaitDelayInDialogBox, 100 ; default 100 ms
-IniRead, strWaitDelayInSnippet, %g_strIniFile%, Global, WaitDelayInSnippet, 40|80|180 ; default 300 ms (split in three sleep commands)
+o_Settings.ReadIniOption("Dialog boxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
+o_Settings.ReadIniOption("Snippets", "strWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
-IniRead, g_blnSendToConsoleWithAlt, %g_strIniFile%, Global, SendToConsoleWithAlt, 1 ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes
-IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false, if true reload QAP as admin
-IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
-IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
-IniRead, g_blnTryWindowPosition, %g_strIniFile%, Global, TryWindowPosition, 0 ; default false
+o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "Advanced", order) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
+o_Settings.ReadIniOption("Launch-Advanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "Advanced", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
+o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "Advanced", 60) ; g_strHotstringsDefaultOptions
+o_Settings.ReadIniOption("Launch-Advanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "Advanced", 10) ; g_blnRefreshWindowsAppsListAtStartup
+o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "Advanced", 45) ; g_blnTryWindowPosition
 
 ; ---------------------
 ; Load favorites
@@ -4263,7 +4262,7 @@ blnDefaultMenuBuilt := ""
 ResetArray("arrThisFavorite")
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
-g_intIniLine := ""
+o_Settings.intIniLine := ""
 strActiveFileManagerSystemName := ""
 strFileList := ""
 intNumberOfBackups := ""
@@ -4284,11 +4283,11 @@ ConvertSettingsEncoding:
 
 if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 {
-	FileCopy, %g_strIniFile%, %g_strIniFile%-ANSI-BK, 1 ; the backup file should not exist but, in case, overwrite it
-	FileRead, strIniFileContent, %g_strIniFile% ; read the actual ANSI file
-	FileDelete, %g_strIniFile% ; delete the ini file
+	FileCopy, % o_Settings.strIniFile, % o_Settings.strIniFile . "-ANSI-BK", 1 ; the backup file should not exist but, in case, overwrite it
+	FileRead, strIniFileContent, % o_Settings.strIniFile ; read the actual ANSI file
+	FileDelete, % o_Settings.strIniFile ; delete the ini file
 	Sleep, 20 ; safety
-	FileAppend, %strIniFileContent%, %g_strIniFile%, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
+	FileAppend, %strIniFileContent%, % o_Settings.strIniFile, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
 	
 	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion)
 		, % "Your settings file has been converted to the Unicode encoding.`n`n"
@@ -4300,7 +4299,7 @@ if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 }
 else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
 	
-	IniWrite, 1, %g_strIniFile%, Global, DoNotConvertSettingsToUnicode
+	IniWrite, 1, % o_Settings.strIniFile, Global, DoNotConvertSettingsToUnicode
 	
 ; else do nothing
 
@@ -4316,7 +4315,7 @@ LoadMenuFromIni:
 LoadMenuFromIniWithStatus:
 ;------------------------------------------------------------
 
-if !FileExist(g_strIniFile)
+if !FileExist(o_Settings.strIniFile)
 {
 	Oops(lOopsWriteProtectedError, g_strAppNameText)
 	ExitApp
@@ -4333,7 +4332,7 @@ else
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
-	g_intIniLine := 1
+	o_Settings.intIniLine := 1
 	if (RecursiveLoadMenuFromIni(g_objMainMenu, g_blnWorkingToolTip) <> "EOM") ; build menu tree
 		ExitApp
 }
@@ -4349,33 +4348,33 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 	; intMenuItemPos := 0
 	
-	; ###_V("RecursiveLoadMenuFromIni Begin", g_strIniFile, g_intIniLine)
+	; ###_V("RecursiveLoadMenuFromIni Begin", o_Settings.strIniFile, o_Settings.intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu)
 	if (blnWorkingToolTip)
 		Tooltip, % lToolTipLoading . "`n" . objCurrentMenu.MenuPath
 
 	Loop
 	{
-		if (objCurrentMenu.MenuType = "External") and !FileExist(g_strIniFile)
+		if (objCurrentMenu.MenuType = "External") and !FileExist(o_Settings.strIniFile)
 		{
 			objCurrentMenu.MenuLoaded := false
-			IniRead, strExternalErrorMessageExclusions, %g_strIniFileMain%, Global, ExternalErrorMessageExclusions, %A_Space%
-			if !InStr(strExternalErrorMessageExclusions, g_strIniFile)
+			IniRead, strExternalErrorMessageExclusions, % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions, %A_Space%
+			if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
 			{
-				MsgBox, 52, %g_strAppNameText%, % lOopsErrorIniFileUnavailable . ":`n`n" . g_strIniFile
+				MsgBox, 52, %g_strAppNameText%, % lOopsErrorIniFileUnavailable . ":`n`n" . o_Settings.strIniFile
 					. "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText)
 					. "`n`n" . lOopsErrorIniFileDisplayErrorMessage
 				IfMsgBox, No
-					IniWrite, %strExternalErrorMessageExclusions%%g_strIniFile%|, %g_strIniFileMain%, Global, ExternalErrorMessageExclusions
+					IniWrite, % strExternalErrorMessageExclusions . o_Settings.o_Settings.strIniFile . "|", % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions
 			}
 			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
 		}
 			
-		IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
-		; ###_V("Loop Begin", g_strIniFile, g_intIniLine, strLoadIniLine)
+		IniRead, strLoadIniLine, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine ; #####
+		; ###_V("Loop Begin", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
 		{
-			Oops(lOopsErrorReadingIniFile . "`n`n" . g_strIniFile . "`nFavorite" . g_intIniLine . "=")
+			Oops(lOopsErrorReadingIniFile . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
 			objCurrentMenu.MenuLoaded := false
 			if (objCurrentMenu.MenuType = "External")
 				return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuLoaded false - external menu will stop at the previous favorite
@@ -4384,7 +4383,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		}
 		else
 			objCurrentMenu.MenuLoaded := true
-        g_intIniLine++
+        o_Settings.intIniLine++
 		
 		strLoadIniLine := strLoadIniLine . "||||||||||||||||||||||||||||||" ; additional "|" to make sure we have all empty items
 		; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
@@ -4398,7 +4397,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if (arrThisFavorite1 = "Z")
 			return, "EOM" ; end of menu
 		; else
-		;	###_V("Loop PAS Z", g_strIniFile, g_intIniLine, strLoadIniLine)
+		;	###_V("Loop PAS Z", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 		
 		objLoadIniFavorite := Object() ; new favorite item
 		
@@ -4433,12 +4432,12 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			
 			if (arrThisFavorite1 = "External")
 			{
-				strPreviousIniFile := g_strIniFile
-				intPreviousIniLine := g_intIniLine
-				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
-				g_intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
-				if !StrLen(g_intIniLine)
-					g_intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+				strPreviousIniFile := o_Settings.strIniFile
+				intPreviousIniLine := o_Settings.intIniLine
+				o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
+				o_Settings.intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+				if !StrLen(o_Settings.intIniLine)
+					o_Settings.intIniLine := 1 ; always 1 for menu added since v8.1.9.1
 			}
 			
 			; build the submenu
@@ -4446,8 +4445,8 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			
 			if (arrThisFavorite1 = "External")
 			{
-				g_strIniFile := strPreviousIniFile
-				g_intIniLine := intPreviousIniLine
+				o_Settings.strIniFile := strPreviousIniFile
+				o_Settings.intIniLine := intPreviousIniLine
 			}
 			
 			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
@@ -4515,7 +4514,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		
 		; if !InStr("X|K", objLoadIniFavorite.FavoriteType) ; menu separators and column breaks do not use a item position numeric shortcut number
 		;	intMenuItemPos++
-		; ###_V("Loop Fin", g_strIniFile, g_intIniLine, strLoadIniLine)
+		; ###_V("Loop Fin", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 	}
 }
 ;-----------------------------------------------------------
@@ -4556,7 +4555,7 @@ AddToIniOneDefaultMenu("", "", "Z") ; close Windows Apps menu
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
-IniWrite, 1, %g_strIniFile%, Global, DefaultWindowsAppsMenuBuilt
+IniWrite, 1, % o_Settings.strIniFile, Global, DefaultWindowsAppsMenuBuilt
 
 g_intNextFavoriteNumber := ""
 g_strAddThisMenuName := ""
@@ -4638,7 +4637,7 @@ if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.objQAPFeaturesCodeByDefault
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
-IniWrite, 1, %g_strIniFile%, Global, DefaultMenuBuilt
+IniWrite, 1, % o_Settings.strIniFile, Global, DefaultMenuBuilt
 
 g_intNextFavoriteNumber := ""
 g_strAddThisMenuName := ""
@@ -4671,7 +4670,7 @@ AddToIniOneDefaultMenu("", "", "Z") ; close Popular Contents menu
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
 
-IniWrite, 1, %g_strIniFile%, Global, DefaultDynamicMenusBuilt
+IniWrite, 1, % o_Settings.strIniFile, Global, DefaultDynamicMenusBuilt
 
 g_strAddThisMenuNameWithInstance := "" ; last used here
 
@@ -4687,7 +4686,7 @@ strInstance := ""
 
 Loop
 {
-	IniRead, strIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
+	IniRead, strIniLine, % o_Settings.strIniFile, Favorites, Favorite%A_Index%
 	if InStr(strIniLine, g_strAddThisMenuName . strInstance)
 		strInstance .= "+"
 	if (strIniLine = "ERROR")
@@ -4747,7 +4746,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
 	
-	IniWrite, %strNewIniLine%, %g_strIniFile%, Favorites, Favorite%g_intNextFavoriteNumber%
+	IniWrite, %strNewIniLine%, % o_Settings.strIniFile, Favorites, Favorite%g_intNextFavoriteNumber%
 	g_intNextFavoriteNumber++
 }
 ;------------------------------------------------------------
@@ -4771,7 +4770,7 @@ for strCode, objThisQAPFeature in o_QAPfeatures.I
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 {
-	IniRead, strHotkey,  %g_strIniFile%, AlternativeMenuHotkeys, %strCode%
+	IniRead, strHotkey,  % o_Settings.strIniFile, AlternativeMenuHotkeys, %strCode%
 	if (strHotkey <> "ERROR")
 	{
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
@@ -4797,17 +4796,17 @@ ConvertLocationHotkeys:
 ;------------------------------------------------------------
 
 ; check if name-location hotkeys need to be converted to v8.8 favorites shortcut format
-IniRead, blnNameLocationHotkeysUpgraded, %g_strIniFile%, Global, NameLocationHotkeysUpgraded, 0 ; default false
+IniRead, blnNameLocationHotkeysUpgraded, % o_Settings.strIniFile, Global, NameLocationHotkeysUpgraded, 0 ; default false
 if (blnNameLocationHotkeysUpgraded) ; already upgraded, no need to convert
 	return
 
 ; check if location hotkeys need to be converted to v8.1 "name|location|hotkey" format before converting to v8.8 favorites shortcut format
-IniRead, blnHotkeysUpgradedToNameLocation, %g_strIniFile%, Global, HotkeysUpgradedToNameLocation, 0 ; default false
+IniRead, blnHotkeysUpgradedToNameLocation, % o_Settings.strIniFile, Global, HotkeysUpgradedToNameLocation, 0 ; default false
 
 blnNeedToSave := false
 Loop ; convert each LocationHotkeys to shortcut for the first favorites matching name and location
 {
-	IniRead, strLocationHotkey, %g_strIniFile%, LocationHotkeys, Hotkey%A_Index%
+	IniRead, strLocationHotkey, % o_Settings.strIniFile, LocationHotkeys, Hotkey%A_Index%
 	if (strLocationHotkey = "ERROR")
 		break
 	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
@@ -4819,7 +4818,7 @@ Loop ; convert each LocationHotkeys to shortcut for the first favorites matching
 		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
 		Loop
 		{
-			IniRead, strLoadIniLine, %g_strIniFile%, Favorites, Favorite%A_Index%
+			IniRead, strLoadIniLine, % o_Settings.strIniFile, Favorites, Favorite%A_Index%
 			if (strLoadIniLine = "ERROR")
 				break
 			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
@@ -4847,12 +4846,12 @@ if (blnNeedToSave)
 {
 	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion)
 		, % L("Hotkeys section in your settings file has been upgraded for this version (~1~). The upgraded settings will be saved.", g_strAppVersion)
-	FileCopy, %g_strIniFile%, %g_strIniFile%-pre_v8_8_hotkeys-BK, 1 ; the backup file should not exist but, in case, overwrite it
+	FileCopy, % o_Settings.strIniFile, % o_Settings.strIniFile . "-pre_v8_8_hotkeys-BK", 1 ; the backup file should not exist but, in case, overwrite it
 	; must be after FileCopy
-	IniRead, strHotkeysIniSection, %g_strIniFile%, LocationHotkeys
-	IniWrite, %strHotkeysIniSection%, %g_strIniFile%, LocationHotkeys-pre_v8_8_hotkeys-BK
-	IniDelete, %g_strIniFile%, LocationHotkeys
-	IniWrite, 1, %g_strIniFile%, Global, NameLocationHotkeysUpgraded
+	IniRead, strHotkeysIniSection, % o_Settings.strIniFile, LocationHotkeys
+	IniWrite, %strHotkeysIniSection%, % o_Settings.strIniFile, LocationHotkeys-pre_v8_8_hotkeys-BK
+	IniDelete, % o_Settings.strIniFile, LocationHotkeys
+	IniWrite, 1, % o_Settings.strIniFile, Global, NameLocationHotkeysUpgraded
 	Gosub, GuiSaveAndReloadQAP
 }
 
@@ -4883,7 +4882,7 @@ MsgBox, 52, %g_strAppNameText%, % L(lDiagModeCaution, g_strAppNameText, g_strDia
 IfMsgBox, No
 {
 	g_blnDiagMode := False
-	IniWrite, 0, %g_strIniFile%, Global, DiagMode
+	IniWrite, 0, % o_Settings.strIniFile, Global, DiagMode
 	return
 }
 
@@ -4904,7 +4903,7 @@ if !FileExist(g_strDiagFile)
 	Diag("Recent Items Folder" , strUsageDbRecentsFolder, "")
 }
 
-FileRead, strIniFileContent, %g_strIniFile%
+FileRead, strIniFileContent, % o_Settings.strIniFile
 StringReplace, strIniFileContent, strIniFileContent, `", `"`"
 Diag("IniFile", "`n""" . strIniFileContent . """`n", "")
 FileAppend, `n, %g_strDiagFile% ; required when the last line of the existing file ends with "
@@ -4924,8 +4923,8 @@ return
 LoadThemeGlobal:
 ;------------------------------------------------------------
 
-IniRead, g_strGuiWindowColor, %g_strIniFile%, Gui-%g_strTheme%, WindowColor, E0E0E0
-IniRead, g_strMenuBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, MenuBackgroundColor, FFFFFF
+IniRead, g_strGuiWindowColor, % o_Settings.strIniFile, Gui-%g_strTheme%, WindowColor, E0E0E0
+IniRead, g_strMenuBackgroundColor, % o_Settings.strIniFile, Gui-%g_strTheme%, MenuBackgroundColor, FFFFFF
 
 return
 ;------------------------------------------------------------
@@ -4957,10 +4956,10 @@ CleanUpBeforeExit:
 ; if (g_blnDiagMode)
 	; Diag("ListLines", ScriptInfo("ListLines"))
 
-if FileExist(g_strIniFile) ; in case user deleted the ini file to create a fresh one, this avoids creating an ini file with just this value
+if FileExist(o_Settings.strIniFile) ; in case user deleted the ini file to create a fresh one, this avoids creating an ini file with just this value
 {
 	SaveWindowPosition("SettingsPosition", "ahk_id " . g_strAppHwnd)
-	IniWrite, % GetScreenConfiguration(), %g_strIniFile%, Global, LastScreenConfiguration
+	IniWrite, % GetScreenConfiguration(), % o_Settings.strIniFile, Global, LastScreenConfiguration
 }
 
 FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
@@ -5023,7 +5022,7 @@ SetTrayMenuIcon:
 ;------------------------------------------------------------
 
 Menu, Tray, NoStandard
-IniRead, strAlternativeTrayIcon, %g_strIniFile%, Global, AlternativeTrayIcon ; returns ERROR if not found
+IniRead, strAlternativeTrayIcon, % o_Settings.strIniFile, Global, AlternativeTrayIcon ; returns ERROR if not found
 
 Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
 if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
@@ -6002,7 +6001,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	objTCMenu.MenuPath := lTCMenuName ; localized name of the TC menu
 	objTCMenu.MenuType := "Menu"
 	
-	g_intIniLine := 1
+	o_Settings.intIniLine := 1
 	if (RecursiveLoadTotalCommanderHotlistFromIni(objTCMenu) <> "EOM") ; build menu tree
 		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
 	
@@ -6032,13 +6031,13 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 
 	Loop
 	{
-		IniRead, strWinCmdItemName, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, menu%g_intIniLine%
+		IniRead, strWinCmdItemName, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, % "menu" . o_Settings.intIniLine
 		if (strWinCmdItemName = "ERROR")
 			Return, "EOM" ; end of file, last menu item
 	
-		IniRead, strWinCmdItemCommand, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, cmd%g_intIniLine%, %A_Space% ; empty by default
-		; not used IniRead, strWinCmdPathLine, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, path%g_intIniLine%, %A_Space% ; empty by default
-        g_intIniLine++
+		IniRead, strWinCmdItemCommand, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, "cmd" . o_Settings.intIniLine, %A_Space% ; empty by default
+		; not used IniRead, strWinCmdPathLine, % o_FileManagers.I[3].strTCIniFileExpanded, DirMenu, "path" . o_Settings.intIniLine, %A_Space% ; empty by default
+        o_Settings.intIniLine++
 	
 		if (strWinCmdItemName = "--")
 			return, "EOM" ; end of menu
@@ -7599,7 +7598,7 @@ Gui, 3:Submit, NoHide
 if (A_ThisLabel = "ChangeFoldersInDialogOK")
 {
 	GuiControl, 2:, f_blnChangeFolderInDialog, 1
-	IniWrite, 1, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk
+	IniWrite, 1, % o_Settings.strIniFile, Global, UnderstandChangeFoldersInDialogRisk
 }
 
 Gosub, 3GuiClose
@@ -7613,7 +7612,7 @@ EnableExternalMenusCatalogueClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-IniRead, blnExternalMenusCataloguePathReadOnly, %g_strIniFile%, Global, ExternalMenusCataloguePathReadOnly, 0 ; false if not found
+IniRead, blnExternalMenusCataloguePathReadOnly, % o_Settings.strIniFile, Global, ExternalMenusCataloguePathReadOnly, 0 ; false if not found
 strEnableCommand := (blnExternalMenusCataloguePathReadOnly ? "Disable" : "Enable")
 GuiControl, 2:%strEnableCommand%, f_blnEnableExternalMenusCatalogue
 GuiControl, 2:%strEnableCommand%, f_strExternalMenusCataloguePath
@@ -7991,22 +7990,22 @@ if (f_blnOptionsRunAtStartup)
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 g_blnAddAutoAtTop := f_blnAddAutoAtTop0
-IniWrite, %g_blnAddAutoAtTop%, %g_strIniFile%, Global, AddAutoAtTop
+IniWrite, %g_blnAddAutoAtTop%, % o_Settings.strIniFile, Global, AddAutoAtTop
 g_blnDisplayTrayTip := f_blnDisplayTrayTip
-IniWrite, %g_blnDisplayTrayTip%, %g_strIniFile%, Global, DisplayTrayTip
+IniWrite, %g_blnDisplayTrayTip%, % o_Settings.strIniFile, Global, DisplayTrayTip
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
-IniWrite, %g_blnChangeFolderInDialog%, %g_strIniFile%, Global, ChangeFolderInDialog
+IniWrite, %g_blnChangeFolderInDialog%, % o_Settings.strIniFile, Global, ChangeFolderInDialog
 g_blnCheck4Update := f_blnCheck4Update
-IniWrite, %g_blnCheck4Update%, %g_strIniFile%, Global, Check4Update
+IniWrite, %g_blnCheck4Update%, % o_Settings.strIniFile, Global, Check4Update
 g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
-IniWrite, %g_blnRememberSettingsPosition%, %g_strIniFile%, Global, RememberSettingsPosition
+IniWrite, %g_blnRememberSettingsPosition%, % o_Settings.strIniFile, Global, RememberSettingsPosition
 g_blnOpenSettingsOnActiveMonitor := f_blnOpenSettingsOnActiveMonitor
-IniWrite, %g_blnOpenSettingsOnActiveMonitor%, %g_strIniFile%, Global, OpenSettingsOnActiveMonitor
+IniWrite, %g_blnOpenSettingsOnActiveMonitor%, % o_Settings.strIniFile, Global, OpenSettingsOnActiveMonitor
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
-IniWrite, %g_blnRunAsAdmin%, %g_strIniFile%, Global, RunAsAdmin
+IniWrite, %g_blnRunAsAdmin%, % o_Settings.strIniFile, Global, RunAsAdmin
 g_strHotstringsDefaultOptions := strNewHotstringsDefaultOptions
-IniWrite, %g_strHotstringsDefaultOptions%, %g_strIniFile%, Global, HotstringsDefaultOptions
+IniWrite, %g_strHotstringsDefaultOptions%, % o_Settings.strIniFile, Global, HotstringsDefaultOptions
 
 strLanguageCodePrev := g_strLanguageCode
 g_strLanguageLabel := f_drpLanguage
@@ -8016,33 +8015,33 @@ loop, %g_arrOptionsLanguageLabels0%
 			g_strLanguageCode := g_arrOptionsLanguageCodes%A_Index%
 			break
 		}
-IniWrite, %g_strLanguageCode%, %g_strIniFile%, Global, LanguageCode
+IniWrite, %g_strLanguageCode%, % o_Settings.strIniFile, Global, LanguageCode
 
 strThemePrev := g_strTheme
 g_strTheme := f_drpTheme
-IniWrite, %g_strTheme%, %g_strIniFile%, Global, Theme
+IniWrite, %g_strTheme%, % o_Settings.strIniFile, Global, Theme
 
 strQAPTempFolderParentPrev := g_strQAPTempFolderParent
 if StrLen(f_strQAPTempFolderParentPath)
 {
 	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
-	IniWrite, %g_strQAPTempFolderParent%, %g_strIniFile%, Global, QAPTempFolder
+	IniWrite, %g_strQAPTempFolderParent%, % o_Settings.strIniFile, Global, QAPTempFolder
 }
 
 g_strBackupFolder := f_strBackupFolder
-IniWrite, %g_strBackupFolder%, %g_strIniFile%, Global, BackupFolder
+IniWrite, %g_strBackupFolder%, % o_Settings.strIniFile, Global, BackupFolder
 
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
-IniWrite, %g_strExternalMenusCataloguePath%, %g_strIniFile%, Global, ExternalMenusCataloguePath
+IniWrite, %g_strExternalMenusCataloguePath%, % o_Settings.strIniFile, Global, ExternalMenusCataloguePath
 
 g_blnSnippetDefaultProcessEOLTab := f_blnSnippetDefaultProcessEOLTab
-IniWrite, %g_blnSnippetDefaultProcessEOLTab%, %g_strIniFile%, Global, SnippetDefaultProcessEOLTab
+IniWrite, %g_blnSnippetDefaultProcessEOLTab%, % o_Settings.strIniFile, Global, SnippetDefaultProcessEOLTab
 g_blnSnippetDefaultFixedFont := f_blnSnippetDefaultFixedFont
-IniWrite, %g_blnSnippetDefaultFixedFont%, %g_strIniFile%, Global, SnippetDefaultFixedFont
+IniWrite, %g_blnSnippetDefaultFixedFont%, % o_Settings.strIniFile, Global, SnippetDefaultFixedFont
 g_intSnippetDefaultFontSize := f_intSnippetDefaultFontSize
-IniWrite, %g_intSnippetDefaultFontSize%, %g_strIniFile%, Global, SnippetDefaultFontSize
+IniWrite, %g_intSnippetDefaultFontSize%, % o_Settings.strIniFile, Global, SnippetDefaultFontSize
 g_blnSnippetDefaultMacro := f_blnSnippetDefaultMacro
-IniWrite, %g_blnSnippetDefaultMacro%, %g_strIniFile%, Global, SnippetDefaultMacro
+IniWrite, %g_blnSnippetDefaultMacro%, % o_Settings.strIniFile, Global, SnippetDefaultMacro
 
 ;---------------------------------------
 ; Save Tab 2: Menu options
@@ -8053,11 +8052,11 @@ else if (f_radPopupMenuPosition2)
 	g_intPopupMenuPosition := 2
 else
 	g_intPopupMenuPosition := 3
-IniWrite, %g_intPopupMenuPosition%, %g_strIniFile%, Global, PopupMenuPosition
+IniWrite, %g_intPopupMenuPosition%, % o_Settings.strIniFile, Global, PopupMenuPosition
 
 g_arrPopupFixPosition1 := f_intPopupFixPositionX
 g_arrPopupFixPosition2 := f_intPopupFixPositionY
-IniWrite, %g_arrPopupFixPosition1%`,%g_arrPopupFixPosition2%, %g_strIniFile%, Global, PopupFixPosition
+IniWrite, %g_arrPopupFixPosition1%`,%g_arrPopupFixPosition2%, % o_Settings.strIniFile, Global, PopupFixPosition
 
 if (f_radHotkeyReminders1)
 	g_intHotkeyReminders := 1
@@ -8065,7 +8064,7 @@ else if (f_radHotkeyReminders2)
 	g_intHotkeyReminders := 2
 else
 	g_intHotkeyReminders := 3
-IniWrite, %g_intHotkeyReminders%, %g_strIniFile%, Global, HotkeyReminders
+IniWrite, %g_intHotkeyReminders%, % o_Settings.strIniFile, Global, HotkeyReminders
 
 if !(g_blnPortableMode)
 {
@@ -8075,35 +8074,35 @@ if !(g_blnPortableMode)
 	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
 		gosub, DisableExplorerContextMenus
 		; else already disabled
-	IniWrite, %g_blnExplorerContextMenus%, %g_strIniFile%, Global, ExplorerContextMenus
+	IniWrite, %g_blnExplorerContextMenus%, % o_Settings.strIniFile, Global, ExplorerContextMenus
 }
 
 g_intRecentFoldersMax := f_intRecentFoldersMax
-IniWrite, %g_intRecentFoldersMax%, %g_strIniFile%, Global, RecentFoldersMax
+IniWrite, %g_intRecentFoldersMax%, % o_Settings.strIniFile, Global, RecentFoldersMax
 
 g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
-IniWrite, %g_blnRefreshedMenusAttached%, %g_strIniFile%, Global, RefreshedMenusAttached
+IniWrite, %g_blnRefreshedMenusAttached%, % o_Settings.strIniFile, Global, RefreshedMenusAttached
 g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
-IniWrite, %g_blnDisplayNumericShortcuts%, %g_strIniFile%, Global, DisplayMenuShortcuts
+IniWrite, %g_blnDisplayNumericShortcuts%, % o_Settings.strIniFile, Global, DisplayMenuShortcuts
 g_blnDisplayNumericShortcutsFromOne := f_blnDisplayNumericShortcutsFromOne
-IniWrite, %g_blnDisplayNumericShortcutsFromOne%, %g_strIniFile%, Global, DisplayMenuShortcutsFromOne
+IniWrite, %g_blnDisplayNumericShortcutsFromOne%, % o_Settings.strIniFile, Global, DisplayMenuShortcutsFromOne
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
-IniWrite, %g_blnOpenMenuOnTaskbar%, %g_strIniFile%, Global, OpenMenuOnTaskbar
+IniWrite, %g_blnOpenMenuOnTaskbar%, % o_Settings.strIniFile, Global, OpenMenuOnTaskbar
 g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
-IniWrite, %g_blnAddCloseToDynamicMenus%, %g_strIniFile%, Global, AddCloseToDynamicMenus
+IniWrite, %g_blnAddCloseToDynamicMenus%, % o_Settings.strIniFile, Global, AddCloseToDynamicMenus
 g_blnDisplayIcons := f_blnDisplayIcons
-IniWrite, %g_blnDisplayIcons%, %g_strIniFile%, Global, DisplayIcons
+IniWrite, %g_blnDisplayIcons%, % o_Settings.strIniFile, Global, DisplayIcons
 g_intIconSize := f_drpIconSize
-IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
+IniWrite, %g_intIconSize%, % o_Settings.strIniFile, Global, IconSize
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
-IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
+IniWrite, %g_intIconsManageRowsSettings%, % o_Settings.strIniFile, Global, IconsManageRows
 g_intNbLastActions := f_intNbLastActions
-IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
+IniWrite, %g_intNbLastActions%, % o_Settings.strIniFile, Global, NbLastActions
 
 g_intRefreshQAPMenuIntervalSec := (f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
-IniWrite, %g_intRefreshQAPMenuIntervalSec%, %g_strIniFile%, Global, RefreshQAPMenuIntervalSec
+IniWrite, %g_intRefreshQAPMenuIntervalSec%, % o_Settings.strIniFile, Global, RefreshQAPMenuIntervalSec
 g_blnRefreshQAPMenuDebugBeep := f_blnRefreshQAPMenuDebugBeep
-IniWrite, %g_blnRefreshQAPMenuDebugBeep%, %g_strIniFile%, Global, RefreshQAPMenuDebugBeep
+IniWrite, %g_blnRefreshQAPMenuDebugBeep%, % o_Settings.strIniFile, Global, RefreshQAPMenuDebugBeep
 
 if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
@@ -8114,23 +8113,23 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
-	IniWrite, % objThisPopupHotkey.AhkHotkey, %g_strIniFile%, Global, % objThisPopupHotkey.strPopupHotkeyInternalName
+	IniWrite, % objThisPopupHotkey.AhkHotkey, % o_Settings.strIniFile, Global, % objThisPopupHotkey.strPopupHotkeyInternalName
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
 
-IniDelete, %g_strIniFile%, AlternativeMenuHotkeys
+IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
 	if HasShortcut(strNewShortcut)
-		IniWrite, %strNewShortcut%, %g_strIniFile%, AlternativeMenuHotkeys, %strThisAlternativeCode%
+		IniWrite, %strNewShortcut%, % o_Settings.strIniFile, AlternativeMenuHotkeys, %strThisAlternativeCode%
 
 g_blnAlternativeMenuShowNotification := f_blnAlternativeMenuShowNotification
-IniWrite, %g_blnAlternativeMenuShowNotification%, %g_strIniFile%, Global, AlternativeMenuShowNotification
+IniWrite, %g_blnAlternativeMenuShowNotification%, % o_Settings.strIniFile, Global, AlternativeMenuShowNotification
 
 g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
-IniWrite, %g_blnLeftControlDoublePressed%, %g_strIniFile%, Global, LeftControlDoublePressed
+IniWrite, %g_blnLeftControlDoublePressed%, % o_Settings.strIniFile, Global, LeftControlDoublePressed
 g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
-IniWrite, %g_blnRightControlDoublePressed%, %g_strIniFile%, Global, RightControlDoublePressed
+IniWrite, %g_blnRightControlDoublePressed%, % o_Settings.strIniFile, Global, RightControlDoublePressed
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
@@ -8139,20 +8138,20 @@ o_PopupHotkeys.EnablePopupHotkeys()
 ;---------------------------------------
 ; Save Tab 5: File Managers
 
-IniWrite, %g_intClickedFileManager%, %g_strIniFile%, Global, ActiveFileManager
+IniWrite, %g_intClickedFileManager%, % o_Settings.strIniFile, Global, ActiveFileManager
 	
 strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
 
 if (g_intClickedFileManager = 1)
-	IniWrite, %f_blnOpenFavoritesOnActiveMonitor%, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor
+	IniWrite, %f_blnOpenFavoritesOnActiveMonitor%, % o_Settings.strIniFile, Global, OpenFavoritesOnActiveMonitor
 else if (g_intClickedFileManager = 4) ; QAPconnect
-	IniWrite, %f_drpQAPconnectFileManager%, %g_strIniFile%, Global, QAPconnectFileManager
+	IniWrite, %f_drpQAPconnectFileManager%, % o_Settings.strIniFile, Global, QAPconnectFileManager
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	IniWrite, %f_strFileManagerPath%, %g_strIniFile%, Global, %strClickedFileManagerSystemName%Path
+	IniWrite, %f_strFileManagerPath%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%Path
 	
 	blnClickedUseTabs := f_blnFileManagerUseTabs
-	IniWrite, % blnClickedUseTabs, %g_strIniFile%, Global, %strClickedFileManagerSystemName%UseTabs
+	IniWrite, % blnClickedUseTabs, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%UseTabs
 	if (g_intClickedFileManager = 2) ; DirectoryOpus
 		if (blnClickedUseTabs)
 			strClickedNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
@@ -8165,15 +8164,15 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		else
 			strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
 		
-		IniWrite, %f_strTotalCommanderWinCmd%, %g_strIniFile%, Global, TotalCommanderWinCmd
+		IniWrite, %f_strTotalCommanderWinCmd%, % o_Settings.strIniFile, Global, TotalCommanderWinCmd
 	}
-	IniWrite, %strClickedNewTabOrWindow%, %g_strIniFile%, Global, %strClickedFileManagerSystemName%NewTabOrWindow
+	IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
 	
 	if (g_intClickedFileManager = 2)
-		IniWrite, %f_blnFileManagerDirectoryOpusShowLayouts%, %g_strIniFile%, Global, FileManagerDOpusShowLayouts
+		IniWrite, %f_blnFileManagerDirectoryOpusShowLayouts%, % o_Settings.strIniFile, Global, FileManagerDOpusShowLayouts
 }
 
-IniWrite, %f_radFileManagerNavigateCurrent%, %g_strIniFile%, Global, FileManagerAlwaysNavigate
+IniWrite, %f_radFileManagerNavigateCurrent%, % o_Settings.strIniFile, Global, FileManagerAlwaysNavigate
 
 ; Re-init class for FileManagers, reloading ini values
 o_FileManagers := new FileManagers
@@ -8183,24 +8182,24 @@ o_FileManagers := new FileManagers
 
 ; ExclusionList
 g_strExclusionMouseList := OptionsListCleanup(f_strExclusionMouseList)
-IniWrite, %g_strExclusionMouseList%, %g_strIniFile%, Global, ExclusionMouseList
+IniWrite, %g_strExclusionMouseList%, % o_Settings.strIniFile, Global, ExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 
 ; UsageDb
 
 intUsageDbIntervalSecondsPrev := g_intUsageDbIntervalSeconds
 g_intUsageDbIntervalSeconds := f_intUsageDbIntervalSeconds
-IniWrite, %g_intUsageDbIntervalSeconds%, %g_strIniFile%, Global, UsageDbIntervalSeconds
+IniWrite, %g_intUsageDbIntervalSeconds%, % o_Settings.strIniFile, Global, UsageDbIntervalSeconds
 
 intUsageDbDaysInPopularPrev := g_intUsageDbDaysInPopular
 g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
-IniWrite, %g_intUsageDbDaysInPopular%, %g_strIniFile%, Global, UsageDbDaysInPopular
+IniWrite, %g_intUsageDbDaysInPopular%, % o_Settings.strIniFile, Global, UsageDbDaysInPopular
 
 g_fltUsageDbMaximumSize := f_fltUsageDbMaximumSize
-IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
+IniWrite, %g_fltUsageDbMaximumSize%, % o_Settings.strIniFile, Global, UsageDbMaximumSize
 
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
-IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
+IniWrite, %g_blnUsageDbShowPopularityIndex%, % o_Settings.strIniFile, Global, UsageDbShowPopularityIndex
 
 blnUseSQLitePrev := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
@@ -8212,12 +8211,12 @@ if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDb
 ; UserVariablesList, IconReplacementList and SwitchExclusionList
 
 g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
-IniWrite, %g_strUserVariablesList%, %g_strIniFile%, Global, UserVariablesList
+IniWrite, %g_strUserVariablesList%, % o_Settings.strIniFile, Global, UserVariablesList
 g_strIconReplacementList := OptionsListCleanup(f_strIconReplacementList)
-IniWrite, %g_strIconReplacementList%, %g_strIniFile%, Global, IconReplacementList
+IniWrite, %g_strIconReplacementList%, % o_Settings.strIniFile, Global, IconReplacementList
 o_JLicons.ProcessReplacements(g_strIconReplacementList)
 g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
-IniWrite, %g_strSwitchExclusionList%, %g_strIniFile%, Global, SwitchExclusionList
+IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExclusionList
 
 ; End of More
 
@@ -8572,9 +8571,9 @@ return
 BuildGui:
 ;------------------------------------------------------------
 
-IniRead, strTextColor, %g_strIniFile%, Gui-%g_strTheme%, TextColor, 000000
-IniRead, g_strGuiListviewBackgroundColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewBackground, FFFFFF
-IniRead, g_strGuiListviewTextColor, %g_strIniFile%, Gui-%g_strTheme%, ListviewText, 000000
+IniRead, strTextColor, % o_Settings.strIniFile, Gui-%g_strTheme%, TextColor, 000000
+IniRead, g_strGuiListviewBackgroundColor, % o_Settings.strIniFile, Gui-%g_strTheme%, ListviewBackground, FFFFFF
+IniRead, g_strGuiListviewTextColor, % o_Settings.strIniFile, Gui-%g_strTheme%, ListviewText, 000000
 
 g_strGuiFullTitle := L(lGuiTitle, g_strAppNameText, g_strAppVersion)
 Gui, 1:New, +Hwndg_strAppHwnd +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
@@ -12566,15 +12565,15 @@ LoadExternalMenu(objExternalMenu, strExternalMenuPath)
 	loop, % objExternalMenu.MaxIndex() -  1
 		objExternalMenu.Delete(objExternalMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
 	
-	strPreviousIniFile := g_strIniFile
-	intPreviousIniLine := g_intIniLine
-	g_strIniFile := strExternalMenuPath ; settings file path for external menu
-	g_intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
+	strPreviousIniFile := o_Settings.strIniFile
+	intPreviousIniLine := o_Settings.intIniLine
+	o_Settings.strIniFile := strExternalMenuPath ; settings file path for external menu
+	o_Settings.intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
 	
 	strResult := RecursiveLoadMenuFromIni(objExternalMenu) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 	
-	g_strIniFile := strPreviousIniFile
-	g_intIniLine := intPreviousIniLine
+	o_Settings.strIniFile := strPreviousIniFile
+	o_Settings.intIniLine := intPreviousIniLine
 	
 	return strResult
 }
@@ -13740,12 +13739,12 @@ GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
 GuiControl, Disable, f_btnGuiCancel
 
-IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
-IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
-IniDelete, %g_strIniFile%, Favorites
+IniRead, strTempIniFavoritesSection, % o_Settings.strIniFile, Favorites
+IniWrite, %strTempIniFavoritesSection%, % o_Settings.strIniFile, Favorites-backup
+IniDelete, % o_Settings.strIniFile, Favorites
 
 g_blnWorkingToolTip := true
-g_intIniLine := 1 ; reset counter before saving to another ini file
+o_Settings.intIniLine := 1 ; reset counter before saving to another ini file
 RecursiveSaveFavoritesToIniFile(g_objMainMenu)
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
@@ -13783,7 +13782,7 @@ if (A_ThisLabel = "GuiSaveAndStayFavorites")
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
-g_intIniLine := ""
+o_Settings.intIniLine := ""
 strSavedMenuInGui := ""
 strThisNameLocation := ""
 strThisHotkey := ""
@@ -13798,7 +13797,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 {
 	global g_blnWorkingToolTip
 	
-	; ###_V("RecursiveSaveFavoritesToIniFile Begin", g_strIniFile, g_intIniLine)
+	; ###_V("RecursiveSaveFavoritesToIniFile Begin", o_Settings.strIniFile, o_Settings.intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
 	if (g_blnWorkingToolTip)
 		Tooltip, % lToolTipSaving . "`n" . objCurrentMenu.MenuPath
@@ -13854,8 +13853,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
 			strIniLine .= objCurrentMenu[A_Index].FavoriteUsageDb . "|" ; 26
 
-			IniWrite, %strIniLine%, %g_strIniFile%, Favorites, Favorite%g_intIniLine%
-			g_intIniLine++
+			IniWrite, %strIniLine%, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine
+			o_Settings.intIniLine++
 		}
 
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
@@ -13866,18 +13865,18 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
-				strPreviousIniFile := g_strIniFile
-				intPreviousIniLine := g_intIniLine
-				g_strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
-				g_intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number - DEPRECATED since v8.1.9.1
-				if !StrLen(g_intIniLine)
-					g_intIniLine := 1 ; always 1 for menu added from v8.1.9.1
+				strPreviousIniFile := o_Settings.strIniFile
+				intPreviousIniLine := o_Settings.intIniLine
+				o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
+				o_Settings.intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number - DEPRECATED since v8.1.9.1
+				if !StrLen(o_Settings.intIniLine)
+					o_Settings.intIniLine := 1 ; always 1 for menu added from v8.1.9.1
 				
 				gosub, BackupExternalIniFile ; backup external settings ini file, if required
 				
-				IniRead, strTempIniFavoritesSection, %g_strIniFile%, Favorites
-				IniWrite, %strTempIniFavoritesSection%, %g_strIniFile%, Favorites-backup
-				IniDelete, %g_strIniFile%, Favorites
+				IniRead, strTempIniFavoritesSection, % o_Settings.strIniFile, Favorites
+				IniWrite, %strTempIniFavoritesSection%, % o_Settings.strIniFile, Favorites-backup
+				IniDelete, % o_Settings.strIniFile, Favorites
 			}
 			
 			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
@@ -13885,21 +13884,21 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
 				Sleep, 20 ; for safety
-				strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(g_strIniFile)
+				strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(o_Settings.strIniFile)
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.NeedSave := false
-				IniWrite, %strIniDateTimeAfter%, %g_strIniFile%, Global, LastModified
-				; ###_V("DateTime AFTER", g_strIniFile, strIniDateTimeAfter)
+				IniWrite, %strIniDateTimeAfter%, % o_Settings.strIniFile, Global, LastModified
+				; ###_V("DateTime AFTER", o_Settings.strIniFile, strIniDateTimeAfter)
 					
-				g_strIniFile := strPreviousIniFile
-				g_intIniLine := intPreviousIniLine
+				o_Settings.strIniFile := strPreviousIniFile
+				o_Settings.intIniLine := intPreviousIniLine
 			}
 		}
 	}
 		
-	IniWrite, Z, %g_strIniFile%, Favorites, Favorite%g_intIniLine% ; end of menu marker
-	g_intIniLine++
+	IniWrite, Z, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine ; end of menu marker
+	o_Settings.intIniLine++
 	
 	return
 }
@@ -15034,7 +15033,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	; check if we will show the "change folder alert" before opening the selected favorite, if the favorite is a folder
 	if (!g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
 	{
-		IniRead, blnChangeFolderInDialogAlertRead, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead, 0
+		IniRead, blnChangeFolderInDialogAlertRead, % o_Settings.strIniFile, Global, ChangeFolderInDialogAlertRead, 0
 		g_blnShowChangeFolderInDialogAlert := !(blnChangeFolderInDialogAlertRead)
 	}
 	else
@@ -15590,7 +15589,7 @@ if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavo
 		return
 	}
 	IfMsgBox, No
-		IniWrite, 1, %g_strIniFile%, Global, ChangeFolderInDialogAlertRead
+		IniWrite, 1, % o_Settings.strIniFile, Global, ChangeFolderInDialogAlertRead
 }
 
 ; process Alternative features keyboard modifiers
@@ -17740,7 +17739,7 @@ return
 ShowSettingsIniFile:
 ;------------------------------------------------------------
 
-Run, %g_strIniFile%
+Run, % o_Settings.strIniFile
 
 return
 ;------------------------------------------------------------
@@ -17859,13 +17858,13 @@ strUrlCheck4Update := "https://www.quickaccesspopup.com/latest/latest-version-4.
 g_strUrlAppLandingPage := "https://www.quickaccesspopup.com" ; must be here if user select Check for update from tray menu
 strBetaLandingPage := "https://www.quickaccesspopup.com/latest/check4update-beta-redirect.html"
 
-IniRead, strLatestSkippedProd, %g_strIniFile%, Global, LatestVersionSkipped, 0.0
-IniRead, strLatestSkippedBeta, %g_strIniFile%, Global, LatestVersionSkippedBeta, 0.0
-IniRead, strLatestUsedBeta, %g_strIniFile%, Global, LastVersionUsedBeta, 0.0
-IniRead, strLatestSkippedAlpha, %g_strIniFile%, Global, LatestVersionSkippedAlpha, 0.0
-IniRead, strLatestUsedAlpha, %g_strIniFile%, Global, LastVersionUsedAlpha, 0.0
+IniRead, strLatestSkippedProd, % o_Settings.strIniFile, Global, LatestVersionSkipped, 0.0
+IniRead, strLatestSkippedBeta, % o_Settings.strIniFile, Global, LatestVersionSkippedBeta, 0.0
+IniRead, strLatestUsedBeta, % o_Settings.strIniFile, Global, LastVersionUsedBeta, 0.0
+IniRead, strLatestSkippedAlpha, % o_Settings.strIniFile, Global, LatestVersionSkippedAlpha, 0.0
+IniRead, strLatestUsedAlpha, % o_Settings.strIniFile, Global, LastVersionUsedAlpha, 0.0
 
-IniRead, intStartups, %g_strIniFile%, Global, Startups, 1
+IniRead, intStartups, % o_Settings.strIniFile, Global, Startups, 1
 
 if (A_ThisMenuItem <> lMenuUpdateAmpersand)
 {
@@ -17876,7 +17875,7 @@ if (A_ThisMenuItem <> lMenuUpdateAmpersand)
 		IfMsgBox, Yes
 			Gosub, GuiDonate
 	}
-	IniWrite, % (intStartups + 1), %g_strIniFile%, Global, Startups
+	IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
 }
 
 blnSetup := (FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt") = "" ? 0 : 1)
@@ -18144,7 +18143,7 @@ else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
 	Run, %strUrlDownloadPortable%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 {
-	IniWrite, % (g_strUpdateProdOrBeta = "alpha" ? strLatestVersionAlpha : (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd)), %g_strIniFile%, Global
+	IniWrite, % (g_strUpdateProdOrBeta = "alpha" ? strLatestVersionAlpha : (g_strUpdateProdOrBeta = "beta" ? strLatestVersionBeta : strLatestVersionProd)), % o_Settings.strIniFile, Global
 		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "alpha" ? "Alpha" : (g_strUpdateProdOrBeta = "beta" ? "Beta" : "")) ; do not add "Prod" to ini variable for backward compatibility
 	if (g_strUpdateProdOrBeta <> "prod")
 	{
@@ -18152,11 +18151,11 @@ else if (A_ThisLabel = "ButtonCheck4UpdateDialogSkipVersion")
 			, % (g_strUpdateProdOrBeta = "alpha" ? StrReplace (lUpdatePromptBetaContinue, "beta" "alpha") ; it seems safe to replace for all languages
 			: lUpdatePromptBetaContinue)
 		IfMsgBox, No
-			IniWrite, 0.0, %g_strIniFile%, Global, LastVersionUsedBeta
+			IniWrite, 0.0, % o_Settings.strIniFile, Global, LastVersionUsedBeta
 	}
 }
 else ; ButtonCheck4UpdateDialogRemind, UpdateGuiClose or UpdateGuiEscape
-	IniWrite, 0.0, %g_strIniFile%, Global
+	IniWrite, 0.0, % o_Settings.strIniFile, Global
 		, % "LatestVersionSkipped" . (g_strUpdateProdOrBeta = "alpha" ? "Alpha" : (g_strUpdateProdOrBeta = "beta" ? "Beta" : "")) ; do not add "Prod" to ini variable for backward compatibility
 
 Gui, Destroy
@@ -18194,10 +18193,10 @@ if SettingsUnsaved()
 }
 
 if (A_ThisLabel = "SwitchSettingsDefault")
-	g_strSwitchSettingsFile := g_strIniFileMain
+	g_strSwitchSettingsFile := o_Settings.strIniFileMain
 else
 {
-	IniRead, strSwitchSettingsFolder, %g_strIniFile%, Global, SwitchSettingsFolder, %A_WorkingDir%
+	IniRead, strSwitchSettingsFolder, % o_Settings.strIniFile, Global, SwitchSettingsFolder, %A_WorkingDir%
 
 	FileSelectFile, g_strSwitchSettingsFile, 3, %strSwitchSettingsFolder%, %lDialogSwitchSettings%, *.ini
 	if !(StrLen(g_strSwitchSettingsFile))
@@ -18206,7 +18205,7 @@ else
 	SplitPath, g_strSwitchSettingsFile, , strSwitchSettingsFolder, strSwitchSettingsExt
 	if !StrLen(strSwitchSettingsExt)
 		g_strSwitchSettingsFile .= ".ini"
-	IniWrite, %strSwitchSettingsFolder%, %g_strIniFile%, Global, SwitchSettingsFolder
+	IniWrite, %strSwitchSettingsFolder%, % o_Settings.strIniFile, Global, SwitchSettingsFolder
 }
 
 IniRead, strIniSettingsGlobal, %g_strSwitchSettingsFile%, Global, , %A_Space%
@@ -18221,7 +18220,7 @@ MsgBox, 52, %g_strAppNameText%, % L(lDialogSwitchSettingsReady, g_strSwitchSetti
 IfMsgBox, Yes
 	Gosub, ReloadQAPSwitch
 IfMsgBox, No
-	Oops(lDialogSwitchSettingsCancel, g_strIniFile)
+	Oops(lDialogSwitchSettingsCancel, o_Settings.strIniFile)
 
 strSwitchSettingsFolder := ""
 strSwitchSettingsExt := ""
@@ -18294,7 +18293,7 @@ GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? lImpExpExport : lImpEx
 GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? lImpExpExportAmpersand : lImpExpImportAmpersand)
 
 if (f_radImpExpExport)
-	IniRead, strImpExpFile, %g_strIniFile%, Global, LastExportFile, %A_Space% ; empty if not found
+	IniRead, strImpExpFile, % o_Settings.strIniFile, Global, LastExportFile, %A_Space% ; empty if not found
 else
 	strImpExpFile := ""
 GuiControl, , f_strImpExpFile, %strImpExpFile%
@@ -18309,7 +18308,7 @@ ButtonImpExpFile:
 Gui, ImpExp:Submit, NoHide
 Gui, ImpExp:+OwnDialogs
 
-IniRead, strImpExpFolder, %g_strIniFile%, Global, % "Last" . (f_radImpExpExport ? "Ex" : "Im") . "portFolder", %A_WorkingDir%
+IniRead, strImpExpFolder, % o_Settings.strIniFile, Global, % "Last" . (f_radImpExpExport ? "Ex" : "Im") . "portFolder", %A_WorkingDir%
 
 FileSelectFile, strImpExpSelectedFile, % (f_radImpExpExport ? 2 : 3), %strImpExpFolder%, %lDialogAddFolderSelect%, *.ini
 if !(StrLen(strImpExpSelectedFile))
@@ -18350,16 +18349,16 @@ if (f_radImpExpExport)
 else
 	strImpExpFile := f_strImpExpFile
 
-g_strImpExpSourceFile := (f_radImpExpExport ? g_strIniFile : strImpExpFile)
-g_strImpExpDestinationFile := (f_radImpExpExport ? strImpExpFile : g_strIniFile)
+g_strImpExpSourceFile := (f_radImpExpExport ? o_Settings.strIniFile : strImpExpFile)
+g_strImpExpDestinationFile := (f_radImpExpExport ? strImpExpFile : o_Settings.strIniFile)
 
 SplitPath, g_strImpExpDestinationFile, , strImpExpFolder, strImpExpExt
 if !StrLen(strImpExpExt) ; add ini to destination file
 	g_strImpExpDestinationFile .= ".ini"
 strImEx := (f_radImpExpExport ? "Ex" : "Im")
-IniWrite, %strImpExpFolder%, %g_strIniFile%, Global, Last%strImEx%portFolder
+IniWrite, %strImpExpFolder%, % o_Settings.strIniFile, Global, Last%strImEx%portFolder
 if (f_radImpExpExport)
-	IniWrite, % f_strImpExpFile, %g_strIniFile%, Global, LastExportFile ; store f_strImpExpFile, not strImpExpFile that may contain current time
+	IniWrite, % f_strImpExpFile, % o_Settings.strIniFile, Global, LastExportFile ; store f_strImpExpFile, not strImpExpFile that may contain current time
 
 if !(blnAbort) and (f_blnImpExpFavorites)
 {
@@ -18493,10 +18492,10 @@ WriteIniSection(strSectionName, strDescription, ByRef blnAbort, ByRef blnContent
 		IniWrite, %strSourceIniSection%, %g_strImpExpDestinationFile%, %strSectionName%
 		blnContentTransfered := true
 		
-		if (g_strImpExpDestinationFile = g_strIniFile ; this is an import
+		if (g_strImpExpDestinationFile = o_Settings.strIniFile ; this is an import
 			and strSectionName = "Global") ; of Global section
 			; delete QAPTempFolder value to avoid dependency on local folder from other system (value will default to %TEMP%)
-			IniDelete, %g_strIniFile%, Global, QAPTempFolder
+			IniDelete, % o_Settings.strIniFile, Global, QAPTempFolder
 	}
 }
 ;------------------------------------------------------------
@@ -19665,18 +19664,18 @@ return
 ;------------------------------------------------------------
 BackupIniFile:
 BackupExternalIniFile:
-; g_strIniFile contains the basic QAP ini file or an external menu settings ini file
+; o_Settings.strIniFile contains the basic QAP ini file or an external menu settings ini file
 ;------------------------------------------------------------
 
 ; delete old backup files (keep only 5/10 most recent files)
-StringReplace, strIniBackupFile, g_strIniFile, .ini, -backup-????????.ini
+strIniBackupFile := StrReplace(o_Settings.strIniFile, ".ini", "-backup-????????.ini")
 
-; if g_strIniFile is the main ini file, set the destination to backup folder
+; if o_Settings.strIniFile is the main ini file, set the destination to backup folder
 ; this excludes External ini files and alternative ini file (using the switch command) that are backuped in their own folder
 ; but this includes main ini file when the working directory is set from the command line with "/Working:"
-if (A_ThisLabel = "BackupIniFile") and (g_strIniFile = g_strIniFileMain)
+if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFileMain)
 {
-	IniRead, g_strBackupFolder, %g_strIniFile%, Global, BackupFolder, %A_WorkingDir%
+	IniRead, g_strBackupFolder, % o_Settings.strIniFile, Global, BackupFolder, %A_WorkingDir%
 	StringReplace, strIniBackupFile, strIniBackupFile, %A_WorkingDir%, %g_strBackupFolder%
 }
 
@@ -19692,7 +19691,7 @@ Loop, Parse, strFileList, `n
 ; create a daily backup of the ini file
 StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
 if !FileExist(strIniBackupFile)
-	FileCopy, %g_strIniFile%, %strIniBackupFile%, 1
+	FileCopy, % o_Settings.strIniFile, %strIniBackupFile%, 1
 
 strIniBackupFile := ""
 strFileList := ""
@@ -22157,7 +22156,7 @@ ScreenConfigurationChanged()
 GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
 ;------------------------------------------------------------
 {
-	IniRead, strPosition, %g_strIniFile%, Global, %strThisDialog%
+	IniRead, strPosition, % o_Settings.strIniFile, Global, %strThisDialog%
 	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
 }
 ;------------------------------------------------------------
@@ -22195,23 +22194,23 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 	global g_strLastConfiguration
 	global g_blnRememberSettingsPosition
 	
-	IniRead, g_strLastScreenConfiguration, %g_strIniFile%, Global, LastScreenConfiguration, %A_Space% ; to reset position if screen config changed since last session
+	IniRead, g_strLastScreenConfiguration, % o_Settings.strIniFile, Global, LastScreenConfiguration, %A_Space% ; to reset position if screen config changed since last session
 	
 	strCurrentScreenConfiguration := GetScreenConfiguration()
 	if !StrLen(g_strLastScreenConfiguration) or (strCurrentScreenConfiguration <> g_strLastScreenConfiguration)
 	{
-		IniWrite, %strCurrentScreenConfiguration%, %g_strIniFile%, Global, LastScreenConfiguration ; always save in case QAP is not closed properly
+		IniWrite, %strCurrentScreenConfiguration%, % o_Settings.strIniFile, Global, LastScreenConfiguration ; always save in case QAP is not closed properly
 		arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
 	}
 	else
 		if (g_blnRememberSettingsPosition)
 		{
-			IniRead, strSettingsPosition, %g_strIniFile%, Global, SettingsPosition, -1 ; by default -1 to center at minimal size
+			IniRead, strSettingsPosition, % o_Settings.strIniFile, Global, SettingsPosition, -1 ; by default -1 to center at minimal size
 			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
 		}
 		else ; delete Settings position
 		{
-			IniDelete, %g_strIniFile%, Global, SettingsPosition
+			IniDelete, % o_Settings.strIniFile, Global, SettingsPosition
 			arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
 		}
 	
@@ -22258,11 +22257,11 @@ SaveWindowPosition(strThisWindow, strWindowHandle)
 		{
 			WinGetPos, intX, intY, intW, intH, %strWindowHandle%
 			strPosition := intX . "|" . intY . "|" . intW . "|" . intH
-			IniWrite, %strPosition%, %g_strIniFile%, Global, %strThisWindow%
+			IniWrite, %strPosition%, % o_Settings.strIniFile, Global, %strThisWindow%
 		}
 	}
 	else ; delete Settings position
-		IniDelete, %g_strIniFile%, Global, %strThisWindow%
+		IniDelete, % o_Settings.strIniFile, Global, %strThisWindow%
 }
 ;------------------------------------------------------------
 
@@ -22900,7 +22899,6 @@ class Triggers.MouseButtons
 */
 ;-------------------------------------------------------------
 {
-	
 	;---------------------------------------------------------
 	class PopupHotkeys
 	; replaces g_arrPopupHotkeys and related arrays
@@ -22923,8 +22921,10 @@ class Triggers.MouseButtons
 			
 			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
 			{
-				IniRead, strThisPopupHotkey, %g_strIniFile%, Global, %strThisPopupHotkeyInternalName%, % objPopupHotkeyDefaults[A_Index]
-				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objPopupHotkeyDefaults[A_Index]
+				IniRead, strThisPopupHotkey, % o_Settings.strIniFile, Global, %strThisPopupHotkeyInternalName%, % objPopupHotkeyDefaults[A_Index]
+				o_Settings.ReadIniOption("o_PopupHotkeys", "str" . strThisPopupHotkeyInternalName, strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index], "Popup Hotkeys", A_Index) ; 
+				; ###_V(A_ThisFunc, o_Settings.o_PopupHotkeys["str" . strThisPopupHotkeyInternalName].IniValue)
+				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, o_Settings.o_PopupHotkeys.AhkHotkey, objPopupHotkeyDefaults[A_Index]
 					, objOptionsPopupHotkeyLocalizedNames[A_Index], objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
 				this.I[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
@@ -23268,12 +23268,12 @@ TODO
 		this.I[3] := new this.TotalCommander(objActiveFileManagerSystemNames[3], objActiveFileManagerDisplayNames[3])
 		this.I[4] := new this.QAPConnect(objActiveFileManagerSystemNames[4], objActiveFileManagerDisplayNames[4])
 			
-		IniRead, intActiveFileManager, %g_strIniFile%, Global, ActiveFileManager ; if not exist returns "ERROR"
+		IniRead, intActiveFileManager, % o_Settings.strIniFile, Global, ActiveFileManager ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
 		this.ActiveFileManager := intActiveFileManager
 
-		IniRead, blnAlwaysNavigate, %g_strIniFile%, Global, FileManagerAlwaysNavigate, 0
+		IniRead, blnAlwaysNavigate, % o_Settings.strIniFile, Global, FileManagerAlwaysNavigate, 0
 		this.blnFileManagerAlwaysNavigate := blnAlwaysNavigate
 	}
 	;---------------------------------------------------------
@@ -23337,7 +23337,7 @@ TODO
 				}
 			}
 		}
-		IniWrite, %intSelected%, %g_strIniFile%, Global, ActiveFileManager
+		IniWrite, %intSelected%, % o_Settings.strIniFile, Global, ActiveFileManager
 
 		return %intSelected% ; by default WindowsExplorer
 	}
@@ -23380,7 +23380,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, blnOpenFavoritesOnActiveMonitor, %g_strIniFile%, Global, OpenFavoritesOnActiveMonitor, 0
+			IniRead, blnOpenFavoritesOnActiveMonitor, % o_Settings.strIniFile, Global, OpenFavoritesOnActiveMonitor, 0
 			this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
 			this.blnFileManagerValid := true
 		}
@@ -23409,7 +23409,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strPath, %g_strIniFile%, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
+			IniRead, strPath, % o_Settings.strIniFile, Global, DirectoryOpusPath, %A_Space% ; empty string if not found
 			if !StrLen(strPath)
 				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
 			if !FileExist(strPath)
@@ -23423,14 +23423,14 @@ TODO
 			{
 				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
-				IniRead, blnDirectoryOpusUseTabs, %g_strIniFile%, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
+				IniRead, blnDirectoryOpusUseTabs, % o_Settings.strIniFile, Global, DirectoryOpusUseTabs, 1 ; use tabs by default
 				this.blnFileManagerUseTabs := blnDirectoryOpusUseTabs
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 				else
 					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 				
-				IniRead, blnFileManagerDirectoryOpusShowLayouts, %g_strIniFile%, Global, FileManagerDOpusShowLayouts, 1 ; true by default
+				IniRead, blnFileManagerDirectoryOpusShowLayouts, % o_Settings.strIniFile, Global, FileManagerDOpusShowLayouts, 1 ; true by default
 				this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
 				
 				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
@@ -23692,7 +23692,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strPath, %g_strIniFile%, Global, TotalCommanderPath, %A_Space% ; empty string if not found
+			IniRead, strPath, % o_Settings.strIniFile, Global, TotalCommanderPath, %A_Space% ; empty string if not found
 			if !StrLen(strPath)
 			{
 				RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
@@ -23710,7 +23710,7 @@ TODO
 				
 			if (this.blnFileManagerValid)
 			{
-				IniRead, strIniFile, %g_strIniFile%, Global, TotalCommanderWinCmd, %A_Space%
+				IniRead, strIniFile, % o_Settings.strIniFile, Global, TotalCommanderWinCmd, %A_Space%
 				If !StrLen(strIniFile)
 					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
 				If !StrLen(strIniFile)
@@ -23719,7 +23719,7 @@ TODO
 				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
 				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				IniRead, blnTotalCommanderUseTabs, %g_strIniFile%, Global, TotalCommanderUseTabs, 1 ; use tabs by default
+				IniRead, blnTotalCommanderUseTabs, % o_Settings.strIniFile, Global, TotalCommanderUseTabs, 1 ; use tabs by default
 				this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
@@ -23754,7 +23754,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			IniRead, strQAPconnectFileManager, %g_strIniFile%, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
+			IniRead, strQAPconnectFileManager, % o_Settings.strIniFile, Global, QAPconnectFileManager, %A_Space% ; empty string if not found
 			this.strQAPconnectFileManager := strQAPconnectFileManager
 			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 			/* QAPconnect.ini sample:
@@ -24448,8 +24448,8 @@ class QAPfeatures
 	{
 		; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
 		; read here because this is required before LoadIniFile
-		IniRead, g_blnRefreshedMenusAttached, %g_strIniFile%, Global, RefreshedMenusAttached, 1
-		
+		o_Settings.ReadIniOption("Menu Popup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "Menu Popup", 40) ; g_blnRefreshedMenusAttached
+
 		; init refreshed menus attached or detached according to g_blnRefreshedMenusAttached
 		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
 			, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : "")
@@ -24831,6 +24831,20 @@ TODO
 */
 ;-------------------------------------------------------------
 {
+/*
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+*/
+
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24857,14 +24871,27 @@ TODO
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	ReadIni(strObjectGroup, strSettingName, strIniValueName, strDefault := "", strGuiGroup := "", intGuiOrder := "", strSection := "Global", strIniFile := "")
+	ReadIniOption(strOptionGroup, strSettingName, strIniValueName, strDefault := "", strGuiGroup := "", intGuiOrder := "", strSection := "Global", strIniFile := "")
 	;---------------------------------------------------------
 	{
-		###_V(A_ThisFunc, strObjectGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
+		if !IsObject(this[strOptionGroup])
+			this[strOptionGroup] := Object()
+		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
+		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
+		objIniValue := new this.IniValue(strOutValue, strGuiGroup, intGuiOrder)
+		this[strOptionGroup][strSettingName] := objIniValue
+		; ###_O("this", this)
+		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	ReadIniValue(strIniValueName, strDefault := "", strSection := "Global", strIniFile := "")
+	;---------------------------------------------------------
+	{
 		IniRead, strOutValue, % (StrLen(strIniFile) ? strIniFile : this.strIniFile), %strSection%, %strIniValueName%, %strDefault%
-		this[strObjectGroup][strSettingName] := new this.IniValue(strOutValue, strGuiGroup, intGuiOrder)
-		###_O("this", this)
-		###_O("this[strObjectGroup][strSettingName]", this[strObjectGroup][strSettingName])
+		; ###_V(A_ThisFunc, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile, strOutValue)
+		return strOutValue
 	}
 	;---------------------------------------------------------
 
@@ -24876,9 +24903,6 @@ TODO
 		__New(strIniValue, strGuiGroup, intGuiOrder)
 		;-----------------------------------------------------
 		{
-			if !IsObject(this[strObjectGroup])
-				this[strObjectGroup] := Object()
-			
 			this.IniValue := strIniValue
 			this.strGuiGroup := strGuiGroup
 			this.intGuiOrder := intGuiOrder
