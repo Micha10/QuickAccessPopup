@@ -3384,7 +3384,7 @@ g_blnMenuReady := true
 
 Gosub, SetTrayMenuIcon
 
-if (g_blnDisplayTrayTip)
+if (o_Settings.Launch.blnDisplayTrayTip.IniValue)
 {
 	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
 		, % L(lTrayTipInstalledDetail, o_PopupHotkeys.I[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
@@ -6995,7 +6995,7 @@ Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, %lOptionsR
 GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
-GuiControl, , f_blnDisplayTrayTip, %g_blnDisplayTrayTip%
+GuiControl, , f_blnDisplayTrayTip, % o_Settings.Launch.blnDisplayTrayTip.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
 GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
@@ -7990,9 +7990,9 @@ if (f_blnOptionsRunAtStartup)
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 g_blnAddAutoAtTop := f_blnAddAutoAtTop0
-IniWrite, %g_blnAddAutoAtTop%, % o_Settings.strIniFile, Global, AddAutoAtTop
-g_blnDisplayTrayTip := f_blnDisplayTrayTip
-IniWrite, %g_blnDisplayTrayTip%, % o_Settings.strIniFile, Global, DisplayTrayTip
+; g_blnDisplayTrayTip := f_blnDisplayTrayTip
+; IniWrite, %g_blnDisplayTrayTip%, % o_Settings.strIniFile, Global, DisplayTrayTip
+o_Settings.Launch.blnDisplayTrayTip.WriteNewIniGlobalValue(f_blnDisplayTrayTip)
 g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
 IniWrite, %g_blnChangeFolderInDialog%, % o_Settings.strIniFile, Global, ChangeFolderInDialog
 g_blnCheck4Update := f_blnCheck4Update
@@ -24876,7 +24876,7 @@ TODO
 			this[strOptionGroup] := Object()
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
-		objIniValue := new this.IniValue(strOutValue, strGuiGroup, intGuiOrder)
+		objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder)
 		this[strOptionGroup][strSettingName] := objIniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
@@ -24898,15 +24898,25 @@ TODO
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
-		__New(strIniValue, strGuiGroup, intGuiOrder)
+		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder)
 		;-----------------------------------------------------
 		{
+			this.strIniValueName := strIniValueName
 			this.IniValue := strIniValue
 			this.strGuiGroup := strGuiGroup
 			this.intGuiOrder := intGuiOrder
 		}
 		;-----------------------------------------------------
 		
+		;-----------------------------------------------------
+		WriteNewIniGlobalValue(varNewValue)
+		; when writing to the main ini file Global section
+		;-----------------------------------------------------
+		{
+			this.IniValue := varNewValue
+			IniWrite, % this.IniValue, % o_Settings.strIniFile, Global, % this.strIniValueName
+		}
+		;-----------------------------------------------------
 	}
 	;---------------------------------------------------------
 }
