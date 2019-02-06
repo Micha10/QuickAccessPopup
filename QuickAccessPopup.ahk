@@ -3143,18 +3143,17 @@ if StrLen(o_CommandLineParameters.I["Settings"])
 ;---------------------------------
 ; Create temporary folder
 
-global g_strQAPTempFolderParent
 If FileExist(o_Settings.strIniFile)
 	o_Settings.ReadIniOption("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General", 90) ; g_strQAPTempFolderParent
 
-if !StrLen(g_strQAPTempFolderParent)
+if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
-		g_strQAPTempFolderParent := "%TEMP%" ; for new installation v8.6.9.2+
+		o_Settings.Launch.strQAPTempFolderParent.IniValue := "%TEMP%" ; for new installation v8.6.9.2+
 	else
-		g_strQAPTempFolderParent := A_WorkingDir ; for installations installed before v8.6.9.2
+		o_Settings.Launch.strQAPTempFolderParent.IniValue := A_WorkingDir ; for installations installed before v8.6.9.2
 
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(g_strQAPTempFolderParent)) . "\_QAP_temp_" . RandomBetween()
+global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue)) . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
@@ -3309,7 +3308,7 @@ if (g_blnUseColors)
 
 ; Build Settings Gui
 Gosub, BuildGui
-if (g_blnCheck4Update) ; must be after BuildGui
+if (o_Settings.Launch.blnCheck4Update.IniValue) ; must be after BuildGui
 	Gosub, Check4Update
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
@@ -4121,7 +4120,7 @@ Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; load from ini file and enable Alt
 ; Load Options Tab 1 General
 
 o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
-if (g_blnChangeFolderInDialog)
+if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 	o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
 o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) ; g_strTheme
@@ -6957,7 +6956,7 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabOtherOptionsIntro, g_strA
 ; column 1
 
 Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, %lOptionsChangeFolderInDialog%
-GuiControl, , f_blnChangeFolderInDialog, %g_blnChangeFolderInDialog%
+GuiControl, , f_blnChangeFolderInDialog, % o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue
 
 Gui, 2:Add, Text, y+10 xs, %lOptionsLanguage%
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpLanguage Sort, %lOptionsLanguageLabels%
@@ -6970,7 +6969,7 @@ GuiControl, ChooseString, f_drpTheme, % o_Settings.SettingsWindow.strTheme.IniVa
 Gui, 2:Add, Text, y+10 xs, %lOptionsQAPTempFolder%:
 Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strQAPTempFolderParentPath
 Gui, 2:Add, Button, x+5 yp w75 gButtonQAPTempFolderParentPath, %lDialogBrowseButton%
-GuiControl, 2:, f_strQAPTempFolderParentPath, %g_strQAPTempFolderParent%
+GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
 
 Gui, 2:Add, Text, y+10 xs, %lOptionsBackupFolder%:
 Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strBackupFolder
@@ -6998,14 +6997,14 @@ Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, %lOptionsTrayTip%
 GuiControl, , f_blnDisplayTrayTip, % o_Settings.Launch.blnDisplayTrayTip.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, %lOptionsCheck4Update%
-GuiControl, , f_blnCheck4Update, %g_blnCheck4Update%
+GuiControl, , f_blnCheck4Update, % o_Settings.Launch.blnCheck4Update.IniValue
 Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, (<a>%lOptionsCheck4UpdateNow%</a>)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, %lOptionsRememberSettingsPosition%
-GuiControl, , f_blnRememberSettingsPosition, %g_blnRememberSettingsPosition%
+GuiControl, , f_blnRememberSettingsPosition, % o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenSettingsOnActiveMonitor, %lOptionsOpenSettingsOnActiveMonitor%
-GuiControl, , f_blnOpenSettingsOnActiveMonitor, %g_blnOpenSettingsOnActiveMonitor%
+GuiControl, , f_blnOpenSettingsOnActiveMonitor, % o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
@@ -7068,8 +7067,8 @@ Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsAddAutoAtTop%
 
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop0 Group " . (g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoTopOfMenu%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!g_blnAddAutoAtTop ? "Checked" : ""), %lOptionsAddAutoBottomOfMenu%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop0 Group " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), %lOptionsAddAutoTopOfMenu%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), %lOptionsAddAutoBottomOfMenu%
 
 ; column 2
 
@@ -7989,18 +7988,14 @@ if (f_blnOptionsRunAtStartup)
 	Gosub, CreateStartupShortcut
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
-g_blnAddAutoAtTop := f_blnAddAutoAtTop0
+o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIniGlobal(f_blnAddAutoAtTop0)
 ; g_blnDisplayTrayTip := f_blnDisplayTrayTip
 ; IniWrite, %g_blnDisplayTrayTip%, % o_Settings.strIniFile, Global, DisplayTrayTip
-o_Settings.Launch.blnDisplayTrayTip.WriteNewIniGlobalValue(f_blnDisplayTrayTip)
-g_blnChangeFolderInDialog := f_blnChangeFolderInDialog
-IniWrite, %g_blnChangeFolderInDialog%, % o_Settings.strIniFile, Global, ChangeFolderInDialog
-g_blnCheck4Update := f_blnCheck4Update
-IniWrite, %g_blnCheck4Update%, % o_Settings.strIniFile, Global, Check4Update
-g_blnRememberSettingsPosition := f_blnRememberSettingsPosition
-IniWrite, %g_blnRememberSettingsPosition%, % o_Settings.strIniFile, Global, RememberSettingsPosition
-g_blnOpenSettingsOnActiveMonitor := f_blnOpenSettingsOnActiveMonitor
-IniWrite, %g_blnOpenSettingsOnActiveMonitor%, % o_Settings.strIniFile, Global, OpenSettingsOnActiveMonitor
+o_Settings.Launch.blnDisplayTrayTip.WriteIni(f_blnDisplayTrayTip)
+o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIniGlobal(f_blnChangeFolderInDialog)
+o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
+o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIniGlobal(f_blnRememberSettingsPosition)
+o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIniGlobal(f_blnOpenSettingsOnActiveMonitor)
 blnRunAsAdminPrev := g_blnRunAsAdmin
 g_blnRunAsAdmin := f_blnRunAsAdmin
 IniWrite, %g_blnRunAsAdmin%, % o_Settings.strIniFile, Global, RunAsAdmin
@@ -8015,18 +8010,14 @@ loop, %g_arrOptionsLanguageLabels0%
 			o_Settings.Launch.strLanguageCode.IniValue := g_arrOptionsLanguageCodes%A_Index%
 			break
 		}
-IniWrite, % o_Settings.Launch.strLanguageCode.IniValue, % o_Settings.strIniFile, Global, LanguageCode
+o_Settings.Launch.strLanguageCode.WriteIni() ; value already changed in the loop
 
 strThemePrev := o_Settings.SettingsWindow.strTheme.IniValue
-o_Settings.SettingsWindow.strTheme.IniValue := f_drpTheme
-IniWrite, % o_Settings.SettingsWindow.strTheme.IniValue, % o_Settings.strIniFile, Global, Theme
+o_Settings.SettingsWindow.strTheme.WriteIniGlobal(f_drpTheme)
 
-strQAPTempFolderParentPrev := g_strQAPTempFolderParent
+strQAPTempFolderParentPrev := o_Settings.Launch.strQAPTempFolderParent.IniValue
 if StrLen(f_strQAPTempFolderParentPath)
-{
-	g_strQAPTempFolderParent := f_strQAPTempFolderParentPath
-	IniWrite, %g_strQAPTempFolderParent%, % o_Settings.strIniFile, Global, QAPTempFolder
-}
+	o_Settings.Launch.strQAPTempFolderParent.WriteIniGlobal(g_strQAPTempFolderParent)
 
 g_strBackupFolder := f_strBackupFolder
 IniWrite, %g_strBackupFolder%, % o_Settings.strIniFile, Global, BackupFolder
@@ -8226,7 +8217,7 @@ IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExc
 ; if language, theme, temporary folder or database collect interval changed, offer to restart the app
 if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	or (strThemePrev <> o_Settings.SettingsWindow.strTheme.IniValue)
-	or (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	or (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
 {
 	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
@@ -8239,10 +8230,10 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 		StringReplace, strOptionNoAmpersand, lOptionsTheme, &
 		strValue := o_Settings.SettingsWindow.strTheme.IniValue
 	}
-	else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
+	else if (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
-		strValue := g_strQAPTempFolderParent
+		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
 	}
 	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 	{
@@ -8253,14 +8244,14 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
-	else ; if user declines to reload, restore previous values
+	else ; if user declines to reload, restore previous value (but new value will be loaded at next launch)
 	{
 		if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 			o_Settings.Launch.strLanguageCode.IniValue := strLanguageCodePrev
 		else if (strThemePrev <> o_Settings.SettingsWindow.strTheme.IniValue)
 			o_Settings.SettingsWindow.strTheme.IniValue := strThemePrev
-		else if (strQAPTempFolderParentPrev <> g_strQAPTempFolderParent)
-			g_strQAPTempFolderParent := strQAPTempFolderParentPrev
+		else if (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
+			o_Settings.Launch.strQAPTempFolderParent.IniValue := strQAPTempFolderParentPrev
 		else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
 			g_blnRunAsAdmin := blnRunAsAdminPrev
 	}
@@ -9099,7 +9090,7 @@ StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
 
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
-g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
+g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 g_intOriginalMenuPosition := g_intNewItemPos
 
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
@@ -9122,7 +9113,7 @@ GuiAddFavoriteFromQAPFeature:
 if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 {
 	gosub, GuiShowFromGuiAddFavoriteQAPFeature
-	g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
+	g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 }
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
@@ -9305,7 +9296,7 @@ else
 	if !InStr(A_ThisLabel, "Xpress") ; NOT Xpress
 	{
 		; initialy position new entry at top or bottom of menu
-		g_intOriginalMenuPosition := (g_blnAddAutoAtTop ? 1 : 0xFFFF)
+		g_intOriginalMenuPosition := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : 0xFFFF)
 		
 		Gosub, GuiShowFromAddThisFolder ; except for Express add, show Settings window
 		
@@ -11455,7 +11446,8 @@ if (A_ThisLabel = "GuiShowRestoreDefaultPosition" or ScreenConfigurationChanged(
 else
 {
 	GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intActiveX, intActiveY)
-	if (g_blnOpenSettingsOnActiveMonitor and GetWindowPositionOnActiveMonitor("ahk_id " . g_strAppHwnd, intActiveX, intActiveY, intPositionX, intPositionY))
+	if (o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue
+		and GetWindowPositionOnActiveMonitor("ahk_id " . g_strAppHwnd, intActiveX, intActiveY, intPositionX, intPositionY))
 		; display at center of active monitor
 		Gui, 1:Show, % "x" . intPositionX . " y" . intPositionY
 	else ; keep existing position
@@ -11972,7 +11964,8 @@ if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 		strDestinationMenu := A_ThisMenu
 		if !StrLen(strDestinationMenu) ; for GuiAddFavoriteSaveXpress favorite is added from context menu (no A_ThisMenu)
 			strDestinationMenu := lMainMenuName
-		g_intNewItemPos := (g_blnAddAutoAtTop ? (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
+		g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue
+			? (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 2 : 1) : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
 	}
 	else ; GuiAddExternalSave
 	{
@@ -15024,14 +15017,14 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.I[1].AhkHotkey)
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
-		or (g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
+		or (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
 		or (o_FileManagers.ActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
 		or (o_FileManagers.ActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
 		or (o_FileManagers.ActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
 		or WindowIsQuickAccessPopup(g_strTargetClass)
 
 	; check if we will show the "change folder alert" before opening the selected favorite, if the favorite is a folder
-	if (!g_blnChangeFolderInDialog and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
+	if (!o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue and WindowIsDialog(g_strTargetClass, g_strTargetWinId))
 	{
 		blnChangeFolderInDialogAlertRead := o_Settings.ReadIniValue("ChangeFolderInDialogAlertRead", 0)
 		g_blnShowChangeFolderInDialogAlert := !(blnChangeFolderInDialogAlertRead)
@@ -22192,7 +22185,6 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 ;------------------------------------------------------------
 {
 	global g_strLastConfiguration
-	global g_blnRememberSettingsPosition
 	
 	g_strLastScreenConfiguration := o_Settings.ReadIniValue("LastScreenConfiguration", " ") ; to reset position if screen config changed since last session
 	
@@ -22203,7 +22195,7 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 		arrSettingsPosition1 := -1 ; returned value by first ByRef parameter
 	}
 	else
-		if (g_blnRememberSettingsPosition)
+		if (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue)
 		{
 			strSettingsPosition := o_Settings.ReadIniValue("SettingsPosition", -1) ; by default -1 to center at minimal size
 			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
@@ -22247,9 +22239,7 @@ GetScreenConfiguration()
 SaveWindowPosition(strThisWindow, strWindowHandle)
 ;------------------------------------------------------------
 {
-	global g_blnRememberSettingsPosition
-	
-	if (strThisWindow <> "SettingsPosition" or g_blnRememberSettingsPosition)
+	if (strThisWindow <> "SettingsPosition" or o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue)
 	; always for Add, Edit, Copy or Move Favorites dialog boxes, only if remember for Settings
 	{
 		WinGet, intMinMax, MinMax, %strWindowHandle%
@@ -24876,7 +24866,7 @@ TODO
 			this[strOptionGroup] := Object()
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
-		objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder)
+		objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		this[strOptionGroup][strSettingName] := objIniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
@@ -24898,23 +24888,27 @@ TODO
 	;---------------------------------------------------------
 	{
 		;-----------------------------------------------------
-		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder)
+		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		;-----------------------------------------------------
 		{
-			this.strIniValueName := strIniValueName
 			this.IniValue := strIniValue
-			this.strGuiGroup := strGuiGroup
 			this.intGuiOrder := intGuiOrder
+			this.strGuiGroup := strGuiGroup
+			this.strIniFile := strIniFile
+			this.strIniValueName := strIniValueName
+			this.strSection := strSection
 		}
 		;-----------------------------------------------------
 		
 		;-----------------------------------------------------
-		WriteNewIniGlobalValue(varNewValue)
-		; when writing to the main ini file Global section
+		WriteIni(varNewValue := "")
+		; update the IniValue if a value is provides and write it to ini file (Global section of the main ini file only)
 		;-----------------------------------------------------
 		{
-			this.IniValue := varNewValue
-			IniWrite, % this.IniValue, % o_Settings.strIniFile, Global, % this.strIniValueName
+			if StrLen(varNewValue)
+				this.IniValue := varNewValue
+			IniWrite, % this.IniValue, % (StrLen(this.strIniFile) ? this.strIniFile : o_Settings.strIniFile)
+				, % (StrLen(this.strSection) ? this.strSection : "Global", % this.strIniValueName
 		}
 		;-----------------------------------------------------
 	}
