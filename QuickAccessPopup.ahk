@@ -3341,8 +3341,8 @@ Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
 
-o_Settings.ReadIniOption("Menu-Advanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
-o_Settings.ReadIniOption("Menu-Advanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
+o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
+o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
 
 if (g_intRefreshQAPMenuIntervalSec > 0)
 	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
@@ -4120,14 +4120,14 @@ Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; load from ini file and enable Alt
 ; ---------------------
 ; Load Options Tab 1 General
 
-o_Settings.ReadIniOption("Menu Popup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
+o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "ChangeFolderInDialog", 0, "General", 50) ; g_blnChangeFolderInDialog
 if (g_blnChangeFolderInDialog)
-	o_Settings.ReadIniOption("Menu Popup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
+	o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
-o_Settings.ReadIniOption("Setting window", "strTheme", "Theme", "Windows", "Setting window", 30) ; g_strTheme
-o_Settings.ReadIniOption("Setting window", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
+o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) ; g_strTheme
+o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 g_blnUseColors := (o_Settings.SettingsWindow.strTheme.IniValue <> "Windows")
-o_Settings.ReadIniOption("Settings file", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
+o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
 ; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
 
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", 40) ; g_blnAddAutoAtTop
@@ -4144,14 +4144,14 @@ o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMa
 ; ---------------------
 ; Load Options Tab 2 Menu
 
-o_Settings.ReadIniOption("Menu Popup", "intPopupMenuPosition", "PopupMenuPosition", 1, "Menu Popup", 10) ; g_intPopupMenuPosition
-o_Settings.ReadIniOption("Menu Popup", "strPopupFixPosition", "PopupFixPosition", "20,20", "Menu Popup", 12) ; strPopupFixPosition
+o_Settings.ReadIniOption("MenuPopup", "intPopupMenuPosition", "PopupMenuPosition", 1, "MenuPopup", 10) ; g_intPopupMenuPosition
+o_Settings.ReadIniOption("MenuPopup", "strPopupFixPosition", "PopupFixPosition", "20,20", "MenuPopup", 12) ; strPopupFixPosition
 StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
 
 o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
 
 if !(g_blnPortableMode)
-	o_Settings.ReadIniOption("Menu Popup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "Menu Popup", 20) ; g_blnExplorerContextMenus
+	o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "MenuPopup", 20) ; g_blnExplorerContextMenus
 else
 	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
 
@@ -4160,12 +4160,12 @@ o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "Menu 
 
 o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
 o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
-o_Settings.ReadIniOption("Menu Popup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
+o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
 o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
 
-o_Settings.ReadIniOption("Menu Icons", "blnDisplayIcons", "DisplayIcons", 1, "Menu Icons", 10) ; g_blnDisplayIcons
-o_Settings.ReadIniOption("Menu Icons", "intIconSize", "iniName", 32, "Menu Icons", 20) ; g_intIconSize
-o_Settings.ReadIniOption("Menu Icons", "intIconsManageRowsSettings", "IconsManageRows", 0, "Menu Icons", 30) ; g_intIconsManageRowsSettings
+o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", 10) ; g_blnDisplayIcons
+o_Settings.ReadIniOption("MenuIcons", "intIconSize", "iniName", 32, "MenuIcons", 20) ; g_intIconSize
+o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManageRows", 0, "MenuIcons", 30) ; g_intIconsManageRowsSettings
 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
@@ -4173,7 +4173,7 @@ o_Settings.ReadIniOption("Menu Icons", "intIconsManageRowsSettings", "IconsManag
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
-o_Settings.ReadIniOption("Menu Popup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
+o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
 
 o_Settings.ReadIniOption("o_QAPfeatures", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
 o_Settings.ReadIniOption("o_QAPfeatures", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
@@ -4189,7 +4189,7 @@ global o_FileManagers := new FileManagers
 
 ; ExclusionMouseList
 
-o_Settings.ReadIniOption("Menu Popup", "strExclusionMouseList", "ExclusionMouseList", " ", "Menu Popup", 80) ; g_strExclusionMouseList
+o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "MenuPopup", 80) ; g_strExclusionMouseList
 SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
 
 ; UsageDb
@@ -4204,9 +4204,9 @@ g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
-o_Settings.ReadIniOption("User Variables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
+o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
 o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
-o_Settings.ReadIniOption("Menu Icons", "strIconReplacementList", "strIconReplacementList", " ", "Menu Icons", 40) ; g_strIconReplacementList
+o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "strIconReplacementList", " ", "MenuIcons", 40) ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(g_strIconReplacementList)
 
 ; ---------------------
@@ -4224,22 +4224,22 @@ if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-o_Settings.ReadIniOption("Menu-Advanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
+o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
-o_Settings.ReadIniOption("Menu-Advanced", "intDynamicMenusRefreshRate", "DynamicMenusRefreshRate", 10000, "Advanced", 5) ; default 10000 ms ; g_intDynamicMenusRefreshRate
-o_Settings.ReadIniOption("Menu-Advanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
+o_Settings.ReadIniOption("MenuAdvanced", "intDynamicMenusRefreshRate", "DynamicMenusRefreshRate", 10000, "Advanced", 5) ; default 10000 ms ; g_intDynamicMenusRefreshRate
+o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (g_intNbLiveFolderItemsMax = "ERROR")
 {
 	g_intNbLiveFolderItemsMax := 500
 	IniWrite, %g_intNbLiveFolderItemsMax%, % o_Settings.strIniFile, Global, NbLiveFolderItemsMax
 }
-o_Settings.ReadIniOption("Dialog boxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
+o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
 o_Settings.ReadIniOption("Snippets", "strWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
 o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "Advanced", order) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
-o_Settings.ReadIniOption("Launch-Advanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "Advanced", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
+o_Settings.ReadIniOption("LaunchAdvanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "Advanced", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
 o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "Advanced", 60) ; g_strHotstringsDefaultOptions
-o_Settings.ReadIniOption("Launch-Advanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "Advanced", 10) ; g_blnRefreshWindowsAppsListAtStartup
+o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "Advanced", 10) ; g_blnRefreshWindowsAppsListAtStartup
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "Advanced", 45) ; g_blnTryWindowPosition
 
 ; ---------------------
@@ -24446,7 +24446,7 @@ class QAPfeatures
 	{
 		; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
 		; read here because this is required before LoadIniFile
-		o_Settings.ReadIniOption("Menu Popup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "Menu Popup", 40) ; g_blnRefreshedMenusAttached
+		o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
 
 		; init refreshed menus attached or detached according to g_blnRefreshedMenusAttached
 		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
