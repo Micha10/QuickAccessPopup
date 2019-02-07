@@ -4116,9 +4116,8 @@ o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "ChangeFolderIn
 if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 	o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
-o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) ; g_strTheme
+g_blnUseColors := (o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) <> "Windows") ; g_strTheme
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
-g_blnUseColors := (o_Settings.SettingsWindow.strTheme.IniValue <> "Windows")
 o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
 ; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
 
@@ -4155,19 +4154,21 @@ o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar
 o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
 
 o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", 10) ; g_blnDisplayIcons
-o_Settings.ReadIniOption("MenuIcons", "intIconSize", "iniName", 32, "MenuIcons", 20) ; g_intIconSize
+o_Settings.ReadIniOption("MenuIcons", "intIconSize", "IconSize", 32, "MenuIcons", 20) ; g_intIconSize
 o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManageRows", 0, "MenuIcons", 30) ; g_intIconsManageRowsSettings
 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
+
+; done in init of o_PopupHotkeys
 
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
 o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
 
-o_Settings.ReadIniOption("o_QAPfeatures", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
-o_Settings.ReadIniOption("o_QAPfeatures", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
 
 ; ---------------------
 ; Load Options Tab 5 File Managers
@@ -4253,7 +4254,6 @@ ResetArray("arrThisFavorite")
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
 o_Settings.intIniLine := ""
-strActiveFileManagerSystemName := ""
 strFileList := ""
 intNumberOfBackups := ""
 objIniFile := ""
@@ -4761,7 +4761,7 @@ for strCode, objThisQAPFeature in o_QAPfeatures.I
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 {
-	strHotkey := o_Settings.ReadIniValue(strCode, "", "AlternativeMenuHotkeys")
+	strHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strCode, strCode, "", "PopupHotkeys", 80, "AlternativeMenuHotkeys")
 
 	if (strHotkey <> "ERROR")
 	{
@@ -7109,7 +7109,7 @@ Gui, 2:Tab, 3
 Gui, 2:Font
 Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabMouseAndKeyboardIntro, g_strAppNameText)
 
-for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
+for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I ; could also use o_Settings class objects
 {
 	Gui, 2:Font, s8 w700
 	Gui, 2:Add, Text, x15 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName
@@ -7158,8 +7158,8 @@ Gui, 2:Font
 Gui, 2:Add, Text, y+10 x15, %lOptionsControlDoublePressed%
 Gui, 2:Add, CheckBox, y+5 x15 vf_blnLeftControlDoublePressed, %lOptionsControlDoublePressedLeft%
 Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, %lOptionsControlDoublePressedRight%
-GuiControl, , f_blnLeftControlDoublePressed, %g_blnLeftControlDoublePressed%
-GuiControl, , f_blnRightControlDoublePressed, %g_blnRightControlDoublePressed%
+GuiControl, , f_blnLeftControlDoublePressed, % o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue
+GuiControl, , f_blnRightControlDoublePressed, % o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue
 
 ;---------------------------------------
 ; Tab 5: File Managers
@@ -7198,8 +7198,8 @@ Gui, Font, w600
 Gui, 2:Add, Text, ys x320 w300 Section, %lOptionsTabFileManagersPreferences%
 Gui, Font
 Gui, 2:Add, Text, y+10 x320 w300 vf_lblFileManagerNavigate, % L(lOptionsFileManagerNavigateIntro, o_FileManagers.I[o_FileManagers.ActiveFileManager].strDisplayName)
-Gui, 2:Add, Radio, % "y+10 x325 w250 vf_radFileManagerNavigateCurrent" . (o_FileManagers.blnFileManagerAlwaysNavigate ? " checked" : "")
-Gui, 2:Add, Radio, % "y+5 x325 w250 vf_radFileManagerNavigateNew" . (! o_FileManagers.blnFileManagerAlwaysNavigate ? " checked" : "")
+Gui, 2:Add, Radio, % "y+10 x325 w250 vf_radFileManagerNavigateCurrent" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+Gui, 2:Add, Radio, % "y+5 x325 w250 vf_radFileManagerNavigateNew" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
 Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavigateClicked
 
@@ -8078,7 +8078,7 @@ else if (g_intRefreshQAPMenuIntervalSec = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
-	IniWrite, % objThisPopupHotkey.AhkHotkey, % o_Settings.strIniFile, Global, % objThisPopupHotkey.strPopupHotkeyInternalName
+	o_Settings.MenuPopup[str . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIniGlobal(objThisPopupHotkey.AhkHotkey)
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -8086,15 +8086,13 @@ for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
 IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
 	if HasShortcut(strNewShortcut)
-		IniWrite, %strNewShortcut%, % o_Settings.strIniFile, AlternativeMenuHotkeys, %strThisAlternativeCode%
+		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIniGlobal(strNewShortcut) ; ##### check
 
 g_blnAlternativeMenuShowNotification := f_blnAlternativeMenuShowNotification
 IniWrite, %g_blnAlternativeMenuShowNotification%, % o_Settings.strIniFile, Global, AlternativeMenuShowNotification
 
-g_blnLeftControlDoublePressed := f_blnLeftControlDoublePressed
-IniWrite, %g_blnLeftControlDoublePressed%, % o_Settings.strIniFile, Global, LeftControlDoublePressed
-g_blnRightControlDoublePressed := f_blnRightControlDoublePressed
-IniWrite, %g_blnRightControlDoublePressed%, % o_Settings.strIniFile, Global, RightControlDoublePressed
+o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIniGlobal(f_blnLeftControlDoublePressed)
+o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIniGlobal(f_blnRightControlDoublePressed)
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
@@ -8103,25 +8101,31 @@ o_PopupHotkeys.EnablePopupHotkeys()
 ;---------------------------------------
 ; Save Tab 5: File Managers
 
-IniWrite, %g_intClickedFileManager%, % o_Settings.strIniFile, Global, ActiveFileManager
+o_Settings.FileManagers.intActiveFileManager.WriteIniGlobal(g_intClickedFileManager)
+o_Settings.FileManagers.blnAlwaysNavigate.WriteIniGlobal(f_radFileManagerNavigateCurrent)
 	
 strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
 
 if (g_intClickedFileManager = 1)
-	IniWrite, %f_blnOpenFavoritesOnActiveMonitor%, % o_Settings.strIniFile, Global, OpenFavoritesOnActiveMonitor
+	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIniGlobal(f_blnOpenFavoritesOnActiveMonitor)
 else if (g_intClickedFileManager = 4) ; QAPconnect
-	IniWrite, %f_drpQAPconnectFileManager%, % o_Settings.strIniFile, Global, QAPconnectFileManager
+	o_Settings.FileManagers.strQAPconnectFileManager.WriteIniGlobal(f_drpQAPconnectFileManager)
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	IniWrite, %f_strFileManagerPath%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%Path
+	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIniGlobal(f_strFileManagerPath)
 	
-	blnClickedUseTabs := f_blnFileManagerUseTabs
+	blnClickedUseTabs := o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIniGlobal(f_blnFileManagerUseTabs)
 	IniWrite, % blnClickedUseTabs, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%UseTabs
+	
 	if (g_intClickedFileManager = 2) ; DirectoryOpus
+	{
 		if (blnClickedUseTabs)
 			strClickedNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 		else
 			strClickedNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
+		
+		o_Settings.FileManagers.blnDirectoryOpusShowLayouts.WriteIniGlobal(f_blnFileManagerDirectoryOpusShowLayouts)
+	}
 	else ; TotalCommander
 	{
 		if (blnClickedUseTabs)
@@ -8129,15 +8133,11 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		else
 			strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
 		
-		IniWrite, %f_strTotalCommanderWinCmd%, % o_Settings.strIniFile, Global, TotalCommanderWinCmd
+		o_Settings.FileManagers.strTotalCommanderWinCmd.WriteIniGlobal(f_strTotalCommanderWinCmd)
 	}
-	IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
-	
-	if (g_intClickedFileManager = 2)
-		IniWrite, %f_blnFileManagerDirectoryOpusShowLayouts%, % o_Settings.strIniFile, Global, FileManagerDOpusShowLayouts
+	; remove: IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
+	; IniRead could be kept in FileManagers init to allow user to customize "NEWTAB" or "NEW" (for DOpus), "/O /T" or "/N" (for TC)
 }
-
-IniWrite, %f_radFileManagerNavigateCurrent%, % o_Settings.strIniFile, Global, FileManagerAlwaysNavigate
 
 ; Re-init class for FileManagers, reloading ini values
 o_FileManagers := new FileManagers
@@ -14813,8 +14813,8 @@ return
 
 strKeyPressed := A_ThisLabel
 
-if ((strKeyPressed = "~LCtrl") and !(g_blnLeftControlDoublePressed))
-	or ((strKeyPressed = "~RCtrl") and !(g_blnRightControlDoublePressed))
+if ((strKeyPressed = "~LCtrl") and !(o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue))
+	or ((strKeyPressed = "~RCtrl") and !(o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue))
 	return
 
 if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
@@ -15606,7 +15606,7 @@ if (g_objThisFavorite.FavoriteType = "Snippet")
 	return
 }
 
-if (o_FileManagers.blnFileManagerAlwaysNavigate and (g_strAlternativeMenu <> lMenuAlternativeNewWindow)
+if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu <> lMenuAlternativeNewWindow)
 	and InStr("|Folder|Special|FTP", "|" . g_objThisFavorite.FavoriteType)
 	and !WindowIsDialog(g_strTargetClass, g_strTargetWinId))
 {
@@ -22852,9 +22852,10 @@ class Triggers.MouseButtons
 			
 			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
 			{
-				strThisPopupHotkey := o_Settings.ReadIni(strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index])
-				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objOptionsPopupHotkeyLocalizedNames[A_Index]
-					, objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
+				; Init Settings class items for Triggers (must be before o_PopupHotkeys)
+				strThisPopupHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strThisPopupHotkeyInternalName, strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index], "PopupHotkeys", A_Index)
+				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objPopupHotkeyDefaults[A_Index]
+					, objOptionsPopupHotkeyLocalizedNames[A_Index], objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
 				this.I[A_Index] := oPopupHotkey
 				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
 			}
@@ -23197,13 +23198,13 @@ TODO
 		this.I[3] := new this.TotalCommander(objActiveFileManagerSystemNames[3], objActiveFileManagerDisplayNames[3])
 		this.I[4] := new this.QAPConnect(objActiveFileManagerSystemNames[4], objActiveFileManagerDisplayNames[4])
 			
-		intActiveFileManager := o_Settings.ReadIniValue("ActiveFileManager") ; if not exist returns "ERROR"
+		intActiveFileManager := o_Settings.ReadIniOption("FileManagers", "intActiveFileManager", "ActiveFileManager", "", "FileManagers", 10) ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
 		this.ActiveFileManager := intActiveFileManager
 
-		blnAlwaysNavigate := o_Settings.ReadIniValue("FileManagerAlwaysNavigate", 0)
-		this.blnFileManagerAlwaysNavigate := blnAlwaysNavigate
+		o_Settings.ReadIniOption("FileManagers", "blnAlwaysNavigate", "FileManagerAlwaysNavigate", 0, "FileManagers", 15) ; default false
+		; in main script, use o_FileManagers.ActiveFileManager instead of o_Settings.FileManagers.intActiveFileManager.IniValue
 	}
 	;---------------------------------------------------------
 
@@ -23309,8 +23310,8 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniValue("OpenFavoritesOnActiveMonitor", 0)
-			this.blnOpenFavoritesOnActiveMonitor := blnOpenFavoritesOnActiveMonitor
+			this.blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniOption("FileManagers", "blnExplorerOpenFavoritesOnActiveMonitor"
+				, "OpenFavoritesOnActiveMonitor", 0, "FileManagers", 20)
 			this.blnFileManagerValid := true
 		}
 		;-----------------------------------------------------
@@ -23338,7 +23339,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strPath := o_Settings.ReadIniValue("DirectoryOpusPath", " ")
+			strPath := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusPath", "DirectoryOpusPath", " ", "FileManagersDOpus", "30")
 			if !StrLen(strPath)
 				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
 			if !FileExist(strPath)
@@ -23352,15 +23353,15 @@ TODO
 			{
 				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
-				blnDirectoryOpusUseTabs := o_Settings.ReadIniValue("DirectoryOpusUseTabs", 1)
-				this.blnFileManagerUseTabs := blnDirectoryOpusUseTabs
+				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagersDOpus", "32")
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 				else
 					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
+				; ##### IniRead, strNewTabOrWindow, %g_strIniFile%, Global, DirectoryOpusNewTabOrWindow, %A_Space%
+				; allow user to customise (other than "NEW" or "NEWTAB")
 				
-				blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniValue("FileManagerDOpusShowLayouts", 1) ; true by default
-				this.blnFileManagerDirectoryOpusShowLayouts := blnFileManagerDirectoryOpusShowLayouts
+				this.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagersDOpus", "35")
 				
 				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
 			}
@@ -23621,7 +23622,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strPath := o_Settings.ReadIniValue("TotalCommanderPath", " ")
+			strPath := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderPath", "TotalCommanderPath", " ", "FileManagersTC", "40")
 			if !StrLen(strPath)
 			{
 				RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
@@ -23639,7 +23640,7 @@ TODO
 				
 			if (this.blnFileManagerValid)
 			{
-				strIniFile := o_Settings.ReadIniValue("TotalCommanderWinCmd", " ")
+				strIniFile := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderWinCmd", "TotalCommanderWinCmd", " ", "FileManagersTC", "45")
 				If !StrLen(strIniFile)
 					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
 				If !StrLen(strIniFile)
@@ -23648,12 +23649,14 @@ TODO
 				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
 				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				blnTotalCommanderUseTabs := o_Settings.ReadIniValue("TotalCommanderUseTabs", 1)
+				blnTotalCommanderUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagersTC", "42")
 				this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
 				else
 					this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
+				; ##### IniRead, strNewTabOrWindow, %g_strIniFile%, Global, TotalCommanderNewTabOrWindow, %A_Space%
+				; allow user to customise (other than "/O /T" or "/N")
 				
 				o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
 			}
@@ -23683,7 +23686,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strQAPconnectFileManager := o_Settings.ReadIniValue("QAPconnectFileManager", " ")
+			strQAPconnectFileManager := o_Settings.ReadIniOption("FileManagers", "strQAPconnectFileManager", "QAPconnectFileManager", " ", "FileManagersQAPconnect", "60")
 			this.strQAPconnectFileManager := strQAPconnectFileManager
 			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 			/* QAPconnect.ini sample:
@@ -24377,8 +24380,7 @@ class QAPfeatures
 	{
 		; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
 		; read here because this is required before LoadIniFile
-		o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
-		blnAttached := o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue
+		blnAttached := o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
 
 		; init refreshed menus attached or detached according to blnAttached
 		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (blnAttached ? "" : "...")
@@ -24813,6 +24815,8 @@ TODO
 		else
 			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		this[strOptionGroup][strSettingName] := objIniValue
+		
+		return objIniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
 	}
