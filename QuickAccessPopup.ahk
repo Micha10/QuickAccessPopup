@@ -3210,8 +3210,6 @@ global g_strHotstringOptionsSeparator := ":" ; separator between trigger and opt
 global g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
 global g_strHotstringOptionsExecute := "X"
 
-global g_strExclusionMouseListDialogIndicator := "*"
-
 global g_objGuiControls := Object() ; to build Settings gui
 
 global g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
@@ -3233,8 +3231,6 @@ global g_objWindowsAppsIDsByName := Object()
 global g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
-
-global g_blnRefreshedMenusAttached := "" ; will be read in ini file by QAPfeature class function AddAttachedOrDetachedQAPFeatureObject
 
 ;---------------------------------
 ; Initial validation
@@ -4001,7 +3997,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 	if !(g_blnPortableMode)
 		Gosub, CreateStartupShortcut
 
-	g_blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
+	blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
 	strLanguageCode := o_Settings.Launch.strLanguageCode.IniValue
 	strNavigateOrLaunchHotkeyMouseDefault := g_arrPopupHotkeyDefaults1 ; "MButton"
@@ -4013,7 +4009,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 		(LTrim Join`r`n
 			[Global]
 			LanguageCode=%strLanguageCode%
-			ExplorerContextMenus=%g_blnExplorerContextMenus%
+			ExplorerContextMenus=%blnExplorerContextMenus%
 			AvailableThemes=Windows|Grey|Light Blue|Light Green|Light Red|Yellow
 			Theme=Windows
 			NameLocationHotkeysUpgraded=1
@@ -4074,7 +4070,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 else
 {
 	g_strIniBefore := "DONT"
-	o_Settings.ReadIniOption("Setting file", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
+	o_Settings.ReadIniOption("SettingFile", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
 	if !(blnDoNotConvertSettingsToUnicode)
 	{
 		; check if the ini file is Unicode
@@ -4141,15 +4137,14 @@ o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMa
 ; Load Options Tab 2 Menu
 
 o_Settings.ReadIniOption("MenuPopup", "intPopupMenuPosition", "PopupMenuPosition", 1, "MenuPopup", 10) ; g_intPopupMenuPosition
-o_Settings.ReadIniOption("MenuPopup", "strPopupFixPosition", "PopupFixPosition", "20,20", "MenuPopup", 12) ; strPopupFixPosition
-StringSplit, g_arrPopupFixPosition, strPopupFixPosition, `,
+o_Settings.ReadIniOption("MenuPopup", "arrPopupFixPosition", "PopupFixPosition", "20,20", "MenuPopup", 12) ; g_arrPopupFixPosition
+o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
 
 o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
 
-if !(g_blnPortableMode)
-	o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 3, "MenuPopup", 20) ; g_blnExplorerContextMenus
-else
-	g_blnExplorerContextMenus := 0 ; always disabled in protable mode
+o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 1, "MenuPopup", 20) ; g_blnExplorerContextMenus
+if (g_blnPortableMode)
+	o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := 0 ; always disabled in portable mode, regardless of value in ini file
 
 o_Settings.ReadIniOption("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "Menu appearance", 80) ; g_intRecentFoldersMax
 o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "Menu appearance", 10) ; g_intNbLastActions
@@ -4186,7 +4181,8 @@ global o_FileManagers := new FileManagers
 ; ExclusionMouseList
 
 o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "MenuPopup", 80) ; g_strExclusionMouseList
-SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
+o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
+
 
 ; UsageDb
 o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
@@ -4246,12 +4242,12 @@ Gosub, LoadMenuFromIni
 Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
 
 strLanguageCode := ""
+blnExplorerContextMenus := ""
 ResetArray("arrMainMenu")
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
 strAlternativeHotkeyMouseDefault := ""
 strAlternativeHotkeyKeyboardDefault := ""
-strPopupFixPosition := ""
 blnDefaultMenuBuilt := ""
 ResetArray("arrThisFavorite")
 objLoadIniFavorite := ""
@@ -7032,10 +7028,10 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionCli
 
 Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionX%
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, %g_arrPopupFixPosition1%
+Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
 Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, %g_arrPopupFixPosition2%
+Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
 
 Gui, 2:Add, Text, y+10 xs w300, %lOptionsHotkeyRemindersPrompt%
 
@@ -7062,7 +7058,7 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!o_Settings.SettingsW
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, %lOptionsRefreshedMenusAttached%
-GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
+GuiControl, , f_blnRefreshedMenusAttached, % o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, %lOptionsDisplayMenuShortcuts%
 GuiControl, , f_blnDisplayNumericShortcuts, % o_Settings.Menu.blnDisplayNumericShortcuts.IniValue
@@ -7102,7 +7098,7 @@ if !(g_blnPortableMode)
 {
 	Gui, 2:Add, Text, y+15 xs w300, %lOptionsExplorerContextMenusHeader%
 	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, %lOptionsExplorerContextMenus%
-	GuiControl, , f_blnExplorerContextMenus, %g_blnExplorerContextMenus%
+	GuiControl, , f_blnExplorerContextMenus, % o_Settings.MenuPopup.blnExplorerContextMenus.IniValue
 }
 
 ;---------------------------------------
@@ -7232,7 +7228,7 @@ Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . "
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), %lOptionsIconReplacementListDescription%
 
 ; hidden
-Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(g_strExclusionMouseList), "|", "`n")
+Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
 Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
 
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
@@ -8032,9 +8028,9 @@ else
 	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
 o_Settings.MenuPopup.intPopupMenuPosition.WriteIniGlobal() ; value already updated in previous lines
 
-g_arrPopupFixPosition1 := f_intPopupFixPositionX
-g_arrPopupFixPosition2 := f_intPopupFixPositionY
-IniWrite, %g_arrPopupFixPosition1%`,%g_arrPopupFixPosition2%, % o_Settings.strIniFile, Global, PopupFixPosition
+o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
+o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
+o_Settings.MenuPopup.arrPopupFixPosition.WriteIniGlobal(f_intPopupFixPositionX . "," . f_intPopupFixPositionY) ; ##### test exception
 
 if (f_radHotkeyReminders1)
 	o_Settings.Menu.intHotkeyReminders.IniValue := 1
@@ -8046,19 +8042,18 @@ o_Settings.Menu.intHotkeyReminders.WriteIniGlobal() ; value already updated
 
 if !(g_blnPortableMode)
 {
-	if (f_blnExplorerContextMenus) and (!g_blnExplorerContextMenus)
+	if (f_blnExplorerContextMenus) and (!o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
 		gosub, EnableExplorerContextMenus
 		; else already enabled
-	if (!f_blnExplorerContextMenus) and (g_blnExplorerContextMenus)
+	if (!f_blnExplorerContextMenus) and (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
 		gosub, DisableExplorerContextMenus
 		; else already disabled
-	IniWrite, %g_blnExplorerContextMenus%, % o_Settings.strIniFile, Global, ExplorerContextMenus
+	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIniGlobal() ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
 }
 
 o_Settings.Menu.intRecentFoldersMax.WriteIniGlobal(f_intRecentFoldersMax)
 
-g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
-IniWrite, %g_blnRefreshedMenusAttached%, % o_Settings.strIniFile, Global, RefreshedMenusAttached
+o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIniGlobal(f_blnRefreshedMenusAttached)
 o_Settings.Menu.blnDisplayNumericShortcuts.WriteIniGlobal(f_blnDisplayNumericShortcuts)
 o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIniGlobal(f_blnDisplayNumericShortcutsFromOne)
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
@@ -8151,9 +8146,8 @@ o_FileManagers := new FileManagers
 ; Save Tab 6: More
 
 ; ExclusionList
-g_strExclusionMouseList := OptionsListCleanup(f_strExclusionMouseList)
-IniWrite, %g_strExclusionMouseList%, % o_Settings.strIniFile, Global, ExclusionMouseList
-SplitExclusionList(g_strExclusionMouseList, g_strExclusionMouseListApp, g_strExclusionMouseListDialog)
+o_Settings.MenuPopup.strExclusionMouseList.WriteIniGlobal(OptionsListCleanup(f_strExclusionMouseList))
+o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 ; UsageDb
 
@@ -8248,7 +8242,7 @@ for strMenuName, arrMenu in g_objMenusIndex
 	Menu, %strMenuName%, DeleteAll
 	ResetArray("arrMenu") ; free object's memory
 }
-; next line re-init o_QAPfeatures according to g_blnRefreshedMenusAttached before rebuilding the menus
+; next line re-init o_QAPfeatures according to o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue before rebuilding the menus
 o_QAPfeatures.RefreshAttachedOrDetachedQAPFeatureObject()
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildAlternativeMenu
@@ -8478,7 +8472,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
 			Oops(lContextCancelled)
 		else
-			g_blnExplorerContextMenus := true ; enabling succeeded
+			o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := true ; enabling succeeded
 		if (blnOptionsGuiWasActive)
 			WinActivate, %g_strOptionsGuiTitle%
 }
@@ -8513,7 +8507,7 @@ else ; DisableExplorerContextMenus
 		if (ErrorLevel = "ERROR" and A_LastError = 1223) ; error 1223 because user canceled on the Run as admnistrator prompt
 			Oops(lContextCancelled)
 		else
-			g_blnExplorerContextMenus := false ; disabling succeeded
+			o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := false ; disabling succeeded
 		if (blnOptionsGuiWasActive)
 			WinActivate, %g_strOptionsGuiTitle%
 }
@@ -14909,7 +14903,7 @@ Gosub, RefreshTotalCommanderHotlist
 Gosub, RefreshDirectoryOpusFavorites
 Gosub, RefreshLastActionsMenu
 
-if (g_blnRefreshedMenusAttached)
+if (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue)
 {
 	Gosub, RefreshPopularMenus
 	Gosub, RefreshRecentItemsMenus
@@ -14969,8 +14963,8 @@ else if (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2) ; display menu 
 }
 else ; (o_Settings.MenuPopup.intPopupMenuPosition.IniValue =  3) - fix position - use the g_intMenuPosX and g_intMenuPosY values from the ini file
 {
-	g_intMenuPosX := g_arrPopupFixPosition1
-	g_intMenuPosY := g_arrPopupFixPosition2
+	g_intMenuPosX := o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
+	g_intMenuPosY := o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
 }
 
 intMonitorWorkArea := ""
@@ -15022,7 +15016,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	global
 
 	if (strMouseOrKeyboard = o_PopupHotkeys.I[1].AhkHotkey) ; if hotkey is mouse
-		Loop, Parse, g_strExclusionMouseListApp, |
+		Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
 				or InStr(g_strTargetWinTitle, A_LoopField)
@@ -15049,8 +15043,6 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 DialogBoxParentExcluded(strTargetWinId)
 ;------------------------------------------------------------
 {
-	global g_strExclusionMouseListDialog
-	
 	; get specified window's parent ID
 	; from SKAN https://autohotkey.com/board/topic/27295-getting-id-or-class-for-parent-window/#entry175515
 	strParentTargetWinId := DllCall("GetParent", UInt,strTargetWinId)
@@ -15061,7 +15053,7 @@ DialogBoxParentExcluded(strTargetWinId)
 	WinGetTitle, strParentTitle, ahk_id %strParentTargetWinId%
 
 	; check for class or title in dialog's parent exclusion list
-	Loop, Parse, g_strExclusionMouseListDialog, |
+	Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListDialog, | ; ##### tester
 		if StrLen(A_Loopfield) and (InStr(strParentClass, A_LoopField) or InStr(strParentTitle, A_LoopField))
 			return true
 
@@ -21293,27 +21285,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 
 
 ;------------------------------------------------------------
-SplitExclusionList(strExclusionMouseList, ByRef g_strExclusionMouseListApp, ByRef g_strExclusionMouseListDialog)
-;------------------------------------------------------------
-{
-	g_strExclusionMouseListApp := ""
-	g_strExclusionMouseListDialog := ""
-	
-	Loop, Parse, strExclusionMouseList, |
-		if (SubStr(A_LoopField, 1, 1) = g_strExclusionMouseListDialogIndicator) and (StrLen(A_LoopField) > 2)
-		; g_strExclusionMouseListDialogIndicator ("*") tells to check this exclusion also in app's dialog boxes, and we have something after the indicator
-		{
-			g_strExclusionMouseListApp .= Trim(SubStr(A_LoopField, 2)) . "|"
-			g_strExclusionMouseListDialog .= Trim(SubStr(A_LoopField, 2)) . "|"
-		}
-		else if StrLen(A_LoopField)
-			g_strExclusionMouseListApp .= Trim(A_LoopField) . "|"
-
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 ;------------------------------------------------------------
 {
@@ -24407,31 +24378,32 @@ class QAPfeatures
 		; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
 		; read here because this is required before LoadIniFile
 		o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
+		blnAttached := o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue
 
-		; init refreshed menus attached or detached according to g_blnRefreshedMenusAttached
-		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (g_blnRefreshedMenusAttached ? "" : "...")
-			, (g_blnRefreshedMenusAttached ? lMenuRecentFolders : "")
+		; init refreshed menus attached or detached according to blnAttached
+		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (blnAttached ? "" : "...")
+			, (blnAttached ? lMenuRecentFolders : "")
 			, "RecentFoldersMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^r"
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
-		this.AddQAPFeatureObject("Recent Files", lMenuRecentFiles . (g_blnRefreshedMenusAttached ? "" : "...")
-			, (g_blnRefreshedMenusAttached ? lMenuRecentFiles : ""
+		this.AddQAPFeatureObject("Recent Files", lMenuRecentFiles . (blnAttached ? "" : "...")
+			, (blnAttached ? lMenuRecentFiles : ""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
 			, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, lMenuRecentFilesDescription, 0, "iconRecentFolders",	""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
-		this.AddQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders) . (g_blnRefreshedMenusAttached ? "" : "...")
-			, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFolders) : "")
+		this.AddQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders) . (blnAttached ? "" : "...")
+			, (blnAttached ? L(lMenuPopularMenus, lMenuPopularFolders) : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
-		this.AddQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles) . (g_blnRefreshedMenusAttached ? "" : "...")
-			, (g_blnRefreshedMenusAttached ? L(lMenuPopularMenus, lMenuPopularFiles) : "")
+		this.AddQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles) . (blnAttached ? "" : "...")
+			, (blnAttached ? L(lMenuPopularMenus, lMenuPopularFiles) : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
-		this.AddQAPFeatureObject("Drives", lMenuDrives . (g_blnRefreshedMenusAttached ? "" : "...")
-			, (g_blnRefreshedMenusAttached ? lMenuDrives : ""
+		this.AddQAPFeatureObject("Drives", lMenuDrives . (blnAttached ? "" : "...")
+			, (blnAttached ? lMenuDrives : ""
 			, "what-are-these-features-in-the-my-qap-essentials-menu")
 			, "DrivesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, lMenuDrivesDescription, 0, "iconDrives", "+^d"
@@ -24836,7 +24808,10 @@ TODO
 			this[strOptionGroup] := Object()
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
-		objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
+		if (strSettingName = "strExclusionMouseList") ; exception for additional values
+			objIniValue := new this.IniValueExclusionMouseList(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
+		else
+			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		this[strOptionGroup][strSettingName] := objIniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
@@ -24879,6 +24854,33 @@ TODO
 				this.IniValue := varNewValue
 			IniWrite, % this.IniValue, % (StrLen(this.strIniFile) ? this.strIniFile : o_Settings.strIniFile)
 				, % (StrLen(this.strSection) ? this.strSection : "Global"), % this.strIniValueName
+		}
+		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	class IniValueExclusionMouseList extends Settings.IniValue
+	;---------------------------------------------------------
+	{
+		;-----------------------------------------------------
+		SplitExclusionList()
+		;-----------------------------------------------------
+		{
+			strExclusionMouseListDialogIndicator := "*"
+			
+			this.strExclusionMouseListApp := ""
+			this.strExclusionMouseListDialog := ""
+			
+			Loop, Parse, % this.IniValue, |
+				if (SubStr(A_LoopField, 1, 1) = strExclusionMouseListDialogIndicator) and (StrLen(A_LoopField) > 2)
+				; strExclusionMouseListDialogIndicator ("*") tells to check this exclusion also in app's dialog boxes, and we have something after the indicator
+				{
+					this.strExclusionMouseListApp .= Trim(SubStr(A_LoopField, 2)) . "|"
+					this.strExclusionMouseListDialog .= Trim(SubStr(A_LoopField, 2)) . "|"
+				}
+				else if StrLen(A_LoopField)
+					this.strExclusionMouseListApp .= Trim(A_LoopField) . "|"
 		}
 		;-----------------------------------------------------
 	}
