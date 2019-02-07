@@ -3283,7 +3283,6 @@ global o_Favorites := new Favorites
 ; Load Settings file
 
 Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to menu object
-global o_Settings := new Settings
 
 ;---------------------------------
 ; Must be after LoadIniFile
@@ -4010,8 +4009,6 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 	strAlternativeHotkeyMouseDefault := g_arrPopupHotkeyDefaults3 ; "+MButton"
 	strAlternativeHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults4 ; "+#W"
 	
-	g_intIconSize := 32
-	
 	FileAppend,
 		(LTrim Join`r`n
 			[Global]
@@ -4206,7 +4203,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
 o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
 o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "strIconReplacementList", " ", "MenuIcons", 40) ; g_strIconReplacementList
-o_JLicons.ProcessReplacements(g_strIconReplacementList)
+o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
 ; ---------------------
 ; Load internal flags and various values
@@ -5194,7 +5191,7 @@ SetWaitCursor(true)
 Gosub, RefreshPopularMenus
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5263,7 +5260,7 @@ SetWaitCursor(true)
 Gosub, RefreshClipboardMenu
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5298,7 +5295,7 @@ if (StrLen(Clipboard) <= g_intClipboardMaxSize) ; Clipboard is too large - 22 00
 		{
 			strContentsInClipboard .= "`n" . A_LoopField
 			
-			if (g_blnDisplayIcons)
+			if (o_Settings.MenuIcons.blnDisplayIcons.IniValue)
 				if RecentLocationIsDocument(strClipboardLineExpanded, A_ThisLabel) ; RecentLocationIsDocument to check if on an offline server
 					strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
 				else
@@ -5426,7 +5423,7 @@ SetWaitCursor(true)
 Gosub, RefreshDrivesMenu
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5492,7 +5489,7 @@ SetWaitCursor(true)
 Gosub, RefreshRecentItemsMenus
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5578,7 +5575,7 @@ SetWaitCursor(true)
 Gosub, RefreshReopenFolderMenu
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5597,7 +5594,7 @@ SetWaitCursor(true)
 Gosub, RefreshLastActionsMenu
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5616,7 +5613,7 @@ SetWaitCursor(true)
 Gosub, RefreshSwitchFolderOrAppMenu
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -5968,7 +5965,7 @@ SetWaitCursor(true)
 Gosub, RefreshTotalCommanderHotlist
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -6109,7 +6106,7 @@ SetWaitCursor(true)
 Gosub, RefreshDirectoryOpusFavorites
 
 Gosub, SetMenuPosition
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
 SetWaitCursor(false)
 
@@ -6188,7 +6185,7 @@ Gosub, SetMenuPosition
 
 Gosub, RefreshLastActionsMenu
 
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 Menu, %lMenuLastActions%, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -6239,8 +6236,8 @@ Loop
 	{
 		strThisHotkey := o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
 		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
-		if (g_intHotkeyReminders > 1) and StrLen(strThisHotkey)
-			strMenuName .= " (" . (g_intHotkeyReminders = 2 ? strThisHotkey : new Triggers.HotkeyParts(strThisHotkey).Hotkey2Text(true)) . ")"
+		if (o_Settings.Menu.intHotkeyReminders.IniValue > 1) and StrLen(strThisHotkey)
+			strMenuName .= " (" . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? strThisHotkey : new Triggers.HotkeyParts(strThisHotkey).Hotkey2Text(true)) . ")"
 			; hotkey reminder " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
 		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
@@ -6308,13 +6305,9 @@ return
 RecursiveBuildOneMenu(objCurrentMenu)
 ;------------------------------------------------------------
 {
-	global g_blnDisplayNumericShortcuts
-	global g_blnDisplayIcons
-	global g_intIconSize
 	global g_strMenuBackgroundColor
 	global g_blnUseColors
 	global g_objMenuColumnBreaks
-	global g_intHotkeyReminders
 	global g_blnWorkingToolTip
 	global g_intNbLiveFolderItems
 	global g_intNbLiveFolderItemsMax
@@ -6353,8 +6346,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		{
 			g_objFavoritesObjectsByShortcut.Insert(objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index])
 
-			if (g_intHotkeyReminders > 1)
-				strMenuName .= " (" . (g_intHotkeyReminders = 2
+			if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
+				strMenuName .= " (" . (o_Settings.Menu.intHotkeyReminders.IniValue = 2
 					? objCurrentMenu[A_Index].FavoriteShortcut 
 					: new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)) . ")"
 					
@@ -6370,7 +6363,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 		{
 			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
-			if (g_intHotkeyReminders > 1)
+			if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
 				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
 			; before creating an hotstring...
@@ -6397,18 +6390,18 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
 			Menu, % objCurrentMenu.MenuPath, % (objCurrentMenu[A_Index].SubMenu.MaxIndex() > 1 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains only the back .. item
-			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
+			if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
 				
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, on
 				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-					, %strThisIconFile%, %intThisIconIndex% , %g_intIconSize%
+					, %strThisIconFile%, %intThisIconIndex% , % o_Settings.MenuIcons.intIconSize.IniValue
 				if (ErrorLevel)
 				{
 					ParseIconResource("iconUnknown", strIconFile, intIconIndex)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, %strIconFile%, %intIconIndex%, %g_intIconSize%
+						, %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 				}
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
@@ -6450,7 +6443,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, %strCommandName%
 			}
 
-			if (g_blnDisplayIcons) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
+			if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (objCurrentMenu[A_Index].FavoriteIconResource <> "iconNoIcon")
 			{
 				if (objCurrentMenu[A_Index].FavoriteType = "Folder") ; this is a folder
 					strThisIconFileIndex := objCurrentMenu[A_Index].FavoriteIconResource
@@ -6469,12 +6462,12 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, on
 				ErrorLevel := 0 ; for safety clear in case Menu is not called in next if
-				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, %g_intIconSize%
+				Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 				if (ErrorLevel)
 				{
 					ParseIconResource("iconUnknown", strIconFile, intIconIndex)
 					Menu, % objCurrentMenu.MenuPath, Icon, %strMenuName%
-						, %strIconFile%, %intIconIndex%, %g_intIconSize%
+						, %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 				}
 				Menu, % objCurrentMenu.MenuPath, UseErrorLevel, off
 			}
@@ -6709,9 +6702,7 @@ GetSortCriteria(strSort)
 AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 {
-	global g_blnAddCloseToDynamicMenus
-	
-	if (g_blnAddCloseToDynamicMenus)
+	if (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue)
 	{
 		Menu, %strMenuName%, Add
 		AddMenuIcon(strMenuName, lMenuCloseThisMenu, "DoNothing", "iconClose")
@@ -6725,8 +6716,6 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 ; strIconValue can be an index from o_JLicons.I (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ;------------------------------------------------------------
 {
-	global g_intIconSize
-	global g_blnDisplayIcons
 	global g_blnMainIsFirstColumn
 
 	if !StrLen(strMenuItemName)
@@ -6739,16 +6728,16 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-)
 	
 	Menu, %strMenuName%, Add, %strMenuItemName%, %strLabel%
-	if (g_blnDisplayIcons) and (strIconValue <> "iconNoIcon")
+	if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
 	{
 		Menu, %strMenuName%, UseErrorLevel, on
 		ParseIconResource(strIconValue, strIconFile, intIconIndex)
-		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
+		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 		if (ErrorLevel)
 		{
 			ParseIconResource((strMenuName = lMenuSwitchFolderOrApp ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, % EnvVars(strIconFile), %intIconIndex%, %g_intIconSize%
+				, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 		}
 		Menu, %strMenuName%, UseErrorLevel, off
 	}
@@ -7037,31 +7026,31 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(lOptionsTabMenuOptionsIntro, g_strAp
 
 Gui, 2:Add, Text, y+15 x15 w300 Section, %lOptionsMenuPositionPrompt%
 
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (g_intPopupMenuPosition = 1 ? "Checked" : ""), %lOptionsMenuNearMouse%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (g_intPopupMenuPosition = 2 ? "Checked" : ""), %lOptionsMenuActiveWindow%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (g_intPopupMenuPosition = 3 ? "Checked" : ""), %lOptionsMenuFixPosition%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1 ? "Checked" : ""), %lOptionsMenuNearMouse%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Checked" : ""), %lOptionsMenuActiveWindow%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "Checked" : ""), %lOptionsMenuFixPosition%
 
-Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionX%
-Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionX%
+Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, %g_arrPopupFixPosition1%
-Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
-Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, %g_arrPopupFixPosition2%
 
 Gui, 2:Add, Text, y+10 xs w300, %lOptionsHotkeyRemindersPrompt%
 
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders1 Group " . (g_intHotkeyReminders = 1 ? "Checked" : ""), %lOptionsHotkeyRemindersNo%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders2 " . (g_intHotkeyReminders = 2 ? "Checked" : ""), %lOptionsHotkeyRemindersShort%
-Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (g_intHotkeyReminders = 3 ? "Checked" : ""), %lOptionsHotkeyRemindersFull%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders1 Group " . (o_Settings.Menu.intHotkeyReminders.IniValue = 1 ? "Checked" : ""), %lOptionsHotkeyRemindersNo%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders2 " . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? "Checked" : ""), %lOptionsHotkeyRemindersShort%
+Gui, 2:Add, Radio, % "y+5 xs w300 vf_radHotkeyReminders3 " . (o_Settings.Menu.intHotkeyReminders.IniValue = 3 ? "Checked" : ""), %lOptionsHotkeyRemindersFull%
 
 Gui, 2:Add, Text, y+15 xs w300, %lOptionsRecentFoldersPrompt%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
-Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, %g_intRecentFoldersMax%
+Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, % o_Settings.Menu.intRecentFoldersMax.IniValue
 Gui, 2:Add, Text, yp x+10 w235, %lOptionsRecentFolders%
 
 Gui, 2:Add, Text, y+15 xs w300, %lMenuLastActions%
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
-Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, %g_intNbLastActions%
+Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, % o_Settings.Menu.intNbLastActions.IniValue
 StringReplace, strOptionsLastActions, lOptionsRecentFolders, & ; remove ampersand
 Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
 
@@ -7076,29 +7065,29 @@ Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusA
 GuiControl, , f_blnRefreshedMenusAttached, %g_blnRefreshedMenusAttached%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, %lOptionsDisplayMenuShortcuts%
-GuiControl, , f_blnDisplayNumericShortcuts, %g_blnDisplayNumericShortcuts%
+GuiControl, , f_blnDisplayNumericShortcuts, % o_Settings.Menu.blnDisplayNumericShortcuts.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcutsFromOne, %lOptionsDisplayMenuShortcutsFromOne%
-GuiControl, , f_blnDisplayNumericShortcutsFromOne, %g_blnDisplayNumericShortcutsFromOne%
+GuiControl, , f_blnDisplayNumericShortcutsFromOne, % o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue
 gosub, DisplayMenuShortcutsClicked
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
 GuiControl, , f_blnOpenMenuOnTaskbar, %g_blnOpenMenuOnTaskbar%
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddCloseToDynamicMenus, %lOptionsAddCloseToDynamicMenus%
-GuiControl, , f_blnAddCloseToDynamicMenus, %g_blnAddCloseToDynamicMenus%
+GuiControl, , f_blnAddCloseToDynamicMenus, % o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayIcons gDisplayIconsClicked, %lOptionsDisplayIcons%
-GuiControl, , f_blnDisplayIcons, %g_blnDisplayIcons%
+GuiControl, , f_blnDisplayIcons, % o_Settings.MenuIcons.blnDisplayIcons.IniValue
 
 Gui, 2:Add, Text, y+5 xs vf_drpIconSizeLabel Disabled, %lOptionsIconSize%
 Gui, 2:Add, DropDownList, yp x+10 w40 vf_drpIconSize Sort Disabled, 16|24|32|48|64
-GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
+GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniValue
 gosub, DisplayIconsClicked
 
-Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
-Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
-Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
+Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
+Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
+Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), %lOptionsIconsManageRows%
 
 Gui, 2:Add, Checkbox, y+15 xs w300 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, %lOptionsRefreshQAPMenuTitle%
 GuiControl, , f_blnRefreshQAPMenuEnable, % (g_intRefreshQAPMenuIntervalSec > 0)
@@ -7252,7 +7241,7 @@ Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
 
 Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
-Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(g_strIconReplacementList), "|", "`n")
+Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n")
 
 ; End of more
 
@@ -7989,8 +7978,6 @@ if (f_blnOptionsRunAtStartup)
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", %lMenuRunAtStartupAmpersand%
 
 o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIniGlobal(f_blnAddAutoAtTop0)
-; g_blnDisplayTrayTip := f_blnDisplayTrayTip
-; IniWrite, %g_blnDisplayTrayTip%, % o_Settings.strIniFile, Global, DisplayTrayTip
 o_Settings.Launch.blnDisplayTrayTip.WriteIni(f_blnDisplayTrayTip)
 o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIniGlobal(f_blnChangeFolderInDialog)
 o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
@@ -8038,24 +8025,24 @@ IniWrite, %g_blnSnippetDefaultMacro%, % o_Settings.strIniFile, Global, SnippetDe
 ; Save Tab 2: Menu options
 
 if (f_radPopupMenuPosition1)
-	g_intPopupMenuPosition := 1
+	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 1
 else if (f_radPopupMenuPosition2)
-	g_intPopupMenuPosition := 2
+	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 2
 else
-	g_intPopupMenuPosition := 3
-IniWrite, %g_intPopupMenuPosition%, % o_Settings.strIniFile, Global, PopupMenuPosition
+	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
+o_Settings.MenuPopup.intPopupMenuPosition.WriteIniGlobal() ; value already updated in previous lines
 
 g_arrPopupFixPosition1 := f_intPopupFixPositionX
 g_arrPopupFixPosition2 := f_intPopupFixPositionY
 IniWrite, %g_arrPopupFixPosition1%`,%g_arrPopupFixPosition2%, % o_Settings.strIniFile, Global, PopupFixPosition
 
 if (f_radHotkeyReminders1)
-	g_intHotkeyReminders := 1
+	o_Settings.Menu.intHotkeyReminders.IniValue := 1
 else if (f_radHotkeyReminders2)
-	g_intHotkeyReminders := 2
+	o_Settings.Menu.intHotkeyReminders.IniValue := 2
 else
-	g_intHotkeyReminders := 3
-IniWrite, %g_intHotkeyReminders%, % o_Settings.strIniFile, Global, HotkeyReminders
+	o_Settings.Menu.intHotkeyReminders.IniValue := 3
+o_Settings.Menu.intHotkeyReminders.WriteIniGlobal() ; value already updated
 
 if !(g_blnPortableMode)
 {
@@ -8068,27 +8055,19 @@ if !(g_blnPortableMode)
 	IniWrite, %g_blnExplorerContextMenus%, % o_Settings.strIniFile, Global, ExplorerContextMenus
 }
 
-g_intRecentFoldersMax := f_intRecentFoldersMax
-IniWrite, %g_intRecentFoldersMax%, % o_Settings.strIniFile, Global, RecentFoldersMax
+o_Settings.Menu.intRecentFoldersMax.WriteIniGlobal(f_intRecentFoldersMax)
 
 g_blnRefreshedMenusAttached := f_blnRefreshedMenusAttached
 IniWrite, %g_blnRefreshedMenusAttached%, % o_Settings.strIniFile, Global, RefreshedMenusAttached
-g_blnDisplayNumericShortcuts := f_blnDisplayNumericShortcuts
-IniWrite, %g_blnDisplayNumericShortcuts%, % o_Settings.strIniFile, Global, DisplayMenuShortcuts
-g_blnDisplayNumericShortcutsFromOne := f_blnDisplayNumericShortcutsFromOne
-IniWrite, %g_blnDisplayNumericShortcutsFromOne%, % o_Settings.strIniFile, Global, DisplayMenuShortcutsFromOne
+o_Settings.Menu.blnDisplayNumericShortcuts.WriteIniGlobal(f_blnDisplayNumericShortcuts)
+o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIniGlobal(f_blnDisplayNumericShortcutsFromOne)
 g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
 IniWrite, %g_blnOpenMenuOnTaskbar%, % o_Settings.strIniFile, Global, OpenMenuOnTaskbar
-g_blnAddCloseToDynamicMenus := f_blnAddCloseToDynamicMenus
-IniWrite, %g_blnAddCloseToDynamicMenus%, % o_Settings.strIniFile, Global, AddCloseToDynamicMenus
-g_blnDisplayIcons := f_blnDisplayIcons
-IniWrite, %g_blnDisplayIcons%, % o_Settings.strIniFile, Global, DisplayIcons
-g_intIconSize := f_drpIconSize
-IniWrite, %g_intIconSize%, % o_Settings.strIniFile, Global, IconSize
-g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
-IniWrite, %g_intIconsManageRowsSettings%, % o_Settings.strIniFile, Global, IconsManageRows
-g_intNbLastActions := f_intNbLastActions
-IniWrite, %g_intNbLastActions%, % o_Settings.strIniFile, Global, NbLastActions
+o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIniGlobal(f_blnAddCloseToDynamicMenus)
+o_Settings.MenuIcons.blnDisplayIcons.WriteIniGlobal(f_blnDisplayIcons)
+o_Settings.MenuIcons.intIconSize.WriteIniGlobal(f_drpIconSize)
+o_Settings.MenuIcons.intIconsManageRowsSettings.WriteIniGlobal(f_intIconsManageRowsSettings)
+o_Settings.Menu.intNbLastActions.WriteIniGlobal(f_intNbLastActions)
 
 g_intRefreshQAPMenuIntervalSec := (f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
 IniWrite, %g_intRefreshQAPMenuIntervalSec%, % o_Settings.strIniFile, Global, RefreshQAPMenuIntervalSec
@@ -8203,9 +8182,8 @@ if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDb
 
 g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
 IniWrite, %g_strUserVariablesList%, % o_Settings.strIniFile, Global, UserVariablesList
-g_strIconReplacementList := OptionsListCleanup(f_strIconReplacementList)
-IniWrite, %g_strIconReplacementList%, % o_Settings.strIniFile, Global, IconReplacementList
-o_JLicons.ProcessReplacements(g_strIconReplacementList)
+o_Settings.MenuIcons.strIconReplacementList.WriteIniGlobal(OptionsListCleanup(f_strIconReplacementList))
+o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
 IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExclusionList
 
@@ -13126,7 +13104,7 @@ Gui, 2:Tab
 
 Gui, 2:Add, Checkbox, vf_blnSeeAllFavorites gCheckboxSeeAllFavoritesClicked, %lDialogHotkeysManageListSeeAllFavorites%
 Gui, 2:Add, Checkbox, x+50 yp vf_blnSeeShortHotkeyNames gCheckboxSeeShortHotkeyNames, %lDialogHotkeysManageListSeeShortHotkeyNames%
-GuiControl, , f_blnSeeShortHotkeyNames, % (g_intHotkeyReminders = 2) ; 1 = no name, 2 = short names, 3 = full name
+GuiControl, , f_blnSeeShortHotkeyNames, % (o_Settings.Menu.intHotkeyReminders.IniValue = 2) ; 1 = no name, 2 = short names, 3 = full name
 
 Gosub, HotkeysManageListLoad
 
@@ -13371,13 +13349,13 @@ g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
 intIconsManageRowsHeight := 44
-if !(g_intIconsManageRowsSettings)
+if !(o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue)
 {
 	ActiveMonitorInfo(intTop, intLeft, intWidth, intMonitorHeight)
 	g_intIconsManageRows := ((intMonitorHeight - 250) // intIconsManageRowsHeight)
 }
 else
-	g_intIconsManageRows:= g_intIconsManageRowsSettings
+	g_intIconsManageRows:= o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
 
 intMarginWidth := 10
 intIconSize := 32
@@ -14970,11 +14948,11 @@ return
 SetMenuPosition:
 ;------------------------------------------------------------
 
-; relative to active window if option g_intPopupMenuPosition = 2
-CoordMode, Mouse, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
-CoordMode, Menu, % (g_intPopupMenuPosition = 2 ? "Window" : "Screen")
+; relative to active window if option o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2
+CoordMode, Mouse, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
 
-if (g_intPopupMenuPosition = 1) ; display menu near mouse pointer location
+if (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1) ; display menu near mouse pointer location
 {
 	MouseGetPos, g_intMenuPosX, g_intMenuPosY
 	if (g_blnLaunchFromTrayIcon)
@@ -14984,12 +14962,12 @@ if (g_intPopupMenuPosition = 1) ; display menu near mouse pointer location
 			g_intMenuPosY := intMonitorWorkAreaBottom - 5
 	}
 }
-else if (g_intPopupMenuPosition = 2) ; display menu at an offset of 20x20 pixel from top-left of active window area
+else if (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2) ; display menu at an offset of 20x20 pixel from top-left of active window area
 {
 	g_intMenuPosX := 20
 	g_intMenuPosY := 20
 }
-else ; (g_intPopupMenuPosition =  3) - fix position - use the g_intMenuPosX and g_intMenuPosY values from the ini file
+else ; (o_Settings.MenuPopup.intPopupMenuPosition.IniValue =  3) - fix position - use the g_intMenuPosX and g_intMenuPosY values from the ini file
 {
 	g_intMenuPosX := g_arrPopupFixPosition1
 	g_intMenuPosY := g_arrPopupFixPosition2
@@ -15271,9 +15249,9 @@ OpenAlternativeMenu:
 ;------------------------------------------------------------
 
 g_strAlternativeMenu := A_ThisMenuItem
-if (g_blnDisplayNumericShortcuts)
+if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	StringTrimLeft, g_strAlternativeMenu, g_strAlternativeMenu, 3 ; remove "&1 " from menu item
-if (g_intHotkeyReminders > 1) and InStr(g_strAlternativeMenu, " (")
+if (o_Settings.Menu.intHotkeyReminders.IniValue > 1) and InStr(g_strAlternativeMenu, " (")
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, " (", -1) - 1) ; and remove hotkey reminder
 
 gosub, OpenAlternativeMenuTrayTip
@@ -15461,7 +15439,7 @@ strThisMenuItem :=  A_ThisMenuItem
 strWindowId := g_objSwitchWindowIdsByName[strThisMenuItem]
 StringSplit, arrFolderWindowId, strWindowId, |
 
-if (g_blnDisplayNumericShortcuts)
+if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	StringTrimLeft, strThisMenuItem, strThisMenuItem, 3 ; remove "&1 " from menu item
 
 if (arrFolderWindowId1 = "EX") ; Explorer
@@ -15485,7 +15463,7 @@ RepeatLastAction:
 RepeatLastActionShortcut:
 ;-----------------------------------------------------------
 
-if (g_blnDisplayNumericShortcuts)
+if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
@@ -16129,7 +16107,7 @@ OpenFavoriteGetFavoriteObject:
 
 g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, so kill this variable
 
-if (g_blnDisplayNumericShortcuts)
+if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
@@ -16525,7 +16503,7 @@ loop, parse, strLastActionsOrdered, `n
 	if !StrLen(A_LoopField)
 		break
 	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, g_strEscapePipe) + StrLen(g_strEscapePipe))
-	if (A_Index > g_intNbLastActions)
+	if (A_Index > o_Settings.Menu.intNbLastActions.IniValue)
 		g_objLastActions.Delete(strThisLastActionKey) ; kill older items
 	else
 		g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
@@ -19269,11 +19247,11 @@ loop, parse, % "Folders|Files", |
 		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
-		if (intPopularItemsCount >= g_intRecentFoldersMax)
+		if (intPopularItemsCount >= o_Settings.Menu.intRecentFoldersMax.IniValue)
 			break ; Folders or Files menus is complete
 	}
 	objRecordSet.Free()
-	if (intPopularItemsCount < g_intRecentFoldersMax)
+	if (intPopularItemsCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
@@ -19469,21 +19447,21 @@ Loop
 		strMenuName := MenuNameWithNumericShortcut(intMenuNumberFiles, strTargetPath)
 	
 	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
-	if (strTargetType = "Folder") and (intRecentFoldersCount < g_intRecentFoldersMax)
+	if (strTargetType = "Folder") and (intRecentFoldersCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
 		g_strMenuItemsListRecentFolders .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-Folder", intRecentFoldersCount, "ELAPSED")
 	}
 	; do not "else"
-	if (strTargetType = "File") and (intRecentFilesCount < g_intRecentFoldersMax)
+	if (strTargetType = "File") and (intRecentFilesCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
 		g_strMenuItemsListRecentFiles .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-File", intRecentFoldersCount, "ELAPSED")
 	}
 
-	if (intRecentFoldersCount >= g_intRecentFoldersMax) and (intRecentFilesCount >= g_intRecentFoldersMax)
+	if (intRecentFoldersCount >= o_Settings.Menu.intRecentFoldersMax.IniValue) and (intRecentFilesCount >= o_Settings.Menu.intRecentFoldersMax.IniValue)
 		break ; both Folders and Files menus are complete
 }
 if (g_blnUsageDbEnabled) ; use SQLite usage database
@@ -20088,10 +20066,8 @@ GetFavoriteHotkeyFromLocation(strLocation)
 GetHotstringReminder(strHotstring)
 ;------------------------------------------------------------
 {
-	global g_intHotkeyReminders
-	
 	if StrLen(strHotstring)
-		return " " . BetweenParenthesis((g_intHotkeyReminders = 2
+		return " " . BetweenParenthesis((o_Settings.Menu.intHotkeyReminders.IniValue = 2
 			? lDialogHotstringIndicator
 			: GetHotstringTrigger(strHotstring)))
 	else
@@ -20444,9 +20420,7 @@ GetDeepestMenuPath(strPath)
 MenuNameWithNumericShortcut(ByRef intMenuNumber, strMenuName)
 ;------------------------------------------------------------
 {
-	global g_blnDisplayNumericShortcuts
-	
-	if (g_blnDisplayNumericShortcuts and (intMenuNumber <= 35))
+	if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (intMenuNumber <= 35))
 		return "&" . NextMenuShortcut(intMenuNumber) . " " . StrReplace(strMenuName, "&")
 	else
 		return strMenuName
@@ -20458,12 +20432,10 @@ MenuNameWithNumericShortcut(ByRef intMenuNumber, strMenuName)
 NextMenuShortcut(ByRef intMenuNumber)
 ;------------------------------------------------------------
 {
-	global g_blnDisplayNumericShortcutsFromOne
-	
 	if (intMenuNumber < 10)
 	{
-		; 0 .. 9 (or 1 .. 9 . 0 if g_blnDisplayNumericShortcutsFromOne )
-		strShortcut := Mod(intMenuNumber + (g_blnDisplayNumericShortcutsFromOne ? 1 : 0), 10) ; 0 .. 9
+		; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
+		strShortcut := Mod(intMenuNumber + (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue ? 1 : 0), 10)
 	}
 	else
 		strShortcut := Chr(intMenuNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
@@ -22336,9 +22308,7 @@ DoubleAmpersand(str)
 ; for ampersand in menu item names
 ;------------------------------------------------------------
 {
-	global g_blnDisplayNumericShortcuts
-	
-	if (g_blnDisplayNumericShortcuts and SubStr(str, 1, 1) = "&")
+	if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and SubStr(str, 1, 1) = "&")
 	{
 		str := SubStr(str, 2)
 		blnRestoreNumericShortcut := true
@@ -24908,7 +24878,7 @@ TODO
 			if StrLen(varNewValue)
 				this.IniValue := varNewValue
 			IniWrite, % this.IniValue, % (StrLen(this.strIniFile) ? this.strIniFile : o_Settings.strIniFile)
-				, % (StrLen(this.strSection) ? this.strSection : "Global", % this.strIniValueName
+				, % (StrLen(this.strSection) ? this.strSection : "Global"), % this.strIniValueName
 		}
 		;-----------------------------------------------------
 	}
