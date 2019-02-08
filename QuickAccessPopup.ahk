@@ -3283,12 +3283,14 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to 
 ;---------------------------------
 ; Must be after LoadIniFile
 
-if (g_blnRunAsAdmin and !A_IsAdmin)
+if (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue and !A_IsAdmin)
 	gosub, ReloadAsAdmin
 if (A_IsAdmin and !o_CommandLineParameters.I.HasKey("AdminSilent")
-	and g_blnRunAsAdmin) ; show alert only if running as admin because of the g_blnRunAsAdmin option, except if "/AdminSilent" command-line option is used
+	and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
+	; show alert only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option, except if "/AdminSilent" command-line option is used
 	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
-if (A_IsAdmin and g_blnRunAsAdmin) ; add [admin] tag only if running as admin because of the g_blnRunAsAdmin option
+if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
+	; add [admin] tag only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option
 	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
 
 ; Now included in build menu
@@ -3364,13 +3366,13 @@ if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change i
 	Gosub, UsageDbUpdateFavorites
 }
 
-if !StrLen(g_strUserVariablesList)
+if !StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
 	gosub, DetectCloudUserVariables ; must be after UsageDbInit because it uses SQLite files for Google Drive database
 
 ;---------------------------------
 ; Refresh Windows Apps list
 
-if (g_blnRefreshWindowsAppsListAtStartup)
+if (o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.IniValue)
 	Gosub, ButtonRefreshWindowsAppsListAtStartup
 
 ;---------------------------------
@@ -3450,9 +3452,9 @@ Hotkey, If
 ;---------------------------------
 ; Start task collecting recent items
 
-; Diag("SetTimer:UsageDbCollectMenuData", g_intUsageDbIntervalSeconds)
+; Diag("SetTimer:UsageDbCollectMenuData", o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
 if (g_blnUsageDbEnabled)
-	SetTimer, UsageDbCollectMenuData, % (g_intUsageDbIntervalSeconds * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
+	SetTimer, UsageDbCollectMenuData, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
 return
 
@@ -4187,12 +4189,14 @@ o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 ; UsageDb
 o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
-g_intUsageDbIntervalSeconds := ((g_intUsageDbIntervalSeconds <> 0 and g_intUsageDbIntervalSeconds < 60 and A_ComputerName <> "JEAN-PC") ? 60 : g_intUsageDbIntervalSeconds)
-g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
+o_Settings.Database.intUsageDbIntervalSeconds.IniValue := ((o_Settings.Database.intUsageDbIntervalSeconds.IniValue <> 0 
+	and o_Settings.Database.intUsageDbIntervalSeconds.IniValue < 60 and A_ComputerName <> "JEAN-PC")
+	? 60 : o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
+g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
 o_Settings.ReadIniOption("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", 30) ; g_intUsageDbDaysInPopular
 o_Settings.ReadIniOption("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", 40) ; g_fltUsageDbMaximumSize
 o_Settings.ReadIniOption("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", 50) ; g_blnUsageDbShowPopularityIndex
-o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_strUserVariablesList
+o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_intUsageDbDebug
 g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
@@ -4219,13 +4223,9 @@ if !(blnDefaultMenuBuilt)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
-o_Settings.ReadIniOption("MenuAdvanced", "intDynamicMenusRefreshRate", "DynamicMenusRefreshRate", 10000, "Advanced", 5) ; default 10000 ms ; g_intDynamicMenusRefreshRate
 o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
-if (g_intNbLiveFolderItemsMax = "ERROR")
-{
-	g_intNbLiveFolderItemsMax := 500
-	IniWrite, %g_intNbLiveFolderItemsMax%, % o_Settings.strIniFile, Global, NbLiveFolderItemsMax
-}
+if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
+	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIniGlobal(500)
 o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
 o_Settings.ReadIniOption("Snippets", "strWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
@@ -5020,7 +5020,7 @@ Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
 if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
 	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
-	if (A_IsAdmin and g_blnRunAsAdmin)
+	if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
 		Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch <> "prod" ? 56 : 55), 1
 	else
@@ -6306,7 +6306,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 	global g_objMenuColumnBreaks
 	global g_blnWorkingToolTip
 	global g_intNbLiveFolderItems
-	global g_intNbLiveFolderItemsMax
 
 	intMenuNumber := 0
 	
@@ -6369,7 +6368,8 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		}
 		
 		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels and LiveFolderHasContent(objCurrentMenu[A_Index])) and !(g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
+			or (objCurrentMenu[A_Index].FavoriteFolderLiveLevels and LiveFolderHasContent(objCurrentMenu[A_Index]))
+				and !(g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 		{
 			if (objCurrentMenu[A_Index].FavoriteFolderLiveLevels)
 			{
@@ -6520,7 +6520,6 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 ;------------------------------------------------------------
 {
 	global g_intNbLiveFolderItems
-	global g_intNbLiveFolderItemsMax
 	
 	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(objLiveFolder.FavoriteLocation))
 	
@@ -6551,7 +6550,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	Loop, Files, %strExpandedLocation%\*.*, D ; directories
 	{
 		g_intNbLiveFolderItems++
-		if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
+		if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 			Break
 		if !InStr(A_LoopFileAttrib, "H")
 			strFolders .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
@@ -6569,7 +6568,7 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 			{
 				; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
 				g_intNbLiveFolderItems++
-				if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
+				if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 					Break
 				; favorite type Document is OK for Application items
 
@@ -6607,9 +6606,9 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 				strFiles .= "`n"
 			}
 
-	if (g_intNbLiveFolderItems > g_intNbLiveFolderItemsMax)
+	if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 	{
-		Oops(lOopsMaxLiveFolder, g_intNbLiveFolderItemsMax)
+		Oops(lOopsMaxLiveFolder, o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 		return
 	}
 
@@ -6993,24 +6992,24 @@ GuiControl, , f_blnOpenSettingsOnActiveMonitor, % o_Settings.SettingsWindow.blnO
 
 Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, %lOptionsRunAsAdmin%
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
-GuiControl, , f_blnRunAsAdmin, %g_blnRunAsAdmin%
+GuiControl, , f_blnRunAsAdmin, % o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsSnippetsHelp, "https://www.quickaccesspopup.com/what-are-snippets/", lGuiHelp)
 Gui, 2:Font
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultProcessEOLTab, %lDialogFavoriteSnippetProcessEOLTab%
-GuiControl, , f_blnSnippetDefaultProcessEOLTab, %g_blnSnippetDefaultProcessEOLTab%
+GuiControl, , f_blnSnippetDefaultProcessEOLTab, % o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultFixedFont, %lDialogFavoriteSnippetFixedFont%
-GuiControl, , f_blnSnippetDefaultFixedFont, %g_blnSnippetDefaultFixedFont%
+GuiControl, , f_blnSnippetDefaultFixedFont, % o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue
 
 Gui, 2:Add, Text, y+10 xs, %lDialogFavoriteSnippetFontSize%
 Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, %lDialogFavoriteSnippetFontSize%
-Gui, 2:Add, UpDown, Range6-18 h20, %g_intSnippetDefaultFontSize%
+Gui, 2:Add, UpDown, Range6-18 h20, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultMacro, %lDialogFavoriteSnippetSendModeMacro%
-GuiControl, , f_blnOptionsSnippetDefaultMacro, %g_blnSnippetDefaultMacro%
+GuiControl, , f_blnOptionsSnippetDefaultMacro, % o_Settings.Snippets.blnSnippetDefaultMacro.IniValue
 
 ;---------------------------------------
 ; Tab 2: Popup menu options
@@ -7231,12 +7230,12 @@ Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . "
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
 Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
 
-Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeconds%
-Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
-Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
-Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
+Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
+Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, % o_Settings.Database.fltUsageDbMaximumSize.IniValue
+Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue
 
-Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
+Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n")
 Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n")
 
 ; End of more
@@ -7795,7 +7794,7 @@ else
 		strTitleLink := lOptionsUserVariablesList . " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . lGuiHelp . "</a>)"
 		strInstructions := lOptionsUserVariablesListInstructions
 		strControlName := "f_strUserVariablesListMore"
-		strDefaultValue := (StrLen(f_strUserVariablesList) ? f_strUserVariablesList : "{MyVariable}=MyContent")
+		strDefaultValue := (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue) ? f_strUserVariablesList : "{MyVariable}=MyContent")
 	}
 	else if (g_strMoreWindowName = "IconReplacementList")
 	{
@@ -7979,9 +7978,8 @@ o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIniGlobal(f_blnChangeFolderInD
 o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
 o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIniGlobal(f_blnRememberSettingsPosition)
 o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIniGlobal(f_blnOpenSettingsOnActiveMonitor)
-blnRunAsAdminPrev := g_blnRunAsAdmin
-g_blnRunAsAdmin := f_blnRunAsAdmin
-IniWrite, %g_blnRunAsAdmin%, % o_Settings.strIniFile, Global, RunAsAdmin
+blnRunAsAdminPrev := o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
+o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIniGlobal(f_blnRunAsAdmin)
 g_strHotstringsDefaultOptions := strNewHotstringsDefaultOptions
 IniWrite, %g_strHotstringsDefaultOptions%, % o_Settings.strIniFile, Global, HotstringsDefaultOptions
 
@@ -8008,14 +8006,10 @@ IniWrite, %g_strBackupFolder%, % o_Settings.strIniFile, Global, BackupFolder
 g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
 IniWrite, %g_strExternalMenusCataloguePath%, % o_Settings.strIniFile, Global, ExternalMenusCataloguePath
 
-g_blnSnippetDefaultProcessEOLTab := f_blnSnippetDefaultProcessEOLTab
-IniWrite, %g_blnSnippetDefaultProcessEOLTab%, % o_Settings.strIniFile, Global, SnippetDefaultProcessEOLTab
-g_blnSnippetDefaultFixedFont := f_blnSnippetDefaultFixedFont
-IniWrite, %g_blnSnippetDefaultFixedFont%, % o_Settings.strIniFile, Global, SnippetDefaultFixedFont
-g_intSnippetDefaultFontSize := f_intSnippetDefaultFontSize
-IniWrite, %g_intSnippetDefaultFontSize%, % o_Settings.strIniFile, Global, SnippetDefaultFontSize
-g_blnSnippetDefaultMacro := f_blnSnippetDefaultMacro
-IniWrite, %g_blnSnippetDefaultMacro%, % o_Settings.strIniFile, Global, SnippetDefaultMacro
+o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIniGlobal(f_blnSnippetDefaultProcessEOLTab)
+o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIniGlobal(f_blnSnippetDefaultFixedFont)
+o_Settings.Snippets.intSnippetDefaultFontSize.WriteIniGlobal(f_intSnippetDefaultFontSize)
+o_Settings.Snippets.blnSnippetDefaultMacro.WriteIniGlobal(f_blnSnippetDefaultMacro)
 
 ;---------------------------------------
 ; Save Tab 2: Menu options
@@ -8151,31 +8145,25 @@ o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 ; UsageDb
 
-intUsageDbIntervalSecondsPrev := g_intUsageDbIntervalSeconds
-g_intUsageDbIntervalSeconds := f_intUsageDbIntervalSeconds
-IniWrite, %g_intUsageDbIntervalSeconds%, % o_Settings.strIniFile, Global, UsageDbIntervalSeconds
+intUsageDbIntervalSecondsPrev := o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+o_Settings.Database.intUsageDbIntervalSeconds.WriteIniGlobal(f_intUsageDbIntervalSeconds)
 
-intUsageDbDaysInPopularPrev := g_intUsageDbDaysInPopular
-g_intUsageDbDaysInPopular := f_intUsageDbDaysInPopular
-IniWrite, %g_intUsageDbDaysInPopular%, % o_Settings.strIniFile, Global, UsageDbDaysInPopular
-
-g_fltUsageDbMaximumSize := f_fltUsageDbMaximumSize
-IniWrite, %g_fltUsageDbMaximumSize%, % o_Settings.strIniFile, Global, UsageDbMaximumSize
-
-g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
-IniWrite, %g_blnUsageDbShowPopularityIndex%, % o_Settings.strIniFile, Global, UsageDbShowPopularityIndex
+intUsageDbDaysInPopularPrev := o_Settings.Database.intUsageDbDaysInPopular.IniValue
+o_Settings.Database.intUsageDbDaysInPopular.WriteIniGlobal(f_intUsageDbDaysInPopular)
+o_Settings.Database.fltUsageDbMaximumSize.WriteIniGlobal(f_fltUsageDbMaximumSize)
+o_Settings.Database.blnUsageDbShowPopularityIndex.WriteIniGlobal(f_blnUsageDbShowPopularityIndex)
 
 blnUseSQLitePrev := g_blnUsageDbEnabled
-g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
+g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
 if (!blnUseSQLitePrev and g_blnUsageDbEnabled)
 	gosub, UsageDbInit
-if (intUsageDbIntervalSecondsPrev <> g_intUsageDbIntervalSeconds) or (intUsageDbDaysInPopularPrev <> g_intUsageDbDaysInPopular)
+if (intUsageDbIntervalSecondsPrev <> o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
+	or (intUsageDbDaysInPopularPrev <> o_Settings.Database.intUsageDbDaysInPopular.IniValue)
 	Oops(lOptionsUsageDbDisabling, g_strAppNameText)
 
 ; UserVariablesList, IconReplacementList and SwitchExclusionList
 
-g_strUserVariablesList := OptionsListCleanup(f_strUserVariablesList)
-IniWrite, %g_strUserVariablesList%, % o_Settings.strIniFile, Global, UserVariablesList
+o_Settings.UserVariables.strUserVariablesList.WriteIniGlobal(OptionsListCleanup(f_strUserVariablesList))
 o_Settings.MenuIcons.strIconReplacementList.WriteIniGlobal(OptionsListCleanup(f_strIconReplacementList))
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
@@ -8190,7 +8178,8 @@ IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExc
 if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	or (strThemePrev <> o_Settings.SettingsWindow.strTheme.IniValue)
 	or (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
-	or (blnRunAsAdminPrev <> g_blnRunAsAdmin and g_blnRunAsAdmin) ; only if changing from non-admin to admin
+	or (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
+		and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue) ; only if changing from non-admin to admin
 {
 	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	{
@@ -8207,10 +8196,10 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 		StringReplace, strOptionNoAmpersand, lOptionsQAPTempFolder, &
 		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
 	}
-	else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
+	else ; (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	{
 		StringReplace, strOptionNoAmpersand, lOptionsRunAsAdmin, &
-		strValue := (g_blnRunAsAdmin ? lDialogAdmnistrator : lDialogAdmnistratorNot)
+		strValue := (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue ? lDialogAdmnistrator : lDialogAdmnistratorNot)
 	}
 
 	MsgBox, 52, %g_strAppNameText%, % L(lReloadPrompt, strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
@@ -8224,11 +8213,12 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 			o_Settings.SettingsWindow.strTheme.IniValue := strThemePrev
 		else if (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 			o_Settings.Launch.strQAPTempFolderParent.IniValue := strQAPTempFolderParentPrev
-		else ; (blnRunAsAdminPrev <> g_blnRunAsAdmin)
-			g_blnRunAsAdmin := blnRunAsAdminPrev
+		else ; (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
+			o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue := blnRunAsAdminPrev
 	}
 }	
-else if (blnRunAsAdminPrev <> g_blnRunAsAdmin and !g_blnRunAsAdmin) ; only if changing from admin to non-admin
+else if (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
+	and !o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue) ; only if changing from admin to non-admin
 {
 	; Do not use ReloadQAP because it would reload itself with admin right
 	MsgBox, 52, %g_strAppNameText%, % L(lOptionsRunAsAdminExit, g_strAppNameText)
@@ -8687,7 +8677,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalPath
 		}
 		
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex and g_objMenuInGui[A_Index].FavoriteUsageDb
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and g_objMenuInGui[A_Index].FavoriteUsageDb
 			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
 	}
 	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
@@ -8701,7 +8691,7 @@ Loop, % g_objMenuInGui.MaxIndex()
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (g_blnUsageDbShowPopularityIndex and g_objMenuInGui[A_Index].FavoriteUsageDb
+		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and g_objMenuInGui[A_Index].FavoriteUsageDb
 			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
 			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
 }
@@ -9861,8 +9851,11 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 		
 		if (g_objEditedFavorite.FavoriteType = "Snippet")
 		{
-			if !StrLen(g_objEditedFavorite.FavoriteLaunchWith)
-				g_objEditedFavorite.FavoriteLaunchWith := g_blnSnippetDefaultMacro . ";;" . g_blnSnippetDefaultProcessEOLTab . ";" . g_blnSnippetDefaultFixedFont . ";" g_intSnippetDefaultFontSize ; default values
+			if !StrLen(g_objEditedFavorite.FavoriteLaunchWith) ; default values
+				g_objEditedFavorite.FavoriteLaunchWith := o_Settings.Snippets.blnSnippetDefaultMacro.IniValue . ";;"
+					. o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue . ";" 
+					. o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue . ";"
+					. o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 			
 			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
 			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
@@ -9925,7 +9918,7 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 		GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
 		Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
 		GuiControlGet, arrPosFontSize, Pos, f_intFontSize
-		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : g_intSnippetDefaultFontSize)
+		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : o_Settings.Snippets.intSnippetDefaultFontSize.IniValue)
 		GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
 		
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
@@ -16103,7 +16096,7 @@ if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
-if (g_blnUsageDbShowPopularityIndex)
+if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue)
 	and (A_ThisMenu = L(lMenuPopularMenus,  lMenuPopularFolders) or A_ThisMenu = L(lMenuPopularMenus,  lMenuPopularFiles)) ; remove popularity index
 	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " [", false, 0) - 1) ; strip " [n]" from end
 if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
@@ -18843,7 +18836,7 @@ else ; modifications for previous versions
 ; check maximum size
 
 FileGetSize, intSizeBeforeDelete, %g_strUsageDbFile%
-intMaximumSizeBytes := Round(g_fltUsageDbMaximumSize * 1048576, 0) ; = * 1 MB
+intMaximumSizeBytes := Round(o_Settings.Database.fltUsageDbMaximumSize.IniValue * 1048576, 0) ; = * 1 MB
 if (intSizeBeforeDelete > intMaximumSizeBytes)
 {
 	strUsageDbSQL := "SELECT id FROM Usage;"
@@ -19209,7 +19202,7 @@ loop, parse, % "Folders|Files", |
 
 	; SQLite GetTable
 	; Parse table
-	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
+	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
 	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
@@ -19234,7 +19227,7 @@ loop, parse, % "Folders|Files", |
 			continue
 		intPopularItemsCount++
 		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strPath)
-		if (g_blnUsageDbShowPopularityIndex)
+		if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue)
 			strMenuItemName .= " [" . strTargetNb . "]"
 		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
@@ -19842,7 +19835,7 @@ DetectCloudUserVariables:
 
 Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
 
-g_strUserVariablesList := ""
+o_Settings.UserVariables.strUserVariablesList.IniValue := ""
 
 ; detect Dropbox
 if FileExist(EnvVars("%LOCALAPPDATA%\Dropbox\info.json"))
@@ -19853,7 +19846,7 @@ if StrLen(strDropboxJsonFileContent)
 {
 	strDropboxJsonFileContent := SubStr(strDropboxJsonFileContent, InStr(strDropboxJsonFileContent, """path"": """) + 9)
 	strDropboxJsonFileContent := SubStr(strDropboxJsonFileContent, 1, InStr(strDropboxJsonFileContent, """") - 1)
-	g_strUserVariablesList .= "{Dropbox}=" . StrReplace(strDropboxJsonFileContent, "\\", "\") . "|"
+	o_Settings.UserVariables.strUserVariablesList.IniValue .= "{Dropbox}=" . StrReplace(strDropboxJsonFileContent, "\\", "\") . "|"
 }
 
 ; detect OneDrive/SkyDrive
@@ -19864,7 +19857,7 @@ Loop, parse, % "Software\Microsoft\OneDrive|Software\Microsoft\Windows\CurrentVe
 	RegRead, strOneDrive, HKCU, %A_LoopField%, UserFolder
 	if StrLen(strOneDrive) and FileExist(strOneDrive)
 	{
-		g_strUserVariablesList .= "{OneDrive}=" . strOneDrive . "|"
+		o_Settings.UserVariables.strUserVariablesList.IniValue .= "{OneDrive}=" . strOneDrive . "|"
 		break
 	}
 }
@@ -19885,7 +19878,7 @@ if FileExist(strGoogleDriveDbFile)
 		; no error message if false - Oops("SQLite Error Reading Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
 		{
 			objGoogleDriveRecordSet.Next(objGoogleDriveRow)
-			g_strUserVariablesList .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
+			o_Settings.UserVariables.strUserVariablesList.IniValue .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
 		}
 		objGoogleDriveRecordSet.Free()
 		objGoogleDriveDb.CloseDb()
@@ -19895,7 +19888,7 @@ if FileExist(strGoogleDriveDbFile)
 ; detect iCloud
 strICloudDrive := EnvVars("%USERPROFILE%\iCloudDrive")
 if FileExist(strICloudDrive)
-	g_strUserVariablesList .= "{iCloudDrive}=" . strICloudDrive . "|"
+	o_Settings.UserVariables.strUserVariablesList.IniValue .= "{iCloudDrive}=" . strICloudDrive . "|"
 
 strDropboxJsonFileContent := ""
 strOneDrive := ""
@@ -20979,9 +20972,7 @@ EnvVars(str)
 ExpandUserVariables(str)
 ;------------------------------------------------------------
 {
-    global g_strUserVariablesList
-    
-    loop, parse, g_strUserVariablesList, |
+    loop, parse, % o_Settings.UserVariables.strUserVariablesList.IniValue, |
         if StrLen(A_LoopField)
         {
             StringSplit, arrUserVariable, A_LoopField, =
@@ -22038,9 +22029,8 @@ GetUsageDbFavoriteUsage(objFavorite)
 ;------------------------------------------------------------
 {
 	global g_objUsageDb
-	global g_intUsageDbDaysInPopular
 
-	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . g_intUsageDbDaysInPopular . " day') "
+	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
 	if !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
