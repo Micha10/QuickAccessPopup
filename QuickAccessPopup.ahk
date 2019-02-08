@@ -3340,8 +3340,8 @@ Gosub, BuildTrayMenu
 o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
 o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
 
-if (g_intRefreshQAPMenuIntervalSec > 0)
-	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
+if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
+	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
 
 ;---------------------------------
 ; Init SQLite database to collect recent items
@@ -4121,7 +4121,7 @@ if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 g_blnUseColors := (o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) <> "Windows") ; g_strTheme
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
-; g_strBackupFolder is read when doing BackupIniFile before LoadIniFile
+; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
 
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", 40) ; g_blnAddAutoAtTop
 o_Settings.ReadIniOption("Launch", "blnDisplayTrayTip", "DisplayTrayTip", 1, "General", 20) ; g_blnDisplayTrayTip
@@ -4227,8 +4227,8 @@ o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolde
 if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIniGlobal(500)
 o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
-o_Settings.ReadIniOption("Snippets", "strWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
-StringSplit, g_arrWaitDelayInSnippet, strWaitDelayInSnippet, |
+o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
+o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
 o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "Advanced", order) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
 o_Settings.ReadIniOption("LaunchAdvanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "Advanced", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
 o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "Advanced", 60) ; g_strHotstringsDefaultOptions
@@ -5014,11 +5014,11 @@ SetTrayMenuIcon:
 ;------------------------------------------------------------
 
 Menu, Tray, NoStandard
-strAlternativeTrayIcon := o_Settings.ReadIniValue("AlternativeTrayIcon", "") ; returns ERROR if not found
+o_Settings.ReadIniOption("LaunchAdvanced", "strAlternativeTrayIcon", "AlternativeTrayIcon", "", "Advanced", "15") ; returns ERROR if not found
 
 Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
-if (strAlternativeTrayIcon <> "ERROR") and FileExist(strAlternativeTrayIcon)
-	Menu, Tray, Icon, %strAlternativeTrayIcon%, 1, 1 ; last 1 to freeze icon during pause or suspend
+if (o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue <> "ERROR") and FileExist(o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue)
+	Menu, Tray, Icon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue, 1, 1 ; last 1 to freeze icon during pause or suspend
 else
 	if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 		; 56 is iconQAPadminBeta and 55 is iconQAPadmin, last 1 to freeze icon during pause or suspend
@@ -5083,8 +5083,6 @@ Menu, Tray, Default, %lMenuSettings%...
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? lDonateThankyou : lDonateButtonAmpersand) ; A_PtrSize * 8 = 32 or 64
-
-strAlternativeTrayIcon := ""
 
 return
 ;------------------------------------------------------------
@@ -5277,7 +5275,7 @@ if !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have th
 Diag(A_ThisLabel, "", "START")
 
 strContentsInClipboard := ""
-if (StrLen(Clipboard) <= g_intClipboardMaxSize) ; Clipboard is too large - 22 000 bytes of AHK code took close to 2 seconds
+if (StrLen(Clipboard) <= o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue) ; Clipboard is too large - 22 000 bytes of AHK code took close to 2 seconds
 {
 	intMenuNumberClipboardMenu := 0
 
@@ -5312,8 +5310,8 @@ if !StrLen(strContentsInClipboard)
 {
 	if !StrLen(Clipboard)
 		strMenuName := lMenuClipboardEmpty
-	if (StrLen(Clipboard) > g_intClipboardMaxSize)
-		strMenuName := L(lMenuClipboardTooLarge, g_intClipboardMaxSize)
+	if (StrLen(Clipboard) > o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue)
+		strMenuName := L(lMenuClipboardTooLarge, o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue)
 	else
 		strMenuName := lMenuClipboardNoContent
 	
@@ -6818,7 +6816,7 @@ if (SettingsUnsaved() or !g_blnMenuReady ; these two required
 
 Diag(A_ThisLabel, "", "START-REFRESH")
 
-if (g_blnRefreshQAPMenuDebugBeep)
+if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 	SoundBeep, 330
 
 g_blnMenuReady := false
@@ -6845,7 +6843,7 @@ if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 g_blnMenuReady := true
 g_blnRefreshQAPMenuInProgress := false
 
-if (g_blnRefreshQAPMenuDebugBeep)
+if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 	SoundBeep, 440
 
 Diag(A_ThisLabel, "", "STOP-REFRESH")
@@ -6958,18 +6956,18 @@ GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFold
 Gui, 2:Add, Text, y+10 xs, %lOptionsBackupFolder%:
 Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strBackupFolder
 Gui, 2:Add, Button, x+5 yp w75 gButtonBackupFolder, %lDialogBrowseButton%
-GuiControl, 2:, f_strBackupFolder, %g_strBackupFolder%
+GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(lOptionsCatalogueHelp, "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", lGuiHelp)
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, %lOptionsEnableExternalMenusCatalogue%
-GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(g_strExternalMenusCataloguePath) > 0
+GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
 
 Gui, 2:Add, Text, y+10 xs vf_lblExternalMenusCataloguePathPrompt hidden, %lOptionsCataloguePath%:
 Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strExternalMenusCataloguePath hidden
 Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, %lDialogBrowseButton%
-GuiControl, 2:, f_strExternalMenusCataloguePath, %g_strExternalMenusCataloguePath%
+GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
 Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
 
 ; column 2
@@ -7067,7 +7065,7 @@ GuiControl, , f_blnDisplayNumericShortcutsFromOne, % o_Settings.Menu.blnDisplayN
 gosub, DisplayMenuShortcutsClicked
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, %lOptionsOpenMenuOnTaskbar%
-GuiControl, , f_blnOpenMenuOnTaskbar, %g_blnOpenMenuOnTaskbar%
+GuiControl, , f_blnOpenMenuOnTaskbar, % o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddCloseToDynamicMenus, %lOptionsAddCloseToDynamicMenus%
 GuiControl, , f_blnAddCloseToDynamicMenus, % o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
@@ -7085,12 +7083,12 @@ Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, % o_Settings.Menu
 Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), %lOptionsIconsManageRows%
 
 Gui, 2:Add, Checkbox, y+15 xs w300 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, %lOptionsRefreshQAPMenuTitle%
-GuiControl, , f_blnRefreshQAPMenuEnable, % (g_intRefreshQAPMenuIntervalSec > 0)
+GuiControl, , f_blnRefreshQAPMenuEnable, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
 Gui, 2:Add, Edit, y+5 xs w60 h22 vf_intRefreshQAPMenuIntervalSecEdit number center Disabled
-Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 Disabled, % g_intRefreshQAPMenuIntervalSec
+Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 Disabled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue
 Gui, 2:Add, Text, yp x+10 w235 vf_blnRefreshQAPMenuDebugBeepLabel Disabled, %lOptionsRefreshQAPMenuIntervalSec%
 Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnRefreshQAPMenuDebugBeep Disabled, %lOptionsRefreshQAPMenuDebugBeep%
-GuiControl, , f_blnRefreshQAPMenuDebugBeep, %g_blnRefreshQAPMenuDebugBeep%
+GuiControl, , f_blnRefreshQAPMenuDebugBeep, % o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue
 gosub, RefreshQAPMenuEnableClicked
 
 if !(g_blnPortableMode)
@@ -7149,7 +7147,7 @@ Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, x15 y+20 w610, %lOptionsAlternativeMenuOptions%
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 x15 vf_blnAlternativeMenuShowNotification, %lOptionsAlternativeMenuShowNotification%
-GuiControl, , f_blnAlternativeMenuShowNotification, %g_blnAlternativeMenuShowNotification%
+GuiControl, , f_blnAlternativeMenuShowNotification, % o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, x15 y+20 w610, %lDialogOtherHotkeys%
@@ -7228,7 +7226,7 @@ Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . "
 
 ; hidden
 Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
-Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(g_strSwitchExclusionList), "|", "`n")
+Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
 
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
@@ -7413,7 +7411,7 @@ RefreshQAPMenuEnableClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (f_blnRefreshQAPMenuEnable and g_intRefreshQAPMenuIntervalSec = 0)
+if (f_blnRefreshQAPMenuEnable and o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 	GuiControl, , f_intRefreshQAPMenuIntervalSec, 300 ; proposed value when enabled
 
 strEnableDisableCommand := (f_blnRefreshQAPMenuEnable ? "Enable" : "Disable")
@@ -7980,8 +7978,7 @@ o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIniGlobal(f_blnRememb
 o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIniGlobal(f_blnOpenSettingsOnActiveMonitor)
 blnRunAsAdminPrev := o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
 o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIniGlobal(f_blnRunAsAdmin)
-g_strHotstringsDefaultOptions := strNewHotstringsDefaultOptions
-IniWrite, %g_strHotstringsDefaultOptions%, % o_Settings.strIniFile, Global, HotstringsDefaultOptions
+o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIniGlobal(strNewHotstringsDefaultOptions)
 
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
@@ -8000,11 +7997,8 @@ strQAPTempFolderParentPrev := o_Settings.Launch.strQAPTempFolderParent.IniValue
 if StrLen(f_strQAPTempFolderParentPath)
 	o_Settings.Launch.strQAPTempFolderParent.WriteIniGlobal(g_strQAPTempFolderParent)
 
-g_strBackupFolder := f_strBackupFolder
-IniWrite, %g_strBackupFolder%, % o_Settings.strIniFile, Global, BackupFolder
-
-g_strExternalMenusCataloguePath := f_strExternalMenusCataloguePath
-IniWrite, %g_strExternalMenusCataloguePath%, % o_Settings.strIniFile, Global, ExternalMenusCataloguePath
+o_Settings.SettingsFile.strBackupFolder.WriteIniGlobal(f_strBackupFolder)
+o_Settings.SettingsFile.strExternalMenusCataloguePath.WriteIniGlobal(f_strExternalMenusCataloguePath)
 
 o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIniGlobal(f_blnSnippetDefaultProcessEOLTab)
 o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIniGlobal(f_blnSnippetDefaultFixedFont)
@@ -8050,22 +8044,18 @@ o_Settings.Menu.intRecentFoldersMax.WriteIniGlobal(f_intRecentFoldersMax)
 o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIniGlobal(f_blnRefreshedMenusAttached)
 o_Settings.Menu.blnDisplayNumericShortcuts.WriteIniGlobal(f_blnDisplayNumericShortcuts)
 o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIniGlobal(f_blnDisplayNumericShortcutsFromOne)
-g_blnOpenMenuOnTaskbar := f_blnOpenMenuOnTaskbar
-IniWrite, %g_blnOpenMenuOnTaskbar%, % o_Settings.strIniFile, Global, OpenMenuOnTaskbar
+o_Settings.MenuPopup.blnOpenMenuOnTaskbar.WriteIniGlobal(f_blnOpenMenuOnTaskbar)
 o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIniGlobal(f_blnAddCloseToDynamicMenus)
 o_Settings.MenuIcons.blnDisplayIcons.WriteIniGlobal(f_blnDisplayIcons)
 o_Settings.MenuIcons.intIconSize.WriteIniGlobal(f_drpIconSize)
 o_Settings.MenuIcons.intIconsManageRowsSettings.WriteIniGlobal(f_intIconsManageRowsSettings)
 o_Settings.Menu.intNbLastActions.WriteIniGlobal(f_intNbLastActions)
+o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.WriteIniGlobal(f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
+o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.WriteIniGlobal(f_blnRefreshQAPMenuDebugBeep)
 
-g_intRefreshQAPMenuIntervalSec := (f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
-IniWrite, %g_intRefreshQAPMenuIntervalSec%, % o_Settings.strIniFile, Global, RefreshQAPMenuIntervalSec
-g_blnRefreshQAPMenuDebugBeep := f_blnRefreshQAPMenuDebugBeep
-IniWrite, %g_blnRefreshQAPMenuDebugBeep%, % o_Settings.strIniFile, Global, RefreshQAPMenuDebugBeep
-
-if (g_intRefreshQAPMenuIntervalSec > 0)
-	SetTimer, RefreshQAPMenuScheduled, % g_intRefreshQAPMenuIntervalSec * 1000
-else if (g_intRefreshQAPMenuIntervalSec = 0)
+if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
+	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
+else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 	SetTimer, RefreshQAPMenuScheduled, Off
 
 ;---------------------------------------
@@ -8082,9 +8072,7 @@ for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewSho
 	if HasShortcut(strNewShortcut)
 		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIniGlobal(strNewShortcut) ; ##### check
 
-g_blnAlternativeMenuShowNotification := f_blnAlternativeMenuShowNotification
-IniWrite, %g_blnAlternativeMenuShowNotification%, % o_Settings.strIniFile, Global, AlternativeMenuShowNotification
-
+o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIniGlobal(f_blnAlternativeMenuShowNotification)
 o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIniGlobal(f_blnLeftControlDoublePressed)
 o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIniGlobal(f_blnRightControlDoublePressed)
 
@@ -8166,8 +8154,7 @@ if (intUsageDbIntervalSecondsPrev <> o_Settings.Database.intUsageDbIntervalSecon
 o_Settings.UserVariables.strUserVariablesList.WriteIniGlobal(OptionsListCleanup(f_strUserVariablesList))
 o_Settings.MenuIcons.strIconReplacementList.WriteIniGlobal(OptionsListCleanup(f_strIconReplacementList))
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
-g_strSwitchExclusionList := OptionsListCleanup(f_strSwitchExclusionList)
-IniWrite, %g_strSwitchExclusionList%, % o_Settings.strIniFile, Global, SwitchExclusionList
+o_Settings.Execution.strSwitchExclusionList.WriteIniGlobal(OptionsListCleanup(f_strSwitchExclusionList))
 
 ; End of More
 
@@ -9386,7 +9373,7 @@ strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
 ; must be before GuiFavoriteInit and GuiAddFavoriteSaveXpress
-g_strTypesForTabWindowOptions := "|Folder|Special|FTP" . (g_blnTryWindowPosition ? "|Document|Application|URL|WindowsApp" : "") ; must start with "|"
+g_strTypesForTabWindowOptions := "|Folder|Special|FTP" . (o_Settings.Execution.blnTryWindowPosition.IniValue ? "|Document|Application|URL|WindowsApp" : "") ; must start with "|"
 g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP|Snippet|QAP|Group|WindowsApp" ; must start with "|"
 
 Gosub, GuiFavoriteInit
@@ -9534,7 +9521,7 @@ BuildTabsList(strFavoriteType)
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
-		and ((o_FileManagers.ActiveFileManager = 1 or o_FileManagers.ActiveFileManager = 3) or g_blnTryWindowPosition)) ; Explorer or Total Commander
+		and ((o_FileManagers.ActiveFileManager = 1 or o_FileManagers.ActiveFileManager = 3) or o_Settings.Execution.blnTryWindowPosition.IniValue)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_arrFavoriteGuiTabs3
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_arrFavoriteGuiTabs4
@@ -9718,7 +9705,7 @@ else ; add favorite
 	{
 		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
 		
-		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(EnvVars(g_strExternalMenusCataloguePath))
+		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(EnvVars(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue))
 		{
 			Gosub, AddExternalMenusFromCatalogue
 			g_blnAbordEdit := true
@@ -11670,7 +11657,7 @@ Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExt
 Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btnAddExternalMenusFromCatalogueClose, %lGuiClose%
 Gui, 2:Add, Text
 	
-strExpandedPath := PathCombine(A_WorkingDir, EnvVars(g_strExternalMenusCataloguePath))
+strExpandedPath := PathCombine(A_WorkingDir, EnvVars(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue))
 
 Loop, Files, %strExpandedPath%\*.ini, R
 {
@@ -14206,7 +14193,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 SelectHotstringDefaultOptions:
 ;------------------------------------------------------------
 
-strNewHotstringsDefaultOptions := SelectHotstring(g_strHotstringsDefaultOptions, "", "", "", true)
+strNewHotstringsDefaultOptions := SelectHotstring(o_Settings.Hotstrings.strHotstringsDefaultOptions.IniValue, "", "", "", true)
 ; ###_V("strNewHotstringsDefaultOptions", strNewHotstringsDefaultOptions)
 
 return
@@ -14225,7 +14212,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	SplitHotstring(P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	if !StrLen(P_strActualHotstring) ; if new hotstring, use default options
-		SH_strFavoriteHotstringOptionsShort := g_strHotstringsDefaultOptions
+		SH_strFavoriteHotstringOptionsShort := o_Settings.Hotstrings.strHotstringsDefaultOptions.IniValue
 	; ###_V("P_strActualHotstring", P_strActualHotstring, SH_strFavoriteHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 
 	g_intGui2WinID := WinExist("A")
@@ -15017,7 +15004,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 				return false
 
 	if WindowIsTray(g_strTargetClass)
-		return g_blnOpenMenuOnTaskbar
+		return o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue
 
 	if WindowIsTreeview(g_strTargetWinId)
 		return false
@@ -15080,18 +15067,17 @@ WindowIsExplorer(strClass)
 WindowIsDesktop(strClass)
 ;------------------------------------------------------------
 {
-	; global g_blnOpenMenuOnTaskbar
 	; global g_blnClickOnTrayIcon
 	
 	; blnWindowIsDesktop := (strClass = "ProgMan")
 	;	or (strClass = "WorkerW")
-	;	or (strClass = "Shell_TrayWnd" and (g_blnOpenMenuOnTaskbar or g_blnClickOnTrayIcon))
+	;	or (strClass = "Shell_TrayWnd" and (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue or g_blnClickOnTrayIcon))
 	;	or (strClass = "NotifyIconOverflowWindow")
-	; ###_V("WindowIsDesktop", strClass, g_blnOpenMenuOnTaskbar, g_blnClickOnTrayIcon, blnWindowIsDesktop)
+	; ###_V("WindowIsDesktop", strClass, o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue, g_blnClickOnTrayIcon, blnWindowIsDesktop)
 
 	; g_blnClickOnTrayIcon := false
 	; g_blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
-	; turn it off to avoid further clicks on taskbar to be accepted if g_blnOpenMenuOnTaskbar is off
+	; turn it off to avoid further clicks on taskbar to be accepted if o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue is off
 
 	return (strClass = "ProgMan") or (strClass = "WorkerW")
 }
@@ -15283,7 +15269,7 @@ return
 OpenAlternativeMenuTrayTip:
 ;------------------------------------------------------------
 
-if !(g_blnAlternativeMenuShowNotification)
+if !(o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue)
 	return
 
 if (g_strAlternativeMenu = lMenuCopyLocation)
@@ -15858,7 +15844,7 @@ if InStr("Document|URL", g_objThisFavorite.FavoriteType)
 		Oops(lOopsUnknownTargetAppName)
 	else
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-		if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
+		if (g_arrFavoriteWindowPosition1 and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
 			gosub, OpenFavoriteWindowPosition
@@ -15899,7 +15885,7 @@ if (g_objThisFavorite.FavoriteType = "Application")
 			Oops(lOopsUnknownTargetAppName)
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
-    else if (g_arrFavoriteWindowPosition1 and intPid and g_blnTryWindowPosition)
+    else if (g_arrFavoriteWindowPosition1 and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
 		gosub, OpenFavoriteWindowPosition
@@ -15985,7 +15971,8 @@ if (g_strHotkeyTypeDetected = "Launch")
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
 	if ((g_arrFavoriteWindowPosition1 or o_FileManagers.I[1].blnOpenFavoritesOnActiveMonitor) ;  we need to position window
-		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or g_blnTryWindowPosition)) ; we can access new Explorer or Total Commander windows, or try with other apps
+		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue))
+		; we can access new Explorer or Total Commander windows, or try with other apps
 		gosub, OpenFavoriteWindowPosition
 		
 	gosub, UsageDbCollectMenu
@@ -16741,9 +16728,9 @@ if (blnTextSnippet)
 {
 	BlockInput, On
 	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
-	Sleep, %g_arrWaitDelayInSnippet1% ; safety delay default 40 ms
+	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[1] ; safety delay default 40 ms
 	ClipBoard := ""
-	Sleep, %g_arrWaitDelayInSnippet2% ; safety delay default 80 ms
+	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[2] ; safety delay default 80 ms
 	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 	ClipBoard := DecodeSnippet(g_strLocationWithPlaceholders, true) ; g_strLocationWithPlaceholders contains g_objThisFavorite.FavoriteLocation with expanded placeholders
 	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
@@ -16757,7 +16744,7 @@ if (blnTextSnippet)
 	; avoid using SendInput to send ^v
 	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
 	; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
-	Sleep, %g_arrWaitDelayInSnippet3% ; delay required by some application, including Notepad, default 180 ms
+	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[3] ; delay required by some application, including Notepad, default 180 ms
 	SendEvent, ^v
 	BlockInput, Off
 	Sleep, 100 ; safety
@@ -17172,7 +17159,7 @@ WinGet, strProcessName, ProcessName, ahk_id %g_strTargetWinId%
 ; add /D option only for cmd.exe, not required for powershell.exe
 strCommand := "CD " . (strProcessName = "powershell.exe" ? "" : "/D ") ; must end with space
 
-if (g_blnSendToConsoleWithAlt)
+if (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue)
 ; using ALT+0nnn ASCII codes for console with international keyboard input language
 {
 	strCommand .= """" . g_strFullLocation . """" ; double-quotes required for PowerShell
@@ -17235,19 +17222,19 @@ if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped ou
 
 ;=== Avoid accidental hotkey & hotstring triggereing while doing SendInput - can be done simply by #UseHook, but do it if user doesn't have #UseHook in the script ===
 
-Sleep, %g_intWaitDelayInDialogBox% ; give some time to control before sending {Enter} to it
+Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control before sending {Enter} to it
 If (A_IsSuspended)
 	blnWasSuspended := True
 if (!blnWasSuspended)
 	Suspend, On
 ; Changed from SendInput to SendEvent in v8.0.9.2 to introduce a key delay to solve issue with Firefox dialog box
 ; SendInput, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
-SetKeyDelay, %g_intWaitDelayInDialogBox%
+SetKeyDelay, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 SendEvent, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
 if (!blnWasSuspended)
 	Suspend, Off
 
-Sleep, %g_intWaitDelayInDialogBox% ; give some time to control after sending {Enter} to it
+Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control after sending {Enter} to it
 ControlGetText, strControlTextAfterNavigation, %strEditControl%, ahk_id %g_strTargetWinId% ; sometimes controls automatically restore their initial text
 if (strControlTextAfterNavigation <> strPrevControlText)
 	ControlSetTextR(strEditControl, strPrevControlText, "ahk_id " . g_strTargetWinId) ; we'll set control's text to its initial text
@@ -19631,8 +19618,8 @@ strIniBackupFile := StrReplace(o_Settings.strIniFile, ".ini", "-backup-????????.
 ; but this includes main ini file when the working directory is set from the command line with "/Working:"
 if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFileMain)
 {
-	g_strBackupFolder := o_Settings.ReadIniValue("BackupFolder", A_WorkingDir)
-	StringReplace, strIniBackupFile, strIniBackupFile, %A_WorkingDir%, %g_strBackupFolder%
+	o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "Advanced", "70")
+	strIniBackupFile := StrReplace(strIniBackupFile, A_WorkingDir, o_Settings.SettingsFile.strBackupFolder.IniValue)
 }
 
 Loop, %strIniBackupFile%
@@ -21793,8 +21780,6 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 ; strCaller: List All||Switch Menu|Running Applications|Close Applications
 ;------------------------------------------------------------
 {
-	global g_strSwitchExclusionList
-	
 	static strWinTitlesWinApps
 	if (intIndex = 1)
 		strWinTitlesWinApps := "" ; #### to be validated or continued
@@ -21878,7 +21863,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strCaller = "Switch Menu" and strProcessPath = o_FileManagers.I[2].strFileManagerPath and o_FileManagers.I.ActiveFileManager = 2)
 		return false
 	
-	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
+	else if (strCaller = "Switch Menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
 		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 			return false
 	
@@ -21894,9 +21879,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 ;------------------------------------------------------------
 {
-	global g_strSwitchExclusionList
-	
-	Loop, parse, g_strSwitchExclusionList, |
+	Loop, parse, % o_Settings.Execution.strSwitchExclusionList.IniValue, |
 		if StrLen(A_LoopField)
 			and (InStr(strWindowClass, A_LoopField)
 			or InStr(strWindowTitle, A_LoopField)
