@@ -6897,6 +6897,33 @@ return
 ;========================================================================================================================
 
 ;------------------------------------------------------------
+GuiOptionsMenu:
+;------------------------------------------------------------
+
+Menu, menuOptions, Add, General, GuiOptionGroup
+Menu, menuOptions, Add, SettingsWindow, GuiOptionGroup
+Menu, menuOptions, Add, MenuPopup, GuiOptionGroup
+Menu, menuOptions, Add
+Menu, menuOptions, Add, Old Options Window, GuiOptions
+Menu, menuOptions, Show
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiOptionGroup:
+;------------------------------------------------------------
+###_V(A_ThisLabel, A_ThisMenu, A_ThisMenuItem)
+
+objSettingsGroup := o_Settings.objGroupItems[A_ThisMenuItem]
+###_O("objSettingsGroup", objSettingsGroup, "IniValue")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiOptions:
 GuiOptionsFromQAPFeature:
 ;------------------------------------------------------------
@@ -8535,7 +8562,7 @@ Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTe
 Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static6
 Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static7
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
-Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptions x+1 yp, %g_strTempDir%\settings-32_c.png ; Static9
+Gui, 1:Add, Picture, vf_picGuiOptions gGuiOptionsMenu x+1 yp, %g_strTempDir%\settings-32_c.png ; Static9
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12_c.png ; Static10
 g_objToolTipsMessages["Static10"] := lControlToolTipPreviousMenu
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12_c.png ; Static11
@@ -8561,7 +8588,7 @@ Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, %lGuiOptions% ; Static23
+Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptionsMenu x0 y+20, %lGuiOptions% ; Static23
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, %lGuiAddFavorite% ; Static24
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, %lGuiEditFavorite% ; Static25, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, %lGuiRemoveFavorite% ; Static26
@@ -10497,7 +10524,7 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu
+Gui, 2:Add, Text, x10 y10 vf_lblFavoriteParentMenu
 	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? lDialogFavoriteParentMenuMove : lDialogFavoritesParentMenuMove)
 	: lDialogFavoritesParentMenuCopy), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
@@ -24750,6 +24777,8 @@ TODO
 	;---------------------------------------------------------
 */
 
+	objGroupItems := Object()
+	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24781,6 +24810,9 @@ TODO
 	{
 		if !IsObject(this[strOptionGroup])
 			this[strOptionGroup] := Object()
+		if !IsObject(this.objGroupItems[strGuiGroup])
+			this.objGroupItems[strGuiGroup] := Object()
+		
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
 		if (strSettingName = "strExclusionMouseList") ; exception for additional values
@@ -24788,8 +24820,9 @@ TODO
 		else
 			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		this[strOptionGroup][strSettingName] := objIniValue
+		this.objGroupItems[strGuiGroup][intGuiOrder] := objIniValue
 		
-		return objIniValue
+		return objIniValue.IniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
 	}
