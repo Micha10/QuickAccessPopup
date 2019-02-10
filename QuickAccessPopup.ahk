@@ -24750,6 +24750,8 @@ TODO
 	;---------------------------------------------------------
 */
 
+	objGroupItems := Object()
+	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24781,6 +24783,9 @@ TODO
 	{
 		if !IsObject(this[strOptionGroup])
 			this[strOptionGroup] := Object()
+		if !IsObject(this.objGroupItems[strGuiGroup])
+			this.objGroupItems[strGuiGroup] := Object()
+		
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
 		if (strSettingName = "strExclusionMouseList") ; exception for additional values
@@ -24788,8 +24793,9 @@ TODO
 		else
 			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		this[strOptionGroup][strSettingName] := objIniValue
+		this.objGroupItems[strGuiGroup][intGuiOrder] := objIniValue
 		
-		return objIniValue
+		return objIniValue.IniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
 	}
