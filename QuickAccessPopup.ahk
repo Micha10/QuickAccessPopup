@@ -3157,11 +3157,9 @@ global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQA
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
-; Init temporary folder and language files
+; Init temporary folder
 
 Gosub, InitFileInstall
-
-Gosub, InitLanguageVariables
 
 ; --- Global variables
 
@@ -3173,6 +3171,12 @@ global g_strJLiconsVersion := "v1.5"
 
 global g_blnDiagMode := False
 global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
+
+;---------------------------------
+; Init language variables (must be after g_strCurrentBranch init)
+
+global g_strEscapeReplacement := "!r4nd0mt3xt!"
+global o_L = new Language
 
 ;---------------------------------
 ; Init class for JLicons
@@ -3200,7 +3204,6 @@ global g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolow
 global g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 global g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 global g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
-global g_strEscapeReplacement := "!r4nd0mt3xt!"
 
 global g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 global g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -3254,7 +3257,6 @@ if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is cre
 ; Init routines
 
 ; Keep gosubs in this order
-Gosub, InitLanguages
 Gosub, InitLanguageArrays
 Gosub, InitGuiControls
 
@@ -3810,68 +3812,6 @@ else
 	
 return
 ;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
-InitLanguageVariables:
-;-----------------------------------------------------------
-
-#Include %A_ScriptDir%\QuickAccessPopup_LANG.ahk
-
-return
-;-----------------------------------------------------------
-
-
-;------------------------------------------------------------
-InitLanguages:
-;------------------------------------------------------------
-
-; If o_Settings.strIniFile does not exist yet, read language code from ini file created by the Inno Setup script in the user data folder
-o_Settings.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", 15, "Global"
-	, (FileExist(o_Settings.strIniFile) ? "" : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini")) ; g_strLanguageCode
-strLanguageFile := g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . o_Settings.Launch.strLanguageCode.IniValue . ".txt"
-
-strDebugLanguageFile := A_WorkingDir . "\" . g_strAppNameFile . "_LANG_ZZ.txt"
-if FileExist(strDebugLanguageFile)
-{
-	strLanguageFile := strDebugLanguageFile
-	o_Settings.Launch.strLanguageCode.IniValue := "EN"
-}
-	
-strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
-
-if FileExist(strLanguageFile)
-{
-	FileRead, strLanguageStrings, %strLanguageFile%
-	Loop, Parse, strLanguageStrings, `n, `r
-	{
-		if (SubStr(A_LoopField, 1, 1) <> ";") ; skip comment lines
-		{
-			StringSplit, arrLanguageBit, A_LoopField, `t
-			if SubStr(arrLanguageBit1, 1, 1) = "l"
-				%arrLanguageBit1% := arrLanguageBit2
-			StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, ``n, `n, All
-			
-			if InStr(%arrLanguageBit1%, ";;") ; preserve escaped ; in string
-				StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, % ";;", %strReplacementForSemicolon%, A
-			if InStr(%arrLanguageBit1%, ";")
-				%arrLanguageBit1% := Trim(SubStr(%arrLanguageBit1%, 1, InStr(%arrLanguageBit1%, ";") - 1)) ; trim comment from ; and trim spaces and tabs
-			if InStr(%arrLanguageBit1%, strReplacementForSemicolon) ; restore escaped ; in string
-				StringReplace, %arrLanguageBit1%, %arrLanguageBit1%, %strReplacementForSemicolon%, % ";", A
-		}
-	}
-}
-else
-	o_Settings.Launch.strLanguageCode.IniValue := "EN"
-
-strLanguageFile := ""
-strReplacementForSemicolon := ""
-strLanguageStrings := ""
-ResetArray("arrLanguageBit")
-strDebugLanguageFile := ""
-
-return
-;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
@@ -22907,12 +22847,12 @@ class Triggers.MouseButtons
 			AhkHotkey[]
 			;-------------------------------------------------
 			{
-				get
+				Get
 				{
 					return this._AhkHotkey ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
 				}
 				
-				set
+				Set
 				{
 					oHotkeyParts := new Triggers.HotkeyParts(value)
 					this.strPopupHotkeyText := oHotkeyParts.Hotkey2Text()
@@ -23201,11 +23141,12 @@ TODO
 	; default 1 for "WindowsExplorer"
 	;---------------------------------------------------------
 	{
-		get
+		Get
 		{
 			return this._ActiveFileManager ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
 		}
-		set
+		
+		Set
 		{
 			if (this.I[value].blnFileManagerValid)
 				this._ActiveFileManager := value
@@ -24774,6 +24715,10 @@ TODO
 		this.strIniFileNameExtOnly := strIniFileNameExtOnly
 		
 		this.strIniFileMain := this.strIniFile ; value never changed
+		
+		; at first launch quickaccesspopup.ini does not exist, read language value in quickaccesspopup-setup.ini (if exist) created by Setup
+		this.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", "15", "Global"
+			, (FileExist(this.strIniFile) ? this.strIniFile : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini"))
 	}
 	;---------------------------------------------------------
 
@@ -24788,10 +24733,12 @@ TODO
 		
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
+		
 		if (strSettingName = "strExclusionMouseList") ; exception for additional values
 			objIniValue := new this.IniValueExclusionMouseList(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		else
 			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
+		
 		this[strOptionGroup][strSettingName] := objIniValue
 		this.objGroupItems[strGuiGroup][intGuiOrder] := objIniValue
 		
@@ -24866,6 +24813,93 @@ TODO
 					this.strExclusionMouseListApp .= Trim(A_LoopField) . "|"
 		}
 		;-----------------------------------------------------
+	}
+	;---------------------------------------------------------
+}
+;-------------------------------------------------------------
+
+;-------------------------------------------------------------
+class Language
+/*
+TODO
+- adapt Settings for when setting language before quickaccesspopup.ini is created
+- finish property LanguageCode (review all)
+- switch language: save new language code to ini file and restart QAP
+- adapt variables in QAP main script (no change done at this time)
+
+*/
+;-------------------------------------------------------------
+{
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+		#Include %A_ScriptDir%\QuickAccessPopup_LANG.ahk
+		
+		this.LanguageCode := o_Settings.Launch.strLanguageCode.IniValue
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	LanguageCode[]
+	;---------------------------------------------------------
+	{
+		Set
+		{
+			; check if we have a testing language file
+			strDebugLanguageFile := A_WorkingDir . "\" . g_strAppNameFile . "_LANG_ZZ.txt"
+			if FileExist(strDebugLanguageFile)
+			{
+				strLanguageFile := strDebugLanguageFile
+				this._LanguageCode := "EN"
+			}
+			else
+			{
+				strLanguageFile := (value = "EN" ? "" : g_strTempDir . "\" . g_strAppNameFile . "_LANG_" . value . ".txt")
+				
+				; if localized language file does not exists, keep "EN" language code and existing EN values
+				this._LanguageCode := (FileExist(strLanguageFile) ? value : "EN")
+			}
+
+			if StrLen(strLanguageFile) and FileExist(strLanguageFile) ; we have an existing localized language file
+			{
+				strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
+				
+				FileRead, strLanguageStrings, %strLanguageFile%
+				
+				Loop, Parse, strLanguageStrings, `n, `r
+				{
+					if (SubStr(A_LoopField, 1, 1) <> ";") ; skip comment lines
+					{
+						objLanguageBit := StrSplit(A_LoopField, "`t")
+						; ###_O("objLanguageBit-1", objLanguageBit)
+						if SubStr(objLanguageBit[1], 1, 1) <> "l"
+							continue
+						this[objLanguageBit[1]] := objLanguageBit[2]
+						this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], "``n", "`n")
+						
+						if InStr(this[objLanguageBit[1]], ";;") ; preserve escaped ; in string
+							this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], ";;", strReplacementForSemicolon)
+						; ###_V("1", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
+						if InStr(this[objLanguageBit[1]], ";")
+							this[objLanguageBit[1]] := Trim(SubStr(this[objLanguageBit[1]], 1, InStr(this[objLanguageBit[1]], ";") - 1)) ; trim comment from ; and trim spaces and tabs
+						; ###_V("2", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
+						if InStr(this[objLanguageBit[1]], strReplacementForSemicolon) ; restore escaped ; in string
+							this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], strReplacementForSemicolon, ";")
+						; ###_V("3", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
+						; ###_O("this", this)
+					}
+				}
+			}
+		; save strCode to ini
+		; if changed need to restart?
+		}
+		
+		Get
+		{
+			return this._LanguageCode
+		}
+
 	}
 	;---------------------------------------------------------
 }
