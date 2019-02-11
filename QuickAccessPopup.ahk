@@ -8233,6 +8233,14 @@ DisableExplorerContextMenus:
 
 StringReplace, strQAPPathDoubleBackslash, A_ScriptDir, \, \\, All
 
+strContextAddFile := o_L["ContextAddFile"]
+strContextAddFileXpress := o_L["ContextAddFileXpress"]
+strContextAddFolder := o_L["ContextAddFolder"]
+strContextAddFolderXpress := o_L["ContextAddFolderXpress"]
+strContextAddShortcut := o_L["ContextAddShortcut"]
+strContextShowMenu := o_L["ContextShowMenu"]
+strContextShowMenuAlternative := o_L["ContextShowMenuAlternative"]
+
 if (A_ThisLabel = "EnableExplorerContextMenus")
 {
 	FileDelete, %g_strTempDir%\enable-qap-context-menus.reg
@@ -8248,7 +8256,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FILE
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu]
-			@="%lContextAddFile%"
+			@="%strContextAddFile%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu\command]
@@ -8260,7 +8268,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FILE EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\*\shell\Add File to Quick Access Popup menu Express]
-			@="%lContextAddFileXpress%"
+			@="%strContextAddFileXpress%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 			"Extended"=""
 
@@ -8272,7 +8280,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FOLDER
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu]
-			@="%lContextAddFolder%"
+			@="%strContextAddFolder%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu\command]
@@ -8284,7 +8292,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; ADD FOLDER EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Folder\shell\Add Folder to Quick Access Popup menu Express]
-			@="%lContextAddFolderXpress%"
+			@="%strContextAddFolderXpress%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 			"Extended"=""
 
@@ -8297,7 +8305,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; DESKTOP SHOW MENU 
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu]
-			@="%lContextShowMenu%"
+			@="%strContextShowMenu%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup menu\command]
@@ -8309,7 +8317,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; DESKTOP SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\DesktopBackground\Shell\Show Quick Access Popup Alternative menu]
-			@="%lContextShowMenuAlternative%"
+			@="%strContextShowMenuAlternative%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 			"Extended"=""
 
@@ -8322,7 +8330,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND SHOW MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu]
-			@="%lContextShowMenu%"
+			@="%strContextShowMenu%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup menu\command]
@@ -8334,7 +8342,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND SHOW ALTERNATIVE MENU
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Show Quick Access Popup Alternative menu]
-			@="%lContextShowMenuAlternative%"
+			@="%strContextShowMenuAlternative%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 			"Extended"=""
 
@@ -8347,7 +8355,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND ADD FOLDER
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu]
-			@="%lContextAddFolder%"
+			@="%strContextAddFolder%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu\command]
@@ -8359,7 +8367,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; FOLDER BACKGROUND ADD FOLDER EXPRESS
 			;--------------------------------------
 			[HKEY_CLASSES_ROOT\Directory\Background\shell\Add Folder to Quick Access Popup menu Express]
-			@="%lContextAddFolderXpress%"
+			@="%strContextAddFolderXpress%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 			"Extended"=""
 
@@ -8371,7 +8379,7 @@ if (A_ThisLabel = "EnableExplorerContextMenus")
 			; IMPORT SHORTCUT
 			;--------------------------------------
 			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Shortcut to Quick Access Popup menu]
-			@="%lContextAddShortcut%"
+			@="%strContextAddShortcut%"
 			"Icon"="\"%strQAPPathDoubleBackslash%\\QuickAccessPopup.ico\""
 
 			[HKEY_LOCAL_MACHINE\SOFTWARE\Classes\lnkfile\shell\Import Shortcut to Quick Access Popup menu\command]
@@ -8432,6 +8440,13 @@ else ; DisableExplorerContextMenus
 ; blnMainGuiWasActive := ""
 blnOptionsGuiWasActive := ""
 strQAPPathDoubleBackslash := ""
+strContextAddFile := ""
+strContextAddFileXpress := ""
+strContextAddFolder := ""
+strContextAddFolderXpress := ""
+strContextAddShortcut := ""
+strContextShowMenu := ""
+strContextShowMenuAlternative := ""
 
 return
 ;------------------------------------------------------------
