@@ -3240,7 +3240,7 @@ global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows position
 
 if InStr("WIN_VISTA|WIN_2003|WIN_XP|WIN_2000", A_OSVersion)
 {
-	MsgBox, 4, %g_strAppNameText%, % L(lOopsOSVerrsionError, g_strAppNameText)
+	MsgBox, 4, %g_strAppNameText%, % L(o_L["OopsOSVerrsionError"], g_strAppNameText)
 	IfMsgBox, Yes
 		Run, http://code.jeanlalonde.ca/folderspopup/
 	ExitApp
@@ -3249,7 +3249,7 @@ if InStr("WIN_VISTA|WIN_2003|WIN_XP|WIN_2000", A_OSVersion)
 ; if the app runs from a zip file, the script directory is created under the system Temp folder
 if InStr(A_ScriptDir, A_Temp) ; must be positioned after g_strAppNameFile is created
 {
-	Oops(lOopsZipFileError, g_strAppNameFile)
+	Oops(o_L["OopsZipFileError"], g_strAppNameFile)
 	ExitApp
 }
 
@@ -3290,10 +3290,10 @@ if (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue and !A_IsAdmin)
 if (A_IsAdmin and !o_CommandLineParameters.I.HasKey("AdminSilent")
 	and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; show alert only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option, except if "/AdminSilent" command-line option is used
-	Oops(lOptionsRunAsAdminAlert, g_strAppNameText)
+	Oops(o_L["OptionsRunAsAdminAlert"], g_strAppNameText)
 if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; add [admin] tag only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option
-	g_strAppNameText .= " [" . lOptionsRunAsAdminShort . "]"
+	g_strAppNameText .= " [" . o_L["OptionsRunAsAdminShort"] . "]"
 
 ; Now included in build menu
 ; Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
@@ -3384,9 +3384,9 @@ Gosub, SetTrayMenuIcon
 
 if (o_Settings.Launch.blnDisplayTrayTip.IniValue)
 {
-	TrayTip, % L(lTrayTipInstalledTitle, g_strAppNameText)
-		, % L(lTrayTipInstalledDetail, o_PopupHotkeys.I[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
-			. " " . lDialogOr . " " . o_PopupHotkeys.I[2].strPopupHotkeyText) ; "NavigateOrLaunchHotkeyKeyboard"
+	TrayTip, % L(o_L["TrayTipInstalledTitle"], g_strAppNameText)
+		, % L(o_L["TrayTipInstalledDetail"], o_PopupHotkeys.I[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
+			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.I[2].strPopupHotkeyText) ; "NavigateOrLaunchHotkeyKeyboard"
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -3404,7 +3404,7 @@ IfExist, %A_Startup%\%g_strAppNameFile%.lnk
 	; if the startup shortcut exists, update it at each execution in case the exe filename changed
 	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
 	Gosub, CreateStartupShortcut
-	Menu, Tray, Check, %lMenuRunAtStartupAmpersand%
+	Menu, Tray, Check, % o_L["MenuRunAtStartupAmpersand"]
 }
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
@@ -3758,8 +3758,8 @@ InitFileInstall:
 
 ; Adding a new language:
 ; 1- add the FileInstall line below
-; 2- update strOptionsLanguageCodes
-; 3- edit lOptionsLanguageLabels in all languages
+; 2- update g_objOptionsLanguageCodes
+; 3- edit o_L["OptionsLanguageLabels"] in all languages
 
 FileInstall, FileInstall\QuickAccessPopup_LANG_DE.txt, %g_strTempDir%\QuickAccessPopup_LANG_DE.txt, 1
 FileInstall, FileInstall\QuickAccessPopup_LANG_FR.txt, %g_strTempDir%\QuickAccessPopup_LANG_FR.txt, 1
@@ -3820,21 +3820,17 @@ InitLanguageArrays:
 
 ; ----------------------
 ; OPTIONS
-strOptionsLanguageCodes := "EN|FR|DE|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL|KO" ; removed SV - edit lOptionsLanguageLabels in all languages
-StringSplit, g_arrOptionsLanguageCodes, strOptionsLanguageCodes, |
-StringSplit, g_arrOptionsLanguageLabels, lOptionsLanguageLabels, |
-
-loop, %g_arrOptionsLanguageCodes0%
-	if (g_arrOptionsLanguageCodes%A_Index% = o_Settings.Launch.strLanguageCode.IniValue)
+g_objOptionsLanguageCodes := StrSplit("EN|FR|DE|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL|KO", "|") ;  g_arrOptionsLanguageCodes
+g_objOptionsLanguageLabels := StrSplit(o_L["OptionsLanguageLabels"], "|") ; g_arrOptionsLanguageLabels
+loop, % g_objOptionsLanguageCodes.Length()
+	if (g_objOptionsLanguageCodes[A_Index] = o_Settings.Launch.strLanguageCode.IniValue)
 		{
-			g_strLanguageLabel := g_arrOptionsLanguageLabels%A_Index%
+			g_strLanguageLabel := g_objOptionsLanguageLabels[A_Index]
 			break
 		}
 
 ; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
-StringSplit, g_arrFavoriteGuiTabs, lDialogAddFavoriteTabs, |
-
-strOptionsLanguageCodes := ""
+g_objFavoriteGuiTabs := StrSplit(o_L["DialogAddFavoriteTabs"], "|") ; g_arrFavoriteGuiTabs
 
 return
 ;------------------------------------------------------------
@@ -3946,6 +3942,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 	strNavigateOrLaunchHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults2 ; "W"
 	strAlternativeHotkeyMouseDefault := g_arrPopupHotkeyDefaults3 ; "+MButton"
 	strAlternativeHotkeyKeyboardDefault := g_arrPopupHotkeyDefaults4 ; "+#W"
+	strMenuDynamicMenus := o_L["MenuDynamicMenus"]
 	
 	FileAppend,
 		(LTrim Join`r`n
@@ -3988,7 +3985,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			ListviewText=000000
 			MenuBackgroundColor=edfdf1
 			[Favorites]
-			Favorite1=Menu|%lMenuDynamicMenus%|> %lMenuDynamicMenus%|iconQAP||||||||||0||||||+^w
+			Favorite1=Menu|%strMenuDynamicMenus%|> %strMenuDynamicMenus%|iconQAP||||||||||0||||||+^w
 			Favorite2=QAP||{Popular Folders}
 			Favorite3=QAP||{Popular Files}
 			Favorite4=X
@@ -4202,6 +4199,7 @@ strIniFileContent := ""
 blnDoNotConvertSettingsToUnicode := ""
 strWaitDelayInSnippet := ""
 strGuiTitle := ""
+strMenuDynamicMenus := ""
 
 return
 ;------------------------------------------------------------
@@ -4219,7 +4217,7 @@ if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 	Sleep, 20 ; safety
 	FileAppend, %strIniFileContent%, % o_Settings.strIniFile, UTF-16 ; rewrite the ini file in Unicode UTF-16 (little endian)
 	
-	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion)
+	MsgBox, 48, % L(o_L["OopsTitle"], g_strAppNameText, g_strAppVersion)
 		, % "Your settings file has been converted to the Unicode encoding.`n`n"
 		. "This change allows the use of extended characters in favorite's name, location or content.`n`n"
 		. L("You must restart ~1~ and load the new settings now.", g_strAppNameText)
@@ -4247,14 +4245,14 @@ LoadMenuFromIniWithStatus:
 
 if !FileExist(o_Settings.strIniFile)
 {
-	Oops(lOopsWriteProtectedError, g_strAppNameText)
+	Oops(o_L["OopsWriteProtectedError"], g_strAppNameText)
 	ExitApp
 }
 else
 {
 	; reinit after Settings save if already exist
 	g_objMainMenu := Object() ; object of menu structure entry point
-	g_objMainMenu.MenuPath := lMainMenuName ; localized name of the main menu
+	g_objMainMenu.MenuPath := o_L["MainMenuName"] ; localized name of the main menu
 	g_objMainMenu.MenuType := "Menu" ; main menu is not a group
 
 	global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
@@ -4281,7 +4279,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	; ###_V("RecursiveLoadMenuFromIni Begin", o_Settings.strIniFile, o_Settings.intIniLine)
 	; ###_O("objCurrentMenu", objCurrentMenu)
 	if (blnWorkingToolTip)
-		Tooltip, % lToolTipLoading . "`n" . objCurrentMenu.MenuPath
+		Tooltip, % o_L["ToolTipLoading"] . "`n" . objCurrentMenu.MenuPath
 
 	Loop
 	{
@@ -4291,9 +4289,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFileMain)
 			if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
 			{
-				MsgBox, 52, %g_strAppNameText%, % lOopsErrorIniFileUnavailable . ":`n`n" . o_Settings.strIniFile
-					. "`n`n" . L(lOopsErrorIniFileRetry, g_strAppNameText)
-					. "`n`n" . lOopsErrorIniFileDisplayErrorMessage
+				MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . o_Settings.strIniFile
+					. "`n`n" . L(o_L["OopsErrorIniFileRetry"], g_strAppNameText)
+					. "`n`n" . o_L["OopsErrorIniFileDisplayErrorMessage"]
 				IfMsgBox, No
 					IniWrite, % strExternalErrorMessageExclusions . o_Settings.o_Settings.strIniFile . "|", % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions
 			}
@@ -4304,7 +4302,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; ###_V("Loop Begin", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 		if (strLoadIniLine = "ERROR")
 		{
-			Oops(lOopsErrorReadingIniFile . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
+			Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
 			objCurrentMenu.MenuLoaded := false
 			if (objCurrentMenu.MenuType = "External")
 				return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuLoaded false - external menu will stop at the previous favorite
@@ -4403,7 +4401,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
 		{
 			strMenuNoMain := objNewMenu.MenuPath
-			StringReplace, strMenuNoMain, strMenuNoMain, % lMainMenuName . " " 
+			StringReplace, strMenuNoMain, strMenuNoMain, % o_L["MainMenuName"] . " " 
 			objLoadIniFavorite.FavoriteLocation := strMenuNoMain
 		}
 		else
@@ -7922,10 +7920,10 @@ o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIniGlobal(strNewHotstring
 
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
-loop, %g_arrOptionsLanguageLabels0%
-	if (g_arrOptionsLanguageLabels%A_Index% = g_strLanguageLabel)
+loop, % g_objOptionsLanguageLabels.Length()
+	if (g_objOptionsLanguageLabels[A_Index] = g_strLanguageLabel)
 		{
-			o_Settings.Launch.strLanguageCode.IniValue := g_arrOptionsLanguageCodes%A_Index%
+			o_Settings.Launch.strLanguageCode.IniValue := g_objOptionsLanguageCodes[A_Index]
 			break
 		}
 o_Settings.Launch.strLanguageCode.WriteIni() ; value already changed in the loop
@@ -9456,15 +9454,15 @@ BuildTabsList(strFavoriteType)
 	global
 
 	; 1 Basic Settings, 2 Menu Options, 3 Window Options, 4 Advanced Settings
-	strTabsList := " " . g_arrFavoriteGuiTabs1 . " | " . g_arrFavoriteGuiTabs2
+	strTabsList := " " . g_objFavoriteGuiTabs[1] . " | " . g_objFavoriteGuiTabs[2]
 	
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . lDialogAddFavoriteTabsLive
 	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
 		and ((o_FileManagers.ActiveFileManager = 1 or o_FileManagers.ActiveFileManager = 3) or o_Settings.Execution.blnTryWindowPosition.IniValue)) ; Explorer or Total Commander
-		strTabsList .= " | " . g_arrFavoriteGuiTabs3
+		strTabsList .= " | " . g_objFavoriteGuiTabs[3]
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
-		strTabsList .= " | " . g_arrFavoriteGuiTabs4
+		strTabsList .= " | " . g_objFavoriteGuiTabs[4]
 	if (strFavoriteType = "External")
 		strTabsList .= " | " . lDialogAddFavoriteTabsExternal
 	
@@ -10168,7 +10166,7 @@ return
 GuiFavoriteTabWindowOptions:
 ;------------------------------------------------------------
 
-if InStr(g_strTabsList, g_arrFavoriteGuiTabs3)
+if InStr(g_strTabsList, g_objFavoriteGuiTabs[3])
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -10214,7 +10212,7 @@ return
 GuiFavoriteTabAdvancedSettings:
 ;------------------------------------------------------------
 
-If InStr(g_strTabsList, g_arrFavoriteGuiTabs4)
+If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 {
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -22995,7 +22993,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			objMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
-			this.strMouseButtonsDropDownList := lDialogNone . "|" . lDialogMouseButtonsText ; default item not identified
+			this.strMouseButtonsDropDownList := lDialogNone . "|" . o_L["DialogMouseButtonsText"] ; default item not identified
 			objMouseButtonsLocalizedNames := StrSplit(this.strMouseButtonsDropDownList, "|")
 			objMouseButtonsLocalizedNamesShort := StrSplit(lDialogNone . "|" . lDialogMouseButtonsTextShort, "|")
 
@@ -24823,6 +24821,7 @@ class Language
 /*
 TODO
 - adapt Settings for when setting language before quickaccesspopup.ini is created
+  Regex: \bl[A-Z].*
 - finish property LanguageCode (review all)
 - switch language: save new language code to ini file and restart QAP
 - adapt variables in QAP main script (no change done at this time)
