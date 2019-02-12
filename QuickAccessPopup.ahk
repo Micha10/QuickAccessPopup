@@ -18708,7 +18708,7 @@ loop, parse, % "dll|def", |
 if StrLen(strError)
 {
 	Diag(A_ThisLabel, "Db SQLite Missing", "STOP", g_blnIniFileCreation) ; force if first launch
-	Oops(lOopsUsageDbSQLiteMissing, strError)
+	Oops(o_L["OopsUsageDbSQLiteMissing"], strError)
 	g_blnUsageDbEnabled := false
 	return
 }
@@ -19132,7 +19132,7 @@ loop, parse, % "Folders|Files", |
 		else
 		{
 			strTargetType := "Folder"
-			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFolders)
+			strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"])
 		}
 	else ; "Files"
 		if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
@@ -19140,7 +19140,7 @@ loop, parse, % "Folders|Files", |
 		else
 		{
 			strTargetType := "File"
-			strFoldersOrFilesMenuNameLocalized := L(lMenuPopularMenus, lMenuPopularFiles)
+			strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"])
 		}
 
 	; SQLite GetTable
@@ -19180,7 +19180,7 @@ loop, parse, % "Folders|Files", |
 	}
 	objRecordSet.Free()
 	if (intPopularItemsCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
-		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(lMenuPopularMenusWillImprove, g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(o_L["MenuPopularMenusWillImprove"], g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
 
 	if StrLen(strMenuItemsList%strFoldersOrFiles%)
 		strDynamicDbSQL .= "Popular" . strFoldersOrFiles .  "MenuData = '" . EscapeQuote(strMenuItemsList%strFoldersOrFiles%) "', " ; PopularFoldersMenuData and PopularFilesMenuData
@@ -19272,13 +19272,13 @@ Loop, parse, strDrivesList
 	
 	strMenuItemName := strPath . " " . strDriveLabel
 	if StrLen(intFreeSpace) and StrLen(intCapacity)
-		strMenuItemName .= " " . L(lMenuDrivesSpace, intFreeSpace // 1024, intCapacity // 1024)
+		strMenuItemName .= " " . L(o_L["MenuDrivesSpace"], intFreeSpace // 1024, intCapacity // 1024)
 	strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strMenuItemName)
 	if InStr("Fixed|Unknown", strDriveType)
 		strIcon := "iconDrives"
 	else
 		strIcon := "icon" . strDriveType
-	g_strMenuItemsListDrives .= lMenuDrives . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
+	g_strMenuItemsListDrives .= o_L["MenuDrives"] . "|" . strMenuItemName . "|OpenDrives|" . strIcon . "`n"
 }
 
 strDrivesList := ""
@@ -19377,14 +19377,14 @@ Loop
 	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
 	if (strTargetType = "Folder") and (intRecentFoldersCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
-		g_strMenuItemsListRecentFolders .= lMenuRecentFolders . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		g_strMenuItemsListRecentFolders .= o_L["MenuRecentFolders"] . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
 		intRecentFoldersCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-Folder", intRecentFoldersCount, "ELAPSED")
 	}
 	; do not "else"
 	if (strTargetType = "File") and (intRecentFilesCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
-		g_strMenuItemsListRecentFiles .= lMenuRecentFiles . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		g_strMenuItemsListRecentFiles .= o_L["MenuRecentFiles"] . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
 		intRecentFilesCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-File", intRecentFoldersCount, "ELAPSED")
 	}
@@ -19898,9 +19898,9 @@ GetSelectedLocation(strClass, strWinId)
 	}
 	; no reliable technique to retrieve the active item in dialog boxes and Total Commander
 	else if WindowIsTotalCommander(strClass)
-		Oops(lOopsSelectedItemTotalCommander)
+		Oops(o_L["OopsSelectedItemTotalCommander"])
 	else if WindowIsDialog(strClass, strWinId)
-		Oops(lOopsSelectedItemDialogBoxes)
+		Oops(o_L["OopsSelectedItemDialogBoxes"])
 
     return strFirstItem
 }
@@ -19929,7 +19929,7 @@ Oops(strMessage, objVariables*)
 ;------------------------------------------------
 {
 	Gui, 1:+OwnDialogs
-	MsgBox, 48, % L(lOopsTitle, g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
+	MsgBox, 48, % L(o_L["OopsTitle"], g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
 }
 ;------------------------------------------------
 
@@ -19985,7 +19985,7 @@ GetFavoriteHotkeyFromLocation(strLocation)
 		if (objFavorite.FavoriteLocation = strLocation)
 			return objFavorite.FavoriteShortcut
 		
-	return lDialogNone
+	return o_L["DialogNone"]
 }
 ;------------------------------------------------------------
 
@@ -19996,7 +19996,7 @@ GetHotstringReminder(strHotstring)
 {
 	if StrLen(strHotstring)
 		return " " . BetweenParenthesis((o_Settings.Menu.intHotkeyReminders.IniValue = 2
-			? lDialogHotstringIndicator
+			? o_L["DialogHotstringIndicator"]
 			: GetHotstringTrigger(strHotstring)))
 	else
 		return ""
@@ -20047,10 +20047,10 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 	if InStr(strTempOptions, "C1")
 		StringReplace, strTempOptions, strTempOptions, C1 ; backward compatibility from 8.9 beta to v9.0.2, to avoid ambiguity with "C"
 
-	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "C") ? lDialogHotstringCaseSensitive . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "?") ? lDialogHotstringExpandInsideWords . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "B0") ? lDialogHotstringKeepHotstring . g_strHotstringOptionsLongSeparator : "")
-		. (InStr(strHotstringOptionsShort, "*") ? lDialogHotstringNotWaitEndingKey . g_strHotstringOptionsLongSeparator : "")
+	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "C") ? o_L["DialogHotstringCaseSensitive"] . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "?") ? o_L["DialogHotstringExpandInsideWords"] . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "B0") ? o_L["DialogHotstringKeepHotstring"] . g_strHotstringOptionsLongSeparator : "")
+		. (InStr(strHotstringOptionsShort, "*") ? o_L["DialogHotstringNotWaitEndingKey"] . g_strHotstringOptionsLongSeparator : "")
 	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
 		StringTrimRight, strHotstringOptionsLong, strHotstringOptionsLong, % StrLen(g_strHotstringOptionsLongSeparator)
 	
@@ -21035,7 +21035,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 			objExternalMenu := objMenu ; return the top level external menu object
 			return true
 		}
-		else if (objMenu.MenuPath = lMainMenuName)
+		else if (objMenu.MenuPath = o_L["MainMenuName"])
 			return false ; up to Main menu, no External menu
 		else
 			if !(objMenu[1].HasKey("ParentMenu"))
@@ -21078,7 +21078,7 @@ SettingsUnsaved()
 	global
 
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
-	blnDialogOpen := (strCancelButtonLabel = lGuiCancelAmpersand) ; Settings open with changes to save if Cancel button label is "Cancel"
+	blnDialogOpen := (strCancelButtonLabel = o_L["GuiCancelAmpersand"]) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
 
 	return blnDialogOpen
@@ -21091,7 +21091,7 @@ GetFavoriteTypeForList(objFavorite)
 ;------------------------------------------------------------
 {
 	if (objFavorite.FavoriteFolderLiveLevels)
-		strType := lDialogFavoriteFolderLiveType
+		strType := o_L["DialogFavoriteFolderLiveType"]
 	else
 		strType := o_Favorites.GetFavoriteTypeObject(objFavorite.FavoriteType).strFavoriteTypeShortName
 	if (objFavorite.FavoriteDisabled)
@@ -21237,8 +21237,8 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	{
 		strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", objMenu.MenuExternalPath) ; empty if not found
 		strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", objMenu.MenuExternalPath) ; empty if not found
-		Oops(lOopsErrorIniFileReadOnly . (StrLen(strExternalMenuName) ? "`n`n" . lDialogExternalMenuName . ":`n" . strExternalMenuName : "")
-			. (StrLen(strWriteAccessMessage) ? "`n`n" . lDialogExternalWriteAccessMessage . ":`n" . strWriteAccessMessage : ""))
+		Oops(o_L["OopsErrorIniFileReadOnly"] . (StrLen(strExternalMenuName) ? "`n`n" . o_L["DialogExternalMenuName"] . ":`n" . strExternalMenuName : "")
+			. (StrLen(strWriteAccessMessage) ? "`n`n" . o_L["DialogExternalWriteAccessMessage"] . ":`n" . strWriteAccessMessage : ""))
 		return
 	}
 	else if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy))
@@ -21249,13 +21249,13 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		else
 		{
 			; ... reserved by another user, return false
-			Oops(lOopsMenuExternalReservedBy, (intMenuExternalType = 2 ? lOopsMenuExternalCollaborative : lOopsMenuExternalCentralized), strMenuExternalReservedBy)
+			Oops(o_L["OopsMenuExternalReservedBy"], (intMenuExternalType = 2 ? o_L["OopsMenuExternalCollaborative"] : o_L["OopsMenuExternalCentralized"]), strMenuExternalReservedBy)
 			return false
 		}
 	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalPath))
 	; user cannot write to collaborative external ini file, could not lock it, return false
 	{
-		Oops(lOopsExternalFileWriteErrorCollaborative)
+		Oops(o_L["OopsExternalFileWriteErrorCollaborative"])
 		return false
 	}
 
@@ -21267,7 +21267,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
 		; this menu is in gui - inform user that his change cannot be saved and reload menu in gui
 		{
-			Oops(lOopsErrorIniFileModified)
+			Oops(o_L["OopsErrorIniFileModified"])
 			Gosub, LoadMenuInGui ; will ExternalMenuReloadAndRebuild
 			return false
 		}
@@ -21279,7 +21279,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	
 	if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
 		; personal menu is changed on another system - only inform user, lock overwriting is allowed
-		Oops(lOopsMenuExternalPersonalChangedBy, strMenuExternalReservedBy)
+		Oops(o_L["OopsMenuExternalPersonalChangedBy"], strMenuExternalReservedBy)
 	
 	if (blnLockItForMe)
 	; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
@@ -21654,7 +21654,7 @@ WindowIsToMenuDialogBox(strTitle)
 ;------------------------------------------------------------
 {
 	strTitle := SubStr(strTitle, 1, InStr(strTitle, " - "))
-	return InStr(lDialogMoveFavoriteTitle, strTitle) or InStr(lDialogMoveFavoritesTitle, strTitle) or InStr(lDialogCopyFavoritesTitle, strTitle)
+	return InStr(o_L["DialogMoveFavoriteTitle"], strTitle) or InStr(o_L["DialogMoveFavoritesTitle"], strTitle) or InStr(o_L["DialogCopyFavoritesTitle"], strTitle)
 }
 ;------------------------------------------------------------
 
@@ -21665,9 +21665,9 @@ WindowIsAddEditCopyFavorite(strTitle)
 {
 	strTitle := SubStr(strTitle, 1, InStr(strTitle, ":"))
 	return StrLen(strTitle)
-		and (InStr(L(lDialogAddEditFavoriteTitle, lDialogAdd), strTitle)
-		or InStr(L(lDialogAddEditFavoriteTitle, lDialogEdit), strTitle)
-		or InStr(L(lDialogAddEditFavoriteTitle, lDialogCopy), strTitle))
+		and (InStr(L(o_L["DialogAddEditFavoriteTitle"], o_L["DialogAdd"]), strTitle)
+		or InStr(L(o_L["DialogAddEditFavoriteTitle"], o_L["DialogEdit"]), strTitle)
+		or InStr(L(o_L["DialogAddEditFavoriteTitle"], o_L["DialogCopy"]), strTitle))
 }
 ;------------------------------------------------------------
 
@@ -21676,7 +21676,7 @@ WindowIsAddEditCopyFavorite(strTitle)
 QAPSettingsString()
 ;------------------------------------------------------------
 {
-	return L(lGuiTitle, g_strAppNameText, g_strAppVersion)
+	return L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
 }
 ;------------------------------------------------------------
 
@@ -22244,7 +22244,7 @@ BuildMonitorsList(intDefault)
 		intDefault := 1
 	SysGet, intNbMonitors, MonitorCount
 	Loop, %intNbMonitors%
-		str .= lDialogWindowMonitor . " " . A_Index . "|" . (A_Index = intDefault ? "|" : "")
+		str .= o_L["DialogWindowMonitor"] . " " . A_Index . "|" . (A_Index = intDefault ? "|" : "")
 	
 	return str
 }
@@ -22776,8 +22776,8 @@ class Triggers.MouseButtons
 			
 			objPopupHotkeyInternalNames := ["NavigateOrLaunchHotkeyMouse", "NavigateOrLaunchHotkeyKeyboard", "AlternativeHotkeyMouse", "AlternativeHotkeyKeyboard"]
 			objPopupHotkeyDefaults := StrSplit("MButton|#W|+MButton|+#W", "|")
-			objOptionsPopupHotkeyLocalizedNames := StrSplit(lOptionsPopupHotkeyTitles, "|")
-			objOptionsPopupHotkeyLocalizedDescriptions := StrSplit(lOptionsPopupHotkeyTitlesSub, "|")
+			objOptionsPopupHotkeyLocalizedNames := StrSplit(o_L["OptionsPopupHotkeyTitles"], "|")
+			objOptionsPopupHotkeyLocalizedDescriptions := StrSplit(o_L["OptionsPopupHotkeyTitlesSub"], "|")
 			
 			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
 			{
@@ -22889,7 +22889,7 @@ class Triggers.MouseButtons
 				if HasShortcut(this.AhkHotkey)
 					Hotkey, % this.AhkHotkey, %strLabel%, On UseErrorLevel
 				if (ErrorLevel)
-					Oops(lDialogInvalidHotkey, this.strPopupHotkeyText, this.strPopupHotkeyLocalizedName)
+					Oops(o_L["DialogInvalidHotkey"], this.strPopupHotkeyText, this.strPopupHotkeyLocalizedName)
 			}
 			;-------------------------------------------------
 		}
@@ -22919,11 +22919,11 @@ class Triggers.MouseButtons
 		SplitParts(strHotkey)
 		;-----------------------------------------------------
 		{
-			if (strHotkey = "None") ; do not compare with lDialogNone because it is translated
+			if (strHotkey = "None") ; do not compare with o_L["DialogNone"] because it is translated
 			{
 				this.strModifiers := ""
 				this.strKey := ""
-				this.strMouseButton := "None" ; do not use lDialogNone because it is translated
+				this.strMouseButton := "None" ; do not use o_L["DialogNone"] because it is translated
 			}
 			else 
 			{
@@ -22957,28 +22957,29 @@ class Triggers.MouseButtons
 			if StrLen(this.strKey) ; localize system key names
 			{
 				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
-				objLocalizedKeyNames := StrSplit(lDialogMenuKey . "|" . lDialogMenuKey . "|" . lTooltipSnippetWaitSpace . "|" . lTooltipSnippetWaitEnter . "|" . lTooltipSnippetWaitEscape, "|")
+				objLocalizedKeyNames := StrSplit(o_L["DialogMenuKey"] . "|" . o_L["DialogMenuKey"] . "|" . o_L["TooltipSnippetWaitSpace"]
+					. "|" . o_L["TooltipSnippetWaitEnter"] . "|" . o_L["TooltipSnippetWaitEscape"], "|")
 				Loop, Parse, strSystemKeyNames, |
 					if (this.strKey = A_LoopField)
 						this.strKey := objLocalizedKeyNames[A_Index]
 			}
 			
-			if (this.strMouseButton = "None") ; do not compare with lDialogNone because it is translated
+			if (this.strMouseButton = "None") ; do not compare with o_L["DialogNone"] because it is translated
 				or !StrLen(this.strModifiers . this.strMouseButton . this.strKey) ; if all parameters are empty
-				str := lDialogNone ; use lDialogNone because this is displayed
+				str := o_L["DialogNone"] ; use o_L["DialogNone"] because this is displayed
 			else
 			{
 				str := ""
 				loop, parse, % this.strModifiers
 				{
 					if (A_LoopField = "!")
-						str := str . (InStr(this.strModifiers, "<!") ? "<" : InStr(this.strModifiers, ">!") ? ">" : "") . (blnShort ? lDialogAltShort : lDialogAlt) . "+"
+						str := str . (InStr(this.strModifiers, "<!") ? "<" : InStr(this.strModifiers, ">!") ? ">" : "") . (blnShort ? o_L["DialogAltShort"] : o_L["DialogAlt"]) . "+"
 					if (A_LoopField = "^")
-						str := str . (InStr(this.strModifiers, "<^") ? "<" : InStr(this.strModifiers, ">^") ? ">" : "") . (blnShort ? lDialogCtrlShort : lDialogCtrl) . "+"
+						str := str . (InStr(this.strModifiers, "<^") ? "<" : InStr(this.strModifiers, ">^") ? ">" : "") . (blnShort ? o_L["DialogCtrlShort"] : o_L["DialogCtrl"]) . "+"
 					if (A_LoopField = "+")
-						str := str . (InStr(this.strModifiers, "<+") ? "<" : InStr(this.strModifiers, ">+") ? ">" : "") . (blnShort ? lDialogShiftShort : lDialogShift) . "+"
+						str := str . (InStr(this.strModifiers, "<+") ? "<" : InStr(this.strModifiers, ">+") ? ">" : "") . (blnShort ? o_L["DialogShiftShort"] : o_L["DialogShift"]) . "+"
 					if (A_LoopField = "#")
-						str := str . (InStr(this.strModifiers, "<#") ? "<" : InStr(this.strModifiers, ">#") ? ">" : "") . (blnShort ? lDialogWinShort : lDialogWin) . "+"
+						str := str . (InStr(this.strModifiers, "<#") ? "<" : InStr(this.strModifiers, ">#") ? ">" : "") . (blnShort ? o_L["DialogWinShort"] : o_L["DialogWin"]) . "+"
 				}
 				if StrLen(this.strMouseButton)
 					str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(this.strMouseButton, blnShort)
@@ -23011,9 +23012,9 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			objMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
-			this.strMouseButtonsDropDownList := lDialogNone . "|" . o_L["DialogMouseButtonsText"] ; default item not identified
+			this.strMouseButtonsDropDownList := o_L["DialogNone"] . "|" . o_L["DialogMouseButtonsText"] ; default item not identified
 			objMouseButtonsLocalizedNames := StrSplit(this.strMouseButtonsDropDownList, "|")
-			objMouseButtonsLocalizedNamesShort := StrSplit(lDialogNone . "|" . lDialogMouseButtonsTextShort, "|")
+			objMouseButtonsLocalizedNamesShort := StrSplit(o_L["DialogNone"] . "|" . o_L["DialogMouseButtonsTextShort"], "|")
 
 			loop, % objMouseButtonsInternalNames.Length()
 			{
@@ -23056,8 +23057,8 @@ class Triggers.MouseButtons
 		GetDropDownList(strDefault) ; strDefault can be internal or localized (if "None")
 		;-----------------------------------------------------
 		{
-			if (strDefault = lDialogNone) ; here strDefault contains the localized text
-				return StrReplace(this.strMouseButtonsDropDownList, lDialogNone . "|", lDialogNone . "||") ; use lDialogNone because this is localized
+			if (strDefault = o_L["DialogNone"]) ; here strDefault contains the localized text
+				return StrReplace(this.strMouseButtonsDropDownList, o_L["DialogNone"] . "|", o_L["DialogNone"] . "||") ; use o_L["DialogNone"] because this is localized
 			else if StrLen(strDefault) ; here strDefault contains the mouse internal name (not localized text)
 				return StrReplace(this.strMouseButtonsDropDownList, this.GetMouseButtonLocalized4InternalName(strDefault, false) . "|", this.GetMouseButtonLocalized4InternalName(strDefault, false) . "||")
 			else
@@ -23169,9 +23170,9 @@ TODO
 			else
 			{
 				if (value = 4) ; QAPconnect
-					Oops(lOopsWrongThirdPartyPathQAPconnect, this.I[4].strQAPconnectFileManager, this.I[4].strFileManagerPath, "QAPconnect.ini", L(lMenuEditIniFile, "QAPconnect.ini"), lOptionsThirdParty)
+					Oops(o_L["OopsWrongThirdPartyPathQAPconnect"], this.I[4].strQAPconnectFileManager, this.I[4].strFileManagerPath, "QAPconnect.ini", L(o_L["MenuEditIniFile"], "QAPconnect.ini"), o_L["OptionsThirdParty"])
 				else ; 2 DirectoryOpus or 3 TotalCommander
-					Oops(lOopsWrongThirdPartyPath, this.I[value].strDisplayName, this.I[value].strFileManagerPath, lOptionsThirdParty)
+					Oops(o_L["OopsWrongThirdPartyPath"], this.I[value].strDisplayName, this.I[value].strFileManagerPath, o_L["OptionsThirdParty"])
 				this._ActiveFileManager := 1 ; fall back to Window Explorer
 			}
 			return this._ActiveFileManager
@@ -23189,7 +23190,7 @@ TODO
 			intFileManager := A_Index + 1 ; 2 DirectoryOpus or 3 TotalCommander
 			if (this.I[intFileManager].blnFileManagerValid)
 			{
-				MsgBox, 52, %g_strAppNameText%, % L(lDialogThirdPartyDetected, g_strAppNameText, this.I[intFileManager].strDisplayName)
+				MsgBox, 52, %g_strAppNameText%, % L(o_L["DialogThirdPartyDetected"], g_strAppNameText, this.I[intFileManager].strDisplayName)
 				IfMsgBox, Yes
 				{
 					intSelected := intFileManager
@@ -23764,15 +23765,15 @@ class SpecialFolders
 			, "SCT", "SCT", "NEW", "NEW", "DOA", "TCC", "NEW"
 			, "1-Basic")
 		this.AddSpecialFolderObject("{59031a47-3f72-44a7-89c5-5595fe6b30ee}", "Profile", -1, "", "profile", ""
-			, lMenuUserFolder, "" ; Dossier de l'utilisateur
+			, o_L["MenuUserFolder"], "" ; Dossier de l'utilisateur
 			, "SCT", "SCT", "SCT", "NEW", "DOA", "CLS", "NEW"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject("{1f3427c8-5c10-4210-aa03-2ee45287d668}", "User Pinned", -1, "", "", ""
-			, lMenuUserPinned, "" ; Epinglé par l'utilisateur
+			, o_L["MenuUserPinned"], "" ; Epinglé par l'utilisateur
 			, "SCT", "SCT", "SCT", "NEW", "NEW", "NEW", "NEW"
 			, "2-Power User")
 		this.AddSpecialFolderObject("{BD84B380-8CA2-1069-AB1D-08000948534}", "Fonts", -1, "", "fonts", 2124
-			, lMenuFonts, "iconFonts"
+			, o_L["MenuFonts"], "iconFonts"
 			, "SCT", "SCT", "NEW", "NEW", "DOA", "TCC", "NEW"
 			, "3-Sysadmin")
 
@@ -23826,28 +23827,28 @@ class SpecialFolders
 		RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, {374DE290-123F-4565-9164-39C4925E467B}
 		this.strDownloadPath := strException
 		this.AddSpecialFolderObject(strException, "", -1, "", "downloads", ""
-			, lMenuDownloads, "iconDownloads"
+			, o_L["MenuDownloads"], "iconDownloads"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "1-Basic~4-Contents")
 		RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Music
 		this.AddSpecialFolderObject(strException, "", -1, "", "mymusic", ""
-			, lMenuMyMusic, "iconMyMusic"
+			, o_L["MenuMyMusic"], "iconMyMusic"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "1-Basic~4-Contents")
 		RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Video
 		this.AddSpecialFolderObject(strException, "", -1, "", "myvideos", ""
-			, lMenuMyVideo, "iconMyVideo"
+			, o_L["MenuMyVideo"], "iconMyVideo"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "1-Basic~4-Contents")
 		RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, Templates
 		this.AddSpecialFolderObject(strException, "", -1, "", "templates", ""
-			, lMenuTemplates, "iconTemplates"
+			, o_L["MenuTemplates"], "iconTemplates"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User")
 		RegRead, strException, HKEY_CURRENT_USER, Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders, My Pictures
 		this.strMyPicturesPath := strException
 		this.AddSpecialFolderObject(this.strMyPicturesPath, "", 39, "", "mypictures", ""
-			, lMenuPictures, "iconPictures"
+			, o_L["MenuPictures"], "iconPictures"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "1-Basic~4-Contents")
 
@@ -23855,37 +23856,37 @@ class SpecialFolders
 		; Path under %APPDATA% (no CLSID), localized name and icon provided, no Shell Command - to be tested with DOpus, TC and FPc
 
 		this.AddSpecialFolderObject("%APPDATA%\Microsoft\Windows\Start Menu", "", -1, "A_StartMenu", "start", ""
-			, lMenuStartMenu, "iconFolder"
+			, o_L["MenuStartMenu"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User")
 		this.AddSpecialFolderObject("%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup", "", -1, "A_Startup", "startup", ""
-			, lMenuStartup, "iconFolder"
+			, o_L["MenuStartup"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User")
 		this.AddSpecialFolderObject("%APPDATA%", "", -1, "A_AppData", "appdata", ""
-			, lMenuAppData, "iconFolder"
+			, o_L["MenuAppData"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject("%APPDATA%\Microsoft\Windows\Recent", "", -1, "", "recent", ""
-			, lMenuRecentItems, "iconRecentFolders"
+			, o_L["MenuRecentItems"], "iconRecentFolders"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User~4-Contents")
 		if (GetOsVersion() = "WIN_10")
 			this.AddSpecialFolderObject("%LocalAppData%\Packages\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\AC\MicrosoftEdge\Cookies", "", -1, "", "cookies", ""
-				, lMenuCookies, "iconFolder"
+				, o_L["MenuCookies"], "iconFolder"
 				, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 				, "2-Power User")
 		else
 			this.AddSpecialFolderObject("%APPDATA%\Microsoft\Windows\Cookies", "", -1, "", "cookies", ""
-				, lMenuCookies, "iconFolder"
+				, o_L["MenuCookies"], "iconFolder"
 				, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 				, "2-Power User")
 		this.AddSpecialFolderObject("%APPDATA%\Microsoft\Internet Explorer\Quick Launch", "", -1, "", "", ""
-			, lMenuQuickLaunch, "iconFolder"
+			, o_L["MenuQuickLaunch"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS"
 			, "2-Power User~4-Contents")
 		this.AddSpecialFolderObject("%APPDATA%\Microsoft\SystemCertificates", "", -1, "", "", ""
-			, lMenuSystemCertificates, "iconFolder"
+			, o_L["MenuSystemCertificates"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS"
 			, "3-Sysadmin")
 
@@ -23893,36 +23894,36 @@ class SpecialFolders
 		; Path under other environment variables (no CLSID), localized name and icon provided, no Shell Command - to be tested with DOpus, TC and FPc
 
 		this.AddSpecialFolderObject("%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu", "", -1, "A_StartMenuCommon", "commonstartmenu", ""
-			, lMenuCommonStartMenu, "iconFolder"
+			, o_L["MenuCommonStartMenu"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject("%ALLUSERSPROFILE%\Microsoft\Windows\Start Menu\Programs\Startup", "", -1, "A_StartupCommon", "commonstartup", ""
-			, lMenuCommonStartupMenu, "iconFolder"
+			, o_L["MenuCommonStartupMenu"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject("%ALLUSERSPROFILE%", "", -1, "A_AppDataCommon", "commonappdata", ""
-			, lMenuCommonAppData, "iconFolder"
+			, o_L["MenuCommonAppData"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject("%LOCALAPPDATA%\Microsoft\Windows\Temporary Internet Files", "", -1, "", "", ""
-			, lMenuCache, "iconTemporary"
+			, o_L["MenuCache"], "iconTemporary"
 			, "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS"
 			, "2-Power User")
 		this.AddSpecialFolderObject("%LOCALAPPDATA%\Microsoft\Windows\History", "", -1, "", "history", ""
-			, lMenuHistory, "iconHistory"
+			, o_L["MenuHistory"], "iconHistory"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User")
 		this.AddSpecialFolderObject("%ProgramFiles%", "", -1, "A_ProgramFiles", "programfiles", ""
-			, lMenuProgramFiles, "iconFolder"
+			, o_L["MenuProgramFiles"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		if (A_Is64bitOS)
 			this.AddSpecialFolderObject("%ProgramFiles(x86)%", "", -1, "", "programfilesx86", ""
-				, lMenuProgramFiles . " (x86)", "iconFolder"
+				, o_L["MenuProgramFiles"] . " (x86)", "iconFolder"
 				, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 				, "3-Sysadmin")
 		this.AddSpecialFolderObject("%PUBLIC%\Libraries", "", -1, "", "", ""
-			, lMenuPublicLibraries, "iconFolder"
+			, o_L["MenuPublicLibraries"], "iconFolder"
 			, "CLS", "CLS", "CLS", "CLS", "CLS", "CLS", "CLS"
 			, "3-Sysadmin")
 
@@ -23940,15 +23941,15 @@ class SpecialFolders
 		; Path using AHK constants (no CLSID), localized name and icon provided, no Shell Command - to be tested with DOpus, TC and FPc
 
 		this.AddSpecialFolderObject(A_Desktop, "", 0, "A_Desktop", "desktop", 2121
-			, lMenuDesktop, "iconDesktop"
+			, o_L["MenuDesktop"], "iconDesktop"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "TCC", "CLS"
 			, "1-Basic")
 		this.AddSpecialFolderObject(A_DesktopCommon, "", -1, "A_DesktopCommon", "commondesktopdir", ""
-			, lMenuCommonDesktop, "iconDesktop"
+			, o_L["MenuCommonDesktop"], "iconDesktop"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject(A_Temp, "", -1, "A_Temp", "temp", ""
-			, lMenuTemporaryFiles, "iconTemporary"
+			, o_L["MenuTemporaryFiles"], "iconTemporary"
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "2-Power User")
 		this.AddSpecialFolderObject(A_WinDir, "", -1, "A_WinDir", "windows", ""
@@ -23956,7 +23957,7 @@ class SpecialFolders
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "CLS", "CLS"
 			, "3-Sysadmin")
 		this.AddSpecialFolderObject(A_Programs, "", -1, "A_Programs", "programs", "" ; CLSID was "{7be9d83c-a729-4d97-b5a7-1b7313c39e0a}" but not working under Win 10
-			, lMenuProgramsFolderStartMenu, "" ; Menu Démarrer / Programmes (Menu Start/Programs)
+			, o_L["MenuProgramsFolderStartMenu"], "" ; Menu Démarrer / Programmes (Menu Start/Programs)
 			, "CLS", "CLS", "CLS", "CLS", "DOA", "AHK", "AHK"
 			, "2-Power User")
 			
@@ -23964,7 +23965,7 @@ class SpecialFolders
 		; Special Folders categories
 
 		objSpecialFoldersCategoriesSystemName := StrSplit("1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware", "|")
-		objSpecialFoldersCategoriesDisplayNames := StrSplit(lDialogSpecialFoldersCategoriesNames, "|")
+		objSpecialFoldersCategoriesDisplayNames := StrSplit(o_L["DialogSpecialFoldersCategoriesNames"], "|")
 		Loop, % objSpecialFoldersCategoriesSystemName.Length()
 			this.objSpecialFoldersCategories[objSpecialFoldersCategoriesSystemName[A_Index]] := objSpecialFoldersCategoriesDisplayNames[A_Index]
 	}
@@ -24113,181 +24114,181 @@ class QAPfeatures
 		; AddQAPFeatureObject(strQAPFeatureCode, strThisDefaultName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
 		; 	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut, strHelpUrl)
 		
-		this.AddQAPFeatureObject("Clipboard",				lMenuClipboard,				lMenuClipboard,			"ClipboardMenuShortcut",				"2-DynamicMenus"
-			, lMenuClipboardDescription, 0, "iconClipboard", "+^v"
+		this.AddQAPFeatureObject("Clipboard",				o_L["MenuClipboard"],				o_L["MenuClipboard"],			"ClipboardMenuShortcut",				"2-DynamicMenus"
+			, o_L["MenuClipboardDescription"], 0, "iconClipboard", "+^v"
 			, "what-is-in-the-clipboard-menu")
-		this.AddQAPFeatureObject("Switch Folder or App",	lMenuSwitchFolderOrApp,		lMenuSwitchFolderOrApp,	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
-			, lMenuSwitchFolderOrAppDescription, 0, "iconSwitch", "+^w"
+		this.AddQAPFeatureObject("Switch Folder or App",	o_L["MenuSwitchFolderOrApp"],		o_L["MenuSwitchFolderOrApp"],	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
+			, o_L["MenuSwitchFolderOrAppDescription"], 0, "iconSwitch", "+^w"
 			, "how-is-built-the-switch-to-an-open-folder-or-application-menu")
-		this.AddQAPFeatureObject("Current Folders",			lMenuCurrentFolders,		lMenuCurrentFolders,	"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
-			, lMenuCurrentFoldersDescription, 0, "iconCurrentFolders", "+^f"
+		this.AddQAPFeatureObject("Current Folders",			o_L["MenuCurrentFolders"],			o_L["MenuCurrentFolders"],		"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
+			, o_L["MenuCurrentFoldersDescription"], 0, "iconCurrentFolders", "+^f"
 			, "how-is-built-the-current-folders-menu")
-		this.AddQAPFeatureObject("Last Actions", 			lMenuLastActions, 			lMenuLastActions, 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
-			, lMenuLastActionsDescription, 0, "iconReload", ""
+		this.AddQAPFeatureObject("Last Actions", 			o_L["MenuLastActions"], 			o_L["MenuLastActions"], 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
+			, o_L["MenuLastActionsDescription"], 0, "iconReload", ""
 			, "can-i-reopen-one-of-the-last-favorites-i-selected-recently")
-		this.AddQAPFeatureObject("TC Directory hotlist",	lTCMenuName,				lTCMenuName,			"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
-			, lTCMenuNameDescription, 0, "TotalCommander", "+^t"
+		this.AddQAPFeatureObject("TC Directory hotlist",	o_L["TCMenuName"],					o_L["TCMenuName"],				"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
+			, o_L["TCMenuNameDescription"], 0, "TotalCommander", "+^t"
 			, "how-do-i-enable-total-commander-support-in-quick-access-popup")
-		this.AddQAPFeatureObject("DOpus Favorites",			lDOpusMenuName,				lDOpusMenuName,			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
-			, lDOpusMenuNameDescription, 0, "DirectoryOpus", ""
+		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
+			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
 			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
 
 		; Command features
 
-		this.AddQAPFeatureObject("About",					lGuiAbout . "...",					"", "GuiAbout",								"7-QAPManagement"
-			, lGuiAboutDescription, 0, "iconAbout", "", "")
-		this.AddQAPFeatureObject("Add Favorite",			lMenuAddFavorite . "...",			"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
-			, lMenuAddFavoriteDescription, 0, "iconAddFavorite", ""
+		this.AddQAPFeatureObject("About",					o_L["GuiAbout"] . "...",					"", "GuiAbout",								"7-QAPManagement"
+			, o_L["GuiAboutDescription"], 0, "iconAbout", "", "")
+		this.AddQAPFeatureObject("Add Favorite",			o_L["MenuAddFavorite"] . "...",				"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
+			, o_L["MenuAddFavoriteDescription"], 0, "iconAddFavorite", ""
 			, "what-should-i-know-about-quick-access-popup-before-starting")
-		this.AddQAPFeatureObject("Add This Folder",			lMenuAddThisFolder . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
-			, lMenuAddThisFolderDescription, 0, "iconAddThisFolder", "+^a"
+		this.AddQAPFeatureObject("Add This Folder",			o_L["MenuAddThisFolder"] . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
+			, o_L["MenuAddThisFolderDescription"], 0, "iconAddThisFolder", "+^a"
 			, "can-i-add-on-the-fly-the-folder-i-am-already-in")
-		this.AddQAPFeatureObject("Add This Folder Express",	lMenuAddThisFolderXpress,			"", "AddThisFolderXpress",					"3-QAPMenuEditing"
-			, lMenuAddThisFolderXpressDescription, 0, "iconAddThisFolder", ""
+		this.AddQAPFeatureObject("Add This Folder Express",	o_L["MenuAddThisFolderXpress"],				"", "AddThisFolderXpress",					"3-QAPMenuEditing"
+			, o_L["MenuAddThisFolderXpressDescription"], 0, "iconAddThisFolder", ""
 			, "can-i-add-on-the-fly-the-folder-i-am-already-in")
-		this.AddQAPFeatureObject("Exit",					L(lMenuExitApp, g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
-			, lMenuExitAppDescription, 0, "iconExit", "", "")
-		this.AddQAPFeatureObject("Help",					lGuiHelp . "...",					"", "GuiHelp",								"7-QAPManagement"
-			, lGuiHelpDescription, 0, "iconHelp", "", "")
-		this.AddQAPFeatureObject("Hotkeys",					lDialogShortcuts . "...",			"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
-			, lDialogShortcutsDescription, 0, "iconHotkeys", ""
+		this.AddQAPFeatureObject("Exit",					L(o_L["MenuExitApp"], g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
+			, o_L["MenuExitAppDescription"], 0, "iconExit", "", "")
+		this.AddQAPFeatureObject("Help",					o_L["GuiHelp"] . "...",						"", "GuiHelp",								"7-QAPManagement"
+			, o_L["GuiHelpDescription"], 0, "iconHelp", "", "")
+		this.AddQAPFeatureObject("Hotkeys",					o_L["DialogShortcuts"] . "...",				"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
+			, o_L["DialogShortcutsDescription"], 0, "iconHotkeys", ""
 			, "can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts")
-		this.AddQAPFeatureObject("Hotstrings",				lDialogHotstrings . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	"1-Featured~3-QAPMenuEditing"
-			, lDialogHotstringsDescription, 0, "iconHotkeys", ""
+		this.AddQAPFeatureObject("Hotstrings",				o_L["DialogHotstrings"] . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	"1-Featured~3-QAPMenuEditing"
+			, o_L["DialogHotstringsDescription"], 0, "iconHotkeys", ""
 			, "what-are-hotstrings")
-		this.AddQAPFeatureObject("Icons",					lDialogIconsManage . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
-			, lDialogIconsManageDescription, 0, "iconIcons", ""
+		this.AddQAPFeatureObject("Icons",					o_L["DialogIconsManage"] . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
+			, o_L["DialogIconsManageDescription"], 0, "iconIcons", ""
 			, "can-i-manage-all-my-menu-icons-in-one-screen")
-		this.AddQAPFeatureObject("Options",					lGuiOptions . "...",				"", "GuiOptionsFromQAPFeature",				"7-QAPManagement"
-			, lGuiOptionsDescription, 0, "iconOptions", ""
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",					"", "GuiOptionsFromQAPFeature",				"7-QAPManagement"
+			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
-		this.AddQAPFeatureObject("Settings",				lMenuSettings . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~7-QAPManagement"
-			, lMenuSettingsDescription, 0, "iconSettings", "+^s"
+		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"] . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~7-QAPManagement"
+			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^s"
 			, "what-should-i-know-about-quick-access-popup-before-starting")
-		this.AddQAPFeatureObject("Support",					lGuiDonate . "...",					"", "GuiDonate",							"7-QAPManagement"
-			, lGuiDonateDescription, 0, "iconDonate", ""
+		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . "...",					"", "GuiDonate",							"7-QAPManagement"
+			, o_L["GuiDonateDescription"], 0, "iconDonate", ""
 			, "why-support-freeware")
-		this.AddQAPFeatureObject("GetWinInfo",				lMenuGetWinInfo . "...",			"", "GetWinInfo",							"6-Utility"
-			, lMenuGetWinInfoDescription, 0, "iconAbout", ""
+		this.AddQAPFeatureObject("GetWinInfo",				o_L["MenuGetWinInfo"] . "...",				"", "GetWinInfo",							"6-Utility"
+			, o_L["MenuGetWinInfoDescription"], 0, "iconAbout", ""
 			, "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps")
-		this.AddQAPFeatureObject("Reload",					L(lMenuReload, g_strAppNameText),	"", "ReloadQAP",							"6-Utility~7-QAPManagement"
-			, lMenuReloadDescription, 0, "iconReload", ""
+		this.AddQAPFeatureObject("Reload",					L(o_L["MenuReload"], g_strAppNameText),		"", "ReloadQAP",							"6-Utility~7-QAPManagement"
+			, o_L["MenuReloadDescription"], 0, "iconReload", ""
 			, "when-do-i-need-to-use-the-system-tray-menu")
-		this.AddQAPFeatureObject("CloseMenu",				lMenuCloseThisMenu,					"", "DoNothing",							"7-QAPManagement"
-			, lMenuCloseThisMenuDescription, 0, "iconClose", ""
+		this.AddQAPFeatureObject("CloseMenu",				o_L["MenuCloseThisMenu"],					"", "DoNothing",							"7-QAPManagement"
+			, o_L["MenuCloseThisMenuDescription"], 0, "iconClose", ""
 			, "what-is-the-close-menu-issue")
-		this.AddQAPFeatureObject("ImportExport",			lImpExpMenu . "...",				"", "ImportExport",							"7-QAPManagement"
-			, lImpExpMenuDescription, 0, "iconSettings", ""
+		this.AddQAPFeatureObject("ImportExport",			o_L["ImpExpMenu"] . "...",					"", "ImportExport",							"7-QAPManagement"
+			, o_L["ImpExpMenuDescription"], 0, "iconSettings", ""
 			, "can-i-backup-import-or-export-my-favorites-and-settings")
-		this.AddQAPFeatureObject("SwitchSettings",			lMenuSwitchSettings . "...",		"", "SwitchSettings",						"3-QAPMenuEditing~7-QAPManagement"
-			, lMenuSwitchSettingsDescription, 0, "iconSettings", ""
+		this.AddQAPFeatureObject("SwitchSettings",			o_L["MenuSwitchSettings"] . "...",			"", "SwitchSettings",						"3-QAPMenuEditing~7-QAPManagement"
+			, o_L["MenuSwitchSettingsDescription"], 0, "iconSettings", ""
 			, "can-i-load-qap-with-an-alternative-settings-file")
-		this.AddQAPFeatureObject("SwitchSettingsDefault",	lMenuSwitchSettingsDefault,			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
-			, lMenuSwitchSettingsDefaultDescription, 0, "iconSettings", ""
+		this.AddQAPFeatureObject("SwitchSettingsDefault",	o_L["MenuSwitchSettingsDefault"],			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
+			, o_L["MenuSwitchSettingsDefaultDescription"], 0, "iconSettings", ""
 			, "can-i-load-qap-with-an-alternative-settings-file")
-		this.AddQAPFeatureObject("RefreshMenu",				lMenuRefreshMenu,					"", "RefreshQAPMenu",						"3-QAPMenuEditing~7-QAPManagement"
-			, lMenuRefreshMenuDescription, 0, "iconReload", ""
+		this.AddQAPFeatureObject("RefreshMenu",				o_L["MenuRefreshMenu"],						"", "RefreshQAPMenu",						"3-QAPMenuEditing~7-QAPManagement"
+			, o_L["MenuRefreshMenuDescription"], 0, "iconReload", ""
 			, "what-are-the-qap-features")
-		this.AddQAPFeatureObject("AddExternalFromCatalogue",lMenuExternalCatalogue, 			"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
-			, lMenuExternalCatalogueDescription, 0, "iconAddFavorite", ""
+		this.AddQAPFeatureObject("AddExternalFromCatalogue",o_L["MenuExternalCatalogue"], 				"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
+			, o_L["MenuExternalCatalogueDescription"], 0, "iconAddFavorite", ""
 			, "shared-menu-catalogue")
-		this.AddQAPFeatureObject("ReopenCurrentFolder",		lMenuReopenCurrentFolder, 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
-			, lMenuReopenCurrentFolderDescription, 0, "iconChangeFolder", "+^c"
+		this.AddQAPFeatureObject("ReopenCurrentFolder",		o_L["MenuReopenCurrentFolder"], 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
+			, o_L["MenuReopenCurrentFolderDescription"], 0, "iconChangeFolder", "+^c"
 			, "can-i-change-folders-in-file-dialog-boxes-open-save-as-etc")
-		this.AddQAPFeatureObject("Last Action", 			lMenuLastAction,					"", "RepeatLastActionShortcut",				"6-Utility"
-			, lMenuLastActionDescription, 0, "iconReload", ""
+		this.AddQAPFeatureObject("Last Action", 			o_L["MenuLastAction"],						"", "RepeatLastActionShortcut",				"6-Utility"
+			, o_L["MenuLastActionDescription"], 0, "iconReload", ""
 			, "can-i-reopen-one-of-the-last-favorites-i-selected-recently")
-		this.AddQAPFeatureObject("Close All Windows", 		lMenuCloseAllWindows,				"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
-			, lMenuCloseAllWindowsDescription, 0, "iconDesktop", ""
+		this.AddQAPFeatureObject("Close All Windows", 		o_L["MenuCloseAllWindows"],					"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
+			, o_L["MenuCloseAllWindowsDescription"], 0, "iconDesktop", ""
 			, "can-i-close-all-running-applications-and-windows-in-one-click")
-		this.AddQAPFeatureObject("Reopen in New Window", 	lMenuReopenInNewWindow,				"", "OpenReopenInNewWindow",				"4-WindowManagement"
-			, lMenuReopenInNewWindowDescription, 0, "iconChangeFolder", ""
+		this.AddQAPFeatureObject("Reopen in New Window", 	o_L["MenuReopenInNewWindow"],				"", "OpenReopenInNewWindow",				"4-WindowManagement"
+			, o_L["MenuReopenInNewWindowDescription"], 0, "iconChangeFolder", ""
 			, "can-i-change-folders-in-file-dialog-boxes-open-save-as-etc")
-		this.AddQAPFeatureObject("Restore Settings Position", lMenuRestoreSettingsWindowPosition, "", "GuiShowRestoreDefaultPosition",		"7-QAPManagement"
-			, lMenuRestoreSettingsWindowPositionDescription, 0, "iconSettings", "", "qap-is-running-but-my-settings-window-disappeared-what-happened")
-		this.AddQAPFeatureObject("Check for update", 		lMenuUpdateNoAmpersand,				"", "Check4UpdateNow",						"7-QAPManagement"
-			, lMenuUpdateNoAmpersandDescription, 0, "iconChangeFolder", "", "")
-		this.AddQAPFeatureObject("Edit Settings file", 		L(lMenuEditIniFile, o_Settings.strIniFileNameExtOnly), "", "ShowSettingsIniFile",		"7-QAPManagement"
-			, lMenuEditIniFileDescription, 0, "iconSettings", ""
+		this.AddQAPFeatureObject("Restore Settings Position", o_L["MenuRestoreSettingsWindowPosition"], "", "GuiShowRestoreDefaultPosition",		"7-QAPManagement"
+			, o_L["MenuRestoreSettingsWindowPositionDescription"], 0, "iconSettings", "", "qap-is-running-but-my-settings-window-disappeared-what-happened")
+		this.AddQAPFeatureObject("Check for update", 		o_L["MenuUpdateNoAmpersand"],				"", "Check4UpdateNow",						"7-QAPManagement"
+			, o_L["MenuUpdateNoAmpersandDescription"], 0, "iconChangeFolder", "", "")
+		this.AddQAPFeatureObject("Edit Settings file", 		L(o_L["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), "", "ShowSettingsIniFile", "7-QAPManagement"
+			, o_L["MenuEditIniFileDescription"], 0, "iconSettings", ""
 			, "how-can-i-edit-the-file-quickaccesspopup-ini")
-		this.AddQAPFeatureObject("List Applications", 		lMenuListApplications,				"", "ListApplications",						"7-QAPManagement"
-			, lMenuListApplicationsDescription, 0, "iconDesktop", "", "")
+		this.AddQAPFeatureObject("List Applications", 		o_L["MenuListApplications"],				"", "ListApplications",						"7-QAPManagement"
+			, o_L["MenuListApplicationsDescription"], 0, "iconDesktop", "", "")
 
-		this.AddQAPFeatureObject("Close Computer Control", lDialogCloseComputerControl, 		"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
-			, lDialogCloseComputerControlDescription, 0, "iconExit", ""
+		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"], 			"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
+			, o_L["DialogCloseComputerControlDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerShutdown, &
-		this.AddQAPFeatureObject("ShutDown",				strQAPFeatureName,					"", "ShutdownComputer",						"5.1-CloseComputer"
-			, lDialogCloseComputerShutdownDescription, 0, "iconExit", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerShutdown"], &
+		this.AddQAPFeatureObject("ShutDown",				strQAPFeatureName,							"", "ShutdownComputer",						"5.1-CloseComputer"
+			, o_L["DialogCloseComputerShutdownDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerPowerDown, &
-		this.AddQAPFeatureObject("Power Down Computer", 	strQAPFeatureName, 					"", "PowerDownComputer",					"5.1-CloseComputer"
-			, lDialogCloseComputerPowerDownDescription, 0, "iconExit", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerPowerDown"], &
+		this.AddQAPFeatureObject("Power Down Computer", 	strQAPFeatureName, 							"", "PowerDownComputer",					"5.1-CloseComputer"
+			, o_L["DialogCloseComputerPowerDownDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerRestart, &
-		this.AddQAPFeatureObject("Restart",					strQAPFeatureName,					"", "RestartComputer",						"5.1-CloseComputer"
-			, lDialogCloseComputerRestartDescription, 0, "iconReload", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerRestart"], &
+		this.AddQAPFeatureObject("Restart",					strQAPFeatureName,							"", "RestartComputer",						"5.1-CloseComputer"
+			, o_L["DialogCloseComputerRestartDescription"], 0, "iconReload", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerLogoff, &
-		this.AddQAPFeatureObject("Logoff", 					strQAPFeatureName, 					"", "LogoffComputer",						"5.1-CloseComputer"
-			, lDialogCloseComputerLogoffDescription, 0, "iconExit", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerLogoff"], &
+		this.AddQAPFeatureObject("Logoff", 					strQAPFeatureName, 							"", "LogoffComputer",						"5.1-CloseComputer"
+			, o_L["DialogCloseComputerLogoffDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerSuspend, &
-		this.AddQAPFeatureObject("Suspend Computer", 		strQAPFeatureName, 					"", "SuspendComputer",						"5.1-CloseComputer"
-			, lDialogCloseComputerSuspendDescription, 0, "iconExit", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerSuspend"], &
+		this.AddQAPFeatureObject("Suspend Computer", 		strQAPFeatureName, 							"", "SuspendComputer",						"5.1-CloseComputer"
+			, o_L["DialogCloseComputerSuspendDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerHibernate, &
-		this.AddQAPFeatureObject("Hibernate Computer", 		strQAPFeatureName, 					"", "HibernateComputer",					"5.1-CloseComputer"
-			, lDialogCloseComputerHibernateDescription, 0, "iconExit", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerHibernate"], &
+		this.AddQAPFeatureObject("Hibernate Computer", 		strQAPFeatureName, 							"", "HibernateComputer",					"5.1-CloseComputer"
+			, o_L["DialogCloseComputerHibernateDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerMonitorTurnOff, &
-		this.AddQAPFeatureObject("Turn Off Monitor", 		strQAPFeatureName, 					"", "TurnOffMonitorComputer",				"5.1-CloseComputer"
-			, lDialogCloseComputerMonitorTurnOffDescription, 0, "iconDesktop", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerMonitorTurnOff"], &
+		this.AddQAPFeatureObject("Turn Off Monitor", 		strQAPFeatureName, 							"", "TurnOffMonitorComputer",				"5.1-CloseComputer"
+			, o_L["DialogCloseComputerMonitorTurnOffDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerMonitorLowPower, &
-		this.AddQAPFeatureObject("Monitor Low Power", 		strQAPFeatureName, 					"", "LowPowerMonitorComputer",				"5.1-CloseComputer"
-			, lDialogCloseComputerMonitorLowPowerDescription, 0, "iconDesktop", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerMonitorLowPower"], &
+		this.AddQAPFeatureObject("Monitor Low Power", 		strQAPFeatureName, 							"", "LowPowerMonitorComputer",				"5.1-CloseComputer"
+			, o_L["DialogCloseComputerMonitorLowPowerDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, lDialogCloseComputerStartScreenSaver, &
-		this.AddQAPFeatureObject("Start Screen Saver", 		strQAPFeatureName, 					"", "StartScreenSaverComputer",				"5.1-CloseComputer"
-			, lDialogCloseComputerStartScreenSaverDescription, 0, "iconDesktop", ""
+		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerStartScreenSaver"], &
+		this.AddQAPFeatureObject("Start Screen Saver", 		strQAPFeatureName, 							"", "StartScreenSaverComputer",				"5.1-CloseComputer"
+			, o_L["DialogCloseComputerStartScreenSaverDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
 
 		; New for v9.x
-		; this.AddQAPFeatureObject("Exclusions Mouse", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
-			; , lMenuDescription, 0, "icon", ""
+		; this.AddQAPFeatureObject("Exclusions Mouse", 			o_L["Menu"],					"", "command",				"1-Featured~7-QAPManagement"
+			; , o_L["MenuDescription"], 0, "icon", ""
 			; , "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps")
-		; this.AddQAPFeatureObject("Exclusions Keyboard", 			lMenu,					"", "command",				"1-Featured~7-QAPManagement"
-			; , lMenuDescription, 0, "icon", "", "")
+		; this.AddQAPFeatureObject("Exclusions Keyboard", 			o_L["Menu"],					"", "command",				"1-Featured~7-QAPManagement"
+			; , o_L["MenuDescription"], 0, "icon", "", "")
 
 		this.AddAttachedOrDetachedQAPFeatureObject()
 
 		Loop, % o_Favorites.I.Length()
 			if StrLen(o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . g_arrFavoriteTypes%A_Index%, lMenuAddFavorite . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+				this.AddQAPFeatureObject("Add Favorite - " . g_arrFavoriteTypes%A_Index%, o_L["MenuAddFavorite"] . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
 					, "", "GuiAddFavoriteFromQAPFeature" . g_arrFavoriteTypes%A_Index%, "3.1-AddFavoriteOfType"
-					, L(lMenuAddFavoriteOfTypeDescription, o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
+					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
 
 		; Alternative Menu features
-		this.AddQAPFeatureObject("Open in New Window",		lMenuAlternativeNewWindow,				"", "", ""
+		this.AddQAPFeatureObject("Open in New Window",		o_L["MenuAlternativeNewWindow"],				"", "", ""
 			, "", 1, "iconFolder", "", "")
-		this.AddQAPFeatureObject("Edit Favorite",			lMenuAlternativeEditFavorite,			"", "", ""
+		this.AddQAPFeatureObject("Edit Favorite",			o_L["MenuAlternativeEditFavorite"],			"", "", ""
 			, "", 3, "iconEditFavorite", "", "")
-		this.AddQAPFeatureObject("Copy Favorite Location",	lMenuCopyLocation,						"", "", ""
+		this.AddQAPFeatureObject("Copy Favorite Location",	o_L["MenuCopyLocation"],						"", "", ""
 			, "", 5, "iconClipboard", "", "")
-		this.AddQAPFeatureObject("Run As Administrator",	lMenuAlternativeRunAs,					"", "", ""
+		this.AddQAPFeatureObject("Run As Administrator",	o_L["MenuAlternativeRunAs"],					"", "", ""
 			, "", 7, "iconUAClogo", "", "")
-		this.AddQAPFeatureObject("Open Containing Current",	lMenuAlternativeOpenContainingCurrent,	"", "", ""
+		this.AddQAPFeatureObject("Open Containing Current",	o_L["MenuAlternativeOpenContainingCurrent"],	"", "", ""
 			, "", 9, "iconSpecialFolders", "", "")
-		this.AddQAPFeatureObject("Open Containing New",		lMenuAlternativeOpenContainingNew,		"", "", ""
+		this.AddQAPFeatureObject("Open Containing New",		o_L["MenuAlternativeOpenContainingNew"],		"", "", ""
 			, "", 10, "iconSpecialFolders", "", "")
 
 		;-----------------------
 		; QAP Features categories
 
 		objQAPFeaturesCategoriesSystemName := StrSplit("1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement", "|")
-		objQAPFeaturesCategoriesDisplayNames := StrSplit(lDialogQAPFeatureCategoriesNames, "|")
+		objQAPFeaturesCategoriesDisplayNames := StrSplit(o_L["DialogQAPFeatureCategoriesNames"], "|")
 		Loop, % objQAPFeaturesCategoriesSystemName.Length()
 			this.objQAPFeaturesCategories[objQAPFeaturesCategoriesSystemName[A_Index]] := objQAPFeaturesCategoriesDisplayNames[A_Index]
 	}
@@ -24313,32 +24314,32 @@ class QAPfeatures
 		blnAttached := o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
 
 		; init refreshed menus attached or detached according to blnAttached
-		this.AddQAPFeatureObject("Recent Folders",	lMenuRecentFolders . (blnAttached ? "" : "...")
-			, (blnAttached ? lMenuRecentFolders : "")
+		this.AddQAPFeatureObject("Recent Folders",	o_L["MenuRecentFolders"] . (blnAttached ? "" : "...")
+			, (blnAttached ? o_L["MenuRecentFolders"] : "")
 			, "RecentFoldersMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
-			, lMenuRecentFoldersDescription, 0, "iconRecentFolders",	"+^r"
+			, o_L["MenuRecentFoldersDescription"], 0, "iconRecentFolders",	"+^r"
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
-		this.AddQAPFeatureObject("Recent Files", lMenuRecentFiles . (blnAttached ? "" : "...")
-			, (blnAttached ? lMenuRecentFiles : ""
+		this.AddQAPFeatureObject("Recent Files", o_L["MenuRecentFiles"] . (blnAttached ? "" : "...")
+			, (blnAttached ? o_L["MenuRecentFiles"] : ""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
 			, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
-			, lMenuRecentFilesDescription, 0, "iconRecentFolders",	""
+			, o_L["MenuRecentFilesDescription"], 0, "iconRecentFolders",	""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
-		this.AddQAPFeatureObject("Popular Folders", L(lMenuPopularMenus, lMenuPopularFolders) . (blnAttached ? "" : "...")
-			, (blnAttached ? L(lMenuPopularMenus, lMenuPopularFolders) : "")
+		this.AddQAPFeatureObject("Popular Folders", L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]) . (blnAttached ? "" : "...")
+			, (blnAttached ? L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]) : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
-			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFolders)), 0, "iconFavorites", ""
+			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFolders"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
-		this.AddQAPFeatureObject("Popular Files", L(lMenuPopularMenus, lMenuPopularFiles) . (blnAttached ? "" : "...")
-			, (blnAttached ? L(lMenuPopularMenus, lMenuPopularFiles) : "")
+		this.AddQAPFeatureObject("Popular Files", L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"]) . (blnAttached ? "" : "...")
+			, (blnAttached ? L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"]) : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
-			, L(lMenuPopularMenusDescription, Format("{:U}", lMenuPopularFiles)), 0, "iconFavorites", ""
+			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFiles"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
-		this.AddQAPFeatureObject("Drives", lMenuDrives . (blnAttached ? "" : "...")
-			, (blnAttached ? lMenuDrives : ""
+		this.AddQAPFeatureObject("Drives", o_L["MenuDrives"] . (blnAttached ? "" : "...")
+			, (blnAttached ? o_L["MenuDrives"] : ""
 			, "what-are-these-features-in-the-my-qap-essentials-menu")
 			, "DrivesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
-			, lMenuDrivesDescription, 0, "iconDrives", "+^d"
+			, o_L["MenuDrivesDescription"], 0, "iconDrives", "+^d"
 			, "can-i-display-the-drives-recent-folders-and-recent-files-menus-attached-to-the-popup-menu")
 	}
 	;---------------------------------------------------------
@@ -24409,16 +24410,16 @@ FAVORITE TYPES REPLACED
 	;---------------------------------------------------------
 	{
 		objFavoriteTypes := StrSplit("Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp", "|")
-		objFavoriteTypesLabels := StrSplit(lDialogFavoriteTypesLabels, "|")
-		objFavoriteTypesShortNames := StrSplit(lDialogFavoriteTypesShortNames, "|")
-		objFavoriteTypesLocationLabels := StrSplit(lDialogFavoriteTypesLocationLabels, "|")
-		objFavoriteTypesLocationLabelsNoAmpersand := StrSplit(lDialogFavoriteTypesLabelsNoAmpersand, "|")
-		objFavoriteTypesHelp := StrSplit(lDialogFavoriteTypesHelp, "|")
+		objFavoriteTypesLabels := StrSplit(o_L["DialogFavoriteTypesLabels"], "|")
+		objFavoriteTypesShortNames := StrSplit(o_L["DialogFavoriteTypesShortNames"], "|")
+		objFavoriteTypesLocationLabels := StrSplit(o_L["DialogFavoriteTypesLocationLabels"], "|")
+		objFavoriteTypesLocationLabelsNoAmpersand := StrSplit(o_L["DialogFavoriteTypesLabelsNoAmpersand"], "|")
+		objFavoriteTypesHelp := StrSplit(o_L["DialogFavoriteTypesHelp"], "|")
 		
 		Loop, % objFavoriteTypes.Length()
 		{
 			this.I[A_Index] := new Favorites.Type(objFavoriteTypes[A_Index], objFavoriteTypesLabels[A_Index], objFavoriteTypesShortNames[A_Index]
-				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], lDialogFavoriteTypesHelp%A_Index%)
+				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp"]%A_Index%)
 			this.objFavoriteTypesByName[objFavoriteTypes[A_Index]] := this.I[A_Index]
 		}
 	}
@@ -24447,11 +24448,11 @@ FAVORITE TYPES REPLACED
 			this.strFavoriteTypeLocationLabelNoAmpersand := strThisLocationLabelNoAmpersand
 			
 			if (strThisSystemName = "QAP")
-				this.strFavoriteTypeHelp := L(strThisHelp, lMenuSwitchFolderOrApp, lMenuRecentFolders, lMenuCurrentFolders, lMenuClipboard, lMenuAddThisFolder)
+				this.strFavoriteTypeHelp := L(strThisHelp, o_L["MenuSwitchFolderOrApp"], o_L["MenuRecentFolders"], o_L["MenuCurrentFolders"], o_L["MenuClipboard"], o_L["MenuAddThisFolder"])
 			else if (strThisSystemName = "Application")
-				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . lDialogFavoriteTypeNoteApplication
+				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . o_L["DialogFavoriteTypeNoteApplication"]
 			else if (strThisSystemName = "WindowsApp")
-				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . lDialogFavoriteTypeNoteWindowsApps
+				this.strFavoriteTypeHelp := strThisHelp . "`n`n" . o_L["DialogFavoriteTypeNoteWindowsApps"]
 			else
 				this.strFavoriteTypeHelp := strThisHelp
 		}
