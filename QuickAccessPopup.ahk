@@ -20626,9 +20626,9 @@ NumDecode(str)
 {
 	Loop
 		If RegexMatch(str, "S)(&#(\d+);)", dec) ; matches: &#[dec];
-			StringReplace, str, str, %dec1%, % Chr(dec2), All
+			str := StrReplace(str, dec1, Chr(dec2))
 		Else If RegexMatch(str, "Si)(&#x([\da-f]+);)", hex) ; matches: &#x[hex];
-			StringReplace, str, str, %hex1%, % Chr("0x" . hex2), All
+			str := StrReplace(str, hex1, Chr("0x" . hex2))
 		Else
 			Break
 	
@@ -20675,7 +20675,7 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 ;------------------------------------------------------------
 {
 	; protect escaped open curly brackets `{
-	StringReplace, strOriginal, strOriginal, ````{, !r4nd0mt3xt!, A ; original tick was doubled by EncodeSnippet
+	strOriginal := StrReplace(strOriginal, "````{", "!r4nd0mt3xt!") ; original tick was doubled by EncodeSnippet
 
 	strExpanded := ExpandPlaceholdersForThis(strOriginal, strLocation, "")
 	if (strCurrentLocation <> -1)
@@ -20687,7 +20687,7 @@ ExpandPlaceholders(strOriginal, strLocation, strCurrentLocation, strSelectedLoca
 	strExpanded := ExpandUserVariables(strExpanded)
 
 	; restore escaped open curly brackets and remove tick {
-	StringReplace, strExpanded, strExpanded, !r4nd0mt3xt!, {, A ; restore ticked open curly brackets
+	strExpanded := StrReplace(strExpanded, "!r4nd0mt3xt!", "{") ; restore ticked open curly brackets
 
 	return strExpanded
 }
@@ -21048,10 +21048,10 @@ LocationTransformedFromHTTP2UNC(strType, ByRef strLocation)
 		; to:   \\abc.server.com\folder\subfolder\My%20Name.doc
 		; See: http://stackoverflow.com/questions/1344910/get-the-content-of-a-sharepoint-folder-with-excel-vba
 		
-		StringReplace, strLocation, strLocation, /, \, All
-		StringReplace, strLocation, strLocation, http:
-		StringReplace, strLocation, strLocation, https:
-		; not required? StringReplace, strLocation, strLocation, %A_Space%, `%20, All
+		strLocation := StrReplace(strLocation, "/", "\")
+		strLocation := StrReplace(strLocation, "http:")
+		strLocation := StrReplace(strLocation, "https:")
+		; not required? strLocation := StrReplace(strLocation, A_Space, "%20")
 		return true
 	}
 	else
