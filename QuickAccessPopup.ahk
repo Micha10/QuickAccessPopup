@@ -22324,7 +22324,7 @@ WM_MOUSEMOVE(wParam, lParam)
 	; get hover control name and Static control number
 	strControlPrev := strControl
 	MouseGetPos, , , , strControl ; Static1, StaticN, Button1, ButtonN
-	StringReplace, intControl, strControl, Static
+	intControl := StrReplace(strControl, "Static")
 	
 	; display hand cursor over selected buttons
 	if InStr(strControl, "Static")
@@ -23919,8 +23919,8 @@ class SpecialFolders
 		;---------------------
 		; Path under the Users folder (no CLSID, localized name and icon provided), no Shell Command
 
-		StringReplace, strPathUsername, A_AppData, \AppData\Roaming
-		StringReplace, strPathUsers, strPathUsername, \%A_UserName%
+		strPathUsername := StrReplace(A_AppData, "\AppData\Roaming")
+		strPathUsers := StrReplace(strPathUsername, "\" . A_UserName)
 		this.AddSpecialFolderObject(strPathUsers . "\Public", "Public", -1, "", "common", ""
 			, "Public Folder", "" ; Public
 			, "SCT", "SCT", "SCT", "CLS", "DOA", "CLS", "CLS"
@@ -24206,39 +24206,39 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"], 			"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
 			, o_L["DialogCloseComputerControlDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerShutdown"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerShutdown"], "&")
 		this.AddQAPFeatureObject("ShutDown",				strQAPFeatureName,							"", "ShutdownComputer",						"5.1-CloseComputer"
 			, o_L["DialogCloseComputerShutdownDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerPowerDown"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerPowerDown"], "&")
 		this.AddQAPFeatureObject("Power Down Computer", 	strQAPFeatureName, 							"", "PowerDownComputer",					"5.1-CloseComputer"
 			, o_L["DialogCloseComputerPowerDownDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerRestart"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerRestart"], "&")
 		this.AddQAPFeatureObject("Restart",					strQAPFeatureName,							"", "RestartComputer",						"5.1-CloseComputer"
 			, o_L["DialogCloseComputerRestartDescription"], 0, "iconReload", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerLogoff"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerLogoff"], "&")
 		this.AddQAPFeatureObject("Logoff", 					strQAPFeatureName, 							"", "LogoffComputer",						"5.1-CloseComputer"
 			, o_L["DialogCloseComputerLogoffDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerSuspend"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerSuspend"], "&")
 		this.AddQAPFeatureObject("Suspend Computer", 		strQAPFeatureName, 							"", "SuspendComputer",						"5.1-CloseComputer"
 			, o_L["DialogCloseComputerSuspendDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerHibernate"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerHibernate"], "&")
 		this.AddQAPFeatureObject("Hibernate Computer", 		strQAPFeatureName, 							"", "HibernateComputer",					"5.1-CloseComputer"
 			, o_L["DialogCloseComputerHibernateDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerMonitorTurnOff"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerMonitorTurnOff"], "&")
 		this.AddQAPFeatureObject("Turn Off Monitor", 		strQAPFeatureName, 							"", "TurnOffMonitorComputer",				"5.1-CloseComputer"
 			, o_L["DialogCloseComputerMonitorTurnOffDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerMonitorLowPower"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerMonitorLowPower"], "&")
 		this.AddQAPFeatureObject("Monitor Low Power", 		strQAPFeatureName, 							"", "LowPowerMonitorComputer",				"5.1-CloseComputer"
 			, o_L["DialogCloseComputerMonitorLowPowerDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
-		StringReplace, strQAPFeatureName, o_L["DialogCloseComputerStartScreenSaver"], &
+		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerStartScreenSaver"], "&")
 		this.AddQAPFeatureObject("Start Screen Saver", 		strQAPFeatureName, 							"", "StartScreenSaverComputer",				"5.1-CloseComputer"
 			, o_L["DialogCloseComputerStartScreenSaverDescription"], 0, "iconDesktop", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
