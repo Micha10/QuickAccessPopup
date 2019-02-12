@@ -4396,19 +4396,19 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 
 		; this is a regular favorite, add it to the current menu
 		objLoadIniFavorite.FavoriteType := arrThisFavorite1 ; see Favorite Types
-		objLoadIniFavorite.FavoriteName := ReplaceAllInString(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
+		objLoadIniFavorite.FavoriteName := StrReplace(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
 		; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
 			objLoadIniFavorite.FavoriteLocation := StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")
 		else
-			objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
+			objLoadIniFavorite.FavoriteLocation := StrReplace(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
 		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
-		objLoadIniFavorite.FavoriteArguments := ReplaceAllInString(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
+		objLoadIniFavorite.FavoriteArguments := StrReplace(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
 		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
 		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
-		objLoadIniFavorite.FavoriteLoginName := ReplaceAllInString(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
-		objLoadIniFavorite.FavoritePassword := ReplaceAllInString(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
+		objLoadIniFavorite.FavoriteLoginName := StrReplace(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
+		objLoadIniFavorite.FavoritePassword := StrReplace(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
 		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
 		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
 		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
@@ -4419,9 +4419,9 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
 		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := ReplaceAllInString(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
+		objLoadIniFavorite.FavoriteHotstring := StrReplace(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
 		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
-		objLoadIniFavorite.FavoriteSoundLocation := ReplaceAllInString(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
+		objLoadIniFavorite.FavoriteSoundLocation := StrReplace(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
 		objLoadIniFavorite.FavoriteDateCreated := arrThisFavorite24 ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 		objLoadIniFavorite.FavoriteDateModified := arrThisFavorite25 ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 		objLoadIniFavorite.FavoriteUsageDb := arrThisFavorite26 ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
@@ -6001,7 +6001,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			objLoadIniFavorite.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder") ; see Favorite Types
 			objLoadIniFavorite.FavoriteName := strWinCmdItemName ; display name of this menu item
 			if !(blnItemIsMenu)
-				objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(strWinCmdItemCommand, "cd ", "") ; path
+				objLoadIniFavorite.FavoriteLocation := StrReplace(strWinCmdItemCommand, "cd ", "") ; path
 			if (SubStr(objLoadIniFavorite.FavoriteLocation, 1, 2) = "::")
 			{
 				objLoadIniFavorite.FavoriteLocation := SubStr(objLoadIniFavorite.FavoriteLocation, 3)
@@ -7160,16 +7160,16 @@ Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 150 . " x" . intMaxWidth + 25 . "
 Gui, 2:Add, Text, % "y" . arrMoreOptionsPosY + 190 . " x" . intMaxWidth + 25 . " w" . (590 - intMaxWidth), % o_L["OptionsIconReplacementListDescription"]
 
 ; hidden
-Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % ReplaceAllInString(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
-Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % ReplaceAllInString(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
+Gui, 2:Add, Edit, vf_strExclusionMouseList hidden, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
+Gui, 2:Add, Edit, vf_strSwitchExclusionList hidden, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
 
 Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
 Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, % o_Settings.Database.fltUsageDbMaximumSize.IniValue
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue
 
-Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n")
-Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n")
+Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n")
+Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n")
 
 ; End of more
 
@@ -7476,7 +7476,7 @@ GuiControl, 2:, f_blnChangeFolderInDialog, 0
 
 g_intGui2WinID := WinExist("A")
 
-strGuiTitle := ReplaceAllInString(o_L["OptionsChangeFolderInDialog"], "&", "")
+strGuiTitle := StrReplace(o_L["OptionsChangeFolderInDialog"], "&", "")
 Gui, 3:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
 Gui, 3:+Owner2
 
@@ -8209,7 +8209,7 @@ return
 OptionsListCleanup(strList)
 ;------------------------------------------------------------
 {
-	strListCleanup := ReplaceAllInString(strList, "`n", "|")
+	strListCleanup := StrReplace(strList, "`n", "|")
 	strList := ""
 	Loop, Parse, strListCleanup, |
 		if StrLen(A_LoopField)
@@ -8878,7 +8878,7 @@ GuiDropFilesHelpClicked:
 ;------------------------------------------------------------
 Gui, 1:+OwnDialogs
 
-MsgBox, 0, % g_strAppNameText . " - " . ReplaceAllInString(o_L["GuiDropFilesHelp"], "&&", "&")
+MsgBox, 0, % g_strAppNameText . " - " . StrReplace(o_L["GuiDropFilesHelp"], "&&", "&")
 	, % L(o_L["GuiDropFilesIncentive"], g_strAppNameText, o_L["DialogFolderLabel"], o_L["DialogFileLabel"], o_L["DialogApplicationLabel"]) . "`n`n" . o_L["GuiDropFilesIncentive2"]
 
 return
@@ -9752,7 +9752,7 @@ Gui, 2:Font, w700
 Gui, 2:Add, Text, x20 y50 w500, % o_L["DialogFavoriteType"] . ": " . o_Favorites.GetFavoriteTypeObject("g_objEditedFavorite.FavoriteType").strFavoriteTypeLabel
 Gui, 2:Font
 
-Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
+Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
 
 if (g_objEditedFavorite.FavoriteType = "Snippet")
 {
@@ -9986,7 +9986,7 @@ for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.I
 		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial<
 		if StrLen(objItem.DefaultName) ; to skip class object non-special folders items
-			strItemsNameCodeCategories .= objItem.DefaultName . "|" . strItemCode . "|" . ReplaceAllInString(objItem.Categories, "|", "~") . "`n"
+			strItemsNameCodeCategories .= objItem.DefaultName . "|" . strItemCode . "|" . StrReplace(objItem.Categories, "|", "~") . "`n"
 Sort, strItemsNameCodeCategories
 
 for strCategory, strCategoryLabel in objCategories
@@ -11929,7 +11929,7 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and g_objEditedFavorite.FavoriteType = "External")
 {
 	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
-		Oops(o_L["DialogFavoriteNameNotAllowed"], ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
+		Oops(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
 	else
 		Oops(o_L["OopsExternalNotAllowedUnderExternal"])
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -12012,7 +12012,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		Oops(o_L["DialogFavoriteDropdownEmpty"], ReplaceAllInString(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
+		Oops(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
 			, (g_objEditedFavorite.FavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
@@ -13711,8 +13711,8 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			if (objCurrentMenu[A_Index].FavoriteType = "QAP")
 				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
 			else
-				strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
+				strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(o_JLicons.I[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons.I
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
@@ -13723,13 +13723,13 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				else ; use icongroup as is
 					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			}
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
 			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
 			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
 			; REMOVED strIniLine .= objCurrentMenu[A_Index].FavoriteHotkey . "|" ; 8
 			strIniLine .= objCurrentMenu[A_Index].FavoriteLaunchWith . "|" ; 8
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteLoginName, "|", g_strEscapePipe) . "|" ; 9
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoritePassword, "|", g_strEscapePipe) . "|" ; 10
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteLoginName, "|", g_strEscapePipe) . "|" ; 9
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoritePassword, "|", g_strEscapePipe) . "|" ; 10
 			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 			strIniLine .= objCurrentMenu[A_Index].FavoriteElevate . "|" ; 13
@@ -13740,9 +13740,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
 			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveSort . "|" ; 22
-			strIniLine .= ReplaceAllInString(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
+			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateCreated . "|" ; 24
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
 			strIniLine .= objCurrentMenu[A_Index].FavoriteUsageDb . "|" ; 26
@@ -20492,17 +20492,7 @@ DecodeSnippet(strSnippet, blnWithCarriageReturn := false)
 EscapeQuote(str)
 ;------------------------------------------------------------
 {
-	return ReplaceAllInString(str, "'", "''")
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ReplaceAllInString(strThis, strFrom, strTo)
-;------------------------------------------------------------
-{
-	StringReplace, strThis, strThis, %strFrom%, %strTo%, A
-	return strThis
+	return StrReplace(str, "'", "''")
 }
 ;------------------------------------------------------------
 
