@@ -4187,7 +4187,7 @@ strNavigateOrLaunchHotkeyKeyboard := ""
 strAlternativeHotkeyMouseDefault := ""
 strAlternativeHotkeyKeyboardDefault := ""
 blnDefaultMenuBuilt := ""
-ResetArray("arrThisFavorite")
+objThisFavorite := ""
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
 o_Settings.intIniLine := ""
@@ -4320,23 +4320,23 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
 		; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
 		; 24 FavoriteDateCreated, 25 FavoriteDateModified, 26 FavoriteUsageDb
-		StringSplit, arrThisFavorite, strLoadIniLine, |
-
-		if (arrThisFavorite1 = "Z")
+		objThisFavorite := StrSplit(strLoadIniLine, "|")
+		
+		if (objThisFavorite[1] = "Z")
 			return, "EOM" ; end of menu
 		; else
 		;	###_V("Loop PAS Z", o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
 		
 		objLoadIniFavorite := Object() ; new favorite item
 		
-		if InStr("Menu|Group|External", arrThisFavorite1, true) ; begin a submenu / case sensitive because type X is included in External ...
+		if InStr("Menu|Group|External", objThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
 		{
 			objNewMenu := Object() ; create the submenu object
-			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . arrThisFavorite2 . (arrThisFavorite1 = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-			objNewMenu.MenuType := arrThisFavorite1
+			objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objThisFavorite[2] . (objThisFavorite[1] = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			objNewMenu.MenuType := objThisFavorite[1]
 			if (objNewMenu.MenuType = "External")
 			{
-				objNewMenu.MenuExternalPath := arrThisFavorite6 ; FavoriteAppWorkingDir
+				objNewMenu.MenuExternalPath := objThisFavorite[6] ; FavoriteAppWorkingDir
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
 				strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objNewMenu.MenuExternalPath)
@@ -4359,12 +4359,12 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 			objNewMenu.Insert(objNewMenuBack)
 			
-			if (arrThisFavorite1 = "External")
+			if (objThisFavorite[1] = "External")
 			{
 				strPreviousIniFile := o_Settings.strIniFile
 				intPreviousIniLine := o_Settings.intIniLine
-				o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(arrThisFavorite6)) ; FavoriteAppWorkingDir, settings file path
-				o_Settings.intIniLine := arrThisFavorite11 ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+				o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(objThisFavorite[6])) ; FavoriteAppWorkingDir, settings file path
+				o_Settings.intIniLine := objThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
 				if !StrLen(o_Settings.intIniLine)
 					o_Settings.intIniLine := 1 ; always 1 for menu added since v8.1.9.1
 			}
@@ -4372,7 +4372,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			; build the submenu
 			strResult := RecursiveLoadMenuFromIni(objNewMenu, blnWorkingToolTip) ; RECURSIVE
 			
-			if (arrThisFavorite1 = "External")
+			if (objThisFavorite[1] = "External")
 			{
 				o_Settings.strIniFile := strPreviousIniFile
 				o_Settings.intIniLine := intPreviousIniLine
@@ -4382,56 +4382,56 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 				Return, %strResult%
 		}
 		
-		if (arrThisFavorite1 = "QAP")
+		if (objThisFavorite[1] = "QAP")
 		{
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
-			arrThisFavorite2 := o_QAPfeatures.objQAPFeaturesDefaultNameByCode[arrThisFavorite3]
-			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
+			objThisFavorite[2] := o_QAPfeatures.objQAPFeaturesDefaultNameByCode[objThisFavorite[3]]
+			if !StrLen(objThisFavorite[2]) ; if QAP feature is unknown
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
-				arrThisFavorite2 := "* Unknown QAP feature * " . RandomBetween() . " *"
+				objThisFavorite[2] := "* Unknown QAP feature * " . RandomBetween() . " *"
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
-			o_QAPfeatures.objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
+			o_QAPfeatures.objQAPfeaturesInMenus.Insert(objThisFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 		}
 
 		; this is a regular favorite, add it to the current menu
-		objLoadIniFavorite.FavoriteType := arrThisFavorite1 ; see Favorite Types
-		objLoadIniFavorite.FavoriteName := StrReplace(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
-		if InStr("Menu|Group|External", arrThisFavorite1, true)
+		objLoadIniFavorite.FavoriteType := objThisFavorite[1] ; see Favorite Types
+		objLoadIniFavorite.FavoriteName := StrReplace(objThisFavorite[2], g_strEscapePipe, "|") ; display name of this menu item
+		if InStr("Menu|Group|External", objThisFavorite[1], true)
 		; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
 			objLoadIniFavorite.FavoriteLocation := StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")
 		else
-			objLoadIniFavorite.FavoriteLocation := StrReplace(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
-		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
-		objLoadIniFavorite.FavoriteArguments := StrReplace(arrThisFavorite5, g_strEscapePipe, "|") ; application arguments
-		objLoadIniFavorite.FavoriteAppWorkingDir := arrThisFavorite6 ; application working directory
-		objLoadIniFavorite.FavoriteWindowPosition := arrThisFavorite7 ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
-		objLoadIniFavorite.FavoriteLaunchWith := arrThisFavorite8 ; launch favorite with this executable, or various options for type Application and Snippet
-		objLoadIniFavorite.FavoriteLoginName := StrReplace(arrThisFavorite9, g_strEscapePipe, "|") ; login name for FTP favorite
-		objLoadIniFavorite.FavoritePassword := StrReplace(arrThisFavorite10, g_strEscapePipe, "|") ; password for FTP favorite
-		objLoadIniFavorite.FavoriteGroupSettings := arrThisFavorite11 ; coma separated values for group restore settings or external menu starting line
-		objLoadIniFavorite.FavoriteFtpEncoding := arrThisFavorite12 ; encoding of FTP username and password, 0 do not encode, 1 encode
-		objLoadIniFavorite.FavoriteElevate := arrThisFavorite13 ; elevate application, 0 do not elevate, 1 elevate
-		objLoadIniFavorite.FavoriteDisabled := arrThisFavorite14 ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
-		objLoadIniFavorite.FavoriteFolderLiveLevels := arrThisFavorite15 ; number of subfolders to include in submenu(s), 0 if not a live folder
-		objLoadIniFavorite.FavoriteFolderLiveDocuments := arrThisFavorite16 ; also include documents in live folder
-		objLoadIniFavorite.FavoriteFolderLiveColumns := arrThisFavorite17 ; number of items per columns in live folder menus
-		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := arrThisFavorite18 ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
-		objLoadIniFavorite.FavoriteFolderLiveExtensions := arrThisFavorite19 ; extensions of files to include or exclude in live folder
-		objLoadIniFavorite.FavoriteShortcut := arrThisFavorite20 ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-		objLoadIniFavorite.FavoriteHotstring := StrReplace(arrThisFavorite21, g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
-		objLoadIniFavorite.FavoriteFolderLiveSort := arrThisFavorite22 ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
-		objLoadIniFavorite.FavoriteSoundLocation := StrReplace(arrThisFavorite23, g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
-		objLoadIniFavorite.FavoriteDateCreated := arrThisFavorite24 ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
-		objLoadIniFavorite.FavoriteDateModified := arrThisFavorite25 ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
-		objLoadIniFavorite.FavoriteUsageDb := arrThisFavorite26 ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
+			objLoadIniFavorite.FavoriteLocation := StrReplace(objThisFavorite[3], g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
+		objLoadIniFavorite.FavoriteIconResource := objThisFavorite[4] ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
+		objLoadIniFavorite.FavoriteArguments := StrReplace(objThisFavorite[5], g_strEscapePipe, "|") ; application arguments
+		objLoadIniFavorite.FavoriteAppWorkingDir := objThisFavorite[6] ; application working directory
+		objLoadIniFavorite.FavoriteWindowPosition := objThisFavorite[7] ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
+		objLoadIniFavorite.FavoriteLaunchWith := objThisFavorite[8] ; launch favorite with this executable, or various options for type Application and Snippet
+		objLoadIniFavorite.FavoriteLoginName := StrReplace(objThisFavorite[9], g_strEscapePipe, "|") ; login name for FTP favorite
+		objLoadIniFavorite.FavoritePassword := StrReplace(objThisFavorite[10], g_strEscapePipe, "|") ; password for FTP favorite
+		objLoadIniFavorite.FavoriteGroupSettings := objThisFavorite[11] ; coma separated values for group restore settings or external menu starting line
+		objLoadIniFavorite.FavoriteFtpEncoding := objThisFavorite[12] ; encoding of FTP username and password, 0 do not encode, 1 encode
+		objLoadIniFavorite.FavoriteElevate := objThisFavorite[13] ; elevate application, 0 do not elevate, 1 elevate
+		objLoadIniFavorite.FavoriteDisabled := objThisFavorite[14] ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
+		objLoadIniFavorite.FavoriteFolderLiveLevels := objThisFavorite[15] ; number of subfolders to include in submenu(s), 0 if not a live folder
+		objLoadIniFavorite.FavoriteFolderLiveDocuments := objThisFavorite[16] ; also include documents in live folder
+		objLoadIniFavorite.FavoriteFolderLiveColumns := objThisFavorite[17] ; number of items per columns in live folder menus
+		objLoadIniFavorite.FavoriteFolderLiveIncludeExclude := objThisFavorite[18] ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
+		objLoadIniFavorite.FavoriteFolderLiveExtensions := objThisFavorite[19] ; extensions of files to include or exclude in live folder
+		objLoadIniFavorite.FavoriteShortcut := objThisFavorite[20] ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
+		objLoadIniFavorite.FavoriteHotstring := StrReplace(objThisFavorite[21], g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
+		objLoadIniFavorite.FavoriteFolderLiveSort := objThisFavorite[22] ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
+		objLoadIniFavorite.FavoriteSoundLocation := StrReplace(objThisFavorite[23], g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
+		objLoadIniFavorite.FavoriteDateCreated := objThisFavorite[24] ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+		objLoadIniFavorite.FavoriteDateModified := objThisFavorite[25] ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+		objLoadIniFavorite.FavoriteUsageDb := objThisFavorite[26] ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
 
 		if (!StrLen(objLoadIniFavorite.FavoriteIconResource) or objLoadIniFavorite.FavoriteIconResource = "iconUnknown")
 		; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 			objLoadIniFavorite.FavoriteIconResource := GetDefaultIcon4Type(objLoadIniFavorite, objLoadIniFavorite.FavoriteLocation)
 		
 		; this is a submenu favorite, link to the submenu object
-		if InStr("Menu|Group|External", arrThisFavorite1, true)
+		if InStr("Menu|Group|External", objThisFavorite[1], true)
 			objLoadIniFavorite.SubMenu := objNewMenu
 		
 		; update the current menu object
@@ -7097,7 +7097,7 @@ GuiControl, , f_blnRightControlDoublePressed, % o_Settings.MenuPopup.blnRightCon
 
 Gui, 2:Tab, 5
 
-Gui, 2:Add, Text, x15 y+10 w590 center, % o_L["OptionsTabFileManagersIntro"]%
+Gui, 2:Add, Text, x15 y+10 w590 center, % o_L["OptionsTabFileManagersIntro"]
 
 Gui, Font, w600
 Gui, 2:Add, Text, y+15 x15 w300 Section, % o_L["OptionsTabFileManagersPreferred"]
@@ -10163,7 +10163,7 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsLive"])
 
 	Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
 	Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
-	Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, ... % o_L["DialogFavoriteFolderLiveExtensions"]
+	Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % "..." . o_L["DialogFavoriteFolderLiveExtensions"]
 	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % g_objEditedFavorite.FavoriteFolderLiveExtensions
 
 	strLiveFolderSortOrder := ""
@@ -10186,7 +10186,7 @@ if InStr(g_strTabsList, g_objFavoriteGuiTabs[3])
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 
 	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked")
-		, % o_L["DialogUseDefaultWindowPosition"]. " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
+		, % o_L["DialogUseDefaultWindowPosition"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
 	
 	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["DialogState"]
 	
@@ -10300,7 +10300,7 @@ GuiFavoriteTabExternal:
 
 if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
 {
-	StringSplit, arrExternalTypes, o_L["DialogExternalTypes"], |
+	objExternalTypes := StrSplit(o_L["DialogExternalTypes"], "|")
 	
 	Gui, 2:Tab, % ++intTabNumber
 
@@ -10310,7 +10310,7 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
 	
 	Gui, 2:Add, Text, x20 y+10 w500, % o_L["DialogExternalTypesTitle"]
 	Loop, 3 ; no default type
-		Gui, 2:Add, Radio, % "x20 y+5 w480 gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % arrExternalTypes%A_Index% ; current value set by LoadExternalFileGlobalValues
+		Gui, 2:Add, Radio, % "x20 y+5 w480 gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % objExternalTypes[A_Index] ; current value set by LoadExternalFileGlobalValues
 
 	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, % o_L["DialogReadOnly"]
 	Gui, 2:Add, Text, x20 y+10 vf_lblExternalMenuName, % o_L["DialogExternalMenuName"]
@@ -10335,7 +10335,7 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
 	gosub, RadioButtonExternalMenuInit
 }
 
-ResetArray("arrExternalTypes")
+objExternalTypes := ""
 
 return
 ;------------------------------------------------------------
@@ -11643,8 +11643,8 @@ if (A_GuiEvent = "DoubleClick")
 	strTitle := o_L["DialogAddFavoriteTabsExternal"] . " - " . strValue
 	strMessage := o_L["DialogExternalMenuName"] . ":`n" . (StrLen(strValue) ? strValue : o_L["DialogNone"]) . "`n`n"
 	strValue := o_Settings.ReadIniValue("MenuType", " ", "Global", strFile)
-	StringSplit, arrExternalTypes, o_L["DialogExternalTypes"], |
-	strMessage .= o_L["DialogExternalTypesLabel"] . ":`n" . (StrLen(strValue) ? arrExternalTypes%strValue% . " (" . strValue . ")": o_L["DialogNone"]) . "`n`n"
+	objExternalTypes := StrSplit(o_L["DialogExternalTypes"], "|")
+	strMessage .= o_L["DialogExternalTypesLabel"] . ":`n" . (StrLen(strValue) ? objExternalTypes[strValue] . " (" . strValue . ")": o_L["DialogNone"]) . "`n`n"
 	strValue := o_Settings.ReadIniValue("WriteAccessUsers", " ", "Global", strFile)
 	strMessage .= o_L["DialogExternalWriteAccessUsers"] . ":`n" . (StrLen(strValue) ? strValue : o_L["DialogNone"]) . "`n`n"
 	strValue := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", strFile)
@@ -11658,7 +11658,7 @@ if (A_GuiEvent = "DoubleClick")
 strFile := ""
 strValue := ""
 strTitle := ""
-ResetArray("arrExternalTypes")
+objExternalTypes := ""
 strMessage := ""
 blnReadOnly := ""
 
@@ -13000,7 +13000,7 @@ if (g_blnUseColors)
 
 arrShortcutsHotstrings1 := o_L["DialogShortcuts"]
 arrShortcutsHotstrings2 := o_L["DialogHotstrings"]
-StringSplit, arrShortcutHotstringLower, o_L["DialogHotkeysManageShortcutHotstringLower"], |
+objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
 arrHotkeysHeader1 := L(o_L["DialogHotkeysManageListHeader"], arrShortcutsHotstrings1)
 arrHotkeysHeader2 := L(o_L["DialogHotkeysManageListHeader"], o_L["DialogHotkeysManageListHeaderHotstrings"])
 arrHotkeysUrl1 := "https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
@@ -13015,7 +13015,7 @@ Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
 	Gui, 2:Add, Text, x20 y40, % L((A_Index = 1 ? o_L["DialogHotkeysManageAboutShortcuts"] : o_L["DialogHotkeysManageAboutHotstrings"]), g_strAppNameText)
 	Gui, 2:Font
 	Gui, 2:Add, Link, x+5 yp, % "(<a href=""" . arrHotkeysUrl%A_Index% . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(o_L["DialogHotkeysManageIntro"], arrShortcutHotstringLower%A_Index%)
+	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(o_L["DialogHotkeysManageIntro"], objShortcutHotstringLower[A_Index])
 
 	; 1 -> #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 	; 2 -> #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
@@ -16053,11 +16053,11 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 
 	if !IsObject(g_objThisFavorite)
 	{
-		StringSplit, arrShortcutHotstringLower, o_L["DialogHotkeysManageShortcutHotstringLower"], |
+		objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
 		SplitHotstring(A_ThisHotkey, strOopsTrigger, strHotstringOppsOptionsShort)
 		Oops(o_L["OopsHotkeyObjectNotFound"]
 			, g_strAppNameText
-			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? arrShortcutHotstringLower1 : arrShortcutHotstringLower2)
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? objShortcutHotstringLower[1] : objShortcutHotstringLower[2])
 			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? A_ThisHotkey : strOopsTrigger))
 		return
 	}
@@ -16443,7 +16443,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, %g_strAppNameText% - % o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.I[1].AhkHotkey).Hotkey2Text())
+MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.I[1].AhkHotkey).Hotkey2Text())
 
 return
 ;------------------------------------------------------------
@@ -18510,7 +18510,7 @@ loop, 3
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . o_L["DonateReviewNameRight"]%A_Index% . "</a>"
 
-Gui, 2:Add, Link, y+10 x130, <a href="https://www.quickaccesspopup.com/why-support-freeware/">%o_L["DonateText5"]%</a>
+Gui, 2:Add, Link, y+10 x130, % "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["DonateText5"] . "</a>"
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, % o_L["GuiCloseAmpersand"]
@@ -18569,7 +18569,7 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, x10 w%intWidth%, % o_L["HelpTextLead"]
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, % " " . o_L["HelpTabGettingStarted"]. " | " . o_L["HelpTabAddingFavorite"] . " | "
+Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, % " " . o_L["HelpTabGettingStarted"] . " | " . o_L["HelpTabAddingFavorite"] . " | "
 	. o_L["HelpTabQAPFeatures"] . " | " . o_L["HelpTabSharedMenus"] . " | " . o_L["HelpTabTipsAndTricks"] . " "
 
 Gui, 2:Font, s8 w400, Verdana
@@ -18598,10 +18598,10 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext3")
 
 Gui, 2:Tab, 4 ; has text numbered 51, 52, etc.
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText51"]
-StringSplit, arrSharedMenuTypes, o_L["DialogExternalTypes"], |
-Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes1%
-Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes2%
-Gui, 2:Add, Link, y+2 w%intWidth%, - %arrSharedMenuTypes3%
+objSharedMenuTypes := StrSplit(o_L["DialogExternalTypes"], "|")
+Gui, 2:Add, Link, y+2 w%intWidth%, % " - " . objSharedMenuTypes[1]
+Gui, 2:Add, Link, y+2 w%intWidth%, % " - " . objSharedMenuTypes[2]
+Gui, 2:Add, Link, y+2 w%intWidth%, % " - " . objSharedMenuTypes[3]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText52"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText53"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText54"]
