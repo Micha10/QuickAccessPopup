@@ -5867,7 +5867,7 @@ CollectExplorers(pExplorers)
 			else
 			{
 				objExplorer.LocationURL := pExplorer.LocationURL
-				objExplorer.LocationName :=  UriDecode(pExplorer.LocationURL)
+				objExplorer.LocationName :=  ProcessLocationURL(UriDecode(pExplorer.LocationURL))
 			}
 			
 			objExplorer.WindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
@@ -19484,7 +19484,7 @@ GetCurrentLocation(strClass, strWinID)
 				for objExplorer in ComObjCreate("Shell.Application").Windows
 					if (objExplorer.HWND = strWinID)
 					{
-						strLocation :=  UriDecode(objExplorer.LocationURL)
+						strLocation :=  ProcessLocationURL(UriDecode(objExplorer.LocationURL))
 						Break
 					}
 			}
@@ -20509,10 +20509,10 @@ GetWebPageTitle(strLocation)
 	RegExMatch(strTitle, "s)>(.*?)</title>", strTitle) ; remove part of opening title tag
 	StringTrimLeft, strTitle, strTitle, 1 ; remove rest of opening title tag
 	
-	StringReplace, strTitle, strTitle, </title> ; remove closing title tag
-	StringReplace, strTitle, strTitle, `r, , A
-	StringReplace, strTitle, strTitle, `t, %A_Space%, A
-	StringReplace, strTitle, strTitle, `n, %A_Space%, A
+	strTitle := StrReplace(strTitle, "</title>") ; remove closing title tag
+	strTitle := StrReplace(strTitle, "`r", "")
+	strTitle := StrReplace(strTitle, "`t", A_Space)
+	strTitle := StrReplace(strTitle, "`n", A_Space)
 	
 	strTitle := NumDecode(Trim(strTitle, Chr(160))) ; Chr(160) to also trim non-breaking spaces
 	return (StrLen(strTitle) ? strTitle : o_L["DialogNA"])
@@ -20561,22 +20561,31 @@ HasShortcut(strCandidateShortcut)
 
 
 ;------------------------------------------------
+ProcessLocationURL(str)
+;------------------------------------------------
+{
+	str := StrReplace(str, "file:///")
+	str := StrReplace(str, "file:") ; for network drives starting with file:\\, keep only \\
+	str := StrReplace(str, "/", "\")
+
+	return str
+}
+;------------------------------------------------
+
+
+;------------------------------------------------
 UriDecode(str)
 ; by polyethene
 ; http://www.autohotkey.com/board/topic/17367-url-encoding-and-decoding-of-special-characters/?p=112822
+; Note JL: this function only decodes one byte characters (e.g. "%40"->"@" but not utf-8 char "%C3%A9"->"é")
 ;------------------------------------------------
 {
 	Loop
 		If RegExMatch(str, "i)(?<=%)[\da-f]{1,2}", hex)
-			StringReplace, str, str, `%%hex%, % Chr("0x" . hex), All
+			str := StrReplace(str, "%" . hex, Chr("0x" . hex))
 		Else
 			Break
-
-	; added by JL
-	StringReplace, str, str, file:///
-	StringReplace, str, str, file: ; for network drives starting with file:\\, keep only \\
-	StringReplace, str, str, /, \, A
-
+		
 	return str
 }
 ;------------------------------------------------
@@ -20589,22 +20598,22 @@ UriEncode(str)
 ; edited to encode also "@" see http://stackoverflow.com/questions/32341476/valid-url-for-an-ftp-site-with-username-containing/
 ;------------------------------------------------------------
 { 
-   strFormat := A_FormatInteger 
-   data := "" 
-   SetFormat, Integer, H 
-   SizeInBytes := StrPutVar(str,var,"utf-8")
-   Loop, %SizeInBytes%
-   {
-   ch := NumGet(var,A_Index-1,"UChar")
-   If (ch=0)
-      Break
-   if ((ch>0x7f) || (ch<0x30) || (ch=0x3d) || (ch=0x40))
-      s .= "%" . ((StrLen(c:=SubStr(ch,3))<2) ? "0" . c : c)
-   Else
-      s .= Chr(ch)
-   }   
-   SetFormat, Integer, %strformat% 
-   return s 
+	strFormat := A_FormatInteger
+	data := ""
+	SetFormat, Integer, H
+	SizeInBytes := StrPutVar(str,var,"utf-8")
+	Loop, %SizeInBytes%
+	{
+		ch := NumGet(var,A_Index-1,"UChar")
+		If (ch=0)
+			Break
+		if ((ch>0x7f) || (ch<0x30) || (ch=0x3d) || (ch=0x40))
+			s .= "%" . ((StrLen(c:=SubStr(ch,3))<2) ? "0" . c : c)
+		Else
+			s .= Chr(ch)
+	}
+	SetFormat, Integer, %strformat%
+	return s
 } 
 ;------------------------------------------------------------
 
