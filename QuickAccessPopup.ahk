@@ -4399,11 +4399,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		objLoadIniFavorite.FavoriteName := ReplaceAllInString(arrThisFavorite2, g_strEscapePipe, "|") ; display name of this menu item
 		if InStr("Menu|Group|External", arrThisFavorite1, true)
 		; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
-		{
-			strMenuNoMain := objNewMenu.MenuPath
-			StringReplace, strMenuNoMain, strMenuNoMain, % o_L["MainMenuName"] . " " 
-			objLoadIniFavorite.FavoriteLocation := strMenuNoMain
-		}
+			objLoadIniFavorite.FavoriteLocation := StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")
 		else
 			objLoadIniFavorite.FavoriteLocation := ReplaceAllInString(arrThisFavorite3, g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
 		objLoadIniFavorite.FavoriteIconResource := arrThisFavorite4 ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
@@ -4833,7 +4829,7 @@ if !FileExist(g_strDiagFile)
 }
 
 FileRead, strIniFileContent, % o_Settings.strIniFile
-StringReplace, strIniFileContent, strIniFileContent, `", `"`"
+strIniFileContent := StrReplace(strIniFileContent, """", """""")
 Diag("IniFile", "`n""" . strIniFileContent . """`n", "")
 FileAppend, `n, %g_strDiagFile% ; required when the last line of the existing file ends with "
 
@@ -5327,10 +5323,10 @@ Loop, parse, strURL, %A_Tab%%A_Space%<> ; Find the first space, tab, or angle (i
 ; If the above loop had zero iterations because there were no ending characters found,
 ; leave the contents of the strURL var untouched.
 
-; If the strURL ends in a double quote, remove it.  For now, StringReplace is used, but
+; If the strURL ends in a double quote, remove it.  For now, StrReplace() is used, but
 ; note that it seems that double quotes can legitimately exist inside URLs, so this
 ; might damage them:
-StringReplace, strURLCleansed, strURL, ",, All
+strURLCleansed := StrReplace(strURL, """")
 
 ; See if there are any other URLs in this line:
 StringLen, intCharactersToOmit, strURL
@@ -6982,7 +6978,7 @@ Gui, 2:Add, Text, yp x+10 w235, % o_L["OptionsRecentFolders"]
 Gui, 2:Add, Text, y+15 xs w300, % o_L["MenuLastActions"]
 Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; , %g_intNbLastActions%
 Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, % o_Settings.Menu.intNbLastActions.IniValue
-StringReplace, strOptionsLastActions, o_L["OptionsRecentFolders"], & ; remove ampersand
+strOptionsLastActions := StrReplace(o_L["OptionsRecentFolders"], "&") ; remove ampersand
 Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
 
 Gui, 2:Add, Text, y+15 xs w300, % o_L["OptionsAddAutoAtTop"]
@@ -7290,10 +7286,10 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 		if StrLen(strQAPconnectFileManagersList)
 		{
 			strQAPconnectFileManagersList .= "|"
-			StringReplace, strQAPconnectFileManagersList, strQAPconnectFileManagersList, `n, |, All
+			strQAPconnectFileManagersList := StrReplace(strQAPconnectFileManagersList, "`n", "|")
 			if StrLen(o_FileManagers.I[4].strQAPconnectFileManager)
-				StringReplace, strQAPconnectFileManagersList, strQAPconnectFileManagersList, % o_FileManagers.I[4].strQAPconnectFileManager . "|"
-				, % o_FileManagers.I[4].strQAPconnectFileManager . "||"
+				strQAPconnectFileManagersList := StrReplace(strQAPconnectFileManagersList, o_FileManagers.I[4].strQAPconnectFileManager . "|"
+					, o_FileManagers.I[4].strQAPconnectFileManager . "||")
 		}
 		GuiControl, , f_drpQAPconnectFileManager, |%strQAPconnectFileManagersList%
 	}
@@ -7416,7 +7412,7 @@ ButtonOptionsChangeShortcut4:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-StringReplace, intHotkeyIndex, A_ThisLabel, ButtonOptionsChangeShortcut
+intHotkeyIndex := StrReplace(A_ThisLabel, "ButtonOptionsChangeShortcut")
 
 if InStr(o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyInternalName, "Mouse")
 	intHotkeyType := 1 ; Mouse
@@ -7445,9 +7441,8 @@ ButtonOptionsChangeAlternativeHotkey:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-intAlternativeOrder := A_GuiControl
-StringReplace, intAlternativeOrder, intAlternativeOrder, f_lblAlternativeHotkeyText
-StringReplace, intAlternativeOrder, intAlternativeOrder, f_btnChangeAlternativeHotkey
+intAlternativeOrder := StrReplace(A_GuiControl, "f_lblAlternativeHotkeyText")
+intAlternativeOrder := StrReplace(intAlternativeOrder, "f_btnChangeAlternativeHotkey")
 
 strThisAlternativeCode := o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
 objThisAlternative := o_QAPfeatures.I[strThisAlternativeCode]
@@ -7662,7 +7657,7 @@ Gui, 2:Submit, NoHide
 
 g_intGui2WinID := WinExist("A")
 
-StringReplace, g_strMoreWindowName, A_ThisLabel, GuiOptionsMore ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
+g_strMoreWindowName := StrReplace(A_ThisLabel, "GuiOptionsMore") ; name is internal, like "UsageDb", "ExclusionMouseList", etc.
 
 strGuiTitle := o_L["DialogMore"] . " - " . g_strAppNameText . " " . g_strAppVersion
 Gui, 3:New, +Hwndg_strGui3Hwnd, %strGuiTitle%
@@ -8109,22 +8104,22 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 {
 	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	{
-		StringReplace, strOptionNoAmpersand, o_L["OptionsLanguage"], &
+		strOptionNoAmpersand := StrReplace(o_L["OptionsLanguage"], "&")
 		strValue := g_strLanguageLabel
 	}
 	else if (strThemePrev <> o_Settings.SettingsWindow.strTheme.IniValue)
 	{
-		StringReplace, strOptionNoAmpersand, o_L["OptionsTheme"], &
+		strOptionNoAmpersand := StrReplace(o_L["OptionsTheme"], "&")
 		strValue := o_Settings.SettingsWindow.strTheme.IniValue
 	}
 	else if (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	{
-		StringReplace, strOptionNoAmpersand, o_L["OptionsQAPTempFolder"], &
+		strOptionNoAmpersand := StrReplace(o_L["OptionsQAPTempFolder"], "&")
 		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
 	}
 	else ; (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	{
-		StringReplace, strOptionNoAmpersand, o_L["OptionsRunAsAdmin"], &
+		strOptionNoAmpersand := StrReplace(o_L["OptionsRunAsAdmin"], "&")
 		strValue := (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue ? o_L["DialogAdmnistrator"] : o_L["DialogAdmnistratorNot"])
 	}
 
@@ -8230,7 +8225,7 @@ EnableExplorerContextMenus:
 DisableExplorerContextMenus:
 ;------------------------------------------------------------
 
-StringReplace, strQAPPathDoubleBackslash, A_ScriptDir, \, \\, All
+strQAPPathDoubleBackslash := StrReplace(A_ScriptDir, "\", "\\")
 
 strContextAddFile := o_L["ContextAddFile"]
 strContextAddFileXpress := o_L["ContextAddFileXpress"]
@@ -8989,7 +8984,7 @@ GuiAddFavoriteFromQAPFeatureText:
 GuiAddFavoriteFromQAPFeatureWindowsApp:
 ;------------------------------------------------------------
 
-StringReplace, g_strAddFavoriteType, A_ThisLabel, GuiAddFavoriteFromQAPFeature
+g_strAddFavoriteType := StrReplace(A_ThisLabel, "GuiAddFavoriteFromQAPFeature")
 
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
@@ -11472,7 +11467,7 @@ if (blnSet)
  
 	; From: https://msdn.microsoft.com/en-us/library/cc144102.aspx
 	ParseIconResource(g_strNewFavoriteIconResource, strIconFile, intIconIndex)
-	StringReplace, strIconFile, strIconFile, %strFolder%\ ; remove current folder from resource path to make it movable with the folder
+	strIconFile := StrReplace(strIconFile, strFolder . "\") ; remove current folder from resource path to make it movable with the folder
 	intIconIndex := (intIconIndex >= 0 ? intIconIndex - 1 : intIconIndex) ; adjust index for positive index only (not for negative index)
 	IniWrite %strIconFile%`,%intIconIndex%, %strFolderDesktopIni%, .ShellClassInfo, IconResource
 	; ConfirmFileOp -> Set this entry to 0 to avoid a "You Are Deleting a System Folder" warning when deleting or moving the folder.
@@ -11619,7 +11614,7 @@ Loop, Files, %strExpandedPath%\*.ini, R
 	if InStr(A_LoopFileFullPath, "-backup-20") ; if include "-backup-YYYYMMDD"
 		Continue
 	strName := o_Settings.ReadIniValue("MenuName", " ", "Global", A_LoopFileFullPath)
-	StringReplace, strName, strName, &&, &, All
+	strName := StrReplace(strName, "&&", "&")
 	LV_Add("", strName, A_LoopFileFullPath)
 }
 LV_ModifyCol(, "")
@@ -12323,7 +12318,7 @@ else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because 
 		; was for g_objHotkeysByNameLocation
 		; if g_objHotkeysByNameLocation.HasKey(strPreviousName . "|" . strPreviousLocation)
 		; {
-			; StringReplace, strMenuLocation, strMenuLocation, % o_L["MainMenuName"] . " " ; menu path without main menu localized name
+			; strMenuLocation := StrReplace(strMenuLocation, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
 			; g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName)
 				; . "|" . strMenuLocation, g_objHotkeysByNameLocation[strPreviousName . "|" . strPreviousLocation])
 			; g_objHotkeysByNameLocation.Remove(strPreviousName . "|" . strPreviousLocation) ; must be after the g_objHotkeysByNameLocation.Insert
@@ -12538,7 +12533,7 @@ RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ;------------------------------------------------------------
 {
 	objEditedFavorite.SubMenu.MenuPath := strMenuPath
-	StringReplace, strMenuLocation, strMenuPath, % o_L["MainMenuName"] . " " ; menu path without main menu localized name
+	strMenuLocation := StrReplace(strMenuPath, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
 	objEditedFavorite.FavoriteLocation := strMenuLocation
 	
 	Loop, % objEditedFavorite.SubMenu.MaxIndex()
@@ -12937,7 +12932,7 @@ GuiSortCleanFavoriteName(strFavoriteName)
 {
 	if InStr(strFavoriteName, "&")
 	{
-		StringReplace, strFavoriteName, strFavoriteName, &, , A
+		strFavoriteName := StrReplace(strFavoriteName, "&", "")
 		strFavoriteName .= "-" . RandomBetween() ; add random number in case another favorite has the same name without the ampersand)
 	}
 	return strFavoriteName
@@ -13448,11 +13443,10 @@ IconsManagePickIconDialog:
 IconsManageSetDefault:
 ;------------------------------------------------------------
 
-intIconRow := A_GuiControl
-StringReplace, intIconRow, intIconRow, f_picIconCurrent
-StringReplace, intIconRow, intIconRow, f_picIconDefault
-StringReplace, intIconRow, intIconRow, f_btnPickDialog
-StringReplace, intIconRow, intIconRow, f_btnSetDefault
+intIconRow := StrReplace(A_GuiControl, "f_picIconCurrent")
+intIconRow := StrReplace(intIconRow, "f_picIconDefault")
+intIconRow := StrReplace(intIconRow, "f_btnPickDialog")
+intIconRow := StrReplace(intIconRow, "f_btnSetDefault")
 intManageIconsIndex := g_intIconsManageStartingRow + intIconRow - 1
 
 strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
@@ -13858,8 +13852,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		Gui, Add, Text, xs y+5 w300, % (P_strFavoriteType = "Snippet" ? StringLeftDotDotDot(EncodeSnippet(P_strFavoriteLocation), 150) : P_strFavoriteLocation)
 	if StrLen(P_strDescription)
 	{
-		StringReplace, P_strDescription, P_strDescription, <A> ; remove links from description (already displayed in previous dialog box)
-		StringReplace, P_strDescription, P_strDescription, </A>
+		P_strDescription := StrReplace(P_strDescription, "<A>") ; remove links from description (already displayed in previous dialog box)
+		P_strDescription := StrReplace(P_strDescription, "</A>")
 		Gui, Add, Text, xs y+5 w300, %P_strDescription%
 	}
 
@@ -14205,7 +14199,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 
 	; Options
 	SH_strTempOptions := SH_strFavoriteHotstringOptionsShort
-	StringReplace, SH_strTempOptions , SH_strTempOptions , C1 ; avoid ambiguity with "C", for backward compatibility, remove "C1" option that was available in v9.0.1/9.0.2
+	SH_strTempOptions := StrReplace(SH_strTempOptions, "C1") ; avoid ambiguity with "C", for backward compatibility, remove "C1" option that was available in v9.0.1/9.0.2
 	
 	; C Case sensitive
 	Gui, Add, Checkbox, % "x10 y+10 vf_SH_blnHotstringCaseSensitive " . (InStr(SH_strTempOptions , "C") ? "checked" : ""), % o_L["DialogHotstringCaseSensitive"]
@@ -15372,7 +15366,7 @@ if (arrFolderWindowId1 = "EX") ; Explorer
 	WinActivate, % "ahk_id " . arrFolderWindowId2
 else if (arrFolderWindowId1 = "DO") ; Directory Opus
 	; double % for DOpusRT (http://resource.dopus.com/viewtopic.php?f=3&t=23013#p124395)
-	; StringReplace, strThisMenuItem, strThisMenuItem, % "%", % "%%", A
+	; strThisMenuItem := StrReplace(strThisMenuItem, "%", "%%")
 	; remove because does not seem to be required anymore?
 	o_FileManagers.I[2].RunDOpusRt("/acmd Go ", strThisMenuItem, " EXISTINGLISTER") ; activate an existing lister listing this path
 else ; APP
@@ -16221,8 +16215,7 @@ if (g_objThisFavorite.FavoriteType = "FTP")
 		strPassword := UriEncode(g_objThisFavorite.FavoritePassword)
 	}
 	
-	StringReplace, g_strFullLocation, g_strFullLocation, % "ftp://"
-		, % "ftp://" . strLoginName . (StrLen(strPassword) ? ":" . strPassword : "") . (StrLen(strLoginName) ? "@" : "")
+	g_strFullLocation := StrReplace(g_strFullLocation, "ftp://", "ftp://" . strLoginName . (StrLen(strPassword) ? ":" . strPassword : "") . (StrLen(strLoginName) ? "@" : ""))
 }
 else
 	if InStr("Folder|Document|Application", g_objThisFavorite.FavoriteType) ; not for URL, Special Folder and others
@@ -16555,7 +16548,7 @@ if (A_ThisLabel = "CloseComputerGuiGo")
 	
 	if InStr(strCloseComputerControlSelected, "f_CloseComputerA")
 	{
-		StringReplace, intShutdownParameter, strCloseComputerControlSelected, f_CloseComputerA
+		intShutdownParameter := StrReplace(strCloseComputerControlSelected, "f_CloseComputerA")
 		Shutdown, % intShutdownParameter + (f_CloseComputerForce * 4) ; 0 Logoff, 1 Shutdown, 2 Reboot, 8 Power down (9 Shutdown + Power down), add 4 to Force
 	}
 	else if InStr(strCloseComputerControlSelected, "f_CloseComputerB")
@@ -16608,7 +16601,7 @@ else if (A_ThisLabel = "RestartComputer")
 else if (A_ThisLabel = "LogoffComputer")
 	strPrompt := o_L["DialogCloseComputerLogoff"]
 
-StringReplace, strPrompt, strPrompt, &
+strPrompt := StrReplace(strPrompt, "&")
 strPrompt .= "?"
 
 if InStr("ShutdownComputer|PowerDownComputer|RestartComputer|LogoffComputer", A_ThisLabel)
@@ -17416,7 +17409,7 @@ else
 	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
-StringReplace, strTabParameter, strTabParameter, NEWTAB, NEWTAB=tofront ; instead of activating by QAP as in previous versions
+strTabParameter := StrReplace(strTabParameter, "NEWTAB", "NEWTAB=tofront") ; instead of activating by QAP as in previous versions
 o_FileManagers.I[2].RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
 if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
 	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
@@ -18240,10 +18233,7 @@ blnContentTransfered := false
 blnContentIdentical := false
 
 if (f_radImpExpExport)
-{
-	StringReplace, strImpExpFile, f_strImpExpFile, % "%A_Now%", %A_Now%
-	StringReplace, strImpExpFile, strImpExpFile, % "%A_NowUTC%", %A_NowUTC%
-}
+	strImpExpFile := StrReplace(StrReplace(f_strImpExpFile, "%A_Now%", A_Now), "%A_NowUTC%", A_NowUTC)
 else
 	strImpExpFile := f_strImpExpFile
 
@@ -18553,7 +18543,7 @@ strDonatePlatformUrl2 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&ho
 strDonatePlatformUrl3 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"
 strDonatePlatformUrl4 := "https://www.quickaccesspopup.com/why-support-freeware/"
 
-StringReplace, intButton, A_ThisLabel, ButtonDonate
+intButton := StrReplace(A_ThisLabel, "ButtonDonate")
 Run, % strDonatePlatformUrl%intButton%
 
 return
@@ -19588,7 +19578,7 @@ Loop, Parse, strFileList, `n
 			FileDelete, %A_LoopField%
 
 ; create a daily backup of the ini file
-StringReplace, strIniBackupFile, strIniBackupFile, ????????, % SubStr(A_Now, 1, 8)
+strIniBackupFile := StrReplace(strIniBackupFile, "????????", SubStr(A_Now, 1, 8))
 if !FileExist(strIniBackupFile)
 	FileCopy, % o_Settings.strIniFile, %strIniBackupFile%, 1
 
@@ -19914,7 +19904,7 @@ L(strMessage, objVariables*)
 	Loop
 	{
 		if InStr(strMessage, "~" . A_Index . "~")
-			StringReplace, strMessage, strMessage, ~%A_Index%~, % objVariables[A_Index], A
+			strMessage := StrReplace(strMessage, "~" . A_Index . "~", objVariables[A_Index])
  		else
 			break
 	}
@@ -20045,7 +20035,7 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 {
 	strTempOptions := strHotstringOptionsShort
 	if InStr(strTempOptions, "C1")
-		StringReplace, strTempOptions, strTempOptions, C1 ; backward compatibility from 8.9 beta to v9.0.2, to avoid ambiguity with "C"
+		strTempOptions := StrReplace(strTempOptions, "C1") ; backward compatibility from 8.9 beta to v9.0.2, to avoid ambiguity with "C"
 
 	strHotstringOptionsLong := (InStr(strHotstringOptionsShort, "C") ? o_L["DialogHotstringCaseSensitive"] . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "?") ? o_L["DialogHotstringExpandInsideWords"] . g_strHotstringOptionsLongSeparator : "")
@@ -20180,8 +20170,8 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 	
 	; from here, strIconResource is always of icongroup files format ("file,index")
 	intComaPos := InStr(strIconResource, ",", , 0) - 1 ; search from the end because filename could also include a coma (ex.: "file,name.ico,1")
-	StringLeft, strIconFile, strIconResource, intComaPos
-	StringReplace, intIconIndex, strIconResource, %strIconFile%`,
+	strIconFile := SubStr(strIconResource, 1, intComaPos)
+	intIconIndex := StrReplace(strIconResource, strIconFile . ",")
 	; if strExpandedIconResource has a relative path, make it absolute based on the QAP working directory
 	strIconFile := PathCombine(A_WorkingDir, EnvVars(strIconFile))
 }
@@ -20473,9 +20463,9 @@ No need to process:
 - | (pipe) used as separator in favorites lines in ini file are already replaced with the escape sequence "Ð¡þ€"
 */
 {
-	StringReplace, strSnippet, strSnippet, ``, ````, A ;  replace backticks with double-backticks
-	StringReplace, strSnippet, strSnippet, `n, ``n, A  ; encode end-of-lines
-	StringReplace, strSnippet, strSnippet, `t, ``t, A  ; encode tabs
+	strSnippet := StrReplace(strSnippet, "``", "````") ;  replace backticks with double-backticks
+	strSnippet := StrReplace(strSnippet, "`n", "``n")  ; encode end-of-lines
+	strSnippet := StrReplace(strSnippet, "`t", "``t")  ; encode tabs
 	
 	return strSnippet
 }
@@ -20487,11 +20477,11 @@ DecodeSnippet(strSnippet, blnWithCarriageReturn := false)
 ; convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 ;------------------------------------------------------------
 {
-	StringReplace, strSnippet, strSnippet, ````, !r4nd0mt3xt!, A	; preserve double-backticks
-	StringReplace, strSnippet, strSnippet
-		, ``n, % (blnWithCarriageReturn ? "`r" : "") . "`n", A		; decode end-of-lines (with `r only when sending as Snippet)
-	StringReplace, strSnippet, strSnippet, ``t, `t, A				; decode tabs
-	StringReplace, strSnippet, strSnippet, !r4nd0mt3xt!, ``, A		; restore double-backticks
+	strSnippet := StrReplace(strSnippet, "````", "!r4nd0mt3xt!")	; preserve double-backticks
+	strSnippet := StrReplace(strSnippet
+		, "``n", (blnWithCarriageReturn ? "`r" : "") . "`n")		; decode end-of-lines (with `r only when sending as Snippet)
+	strSnippet := StrReplace(strSnippet, "``t", "`t")				; decode tabs
+	strSnippet := StrReplace(strSnippet, "!r4nd0mt3xt!", "````")	; restore double-backticks
 	
 	return strSnippet
 }
