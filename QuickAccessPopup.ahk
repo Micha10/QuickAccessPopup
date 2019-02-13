@@ -6878,7 +6878,7 @@ Gui, 2:Add, Text, x15 y+10 w590 center, % L(o_L["OptionsTabOtherOptionsIntro"], 
 ; column 1
 
 Gui, 2:Add, CheckBox, y+15 x15 Section w300 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
-GuiControl, , f_blnChangeFolderInDialog, % o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue
+GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 Gui, 2:Add, Text, y+10 xs, % o_L["OptionsLanguage"]
 Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpLanguage Sort, % o_L["OptionsLanguageLabels"]
@@ -6913,41 +6913,41 @@ Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 Section vf_blnOptionsRunAtStartup, % o_L["OptionsRunAtStartup"]
-GuiControl, , f_blnOptionsRunAtStartup, % FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0
+GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayTrayTip, % o_L["OptionsTrayTip"]
-GuiControl, , f_blnDisplayTrayTip, % o_Settings.Launch.blnDisplayTrayTip.IniValue
+GuiControl, , f_blnDisplayTrayTip, % (o_Settings.Launch.blnDisplayTrayTip.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnCheck4Update, % o_L["OptionsCheck4Update"]
-GuiControl, , f_blnCheck4Update, % o_Settings.Launch.blnCheck4Update.IniValue
+GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue = true)
 Gui, 2:Add, Link, y+3 xs+16 w284 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnRememberSettingsPosition, % o_L["OptionsRememberSettingsPosition"]
-GuiControl, , f_blnRememberSettingsPosition, % o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue
+GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenSettingsOnActiveMonitor, % o_L["OptionsOpenSettingsOnActiveMonitor"]
-GuiControl, , f_blnOpenSettingsOnActiveMonitor, % o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue
+GuiControl, , f_blnOpenSettingsOnActiveMonitor, % (o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue = true)
 
-Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, % o_L["OptionsRunAsAdmin"]
+Gui, 2:Add, CheckBox, y+10 xs vf_blnRunAsAdmin gRunAsAdminClicked, % o_L["OptionsRunAsAdmin"] . "!"
 Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
-GuiControl, , f_blnRunAsAdmin, % o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
+GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 xs w300, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
 Gui, 2:Font
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultProcessEOLTab, % o_L["DialogFavoriteSnippetProcessEOLTab"]
-GuiControl, , f_blnSnippetDefaultProcessEOLTab, % o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue
+GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultFixedFont, % o_L["DialogFavoriteSnippetFixedFont"]
-GuiControl, , f_blnSnippetDefaultFixedFont, % o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue
+GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
 
 Gui, 2:Add, Text, y+10 xs, % o_L["DialogFavoriteSnippetFontSize"]
 Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, % o_L["DialogFavoriteSnippetFontSize"]
 Gui, 2:Add, UpDown, Range6-18 h20, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnSnippetDefaultMacro, % o_L["DialogFavoriteSnippetSendModeMacro"]
-GuiControl, , f_blnOptionsSnippetDefaultMacro, % o_Settings.Snippets.blnSnippetDefaultMacro.IniValue
+GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
 
 ;---------------------------------------
 ; Tab 2: Popup menu options
@@ -6995,23 +6995,23 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_blnAddAutoAtTop1 " . (!o_Settings.SettingsW
 ; column 2
 
 Gui, 2:Add, CheckBox, ys x320 w300 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked Section, % o_L["OptionsRefreshedMenusAttached"]
-GuiControl, , f_blnRefreshedMenusAttached, % o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
+GuiControl, , f_blnRefreshedMenusAttached, % (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue = true) ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, % o_L["OptionsDisplayMenuShortcuts"]
-GuiControl, , f_blnDisplayNumericShortcuts, % o_Settings.Menu.blnDisplayNumericShortcuts.IniValue
+GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayNumericShortcutsFromOne, % o_L["OptionsDisplayMenuShortcutsFromOne"]
-GuiControl, , f_blnDisplayNumericShortcutsFromOne, % o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue
+GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
 gosub, DisplayMenuShortcutsClicked
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnOpenMenuOnTaskbar, % o_L["OptionsOpenMenuOnTaskbar"]
-GuiControl, , f_blnOpenMenuOnTaskbar, % o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue
+GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnAddCloseToDynamicMenus, % o_L["OptionsAddCloseToDynamicMenus"]
-GuiControl, , f_blnAddCloseToDynamicMenus, % o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
+GuiControl, , f_blnAddCloseToDynamicMenus, % (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue = true)
 
 Gui, 2:Add, CheckBox, y+10 xs w300 vf_blnDisplayIcons gDisplayIconsClicked, % o_L["OptionsDisplayIcons"]
-GuiControl, , f_blnDisplayIcons, % o_Settings.MenuIcons.blnDisplayIcons.IniValue
+GuiControl, , f_blnDisplayIcons, % (o_Settings.MenuIcons.blnDisplayIcons.IniValue = true)
 
 Gui, 2:Add, Text, y+5 xs vf_drpIconSizeLabel Disabled, % o_L["OptionsIconSize"]
 Gui, 2:Add, DropDownList, yp x+10 w40 vf_drpIconSize Sort Disabled, 16|24|32|48|64
@@ -7028,14 +7028,14 @@ Gui, 2:Add, Edit, y+5 xs w60 h22 vf_intRefreshQAPMenuIntervalSecEdit number cent
 Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 Disabled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue
 Gui, 2:Add, Text, yp x+10 w235 vf_blnRefreshQAPMenuDebugBeepLabel Disabled, % o_L["OptionsRefreshQAPMenuIntervalSec"]
 Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnRefreshQAPMenuDebugBeep Disabled, % o_L["OptionsRefreshQAPMenuDebugBeep"]
-GuiControl, , f_blnRefreshQAPMenuDebugBeep, % o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue
+GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
 gosub, RefreshQAPMenuEnableClicked
 
 if !(g_blnPortableMode)
 {
 	Gui, 2:Add, Text, y+15 xs w300, % o_L["OptionsExplorerContextMenusHeader"]
 	Gui, 2:Add, CheckBox, y+5 xs w300 vf_blnExplorerContextMenus, % o_L["OptionsExplorerContextMenus"]
-	GuiControl, , f_blnExplorerContextMenus, % o_Settings.MenuPopup.blnExplorerContextMenus.IniValue
+	GuiControl, , f_blnExplorerContextMenus, % (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue = true)
 }
 
 ;---------------------------------------
@@ -7087,7 +7087,7 @@ Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, x15 y+20 w610, % o_L["OptionsAlternativeMenuOptions"]
 Gui, 2:Font
 Gui, 2:Add, CheckBox, y+10 x15 vf_blnAlternativeMenuShowNotification, % o_L["OptionsAlternativeMenuShowNotification"]
-GuiControl, , f_blnAlternativeMenuShowNotification, % o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue
+GuiControl, , f_blnAlternativeMenuShowNotification, % (o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue = true)
 
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, x15 y+20 w610, % o_L["DialogOtherHotkeys"]
@@ -7095,8 +7095,8 @@ Gui, 2:Font
 Gui, 2:Add, Text, y+10 x15, % o_L["OptionsControlDoublePressed"]
 Gui, 2:Add, CheckBox, y+5 x15 vf_blnLeftControlDoublePressed, % o_L["OptionsControlDoublePressedLeft"]
 Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, % o_L["OptionsControlDoublePressedRight"]
-GuiControl, , f_blnLeftControlDoublePressed, % o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue
-GuiControl, , f_blnRightControlDoublePressed, % o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue
+GuiControl, , f_blnLeftControlDoublePressed, % (o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue = true)
+GuiControl, , f_blnRightControlDoublePressed, % (o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue = true)
 
 ;---------------------------------------
 ; Tab 5: File Managers
@@ -7116,7 +7116,7 @@ Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp ; hidden
 Gui, 2:Font
 Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
 Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
-GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % o_FileManagers.I[1].blnOpenFavoritesOnActiveMonitor
+GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.I[1].blnOpenFavoritesOnActiveMonitor = true)
 Gui, 2:Add, Text, y+10 x32 vf_lblFileManagerPrompt hidden, % o_L["DialogApplicationLabel"] . ":"
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
 Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
@@ -7129,7 +7129,7 @@ Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinC
 Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, % o_L["DialogBrowseButton"]
 Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gFileManagerNavigateClicked hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
-GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % o_FileManagers.I[2].blnFileManagerDirectoryOpusShowLayouts
+GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.I[2].blnFileManagerDirectoryOpusShowLayouts = true)
 
 Gui, Font, w600
 Gui, 2:Add, Text, ys x320 w300 Section, % o_L["OptionsTabFileManagersPreferences"]
@@ -10288,7 +10288,7 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 	if (g_objEditedFavorite.FavoriteType = "FTP")
 	{
 		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.ActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
-		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding ? true : false) ; condition in case empty value would be considered as no label
+		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding = true)
 	}
 	
 	Gui, 2:Add, Link, x20 y+10, % L(o_L["DialogSoundLabel"], "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", o_L["GuiHelp"])
@@ -11115,7 +11115,7 @@ GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_btnFavoriteLau
 GuiControl, , f_strFavoriteArguments, % (f_blnFavoriteFolderLive ? "" : f_strFavoriteArguments)
 GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_strFavoriteArguments
 
-GuiControl, , f_blnFavoriteFolderLiveDocuments, % (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : false)
+GuiControl, , f_blnFavoriteFolderLiveDocuments, % (f_blnFavoriteFolderLive ? (f_blnFavoriteFolderLiveDocuments = true) : false)
 gosub, CheckboxFolderLiveDocumentsClicked
 
 gosub, CheckboxFolderLiveChangeWindowPositionTab
