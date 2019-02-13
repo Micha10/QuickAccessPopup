@@ -4346,11 +4346,11 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
 				strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objNewMenu.MenuExternalPath)
-				blnLastModifiedFromSystem := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", objNewMenu.MenuExternalPath) ; ##### check
-				; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromSystem)
+				blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", objNewMenu.MenuExternalPath)
+				; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
-				objNewMenu.MenuExternalLastModifiedFromSystem := blnLastModifiedFromSystem
+				objNewMenu.MenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
 				
 				; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
 				strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objNewMenu.MenuExternalPath)
@@ -7958,7 +7958,10 @@ o_Settings.MenuPopup.intPopupMenuPosition.WriteIni() ; value already updated in 
 
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
-o_Settings.MenuPopup.arrPopupFixPosition.WriteIni(f_intPopupFixPositionX . "," . f_intPopupFixPositionY) ; ##### test exception
+; write text value to ini file
+o_Settings.MenuPopup.arrPopupFixPosition.WriteIni(f_intPopupFixPositionX . "," . f_intPopupFixPositionY)
+; but restore object array in class object
+o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
 
 if (f_radHotkeyReminders1)
 	o_Settings.Menu.intHotkeyReminders.IniValue := 1
@@ -11551,9 +11554,9 @@ GuiControl, , f_strExternalWriteAccessUsers, %strExternalWriteAccessUsers%
 strExternalWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", strExternalExpandedFileName) ; empty if not found
 GuiControl, , f_strExternalWriteAccessMessage, %strExternalWriteAccessMessage%
 
-strExternalLastModifiedFromSystem := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", strExternalExpandedFileName) ; empty if not found
-GuiControl, , f_radExternalSourceNetwork, % strExternalLastModifiedFromSystem <> 1
-GuiControl, , f_radExternalSourceCloud, % strExternalLastModifiedFromSystem = 1
+strExternalLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", strExternalExpandedFileName) ; empty if not found
+GuiControl, , f_radExternalSourceNetwork, % strExternalLastModifiedFromNetworkOrCoud <> 1
+GuiControl, , f_radExternalSourceCloud, % strExternalLastModifiedFromNetworkOrCoud = 1
 
 blnExternalMenuReadOnly := ""
 strExternalMenuName := ""
@@ -11561,7 +11564,7 @@ strExternalWriteAccessUsers := ""
 strExternalWriteAccessMessage := ""
 intMenuExternalType := ""
 strExternalExpandedName := ""
-strExternalLastModifiedFromSystem := ""
+strExternalLastModifiedFromNetworkOrCoud := ""
 
 return
 ;------------------------------------------------------------
@@ -12212,7 +12215,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			; update object's last modified dates anyway
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedFromSystem := (f_radExternalSourceCloud = 1)
+			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedFromNetworkOrCoud := (f_radExternalSourceCloud = 1)
 		}
 	}
 
@@ -14642,7 +14645,7 @@ for strMenuPath, objMenuSource in objMenusSource
 	objMenuDest.MenuLoaded := objMenuSource.MenuLoaded
 	objMenuDest.MenuExternalLastModifiedNow := objMenuSource.MenuExternalLastModifiedNow
 	objMenuDest.MenuExternalLastModifiedWhenLoaded := objMenuSource.MenuExternalLastModifiedWhenLoaded
-	objMenuDest.MenuExternalLastModifiedFromSystem := objMenuSource.MenuExternalLastModifiedFromSystem
+	objMenuDest.MenuExternalLastModifiedFromNetworkOrCoud := objMenuSource.MenuExternalLastModifiedFromNetworkOrCoud
 
 	loop, % objMenuSource.MaxIndex()
 	{
@@ -21410,12 +21413,12 @@ ExternalMenuReloadAndRebuild(objMenu)
 ;------------------------------------------------------------
 ExternalMenuGetModifiedDateTime(strFile)
 ; returns the last modified date of the external menu
-; (file system date-time or system's date-time UTC if blnLastModifiedFromSystem)
+; (file system date-time or system's date-time UTC if blnLastModifiedFromNetworkOrCoud)
 ;------------------------------------------------------------
 {
-	blnLastModifiedFromSystem := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", strFile)
+	blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", strFile)
 
-	if (blnLastModifiedFromSystem)
+	if (blnLastModifiedFromNetworkOrCoud)
 		strDateTime := A_NowUTC . "UTC"
 	else
 		FileGetTime, strDateTime, %strFile% ; modification date-time by default
