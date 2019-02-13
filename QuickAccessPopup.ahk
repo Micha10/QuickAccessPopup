@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.3 (2019-02-12)
+- rewrite portions of code using object oriented programming (OOP) approach (classes):
+  - Settings
+  - Language
+  - Favorites (types list only)
+- adjustments or improvements to existing classes
+- enable for all classes debug function to check number of class functions parameters
+
 Version ALPHA: 9.9.0.2 (2019-01-28)
 - rewrite portions of code using object oriented programming (OOP) approach (classes):
   - SpecialFolders
@@ -3073,7 +3081,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.2
+;@Ahk2Exe-SetVersion 9.9.0.3
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3164,7 +3172,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -10446,7 +10454,7 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-Gui, 2:Add, Text, % x10 y10 vf_lblFavoriteParentMenu
+Gui, 2:Add, Text, x10 y10 vf_lblFavoriteParentMenu
 	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteParentMenuMove"] : o_L["DialogFavoritesParentMenuMove"])
 	: o_L["DialogFavoritesParentMenuCopy"]), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
@@ -22514,6 +22522,18 @@ class CommandLineParameters
 */
 ;-------------------------------------------------------------
 {
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
 	; Instance variables
 	I := Object() ; I for Items
 	strParams := ""
@@ -22597,6 +22617,18 @@ class JLicons
 */
 ;-------------------------------------------------------------
 {
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
 	; Instance variables
 	strFileLocation := ""
 	I := Object()
@@ -22752,6 +22784,18 @@ class Triggers.MouseButtons
 	; replaces g_arrPopupHotkeys and related arrays
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		; Instance variables
 		oPopupHotkeysByNames := Object()
 		
@@ -22824,6 +22868,18 @@ class Triggers.MouseButtons
 		class PopupHotkey
 		;-----------------------------------------------------
 		{
+			;---------------------------------------------------------
+			__Call(function, parameters*)
+			; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+			{
+				funcRef := Func(funcName := this.__class "." function)
+				if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+					return funcRef.(this, parameters*) ; everything is good
+				else
+					return
+			}
+			;---------------------------------------------------------
+
 			; Instance variables
 			strPopupHotkeyInternalName := ""
 			strPopupHotkeyText := ""
@@ -22890,6 +22946,18 @@ class Triggers.MouseButtons
 	; replaces SplitHotkey(strHotkey, ByRef strModifiers, ByRef strKey, ByRef strMouseButton)
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		; Instance variables
 		strModifiers := ""
 		strKey := ""
@@ -22989,6 +23057,18 @@ class Triggers.MouseButtons
 	class MouseButtons
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		; Instance variables
 		I := Object()
 		oMouseButtonInternalNames := Object() ; associative array "name->index"
@@ -23058,6 +23138,18 @@ class Triggers.MouseButtons
 		class MouseButton
 		;-----------------------------------------------------
 		{
+			;---------------------------------------------------------
+			__Call(function, parameters*)
+			; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+			{
+				funcRef := Func(funcName := this.__class "." function)
+				if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+					return funcRef.(this, parameters*) ; everything is good
+				else
+					return
+			}
+			;---------------------------------------------------------
+
 			; Instance variables
 			strInternalName := ""
 			strLocalizedName := ""
@@ -23090,8 +23182,6 @@ TODO
 */
 ;-------------------------------------------------------------
 {
-	I := Object()
-	
 	;---------------------------------------------------------
 	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -23103,6 +23193,8 @@ TODO
 			return
 	}
 	;---------------------------------------------------------
+	
+	I := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -23196,6 +23288,18 @@ TODO
 	class FileManager
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
@@ -23657,11 +23761,6 @@ TODO
 class SpecialFolders
 ;-------------------------------------------------------------
 {
-	I := Object()
-	objClassIdOrPathByDefaultName := Object()
-	strDownloadPath := ""
-	strMyPicturesPath := ""
-	
 	;---------------------------------------------------------
 	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -23673,6 +23772,11 @@ class SpecialFolders
 			return
 	}
 	;---------------------------------------------------------
+	
+	I := Object()
+	objClassIdOrPathByDefaultName := Object()
+	strDownloadPath := ""
+	strMyPicturesPath := ""
 	
 	;---------------------------------------------------------
 	__New()
@@ -24075,14 +24179,6 @@ class SpecialFolders
 class QAPfeatures
 ;-------------------------------------------------------------
 {
-	I := Object()
-	objQAPFeaturesCodeByDefaultName := Object()
-	objQAPFeaturesDefaultNameByCode := Object()
-	objQAPFeaturesAlternativeCodeByOrder := Object()
-	objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
-	objQAPFeaturesNewShortcuts := Object()
-	objQAPFeaturesCategories := Object()
-	
 	;---------------------------------------------------------
 	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24094,6 +24190,14 @@ class QAPfeatures
 			return
 	}
 	;---------------------------------------------------------
+	
+	I := Object()
+	objQAPFeaturesCodeByDefaultName := Object()
+	objQAPFeaturesDefaultNameByCode := Object()
+	objQAPFeaturesAlternativeCodeByOrder := Object()
+	objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
+	objQAPFeaturesNewShortcuts := Object()
+	objQAPFeaturesCategories := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -24390,6 +24494,18 @@ FAVORITE TYPES REPLACED
 */
 ;-------------------------------------------------------------
 {
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
 	static I := Object()
 	static objFavoriteTypesByName := Object()
 	
@@ -24425,6 +24541,18 @@ FAVORITE TYPES REPLACED
 	class Type
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisLabel, strThisShortName, strThisLocationLabel, strThisLocationLabelNoAmpersand, strThisHelp)
 		;-----------------------------------------------------
@@ -24682,7 +24810,6 @@ TODO
 */
 ;-------------------------------------------------------------
 {
-/*
 	;---------------------------------------------------------
 	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24694,7 +24821,6 @@ TODO
 			return
 	}
 	;---------------------------------------------------------
-*/
 
 	objGroupItems := Object()
 	
@@ -24767,6 +24893,18 @@ TODO
 	class IniValue
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		;-----------------------------------------------------
 		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		;-----------------------------------------------------
@@ -24798,6 +24936,18 @@ TODO
 	class IniValueExclusionMouseList extends Settings.IniValue
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		;-----------------------------------------------------
 		SplitExclusionList()
 		;-----------------------------------------------------
@@ -24836,6 +24986,18 @@ TODO
 */
 ;-------------------------------------------------------------
 {
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
@@ -24938,6 +25100,19 @@ class ClassName
 		; Each declaration stores a value in the class object. Any variable references in Expression are assumed to be global.
 		; To assign to a class variable, always specify the class object; for example, ClassName.ClassVar := Value.
 		; If an object x is derived from ClassName and x itself does not contain the key "ClassVar", x.ClassVar may also be used to dynamically retrieve the value of ClassName.ClassVar.
+		
+	;---------------------------------------------------------
+	__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
 	
 	;---------------------------------------------------------
 	__New()
@@ -24982,6 +25157,18 @@ class ClassName
 	; In the example above, class NestedClass constructs an object and stores it in ClassName.NestedClass.
 	;---------------------------------------------------------
 	{
+		;---------------------------------------------------------
+		__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
 		;-----------------------------------------------------
 		__New()
 		;-----------------------------------------------------
