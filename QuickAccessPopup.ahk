@@ -3169,7 +3169,6 @@ global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowerca
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
 
-global g_blnDiagMode := False
 global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 
 ;---------------------------------
@@ -3300,7 +3299,7 @@ if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 
 IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
-if (g_blnDiagMode)
+if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
@@ -4010,7 +4009,7 @@ else
 {
 	g_strIniBefore := "DONT"
 	o_Settings.ReadIniOption("SettingFile", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
-	if !(blnDoNotConvertSettingsToUnicode)
+	if !(o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.IniValue)
 	{
 		; check if the ini file is Unicode
 		objIniFile := FileOpen(o_Settings.strIniFile, "r") ; open the file read-only
@@ -4150,13 +4149,13 @@ o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
 o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0) ; Please, be fair. Don't cheat with this.; g_
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
 o_Settings.ReadIniOption("Launch", "blnDefaultDynamicMenusBuilt", "DefaultDynamicMenusBuilt", 0) ; blnDefaultDynamicMenusBuilt
-if !(blnDefaultDynamicMenusBuilt)
+if !(o_Settings.Launch.blnDefaultDynamicMenusBuilt.IniValue)
  	Gosub, AddToIniDynamicDefaultMenu ; modify the ini file Favorites section before reading it
 o_Settings.ReadIniOption("Launch", "blnDefaultWindowsAppsMenuBuilt", "DefaultWindowsAppsMenuBuilt", 0) ; blnDefaultWindowsAppsMenuBuilt
-if !(blnDefaultWindowsAppsMenuBuilt) and (GetOSVersion() = "WIN_10")
+if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersion() = "WIN_10")
  	Gosub, AddToIniWindowsAppsDefaultMenu ; modify the ini file Favorites section before reading it
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
-if !(blnDefaultMenuBuilt)
+if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
 o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
@@ -4186,7 +4185,6 @@ strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
 strAlternativeHotkeyMouseDefault := ""
 strAlternativeHotkeyKeyboardDefault := ""
-blnDefaultMenuBuilt := ""
 objThisFavorite := ""
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
@@ -4196,7 +4194,6 @@ intNumberOfBackups := ""
 objIniFile := ""
 strFileEncoding := ""
 strIniFileContent := ""
-blnDoNotConvertSettingsToUnicode := ""
 strWaitDelayInSnippet := ""
 strGuiTitle := ""
 strMenuDynamicMenus := ""
@@ -4227,7 +4224,8 @@ if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 }
 else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
 	
-	IniWrite, 1, % o_Settings.strIniFile, Global, DoNotConvertSettingsToUnicode
+	o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.WriteIniGlobal(1)
+
 	
 ; else do nothing
 
@@ -4806,8 +4804,7 @@ InitDiagMode:
 MsgBox, 52, %g_strAppNameText%, % L(o_L["DiagModeCaution"], g_strAppNameText, g_strDiagFile)
 IfMsgBox, No
 {
-	g_blnDiagMode := False
-	IniWrite, 0, % o_Settings.strIniFile, Global, DiagMode
+	o_Settings.Launch.blnDiagMode.WriteIniGlobal(0)
 	return
 }
 
@@ -4878,7 +4875,7 @@ ExitApp
 CleanUpBeforeExit:
 ;-----------------------------------------------------------
 
-; if (g_blnDiagMode)
+; if (o_Settings.Launch.blnDiagMode.IniValue)
 	; Diag("ListLines", ScriptInfo("ListLines"))
 
 if FileExist(o_Settings.strIniFile) ; in case user deleted the ini file to create a fresh one, this avoids creating an ini file with just this value
@@ -4914,7 +4911,7 @@ if IsObject(g_objUsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case 
 		FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
 }
 
-if (g_blnDiagMode)
+if (o_Settings.Launch.blnDiagMode.IniValue)
 {
 	MsgBox, % 52 + 256 , %g_strAppNameText%, % L(o_L["DiagModeExit"], g_strAppNameText, g_strDiagFile) . "`n`n" . o_L["DiagModeIntro"] . "`n`n" . o_L["DiagModeSee"]
 	IfMsgBox, Yes
@@ -5015,7 +5012,8 @@ Menu, Tray, Add, % L(o_L["MenuExitApp"], g_strAppNameText), TrayMenuExitApp
 Menu, Tray, Default, % o_L["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
-Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n" . (g_blnDonor ? o_L["DonateThankyou"] : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
+Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
+	. (o_Settings.Launch.blnDonor.IniValue ? o_L["DonateThankyou"] : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -6214,7 +6212,7 @@ RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
 if (g_blnWorkingToolTip)
 	Tooltip
 
-if !(g_blnDonor)
+if !(o_Settings.Launch.blnDonor.IniValue)
 {
 	if (g_objMenusIndex[o_L["MainMenuName"]][g_objMenusIndex[o_L["MainMenuName"]].MaxIndex()].FavoriteType <> "K")
 	; column break not allowed if first item is a separator
@@ -6879,7 +6877,7 @@ Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpLanguage Sort, % o_L["OptionsLanguag
 GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
 Gui, 2:Add, Text, y+10 xs, % o_L["OptionsTheme"]
-Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, %g_strAvailableThemes%
+Gui, 2:Add, DropDownList, y+5 xs w120 vf_drpTheme, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
 GuiControl, ChooseString, f_drpTheme, % o_Settings.SettingsWindow.strTheme.IniValue
 
 Gui, 2:Add, Text, y+10 xs, % o_L["OptionsQAPTempFolder"] . ":"
@@ -8473,7 +8471,8 @@ if (g_blnUseColors)
 ; Order of controls important to avoid drawgins gliches when resizing
 
 Gui, 1:Font, % "s12 w700 " . (g_blnUseColors ? "c" . strTextColor : ""), Verdana
-Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion . (StrLen(g_strUserBanner) ? " " . g_strUserBanner : "") ; Static1 (see WM_MOUSEMOVE)
+Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion
+	. (StrLen(o_Settings.Launch.strUserBanner.IniValue) ? " " . o_Settings.Launch.strUserBanner.IniValue : "") ; Static1 (see WM_MOUSEMOVE)
 Gui, 1:Font, s9 w400, Verdana
 Gui, 1:Add, Link, vf_lblAppTagLine, % o_L["AppTagline"] ; SysLink1
 
@@ -8545,7 +8544,7 @@ Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavo
 Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, % o_L["GuiSaveAndStayAmpersand"] ; Button4
 Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h50, % o_L["GuiCloseAmpersand"] ; Close until changes occur - Button5
 
-if !(g_blnDonor)
+if !(o_Settings.Launch.blnDonor.IniValue)
 {
 	strDonateButtons := "thumbs_up|solutions|handshake|conference|gift"
 	StringSplit, arrDonateButtons, strDonateButtons, |
@@ -17759,7 +17758,7 @@ intStartups := o_Settings.ReadIniValue("Startups", 1)
 
 if (A_ThisMenuItem <> o_L["MenuUpdateAmpersand"])
 {
-	if Time2Donate(intStartups, g_blnDonor)
+	if Time2Donate(intStartups, o_Settings.Launch.blnDonor.IniValue)
 	{
 		MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
 			, % l(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
@@ -17779,7 +17778,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&os=" . GetOSVersion()
 	. "&is64=" . A_Is64bitOS
 	. "&setup=" . (blnSetup)
-				+ (2 * (g_blnDonor ? 1 : 0))
+				+ (2 * (o_Settings.Launch.blnDonor.IniValue ? 1 : 0))
 				+ (4 * (o_FileManagers.ActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
 				+ (8 * (o_FileManagers.ActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
 				+ (16 * (o_FileManagers.ActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
@@ -17944,10 +17943,10 @@ PrepareVersionNumber(strVersionNumber)
 
 
 ;------------------------------------------------------------
-Time2Donate(intStartups, g_blnDonor)
+Time2Donate(intStartups, blnDonor)
 ;------------------------------------------------------------
 {
-	return !Mod(intStartups, 20) and (intStartups > 40) and !(g_blnDonor)
+	return !Mod(intStartups, 20) and (intStartups > 40) and !(blnDonor)
 }
 ;------------------------------------------------------------
 
@@ -18828,7 +18827,7 @@ Sort, strUsageDbItemsList, R
 ; Diag(A_ThisLabel . ":strUsageDbItemsList", StrReplace(StringLeftDotDotDot(strUsageDbItemsList, 500), "`n", "|"))
 Diag(A_ThisLabel . ":strUsageDbItemsList (after)", "", "ELAPSED")
 
-if (g_blnUsageDbDebug or g_blnDiagMode)
+if (g_blnUsageDbDebug or o_Settings.Launch.blnDiagMode.IniValue)
 	strUsageDbReport := ""
 
 intUsageDbtNbItems := 0
@@ -20091,7 +20090,7 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 	static g_intStartShowTick
 	static g_intStartCollectTick
 
-	if !(g_blnDiagMode or blnForceForFirstStartup)
+	if !(o_Settings.Launch.blnDiagMode.IniValue or blnForceForFirstStartup)
 		return
 	
 	FormatTime, strNow, %A_Now%, yyyyMMdd@HH:mm:ss
