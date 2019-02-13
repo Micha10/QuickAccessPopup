@@ -3273,16 +3273,16 @@ global o_MouseButtons := new Triggers.MouseButtons
 global o_PopupHotkeys := new Triggers.PopupHotkeys ; load QAP menu triggers from ini file
 
 ;---------------------------------
-; Init class for Special Folders
-global o_SpecialFolders := new SpecialFolders
+; Init class for Favorites (types) - must be before new QAPfeatures
+global o_Favorites := new Favorites
 
 ;---------------------------------
 ; Init class for QAP Features
 global o_QAPfeatures := new QAPfeatures
 
 ;---------------------------------
-; Init class for Favorites (types)
-global o_Favorites := new Favorites
+; Init class for Special Folders
+global o_SpecialFolders := new SpecialFolders
 
 ;---------------------------------
 ; Load Settings file
@@ -6864,8 +6864,8 @@ Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Text, x10 y10 w595 center, % L(o_L["OptionsGuiTitle"], g_strAppNameText)
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intOptionsTab w620 h440 AltSubmit, % " " . o_L["OptionsOtherOptions"] . "|" . o_L["OptionsMenuOptions"] . "|" . o_L["OptionsMouseAndKeyboard"]
-	. "|" . o_L["OptionsAlternativeMenuFeatures"] . "|" . o_L["OptionsThirdParty"] . "|" . o_L["DialogMore"] . " "
+Gui, 2:Add, Tab2, vf_intOptionsTab w620 h440 AltSubmit, % " " . o_L["OptionsOtherOptions"] . "| " . o_L["OptionsMenuOptions"] . "| " . o_L["OptionsMouseAndKeyboard"]
+	. "| " . o_L["OptionsAlternativeMenuFeatures"] . "| " . o_L["OptionsThirdParty"] . "| " . o_L["DialogMore"] . " "
 
 ;---------------------------------------
 ; Tab 1: General options
@@ -7222,7 +7222,7 @@ OptionsMoreShowButton(strTag, ByRef intMaxWidth, intFirstCallY := 0)
 		intY := intY + 40
 	
 	Gui, 2:Add, Button, % "y" . intY . " x15 vf_btn" . strTag . " gGuiOptionsMore" . strTag
-		, % (strTag = "UsageDb" ? L(o_L["OptionsUsageDb"], g_strAppNameText) : o_L["Options"]%strTag%)
+		, % (strTag = "UsageDb" ? L(o_L["OptionsUsageDb"], g_strAppNameText) : o_L["Options" . strTag])
 	GuiControlGet, arrPos, Pos, f_btn%strTag%
 	intMaxWidth := (arrPosW > intMaxWidth ? arrPosW : intMaxWidth)
 }
@@ -9994,7 +9994,7 @@ strItemsNameCodeCategories := ""
 for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.I : o_SpecialFolders.I)
 	if (A_ThisLabel = "LoadTreeviewQAP")
 		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
-	else ; LoadTreeviewSpecial<
+	else ; LoadTreeviewSpecial
 		if StrLen(objItem.DefaultName) ; to skip class object non-special folders items
 			strItemsNameCodeCategories .= objItem.DefaultName . "|" . strItemCode . "|" . StrReplace(objItem.Categories, "|", "~") . "`n"
 Sort, strItemsNameCodeCategories
@@ -13870,7 +13870,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Loop, 4 ; for each modifier add a checkbox
 	{
 		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
-		Gui, Add, CheckBox, % "y+" (SS_strModifiersLabel = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln" . SS_arrModifiersLabels%A_Index%, % o_L["Dialog"]%SS_strModifiersLabel%Short
+		Gui, Add, CheckBox, % "y+" (SS_strModifiersLabel = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln"
+			. SS_arrModifiersLabels%A_Index%, % o_L["Dialog" . SS_strModifiersLabel . "Short"]
 		if (SS_strModifiersLabel = "Shift")
 			GuiControlGet, SS_arrTop, Pos, f_blnShift
 	}
@@ -13908,7 +13909,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
 	{
 		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
-		Gui, Add, Text, y+10 x10 w60 right, % o_L["Dialog"]%SS_strModifiersLabel%Short
+		Gui, Add, Text, y+10 x10 w60 right, % o_L["Dialog" . SS_strModifiersLabel . "Short"]
 		Gui, Font, w700
 		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
 		Gui, Font
@@ -18492,8 +18493,8 @@ Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Link, x175 w185 y+10, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/")
 loop, Parse, % "4|1|2|3", |
 {
-	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName"]%A_LoopField%
-	Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment"]%A_LoopField%
+	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName" . A_LoopField]
+	Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment" . A_LoopField]
 }
 ; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, % o_L["DonatePlatformName2"] ; Patreon out
 ; Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment2"] ; Patreon out
@@ -24365,8 +24366,8 @@ class QAPfeatures
 
 		Loop, % o_Favorites.I.Length()
 			if StrLen(o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . g_arrFavoriteTypes%A_Index%, o_L["MenuAddFavorite"] . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
-					, "", "GuiAddFavoriteFromQAPFeature" . g_arrFavoriteTypes%A_Index%, "3.1-AddFavoriteOfType"
+				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.I[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.I[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
 					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
 
