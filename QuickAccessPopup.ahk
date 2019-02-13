@@ -4169,7 +4169,7 @@ o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSiz
 
 o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
-	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIniGlobal(500)
+	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
 o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
 o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
@@ -4232,7 +4232,7 @@ if (A_GuiControl = "f_btnConvertSettingsEncodingYes")
 }
 else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
 	
-	o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.WriteIniGlobal(1)
+	o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.WriteIni(1)
 
 	
 ; else do nothing
@@ -4812,7 +4812,7 @@ InitDiagMode:
 MsgBox, 52, %g_strAppNameText%, % L(o_L["DiagModeCaution"], g_strAppNameText, g_strDiagFile)
 IfMsgBox, No
 {
-	o_Settings.Launch.blnDiagMode.WriteIniGlobal(0)
+	o_Settings.Launch.blnDiagMode.WriteIni(0)
 	return
 }
 
@@ -7910,15 +7910,15 @@ if (f_blnOptionsRunAtStartup)
 	Gosub, CreateStartupShortcut
 Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", % o_L["MenuRunAtStartupAmpersand"]
 
-o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIniGlobal(f_blnAddAutoAtTop0)
+o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
 o_Settings.Launch.blnDisplayTrayTip.WriteIni(f_blnDisplayTrayTip)
-o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIniGlobal(f_blnChangeFolderInDialog)
+o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIni(f_blnChangeFolderInDialog)
 o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
-o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIniGlobal(f_blnRememberSettingsPosition)
-o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIniGlobal(f_blnOpenSettingsOnActiveMonitor)
+o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIni(f_blnRememberSettingsPosition)
+o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIni(f_blnOpenSettingsOnActiveMonitor)
 blnRunAsAdminPrev := o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
-o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIniGlobal(f_blnRunAsAdmin)
-o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIniGlobal(strNewHotstringsDefaultOptions)
+o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIni(f_blnRunAsAdmin)
+o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIni(strNewHotstringsDefaultOptions)
 
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
@@ -7931,19 +7931,19 @@ loop, % g_objOptionsLanguageLabels.Length()
 o_Settings.Launch.strLanguageCode.WriteIni() ; value already changed in the loop
 
 strThemePrev := o_Settings.SettingsWindow.strTheme.IniValue
-o_Settings.SettingsWindow.strTheme.WriteIniGlobal(f_drpTheme)
+o_Settings.SettingsWindow.strTheme.WriteIni(f_drpTheme)
 
 strQAPTempFolderParentPrev := o_Settings.Launch.strQAPTempFolderParent.IniValue
 if StrLen(f_strQAPTempFolderParentPath)
-	o_Settings.Launch.strQAPTempFolderParent.WriteIniGlobal(g_strQAPTempFolderParent)
+	o_Settings.Launch.strQAPTempFolderParent.WriteIni(g_strQAPTempFolderParent)
 
-o_Settings.SettingsFile.strBackupFolder.WriteIniGlobal(f_strBackupFolder)
-o_Settings.SettingsFile.strExternalMenusCataloguePath.WriteIniGlobal(f_strExternalMenusCataloguePath)
+o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strBackupFolder)
+o_Settings.SettingsFile.strExternalMenusCataloguePath.WriteIni(f_strExternalMenusCataloguePath)
 
-o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIniGlobal(f_blnSnippetDefaultProcessEOLTab)
-o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIniGlobal(f_blnSnippetDefaultFixedFont)
-o_Settings.Snippets.intSnippetDefaultFontSize.WriteIniGlobal(f_intSnippetDefaultFontSize)
-o_Settings.Snippets.blnSnippetDefaultMacro.WriteIniGlobal(f_blnSnippetDefaultMacro)
+o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIni(f_blnSnippetDefaultProcessEOLTab)
+o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIni(f_blnSnippetDefaultFixedFont)
+o_Settings.Snippets.intSnippetDefaultFontSize.WriteIni(f_intSnippetDefaultFontSize)
+o_Settings.Snippets.blnSnippetDefaultMacro.WriteIni(f_blnSnippetDefaultMacro)
 
 ;---------------------------------------
 ; Save Tab 2: Menu options
@@ -7954,11 +7954,11 @@ else if (f_radPopupMenuPosition2)
 	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 2
 else
 	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
-o_Settings.MenuPopup.intPopupMenuPosition.WriteIniGlobal() ; value already updated in previous lines
+o_Settings.MenuPopup.intPopupMenuPosition.WriteIni() ; value already updated in previous lines
 
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
-o_Settings.MenuPopup.arrPopupFixPosition.WriteIniGlobal(f_intPopupFixPositionX . "," . f_intPopupFixPositionY) ; ##### test exception
+o_Settings.MenuPopup.arrPopupFixPosition.WriteIni(f_intPopupFixPositionX . "," . f_intPopupFixPositionY) ; ##### test exception
 
 if (f_radHotkeyReminders1)
 	o_Settings.Menu.intHotkeyReminders.IniValue := 1
@@ -7966,7 +7966,7 @@ else if (f_radHotkeyReminders2)
 	o_Settings.Menu.intHotkeyReminders.IniValue := 2
 else
 	o_Settings.Menu.intHotkeyReminders.IniValue := 3
-o_Settings.Menu.intHotkeyReminders.WriteIniGlobal() ; value already updated
+o_Settings.Menu.intHotkeyReminders.WriteIni() ; value already updated
 
 if !(g_blnPortableMode)
 {
@@ -7976,22 +7976,22 @@ if !(g_blnPortableMode)
 	if (!f_blnExplorerContextMenus) and (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
 		gosub, DisableExplorerContextMenus
 		; else already disabled
-	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIniGlobal() ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
+	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni() ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
 }
 
-o_Settings.Menu.intRecentFoldersMax.WriteIniGlobal(f_intRecentFoldersMax)
+o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
 
-o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIniGlobal(f_blnRefreshedMenusAttached)
-o_Settings.Menu.blnDisplayNumericShortcuts.WriteIniGlobal(f_blnDisplayNumericShortcuts)
-o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIniGlobal(f_blnDisplayNumericShortcutsFromOne)
-o_Settings.MenuPopup.blnOpenMenuOnTaskbar.WriteIniGlobal(f_blnOpenMenuOnTaskbar)
-o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIniGlobal(f_blnAddCloseToDynamicMenus)
-o_Settings.MenuIcons.blnDisplayIcons.WriteIniGlobal(f_blnDisplayIcons)
-o_Settings.MenuIcons.intIconSize.WriteIniGlobal(f_drpIconSize)
-o_Settings.MenuIcons.intIconsManageRowsSettings.WriteIniGlobal(f_intIconsManageRowsSettings)
-o_Settings.Menu.intNbLastActions.WriteIniGlobal(f_intNbLastActions)
-o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.WriteIniGlobal(f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
-o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.WriteIniGlobal(f_blnRefreshQAPMenuDebugBeep)
+o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIni(f_blnRefreshedMenusAttached)
+o_Settings.Menu.blnDisplayNumericShortcuts.WriteIni(f_blnDisplayNumericShortcuts)
+o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIni(f_blnDisplayNumericShortcutsFromOne)
+o_Settings.MenuPopup.blnOpenMenuOnTaskbar.WriteIni(f_blnOpenMenuOnTaskbar)
+o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIni(f_blnAddCloseToDynamicMenus)
+o_Settings.MenuIcons.blnDisplayIcons.WriteIni(f_blnDisplayIcons)
+o_Settings.MenuIcons.intIconSize.WriteIni(f_drpIconSize)
+o_Settings.MenuIcons.intIconsManageRowsSettings.WriteIni(f_intIconsManageRowsSettings)
+o_Settings.Menu.intNbLastActions.WriteIni(f_intNbLastActions)
+o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.WriteIni(f_blnRefreshQAPMenuEnable ? f_intRefreshQAPMenuIntervalSec : 0)
+o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.WriteIni(f_blnRefreshQAPMenuDebugBeep)
 
 if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
 	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
@@ -8002,7 +8002,7 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
-	o_Settings.MenuPopup[str . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIniGlobal(objThisPopupHotkey.AhkHotkey)
+	o_Settings.MenuPopup[str . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -8010,11 +8010,11 @@ for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
 IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
 	if HasShortcut(strNewShortcut)
-		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIniGlobal(strNewShortcut) ; ##### check
+		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut) ; ##### check
 
-o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIniGlobal(f_blnAlternativeMenuShowNotification)
-o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIniGlobal(f_blnLeftControlDoublePressed)
-o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIniGlobal(f_blnRightControlDoublePressed)
+o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
+o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
+o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoublePressed)
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
@@ -8023,20 +8023,20 @@ o_PopupHotkeys.EnablePopupHotkeys()
 ;---------------------------------------
 ; Save Tab 5: File Managers
 
-o_Settings.FileManagers.intActiveFileManager.WriteIniGlobal(g_intClickedFileManager)
-o_Settings.FileManagers.blnAlwaysNavigate.WriteIniGlobal(f_radFileManagerNavigateCurrent)
+o_Settings.FileManagers.intActiveFileManager.WriteIni(g_intClickedFileManager)
+o_Settings.FileManagers.blnAlwaysNavigate.WriteIni(f_radFileManagerNavigateCurrent)
 	
 strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
 
 if (g_intClickedFileManager = 1)
-	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIniGlobal(f_blnOpenFavoritesOnActiveMonitor)
+	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIni(f_blnOpenFavoritesOnActiveMonitor)
 else if (g_intClickedFileManager = 4) ; QAPconnect
-	o_Settings.FileManagers.strQAPconnectFileManager.WriteIniGlobal(f_drpQAPconnectFileManager)
+	o_Settings.FileManagers.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIniGlobal(f_strFileManagerPath)
+	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
 	
-	blnClickedUseTabs := o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIniGlobal(f_blnFileManagerUseTabs)
+	blnClickedUseTabs := o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIni(f_blnFileManagerUseTabs)
 	IniWrite, % blnClickedUseTabs, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%UseTabs
 	
 	if (g_intClickedFileManager = 2) ; DirectoryOpus
@@ -8046,7 +8046,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		else
 			strClickedNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 		
-		o_Settings.FileManagers.blnDirectoryOpusShowLayouts.WriteIniGlobal(f_blnFileManagerDirectoryOpusShowLayouts)
+		o_Settings.FileManagers.blnDirectoryOpusShowLayouts.WriteIni(f_blnFileManagerDirectoryOpusShowLayouts)
 	}
 	else ; TotalCommander
 	{
@@ -8055,7 +8055,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		else
 			strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
 		
-		o_Settings.FileManagers.strTotalCommanderWinCmd.WriteIniGlobal(f_strTotalCommanderWinCmd)
+		o_Settings.FileManagers.strTotalCommanderWinCmd.WriteIni(f_strTotalCommanderWinCmd)
 	}
 	; remove: IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
 	; IniRead could be kept in FileManagers init to allow user to customize "NEWTAB" or "NEW" (for DOpus), "/O /T" or "/N" (for TC)
@@ -8068,18 +8068,18 @@ o_FileManagers := new FileManagers
 ; Save Tab 6: More
 
 ; ExclusionList
-o_Settings.MenuPopup.strExclusionMouseList.WriteIniGlobal(OptionsListCleanup(f_strExclusionMouseList))
+o_Settings.MenuPopup.strExclusionMouseList.WriteIni(OptionsListCleanup(f_strExclusionMouseList))
 o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 ; UsageDb
 
 intUsageDbIntervalSecondsPrev := o_Settings.Database.intUsageDbIntervalSeconds.IniValue
-o_Settings.Database.intUsageDbIntervalSeconds.WriteIniGlobal(f_intUsageDbIntervalSeconds)
+o_Settings.Database.intUsageDbIntervalSeconds.WriteIni(f_intUsageDbIntervalSeconds)
 
 intUsageDbDaysInPopularPrev := o_Settings.Database.intUsageDbDaysInPopular.IniValue
-o_Settings.Database.intUsageDbDaysInPopular.WriteIniGlobal(f_intUsageDbDaysInPopular)
-o_Settings.Database.fltUsageDbMaximumSize.WriteIniGlobal(f_fltUsageDbMaximumSize)
-o_Settings.Database.blnUsageDbShowPopularityIndex.WriteIniGlobal(f_blnUsageDbShowPopularityIndex)
+o_Settings.Database.intUsageDbDaysInPopular.WriteIni(f_intUsageDbDaysInPopular)
+o_Settings.Database.fltUsageDbMaximumSize.WriteIni(f_fltUsageDbMaximumSize)
+o_Settings.Database.blnUsageDbShowPopularityIndex.WriteIni(f_blnUsageDbShowPopularityIndex)
 
 blnUseSQLitePrev := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
@@ -8091,10 +8091,10 @@ if (intUsageDbIntervalSecondsPrev <> o_Settings.Database.intUsageDbIntervalSecon
 
 ; UserVariablesList, IconReplacementList and SwitchExclusionList
 
-o_Settings.UserVariables.strUserVariablesList.WriteIniGlobal(OptionsListCleanup(f_strUserVariablesList))
-o_Settings.MenuIcons.strIconReplacementList.WriteIniGlobal(OptionsListCleanup(f_strIconReplacementList))
+o_Settings.UserVariables.strUserVariablesList.WriteIni(OptionsListCleanup(f_strUserVariablesList))
+o_Settings.MenuIcons.strIconReplacementList.WriteIni(OptionsListCleanup(f_strIconReplacementList))
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
-o_Settings.Execution.strSwitchExclusionList.WriteIniGlobal(OptionsListCleanup(f_strSwitchExclusionList))
+o_Settings.Execution.strSwitchExclusionList.WriteIni(OptionsListCleanup(f_strSwitchExclusionList))
 
 ; End of More
 
@@ -18512,10 +18512,10 @@ strDonateReviewUrlRight2 := "http://www.filecluster.com/System-Utilities/Launche
 strDonateReviewUrlRight3 := "http://freewares-tutos.blogspot.ca/2016/05/quick-access-popup-accedez-rapidement.html"
 
 loop, 3
-	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x25 w150", % "<a href=""" . strDonateReviewUrlLeft%A_Index% . """>" . o_L["DonateReviewNameLeft"]%A_Index% . "</a>"
+	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x25 w150", % "<a href=""" . strDonateReviewUrlLeft%A_Index% . """>" . o_L["DonateReviewNameLeft" . A_Index] . "</a>"
 
 loop, 3
-	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . o_L["DonateReviewNameRight"]%A_Index% . "</a>"
+	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . o_L["DonateReviewNameRight" . A_Index] . "</a>"
 
 Gui, 2:Add, Link, y+10 x130, % "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["DonateText5"] . "</a>"
 
@@ -24494,6 +24494,7 @@ FAVORITE TYPES REPLACED
 */
 ;-------------------------------------------------------------
 {
+/*
 	;---------------------------------------------------------
 	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24505,6 +24506,7 @@ FAVORITE TYPES REPLACED
 			return
 	}
 	;---------------------------------------------------------
+*/
 
 	static I := Object()
 	static objFavoriteTypesByName := Object()
@@ -24518,12 +24520,11 @@ FAVORITE TYPES REPLACED
 		objFavoriteTypesShortNames := StrSplit(o_L["DialogFavoriteTypesShortNames"], "|")
 		objFavoriteTypesLocationLabels := StrSplit(o_L["DialogFavoriteTypesLocationLabels"], "|")
 		objFavoriteTypesLocationLabelsNoAmpersand := StrSplit(o_L["DialogFavoriteTypesLabelsNoAmpersand"], "|")
-		objFavoriteTypesHelp := StrSplit(o_L["DialogFavoriteTypesHelp"], "|")
 		
 		Loop, % objFavoriteTypes.Length()
 		{
 			this.I[A_Index] := new Favorites.Type(objFavoriteTypes[A_Index], objFavoriteTypesLabels[A_Index], objFavoriteTypesShortNames[A_Index]
-				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp"]%A_Index%)
+				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp" . A_Index])
 			this.objFavoriteTypesByName[objFavoriteTypes[A_Index]] := this.I[A_Index]
 		}
 	}
@@ -24541,6 +24542,7 @@ FAVORITE TYPES REPLACED
 	class Type
 	;---------------------------------------------------------
 	{
+/*
 		;---------------------------------------------------------
 		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24552,6 +24554,7 @@ FAVORITE TYPES REPLACED
 				return
 		}
 		;---------------------------------------------------------
+*/
 
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisLabel, strThisShortName, strThisLocationLabel, strThisLocationLabelNoAmpersand, strThisHelp)
@@ -24893,6 +24896,7 @@ TODO
 	class IniValue
 	;---------------------------------------------------------
 	{
+/*
 		;---------------------------------------------------------
 		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24904,6 +24908,7 @@ TODO
 				return
 		}
 		;---------------------------------------------------------
+*/
 
 		;-----------------------------------------------------
 		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
@@ -24936,6 +24941,7 @@ TODO
 	class IniValueExclusionMouseList extends Settings.IniValue
 	;---------------------------------------------------------
 	{
+/*
 		;---------------------------------------------------------
 		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24947,6 +24953,7 @@ TODO
 				return
 		}
 		;---------------------------------------------------------
+*/
 
 		;-----------------------------------------------------
 		SplitExclusionList()
