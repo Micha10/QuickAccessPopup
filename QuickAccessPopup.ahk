@@ -8013,7 +8013,7 @@ for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
 IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
 for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
 	if HasShortcut(strNewShortcut)
-		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut) ; ##### check
+		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut)
 
 o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
 o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
@@ -14992,7 +14992,7 @@ DialogBoxParentExcluded(strTargetWinId)
 	WinGetTitle, strParentTitle, ahk_id %strParentTargetWinId%
 
 	; check for class or title in dialog's parent exclusion list
-	Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListDialog, | ; ##### tester
+	Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListDialog, |
 		if StrLen(A_Loopfield) and (InStr(strParentClass, A_LoopField) or InStr(strParentTitle, A_LoopField))
 			return true
 
@@ -23380,12 +23380,15 @@ TODO
 				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
 				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagersDOpus", "32")
-				if (this.blnFileManagerUseTabs)
+				this.strDirectoryOpusCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusCustomNewTabOrWindow", "DirectoryOpusNewTabOrWindow", "", "FileManagersDOpus", "33")
+				
+				if (this.strDirectoryOpusCustomNewTabOrWindow <> "ERROR")
+					; allow user to customize (other than "NEW" or "NEWTAB")
+					this.strNewTabOrWindow := this.strDirectoryOpusCustomNewTabOrWindow
+				else if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 				else
 					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
-				; ##### IniRead, strNewTabOrWindow, %g_strIniFile%, Global, DirectoryOpusNewTabOrWindow, %A_Space%
-				; allow user to customise (other than "NEW" or "NEWTAB")
 				
 				this.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagersDOpus", "35")
 				
@@ -23675,14 +23678,16 @@ TODO
 				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
 				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				blnTotalCommanderUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagersTC", "42")
-				this.blnFileManagerUseTabs := blnTotalCommanderUseTabs
+				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagersTC", "42")
+				this.strTotalCommanderCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderCustomNewTabOrWindow", "TotalCommanderNewTabOrWindow", "", "FileManagersTC", "43")
+				
+				if (this.strTotalCommanderCustomNewTabOrWindow <> "ERROR")
+					; allow user to customize (other than "/O /T" or "/N")
+					this.strNewTabOrWindow := this.strTotalCommanderCustomNewTabOrWindow
 				if (this.blnFileManagerUseTabs)
 					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
 				else
 					this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
-				; ##### IniRead, strNewTabOrWindow, %g_strIniFile%, Global, TotalCommanderNewTabOrWindow, %A_Space%
-				; allow user to customise (other than "/O /T" or "/N")
 				
 				o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
 			}
