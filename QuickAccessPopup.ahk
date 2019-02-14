@@ -6788,15 +6788,17 @@ if (intWindowsIdIndex)
 		else
 		{
 			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, objFolderOrApp.Name)
+			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:")
+				strFolderIcon := GetFolderIcon(objFolderOrApp.LocationURL)
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
-				AddMenuIcon(lMenuCurrentFolders, strMenuName, "OpenReopenFolder", "iconFolder")
+				AddMenuIcon(lMenuCurrentFolders, strMenuName, "OpenReopenFolder", strFolderIcon)
 			}
 			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
 			AddMenuIcon(lMenuSwitchFolderOrApp, strMenuName, "OpenSwitchFolderOrApp"
-				, (objFolderOrApp.WindowType = "EX" ? "iconFolder"
-					: (objFolderOrApp.WindowType = "DO" ?  g_strDirectoryOpusRtPath . ",1"
+				, (objFolderOrApp.WindowType = "EX" ? strFolderIcon
+					: (objFolderOrApp.WindowType = "DO" ? (strFolderIcon = "iconFolder" ? g_strDirectoryOpusRtPath . ",1" : strFolderIcon)
 					: objFolderOrApp.LocationURL . ",1")))
 		}
 	}
@@ -6829,6 +6831,7 @@ strWindowClass := ""
 strDiagFile := ""
 intExStyle := ""
 strWinTitlesWinApps := ""
+strFolderIcon := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
