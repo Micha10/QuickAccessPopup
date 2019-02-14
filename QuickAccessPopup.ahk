@@ -7795,7 +7795,12 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenuItem.FavoriteType := "Folder"
 	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
-	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
+	strFolderIcon := GetFolderIcon(objNewMenuItem.FavoriteLocation)
+	if (strFolderIcon = "iconFolder")
+		strFolderIcon := objLiveFolder.FavoriteIconResource
+	if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
+		strFolderIcon := "iconFolderLiveOpened"
+	ParseIconResource(strFolderIcon, strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
