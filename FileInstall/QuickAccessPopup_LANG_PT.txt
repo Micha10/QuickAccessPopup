@@ -49,6 +49,7 @@ lDialogAddFolderSelect	Seleccionar ou criar uma nova pasta:
 lDialogAdmnistrator	Administrador
 lDialogAdmnistratorNot	Não Administrador
 lDialogAlt	Alt
+lDialogAltShort	Alt
 lDialogApplicationLabel	Aplicação
 lDialogAppWorkingDirCurrent	Iniciar o programa na pasta onde este favorito foi aberto
 lDialogArgumentsLabel	Parâmetros
@@ -278,6 +279,7 @@ lDialogMore	Mais
 lDialogMoreOptions	Mais opções
 lDialogMouse	Rato
 lDialogMouseButtonsText	Botão Esquerdo do Rato|Botão do Meio do Rato|Botão Direito do Rato|Botão Especial 1|Botão Especial 2|Roda p/Cima|Roda p/Baixo|Roda p/Esq.|Roda p/Dir.|
+lDialogMouseButtonsTextShort	Esquerdo|Médio|Direito|Especial 1|Especial 2|Roda p/ cima|Roda p/ baixo|Roda Esq.|Roda Dir.| 
 lDialogMoveFavoritesTitle	Mover Favoritos - ~1~ ~2~
 lDialogMoveFavoriteTitle	Mover Favorito - ~1~ ~2~
 lDialogNA	n/d
@@ -310,6 +312,7 @@ lDialogSettingsInvalid	Ficheiro de Definições inválido.`n`nCertifique-se que o f
 lDialogSettingsNotSavedPrompt	A janela Definições está aberta com alterações não guardadas. Essas alterações devem ser guardadas ou canceladas antes de executar acção seleccionada.`n`nDeseja:`n- "Guardar": guardar as alterações e executar a acção seleccionada`n- "Definições": cancelar a acção seleccionada e voltar à janela Definições`n- "Cancelar": cancelar a acção seleccionada?
 lDialogSettingsNotSavedTitle	~1~ - Definições não guardadas
 lDialogShift	Shift
+lDialogShiftShort	Shift
 lDialogShortcut	Atalho
 lDialogShortcuts	Teclas de Atalho
 lDialogShortcutsDescription	Exibe uma caixa de diálogo com uma vista geral dos seus atalhos de teclado ou de rato. Pode ordenar os favoritos clicando no cabeçalho.`n`nFaça duplo clique num atalho para alterar ou remover as teclas de atalho atribuídas.`n`nClique na caixa de selecção "Ver todos os favoritos" para atribuir teclas de atalho a outros favoritos.
@@ -327,8 +330,10 @@ lDialogTabNext	Próximo
 lDialogThirdPartyDetected	O ~1~ detectou que ~2~ está instalado no seu sistema.`n`nDeseja activar a integração do ~2~?
 lDialogTreeView	vista em árvore
 lDialogTriggerFor	Desencadeador para:
+lDialogUnavailableWithLiveFolders	(Não disponível com pastas Live)
 lDialogUseDefaultWindowPosition	Usar posição padrão da janela
 lDialogWin	Windows
+lDialogWindowMonitor	Monitor
 lDialogWindowPosition	Posição da janela:
 lDialogWindowPositionDelay	Atraso
 lDialogWindowPositionH	Altura
@@ -644,6 +649,7 @@ lOopsHotstringTriggerTooLong	Activador da cadeia de substituição demasiado longo
 lOopsHttpLocationTransformed	A localização http (formato URL) foi transformada num atalho de rede (formato UNC) para compatibilidade com o Windows:`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	Não foi encontrado o ficheiro de definições do Total Commander "wincmd.ini".`n`nSeleccione o ficheiro em "Opções", separador "Gestores de ficheiros".
 lOopsInvalidWindowPosition	Valor(es) de posição da janela inválido(s)
+lOopsJLiconsError	Ícone QAP não encontrado. Certifique-se que actualizou o ficheiro JLicons.dll para ~1~.
 lOopsLaunchWithNotFound	"Abrir com esta aplicação" ficheiro não encontrado:`n`n~1~`n`nVerifique as definições avançadas dos favorito.
 lOopsLocation	localização
 lOopsMaxLiveFolder	O número máximo de itens permitido em pastas Live (~1~) foi excedido. Por favor, reduza o número de níveis de pastas Live.`n`nTambém pode aumentar este limite mas tenha cuidado: um número demasiado elevado pode provocar resultados imprevisíveis. Edite o valor "NbLiveFolderItemsMax" na secção [Global] do ficheiro de definições (QuickAccessPop.ini).
@@ -672,6 +678,7 @@ lOptionsAlternativeMenuFeatures	Teclas de Atalho do Menu Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gerir os atalhos que irão dar acesso às funções do menu Alternativo.
 lOptionsAlternativeMenuOptions	Opções do Menu Alternativo
 lOptionsAlternativeMenuShowNotification	Exibir Notificação quando usar o Menu Alternativo
+lOptionsBackupFolder	Ficheiro de definições da pasta cópia de segurança
 lOptionsCatalogueHelp	Catálogo de Menus Partilhados (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Catálogo pasta raiz
 lOptionsChangeFolderInDialog	Alterar pastas na caixa de diálogo com os atalhos de teclado e do rato principais do QAP
@@ -687,7 +694,7 @@ lOptionsDisplayIcons	Exibir Ícones do Menu
 lOptionsDisplayMenuShortcuts	Exibir Atalhos &Numéricos do Menu
 lOptionsDisplayMenuShortcutsFromOne	Iniciar Atalhos do Menu NumÃ©rico em 1 (em vez de 0)
 lOptionsEnableExternalMenusCatalogue	Activar Catálogo de Menus Partilhados
-lOptionsExclusionMouseList	Lista de Exclusões
+lOptionsExclusionMouseList	Exclusões do Botão do Rato do QAP
 lOptionsExclusionMouseListDescription	Lista de Exclusões para desencadeador do Rato [~1~]
 lOptionsExclusionMouseListDetail1	Para bloquear o botão do rato de menu QAP [~1~] numa aplicação, introduza qualquer parte to título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir o Chrome e o Word, introduza as duas seguintes linhas na lista de exclusões:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	A combinação do QAP será desactivada nestas aplicações e o clique [~1~] será enviado para a janela alvo como se o QAP não estivesse a ser executado. Pode também excluir janelas pelo nome da sua classe ou processo (nome do ficheiro EXE. Insira * (asterisco) antes do título ou classe para também excluir caixas de diálogo de programas. Pode encontrar ajuda para esta função <a href="~2~">no site do QAP</a>.
@@ -707,6 +714,9 @@ lOptionsHotkeyRemindersPrompt	Lembretes de Combinação e cadeia de substituição n
 lOptionsHotkeyRemindersShort	Exibir nomes a&breviados
 lOptionsHotstringsDefault	Opções padrão de cadeias de substituição
 lOptionsHotstringsDefaultSelect	Seleccionar
+lOptionsIconReplacementList	Substituição de ícones do QAP
+lOptionsIconReplacementListDescription	Substituição de ícones padrão encontrados em JLicons.dll
+lOptionsIconReplacementListInstructions	Introduza as substituições de ícones do QAP, um por linha. Todas as linhas devem começar com o nome do ícone QAP (p.e. "iconFolderLive"), seguido pelo sinal igual "=" e o "ficheiro,índice" do ícone de substituição. O "ficheiro,índice" é o atalho para o ficheiro (.ico, .dll ou .exe) contendo o ícone e o índice é a posição do ícone neste ficheiro, p.e. "C:\Icons\MyFile.dll,1".
 lOptionsIconSize	Tamanho dos ícones do menu
 lOptionsIconsManageRows	Linhas da janela de ícones`n(0 máx. espaço disponível)
 lOptionsLanguage	Idioma
@@ -724,7 +734,7 @@ lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Botão do rato|Quick Access Popup Atalho teclado|Menu Alternativo Botão do rato|Menu Alternativo Atalho teclado
-lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (excepto nas <a>aplicações excluídas</a>) e abre os seus favoritos ou navega para as pastas.|Esta tecla de atalho mostra o menu em toda a parte e abre os seus favoritos ou navega para as pastas.|Este botão do rato exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte (sem excepções).|Esta tecla de atalho exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte.
+lOptionsPopupHotkeyTitlesSub	Este botão do rato mostra o menu em toda a parte (excepto nas <a>aplicações excluídas</a>) e abre os seus favoritos ou navega para a sua pasta.|Esta tecla de atalho mostra o menu em toda a parte e abre os seus favoritos ou navega para a sua pasta.|Este botão do rato exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte (sem excepções).|Esta tecla de atalho exibe um menu aternativo disponibilizando diversas funções. Este menu pode ser aberto em toda a parte.
 lOptionsQAPTempFolder	Pasta Temporária
 lOptionsRecentFolders	Núm&ero de itens em menus
 lOptionsRecentFoldersPrompt	Itens Recentes e Menus Frequentes:
@@ -739,9 +749,13 @@ lOptionsRunAsAdminAlert	Alerta: Executar o ~1~ em modo Administrador pode provoc
 lOptionsRunAsAdminExit	O ~1~ será carregado sem direitos de administrador na sua próxima execução.`n`nDeseja sair já do ~1~? As alterações não guardadas no menu serão perdidas.
 lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Executa&r no Arranque
+lOptionsSelectBackupFolder	Selecciona o ficheiro de definições da pasta cópia de segurança
 lOptionsSelectCatalogueRoot	Seleccionar a pasta raiz do Catálogo de Menus Partilhados
 lOptionsSelectQAPTempFolder	Criar a Pasta Temporária em:
 lOptionsSnippetsHelp	Padrões de 'Snippets' (<a href="~1~">~2~</a>)
+lOptionsSwitchExclusionList	Exclusões das Janelas Actuais
+lOptionsSwitchExclusionListDescription	Lista de exclusões para aplicações encontradas no menu "Janelas Actuais".
+lOptionsSwitchExclusionListInstructions	Para excluir aplicações do menu "Lanelas Actuais", introduza qualquer parte do título da janela da aplicação. Pode introduzir várias exclusões, uma por linha. Por exemplo, para excluir janelas das aplicações Sticky e GhostWindows, introduza as seguintes linhas na lista de exclusões:`n`nAStickies:`nGhostWindows`n`nTambém pode excluir janelas pelo seu nome de classe ou de processo(nome do ficheiro EXE). Pode encontrar ajuda e suporte para esta função <a href="~2~">on no site do QAP</a>.
 lOptionsTabFileManagersIntro	Seleccione o gestor de ficheiros a usar para abrir pastas numa nova janela.
 lOptionsTabFileManagersPreferences	Preferências do gestor de ficheiros
 lOptionsTabFileManagersPreferred	Gestor de ficheiros preferido

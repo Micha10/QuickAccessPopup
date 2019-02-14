@@ -49,6 +49,7 @@ lDialogAddFolderSelect	Elegir donde crear una nueva carpeta:
 lDialogAdmnistrator	Administrador
 lDialogAdmnistratorNot	No Administrador
 lDialogAlt	Alt
+lDialogAltShort	Alt
 lDialogApplicationLabel	Aplicación
 lDialogAppWorkingDirCurrent	Iniciar la aplicación en la ubicación de la carpeta en la que se puso en marcha este favorito
 lDialogArgumentsLabel	Ajustes
@@ -278,6 +279,7 @@ lDialogMore	Más
 lDialogMoreOptions	More opciones
 lDialogMouse	Ratón
 lDialogMouseButtonsText	Botón izquierdo del ratón|Botón central del ratón|Botón derecho del ratón|Botón especial del ratón 1|Botón especial del ratón 2|Rueda hacia arriba|Rueda hacia abajo|Rueda Izquierda|Rueda Derecha|
+lDialogMouseButtonsTextShort	Izquierdo del Ratón|Central del Ratón|Derecho del Ratón|Especial del Ratón 1|Especial del Ratón 2|Rueda Arriba|Rueda Abajo|Rueda Izquierda|Rueda Derecha| 
 lDialogMoveFavoritesTitle	Mueva los favoritos - ~1~ ~2~
 lDialogMoveFavoriteTitle	Mover favorito - ~1~ ~2~
 lDialogNA	n/a
@@ -310,6 +312,7 @@ lDialogSettingsInvalid	Archivo de configuración no válido.`n`nPor favor asegúres
 lDialogSettingsNotSavedPrompt	La ventana Configuración está abierta con cambios no guardados. Estos cambios deben guardarse o cancelarse antes de ejecutar la acción solicitada.`n`nQuieres:`n- "Guardar": Guardar los cambios y continuar con la acción solicitada`n- "Configuración": Cancelar la acción solicitada y regresar a la ventana Configuración`n- "Cancelar": solo cancela la acción solicitada? 
 lDialogSettingsNotSavedTitle	~1~ - Configuración no guardada
 lDialogShift	Cambio
+lDialogShiftShort	Shift
 lDialogShortcut	Atajo
 lDialogShortcuts	Accesos directos
 lDialogShortcutsDescription	Mostrar una ventana de diálogo que ofrece una visión general de los métodos abreviados de teclado o ratón. Puede ordenar los favoritos haciendo clic en el encabezado de la columna.`n`nDoble clic en un favorito para cambiar su acceso directo.`nClic en la casilla "Ver todos los favoritos" para asignar accesos directos a otros favoritos.
@@ -327,8 +330,10 @@ lDialogTabNext	Suite
 lDialogThirdPartyDetected	~1~ hemos detectado que ~2~ está instalado en su ordenador.`n`nPorfavor active la integración con ~2~?
 lDialogTreeView	vista en árbol
 lDialogTriggerFor	Activar para:
+lDialogUnavailableWithLiveFolders	(No disponible con Carpetas Activas)
 lDialogUseDefaultWindowPosition	Usar posición de ventana por defecto
 lDialogWin	Windows
+lDialogWindowMonitor	Monitor
 lDialogWindowPosition	Posición de ventana:
 lDialogWindowPositionDelay	Retrasar
 lDialogWindowPositionH	Altura
@@ -644,6 +649,7 @@ lOopsHotstringTriggerTooLong	El disparador de Cadenas Activas es demasiado largo
 lOopsHttpLocationTransformed	La ubicación HTTP (formato URL) se convirtió en ruta de red (UNC) para ser compatible con Windows
 lOopsInvalidWinCmdIni	Archivo de configuración de Total Commander "wincmd.ini" no encontrado.`n`nSeleccione el archivo en "Opciones", "Gestores de archivos" tab. 
 lOopsInvalidWindowPosition	Valor de posición de la ventana no válido (s)
+lOopsJLiconsError	No se ha encontrado el icono de la bandeja QAP. Asegúrese de haber actualizado el archivo JLicons.dll a ~1~.
 lOopsLaunchWithNotFound	"Lanzamiento con este archivo de aplicación "no encontrado:` ~1~ `n`nComprobar configuración avanzada del n`n favoritos.
 lOopsLocation	ubicación
 lOopsMaxLiveFolder	El número máximo de elementos en las carpetas dinámicas (~1~) ha sido excedido. Por favor, reduzca el número de niveles de carpetas dinámicas.`n`nTambién podría aumentar este límite, pero tenga cuidado: un número demasiado grande puede producir resultados impredecibles. Edite el valor "NbLiveFolderItemsMax" en [Global] del archivo de configuración(QuickAccessPop.ini). 
@@ -672,6 +678,7 @@ lOptionsAlternativeMenuFeatures	Alternativa Menú Teclas de acceso rápido
 lOptionsAlternativeMenuFeaturesIntro	Administrar los accesos directos que activará las funciones del menú alternativos.
 lOptionsAlternativeMenuOptions	Opciones de menú alternativas
 lOptionsAlternativeMenuShowNotification	Mostrar notificación cuando se utiliza el menú alternativo
+lOptionsBackupFolder	Carpeta de copia de seguridad del archivo de configuración principal
 lOptionsCatalogueHelp	Catálogo de los menús compartidos (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Carpeta principal del catálogo
 lOptionsChangeFolderInDialog	Cambiar las carpetas en la caja de diálogo con los principales QAP ratón y teclado teclas de acceso rápido
@@ -687,7 +694,7 @@ lOptionsDisplayIcons	Mostrar los iconos del menú
 lOptionsDisplayMenuShortcuts	Mostrar atajos numéricos
 lOptionsDisplayMenuShortcutsFromOne	Iniciar los Accesos Directos del Menú Numérico en 1 (en lugar de 0)
 lOptionsEnableExternalMenusCatalogue	Activar el Catálogo de los menús compartidos
-lOptionsExclusionMouseList	Lista de exclusiones
+lOptionsExclusionMouseList	QAP Exclusiones del Botón del Ratón
 lOptionsExclusionMouseListDescription	Lista de Exclusiones de ratón del disparador [~1~]
 lOptionsExclusionMouseListDetail1	Para bloquear el botón de menú QAP ratón [~1~] en una aplicación, entrar en cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, uno por línea. Por ejemplo, para excluir Chrome y Word, escriba las dos líneas siguientes en la lista de exclusión: `n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La tecla de acceso directo QAP se desactivará en estas aplicaciones y el [~1~] click se enviará a la ventana de destino como si QAP no estuviera ejecutándose. También puede excluir ventanas por su nombre de clase o nombre de proceso (nombre de archivo EXE). Prefija el título o la clase con * (asterisco) para excluir también los cuadros de diálogo de la aplicación. Puede encontrar ayuda y soporte para esta función <a href="~2~">en el sitio web de QAP</a>.
@@ -707,6 +714,9 @@ lOptionsHotkeyRemindersPrompt	Avisos en el menú de Acceso Directo y Cadena Activ
 lOptionsHotkeyRemindersShort	Mostrar a&breviados
 lOptionsHotstringsDefault	Opciones por defecto de Cadena Activa 
 lOptionsHotstringsDefaultSelect	Seleccionar
+lOptionsIconReplacementList	QAP Reemplazo de Iconos
+lOptionsIconReplacementListDescription	Reemplazos para los iconos por defecto encontrados en JLicons.dll
+lOptionsIconReplacementListInstructions	Introducir reemplazos de iconos QAP, uno por línea. Cada línea debe comenzar con el nombre del icono QAP (por ejemplo, "iconFolderLive"), seguido del signo igual "=" y el "file,index" del icono de sustitución. El "file,index" es la ruta al archivo (.ico,.dll o.exe) que contiene el icono y el index es la posición del icono en este archivo, por ejemplo "C:\Icons\MyFile.dll,1".
 lOptionsIconSize	Tamaño de iconos del menú
 lOptionsIconsManageRows	Gestión de filas Iconos de la ventana`n(0 para máximo disponible) 
 lOptionsLanguage	Idioma
@@ -724,7 +734,7 @@ lOptionsOtherOptions	General
 lOptionsPopupFixPositionX	Posición X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Botón del mouse|Quick Access Popup Atajo de teclado|Alternativa Menú botón del ratón|Atajo de teclado alternativo Menú
-lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace aparecer el menú en cualquier parte (excepto sobre <a> aplicaciones excluidas </a>) y lanzar su favorito o navegar a la carpeta |. Esta tecla de acceso directo abre el menú en cualquier lugar y lanzar su favorito o navegar a la carpeta |. Pops Este ratón un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar (sin excepción) |. Esta tecla de acceso directo hace aparecer un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar.
+lOptionsPopupHotkeyTitlesSub	Este botón del ratón hace que se abra el menú en cualquier lugar (excepto en <a>aplicaciones excluidas</a>) y abre tu favorito o navega a tu carpeta. |Esta tecla de acceso directo abre el menú en cualquier lugar y abre tu favorito o navega a tu carpeta. |Este ratón abre un menú alternativo que ofrece varias características. Este menú puede aparecer en cualquier lugar (sin excepción). |Esta tecla de acceso directo muestra un menú alternativo que ofrece varias funciones. Este menú puede aparecer en cualquier lugar.
 lOptionsQAPTempFolder	Carpeta Temporal
 lOptionsRecentFolders	Número de elementos en el menú 
 lOptionsRecentFoldersPrompt	Recent Elementos y menús Frecuentes:
@@ -739,9 +749,13 @@ lOptionsRunAsAdminAlert	Atención: Ejecutando ~1~ en modo Administrador puede ten
 lOptionsRunAsAdminExit	~1~ se lanzará sin derecho administrativo la próxima vez que lo lances.`n`nQuieres salir ~1~ ahora? Los cambios no guardados en el menú se perderán.
 lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Ejecutar al inicio
+lOptionsSelectBackupFolder	Seleccione la carpeta de copia de seguridad del archivo de configuración principal
 lOptionsSelectCatalogueRoot	Elije la carpeta principal del Catálogo de los menús compartidos
 lOptionsSelectQAPTempFolder	Crear Carpeta Temporal en:
 lOptionsSnippetsHelp	Atajos por defecto (<a href="~1~">~2~</a>)
+lOptionsSwitchExclusionList	Exclusiones Actuales de Windows
+lOptionsSwitchExclusionListDescription	Lista de exclusiones para las aplicaciones que se encuentran en el menú "Ventanas actuales".
+lOptionsSwitchExclusionListInstructions	Para excluir aplicaciones del menú "Ventanas actuales", introduzca cualquier parte del título de la ventana de la aplicación. Puede introducir múltiples exclusiones, una por línea. Por ejemplo, para excluir ventanas de aplicaciones Sticky y GhostWindows, introduzca las siguientes líneas en la lista de exclusiones: `n`nAStickies:`nGhostWindows`n`nYou también puede excluir ventanas por su nombre de clase o nombre de proceso (nombre de archivo EXE). Puede encontrar ayuda y soporte en esta característica <a href="~2~">en el sitio web de QAP </a>.
 lOptionsTabFileManagersIntro	Seleccione el administrador de archivos para utilizar para abrir carpetas en una ventana nueva.
 lOptionsTabFileManagersPreferences	Preferencias del gestor de archivos
 lOptionsTabFileManagersPreferred	Gestor de archivos preferido

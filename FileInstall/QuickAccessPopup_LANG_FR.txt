@@ -49,6 +49,7 @@ lDialogAddFolderSelect	Choisir ou créer ce nouveau dossier:
 lDialogAdmnistrator	Administrateur
 lDialogAdmnistratorNot	Pas administrateur
 lDialogAlt	Alt
+lDialogAltShort	Alt
 lDialogApplicationLabel	Application
 lDialogAppWorkingDirCurrent	Lancer l'application dans le dossier où le favori a été cliqué
 lDialogArgumentsLabel	Paramètres
@@ -267,7 +268,7 @@ lDialogInvalidHotkeyFavorite	Avec votre configuration actuelle de clavier, la to
 lDialogKeyboard	Clavier
 lDialogLaunchWith	Lancer avec cette application
 lDialogListApplicationLabel	Liste des applications pour:
-lDialogListApplicationsDropdown	Tout||Menu Basculer|Applications actives|Fermer des applications
+lDialogListApplicationsDropdown	Tout||Menu Fenêtres ouvertes|Applications actives|Fermer des applications
 lDialogListApplicationYesNo	[Oui] pour Activer ou [Non] pour fermer cette fenêtre?
 lDialogMaximized	Maximisée
 lDialogMenuKey	Touche Menu
@@ -278,6 +279,7 @@ lDialogMore	Autres
 lDialogMoreOptions	D'autres options
 lDialogMouse	Souris
 lDialogMouseButtonsText	Bouton de gauche de la souris|Bouton du milieu de la souris|Bouton de droite de la souris|Bouton spécial 1 de la souris|Bouton spécial 2 de la souris|Molette vers le haut|Molette vers le bas|Molette à gauche|Molette à droite|
+lDialogMouseButtonsTextShort	Bouton Gauche|Bouton Milieu|Bouton Droite|Bouton Spécial 1|Bouton Spécial 2|Molette Haut|Molette Bas|Molette Gauche|Molette Droite|
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
 lDialogMoveFavoriteTitle	Déplacer le favori - ~1~ ~2~
 lDialogNA	n/d
@@ -310,6 +312,7 @@ lDialogSettingsInvalid	Fichier de configuration invalide.`n`nVeuillez vous assur
 lDialogSettingsNotSavedPrompt	Des changements dans la fenêtre Paramètres n'ont pas été enregistrés. Ces changements doivent être enregistrés ou annulés afin de permettre l'exécution de l'action demandée.`n`nVoulez-vous:`n- "Enregistrer": enregistrer vos changements et exécuter l'action demandée`n- "Paramètres": annuler l'action demandée et afficher la fenêtre Paramètres`n- "Annuler": seulement annuler l'action demandée?
 lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés
 lDialogShift	Maj
+lDialogShiftShort	Maj
 lDialogShortcut	Raccourci
 lDialogShortcuts	Raccourci
 lDialogShortcutsDescription	Afficher une boîte de dialogue offrant une vue globale de vos raccourcis clavier ou souris. Vous pouvez trier les favoris en cliquant sur l'entête des colonnes.`n`nFaites un double-clic sur un favori pour modifier son raccourci.`n`nCliquez sur la case à cocher "Voir tous les favoris" pour assigner des raccourcis à d'autres favoris.
@@ -327,8 +330,10 @@ lDialogTabNext	Suite
 lDialogThirdPartyDetected	~1~ a détecté que ~2~ est installé sur votre ordinateur.`n`nVoulez-vous activer l'intégration avec ~2~?
 lDialogTreeView	vue hiérarchique
 lDialogTriggerFor	Déclencheur pour:
+lDialogUnavailableWithLiveFolders	(Non disponible dans un Dossier actif)
 lDialogUseDefaultWindowPosition	Utiliser la position de fenêtre par défaut
 lDialogWin	Windows
+lDialogWindowMonitor	Écran
 lDialogWindowPosition	Position de la fenêtre:
 lDialogWindowPositionDelay	Délai
 lDialogWindowPositionH	Hauteur
@@ -644,6 +649,7 @@ lOopsHotstringTriggerTooLong	Le déclencheur (abréviation) pour cette chaîne de s
 lOopsHttpLocationTransformed	L'emplacement HTTP (format URL) a été converti en chemin réseau (format UNC) afin d'être compatible avec Windows:`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	Le fichier des paramêtres "wincmd.ini" de Total Commander est introuvable.`n`nSélectionnez "Options" et l'onglet "Gestionnaires de fichiers".
 lOopsInvalidWindowPosition	Valeur(s) de position de la fenêtre invalide
+lOopsJLiconsError	Icône de la zone de notification introuvable. Assurez-vous d'avoir mis à jour le fichier JLicons.dll à la version ~1~.
 lOopsLaunchWithNotFound	Le fichier de l'application "Lancer avec cette application" est introuvable:`n`n~1~`n`nVérifiez les réglages avancés ce ce favori.
 lOopsLocation	emplacement
 lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dépassé. Veuillez réduire le nombre de niveaux de ce Dossier actif.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inatendus. Modifiez la valeur "NbLiveFolderItemsMax" sous la rubrique [Global] du fichier de paramètres (QuickAccessPop.ini).
@@ -672,6 +678,7 @@ lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
 lOptionsAlternativeMenuOptions	Options du Menu Alternatif
 lOptionsAlternativeMenuShowNotification	Afficher la notification lorsque le Menu Alternatif est utilisé
+lOptionsBackupFolder	Dossier pour les copies de sécurité du fichier de configuration principal
 lOptionsCatalogueHelp	Catalogue des menus partagés (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Dossier racine du catalogue
 lOptionsChangeFolderInDialog	Changer de dossier dans les boîtes de dialogue avec le bouton de souris ou le raccourcis clavier du menu principal de QAP
@@ -687,7 +694,7 @@ lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsDisplayMenuShortcutsFromOne	Commencer les raccourcis numériques à 1 (au lieu de 0)
 lOptionsEnableExternalMenusCatalogue	Activer le Catalogue des menus partagés
-lOptionsExclusionMouseList	Liste d'exclusions
+lOptionsExclusionMouseList	Liste d'exclusions pour le bouton de la souris du menu QAP
 lOptionsExclusionMouseListDescription	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExclusionMouseListDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
@@ -707,6 +714,9 @@ lOptionsHotkeyRemindersPrompt	Rappels des raccourcis et des chaînes de substitut
 lOptionsHotkeyRemindersShort	Afficher les rappels abrégés
 lOptionsHotstringsDefault	Options par défaut des chaînes de substitution
 lOptionsHotstringsDefaultSelect	Sélectionner
+lOptionsIconReplacementList	Remplacements des icônes de QAP
+lOptionsIconReplacementListDescription	Remplacements pour les icônes par défaut du fichier JLicons.dll
+lOptionsIconReplacementListInstructions	Entrez une instruction de remplacement par ligne. Chaque ligne doit commencer par le nom de l'icône QAP (i.e "iconFolderLive"), suivi du signe égal "=" et du "fichier,index" de l'icône de remplacement. Le "fichier,index" est le chemin et nom du fichier (.ico, .dll or .exe) contenant l'icône et l'index est la position de l'icône dans ce fichier, i.e. "C:\Icons\MonFichier.dll,1".
 lOptionsIconSize	Taille des icônes de menu
 lOptionsIconsManageRows	Nombre de rangées de la fenêtre Gérer les icônes`n(0 pour le maximum disponible)
 lOptionsLanguage	Langue
@@ -739,9 +749,13 @@ lOptionsRunAsAdminAlert	Avertissement: Exécuter ~1~ en tant qu'administrateur pe
 lOptionsRunAsAdminExit	~1~ sera exécuté sans les privilèges d'administrateur la prochaine fois que vous relancerez l'application.`n`nVoulez-vous quitter ~1~ maintenant? Vos modifications non sauvegardées seront perdues.
 lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Exécuter au démarrage
+lOptionsSelectBackupFolder	Selectionnez le dossier de copie du fichier de configuration principal
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
 lOptionsSelectQAPTempFolder	Créer le dossier temporaire dans:
 lOptionsSnippetsHelp	Valeurs par défaut pour les fragments de texte (<a href="~1~">~2~</a>)
+lOptionsSwitchExclusionList	Exclusions pour le menu Fenêtres ouvertes
+lOptionsSwitchExclusionListDescription	Liste d'exclusions pour les applications trouvées dans le menu "Fenêtres ouvertes".
+lOptionsSwitchExclusionListInstructions	Pour exclure une application du menu "Fenêtre ouvertes", entrez une partie du titre de la fenêtre de l'application. Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure les applications Sticky and GhostWindows, entrez les lignes suivantes :`n`nAStickies:`nGhostWindows`n`nVous pouvez aussi exclure les fenêtre par leur nom de classe ou leur nom de processus (nom du fichier EXE). Vous trouverez de l'aide à ce sujet <a href="~2~">sur le site web de QAP</a> (en anglais).
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
 lOptionsTabFileManagersPreferences	Préférences du gestionnaire de fichiers
 lOptionsTabFileManagersPreferred	Gestionnaire de fichier préféré

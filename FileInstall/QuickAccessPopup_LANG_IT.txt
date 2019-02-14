@@ -49,6 +49,7 @@ lDialogAddFolderSelect	Scegli o crea una nuova Cartella:
 lDialogAdmnistrator	Amministratore
 lDialogAdmnistratorNot	Non Amministratore
 lDialogAlt	Alt
+lDialogAltShort	Alt
 lDialogApplicationLabel	Applicazione
 lDialogAppWorkingDirCurrent	Esegui l'applicazione nella cartella in cui questo preferito è stato avviato
 lDialogArgumentsLabel	Parametri
@@ -278,6 +279,7 @@ lDialogMore	Altre
 lDialogMoreOptions	Altre opzioni
 lDialogMouse	Mouse
 lDialogMouseButtonsText	Tasto Sinistro del Mouse|Tasto Centrale del Mouse|Tasto destro del Mouse|Tasto Speciale 1 del Mouse|Tasto Speciale 2 del Mouse|Rotellina Su|Rotellina Giù|Rotellina Sinistra|Rotellina Destra|
+lDialogMouseButtonsTextShort	Mouse SX|Rotella Mouse|Mouse DX|Mouse Speciale 1|Mouse Speciale 2|Rotella Su|Rotella Giù|Rotella SX|Rotella DX|
 lDialogMoveFavoritesTitle	Sposta i Preferiti - ~1~ ~2~
 lDialogMoveFavoriteTitle	Sposta il Preferito - ~1~ ~2~
 lDialogNA	n/a
@@ -310,6 +312,7 @@ lDialogSettingsInvalid	File delle Impostazioni invalido.`n`nAssicurati che il fi
 lDialogSettingsNotSavedPrompt	La finestra delle Impostazioni è aperta con modifiche non ancora salvate. Questi cambiamenti devono essere salvati o annullate prima di eseguire l'azione richiesta.`n`nVuoi:`n- "Salvare": salva le modifiche e procedi con l'azione richiesta`n- "Impostazioni": annulla l'azione richiesta e torna alla finestra delle Impostazioni`n- "Annulla": preferisci semplicemente annullare l'azione richiesta?
 lDialogSettingsNotSavedTitle	~1~ - Impostazioni non salvate
 lDialogShift	Shift
+lDialogShiftShort	Shift
 lDialogShortcut	Scorciatoia
 lDialogShortcuts	Scorciatoie
 lDialogShortcutsDescription	Visualizza una casella di dialogo con una visione complessiva delle tue scorciatoie di mouse o tastiera. Puoi ordinare i preferiti cliccando sul'intestazione.`n`nFai doppio click su una scorciatoia per cambiare o rimuovere la combinazione di tasti assegnata.`n`nClicca la casella "Vedi tutti i preferiti" per assegnare scorciatoie ad altri preferiti.
@@ -327,8 +330,10 @@ lDialogTabNext	Seguente
 lDialogThirdPartyDetected	~1~ ha riscontrato che ~2~ è installato nel tuo sistema.`n`nVuoi abilitare l'integrazione con ~2~?
 lDialogTreeView	vista albero
 lDialogTriggerFor	Condizione di attivazione per:
+lDialogUnavailableWithLiveFolders	(Non disponibile con Cartelle Live)
 lDialogUseDefaultWindowPosition	Usa la posizione di default della finestra
 lDialogWin	Tasto Windows
+lDialogWindowMonitor	Monitor
 lDialogWindowPosition	Posizione della finestra:
 lDialogWindowPositionDelay	Ritardo
 lDialogWindowPositionH	Altezza
@@ -644,6 +649,7 @@ lOopsHotstringTriggerTooLong	Hotstring trigger too long. Hotstring triggers can 
 lOopsHttpLocationTransformed	La destinazione http (in formato URL) è stato convertita in un percorso di rete (formato UNC) per compatibilità con Windows :`n`n~1~`n~2~
 lOopsInvalidWinCmdIni	File delle impostazioni di Total Commander ("wincmd.ini") non trovato.`n`nSelezionalo in "Opzioni" > "File manager".
 lOopsInvalidWindowPosition	Valori non validi per la posizione della finestra
+lOopsJLiconsError	Icona di QAP per l'area notifiche non trovata. Assicurati di aver aggiornato il file JLicons.dll in ~1~.
 lOopsLaunchWithNotFound	File dell'applicazione non trovato per "Esegui con questa applicazione":`n`n~1~`n`nControlla le impostazioni avanzate del Preferito.
 lOopsLocation	Destinazione
 lOopsMaxLiveFolder	Il massimo numero di elementi nelle Cartelle Live (~1~) è stato superato. Per favore, riduci il numero di livelli di cartelle live.`n`nPotresti anche aumentare tale limite ma fai attenzione: un numero troppo alto può comportare effetti non prevedibili. Edita il valore "NbLiveFolderItemsMax" nella sezione [Global] del file di impostazioni (QuickAccessPop.ini).
@@ -672,6 +678,7 @@ lOptionsAlternativeMenuFeatures	Combinazioni di tasti per il Menù Alternativo
 lOptionsAlternativeMenuFeaturesIntro	Gestisci le scorciatoie che lanciano le funzionalità del Menù Alternativo.
 lOptionsAlternativeMenuOptions	Opzioni del Menù alternativo
 lOptionsAlternativeMenuShowNotification	Mostra una notifica quando si sta usando il Menù Alternativo
+lOptionsBackupFolder	Cartella di backup del file delle Impostazioni principali
 lOptionsCatalogueHelp	Catalogo del Menù Condiviso (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Cartella radice del catalogo
 lOptionsChangeFolderInDialog	Cambia cartella da casella di dialogo con gli hotkeys principali di QAP (mouse e tastiera)
@@ -687,7 +694,7 @@ lOptionsDisplayIcons	Mostra &Icone nel Menù
 lOptionsDisplayMenuShortcuts	Mostra scorciatoie &numeriche nei Menù
 lOptionsDisplayMenuShortcutsFromOne	Comincia le Scorciatoie Numeriche del Menù da 1 (invece di 0)
 lOptionsEnableExternalMenusCatalogue	Abilita il Catalogo del Menù Condiviso
-lOptionsExclusionMouseList	Lista delle esclusioni
+lOptionsExclusionMouseList	Exclusioni per il tasto del mouse di QAP
 lOptionsExclusionMouseListDescription	Lista delle esclusioni per l'apertura del menù tramite Mouse [~1~]
 lOptionsExclusionMouseListDetail1	Per impedire l'apertura del menù di QAP col mouse [~1~] in una applicazione, inserisci anche parzialmente l'intestazione della finestra dell'applicazione . Puoi introdurre più di una esclusione, una per linea. Per esempio, per escludere Chrome e MS Word, inserisci le seguenti due linee nella lista delle esclusioni:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	La combinazione per aprire QAP sarà disabilitata in queste applicazioni e il click [~1~] sarà inviato alla finestra indicata come se QAP non fosse in esecuzione. Puoi anche escludere finestre usando il nome della loro classe o del loro processo (nome del file EXE). Usa * (asterisco) come prefisso per il titolo o la classe per escludere anche le caselle di dialogo dell'applicazione. Puoi trovare aiuto e supporto per questa funzionalità qui <a href="~2~">sul sito web QAP</a>.
@@ -707,6 +714,9 @@ lOptionsHotkeyRemindersPrompt	Promemoria delle combinazioni di tasti e sequenze 
 lOptionsHotkeyRemindersShort	Visualizza abbreviati
 lOptionsHotstringsDefault	Opzioni predefinite delle Sequenze di sostituzione
 lOptionsHotstringsDefaultSelect	Seleziona
+lOptionsIconReplacementList	Icone di riserva per QAP
+lOptionsIconReplacementListDescription	Riserve per le icone di default trovate in JLicons.dll
+lOptionsIconReplacementListInstructions	Inserisci le icone di riserva per QAP, una per riga. Ciascuna linea deve iniziare col nome dell'icona per QAP (e.g. "iconaCartellaLive"), seguito dal segno di uguale "=" e il  "file,indice" dell'icona di sostituzione. Il "file,indice" contiene il percorso del file (.ico, .dll o .exe) contenente l'icona, e l'indice che è la posizione dell'icona in tale file, e.g. "C:\Icone\MioFile.dll,1".
 lOptionsIconSize	Dimensione delle icone
 lOptionsIconsManageRows	Righe della finestra Gestione Icone`n(0 per usare tutto lo spazio disponibile)
 lOptionsLanguage	Lingua
@@ -724,7 +734,7 @@ lOptionsOtherOptions	Generale
 lOptionsPopupFixPositionX	Posizione X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Tasto del Mouse di Quick Access Popup|Scorciatoia da tastiera di Quick Access Popup|Tasto del Mouse del Menù Alternativo|Scorciatoia da tastiera del Menù Alternativo
-lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|This hotkey the menu anywhere and launch your favorite or navigate to your folder.|This mouse pops an alternate menu offering various features. This menu can pop anywhere (without exception).|This hotkey pops an alternate menu offering various features. This menu can pop anywhere.
+lOptionsPopupHotkeyTitlesSub	Questo tasto del mouse visualizza il menù popup ovunque (tranne che su <a>excluded applications</a>) e apre direttamente il Preferito o la cartella scelta.|Questo tasto apre il menù popup ovunque e apre direttamente il Preferito o la cartella scelta.|Questo tasto del mouse apre un menù alternativo che contiene varie funzioni. Tale menù può essere aperto ovunque (senza eccezioni).|Questo tasto apre un menù alternativo con varie funzioni. Tale menù può essere aperto ovunque.
 lOptionsQAPTempFolder	Cartella Temporanea
 lOptionsRecentFolders	Numero di oggetti nei Menù
 lOptionsRecentFoldersPrompt	Menù di file/cartelle Recenti e Frequenti:
@@ -739,9 +749,13 @@ lOptionsRunAsAdminAlert	Avviso: Eseguire ~1~ in modalitá Amministratore puó caus
 lOptionsRunAsAdminExit	~1~ verrá eseguito senza permessi di Amministratore la prossima volta.`n`nVuoi terminare ~1~ adesso? Cambiamenti non salvati al Menú saranno persi.
 lOptionsRunAsAdminShort	Ammin.
 lOptionsRunAtStartup	&Esegui all'avvio
+lOptionsSelectBackupFolder	Seleziona Select la cartella di backup del file delle Impostazioni principali
 lOptionsSelectCatalogueRoot	Seleziona la cartella radice del Catalogo dei Menù Condivisi
 lOptionsSelectQAPTempFolder	Crea la Cartella Temporanea in:
 lOptionsSnippetsHelp	Impostazioni predefinite per gli Snippet (<a href="~1~">~2~</a>)
+lOptionsSwitchExclusionList	Lista corrente delle Finestre escluse
+lOptionsSwitchExclusionListDescription	La lista delle esclusioni per le applicazioni si trova nel menù "Finestre correnti".
+lOptionsSwitchExclusionListInstructions	Per escludere applicazioni dal menù "Finestre correnti", inserisci qualunque parte del titolo della finestra dell'applicazione. Puoi inserire esclusioni multiple, una per riga. Per esempio, per escludere le finestre delle applicazioni Clippata e FinestreOmbrate, inserisci le seguenti righe nella lista delle esclusioni:`n`nAClippata:`nFinestreOmbrate`n`nPuoi anche escludere finestre tramite il loro nome di classe o di processo (nome del file EXE). Puoi trovare aiuto e supporto su questa funzione <a href="~2~">sul sito di QAP</a>.
 lOptionsTabFileManagersIntro	Seleziona il file manager da usare per aprire le cartelle in una nuova finestra.
 lOptionsTabFileManagersPreferences	Impostazioni del file manager
 lOptionsTabFileManagersPreferred	File manager prescelto
