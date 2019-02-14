@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.4 (2019-02-14)
+- merge changes from prod release v9.4.1.3
+
 Version: 9.4.1.3 (2019-02-14)
 - use custom folder icon from desktop.ini in Live folders top menu item; if there is no dektop.ini file, use the icon defined for the parent Live folder favorite; else use the default icon for Live folders
 - in dynamic menus "Current Windows" and "Reopen a folder", use the custom folder icon from desktop.ini if it exists
@@ -3087,7 +3090,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.3
+;@Ahk2Exe-SetVersion 9.9.0.4
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3178,7 +3181,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
