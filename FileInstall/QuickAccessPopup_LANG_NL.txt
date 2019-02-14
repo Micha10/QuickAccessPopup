@@ -49,6 +49,7 @@ lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
 lDialogAdmnistrator	Administrator
 lDialogAdmnistratorNot	Gebruiker
 lDialogAlt	Alt
+lDialogAltShort	Alt
 lDialogApplicationLabel	Applicatie
 lDialogAppWorkingDirCurrent	Start de applicatie op de locatie waar deze favoriet is gestart
 lDialogArgumentsLabel	Parameters
@@ -278,6 +279,7 @@ lDialogMore	Meer
 lDialogMoreOptions	Meer opties
 lDialogMouse	Muis
 lDialogMouseButtonsText	Linkse muistoets|Middelste muistoets|Rechtse muistoets|Speciale muistoets 1|Speciale muistoets 2|Scrollwiel op|Scrollwiel neer|Scrollwiel links|Scrollwiel rechts|
+lDialogMouseButtonsTextShort	Linkerknop|Middelste knop|Rechterknop|Speciale knop 1|Speciale knop 2|Wiel Op|Wiel Neer|Wiel Links|Wiel Rechts|
 lDialogMoveFavoritesTitle	Favoriet verplaatsen - ~1~ ~2~
 lDialogMoveFavoriteTitle	Verplaats favoriet - ~1~ ~2~
 lDialogNA	n.v.t.
@@ -310,6 +312,7 @@ lDialogSettingsInvalid	Het instellingenbestand is onjuist!`n`nZorg ervoor dat he
 lDialogSettingsNotSavedPrompt	Het instellingenvenster is open met onopgeslagen wijzigingen. Deze wijzigingen dienen te worden opgeslagen of geannuleerd alvorens de gevraagde actie uit te voeren.`n`nWilt u:`n"Opslaan": De wijzigingen zullen worden opgeslagen en de actie zal worden uitgevoerd.`n"Instellingen": Annuleer de gevraagde actie en ga terug naar het instellingenmenu.`n"Annuleren": Alleen de gevraagde actie annuleren?
 lDialogSettingsNotSavedTitle	~1~ - instellingen niet opgeslagen
 lDialogShift	Shift
+lDialogShiftShort	Shift
 lDialogShortcut	Snelkoppeling
 lDialogShortcuts	sneltoetsen
 lDialogShortcutsDescription	Geeft het venster weer met een overzicht van de sneltoetsen voor uw toetsenbord of muis. U kunt favorieten sorteren door op de kop te klikken.`n`nDubbelklik op een sneltoets om de toegewezen sneltoets te wijzigen of te verwijderen.`n`nKlik op het selectievakje "Alle favorieten weergeven" om sneltoetsen aan andere favorieten toe te wijzen.
@@ -327,8 +330,10 @@ lDialogTabNext	Volgende
 lDialogThirdPartyDetected	~1~ heeft gedetecteerd dat ~2~ is geinstlleerd op uw computer, wilt u de integratieoptie met ~2~ inschakelen?
 lDialogTreeView	Boomstructuur
 lDialogTriggerFor	Trigger voor:
+lDialogUnavailableWithLiveFolders	(Deze functie is niet beschikbaar met Live-mappen)
 lDialogUseDefaultWindowPosition	Gebruik de standaard vensterpositie
 lDialogWin	Windows
+lDialogWindowMonitor	Monitor
 lDialogWindowPosition	Vensterpositie:
 lDialogWindowPositionDelay	Vertraging
 lDialogWindowPositionH	Hoogte
@@ -643,6 +648,7 @@ lOopsHotstringTriggerTooLong	Hotstringtrigger is te lang. Hotstringtriggers kunn
 lOopsHttpLocationTransformed	De http locatie (URL formaat) is aangepast in een netwerkpad (UNC formaat) voor compatibiliteit met Windows: `n`n~1~`n~2~
 lOopsInvalidWinCmdIni	Total Commander bestand "wincmd.ini" niet gevonden.`n`nSelecteer het bestand in "Opties" onder de tab "Bestandsbeheerders".
 lOopsInvalidWindowPosition	De vensterpositiewaarde(s) zijn ongeldig.
+lOopsJLiconsError	QAP taakbalk icoon niet gevonden, zorg ervoor dat u het bestand JLicons.dll heeft geüpdatet naar ~1~.
 lOopsLaunchWithNotFound	Bestand "Starten met deze applicatie" niet gevonden:`n`n~1~`n`nControleer de "Geavanceerde Opties" in de desbetreffende favoriet.
 lOopsLocation	locatie
 lOopsMaxLiveFolder	Het maximale aantal live mappen (~1~) is bereikt. Reduceer het aantal live mappen, of verhoog het maximaal toegestane aantal live mappen maar pas hiermee op, een te hoog aantal live mappen kan tot onvoorspelbare resultaten leiden! Wijzig de waarde "NbLiveFolderItemsMax" onder sectie [Global] in het QuickAccessPop.ini bestand.
@@ -671,6 +677,7 @@ lOptionsAlternativeMenuFeatures	Alternatieve sneltoetsen
 lOptionsAlternativeMenuFeaturesIntro	Configureer hier de muis en snel-toetsen welke het QAP-alternatieve menu zal oproepen.
 lOptionsAlternativeMenuOptions	Alternatieve Menu Opties
 lOptionsAlternativeMenuShowNotification	Notificatie weergeven bij het gebruik van het Alternatieve Menu
+lOptionsBackupFolder	Backupmap voor het hoofdinstellingenbestand
 lOptionsCatalogueHelp	Openbaar Menu (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Bronmap van de Catalogus
 lOptionsChangeFolderInDialog	Schakel QAP-mapnavigatie voor dialoogboxen in
@@ -686,7 +693,7 @@ lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
 lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
 lOptionsDisplayMenuShortcutsFromOne	Start numerieke menusnelkoppelingen vanaf 1 (i.p.v. 0)
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
-lOptionsExclusionMouseList	Uitsluitingslijst
+lOptionsExclusionMouseList	Uitsluitingslijst voor QAP-Muisknoppen
 lOptionsExclusionMouseListDescription	Uitsluitlijst voor muistoets: [~1~].
 lOptionsExclusionMouseListDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
@@ -706,6 +713,9 @@ lOptionsHotkeyRemindersPrompt	Sneltoetsen weergeven in het menu:
 lOptionsHotkeyRemindersShort	Afkortingen weergeven
 lOptionsHotstringsDefault	Standaard opties voor Hotstrings 
 lOptionsHotstringsDefaultSelect	Selecteren
+lOptionsIconReplacementList	QAP-icoon vervangers
+lOptionsIconReplacementListDescription	Vervangers voor standaard iconen gevonden in JLicons.dll
+lOptionsIconReplacementListInstructions	Voer QAP-Icoonvervangers in, 1 per regel. Elke regel dient te starten met de naam van het QAP-Icoon (b.v. "iconFolderLive"), gevolgd met het "="-teken en "bestandslocatie, index" van het vervangende icoon. De "bestandslocatie,index" is het pad naar het bestand (.ico, .dll of .exe) waar het icoon zich in bevindt en de index is de positie van het icoon in het bestand, b.v. "C:\Iconen\MijnBestand.dll,1".
 lOptionsIconSize	Pictogramgrootte
 lOptionsIconsManageRows	Beheer de pictogramvenster-regels`n(0 voor maximaal beschikbare ruimte)
 lOptionsLanguage	&Taal
@@ -723,7 +733,7 @@ lOptionsOtherOptions	Algemeen
 lOptionsPopupFixPositionX	Positie X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Muistoets|Quick Access Popup Sneltoets|QAP Alternatieve Menu Muistoets|QAP Alternatieve Menu Sneltoets
-lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen (zonder excepties) en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties (dit menu kan overal opgeroepen worden).
+lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties. Dit menu kan overal opgeroepen worden(zonder uitzonderingen).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties. Dit menu kan overal opgeroepen worden.
 lOptionsQAPTempFolder	Tijdelijke map
 lOptionsRecentFolders	Numm&er van items in de menu's
 lOptionsRecentFoldersPrompt	"Recente" en "Frequente"-Items menus:
@@ -738,9 +748,13 @@ lOptionsRunAsAdminAlert	Waarschuwing: Het uitvoeren van ~1~ in Administrator mod
 lOptionsRunAsAdminExit	~1~ zal de volgende start worden geladen zonder administratieve rechten.`n`nWilt u ~1~ nu afsluiten? Onopgeslagen wijzigingen zullen verloren gaan.
 lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Uitvoeren bij op&starten
+lOptionsSelectBackupFolder	Selecteer de backupmap voor het hoofdinstellingenbestand
 lOptionsSelectCatalogueRoot	Selecteer een openbare map voor de Openbare Menu's
 lOptionsSelectQAPTempFolder	Maak de tijdelijke map aan in:
 lOptionsSnippetsHelp	Fragment standaard (<a href="~1~">~2~</a>)
+lOptionsSwitchExclusionList	Huidige uitsluitingen voor vensters
+lOptionsSwitchExclusionListDescription	Uitsluitingslijst voor applicaties is te vinden in het "Huidig Venster"-menu.
+lOptionsSwitchExclusionListInstructions	Om applicaties uit te sluiten van het "huidige venster" menu, voer een deel van de naam van het gewenste programma's venstertitel in. U kunt meerdere uitsluitingen invoeren, maximaal 1 per regel. Als voorbeeld, om het programma "Sticky Notes" en "Office Word" uit te sluiten, voer de volgende regels in de uitsluitingenlijst:`n`nSticky Notes`n`nOffice Word`n`nU kunt ook programma's uitsluiten bij klasse naam of procesnaam (.exe bestandsnaam). Meer hulp bij dit onderwerp is in het Engels te vinden op:<a href="~2~"> de QAP-website</a>.
 lOptionsTabFileManagersIntro	Selecteer de bestandsbeheerder waarin mappen worden geopend in een nieuw venster.
 lOptionsTabFileManagersPreferences	Optie's voor de bestandsbeheerder
 lOptionsTabFileManagersPreferred	Voorkeur Bestandsbeheerder

@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.4 (2019-02-14)
+- merge changes from prod release v9.4.1.3
+
+Version: 9.4.1.3 (2019-02-14)
+- use custom folder icon from desktop.ini in Live folders top menu item; if there is no dektop.ini file, use the icon defined for the parent Live folder favorite; else use the default icon for Live folders
+- in dynamic menus "Current Windows" and "Reopen a folder", use the custom folder icon from desktop.ini if it exists
+- fix bug when excluding mouse trigger in a file dialog box and when process name is used as an exclusion criteria
+- update to German, Spanish, French, Italian, Korean, Dutch, Portuguese and Brazilian Portuguese language files
+
 Version ALPHA: 9.9.0.3 (2019-02-12)
 - rewrite portions of code using object oriented programming (OOP) approach (classes):
   - Settings
@@ -3081,7 +3090,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.3
+;@Ahk2Exe-SetVersion 9.9.0.4
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3172,7 +3181,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5699,15 +5708,17 @@ if (intWindowsIdIndex)
 		else
 		{
 			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, objFolderOrApp.Name)
+			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:")
+				strFolderIcon := GetFolderIcon(objFolderOrApp.LocationURL)
 			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
 				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
-				AddMenuIcon(o_L["MenuCurrentFolders"], strMenuName, "OpenReopenFolder", "iconFolder")
+				AddMenuIcon(o_L["MenuCurrentFolders"], strMenuName, "OpenReopenFolder", strFolderIcon)
 			}
 			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
 			AddMenuIcon(o_L["MenuSwitchFolderOrApp"], strMenuName, "OpenSwitchFolderOrApp"
-				, (objFolderOrApp.WindowType = "EX" ? "iconFolder"
-					: (objFolderOrApp.WindowType = "DO" ?  o_FileManagers.I[2].strDirectoryOpusRtPath . ",1"
+				, (objFolderOrApp.WindowType = "EX" ? strFolderIcon
+					: (objFolderOrApp.WindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.I[2].strDirectoryOpusRtPath . ",1" : strFolderIcon)
 					: objFolderOrApp.LocationURL . ",1")))
 		}
 	}
@@ -5740,6 +5751,7 @@ strWindowClass := ""
 strDiagFile := ""
 intExStyle := ""
 strWinTitlesWinApps := ""
+strFolderIcon := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -6478,7 +6490,12 @@ BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
 	objNewMenuItem.FavoriteType := "Folder"
 	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
 	objNewMenuItem.FavoriteLocation := strExpandedLocation
-	ParseIconResource("", strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
+	strFolderIcon := GetFolderIcon(objNewMenuItem.FavoriteLocation)
+	if (strFolderIcon = "iconFolder")
+		strFolderIcon := objLiveFolder.FavoriteIconResource
+	if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
+		strFolderIcon := "iconFolderLiveOpened"
+	ParseIconResource(strFolderIcon, strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
 	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
 	objNewMenu.Insert(objNewMenuItem)
 	
@@ -15018,10 +15035,14 @@ DialogBoxParentExcluded(strTargetWinId)
 	; get parent window's class and title
 	WinGetClass, strParentClass, ahk_id %strParentTargetWinId%
 	WinGetTitle, strParentTitle, ahk_id %strParentTargetWinId%
+	WinGet, strProcessName, ProcessName, ahk_id %strParentTargetWinId%
 
 	; check for class or title in dialog's parent exclusion list
 	Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListDialog, |
-		if StrLen(A_Loopfield) and (InStr(strParentClass, A_LoopField) or InStr(strParentTitle, A_LoopField))
+		if StrLen(A_Loopfield)
+			and (InStr(strParentClass, A_LoopField)
+			or InStr(strParentTitle, A_LoopField)
+			or InStr(strProcessName, A_LoopField))
 			return true
 
 	return false
@@ -18060,7 +18081,7 @@ UpdateGuiEscape:
 strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . "/"
 strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html" ; prod only
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html" ; prod only
-strUrlAppLandingPageBeta := "https://groups.google.com/forum/#!forum/qap-betatesters"
+strUrlAppLandingPageBeta := "https://forum.quickaccesspopup.com/forumdisplay.php?fid=11"
 
 if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 	Run, %strUrlChangeLog%
