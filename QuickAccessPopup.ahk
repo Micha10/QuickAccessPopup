@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4.1.3 (2019-02-14)
+- use custom folder icon from desktop.ini in Live folders top menu item; if there is no dektop.ini file, use the icon defined for the parent Live folder favorite; else use the default icon for Live folders
+- in dynamic menus "Current Windows" and "Reopen a folder", use the custom folder icon from desktop.ini if it exists
+- fix bug when excluding mouse trigger in a file dialog box and when process name is used as an exclusion criteria
+- update to German, Spanish, French, Italian, Korean, Dutch, Portuguese and Brazilian Portuguese language files
+
 Version: 9.4.1.2 (2019-01-21)
 - display a clean error message if user who installed QAP v9.4+ with portable zip file did not update JLicons.dll file to v1.5 (QAP loading icon missing error)
 - fix bug when opening group of folders in Directory Opus or Total Commander and the "Use tabs" option is disabled, now open each folder in a new window
@@ -3057,7 +3063,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.2
+;@Ahk2Exe-SetVersion 9.4.1.3
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3162,7 +3168,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
@@ -19470,7 +19476,7 @@ UpdateGuiEscape:
 strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . "/"
 strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html" ; prod only
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html" ; prod only
-strUrlAppLandingPageBeta := "https://groups.google.com/forum/#!forum/qap-betatesters"
+strUrlAppLandingPageBeta := "https://forum.quickaccesspopup.com/forumdisplay.php?fid=11"
 
 if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 	Run, %strUrlChangeLog%
