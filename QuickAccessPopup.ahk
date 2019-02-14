@@ -16404,10 +16404,14 @@ DialogBoxParentExcluded(strTargetWinId)
 	; get parent window's class and title
 	WinGetClass, strParentClass, ahk_id %strParentTargetWinId%
 	WinGetTitle, strParentTitle, ahk_id %strParentTargetWinId%
+	WinGet, strProcessName, ProcessName, ahk_id %strParentTargetWinId%
 
 	; check for class or title in dialog's parent exclusion list
 	Loop, Parse, g_strExclusionMouseListDialog, |
-		if StrLen(A_Loopfield) and (InStr(strParentClass, A_LoopField) or InStr(strParentTitle, A_LoopField))
+		if StrLen(A_Loopfield)
+			and (InStr(strParentClass, A_LoopField)
+			or InStr(strParentTitle, A_LoopField)
+			or InStr(strProcessName, A_LoopField))
 			return true
 
 	return false
