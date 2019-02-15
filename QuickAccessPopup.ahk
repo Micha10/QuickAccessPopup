@@ -35,6 +35,8 @@ Version ALPHA: 9.9.0.5 (2019-02-15)
 - fix bug in non-English language management
 - fix bug with "Use tabs instead of opening new window" option in Directory Opus and Total Commander
 - fix bug when moving a Shared menu using the Move button (will be fixed in next regular release too)
+- in "Check for update", fix "Visit website" link (will to be fixed in next regular release too)
+- in "Check for update", fix change "Change log" link for beta and alpha releases
 
 Version ALPHA: 9.9.0.4 (2019-02-14)
 - merge changes from prod release v9.4.1.3
