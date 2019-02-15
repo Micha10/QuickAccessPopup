@@ -17874,7 +17874,7 @@ strLatestVersionAlpha := objLatestVersions[3]
 	; , "*Propose PROD?", (ProposeUpdate(strLatestVersionProd, g_strCurrentVersion, strLatestSkippedProd) ? "OUI" : "")
 	; , "*", "")
 ; KEEP DEBUGGING CODE
-	
+
 if (strLatestUsedAlpha <> "0.0" and ProposeUpdate(strLatestVersionAlpha, g_strCurrentVersion, strLatestSkippedAlpha))
 {
 	g_strUpdateProdOrBeta := "alpha"
@@ -18054,7 +18054,7 @@ UpdateGuiClose:
 UpdateGuiEscape:
 ;------------------------------------------------------------
 
-strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta : "") . "/"
+strUrlChangeLog := "https://www.quickaccesspopup.com/change-log" . (g_strUpdateProdOrBeta <> "prod" ? "-" . g_strUpdateProdOrBeta . "-version" : "") . "/"
 strUrlDownloadSetup := "https://www.quickaccesspopup.com/latest/check4update-download-setup-redirect.html" ; prod only
 strUrlDownloadPortable:= "https://www.quickaccesspopup.com/latest/check4update-download-portable-redirect.html" ; prod only
 strUrlAppLandingPageBeta := "https://forum.quickaccesspopup.com/forumdisplay.php?fid=11"
@@ -18062,7 +18062,7 @@ strUrlAppLandingPageBeta := "https://forum.quickaccesspopup.com/forumdisplay.php
 if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 	Run, %strUrlChangeLog%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
-	Run, % (g_strUpdateProdOrBeta <> "prod" ? g_strUrlAppLandingPage : strUrlAppLandingPageBeta) ; beta page also for alpha
+	Run, % (g_strUpdateProdOrBeta = "prod" ? g_strUrlAppLandingPage : strUrlAppLandingPageBeta) ; beta page also for alpha
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadSetup")
 	Run, %strUrlDownloadSetup%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
