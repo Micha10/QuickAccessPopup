@@ -3355,8 +3355,8 @@ Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
 
-o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "Advanced", "30") ; g_intRefreshQAPMenuIntervalSec
-o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "Advanced", "32") ; g_blnRefreshQAPMenuDebugBeep
+o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "MenuAdvanced", "30") ; g_intRefreshQAPMenuIntervalSec
+o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "MenuAdvanced", "32") ; g_blnRefreshQAPMenuDebugBeep
 
 if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
 	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
@@ -4073,7 +4073,7 @@ if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 
 g_blnUseColors := (o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) <> "Windows") ; g_strTheme
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
-o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
+o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "AdvancedOther", "50") ; g_strExternalMenusCataloguePath
 ; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
 
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", 40) ; g_blnAddAutoAtTop
@@ -4105,7 +4105,7 @@ o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "Menu 
 
 o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
 o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
-o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "Advanced", 20) ; g_blnOpenMenuOnTaskbar
+o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", 20) ; g_blnOpenMenuOnTaskbar
 o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
 
 o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", 10) ; g_blnDisplayIcons
@@ -4120,7 +4120,7 @@ o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManage
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
-o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "Advanced", 25) ; g_blnAlternativeMenuShowNotification
+o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "MenuAdvanced", 25) ; g_blnAlternativeMenuShowNotification
 
 o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
 o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
@@ -4155,7 +4155,7 @@ g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
 o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariablesList", " ", "User Variables", 10) ; g_strUserVariablesList
-o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "Advanced", 65) ; g_strSwitchExclusionList
+o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "AdvancedOther", 65) ; g_strSwitchExclusionList
 o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "strIconReplacementList", " ", "MenuIcons", 40) ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
@@ -4174,19 +4174,19 @@ if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersio
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "Advanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
+o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
-o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "Advanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
+o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
-o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "Advanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
-o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "Advanced", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
+o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "MenuAdvanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
+o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "AdvancedOther", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
-o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "Advanced", order) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
-o_Settings.ReadIniOption("LaunchAdvanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "Advanced", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
-o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "Advanced", 60) ; g_strHotstringsDefaultOptions
-o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "Advanced", 10) ; g_blnRefreshWindowsAppsListAtStartup
-o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "Advanced", 45) ; g_blnTryWindowPosition
+o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", 42) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
+o_Settings.ReadIniOption("LaunchAdvanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedOther", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
+o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "AdvancedOther", 60) ; g_strHotstringsDefaultOptions
+o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "AdvancedOther", 10) ; g_blnRefreshWindowsAppsListAtStartup
+o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "AdvancedOther", 45) ; g_blnTryWindowPosition
 
 ; ---------------------
 ; Load favorites
@@ -4961,7 +4961,7 @@ SetTrayMenuIcon:
 ;------------------------------------------------------------
 
 Menu, Tray, NoStandard
-o_Settings.ReadIniOption("LaunchAdvanced", "strAlternativeTrayIcon", "AlternativeTrayIcon", "", "Advanced", "15") ; returns ERROR if not found
+o_Settings.ReadIniOption("LaunchAdvanced", "strAlternativeTrayIcon", "AlternativeTrayIcon", "", "AdvancedOther", "15") ; returns ERROR if not found
 
 Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
 if (o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue <> "ERROR") and FileExist(o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue)
@@ -6856,9 +6856,25 @@ return
 GuiOptionsMenu:
 ;------------------------------------------------------------
 
-Menu, menuOptions, Add, General, GuiOptionGroup
-Menu, menuOptions, Add, SettingsWindow, GuiOptionGroup
-Menu, menuOptions, Add, MenuPopup, GuiOptionGroup
+Menu, menuOptions, Add, % o_L["OptionsOtherOptions"], GuiOptionsGroupGeneral
+Menu, menuOptions, Add, % o_L["OptionsSettingsWindow"], GuiOptionsGroupSettingsWindow
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsMenuIcons"], GuiOptionsGroupMenuIcons
+Menu, menuOptions, Add, % o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppearance
+Menu, menuOptions, Add, % o_L["OptionsPopupMenu"], GuiOptionsGroupMenuPopup
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsFileManagers"], GuiOptionsGroupFileManagers
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsSnippets"], GuiOptionsGroupSnippets
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsUserVariables"], GuiOptionsGroupUserVariables
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsDatabase"], GuiOptionsGroupDatabase
+Menu, menuOptions, Add
+Menu, menuOptions, Add, % o_L["OptionsMenuAdvanced"], GuiOptionsGroupMenuAdvanced
+Menu, menuOptions, Add, % o_L["OptionsAdvancedOther"], GuiOptionsGroupAdvancedOther
 Menu, menuOptions, Add
 Menu, menuOptions, Add, Old Options Window, GuiOptions
 Menu, menuOptions, Show
@@ -6868,12 +6884,51 @@ return
 
 
 ;------------------------------------------------------------
-GuiOptionGroup:
-;------------------------------------------------------------
-###_V(A_ThisLabel, A_ThisMenu, A_ThisMenuItem)
+GuiOptionsGroupGeneral:
+GuiOptionsGroupSettingsWindow:
+GuiOptionsGroupMenuIcons:
+GuiOptionsGroupMenuAppearance:
+GuiOptionsGroupMenuPopup:
+GuiOptionsGroupPopupHotkeys:
+GuiOptionsGroupFileManagers:
+GuiOptionsGroupSnippets:
+GuiOptionsGroupUserVariables:
+GuiOptionsGroupDatabase:
+GuiOptionsGroupMenuAdvanced:
+GuiOptionsGroupAdvancedOther:
 
-objSettingsGroup := o_Settings.objGroupItems[A_ThisMenuItem]
-###_O("objSettingsGroup", objSettingsGroup, "IniValue")
+;------------------------------------------------------------
+###_V(A_ThisLabel, A_ThisMenu, A_ThisMenuItem, StrReplace(A_ThisLabel, "GuiOptionsGroup"))
+
+strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
+
+objSettingsGroup := o_Settings.objGroupItems[strSettingsGroup]
+###_O("objSettingsGroup", objSettingsGroup, "strIniValueName")
+
+if (strSettingsGroup = "General")
+	x := y
+else if (strSettingsGroup = "SettingsWindow")
+	x := y
+else if (strSettingsGroup = "MenuIcons")
+	x := y
+else if (strSettingsGroup = "MenuAppearance")
+	x := y
+else if (strSettingsGroup = "MenuPopup")
+	x := y
+else if (strSettingsGroup = "PopupHotkeys")
+	x := y
+else if (strSettingsGroup = "FileManagers")
+	x := y
+else if (strSettingsGroup = "Snippets")
+	x := y
+else if (strSettingsGroup = "UserVariables")
+	x := y
+else if (strSettingsGroup = "Database")
+	x := y
+else if (strSettingsGroup = "MenuAdvanced")
+	x := y
+else if (strSettingsGroup = "AdvancedOther")
+	x := y
 
 return
 ;------------------------------------------------------------
@@ -19623,7 +19678,7 @@ strIniBackupFile := StrReplace(o_Settings.strIniFile, ".ini", "-backup-????????.
 ; but this includes main ini file when the working directory is set from the command line with "/Working:"
 if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFileMain)
 {
-	o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "Advanced", "70")
+	o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "AdvancedOther", "70")
 	strIniBackupFile := StrReplace(strIniBackupFile, A_WorkingDir, o_Settings.SettingsFile.strBackupFolder.IniValue)
 }
 
@@ -25107,6 +25162,8 @@ TODO
 						; ###_O("objLanguageBit-1", objLanguageBit)
 						if SubStr(objLanguageBit[1], 1, 1) <> "l"
 							continue
+						else
+							objLanguageBit[1] := SubStr(objLanguageBit[1], 2)
 						this[objLanguageBit[1]] := objLanguageBit[2]
 						this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], "``n", "`n")
 						
