@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.5 (2019-02-15)
+- fix bug in non-English language management
+- fix bug with "Use tabs instead of opening new window" option in Directory Opus and Total Commander
+- fix bug when moving a Shared menu using the Move button (will be fixed in next regular release too)
+
 Version ALPHA: 9.9.0.4 (2019-02-14)
 - merge changes from prod release v9.4.1.3
 
@@ -3090,7 +3095,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.4
+;@Ahk2Exe-SetVersion 9.9.0.5
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3181,7 +3186,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -8055,13 +8060,11 @@ else if (g_intClickedFileManager = 4) ; QAPconnect
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
 	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
-	
-	blnClickedUseTabs := o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIni(f_blnFileManagerUseTabs)
-	IniWrite, % blnClickedUseTabs, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%UseTabs
+	o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIni(f_blnFileManagerUseTabs)
 	
 	if (g_intClickedFileManager = 2) ; DirectoryOpus
 	{
-		if (blnClickedUseTabs)
+		if (f_blnFileManagerUseTabs)
 			strClickedNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 		else
 			strClickedNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
@@ -8070,7 +8073,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 	}
 	else ; TotalCommander
 	{
-		if (blnClickedUseTabs)
+		if (f_blnFileManagerUseTabs)
 			strClickedNewTabOrWindow := "/O /T" ; open new folder in a new tab
 		else
 			strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
@@ -11965,7 +11968,7 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	return
 }
 
-if (g_objEditedFavorite.FavoriteType = "External")
+if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
 {
 	; make sure the we have a file name
 	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
@@ -25080,6 +25083,8 @@ TODO
 						; ###_O("objLanguageBit-1", objLanguageBit)
 						if SubStr(objLanguageBit[1], 1, 1) <> "l"
 							continue
+						else
+							objLanguageBit[1] := SubStr(objLanguageBit[1], 2) ; remove leading "l" from language files variable names
 						this[objLanguageBit[1]] := objLanguageBit[2]
 						this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], "``n", "`n")
 						
