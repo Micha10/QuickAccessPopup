@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4.1.4 (2019-02-17)
+- in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
+- Folders Popup users wanting to convert their settings to Quick Access Popup must first install QAP version v9.4.1.3 (or before), and then upgrade to the latest QAP version
+- no change for users doing portable installation with the ZIP file
+
 Version ALPHA: 9.9.0.5 (2019-02-15)
 - fix bug in non-English language management
 - fix bug with "Use tabs instead of opening new window" option in Directory Opus and Total Commander
