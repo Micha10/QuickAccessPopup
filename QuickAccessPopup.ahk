@@ -32,6 +32,7 @@ HISTORY
 =======
 
 Version ALPHA: 9.9.0.6 (2019-02-??)
+- fix 2 Win 7 Special Folders initialization commands causing a runtime error
 - merge changes from regular release v9.4.1.4 (changes in the Setup script affecting Folders Popup users upgrading to QAP)
 - ...
 
@@ -24013,7 +24014,8 @@ class SpecialFolders
 		if (GetOsVersion() <> "WIN_10")
 			this.AddSpecialFolderObject("{3080F90E-D7AD-11D9-BD98-0000947B0257}", "", -1, "", "", ""
 				, "Flip 3D", "" ; Pas de traduction
-				, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW")
+				, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW"
+				, "4-Contents")
 		this.AddSpecialFolderObject("{6DFD7C5C-2451-11d3-A299-00C04F8EF6AF}", "", -1, "", "", ""
 			, "Folder Options", "" ; Options des dossiers
 			, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW"
@@ -24021,7 +24023,8 @@ class SpecialFolders
 		if (A_OSVersion = "WIN_7") ; Performance Information and Tool not available on Win8+
 			this.AddSpecialFolderObject("{78F3955E-3B90-4184-BD14-5397C15F1EFC}", "", -1, "", "", ""
 				, "Performance Information and Tools", "" ; Informations et outils de performance
-				, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW")
+				, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW"
+				, "2-Power User")
 		this.AddSpecialFolderObject("{35786D3C-B075-49b9-88DD-029876E11C01}", "", -1, "", "", ""
 			, "Portable Devices", "" ; Appareils mobiles
 			, "CLS", "CLS", "NEW", "NEW", "NEW", "NEW", "NEW"
