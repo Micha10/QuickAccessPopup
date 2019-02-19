@@ -34,6 +34,12 @@ HISTORY
 Version: 9.4.1.5 (2019-02-??)
 - update drop down menu label "Current Windows" in List Applications
 - when copying a favorite, keep the actual favorite in the item position dropdown list
+- fix bug, make sure the default theme Windows is selected when the value is empty in ini file
+- add "Y" label in Options, "Menu" tab, "at fix position"
+- fix link to website in "Check for update" dialog box
+- remove unappropriate validation when saving an edited or copied Shared menu (when not new)
+- fix bug when searching for "Live" folders type in Settings Extended Search
+...
 
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
@@ -5026,6 +5032,8 @@ if (g_blnChangeFolderInDialog)
 	IniRead, g_blnChangeFolderInDialog, %g_strIniFile%, Global, UnderstandChangeFoldersInDialogRisk, 0
 
 IniRead, g_strTheme, %g_strIniFile%, Global, Theme, Windows
+if !StrLen(g_strTheme) ; in case value is found but empty
+	g_strTheme := "Windows"
 IniRead, g_strAvailableThemes, %g_strIniFile%, Global, AvailableThemes
 g_blnUseColors := (g_strTheme <> "Windows")
 IniRead, g_strExternalMenusCataloguePath, %g_strIniFile%, Global, ExternalMenusCataloguePath, %A_Space%
@@ -8309,7 +8317,7 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionCli
 Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionX%
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, %g_arrPopupFixPosition1%
-Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
+Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (g_intPopupMenuPosition = 3 ? "" : "Disabled"), %lOptionsPopupFixPositionY%
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (g_intPopupMenuPosition = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, %g_arrPopupFixPosition2%
 
@@ -10148,7 +10156,8 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 		{
 			strHotkey := Hotkey2Text(objCurrentMenu[A_Index].FavoriteShortcut, true)
 			strHotkey := (strHotkey = lDialogNone ? "" : strHotkey)
-			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType]
+			strSearchIn .= " " . g_objFavoriteTypesLocationLabelsNoAmpersand[objCurrentMenu[A_Index].FavoriteType] ; include only long names
+				. " " . GetFavoriteTypeForList(objCurrentMenu[A_Index]) ; include short names and Live Folder label
 				. " " . strHotkey
 				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
 				. " " . objCurrentMenu[A_Index].FavoriteLocation
@@ -13367,7 +13376,7 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	return
 }
 
-if (g_objEditedFavorite.FavoriteType = "External")
+if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
 {
 	; make sure the we have a file name
 	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
@@ -19492,7 +19501,7 @@ strUrlAppLandingPageBeta := "https://forum.quickaccesspopup.com/forumdisplay.php
 if InStr(A_ThisLabel, "ButtonCheck4UpdateDialogChangeLog")
 	Run, %strUrlChangeLog%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogVisit")
-	Run, % (g_strUpdateProdOrBeta <> "prod" ? g_strUrlAppLandingPage : strUrlAppLandingPageBeta) ; beta page also for alpha
+	Run, % (g_strUpdateProdOrBeta = "prod" ? g_strUrlAppLandingPage : strUrlAppLandingPageBeta) ; beta page also for alpha
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadSetup")
 	Run, %strUrlDownloadSetup%
 else if (A_ThisLabel = "ButtonCheck4UpdateDialogDownloadPortable")
