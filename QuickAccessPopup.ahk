@@ -4113,23 +4113,23 @@ o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMa
 ; ---------------------
 ; Load Options Tab 2 Menu
 
-o_Settings.ReadIniOption("MenuPopup", "intPopupMenuPosition", "PopupMenuPosition", 1, "MenuPopup", 10) ; g_intPopupMenuPosition
-o_Settings.ReadIniOption("MenuPopup", "arrPopupFixPosition", "PopupFixPosition", "20,20", "MenuPopup", 12) ; g_arrPopupFixPosition
+o_Settings.ReadIniOption("MenuPopup", "intPopupMenuPosition", "PopupMenuPosition", 1, "PopupMenu", 10) ; g_intPopupMenuPosition
+o_Settings.ReadIniOption("MenuPopup", "arrPopupFixPosition", "PopupFixPosition", "20,20", "PopupMenu", 12) ; g_arrPopupFixPosition
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
 
-o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "Menu appearance", 10) ; g_intHotkeyReminders
+o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "MenuAppearance", 10) ; g_intHotkeyReminders
 
-o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 1, "MenuPopup", 20) ; g_blnExplorerContextMenus
+o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 1, "PopupMenu", 20) ; g_blnExplorerContextMenus
 if (g_blnPortableMode)
 	o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := 0 ; always disabled in portable mode, regardless of value in ini file
 
-o_Settings.ReadIniOption("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "Menu appearance", 80) ; g_intRecentFoldersMax
-o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "Menu appearance", 10) ; g_intNbLastActions
+o_Settings.ReadIniOption("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, "MenuAppearance", 80) ; g_intRecentFoldersMax
+o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "MenuAppearance", 10) ; g_intNbLastActions
 
-o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "Menu appearance", 10) ; g_blnDisplayNumericShortcuts
-o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "Menu appearance", 25) ; g_blnDisplayNumericShortcutsFromOne
+o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "MenuAppearance", 10) ; g_blnDisplayNumericShortcuts
+o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "MenuAppearance", 25) ; g_blnDisplayNumericShortcutsFromOne
 o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", 20) ; g_blnOpenMenuOnTaskbar
-o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "Menu appearance", 90) ; g_blnAddCloseToDynamicMenus
+o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "MenuAppearance", 90) ; g_blnAddCloseToDynamicMenus
 
 o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", 10) ; g_blnDisplayIcons
 o_Settings.ReadIniOption("MenuIcons", "intIconSize", "IconSize", 32, "MenuIcons", 20) ; g_intIconSize
@@ -4159,7 +4159,7 @@ global o_FileManagers := new FileManagers
 
 ; ExclusionMouseList
 
-o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "MenuPopup", 80) ; g_strExclusionMouseList
+o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "PopupMenu", 80) ; g_strExclusionMouseList
 o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 
@@ -5060,6 +5060,19 @@ return
 
 
 ;------------------------------------------------------------
+OptionsMenuShortcut:
+;------------------------------------------------------------
+
+Gosub, SetMenuPosition
+CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
+
+Menu, menuOptions, Show, %g_intMenuPosX%, %g_intMenuPosY%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 BuildGuiOptionsMenu:
 ;------------------------------------------------------------
 
@@ -5068,7 +5081,7 @@ Menu, menuOptions, Add, % o_L["OptionsSettingsWindow"], GuiOptionsGroupSettingsW
 Menu, menuOptions, Add
 Menu, menuOptions, Add, % o_L["OptionsMenuIcons"], GuiOptionsGroupMenuIcons
 Menu, menuOptions, Add, % o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppearance
-Menu, menuOptions, Add, % o_L["OptionsPopupMenu"], GuiOptionsGroupMenuPopup
+Menu, menuOptions, Add, % o_L["OptionsPopupMenu"], GuiOptionsGroupPopupMenu
 Menu, menuOptions, Add
 Menu, menuOptions, Add, % o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
 Menu, menuOptions, Add
@@ -6925,7 +6938,7 @@ GuiOptionsGroupGeneral:
 GuiOptionsGroupSettingsWindow:
 GuiOptionsGroupMenuIcons:
 GuiOptionsGroupMenuAppearance:
-GuiOptionsGroupMenuPopup:
+GuiOptionsGroupPopupMenu:
 GuiOptionsGroupPopupHotkeys:
 GuiOptionsGroupFileManagers:
 GuiOptionsGroupSnippets:
@@ -6936,21 +6949,23 @@ GuiOptionsGroupAdvancedOther:
 
 ;------------------------------------------------------------
 
-strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
+g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
-objSettingsGroup := o_Settings.objGroupItems[strSettingsGroup]
+objSettingsGroup := o_Settings.objGroupItems[g_strSettingsGroup]
 ; ###_O("objSettingsGroup", objSettingsGroup, "strIniValueName")
 
 for key, value in objSettingsGroup
 	x .= value.strIniValueName . "`n"
 ; Clipboard := x
 
-strSettingsGroupLabel := o_L["Options" . (strSettingsGroup = "General" ? "OtherOptions" : strSettingsGroup)]
+strSettingsGroupLabel := o_L["Options" . g_strSettingsGroup]
+; ###_V(A_ThisLabel, strSettingsGroupLabel, g_strSettingsGroup, o_L["Options" . g_strSettingsGroup])
+
 ; o_L["OptionsOtherOptions"], GuiOptionsGroupGeneral
 ; o_L["OptionsSettingsWindow"], GuiOptionsGroupSettingsWindow
 ; o_L["OptionsMenuIcons"], GuiOptionsGroupMenuIcons
 ; o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppearance
-; o_L["OptionsPopupMenu"], GuiOptionsGroupMenuPopup
+; o_L["OptionsPopupMenu"], GuiOptionsGroupPopupMenu
 ; o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
 ; o_L["OptionsFileManagers"], GuiOptionsGroupFileManagers
 ; o_L["OptionsSnippets"], GuiOptionsGroupSnippets
@@ -6966,7 +6981,7 @@ g_intGui1WinID := WinExist("A")
 
 Gosub, GuiOptionsHeader
 
-if (strSettingsGroup = "General")
+if (g_strSettingsGroup = "General")
 {
 	; LanguageCode
 	Gui, 2:Add, Text, y+10 x10 w100, % o_L["OptionsLanguage"]
@@ -7003,7 +7018,7 @@ if (strSettingsGroup = "General")
 	Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 }
-else if (strSettingsGroup = "SettingsWindow")
+else if (g_strSettingsGroup = "SettingsWindow")
 {
 	; RememberSettingsPosition
 	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnRememberSettingsPosition, % o_L["OptionsRememberSettingsPosition"]
@@ -7018,7 +7033,7 @@ else if (strSettingsGroup = "SettingsWindow")
 	Gui, 2:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop0 Group " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
 	Gui, 2:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop1 " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
 }
-else if (strSettingsGroup = "MenuIcons")
+else if (g_strSettingsGroup = "MenuIcons")
 {
 	; DisplayIcons
 	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnDisplayIcons gDisplayIconsClicked, % o_L["OptionsDisplayIcons"]
@@ -7041,13 +7056,65 @@ else if (strSettingsGroup = "MenuIcons")
 		? StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n") : "iconUnknown=" . o_JLicons.I["iconUnknown"])
 	Gui, 2:Add, Link, x10 y+10 w500, % o_L["OptionsIconReplacementListInstructions"]
 }
-else if (strSettingsGroup = "MenuAppearance")
+else if (g_strSettingsGroup = "MenuAppearance")
 {
+	; DisplayMenuShortcuts
+	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, % o_L["OptionsDisplayMenuShortcuts"]
+	GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
+
+	; DisplayMenuShortcutsFromOne
+	Gui, 2:Add, CheckBox, y+10 x28 w300 vf_blnDisplayNumericShortcutsFromOne, % o_L["OptionsDisplayMenuShortcutsFromOne"]
+	GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
+	gosub, DisplayMenuShortcutsClicked
+
+	; RecentFoldersMax
+	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsRecentFoldersPrompt"]
+	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
+	Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, % o_Settings.Menu.intRecentFoldersMax.IniValue
+	Gui, 2:Add, Text, yp x+10 w235, % o_L["OptionsRecentFolders"]
+
+	; AddCloseToDynamicMenus
+	Gui, 2:Add, CheckBox, y+25 x10 w500 vf_blnAddCloseToDynamicMenus, % o_L["OptionsAddCloseToDynamicMenus"]
+	GuiControl, , f_blnAddCloseToDynamicMenus, % (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue = true)
 }
-else if (strSettingsGroup = "MenuPopup")
+else if (g_strSettingsGroup = "PopupMenu")
 {
+	; PopupMenuPosition
+	Gui, 2:Add, Text, y+10 x10 w500 Section, % o_L["OptionsMenuPositionPrompt"]
+
+	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1 ? "Checked" : ""), % o_L["OptionsMenuNearMouse"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Checked" : ""), % o_L["OptionsMenuActiveWindow"]
+	Gui, 2:Add, Radio, % "y+5 xs vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "Checked" : ""), % o_L["OptionsMenuFixPosition"]
+
+	Gui, 2:Add, Text, % "yp x+10 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
+	Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+	Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
+	Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
+	Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+	Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
+
+	; ExplorerContextMenus
+	if !(g_blnPortableMode)
+	{
+		Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnExplorerContextMenus, % o_L["OptionsExplorerContextMenus"]
+		GuiControl, , f_blnExplorerContextMenus, % (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue = true)
+	}
+
+	; RefreshedMenusAttached
+	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked, % o_L["OptionsRefreshedMenusAttached"]
+	GuiControl, , f_blnRefreshedMenusAttached, % (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue = true) ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
+
+	; ExclusionMouseList
+	strUrl := "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
+	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.I[1].strPopupHotkeyText)
+			. " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
+	Gui, 2:Add, Edit, y+5  x10 w500 r5 vf_strExclusionMouseList, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
+	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.I[1].strPopupHotkeyText)
+	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.I[1].strPopupHotkeyText, strUrl)
+	Gui, 2:Add, Button, y+10 x10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
+	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
 }
-else if (strSettingsGroup = "PopupHotkeys")
+else if (g_strSettingsGroup = "PopupHotkeys")
 {
 	o_PopupHotkeys.BackupPopupHotkeys()
 	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
@@ -7056,26 +7123,30 @@ else if (strSettingsGroup = "PopupHotkeys")
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
 }
-else if (strSettingsGroup = "FileManagers")
+else if (g_strSettingsGroup = "FileManagers")
 {
 }
-else if (strSettingsGroup = "Snippets")
+else if (g_strSettingsGroup = "Snippets")
 {
 }
-else if (strSettingsGroup = "UserVariables")
+else if (g_strSettingsGroup = "UserVariables")
 {
 }
-else if (strSettingsGroup = "Database")
+else if (g_strSettingsGroup = "Database")
 {
 }
-else if (strSettingsGroup = "MenuAdvanced")
+else if (g_strSettingsGroup = "MenuAdvanced")
 {
 }
-else if (strSettingsGroup = "AdvancedOther")
+else if (g_strSettingsGroup = "AdvancedOther")
 {
 }
 
 Gosub, GuiOptionsFooter
+
+objSettingsGroup := ""
+strSettingsGroupLabel := ""
+strUrl := ""
 
 return
 ;------------------------------------------------------------
@@ -7147,45 +7218,6 @@ o_Settings.Snippets.blnSnippetDefaultMacro.WriteIni(f_blnSnippetDefaultMacro)
 ;---------------------------------------
 ; Save Tab 2: Menu options
 
-if (f_radPopupMenuPosition1)
-	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 1
-else if (f_radPopupMenuPosition2)
-	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 2
-else
-	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
-o_Settings.MenuPopup.intPopupMenuPosition.WriteIni("", false) ; value already updated in previous lines
-
-o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
-o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
-; write text value to ini file
-o_Settings.MenuPopup.arrPopupFixPosition.WriteIni(f_intPopupFixPositionX . "," . f_intPopupFixPositionY)
-; but restore object array in class object
-o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
-
-if (f_radHotkeyReminders1)
-	o_Settings.Menu.intHotkeyReminders.IniValue := 1
-else if (f_radHotkeyReminders2)
-	o_Settings.Menu.intHotkeyReminders.IniValue := 2
-else
-	o_Settings.Menu.intHotkeyReminders.IniValue := 3
-o_Settings.Menu.intHotkeyReminders.WriteIni("", false) ; value already updated
-
-if !(g_blnPortableMode)
-{
-	if (f_blnExplorerContextMenus) and (!o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
-		gosub, EnableExplorerContextMenus
-		; else already enabled
-	if (!f_blnExplorerContextMenus) and (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
-		gosub, DisableExplorerContextMenus
-		; else already disabled
-	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni("", false) ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
-}
-
-o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
-
-o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIni(f_blnRefreshedMenusAttached)
-o_Settings.Menu.blnDisplayNumericShortcuts.WriteIni(f_blnDisplayNumericShortcuts)
-o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIni(f_blnDisplayNumericShortcutsFromOne)
 o_Settings.MenuPopup.blnOpenMenuOnTaskbar.WriteIni(f_blnOpenMenuOnTaskbar)
 o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIni(f_blnAddCloseToDynamicMenus)
 o_Settings.MenuIcons.blnDisplayIcons.WriteIni(f_blnDisplayIcons)
@@ -7265,10 +7297,6 @@ o_FileManagers := new FileManagers
 ;---------------------------------------
 ; Save Tab 6: More
 
-; ExclusionList
-o_Settings.MenuPopup.strExclusionMouseList.WriteIni(OptionsListCleanup(f_strExclusionMouseList))
-o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
-
 ; UsageDb
 
 intUsageDbIntervalSecondsPrev := o_Settings.Database.intUsageDbIntervalSeconds.IniValue
@@ -7322,9 +7350,6 @@ else if (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
 		Gosub, ExitApp
 }
 
-; next line re-init o_QAPfeatures according to o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue before rebuilding the menus
-o_QAPfeatures.RefreshAttachedOrDetachedQAPFeatureObject()
-
 ; and preprocess these dynamic menus
 Gosub, DynamicMenusPreProcess ; in case the number of items in Frequent and Recent menus was changed in Options
 
@@ -7354,7 +7379,9 @@ Gui, 2:Submit, NoHide
 
 g_blnMenuReady := false
 
-if (strSettingsGroup = "General")
+blnReloadMenus := false
+
+if (g_strSettingsGroup = "General")
 {
 	strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 	g_strLanguageLabel := f_drpLanguage
@@ -7364,7 +7391,7 @@ if (strSettingsGroup = "General")
 				o_Settings.Launch.strLanguageCode.IniValue := g_objOptionsLanguageCodes[A_Index]
 				break
 			}
-	o_Settings.Launch.strLanguageCode.WriteIni("", false) ; value already changed in the loop
+	o_Settings.Launch.strLanguageCode.WriteIni("", true) ; value already changed in the loop
 	
 	strThemePrev := o_Settings.Launch.strTheme.IniValue
 	o_Settings.Launch.strTheme.WriteIni(f_drpTheme)
@@ -7414,13 +7441,13 @@ if (strSettingsGroup = "General")
 		}
 	}	
 }
-else if (strSettingsGroup = "SettingsWindow")
+else if (g_strSettingsGroup = "SettingsWindow")
 {
 	o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIni(f_blnRememberSettingsPosition)
 	o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIni(f_blnOpenSettingsOnActiveMonitor)
 	o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
 }
-else if (strSettingsGroup = "MenuIcons")
+else if (g_strSettingsGroup = "MenuIcons")
 {
 	o_Settings.MenuIcons.blnDisplayIcons.WriteIni(f_blnDisplayIcons)
 	o_Settings.MenuIcons.intIconSize.WriteIni(f_drpIconSize)
@@ -7429,13 +7456,53 @@ else if (strSettingsGroup = "MenuIcons")
 	o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 	blnReloadMenus := true
 }
-else if (strSettingsGroup = "MenuAppearance")
+else if (g_strSettingsGroup = "MenuAppearance")
 {
+	o_Settings.Menu.blnDisplayNumericShortcuts.WriteIni(f_blnDisplayNumericShortcuts)
+	o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIni(f_blnDisplayNumericShortcutsFromOne)
+	o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
+	o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIni(f_blnAddCloseToDynamicMenus)
+	blnReloadMenus := true
 }
-else if (strSettingsGroup = "MenuPopup")
+else if (g_strSettingsGroup = "PopupMenu")
 {
+	if (f_radPopupMenuPosition1)
+		o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 1
+	else if (f_radPopupMenuPosition2)
+		o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 2
+	else
+		o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
+	o_Settings.MenuPopup.intPopupMenuPosition.WriteIni("", true) ; value already updated in previous lines
+
+	o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
+	o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
+	; write text value to ini file
+	o_Settings.MenuPopup.arrPopupFixPosition.WriteIni(f_intPopupFixPositionX . "," . f_intPopupFixPositionY)
+	; but restore object array in class object
+	o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
+
+	if !(g_blnPortableMode)
+	{
+		if (f_blnExplorerContextMenus) and (!o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
+			gosub, EnableExplorerContextMenus
+			; else already enabled
+		if (!f_blnExplorerContextMenus) and (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
+			gosub, DisableExplorerContextMenus
+			; else already disabled
+		o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni("", true) ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
+	}
+
+	o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIni(f_blnRefreshedMenusAttached)
+	; next line re-init o_QAPfeatures according to o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue before rebuilding the menus
+	o_QAPfeatures.RefreshAttachedOrDetachedQAPFeatureObject()
+
+	; ExclusionList
+	o_Settings.MenuPopup.strExclusionMouseList.WriteIni(OptionsListCleanup(f_strExclusionMouseList))
+	o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
+	
+	blnReloadMenus := true
 }
-else if (strSettingsGroup = "PopupHotkeys")
+else if (g_strSettingsGroup = "PopupHotkeys")
 {
 	o_PopupHotkeys.BackupPopupHotkeys()
 	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
@@ -7444,22 +7511,22 @@ else if (strSettingsGroup = "PopupHotkeys")
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
 }
-else if (strSettingsGroup = "FileManagers")
+else if (g_strSettingsGroup = "FileManagers")
 {
 }
-else if (strSettingsGroup = "Snippets")
+else if (g_strSettingsGroup = "Snippets")
 {
 }
-else if (strSettingsGroup = "UserVariables")
+else if (g_strSettingsGroup = "UserVariables")
 {
 }
-else if (strSettingsGroup = "Database")
+else if (g_strSettingsGroup = "Database")
 {
 }
-else if (strSettingsGroup = "MenuAdvanced")
+else if (g_strSettingsGroup = "MenuAdvanced")
 {
 }
-else if (strSettingsGroup = "AdvancedOther")
+else if (g_strSettingsGroup = "AdvancedOther")
 {
 }
 
@@ -8622,7 +8689,7 @@ loop, % g_objOptionsLanguageLabels.Length()
 			o_Settings.Launch.strLanguageCode.IniValue := g_objOptionsLanguageCodes[A_Index]
 			break
 		}
-o_Settings.Launch.strLanguageCode.WriteIni("", false) ; value already changed in the loop
+o_Settings.Launch.strLanguageCode.WriteIni("", true) ; value already changed in the loop
 
 strThemePrev := o_Settings.Launch.strTheme.IniValue
 o_Settings.Launch.strTheme.WriteIni(f_drpTheme)
@@ -8648,7 +8715,7 @@ else if (f_radPopupMenuPosition2)
 	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 2
 else
 	o_Settings.MenuPopup.intPopupMenuPosition.IniValue := 3
-o_Settings.MenuPopup.intPopupMenuPosition.WriteIni("", false) ; value already updated in previous lines
+o_Settings.MenuPopup.intPopupMenuPosition.WriteIni("", true) ; value already updated in previous lines
 
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1] := f_intPopupFixPositionX
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2] := f_intPopupFixPositionY
@@ -8663,7 +8730,7 @@ else if (f_radHotkeyReminders2)
 	o_Settings.Menu.intHotkeyReminders.IniValue := 2
 else
 	o_Settings.Menu.intHotkeyReminders.IniValue := 3
-o_Settings.Menu.intHotkeyReminders.WriteIni("", false) ; value already updated
+o_Settings.Menu.intHotkeyReminders.WriteIni("", true) ; value already updated
 
 if !(g_blnPortableMode)
 {
@@ -8673,7 +8740,7 @@ if !(g_blnPortableMode)
 	if (!f_blnExplorerContextMenus) and (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue)
 		gosub, DisableExplorerContextMenus
 		; else already disabled
-	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni("", false) ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
+	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni("", true) ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
 }
 
 o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
@@ -24931,7 +24998,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
 			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
 			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
-		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",			"menuOptions",					"",										"7-QAPManagement"
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",			"menuOptions",					"OptionsMenuShortcut",										"7-QAPManagement"
 			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
 
@@ -25110,7 +25177,7 @@ class QAPfeatures
 	{
 		; default true, display "Recent Folders", "Recent Files", "Popular Folders", "Popular Files" and "Drives" attached to main menu
 		; read here because this is required before LoadIniFile
-		blnAttached := o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "MenuPopup", 40) ; g_blnRefreshedMenusAttached
+		blnAttached := o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "PopupMenu", 40) ; g_blnRefreshedMenusAttached
 
 		; init refreshed menus attached or detached according to blnAttached
 		this.AddQAPFeatureObject("Recent Folders",	o_L["MenuRecentFolders"] . (blnAttached ? "" : "...")
