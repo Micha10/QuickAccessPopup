@@ -4159,8 +4159,8 @@ o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManage
 
 o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "MenuAdvanced", 25) ; g_blnAlternativeMenuShowNotification
 
-o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "Popup Hotkeys", 60) ; g_blnLeftControlDoublePressed
-o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "Popup Hotkeys", 65) ; g_blnRightControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "PopupHotkeysOther", 60) ; g_blnLeftControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "PopupHotkeysOther", 65) ; g_blnRightControlDoublePressed
 
 ; ---------------------
 ; Load Options Tab 5 File Managers
@@ -4746,7 +4746,7 @@ for strCode, objThisQAPFeature in o_QAPfeatures.I
 ; Load QAP Alternative Menu hotkeys
 for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 {
-	strHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strCode, strCode, "", "PopupHotkeys", 80, "AlternativeMenuHotkeys")
+	strHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strCode, strCode, "", "PopupHotkeysAlternative", 80, "AlternativeMenuHotkeys")
 
 	if (strHotkey <> "ERROR")
 	{
@@ -5098,6 +5098,8 @@ Menu, menuOptions, Add, % o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppea
 Menu, menuOptions, Add, % o_L["OptionsPopupMenu"], GuiOptionsGroupPopupMenu
 Menu, menuOptions, Add
 Menu, menuOptions, Add, % o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
+Menu, menuOptions, Add, % o_L["OptionsPopupHotkeysOther"], GuiOptionsGroupPopupHotkeysOther
+Menu, menuOptions, Add, % o_L["OptionsPopupHotkeysAlternative"], GuiOptionsGroupPopupHotkeysAlternative
 Menu, menuOptions, Add
 Menu, menuOptions, Add, % o_L["OptionsFileManagers"], GuiOptionsGroupFileManagers
 Menu, menuOptions, Add
@@ -6954,6 +6956,8 @@ GuiOptionsGroupMenuIcons:
 GuiOptionsGroupMenuAppearance:
 GuiOptionsGroupPopupMenu:
 GuiOptionsGroupPopupHotkeys:
+GuiOptionsGroupPopupHotkeysAlternative:
+GuiOptionsGroupPopupHotkeysOther:
 GuiOptionsGroupFileManagers:
 GuiOptionsGroupSnippets:
 GuiOptionsGroupUserVariables:
@@ -7130,12 +7134,38 @@ else if (g_strSettingsGroup = "PopupMenu")
 }
 else if (g_strSettingsGroup = "PopupHotkeys")
 {
+	; NavigateOrLaunchHotkeyMouse
+	; NavigateOrLaunchHotkeyKeyboard
+	; AlternativeHotkeyMouse
+	; AlternativeHotkeyKeyboard
+	
 	o_PopupHotkeys.BackupPopupHotkeys()
+
+	Gui, 2:Add, Text, y+10 x10 w590 center, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
+	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I ; could also use o_Settings class objects
+	{
+		Gui, 2:Font, s8 w700
+		Gui, 2:Add, Text, x10 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName
+		Gui, 2:Font, s9 w500, Courier New
+		Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex%, % objThisPopupHotkey.strPopupHotkeyTextShort
+		Gui, 2:Font
+		Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex%, % o_L["OptionsChangeHotkey"]
+		Gui, 2:Font, s8 w500
+		Gui, 2:Add, Link, x10 ys w240 gOptionsTitlesDescriptionClicked, % objThisPopupHotkey.strPopupHotkeyLocalizedDescription
+	}
+}
+else if (g_strSettingsGroup = "PopupHotkeysAlternative")
+{
+; {Open Containing New}
+
 	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
 	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 		if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
+}
+else if (g_strSettingsGroup = "PopupHotkeysOther")
+{
 }
 else if (g_strSettingsGroup = "FileManagers")
 {
@@ -7161,6 +7191,8 @@ Gosub, GuiOptionsFooter
 objSettingsGroup := ""
 strSettingsGroupLabel := ""
 strUrl := ""
+intThisIndex := ""
+objThisPopupHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -7247,8 +7279,6 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 ;---------------------------------------
 ; Save Tab 3: Popup menu hotkeys
 
-for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
-	o_Settings.MenuPopup[str . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
@@ -7264,7 +7294,6 @@ o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoub
 
 ; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
 Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
-o_PopupHotkeys.EnablePopupHotkeys()
 
 ;---------------------------------------
 ; Save Tab 5: File Managers
@@ -7518,12 +7547,23 @@ else if (g_strSettingsGroup = "PopupMenu")
 }
 else if (g_strSettingsGroup = "PopupHotkeys")
 {
-	o_PopupHotkeys.BackupPopupHotkeys()
+	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
+		o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
+	
+	blnEnableHotkeys := true
+}
+else if (g_strSettingsGroup = "PopupHotkeysAlternative")
+{
 	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
 	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 		if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
+			
+	blnEnableHotkeys := true
+}
+else if (g_strSettingsGroup = "PopupHotkeysOther")
+{
 }
 else if (g_strSettingsGroup = "FileManagers")
 {
@@ -7560,6 +7600,9 @@ if (blnReloadMenus)
 	Gosub, BuildAlternativeMenu
 }
 
+if (blnEnableHotkeys)
+	o_PopupHotkeys.EnablePopupHotkeys()
+
 g_blnMenuReady := true
 
 ; reset variables
@@ -7567,6 +7610,7 @@ strLanguageCodePrev := ""
 strThemePrev := ""
 strQAPTempFolderParentPrev := ""
 blnReloadMenus := ""
+blnEnableHotkeys := ""
 
 ;------------------------------------------------------------
 
@@ -8780,7 +8824,7 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 ; Save Tab 3: Popup menu hotkeys
 
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
-	o_Settings.MenuPopup[str . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
+	o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
 
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
