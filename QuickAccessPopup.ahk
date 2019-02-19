@@ -33,7 +33,7 @@ HISTORY
 
 Version: 9.4.1.5 (2019-02-??)
 - update drop down menu label "Current Windows" in List Applications
-- 
+- when copying a favorite, keep the actual favorite in the item position dropdown list
 
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
