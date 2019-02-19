@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4.1.5 (2019-02-??)
+- update drop down menu label "Current Windows" in List Applications
+- 
+
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
 - Folders Popup users wanting to convert their settings to Quick Access Popup must first install QAP version v9.4.1.3 (or before), and then upgrade to the latest QAP version
