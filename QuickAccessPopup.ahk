@@ -35,6 +35,17 @@ Version ALPHA: 9.9.0.6 (2019-02-??)
 - fix 2 Win 7 Special Folders initialization commands causing a runtime error
 - merge changes from regular release v9.4.1.4 (changes in the Setup script affecting Folders Popup users upgrading to QAP)
 - ...
+- changes from v9.4.1.5
+
+Version: 9.4.1.5 (2019-02-??)
+- update drop down menu label "Current Windows" in List Applications
+- when copying a favorite, keep the actual favorite in the item position dropdown list
+- fix bug, make sure the default theme Windows is selected when the value is empty in ini file
+- add "Y" label in Options, "Menu" tab, "at fix position"
+- fix link to website in "Check for update" dialog box
+- remove unappropriate validation when saving an edited or copied Shared menu (when not new)
+- fix bug when searching for "Live" folders type in Settings Extended Search
+...
 
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
@@ -4088,7 +4099,10 @@ o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "ChangeFolderIn
 if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 	o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 
-g_blnUseColors := (o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) <> "Windows") ; g_strTheme
+o_Settings.ReadIniOption("SettingsWindow", "strTheme", "Theme", "Windows", "SettingsWindow", 30) ; g_strTheme
+if !StrLen(o_Settings.SettingsWindow.strTheme.IniValue) ; in case value is found but empty
+	o_Settings.SettingsWindow.strTheme.IniValue := "Windows"
+g_blnUseColors := (o_Settings.SettingsWindow.strTheme.IniValue <> "Windows")
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "Advanced", "50") ; g_strExternalMenusCataloguePath
 ; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
@@ -7000,7 +7014,7 @@ Gui, 2:Add, Radio, % "y+5 xs w300 vf_radPopupMenuPosition3 gPopupMenuPositionCli
 Gui, 2:Add, Text, % "y+5 xs+18 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
-Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
 
@@ -8769,6 +8783,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 			strHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
 			strHotkey := (strHotkey = o_L["DialogNone"] ? "" : strHotkey)
 			strSearchIn .= " " . o_Favorites.GetFavoriteTypeObject(objCurrentMenu[A_Index].FavoriteType).strFavoriteTypeLocationLabelNoAmpersand
+				. " " . GetFavoriteTypeForList(objCurrentMenu[A_Index]) ; include short names and Live Folder label
 				. " " . strHotkey
 				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
 				. " " . objCurrentMenu[A_Index].FavoriteLocation
