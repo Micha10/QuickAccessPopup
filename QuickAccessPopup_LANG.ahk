@@ -465,6 +465,7 @@ this["HelpText53"] := "To create or add a shared menu, in the Add Favorite dialo
 this["HelpText54"] := "Setup a Shared Menus Catalogue in Options (""General"" tab) to make it easier for your users to subscribe to Shared menus."
 this["HelpTextLead"] := "Quick Access Popup lets you move like a breeze between your frequently used folders, documents, applications, web pages and much more!"
 this["HelpTitle"] := "Help - ~1~ ~2~"
+this["HotkeyRemindersRightAlign"] := "Align reminders to the right"
 this["ImpExpAborted"] := "aborted"
 this["ImpExpAppend"] := "Append"
 this["ImpExpCompleted"] := "completed"

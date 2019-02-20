@@ -4132,6 +4132,7 @@ o_Settings.ReadIniOption("MenuPopup", "arrPopupFixPosition", "PopupFixPosition",
 o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPopup.arrPopupFixPosition.IniValue, ",")
 
 o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "MenuAppearance", 10) ; g_intHotkeyReminders
+o_Settings.ReadIniOption("Menu", "blnHotkeyRemindersRightAlign", "HotkeyRemindersRightAlign", 1, "MenuAppearance", 12)
 
 o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 1, "PopupMenu", 20) ; g_blnExplorerContextMenus
 if (g_blnPortableMode)
@@ -4141,7 +4142,7 @@ o_Settings.ReadIniOption("Menu", "intRecentFoldersMax", "RecentFoldersMax", 10, 
 o_Settings.ReadIniOption("Menu", "intNbLastActions", "NbLastActions", 10, "MenuAppearance", 10) ; g_intNbLastActions
 
 o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcuts", "DisplayMenuShortcuts", 0, "MenuAppearance", 10) ; g_blnDisplayNumericShortcuts
-o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 0, "MenuAppearance", 25) ; g_blnDisplayNumericShortcutsFromOne
+o_Settings.ReadIniOption("Menu", "blnDisplayNumericShortcutsFromOne", "DisplayMenuShortcutsFromOne", 1, "MenuAppearance", 25) ; g_blnDisplayNumericShortcutsFromOne
 o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", 20) ; g_blnOpenMenuOnTaskbar
 o_Settings.ReadIniOption("Menu", "blnAddCloseToDynamicMenus", "AddCloseToDynamicMenus", 1, "MenuAppearance", 90) ; g_blnAddCloseToDynamicMenus
 
@@ -4157,10 +4158,10 @@ o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManage
 ; ---------------------
 ; Load Options Tab 4 Alternative Menu
 
-o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "MenuAdvanced", 25) ; g_blnAlternativeMenuShowNotification
+o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "PopupHotkeysAlternative", 25) ; g_blnAlternativeMenuShowNotification
 
-o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "PopupHotkeysOther", 60) ; g_blnLeftControlDoublePressed
-o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "PopupHotkeysOther", 65) ; g_blnRightControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "PopupHotkeys", 60) ; g_blnLeftControlDoublePressed
+o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightControlDoublePressed", 0, "PopupHotkeys", 65) ; g_blnRightControlDoublePressed
 
 ; ---------------------
 ; Load Options Tab 5 File Managers
@@ -5089,30 +5090,35 @@ return
 ;------------------------------------------------------------
 BuildGuiOptionsMenu:
 ;------------------------------------------------------------
+Menu, menuOptions, Add
+Menu, menuOptions, DeleteAll
 
-Menu, menuOptions, Add, % o_L["OptionsOtherOptions"], GuiOptionsGroupGeneral
-Menu, menuOptions, Add, % o_L["OptionsSettingsWindow"], GuiOptionsGroupSettingsWindow
+intNum := 0
+
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsOtherOptions"]), GuiOptionsGroupGeneral
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsSettingsWindow"]), GuiOptionsGroupSettingsWindow
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsMenuIcons"], GuiOptionsGroupMenuIcons
-Menu, menuOptions, Add, % o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppearance
-Menu, menuOptions, Add, % o_L["OptionsPopupMenu"], GuiOptionsGroupPopupMenu
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMenuIcons"]), GuiOptionsGroupMenuIcons
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMenuAppearance"]), GuiOptionsGroupMenuAppearance
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsPopupMenu"]), GuiOptionsGroupPopupMenu
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
-Menu, menuOptions, Add, % o_L["OptionsPopupHotkeysOther"], GuiOptionsGroupPopupHotkeysOther
-Menu, menuOptions, Add, % o_L["OptionsPopupHotkeysAlternative"], GuiOptionsGroupPopupHotkeysAlternative
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsPopupHotkeys"]), GuiOptionsGroupPopupHotkeys
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsPopupHotkeysAlternative"]), GuiOptionsGroupPopupHotkeysAlternative
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsFileManagers"], GuiOptionsGroupFileManagers
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsFileManagers"]), GuiOptionsGroupFileManagers
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsSnippets"], GuiOptionsGroupSnippets
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsSnippets"]), GuiOptionsGroupSnippets
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsUserVariables"], GuiOptionsGroupUserVariables
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsUserVariables"]), GuiOptionsGroupUserVariables
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsDatabase"], GuiOptionsGroupDatabase
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsDatabase"]), GuiOptionsGroupDatabase
 Menu, menuOptions, Add
-Menu, menuOptions, Add, % o_L["OptionsMenuAdvanced"], GuiOptionsGroupMenuAdvanced
-Menu, menuOptions, Add, % o_L["OptionsAdvancedOther"], GuiOptionsGroupAdvancedOther
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMenuAdvanced"]), GuiOptionsGroupMenuAdvanced
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsAdvancedOther"]), GuiOptionsGroupAdvancedOther
 Menu, menuOptions, Add
-Menu, menuOptions, Add, Old Options Window (TEMP), GuiOptionsOld
+Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, "Old Options Window (TEMP)"), GuiOptionsOld
+
+intNum := ""
 
 return
 ;------------------------------------------------------------
@@ -6261,11 +6267,9 @@ intMenuNumber := 0
 Loop
 	if o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
-		strThisHotkey := o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey
 		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
-		if (o_Settings.Menu.intHotkeyReminders.IniValue > 1) and StrLen(strThisHotkey)
-			strMenuName .= " (" . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? strThisHotkey : new Triggers.HotkeyParts(strThisHotkey).Hotkey2Text(true)) . ")"
-			; hotkey reminder " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
+		strMenuName .= MenuNameReminder(o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey)
+		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
 		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
 	}
@@ -6278,7 +6282,6 @@ Loop
 AddCloseMenu("g_menuAlternative")
 
 strMenuName := ""
-strThisHotkey := ""
 
 return
 ;------------------------------------------------------------
@@ -6368,15 +6371,13 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if (objCurrentMenu[A_Index].FavoriteType = "Group")
 			strMenuName .= " " . g_strGroupIndicatorPrefix . objCurrentMenu[A_Index].Submenu.MaxIndex() - 1 . g_strGroupIndicatorSuffix
 		
+		if StrLen(objCurrentMenu[A_Index].FavoriteShortcut) or StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
+			strMenuName .= MenuNameReminder(objCurrentMenu[A_Index].FavoriteShortcut, GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
+		
 		if StrLen(objCurrentMenu[A_Index].FavoriteShortcut)
 		{
 			g_objFavoritesObjectsByShortcut.Insert(objCurrentMenu[A_Index].FavoriteShortcut, objCurrentMenu[A_Index])
 
-			if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
-				strMenuName .= " (" . (o_Settings.Menu.intHotkeyReminders.IniValue = 2
-					? objCurrentMenu[A_Index].FavoriteShortcut 
-					: new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)) . ")"
-					
 			; enable shortcut
 			Hotkey, % objCurrentMenu[A_Index].FavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 			if (ErrorLevel)
@@ -6389,8 +6390,6 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 		{
 			g_objFavoritesObjectsByHotstring.Add(objCurrentMenu[A_Index].FavoriteHotstring, objCurrentMenu[A_Index])
-			if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
-				strMenuName .= GetHotstringReminder(objCurrentMenu[A_Index].FavoriteHotstring)
 			
 			; before creating an hotstring...
 			; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
@@ -6957,7 +6956,6 @@ GuiOptionsGroupMenuAppearance:
 GuiOptionsGroupPopupMenu:
 GuiOptionsGroupPopupHotkeys:
 GuiOptionsGroupPopupHotkeysAlternative:
-GuiOptionsGroupPopupHotkeysOther:
 GuiOptionsGroupFileManagers:
 GuiOptionsGroupSnippets:
 GuiOptionsGroupUserVariables:
@@ -7076,8 +7074,18 @@ else if (g_strSettingsGroup = "MenuIcons")
 }
 else if (g_strSettingsGroup = "MenuAppearance")
 {
+	; HotkeyReminders
+	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsHotkeyRemindersPrompt"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders1 Group gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 1 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersNo"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders2 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersShort"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders3 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 3 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersFull"]
+
+	; HotkeyRemindersRightAlign
+	Gui, 2:Add, CheckBox, y+10 x28 w500 vf_blnHotkeyRemindersRightAlign , % o_L["HotkeyRemindersRightAlign"]
+	GuiControl, , f_blnHotkeyRemindersRightAlign, % (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue = true)
+
 	; DisplayMenuShortcuts
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, % o_L["OptionsDisplayMenuShortcuts"]
+	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, % o_L["OptionsDisplayMenuShortcuts"]
 	GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 	; DisplayMenuShortcutsFromOne
@@ -7153,16 +7161,37 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 		Gui, 2:Font, s8 w500
 		Gui, 2:Add, Link, x10 ys w240 gOptionsTitlesDescriptionClicked, % objThisPopupHotkey.strPopupHotkeyLocalizedDescription
 	}
+	
+	Gui, 2:Add, Text, y+15 x10, % o_L["OptionsControlDoublePressed"] . ":"
+	Gui, 2:Add, CheckBox, y+5 x10 vf_blnLeftControlDoublePressed, % o_L["OptionsControlDoublePressedLeft"]
+	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, % o_L["OptionsControlDoublePressedRight"]
+	GuiControl, , f_blnLeftControlDoublePressed, % (o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue = true)
+	GuiControl, , f_blnRightControlDoublePressed, % (o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue = true)
 }
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
-; {Open Containing New}
-
 	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
 	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 		if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
+			
+	Gui, 2:Add, Text, y+10 x10 w590 center, % o_L["OptionsAlternativeMenuFeaturesIntro"]
+
+	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
+	{
+		Gui, 2:Font, s8 w700
+		Gui, 2:Add, Text, x15 y+10 w240, % o_QAPfeatures.I[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
+		Gui, 2:Font, s9 w500, Courier New
+		Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
+			, % new Triggers.HotkeyParts(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
+		Gui, 2:Font
+		Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, % o_L["OptionsChangeHotkey"]
+	}
+	
+	Gui, 2:Add, CheckBox, y+15 x10 vf_blnAlternativeMenuShowNotification, % o_L["OptionsAlternativeMenuShowNotification"]
+	GuiControl, , f_blnAlternativeMenuShowNotification, % (o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue = true)
+
 }
 else if (g_strSettingsGroup = "PopupHotkeysOther")
 {
@@ -7283,17 +7312,6 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 ;---------------------------------------
 ; Save Tab 4: Alternative menu hotkeys
 
-IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
-for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
-	if HasShortcut(strNewShortcut)
-		o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut)
-
-o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
-o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
-o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoublePressed)
-
-; After Save Tab 3: Popup menu hotkeys and Save Tab 4: Alternative menu hotkeys
-Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file and re-enable popup hotkeys
 
 ;---------------------------------------
 ; Save Tab 5: File Managers
@@ -7501,6 +7519,15 @@ else if (g_strSettingsGroup = "MenuIcons")
 }
 else if (g_strSettingsGroup = "MenuAppearance")
 {
+	if (f_radHotkeyReminders1)
+		o_Settings.Menu.intHotkeyReminders.IniValue := 1
+	else if (f_radHotkeyReminders2)
+		o_Settings.Menu.intHotkeyReminders.IniValue := 2
+	else
+		o_Settings.Menu.intHotkeyReminders.IniValue := 3
+	o_Settings.Menu.intHotkeyReminders.WriteIni("", true) ; value already updated
+	
+	o_Settings.Menu.blnHotkeyRemindersRightAlign.WriteIni(f_blnHotkeyRemindersRightAlign)
 	o_Settings.Menu.blnDisplayNumericShortcuts.WriteIni(f_blnDisplayNumericShortcuts)
 	o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIni(f_blnDisplayNumericShortcutsFromOne)
 	o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
@@ -7549,18 +7576,21 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 {
 	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
 		o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
+	o_PopupHotkeys.EnablePopupHotkeys()
 	
-	blnEnableHotkeys := true
+	o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
+	o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoublePressed)
 }
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
-	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
-	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
-		if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
-			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
-			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
-			
-	blnEnableHotkeys := true
+	IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
+	for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
+		if HasShortcut(strNewShortcut)
+			o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut)
+
+	Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file
+	Gosub, BuildAlternativeMenu
+	o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
 }
 else if (g_strSettingsGroup = "PopupHotkeysOther")
 {
@@ -7595,13 +7625,9 @@ if (blnReloadMenus)
 		Menu, %strMenuName%, DeleteAll
 		ResetArray("arrMenu") ; free object's memory
 	}
-
 	Gosub, BuildMainMenuWithStatus
-	Gosub, BuildAlternativeMenu
+	Gosub, BuildGuiOptionsMenu
 }
-
-if (blnEnableHotkeys)
-	o_PopupHotkeys.EnablePopupHotkeys()
 
 g_blnMenuReady := true
 
@@ -7610,7 +7636,7 @@ strLanguageCodePrev := ""
 strThemePrev := ""
 strQAPTempFolderParentPrev := ""
 blnReloadMenus := ""
-blnEnableHotkeys := ""
+
 
 ;------------------------------------------------------------
 
@@ -7685,7 +7711,6 @@ Gui, 2:Font, s8 w600, Verdana
 Gui, 2:Add, Tab2, vf_intOptionsTab w620 h440 AltSubmit, % " " . o_L["OptionsOtherOptions"] . "| " . o_L["OptionsMenuOptions"] . "| " . o_L["OptionsMouseAndKeyboard"]
 	. "| " . o_L["OptionsAlternativeMenuFeatures"] . "| " . o_L["OptionsThirdParty"] . "| " . o_L["DialogMore"] . " "
 
-; #####
 ;---------------------------------------
 ; Tab 1: General options
 
@@ -8392,6 +8417,17 @@ DisplayMenuShortcutsClicked:
 Gui, 2:Submit, NoHide
 
 GuiControl, % (f_blnDisplayNumericShortcuts ? "Enable" : "Disable"), f_blnDisplayNumericShortcutsFromOne
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+HotkeyRemindersClicked:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+GuiControl, % (f_radHotkeyReminders1 ? "Disable" : "Enable"), f_blnHotkeyRemindersRightAlign
 
 return
 ;------------------------------------------------------------
@@ -13209,8 +13245,9 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	strThisHotkey := new Triggers.HotkeyParts(g_objEditedFavorite.FavoriteShortcut).Hotkey2Text(true)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
-		strThisHotkey .= GetHotstringReminder(g_objEditedFavorite.FavoriteHotstring)
-	
+		strThisHotkey .= " " . BetweenParenthesis(o_Settings.Menu.intHotkeyReminders.IniValue = 2
+			? o_L["DialogHotstringIndicator"] : GetHotstringTrigger(g_objEditedFavorite.FavoriteHotstring))
+
 	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
 		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, strThisHotkey, strThisLocation)
@@ -16000,12 +16037,13 @@ WindowIsQuickAccessPopup(strClass)
 OpenAlternativeMenu:
 ; remember the Alternative menu item to execute and open the popup menu to choose on what favorite execute this action
 ;------------------------------------------------------------
-
+ 
 g_strAlternativeMenu := A_ThisMenuItem
 if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
-	StringTrimLeft, g_strAlternativeMenu, g_strAlternativeMenu, 3 ; remove "&1 " from menu item
-if (o_Settings.Menu.intHotkeyReminders.IniValue > 1) and InStr(g_strAlternativeMenu, " (")
-	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, " (", -1) - 1) ; and remove hotkey reminder
+	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 4) ; remove "&1 " from menu item
+if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
+	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1
+		, InStr(g_strAlternativeMenu, (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue ? "`t" : " (") - 1)) ; and remove hotkey reminder
 
 gosub, OpenAlternativeMenuTrayTip
 gosub, LaunchFromAlternativeMenu
@@ -20814,20 +20852,6 @@ GetFavoriteHotkeyFromLocation(strLocation)
 
 
 ;------------------------------------------------------------
-GetHotstringReminder(strHotstring)
-;------------------------------------------------------------
-{
-	if StrLen(strHotstring)
-		return " " . BetweenParenthesis((o_Settings.Menu.intHotkeyReminders.IniValue = 2
-			? o_L["DialogHotstringIndicator"]
-			: GetHotstringTrigger(strHotstring)))
-	else
-		return ""
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 GetHotstringTrigger(strHotstring)
 ;------------------------------------------------------------
 {
@@ -21193,6 +21217,30 @@ NextMenuShortcut(ByRef intMenuNumber)
 	
 	intMenuNumber := intMenuNumber + 1
 	return strShortcut
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+MenuNameReminder(strHotkey, strHotstring := "")
+;------------------------------------------------------------
+{
+	if (o_Settings.Menu.intHotkeyReminders.IniValue > 1) and StrLen(strHotkey . strHotstring)
+	{
+		if StrLen(strHotkey)
+			strReminderText := (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? strHotkey : new Triggers.HotkeyParts(strHotkey).Hotkey2Text(true))
+		if StrLen(strHotkey) and StrLen(strHotstring)
+			strReminderText .= " / "
+		if StrLen(strHotstring)
+			strReminderText .= (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? o_L["DialogHotstringIndicator"] : strHotstring)
+		
+		if (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue)
+			return "`t" . strReminderText
+		else
+			return " " . BetweenParenthesis(strReminderText)
+	}
+	else
+		return ""
 }
 ;------------------------------------------------------------
 
