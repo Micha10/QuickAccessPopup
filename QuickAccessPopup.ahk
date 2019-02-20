@@ -7074,6 +7074,8 @@ else if (g_strSettingsGroup = "MenuIcons")
 }
 else if (g_strSettingsGroup = "MenuAppearance")
 {
+	Gui, 2:Add, Text, y+10 x10 w590 center, % o_L["OptionsTabMenuOptionsIntro"]
+	
 	; HotkeyReminders
 	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsHotkeyRemindersPrompt"]
 	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders1 Group gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 1 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersNo"]
@@ -7193,11 +7195,47 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 	GuiControl, , f_blnAlternativeMenuShowNotification, % (o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue = true)
 
 }
-else if (g_strSettingsGroup = "PopupHotkeysOther")
-{
-}
 else if (g_strSettingsGroup = "FileManagers")
 {
+	Gui, 2:Add, Text, x1 y+10 w590 center, % o_L["OptionsTabFileManagersIntro"]
+
+	; column 2
+	Gui, Font, w600
+	Gui, 2:Add, Text, x250 y+15 w300 Section, % o_L["OptionsTabFileManagersPreferences"]
+	Gui, Font
+	Gui, 2:Add, Text, y+10 x250 w300 vf_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.I[o_FileManagers.ActiveFileManager].strDisplayName)
+	Gui, 2:Add, Radio, % "y+10 x255 w250 vf_radFileManagerNavigateCurrent" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+	Gui, 2:Add, Radio, % "y+5 x255 w250 vf_radFileManagerNavigateNew" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+
+	; column 1
+	Gui, Font, w600
+	Gui, 2:Add, Text, ys x10 w230 Section, % o_L["OptionsTabFileManagersPreferred"]
+	Gui, Font
+	loop, % o_FileManagers.I.Length()
+		Gui, 2:Add, Radio, % "y+10 x15 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.I[A_Index].strDisplayName
+
+	; bottom
+	Gui, 2:Font, s8 w700
+	Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp ; hidden
+	Gui, 2:Font
+	Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
+	Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
+	GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.I[1].blnOpenFavoritesOnActiveMonitor = true)
+	Gui, 2:Add, Text, y+10 x32 vf_lblFileManagerPrompt hidden, % o_L["DialogApplicationLabel"] . ":"
+	Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
+	Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
+	if StrLen(o_FileManagers.I[4].strQAPconnectFileManager)
+		GuiControl, ChooseString, f_drpQAPconnectFileManager, % o_FileManagers.I[4].strQAPconnectFileManager
+	Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath hidden, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Checkbox, y+10 x32 w590 vf_blnFileManagerUseTabs gFileManagerNavigateClicked hidden, % o_L["OptionsThirdPartyUseTabs"]
+	Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(o_L["MenuEditIniFile"], "QAPconnect.ini")
+	Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinCmdLocation"]
+	Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
+	Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gFileManagerNavigateClicked hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
+	GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.I[2].blnFileManagerDirectoryOpusShowLayouts = true)
+
+	Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavigateClicked
 }
 else if (g_strSettingsGroup = "Snippets")
 {
@@ -7315,45 +7353,6 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 
 ;---------------------------------------
 ; Save Tab 5: File Managers
-
-o_Settings.FileManagers.intActiveFileManager.WriteIni(g_intClickedFileManager)
-o_Settings.FileManagers.blnAlwaysNavigate.WriteIni(f_radFileManagerNavigateCurrent)
-	
-strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
-
-if (g_intClickedFileManager = 1)
-	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIni(f_blnOpenFavoritesOnActiveMonitor)
-else if (g_intClickedFileManager = 4) ; QAPconnect
-	o_Settings.FileManagers.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
-else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
-{
-	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
-	o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIni(f_blnFileManagerUseTabs)
-	
-	if (g_intClickedFileManager = 2) ; DirectoryOpus
-	{
-		if (f_blnFileManagerUseTabs)
-			strClickedNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
-		else
-			strClickedNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
-		
-		o_Settings.FileManagers.blnDirectoryOpusShowLayouts.WriteIni(f_blnFileManagerDirectoryOpusShowLayouts)
-	}
-	else ; TotalCommander
-	{
-		if (f_blnFileManagerUseTabs)
-			strClickedNewTabOrWindow := "/O /T" ; open new folder in a new tab
-		else
-			strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
-		
-		o_Settings.FileManagers.strTotalCommanderWinCmd.WriteIni(f_strTotalCommanderWinCmd)
-	}
-	; remove: IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
-	; IniRead could be kept in FileManagers init to allow user to customize "NEWTAB" or "NEW" (for DOpus), "/O /T" or "/N" (for TC)
-}
-
-; Re-init class for FileManagers, reloading ini values
-o_FileManagers := new FileManagers
 
 ;---------------------------------------
 ; Save Tab 6: More
@@ -7592,11 +7591,46 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 	Gosub, BuildAlternativeMenu
 	o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
 }
-else if (g_strSettingsGroup = "PopupHotkeysOther")
-{
-}
 else if (g_strSettingsGroup = "FileManagers")
 {
+	o_Settings.FileManagers.intActiveFileManager.WriteIni(g_intClickedFileManager)
+	o_Settings.FileManagers.blnAlwaysNavigate.WriteIni(f_radFileManagerNavigateCurrent)
+		
+	strClickedFileManagerSystemName := o_FileManagers.I[g_intClickedFileManager].strFileManagerSystemName
+
+	if (g_intClickedFileManager = 1)
+		o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIni(f_blnOpenFavoritesOnActiveMonitor)
+	else if (g_intClickedFileManager = 4) ; QAPconnect
+		o_Settings.FileManagers.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
+	else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
+	{
+		o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
+		o_Settings.FileManagers["bln" . strClickedFileManagerSystemName . "UseTabs"].WriteIni(f_blnFileManagerUseTabs)
+		
+		if (g_intClickedFileManager = 2) ; DirectoryOpus
+		{
+			if (f_blnFileManagerUseTabs)
+				strClickedNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
+			else
+				strClickedNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
+			
+			o_Settings.FileManagers.blnDirectoryOpusShowLayouts.WriteIni(f_blnFileManagerDirectoryOpusShowLayouts)
+		}
+		else ; TotalCommander
+		{
+			if (f_blnFileManagerUseTabs)
+				strClickedNewTabOrWindow := "/O /T" ; open new folder in a new tab
+			else
+				strClickedNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
+			
+			o_Settings.FileManagers.strTotalCommanderWinCmd.WriteIni(f_strTotalCommanderWinCmd)
+		}
+		; remove: IniWrite, %strClickedNewTabOrWindow%, % o_Settings.strIniFile, Global, %strClickedFileManagerSystemName%NewTabOrWindow
+		; IniRead could be kept in FileManagers init to allow user to customize "NEWTAB" or "NEW" (for DOpus), "/O /T" or "/N" (for TC)
+	}
+
+	; Re-init class for FileManagers, reloading ini values
+	o_FileManagers := new FileManagers
 }
 else if (g_strSettingsGroup = "Snippets")
 {
