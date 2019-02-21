@@ -7256,9 +7256,41 @@ else if (g_strSettingsGroup = "Snippets")
 }
 else if (g_strSettingsGroup = "UserVariables")
 {
+	Gui, 2:Add, Link, x10 y10 w600, % o_L["OptionsUserVariablesList"]
+		. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
+	Gui, 2:Add, Link, x10 y+10 w600, % o_L["OptionsUserVariablesListInstructions"]
+	Gui, 2:Add, Edit, x10 y+10 w600 r10 vf_strUserVariablesList
+		, % (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
+		? StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n") : "{MyVariable}=MyContent")
 }
 else if (g_strSettingsGroup = "Database")
 {
+	Gui, 2:Font, s8 w700
+	Gui, 2:Add, Text, x10 y10 w600, % L(o_L["OptionsUsageDb"], g_strAppNameText)
+	Gui, 2:Font
+	
+	Gui, 2:Add, Text, x10 y+10 w600, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
+	
+	Gui, 2:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, % L(o_L["OptionsUsageDbEnable"], g_strAppNameText)
+	GuiControl, , f_blnOptionUsageDbEnable, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
+	
+	Gui, 2:Add, Text, x10 y+10 vf_lblUsageDbIntervalSecondsMore, % o_L["OptionsUsageDbIntervalSeconds"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbIntervalSecondsEdit
+	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+	
+	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbDaysInPopularMore, % o_L["OptionsUsageDbDaysInPopular"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 Number vf_intUsageDbDaysInPopularEdit
+	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
+	
+	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbMaximumSizeMore, % o_L["OptionsUsageDbMaximumSize"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize, % o_Settings.Database.fltUsageDbMaximumSize.IniValue
+
+	Gui, 2:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndex, % o_L["OptionsUsageDbShowPopularityIndex"]
+	GuiControl, , f_blnUsageDbShowPopularityIndex, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue = true
+	
+	Gui, 2:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, % o_L["OptionsUsageDbFlushDatabase"]
+
+	Gosub, OptionUsageDbEnableClicked
 }
 else if (g_strSettingsGroup = "MenuAdvanced")
 {
@@ -7368,25 +7400,9 @@ else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 
 ; UsageDb
 
-intUsageDbIntervalSecondsPrev := o_Settings.Database.intUsageDbIntervalSeconds.IniValue
-o_Settings.Database.intUsageDbIntervalSeconds.WriteIni(f_intUsageDbIntervalSeconds)
-
-intUsageDbDaysInPopularPrev := o_Settings.Database.intUsageDbDaysInPopular.IniValue
-o_Settings.Database.intUsageDbDaysInPopular.WriteIni(f_intUsageDbDaysInPopular)
-o_Settings.Database.fltUsageDbMaximumSize.WriteIni(f_fltUsageDbMaximumSize)
-o_Settings.Database.blnUsageDbShowPopularityIndex.WriteIni(f_blnUsageDbShowPopularityIndex)
-
-blnUseSQLitePrev := g_blnUsageDbEnabled
-g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
-if (!blnUseSQLitePrev and g_blnUsageDbEnabled)
-	gosub, UsageDbInit
-if (intUsageDbIntervalSecondsPrev <> o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
-	or (intUsageDbDaysInPopularPrev <> o_Settings.Database.intUsageDbDaysInPopular.IniValue)
-	Oops(o_L["OptionsUsageDbDisabling"], g_strAppNameText)
 
 ; UserVariablesList, IconReplacementList and SwitchExclusionList
 
-o_Settings.UserVariables.strUserVariablesList.WriteIni(OptionsListCleanup(f_strUserVariablesList))
 o_Settings.Execution.strSwitchExclusionList.WriteIni(OptionsListCleanup(f_strSwitchExclusionList))
 
 ; End of More
@@ -7418,11 +7434,6 @@ else if (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
 	IfMsgBox, Yes
 		Gosub, ExitApp
 }
-
-; and preprocess these dynamic menus
-Gosub, DynamicMenusPreProcess ; in case the number of items in Frequent and Recent menus was changed in Options
-
-Gosub, LoadMenuInGui ; in case show popularity index changed
 
 strClickedFileManagerSystemName := ""
 blnActiveFileManangerOK := ""
@@ -7650,9 +7661,35 @@ else if (g_strSettingsGroup = "Snippets")
 }
 else if (g_strSettingsGroup = "UserVariables")
 {
+	o_Settings.UserVariables.strUserVariablesList.WriteIni(OptionsListCleanup(f_strUserVariablesList))
 }
 else if (g_strSettingsGroup = "Database")
 {
+	intUsageDbIntervalSecondsPrev := o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+	o_Settings.Database.intUsageDbIntervalSeconds.WriteIni(f_blnOptionUsageDbEnable ? (f_intUsageDbIntervalSeconds < 60 ? 60 : f_intUsageDbIntervalSeconds) : 0)
+
+	intUsageDbDaysInPopularPrev := o_Settings.Database.intUsageDbDaysInPopular.IniValue
+	o_Settings.Database.intUsageDbDaysInPopular.WriteIni(f_intUsageDbDaysInPopular < 1 ? 1 : f_intUsageDbDaysInPopular)
+	f_fltUsageDbMaximumSize := StrReplace(f_fltUsageDbMaximumSize, ",", ".") ;  convert 1,5 to 1.5
+	if f_fltUsageDbMaximumSize is not Number
+		blnNotANumber := true
+	if (blnNotANumber or f_fltUsageDbMaximumSize <= 0)
+		Oops(o_L["OptionsUsageDbMaximumSizeInvalid"], f_fltUsageDbMaximumSize)
+	else
+		o_Settings.Database.fltUsageDbMaximumSize.WriteIni(f_fltUsageDbMaximumSize)
+	o_Settings.Database.blnUsageDbShowPopularityIndex.WriteIni(f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndex : false)
+
+	blnUseSQLitePrev := g_blnUsageDbEnabled
+	g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
+	if (!blnUseSQLitePrev and g_blnUsageDbEnabled)
+		gosub, UsageDbInit
+	if (intUsageDbIntervalSecondsPrev <> o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
+		or (intUsageDbDaysInPopularPrev <> o_Settings.Database.intUsageDbDaysInPopular.IniValue)
+		Oops(o_L["OptionsUsageDbDisabling"], g_strAppNameText)
+	
+	; preprocess these dynamic menus
+	Gosub, DynamicMenusPreProcess ; in case the number of items in Frequent and Recent menus was changed in Options
+	Gosub, LoadMenuInGui ; in case show popularity index changed
 }
 else if (g_strSettingsGroup = "MenuAdvanced")
 {
@@ -8677,21 +8714,20 @@ return
 ;------------------------------------------------------------
 OptionUsageDbEnableClicked:
 ;------------------------------------------------------------
-Gui, 3:Submit, NoHide
+Gui, 2:Submit, NoHide
 
 strAction := (f_blnOptionUsageDbEnable ? "Enable" : "Disable")
 
-GuiControl, %strAction%, f_lblUsageDbIntervalSecondsMore
-GuiControl, %strAction%, f_intUsageDbIntervalSecondsMoreEdit
-GuiControl, %strAction%, f_intUsageDbIntervalSecondsMore
-GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
-GuiControl, %strAction%, f_intUsageDbDaysInPopularMoreEdit
-GuiControl, %strAction%, f_intUsageDbDaysInPopularMore
-GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
-GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
-GuiControl, %strAction%, f_fltUsageDbMaximumSizeMore
-GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
-GuiControl, %strAction%, f_btnUsageDbFlush
+GuiControl, %strAction%, f_lblUsageDbIntervalSeconds
+GuiControl, %strAction%, f_intUsageDbIntervalSecondsEdit
+GuiControl, %strAction%, f_intUsageDbIntervalSeconds
+GuiControl, %strAction%, f_lblUsageDbDaysInPopular
+GuiControl, %strAction%, f_intUsageDbDaysInPopularEdit
+GuiControl, %strAction%, f_intUsageDbDaysInPopular
+GuiControl, %strAction%, f_lblUsageDbDaysInPopular
+GuiControl, %strAction%, f_lblUsageDbMaximumSize
+GuiControl, %strAction%, f_fltUsageDbMaximumSize
+GuiControl, %strAction%, f_blnUsageDbShowPopularityIndex
 
 strAction := ""
 
@@ -25165,7 +25201,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
 			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
 			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
-		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",			"menuOptions",					"OptionsMenuShortcut",										"7-QAPManagement"
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"],					"menuOptions",					"OptionsMenuShortcut",					"7-QAPManagement"
 			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
 
