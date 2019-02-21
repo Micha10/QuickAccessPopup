@@ -7239,6 +7239,20 @@ else if (g_strSettingsGroup = "FileManagers")
 }
 else if (g_strSettingsGroup = "Snippets")
 {
+	Gui, 2:Add, Link, y+10 x10 w500, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
+
+	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultProcessEOLTab, % o_L["DialogFavoriteSnippetProcessEOLTab"]
+	GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
+
+	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultFixedFont, % o_L["DialogFavoriteSnippetFixedFont"]
+	GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
+
+	Gui, 2:Add, Text, y+10 x10, % o_L["DialogFavoriteSnippetFontSize"]
+	Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, % o_L["DialogFavoriteSnippetFontSize"]
+	Gui, 2:Add, UpDown, Range6-18 h20, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
+
+	Gui, 2:Add, CheckBox, y+10 x10 w300 vf_blnSnippetDefaultMacro, % o_L["DialogFavoriteSnippetSendModeMacro"]
+	GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
 }
 else if (g_strSettingsGroup = "UserVariables")
 {
@@ -7322,11 +7336,6 @@ o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIni(f_blnRunAsAdmin)
 o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIni(strNewHotstringsDefaultOptions)
 
 o_Settings.SettingsFile.strExternalMenusCataloguePath.WriteIni(f_strExternalMenusCataloguePath)
-
-o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIni(f_blnSnippetDefaultProcessEOLTab)
-o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIni(f_blnSnippetDefaultFixedFont)
-o_Settings.Snippets.intSnippetDefaultFontSize.WriteIni(f_intSnippetDefaultFontSize)
-o_Settings.Snippets.blnSnippetDefaultMacro.WriteIni(f_blnSnippetDefaultMacro)
 
 ;---------------------------------------
 ; Save Tab 2: Menu options
@@ -7634,6 +7643,10 @@ else if (g_strSettingsGroup = "FileManagers")
 }
 else if (g_strSettingsGroup = "Snippets")
 {
+	o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIni(f_blnSnippetDefaultProcessEOLTab)
+	o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIni(f_blnSnippetDefaultFixedFont)
+	o_Settings.Snippets.intSnippetDefaultFontSize.WriteIni(f_intSnippetDefaultFontSize)
+	o_Settings.Snippets.blnSnippetDefaultMacro.WriteIni(f_blnSnippetDefaultMacro)
 }
 else if (g_strSettingsGroup = "UserVariables")
 {
@@ -11299,10 +11312,23 @@ return
 ;------------------------------------------------------------
 SnippetModeChanged:
 ;------------------------------------------------------------
+
+; check if the icon was the default for the snippet type
+blnChangeDefaultSnippetIcon := (f_blnRadioSendModeText = 1 and g_strNewFavoriteIconResource = "iconPaste")
+	or (f_blnRadioSendModeMacro = 1 and g_strNewFavoriteIconResource = "iconPasteSpecial") ; text snippet with default macro icon, change to defaujlt text snippet icon
+
 Gui, 2:Submit, NoHide
+
+if (blnChangeDefaultSnippetIcon) ; change default snippet icon
+{
+	g_strNewFavoriteIconResource := (f_blnRadioSendModeText = 1 ? "iconPaste" : "iconPasteSpecial")
+	Gosub, GuiFavoriteIconDisplay
+}
 
 ; change snippet prompt label according to snippet type
 GuiControl, 2:, f_lblSnippetPrompt, % L(o_L["DialogFavoriteSnippetPromptLabel"], (f_blnRadioSendModeMacro = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
+
+blnChangeDefaultSnippetIcon := ""
 
 return
 ;------------------------------------------------------------
