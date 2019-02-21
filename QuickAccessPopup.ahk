@@ -10458,10 +10458,23 @@ return
 ;------------------------------------------------------------
 SnippetModeChanged:
 ;------------------------------------------------------------
+
+; check if the icon was the default for the snippet type
+blnChangeDefaultSnippetIcon := (f_blnRadioSendModeText = 1 and g_strNewFavoriteIconResource = "iconPaste")
+	or (f_blnRadioSendModeMacro = 1 and g_strNewFavoriteIconResource = "iconPasteSpecial") ; text snippet with default macro icon, change to defaujlt text snippet icon
+
 Gui, 2:Submit, NoHide
+
+if (blnChangeDefaultSnippetIcon) ; change default snippet icon
+{
+  g_strNewFavoriteIconResource := (f_blnRadioSendModeText = 1 ? "iconPaste" : "iconPasteSpecial")
+  Gosub, GuiFavoriteIconDisplay
+}
 
 ; change snippet prompt label according to snippet type
 GuiControl, 2:, f_lblSnippetPrompt, % L(o_L["DialogFavoriteSnippetPromptLabel"], (f_blnRadioSendModeMacro = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
+
+blnChangeDefaultSnippetIcon := ""
 
 return
 ;------------------------------------------------------------
