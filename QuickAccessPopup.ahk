@@ -4111,7 +4111,7 @@ if !StrLen(o_Settings.Launch.strTheme.IniValue) ; in case value is found but emp
 g_blnUseColors := (o_Settings.Launch.strTheme.IniValue <> "Windows")
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "AdvancedOther", "50") ; g_strExternalMenusCataloguePath
-o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", 0)
+o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", "ExternalMenusCataloguePathReadOnly", 0) ; false by default
 ; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
 
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", 40) ; g_blnAddAutoAtTop
@@ -4221,8 +4221,8 @@ if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "MenuAdvanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
 o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "AdvancedOther", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
-o_Settings.ReadIniOption("Execution", "g_blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", 42) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
-o_Settings.ReadIniOption("LaunchAdvanced", "g_blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
+o_Settings.ReadIniOption("Execution", "blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", 42) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
+o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
 o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "AdvancedOther", 60) ; g_strHotstringsDefaultOptions
 o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "AdvancedLaunch", 10) ; g_blnRefreshWindowsAppsListAtStartup
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "AdvancedOther", 45) ; g_blnTryWindowPosition
@@ -4250,7 +4250,6 @@ intNumberOfBackups := ""
 objIniFile := ""
 strFileEncoding := ""
 strIniFileContent := ""
-strWaitDelayInSnippet := ""
 strGuiTitle := ""
 strMenuDynamicMenus := ""
 
@@ -7364,7 +7363,7 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 
 	; AlternativeTrayIcon
 	Gui, 2:Add, Text, x10 y+10 vf_lblAlternativeTrayIcon, % o_L["OptionsAlternativeTrayIcon"] . ":"
-	Gui, 2:Add, Edit, y+5 xs w200 h20 vf_strAlternativeTrayIcon
+	Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon
 	Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strAlternativeTrayIcon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue
 
@@ -7382,15 +7381,14 @@ else if (g_strSettingsGroup = "AdvancedOther")
 	; ExternalMenusCataloguePath
 	if !(o_Settings.SettingsFile.blnExternalMenusCataloguePathReadOnly.IniValue)
 	{
-		Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsCatalogueHelp"], "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/", o_L["GuiHelp"])
-		Gui, 2:Add, CheckBox, y+10 x10 w300 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, % o_L["OptionsEnableExternalMenusCatalogue"]
+		Gui, 2:Add, CheckBox, y+15 x10 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, % o_L["OptionsEnableExternalMenusCatalogue"]
+		Gui, 2:Add, Link, yp x+5, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
 		GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
-
-		Gui, 2:Add, Text, y+10 x10 vf_lblExternalMenusCataloguePathPrompt hidden, % o_L["OptionsCataloguePath"] . ":"
-		Gui, 2:Add, Edit, y+5 x10 w200 h20 vf_strExternalMenusCataloguePath hidden
-		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath hidden, % o_L["DialogBrowseButton"]
+		Gui, 2:Add, Text, y+10 x10 vf_lblExternalMenusCataloguePathPrompt disabled, % o_L["OptionsCataloguePath"] . ":"
+		Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled
+		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled, % o_L["DialogBrowseButton"]
 		GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
-		Gosub, EnableExternalMenusCatalogueClicked ; init visible fields
+		Gosub, EnableExternalMenusCatalogueClicked ; init disabled fields
 	}
 	
 	; HotstringsDefaultOptions
@@ -7783,19 +7781,20 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 {
 	blnRunAsAdminPrev := o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue
 	o_Settings.LaunchAdvanced.blnRunAsAdmin.WriteIni(f_blnRunAsAdmin)
-	if (blnRunAsAdminPrev := o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
+	if (blnRunAsAdminPrev <> o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 		Oops(o_L["OptionsRunAsAdminChanged"], g_strAppNameText)
 
-	o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.WriteIni()
-	o_Settings.LaunchAdvanced.strAlternativeTrayIcon.WriteIni()
+	o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.WriteIni(f_blnRefreshWindowsAppsListAtStartup)
+	o_Settings.LaunchAdvanced.strAlternativeTrayIcon.WriteIni(f_strAlternativeTrayIcon)
 }	
 else if (g_strSettingsGroup = "AdvancedOther")
 {
-	o_Settings.DialogBoxes.intWaitDelayInDialogBox.WriteIni()
-	o_Settings.Execution.blnSendToConsoleWithAlt.WriteIni()
+	o_Settings.DialogBoxes.intWaitDelayInDialogBox.WriteIni(f_intWaitDelayInDialogBox)
+	o_Settings.Execution.blnSendToConsoleWithAlt.WriteIni(f_blnSendToConsoleWithAlt)
 	o_Settings.SettingsFile.strExternalMenusCataloguePath.WriteIni(f_strExternalMenusCataloguePath)
 	o_Settings.Hotstrings.strHotstringsDefaultOptions.WriteIni(strNewHotstringsDefaultOptions)
 	o_Settings.Snippets.arrWaitDelayInSnippet.WriteIni(f_intWaitDelayInSnippet1 . "|" . f_intWaitDelayInSnippet2 . "|" . f_intWaitDelayInSnippet3)
+	o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
 	o_Settings.Execution.strSwitchExclusionList.WriteIni(OptionsListCleanup(f_strSwitchExclusionList))
 }
 
@@ -7822,7 +7821,6 @@ strThemePrev := ""
 strQAPTempFolderParentPrev := ""
 blnRunAsAdminPrev := ""
 blnReloadMenus := ""
-
 
 ;------------------------------------------------------------
 
@@ -8572,7 +8570,7 @@ GuiControl, 2:%strEnableCommand%, f_btnExternalMenusCataloguePath
 if !(f_blnEnableExternalMenusCatalogue)
 	GuiControl, 2:, f_strExternalMenusCataloguePath
 
-strShowHideCommand := (f_blnEnableExternalMenusCatalogue ? "Show" : "Hide")
+strShowHideCommand := (f_blnEnableExternalMenusCatalogue ? "Enable" : "Disable")
 GuiControl, %strShowHideCommand%, f_lblExternalMenusCataloguePathPrompt
 GuiControl, %strShowHideCommand%, f_strExternalMenusCataloguePath
 GuiControl, %strShowHideCommand%, f_btnExternalMenusCataloguePath
