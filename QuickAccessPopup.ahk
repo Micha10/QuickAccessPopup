@@ -4732,7 +4732,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 ;-----------------------------------------------------------
 LoadIniAlternativeMenuFeaturesHotkeys:
 ; load and enable Alternative menu features hotkeys
-; called at launch by LoadIniFile and after saving options by ButtonOptionsSave
+; called at launch by LoadIniFile and after saving options by GuiOptionsGroupSave
 ;-----------------------------------------------------------
 
 ; Turn off previous QAP Alternative Menu features hotkeys
@@ -5090,6 +5090,7 @@ return
 ;------------------------------------------------------------
 BuildGuiOptionsMenu:
 ;------------------------------------------------------------
+
 Menu, menuMoreOptions, Add
 Menu, menuMoreOptions, DeleteAll
 intNum := 0
@@ -5119,8 +5120,6 @@ Menu, menuOptions, Add
 Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsDatabase"]), GuiOptionsGroupDatabase
 Menu, menuOptions, Add
 Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMoreOptions"]), :menuMoreOptions
-Menu, menuOptions, Add
-Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, "Old Options Window (TEMP)"), GuiOptionsOld
 
 intNum := ""
 
@@ -6942,7 +6941,6 @@ return
 
 ;------------------------------------------------------------
 ShowGuiOptionsMenu:
-GuiOptions:
 GuiOptionsFromQAPFeature:
 ;------------------------------------------------------------
 
@@ -6973,23 +6971,8 @@ GuiOptionsGroupAdvancedOther:
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
 objSettingsGroup := o_Settings.objGroupItems[g_strSettingsGroup]
-; ###_O("objSettingsGroup", objSettingsGroup, "strIniValueName")
 
 strSettingsGroupLabel := o_L["Options" . g_strSettingsGroup]
-; ###_V(A_ThisLabel, strSettingsGroupLabel, g_strSettingsGroup, o_L["Options" . g_strSettingsGroup])
-
-; o_L["OptionsOtherOptions"], GuiOptionsGroupGeneral
-; o_L["OptionsSettingsWindow"], GuiOptionsGroupSettingsWindow
-; o_L["OptionsMenuIcons"], GuiOptionsGroupMenuIcons
-; o_L["OptionsMenuAppearance"], GuiOptionsGroupMenuAppearance
-; o_L["OptionsPopupMenu"], GuiOptionsGroupPopupMenu
-; o_L["OptionsPopupHotkeys"], GuiOptionsGroupPopupHotkeys
-; o_L["OptionsFileManagers"], GuiOptionsGroupFileManagers
-; o_L["OptionsSnippets"], GuiOptionsGroupSnippets
-; o_L["OptionsUserVariables"], GuiOptionsGroupUserVariables
-; o_L["OptionsDatabase"], GuiOptionsGroupDatabase
-; o_L["OptionsMenuAdvanced"], GuiOptionsGroupMenuAdvanced
-; o_L["OptionsAdvancedOther"], GuiOptionsGroupAdvancedOther
 
 if (A_ThisLabel = "GuiOptionsFromQAPFeature")
 	Gosub, GuiShowFromGuiOptions
@@ -7000,45 +6983,49 @@ Gosub, GuiOptionsHeader
 
 if (g_strSettingsGroup = "General")
 {
+	; RunAtStartup
+	Gui, 2:Add, CheckBox, y+15 x120 vf_blnOptionsRunAtStartup, % o_L["OptionsRunAtStartup"]
+	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
+
 	; LanguageCode
-	Gui, 2:Add, Text, y+10 x10 w100, % o_L["OptionsLanguage"]
-	Gui, 2:Add, DropDownList, yp x+5 w150 vf_drpLanguage Sort, % o_L["OptionsLanguageLabels"]
+	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsLanguage"]
+	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpLanguage Sort, % o_L["OptionsLanguageLabels"]
 	GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
 	; Theme
-	Gui, 2:Add, Text, y+10 x10 w100, % o_L["OptionsTheme"]
-	Gui, 2:Add, DropDownList, yp x+5 w150 vf_drpTheme, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
+	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsTheme"]
+	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpTheme, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
 	GuiControl, ChooseString, f_drpTheme, % o_Settings.Launch.strTheme.IniValue
 
 	; DisplayTrayTip
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnDisplayTrayTip, % o_L["OptionsTrayTip"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnDisplayTrayTip, % o_L["OptionsTrayTip"]
 	GuiControl, , f_blnDisplayTrayTip, % (o_Settings.Launch.blnDisplayTrayTip.IniValue = true)
 
 	; Check4Update
-	Gui, 2:Add, CheckBox, y+10 x10 vf_blnCheck4Update, % o_L["OptionsCheck4Update"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnCheck4Update, % o_L["OptionsCheck4Update"]
 	GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue = true)
-	Gui, 2:Add, Link, yp x+5 w284 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
+	Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 	; ChangeFolderInDialog
-	Gui, 2:Add, CheckBox, y+10 x10 Section w500 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
 	GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 	; QAPTempFolder
-	Gui, 2:Add, Text, y+10 x10, % o_L["OptionsQAPTempFolder"] . ":"
-	Gui, 2:Add, Edit, y+5 x10 w400 h20 vf_strQAPTempFolderParentPath
+	Gui, 2:Add, Text, y+15 x10 w105, % o_L["OptionsQAPTempFolder"] . ":"
+	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strQAPTempFolderParentPath
 	Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
 
 	; BackupFolder
-	Gui, 2:Add, Text, y+10 x10, % o_L["OptionsBackupFolder"] . ":"
-	Gui, 2:Add, Edit, y+5 x10 w400 h20 vf_strBackupFolder
+	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsBackupFolder"] . ":"
+	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strBackupFolder
 	Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 }
 else if (g_strSettingsGroup = "SettingsWindow")
 {
 	; RememberSettingsPosition
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnRememberSettingsPosition, % o_L["OptionsRememberSettingsPosition"]
+	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnRememberSettingsPosition, % o_L["OptionsRememberSettingsPosition"]
 	GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 	; OpenSettingsOnActiveMonitor
@@ -7053,7 +7040,7 @@ else if (g_strSettingsGroup = "SettingsWindow")
 else if (g_strSettingsGroup = "MenuIcons")
 {
 	; DisplayIcons
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnDisplayIcons gDisplayIconsClicked, % o_L["OptionsDisplayIcons"]
+	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnDisplayIcons gDisplayIconsClicked, % o_L["OptionsDisplayIcons"]
 	GuiControl, , f_blnDisplayIcons, % (o_Settings.MenuIcons.blnDisplayIcons.IniValue = true)
 
 	; IconSize
@@ -7075,7 +7062,7 @@ else if (g_strSettingsGroup = "MenuIcons")
 }
 else if (g_strSettingsGroup = "MenuAppearance")
 {
-	Gui, 2:Add, Text, y+10 x10 w590 center, % o_L["OptionsTabMenuOptionsIntro"]
+	Gui, 2:Add, Text, y+15 x10 w590 center, % o_L["OptionsTabMenuOptionsIntro"]
 	
 	; HotkeyReminders
 	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsHotkeyRemindersPrompt"]
@@ -7098,9 +7085,17 @@ else if (g_strSettingsGroup = "MenuAppearance")
 
 	; RecentFoldersMax
 	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsRecentFoldersPrompt"]
-	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; , %g_intRecentFoldersMax%
+	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; %g_intRecentFoldersMax%
 	Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999, % o_Settings.Menu.intRecentFoldersMax.IniValue
 	Gui, 2:Add, Text, yp x+10 w235, % o_L["OptionsRecentFolders"]
+
+	; NbLastActions
+	Gui, 2:Add, Text, y+10 x10 w500, % o_L["MenuLastActions"]
+	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; %g_intNbLastActions%
+	Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999, % o_Settings.Menu.intNbLastActions.IniValue
+	strOptionsLastActions := StrReplace(o_L["OptionsRecentFolders"], "&") ; remove ampersand
+	Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
+	strOptionsLastActions := ""
 
 	; AddCloseToDynamicMenus
 	Gui, 2:Add, CheckBox, y+25 x10 w500 vf_blnAddCloseToDynamicMenus, % o_L["OptionsAddCloseToDynamicMenus"]
@@ -7109,7 +7104,7 @@ else if (g_strSettingsGroup = "MenuAppearance")
 else if (g_strSettingsGroup = "PopupMenu")
 {
 	; PopupMenuPosition
-	Gui, 2:Add, Text, y+10 x10 w500 Section, % o_L["OptionsMenuPositionPrompt"]
+	Gui, 2:Add, Text, y+15 x10 w500 Section, % o_L["OptionsMenuPositionPrompt"]
 
 	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1 ? "Checked" : ""), % o_L["OptionsMenuNearMouse"]
 	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Checked" : ""), % o_L["OptionsMenuActiveWindow"]
@@ -7152,7 +7147,7 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	
 	o_PopupHotkeys.BackupPopupHotkeys()
 
-	Gui, 2:Add, Text, y+10 x10 w590 center, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
+	Gui, 2:Add, Text, y+15 x10 w590 center, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
 	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I ; could also use o_Settings class objects
 	{
 		Gui, 2:Font, s8 w700
@@ -7170,6 +7165,9 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, % o_L["OptionsControlDoublePressedRight"]
 	GuiControl, , f_blnLeftControlDoublePressed, % (o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue = true)
 	GuiControl, , f_blnRightControlDoublePressed, % (o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue = true)
+	
+	intThisIndex := ""
+	objThisPopupHotkey := ""
 }
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
@@ -7180,7 +7178,7 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
 			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
 			
-	Gui, 2:Add, Text, y+10 x10 w590 center, % o_L["OptionsAlternativeMenuFeaturesIntro"]
+	Gui, 2:Add, Text, y+15 x10 w590 center, % o_L["OptionsAlternativeMenuFeaturesIntro"]
 
 	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
 	{
@@ -7200,7 +7198,7 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 }
 else if (g_strSettingsGroup = "FileManagers")
 {
-	Gui, 2:Add, Text, x1 y+10 w590 center, % o_L["OptionsTabFileManagersIntro"]
+	Gui, 2:Add, Text, x1 y+15 w590 center, % o_L["OptionsTabFileManagersIntro"]
 
 	; --- column 2 ---
 	; FileManagerAlwaysNavigate
@@ -7260,7 +7258,7 @@ else if (g_strSettingsGroup = "FileManagers")
 }
 else if (g_strSettingsGroup = "Snippets")
 {
-	Gui, 2:Add, Link, y+10 x10 w500, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
+	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
 
 	; SnippetDefaultProcessEOLTab
 	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultProcessEOLTab, % o_L["DialogFavoriteSnippetProcessEOLTab"]
@@ -7282,7 +7280,7 @@ else if (g_strSettingsGroup = "Snippets")
 else if (g_strSettingsGroup = "UserVariables")
 {
 	; UserVariablesList
-	Gui, 2:Add, Link, x10 y10 w600, % o_L["OptionsUserVariablesList"]
+	Gui, 2:Add, Link, x10 y+15 w600, % o_L["OptionsUserVariablesList"]
 		. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
 	Gui, 2:Add, Link, x10 y+10 w600, % o_L["OptionsUserVariablesListInstructions"]
 	Gui, 2:Add, Edit, x10 y+10 w600 r5 vf_strUserVariablesList
@@ -7291,9 +7289,8 @@ else if (g_strSettingsGroup = "UserVariables")
 }
 else if (g_strSettingsGroup = "Database")
 {
-
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x10 y10 w600, % L(o_L["OptionsUsageDb"], g_strAppNameText)
+	Gui, 2:Add, Text, x10 y+15 w600, % L(o_L["OptionsUsageDb"], g_strAppNameText)
 	Gui, 2:Font
 	
 	Gui, 2:Add, Text, x10 y+10 w600, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
@@ -7326,7 +7323,7 @@ else if (g_strSettingsGroup = "Database")
 else if (g_strSettingsGroup = "MenuAdvanced")
 {
 	; OpenMenuOnTaskbar
-	Gui, 2:Add, CheckBox, x10 y+10 vf_blnOpenMenuOnTaskbar, % o_L["OptionsOpenMenuOnTaskbar"]
+	Gui, 2:Add, CheckBox, x10 y+15 vf_blnOpenMenuOnTaskbar, % o_L["OptionsOpenMenuOnTaskbar"]
 	GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
 
 	; RefreshQAPMenuIntervalSec
@@ -7353,7 +7350,7 @@ else if (g_strSettingsGroup = "MenuAdvanced")
 else if (g_strSettingsGroup = "AdvancedLaunch")
 {
 	; RunAsAdmin
-	Gui, 2:Add, CheckBox, X10 y+10 vf_blnRunAsAdmin gRunAsAdminClicked, % o_L["OptionsRunAsAdmin"]
+	Gui, 2:Add, CheckBox, X10 y+15 vf_blnRunAsAdmin gRunAsAdminClicked, % o_L["OptionsRunAsAdmin"]
 	Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
 	GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
@@ -7371,7 +7368,7 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 else if (g_strSettingsGroup = "AdvancedOther")
 {
 	; WaitDelayInDialogBox
-	Gui, 2:Add, Text, x10 y+10 vf_lblWaitDelayInDialogBox, % o_L["OptionsWaitDelayInDialogBox"]
+	Gui, 2:Add, Text, x10 y+15 vf_lblWaitDelayInDialogBox, % o_L["OptionsWaitDelayInDialogBox"]
 	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 
 	; SendToConsoleWithAlt
@@ -7424,115 +7421,6 @@ return
 ;------------------------------------------------------------
 GuiOptionsGroupSave:
 ;------------------------------------------------------------
-/*
-;------------------------------------------------------------
-ButtonOptionsSave:
-;------------------------------------------------------------
-Gui, 2:Submit, NoHide
-
-g_blnMenuReady := false
-
-;---------------------------------------
-; Validation Tab 5: File Managers
-
-if (g_intClickedFileManager = 4) ; QAPconnect
-{
-	blnActiveFileManangerOK := StrLen(f_drpQAPconnectFileManager)
-	if (blnActiveFileManangerOK)
-	{
-		strQAPconnectPath := o_Settings.ReadIniValue("AppPath", " ", f_drpQAPconnectFileManager, o_FileManagers.I[4].strQAPconnectIniPath) ; empty by default
-		blnActiveFileManangerOK := FileExistInPath(strQAPconnectPath) ; return strQAPconnectPath expanded
-	}
-}
-else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
-{
-	blnActiveFileManangerOK := StrLen(f_strFileManagerPath)
-	if (blnActiveFileManangerOK)
-		blnActiveFileManangerOK := FileExistInPath(f_strFileManagerPath) ; return f_strFileManagerPath with expanded relative path and envvars, and absolute location if in PATH
-}
-if (g_intClickedFileManager > 1 and !blnActiveFileManangerOK)
-{
-	if (g_intClickedFileManager = 4)
-		Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
-	else ; 2 DirectoryOpus or 3 TotalCommander
-		if StrLen(f_strFileManagerPath)
-			Oops(o_L["OptionsThirdPartyFileNotFound"], o_FileManagers.I[g_intClickedFileManager].strDisplayName, f_strFileManagerPath)
-		else
-			Oops(o_L["OptionsThirdPartySelectFile"], o_FileManagers.I[g_intClickedFileManager].strDisplayName)
-
-	return
-}
-; from here, we know that we have valid file manager path values
-
-;---------------------------------------
-; Save Tab 1: General options
-
-IfExist, %A_Startup%\%g_strAppNameFile%.lnk
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-if (f_blnOptionsRunAtStartup)
-	Gosub, CreateStartupShortcut
-Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", % o_L["MenuRunAtStartupAmpersand"]
-
-
-
-;---------------------------------------
-; Save Tab 2: Menu options
-
-o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIni(f_blnAddCloseToDynamicMenus)
-o_Settings.MenuIcons.blnDisplayIcons.WriteIni(f_blnDisplayIcons)
-o_Settings.Menu.intNbLastActions.WriteIni(f_intNbLastActions)
-
-if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
-	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
-else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
-	SetTimer, RefreshQAPMenuScheduled, Off
-
-;---------------------------------------
-; Save Tab 3: Popup menu hotkeys
-
-
-;---------------------------------------
-; Save Tab 4: Alternative menu hotkeys
-
-
-;---------------------------------------
-; Save Tab 5: File Managers
-
-;---------------------------------------
-; Save Tab 6: More
-
-; UsageDb
-
-
-; UserVariablesList, IconReplacementList and SwitchExclusionList
-
-
-; End of More
-
-;---------------------------------------
-; End of tabs
-
-
-strClickedFileManagerSystemName := ""
-blnActiveFileManangerOK := ""
-strExclusionCleanup := ""
-strOptionNoAmpersand := ""
-strValue := ""
-strThisAlternativeCode := ""
-strNewShortcut := ""
-strMenuName := ""
-ResetArray("arrMenu")
-strNewHotstringsDefaultOptions := ""
-intUsageDbIntervalSecondsPrev := ""
-intUsageDbDaysInPopularPrev := ""
-blnRunAsAdminPrev := ""
-blnUseSQLitePrev := ""
-intThisIndex := ""
-objThisPopupHotkey := ""
-strQAPconnectPath := ""
-
-return
-*/
 Gui, 2:Submit, NoHide
 
 g_blnMenuReady := false
@@ -7541,6 +7429,12 @@ blnReloadMenus := false
 
 if (g_strSettingsGroup = "General")
 {
+	IfExist, %A_Startup%\%g_strAppNameFile%.lnk
+		FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
+	if (f_blnOptionsRunAtStartup)
+		Gosub, CreateStartupShortcut
+	Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", % o_L["MenuRunAtStartupAmpersand"]
+
 	strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 	g_strLanguageLabel := f_drpLanguage
 	loop, % g_objOptionsLanguageLabels.Length()
@@ -7597,7 +7491,13 @@ if (g_strSettingsGroup = "General")
 			else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 				o_Settings.Launch.strQAPTempFolderParent.IniValue := strQAPTempFolderParentPrev
 		}
-	}	
+	}
+	
+	strLanguageCodePrev := ""
+	strThemePrev := ""
+	strQAPTempFolderParentPrev := ""
+	strOptionNoAmpersand := ""
+	strValue := ""
 }
 else if (g_strSettingsGroup = "SettingsWindow")
 {
@@ -7628,6 +7528,7 @@ else if (g_strSettingsGroup = "MenuAppearance")
 	o_Settings.Menu.blnDisplayNumericShortcuts.WriteIni(f_blnDisplayNumericShortcuts)
 	o_Settings.Menu.blnDisplayNumericShortcutsFromOne.WriteIni(f_blnDisplayNumericShortcutsFromOne)
 	o_Settings.Menu.intRecentFoldersMax.WriteIni(f_intRecentFoldersMax)
+	o_Settings.Menu.intNbLastActions.WriteIni(f_intNbLastActions)
 	o_Settings.Menu.blnAddCloseToDynamicMenus.WriteIni(f_blnAddCloseToDynamicMenus)
 	blnReloadMenus := true
 }
@@ -7677,6 +7578,8 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	
 	o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
 	o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoublePressed)
+	
+	intThisIndex := ""
 }
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
@@ -7688,9 +7591,56 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 	Gosub, LoadIniAlternativeMenuFeaturesHotkeys ; reload from ini file
 	Gosub, BuildAlternativeMenu
 	o_Settings.MenuPopup.blnAlternativeMenuShowNotification.WriteIni(f_blnAlternativeMenuShowNotification)
+
+	strThisAlternativeCode := ""
+	strNewShortcut := ""
 }
 else if (g_strSettingsGroup = "FileManagers")
 {
+	if (g_intClickedFileManager = 4) ; QAPconnect
+	{
+		blnActiveFileManangerOK := StrLen(f_drpQAPconnectFileManager)
+		if (blnActiveFileManangerOK)
+		{
+			strQAPconnectPath := o_Settings.ReadIniValue("AppPath", " ", f_drpQAPconnectFileManager, o_FileManagers.I[4].strQAPconnectIniPath) ; empty by default
+			blnActiveFileManangerOK := FileExistInPath(strQAPconnectPath) ; return strQAPconnectPath expanded
+		}
+	}
+	else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
+	{
+		blnTCWinCmdOK := true ; unless WinCmd not found later
+		blnActiveFileManangerOK := StrLen(f_strFileManagerPath)
+		if (blnActiveFileManangerOK)
+		{
+			strTempLocation := f_strFileManagerPath ; avoid change in f_strFileManagerPath by FileExistInPath
+			blnActiveFileManangerOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+		}
+		if (g_intClickedFileManager = 3) ; 3 TotalCommander
+		{
+			blnTCWinCmdOK := StrLen(f_strTotalCommanderWinCmd)
+			if (blnTCWinCmdOK)
+			{
+				strTempLocation := f_strTotalCommanderWinCmd ; avoid change in f_strTotalCommanderWinCmd by FileExistInPath
+				blnTCWinCmdOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+			}
+		}
+	}
+	if (g_intClickedFileManager > 1 and (!blnActiveFileManangerOK or !blnTCWinCmdOK))
+	{
+		if (g_intClickedFileManager = 4)
+			Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
+		else if (!blnActiveFileManangerOK) ; 2 DirectoryOpus or 3 TotalCommander
+			if StrLen(f_strFileManagerPath)
+				Oops(o_L["OptionsThirdPartyFileNotFound"], o_FileManagers.I[g_intClickedFileManager].strDisplayName, f_strFileManagerPath)
+			else
+				Oops(o_L["OptionsThirdPartySelectFile"], o_FileManagers.I[g_intClickedFileManager].strDisplayName)
+		if (!blnTCWinCmdOK)
+			Oops(o_L["OptionsTCWinCmd"], f_strTotalCommanderWinCmd)
+
+		return
+	}
+	; from here, we know that we have valid file manager path values
+	
 	o_Settings.FileManagers.intActiveFileManager.WriteIni(g_intClickedFileManager)
 	o_Settings.FileManagers.blnAlwaysNavigate.WriteIni(f_radFileManagerNavigateCurrent)
 		
@@ -7729,6 +7679,9 @@ else if (g_strSettingsGroup = "FileManagers")
 
 	; Re-init class for FileManagers, reloading ini values
 	o_FileManagers := new FileManagers
+	strTempLocation := ""
+	strClickedFileManagerSystemName := ""
+	blnActiveFileManangerOK := ""
 }
 else if (g_strSettingsGroup = "Snippets")
 {
@@ -7768,6 +7721,11 @@ else if (g_strSettingsGroup = "Database")
 	; preprocess these dynamic menus
 	Gosub, DynamicMenusPreProcess ; in case the number of items in Frequent and Recent menus was changed in Options
 	Gosub, LoadMenuInGui ; in case show popularity index changed
+	
+	intUsageDbIntervalSecondsPrev := ""
+	intUsageDbDaysInPopularPrev := ""
+	blnUseSQLitePrev := ""
+	strQAPconnectPath := ""
 }
 else if (g_strSettingsGroup = "MenuAdvanced")
 {
@@ -7776,6 +7734,11 @@ else if (g_strSettingsGroup = "MenuAdvanced")
 	o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.WriteIni(f_blnRefreshQAPMenuDebugBeep)
 	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(f_intNbLiveFolderItemsMax)
 	o_Settings.MenuAdvanced.intClipboardMaxSize.WriteIni(f_intClipboardMaxSize)
+
+	if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
+		SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
+	else if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
+		SetTimer, RefreshQAPMenuScheduled, Off
 }
 else if (g_strSettingsGroup = "AdvancedLaunch")
 {
@@ -7786,6 +7749,8 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 
 	o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.WriteIni(f_blnRefreshWindowsAppsListAtStartup)
 	o_Settings.LaunchAdvanced.strAlternativeTrayIcon.WriteIni(f_strAlternativeTrayIcon)
+	
+	blnRunAsAdminPrev := ""
 }	
 else if (g_strSettingsGroup = "AdvancedOther")
 {
@@ -7796,6 +7761,8 @@ else if (g_strSettingsGroup = "AdvancedOther")
 	o_Settings.Snippets.arrWaitDelayInSnippet.WriteIni(f_intWaitDelayInSnippet1 . "|" . f_intWaitDelayInSnippet2 . "|" . f_intWaitDelayInSnippet3)
 	o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
 	o_Settings.Execution.strSwitchExclusionList.WriteIni(OptionsListCleanup(f_strSwitchExclusionList))
+
+	strNewHotstringsDefaultOptions := ""
 }
 
 Gosub, 2GuiClose
@@ -7812,16 +7779,13 @@ if (blnReloadMenus)
 	Gosub, BuildMainMenuWithStatus
 	Gosub, BuildGuiOptionsMenu
 }
+blnReloadMenus := ""
+strMenuName := ""
+ResetArray("arrMenu")
 
 g_blnMenuReady := true
 
-; reset variables
-strLanguageCodePrev := ""
-strThemePrev := ""
-strQAPTempFolderParentPrev := ""
-blnRunAsAdminPrev := ""
-blnReloadMenus := ""
-
+return
 ;------------------------------------------------------------
 
 
@@ -9558,7 +9522,7 @@ Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions gGuiOptions x0 y+20, % o_L["GuiOptions"] ; Static23
+Gui, 1:Add, Text, vf_lblGuiOptions x0 y+20, % o_L["GuiOptions"] ; Static23 button desiables in alpha v9.9.0.6
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, % o_L["GuiAddFavorite"] ; Static24
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, % o_L["GuiEditFavorite"] ; Static25, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, % o_L["GuiRemoveFavorite"] ; Static26
@@ -14145,19 +14109,13 @@ if (A_GuiEvent = "DoubleClick")
 		{
 			MsgBox, 35, %g_strAppNameText%!, % L(o_L["DialogChangeHotkeyPopup"], o_L["OptionsMouseAndKeyboard"], o_L["GuiOptions"])
 			IfMsgBox, Yes
-			{
-				Gosub, GuiOptions
-				GuiControl, Choose, f_intOptionsTab, 3
-			}
+				Gosub, GuiOptionsGroupPopupHotkeys
 		}
 		else if (strHotkeyType = o_L["DialogHotkeysManageAlternative"]) ; this is Alternative menu feature, go to Options, Menu hotkeys
 		{
 			MsgBox, 35, %g_strAppNameText%!, % L(o_L["DialogChangeHotkeyAlternative"], o_L["OptionsAlternativeMenuFeatures"], o_L["GuiOptions"])
 			IfMsgBox, Yes
-			{
-				Gosub, GuiOptions
-				GuiControl, Choose, f_intOptionsTab, 4
-			}
+				Gosub, GuiOptionsGroupPopupHotkeysAlternative
 		}
 		else
 		{
@@ -16545,7 +16503,7 @@ if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", g_objThisFavo
 	MsgBox, 52, %g_strAppNameText%, % o_L["OopsChangeFolderInDialogAlert"]
 	IfMsgBox, Yes
 	{
-		gosub, GuiOptions
+		gosub, GuiOptionsGroupGeneral
 		return
 	}
 	IfMsgBox, No
