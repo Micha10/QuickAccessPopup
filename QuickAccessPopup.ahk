@@ -14722,7 +14722,7 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
+WinGetTitle, strThisTitle, A
 
 if (strThisTitle = g_strOptionsGuiTitle)
 {
@@ -14737,11 +14737,12 @@ if (strThisTitle = g_strOptionsGuiTitle)
 			return
 	}
 
-	; revert to previous content of o_PopupHotkeys.I
-	o_PopupHotkeys.RestorePopupHotkeys()
+	if (g_strSettingsGroup = "PopupHotkeys") ; revert to previous content of o_PopupHotkeys.I
+		o_PopupHotkeys.RestorePopupHotkeys()
 }
 else
 {
+	; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
 	blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
 	blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
 
