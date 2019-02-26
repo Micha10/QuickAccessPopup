@@ -6984,43 +6984,45 @@ Gosub, GuiOptionsHeader
 if (g_strSettingsGroup = "General")
 {
 	; RunAtStartup
-	Gui, 2:Add, CheckBox, y+15 x120 vf_blnOptionsRunAtStartup, % o_L["OptionsRunAtStartup"]
+	Gui, Opt:Add, CheckBox, y+15 x120 vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged, % o_L["OptionsRunAtStartup"]
 	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
 
 	; LanguageCode
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsLanguage"]
-	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpLanguage Sort, % o_L["OptionsLanguageLabels"]
+	Gui, Opt:Add, Text, y+10 x10 w105, % o_L["OptionsLanguage"]
+	Gui, Opt:Add, DropDownList, yp x+5 w200 vf_drpLanguage Sort gGuiOptionsGroupChanged, % o_L["OptionsLanguageLabels"]
 	GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
 	; Theme
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsTheme"]
-	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpTheme, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
+	Gui, Opt:Add, Text, y+10 x10 w105, % o_L["OptionsTheme"]
+	Gui, Opt:Add, DropDownList, yp x+5 w200 vf_drpTheme gGuiOptionsGroupChanged, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
 	GuiControl, ChooseString, f_drpTheme, % o_Settings.Launch.strTheme.IniValue
 
 	; DisplayTrayTip
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnDisplayTrayTip, % o_L["OptionsTrayTip"]
+	Gui, Opt:Add, CheckBox, y+10 x120 vf_blnDisplayTrayTip gGuiOptionsGroupChanged, % o_L["OptionsTrayTip"]
 	GuiControl, , f_blnDisplayTrayTip, % (o_Settings.Launch.blnDisplayTrayTip.IniValue = true)
 
 	; Check4Update
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnCheck4Update, % o_L["OptionsCheck4Update"]
+	Gui, Opt:Add, CheckBox, y+10 x120 vf_blnCheck4Update gGuiOptionsGroupChanged, % o_L["OptionsCheck4Update"]
 	GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue = true)
-	Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
+	Gui, Opt:Add, Link, yp x+1 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 	; ChangeFolderInDialog
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
+	Gui, Opt:Add, CheckBox, y+10 x120 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
 	GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 	; QAPTempFolder
-	Gui, 2:Add, Text, y+15 x10 w105, % o_L["OptionsQAPTempFolder"] . ":"
-	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strQAPTempFolderParentPath
-	Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath, % o_L["DialogBrowseButton"]
-	GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
+	Gui, Opt:Add, Text, y+15 x10 w105, % o_L["OptionsQAPTempFolder"] . ":"
+	Gui, Opt:Add, Edit, yp x120 w300 h20 vf_strQAPTempFolderParentPath
+	Gui, Opt:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath, % o_L["DialogBrowseButton"]
+	GuiControl, Opt:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
+	GuiControl, Opt:+gGuiOptionsGroupChanged, f_strQAPTempFolderParentPath
 
 	; BackupFolder
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsBackupFolder"] . ":"
-	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strBackupFolder
-	Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder, % o_L["DialogBrowseButton"]
-	GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
+	Gui, Opt:Add, Text, y+10 x10 w105, % o_L["OptionsBackupFolder"] . ":"
+	Gui, Opt:Add, Edit, yp x120 w300 h20 vf_strBackupFolder
+	Gui, Opt:Add, Button, x+5 yp w100 gButtonBackupFolder, % o_L["DialogBrowseButton"]
+	GuiControl, Opt:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
+	GuiControl, Opt:+gGuiOptionsGroupChanged, f_strBackupFolder
 }
 else if (g_strSettingsGroup = "SettingsWindow")
 {
@@ -7421,7 +7423,7 @@ return
 ;------------------------------------------------------------
 GuiOptionsGroupSave:
 ;------------------------------------------------------------
-Gui, 2:Submit, NoHide
+Gui, Opt:Submit, NoHide
 
 g_blnMenuReady := false
 
@@ -7765,7 +7767,8 @@ else if (g_strSettingsGroup = "AdvancedOther")
 	strNewHotstringsDefaultOptions := ""
 }
 
-Gosub, 2GuiClose
+g_blnGroupChanged := false
+Gosub, OptGuiClose
 
 if (blnReloadMenus)
 {
@@ -7796,14 +7799,14 @@ GuiOptionsHeader:
 ; Build Gui header
 Gui, 1:Submit, NoHide
 g_strOptionsGuiTitle := L(strSettingsGroupLabel . " - " . o_L["OptionsGuiTitle"], g_strAppNameText, g_strAppVersion)
-Gui, 2:New, +Hwndg_strGui2Hwnd, %g_strOptionsGuiTitle%
+Gui, Opt:New, +Hwndg_strGui2Hwnd, %g_strOptionsGuiTitle%
 if (g_blnUseColors)
-	Gui, 2:Color, %g_strGuiWindowColor%
-Gui, 2:+Owner1
+	Gui, Opt:Color, %g_strGuiWindowColor%
+Gui, Opt:+Owner1
 
-Gui, 2:Font, s10 w700, Verdana
-Gui, 2:Add, Text, x10 y10 w595 center, % L(strSettingsGroupLabel . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
-Gui, 2:Font
+Gui, Opt:Font, s10 w700, Verdana
+Gui, Opt:Add, Text, x10 y10 w595 center, % L(strSettingsGroupLabel . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
+Gui, Opt:Font
 
 return
 ;------------------------------------------------------------
@@ -7813,15 +7816,59 @@ return
 GuiOptionsFooter:
 ;------------------------------------------------------------
 
-Gui, 2:Add, Button, x10 y+20 vf_btnOptionsSave gGuiOptionsGroupSave Default, % o_L["GuiSaveAmpersand"]
-Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % o_L["GuiCancelAmpersand"]
-Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButtonAmpersand"]
+Gui, Opt:Add, Button, x10 y+20 vf_btnOptionsSave gGuiOptionsGroupSave Default, % o_L["GuiSaveAmpersand"]
+Gui, Opt:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % o_L["GuiCancelAmpersand"]
+Gui, Opt:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButtonAmpersand"]
 GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
 
-Gui, 2:Add, Text
+Gui, Opt:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
-Gosub, ShowGui2AndDisableGui1
+Gui, Opt:Show, AutoSize
+
+Gui, 1:+Disabled
+if (g_Gui1AlwaysOnTop)
+	WinSet, AlwaysOnTop, Off, % L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiOptionsGroupChanged:
+;------------------------------------------------------------
+
+g_blnGroupChanged := true
+SoundBeep ; #####
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ButtonOptionsCancel:
+OptGuiEscape: ; user hit Esc
+OptGuiClose: ; Window's X button
+;------------------------------------------------------------
+
+if (g_blnGroupChanged)
+{
+	Gui, Opt:+OwnDialogs
+	MsgBox, 36, % L(o_L["DialogCancelTitle"], g_strAppNameText, g_strAppVersion), % o_L["DialogCancelPrompt"]
+	
+	IfMsgBox, Yes
+		g_blnGroupChanged := false
+	IfMsgBox, No
+		return
+}
+
+; revert to previous content of o_PopupHotkeys.I
+o_PopupHotkeys.RestorePopupHotkeys()
+
+Gui, 1:-Disabled
+Gui, Opt:Destroy
+if (g_intGui1WinID <> A_ScriptHwnd)
+	WinActivate, ahk_id %g_intGui1WinID%
 
 return
 ;------------------------------------------------------------
@@ -8074,6 +8121,8 @@ ChangeFoldersInDialogClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+g_blnGroupChanged := true
+
 if !(f_blnChangeFolderInDialog)
 	return
 GuiControl, 2:, f_blnChangeFolderInDialog, 0
@@ -8216,6 +8265,8 @@ FileSelectFolder, strNewFolder, *%strPreviousFolderExpand%, 3, %strPrompt%
 if !StrLen(strNewFolder)
 	return
 
+g_blnGroupChanged := true
+
 GuiControl, 2:, %strControlName%, %strNewFolder%
 
 strControlName := ""
@@ -8306,19 +8357,6 @@ IfMsgBox, Yes
 strUsageDbSQL := ""
 
 Diag(A_ThisLabel, "", "STOP")
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ButtonOptionsCancel:
-;------------------------------------------------------------
-
-; revert to previous content of o_PopupHotkeys.I
-o_PopupHotkeys.RestorePopupHotkeys()
-
-Gosub, 2GuiClose
-
 return
 ;------------------------------------------------------------
 
