@@ -7161,8 +7161,8 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	}
 	
 	Gui, 2:Add, Text, y+15 x10, % o_L["OptionsControlDoublePressed"] . ":"
-	Gui, 2:Add, CheckBox, y+5 x10 vf_blnLeftControlDoublePressed, % o_L["OptionsControlDoublePressedLeft"]
-	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed, % o_L["OptionsControlDoublePressedRight"]
+	Gui, 2:Add, CheckBox, y+5 x10 vf_blnLeftControlDoublePressed gGuiOptionsGroupChanged, % o_L["OptionsControlDoublePressedLeft"]
+	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed gGuiOptionsGroupChanged, % o_L["OptionsControlDoublePressedRight"]
 	GuiControl, , f_blnLeftControlDoublePressed, % (o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue = true)
 	GuiControl, , f_blnRightControlDoublePressed, % (o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue = true)
 	
@@ -7192,7 +7192,7 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 	}
 	
 	; AlternativeMenuShowNotification
-	Gui, 2:Add, CheckBox, y+15 x10 vf_blnAlternativeMenuShowNotification, % o_L["OptionsAlternativeMenuShowNotification"]
+	Gui, 2:Add, CheckBox, y+15 x10 vf_blnAlternativeMenuShowNotification gGuiOptionsGroupChanged, % o_L["OptionsAlternativeMenuShowNotification"]
 	GuiControl, , f_blnAlternativeMenuShowNotification, % (o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue = true)
 
 }
@@ -7206,8 +7206,8 @@ else if (g_strSettingsGroup = "FileManagers")
 	Gui, 2:Add, Text, x250 y+15 w300 Section, % o_L["OptionsTabFileManagersPreferences"]
 	Gui, Font
 	Gui, 2:Add, Text, y+10 x250 w300 vf_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.I[o_FileManagers.ActiveFileManager].strDisplayName)
-	Gui, 2:Add, Radio, % "y+10 x255 w250 vf_radFileManagerNavigateCurrent" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
-	Gui, 2:Add, Radio, % "y+5 x255 w250 vf_radFileManagerNavigateNew" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+	Gui, 2:Add, Radio, % "y+10 x255 w250 vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+	Gui, 2:Add, Radio, % "y+5 x255 w250 vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
 	; --- column 1 ---
 	; ActiveFileManager
@@ -7224,7 +7224,7 @@ else if (g_strSettingsGroup = "FileManagers")
 	Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
 	
 	; Windows Explorer OpenFavoritesOnActiveMonitor
-	Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
+	Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
 	GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.I[1].blnOpenFavoritesOnActiveMonitor = true)
 	
 	; DirectoryOpusPath
@@ -7233,7 +7233,7 @@ else if (g_strSettingsGroup = "FileManagers")
 	Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
 	
 	; QAPconnectFileManager
-	Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort
+	Gui, 2:Add, DropDownList, xp yp vf_drpQAPconnectFileManager hidden Sort gGuiOptionsGroupChanged
 	if StrLen(o_FileManagers.I[4].strQAPconnectFileManager)
 		GuiControl, ChooseString, f_drpQAPconnectFileManager, % o_FileManagers.I[4].strQAPconnectFileManager
 	Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath hidden, % o_L["DialogBrowseButton"]
@@ -7243,18 +7243,22 @@ else if (g_strSettingsGroup = "FileManagers")
 	; TotalCommanderUseTabs
 	; TotalCommanderNewTabOrWindow (not in Gui)
 	Gui, 2:Add, Checkbox, y+10 x32 w590 vf_blnFileManagerUseTabs gFileManagerNavigateClicked hidden, % o_L["OptionsThirdPartyUseTabs"]
-	Gui, 2:Add, Button, xp yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(o_L["MenuEditIniFile"], "QAPconnect.ini")
+	
+	; QAPconnectFileManager buttons (must be after UseTabs checkbox)
+	Gui, 2:Add, Button, x32 yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(o_L["MenuEditIniFile"], "QAPconnect.ini")
+	Gui, 2:Add, Button, x+10 yp vf_btnQAPconnectRefresh gActiveFileManagerClickedInit hidden, % o_L["OptionsRefreshQAPconnectList"] ; ActiveFileManagerClickedInit will refresh the dropdown list
 	
 	; TotalCommanderWinCmd
 	Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinCmdLocation"]
-	Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden
+	Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden gGuiOptionsGroupChanged
 	Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, % o_L["DialogBrowseButton"]
 	
 	; FileManagerDOpusShowLayouts
-	Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gFileManagerNavigateClicked hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
+	Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gGuiOptionsGroupChanged hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
 	GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.I[2].blnFileManagerDirectoryOpusShowLayouts = true)
 
-	Gosub, ActiveFileManagerClicked ; init visible fields, also call FileManagerNavigateClicked
+	Gosub, ActiveFileManagerClickedInit ; will call FileManagerNavigateClickedInit
+	GuiControl, 2:+gGuiOptionsGroupChanged, f_strFileManagerPath ; must be after ActiveFileManagerClickedInit
 }
 else if (g_strSettingsGroup = "Snippets")
 {
@@ -7859,8 +7863,12 @@ return
 
 ;------------------------------------------------------------
 ActiveFileManagerClicked:
+ActiveFileManagerClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 strShowHideCommand := (f_radActiveFileManager1 ? "Show" : "Hide")
 GuiControl, %strShowHideCommand%, f_blnOpenFavoritesOnActiveMonitor
@@ -7885,6 +7893,7 @@ GuiControl, %strShowHideCommand%, f_strTotalCommanderWinCmd
 
 strShowHideCommand := (!f_radActiveFileManager4 ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnQAPconnectEdit
+GuiControl, %strShowHideCommand%, f_btnQAPconnectRefresh
 GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
 
 if (f_radActiveFileManager2) ; DirectoryOpus
@@ -7935,7 +7944,7 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 		GuiControl, , f_strTotalCommanderWinCmd, % o_FileManagers.I[3].strTCIniFile
 }
 
-gosub, FileManagerNavigateClicked
+Gosub, FileManagerNavigateClickedInit
 
 strHelpUrl := ""
 strQAPconnectFileManagersList := ""
@@ -7947,8 +7956,12 @@ return
 
 ;------------------------------------------------------------
 FileManagerNavigateClicked:
+FileManagerNavigateClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 GuiControl, , f_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.I[g_intClickedFileManager].strDisplayName)
 GuiControl, Text, f_radFileManagerNavigateCurrent, % L((f_blnFileManagerUseTabs ? o_L["OptionsFileManagerNavigateCurrentTab"] : o_L["OptionsFileManagerNavigateCurrent"])
@@ -8096,7 +8109,10 @@ o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortc
 	, "", 3, objThisAlternative.DefaultShortcut)
 
 if StrLen(o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+{
 	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % new Triggers.HotkeyParts(o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode]).Hotkey2Text()
+	Gosub, GuiOptionsGroupChanged
+}
 else
 	o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
