@@ -7027,17 +7027,17 @@ if (g_strSettingsGroup = "General")
 else if (g_strSettingsGroup = "SettingsWindow")
 {
 	; RememberSettingsPosition
-	Gui, Opt:Add, CheckBox, y+15 x10 w500 vf_blnRememberSettingsPosition, % o_L["OptionsRememberSettingsPosition"]
+	Gui, Opt:Add, CheckBox, y+15 x10 w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged, % o_L["OptionsRememberSettingsPosition"]
 	GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 	; OpenSettingsOnActiveMonitor
-	Gui, Opt:Add, CheckBox, y+10 x10 w500 vf_blnOpenSettingsOnActiveMonitor, % o_L["OptionsOpenSettingsOnActiveMonitor"]
+	Gui, Opt:Add, CheckBox, y+10 x10 w500 vf_blnOpenSettingsOnActiveMonitor gGuiOptionsGroupChanged, % o_L["OptionsOpenSettingsOnActiveMonitor"]
 	GuiControl, , f_blnOpenSettingsOnActiveMonitor, % (o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue = true)
 
 	; AddAutoAtTop
 	Gui, Opt:Add, Text, y+10 x10 w500, % o_L["OptionsAddAutoAtTop"]
-	Gui, Opt:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop0 Group " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
-	Gui, Opt:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop1 " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
+	Gui, Opt:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop0 Group gGuiOptionsGroupChanged " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
+	Gui, Opt:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop1 gGuiOptionsGroupChanged " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
 }
 else if (g_strSettingsGroup = "MenuIcons")
 {
@@ -7049,16 +7049,17 @@ else if (g_strSettingsGroup = "MenuIcons")
 	Gui, Opt:Add, Text, y+10 x10 vf_drpIconSizeLabel Disabled, % o_L["OptionsIconSize"]
 	Gui, Opt:Add, DropDownList, yp x+10 w75 vf_drpIconSize Sort Disabled, 16|24|32|48|64
 	GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniValue
-	gosub, DisplayIconsClicked
+	GuiControl, Opt:+gGuiOptionsGroupChanged, f_drpIconSize
+	gosub, DisplayIconsClickedInit
 
 	; IconsManageRows
 	Gui, Opt:Add, Edit, % "y+10 x10 w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
-	Gui, Opt:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
+	Gui, Opt:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
 	Gui, Opt:Add, Text, % "yp x+10 w400 vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), % o_L["OptionsIconsManageRows"]
 
 	; strIconReplacementList
 	Gui, Opt:Add, Link, y+25 x10 w500, % o_L["OptionsIconReplacementList"] . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . o_L["GuiHelp"] . "</a>):"
-	Gui, Opt:Add, Edit, y+10 x10 w500 r5 vf_strIconReplacementList, % (StrLen(o_Settings.MenuIcons.strIconReplacementList.IniValue)
+	Gui, Opt:Add, Edit, y+10 x10 w500 r5 vf_strIconReplacementList gGuiOptionsGroupChanged, % (StrLen(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 		? StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n") : "iconUnknown=" . o_JLicons.I["iconUnknown"])
 	Gui, Opt:Add, Link, x10 y+10 w500, % o_L["OptionsIconReplacementListInstructions"]
 }
@@ -7073,7 +7074,7 @@ else if (g_strSettingsGroup = "MenuAppearance")
 	Gui, Opt:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders3 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 3 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersFull"]
 
 	; HotkeyRemindersRightAlign
-	Gui, Opt:Add, CheckBox, y+10 x28 w500 vf_blnHotkeyRemindersRightAlign , % o_L["HotkeyRemindersRightAlign"]
+	Gui, Opt:Add, CheckBox, y+10 x28 w500 vf_blnHotkeyRemindersRightAlign gGuiOptionsGroupChanged, % o_L["HotkeyRemindersRightAlign"]
 	GuiControl, , f_blnHotkeyRemindersRightAlign, % (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue = true)
 
 	; DisplayMenuShortcuts
@@ -7081,26 +7082,26 @@ else if (g_strSettingsGroup = "MenuAppearance")
 	GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 	; DisplayMenuShortcutsFromOne
-	Gui, Opt:Add, CheckBox, y+10 x28 w300 vf_blnDisplayNumericShortcutsFromOne, % o_L["OptionsDisplayMenuShortcutsFromOne"]
+	Gui, Opt:Add, CheckBox, y+10 x28 w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged, % o_L["OptionsDisplayMenuShortcutsFromOne"]
 	GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
-	gosub, DisplayMenuShortcutsClicked
+	gosub, DisplayMenuShortcutsClickedInit
 
 	; RecentFoldersMax
 	Gui, Opt:Add, Text, y+10 x10 w500, % o_L["OptionsRecentFoldersPrompt"]
 	Gui, Opt:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; %g_intRecentFoldersMax%
-	Gui, Opt:Add, UpDown, vf_intRecentFoldersMax Range1-9999, % o_Settings.Menu.intRecentFoldersMax.IniValue
+	Gui, Opt:Add, UpDown, vf_intRecentFoldersMax Range1-9999 gGuiOptionsGroupChanged, % o_Settings.Menu.intRecentFoldersMax.IniValue
 	Gui, Opt:Add, Text, yp x+10 w235, % o_L["OptionsRecentFolders"]
 
 	; NbLastActions
 	Gui, Opt:Add, Text, y+10 x10 w500, % o_L["MenuLastActions"]
 	Gui, Opt:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; %g_intNbLastActions%
-	Gui, Opt:Add, UpDown, vf_intNbLastActions Range1-9999, % o_Settings.Menu.intNbLastActions.IniValue
+	Gui, Opt:Add, UpDown, vf_intNbLastActions Range1-9999 gGuiOptionsGroupChanged, % o_Settings.Menu.intNbLastActions.IniValue
 	strOptionsLastActions := StrReplace(o_L["OptionsRecentFolders"], "&") ; remove ampersand
 	Gui, Opt:Add, Text, yp x+10 w235, %strOptionsLastActions%
 	strOptionsLastActions := ""
 
 	; AddCloseToDynamicMenus
-	Gui, Opt:Add, CheckBox, y+25 x10 w500 vf_blnAddCloseToDynamicMenus, % o_L["OptionsAddCloseToDynamicMenus"]
+	Gui, Opt:Add, CheckBox, y+25 x10 w500 vf_blnAddCloseToDynamicMenus gGuiOptionsGroupChanged, % o_L["OptionsAddCloseToDynamicMenus"]
 	GuiControl, , f_blnAddCloseToDynamicMenus, % (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue = true)
 }
 else if (g_strSettingsGroup = "PopupMenu")
@@ -7114,15 +7115,15 @@ else if (g_strSettingsGroup = "PopupMenu")
 
 	Gui, Opt:Add, Text, % "yp x+10 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
 	Gui, Opt:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-	Gui, Opt:Add, UpDown, vf_intPopupFixPositionX Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
+	Gui, Opt:Add, UpDown, vf_intPopupFixPositionX Range1-9999 gGuiOptionsGroupChanged, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
 	Gui, Opt:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
 	Gui, Opt:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-	Gui, Opt:Add, UpDown, vf_intPopupFixPositionY Range1-9999, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
+	Gui, Opt:Add, UpDown, vf_intPopupFixPositionY Range1-9999 gGuiOptionsGroupChanged, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
 
 	; ExplorerContextMenus
 	if !(g_blnPortableMode)
 	{
-		Gui, Opt:Add, CheckBox, y+15 x10 w500 vf_blnExplorerContextMenus, % o_L["OptionsExplorerContextMenus"]
+		Gui, Opt:Add, CheckBox, y+15 x10 w500 vf_blnExplorerContextMenus gGuiOptionsGroupChanged, % o_L["OptionsExplorerContextMenus"]
 		GuiControl, , f_blnExplorerContextMenus, % (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue = true)
 	}
 
@@ -7134,7 +7135,7 @@ else if (g_strSettingsGroup = "PopupMenu")
 	strUrl := "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
 	Gui, Opt:Add, Link, y+15 x10 w500, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.I[1].strPopupHotkeyText)
 			. " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, Opt:Add, Edit, y+5  x10 w500 r5 vf_strExclusionMouseList, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
+	Gui, Opt:Add, Edit, y+5  x10 w500 r5 vf_strExclusionMouseList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
 	Gui, Opt:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.I[1].strPopupHotkeyText)
 	Gui, Opt:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.I[1].strPopupHotkeyText, strUrl)
 	Gui, Opt:Add, Button, y+10 x10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
@@ -7816,7 +7817,7 @@ return
 GuiOptionsFooter:
 ;------------------------------------------------------------
 
-Gui, Opt:Add, Button, x10 y+20 vf_btnOptionsSave gGuiOptionsGroupSave Default, % o_L["GuiSaveAmpersand"]
+Gui, Opt:Add, Button, x10 y+20 vf_btnOptionsSave gGuiOptionsGroupSave disabled Default, % o_L["GuiSaveAmpersand"]
 Gui, Opt:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % o_L["GuiCancelAmpersand"]
 Gui, Opt:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButtonAmpersand"]
 GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
@@ -7838,8 +7839,13 @@ return
 GuiOptionsGroupChanged:
 ;------------------------------------------------------------
 
+if (g_blnGroupChanged)
+	SoundBeep, 600
+else
+	SoundBeep ; #####
+
 g_blnGroupChanged := true
-SoundBeep ; #####
+GuiControl, % "Opt:" . (g_blnGroupChanged ? "Enable" : "Disable"), f_btnOptionsSave
 
 return
 ;------------------------------------------------------------
@@ -7979,8 +7985,12 @@ return
 
 ;------------------------------------------------------------
 DisplayIconsClicked:
+DisplayIconsClickedInit:
 ;------------------------------------------------------------
 Gui, Opt:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
 GuiControl, %strEnableDisableCommand%, f_drpIconSizeLabel
@@ -8016,6 +8026,8 @@ return
 PopupMenuPositionClicked:
 ;------------------------------------------------------------
 Gui, Opt:Submit, NoHide
+
+Gosub, GuiOptionsGroupChanged
 
 strEnableDisableCommand := (f_radPopupMenuPosition3 ? "Enable" : "Disable")
 
@@ -8076,7 +8088,10 @@ strNewHotkey := SelectShortcut(o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey, o_Pop
 o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey := strNewHotkey
 
 if StrLen(o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey)
+{
 	GuiControl, Opt:, f_lblHotkeyText%intHotkeyIndex%, % o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyTextShort
+	Gosub, GuiOptionsGroupChanged
+}
 else
 	o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey := strPopupHotkeysLocalBackup
 	
@@ -8121,7 +8136,7 @@ ChangeFoldersInDialogClicked:
 ;------------------------------------------------------------
 Gui, Opt:Submit, NoHide
 
-g_blnGroupChanged := true
+Gosub, GuiOptionsGroupChanged
 
 if !(f_blnChangeFolderInDialog)
 	return
@@ -8209,6 +8224,8 @@ return
 RefreshedMenusAttachedClicked:
 ;------------------------------------------------------------
 
+Gosub, GuiOptionsGroupChanged
+
 Oops(o_L["OptionsRefreshedMenusAttachedInfo"], o_L["MenuRecentFolders"], o_L["MenuRecentFiles"]
 	, L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]), L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"])
 	, o_L["MenuDrives"])
@@ -8219,8 +8236,12 @@ return
 
 ;------------------------------------------------------------
 DisplayMenuShortcutsClicked:
+DisplayMenuShortcutsClickedInit:
 ;------------------------------------------------------------
 Gui, Opt:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 GuiControl, % (f_blnDisplayNumericShortcuts ? "Enable" : "Disable"), f_blnDisplayNumericShortcutsFromOne
 
@@ -8232,6 +8253,8 @@ return
 HotkeyRemindersClicked:
 ;------------------------------------------------------------
 Gui, Opt:Submit, NoHide
+
+Gosub, GuiOptionsGroupChanged
 
 GuiControl, % (f_radHotkeyReminders1 ? "Disable" : "Enable"), f_blnHotkeyRemindersRightAlign
 
@@ -8268,7 +8291,7 @@ FileSelectFolder, strNewFolder, *%strPreviousFolderExpand%, 3, %strPrompt%
 if !StrLen(strNewFolder)
 	return
 
-g_blnGroupChanged := true
+Gosub, GuiOptionsGroupChanged
 
 GuiControl, Opt:, %strControlName%, %strNewFolder%
 
