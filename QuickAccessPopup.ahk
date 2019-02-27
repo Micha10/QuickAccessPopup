@@ -21163,10 +21163,11 @@ AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
+	DetectHiddenWindows, Off
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
+	DetectHiddenWindows, On ; revert to app default
 	Loop, %strWinIDs%
 	{
-		
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
@@ -22002,13 +22003,13 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 			objWindowProperties.UniversalApplicationName := strUniversalApplicationName
 			objWindowProperties.UniversalApplicationID := intUniversalApplicationID
 		}
-		if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
-		{
+		; if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		; {
 			; remember titles of window of intExStyle 0x00200000 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
-			strWinTitlesWinApps .= strWindowTitle . "|"
+			; strWinTitlesWinApps .= strWindowTitle . "|"
 			; ###_V("strWinTitlesWinApps", strWinTitlesWinApps)
 			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
-		}
+		; }
 		; #### to be validated or continued
 		; #### run after loops, not here
 		; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
@@ -22021,7 +22022,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 		; ###_O("objWindowProperties", objWindowProperties)
 	; if InStr(strProcessPath, "opus")
 		; ###_O(strCaller . " / " . strProcessPath . " / " . g_strDirectoryOpusPath . " / " . g_intActiveFileManager, objWindowProperties)
-	
+
 	if (strCaller = "List All")
 		return true
 	
@@ -22052,6 +22053,10 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 			return false
 	
+	else if (intStyle = 0x94000000 and intExStyle = 0x00200000)
+		; added in v9.4.1.5, exclude ghost Windows Apps - maybe make an option to reject (default) or keep
+		return false
+		
 	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
 		; return false
 	
