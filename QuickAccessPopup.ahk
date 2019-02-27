@@ -3349,6 +3349,9 @@ if (o_Settings.Launch.blnDiagMode.IniValue)
 if (g_blnUseColors)
 	Gosub, LoadThemeGlobal
 
+; Build menu used in Settings Gui
+Gosub, BuildGuiMenuBar ; must be before BuildMainMenu
+
 ; Build Settings Gui
 Gosub, BuildGui
 if (o_Settings.Launch.blnCheck4Update.IniValue) ; must be after BuildGui
@@ -3379,7 +3382,6 @@ Gosub, BuildTotalCommanderHotlistPrepare
 Gosub, BuildDirectoryOpusFavoritesInit
 
 ; Other menus
-Gosub, BuildGuiOptionsMenu ; must be before BuildMainMenu
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
@@ -5088,8 +5090,20 @@ return
 
 
 ;------------------------------------------------------------
-BuildGuiOptionsMenu:
+BuildGuiMenuBar:
+; see https://docs.microsoft.com/fr-fr/windows/desktop/uxguide/cmd-menus
 ;------------------------------------------------------------
+
+Menu, menuFile, Add, % L(o_L["MenuExitApp"], g_strAppNameText), TrayMenuExitApp
+
+Menu, menuTemp, Add, To be developped, DoNothing
+Menu, menuTemp, Disable, To be developped
+
+; Menu, menuInsert, Add, Nothing, DoNothing
+
+; Menu, menuFavorite, Add, Nothing, DoNothing
+
+; Menu, menuTools, Add, Nothing, DoNothing
 
 Menu, menuMoreOptions, Add
 Menu, menuMoreOptions, DeleteAll
@@ -5097,7 +5111,6 @@ intNum := 0
 Menu, menuMoreOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMenuAdvanced"]), GuiOptionsGroupMenuAdvanced
 Menu, menuMoreOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsAdvancedLaunch"]), GuiOptionsGroupAdvancedLaunch
 Menu, menuMoreOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsAdvancedOther"]), GuiOptionsGroupAdvancedOther
-
 Menu, menuOptions, Add
 Menu, menuOptions, DeleteAll
 intNum := 0
@@ -5122,6 +5135,16 @@ Menu, menuOptions, Add
 Menu, menuOptions, Add, % MenuNameWithNumericShortcut(intNum++, o_L["OptionsMoreOptions"]), :menuMoreOptions
 
 intNum := ""
+
+; Menu, menuHelp, Add, &Help, GuiHelp
+; Menu, menuHelp, Add, &About, GuiAbout
+
+Menu, menuBar, Add, % o_L["MenuFile"], :menuFile
+Menu, menuBar, Add, % o_L["MenuInsert"], :menuTemp
+Menu, menuBar, Add, % o_L["MenuFavorite"], :menuTemp
+Menu, menuBar, Add, % o_L["MenuTools"], :menuTemp
+Menu, menuBar, Add, % o_L["MenuOptions"], :menuOptions
+Menu, menuBar, Add, % o_L["MenuHelp"], :menuTemp
 
 return
 ;------------------------------------------------------------
@@ -7788,7 +7811,7 @@ if (blnReloadMenus)
 		ResetArray("arrMenu") ; free object's memory
 	}
 	Gosub, BuildMainMenuWithStatus
-	Gosub, BuildGuiOptionsMenu
+	Gosub, BuildGuiMenuBar
 }
 blnReloadMenus := ""
 strMenuName := ""
@@ -8658,6 +8681,8 @@ g_strGuiListviewTextColor := o_Settings.ReadIniValue("ListviewText", 000000, "Gu
 
 g_strGuiFullTitle := L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
 Gui, 1:New, +Hwndg_strAppHwnd +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
+
+Gui, Menu, menuBar
 
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
