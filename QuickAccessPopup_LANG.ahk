@@ -270,7 +270,6 @@ global lDialogInvalidHotkeyFavorite := "With your current system keyboard layout
 global lDialogKeyboard := "Keyboard"
 global lDialogLaunchWith := "Launch with this application"
 global lDialogListApplicationLabel := "List applications for:"
-global lDialogListApplicationsDropdown := "List All||Current Windows|Running Applications|Close Applications"
 global lDialogListApplicationYesNo := "[Yes] to Activate or [No] to Close this window?"
 global lDialogMaximized := "Maximized"
 global lDialogMenuKey := "Menu key"

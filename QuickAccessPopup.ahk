@@ -31,15 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.4.1.5 (2019-02-??)
-- update drop down menu label "Current Windows" in List Applications
-- when copying a favorite, keep the actual favorite in the item position dropdown list
-- fix bug, make sure the default theme Windows is selected when the value is empty in ini file
-- add "Y" label in Options, "Menu" tab, "at fix position"
+Version: 9.4.1.5 (2019-02-27)
+- fix bug when filtering apps in List Applications window and in Current Windows menu when running with a language other than English
+- update dropdown menu labels in "List Applications" window (dropdown menu not localized at this time)
+- when copying a favorite, keep the original favorite in the item position dropdown list
+- make sure the default theme Windows is selected when the value is empty in ini file
 - fix link to website in "Check for update" dialog box
-- remove unappropriate validation when saving an edited or copied Shared menu (when not new)
 - fix bug when searching for "Live" folders type in Settings Extended Search
-...
+- fix bug when checking if a favorite app is already running to activate it instead of launching it
+- exclude some "ghost" Windows Apps from Current Windows menu (aka Switch menu)
 
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
@@ -3078,7 +3078,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.4
+;@Ahk2Exe-SetVersion 9.4.1.5
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3183,7 +3183,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
@@ -6771,7 +6771,7 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	*/
 	Loop, %strWinIDs%
 	{
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Switch Menu", objWindowProperties)
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Current Windows menu", objWindowProperties)
 		{
 			intWindowsIdIndex++
 			objFolderOrApp := Object()
@@ -18304,7 +18304,7 @@ WinGet, strWinIDs, list
 DetectHiddenWindows, On ; revert to app default
 
 Loop, %strWinIDs%
-	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close Applications", objWindowProperties)
+	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close All Windows menu", objWindowProperties)
 		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
@@ -21359,7 +21359,9 @@ Gui, ListApps:
 Gui, ListApps:Default
 
 Gui, ListApps:Add, Text, vf_ListApplicationLabel, %lDialogListApplicationLabel%
-Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, %lDialogListApplicationsDropdown%
+strListApplicationsDropdown := "List All||Current Windows menu|Running Applications|Close All Windows menu" ; do not use lDialogListApplicationsDropdown until the code is updated for localization
+Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, %strListApplicationsDropdown%
+
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationRefreshButton gListApplicationsLoad, %lDialogRefresh%
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationCloseButton gListAppsGuiClose, %lGuiClose%
 
@@ -23617,7 +23619,7 @@ BetweenParenthesis(str)
 
 ;------------------------------------------------------------
 KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
-; strCaller: List All||Switch Menu|Running Applications|Close Applications
+; strCaller: one of "List All", "Current Windows", "Close All Windows menu" or "Running Applications"
 ;------------------------------------------------------------
 {
 	global g_strDirectoryOpusPath
@@ -23701,13 +23703,13 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 				or (intMinMax = -1) ; this is a running and minimized
 	}
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
+	else if (strCaller = "Current Windows menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
+	else if (strCaller = "Current Windows menu" and strProcessPath = g_strDirectoryOpusPath and g_intActiveFileManager = 2)
 		return false
 	
-	else if (strCaller = "Switch Menu" and StrLen(g_strSwitchExclusionList))
+	else if (strCaller = "Current Windows menu" and StrLen(g_strSwitchExclusionList))
 		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 			return false
 	
