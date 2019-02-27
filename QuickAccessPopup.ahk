@@ -7265,20 +7265,20 @@ else if (g_strSettingsGroup = "Snippets")
 	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
 
 	; SnippetDefaultProcessEOLTab
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultProcessEOLTab, % o_L["DialogFavoriteSnippetProcessEOLTab"]
+	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultProcessEOLTab gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetProcessEOLTab"]
 	GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
 
 	; SnippetDefaultFixedFont
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultFixedFont, % o_L["DialogFavoriteSnippetFixedFont"]
+	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultFixedFont gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetFixedFont"]
 	GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
 
 	; SnippetDefaultFontSize
 	Gui, 2:Add, Text, y+10 x10, % o_L["DialogFavoriteSnippetFontSize"]
 	Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, % o_L["DialogFavoriteSnippetFontSize"]
-	Gui, 2:Add, UpDown, Range6-18 h20, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
+	Gui, 2:Add, UpDown, Range6-18 h20 gGuiOptionsGroupChanged, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 
 	; SnippetDefaultMacro
-	Gui, 2:Add, CheckBox, y+10 x10 w300 vf_blnSnippetDefaultMacro, % o_L["DialogFavoriteSnippetSendModeMacro"]
+	Gui, 2:Add, CheckBox, y+10 x10 w300 vf_blnSnippetDefaultMacro gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetSendModeMacro"]
 	GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
 }
 else if (g_strSettingsGroup = "UserVariables")
@@ -7287,7 +7287,7 @@ else if (g_strSettingsGroup = "UserVariables")
 	Gui, 2:Add, Link, x10 y+15 w600, % o_L["OptionsUserVariablesList"]
 		. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
 	Gui, 2:Add, Link, x10 y+10 w600, % o_L["OptionsUserVariablesListInstructions"]
-	Gui, 2:Add, Edit, x10 y+10 w600 r5 vf_strUserVariablesList
+	Gui, 2:Add, Edit, x10 y+10 w600 r5 vf_strUserVariablesList gGuiOptionsGroupChanged
 		, % (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
 		? StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n") : "{MyVariable}=MyContent")
 }
@@ -7305,51 +7305,51 @@ else if (g_strSettingsGroup = "Database")
 	; UsageDbIntervalSeconds
 	Gui, 2:Add, Text, x10 y+10 vf_lblUsageDbIntervalSeconds, % o_L["OptionsUsageDbIntervalSeconds"]
 	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbIntervalSecondsEdit
-	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds gGuiOptionsGroupChanged, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
 	
 	; UsageDbDaysInPopular
 	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbDaysInPopular, % o_L["OptionsUsageDbDaysInPopular"]
 	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbDaysInPopularEdit
-	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
+	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular gGuiOptionsGroupChanged, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
 	
 	; UsageDbMaximumSize
 	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbMaximumSize, % o_L["OptionsUsageDbMaximumSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
+	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize gGuiOptionsGroupChanged, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
 
 	; UsageDbShowPopularityIndex
-	Gui, 2:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndex, % o_L["OptionsUsageDbShowPopularityIndex"]
+	Gui, 2:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndex gGuiOptionsGroupChanged, % o_L["OptionsUsageDbShowPopularityIndex"]
 	GuiControl, , f_blnUsageDbShowPopularityIndex, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue = true
 	
 	Gui, 2:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, % o_L["OptionsUsageDbFlushDatabase"]
 
-	Gosub, OptionUsageDbEnableClicked
+	Gosub, OptionUsageDbEnableClickedInit
 }
 else if (g_strSettingsGroup = "MenuAdvanced")
 {
 	; OpenMenuOnTaskbar
-	Gui, 2:Add, CheckBox, x10 y+15 vf_blnOpenMenuOnTaskbar, % o_L["OptionsOpenMenuOnTaskbar"]
+	Gui, 2:Add, CheckBox, x10 y+15 vf_blnOpenMenuOnTaskbar gGuiOptionsGroupChanged, % o_L["OptionsOpenMenuOnTaskbar"]
 	GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
 
 	; RefreshQAPMenuIntervalSec
 	Gui, 2:Add, Checkbox, x10 y+15 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, % o_L["OptionsRefreshQAPMenuTitle"]
 	GuiControl, , f_blnRefreshQAPMenuEnable, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
 	Gui, 2:Add, Edit, x10 y+5 w60 h22 vf_intRefreshQAPMenuIntervalSecEdit center disabled
-	Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled
+	Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiOptionsGroupChanged
 		, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue ? o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue : 300)
 	Gui, 2:Add, Text, yp x+10 vf_blnRefreshQAPMenuDebugBeepLabel Disabled, % o_L["OptionsRefreshQAPMenuIntervalSec"]
 
 	; RefreshQAPMenuDebugBeep
-	Gui, 2:Add, CheckBox, x10 y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled, % o_L["OptionsRefreshQAPMenuDebugBeep"]
+	Gui, 2:Add, CheckBox, x10 y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged, % o_L["OptionsRefreshQAPMenuDebugBeep"]
 	GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
-	gosub, RefreshQAPMenuEnableClicked
+	gosub, RefreshQAPMenuEnableClickedInit
 
 	; NbLiveFolderItemsMax
 	Gui, 2:Add, Text, x10 y+10 vf_lblNbLiveFolderItemsMax, % o_L["OptionsNbLiveFolderItemsMax"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
 
 	; ClipboardMaxSize
 	Gui, 2:Add, Text, x10 y+15 vf_lblClipboardMaxSize, % o_L["OptionsClipboardMaxSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
 }
 else if (g_strSettingsGroup = "AdvancedLaunch")
 {
@@ -7359,7 +7359,7 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 	GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
 	; RefreshWindowsAppsListAtStartup
-	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnRefreshWindowsAppsListAtStartup, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
+	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnRefreshWindowsAppsListAtStartup gGuiOptionsGroupChanged, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
 	GuiControl, , f_blnRefreshWindowsAppsListAtStartup, % (o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.IniValue = true)
 
 	; AlternativeTrayIcon
@@ -7367,7 +7367,7 @@ else if (g_strSettingsGroup = "AdvancedLaunch")
 	Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon
 	Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strAlternativeTrayIcon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue
-
+	GuiControl, 2:+gGuiOptionsGroupChanged, f_strAlternativeTrayIcon
 }
 else if (g_strSettingsGroup = "AdvancedOther")
 {
@@ -7825,11 +7825,7 @@ GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOpti
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
-Gui, 2:Show, AutoSize
-
-Gui, 1:+Disabled
-if (g_Gui1AlwaysOnTop)
-	WinSet, AlwaysOnTop, Off, % L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
+Gosub, ShowGui2AndDisableGui1
 
 return
 ;------------------------------------------------------------
@@ -7994,8 +7990,12 @@ return
 
 ;------------------------------------------------------------
 RefreshQAPMenuEnableClicked:
+RefreshQAPMenuEnableClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 if (f_blnRefreshQAPMenuEnable and o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
 	GuiControl, , f_intRefreshQAPMenuIntervalSec, 300 ; proposed value when enabled
@@ -8049,9 +8049,12 @@ return
 RunAsAdminClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+Gui, 2:+OwnDialogs
+
+Gosub, GuiOptionsGroupChanged
 
 if (f_blnRunAsAdmin)
-	Oops(o_L["OptionsRunAsAdminAlert"], g_strAppNameText)
+	MsgBox, 48, % L(o_L["OopsTitle"], g_strAppNameText, g_strAppVersion), % L(o_L["OptionsRunAsAdminAlert"], g_strAppNameText)
 
 return
 ;------------------------------------------------------------
@@ -8335,8 +8338,12 @@ return
 
 ;------------------------------------------------------------
 OptionUsageDbEnableClicked:
+OptionUsageDbEnableClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 strAction := (f_blnOptionUsageDbEnable ? "Enable" : "Disable")
 
