@@ -270,7 +270,6 @@ this["DialogInvalidHotkeyFavorite"] := "With your current system keyboard layout
 this["DialogKeyboard"] := "Keyboard"
 this["DialogLaunchWith"] := "Launch with this application"
 this["DialogListApplicationLabel"] := "List applications for:"
-this["DialogListApplicationsDropdown"] := "List All||Current Windows|Running Applications|Close Applications"
 this["DialogListApplicationYesNo"] := "[Yes] to Activate or [No] to Close this window?"
 this["DialogMaximized"] := "Maximized"
 this["DialogMenuKey"] := "Menu key"
