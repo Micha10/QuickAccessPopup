@@ -22778,10 +22778,11 @@ AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
+	DetectHiddenWindows, Off
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
+	DetectHiddenWindows, On ; revert to app default
 	Loop, %strWinIDs%
 	{
-		
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
