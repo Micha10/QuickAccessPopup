@@ -37,15 +37,15 @@ Version ALPHA: 9.9.0.6 (2019-02-??)
 - ...
 - changes from v9.4.1.5
 
-Version: 9.4.1.5 (2019-02-??)
-- update drop down menu label "Current Windows" in List Applications
-- when copying a favorite, keep the actual favorite in the item position dropdown list
-- fix bug, make sure the default theme Windows is selected when the value is empty in ini file
-- add "Y" label in Options, "Menu" tab, "at fix position"
+Version: 9.4.1.5 (2019-02-27)
+- fix bug when filtering apps in List Applications window and in Current Windows menu when running with a language other than English
+- update dropdown menu labels in "List Applications" window (dropdown menu not localized at this time)
+- when copying a favorite, keep the original favorite in the item position dropdown list
+- make sure the default theme Windows is selected when the value is empty in ini file
 - fix link to website in "Check for update" dialog box
-- remove unappropriate validation when saving an edited or copied Shared menu (when not new)
 - fix bug when searching for "Live" folders type in Settings Extended Search
-...
+- fix bug when checking if a favorite app is already running to activate it instead of launching it
+- exclude some "ghost" Windows Apps from Current Windows menu (aka Switch menu)
 
 Version: 9.4.1.4 (2019-02-17)
 - in the "Easy Setup" installer, removed the optional task to import settings from Folders Popup (ancestor of Quick Access Popup, latest version v5.2.3, September 2016)
@@ -3218,7 +3218,6 @@ global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 
 ;---------------------------------
 ; Init language variables (must be after g_strCurrentBranch init)
-
 global g_strEscapeReplacement := "!r4nd0mt3xt!"
 global o_L = new Language
 
@@ -5782,7 +5781,7 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	*/
 	Loop, %strWinIDs%
 	{
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Switch Menu", objWindowProperties)
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Current Windows menu", objWindowProperties)
 		{
 			intWindowsIdIndex++
 			objFolderOrApp := Object()
@@ -17074,7 +17073,7 @@ WinGet, strWinIDs, list
 DetectHiddenWindows, On ; revert to app default
 
 Loop, %strWinIDs%
-	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close Applications", objWindowProperties)
+	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close All Windows menu", objWindowProperties)
 		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
@@ -19912,7 +19911,8 @@ Gui, ListApps:
 Gui, ListApps:Default
 
 Gui, ListApps:Add, Text, vf_ListApplicationLabel, % o_L["DialogListApplicationLabel"]
-Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, % o_L["DialogListApplicationsDropdown"]
+strListApplicationsDropdown := "List All||Current Windows menu|Running Applications|Close All Windows menu" ; do not use o_L["DialogListApplicationsDropdown"] until the code below is updated for localization
+Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, %strListApplicationsDropdown%
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationRefreshButton gListApplicationsLoad, % o_L["DialogRefresh"]
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationCloseButton gListAppsGuiClose, % o_L["GuiClose"]
 
@@ -21188,10 +21188,11 @@ AppIsRunning(strAppPath, blnDesiredElevated, ByRef strAppID)
 ; Return true only if running app has the desired UAC level
 ;------------------------------------------------------------
 {
+	DetectHiddenWindows, Off
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
+	DetectHiddenWindows, On ; revert to app default
 	Loop, %strWinIDs%
 	{
-		
 		WinGet, strProcessPath, ProcessPath, % "ahk_id " . strWinIDs%A_Index%
 		if (strProcessPath = strAppPath)
 		{
@@ -21987,7 +21988,7 @@ BetweenParenthesis(str)
 
 ;------------------------------------------------------------
 KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
-; strCaller: List All||Switch Menu|Running Applications|Close Applications
+; strCaller: one of "List All", "Current Windows", "Close All Windows menu" or "Running Applications"
 ;------------------------------------------------------------
 {
 	static strWinTitlesWinApps
@@ -22027,13 +22028,13 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 			objWindowProperties.UniversalApplicationName := strUniversalApplicationName
 			objWindowProperties.UniversalApplicationID := intUniversalApplicationID
 		}
-		if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
-		{
+		; if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
+		; {
 			; remember titles of window of intExStyle 0x00200000 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
-			strWinTitlesWinApps .= strWindowTitle . "|"
+			; strWinTitlesWinApps .= strWindowTitle . "|"
 			; ###_V("strWinTitlesWinApps", strWinTitlesWinApps)
 			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
-		}
+		; }
 		; #### to be validated or continued
 		; #### run after loops, not here
 		; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
@@ -22046,7 +22047,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 		; ###_O("objWindowProperties", objWindowProperties)
 	; if InStr(strProcessPath, "opus")
 		; ###_O(strCaller . " / " . strProcessPath . " / " . g_strDirectoryOpusPath . " / " . g_intActiveFileManager, objWindowProperties)
-	
+
 	if (strCaller = "List All")
 		return true
 	
@@ -22067,16 +22068,20 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 				or (intMinMax = -1) ; this is a running and minimized
 	}
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = A_WinDir . "\explorer.exe")
+	else if (strCaller = "Current Windows menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Switch Menu" and strProcessPath = o_FileManagers.I[2].strFileManagerPath and o_FileManagers.I.ActiveFileManager = 2)
+	else if (strCaller = "Current Windows menu" and strProcessPath = o_FileManagers.I[2].strFileManagerPath and o_FileManagers.I.ActiveFileManager = 2)
 		return false
 	
-	else if (strCaller = "Switch Menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
+	else if (strCaller = "Current Windows menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
 		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 			return false
 	
+	else if (intStyle = 0x94000000 and intExStyle = 0x00200000)
+		; added in v9.4.1.5, exclude ghost Windows Apps - maybe make an option to reject (default) or keep
+		return false
+		
 	; else if (blnExcludeProgramManager and strProcessPath = "ProgramManager") ; ####
 		; return false
 	
