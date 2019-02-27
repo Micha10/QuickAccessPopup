@@ -6968,14 +6968,18 @@ GuiOptionsGroupAdvancedOther:
 
 ;------------------------------------------------------------
 
+if StrLen(g_strSettingsGroup) ; check if changes to save in existing Options window
+	Gosub, 2GuiClose
+if StrLen(g_strSettingsGroup) ; changes in existing Options window not saved
+	return
+
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
-
 objSettingsGroup := o_Settings.objGroupItems[g_strSettingsGroup]
-
 strSettingsGroupLabel := o_L["Options" . g_strSettingsGroup]
 
 Gosub, GuiShowFromGuiOptions
 g_intGui1WinID := WinExist("A")
+
 Gosub, GuiOptionsHeader
 
 if (g_strSettingsGroup = "General")
@@ -7373,38 +7377,40 @@ else if (g_strSettingsGroup = "AdvancedOther")
 {
 	; WaitDelayInDialogBox
 	Gui, 2:Add, Text, x10 y+15 vf_lblWaitDelayInDialogBox, % o_L["OptionsWaitDelayInDialogBox"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox gGuiOptionsGroupChanged, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 
 	; SendToConsoleWithAlt
-	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnSendToConsoleWithAlt, % o_L["OptionsSendToConsoleWithAlt"]
+	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnSendToConsoleWithAlt gGuiOptionsGroupChanged, % o_L["OptionsSendToConsoleWithAlt"]
 	GuiControl, , f_blnSendToConsoleWithAlt, % (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue = true)
 
 	; ExternalMenusCataloguePath
 	if !(o_Settings.SettingsFile.blnExternalMenusCataloguePathReadOnly.IniValue)
 	{
-		Gui, 2:Add, CheckBox, y+15 x10 vf_blnEnableExternalMenusCatalogue gEnableExternalMenusCatalogueClicked, % o_L["OptionsEnableExternalMenusCatalogue"]
+		Gui, 2:Add, CheckBox, y+15 x10 vf_blnEnableExternalMenusCatalogue, % o_L["OptionsEnableExternalMenusCatalogue"]
 		Gui, 2:Add, Link, yp x+5, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
 		GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
 		Gui, 2:Add, Text, y+10 x10 vf_lblExternalMenusCataloguePathPrompt disabled, % o_L["OptionsCataloguePath"] . ":"
 		Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled
 		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled, % o_L["DialogBrowseButton"]
 		GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
-		Gosub, EnableExternalMenusCatalogueClicked ; init disabled fields
+		GuiControl, 2:+gGuiOptionsGroupChanged, f_strExternalMenusCataloguePath
+		Gosub, EnableExternalMenusCatalogueClickedInit ; init disabled fields
+		GuiControl, 2:+gEnableExternalMenusCatalogueClicked, f_blnEnableExternalMenusCatalogue
 	}
 	
 	; HotstringsDefaultOptions
 	Gui, 2:Add, Text, y+15 x10, % o_L["OptionsHotstringsDefault"]
-	Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
+	Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions gGuiOptionsGroupChanged, % o_L["OptionsHotstringsDefaultSelect"]
 
 	; WaitDelayInSnippet
 	Gui, 2:Add, Text, x10 y+10, % o_L["OptionsWaitDelayInSnippet"]
 	loop, 3
-		Gui, 2:Add, Edit, % "x+5 yp h20 w50 number center vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
+		Gui, 2:Add, Edit, % "x+5 yp h20 w50 number center gGuiOptionsGroupChanged vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
 
 	; SwitchExclusionList
 	strUrl := "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/"
 	Gui, 2:Add, Link, y+15 x10 w500, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Edit, y+5 x10 w500 r5 vf_strSwitchExclusionList, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
+	Gui, 2:Add, Edit, y+5 x10 w500 r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
 	Gui, 2:Add, Link, y+5 x10 w495, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
 	Gui, 2:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
 	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
@@ -8191,8 +8197,12 @@ return
 
 ;------------------------------------------------------------
 EnableExternalMenusCatalogueClicked:
+EnableExternalMenusCatalogueClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
+
+if !InStr(A_ThisLabel, "Init")
+	Gosub, GuiOptionsGroupChanged
 
 blnExternalMenusCataloguePathReadOnly := o_Settings.ReadIniValue("ExternalMenusCataloguePathReadOnly", 0) ; false if not found
 strEnableCommand := (blnExternalMenusCataloguePathReadOnly ? "Disable" : "Enable")
@@ -8200,7 +8210,7 @@ GuiControl, 2:%strEnableCommand%, f_blnEnableExternalMenusCatalogue
 GuiControl, 2:%strEnableCommand%, f_strExternalMenusCataloguePath
 GuiControl, 2:%strEnableCommand%, f_btnExternalMenusCataloguePath
 
-if !(f_blnEnableExternalMenusCatalogue)
+if !(f_blnEnableExternalMenusCatalogue) and !InStr(A_ThisLabel, "Init")
 	GuiControl, 2:, f_strExternalMenusCataloguePath
 
 strShowHideCommand := (f_blnEnableExternalMenusCatalogue ? "Enable" : "Disable")
@@ -14745,9 +14755,9 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-WinGetTitle, strThisTitle, A
-
-if (strThisTitle = g_strOptionsGuiTitle)
+if StrLen(g_strSettingsGroup)
+; strThisTitle (used before) was OK only when closing with Options window buttons
+; g_strSettingsGroup is also good when changing group in an existing Options window
 {
 	if (g_blnGroupChanged)
 	{
@@ -14759,12 +14769,15 @@ if (strThisTitle = g_strOptionsGuiTitle)
 		IfMsgBox, No
 			return
 	}
+	g_strSettingsGroup := ""
 
 	if (g_strSettingsGroup = "PopupHotkeys") ; revert to previous content of o_PopupHotkeys.I
 		o_PopupHotkeys.RestorePopupHotkeys()
 }
 else
 {
+	WinGetTitle, strThisTitle, A
+	
 	; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
 	blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
 	blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
