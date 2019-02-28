@@ -31,11 +31,25 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.0.6 (2019-02-??)
-- fix 2 Win 7 Special Folders initialization commands causing a runtime error
-- merge changes from regular release v9.4.1.4 (changes in the Setup script affecting Folders Popup users upgrading to QAP)
-- ...
-- changes from v9.4.1.5
+Version ALPHA: 9.9.0.6 (2019-02-28)
+- first alpha release with changes in feature
+ 
+Options
+- convert Options data structure using OOP approach (class)
+- replace the tabs Options dialog box with sepearate dialog boxes for 14 groups of options: "General", "Settings Window", "Menu Icons", "Menu Appearance", "Popup Menu", "Popup Hotkeys", "Alternative Menu Features Hotkeys", "File Managers", "Snippets", "User Variables", "Database" and "Advanced Options" sub menu with "Menus Advanced Options", "Launch Advanced Options" and "Various Advanced Options"
+- in Options group dialog box, implement "Save" and "Cancel" buttons with cancel validation if user close the window with unsaved changes
+- add to the Options groups some values that were only in the quickaccesspopup.ini file before
+- make the "Options" QAP Feature open a menu with options groups
+- add option "Align reminders to the right" (default true) in Menu Appearance group to right align shortcut and hotstrings reminders in menus (instead of left align between parenthesis
+ 
+Settings window and Menu bar
+- add a menu bar to the Settings window with submenus: "File", "Insert", "Favorite", "Tools", "Options" (the only submenu completely developped for now) and "Help"
+- remove the "Options" button and label in Settings window
+ 
+Various
+- when QAPconnect is selected in FileManagers group, add a "Refresh list" button to reload the applications list from the QAPconnect.ini file
+- fix two Windows 7 Special Folders initialization commands causing a runtime error
+- merge changes from regular release v9.4.1.4 and v9.4.1.5
 
 Version: 9.4.1.5 (2019-02-27)
 - fix bug when filtering apps in List Applications window and in Current Windows menu when running with a language other than English
@@ -3118,7 +3132,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.5
+;@Ahk2Exe-SetVersion 9.9.0.6
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3209,7 +3223,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -7863,11 +7877,6 @@ return
 GuiOptionsGroupChanged:
 ;------------------------------------------------------------
 
-if (g_blnGroupChanged)
-	SoundBeep, 600
-else
-	SoundBeep ; #####
-
 g_blnGroupChanged := true
 GuiControl, % "2:" . (g_blnGroupChanged ? "Enable" : "Disable"), f_btnOptionsSave
 
@@ -8701,7 +8710,7 @@ Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTe
 Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static6
 Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static7
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
-Gui, 1:Add, Picture, vf_picGuiOptions gShowGuiOptionsMenu x+1 yp, %g_strTempDir%\settings-32_c.png ; Static9
+Gui, 1:Add, Picture, vf_picGuiOptions gShowGuiOptionsMenu x+1 yp ; , %g_strTempDir%\settings-32_c.png ; Static9
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12_c.png ; Static10
 g_objToolTipsMessages["Static10"] := o_L["ControlToolTipPreviousMenu"]
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12_c.png ; Static11
@@ -8727,7 +8736,7 @@ Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions x0 y+20, % o_L["GuiOptions"] ; Static23 button desiables in alpha v9.9.0.6
+Gui, 1:Add, Text, vf_lblGuiOptions x0 y+20 ; , % o_L["GuiOptions"] ; Static23 button disabled in alpha v9.9.0.6
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, % o_L["GuiAddFavorite"] ; Static24
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, % o_L["GuiEditFavorite"] ; Static25, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, % o_L["GuiRemoveFavorite"] ; Static26
