@@ -6785,7 +6785,7 @@ AddCloseMenu(strMenuName)
 
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-; strIconValue can be an index from o_JLicons.I (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
+; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ;------------------------------------------------------------
 {
 	global g_blnMainIsFirstColumn
@@ -7097,7 +7097,7 @@ else if (g_strSettingsGroup = "MenuIcons")
 	; strIconReplacementList
 	Gui, 2:Add, Link, y+25 x10 w500, % o_L["OptionsIconReplacementList"] . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . o_L["GuiHelp"] . "</a>):"
 	Gui, 2:Add, Edit, y+10 x10 w500 r5 vf_strIconReplacementList gGuiOptionsGroupChanged, % (StrLen(o_Settings.MenuIcons.strIconReplacementList.IniValue)
-		? StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n") : "iconUnknown=" . o_JLicons.I["iconUnknown"])
+		? StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n") : "iconUnknown=" . o_JLicons.AA["iconUnknown"])
 	Gui, 2:Add, Link, x10 y+10 w500, % o_L["OptionsIconReplacementListInstructions"]
 }
 else if (g_strSettingsGroup = "MenuAppearance")
@@ -11259,7 +11259,7 @@ Gui, 2:Submit, NoHide
 
 g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
 
-if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.I["iconUnknown"])
+if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.AA["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
 
 return
@@ -13948,7 +13948,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			else
 				strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			if StrLen(o_JLicons.I[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons.I
+			if StrLen(o_JLicons.AA[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons.AA
 				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
 			else
 			{
@@ -20405,16 +20405,16 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 
 ;------------------------------------------------------------
 ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDefaultType := "")
-; strIconResource can be a icongroup (file,index) or an index in o_JLicons.I
+; strIconResource can be a icongroup (file,index) or an index in o_JLicons.AA
 ;------------------------------------------------------------
 {
 	if !StrLen(strDefaultType)
 		strDefaultType := "iconUnknown"
 	if !StrLen(strIconResource)
-		strIconResource := o_JLicons.I[strDefaultType]
-	If !InStr(strIconResource, ",") ; this is an index from o_JLicons.I or the name of a file including icons
-		if StrLen(o_JLicons.I[strIconResource]) ; this is an index from o_JLicons.I
-			strIconResource := o_JLicons.I[strIconResource] ; replace it with file,index format
+		strIconResource := o_JLicons.AA[strDefaultType]
+	If !InStr(strIconResource, ",") ; this is an index from o_JLicons.AA or the name of a file including icons
+		if StrLen(o_JLicons.AA[strIconResource]) ; this is an index from o_JLicons.AA
+			strIconResource := o_JLicons.AA[strIconResource] ; replace it with file,index format
 		else ; this is the name of a file including icons
 			strIconResource := strIconResource . ",1" ; use its first icon
 	
@@ -20430,9 +20430,9 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 ;------------------------------------------------------------
 GetIcon4Location(strLocation)
-; returns an icon resource in icongroup format (file,index) or an index of o_JLicons.I
+; returns an icon resource in icongroup format (file,index) or an index of o_JLicons.AA
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
-; index of o_JLicons.I will converted to icongroup by ParseIconResource before being splitted
+; index of o_JLicons.AA will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
@@ -22877,15 +22877,15 @@ class JLicons
 /*
 class JLicons
 	Methods
-	- JLicons.__New(strJLiconsFile): add array oIcons "name"->"file,index" to class JLicons for each JLicon.dll and to simple array oNames index of names
+	- JLicons.__New(strJLiconsFile): add array oIcons "name"->"file,index" to class JLicons for each JLicon.dll and to simple array saNames index of names
 	- JLicons.GetName(intKey): return name of JLicons element of index intKey (was g_objJLiconsNames[intKey] before class)
 	- JLicons.AddIcon(strKey, strFileIndex): add icon resource strFileIndex for JLicons element strKey (used to add DOpus and Total Commander icons)
 	- JLicons.ProcessReplacements(strReplacements): removes previous JLicons replacements in oReplacements and do the current replacements in strReplacements
 	Instance variables
 	- strFileLocation: path and file name of the JLicons library file
-	- I: items of JLicons
-	- oNames: simple array index of icon names (iconXYZ)
-	- oReplacementPrevious: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
+	- AA: items of JLicons
+	- saNames: simple array index of icon names (iconXYZ)
+	- aaReplacementPrevious: associative array "strKey->strValue" (iconXYZ->file,index) backup for original "file,index" value for replaced icons
 */
 ;-------------------------------------------------------------
 {
@@ -22903,9 +22903,9 @@ class JLicons
 
 	; Instance variables
 	strFileLocation := ""
-	I := Object()
-	oNames := Object() ; was g_objJLiconsNames before class
-	oReplacementPrevious := Object() ; original values of replaced icons
+	AA := Object() ; associative array
+	saNames := Object() ; was g_objJLiconsNames before class
+	aaReplacementPrevious := Object() ; associative array, original values of replaced icons
 	
 	;---------------------------------------------------------
 	__New(strJLiconsFile)
@@ -22928,13 +22928,11 @@ class JLicons
 			. "|iconFolderLiveOpened"
 
 		; EXAMPLE
-		; JLicons.I["iconAbout"] -> "file,2"
-		; JLicons.oNames[2] -> "iconAbout"
+		; JLicons.AA["iconAbout"] -> "file,2"
+		; JLicons.saNames[2] -> "iconAbout"
+		this.saNames := StrSplit(strNames, "|")
 		Loop, Parse, strNames, |
-		{
 			this.AddIcon(A_LoopField, strJLiconsFile . "," . A_Index)
-			this.oNames.InsertAt(A_Index, A_LoopField)
-		}
 	}
 	;---------------------------------------------------------
 	
@@ -22942,7 +22940,7 @@ class JLicons
 	AddIcon(strKey, strFileIndex) ; to add DOpus and Total Commander icons
 	;---------------------------------------------------------
 	{
-		this.I[strKey] := strFileIndex
+		this.AA[strKey] := strFileIndex
 	}
 	;---------------------------------------------------------
 
@@ -22950,7 +22948,7 @@ class JLicons
 	GetName(intKey) ; was g_objJLiconsNames[intKey] before class
 	;---------------------------------------------------------
 	{
-		return this.oNames[intKey]
+		return this.saNames[intKey]
 	}
 	;---------------------------------------------------------
 
@@ -22959,22 +22957,22 @@ class JLicons
 	;---------------------------------------------------------
 	{
 		; restore previously replaced icons
-		for strKey, strFileIndex in this.oReplacementPrevious
-			this.I[strKey] := strFileIndex
+		for strKey, strFileIndex in this.aaReplacementPrevious
+			this.AA[strKey] := strFileIndex
 		
-		this.oReplacementPrevious := Object() ; reset replacements
+		this.aaReplacementPrevious := Object() ; reset replacements
 		
 		loop, parse, strReplacements, |
 			if StrLen(A_LoopField)
 			{
-				objIconReplacement := StrSplit(A_LoopField, "=")
-				if This.I.HasKey(objIconReplacement[2]) ; support replacement with another JLicons item
-					objIconReplacement[2] := This.I[objIconReplacement[2]]
-				if this.I.HasKey(objIconReplacement[1]) and InStr(objIconReplacement[2], ",")
+				saIconReplacement := StrSplit(A_LoopField, "=")
+				if This.AA.HasKey(saIconReplacement[2]) ; support replacement with another JLicons item
+					saIconReplacement[2] := This.AA[saIconReplacement[2]]
+				if this.AA.HasKey(saIconReplacement[1]) and InStr(saIconReplacement[2], ",")
 				; this icon exists and replacement is "file,index" (includes a coma)
 				{
-					this.oReplacementPrevious[objIconReplacement[1]] := this.I[objIconReplacement[1]]
-					this.I[objIconReplacement[1]] := objIconReplacement[2]
+					this.aaReplacementPrevious[saIconReplacement[1]] := this.AA[saIconReplacement[1]]
+					this.AA[saIconReplacement[1]] := saIconReplacement[2]
 				}
 			}
 	}
@@ -24374,7 +24372,7 @@ class SpecialFolders
 
 	; strDefaultName: name for menu if path is used, fallback name if CLSID is used to access localized name
 
-	; strDefaultIcon: icon in o_JLicons.I if path is used, fallback icon (?) if CLSID returns no icon resource
+	; strDefaultIcon: icon in o_JLicons.AA if path is used, fallback icon (?) if CLSID returns no icon resource
 
 	; Constants for "use" flags:
 	; 		CLS: Class ID
@@ -24425,8 +24423,8 @@ class SpecialFolders
 		
 		if (blnIsClsId)
 			strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
-		if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons.I[strDefaultIcon])
-			strThisDefaultIcon := o_JLicons.I[strDefaultIcon]
+		if !StrLen(strThisDefaultIcon) and StrLen(o_JLicons.AA[strDefaultIcon])
+			strThisDefaultIcon := o_JLicons.AA[strDefaultIcon]
 		if !StrLen(strThisDefaultIcon)
 			strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
 		objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
