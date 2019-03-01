@@ -3445,8 +3445,8 @@ Gosub, SetTrayMenuIcon
 if (o_Settings.Launch.blnDisplayTrayTip.IniValue)
 {
 	TrayTip, % L(o_L["TrayTipInstalledTitle"], g_strAppNameText)
-		, % L(o_L["TrayTipInstalledDetail"], o_PopupHotkeys.I[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
-			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.I[2].strPopupHotkeyText) ; "NavigateOrLaunchHotkeyKeyboard"
+		, % L(o_L["TrayTipInstalledDetail"], o_PopupHotkeys.SA[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
+			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.SA[2].strPopupHotkeyText) ; "NavigateOrLaunchHotkeyKeyboard"
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -4324,7 +4324,7 @@ else
 	g_objMainMenu.MenuType := "Menu" ; main menu is not a group
 
 	global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-	o_QAPfeatures.objQAPfeaturesInMenus := Object() ; re-init
+	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
 	
 	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
@@ -4453,13 +4453,13 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if (objThisFavorite[1] = "QAP")
 		{
 			; get QAP feature's name in current language (QAP features names are not saved to ini file)
-			objThisFavorite[2] := o_QAPfeatures.objQAPFeaturesDefaultNameByCode[objThisFavorite[3]]
+			objThisFavorite[2] := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[objThisFavorite[3]]
 			if !StrLen(objThisFavorite[2]) ; if QAP feature is unknown
 				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 				objThisFavorite[2] := "* Unknown QAP feature * " . RandomBetween() . " *"
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
-			o_QAPfeatures.objQAPfeaturesInMenus.Insert(objThisFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
+			o_QAPfeatures.aaQAPfeaturesInMenus.Insert(objThisFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 		}
 
 		; this is a regular favorite, add it to the current menu
@@ -4597,9 +4597,9 @@ AddToIniOneDefaultMenu("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "", "Special") 
 AddToIniOneDefaultMenu("{645FF040-5081-101B-9F08-00AA002F954E}", "", "Special") ; Recycle Bin
 AddToIniOneDefaultMenu("", "", "Z") ; close special menu
 
-g_strAddThisMenuName := o_QAPfeatures.objQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."] ; QAP feature code used here for comparison only, not for menu name
+g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."] ; QAP feature code used here for comparison only, not for menu name
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.objQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."]) ; if equal, it means that this menu is not already there
+if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."]) ; if equal, it means that this menu is not already there
 ; (we cannot have this menu twice with "+" because, as all QAP features, o_L["MenuSettings"] always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
@@ -4619,9 +4619,9 @@ if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3
 		AddToIniOneDefaultMenu((o_FileManagers.ActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
 	}
 }
-g_strAddThisMenuName := o_QAPfeatures.objQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."] ; QAP feature code used here for comparison only, not for menu name
+g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."] ; QAP feature code used here for comparison only, not for menu name
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.objQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."]) ; if equal, it means that this menu is not already there
+if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."]) ; if equal, it means that this menu is not already there
 ; (we cannot have this menu twice with "+" because, as all QAP features, o_L["MenuAddThisFolder"] always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
@@ -4721,19 +4721,19 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 		else if (strFavoriteType = "WindowsApp")
 			strIconResource := "iconDesktop"
 		else
-			strIconResource := o_QAPfeatures.I[strLocation].DefaultIcon
+			strIconResource := o_QAPfeatures.AA[strLocation].DefaultIcon
 
 		if !StrLen(strName)
 			if (strFavoriteType = "Special")
 				strName := o_SpecialFolders.I[strLocation].DefaultName
 			else
-				strName := o_QAPfeatures.I[strLocation].DefaultName
+				strName := o_QAPfeatures.AA[strLocation].DefaultName
 
 		if (g_blnIniFileCreation) ; do not add shortcut if not creation of ini file at first launch
 			if StrLen(strCustomShortcut)
 				strShortcut := strCustomShortcut
 			else if (blnAddShortcut)
-				strShortcut := o_QAPfeatures.I[strLocation].DefaultShortcut
+				strShortcut := o_QAPfeatures.AA[strLocation].DefaultShortcut
 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
@@ -4751,7 +4751,7 @@ LoadIniAlternativeMenuFeaturesHotkeys:
 ;-----------------------------------------------------------
 
 ; Turn off previous QAP Alternative Menu features hotkeys
-for strCode, objThisQAPFeature in o_QAPfeatures.I
+for strCode, objThisQAPFeature in o_QAPfeatures.AA
 	if HasShortcut(objThisQAPFeature.CurrentHotkey)
 	{
 		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
@@ -4760,19 +4760,19 @@ for strCode, objThisQAPFeature in o_QAPfeatures.I
 	}
 	
 ; Load QAP Alternative Menu hotkeys
-for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
+for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 {
 	strHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strCode, strCode, "", "PopupHotkeysAlternative", 80, "AlternativeMenuHotkeys")
 
 	if (strHotkey <> "ERROR")
 	{
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
-		o_QAPfeatures.I[strCode].CurrentHotkey := strHotkey
+		o_QAPfeatures.AA[strCode].CurrentHotkey := strHotkey
 	}
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
-		Oops(o_L["DialogInvalidHotkey"], new Triggers.HotkeyParts(strHotkey).Hotkey2Text(), o_QAPfeatures.I[strCode].LocalizedName) ; .LocalizedName OK because Alternative
+		Oops(o_L["DialogInvalidHotkey"], new Triggers.HotkeyParts(strHotkey).Hotkey2Text(), o_QAPfeatures.AA[strCode].LocalizedName) ; .LocalizedName OK because Alternative
 }
 
 strCode := ""
@@ -5284,7 +5284,7 @@ loop, parse, % "Folders|Files", |
 	strFoldersOrFiles := A_Loopfield
 	strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], (strFoldersOrFiles = "Folders" ? o_L["MenuPopularFolders"] : o_L["MenuPopularFiles"]))
 	
-	if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Popular " . strFoldersOrFiles . "}")) ; we don't have this QAP features in at least one menu
+	if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Popular " . strFoldersOrFiles . "}")) ; we don't have this QAP features in at least one menu
 		continue
 		
 	strUsageDbSQL := "SELECT Popular" . strFoldersOrFiles .  "MenuData FROM zMetadata;"
@@ -5343,7 +5343,7 @@ return
 RefreshClipboardMenu:
 ;------------------------------------------------------------
 
-if !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP feature in at least one menu
+if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP feature in at least one menu
 	or !StrLen(Clipboard) ; clipboard is empty (or contains only binary data)
 	return
 
@@ -5506,7 +5506,7 @@ return
 RefreshDrivesMenu:
 ;------------------------------------------------------------
 
-if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP features in at least one menu
+if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this QAP features in at least one menu
 	return
 
 Diag(A_ThisLabel, "", "START")
@@ -5572,7 +5572,7 @@ return
 RefreshRecentItemsMenus: ; attached, refresh both {Recent Folders} and {Recent Files} if one is present in menu
 ;------------------------------------------------------------
 
-if !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Folders}") and !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Files}")
+if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Folders}") and !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Files}")
 	; we don't have Recent Folders or Recent Files QAP features in at least one menu
 	return
 
@@ -5583,7 +5583,7 @@ Diag(A_ThisLabel, "", "START")
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 	Loop, Parse, % "Folders|Files", |
 	{
-		if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} or {Recent Files}
+		if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} or {Recent Files}
 		{
 			strUsageDbSQL := "SELECT Recent" . A_LoopField . "MenuData FROM zMetadata;" ; RecentFoldersMenuData and RecentFilesMenuData
 			if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
@@ -5599,7 +5599,7 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 else ; get data directly from Windows (with variable response time)
 	gosub, GetMenusListRecentItemsRefresh ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 
-if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
+if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 {
 	Menu, % o_L["MenuRecentFolders"], Add
 	Menu, % o_L["MenuRecentFolders"], DeleteAll
@@ -5612,7 +5612,7 @@ if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 	AddCloseMenu(o_L["MenuRecentFolders"])
 }
 
-if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Files}"))
+if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Files}"))
 {
 	Menu, % o_L["MenuRecentFiles"], Add
 	Menu, % o_L["MenuRecentFiles"], DeleteAll
@@ -5699,7 +5699,7 @@ RefreshReopenFolderMenu:
 ; The first part of "Switch" has the same items as "Reopen a Folder" but with a "switch" command instead of "open".
 ;------------------------------------------------------------
 
-if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Current Folders}") or o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Switch Folder or App}"))
+if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Current Folders}") or o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}"))
 	; we don't have one of these QAP features in at least one menu
 	return
 
@@ -5769,7 +5769,7 @@ for intIndex, objFolder in objExplorersWindows
 }
 
 if (A_ThisLabel <> "RefreshReopenFolderMenu")
-	and o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
+	and o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
 {
 	; Insert a menu separator
 
@@ -5816,7 +5816,7 @@ g_objReopenFolderLocationUrlByName := Object()
 
 Critical, On
 if (A_ThisLabel <> "RefreshReopenFolderMenu")
-	and o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
+	and o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
 {
 	g_objSwitchWindowIdsByName := Object()
 	Menu, % o_L["MenuSwitchFolderOrApp"], Add
@@ -6052,7 +6052,7 @@ RefreshTotalCommanderHotlist:
 RefreshTotalCommanderHotlistScheduled:
 ;------------------------------------------------------------
 
-if !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{TC Directory hotlist}")
+if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{TC Directory hotlist}")
     ; we don't have this QAP featuree in at least one menu
     return
 
@@ -6193,7 +6193,7 @@ RefreshDirectoryOpusFavorites:
 RefreshDirectoryOpusFavoritesScheduled:
 ;------------------------------------------------------------
 
-if !o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{DOpus Favorites}")
+if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{DOpus Favorites}")
 	; we don't have this QAP features in at least one menu
 	return
 
@@ -6268,7 +6268,7 @@ return
 RefreshLastActionsMenu:
 ;------------------------------------------------------------
 
-if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
+if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
 	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
 	return
 
@@ -6304,16 +6304,16 @@ Menu, g_menuAlternative, DeleteAll
 intMenuNumber := 0
 
 Loop
-	if o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
+	if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
-		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
-		strMenuName .= MenuNameReminder(o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey)
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
+		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey)
 		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
-		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
+		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
 	}
 	else
-		if o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index + 1) ; there is another menu item, add a menu separator
+		if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index + 1) ; there is another menu item, add a menu separator
 			Menu, g_menuAlternative, Add
 		else
 			break ; menu finished
@@ -6401,7 +6401,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		if (objCurrentMenu[A_Index].FavoriteType = "QAP")
 			; if QAP feature attach menu option was changed when saving options
-			objCurrentMenu[A_Index].FavoriteName := o_QAPfeatures.I[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
+			objCurrentMenu[A_Index].FavoriteName := o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
 
 		strMenuName := objCurrentMenu[A_Index].FavoriteName
 		if StrLen(strMenuName)
@@ -6422,7 +6422,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (ErrorLevel)
 				Oops(o_L["DialogInvalidHotkeyFavorite"], objCurrentMenu[A_Index].FavoriteShortcut
 					, (StrLen(objCurrentMenu[A_Index].FavoriteName) ? objCurrentMenu[A_Index].FavoriteName
-						: o_QAPfeatures.I[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
+						: o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
 					, objCurrentMenu[A_Index].FavoriteLocation)
 		}
 		
@@ -6492,9 +6492,9 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		}
 		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
-			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(o_QAPfeatures.I[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
+			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
-				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.I[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName
+				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName
 			else if (objCurrentMenu[A_Index].FavoriteType = "Group")
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavoriteGroup
 			else
@@ -7170,11 +7170,11 @@ else if (g_strSettingsGroup = "PopupMenu")
 
 	; ExclusionMouseList
 	strUrl := "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
-	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.I[1].strPopupHotkeyText)
+	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
 			. " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
 	Gui, 2:Add, Edit, y+5  x10 w500 r5 vf_strExclusionMouseList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
-	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.I[1].strPopupHotkeyText)
-	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.I[1].strPopupHotkeyText, strUrl)
+	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
+	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.SA[1].strPopupHotkeyText, strUrl)
 	Gui, 2:Add, Button, y+10 x10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
 	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
 }
@@ -7188,7 +7188,7 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	o_PopupHotkeys.BackupPopupHotkeys()
 
 	Gui, 2:Add, Text, y+15 x10 w590 center, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
-	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I ; could also use o_Settings class objects
+	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA ; could also use o_Settings class objects
 	{
 		Gui, 2:Font, s8 w700
 		Gui, 2:Add, Text, x10 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName
@@ -7212,21 +7212,21 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
 	; {Alternative Menu QAP Feature Codes}
-	o_QAPfeatures.objQAPFeaturesNewShortcuts := Object() ; re-init
-	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
-		if HasShortcut(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey)
-			; o_QAPfeatures.objQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.I will be used to turn off previous hotkeys
-			o_QAPfeatures.objQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.I[strAlternativeCode].CurrentHotkey
+	o_QAPfeatures.aaQAPFeaturesNewShortcuts := Object() ; re-init
+	for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
+		if HasShortcut(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey)
+			; o_QAPfeatures.aaQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.AA will be used to turn off previous hotkeys
+			o_QAPfeatures.aaQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey
 			
 	Gui, 2:Add, Text, y+15 x10 w590 center, % o_L["OptionsAlternativeMenuFeaturesIntro"]
 
-	for intOrder, strAlternativeCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
+	for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 	{
 		Gui, 2:Font, s8 w700
-		Gui, 2:Add, Text, x15 y+10 w240, % o_QAPfeatures.I[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
+		Gui, 2:Add, Text, x15 y+10 w240, % o_QAPfeatures.AA[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
 		Gui, 2:Font, s9 w500, Courier New
 		Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
-			, % new Triggers.HotkeyParts(o_QAPfeatures.I[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
+			, % new Triggers.HotkeyParts(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
 		Gui, 2:Font
 		Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, % o_L["OptionsChangeHotkey"]
 	}
@@ -7618,7 +7618,7 @@ else if (g_strSettingsGroup = "PopupMenu")
 }
 else if (g_strSettingsGroup = "PopupHotkeys")
 {
-	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
+	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA
 		o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
 	o_PopupHotkeys.EnablePopupHotkeys()
 	
@@ -7630,7 +7630,7 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 {
 	IniDelete, % o_Settings.strIniFile, AlternativeMenuHotkeys
-	for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.objQAPFeaturesNewShortcuts
+	for strThisAlternativeCode, strNewShortcut in o_QAPfeatures.aaQAPFeaturesNewShortcuts
 		if HasShortcut(strNewShortcut)
 			o_Settings.MenuPopup["str" . strThisAlternativeCode].WriteIni(strNewShortcut)
 
@@ -8107,23 +8107,23 @@ Gui, 2:Submit, NoHide
 
 intHotkeyIndex := StrReplace(A_ThisLabel, "ButtonOptionsChangeShortcut")
 
-if InStr(o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyInternalName, "Mouse")
+if InStr(o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyInternalName, "Mouse")
 	intHotkeyType := 1 ; Mouse
 else
 	intHotkeyType := 2 ; Keyboard
 
-strPopupHotkeysLocalBackup := o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey
-strNewHotkey := SelectShortcut(o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey, o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyLocalizedName
-	, "", "", intHotkeyType, o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyDefault, o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyLocalizedDescription)
-o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey := strNewHotkey
+strPopupHotkeysLocalBackup := o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey
+strNewHotkey := SelectShortcut(o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyLocalizedName
+	, "", "", intHotkeyType, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyDefault, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyLocalizedDescription)
+o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey := strNewHotkey
 
-if StrLen(o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey)
+if StrLen(o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey)
 {
-	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % o_PopupHotkeys.I[intHotkeyIndex].strPopupHotkeyTextShort
+	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyTextShort
 	Gosub, GuiOptionsGroupChanged
 }
 else
-	o_PopupHotkeys.I[intHotkeyIndex].AhkHotkey := strPopupHotkeysLocalBackup
+	o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey := strPopupHotkeysLocalBackup
 	
 strPopupHotkeysLocalBackup := ""
 strNewHotkey := ""
@@ -8140,21 +8140,21 @@ Gui, 2:Submit, NoHide
 intAlternativeOrder := StrReplace(A_GuiControl, "f_lblAlternativeHotkeyText")
 intAlternativeOrder := StrReplace(intAlternativeOrder, "f_btnChangeAlternativeHotkey")
 
-strThisAlternativeCode := o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
-objThisAlternative := o_QAPfeatures.I[strThisAlternativeCode]
-strAlternativeHotkeysBackup := o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode]
+strThisAlternativeCode := o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[intAlternativeOrder]
+objThisAlternative := o_QAPfeatures.AA[strThisAlternativeCode]
+strAlternativeHotkeysBackup := o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
 ; .LocalizedName OK because Alternative
-o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode], objThisAlternative.LocalizedName, o_L["DialogHotkeysManageAlternative"]
+o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode], objThisAlternative.LocalizedName, o_L["DialogHotkeysManageAlternative"]
 	, "", 3, objThisAlternative.DefaultShortcut)
 
-if StrLen(o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode])
+if StrLen(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode])
 {
-	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % new Triggers.HotkeyParts(o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode]).Hotkey2Text()
+	GuiControl, 2:, f_lblAlternativeHotkeyText%intAlternativeOrder%, % new Triggers.HotkeyParts(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode]).Hotkey2Text()
 	Gosub, GuiOptionsGroupChanged
 }
 else
-	o_QAPfeatures.objQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
+	o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode] := strAlternativeHotkeysBackup
 
 intAlternativeOrder := ""
 strThisAlternativeCode := ""
@@ -9400,8 +9400,8 @@ If !StrLen(g_strNewLocation)
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
 		Gui, 1:+OwnDialogs 
-		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.I[o_FileManagers.ActiveFileManager].strDisplayName, o_PopupHotkeys.I[1].strPopupHotkeyText
-			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.I[2].strPopupHotkeyText)
+		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.I[o_FileManagers.ActiveFileManager].strDisplayName, o_PopupHotkeys.SA[1].strPopupHotkeyText
+			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.SA[2].strPopupHotkeyText)
 	}
 	else
 	{
@@ -10204,11 +10204,11 @@ blnSelectDone := false
 objCategoriesID := Object()
 g_objTreeViewItemsByIDs := Object()
 
-objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.objQAPFeaturesCategories : o_SpecialFolders.objSpecialFoldersCategories)
+objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.objSpecialFoldersCategories)
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
-for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.I : o_SpecialFolders.I)
+for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.I)
 	if (A_ThisLabel = "LoadTreeviewQAP")
 		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial
@@ -10237,7 +10237,7 @@ for strCategory, strCategoryLabel in objCategories
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
-				if (!blnSelectDone and o_QAPfeatures.I[g_objEditedFavorite.FavoriteLocation].LocalizedName = arrItem1)
+				if (!blnSelectDone and o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].LocalizedName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -10246,7 +10246,7 @@ for strCategory, strCategoryLabel in objCategories
 					strSelect := ""
 				
 				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
-				g_objTreeViewItemsByIDs[intItemID] := o_QAPfeatures.I[arrItem2]
+				g_objTreeViewItemsByIDs[intItemID] := o_QAPfeatures.AA[arrItem2]
 			}
 			else
 			{
@@ -10725,7 +10725,7 @@ ButtonChangeFavoriteHotkey:
 Gui, 2:Submit, NoHide
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	strQAPDefaultShortcut := o_QAPfeatures.I[o_QAPfeatures.objQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].DefaultShortcut
+	strQAPDefaultShortcut := o_QAPfeatures.AA[o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].DefaultShortcut
 
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
 g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
@@ -10988,13 +10988,13 @@ if (A_GuiEvent = "S")
 	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
-		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.objQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.objClassIdOrPathByDefaultName[strItemSelectedName])
+		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.objClassIdOrPathByDefaultName[strItemSelectedName])
 		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
 		{
-			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.I[strLocation].DefaultIcon : o_SpecialFolders.I[strLocation].DefaultIcon)
+			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.AA[strLocation].DefaultIcon : o_SpecialFolders.I[strLocation].DefaultIcon)
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
@@ -11003,8 +11003,8 @@ if (A_GuiEvent = "S")
 			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
 				and !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
-				and !g_objFavoritesObjectsByShortcut.HasKey(o_QAPfeatures.I[strLocation].DefaultShortcut) ; and default shortcut is not already used
-				g_strNewFavoriteShortcut := o_QAPfeatures.I[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
+				and !g_objFavoritesObjectsByShortcut.HasKey(o_QAPfeatures.AA[strLocation].DefaultShortcut) ; and default shortcut is not already used
+				g_strNewFavoriteShortcut := o_QAPfeatures.AA[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
 				
 			GuiControl, , f_strHotkeyText, % new Triggers.HotkeyParts(g_strNewFavoriteShortcut).Hotkey2Text()
 			
@@ -13337,7 +13337,7 @@ if (A_GuiEvent = "DoubleClick")
 				, g_objEditedFavorite.FavoriteName
 				, g_objEditedFavorite.FavoriteType
 				, g_objEditedFavorite.FavoriteLocation, 3
-				, o_QAPfeatures.I[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
+				, o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
 			; SelectShortcut returns the new shortcut, "None" if no shortcut or empty string if cancelled
 			if !StrLen(g_strNewFavoriteShortcut)
 				g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
@@ -13389,14 +13389,14 @@ Loop, 2
 	{
 		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 		loop, 4 ; load popup menu triggers, use loop 4 (not for ... in) to keep the 1-4 order
-			LV_Add(, , o_L["DialogNA"], o_PopupHotkeys.I[A_Index].strPopupHotkeyLocalizedName, o_L["DialogHotkeysManagePopup"], (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.I[A_Index].AhkHotkey
-				: o_PopupHotkeys.I[A_Index].strPopupHotkeyText), o_L["DialogNA"])
+			LV_Add(, , o_L["DialogNA"], o_PopupHotkeys.SA[A_Index].strPopupHotkeyLocalizedName, o_L["DialogHotkeysManagePopup"], (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.SA[A_Index].AhkHotkey
+				: o_PopupHotkeys.SA[A_Index].strPopupHotkeyText), o_L["DialogNA"])
 
-		for strQAPFeatureCode in o_QAPfeatures.objQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
-			if (o_QAPfeatures.I[strQAPFeatureCode].QAPFeatureAlternativeOrder)
-				if HasShortcut(o_QAPfeatures.I[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
-					LV_Add(, , o_L["DialogHotkeysManageAlternativeMenu"], o_QAPfeatures.I[strQAPFeatureCode].LocalizedName, o_L["DialogHotkeysManageAlternative"]
-						, new Triggers.HotkeyParts(o_QAPfeatures.I[strQAPFeatureCode].CurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
+		for strQAPFeatureCode in o_QAPfeatures.aaQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
+			if (o_QAPfeatures.AA[strQAPFeatureCode].QAPFeatureAlternativeOrder)
+				if HasShortcut(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
+					LV_Add(, , o_L["DialogHotkeysManageAlternativeMenu"], o_QAPfeatures.AA[strQAPFeatureCode].LocalizedName, o_L["DialogHotkeysManageAlternative"]
+						, new Triggers.HotkeyParts(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
 	}
 	
 	g_intHotkeyListOrder := 0
@@ -14620,7 +14620,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 		return strShortcut
 	
 	; check popup menu hotkeys
-	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.I
+	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA
 		if (objThisPopupHotkey.AhkHotkey = strShortcut)
 		{
 			strExistingName := objThisPopupHotkey.strPopupHotkeyLocalizedName
@@ -14629,7 +14629,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	
 	if !StrLen(strExistingName)
 		; check QAP Features Alternative menu hotkeys
-		for strCode, objThisQAPFeature in o_QAPfeatures.I
+		for strCode, objThisQAPFeature in o_QAPfeatures.AA
 			if (objThisQAPFeature.CurrentHotkey = strShortcut)
 			{
 				strExistingName := objThisQAPFeature.LocalizedName
@@ -14804,7 +14804,7 @@ if StrLen(g_strSettingsGroup)
 	}
 	g_strSettingsGroup := ""
 
-	if (g_strSettingsGroup = "PopupHotkeys") ; revert to previous content of o_PopupHotkeys.I
+	if (g_strSettingsGroup = "PopupHotkeys") ; revert to previous content of o_PopupHotkeys.SA
 		o_PopupHotkeys.RestorePopupHotkeys()
 }
 else
@@ -15006,9 +15006,9 @@ if ((strKeyPressed = "~LCtrl") and !(o_Settings.MenuPopup.blnLeftControlDoublePr
 
 if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(o_PopupHotkeys.I[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	if CanNavigate(o_PopupHotkeys.SA[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
-	else if CanLaunch(o_PopupHotkeys.I[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	else if CanLaunch(o_PopupHotkeys.SA[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
 	; else do nothing
 }
@@ -15173,7 +15173,7 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
 	; Mouse hotkey (.AhkHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
-	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.I[1].AhkHotkey)
+	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.SA[1].AhkHotkey)
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
@@ -15202,7 +15202,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	if (strMouseOrKeyboard = o_PopupHotkeys.I[1].AhkHotkey) ; if hotkey is mouse
+	if (strMouseOrKeyboard = o_PopupHotkeys.SA[1].AhkHotkey) ; if hotkey is mouse
 		Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
@@ -15451,13 +15451,13 @@ OpenAlternativeMenuHotkey:
 if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
 	return
 
-; search Alternative menu code in o_QAPfeatures.I to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
+; search Alternative menu code in o_QAPfeatures.AA to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
 g_strAlternativeMenu := ""
-for intOrder, strCode in o_QAPfeatures.objQAPFeaturesAlternativeCodeByOrder
-	if (o_QAPfeatures.I[strCode].CurrentHotkey = A_ThisHotkey)
+for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
+	if (o_QAPfeatures.AA[strCode].CurrentHotkey = A_ThisHotkey)
 	{
 ; .LocalizedName OK because Alternative
-		g_strAlternativeMenu := o_QAPfeatures.I[strCode].LocalizedName
+		g_strAlternativeMenu := o_QAPfeatures.AA[strCode].LocalizedName
 		break
 	}
 
@@ -16145,9 +16145,9 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 ; --- QAP Command ---
 
 if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
-	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(o_QAPfeatures.I[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
 {
-	Gosub, % o_QAPfeatures.I[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
+	Gosub, % o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
 	
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -16706,7 +16706,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.I[1].AhkHotkey).Hotkey2Text())
+MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.SA[1].AhkHotkey).Hotkey2Text())
 
 return
 ;------------------------------------------------------------
@@ -18837,9 +18837,9 @@ Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, % " " . o_L["HelpTabGetting
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Tab, 1
-Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText11"], o_PopupHotkeys.I[1].strPopupHotkeyText, o_PopupHotkeys.I[2].strPopupHotkeyText)
+Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText11"], o_PopupHotkeys.SA[1].strPopupHotkeyText, o_PopupHotkeys.SA[2].strPopupHotkeyText)
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText12"]
-Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText13"], o_PopupHotkeys.I[3].strPopupHotkeyText, o_PopupHotkeys.I[4].strPopupHotkeyText)
+Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText13"], o_PopupHotkeys.SA[3].strPopupHotkeyText, o_PopupHotkeys.SA[4].strPopupHotkeyText)
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText14"]
 Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, % o_L["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
@@ -18847,7 +18847,7 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText21"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText22"]
-Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText23"], o_PopupHotkeys.I[1].strPopupHotkeyText, o_PopupHotkeys.I[2].strPopupHotkeyText)
+Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText23"], o_PopupHotkeys.SA[1].strPopupHotkeyText, o_PopupHotkeys.SA[2].strPopupHotkeyText)
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, % o_L["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
@@ -19380,7 +19380,7 @@ loop, parse, % "Folders|Files", |
 	strMenuItemsList%strFoldersOrFiles% := "" ; menu name|menu item name|label|icon
 
 	if (strFoldersOrFiles = "Folders")
-		if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
+		if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Popular Folders}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
 		{
@@ -19388,7 +19388,7 @@ loop, parse, % "Folders|Files", |
 			strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"])
 		}
 	else ; "Files"
-		if !(o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
+		if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
 			continue
 		else
 		{
@@ -19441,7 +19441,7 @@ loop, parse, % "Folders|Files", |
 }
 ; Diag(A_ThisLabel . ":pre-strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
-if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Drives}")) ; we have this QAP features in at least one menu
+if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Drives}")) ; we have this QAP features in at least one menu
 {
 	gosub, GetDrivesMenuListPreprocess ; update g_strMenuItemsListDrives
 	strDynamicDbSQL .= "DrivesMenuData = '" . EscapeQuote(g_strMenuItemsListDrives) . "', "
@@ -19450,7 +19450,7 @@ Diag(A_ThisLabel . ":After GetDrivesMenuListPreprocess", intPopularItemsCount, "
 ; Diag(A_ThisLabel . ":g_strMenuItemsListDrives", StrReplace(g_strMenuItemsListDrives, "`n", "``n"))
 
 Diag(A_ThisLabel . ":StartRecent", A_Loopfield, "ELAPSED")
-if (o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Folders}") or o_QAPfeatures.objQAPfeaturesInMenus.HasKey("{Recent Files}")) ; we have one of these QAP features in at least one menu
+if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Folders}") or o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Files}")) ; we have one of these QAP features in at least one menu
 {
 	gosub, GetMenusListRecentItemsPreprocess ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 	strDynamicDbSQL .= "RecentFoldersMenuData = '" . EscapeQuote(g_strMenuItemsListRecentFolders) . "', "
@@ -21418,7 +21418,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return o_SpecialFolders.I[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
-		return o_QAPfeatures.I[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
+		return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "Text" or objFavorite.FavoriteType = "X" or objFavorite.FavoriteType = "K")
 		return "iconNoIcon"
 	else if (objFavorite.FavoriteType = "WindowsApp")
@@ -22998,7 +22998,7 @@ class Triggers.PopupHotkeys
 	- RestorePopupHotkeys(): restore backuped hotkeys (used when cancelling Options changes)
 	Instance variables
 	- I: array of 4 PopupHotkey object items
-	- oPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
+	- aaPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
 	
 	class Triggers.PopupHotkeys.PopupHotkey
 		Methods
@@ -23067,28 +23067,28 @@ class Triggers.MouseButtons
 		;---------------------------------------------------------
 
 		; Instance variables
-		oPopupHotkeysByNames := Object()
+		aaPopupHotkeysByNames := Object() ; associative array
 		
 		;-----------------------------------------------------
 		__New()
 		;-----------------------------------------------------
 		{
-			I := Object()
-			objPopupHotkeyInternalNames := Object()
+			SA := Object() ; simple array
+			saPopupHotkeyInternalNames := Object() ; simple array
 			
-			objPopupHotkeyInternalNames := ["NavigateOrLaunchHotkeyMouse", "NavigateOrLaunchHotkeyKeyboard", "AlternativeHotkeyMouse", "AlternativeHotkeyKeyboard"]
-			objPopupHotkeyDefaults := StrSplit("MButton|#W|+MButton|+#W", "|")
-			objOptionsPopupHotkeyLocalizedNames := StrSplit(o_L["OptionsPopupHotkeyTitles"], "|")
-			objOptionsPopupHotkeyLocalizedDescriptions := StrSplit(o_L["OptionsPopupHotkeyTitlesSub"], "|")
+			saPopupHotkeyInternalNames := ["NavigateOrLaunchHotkeyMouse", "NavigateOrLaunchHotkeyKeyboard", "AlternativeHotkeyMouse", "AlternativeHotkeyKeyboard"]
+			saPopupHotkeyDefaults := StrSplit("MButton|#W|+MButton|+#W", "|")
+			saOptionsPopupHotkeyLocalizedNames := StrSplit(o_L["OptionsPopupHotkeyTitles"], "|")
+			saOptionsPopupHotkeyLocalizedDescriptions := StrSplit(o_L["OptionsPopupHotkeyTitlesSub"], "|")
 			
-			for intThisIndex, strThisPopupHotkeyInternalName in objPopupHotkeyInternalNames
+			for intThisIndex, strThisPopupHotkeyInternalName in saPopupHotkeyInternalNames
 			{
 				; Init Settings class items for Triggers (must be before o_PopupHotkeys)
-				strThisPopupHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strThisPopupHotkeyInternalName, strThisPopupHotkeyInternalName, objPopupHotkeyDefaults[A_Index], "PopupHotkeys", A_Index)
-				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, objPopupHotkeyDefaults[A_Index]
-					, objOptionsPopupHotkeyLocalizedNames[A_Index], objOptionsPopupHotkeyLocalizedDescriptions[A_Index])
-				this.I[A_Index] := oPopupHotkey
-				this.oPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
+				strThisPopupHotkey := o_Settings.ReadIniOption("MenuPopup", "str" . strThisPopupHotkeyInternalName, strThisPopupHotkeyInternalName, saPopupHotkeyDefaults[A_Index], "PopupHotkeys", A_Index)
+				oPopupHotkey := new this.PopupHotkey(strThisPopupHotkeyInternalName, strThisPopupHotkey, saPopupHotkeyDefaults[A_Index]
+					, saOptionsPopupHotkeyLocalizedNames[A_Index], saOptionsPopupHotkeyLocalizedDescriptions[A_Index])
+				this.SA[A_Index] := oPopupHotkey
+				this.aaPopupHotkeysByNames[strThisPopupHotkeyInternalName] := oPopupHotkey
 			}
 			this.EnablePopupHotkeys()
 		}
@@ -23102,17 +23102,17 @@ class Triggers.MouseButtons
 			; "If more than one variant of a hotkey is eligible to fire, only the one created earliest will fire."
 			Hotkey, If, CanNavigate(A_ThisHotkey)
 				; First, if we can, navigate with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
-				this.I[1].EnableHotkey("Navigate", "Mouse")
-				this.I[2].EnableHotkey("Navigate", "Keyboard")
+				this.SA[1].EnableHotkey("Navigate", "Mouse")
+				this.SA[2].EnableHotkey("Navigate", "Keyboard")
 			Hotkey, If
 			Hotkey, If, CanLaunch(A_ThisHotkey)
 				; Second, if we can't navigate but can launch, launch with QAP hotkeys (1 NavigateOrLaunchHotkeyMouse and 2 NavigateOrLaunchHotkeyKeyboard) 
-				this.I[1].EnableHotkey("Launch", "Mouse")
-				this.I[2].EnableHotkey("Launch", "Keyboard")
+				this.SA[1].EnableHotkey("Launch", "Mouse")
+				this.SA[2].EnableHotkey("Launch", "Keyboard")
 			Hotkey, If
 			; Open the Alternative menu with the Alternative hotkeys (3 AlternativeHotkeyMouse and 4 AlternativeHotkeyKeyboard)
-			this.I[3].EnableHotkey("Alternative", "Mouse")
-			this.I[4].EnableHotkey("Alternative", "Keyboard")
+			this.SA[3].EnableHotkey("Alternative", "Mouse")
+			this.SA[4].EnableHotkey("Alternative", "Keyboard")
 		}
 		;-----------------------------------------------------
 		
@@ -23120,7 +23120,7 @@ class Triggers.MouseButtons
 		BackupPopupHotkeys()
 		;-----------------------------------------------------
 		{
-			for intKey, oOnePopupHotkey in this.I
+			for intKey, oOnePopupHotkey in this.SA
 				oOnePopupHotkey.strPopupHotkeyPrevious := oOnePopupHotkey.AhkHotkey
 		}
 		;-----------------------------------------------------
@@ -23129,7 +23129,7 @@ class Triggers.MouseButtons
 		RestorePopupHotkeys()
 		;-----------------------------------------------------
 		{
-			for intKey, oOnePopupHotkey in this.I
+			for intKey, oOnePopupHotkey in this.SA
 				oOnePopupHotkey.AhkHotkey := oOnePopupHotkey.strPopupHotkeyPrevious
 		}
 		;-----------------------------------------------------
@@ -23259,9 +23259,9 @@ class Triggers.MouseButtons
 						intPosFirstNotModifier++
 					else
 						break ; got first character not a modifier
-				StringLeft, str, strHotkey, %intPosFirstNotModifier%
+				str := SubStr(strHotkey, 1, intPosFirstNotModifier)
 				this.strModifiers := str
-				StringMid, str, strHotkey, % (intPosFirstNotModifier + 1)
+				str := SubStr(strHotkey, intPosFirstNotModifier + 1)
 				this.strKey := str
 				
 				if o_MouseButtons.IsMouseButton(this.strKey) ; we have a mouse button
@@ -23283,11 +23283,11 @@ class Triggers.MouseButtons
 			if StrLen(this.strKey) ; localize system key names
 			{
 				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
-				objLocalizedKeyNames := StrSplit(o_L["DialogMenuKey"] . "|" . o_L["DialogMenuKey"] . "|" . o_L["TooltipSnippetWaitSpace"]
+				saLocalizedKeyNames := StrSplit(o_L["DialogMenuKey"] . "|" . o_L["DialogMenuKey"] . "|" . o_L["TooltipSnippetWaitSpace"]
 					. "|" . o_L["TooltipSnippetWaitEnter"] . "|" . o_L["TooltipSnippetWaitEscape"], "|")
 				Loop, Parse, strSystemKeyNames, |
 					if (this.strKey = A_LoopField)
-						this.strKey := objLocalizedKeyNames[A_Index]
+						this.strKey := saLocalizedKeyNames[A_Index]
 			}
 			
 			if (this.strMouseButton = "None") ; do not compare with o_L["DialogNone"] because it is translated
@@ -23340,26 +23340,26 @@ class Triggers.MouseButtons
 		;---------------------------------------------------------
 
 		; Instance variables
-		I := Object()
-		oMouseButtonInternalNames := Object() ; associative array "name->index"
-		oMouseButtonLocalizedNames := Object() ; associative array of "localized name->index"
+		SA := Object()
+		aaMouseButtonInternalNames := Object() ; associative array "name->index"
+		aaMouseButtonLocalizedNames := Object() ; associative array of "localized name->index"
 		strMouseButtonsDropDownList := ""
 		
 		;-----------------------------------------------------
 		__New()
 		;-----------------------------------------------------
 		{
-			objMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
+			saMouseButtonsInternalNames := StrSplit("None|LButton|MButton|RButton|XButton1|XButton2|WheelUp|WheelDown|WheelLeft|WheelRight", "|")
 			this.strMouseButtonsDropDownList := o_L["DialogNone"] . "|" . o_L["DialogMouseButtonsText"] ; default item not identified
-			objMouseButtonsLocalizedNames := StrSplit(this.strMouseButtonsDropDownList, "|")
-			objMouseButtonsLocalizedNamesShort := StrSplit(o_L["DialogNone"] . "|" . o_L["DialogMouseButtonsTextShort"], "|")
+			saMouseButtonsLocalizedNames := StrSplit(this.strMouseButtonsDropDownList, "|")
+			saMouseButtonsLocalizedNamesShort := StrSplit(o_L["DialogNone"] . "|" . o_L["DialogMouseButtonsTextShort"], "|")
 
-			loop, % objMouseButtonsInternalNames.Length()
+			loop, % saMouseButtonsInternalNames.Length()
 			{
-				this.oMouseButtonInternalNames[objMouseButtonsInternalNames[A_Index]] := A_Index
-				this.oMouseButtonLocalizedNames[objMouseButtonsLocalizedNames[A_Index]] := A_Index
-				oMouseButton := new this.MouseButton(objMouseButtonsInternalNames[A_Index], objMouseButtonsLocalizedNames[A_Index], objMouseButtonsLocalizedNamesShort[A_Index])
-				this.I[A_Index] := oMouseButton
+				this.aaMouseButtonInternalNames[saMouseButtonsInternalNames[A_Index]] := A_Index
+				this.aaMouseButtonLocalizedNames[saMouseButtonsLocalizedNames[A_Index]] := A_Index
+				oMouseButton := new this.MouseButton(saMouseButtonsInternalNames[A_Index], saMouseButtonsLocalizedNames[A_Index], saMouseButtonsLocalizedNamesShort[A_Index])
+				this.SA[A_Index] := oMouseButton
 			}
 		}
 		;-----------------------------------------------------
@@ -23369,7 +23369,7 @@ class Triggers.MouseButtons
 		; strLocalizedName must be the normal name, not the short name
 		;-----------------------------------------------------
 		{
-			return this.I[this.oMouseButtonLocalizedNames[strLocalizedName]].strInternalName
+			return this.SA[this.aaMouseButtonLocalizedNames[strLocalizedName]].strInternalName
 		}
 		;-----------------------------------------------------
 
@@ -23378,8 +23378,8 @@ class Triggers.MouseButtons
 		; keep blnShort required to avoid error - do not use short version in mouse buttons dropdown list
 		;-----------------------------------------------------
 		{
-			return (blnShort ? this.I[this.oMouseButtonInternalNames[strInternalName]].strLocalizedNameShort
-				: this.I[this.oMouseButtonInternalNames[strInternalName]].strLocalizedName)
+			return (blnShort ? this.SA[this.aaMouseButtonInternalNames[strInternalName]].strLocalizedNameShort
+				: this.SA[this.aaMouseButtonInternalNames[strInternalName]].strLocalizedName)
 		}
 		;-----------------------------------------------------
 
@@ -23387,7 +23387,7 @@ class Triggers.MouseButtons
 		IsMouseButton(strInternalName)
 		;-----------------------------------------------------
 		{
-			return this.oMouseButtonInternalNames.HasKey(strInternalName)
+			return this.aaMouseButtonInternalNames.HasKey(strInternalName)
 		}
 		;-----------------------------------------------------
 
@@ -24468,13 +24468,13 @@ class QAPfeatures
 	}
 	;---------------------------------------------------------
 	
-	I := Object()
-	objQAPFeaturesCodeByDefaultName := Object()
-	objQAPFeaturesDefaultNameByCode := Object()
-	objQAPFeaturesAlternativeCodeByOrder := Object()
-	objQAPfeaturesInMenus := Object() ; index of QAP features actualy present in menu
-	objQAPFeaturesNewShortcuts := Object()
-	objQAPFeaturesCategories := Object()
+	AA := Object() ; associative array
+	aaQAPFeaturesCodeByDefaultName := Object() ; associative array
+	aaQAPFeaturesDefaultNameByCode := Object() ; associative array
+	saQAPFeaturesAlternativeCodeByOrder := Object() ; simple array
+	aaQAPfeaturesInMenus := Object() ; associative array, index of QAP features actualy present in menu, populated outside the class
+	aaQAPFeaturesNewShortcuts := Object() ; associative array, populated outside the class
+	aaQAPFeaturesCategories := Object() ; associative array
 	
 	;---------------------------------------------------------
 	__New()
@@ -24632,11 +24632,11 @@ class QAPfeatures
 
 		this.AddAttachedOrDetachedQAPFeatureObject()
 
-		Loop, % o_Favorites.I.Length()
-			if StrLen(o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.I[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
-					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.I[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
-					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.I[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
+		Loop, % o_Favorites.AA.Length()
+			if StrLen(o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
+				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.AA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.AA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
+					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
 
 		; Alternative Menu features
@@ -24656,10 +24656,10 @@ class QAPfeatures
 		;-----------------------
 		; QAP Features categories
 
-		objQAPFeaturesCategoriesSystemName := StrSplit("1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement", "|")
-		objQAPFeaturesCategoriesDisplayNames := StrSplit(o_L["DialogQAPFeatureCategoriesNames"], "|")
-		Loop, % objQAPFeaturesCategoriesSystemName.Length()
-			this.objQAPFeaturesCategories[objQAPFeaturesCategoriesSystemName[A_Index]] := objQAPFeaturesCategoriesDisplayNames[A_Index]
+		saQAPFeaturesCategoriesSystemName := StrSplit("1-Featured|2-DynamicMenus|3-QAPMenuEditing|3.1-AddFavoriteOfType|4-WindowManagement|5-WindowsFeature|5.1-CloseComputer|6-Utility|7-QAPManagement", "|")
+		saQAPFeaturesCategoriesDisplayNames := StrSplit(o_L["DialogQAPFeatureCategoriesNames"], "|")
+		Loop, % saQAPFeaturesCategoriesSystemName.Length()
+			this.aaQAPFeaturesCategories[saQAPFeaturesCategoriesSystemName[A_Index]] := saQAPFeaturesCategoriesDisplayNames[A_Index]
 	}
 	;---------------------------------------------------------
 	
@@ -24717,7 +24717,7 @@ class QAPfeatures
 	AddQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
 	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut, strHelpUrl)
 	;
-	; QAP Feature Objects (o_QAPfeatures.I) definition:
+	; QAP Feature Objects (o_QAPfeatures.AA) definition:
 	;		Key: strQAPFeatureInternalName
 	;		Value: objOneQAPFeature
 	;
@@ -24732,23 +24732,23 @@ class QAPfeatures
 	;		HelpURL: help URL for Add/Edit favorite dialog bvox
 	;---------------------------------------------------------
 	{
-		objOneQAPFeature := Object()
+		aaOneQAPFeature := Object()
 		
-		objOneQAPFeature.LocalizedName := strThisLocalizedName ; use as default value when adding QAP favorite, not to display name after (except for Alternative menus)
-		objOneQAPFeature.DefaultIcon := strThisDefaultIcon
-		objOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
-		objOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
-		objOneQAPFeature.QAPFeatureCategories := strQAPFeatureCategories
-		objOneQAPFeature.QAPFeatureDescription := strQAPFeatureDescription
-		objOneQAPFeature.QAPFeatureURL := strHelpUrl
-		objOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
-		objOneQAPFeature.DefaultShortcut := strDefaultShortcut
+		aaOneQAPFeature.LocalizedName := strThisLocalizedName ; use as default value when adding QAP favorite, not to display name after (except for Alternative menus)
+		aaOneQAPFeature.DefaultIcon := strThisDefaultIcon
+		aaOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
+		aaOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
+		aaOneQAPFeature.QAPFeatureCategories := strQAPFeatureCategories
+		aaOneQAPFeature.QAPFeatureDescription := strQAPFeatureDescription
+		aaOneQAPFeature.QAPFeatureURL := strHelpUrl
+		aaOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
+		aaOneQAPFeature.DefaultShortcut := strDefaultShortcut
 		
-		this.I["{" . strQAPFeatureCode . "}"] := objOneQAPFeature
-		this.objQAPFeaturesCodeByDefaultName[strThisLocalizedName] := "{" . strQAPFeatureCode . "}"
-		this.objQAPFeaturesDefaultNameByCode["{" . strQAPFeatureCode . "}"] := strThisLocalizedName
+		this.AA["{" . strQAPFeatureCode . "}"] := aaOneQAPFeature
+		this.aaQAPFeaturesCodeByDefaultName[strThisLocalizedName] := "{" . strQAPFeatureCode . "}"
+		this.aaQAPFeaturesDefaultNameByCode["{" . strQAPFeatureCode . "}"] := strThisLocalizedName
 		if (intQAPFeatureAlternativeOrder)
-			this.objQAPFeaturesAlternativeCodeByOrder[intQAPFeatureAlternativeOrder] := "{" . strQAPFeatureCode . "}"
+			this.saQAPFeaturesAlternativeCodeByOrder[intQAPFeatureAlternativeOrder] := "{" . strQAPFeatureCode . "}"
 	}
 	;---------------------------------------------------------
 }
