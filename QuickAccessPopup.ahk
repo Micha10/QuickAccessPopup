@@ -3196,8 +3196,8 @@ global o_Settings := new Settings
 ;---------------------------------
 ; Check if we received an alternative settings file in parameter /Settings:
 
-if StrLen(o_CommandLineParameters.I["Settings"])
-	o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.I["Settings"]))
+if StrLen(o_CommandLineParameters.AA["Settings"])
+	o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.AA["Settings"]))
 
 ;---------------------------------
 ; Create temporary folder
@@ -3344,7 +3344,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to 
 
 if (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue and !A_IsAdmin)
 	gosub, ReloadAsAdmin
-if (A_IsAdmin and !o_CommandLineParameters.I.HasKey("AdminSilent")
+if (A_IsAdmin and !o_CommandLineParameters.AA.HasKey("AdminSilent")
 	and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; show alert only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option, except if "/AdminSilent" command-line option is used
 	Oops(o_L["OptionsRunAsAdminAlert"], g_strAppNameText)
@@ -3760,8 +3760,8 @@ In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_Workin
 ; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
 ; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
 
-if StrLen(o_CommandLineParameters.I["Working"])
-	SetWorkingDir, % o_CommandLineParameters.I["Working"]
+if StrLen(o_CommandLineParameters.AA["Working"])
+	SetWorkingDir, % o_CommandLineParameters.AA["Working"]
 
 ; Check in what mode QAP is running:
 ; - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
@@ -3776,7 +3776,7 @@ if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
 else
 	g_blnPortableMode := false ; set this variable for use later during init
 
-if StrLen(o_CommandLineParameters.I["Working"]) ; we don't need to continue
+if StrLen(o_CommandLineParameters.AA["Working"]) ; we don't need to continue
 	return
 
 ; Now we are in Setup mode
@@ -22807,7 +22807,7 @@ class CommandLineParameters
 	;---------------------------------------------------------
 
 	; Instance variables
-	I := Object() ; I for Items
+	AA := Object() ; associative array
 	strParams := ""
 	
 	;---------------------------------------------------------
@@ -22826,14 +22826,14 @@ class CommandLineParameters
 				strParamValue := SubStr(strOneArg, intColon + 1)
 				if (strParamKey = "Settings" and GetFileExtension(strParamValue) <> "ini")
 					continue
-				this.I[strParamKey] := strParamValue
+				this.AA[strParamKey] := strParamValue
 			}
 			else
 			{
 				strParamKey := SubStr(strOneArg, 2)
 				if (strParamKey = "Settings")
 					continue
-				this.I[strParamKey] := "" ; keep it empty, check param with this.I.HasKey(strOneArg)
+				this.AA[strParamKey] := "" ; keep it empty, check param with this.AA.HasKey(strOneArg)
 			}
 		}
 		
@@ -22847,7 +22847,7 @@ class CommandLineParameters
 	{
 		strConcat := ""
 		
-		for strParamKey, strParamValue in this.I
+		for strParamKey, strParamValue in this.AA
 		{
 			strQuotes := (InStr(strParamKey . strParamValue, " ") ? """" : "") ; enclose param with double-quotes only if it includes space
 			strConcat .= strQuotes . "/" . strParamKey
@@ -22863,7 +22863,7 @@ class CommandLineParameters
 	SetParam(strKey, strValue)
 	;---------------------------------------------------------
 	{
-		this.I[strKey] := strValue
+		this.AA[strKey] := strValue
 		this.strParams := this.ConcatParams()
 	}
 	;---------------------------------------------------------
