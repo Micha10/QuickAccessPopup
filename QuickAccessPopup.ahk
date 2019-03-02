@@ -9387,11 +9387,11 @@ if !InStr(A_ThisLabel, "Msg") ; exclude AddThisFolderFromMsg, AddThisFileFromMsg
 	g_strNewLocation := GetCurrentLocation(g_strTargetClass, g_strTargetWinId)
 
 g_strNewLocationSpecialName := ""
-if o_SpecialFolders.objClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
+if o_SpecialFolders.aaClassIdOrPathByDefaultName.HasKey(g_strNewLocation)
 {
 	; we have a known special folder (some special folders like "Bibliothèques\Images" or "Libraries\Pictures" are not known yet)
 	g_strNewLocationSpecialName := g_strNewLocation
-	g_strNewLocation := o_SpecialFolders.objClassIdOrPathByDefaultName[g_strNewLocation]
+	g_strNewLocation := o_SpecialFolders.aaClassIdOrPathByDefaultName[g_strNewLocation]
 }
 
 If !StrLen(g_strNewLocation)
@@ -10204,7 +10204,7 @@ blnSelectDone := false
 objCategoriesID := Object()
 g_objTreeViewItemsByIDs := Object()
 
-objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.objSpecialFoldersCategories)
+objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
@@ -10988,7 +10988,7 @@ if (A_GuiEvent = "S")
 	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
-		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.objClassIdOrPathByDefaultName[strItemSelectedName])
+		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
 		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
@@ -24048,8 +24048,8 @@ class SpecialFolders
 	}
 	;---------------------------------------------------------
 	
-	I := Object()
-	objClassIdOrPathByDefaultName := Object()
+	AA := Object()
+	aaClassIdOrPathByDefaultName := Object()
 	strDownloadPath := ""
 	strMyPicturesPath := ""
 	
@@ -24333,10 +24333,10 @@ class SpecialFolders
 		;-----------------------
 		; Special Folders categories
 
-		objSpecialFoldersCategoriesSystemName := StrSplit("1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware", "|")
-		objSpecialFoldersCategoriesDisplayNames := StrSplit(o_L["DialogSpecialFoldersCategoriesNames"], "|")
-		Loop, % objSpecialFoldersCategoriesSystemName.Length()
-			this.objSpecialFoldersCategories[objSpecialFoldersCategoriesSystemName[A_Index]] := objSpecialFoldersCategoriesDisplayNames[A_Index]
+		saSpecialFoldersCategoriesSystemName := StrSplit("1-Basic|2-Power User|3-Sysadmin|4-Contents|5-Hardware", "|")
+		saSpecialFoldersCategoriesDisplayNames := StrSplit(o_L["DialogSpecialFoldersCategoriesNames"], "|")
+		Loop, % saSpecialFoldersCategoriesSystemName.Length()
+			this.aaSpecialFoldersCategories[saSpecialFoldersCategoriesSystemName[A_Index]] := saSpecialFoldersCategoriesDisplayNames[A_Index]
 	}
 	;---------------------------------------------------------
 	
@@ -24390,8 +24390,8 @@ class SpecialFolders
 	; 		strUse4TC
 	;		strUse4FPc
 
-	; Special Folder Object (objOneSpecialFolder) definition:
-	;		strClassIdOrPath: key to access one Special Folder object (example: o_SpecialFolders.I[strClassIdOrPath], saved to ini file
+	; Special Folder Object (aaOneSpecialFolder) definition:
+	;		strClassIdOrPath: key to access one Special Folder object (example: o_SpecialFolders.AA[strClassIdOrPath], saved to ini file
 	;		objSpecialFolder.ShellConstantText: text constant used to navigate using Explorer or Dialog box? What with DOpus and TC?
 	;		objSpecialFolder.ShellConstantNumeric: numeric ShellSpecialFolderConstants constant 
 	;		objSpecialFolder.AHKConstant: AutoHotkey constant
@@ -24410,7 +24410,7 @@ class SpecialFolders
 
 	;---------------------------------------------------------
 	{
-		objOneSpecialFolder := Object()
+		aaOneSpecialFolder := Object()
 		
 		blnIsClsId := (SubStr(strClassIdOrPath, 1, 1) = "{")
 
@@ -24418,8 +24418,8 @@ class SpecialFolders
 			strThisDefaultName := GetLocalizedNameForClassId(strClassIdOrPath)
 		If !StrLen(strThisDefaultName)
 			strThisDefaultName := strDefaultName
-		this.objClassIdOrPathByDefaultName[strThisDefaultName] := strClassIdOrPath
-		objOneSpecialFolder.DefaultName := strThisDefaultName
+		this.aaClassIdOrPathByDefaultName[strThisDefaultName] := strClassIdOrPath
+		aaOneSpecialFolder.DefaultName := strThisDefaultName
 		
 		if (blnIsClsId)
 			strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
@@ -24427,25 +24427,25 @@ class SpecialFolders
 			strThisDefaultIcon := o_JLicons.AA[strDefaultIcon]
 		if !StrLen(strThisDefaultIcon)
 			strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
-		objOneSpecialFolder.DefaultIcon := strThisDefaultIcon
+		aaOneSpecialFolder.DefaultIcon := strThisDefaultIcon
 
-		objOneSpecialFolder.ShellConstantText := strShellConstantText
-		objOneSpecialFolder.ShellConstantNumeric := intShellConstantNumeric
-		objOneSpecialFolder.AHKConstant := strAHKConstant
-		objOneSpecialFolder.DOpusAlias := strDOpusAlias
-		objOneSpecialFolder.TCCommand := strTCCommand
+		aaOneSpecialFolder.ShellConstantText := strShellConstantText
+		aaOneSpecialFolder.ShellConstantNumeric := intShellConstantNumeric
+		aaOneSpecialFolder.AHKConstant := strAHKConstant
+		aaOneSpecialFolder.DOpusAlias := strDOpusAlias
+		aaOneSpecialFolder.TCCommand := strTCCommand
 		
-		objOneSpecialFolder.Use4NavigateExplorer := strUse4NavigateExplorer
-		objOneSpecialFolder.Use4NewExplorer := strUse4NewExplorer
-		objOneSpecialFolder.Use4Dialog := strUse4Dialog
-		objOneSpecialFolder.Use4Console := strUse4Console
-		objOneSpecialFolder.Use4DOpus := strUse4DOpus
-		objOneSpecialFolder.Use4TC := strUse4TC
-		objOneSpecialFolder.Use4FPc := strUse4FPc
+		aaOneSpecialFolder.Use4NavigateExplorer := strUse4NavigateExplorer
+		aaOneSpecialFolder.Use4NewExplorer := strUse4NewExplorer
+		aaOneSpecialFolder.Use4Dialog := strUse4Dialog
+		aaOneSpecialFolder.Use4Console := strUse4Console
+		aaOneSpecialFolder.Use4DOpus := strUse4DOpus
+		aaOneSpecialFolder.Use4TC := strUse4TC
+		aaOneSpecialFolder.Use4FPc := strUse4FPc
 
-		objOneSpecialFolder.Categories := strCategories
+		aaOneSpecialFolder.Categories := strCategories
 
-		this.I[strClassIdOrPath] := objOneSpecialFolder
+		this.AA[strClassIdOrPath] := aaOneSpecialFolder
 	}
 	;---------------------------------------------------------
 
