@@ -9307,13 +9307,13 @@ Gui, 2:Submit, NoHide
 g_strAddFavoriteType := "" ; start fresh
 
 ; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp
-Loop, % o_Favorites.I.Length()
+Loop, % o_Favorites.SA.Length()
 {
-	strThisType := o_Favorites.I[A_Index].strFavoriteTypeSystemName
+	strThisType := o_Favorites.SA[A_Index].strFavoriteTypeSystemName
 	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . strThisType
 	if (blnThisType)
 	{
-		GuiControl, , f_lblAddFavoriteTypeHelp, % o_Favorites.I[A_Index].strFavoriteTypeHelp
+		GuiControl, , f_lblAddFavoriteTypeHelp, % o_Favorites.SA[A_Index].strFavoriteTypeHelp
 		g_strAddFavoriteType := strThisType
 		break
 	}
@@ -24632,11 +24632,11 @@ class QAPfeatures
 
 		this.AddAttachedOrDetachedQAPFeatureObject()
 
-		Loop, % o_Favorites.AA.Length()
-			if StrLen(o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.AA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
-					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.AA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
-					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.AA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
+		Loop, % o_Favorites.SA.Length()
+			if StrLen(o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
+				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.SA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.SA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
+					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
 
 		; Alternative Menu features
