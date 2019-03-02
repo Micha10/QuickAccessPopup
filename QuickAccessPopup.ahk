@@ -4717,7 +4717,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 			else ; o_L["MenuMyWindowsAppsMenu"]
 				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
-			strIconResource := o_SpecialFolders.I[strLocation].DefaultIcon
+			strIconResource := o_SpecialFolders.AA[strLocation].DefaultIcon
 		else if (strFavoriteType = "WindowsApp")
 			strIconResource := "iconDesktop"
 		else
@@ -4725,7 +4725,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 
 		if !StrLen(strName)
 			if (strFavoriteType = "Special")
-				strName := o_SpecialFolders.I[strLocation].DefaultName
+				strName := o_SpecialFolders.AA[strLocation].DefaultName
 			else
 				strName := o_QAPfeatures.AA[strLocation].DefaultName
 
@@ -6150,7 +6150,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			if (SubStr(objLoadIniFavorite.FavoriteLocation, 1, 2) = "::")
 			{
 				objLoadIniFavorite.FavoriteLocation := SubStr(objLoadIniFavorite.FavoriteLocation, 3)
-				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders.I[objLoadIniFavorite.FavoriteLocation].DefaultIcon
+				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders.AA[objLoadIniFavorite.FavoriteLocation].DefaultIcon
 				objLoadIniFavorite.FavoriteType := "Special"
 			}
 		}
@@ -7010,7 +7010,7 @@ if StrLen(g_strSettingsGroup) ; changes in existing Options window not saved
 	return
 
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
-objSettingsGroup := o_Settings.objGroupItems[g_strSettingsGroup]
+objSettingsGroup := o_Settings.aaGroupItems[g_strSettingsGroup]
 strSettingsGroupLabel := o_L["Options" . g_strSettingsGroup]
 
 Gosub, GuiShowFromGuiOptions
@@ -10208,7 +10208,7 @@ objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesC
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
-for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.I)
+for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.AA)
 	if (A_ThisLabel = "LoadTreeviewQAP")
 		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial
@@ -10250,7 +10250,7 @@ for strCategory, strCategoryLabel in objCategories
 			}
 			else
 			{
-				if (!blnSelectDone and o_SpecialFolders.I[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
+				if (!blnSelectDone and o_SpecialFolders.AA[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -10259,7 +10259,7 @@ for strCategory, strCategoryLabel in objCategories
 					strSelect := ""
 				
 				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
-				g_objTreeViewItemsByIDs[intItemID] := o_SpecialFolders.I[arrItem2]
+				g_objTreeViewItemsByIDs[intItemID] := o_SpecialFolders.AA[arrItem2]
 			}
 		}
 	}
@@ -10994,7 +10994,7 @@ if (A_GuiEvent = "S")
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
 		{
-			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.AA[strLocation].DefaultIcon : o_SpecialFolders.I[strLocation].DefaultIcon)
+			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.AA[strLocation].DefaultIcon : o_SpecialFolders.AA[strLocation].DefaultIcon)
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
@@ -16554,7 +16554,7 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 ;------------------------------------------------------------
 {
 	strLocation := objFavorite.FavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
-	objSpecialFolder := o_SpecialFolders.I[strLocation]
+	objSpecialFolder := o_SpecialFolders.AA[strLocation]
 	
 	if (strTargetName = "Explorer")
 		strUse := objSpecialFolder.Use4NavigateExplorer
@@ -21415,7 +21415,7 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
 		; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
-		return o_SpecialFolders.I[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
+		return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
 		return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
@@ -22789,7 +22789,7 @@ class CommandLineParameters
 	- CommandLineParameters.ConcatParams(I): returns a concatenated string of each parameter ready to be used when reloading
 	- CommandLineParameters.SetParam(strKey, strValue): set the param strkey to the value strValue
 	Instance variables
-	- I: simple array for each item (parameter) from the A_Args object (for internal usage)
+	- AA: simple array for each item (parameter) from the A_Args object (for internal usage)
 	- strParams: list of command line parameters collected when launching this instance, separated by space, with quotes if required
 */
 ;-------------------------------------------------------------
@@ -22997,7 +22997,7 @@ class Triggers.PopupHotkeys
 	- BackupPopupHotkeys(): backup hotkeys (used when opening Options)
 	- RestorePopupHotkeys(): restore backuped hotkeys (used when cancelling Options changes)
 	Instance variables
-	- I: array of 4 PopupHotkey object items
+	- SA: array of 4 PopupHotkey object items
 	- aaPopupHotkeysByNames: associative array "name->object" as index of objects by PopupHotkey names
 	
 	class Triggers.PopupHotkeys.PopupHotkey
@@ -23034,7 +23034,7 @@ class Triggers.MouseButtons
 	- Triggers.MouseButtons.IsMouseButton(strInternalName): returns true if strInternalName is member of the buttons array
 	- Triggers.MouseButtons.GetDropDownList(strDefault): returns the mouse buttons dropdown list with button strDefault as default button
 	Instance variables
-	- I: array of MouseButton object items
+	- SA: array of MouseButton object items
 	- oMouseButtonInternalNames: associative array "name->object" index of mouse buttons name
 	- oMouseButtonLocalizedNames: associative array "localized name->object" index of mouse buttons localized name
 	- strMouseButtonsDropDownList: mouse buttons dropdown
@@ -23696,26 +23696,26 @@ TODO
 		{
 			if !StrLen(strNodeXml) ; first level only
 			{
-				this.objDirectoryOpusXML := New XML("xml")
+				this.xmlDirectoryOpusXML := New XML("xml")
 				FileRead, strNodeXml, % this.strDirectoryOpusFavoritesFile
 			}
 
 			g_objMenusIndex[objCurrentMenu.MenuPath] := objCurrentMenu ; update the menu index
 
-			this.objDirectoryOpusXML.XML.LoadXML(strNodeXml)
+			this.xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
 			
-			objNodeAll := this.objDirectoryOpusXML.SN("/*/*") ; select all nodes
-			while (objItem := objNodeAll.Item[A_Index-1])
+			xmlNodeAll := this.xmlDirectoryOpusXML.SN("/*/*") ; select all nodes
+			while (xmlItem := xmlNodeAll.Item[A_Index-1])
 			{
-				objItemAttributes := this.objDirectoryOpusXML.EA(objItem)
+				xmlItemAttributes := this.xmlDirectoryOpusXML.EA(xmlItem)
 					
-				blnItemIsMenu := (objItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
-					and StrLen(objItemAttributes.label) ; to skip "<folder><separator/></folder>"
+				blnItemIsMenu := (xmlItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
+					and StrLen(xmlItemAttributes.label) ; to skip "<folder><separator/></folder>"
 				
 				if (blnItemIsMenu)
 				{
 					objNewMenu := Object() ; create the submenu object
-					objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.label
+					objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . xmlItemAttributes.label
 					objNewMenu.MenuType := "Menu"
 					
 					; create a navigation entry to navigate to the parent menu
@@ -23726,30 +23726,30 @@ TODO
 					objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 					objNewMenu.Push(objNewMenuBack)
 					
-					strResult := this.RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, objItem.xml) ; RECURSIVE
+					strResult := this.RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, xmlItem.xml) ; RECURSIVE
 				}
 				
 				objLoadDOpusFavorite := Object() ; new favorite item
 				
-				if (!blnItemIsMenu and objItem.NodeName = "folder"
-					and SSN(objItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
+				if (!blnItemIsMenu and xmlItem.NodeName = "folder"
+					and SSN(xmlItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
 					
 					objLoadDOpusFavorite.FavoriteType := "X"
 					
 				else ; menu or folder (what if unexpected node?)
 				{
-					objLoadDOpusFavorite.FavoriteName := objItemAttributes.label
+					objLoadDOpusFavorite.FavoriteName := xmlItemAttributes.label
 					if (blnItemIsMenu)
 						objLoadDOpusFavorite.FavoriteType := "Menu"
 					else
 					{
-						if (SSN(objItem, "descendant::pathstring").NodeName = "pathstring")
+						if (SSN(xmlItem, "descendant::pathstring").NodeName = "pathstring")
 						{
-							objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pathstring").text
+							objLoadDOpusFavorite.FavoriteLocation := SSN(xmlItem, "descendant::pathstring").text
 							objLoadDOpusFavorite.FavoriteIconResource := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation)
 							objLoadDOpusFavorite.FavoriteType := "Folder"
 						}
-						else if (SSN(objItem, "descendant::pidl").NodeName = "pidl")
+						else if (SSN(xmlItem, "descendant::pidl").NodeName = "pidl")
 						/*
 							<path label="Ce PC">
 								<dir>
@@ -23758,7 +23758,7 @@ TODO
 							</path>
 						*/
 						{
-							objLoadDOpusFavorite.FavoriteLocation := SSN(objItem, "descendant::pidl").text
+							objLoadDOpusFavorite.FavoriteLocation := SSN(xmlItem, "descendant::pidl").text
 							
 							if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
 								objLoadDOpusFavorite.FavoriteLocation := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
@@ -23773,7 +23773,7 @@ TODO
 						}
 						else
 						{
-							objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . objItemAttributes.label . """ / node: """ . objItem.NodeName . """"
+							objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . xmlItemAttributes.label . """ / node: """ . xmlItem.NodeName . """"
 							objLoadDOpusFavorite.FavoriteType := "Text"
 						}
 					}
@@ -23808,28 +23808,28 @@ TODO
 		{
 			if !StrLen(strNodeXml) ; first level only
 			{
-				this.objDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
+				this.xmlDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
 				FileRead, strNodeXml, % this.strDirectoryOpusLayoutsFile
 			}
 			
 			g_objMenusIndex.Push(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
 			
-			this.objDirectoryOpusXML.XML.LoadXML(strNodeXml)
+			this.xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
 			
-			objNodeAll := this.objDirectoryOpusXML.SN("/*/layout") ; select all layout nodes
-			while (objItem := objNodeAll.Item[A_Index-1])
+			xmlNodeAll := this.xmlDirectoryOpusXML.SN("/*/layout") ; select all layout nodes
+			while (xmlItem := xmlNodeAll.Item[A_Index-1])
 			{
 				blnItemIsMenu := false
-				objItemAttributes := this.objDirectoryOpusXML.EA(objItem)
-				if (objItemAttributes.separator <> "yes")
+				xmlItemAttributes := this.xmlDirectoryOpusXML.EA(xmlItem)
+				if (xmlItemAttributes.separator <> "yes")
 				{
-					strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(objItemAttributes.name, strNodeXml)
+					strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(xmlItemAttributes.name, strNodeXml)
 					blnItemIsMenu := StrLen(strFolderNodeXml)
 					
 					if (blnItemIsMenu)
 					{
 						objNewMenu := Object() ; create the submenu object
-						objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objItemAttributes.name
+						objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . xmlItemAttributes.name
 						objNewMenu.MenuType := "Menu"
 						
 						; create a navigation entry to navigate to the parent menu
@@ -23840,25 +23840,25 @@ TODO
 						objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 						objNewMenu.Push(objNewMenuBack)
 						
-						strResult := this.RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . objItemAttributes.name . "/") ; RECURSIVE
+						strResult := this.RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . xmlItemAttributes.name . "/") ; RECURSIVE
 					}
 				}
 				
 				objLoadDOpusLayout := Object() ; new layout item
 				
-				if (objItemAttributes.separator = "yes")
+				if (xmlItemAttributes.separator = "yes")
 					
 					objLoadDOpusLayout.FavoriteType := "X"
 					
 				else
 				{
-					objLoadDOpusLayout.FavoriteName := objItemAttributes.name
+					objLoadDOpusLayout.FavoriteName := xmlItemAttributes.name
 					if (blnItemIsMenu)
 						objLoadDOpusLayout.FavoriteIconResource := "iconSubmenu"
 					else ; it is a layout
 					{
 						objLoadDOpusLayout.FavoriteIconResource := "iconGroup"
-						objLoadDOpusLayout.FavoriteLocation := strLayoutMenuName . objItemAttributes.name
+						objLoadDOpusLayout.FavoriteLocation := strLayoutMenuName . xmlItemAttributes.name
 					}
 					objLoadDOpusLayout.FavoriteType := (blnItemIsMenu ? "Menu" : "Folder")
 				}
@@ -23880,15 +23880,15 @@ TODO
 		; returns the XML of the folder node strName if it is found in strNodeXml or returns empty if not found
 		;-----------------------------------------------------
 		{
-			objFolderXML := New XML("xml")
-			objFolderXML.XML.LoadXML(strNodeXml)
+			xmlFolderXML := New XML("xml")
+			xmlFolderXML.XML.LoadXML(strNodeXml)
 			
-			objNodeFolder := objFolderXML.SN("/*/folder")
-			while (objFolderItem := objNodeFolder.Item[A_Index-1])
+			xmlNodeFolder := xmlFolderXML.SN("/*/folder")
+			while (xmlFolderItem := xmlNodeFolder.Item[A_Index-1])
 			{
-				objFolderItemAttributes := objFolderXML.EA(objFolderItem)
-				if (objFolderItemAttributes.name = strName)
-					return objFolderItem.xml ; return folder node if found
+				xmlFolderItemAttributes := xmlFolderXML.EA(xmlFolderItem)
+				if (xmlFolderItemAttributes.name = strName)
+					return xmlFolderItem.xml ; return folder node if found
 			}
 			return ; empty if not found
 		}
@@ -24719,9 +24719,9 @@ class QAPfeatures
 	;
 	; QAP Feature Objects (o_QAPfeatures.AA) definition:
 	;		Key: strQAPFeatureInternalName
-	;		Value: objOneQAPFeature
+	;		Value: aaOneQAPFeature
 	;
-	; QAP Features Object (objOneQAPFeature) definition:
+	; QAP Features Object (aaOneQAPFeature) definition:
 	;		LocalizedName: QAP Feature localized label
 	;		QAPFeatureMenuName: menu to be added to the menu (excluding the starting ":"), empty if no submenu associated to this QAP feature
 	;		QAPFeatureCommand: command to be executed when this favorite is selected (excluding the ending ":")
@@ -24785,24 +24785,24 @@ FAVORITE TYPES REPLACED
 	;---------------------------------------------------------
 */
 
-	static I := Object()
-	static objFavoriteTypesByName := Object()
+	static SA := Object()
+	static saFavoriteTypesByName := Object()
 	
 	;---------------------------------------------------------
 	__New()
 	;---------------------------------------------------------
 	{
-		objFavoriteTypes := StrSplit("Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp", "|")
-		objFavoriteTypesLabels := StrSplit(o_L["DialogFavoriteTypesLabels"], "|")
-		objFavoriteTypesShortNames := StrSplit(o_L["DialogFavoriteTypesShortNames"], "|")
-		objFavoriteTypesLocationLabels := StrSplit(o_L["DialogFavoriteTypesLocationLabels"], "|")
-		objFavoriteTypesLocationLabelsNoAmpersand := StrSplit(o_L["DialogFavoriteTypesLabelsNoAmpersand"], "|")
+		saFavoriteTypes := StrSplit("Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp", "|")
+		saFavoriteTypesLabels := StrSplit(o_L["DialogFavoriteTypesLabels"], "|")
+		saFavoriteTypesShortNames := StrSplit(o_L["DialogFavoriteTypesShortNames"], "|")
+		saFavoriteTypesLocationLabels := StrSplit(o_L["DialogFavoriteTypesLocationLabels"], "|")
+		saFavoriteTypesLocationLabelsNoAmpersand := StrSplit(o_L["DialogFavoriteTypesLabelsNoAmpersand"], "|")
 		
-		Loop, % objFavoriteTypes.Length()
+		Loop, % saFavoriteTypes.Length()
 		{
-			this.I[A_Index] := new Favorites.Type(objFavoriteTypes[A_Index], objFavoriteTypesLabels[A_Index], objFavoriteTypesShortNames[A_Index]
-				, objFavoriteTypesLocationLabels[A_Index], objFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp" . A_Index])
-			this.objFavoriteTypesByName[objFavoriteTypes[A_Index]] := this.I[A_Index]
+			this.SA[A_Index] := new Favorites.Type(saFavoriteTypes[A_Index], saFavoriteTypesLabels[A_Index], saFavoriteTypesShortNames[A_Index]
+				, saFavoriteTypesLocationLabels[A_Index], saFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp" . A_Index])
+			this.saFavoriteTypesByName[saFavoriteTypes[A_Index]] := this.SA[A_Index]
 		}
 	}
 	;---------------------------------------------------------
@@ -24811,7 +24811,7 @@ FAVORITE TYPES REPLACED
 	GetFavoriteTypeObject(strTypeSystemName)
 	;---------------------------------------------------------
 	{
-		return this.objFavoriteTypesByName[strTypeSystemName]
+		return this.saFavoriteTypesByName[strTypeSystemName]
 	}
 	;---------------------------------------------------------
 	
@@ -25102,7 +25102,7 @@ TODO
 	}
 	;---------------------------------------------------------
 
-	objGroupItems := Object()
+	aaGroupItems := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -25139,21 +25139,21 @@ TODO
 	{
 		if !IsObject(this[strOptionGroup])
 			this[strOptionGroup] := Object()
-		if !IsObject(this.objGroupItems[strGuiGroup])
-			this.objGroupItems[strGuiGroup] := Object()
+		if !IsObject(this.aaGroupItems[strGuiGroup])
+			this.aaGroupItems[strGuiGroup] := Object()
 		
 		; ###_V(A_ThisFunc, strOptionGroup, strGuiGroup, intGuiOrder, strSettingName, strIniValueName, "|" . strDefault . "|", strSection, strIniFile, this.strIniFile)
 		strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
 		
 		if (strSettingName = "strExclusionMouseList") ; exception for additional values
-			objIniValue := new this.IniValueExclusionMouseList(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
+			oIniValue := new this.IniValueExclusionMouseList(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		else
-			objIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
+			oIniValue := new this.IniValue(strIniValueName, strOutValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
 		
-		this[strOptionGroup][strSettingName] := objIniValue
-		this.objGroupItems[strGuiGroup][intGuiOrder] := objIniValue
+		this[strOptionGroup][strSettingName] := oIniValue
+		this.aaGroupItems[strGuiGroup][intGuiOrder] := oIniValue
 		
-		return objIniValue.IniValue
+		return oIniValue.IniValue
 		; ###_O("this", this)
 		; ###_O("this[strOptionGroup][strSettingName]", this[strOptionGroup][strSettingName])
 	}
@@ -25323,24 +25323,24 @@ TODO
 				{
 					if (SubStr(A_LoopField, 1, 1) <> ";") ; skip comment lines
 					{
-						objLanguageBit := StrSplit(A_LoopField, "`t")
-						; ###_O("objLanguageBit-1", objLanguageBit)
-						if SubStr(objLanguageBit[1], 1, 1) <> "l"
+						saLanguageBit := StrSplit(A_LoopField, "`t")
+						; ###_O("saLanguageBit-1", saLanguageBit)
+						if SubStr(saLanguageBit[1], 1, 1) <> "l"
 							continue
 						else
-							objLanguageBit[1] := SubStr(objLanguageBit[1], 2) ; remove leading "l" from language files variable names
-						this[objLanguageBit[1]] := objLanguageBit[2]
-						this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], "``n", "`n")
+							saLanguageBit[1] := SubStr(saLanguageBit[1], 2) ; remove leading "l" from language files variable names
+						this[saLanguageBit[1]] := saLanguageBit[2]
+						this[saLanguageBit[1]] := StrReplace(this[saLanguageBit[1]], "``n", "`n")
 						
-						if InStr(this[objLanguageBit[1]], ";;") ; preserve escaped ; in string
-							this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], ";;", strReplacementForSemicolon)
-						; ###_V("1", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
-						if InStr(this[objLanguageBit[1]], ";")
-							this[objLanguageBit[1]] := Trim(SubStr(this[objLanguageBit[1]], 1, InStr(this[objLanguageBit[1]], ";") - 1)) ; trim comment from ; and trim spaces and tabs
-						; ###_V("2", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
-						if InStr(this[objLanguageBit[1]], strReplacementForSemicolon) ; restore escaped ; in string
-							this[objLanguageBit[1]] := StrReplace(this[objLanguageBit[1]], strReplacementForSemicolon, ";")
-						; ###_V("3", objLanguageBit[1], objLanguageBit[2], this[objLanguageBit[1]])
+						if InStr(this[saLanguageBit[1]], ";;") ; preserve escaped ; in string
+							this[saLanguageBit[1]] := StrReplace(this[saLanguageBit[1]], ";;", strReplacementForSemicolon)
+						; ###_V("1", saLanguageBit[1], saLanguageBit[2], this[saLanguageBit[1]])
+						if InStr(this[saLanguageBit[1]], ";")
+							this[saLanguageBit[1]] := Trim(SubStr(this[saLanguageBit[1]], 1, InStr(this[saLanguageBit[1]], ";") - 1)) ; trim comment from ; and trim spaces and tabs
+						; ###_V("2", saLanguageBit[1], saLanguageBit[2], this[saLanguageBit[1]])
+						if InStr(this[saLanguageBit[1]], strReplacementForSemicolon) ; restore escaped ; in string
+							this[saLanguageBit[1]] := StrReplace(this[saLanguageBit[1]], strReplacementForSemicolon, ";")
+						; ###_V("3", saLanguageBit[1], saLanguageBit[2], this[saLanguageBit[1]])
 						; ###_O("this", this)
 					}
 				}
