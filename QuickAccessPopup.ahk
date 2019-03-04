@@ -4319,18 +4319,19 @@ if !FileExist(o_Settings.strIniFile)
 else
 {
 	; reinit after Settings save if already exist
-	g_objMainMenu := Object() ; object of menu structure entry point
-	g_objMainMenu.MenuPath := o_L["MainMenuName"] ; localized name of the main menu
-	g_objMainMenu.MenuType := "Menu" ; main menu is not a group
+	; g_objMainMenu := Object() ; object of menu structure entry point
+	; g_objMainMenu.MenuPath := o_L["MainMenuName"] ; localized name of the main menu
+	; g_objMainMenu.MenuType := "Menu" ; main menu is not a group
 
-	global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
+	; global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	
-	g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
+	o_QAPfeatures.objQAPfeaturesInMenus := Object() ; re-init
+	global g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
-	o_Settings.intIniLine := 1
-	if (RecursiveLoadMenuFromIni(g_objMainMenu, g_blnWorkingToolTip) <> "EOM") ; build menu tree
-		ExitApp
+	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
+	o_Settings.intIniLine := 1 ; start reading Favorites at top of ini file ##### remove?
+	global o_MainMenu := new Container("Menu", o_L["MainMenuName"])
+	; also init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
 }
 
 return
@@ -4338,7 +4339,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
+OLD_#####_RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 ;------------------------------------------------------------
 {
 	g_objMenusIndex.Insert(objCurrentMenu.MenuPath, objCurrentMenu) ; update the menu index
@@ -4353,7 +4354,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 	{
 		if (objCurrentMenu.MenuType = "External") and !FileExist(o_Settings.strIniFile)
 		{
-			objCurrentMenu.MenuLoaded := false
+			objCurrentMenu.MenuExternalLoaded := false
 			strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFileMain)
 			if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
 			{
@@ -4363,7 +4364,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 				IfMsgBox, No
 					IniWrite, % strExternalErrorMessageExclusions . o_Settings.o_Settings.strIniFile . "|", % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions
 			}
-			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuLoaded false - external menu will be empty
+			return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuExternalLoaded false - external menu will be empty
 		}
 			
 		strLoadIniLine := o_Settings.ReadIniValue("Favorite" . o_Settings.intIniLine, "", "Favorites")
@@ -4371,14 +4372,14 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 		if (strLoadIniLine = "ERROR")
 		{
 			Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
-			objCurrentMenu.MenuLoaded := false
+			objCurrentMenu.MenuExternalLoaded := false
 			if (objCurrentMenu.MenuType = "External")
-				return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuLoaded false - external menu will stop at the previous favorite
+				return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuExternalLoaded false - external menu will stop at the previous favorite
 			else
 				Return, "EOF" ; end of file - an unknown error occurred while reading the ini file - menu loading will be aborted
 		}
 		else
-			objCurrentMenu.MenuLoaded := true
+			objCurrentMenu.MenuExternalLoaded := true
         o_Settings.intIniLine++
 		
 		strLoadIniLine := strLoadIniLine . "||||||||||||||||||||||||||||||" ; additional "|" to make sure we have all empty items
@@ -4404,20 +4405,20 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			objNewMenu.MenuType := objThisFavorite[1]
 			if (objNewMenu.MenuType = "External")
 			{
-				objNewMenu.MenuExternalPath := objThisFavorite[6] ; FavoriteAppWorkingDir
+				objNewMenu.MenuExternalSettingsPath := objThisFavorite[6] ; FavoriteAppWorkingDir
 				; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
-				; FileGetTime, strLastModified, % objNewMenu.MenuExternalPath, M ; modified date
-				strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objNewMenu.MenuExternalPath)
-				blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", objNewMenu.MenuExternalPath)
+				; FileGetTime, strLastModified, % objNewMenu.MenuExternalSettingsPath, M ; modified date
+				strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objNewMenu.MenuExternalSettingsPath)
+				blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", objNewMenu.MenuExternalSettingsPath)
 				; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
 				objNewMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 				objNewMenu.MenuExternalLastModifiedNow := strLastModified
 				objNewMenu.MenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
 				
 				; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
-				strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objNewMenu.MenuExternalPath)
+				strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objNewMenu.MenuExternalSettingsPath)
 				if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
-					IniWrite, % "", % objNewMenu.MenuExternalPath, Global, MenuReservedBy
+					IniWrite, % "", % objNewMenu.MenuExternalSettingsPath, Global, MenuReservedBy
 			}
 			
 			; create a navigation entry to navigate to the parent menu
@@ -4438,7 +4439,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			}
 			
 			; build the submenu
-			strResult := RecursiveLoadMenuFromIni(objNewMenu, blnWorkingToolTip) ; RECURSIVE
+			strResult := OLD_#####_RecursiveLoadMenuFromIni(objNewMenu, blnWorkingToolTip) ; RECURSIVE
 			
 			if (objThisFavorite[1] = "External")
 			{
@@ -8830,13 +8831,13 @@ Loop, % g_objMenuInGui.MaxIndex()
 		{
 			if ExternalMenuModifiedSinceLoaded(g_objMenuInGui[A_Index].SubMenu)
 				ExternalMenuReloadAndRebuild(g_objMenuInGui[A_Index].SubMenu)
-			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalPath)
+			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalSettingsPath)
 				strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-			else if !(g_objMenuInGui[A_Index].SubMenu.MenuLoaded)
+			else if !(g_objMenuInGui[A_Index].SubMenu.MenuExternalLoaded)
 				strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
 			else
 				strGuiMenuLocation := ""
-			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalPath
+			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalSettingsPath
 		}
 		
 		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and g_objMenuInGui[A_Index].FavoriteUsageDb
@@ -8980,13 +8981,13 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 					strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 				else ; objCurrentMenu[A_Index].FavoriteType = "External"
 				{
-					if ExternalMenuIsReadOnly(objCurrentMenu[A_Index].SubMenu.MenuExternalPath)
+					if ExternalMenuIsReadOnly(objCurrentMenu[A_Index].SubMenu.MenuExternalSettingsPath)
 						strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-					else if !(objCurrentMenu[A_Index].SubMenu.MenuLoaded)
+					else if !(objCurrentMenu[A_Index].SubMenu.MenuExternalLoaded)
 						strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
 					else
 						strGuiMenuLocation := ""
-					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . objCurrentMenu[A_Index].SubMenu.MenuExternalPath
+					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . objCurrentMenu[A_Index].SubMenu.MenuExternalSettingsPath
 				}
 				
 				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey, strGuiMenuLocation, A_Index)
@@ -12383,8 +12384,8 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
 	if (objNewMenu.MenuType = "External")
 	{
-		objNewMenu.MenuExternalPath := strFavoriteAppWorkingDir
-		objNewMenu.MenuLoaded := true ; consider as loaded since it is new and empty
+		objNewMenu.MenuExternalSettingsPath := strFavoriteAppWorkingDir
+		objNewMenu.MenuExternalLoaded := true ; consider as loaded since it is new and empty
 	}
 
 	; create a navigation entry to navigate to the parent menu
@@ -12706,7 +12707,7 @@ LoadExternalMenu(objExternalMenu, strExternalMenuPath)
 	o_Settings.strIniFile := strExternalMenuPath ; settings file path for external menu
 	o_Settings.intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
 	
-	strResult := RecursiveLoadMenuFromIni(objExternalMenu) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+	strResult := OLD_#####_RecursiveLoadMenuFromIni(objExternalMenu) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 	
 	o_Settings.strIniFile := strPreviousIniFile
 	o_Settings.intIniLine := intPreviousIniLine
@@ -13989,7 +13990,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
 				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
-				and objCurrentMenu[A_Index].SubMenu.MenuLoaded
+				and objCurrentMenu[A_Index].SubMenu.MenuExternalLoaded
 				and objCurrentMenu[A_Index].SubMenu.NeedSave)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
@@ -14889,8 +14890,8 @@ for strMenuPath, objMenuSource in objMenusSource
 	objMenuDest := Object()
 	objMenuDest.MenuPath := objMenuSource.MenuPath
 	objMenuDest.MenuType := objMenuSource.MenuType
-	objMenuDest.MenuExternalPath := objMenuSource.MenuExternalPath
-	objMenuDest.MenuLoaded := objMenuSource.MenuLoaded
+	objMenuDest.MenuExternalSettingsPath := objMenuSource.MenuExternalSettingsPath
+	objMenuDest.MenuExternalLoaded := objMenuSource.MenuExternalLoaded
 	objMenuDest.MenuExternalLastModifiedNow := objMenuSource.MenuExternalLastModifiedNow
 	objMenuDest.MenuExternalLastModifiedWhenLoaded := objMenuSource.MenuExternalLastModifiedWhenLoaded
 	objMenuDest.MenuExternalLastModifiedFromNetworkOrCoud := objMenuSource.MenuExternalLastModifiedFromNetworkOrCoud
@@ -20514,11 +20515,11 @@ RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "
 		if (objMenu[A_Index].Submenu.MenuType = "External")
 		{
 			; skip read-only external menus
-			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalPath)
+			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalSettingsPath)
 				continue
 			
 			; skip external menus if not loaded
-			if !(objMenu[A_Index].Submenu.MenuLoaded)
+			if !(objMenu[A_Index].Submenu.MenuExternalLoaded)
 				continue
 		}
 
@@ -21292,7 +21293,7 @@ FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
 	
 	Loop
 	{
-		; ###_V(A_ThisLabel, objMenu.MenuExternalPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
+		; ###_V(A_ThisLabel, objMenu.MenuExternalSettingsPath, objMenu.IsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
 		;	, objMenu[1].HasKey("ParentMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
 		if (objMenu.MenuType = "External")
 		{
@@ -21493,14 +21494,14 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	; not an external menu, checking lock is not required, return true
 		return true
 	
-	intMenuExternalType := o_Settings.ReadIniValue("MenuType", 1, "Global", objMenu.MenuExternalPath) ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
-	strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objMenu.MenuExternalPath) ; empty if not found
+	intMenuExternalType := o_Settings.ReadIniValue("MenuType", 1, "Global", objMenu.MenuExternalSettingsPath) ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
+	strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
 
-	; ###_V(A_ThisFunc, objMenu.MenuExternalPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
-	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalPath))
+	; ###_V(A_ThisFunc, objMenu.MenuExternalSettingsPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
+	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalSettingsPath))
 	{
-		strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", objMenu.MenuExternalPath) ; empty if not found
-		strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", objMenu.MenuExternalPath) ; empty if not found
+		strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
+		strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
 		Oops(o_L["OopsErrorIniFileReadOnly"] . (StrLen(strExternalMenuName) ? "`n`n" . o_L["DialogExternalMenuName"] . ":`n" . strExternalMenuName : "")
 			. (StrLen(strWriteAccessMessage) ? "`n`n" . o_L["DialogExternalWriteAccessMessage"] . ":`n" . strWriteAccessMessage : ""))
 		return
@@ -21516,7 +21517,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 			Oops(o_L["OopsMenuExternalReservedBy"], (intMenuExternalType = 2 ? o_L["OopsMenuExternalCollaborative"] : o_L["OopsMenuExternalCentralized"]), strMenuExternalReservedBy)
 			return false
 		}
-	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalPath))
+	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalSettingsPath))
 	; user cannot write to collaborative external ini file, could not lock it, return false
 	{
 		Oops(o_L["OopsExternalFileWriteErrorCollaborative"])
@@ -21550,10 +21551,10 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 	{
 		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
 		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
-			, % objMenu.MenuExternalPath, Global, MenuReservedBy ; no need to update LastModified for this change
+			, % objMenu.MenuExternalSettingsPath, Global, MenuReservedBy ; no need to update LastModified for this change
 		; remember to free when saving or canceling
-		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalPath)
-		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalPath, 999)
+		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalSettingsPath)
+		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalSettingsPath, 999)
 	}
 
 	return true
@@ -21595,7 +21596,7 @@ ExternalMenuIsReadOnly(strFile)
 ExternalMenuModifiedSinceLoaded(objMenu)
 ;------------------------------------------------------------
 {
-	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalPath)
+	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalSettingsPath)
 	objMenu.MenuExternalLastModifiedNow := strLastModified
 	; ###_V(A_ThisFunc, "Now: " . objMenu.MenuExternalLastModifiedNow
 		; , "When loaded: " . objMenu.MenuExternalLastModifiedWhenLoaded
@@ -21664,9 +21665,9 @@ ExternalMenuFolderIsReadOnly(strFile)
 ExternalMenuReloadAndRebuild(objMenu)
 ;------------------------------------------------------------
 {
-	strResult := LoadExternalMenu(objMenu, objMenu.MenuExternalPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+	strResult := LoadExternalMenu(objMenu, objMenu.MenuExternalSettingsPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 	
-	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalPath)
+	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalSettingsPath)
 	objMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 	objMenu.MenuExternalLastModifiedNow := strLastModified
 	
@@ -24771,9 +24772,8 @@ FAVORITE TYPES REPLACED
 */
 ;-------------------------------------------------------------
 {
-/*
 	;---------------------------------------------------------
-	__Call(function, parameters*)
+	###__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -24783,7 +24783,6 @@ FAVORITE TYPES REPLACED
 			return
 	}
 	;---------------------------------------------------------
-*/
 
 	static SA := Object()
 	static saFavoriteTypesByName := Object()
@@ -24819,9 +24818,8 @@ FAVORITE TYPES REPLACED
 	class Type
 	;---------------------------------------------------------
 	{
-/*
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -24831,7 +24829,6 @@ FAVORITE TYPES REPLACED
 				return
 		}
 		;---------------------------------------------------------
-*/
 
 		;-----------------------------------------------------
 		__New(strThisSystemName, strThisLabel, strThisShortName, strThisLocationLabel, strThisLocationLabelNoAmpersand, strThisHelp)
@@ -25091,7 +25088,7 @@ TODO
 ;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
-	__Call(function, parameters*)
+	###__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -25173,9 +25170,8 @@ TODO
 	class IniValue
 	;---------------------------------------------------------
 	{
-/*
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -25185,7 +25181,6 @@ TODO
 				return
 		}
 		;---------------------------------------------------------
-*/
 
 		;-----------------------------------------------------
 		__New(strIniValueName, strIniValue, strGuiGroup, intGuiOrder, strSection, strIniFile)
@@ -25218,9 +25213,8 @@ TODO
 	class IniValueExclusionMouseList extends Settings.IniValue
 	;---------------------------------------------------------
 	{
-/*
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -25230,7 +25224,6 @@ TODO
 				return
 		}
 		;---------------------------------------------------------
-*/
 
 		;-----------------------------------------------------
 		SplitExclusionList()
@@ -25358,6 +25351,264 @@ TODO
 	;---------------------------------------------------------
 }
 ;-------------------------------------------------------------
+
+;-------------------------------------------------------------
+class Containers
+;-------------------------------------------------------------
+{
+	AA := Object() ; replace g_objMenusIndex, associative array of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
+	
+	;---------------------------------------------------------
+	###__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	__New()
+	;---------------------------------------------------------
+	{
+	}
+	;---------------------------------------------------------
+}
+;-------------------------------------------------------------
+
+;---------------------------------------------------------
+class Container
+;---------------------------------------------------------
+{
+	AA := Object() ; associative array for container's properties
+	SA := Object() ; simple array for container's items
+	
+	;---------------------------------------------------------
+	###__Call(function, parameters*)
+	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+	{
+		funcRef := Func(funcName := this.__class "." function)
+		if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+			return funcRef.(this, parameters*) ; everything is good
+		else
+			return
+	}
+	;---------------------------------------------------------
+
+	
+	;---------------------------------------------------------
+	__New(strType, strContainerName, oParentMenu := "")
+	;---------------------------------------------------------
+	{
+		if (g_blnWorkingToolTip)
+			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
+
+		strNewContainerPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName . (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+		this.AA.strMenuPath := strNewContainerPath ; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
+		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
+		if (oParentMenu)
+		{
+			this.AA.strParentMenuLabel := BetweenParenthesis(GetDeepestMenuPath(oParentMenu.AA.strMenuPath))
+			this.AA.oParentMenu := oParentMenu
+		}
+		
+		if (this.AA.strMenuType = "External")
+		{
+			if !FileExist(o_Settings.strIniFile)
+			{
+				this.AA.blnMenuExternalLoaded := false ; true if the external menu was loaded, false if not loaded (or not an external menu)
+				strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFileMain) ; not documented, internal use only
+				if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
+				{
+					MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . o_Settings.strIniFile
+						. "`n`n" . L(o_L["OopsErrorIniFileRetry"], g_strAppNameText)
+						. "`n`n" . o_L["OopsErrorIniFileDisplayErrorMessage"]
+					IfMsgBox, No
+						IniWrite, % strExternalErrorMessageExclusions . o_Settings.strIniFile . "|", % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions
+				}
+				return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuExternalLoaded false - external menu will be empty
+			}
+			
+			this.AA.strMenuExternalSettingsPath := o_Settings.strIniFile
+			; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
+			; FileGetTime, strLastModified, % objNewMenu.MenuExternalSettingsPath, M ; modified date
+			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.MenuExternalSettingsPath)
+			blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", this.AA.MenuExternalSettingsPath)
+			; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
+			objNewMenu.strMenuExternalLastModifiedWhenLoaded := strLastModified
+			objNewMenu.strMenuExternalLastModifiedNow := strLastModified
+			objNewMenu.strMenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
+			
+			; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
+			strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", this.AA.strMenuExternalSettingsPath)
+			if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+				IniWrite, % "", % this.AA.strMenuExternalSettingsPath, Global, MenuReservedBy
+		}
+		
+		if (this.LoadItemsFromIni() = "EOM") ; build menu tree
+			o_Containers.AA[strNewContainerPath] := this
+		else
+			ExitApp
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	LoadItemsFromIni()
+	;---------------------------------------------------------
+	{
+		Loop
+		{
+			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . o_Settings.intIniLine, "", "Favorites")
+			o_Settings.intIniLine++
+			; ###_V("Loop Begin", o_Settings.o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
+			if (strLoadIniLine = "ERROR")
+			{
+				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
+				if (this.AA.MenuType = "External")
+				{
+					this.AA.MenuExternalLoaded := false
+					return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuExternalLoaded false - external menu will stop at the previous favorite
+				}
+				else
+					Return, "EOF" ; end of file - an unknown error occurred while reading the ini file - menu loading will be aborted
+			}
+			
+			saThisFavorite := StrSplit(strLoadIniLine, "|")
+			
+			if (saThisFavorite[1] = "Z")
+				
+				return "EOM" ; end of menu
+				
+			else if InStr("Menu|Group|External", saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
+			{
+				if (saThisFavorite[1] = "External")
+				{
+					strPreviousIniFile := o_Settings.strIniFile
+					intPreviousIniLine := o_Settings.intIniLine
+					o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6])) ; FavoriteAppWorkingDir, settings file path
+					o_Settings.intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+					if !StrLen(o_Settings.intIniLine)
+						o_Settings.intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+				}
+				
+				; build the submenu
+				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this) ; RECURSIVE
+				
+				if (saThisFavorite[1] = "External")
+				{
+					o_Settings.strIniFile := strPreviousIniFile
+					o_Settings.intIniLine := intPreviousIniLine
+				}
+				
+				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+					Return, %strResult%
+			}
+			
+			oNewItem := new Container.Item(saThisFavorite)
+			if InStr("Menu|Group|External", oNewItem.AA.strFavoriteType, true) ; this is a submenu favorite, link to the submenu object
+				oNewItem.AA.oSubMenu := oNewSubMenu
+			intIndex := this.SA.Push(oNewItem) ; add to the current container object
+			; intIndex used just for debugging
+		}
+	}
+	;---------------------------------------------------------
+	
+	;-------------------------------------------------------------
+	class Item
+	;-------------------------------------------------------------
+	{
+		AA := Object() ; associative array for container's properties
+		
+		;---------------------------------------------------------
+		###__Call(function, parameters*)
+		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
+		{
+			funcRef := Func(funcName := this.__class "." function)
+			if CheckParameters(funcRef, function, parameters*) ; if everything is good call the function, else return false
+				return funcRef.(this, parameters*) ; everything is good
+			else
+				return
+		}
+		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		__New(saFavorite)
+		;---------------------------------------------------------
+		{
+			; saFavorite:
+			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
+			; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
+			; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
+			; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
+			; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
+			; 24 FavoriteDateCreated, 25 FavoriteDateModified, 26 FavoriteUsageDb
+			
+			if (saFavorite[1] = "QAP")
+			{
+				; get QAP feature's name in current language (QAP features names are not saved to ini file)
+				saFavorite[2] := o_QAPfeatures.objQAPFeaturesDefaultNameByCode[saFavorite[3]]
+				if !StrLen(saFavorite[2]) ; if QAP feature is unknown
+					; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+					saFavorite[2] := "* Unknown QAP feature * " . RandomBetween() . " *"
+				
+				; to keep track of QAP features in menus to allow enable/disable menu items
+				o_QAPfeatures.objQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
+			}
+
+			; this is a regular favorite, add it to the current menu
+			this.AA.strFavoriteType := saFavorite[1] ; see Favorite Types
+			this.AA.strFavoriteName := StrReplace(saFavorite[2], g_strEscapePipe, "|") ; display name of this menu item
+			if InStr("Menu|Group|External", saFavorite[1], true)
+			; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
+				this.AA.strFavoriteLocation := StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")
+			else
+				this.AA.strFavoriteLocation := StrReplace(saFavorite[3], g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
+			this.AA.strFavoriteIconResource := saFavorite[4] ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
+			this.AA.strFavoriteArguments := StrReplace(saFavorite[5], g_strEscapePipe, "|") ; application arguments
+			this.AA.strFavoriteAppWorkingDir := saFavorite[6] ; application working directory
+			this.AA.strFavoriteWindowPosition := saFavorite[7] ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
+			this.AA.strFavoriteLaunchWith := saFavorite[8] ; launch favorite with this executable, or various options for type Application and Snippet
+			this.AA.strFavoriteLoginName := StrReplace(saFavorite[9], g_strEscapePipe, "|") ; login name for FTP favorite
+			this.AA.strFavoritePassword := StrReplace(saFavorite[10], g_strEscapePipe, "|") ; password for FTP favorite
+			this.AA.strFavoriteGroupSettings := saFavorite[11] ; coma separated values for group restore settings or external menu starting line
+			this.AA.strFavoriteFtpEncoding := saFavorite[12] ; encoding of FTP username and password, 0 do not encode, 1 encode
+			this.AA.strFavoriteElevate := saFavorite[13] ; elevate application, 0 do not elevate, 1 elevate
+			this.AA.strFavoriteDisabled := saFavorite[14] ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
+			this.AA.strFavoriteFolderLiveLevels := saFavorite[15] ; number of subfolders to include in submenu(s), 0 if not a live folder
+			this.AA.strFavoriteFolderLiveDocuments := saFavorite[16] ; also include documents in live folder
+			this.AA.strFavoriteFolderLiveColumns := saFavorite[17] ; number of items per columns in live folder menus
+			this.AA.strFavoriteFolderLiveIncludeExclude := saFavorite[18] ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
+			this.AA.strFavoriteFolderLiveExtensions := saFavorite[19] ; extensions of files to include or exclude in live folder
+			this.AA.strFavoriteShortcut := saFavorite[20] ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
+			this.AA.strFavoriteHotstring := StrReplace(saFavorite[21], g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
+			this.AA.strFavoriteFolderLiveSort := saFavorite[22] ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
+			this.AA.strFavoriteSoundLocation := StrReplace(saFavorite[23], g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
+			this.AA.strFavoriteDateCreated := saFavorite[24] ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+			this.AA.strFavoriteDateModified := saFavorite[25] ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+			this.AA.strFavoriteUsageDb := saFavorite[26] ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
+
+			if (!StrLen(this.AA.strFavoriteIconResource) or this.AA.strFavoriteIconResource = "iconUnknown")
+			; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
+				this.AA.strFavoriteIconResource := GetDefaultIcon4Type(this, this.AA.strFavoriteLocation)
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		IsContainer()
+		;---------------------------------------------------------
+		{
+			return InStr("Menu|Group|External", this.FavoriteType) ; does not include LiveFolder
+		}
+		;---------------------------------------------------------
+		
+	}
+	;-------------------------------------------------------------
+
+}
+;---------------------------------------------------------
 
 ;-------------------------------------------------------------
 class Model
