@@ -4330,7 +4330,7 @@ else
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	o_Settings.intIniLine := 1 ; start reading Favorites at top of ini file ##### remove?
-	global o_MainMenu := new Container("Menu", o_L["MainMenuName"])
+	global o_MainMenu := new Container("Menu", o_L["MainMenuName"], o_Settings.strIniFile)
 	; also init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
 }
 
@@ -18348,7 +18348,7 @@ if SettingsUnsaved()
 }
 
 if (A_ThisLabel = "SwitchSettingsDefault")
-	g_strSwitchSettingsFile := o_Settings.strIniFileMain
+	g_strSwitchSettingsFile := o_Settings.strIniFile
 else
 {
 	strSwitchSettingsFolder := o_Settings.ReadIniValue("SwitchSettingsFolder", A_WorkingDir)
@@ -19826,7 +19826,7 @@ strIniBackupFile := StrReplace(o_Settings.strIniFile, ".ini", "-backup-????????.
 ; if o_Settings.strIniFile is the main ini file, set the destination to backup folder
 ; this excludes External ini files and alternative ini file (using the switch command) that are backuped in their own folder
 ; but this includes main ini file when the working directory is set from the command line with "/Working:"
-if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFileMain)
+if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFile)
 {
 	o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "General", "80")
 	strIniBackupFile := StrReplace(strIniBackupFile, A_WorkingDir, o_Settings.SettingsFile.strBackupFolder.IniValue)
@@ -25122,8 +25122,6 @@ TODO
 		SplitPath, % this.strIniFile, strIniFileNameExtOnly
 		this.strIniFileNameExtOnly := strIniFileNameExtOnly
 		
-		this.strIniFileMain := this.strIniFile ; value never changed
-		
 		; at first launch quickaccesspopup.ini does not exist, read language value in quickaccesspopup-setup.ini (if exist) created by Setup
 		this.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", "15", "Global"
 			, (FileExist(this.strIniFile) ? this.strIniFile : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini"))
@@ -25374,6 +25372,7 @@ class Containers
 	__New()
 	;---------------------------------------------------------
 	{
+		; not required
 	}
 	;---------------------------------------------------------
 }
@@ -25400,7 +25399,7 @@ class Container
 
 	
 	;---------------------------------------------------------
-	__New(strType, strContainerName, oParentMenu := "")
+	__New(strType, strContainerName, strIniFile, oParentMenu := "")
 	;---------------------------------------------------------
 	{
 		if (g_blnWorkingToolTip)
@@ -25417,22 +25416,22 @@ class Container
 		
 		if (this.AA.strMenuType = "External")
 		{
-			if !FileExist(o_Settings.strIniFile)
+			if !FileExist(strIniFile)
 			{
 				this.AA.blnMenuExternalLoaded := false ; true if the external menu was loaded, false if not loaded (or not an external menu)
-				strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFileMain) ; not documented, internal use only
-				if !InStr(strExternalErrorMessageExclusions, o_Settings.strIniFile)
+				strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFile) ; not documented, internal use only
+				if !InStr(strExternalErrorMessageExclusions, strIniFile)
 				{
-					MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . o_Settings.strIniFile
+					MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . strIniFile
 						. "`n`n" . L(o_L["OopsErrorIniFileRetry"], g_strAppNameText)
 						. "`n`n" . o_L["OopsErrorIniFileDisplayErrorMessage"]
 					IfMsgBox, No
-						IniWrite, % strExternalErrorMessageExclusions . o_Settings.strIniFile . "|", % o_Settings.strIniFileMain, Global, ExternalErrorMessageExclusions
+						IniWrite, % strExternalErrorMessageExclusions . strIniFile . "|", % o_Settings.strIniFile, Global, ExternalErrorMessageExclusions
 				}
 				return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuExternalLoaded false - external menu will be empty
 			}
 			
-			this.AA.strMenuExternalSettingsPath := o_Settings.strIniFile
+			this.AA.strMenuExternalSettingsPath := strIniFile
 			; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 			; FileGetTime, strLastModified, % objNewMenu.MenuExternalSettingsPath, M ; modified date
 			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.MenuExternalSettingsPath)
@@ -25448,7 +25447,7 @@ class Container
 				IniWrite, % "", % this.AA.strMenuExternalSettingsPath, Global, MenuReservedBy
 		}
 		
-		if (this.LoadItemsFromIni() = "EOM") ; build menu tree
+		if (this.LoadItemsFromIni(strIniFile) = "EOM") ; build menu tree
 			o_Containers.AA[strNewContainerPath] := this
 		else
 			ExitApp
@@ -25456,17 +25455,19 @@ class Container
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	LoadItemsFromIni()
+	LoadItemsFromIni(strIniFile)
 	;---------------------------------------------------------
 	{
+		static intIniLine := 1
+		
 		Loop
 		{
-			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . o_Settings.intIniLine, "", "Favorites")
-			o_Settings.intIniLine++
-			; ###_V("Loop Begin", o_Settings.o_Settings.strIniFile, o_Settings.intIniLine, strLoadIniLine)
+			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . intIniLine, "", "Favorites", strIniFile)
+			intIniLine++
+			
 			if (strLoadIniLine = "ERROR")
 			{
-				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . o_Settings.strIniFile . "`nFavorite" . o_Settings.intIniLine . "=")
+				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . strIniFile . "`nFavorite" . intIniLine . "=")
 				if (this.AA.MenuType = "External")
 				{
 					this.AA.MenuExternalLoaded := false
@@ -25486,22 +25487,20 @@ class Container
 			{
 				if (saThisFavorite[1] = "External")
 				{
-					strPreviousIniFile := o_Settings.strIniFile
-					intPreviousIniLine := o_Settings.intIniLine
-					o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6])) ; FavoriteAppWorkingDir, settings file path
-					o_Settings.intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
-					if !StrLen(o_Settings.intIniLine)
-						o_Settings.intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+					intPreviousIniLine := intIniLine
+					intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+					if !StrLen(intIniLine)
+						intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+					strSubMenuIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6]))
 				}
+				else
+					strSubMenuIniFile := o_Settings.strIniFile
 				
 				; build the submenu
-				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this) ; RECURSIVE
+				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], strSubMenuIniFile, this) ; RECURSIVE
 				
 				if (saThisFavorite[1] = "External")
-				{
-					o_Settings.strIniFile := strPreviousIniFile
-					o_Settings.intIniLine := intPreviousIniLine
-				}
+					intIniLine := intPreviousIniLine
 				
 				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 					Return, %strResult%
@@ -25510,8 +25509,7 @@ class Container
 			oNewItem := new Container.Item(saThisFavorite)
 			if InStr("Menu|Group|External", oNewItem.AA.strFavoriteType, true) ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
-			intIndex := this.SA.Push(oNewItem) ; add to the current container object
-			; intIndex used just for debugging
+			this.SA.Push(oNewItem) ; add to the current container object
 		}
 	}
 	;---------------------------------------------------------
