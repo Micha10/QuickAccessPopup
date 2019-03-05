@@ -4325,13 +4325,14 @@ else
 
 	; global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	
-	o_QAPfeatures.objQAPfeaturesInMenus := Object() ; re-init
+	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
 	global g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	o_Settings.intIniLine := 1 ; start reading Favorites at top of ini file ##### remove?
-	global o_MainMenu := new Container("Menu", o_L["MainMenuName"], o_Settings.strIniFile)
-	; also init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
+	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
+	if (o_MainMenu.LoadFavoritesFromIniFile(o_Settings.strIniFile) <> "EOM")
+		ExitApp
 }
 
 return
@@ -6064,18 +6065,15 @@ Diag(A_ThisLabel, "", "START")
 Menu, % o_L["TCMenuName"], Add 
 Menu, % o_L["TCMenuName"], DeleteAll
 
+clipboard := o_FileManagers.SA[3].strTCIniFileExpanded
 If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 {
-	objTCMenu := Object() ; object of menu structure entry point
-	objTCMenu.MenuPath := o_L["TCMenuName"] ; localized name of the TC menu
-	objTCMenu.MenuType := "Menu"
-	
-	o_Settings.intIniLine := 1
-	if (RecursiveLoadTotalCommanderHotlistFromIni(objTCMenu) <> "EOM") ; build menu tree
-		Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
-	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
-	RecursiveBuildOneMenu(objTCMenu) ; recurse for submenus
+	
+	o_TCMenu := new Container("Menu", o_L["TCMenuName"])
+	o_TCMenu.LoadTCFavoritesFromIniFile(g_blnWinCmdIniFileExist) ; RECURSIVE
+	
+	RecursiveBuildOneMenu(o_TCMenu) ; recurse for submenus
 	Tooltip
 }
 else
@@ -6083,7 +6081,7 @@ else
 
 AddCloseMenu(o_L["TCMenuName"])
 
-objTCMenu := ""
+o_TCMenu := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -6091,7 +6089,7 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
+OLD_RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 ; see https://www.quickaccesspopup.com/add-total-commander-hotlist-menu-to-fp-menu/
 ;------------------------------------------------------------
 {
@@ -6129,7 +6127,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			objNewMenu.Insert(objNewMenuBack)
 			
 			; build the submenu
-			strResult := RecursiveLoadTotalCommanderHotlistFromIni(objNewMenu) ; RECURSIVE
+			strResult := OLD_RecursiveLoadTotalCommanderHotlistFromIni(objNewMenu) ; RECURSIVE
 			
 			if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 				Return, %strResult%
@@ -25397,23 +25395,32 @@ class Container
 	}
 	;---------------------------------------------------------
 
-	
 	;---------------------------------------------------------
-	__New(strType, strContainerName, strIniFile, oParentMenu := "")
+	__New(strType, strContainerName, oParentMenu := "")
 	;---------------------------------------------------------
 	{
-		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
-
-		strNewContainerPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName . (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-		this.AA.strMenuPath := strNewContainerPath ; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
+		; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
+		this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
+			. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
 		if (oParentMenu)
 		{
 			this.AA.strParentMenuLabel := BetweenParenthesis(GetDeepestMenuPath(oParentMenu.AA.strMenuPath))
 			this.AA.oParentMenu := oParentMenu
-		}
+		}		
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	LoadFavoritesFromIniFile(strIniFile)
+	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
+	;---------------------------------------------------------
+	{
+		static intIniLine := 1
 		
+		if (g_blnWorkingToolTip)
+			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
+
 		if (this.AA.strMenuType = "External")
 		{
 			if !FileExist(strIniFile)
@@ -25437,28 +25444,15 @@ class Container
 			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.MenuExternalSettingsPath)
 			blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", this.AA.MenuExternalSettingsPath)
 			; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
-			objNewMenu.strMenuExternalLastModifiedWhenLoaded := strLastModified
-			objNewMenu.strMenuExternalLastModifiedNow := strLastModified
-			objNewMenu.strMenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
+			oNewMenu.strMenuExternalLastModifiedWhenLoaded := strLastModified
+			oNewMenu.strMenuExternalLastModifiedNow := strLastModified
+			oNewMenu.strMenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
 			
 			; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
 			strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", this.AA.strMenuExternalSettingsPath)
 			if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
 				IniWrite, % "", % this.AA.strMenuExternalSettingsPath, Global, MenuReservedBy
 		}
-		
-		if (this.LoadItemsFromIni(strIniFile) = "EOM") ; build menu tree
-			o_Containers.AA[strNewContainerPath] := this
-		else
-			ExitApp
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	LoadItemsFromIni(strIniFile)
-	;---------------------------------------------------------
-	{
-		static intIniLine := 1
 		
 		Loop
 		{
@@ -25480,9 +25474,11 @@ class Container
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
 			if (saThisFavorite[1] = "Z")
-				
+			; container loaded without error
+			{
+				this.AA[this.AA.strMenuPath] := this
 				return "EOM" ; end of menu
-				
+			}
 			else if InStr("Menu|Group|External", saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
 			{
 				if (saThisFavorite[1] = "External")
@@ -25496,8 +25492,9 @@ class Container
 				else
 					strSubMenuIniFile := o_Settings.strIniFile
 				
-				; build the submenu
-				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], strSubMenuIniFile, this) ; RECURSIVE
+				; load the submenu
+				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this)
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile(strSubMenuIniFile) ; RECURSIVE
 				
 				if (saThisFavorite[1] = "External")
 					intIniLine := intPreviousIniLine
@@ -25506,7 +25503,8 @@ class Container
 					Return, %strResult%
 			}
 			
-			oNewItem := new Container.Item(saThisFavorite)
+			; create new item and add it to the container
+			oNewItem := new this.Item(saThisFavorite)
 			if InStr("Menu|Group|External", oNewItem.AA.strFavoriteType, true) ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
 			this.SA.Push(oNewItem) ; add to the current container object
@@ -25514,6 +25512,76 @@ class Container
 	}
 	;---------------------------------------------------------
 	
+### remplacer le param par o_FileManagers.SA[3].strTCIniFileExpanded dans l'appel et ici
+### détecter la fin du menu autrement que par --
+	;---------------------------------------------------------
+	LoadTCFavoritesFromIniFile(strIniFile)
+	;---------------------------------------------------------
+	{
+		static intIniLine := 1
+		
+		if (g_blnWorkingToolTip)
+			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
+
+		Loop
+		{
+			strWinCmdItemName := o_Settings.ReadIniValue("menu" . intIniLine, "", "DirMenu", o_FileManagers.SA[3].strTCIniFileExpanded)
+			if (strWinCmdItemName = "ERROR")
+			{
+				Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
+				Return, "EOM" ; end of file, last menu item
+			}
+				
+			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . intIniLine, " ", "DirMenu", o_FileManagers.SA[3].strTCIniFileExpanded) ; empty by default
+			intIniLine++
+	
+			###_V(A_ThisFunc, intIniLine, strWinCmdItemCommand)
+			if (strWinCmdItemName = "--")
+			{
+				o_Containers.AA[this.AA.strMenuPath] := this
+				return, "EOM" ; end of menu
+			}
+		
+			blnItemIsMenu := SubStr(strWinCmdItemName, 1, 1) = "-" and StrLen(strWinCmdItemName) > 1 ; begin a submenu "-MenuName", not "-"
+			
+			if (blnItemIsMenu)
+			{
+				strWinCmdItemName := SubStr(strWinCmdItemName, 2)
+				oNewSubMenu := new Container("Menu", strWinCmdItemName, this)
+				oNewSubMenu.LoadTCFavoritesFromIniFile(strIniFile) ; RECURSIVE
+				
+				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+					Return, %strResult%
+			}
+			else if (SubStr(strWinCmdItemCommand, 1, 3) <> "cd ")
+				
+				continue ; not a menu and not a change directory command (folder)
+			
+			saThisFavorite := Object() ; insert TC item values in standard QAP item values object
+			if (strWinCmdItemName = "-") ; menu separator
+				saThisFavorite[1] := "X" ; FavoriteType
+			else
+			{
+				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "Folder") ; FavoriteType
+				saThisFavorite[2] := strWinCmdItemName ; FavoriteName
+				if !(blnItemIsMenu)
+					saThisFavorite[3] := StrReplace(strWinCmdItemCommand, "cd ", "") ; FavoriteLocation
+				if (SubStr(saThisFavorite[3], 1, 2) = "::")
+				{
+					saThisFavorite[1] := "Special" ; FavoriteType
+					saThisFavorite[3] := SubStr(saThisFavorite[3], 3) ; FavoriteLocation
+					saThisFavorite[4] := o_SpecialFolders.AA[saThisFavorite[3]].DefaultIcon ; FavoriteIconResource
+				}
+			}
+			
+			oNewItem := new this.Item(saThisFavorite)
+			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
+				oNewItem.AA.oSubMenu := oNewSubMenu
+			this.SA.Push(oNewItem) ; add to the current container object
+		}
+	}
+	;---------------------------------------------------------
+
 	;-------------------------------------------------------------
 	class Item
 	;-------------------------------------------------------------
@@ -25547,50 +25615,58 @@ class Container
 			if (saFavorite[1] = "QAP")
 			{
 				; get QAP feature's name in current language (QAP features names are not saved to ini file)
-				saFavorite[2] := o_QAPfeatures.objQAPFeaturesDefaultNameByCode[saFavorite[3]]
+				saFavorite[2] := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[saFavorite[3]]
 				if !StrLen(saFavorite[2]) ; if QAP feature is unknown
 					; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 					saFavorite[2] := "* Unknown QAP feature * " . RandomBetween() . " *"
 				
 				; to keep track of QAP features in menus to allow enable/disable menu items
-				o_QAPfeatures.objQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
+				o_QAPfeatures.aaQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 			}
 
 			; this is a regular favorite, add it to the current menu
-			this.AA.strFavoriteType := saFavorite[1] ; see Favorite Types
-			this.AA.strFavoriteName := StrReplace(saFavorite[2], g_strEscapePipe, "|") ; display name of this menu item
+			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
+			this.InsertItemValue("strFavoriteName", StrReplace(saFavorite[2], g_strEscapePipe, "|")) ; display name of this menu item
 			if InStr("Menu|Group|External", saFavorite[1], true)
-			; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
-				this.AA.strFavoriteLocation := StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")
+				; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
+				this.InsertItemValue("strFavoriteLocation", StrReplace(objNewMenu.MenuPath, o_L["MainMenuName"] . " ")) ; ##### objNewMenu.MenuPath ???
 			else
-				this.AA.strFavoriteLocation := StrReplace(saFavorite[3], g_strEscapePipe, "|") ; path, URL or menu path (without "Main") for this menu item
-			this.AA.strFavoriteIconResource := saFavorite[4] ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
-			this.AA.strFavoriteArguments := StrReplace(saFavorite[5], g_strEscapePipe, "|") ; application arguments
-			this.AA.strFavoriteAppWorkingDir := saFavorite[6] ; application working directory
-			this.AA.strFavoriteWindowPosition := saFavorite[7] ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
-			this.AA.strFavoriteLaunchWith := saFavorite[8] ; launch favorite with this executable, or various options for type Application and Snippet
-			this.AA.strFavoriteLoginName := StrReplace(saFavorite[9], g_strEscapePipe, "|") ; login name for FTP favorite
-			this.AA.strFavoritePassword := StrReplace(saFavorite[10], g_strEscapePipe, "|") ; password for FTP favorite
-			this.AA.strFavoriteGroupSettings := saFavorite[11] ; coma separated values for group restore settings or external menu starting line
-			this.AA.strFavoriteFtpEncoding := saFavorite[12] ; encoding of FTP username and password, 0 do not encode, 1 encode
-			this.AA.strFavoriteElevate := saFavorite[13] ; elevate application, 0 do not elevate, 1 elevate
-			this.AA.strFavoriteDisabled := saFavorite[14] ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
-			this.AA.strFavoriteFolderLiveLevels := saFavorite[15] ; number of subfolders to include in submenu(s), 0 if not a live folder
-			this.AA.strFavoriteFolderLiveDocuments := saFavorite[16] ; also include documents in live folder
-			this.AA.strFavoriteFolderLiveColumns := saFavorite[17] ; number of items per columns in live folder menus
-			this.AA.strFavoriteFolderLiveIncludeExclude := saFavorite[18] ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
-			this.AA.strFavoriteFolderLiveExtensions := saFavorite[19] ; extensions of files to include or exclude in live folder
-			this.AA.strFavoriteShortcut := saFavorite[20] ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
-			this.AA.strFavoriteHotstring := StrReplace(saFavorite[21], g_strEscapePipe, "|") ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
-			this.AA.strFavoriteFolderLiveSort := saFavorite[22] ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
-			this.AA.strFavoriteSoundLocation := StrReplace(saFavorite[23], g_strEscapePipe, "|") ; path and file of sound to play when launching the favorite
-			this.AA.strFavoriteDateCreated := saFavorite[24] ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
-			this.AA.strFavoriteDateModified := saFavorite[25] ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
-			this.AA.strFavoriteUsageDb := saFavorite[26] ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
+				this.InsertItemValue("strFavoriteLocation", StrReplace(saFavorite[3], g_strEscapePipe, "|")) ; path, URL or menu path (without "Main") for this menu item
+			this.InsertItemValue("strFavoriteIconResource", saFavorite[4]) ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
+			this.InsertItemValue("strFavoriteArguments", StrReplace(saFavorite[5], g_strEscapePipe, "|")) ; application arguments
+			this.InsertItemValue("strFavoriteAppWorkingDir", saFavorite[6]) ; application working directory
+			this.InsertItemValue("strFavoriteWindowPosition", saFavorite[7]) ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
+			this.InsertItemValue("strFavoriteLaunchWith", saFavorite[8]) ; launch favorite with this executable, or various options for type Application and Snippet
+			this.InsertItemValue("strFavoriteLoginName", StrReplace(saFavorite[9], g_strEscapePipe, "|")) ; login name for FTP favorite
+			this.InsertItemValue("strFavoritePassword", StrReplace(saFavorite[10], g_strEscapePipe, "|")) ; password for FTP favorite
+			this.InsertItemValue("strFavoriteGroupSettings", saFavorite[11]) ; coma separated values for group restore settings or external menu starting line
+			this.InsertItemValue("strFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
+			this.InsertItemValue("strFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
+			this.InsertItemValue("strFavoriteDisabled", saFavorite[14]) ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
+			this.InsertItemValue("strFavoriteFolderLiveLevels", saFavorite[15]) ; number of subfolders to include in submenu(s), 0 if not a live folder
+			this.InsertItemValue("strFavoriteFolderLiveDocuments", saFavorite[16]) ; also include documents in live folder
+			this.InsertItemValue("strFavoriteFolderLiveColumns", saFavorite[17]) ; number of items per columns in live folder menus
+			this.InsertItemValue("strFavoriteFolderLiveIncludeExclude", saFavorite[18]) ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
+			this.InsertItemValue("strFavoriteFolderLiveExtensions", saFavorite[19]) ; extensions of files to include or exclude in live folder
+			this.InsertItemValue("strFavoriteShortcut", saFavorite[20]) ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
+			this.InsertItemValue("strFavoriteHotstring", StrReplace(saFavorite[21], g_strEscapePipe, "|")) ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
+			this.InsertItemValue("strFavoriteFolderLiveSort", saFavorite[22]) ; two chars: sort order A or D and sort criteria 1 file name, 2 extension, 3 size or 4 modified date
+			this.InsertItemValue("strFavoriteSoundLocation", StrReplace(saFavorite[23], g_strEscapePipe, "|")) ; path and file of sound to play when launching the favorite
+			this.InsertItemValue("strFavoriteDateCreated", saFavorite[24]) ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+			this.InsertItemValue("strFavoriteDateModified", saFavorite[25]) ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
+			this.InsertItemValue("strFavoriteUsageDb", saFavorite[26]) ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
 
 			if (!StrLen(this.AA.strFavoriteIconResource) or this.AA.strFavoriteIconResource = "iconUnknown")
 			; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 				this.AA.strFavoriteIconResource := GetDefaultIcon4Type(this, this.AA.strFavoriteLocation)
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		InsertItemValue(strValueName, strValue)
+		{
+			if StrLen(strValue) ; avoid creating empty values polluting the debugging tools
+				this.AA[strValueName] := strValue
 		}
 		;---------------------------------------------------------
 		
