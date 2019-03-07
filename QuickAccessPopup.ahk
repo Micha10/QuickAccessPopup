@@ -3234,6 +3234,7 @@ global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 ; Init language variables (must be after g_strCurrentBranch init)
 global g_strEscapeReplacement := "!r4nd0mt3xt!"
 global o_L = new Language
+o_Settings.InitOptionsGroupsLabels() ; init options groups labels after language is initialized
 
 ;---------------------------------
 ; Init class for JLicons
@@ -7018,168 +7019,168 @@ g_intGui1WinID := WinExist("A")
 
 Gosub, GuiOptionsHeader
 
-if (g_strSettingsGroup = "General")
-{
+; if (g_strSettingsGroup = "General")
+; {
 	; RunAtStartup
-	Gui, 2:Add, CheckBox, y+15 x120 vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged, % o_L["OptionsRunAtStartup"]
+	Gui, 2:Add, CheckBox, y%intGroupItemsY% x%intGroupItemsX% vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRunAtStartup"]
 	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
 
 	; LanguageCode
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsLanguage"]
-	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpLanguage Sort gGuiOptionsGroupChanged, % o_L["OptionsLanguageLabels"]
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w105 hidden, % o_L["OptionsLanguage"]
+	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpLanguage Sort gGuiOptionsGroupChanged hidden, % o_L["OptionsLanguageLabels"]
 	GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
 	; Theme
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsTheme"]
-	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpTheme gGuiOptionsGroupChanged, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w105 hidden, % o_L["OptionsTheme"]
+	Gui, 2:Add, DropDownList, yp x+5 w200 vf_drpTheme gGuiOptionsGroupChanged hidden, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
 	GuiControl, ChooseString, f_drpTheme, % o_Settings.Launch.strTheme.IniValue
 
 	; DisplayTrayTip
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnDisplayTrayTip gGuiOptionsGroupChanged, % o_L["OptionsTrayTip"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnDisplayTrayTip gGuiOptionsGroupChanged hidden, % o_L["OptionsTrayTip"]
 	GuiControl, , f_blnDisplayTrayTip, % (o_Settings.Launch.blnDisplayTrayTip.IniValue = true)
 
 	; Check4Update
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnCheck4Update gGuiOptionsGroupChanged, % o_L["OptionsCheck4Update"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnCheck4Update gGuiOptionsGroupChanged hidden, % o_L["OptionsCheck4Update"]
 	GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue = true)
-	Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
+	Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow hidden, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 	; ChangeFolderInDialog
-	Gui, 2:Add, CheckBox, y+10 x120 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked, % o_L["OptionsChangeFolderInDialog"]
+	Gui, 2:Add, CheckBox, y+10 x120 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
 	GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 	; QAPTempFolder
-	Gui, 2:Add, Text, y+15 x10 w105, % o_L["OptionsQAPTempFolder"] . ":"
-	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strQAPTempFolderParentPath
-	Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Text, y+15 x%intGroupItemsX% w105 hidden, % o_L["OptionsQAPTempFolder"] . ":"
+	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strQAPTempFolderParentPath hidden
+	Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath hidden, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
 	GuiControl, 2:+gGuiOptionsGroupChanged, f_strQAPTempFolderParentPath
 
 	; BackupFolder
-	Gui, 2:Add, Text, y+10 x10 w105, % o_L["OptionsBackupFolder"] . ":"
-	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strBackupFolder
-	Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w105 hidden, % o_L["OptionsBackupFolder"] . ":"
+	Gui, 2:Add, Edit, yp x120 w300 h20 vf_strBackupFolder hidden
+	Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder hidden, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 	GuiControl, 2:+gGuiOptionsGroupChanged, f_strBackupFolder
-}
-else if (g_strSettingsGroup = "SettingsWindow")
-{
+; }
+; else if (g_strSettingsGroup = "SettingsWindow")
+; {
 	; RememberSettingsPosition
-	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged, % o_L["OptionsRememberSettingsPosition"]
+	Gui, 2:Add, CheckBox, y%intGroupItemsY% x%intGroupItemsX% w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged hidden, % o_L["OptionsRememberSettingsPosition"]
 	GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 	; OpenSettingsOnActiveMonitor
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnOpenSettingsOnActiveMonitor gGuiOptionsGroupChanged, % o_L["OptionsOpenSettingsOnActiveMonitor"]
+	Gui, 2:Add, CheckBox, y+10 x%intGroupItemsX% w500 vf_blnOpenSettingsOnActiveMonitor gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenSettingsOnActiveMonitor"]
 	GuiControl, , f_blnOpenSettingsOnActiveMonitor, % (o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue = true)
 
 	; AddAutoAtTop
-	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsAddAutoAtTop"]
-	Gui, 2:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop0 Group gGuiOptionsGroupChanged " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
-	Gui, 2:Add, Radio, % "y+5 x10 w500 vf_blnAddAutoAtTop1 gGuiOptionsGroupChanged " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
-}
-else if (g_strSettingsGroup = "MenuIcons")
-{
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w500 hidden, % o_L["OptionsAddAutoAtTop"]
+	Gui, 2:Add, Radio, % "y+5 x%intGroupItemsX% w500 vf_blnAddAutoAtTop0 Group gGuiOptionsGroupChanged hidden " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
+	Gui, 2:Add, Radio, % "y+5 x%intGroupItemsX% w500 vf_blnAddAutoAtTop1 gGuiOptionsGroupChanged hidden " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
+; }
+; else if (g_strSettingsGroup = "MenuIcons")
+; {
 	; DisplayIcons
-	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnDisplayIcons gDisplayIconsClicked, % o_L["OptionsDisplayIcons"]
+	Gui, 2:Add, CheckBox, y%intGroupItemsY% x%intGroupItemsX% w500 vf_blnDisplayIcons gDisplayIconsClicked hidden, % o_L["OptionsDisplayIcons"]
 	GuiControl, , f_blnDisplayIcons, % (o_Settings.MenuIcons.blnDisplayIcons.IniValue = true)
 
 	; IconSize
-	Gui, 2:Add, Text, y+10 x10 vf_drpIconSizeLabel Disabled, % o_L["OptionsIconSize"]
-	Gui, 2:Add, DropDownList, yp x+10 w75 vf_drpIconSize Sort Disabled, 16|24|32|48|64
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% vf_drpIconSizeLabel Disabled hidden, % o_L["OptionsIconSize"]
+	Gui, 2:Add, DropDownList, yp x+10 w75 vf_drpIconSize Sort Disabled hidden, 16|24|32|48|64
 	GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniValue
 	GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 	gosub, DisplayIconsClickedInit
 
 	; IconsManageRows
-	Gui, 2:Add, Edit, % "y+10 x10 w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
-	Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
-	Gui, 2:Add, Text, % "yp x+10 w400 vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), % o_L["OptionsIconsManageRows"]
+	Gui, 2:Add, Edit, % "y+10 x%intGroupItemsX% w51 h22 vf_intIconsManageRowsSettingsEdit number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
+	Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
+	Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), % o_L["OptionsIconsManageRows"]
 
 	; strIconReplacementList
-	Gui, 2:Add, Link, y+25 x10 w500, % o_L["OptionsIconReplacementList"] . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . o_L["GuiHelp"] . "</a>):"
-	Gui, 2:Add, Edit, y+10 x10 w500 r5 vf_strIconReplacementList gGuiOptionsGroupChanged, % (StrLen(o_Settings.MenuIcons.strIconReplacementList.IniValue)
+	Gui, 2:Add, Link, y+25 x%intGroupItemsX% w500 hidden, % o_L["OptionsIconReplacementList"] . " (<a href=""https://www.quickaccesspopup.com/can-i-replace-the-qap-standard-icons-with-my-own-custom-icons/"">" . o_L["GuiHelp"] . "</a>):"
+	Gui, 2:Add, Edit, y+10 x%intGroupItemsX% w500 r5 vf_strIconReplacementList gGuiOptionsGroupChanged hidden, % (StrLen(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 		? StrReplace(Trim(o_Settings.MenuIcons.strIconReplacementList.IniValue), "|", "`n") : "iconUnknown=" . o_JLicons.AA["iconUnknown"])
-	Gui, 2:Add, Link, x10 y+10 w500, % o_L["OptionsIconReplacementListInstructions"]
-}
-else if (g_strSettingsGroup = "MenuAppearance")
-{
-	Gui, 2:Add, Text, y+15 x10 w590 center, % o_L["OptionsTabMenuOptionsIntro"]
+	Gui, 2:Add, Link, x%intGroupItemsX% y+10 w500 hidden, % o_L["OptionsIconReplacementListInstructions"]
+; }
+; else if (g_strSettingsGroup = "MenuAppearance")
+; {
+	Gui, 2:Add, Text, y%intGroupItemsY% x%intGroupItemsX% w590 center hidden, % o_L["OptionsTabMenuOptionsIntro"]
 	
 	; HotkeyReminders
-	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsHotkeyRemindersPrompt"]
-	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders1 Group gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 1 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersNo"]
-	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders2 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersShort"]
-	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radHotkeyReminders3 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 3 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersFull"]
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w500 hidden, % o_L["OptionsHotkeyRemindersPrompt"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 hidden vf_radHotkeyReminders1 Group gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 1 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersNo"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 hidden vf_radHotkeyReminders2 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 2 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersShort"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 hidden vf_radHotkeyReminders3 gHotkeyRemindersClicked " . (o_Settings.Menu.intHotkeyReminders.IniValue = 3 ? "Checked" : ""), % o_L["OptionsHotkeyRemindersFull"]
 
 	; HotkeyRemindersRightAlign
-	Gui, 2:Add, CheckBox, y+10 x28 w500 vf_blnHotkeyRemindersRightAlign gGuiOptionsGroupChanged, % o_L["HotkeyRemindersRightAlign"]
+	Gui, 2:Add, CheckBox, y+10 x28 w500 hidden vf_blnHotkeyRemindersRightAlign gGuiOptionsGroupChanged, % o_L["HotkeyRemindersRightAlign"]
 	GuiControl, , f_blnHotkeyRemindersRightAlign, % (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue = true)
 
 	; DisplayMenuShortcuts
-	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked, % o_L["OptionsDisplayMenuShortcuts"]
+	Gui, 2:Add, CheckBox, y+15 x%intGroupItemsX% w500 vf_blnDisplayNumericShortcuts gDisplayMenuShortcutsClicked hidden, % o_L["OptionsDisplayMenuShortcuts"]
 	GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 	; DisplayMenuShortcutsFromOne
-	Gui, 2:Add, CheckBox, y+10 x28 w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged, % o_L["OptionsDisplayMenuShortcutsFromOne"]
+	Gui, 2:Add, CheckBox, y+10 x28 w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged hidden, % o_L["OptionsDisplayMenuShortcutsFromOne"]
 	GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
 	gosub, DisplayMenuShortcutsClickedInit
 
 	; RecentFoldersMax
-	Gui, 2:Add, Text, y+10 x10 w500, % o_L["OptionsRecentFoldersPrompt"]
-	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center ; %g_intRecentFoldersMax%
-	Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999 gGuiOptionsGroupChanged, % o_Settings.Menu.intRecentFoldersMax.IniValue
-	Gui, 2:Add, Text, yp x+10 w235, % o_L["OptionsRecentFolders"]
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w500 hidden, % o_L["OptionsRecentFoldersPrompt"]
+	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intRecentFoldersMaxEdit number center hidden ; %g_intRecentFoldersMax%
+	Gui, 2:Add, UpDown, vf_intRecentFoldersMax Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.Menu.intRecentFoldersMax.IniValue
+	Gui, 2:Add, Text, yp x+10 w235 hidden, % o_L["OptionsRecentFolders"]
 
 	; NbLastActions
-	Gui, 2:Add, Text, y+10 x10 w500, % o_L["MenuLastActions"]
-	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center ; %g_intNbLastActions%
-	Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999 gGuiOptionsGroupChanged, % o_Settings.Menu.intNbLastActions.IniValue
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% w500 hidden, % o_L["MenuLastActions"]
+	Gui, 2:Add, Edit, y+5 xs w51 h22 vf_intNbLastActionsMaxEdit number center hidden ; %g_intNbLastActions%
+	Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.Menu.intNbLastActions.IniValue
 	strOptionsLastActions := StrReplace(o_L["OptionsRecentFolders"], "&") ; remove ampersand
-	Gui, 2:Add, Text, yp x+10 w235, %strOptionsLastActions%
+	Gui, 2:Add, Text, yp x+10 w235 hidden, %strOptionsLastActions%
 	strOptionsLastActions := ""
 
 	; AddCloseToDynamicMenus
-	Gui, 2:Add, CheckBox, y+25 x10 w500 vf_blnAddCloseToDynamicMenus gGuiOptionsGroupChanged, % o_L["OptionsAddCloseToDynamicMenus"]
+	Gui, 2:Add, CheckBox, y+25 x%intGroupItemsX% w500 vf_blnAddCloseToDynamicMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsAddCloseToDynamicMenus"]
 	GuiControl, , f_blnAddCloseToDynamicMenus, % (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue = true)
-}
-else if (g_strSettingsGroup = "PopupMenu")
-{
+; }
+; else if (g_strSettingsGroup = "PopupMenu")
+; {
 	; PopupMenuPosition
-	Gui, 2:Add, Text, y+15 x10 w500 Section, % o_L["OptionsMenuPositionPrompt"]
+	Gui, 2:Add, Text, y%intGroupItemsY% x%intGroupItemsX% w500 Section hidden, % o_L["OptionsMenuPositionPrompt"]
 
-	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1 ? "Checked" : ""), % o_L["OptionsMenuNearMouse"]
-	Gui, 2:Add, Radio, % "y+5 xs w500 vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Checked" : ""), % o_L["OptionsMenuActiveWindow"]
-	Gui, 2:Add, Radio, % "y+5 xs vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "Checked" : ""), % o_L["OptionsMenuFixPosition"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 hidden vf_radPopupMenuPosition1 gPopupMenuPositionClicked Group " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 1 ? "Checked" : ""), % o_L["OptionsMenuNearMouse"]
+	Gui, 2:Add, Radio, % "y+5 xs w500 hidden vf_radPopupMenuPosition2 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Checked" : ""), % o_L["OptionsMenuActiveWindow"]
+	Gui, 2:Add, Radio, % "y+5 xs hidden vf_radPopupMenuPosition3 gPopupMenuPositionClicked " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "Checked" : ""), % o_L["OptionsMenuFixPosition"]
 
-	Gui, 2:Add, Text, % "yp x+10 vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
-	Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-	Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999 gGuiOptionsGroupChanged, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
-	Gui, 2:Add, Text, % "yp x+5 vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
-	Gui, 2:Add, Edit, % "yp x+5 w51 h22 vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
-	Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999 gGuiOptionsGroupChanged, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
+	Gui, 2:Add, Text, % "yp x+10 hidden vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
+	Gui, 2:Add, Edit, % "yp x+5 w51 h2 hidden2 vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+	Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
+	Gui, 2:Add, Text, % "yp x+5 hidden vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
+	Gui, 2:Add, Edit, % "yp x+5 w51 h22 hidden vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+	Gui, 2:Add, UpDown, vf_intPopupFixPositionY Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[2]
+
+	; RefreshedMenusAttached
+	Gui, 2:Add, CheckBox, y+15 x%intGroupItemsX% w500 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked hidden, % o_L["OptionsRefreshedMenusAttached"]
+	GuiControl, , f_blnRefreshedMenusAttached, % (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue = true) ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
 
 	; ExplorerContextMenus
 	if !(g_blnPortableMode)
 	{
-		Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnExplorerContextMenus gGuiOptionsGroupChanged, % o_L["OptionsExplorerContextMenus"]
+		Gui, 2:Add, CheckBox, y+15 x%intGroupItemsX% w500 vf_blnExplorerContextMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsExplorerContextMenus"]
 		GuiControl, , f_blnExplorerContextMenus, % (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue = true)
 	}
 
-	; RefreshedMenusAttached
-	Gui, 2:Add, CheckBox, y+15 x10 w500 vf_blnRefreshedMenusAttached gRefreshedMenusAttachedClicked, % o_L["OptionsRefreshedMenusAttached"]
-	GuiControl, , f_blnRefreshedMenusAttached, % (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue = true) ; IniValue created in AddAttachedOrDetachedQAPFeatureObject
-
 	; ExclusionMouseList
 	strUrl := "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
-	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
+	Gui, 2:Add, Link, y+15 x%intGroupItemsX% w500 hidden, % L(o_L["OptionsExclusionMouseListDescription"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
 			. " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Edit, y+5  x10 w500 r5 vf_strExclusionMouseList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
-	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
-	Gui, 2:Add, Link, y+10 x10 w495, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.SA[1].strPopupHotkeyText, strUrl)
-	Gui, 2:Add, Button, y+10 x10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
-	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
-}
-else if (g_strSettingsGroup = "PopupHotkeys")
-{
+	Gui, 2:Add, Edit, y+5  x%intGroupItemsX% w500 r5 vf_strExclusionMouseList gGuiOptionsGroupChanged hidden, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
+	Gui, 2:Add, Link, y+10 x%intGroupItemsX% w495 hidden, % L(o_L["OptionsExclusionMouseListDetail1"], o_PopupHotkeys.SA[1].strPopupHotkeyText)
+	Gui, 2:Add, Link, y+10 x%intGroupItemsX% w495 hidden, % L(o_L["OptionsExclusionMouseListDetail2"], o_PopupHotkeys.SA[1].strPopupHotkeyText, strUrl)
+	Gui, 2:Add, Button, y+10 x%intGroupItemsX% vf_btnGetWinInfoMouseExclusions gGetWinInfo hidden, % o_L["MenuGetWinInfo"]
+	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfoMouseExclusions")
+; }
+; else if (g_strSettingsGroup = "PopupHotkeys")
+; {
 	; NavigateOrLaunchHotkeyMouse
 	; NavigateOrLaunchHotkeyKeyboard
 	; AlternativeHotkeyMouse
@@ -7187,30 +7188,30 @@ else if (g_strSettingsGroup = "PopupHotkeys")
 	
 	o_PopupHotkeys.BackupPopupHotkeys()
 
-	Gui, 2:Add, Text, y+15 x10 w590 center, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
+	Gui, 2:Add, Text, y%intGroupItemsY% x%intGroupItemsX% w590 center hidden, % L(o_L["OptionsTabMouseAndKeyboardIntro"], g_strAppNameText)
 	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA ; could also use o_Settings class objects
 	{
 		Gui, 2:Font, s8 w700
-		Gui, 2:Add, Text, x10 y+20 w610, % objThisPopupHotkey.strPopupHotkeyLocalizedName
+		Gui, 2:Add, Text, x%intGroupItemsX% y+20 w610 hidden, % objThisPopupHotkey.strPopupHotkeyLocalizedName
 		Gui, 2:Font, s9 w500, Courier New
-		Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex%, % objThisPopupHotkey.strPopupHotkeyTextShort
+		Gui, 2:Add, Text, Section x260 y+5 w280 h23 center 0x1000 vf_lblHotkeyText%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % objThisPopupHotkey.strPopupHotkeyTextShort
 		Gui, 2:Font
-		Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex%, % o_L["OptionsChangeHotkey"]
+		Gui, 2:Add, Button, yp x555 vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % o_L["OptionsChangeHotkey"]
 		Gui, 2:Font, s8 w500
-		Gui, 2:Add, Link, x10 ys w240 gOptionsTitlesDescriptionClicked, % objThisPopupHotkey.strPopupHotkeyLocalizedDescription
+		Gui, 2:Add, Link, x%intGroupItemsX% ys w240 gOptionsTitlesDescriptionClicked hidden, % objThisPopupHotkey.strPopupHotkeyLocalizedDescription
 	}
 	
-	Gui, 2:Add, Text, y+15 x10, % o_L["OptionsControlDoublePressed"] . ":"
-	Gui, 2:Add, CheckBox, y+5 x10 vf_blnLeftControlDoublePressed gGuiOptionsGroupChanged, % o_L["OptionsControlDoublePressedLeft"]
-	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed gGuiOptionsGroupChanged, % o_L["OptionsControlDoublePressedRight"]
+	Gui, 2:Add, Text, y+15 x%intGroupItemsX% hidden, % o_L["OptionsControlDoublePressed"] . ":"
+	Gui, 2:Add, CheckBox, y+5 x%intGroupItemsX% vf_blnLeftControlDoublePressed gGuiOptionsGroupChanged hidden, % o_L["OptionsControlDoublePressedLeft"]
+	Gui, 2:Add, CheckBox, yp x+5 vf_blnRightControlDoublePressed gGuiOptionsGroupChanged hidden, % o_L["OptionsControlDoublePressedRight"]
 	GuiControl, , f_blnLeftControlDoublePressed, % (o_Settings.MenuPopup.blnLeftControlDoublePressed.IniValue = true)
 	GuiControl, , f_blnRightControlDoublePressed, % (o_Settings.MenuPopup.blnRightControlDoublePressed.IniValue = true)
 	
 	intThisIndex := ""
 	objThisPopupHotkey := ""
-}
-else if (g_strSettingsGroup = "PopupHotkeysAlternative")
-{
+; }
+; else if (g_strSettingsGroup = "PopupHotkeysAlternative")
+; {
 	; {Alternative Menu QAP Feature Codes}
 	o_QAPfeatures.aaQAPFeaturesNewShortcuts := Object() ; re-init
 	for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
@@ -7218,53 +7219,52 @@ else if (g_strSettingsGroup = "PopupHotkeysAlternative")
 			; o_QAPfeatures.aaQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.AA will be used to turn off previous hotkeys
 			o_QAPfeatures.aaQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey
 			
-	Gui, 2:Add, Text, y+15 x10 w590 center, % o_L["OptionsAlternativeMenuFeaturesIntro"]
+	Gui, 2:Add, Text, y%intGroupItemsY% x%intGroupItemsX% w590 center hidden, % o_L["OptionsAlternativeMenuFeaturesIntro"]
 
 	for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 	{
 		Gui, 2:Font, s8 w700
-		Gui, 2:Add, Text, x15 y+10 w240, % o_QAPfeatures.AA[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
+		Gui, 2:Add, Text, x15 y+10 w240 hidden, % o_QAPfeatures.AA[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
 		Gui, 2:Font, s9 w500, Courier New
-		Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey
+		Gui, 2:Add, Text, Section x260 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey hidden
 			, % new Triggers.HotkeyParts(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
 		Gui, 2:Font
-		Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey, % o_L["OptionsChangeHotkey"]
+		Gui, 2:Add, Button, yp x555 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey hidden, % o_L["OptionsChangeHotkey"]
 	}
 	
 	; AlternativeMenuShowNotification
-	Gui, 2:Add, CheckBox, y+15 x10 vf_blnAlternativeMenuShowNotification gGuiOptionsGroupChanged, % o_L["OptionsAlternativeMenuShowNotification"]
+	Gui, 2:Add, CheckBox, y+15 x%intGroupItemsX% vf_blnAlternativeMenuShowNotification gGuiOptionsGroupChanged hidden, % o_L["OptionsAlternativeMenuShowNotification"]
 	GuiControl, , f_blnAlternativeMenuShowNotification, % (o_Settings.MenuPopup.blnAlternativeMenuShowNotification.IniValue = true)
-
-}
-else if (g_strSettingsGroup = "FileManagers")
-{
-	Gui, 2:Add, Text, x1 y+15 w590 center, % o_L["OptionsTabFileManagersIntro"]
+; }
+; else if (g_strSettingsGroup = "FileManagers")
+; {
+	Gui, 2:Add, Text, x1 y%intGroupItemsY% w590 center hidden, % o_L["OptionsTabFileManagersIntro"]
 
 	; --- column 2 ---
 	; FileManagerAlwaysNavigate
 	Gui, Font, w600
-	Gui, 2:Add, Text, x250 y+15 w300 Section, % o_L["OptionsTabFileManagersPreferences"]
+	Gui, 2:Add, Text, x250 y+15 w300 Section hidden, % o_L["OptionsTabFileManagersPreferences"]
 	Gui, Font
-	Gui, 2:Add, Text, y+10 x250 w300 vf_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName)
-	Gui, 2:Add, Radio, % "y+10 x255 w250 vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
-	Gui, 2:Add, Radio, % "y+5 x255 w250 vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+	Gui, 2:Add, Text, y+10 x250 w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName)
+	Gui, 2:Add, Radio, % "y+10 x255 w250 hidden vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+	Gui, 2:Add, Radio, % "y+5 x255 w250 hidden vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
 	; --- column 1 ---
 	; ActiveFileManager
 	Gui, Font, w600
-	Gui, 2:Add, Text, ys x10 w230 Section, % o_L["OptionsTabFileManagersPreferred"]
+	Gui, 2:Add, Text, ys x%intGroupItemsX% w230 Section hidden, % o_L["OptionsTabFileManagersPreferred"]
 	Gui, Font
 	loop, % o_FileManagers.SA.Length()
-		Gui, 2:Add, Radio, % "y+10 x15 gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
+		Gui, 2:Add, Radio, % "y+10 x15 hidden gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
 
 	; --- bottom ---
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp ; hidden
+	Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp hidden
 	Gui, 2:Font
 	Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
 	
 	; Windows Explorer OpenFavoritesOnActiveMonitor
-	Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
+	Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
 	GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor = true)
 	
 	; DirectoryOpusPath
@@ -7299,135 +7299,135 @@ else if (g_strSettingsGroup = "FileManagers")
 
 	Gosub, ActiveFileManagerClickedInit ; will call FileManagerNavigateClickedInit
 	GuiControl, 2:+gGuiOptionsGroupChanged, f_strFileManagerPath ; must be after ActiveFileManagerClickedInit
-}
-else if (g_strSettingsGroup = "Snippets")
-{
-	Gui, 2:Add, Link, y+15 x10 w500, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
+; }
+; else if (g_strSettingsGroup = "Snippets")
+; {
+	Gui, 2:Add, Link, y%intGroupItemsY% x%intGroupItemsX% w500 hidden, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
 
 	; SnippetDefaultProcessEOLTab
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultProcessEOLTab gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetProcessEOLTab"]
+	Gui, 2:Add, CheckBox, y+10 x%intGroupItemsX% w500 vf_blnSnippetDefaultProcessEOLTab gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetProcessEOLTab"]
 	GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
 
 	; SnippetDefaultFixedFont
-	Gui, 2:Add, CheckBox, y+10 x10 w500 vf_blnSnippetDefaultFixedFont gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetFixedFont"]
+	Gui, 2:Add, CheckBox, y+10 x%intGroupItemsX% w500 vf_blnSnippetDefaultFixedFont gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetFixedFont"]
 	GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
 
 	; SnippetDefaultFontSize
-	Gui, 2:Add, Text, y+10 x10, % o_L["DialogFavoriteSnippetFontSize"]
-	Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize, % o_L["DialogFavoriteSnippetFontSize"]
-	Gui, 2:Add, UpDown, Range6-18 h20 gGuiOptionsGroupChanged, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
+	Gui, 2:Add, Text, y+10 x%intGroupItemsX% hidden, % o_L["DialogFavoriteSnippetFontSize"]
+	Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize hidden, % o_L["DialogFavoriteSnippetFontSize"]
+	Gui, 2:Add, UpDown, Range6-18 h20 gGuiOptionsGroupChanged hidden, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 
 	; SnippetDefaultMacro
-	Gui, 2:Add, CheckBox, y+10 x10 w300 vf_blnSnippetDefaultMacro gGuiOptionsGroupChanged, % o_L["DialogFavoriteSnippetSendModeMacro"]
+	Gui, 2:Add, CheckBox, y+10 x%intGroupItemsX% w300 vf_blnSnippetDefaultMacro gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetSendModeMacro"]
 	GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
-}
-else if (g_strSettingsGroup = "UserVariables")
-{
+; }
+; else if (g_strSettingsGroup = "UserVariables")
+; {
 	; UserVariablesList
-	Gui, 2:Add, Link, x10 y+15 w600, % o_L["OptionsUserVariablesList"]
+	Gui, 2:Add, Link, x%intGroupItemsX% y%intGroupItemsY% w600 hidden, % o_L["OptionsUserVariablesList"]
 		. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Link, x10 y+10 w600, % o_L["OptionsUserVariablesListInstructions"]
-	Gui, 2:Add, Edit, x10 y+10 w600 r5 vf_strUserVariablesList gGuiOptionsGroupChanged
+	Gui, 2:Add, Link, x%intGroupItemsX% y+10 w600 hidden, % o_L["OptionsUserVariablesListInstructions"]
+	Gui, 2:Add, Edit, x%intGroupItemsX% y+10 w600 hidden r5 vf_strUserVariablesList gGuiOptionsGroupChanged
 		, % (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
 		? StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n") : "{MyVariable}=MyContent")
-}
-else if (g_strSettingsGroup = "Database")
-{
+; }
+; else if (g_strSettingsGroup = "Database")
+; {
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x10 y+15 w600, % L(o_L["OptionsUsageDb"], g_strAppNameText)
+	Gui, 2:Add, Text, x%intGroupItemsX% y%intGroupItemsY% w600 hidden, % L(o_L["OptionsUsageDb"], g_strAppNameText)
 	Gui, 2:Font
 	
-	Gui, 2:Add, Text, x10 y+10 w600, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
+	Gui, 2:Add, Text, x%intGroupItemsX% y+10 w600 hidden, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
 	
-	Gui, 2:Add, CheckBox, x10 y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked, % L(o_L["OptionsUsageDbEnable"], g_strAppNameText)
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked hidden, % L(o_L["OptionsUsageDbEnable"], g_strAppNameText)
 	GuiControl, , f_blnOptionUsageDbEnable, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
 	
 	; UsageDbIntervalSeconds
-	Gui, 2:Add, Text, x10 y+10 vf_lblUsageDbIntervalSeconds, % o_L["OptionsUsageDbIntervalSeconds"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbIntervalSecondsEdit
-	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds gGuiOptionsGroupChanged, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+	Gui, 2:Add, Text, x%intGroupItemsX% y+10 vf_lblUsageDbIntervalSeconds hidden, % o_L["OptionsUsageDbIntervalSeconds"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbIntervalSecondsEdit hidden
+	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
 	
 	; UsageDbDaysInPopular
-	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbDaysInPopular, % o_L["OptionsUsageDbDaysInPopular"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbDaysInPopularEdit
-	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular gGuiOptionsGroupChanged, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
+	Gui, 2:Add, Text, x%intGroupItemsX% y+5 vf_lblUsageDbDaysInPopular hidden, % o_L["OptionsUsageDbDaysInPopular"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbDaysInPopularEdit hidden
+	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
 	
 	; UsageDbMaximumSize
-	Gui, 2:Add, Text, x10 y+5 vf_lblUsageDbMaximumSize, % o_L["OptionsUsageDbMaximumSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize gGuiOptionsGroupChanged, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
+	Gui, 2:Add, Text, x%intGroupItemsX% y+5 vf_lblUsageDbMaximumSize hidden, % o_L["OptionsUsageDbMaximumSize"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize gGuiOptionsGroupChanged hidden, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
 
 	; UsageDbShowPopularityIndex
-	Gui, 2:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndex gGuiOptionsGroupChanged, % o_L["OptionsUsageDbShowPopularityIndex"]
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y+5 vf_blnUsageDbShowPopularityIndex gGuiOptionsGroupChanged hidden, % o_L["OptionsUsageDbShowPopularityIndex"]
 	GuiControl, , f_blnUsageDbShowPopularityIndex, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue = true
 	
-	Gui, 2:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, % o_L["OptionsUsageDbFlushDatabase"]
+	Gui, 2:Add, Button, x%intGroupItemsX% y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked hidden, % o_L["OptionsUsageDbFlushDatabase"]
 
 	Gosub, OptionUsageDbEnableClickedInit
-}
-else if (g_strSettingsGroup = "MenuAdvanced")
-{
+; }
+; else if (g_strSettingsGroup = "MenuAdvanced")
+; {
 	; OpenMenuOnTaskbar
-	Gui, 2:Add, CheckBox, x10 y+15 vf_blnOpenMenuOnTaskbar gGuiOptionsGroupChanged, % o_L["OptionsOpenMenuOnTaskbar"]
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y%intGroupItemsY% vf_blnOpenMenuOnTaskbar gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenMenuOnTaskbar"]
 	GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
 
 	; RefreshQAPMenuIntervalSec
-	Gui, 2:Add, Checkbox, x10 y+15 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, % o_L["OptionsRefreshQAPMenuTitle"]
+	Gui, 2:Add, Checkbox, x%intGroupItemsX% y+15 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked hidden, % o_L["OptionsRefreshQAPMenuTitle"]
 	GuiControl, , f_blnRefreshQAPMenuEnable, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
-	Gui, 2:Add, Edit, x10 y+5 w60 h22 vf_intRefreshQAPMenuIntervalSecEdit center disabled
-	Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiOptionsGroupChanged
+	Gui, 2:Add, Edit, x%intGroupItemsX% y+5 w60 h22 vf_intRefreshQAPMenuIntervalSecEdit center disabled hidden
+	Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiOptionsGroupChanged hidden
 		, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue ? o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue : 300)
-	Gui, 2:Add, Text, yp x+10 vf_blnRefreshQAPMenuDebugBeepLabel Disabled, % o_L["OptionsRefreshQAPMenuIntervalSec"]
+	Gui, 2:Add, Text, yp x+10 vf_blnRefreshQAPMenuDebugBeepLabel Disabled hidden, % o_L["OptionsRefreshQAPMenuIntervalSec"]
 
 	; RefreshQAPMenuDebugBeep
-	Gui, 2:Add, CheckBox, x10 y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged, % o_L["OptionsRefreshQAPMenuDebugBeep"]
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
 	GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
 	gosub, RefreshQAPMenuEnableClickedInit
 
 	; NbLiveFolderItemsMax
-	Gui, 2:Add, Text, x10 y+10 vf_lblNbLiveFolderItemsMax, % o_L["OptionsNbLiveFolderItemsMax"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
+	Gui, 2:Add, Text, x%intGroupItemsX% y+10 vf_lblNbLiveFolderItemsMax hidden, % o_L["OptionsNbLiveFolderItemsMax"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
 
 	; ClipboardMaxSize
-	Gui, 2:Add, Text, x10 y+15 vf_lblClipboardMaxSize, % o_L["OptionsClipboardMaxSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
-}
-else if (g_strSettingsGroup = "AdvancedLaunch")
-{
+	Gui, 2:Add, Text, x%intGroupItemsX% y+15 vf_lblClipboardMaxSize hidden, % o_L["OptionsClipboardMaxSize"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
+; }
+; else if (g_strSettingsGroup = "AdvancedLaunch")
+; {
 	; RunAsAdmin
-	Gui, 2:Add, CheckBox, X10 y+15 vf_blnRunAsAdmin gRunAsAdminClicked, % o_L["OptionsRunAsAdmin"]
-	Gui, 2:Add, Picture, x+1 yp, %g_strTempDir%\uac_logo-16.png
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y%intGroupItemsY% vf_blnRunAsAdmin gRunAsAdminClicked hidden, % o_L["OptionsRunAsAdmin"]
+	Gui, 2:Add, Picture, x+1 yp hidden, %g_strTempDir%\uac_logo-16.png
 	GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
 	; RefreshWindowsAppsListAtStartup
-	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnRefreshWindowsAppsListAtStartup gGuiOptionsGroupChanged, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y+10 w500 vf_blnRefreshWindowsAppsListAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
 	GuiControl, , f_blnRefreshWindowsAppsListAtStartup, % (o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.IniValue = true)
 
 	; AlternativeTrayIcon
-	Gui, 2:Add, Text, x10 y+10 vf_lblAlternativeTrayIcon, % o_L["OptionsAlternativeTrayIcon"] . ":"
-	Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon
-	Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Text, x%intGroupItemsX% y+10 vf_lblAlternativeTrayIcon hidden, % o_L["OptionsAlternativeTrayIcon"] . ":"
+	Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon hidden
+	Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon hidden, % o_L["DialogBrowseButton"]
 	GuiControl, 2:, f_strAlternativeTrayIcon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue
 	GuiControl, 2:+gGuiOptionsGroupChanged, f_strAlternativeTrayIcon
-}
-else if (g_strSettingsGroup = "AdvancedOther")
-{
+; }
+; else if (g_strSettingsGroup = "AdvancedOther")
+; {
 	; WaitDelayInDialogBox
-	Gui, 2:Add, Text, x10 y+15 vf_lblWaitDelayInDialogBox, % o_L["OptionsWaitDelayInDialogBox"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox gGuiOptionsGroupChanged, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
+	Gui, 2:Add, Text, x%intGroupItemsX% y%intGroupItemsY% vf_lblWaitDelayInDialogBox hidden, % o_L["OptionsWaitDelayInDialogBox"]
+	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox gGuiOptionsGroupChanged hidden, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 
 	; SendToConsoleWithAlt
-	Gui, 2:Add, CheckBox, x10 y+10 w500 vf_blnSendToConsoleWithAlt gGuiOptionsGroupChanged, % o_L["OptionsSendToConsoleWithAlt"]
+	Gui, 2:Add, CheckBox, x%intGroupItemsX% y+10 w500 vf_blnSendToConsoleWithAlt gGuiOptionsGroupChanged hidden, % o_L["OptionsSendToConsoleWithAlt"]
 	GuiControl, , f_blnSendToConsoleWithAlt, % (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue = true)
 
 	; ExternalMenusCataloguePath
 	if !(o_Settings.SettingsFile.blnExternalMenusCataloguePathReadOnly.IniValue)
 	{
-		Gui, 2:Add, CheckBox, y+15 x10 vf_blnEnableExternalMenusCatalogue, % o_L["OptionsEnableExternalMenusCatalogue"]
-		Gui, 2:Add, Link, yp x+5, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
+		Gui, 2:Add, CheckBox, y+15 x%intGroupItemsX% vf_blnEnableExternalMenusCatalogue hidden, % o_L["OptionsEnableExternalMenusCatalogue"]
+		Gui, 2:Add, Link, yp x+5 hidden, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
 		GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
-		Gui, 2:Add, Text, y+10 x10 vf_lblExternalMenusCataloguePathPrompt disabled, % o_L["OptionsCataloguePath"] . ":"
-		Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled
-		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled, % o_L["DialogBrowseButton"]
+		Gui, 2:Add, Text, y+10 x%intGroupItemsX% vf_lblExternalMenusCataloguePathPrompt disabled hidden, % o_L["OptionsCataloguePath"] . ":"
+		Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled hidden
+		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled hidden, % o_L["DialogBrowseButton"]
 		GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
 		GuiControl, 2:+gGuiOptionsGroupChanged, f_strExternalMenusCataloguePath
 		Gosub, EnableExternalMenusCatalogueClickedInit ; init disabled fields
@@ -7435,22 +7435,22 @@ else if (g_strSettingsGroup = "AdvancedOther")
 	}
 	
 	; HotstringsDefaultOptions
-	Gui, 2:Add, Text, y+15 x10, % o_L["OptionsHotstringsDefault"]
-	Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions gGuiOptionsGroupChanged, % o_L["OptionsHotstringsDefaultSelect"]
+	Gui, 2:Add, Text, y+15 x%intGroupItemsX% hidden, % o_L["OptionsHotstringsDefault"]
+	Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions gGuiOptionsGroupChanged hidden, % o_L["OptionsHotstringsDefaultSelect"]
 
 	; WaitDelayInSnippet
-	Gui, 2:Add, Text, x10 y+10, % o_L["OptionsWaitDelayInSnippet"]
+	Gui, 2:Add, Text, x%intGroupItemsX% y+10 hidden, % o_L["OptionsWaitDelayInSnippet"]
 	loop, 3
-		Gui, 2:Add, Edit, % "x+5 yp h20 w50 number center gGuiOptionsGroupChanged vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
+		Gui, 2:Add, Edit, % "x+5 yp h20 w50 hidden number center gGuiOptionsGroupChanged vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
 
 	; SwitchExclusionList
 	strUrl := "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/"
-	Gui, 2:Add, Link, y+15 x10 w500, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Edit, y+5 x10 w500 r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
-	Gui, 2:Add, Link, y+5 x10 w495, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
-	Gui, 2:Add, Button, x10 y+10 vf_btnGetWinInfo gGetWinInfo, % o_L["MenuGetWinInfo"]
-	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfo")
-}
+	Gui, 2:Add, Link, y+15 x%intGroupItemsX% w500 hidden, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
+	Gui, 2:Add, Edit, y+5 x%intGroupItemsX% w500 hidden r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
+	Gui, 2:Add, Link, y+5 x%intGroupItemsX% w495 hidden, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
+	Gui, 2:Add, Button, x%intGroupItemsX% y+10 vf_btnGetWinInfoSwitchExclusion gGetWinInfo hidden, % o_L["MenuGetWinInfo"]
+	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfoSwitchExclusion")
+; }
 
 Gosub, GuiOptionsFooter
 
@@ -7851,6 +7851,26 @@ Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Text, x10 y10 w595 center, % L(strSettingsGroupLabel . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
 Gui, 2:Font
 
+intMaxWidth := 0
+for intKey, strGroup in o_Settings.saOptionsGroups
+{
+	Gui, 2:Add, Button, % "x10 y" . (intKey = 1 ? "+15" : "p+22") . " gGuiOptionsGroupButtonClicked vf_btnOptionsGroup" . strGroup , % o_Settings.saOptionsGroupsLabels[intKey]
+	GuiControlGet, arrPos, Pos, % "f_btnOptionsGroup" . strGroup
+	if (intKey = 1)
+		intGroupItemsY := arrPosY
+	if (arrPosW > intMaxWidth) ; get max control width to get X of group items
+		intMaxWidth := arrPosW
+}
+
+for intKey, strGroup in o_Settings.saOptionsGroups
+	GuiControl, Move, % "f_btnOptionsGroup" . strGroup, w%intMaxWidth%
+
+intGroupItemsX := intMaxWidth + 10
+
+strGroup := ""
+ResetArray("arrPos")
+intMaxWidth := ""
+
 return
 ;------------------------------------------------------------
 
@@ -7867,7 +7887,25 @@ GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOpti
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
 
+g_strActiveGroup := "General"
+Gosub, GuiOptionsGroupButtonClicked
 Gosub, ShowGui2AndDisableGui1
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiOptionsGroupButtonClicked:
+;------------------------------------------------------------
+; ###_V(A_ThisLabel, A_GuiControl)
+
+for intKey, objItem in o_Settings.aaGroupItems[g_strActiveGroup]
+{
+	; Gui, 2:Show, objItem
+}
+
+
 
 return
 ;------------------------------------------------------------
@@ -7903,28 +7941,28 @@ Gui, 2:Submit, NoHide
 if !InStr(A_ThisLabel, "Init")
 	Gosub, GuiOptionsGroupChanged
 
-strShowHideCommand := (f_radActiveFileManager1 ? "Show" : "Hide")
+strShowHideCommand := (f_radActiveFileManager1 and g_strActiveGroup = "FileManagers" ? "Show" : "Hide")
 GuiControl, %strShowHideCommand%, f_blnOpenFavoritesOnActiveMonitor
 
-strShowHideCommand := (f_radActiveFileManager1 ? "Hide" : "Show")
+strShowHideCommand := (f_radActiveFileManager1 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_lblFileManagerDetail
 GuiControl, %strShowHideCommand%, f_lblFileManagerPrompt
 ; GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
 
-strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 ? "Hide" : "Show")
+strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
 GuiControl, %strShowHideCommand%, f_btnFileManagerPath
 GuiControl, %strShowHideCommand%, f_strFileManagerPath
 
-strShowHideCommand := (!f_radActiveFileManager2 ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager2 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerDirectoryOpusShowLayouts
 
-strShowHideCommand := (!f_radActiveFileManager3 ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager3 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnTotalCommanderWinCmd
 GuiControl, %strShowHideCommand%, f_lblTotalCommanderWinCmdPrompt
 GuiControl, %strShowHideCommand%, f_strTotalCommanderWinCmd
 
-strShowHideCommand := (!f_radActiveFileManager4 ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager4 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnQAPconnectEdit
 GuiControl, %strShowHideCommand%, f_btnQAPconnectRefresh
 GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
@@ -25103,6 +25141,8 @@ TODO
 	;---------------------------------------------------------
 
 	aaGroupItems := Object()
+	saOptionsGroups := Object()
+	saOptionsGroupsLabels := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -25110,7 +25150,12 @@ TODO
 	{
 		this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
 		this.intIniLine := ""
-
+		
+		this.saOptionsGroups := ["General", "SettingsWindow", "MenuIcons", "MenuAppearance"
+			, "PopupMenu", "PopupHotkeys", "PopupHotkeysAlternative", "FileManagers"
+			, "Snippets", "UserVariables", "Database"
+			, "MenuAdvanced", "AdvancedLaunch", "AdvancedOther"]
+			
 		; Set developement ini file
 ;@Ahk2Exe-IgnoreBegin
 		; Start of code for developement environment only - won't be compiled
@@ -25130,6 +25175,18 @@ TODO
 		; at first launch quickaccesspopup.ini does not exist, read language value in quickaccesspopup-setup.ini (if exist) created by Setup
 		this.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", "15", "Global"
 			, (FileExist(this.strIniFile) ? this.strIniFile : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini"))
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	InitOptionsGroupsLabels()
+	; called after o_L is initialized
+	;---------------------------------------------------------
+	{
+		this.saOptionsGroupsLabels := [o_L["OptionsOtherOptions"], o_L["OptionsSettingsWindow"], o_L["OptionsMenuIcons"], o_L["OptionsMenuAppearance"]
+			, o_L["OptionsPopupMenu"], o_L["OptionsPopupHotkeys"], o_L["OptionsPopupHotkeysAlternative"], o_L["OptionsFileManagers"]
+			, o_L["OptionsSnippets"], o_L["OptionsUserVariables"], o_L["OptionsDatabase"]
+			, o_L["OptionsMenuAdvanced"], o_L["OptionsAdvancedLaunch"], o_L["OptionsAdvancedOther"]]
 	}
 	;---------------------------------------------------------
 
