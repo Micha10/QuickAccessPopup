@@ -6071,7 +6071,7 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	
 	o_TCMenu := new Container("Menu", o_L["TCMenuName"])
-	o_TCMenu.LoadTCFavoritesFromIniFile(g_blnWinCmdIniFileExist) ; RECURSIVE
+	o_TCMenu.LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].strTCIniFileExpanded) ; RECURSIVE
 	
 	RecursiveBuildOneMenu(o_TCMenu) ; recurse for submenus
 	Tooltip
@@ -25476,7 +25476,7 @@ class Container
 			if (saThisFavorite[1] = "Z")
 			; container loaded without error
 			{
-				this.AA[this.AA.strMenuPath] := this
+				o_Containers.AA[this.AA.strMenuPath] := this
 				return "EOM" ; end of menu
 			}
 			else if InStr("Menu|Group|External", saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
@@ -25512,8 +25512,6 @@ class Container
 	}
 	;---------------------------------------------------------
 	
-### remplacer le param par o_FileManagers.SA[3].strTCIniFileExpanded dans l'appel et ici
-### détecter la fin du menu autrement que par --
 	;---------------------------------------------------------
 	LoadTCFavoritesFromIniFile(strIniFile)
 	;---------------------------------------------------------
@@ -25525,17 +25523,13 @@ class Container
 
 		Loop
 		{
-			strWinCmdItemName := o_Settings.ReadIniValue("menu" . intIniLine, "", "DirMenu", o_FileManagers.SA[3].strTCIniFileExpanded)
+			strWinCmdItemName := o_Settings.ReadIniValue("menu" . intIniLine, "", "DirMenu", strIniFile)
 			if (strWinCmdItemName = "ERROR")
-			{
-				Oops("An error occurred while reading the Total Commander Directory hotlist in the ini file.")
-				Return, "EOM" ; end of file, last menu item
-			}
+				Return, "EOM" ; end of DirMenu section (there is no marker for end of DirMenu section)
 				
-			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . intIniLine, " ", "DirMenu", o_FileManagers.SA[3].strTCIniFileExpanded) ; empty by default
+			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . intIniLine, " ", "DirMenu", strIniFile) ; empty by default
 			intIniLine++
 	
-			###_V(A_ThisFunc, intIniLine, strWinCmdItemCommand)
 			if (strWinCmdItemName = "--")
 			{
 				o_Containers.AA[this.AA.strMenuPath] := this
