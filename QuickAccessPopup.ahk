@@ -3401,8 +3401,9 @@ Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
 
-o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "MenuAdvanced", "30") ; g_intRefreshQAPMenuIntervalSec
-o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "MenuAdvanced", "32") ; g_blnRefreshQAPMenuDebugBeep
+o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "MenuAdvanced"
+	, "f_blnRefreshQAPMenuEnable|f_intRefreshQAPMenuIntervalSecEdit|f_intRefreshQAPMenuIntervalSec|f_lblRefreshQAPMenuIntervalSec") ; g_intRefreshQAPMenuIntervalSec
+o_Settings.ReadIniOption("MenuAdvanced", "blnRefreshQAPMenuDebugBeep", "RefreshQAPMenuDebugBeep", 0, "MenuAdvanced", "f_blnRefreshQAPMenuDebugBeep") ; g_blnRefreshQAPMenuDebugBeep
 
 if (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
 	SetTimer, RefreshQAPMenuScheduled, % o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue * 1000
@@ -4141,6 +4142,7 @@ o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "Men
 o_Settings.ReadIniOption("MenuIcons", "intIconSize", "IconSize", 32, "MenuIcons", "f_lblIconSize|f_drpIconSize") ; g_intIconSize
 o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManageRows", 0, "MenuIcons", "f_intIconsManageRowsSettingsEdit|f_intIconsManageRowsSettings|f_lblIconsManageRows") ; g_intIconsManageRowsSettings
 o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "IconReplacementList", " ", "MenuIcons", "f_lnkIconReplacementList1|f_lnkIconReplacementList2|f_strIconReplacementList") ; g_strIconReplacementList
+o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
 ; Group MenuAppearance
 o_Settings.ReadIniOption("Menu", "intHotkeyReminders", "HotkeyReminders", 3, "MenuAppearance", "f_lblHotkeyReminders|f_radHotkeyReminders1|f_radHotkeyReminders2|f_radHotkeyReminders3") ; g_intHotkeyReminders
@@ -4168,7 +4170,46 @@ o_Settings.ReadIniOption("MenuPopup", "blnRightControlDoublePressed", "RightCont
 o_Settings.ReadIniOption("MenuPopup", "blnAlternativeMenuShowNotification", "AlternativeMenuShowNotification", 1, "PopupHotkeysAlternative"
 	, "f_lblAlternativeMenu|f_blnAlternativeMenuShowNotification") ; g_blnAlternativeMenuShowNotification
 
+; Group Filemanagers
+; load ini values when init instance of FileManagers (must be after init of o_JLicons)
+global o_FileManagers := new FileManagers
 
+; Group Snippets
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultProcessEOLTab", "SnippetDefaultProcessEOLTab", 1, "Snippets", "f_lblSnippetDefaultIntro|f_blnSnippetDefaultProcessEOLTab") ; g_blnSnippetDefaultProcessEOLTab
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultFixedFont", "SnippetDefaultFixedFont", 0, "Snippets", "f_blnSnippetDefaultFixedFont") ; g_blnSnippetDefaultFixedFont
+o_Settings.ReadIniOption("Snippets", "intSnippetDefaultFontSize", "SnippetDefaultFontSize", 10, "Snippets", "f_lblSnippetDefaultFontSize|f_intSnippetDefaultFontSizeEdit|f_intSnippetDefaultFontSize") ; g_intSnippetDefaultFontSize
+o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 0, "Snippets", "f_blnSnippetDefaultMacro") ; g_blnSnippetDefaultMacro
+o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "Snippets"
+	, "f_lblSelectHotstringDefaultOptions|f_btnSelectHotstringDefaultOptions") ; g_strHotstringsDefaultOptions
+
+; Group User Variables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
+o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariablesList", " ", "UserVariables", "f_lnkUserVariablesList|f_lnkUserVariablesListTitle|f_strUserVariablesList") ; g_strUserVariablesList
+
+; Group Database
+o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database"
+	, "f_lblOptionUsageDbEnableStatement|f_lblOptionUsageDbEnableStatementTitle|f_blnOptionUsageDbEnable|f_lblUsageDbIntervalSeconds") ; g_intUsageDbIntervalSeconds
+o_Settings.Database.intUsageDbIntervalSeconds.IniValue := ((o_Settings.Database.intUsageDbIntervalSeconds.IniValue <> 0
+	and o_Settings.Database.intUsageDbIntervalSeconds.IniValue < 60 and A_ComputerName <> "JEAN-PC")
+	? 60 : o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
+g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
+o_Settings.ReadIniOption("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", "f_lblUsageDbDaysInPopular|f_intUsageDbDaysInPopularEdit|f_intUsageDbDaysInPopular") ; g_intUsageDbDaysInPopular
+o_Settings.ReadIniOption("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", "f_lblUsageDbMaximumSize|f_fltUsageDbMaximumSize|f_btnUsageDbFlush") ; g_fltUsageDbMaximumSize
+o_Settings.ReadIniOption("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", "f_blnUsageDbShowPopularityIndex") ; g_blnUsageDbShowPopularityIndex
+o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", "") ; g_intUsageDbDebug (not in Gui)
+g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
+g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
+
+; Group MenuAdvanced
+o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
+if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
+	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
+o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", "f_blnOpenMenuOnTaskbar") ; g_blnOpenMenuOnTaskbar
+o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
+
+; #####
+
+o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "AdvancedOther", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
+o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "AdvancedOther", 65) ; g_strSwitchExclusionList
 ; ---------------------
 ; Load Options Tab 2 Menu
 
@@ -4176,12 +4217,6 @@ o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "Exter
 o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", "ExternalMenusCataloguePathReadOnly", 0) ; false by default
 ; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
 
-o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultProcessEOLTab", "SnippetDefaultProcessEOLTab", 1, "Snippets", 10) ; g_blnSnippetDefaultProcessEOLTab
-o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultFixedFont", "SnippetDefaultFixedFont", 0, "Snippets", 20) ; g_blnSnippetDefaultFixedFont
-o_Settings.ReadIniOption("Snippets", "intSnippetDefaultFontSize", "SnippetDefaultFontSize", 10, "Snippets", 30) ; g_intSnippetDefaultFontSize
-o_Settings.ReadIniOption("Snippets", "blnSnippetDefaultMacro", "SnippetDefaultMacro", 0, "Snippets", 40) ; g_blnSnippetDefaultMacro
-
-o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", 20) ; g_blnOpenMenuOnTaskbar
 
 ; ---------------------
 ; Load Options Tab 3 Menu Hotkeys
@@ -4196,8 +4231,6 @@ o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar
 ; ---------------------
 ; Load Options Tab 5 File Managers
 
-; load ini values when init instance of FileManagers (must be after init of o_JLicons)
-global o_FileManagers := new FileManagers
 
 ; ---------------------
 ; Options Tab 6 More
@@ -4210,23 +4243,6 @@ o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 
 ; UsageDb
-o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database", 10) ; g_intUsageDbIntervalSeconds
-o_Settings.Database.intUsageDbIntervalSeconds.IniValue := ((o_Settings.Database.intUsageDbIntervalSeconds.IniValue <> 0 
-	and o_Settings.Database.intUsageDbIntervalSeconds.IniValue < 60 and A_ComputerName <> "JEAN-PC")
-	? 60 : o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
-g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
-o_Settings.ReadIniOption("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", 30) ; g_intUsageDbDaysInPopular
-o_Settings.ReadIniOption("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", 40) ; g_fltUsageDbMaximumSize
-o_Settings.ReadIniOption("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", 50) ; g_blnUsageDbShowPopularityIndex
-o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", 60) ; g_intUsageDbDebug (not in Gui)
-g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
-g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
-
-; UserVariables (DetectCloudUserVariables will be executed after UsageDbInit), IconReplacement and SwitchExclusion
-o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariablesList", " ", "UserVariables", 10) ; g_strUserVariablesList
-o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "AdvancedOther", 65) ; g_strSwitchExclusionList
-o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
-
 ; ---------------------
 ; Load internal flags and various values
 
@@ -4242,17 +4258,11 @@ if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersio
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", 40) ; default 10000 chars ; g_intClipboardMaxSize
 
-o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", 7) ; ERROR if not found ; g_intNbLiveFolderItemsMax
-if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
-	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
-o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "MenuAdvanced", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
 o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "AdvancedOther", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
 o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
 o_Settings.ReadIniOption("Execution", "blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", 42) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
 o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
-o_Settings.ReadIniOption("Hotstrings", "strHotstringsDefaultOptions", "HotstringsDefaultOptions", " ", "AdvancedOther", 60) ; g_strHotstringsDefaultOptions
 o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "AdvancedLaunch", 10) ; g_blnRefreshWindowsAppsListAtStartup
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "AdvancedOther", 45) ; g_blnTryWindowPosition
 
@@ -7276,42 +7286,43 @@ if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 
 ; g_strSettingsGroup = "FileManagers"
 
-Gui, 2:Add, Text, x1 y%intGroupItemsY% w590 center hidden, % o_L["OptionsTabFileManagersIntro"]
+Gui, 2:Add, Text, x%g_intGroupItemsX% y%intGroupItemsY% w590 center hidden vf_lblFileManagersIntro, % o_L["OptionsTabFileManagersIntro"]
 
 ; --- column 2 ---
 ; FileManagerAlwaysNavigate
 Gui, Font, w600
-Gui, 2:Add, Text, x250 y+15 w300 Section hidden, % o_L["OptionsTabFileManagersPreferences"]
+Gui, 2:Add, Text, x%g_intGroupItemsTab4X% y+15 w300 Section hidden vf_lblFileManagerNavigateTitle, % o_L["OptionsTabFileManagersPreferences"]
 Gui, Font
-Gui, 2:Add, Text, y+10 x250 w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName)
-Gui, 2:Add, Radio, % "y+10 x255 w250 hidden vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
-Gui, 2:Add, Radio, % "y+5 x255 w250 hidden vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab4X% w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName)
+Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
+Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
 ; --- column 1 ---
 ; ActiveFileManager
 Gui, Font, w600
-Gui, 2:Add, Text, ys x%g_intGroupItemsTab3X% w230 Section hidden, % o_L["OptionsTabFileManagersPreferred"]
+Gui, 2:Add, Text, ys x%g_intGroupItemsX% w230 Section hidden vf_lblradActiveFileManager, % o_L["OptionsTabFileManagersPreferred"]
 Gui, Font
 loop, % o_FileManagers.SA.Length()
-	Gui, 2:Add, Radio, % "y+10 x15 hidden gActiveFileManagerClicked vf_radActiveFileManager" . A_Index . (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
+	Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab1X . " hidden gActiveFileManagerClicked vf_radActiveFileManager" . A_Index 
+		. (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
 
 ; --- bottom ---
 Gui, 2:Font, s8 w700
-Gui, 2:Add, Link, y+25 x32 w500 vf_lnkFileManagerHelp hidden
+Gui, 2:Add, Link, y+25 x%g_intGroupItemsTab2X% w500 vf_lnkFileManagerHelp hidden
 Gui, 2:Font
-Gui, 2:Add, Text, y+10 x32 w500 vf_lblFileManagerDetail hidden
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w500 vf_lblFileManagerDetail hidden
 
 ; Windows Explorer OpenFavoritesOnActiveMonitor
-Gui, 2:Add, CheckBox, yp x32 w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
+Gui, 2:Add, CheckBox, yp x%g_intGroupItemsTab2X% w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
 GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor = true)
 
 ; DirectoryOpusPath
 ; TotalCommanderPath
-Gui, 2:Add, Text, y+10 x32 vf_lblFileManagerPrompt hidden, % o_L["DialogApplicationLabel"] . ":"
-Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strFileManagerPath hidden
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w105 vf_lblFileManagerPrompt hidden, % o_L["DialogApplicationLabel"] . ":"
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strFileManagerPath hidden
 
 ; QAPconnectFileManager
-Gui, 2:Add, DropDownList, xp yp vf_drpQAPconnectFileManager hidden Sort gGuiOptionsGroupChanged
+Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort gGuiOptionsGroupChanged
 if StrLen(o_FileManagers.SA[4].strQAPconnectFileManager)
 	GuiControl, ChooseString, f_drpQAPconnectFileManager, % o_FileManagers.SA[4].strQAPconnectFileManager
 Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath hidden, % o_L["DialogBrowseButton"]
@@ -7320,135 +7331,142 @@ Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath h
 ; DirectoryOpusNewTabOrWindow (not in Gui)
 ; TotalCommanderUseTabs
 ; TotalCommanderNewTabOrWindow (not in Gui)
-Gui, 2:Add, Checkbox, y+10 x32 w590 vf_blnFileManagerUseTabs gFileManagerNavigateClicked hidden, % o_L["OptionsThirdPartyUseTabs"]
+Gui, 2:Add, Checkbox, y+10 x%g_intGroupItemsTab3X% w590 vf_blnFileManagerUseTabs gFileManagerNavigateClicked hidden, % o_L["OptionsThirdPartyUseTabs"]
 
 ; QAPconnectFileManager buttons (must be after UseTabs checkbox)
-Gui, 2:Add, Button, x32 yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(o_L["MenuEditIniFile"], "QAPconnect.ini")
+Gui, 2:Add, Button, x%g_intGroupItemsTab3X% yp vf_btnQAPconnectEdit gShowQAPconnectIniFile hidden, % L(o_L["MenuEditIniFile"], "QAPconnect.ini")
 Gui, 2:Add, Button, x+10 yp vf_btnQAPconnectRefresh gActiveFileManagerClickedInit hidden, % o_L["OptionsRefreshQAPconnectList"] ; ActiveFileManagerClickedInit will refresh the dropdown list
 
 ; TotalCommanderWinCmd
-Gui, 2:Add, Text, y+10 xp vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinCmdLocation"]
-Gui, 2:Add, Edit, yp x+10 w300 h20 vf_strTotalCommanderWinCmd hidden gGuiOptionsGroupChanged
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w105 vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinCmdLocation"]
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strTotalCommanderWinCmd hidden gGuiOptionsGroupChanged
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, % o_L["DialogBrowseButton"]
 
 ; FileManagerDOpusShowLayouts
-Gui, 2:Add, Checkbox, yp x32 w590 vf_blnFileManagerDirectoryOpusShowLayouts gGuiOptionsGroupChanged hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
+Gui, 2:Add, Checkbox, yp x%g_intGroupItemsTab3X% w590 vf_blnFileManagerDirectoryOpusShowLayouts gGuiOptionsGroupChanged hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
 GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts = true)
 
 Gosub, ActiveFileManagerClickedInit ; will call FileManagerNavigateClickedInit
 GuiControl, 2:+gGuiOptionsGroupChanged, f_strFileManagerPath ; must be after ActiveFileManagerClickedInit
 
-GuiControlGet, arrPos, Pos, f_#####
+GuiControlGet, arrPos, Pos, f_blnFileManagerDirectoryOpusShowLayouts
+if ((arrPosY + arrPosH) > g_intOptionsFooterY)
+	g_intOptionsFooterY := arrPosY + arrPosH
+
+; g_strSettingsGroup = "Snippets"
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y%intGroupItemsY% x%g_intGroupItemsX% w500 hidden vf_lblSnippetDefaultIntro, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
+Gui, 2:Font
+
+; SnippetDefaultProcessEOLTab
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w500 vf_blnSnippetDefaultProcessEOLTab gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetProcessEOLTab"]
+GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
+
+; SnippetDefaultFixedFont
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w500 vf_blnSnippetDefaultFixedFont gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetFixedFont"]
+GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
+
+; SnippetDefaultFontSize
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% hidden vf_lblSnippetDefaultFontSize, % o_L["DialogFavoriteSnippetFontSize"]
+Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSizeEdit hidden, % o_L["DialogFavoriteSnippetFontSize"]
+Gui, 2:Add, UpDown, Range6-18 h20 gGuiOptionsGroupChanged hidden vf_intSnippetDefaultFontSize, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
+
+; SnippetDefaultMacro
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w300 vf_blnSnippetDefaultMacro gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetSendModeMacro"]
+GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
+
+; HotstringsDefaultOptions
+Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% hidden vf_lblSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefault"]
+Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"] ; gGuiOptionsGroupChanged ##### dans SelectHotstringDefaultOptions
+
+GuiControlGet, arrPos, Pos, f_blnSnippetDefaultMacro
+if ((arrPosY + arrPosH) > g_intOptionsFooterY)
+	g_intOptionsFooterY := arrPosY + arrPosH
+
+; g_strSettingsGroup = "UserVariables"
+
+; UserVariablesList
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y%intGroupItemsY% x%g_intGroupItemsX% w600 hidden vf_lnkUserVariablesListTitle, % o_L["OptionsUserVariablesList"]
+	. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
+Gui, 2:Font
+Gui, 2:Add, Link, x%g_intGroupItemsX% y+10 w600 hidden vf_lnkUserVariablesList, % o_L["OptionsUserVariablesListInstructions"]
+Gui, 2:Add, Edit, x%g_intGroupItemsX% y+10 w600 hidden r5 vf_strUserVariablesList gGuiOptionsGroupChanged
+	, % (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
+	? StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n") : "{MyVariable}=MyContent")
+
+GuiControlGet, arrPos, Pos, f_strUserVariablesList
+if ((arrPosY + arrPosH) > g_intOptionsFooterY)
+	g_intOptionsFooterY := arrPosY + arrPosH
+
+; g_strSettingsGroup = "Database"
+
+Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsX% vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked hidden, % L(o_L["OptionsUsageDbEnable"], g_strAppNameText)
+GuiControl, , f_blnOptionUsageDbEnable, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
+
+; UsageDbIntervalSeconds
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 vf_lblUsageDbIntervalSeconds hidden, % o_L["OptionsUsageDbIntervalSeconds"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbIntervalSecondsEdit hidden
+Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
+
+; UsageDbDaysInPopular
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+5 vf_lblUsageDbDaysInPopular hidden, % o_L["OptionsUsageDbDaysInPopular"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbDaysInPopularEdit hidden
+Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
+
+; UsageDbMaximumSize
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+5 vf_lblUsageDbMaximumSize hidden, % o_L["OptionsUsageDbMaximumSize"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize gGuiOptionsGroupChanged hidden, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
+
+Gui, 2:Add, Button, x%g_intGroupItemsX% y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked hidden, % o_L["OptionsUsageDbFlushDatabase"]
+
+; UsageDbShowPopularityIndex
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+5 vf_blnUsageDbShowPopularityIndex gGuiOptionsGroupChanged hidden, % o_L["OptionsUsageDbShowPopularityIndex"]
+GuiControl, , f_blnUsageDbShowPopularityIndex, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue = true
+
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+20 w600 hidden vf_lblOptionUsageDbEnableStatementTitle, % o_L["OptionsUsageDbStatementTitle"]
+Gui, 2:Font
+Gui, 2:Add, Text,  w600 hidden x%g_intGroupItemsX% y+10 vf_lblOptionUsageDbEnableStatement, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
+
+Gosub, OptionUsageDbEnableClickedInit
+
+GuiControlGet, arrPos, Pos, f_lblOptionUsageDbEnableStatement
+if ((arrPosY + arrPosH) > g_intOptionsFooterY)
+	g_intOptionsFooterY := arrPosY + arrPosH
+
+; g_strSettingsGroup = "MenuAdvanced"
+
+; OpenMenuOnTaskbar
+Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsX% vf_blnOpenMenuOnTaskbar gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenMenuOnTaskbar"]
+GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
+
+; RefreshQAPMenuIntervalSec
+Gui, 2:Add, Checkbox, x%g_intGroupItemsX% y+15 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked hidden, % o_L["OptionsRefreshQAPMenuTitle"]
+GuiControl, , f_blnRefreshQAPMenuEnable, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
+Gui, 2:Add, Edit, x%g_intGroupItemsX% y+5 w60 h22 vf_intRefreshQAPMenuIntervalSecEdit center disabled hidden
+Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiOptionsGroupChanged hidden
+	, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue ? o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue : 300)
+Gui, 2:Add, Text, yp x+10 vf_lblRefreshQAPMenuIntervalSec Disabled hidden, % o_L["OptionsRefreshQAPMenuIntervalSec"]
+
+; RefreshQAPMenuDebugBeep
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
+GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
+gosub, RefreshQAPMenuEnableClickedInit
+
+; ClipboardMaxSize
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+20 vf_lblClipboardMaxSize hidden, % o_L["OptionsClipboardMaxSize"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
+
+; NbLiveFolderItemsMax
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+15 vf_lblNbLiveFolderItemsMax hidden, % o_L["OptionsNbLiveFolderItemsMax"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
+
+GuiControlGet, arrPos, Pos, f_intClipboardMaxSize
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 	g_intOptionsFooterY := arrPosY + arrPosH
 /*
-; }
-; else if (g_strSettingsGroup = "Snippets")
-; {
-	Gui, 2:Add, Link, y%intGroupItemsY% x%g_intGroupItemsTab3X% w500 hidden, % L(o_L["OptionsSnippetsHelp"], "https://www.quickaccesspopup.com/what-are-snippets/", o_L["GuiHelp"])
-
-	; SnippetDefaultProcessEOLTab
-	Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w500 vf_blnSnippetDefaultProcessEOLTab gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetProcessEOLTab"]
-	GuiControl, , f_blnSnippetDefaultProcessEOLTab, % (o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue = true)
-
-	; SnippetDefaultFixedFont
-	Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w500 vf_blnSnippetDefaultFixedFont gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetFixedFont"]
-	GuiControl, , f_blnSnippetDefaultFixedFont, % (o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue = true)
-
-	; SnippetDefaultFontSize
-	Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab3X% hidden, % o_L["DialogFavoriteSnippetFontSize"]
-	Gui, 2:Add, Edit, x+5 yp h20 w52 vf_intSnippetDefaultFontSize hidden, % o_L["DialogFavoriteSnippetFontSize"]
-	Gui, 2:Add, UpDown, Range6-18 h20 gGuiOptionsGroupChanged hidden, % o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
-
-	; SnippetDefaultMacro
-	Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w300 vf_blnSnippetDefaultMacro gGuiOptionsGroupChanged hidden, % o_L["DialogFavoriteSnippetSendModeMacro"]
-	GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
-
-GuiControlGet, arrPos, Pos, f_#####
-if ((arrPosY + arrPosH) > g_intOptionsFooterY)
-	g_intOptionsFooterY := arrPosY + arrPosH
-; }
-; else if (g_strSettingsGroup = "UserVariables")
-; {
-	; UserVariablesList
-	Gui, 2:Add, Link, x%g_intGroupItemsTab3X% y%intGroupItemsY% w600 hidden, % o_L["OptionsUserVariablesList"]
-		. " (<a href=""https://www.quickaccesspopup.com/can-i-create-custom-user-variables-and-use-them-in-file-paths-or-snippets/"">" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Link, x%g_intGroupItemsTab3X% y+10 w600 hidden, % o_L["OptionsUserVariablesListInstructions"]
-	Gui, 2:Add, Edit, x%g_intGroupItemsTab3X% y+10 w600 hidden r5 vf_strUserVariablesList gGuiOptionsGroupChanged
-		, % (StrLen(o_Settings.UserVariables.strUserVariablesList.IniValue)
-		? StrReplace(Trim(o_Settings.UserVariables.strUserVariablesList.IniValue), "|", "`n") : "{MyVariable}=MyContent")
-
-GuiControlGet, arrPos, Pos, f_#####
-if ((arrPosY + arrPosH) > g_intOptionsFooterY)
-	g_intOptionsFooterY := arrPosY + arrPosH
-; }
-; else if (g_strSettingsGroup = "Database")
-; {
-	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y%intGroupItemsY% w600 hidden, % L(o_L["OptionsUsageDb"], g_strAppNameText)
-	Gui, 2:Font
-	
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 w600 hidden, % L(o_L["OptionsUsageDbStatement"], g_strAppNameText)
-	
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y+10 vf_blnOptionUsageDbEnable gOptionUsageDbEnableClicked hidden, % L(o_L["OptionsUsageDbEnable"], g_strAppNameText)
-	GuiControl, , f_blnOptionUsageDbEnable, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
-	
-	; UsageDbIntervalSeconds
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 vf_lblUsageDbIntervalSeconds hidden, % o_L["OptionsUsageDbIntervalSeconds"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbIntervalSecondsEdit hidden
-	Gui, 2:Add, UpDown, Range60-7200 h20 vf_intUsageDbIntervalSeconds gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbIntervalSeconds.IniValue
-	
-	; UsageDbDaysInPopular
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+5 vf_lblUsageDbDaysInPopular hidden, % o_L["OptionsUsageDbDaysInPopular"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intUsageDbDaysInPopularEdit hidden
-	Gui, 2:Add, UpDown, Range1-9999 h20 vf_intUsageDbDaysInPopular gGuiOptionsGroupChanged hidden, % o_Settings.Database.intUsageDbDaysInPopular.IniValue
-	
-	; UsageDbMaximumSize
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+5 vf_lblUsageDbMaximumSize hidden, % o_L["OptionsUsageDbMaximumSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 vf_fltUsageDbMaximumSize gGuiOptionsGroupChanged hidden, % o_Settings.Database.fltUsageDbMaximumSize.IniValue ; do not use number option to accept "," decimal separator
-
-	; UsageDbShowPopularityIndex
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y+5 vf_blnUsageDbShowPopularityIndex gGuiOptionsGroupChanged hidden, % o_L["OptionsUsageDbShowPopularityIndex"]
-	GuiControl, , f_blnUsageDbShowPopularityIndex, % o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue = true
-	
-	Gui, 2:Add, Button, x%g_intGroupItemsTab3X% y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked hidden, % o_L["OptionsUsageDbFlushDatabase"]
-
-	Gosub, OptionUsageDbEnableClickedInit
-
-GuiControlGet, arrPos, Pos, f_#####
-if ((arrPosY + arrPosH) > g_intOptionsFooterY)
-	g_intOptionsFooterY := arrPosY + arrPosH
-; }
-; else if (g_strSettingsGroup = "MenuAdvanced")
-; {
-	; OpenMenuOnTaskbar
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y%intGroupItemsY% vf_blnOpenMenuOnTaskbar gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenMenuOnTaskbar"]
-	GuiControl, , f_blnOpenMenuOnTaskbar, % (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue = true)
-
-	; RefreshQAPMenuIntervalSec
-	Gui, 2:Add, Checkbox, x%g_intGroupItemsTab3X% y+15 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked hidden, % o_L["OptionsRefreshQAPMenuTitle"]
-	GuiControl, , f_blnRefreshQAPMenuEnable, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue > 0)
-	Gui, 2:Add, Edit, x%g_intGroupItemsTab3X% y+5 w60 h22 vf_intRefreshQAPMenuIntervalSecEdit center disabled hidden
-	Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiOptionsGroupChanged hidden
-		, % (o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue ? o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue : 300)
-	Gui, 2:Add, Text, yp x+10 vf_blnRefreshQAPMenuDebugBeepLabel Disabled hidden, % o_L["OptionsRefreshQAPMenuIntervalSec"]
-
-	; RefreshQAPMenuDebugBeep
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
-	GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
-	gosub, RefreshQAPMenuEnableClickedInit
-
-	; NbLiveFolderItemsMax
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 vf_lblNbLiveFolderItemsMax hidden, % o_L["OptionsNbLiveFolderItemsMax"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
-
-	; ClipboardMaxSize
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+15 vf_lblClipboardMaxSize hidden, % o_L["OptionsClipboardMaxSize"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
-
-GuiControlGet, arrPos, Pos, f_#####
-if ((arrPosY + arrPosH) > g_intOptionsFooterY)
-	g_intOptionsFooterY := arrPosY + arrPosH
 ; }
 ; else if (g_strSettingsGroup = "AdvancedLaunch")
 ; {
@@ -7497,10 +7515,6 @@ if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 		GuiControl, 2:+gEnableExternalMenusCatalogueClicked, f_blnEnableExternalMenusCatalogue
 	}
 	
-	; HotstringsDefaultOptions
-	Gui, 2:Add, Text, y+15 x%g_intGroupItemsTab3X% hidden, % o_L["OptionsHotstringsDefault"]
-	Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions gGuiOptionsGroupChanged hidden, % o_L["OptionsHotstringsDefaultSelect"]
-
 	; WaitDelayInSnippet
 	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 hidden, % o_L["OptionsWaitDelayInSnippet"]
 	loop, 3
@@ -7799,7 +7813,7 @@ else if (g_strSettingsGroup = "Snippets")
 {
 	o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.WriteIni(f_blnSnippetDefaultProcessEOLTab)
 	o_Settings.Snippets.blnSnippetDefaultFixedFont.WriteIni(f_blnSnippetDefaultFixedFont)
-	o_Settings.Snippets.intSnippetDefaultFontSize.WriteIni(f_intSnippetDefaultFontSize)
+	o_Settings.Snippets.intSnippetDefaultFontSize.WriteIni(f_intSnippetDefaultFontSizeEdit)
 	o_Settings.Snippets.blnSnippetDefaultMacro.WriteIni(f_blnSnippetDefaultMacro)
 }
 else if (g_strSettingsGroup = "UserVariables")
@@ -7930,6 +7944,7 @@ g_intGroupItemsX := intMaxWidth + 30
 g_intGroupItemsTab1X := g_intGroupItemsX + 10
 g_intGroupItemsTab2X := g_intGroupItemsX + 20
 g_intGroupItemsTab3X := g_intGroupItemsX + 120
+g_intGroupItemsTab4X := g_intGroupItemsX + 240
 intGroupItemsY := 40 ; Y position of first item of a group
 
 Gui, 2:Font, s10 w700, Verdana
@@ -7961,6 +7976,13 @@ GuiControl, Focus, f_btnOptionsSave
 Gosub, GuiOptionsGroupButtonClicked
 Gosub, ShowGui2AndDisableGui1
 
+g_intGroupItemsX := ""
+g_intGroupItemsTab1X := ""
+g_intGroupItemsTab2X := ""
+g_intGroupItemsTab3X := ""
+g_intGroupItemsTab4X := ""
+intGroupItemsY := ""
+
 return
 ;------------------------------------------------------------
 
@@ -7974,7 +7996,6 @@ if StrLen(A_GuiControl)
 	strSettingsGroupPrev := g_strSettingsGroup
 	g_strSettingsGroup := StrReplace(A_GuiControl, "f_btnOptionsGroup")
 }
-; ###_V(A_ThisLabel, strSettingsGroupPrev, g_strSettingsGroup)
 
 ### := ""
 if (strSettingsGroupPrev = g_strSettingsGroup)
@@ -7985,22 +8006,18 @@ loop, Parse, % strSettingsGroupPrev . "|" . g_strSettingsGroup, |
 		for intKey, aaIniValue in o_Settings.aaGroupItems[A_LoopField]
 			for intControlKey, strGuiControl in StrSplit(aaIniValue.strGuiControls, "|")
 			{
-				### .= A_LoopField . " - " . intControlKey . " - " . (A_LoopField = strSettingsGroupPrev ? "Hide " . strSettingsGroupPrev : "Show " . g_strSettingsGroup) . " " . strGuiControl . "`n"
+				### .= A_LoopField . " - " . aaIniValue.strIniValueName . " - " . intControlKey . " - " . (A_LoopField = strSettingsGroupPrev ? "Hide " . strSettingsGroupPrev : "Show " . g_strSettingsGroup) . " " . strGuiControl . "`n"
 				Tooltip, %###%
-				sleep, 50
+				sleep, 20
 				if StrLen(strGuiControl)
 					GuiControl, % (A_LoopField = strSettingsGroupPrev ? "Hide" : "Show"), %strGuiControl%
 			}
 Tooltip
-; ###_D(###)
+Clipboard := ###
 
 GuiControl, , f_lblOptionsGuiTitle, % L(o_L["Options" . g_strSettingsGroup] . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
 
-
-; WinSet, Redraw, , A
-; WinHide, A
-; DetectHiddenWindows, On
-; WinShow, A
+Gosub, ActiveFileManagerClickedInit
 
 strSettingsGroupPrev := ""
 
@@ -8038,28 +8055,28 @@ Gui, 2:Submit, NoHide
 if !InStr(A_ThisLabel, "Init")
 	Gosub, GuiOptionsGroupChanged
 
-strShowHideCommand := (f_radActiveFileManager1 and g_strActiveGroup = "FileManagers" ? "Show" : "Hide")
+strShowHideCommand := (f_radActiveFileManager1 and g_strSettingsGroup = "FileManagers" ? "Show" : "Hide")
 GuiControl, %strShowHideCommand%, f_blnOpenFavoritesOnActiveMonitor
 
-strShowHideCommand := (f_radActiveFileManager1 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
+strShowHideCommand := (f_radActiveFileManager1 or g_strSettingsGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_lblFileManagerDetail
 GuiControl, %strShowHideCommand%, f_lblFileManagerPrompt
 ; GuiControl, %strShowHideCommand%, f_lnkFileManagerHelp
 
-strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
+strShowHideCommand := (f_radActiveFileManager1 or f_radActiveFileManager4 or g_strSettingsGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerUseTabs
 GuiControl, %strShowHideCommand%, f_btnFileManagerPath
 GuiControl, %strShowHideCommand%, f_strFileManagerPath
 
-strShowHideCommand := (!f_radActiveFileManager2 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager2 or g_strSettingsGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_blnFileManagerDirectoryOpusShowLayouts
 
-strShowHideCommand := (!f_radActiveFileManager3 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager3 or g_strSettingsGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnTotalCommanderWinCmd
 GuiControl, %strShowHideCommand%, f_lblTotalCommanderWinCmdPrompt
 GuiControl, %strShowHideCommand%, f_strTotalCommanderWinCmd
 
-strShowHideCommand := (!f_radActiveFileManager4 or g_strActiveGroup <> "FileManagers" ? "Hide" : "Show")
+strShowHideCommand := (!f_radActiveFileManager4 or g_strSettingsGroup <> "FileManagers" ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_btnQAPconnectEdit
 GuiControl, %strShowHideCommand%, f_btnQAPconnectRefresh
 GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
@@ -8175,7 +8192,7 @@ if (f_blnRefreshQAPMenuEnable and o_Settings.MenuAdvanced.intRefreshQAPMenuInter
 strEnableDisableCommand := (f_blnRefreshQAPMenuEnable ? "Enable" : "Disable")
 GuiControl, %strEnableDisableCommand%, f_intRefreshQAPMenuIntervalSecEdit
 GuiControl, %strEnableDisableCommand%, f_intRefreshQAPMenuIntervalSec
-GuiControl, %strEnableDisableCommand%, f_blnRefreshQAPMenuDebugBeepLabel
+GuiControl, %strEnableDisableCommand%, f_lblRefreshQAPMenuIntervalSec
 GuiControl, %strEnableDisableCommand%, f_blnRefreshQAPMenuDebugBeep
 
 strEnableDisableCommand := ""
@@ -23614,12 +23631,14 @@ TODO
 		this.SA[3] := new this.TotalCommander(saActiveFileManagerSystemNames[3], saActiveFileManagerDisplayNames[3])
 		this.SA[4] := new this.QAPConnect(saActiveFileManagerSystemNames[4], saActiveFileManagerDisplayNames[4])
 			
-		intActiveFileManager := o_Settings.ReadIniOption("FileManagers", "intActiveFileManager", "ActiveFileManager", "", "FileManagers", 10) ; if not exist returns "ERROR"
+		intActiveFileManager := o_Settings.ReadIniOption("FileManagers", "intActiveFileManager", "ActiveFileManager", "", "FileManagers"
+			, "f_radActiveFileManager1|f_radActiveFileManager2|f_radActiveFileManager3|f_radActiveFileManager4") ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
 		this.ActiveFileManager := intActiveFileManager
 
-		o_Settings.ReadIniOption("FileManagers", "blnAlwaysNavigate", "FileManagerAlwaysNavigate", 0, "FileManagers", 15) ; default false
+		o_Settings.ReadIniOption("FileManagers", "blnAlwaysNavigate", "FileManagerAlwaysNavigate", 0
+			, "FileManagers", "f_lblFileManagersIntro|f_lblFileManagerNavigateTitle|f_lblFileManagerNavigate|f_radFileManagerNavigateCurrent|f_radFileManagerNavigateNew|f_lblradActiveFileManager") ; default false
 		; in main script, use o_FileManagers.ActiveFileManager instead of o_Settings.FileManagers.intActiveFileManager.IniValue
 	}
 	;---------------------------------------------------------
@@ -23740,7 +23759,7 @@ TODO
 			base.__New(strThisSystemName, strThisDisplayName)
 			
 			this.blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniOption("FileManagers", "blnExplorerOpenFavoritesOnActiveMonitor"
-				, "OpenFavoritesOnActiveMonitor", 0, "FileManagers", 20)
+				, "OpenFavoritesOnActiveMonitor", 0, "FileManagers", "f_lnkFileManagerHelp|f_lblFileManagerDetail|f_blnOpenFavoritesOnActiveMonitor")
 			this.blnFileManagerValid := true
 		}
 		;-----------------------------------------------------
@@ -23768,7 +23787,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strPath := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusPath", "DirectoryOpusPath", " ", "FileManagers", "30")
+			strPath := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusPath", "DirectoryOpusPath", " ", "FileManagers", "f_lblFileManagerPrompt|f_strFileManagerPath")
 			if !StrLen(strPath)
 				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
 			if !FileExist(strPath)
@@ -23782,8 +23801,8 @@ TODO
 			{
 				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
-				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagers", "32")
-				this.strDirectoryOpusCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusCustomNewTabOrWindow", "DirectoryOpusNewTabOrWindow", "", "FileManagers", "33")
+				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagers", "f_blnFileManagerUseTabs")
+				this.strDirectoryOpusCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusCustomNewTabOrWindow", "DirectoryOpusNewTabOrWindow", "", "FileManagers", "")
 				
 				if (this.strDirectoryOpusCustomNewTabOrWindow <> "ERROR")
 					; allow user to customize (other than "NEW" or "NEWTAB")
@@ -23793,7 +23812,8 @@ TODO
 				else
 					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 				
-				this.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagers", "35")
+				this.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagers"
+					, "f_blnFileManagerDirectoryOpusShowLayouts")
 				
 				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
 			}
@@ -24054,7 +24074,7 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strPath := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderPath", "TotalCommanderPath", " ", "FileManagers", "40")
+			strPath := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderPath", "TotalCommanderPath", " ", "FileManagers", "")
 			if !StrLen(strPath)
 			{
 				RegRead, strPath, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, InstallDir
@@ -24072,7 +24092,8 @@ TODO
 				
 			if (this.blnFileManagerValid)
 			{
-				strIniFile := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderWinCmd", "TotalCommanderWinCmd", " ", "FileManagers", "45")
+				strIniFile := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderWinCmd", "TotalCommanderWinCmd", " ", "FileManagers"
+					, "f_lblTotalCommanderWinCmdPrompt|f_strTotalCommanderWinCmd|f_btnTotalCommanderWinCmd")
 				If !StrLen(strIniFile)
 					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
 				If !StrLen(strIniFile)
@@ -24081,8 +24102,8 @@ TODO
 				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
 				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagers", "42")
-				this.strTotalCommanderCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderCustomNewTabOrWindow", "TotalCommanderNewTabOrWindow", "", "FileManagers", "43")
+				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagers", "")
+				this.strTotalCommanderCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderCustomNewTabOrWindow", "TotalCommanderNewTabOrWindow", "", "FileManagers", "")
 				
 				if (this.strTotalCommanderCustomNewTabOrWindow <> "ERROR")
 					; allow user to customize (other than "/O /T" or "/N")
@@ -24120,7 +24141,8 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			strQAPconnectFileManager := o_Settings.ReadIniOption("FileManagers", "strQAPconnectFileManager", "QAPconnectFileManager", " ", "FileManagers", "60")
+			strQAPconnectFileManager := o_Settings.ReadIniOption("FileManagers", "strQAPconnectFileManager", "QAPconnectFileManager", " ", "FileManagers"
+				, "f_drpQAPconnectFileManager|f_btnFileManagerPath|f_btnQAPconnectEdit|f_btnQAPconnectRefresh")
 			this.strQAPconnectFileManager := strQAPconnectFileManager
 			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 			/* QAPconnect.ini sample:
