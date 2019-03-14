@@ -7525,6 +7525,79 @@ GuiOptionsGroupSave:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
+; === Validation ===
+
+blnOptionsPathsOK := true ; unless some folder not found later
+
+if (g_intClickedFileManager = 4) ; QAPconnect
+{
+	blnOptionsPathsOK := StrLen(f_drpQAPconnectFileManager)
+	if (blnOptionsPathsOK)
+	{
+		strQAPconnectPath := o_Settings.ReadIniValue("AppPath", " ", f_drpQAPconnectFileManager, o_FileManagers.SA[4].strQAPconnectIniPath) ; empty by default
+		blnOptionsPathsOK := FileExistInPath(strQAPconnectPath) ; return strQAPconnectPath expanded
+	}
+}
+else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
+{
+	blnTCWinCmdOK := true ; unless WinCmd not found later
+	blnOptionsPathsOK := StrLen(f_strFileManagerPath)
+	if (blnOptionsPathsOK)
+	{
+		strTempLocation := f_strFileManagerPath ; avoid change in f_strFileManagerPath by FileExistInPath
+		blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+	}
+	if (g_intClickedFileManager = 3) ; 3 TotalCommander
+	{
+		blnTCWinCmdOK := StrLen(f_strTotalCommanderWinCmd)
+		if (blnTCWinCmdOK)
+		{
+			strTempLocation := f_strTotalCommanderWinCmd ; avoid change in f_strTotalCommanderWinCmd by FileExistInPath
+			blnTCWinCmdOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+		}
+	}
+}
+if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK) or !blnTCWinCmdOK)
+{
+	if (g_intClickedFileManager = 4)
+		Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
+	else if (!blnOptionsPathsOK) ; 2 DirectoryOpus or 3 TotalCommander
+		if StrLen(f_strFileManagerPath)
+			Oops(o_L["OptionsThirdPartyFileNotFound"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName, f_strFileManagerPath)
+		else
+			Oops(o_L["OptionsThirdPartySelectFile"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
+	if (!blnTCWinCmdOK)
+		Oops(o_L["OptionsTCWinCmd"], f_strTotalCommanderWinCmd)
+	
+	return
+}
+
+strTempLocation := f_strQAPTempFolderParentPath
+blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+if (!blnOptionsPathsOK)
+	Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathTemp"], f_strQAPTempFolderParentPath)
+
+strTempLocation := f_strBackupFolder
+blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+if (!blnOptionsPathsOK)
+	Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathBackup"], f_strBackupFolder)
+
+if StrLen(f_strAlternativeTrayIcon) ; because f_strAlternativeTrayIcon is optional
+{
+	strTempLocation := f_strAlternativeTrayIcon
+	blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+	if (!blnOptionsPathsOK)
+		Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathTrayIcon"], f_strAlternativeTrayIcon)
+}
+
+if !(blnOptionsPathsOK)
+	return
+
+blnOptionsPathsOK := ""
+strTempLocation := ""
+
+; from here, we know that we have valid paths in Options
+
 ; === Saving Options ===
 
 g_blnMenuReady := false
