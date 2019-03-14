@@ -4078,7 +4078,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 else
 {
 	g_strIniBefore := "DONT"
-	o_Settings.ReadIniOption("SettingFile", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
+	o_Settings.ReadIniOption("SettingsFile", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
 	if !(o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.IniValue)
 	{
 		; check if the ini file is Unicode
@@ -11356,7 +11356,7 @@ Gui, 2:+OwnDialogs
 
 if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
 {
-	Oops(o_L["PickIconNoLocation"])
+	OopsGui2(o_L["PickIconNoLocation"])
 	return
 }
 
@@ -12130,7 +12130,7 @@ blnMove := (A_ThisLabel = "GuiMoveMultipleFavoritesSave")
 
 if (f_drpParentMenu = g_objMenuInGui.MenuPath)
 {
-	Oops(o_L["OopsCannotCopyMoveToSelf"])
+	OopsGui2(o_L["OopsCannotCopyMoveToSelf"])
 	return
 }
 
@@ -12281,7 +12281,7 @@ if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for 
 	strExpandedNewFavoriteLocation := strNewFavoriteLocation
 	if !FileExistInPath(strExpandedNewFavoriteLocation)
 	{
-		Oops(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
+		OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
 			. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . o_L["OopsFileExpandedFrom"] . ":`n" . strNewFavoriteLocation : ""))
 		return
 	}
@@ -12310,9 +12310,9 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and g_objEditedFavorite.FavoriteType = "External")
 {
 	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
-		Oops(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
+		OopsGui2(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
 	else
-		Oops(o_L["OopsExternalNotAllowedUnderExternal"])
+		OopsGui2(o_L["OopsExternalNotAllowedUnderExternal"])
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
 		g_intOriginalMenuPosition++
 	gosub, GuiAddFavoriteSaveCleanup
@@ -12325,7 +12325,7 @@ if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteS
 	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
 	if !StrLen(strExternalFilenameNoExt)
 	{
-		Oops(o_L["DialogFavoriteLocationEmpty"])
+		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
@@ -12339,7 +12339,7 @@ if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteS
 	
 	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
 	{
-		Oops(o_L["OopsExternalSelectType"])
+		OopsGui2(o_L["OopsExternalSelectType"])
 		GuiControl, ChooseString, f_intAddFavoriteTab, % " " . o_L["DialogAddFavoriteTabsExternal"] ; space (only) before tab name
 		g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
 		gosub, GuiAddFavoriteSaveCleanup
@@ -12353,14 +12353,14 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	if !StrLen(strNewFavoriteShortName) and (g_objEditedFavorite.FavoriteType <> "QAP")
 	{
-		Oops(InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
+		OopsGui2(InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
 	if  InStr("|Folder|Document|Application|URL|FTP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		Oops(o_L["DialogFavoriteLocationEmpty"])
+		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
@@ -12369,13 +12369,13 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		if InStr(f_strFavoriteSnippetPrompt, "|")
 		{
-			Oops(o_L["DialogFavoriteSnippetPromptNoPipe"])
+			OopsGui2(o_L["DialogFavoriteSnippetPromptNoPipe"])
 			gosub, GuiAddFavoriteSaveCleanup
 			return
 		}
 		if !StrLen(strNewFavoriteLocation)
 		{
-			Oops(o_L["DialogFavoriteSnippetEmpty"])
+			OopsGui2(o_L["DialogFavoriteSnippetEmpty"])
 			gosub, GuiAddFavoriteSaveCleanup
 			return
 		}
@@ -12386,14 +12386,14 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
 	{
-		Oops(o_L["OopsFtpLocationProtocol"])
+		OopsGui2(o_L["OopsFtpLocationProtocol"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
 	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		Oops(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
+		OopsGui2(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
 			, (g_objEditedFavorite.FavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
@@ -12401,20 +12401,20 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if InStr("|Menu|Group|External", "|" . g_objEditedFavorite.FavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
 	{
-		Oops(L(o_L["DialogFavoriteNameNoSeparator"], g_strMenuPathSeparator))
+		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strMenuPathSeparator))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
 	if InStr(strNewFavoriteShortName, g_strGroupIndicatorPrefix)
 	{
-		Oops(L(o_L["DialogFavoriteNameNoSeparator"], g_strGroupIndicatorPrefix))
+		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strGroupIndicatorPrefix))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
 	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
-		Oops(o_L["OopsAmpersandInName"])
+		OopsGui2(o_L["OopsAmpersandInName"])
 	
 	if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
@@ -12430,7 +12430,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 		if !ValidateWindowPosition(strNewFavoriteWindowPosition)
 		{
-			Oops(o_L["OopsInvalidWindowPosition"])
+			OopsGui2(o_L["OopsInvalidWindowPosition"])
 			gosub, GuiAddFavoriteSaveCleanup
 			return
 		}
@@ -12444,18 +12444,18 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			strFavoriteAppWorkingDir .= ".ini"
 		else if (strExternalSettingsExtension <> "ini")
 		{
-			Oops(o_L["DialogExternalLocationIni"])
+			OopsGui2(o_L["DialogExternalLocationIni"])
 			gosub, GuiAddFavoriteSaveCleanup
 			return
 		}
 	}
 	
 	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
-		Oops(o_L["OopsHttpLocationTransformed"], (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		OopsGui2(o_L["OopsHttpLocationTransformed"], (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
 	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !g_blnWinCmdIniFileExist)
 	{
-		Oops(o_L["OopsInvalidWinCmdIni"])
+		OopsGui2(o_L["OopsInvalidWinCmdIni"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
@@ -12484,9 +12484,9 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 			else
 			{
 				if (g_objEditedFavorite.FavoriteType = "QAP")
-					Oops(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
+					OopsGui2(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
 				else
-					Oops(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
+					OopsGui2(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
 				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_intOriginalMenuPosition++
 				gosub, GuiAddFavoriteSaveCleanup
@@ -12508,7 +12508,7 @@ if (strThisLabel = "GuiMoveOneFavoriteSave")
 	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . g_objEditedFavorite.FavoriteName) = 1) ; = 1 to check if equal from start only
 		and !InStr("K|X", g_objEditedFavorite.FavoriteType) ; no risk with separators
 	{
-		Oops(o_L["DialogMenuNotMoveUnderItself"], g_objEditedFavorite.FavoriteName)
+		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], g_objEditedFavorite.FavoriteName)
 		g_intOriginalMenuPosition++ ; will be reduced by GuiMoveMultipleFavoritesSave
 		gosub, GuiAddFavoriteSaveCleanup
 		return
@@ -20329,6 +20329,16 @@ Oops(strMessage, objVariables*)
 ;------------------------------------------------
 
 
+;------------------------------------------------
+OopsGui2(strMessage, objVariables*)
+;------------------------------------------------
+{
+	Gui, 2:+OwnDialogs
+	MsgBox, 48, % L(o_L["OopsTitle"], g_strAppNameText, g_strAppVersion), % L(strMessage, objVariables*)
+}
+;------------------------------------------------
+
+
 ;------------------------------------------------------------
 GetOSVersion()
 ;------------------------------------------------------------
@@ -25308,7 +25318,7 @@ TODO
 		if !IsObject(this.aaGroupItems[strGuiGroup])
 			this.aaGroupItems[strGuiGroup] := Object()
 		
-		if StrLen(strIniValueName) ; some exceptions have no ini value, but have controls in Options gui
+		if StrLen(strIniValueName) ; for exception f_blnOptionsRunAtStartup having no ini value, but a control in Options gui
 			strOutValue := this.ReadIniValue(strIniValueName, strDefault, strSection, strIniFile)
 		
 		if (strSettingName = "strExclusionMouseList") ; exception for additional values
