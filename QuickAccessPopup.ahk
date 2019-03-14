@@ -3522,6 +3522,7 @@ Hotkey, If
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectMenuData, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
+; gosub, GuiOptionsGroupGeneral ; #####
 return
 
 ;========================================================================================================================
@@ -4161,6 +4162,9 @@ o_Settings.MenuPopup.arrPopupFixPosition.IniValue := StrSplit(o_Settings.MenuPop
 o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContextMenus", 1, "PopupMenu", "f_blnExplorerContextMenus") ; g_blnExplorerContextMenus
 if (g_blnPortableMode)
 	o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := 0 ; always disabled in portable mode, regardless of value in ini file
+o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "PopupMenu"
+	, "f_lnkExclusionMouseList1|f_lnkExclusionMouseList2|f_lnkExclusionMouseList3|f_strExclusionMouseList|f_btnGetWinInfoMouseExclusions") ; g_strExclusionMouseList
+o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 ; Group PopupHotkeys
 o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "PopupHotkeys", "f_lblChangeShortcutTitle|f_lblControlDoublePressedTitle|f_blnLeftControlDoublePressed") ; g_blnLeftControlDoublePressed
@@ -4206,46 +4210,24 @@ if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", "f_blnOpenMenuOnTaskbar") ; g_blnOpenMenuOnTaskbar
 o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
 
-; #####
+; Group AdvancedLaunch
+o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", "f_blnRunAsAdmin|f_picRunAsAdmin") ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
+o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "AdvancedLaunch", "f_blnRefreshWindowsAppsListAtStartup") ; g_blnRefreshWindowsAppsListAtStartup
 
-o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "AdvancedOther", 17) ; default 100 ms ; g_intWaitDelayInDialogBox
-o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "AdvancedOther", 65) ; g_strSwitchExclusionList
-; ---------------------
-; Load Options Tab 2 Menu
+; Group AdvancedOther
+o_Settings.ReadIniOption("DialogBoxes", "intWaitDelayInDialogBox", "WaitDelayInDialogBox", 100, "AdvancedOther", "f_lblWaitDelayInDialogBox|f_intWaitDelayInDialogBox") ; default 100 ms ; g_intWaitDelayInDialogBox
+o_Settings.ReadIniOption("Execution", "blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", "f_blnSendToConsoleWithAlt") ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
+o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "AdvancedOther"
+	, "f_blnEnableExternalMenusCatalogue|f_lnkEnableExternalMenusCatalogue|f_lblExternalMenusCataloguePathPrompt|f_strExternalMenusCataloguePath|f_btnExternalMenusCataloguePath") ; g_strExternalMenusCataloguePath
+o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "AdvancedOther"
+	, "f_lblWaitDelayInSnippet|f_intWaitDelayInSnippet1|f_intWaitDelayInSnippet2|f_intWaitDelayInSnippet3") ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
+o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
+o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusionList", " ", "AdvancedOther"
+	, "f_lnkSwitchExclusionList|f_strSwitchExclusionList|f_lnkGetWinInfoSwitchExclusion|f_btnGetWinInfoSwitchExclusion") ; g_strSwitchExclusionList
 
-o_Settings.ReadIniOption("SettingsFile", "strExternalMenusCataloguePath", "ExternalMenusCataloguePath", " ", "AdvancedOther", "50") ; g_strExternalMenusCataloguePath
+; not in Options Gui
 o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", "ExternalMenusCataloguePathReadOnly", 0) ; false by default
-; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
-
-
-; ---------------------
-; Load Options Tab 3 Menu Hotkeys
-
-; done in init of o_PopupHotkeys
-
-; ---------------------
-; Load Options Tab 4 Alternative Menu
-
-
-
-; ---------------------
-; Load Options Tab 5 File Managers
-
-
-; ---------------------
-; Options Tab 6 More
-
-; ExclusionMouseList
-
-o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "PopupMenu"
-	, "f_lnkExclusionMouseList1|f_lnkExclusionMouseList2|f_lnkExclusionMouseList3|f_strExclusionMouseList|f_btnGetWinInfoMouseExclusions") ; g_strExclusionMouseList
-o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
-
-
-; UsageDb
-; ---------------------
-; Load internal flags and various values
-
+o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
 o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0) ; Please, be fair. Don't cheat with this.; g_
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
@@ -4258,13 +4240,7 @@ if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersio
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-
-o_Settings.ReadIniOption("Snippets", "arrWaitDelayInSnippet", "WaitDelayInSnippet", "40|80|180", "AdvancedOther", 80) ; default 300 ms (split in three sleep commands) ; strWaitDelayInSnippet
-o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippets.arrWaitDelayInSnippet.IniValue, "|")
-o_Settings.ReadIniOption("Execution", "blnSendToConsoleWithAlt", "SendToConsoleWithAlt", 1, "AdvancedOther", 42) ; default true, send ANSI values to CMD with ALT+0nnn ASCII codes ; g_blnSendToConsoleWithAlt
-o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", 12) ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
-o_Settings.ReadIniOption("LaunchAdvanced", "blnRefreshWindowsAppsListAtStartup", "RefreshWindowsAppsListAtStartup", 0, "AdvancedLaunch", 10) ; g_blnRefreshWindowsAppsListAtStartup
-o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0, "AdvancedOther", 45) ; g_blnTryWindowPosition
+; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
 
 ; ---------------------
 ; Load favorites
@@ -5040,7 +5016,7 @@ SetTrayMenuIcon:
 ;------------------------------------------------------------
 
 Menu, Tray, NoStandard
-o_Settings.ReadIniOption("LaunchAdvanced", "strAlternativeTrayIcon", "AlternativeTrayIcon", " ", "AdvancedLaunch", "15") ; empty if not found
+o_Settings.ReadIniOption("LaunchAdvanced", "strAlternativeTrayIcon", "AlternativeTrayIcon", " ", "AdvancedLaunch", "f_strAlternativeTrayIcon|f_lblAlternativeTrayIcon|f_btnAlternativeTrayIcon") ; empty if not found
 
 Menu, Tray, UseErrorLevel ; will be turned off at the end of SetTrayMenuIcon
 if StrLen(o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue) and FileExist(o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue)
@@ -7068,14 +7044,14 @@ GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolder
 
 ; QAPTempFolder
 Gui, 2:Add, Text, y+15 x%g_intGroupItemsX% w105 vf_lblQAPTempFolderParentPath hidden, % o_L["OptionsQAPTempFolder"] . ":"
-Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strQAPTempFolderParentPath hidden
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strQAPTempFolderParentPath hidden ; gLabel after GuiControl that changes the value below
 Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath vf_btnQAPTempFolderParentPath hidden, % o_L["DialogBrowseButton"]
 GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
 GuiControl, 2:+gGuiOptionsGroupChanged, f_strQAPTempFolderParentPath
 
 ; BackupFolder
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblBackupFolder hidden, % o_L["OptionsBackupFolder"] . ":"
-Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strBackupFolder hidden
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strBackupFolder hidden ; gLabel after GuiControl that changes the value below
 Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder vf_btnBackupFolder hidden, % o_L["DialogBrowseButton"]
 GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 GuiControl, 2:+gGuiOptionsGroupChanged, f_strBackupFolder
@@ -7111,10 +7087,10 @@ GuiControl, , f_blnDisplayIcons, % (o_Settings.MenuIcons.blnDisplayIcons.IniValu
 
 ; IconSize
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% vf_lblIconSize Disabled hidden, % o_L["OptionsIconSize"]
-Gui, 2:Add, DropDownList, yp x+10 w75 vf_drpIconSize Disabled hidden, 16|24|32|48|64
+Gui, 2:Add, DropDownList, yp x+10 w75 vf_drpIconSize Disabled hidden, 16|24|32|48|64 ; gLabel after Gosub that changes the value below
 GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniValue
-GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 gosub, DisplayIconsClickedInit
+GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 
 ; IconsManageRows
 Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
@@ -7319,7 +7295,7 @@ GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.SA[1].blnOpen
 ; DirectoryOpusPath
 ; TotalCommanderPath
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w105 vf_lblFileManagerPrompt hidden, % o_L["DialogApplicationLabel"] . ":"
-Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strFileManagerPath hidden
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strFileManagerPath hidden ; gLabel after Gosub that changes the value below
 
 ; QAPconnectFileManager
 Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort gGuiOptionsGroupChanged
@@ -7339,15 +7315,16 @@ Gui, 2:Add, Button, x+10 yp vf_btnQAPconnectRefresh gActiveFileManagerClickedIni
 
 ; TotalCommanderWinCmd
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w105 vf_lblTotalCommanderWinCmdPrompt hidden, % o_L["TCWinCmdLocation"]
-Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strTotalCommanderWinCmd hidden gGuiOptionsGroupChanged
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strTotalCommanderWinCmd hidden ; gGuiOptionsGroupChanged
 Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommanderWinCmd hidden, % o_L["DialogBrowseButton"]
 
 ; FileManagerDOpusShowLayouts
 Gui, 2:Add, Checkbox, yp x%g_intGroupItemsTab3X% w590 vf_blnFileManagerDirectoryOpusShowLayouts gGuiOptionsGroupChanged hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
 GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts = true)
 
-Gosub, ActiveFileManagerClickedInit ; will call FileManagerNavigateClickedInit
-GuiControl, 2:+gGuiOptionsGroupChanged, f_strFileManagerPath ; must be after ActiveFileManagerClickedInit
+Gosub, ActiveFileManagerClickedInit
+Gosub, FileManagerNavigateClickedInit
+GuiControl, 2:+gGuiOptionsGroupChanged, f_strFileManagerPath
 
 GuiControlGet, arrPos, Pos, f_blnFileManagerDirectoryOpusShowLayouts
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -7378,7 +7355,7 @@ GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippet
 
 ; HotstringsDefaultOptions
 Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% hidden vf_lblSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefault"]
-Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"] ; gGuiOptionsGroupChanged ##### dans SelectHotstringDefaultOptions
+Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
 
 GuiControlGet, arrPos, Pos, f_blnSnippetDefaultMacro
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -7466,73 +7443,72 @@ Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiO
 GuiControlGet, arrPos, Pos, f_intClipboardMaxSize
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 	g_intOptionsFooterY := arrPosY + arrPosH
-/*
-; }
-; else if (g_strSettingsGroup = "AdvancedLaunch")
-; {
-	; RunAsAdmin
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y%intGroupItemsY% vf_blnRunAsAdmin gRunAsAdminClicked hidden, % o_L["OptionsRunAsAdmin"]
-	Gui, 2:Add, Picture, x+1 yp hidden, %g_strTempDir%\uac_logo-16.png
-	GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
-	; RefreshWindowsAppsListAtStartup
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y+10 w500 vf_blnRefreshWindowsAppsListAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
-	GuiControl, , f_blnRefreshWindowsAppsListAtStartup, % (o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.IniValue = true)
+; g_strSettingsGroup = "AdvancedLaunch"
 
-	; AlternativeTrayIcon
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 vf_lblAlternativeTrayIcon hidden, % o_L["OptionsAlternativeTrayIcon"] . ":"
-	Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon hidden
-	Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon hidden, % o_L["DialogBrowseButton"]
-	GuiControl, 2:, f_strAlternativeTrayIcon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue
-	GuiControl, 2:+gGuiOptionsGroupChanged, f_strAlternativeTrayIcon
+; RunAsAdmin
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y%intGroupItemsY% vf_blnRunAsAdmin gRunAsAdminClicked hidden, % o_L["OptionsRunAsAdmin"]
+Gui, 2:Add, Picture, x+1 yp hidden vf_picRunAsAdmin, %g_strTempDir%\uac_logo-16.png
+GuiControl, , f_blnRunAsAdmin, % (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue = true)
 
-GuiControlGet, arrPos, Pos, f_#####
+; RefreshWindowsAppsListAtStartup
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+10 w500 vf_blnRefreshWindowsAppsListAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshWindowsAppsListAtStartup"]
+GuiControl, , f_blnRefreshWindowsAppsListAtStartup, % (o_Settings.LaunchAdvanced.blnRefreshWindowsAppsListAtStartup.IniValue = true)
+
+; AlternativeTrayIcon
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 vf_lblAlternativeTrayIcon hidden, % o_L["OptionsAlternativeTrayIcon"] . ":"
+Gui, 2:Add, Edit, y+5 xs w300 h20 vf_strAlternativeTrayIcon hidden ; gLabel after GuiControl that changes the value below
+Gui, 2:Add, Button, x+5 yp w75 vf_btnAlternativeTrayIcon gButtonAlternativeTrayIcon hidden, % o_L["DialogBrowseButton"]
+GuiControl, 2:, f_strAlternativeTrayIcon, % o_Settings.LaunchAdvanced.strAlternativeTrayIcon.IniValue
+GuiControl, 2:+gGuiOptionsGroupChanged, f_strAlternativeTrayIcon
+
+GuiControlGet, arrPos, Pos, f_btnAlternativeTrayIcon
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 	g_intOptionsFooterY := arrPosY + arrPosH
-; }
-; else if (g_strSettingsGroup = "AdvancedOther")
-; {
-	; WaitDelayInDialogBox
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y%intGroupItemsY% vf_lblWaitDelayInDialogBox hidden, % o_L["OptionsWaitDelayInDialogBox"]
-	Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox gGuiOptionsGroupChanged hidden, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 
-	; SendToConsoleWithAlt
-	Gui, 2:Add, CheckBox, x%g_intGroupItemsTab3X% y+10 w500 vf_blnSendToConsoleWithAlt gGuiOptionsGroupChanged hidden, % o_L["OptionsSendToConsoleWithAlt"]
-	GuiControl, , f_blnSendToConsoleWithAlt, % (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue = true)
+; g_strSettingsGroup = "AdvancedOther"
 
-	; ExternalMenusCataloguePath
-	if !(o_Settings.SettingsFile.blnExternalMenusCataloguePathReadOnly.IniValue)
-	{
-		Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsTab3X% vf_blnEnableExternalMenusCatalogue hidden, % o_L["OptionsEnableExternalMenusCatalogue"]
-		Gui, 2:Add, Link, yp x+5 hidden, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
-		GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
-		Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab3X% vf_lblExternalMenusCataloguePathPrompt disabled hidden, % o_L["OptionsCataloguePath"] . ":"
-		Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled hidden
-		Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled hidden, % o_L["DialogBrowseButton"]
-		GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
-		GuiControl, 2:+gGuiOptionsGroupChanged, f_strExternalMenusCataloguePath
-		Gosub, EnableExternalMenusCatalogueClickedInit ; init disabled fields
-		GuiControl, 2:+gEnableExternalMenusCatalogueClicked, f_blnEnableExternalMenusCatalogue
-	}
-	
-	; WaitDelayInSnippet
-	Gui, 2:Add, Text, x%g_intGroupItemsTab3X% y+10 hidden, % o_L["OptionsWaitDelayInSnippet"]
-	loop, 3
-		Gui, 2:Add, Edit, % "x+5 yp h20 w50 hidden number center gGuiOptionsGroupChanged vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
+; WaitDelayInDialogBox
+Gui, 2:Add, Text, x%g_intGroupItemsX% y%intGroupItemsY% vf_lblWaitDelayInDialogBox hidden, % o_L["OptionsWaitDelayInDialogBox"]
+Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intWaitDelayInDialogBox gGuiOptionsGroupChanged hidden, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
 
-	; SwitchExclusionList
-	strUrl := "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/"
-	Gui, 2:Add, Link, y+15 x%g_intGroupItemsTab3X% w500 hidden, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Edit, y+5 x%g_intGroupItemsTab3X% w500 hidden r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
-	Gui, 2:Add, Link, y+5 x%g_intGroupItemsTab3X% w495 hidden, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
-	Gui, 2:Add, Button, x%g_intGroupItemsTab3X% y+10 vf_btnGetWinInfoSwitchExclusion gGetWinInfo hidden, % o_L["MenuGetWinInfo"]
-	GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfoSwitchExclusion")
+; SendToConsoleWithAlt
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+10 w500 vf_blnSendToConsoleWithAlt gGuiOptionsGroupChanged hidden, % o_L["OptionsSendToConsoleWithAlt"]
+GuiControl, , f_blnSendToConsoleWithAlt, % (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue = true)
 
-GuiControlGet, arrPos, Pos, f_#####
+; ExternalMenusCataloguePath
+if !(o_Settings.SettingsFile.blnExternalMenusCataloguePathReadOnly.IniValue)
+{
+	Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% vf_blnEnableExternalMenusCatalogue hidden, % o_L["OptionsEnableExternalMenusCatalogue"]
+	Gui, 2:Add, Link, yp x+5 hidden vf_lnkEnableExternalMenusCatalogue, % "(<a href=""https://www.quickaccesspopup.com/shared-menu-catalogue/"">" . o_L["GuiHelp"] . "</a>)"
+	GuiControl, , f_blnEnableExternalMenusCatalogue, % StrLen(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue) > 0
+	Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% vf_lblExternalMenusCataloguePathPrompt disabled hidden, % o_L["OptionsCataloguePath"] . ":"
+	Gui, 2:Add, Edit, yp x+5 w200 h20 vf_strExternalMenusCataloguePath disabled hidden ; gLabel after Gosub that changes the value below
+	Gui, 2:Add, Button, x+5 yp w75 vf_btnExternalMenusCataloguePath gButtonExternalMenuSelectCataloguePath disabled hidden, % o_L["DialogBrowseButton"]
+	GuiControl, 2:, f_strExternalMenusCataloguePath, % o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue
+	Gosub, EnableExternalMenusCatalogueClickedInit ; init disabled fields
+	GuiControl, 2:+gEnableExternalMenusCatalogueClicked, f_blnEnableExternalMenusCatalogue
+	GuiControl, 2:+gGuiOptionsGroupChanged, f_strExternalMenusCataloguePath
+}
+
+; WaitDelayInSnippet
+Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 hidden vf_lblWaitDelayInSnippet, % o_L["OptionsWaitDelayInSnippet"]
+loop, 3
+	Gui, 2:Add, Edit, % "x+5 yp h20 w50 hidden number center gGuiOptionsGroupChanged vf_intWaitDelayInSnippet" . A_Index, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[A_Index]
+
+; SwitchExclusionList
+strUrl := "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-folder-or-application-menu/"
+Gui, 2:Font, s8 w700
+Gui, 2:Add, Link, y+15 x%g_intGroupItemsX% w500 hidden vf_lnkSwitchExclusionList, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
+Gui, 2:Font
+Gui, 2:Add, Edit, y+5 x%g_intGroupItemsX% w500 hidden r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
+Gui, 2:Add, Link, y+5 x%g_intGroupItemsX% w495 hidden vf_lnkGetWinInfoSwitchExclusion, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
+Gui, 2:Add, Button, x%g_intGroupItemsX% y+10 vf_btnGetWinInfoSwitchExclusion gGetWinInfo hidden, % o_L["MenuGetWinInfo"]
+GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnGetWinInfoSwitchExclusion")
+
+GuiControlGet, arrPos, Pos, f_btnGetWinInfoSwitchExclusion
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 	g_intOptionsFooterY := arrPosY + arrPosH
-; }
-*/
 
 Gosub, GuiOptionsFooter
 
@@ -7997,7 +7973,9 @@ if StrLen(A_GuiControl)
 	g_strSettingsGroup := StrReplace(A_GuiControl, "f_btnOptionsGroup")
 }
 
-### := ""
+GuiControl, -Default, % "f_btnOptionsGroup" . strSettingsGroupPrev ; will work even if A_GuiControl is empty
+GuiControl, +Default, % "f_btnOptionsGroup" . g_strSettingsGroup ; will work even if A_GuiControl is empty
+
 if (strSettingsGroupPrev = g_strSettingsGroup)
 	return
 
@@ -8005,19 +7983,13 @@ loop, Parse, % strSettingsGroupPrev . "|" . g_strSettingsGroup, |
 	if StrLen(A_LoopField)
 		for intKey, aaIniValue in o_Settings.aaGroupItems[A_LoopField]
 			for intControlKey, strGuiControl in StrSplit(aaIniValue.strGuiControls, "|")
-			{
-				### .= A_LoopField . " - " . aaIniValue.strIniValueName . " - " . intControlKey . " - " . (A_LoopField = strSettingsGroupPrev ? "Hide " . strSettingsGroupPrev : "Show " . g_strSettingsGroup) . " " . strGuiControl . "`n"
-				Tooltip, %###%
-				sleep, 20
 				if StrLen(strGuiControl)
 					GuiControl, % (A_LoopField = strSettingsGroupPrev ? "Hide" : "Show"), %strGuiControl%
-			}
 Tooltip
-Clipboard := ###
 
 GuiControl, , f_lblOptionsGuiTitle, % L(o_L["Options" . g_strSettingsGroup] . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
 
-Gosub, ActiveFileManagerClickedInit
+Gosub, ActiveFileManagerClickedGroupButton
 
 strSettingsGroupPrev := ""
 
@@ -8028,6 +8000,11 @@ return
 ;------------------------------------------------------------
 GuiOptionsGroupChanged:
 ;------------------------------------------------------------
+
+if (g_blnGroupChanged) ; ##### debug
+	SoundBeep, 400
+else
+	SoundBeep, 800
 
 g_blnGroupChanged := true
 GuiControl, % "2:" . (g_blnGroupChanged ? "Enable" : "Disable"), f_btnOptionsSave
@@ -8049,10 +8026,11 @@ return
 ;------------------------------------------------------------
 ActiveFileManagerClicked:
 ActiveFileManagerClickedInit:
+ActiveFileManagerClickedGroupButton:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "ActiveFileManagerClicked")
 	Gosub, GuiOptionsGroupChanged
 
 strShowHideCommand := (f_radActiveFileManager1 and g_strSettingsGroup = "FileManagers" ? "Show" : "Hide")
@@ -8081,6 +8059,9 @@ GuiControl, %strShowHideCommand%, f_btnQAPconnectEdit
 GuiControl, %strShowHideCommand%, f_btnQAPconnectRefresh
 GuiControl, %strShowHideCommand%, f_drpQAPconnectFileManager
 
+if InStr(A_ThisLabel, "GroupButton")
+	return ; no need to change remaining values and avoid unexpected GuiOptionsGroupChanged
+
 if (f_radActiveFileManager2) ; DirectoryOpus
 {
 	g_intClickedFileManager := 2
@@ -8107,7 +8088,8 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 {
 	GuiControl, , f_lblFileManagerDetail, % (f_radActiveFileManager4 ? L(o_L["OptionsThirdPartyDetailQAPconnect"], "QAPconnect.ini")
 		: L(o_L["OptionsThirdPartyDetail"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName))
-	GuiControl, , f_strFileManagerPath, % o_FileManagers.SA[g_intClickedFileManager].strFileManagerPath
+	GuiControl, , f_strFileManagerPath, % o_FileManagers.SA[g_intClickedFileManager].strFileManagerPath ; was the cause of the group changed flag bug
+
 	if (f_radActiveFileManager4) ; QAPconnect
 	{
 		IniRead, strQAPconnectFileManagersList, % o_FileManagers.SA[4].strQAPconnectIniPath, , , %A_Space% ; list of QAPconnect.ini applications, empty by default
@@ -8129,8 +8111,6 @@ if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 		GuiControl, , f_strTotalCommanderWinCmd, % o_FileManagers.SA[3].strTCIniFile
 }
 
-Gosub, FileManagerNavigateClickedInit
-
 strHelpUrl := ""
 strQAPconnectFileManagersList := ""
 strShowHideCommand := ""
@@ -8145,7 +8125,7 @@ FileManagerNavigateClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "FileManagerNavigateClicked")
 	Gosub, GuiOptionsGroupChanged
 
 GuiControl, , f_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
@@ -8164,7 +8144,7 @@ DisplayIconsClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "DisplayIconsClicked")
 	Gosub, GuiOptionsGroupChanged
 
 strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
@@ -8183,7 +8163,7 @@ RefreshQAPMenuEnableClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "RefreshQAPMenuEnableClicked")
 	Gosub, GuiOptionsGroupChanged
 
 if (f_blnRefreshQAPMenuEnable and o_Settings.MenuAdvanced.intRefreshQAPMenuIntervalSec.IniValue = 0)
@@ -8384,7 +8364,7 @@ EnableExternalMenusCatalogueClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "EnableExternalMenusCatalogueClicked")
 	Gosub, GuiOptionsGroupChanged
 
 blnExternalMenusCataloguePathReadOnly := o_Settings.ReadIniValue("ExternalMenusCataloguePathReadOnly", 0) ; false if not found
@@ -8429,7 +8409,7 @@ DisplayMenuShortcutsClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "DisplayMenuShortcutsClicked")
 	Gosub, GuiOptionsGroupChanged
 
 GuiControl, % (f_blnDisplayNumericShortcuts ? "Enable" : "Disable"), f_blnDisplayNumericShortcutsFromOne
@@ -8535,7 +8515,7 @@ OptionUsageDbEnableClickedInit:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if !InStr(A_ThisLabel, "Init")
+if (A_ThisLabel = "OptionUsageDbEnableClicked")
 	Gosub, GuiOptionsGroupChanged
 
 strAction := (f_blnOptionUsageDbEnable ? "Enable" : "Disable")
@@ -14531,7 +14511,7 @@ SelectHotstringDefaultOptions:
 ;------------------------------------------------------------
 
 strNewHotstringsDefaultOptions := SelectHotstring(o_Settings.Hotstrings.strHotstringsDefaultOptions.IniValue, "", "", "", true)
-; ###_V("strNewHotstringsDefaultOptions", strNewHotstringsDefaultOptions)
+Gosub, GuiOptionsGroupChanged
 
 return
 ;------------------------------------------------------------
