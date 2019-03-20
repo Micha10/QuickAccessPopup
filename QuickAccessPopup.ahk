@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.7 (2019-03-20)
+- improvements to the Options dialog box: adding buttons to switch groups of options (similar to tabs, but vertically)
+- improve paths validation  for temp folder, backup folder and tray icon file when saving options
+- make modal error messages dialog boxes from secondary dialog boxes (like Options or Edit Favorite)
+- fix bug not showing hotstring in settings window after editing a favorite
+- various internal changes (mostly variable renaming) to classes code
+
 Version ALPHA: 9.9.0.6 (2019-02-28)
 - first alpha release with changes in feature
  
@@ -3132,7 +3139,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.6
+;@Ahk2Exe-SetVersion 9.9.0.7
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3224,7 +3231,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -3522,7 +3529,6 @@ Hotkey, If
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectMenuData, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
-; gosub, GuiOptionsGroupGeneral ; #####
 return
 
 ;========================================================================================================================
@@ -7678,7 +7684,7 @@ strValue := ""
 
 o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIni(f_blnRememberSettingsPosition)
 o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIni(f_blnOpenSettingsOnActiveMonitor)
-o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0) ; ##### what if f_blnAddAutoAtTop1 ??
+o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
 
 ; === MenuIcons ===
 
@@ -12762,8 +12768,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
 	strThisHotkey := new Triggers.HotkeyParts(g_objEditedFavorite.FavoriteShortcut).Hotkey2Text(true)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
-		strThisHotkey .= " " . BetweenParenthesis(o_Settings.Menu.intHotkeyReminders.IniValue = 2
-			? o_L["DialogHotstringIndicator"] : GetHotstringTrigger(g_objEditedFavorite.FavoriteHotstring))
+		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objEditedFavorite.FavoriteHotstring))
 
 	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
@@ -14929,9 +14934,9 @@ return
 2GuiEscape:
 ;------------------------------------------------------------
 
-if StrLen(g_strSettingsGroup) ; ##### check if safer now to use InStr window title? Always same title
-; strThisTitle (used before) was OK only when closing with Options window buttons
-; g_strSettingsGroup is also good when changing group in an existing Options window
+WinGetTitle, strThisTitle, A
+
+if (g_strOptionsGuiTitle = strThisTitle)
 {
 	if (g_blnGroupChanged)
 	{
@@ -14945,13 +14950,11 @@ if StrLen(g_strSettingsGroup) ; ##### check if safer now to use InStr window tit
 	}
 	g_strSettingsGroup := ""
 
-	; ##### now always do it? if (g_strSettingsGroup = "PopupHotkeys") ; revert to previous content of o_PopupHotkeys.SA
+	; revert to previous content of o_PopupHotkeys.SA
 	o_PopupHotkeys.RestorePopupHotkeys()
 }
 else
 {
-	WinGetTitle, strThisTitle, A
-	
 	; save position and size of add/edit/copy dialog box and of dialog box to select destination menu when copying/moving multiple favorites
 	blnIsAddEditCopyFavorite := WindowIsAddEditCopyFavorite(strThisTitle)
 	blnIsToMenuDialogBox := WindowIsToMenuDialogBox(strThisTitle)
