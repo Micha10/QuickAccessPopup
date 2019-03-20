@@ -25396,9 +25396,12 @@ class Container
 	__New(strType, strContainerName, oParentMenu := "")
 	;---------------------------------------------------------
 	{
-		; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
-		this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
-			. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+		if (strContainerName = o_L["MainMenuName"])
+			this.AA.strMenuPath := o_L["MainMenuName"] ; no separator before name
+		else
+			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
+			this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
+				. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
 		if (oParentMenu)
 		{
@@ -25590,10 +25593,6 @@ class Container
 
 		Loop, % this.SA.MaxIndex()
 		{
-			if (this.SA[A_Index].AA.strFavoriteType = "B") ; skip back link
-				or this.SA[A_Index].AA.strFavoriteDisabled
-				continue
-			
 			intMenuItemsCount++ ; for objMenuColumnBreak
 			
 			if (this.SA[A_Index].AA.strFavoriteType = "QAP")
@@ -25649,11 +25648,11 @@ class Container
 				if (g_blnUseColors)
 					Try Menu, % this.SA[A_Index].AA.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
-				Try Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.MenuPath
+				Try Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath
 				; catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
 					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
-				Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 1 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains only the back .. item
+				Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains no item
 				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
 				{
 					ParseIconResource(this.SA[A_Index].AA.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
