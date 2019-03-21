@@ -3274,7 +3274,7 @@ global g_strHotstringOptionsExecute := "X"
 
 global g_objGuiControls := Object() ; to build Settings gui
 
-global g_objFavoritesObjectsByShortcut := Object() ; replacing g_objHotkeysByNameLocation
+global g_objFavoritesObjectsByShortcut := Object()
 global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
 global g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
@@ -6374,26 +6374,18 @@ return
 
 
 ;------------------------------------------------------------
-LiveFolderHasContent(objLiveFolder)
+LiveFolderHasContent(o_LiveFolder)
 ;------------------------------------------------------------
 {
-;	###_O(objLiveFolder.FavoriteLocation, objLiveFolder)
-	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(objLiveFolder.FavoriteLocation))
-	if (objLiveFolder.FavoriteFolderLiveDocuments)
+;	###_O(o_LiveFolder.AA.strFavoriteLocation, objLiveFolder)
+	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(o_LiveFolder.AA.strFavoriteLocation))
+	if (o_LiveFolder.AA.strFavoriteFolderLiveDocuments)
 	{
 		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
-			; ###_V("Conditions"
-				; , A_LoopFileFullPath
-				; , A_LoopFileExt
-				; , objLiveFolder.FavoriteFolderLiveExtensions
-				; , !StrLen(objLiveFolder.FavoriteFolderLiveExtensions)
-				; , (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				; , (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt))
-				; , "-")
-			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
-				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
-				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+			if !StrLen(o_LiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
+				or (o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+				or (!o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and !InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
 			{
 			;	###_V("YES DOCUMENT", A_LoopFileFullPath)
 				return true
@@ -6409,187 +6401,6 @@ LiveFolderHasContent(objLiveFolder)
 ;	###_D("No folder")
 	
 	return false
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-BuildLiveFolderMenu(objLiveFolder, strMenuParentPath, intMenuParentPosition)
-;------------------------------------------------------------
-{
-	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(objLiveFolder.FavoriteLocation))
-	
-	objNewMenu := Object() ; create the submenu object
-	objNewMenu.IsLiveMenu := true
-	objNewMenu.LiveMenuParentPath := strMenuParentPath
-	objNewMenu.LiveMenuParentPosition := intMenuParentPosition
-	objNewMenu.MenuPath := strMenuParentPath . g_strMenuPathSeparatorWithSpaces  . objLiveFolder.FavoriteName
-	objNewMenu.MenuType := "Menu"
-	
-	; fake back menu
-	objNewMenuItem := Object()
-	objNewMenuItem.FavoriteType := "B"
-	objNewMenuItem.FavoriteName := ".."
-	objNewMenu.Insert(objNewMenuItem)
-
-	; self Live Folder item
-	objNewMenuItem := Object()
-	objNewMenuItem.FavoriteType := "Folder"
-	objNewMenuItem.FavoriteName := DoubleAmpersand(objLiveFolder.FavoriteName)
-	objNewMenuItem.FavoriteLocation := strExpandedLocation
-	strFolderIcon := GetFolderIcon(objNewMenuItem.FavoriteLocation)
-	if (strFolderIcon = "iconFolder")
-		strFolderIcon := objLiveFolder.FavoriteIconResource
-	if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
-		strFolderIcon := "iconFolderLiveOpened"
-	ParseIconResource(strFolderIcon, strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
-	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
-	objNewMenu.Insert(objNewMenuItem)
-	
-	; scan folders in live folder
-	strFolders := ""
-	Loop, Files, %strExpandedLocation%\*.*, D ; directories
-	{
-		g_intNbLiveFolderItems++
-		if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
-			Break
-		if !InStr(A_LoopFileAttrib, "H")
-			strFolders .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
-	}
-	
-	Sort, strFolders, % (SubStr(objLiveFolder.FavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
-	
-	; scan files in live folder
-	strFiles := ""
-	if (objLiveFolder.FavoriteFolderLiveDocuments)
-		Loop, Files, %strExpandedLocation%\*.*, F ; files
-			if !StrLen(objLiveFolder.FavoriteFolderLiveExtensions) ; include all
-				or (objLiveFolder.FavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
-				or (!objLiveFolder.FavoriteFolderLiveIncludeExclude and !InStr(objLiveFolder.FavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
-			{
-				; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
-				g_intNbLiveFolderItems++
-				if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
-					Break
-				; favorite type Document is OK for Application items
-
-				if (A_LoopFileExt = "lnk")
-				{
-					SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
-					; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
-					FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
-					if !StrLen(strFileLocation)
-						strFileLocation := A_LoopFileLongPath
-				}
-				else
-				{
-					strFileName := A_LoopFileName
-					strFileLocation := A_LoopFileLongPath
-				}
-				
-				strExtension := GetFileExtension(strFileLocation)
-				if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
-					strFavoriteType := "Application"
-				else
-					strFavoriteType := "Document"
-				
-				strFiles .= GetSortCriteria(objLiveFolder.FavoriteFolderLiveSort) . "`t" . strFavoriteType . "`t" . strFileName . "`t"
-					. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
-				
-				; get icon for link or shortcut, and add start in directory and args for applications
-				if (A_LoopFileExt = "url")
-					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-				else if (A_LoopFileExt = "lnk")
-					strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
-						. "`t" . strArguments . "`t" . strAppWorkingDir
-				; else icon resource will be set when building menu
-				
-				strFiles .= "`n"
-			}
-
-	if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
-	{
-		Oops(o_L["OopsMaxLiveFolder"], o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
-		return
-	}
-
-	Sort, strFiles, % (SubStr(objLiveFolder.FavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
-	
-	strContent := (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
-
-	Loop, Parse, strContent, `n
-	{
-		if !StrLen(A_LoopField)
-			break
-		
-		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
-		StringSplit, arrItem, A_LoopField, `t
-		
-		if (objLiveFolder.FavoriteFolderLiveColumns and !Mod(A_Index + 1, objLiveFolder.FavoriteFolderLiveColumns)) ; insert column break
-		{
-			objNewMenuItem := Object()
-			objNewMenuItem.FavoriteType := "K"
-			objNewMenu.Insert(objNewMenuItem)
-		}
-		else if (arrItem2 = "X") ; insert separator between folders and files except if we are at a column break
-		{
-			objNewMenuItem := Object()
-			objNewMenuItem.FavoriteType := "X"
-		}
-		
-		if  (arrItem2 <> "X") ; do not use "else" because we must insert this item even if we inserted a column break
-		{
-			objNewMenuItem := Object()
-			objNewMenuItem.FavoriteType := arrItem2
-			objNewMenuItem.FavoriteName := DoubleAmpersand(arrItem3)
-			objNewMenuItem.FavoriteLocation := arrItem4
-			objNewMenuItem.FavoriteIconResource := arrItem5
-			if (arrItem2 = "Application")
-			{
-				objNewMenuItem.FavoriteArguments := arrItem6
-				objNewMenuItem.FavoriteAppWorkingDir := arrItem7
-			}
-			if (arrItem2 = "Folder") ; make it a live folder
-			{
-				objNewMenuItem.FavoriteFolderLiveLevels := objLiveFolder.FavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
-				objNewMenuItem.FavoriteFolderLiveDocuments := objLiveFolder.FavoriteFolderLiveDocuments
-				objNewMenuItem.FavoriteFolderLiveColumns := objLiveFolder.FavoriteFolderLiveColumns
-				objNewMenuItem.FavoriteFolderLiveIncludeExclude := objLiveFolder.FavoriteFolderLiveIncludeExclude
-				objNewMenuItem.FavoriteFolderLiveExtensions := objLiveFolder.FavoriteFolderLiveExtensions
-				objNewMenuItem.FavoriteFolderLiveSort := objLiveFolder.FavoriteFolderLiveSort
-			}
-		}
-		objNewMenu.Insert(objNewMenuItem)
-	}
-
-	; attach live folder menu to live folder favorite object
-	objLiveFolder.SubMenu := objNewMenu
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetSortCriteria(strSort)
-;------------------------------------------------------------
-{
-	; sort criteria 1 file name, 2 extension, 3 size or 4 modified date (22)
-	strSortCriteria := SubStr(strSort, 2, 1)
-	
-	if (strSortCriteria = "4")
-		strCriteria := A_LoopFileTimeModified . A_LoopFileName
-	else if (strSortCriteria = "3")
-	{		
-		strCriteria := A_LoopFileSize
-		while StrLen(strCriteria) < 16 ; OK up to 1024 TB
-			strCriteria := "0" . strCriteria
-		strCriteria .= A_LoopFileName ; in case we have equal sizes
-	}
-	else if (strSortCriteria = "2")
-		strCriteria := A_LoopFileExt . A_LoopFileName
-	else ; 1 default if strSort not set, fallback for live folfers before v9
-		strCriteria := A_LoopFileName
-	
-	return strCriteria
 }
 ;------------------------------------------------------------
 
@@ -11526,7 +11337,7 @@ GuiShowNeverCalled:
 if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
 {
 	if (g_objMenusIndex[A_ThisMenu].IsLiveMenu)
-		strThisMenu := g_objMenusIndex[A_ThisMenu].LiveMenuParentPath
+		strThisMenu := g_objMenusIndex[A_ThisMenu].LiveMenuParentPath ; with Container class, replace with ...AA.oParentMenu.AA.strMenuPath ?
 	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !g_objMenusIndex.HasKey(A_ThisMenu)) ; A_ThisMenu = "" and HasKey by safety
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
@@ -14509,14 +14320,14 @@ if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut) ; if not ch
 if HasShortcut(g_strNewFavoriteShortcut)
 {
 	; add item to g_objFavoritesObjectsByShortcut and remove from g_objShortcutsToRemoveWhenBuilingMenu (because it is now re-used)
-	g_objFavoritesObjectsByShortcut.Insert(g_strNewFavoriteShortcut, g_objEditedFavorite) ; insert new shortcut as in g_strNewFavoriteShortcut
+	g_objFavoritesObjectsByShortcut[g_strNewFavoriteShortcut] := g_objEditedFavorite ; insert new shortcut as in g_strNewFavoriteShortcut
 	g_objShortcutsToRemoveWhenBuilingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before (not using deprecated function .Remove)
 }
 
 if HasShortcut(g_objEditedFavorite.FavoriteShortcut)
 {
 	; remove item from g_objFavoritesObjectsByShortcut and add it to g_objShortcutsToRemoveWhenBuilingMenu
-	g_objFavoritesObjectsByShortcut.Remove(g_objEditedFavorite.FavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
+	g_objFavoritesObjectsByShortcut.Delete(g_objEditedFavorite.FavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
 	g_objShortcutsToRemoveWhenBuilingMenu[g_objEditedFavorite.FavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
 }
 
@@ -15931,7 +15742,7 @@ if (g_blnAlternativeMenu)
 			; trying to edit items inside live folder leads to edit the parent live folder favorite
 			; no need to consider column breaks, disabled items and back link because already taken into account in .LiveMenuParentPosition
 			g_intOriginalMenuPosition := g_objMenusIndex[A_ThisMenu].LiveMenuParentPosition
-			g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition]
+			g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition] ; with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
 			g_objMenuInGui := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath]
 		}
 		else
@@ -20241,11 +20052,11 @@ GetHotstringOptions(strHotstring)
 SplitHotstring(strHotstring, ByRef strTrigger, ByRef strOptionsShort)
 ;------------------------------------------------------------
 {
-	StringSplit, arrHotstring, strHotstring, :
-	strTrigger := arrHotstring3
-	strOptionsShort := arrHotstring2
+	saHotstring := StrSplit(strHotstring, ":")
+	strTrigger := saHotstring[3]
+	strOptionsShort := saHotstring[2]
 	
-	return StrLen(arrHotstring1)
+	return StrLen(saHotstring[1])
 }
 ;------------------------------------------------------------
 
@@ -25444,9 +25255,9 @@ class Container
 			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.MenuExternalSettingsPath)
 			blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", this.AA.MenuExternalSettingsPath)
 			; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
-			oNewMenu.strMenuExternalLastModifiedWhenLoaded := strLastModified
-			oNewMenu.strMenuExternalLastModifiedNow := strLastModified
-			oNewMenu.strMenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
+			this.AA.strMenuExternalLastModifiedWhenLoaded := strLastModified
+			this.AA.strMenuExternalLastModifiedNow := strLastModified
+			this.AA.strMenuExternalLastModifiedFromNetworkOrCoud := blnLastModifiedFromNetworkOrCoud
 			
 			; if this menu is already locked by this user (because something unexpected happened and the lock was not released previously), unlock it immediately
 			strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", this.AA.strMenuExternalSettingsPath)
@@ -25611,7 +25422,7 @@ class Container
 			
 			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut)
 			{
-				g_objFavoritesObjectsByShortcut.Insert(this.SA[A_Index].AA.strFavoriteShortcut, this.SA[A_Index])
+				g_objFavoritesObjectsByShortcut[this.SA[A_Index].AA.strFavoriteShortcut] := this.SA[A_Index]
 
 				; enable shortcut
 				Hotkey, % this.SA[A_Index].AA.strFavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
@@ -25638,8 +25449,8 @@ class Container
 			{
 				if (this.SA[A_Index].AA.strFavoriteFolderLiveLevels)
 				{
-					BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
-					g_objMenusIndex.Insert(this.SA[A_Index].AA.oSubMenu.AA.MenuPath, this.SA[A_Index].AA.oSubMenu) ; add to the menu index
+					this.BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
+					; ##### add to containers ; g_objMenusIndex.Insert(this.SA[A_Index].AA.oSubMenu.AA.MenuPath, this.SA[A_Index].AA.oSubMenu) ; add to the menu index
 				}
 				
 				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
@@ -25919,6 +25730,346 @@ RecursiveBuildOneMenu(objCurrentMenu)
 				Menu, % objCurrentMenu.MenuPath, Default, %strMenuName%
 		}
 	}
+}
+;------------------------------------------------------------
+*/
+
+	;------------------------------------------------------------
+	BuildLiveFolderMenu(o_FavoriteLiveFolder, strMenuParentPath, intMenuParentPosition)
+	; this.BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
+	;------------------------------------------------------------
+	{
+		strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(o_FavoriteLiveFolder.AA.strFavoriteLocation))
+
+		; content in 3 tab delimited strings, first on for self-folder, then for folders and files
+		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
+		
+		; self folder
+		strFolderIcon := GetFolderIcon(strExpandedLocation)
+		if (strFolderIcon = "iconFolder")
+			strFolderIcon := o_FavoriteLiveFolder.AA.strFavoriteIconResource
+		if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
+			strFolderIcon := "iconFolderLiveOpened"
+		strSelfFolder := "`tFolder`t" . o_FavoriteLiveFolder.AA.strFavoriteName . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
+		
+		; scan folders in live folder
+		strFolders := ""
+		Loop, Files, %strExpandedLocation%\*.*, D ; directories
+		{
+			g_intNbLiveFolderItems++
+			if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+				Break
+			if !InStr(A_LoopFileAttrib, "H")
+				strFolders .= this.GetSortCriteria(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
+		}
+		
+		Sort, strFolders, % (SubStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
+		
+		; scan files in live folder
+		strFiles := ""
+		if (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments)
+			Loop, Files, %strExpandedLocation%\*.*, F ; files
+				if !StrLen(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
+					or (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+					or (!o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude and !InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+				{
+					; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
+					g_intNbLiveFolderItems++
+					if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+						Break
+					; favorite type Document is OK for Application items
+
+					if (A_LoopFileExt = "lnk")
+					{
+						SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
+						; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+						FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
+						if !StrLen(strFileLocation)
+							strFileLocation := A_LoopFileLongPath
+					}
+					else
+					{
+						strFileName := A_LoopFileName
+						strFileLocation := A_LoopFileLongPath
+					}
+					
+					strExtension := GetFileExtension(strFileLocation)
+					if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
+						strFavoriteType := "Application"
+					else
+						strFavoriteType := "Document"
+					
+					strFiles .= this.GetSortCriteria(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort) . "`t" . strFavoriteType . "`t" . strFileName . "`t"
+						. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+					
+					; get icon for link or shortcut, and add start in directory and args for applications
+					if (A_LoopFileExt = "url")
+						strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+					else if (A_LoopFileExt = "lnk")
+						strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
+							. "`t" . strArguments . "`t" . strAppWorkingDir
+					; else icon resource will be set when building menu
+					
+					strFiles .= "`n"
+				}
+
+		if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+		{
+			Oops(o_L["OopsMaxLiveFolder"], o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+			return
+		}
+
+		Sort, strFiles, % (SubStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
+		
+		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
+
+		; objNewMenu := Object() ; create the submenu object
+		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this)
+		oNewSubMenu.AA.IsLiveMenu := true
+		oNewSubMenu.AA.LiveMenuParentPosition := intMenuParentPosition
+		
+		Loop, Parse, strContent, `n
+		{
+			if !StrLen(A_LoopField)
+				break
+			
+			saItemSource := StrSplit(A_LoopField, "`t")
+			saItemSource.RemoveAt(1) ; remove sorting criteria, order becomes as expected by new Item class
+			; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk), 5 args (for applications), 6 working dir (for applications)
+			
+			if (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns)) ; insert column break before new item
+			{
+				oNewItem := new this.Item(["K"]) ; simple array object with only favorite type "K"
+				this.SA.Push(oNewItem) ; add column break to the current container object
+				if (saItemSource[1] = "X") ; skip line separator after a column break
+					break ; continue with next line in strContent
+			}
+			
+			oNewItem := new this.Item(saItemSource)
+			
+			if (saItemSource[2] = "Folder") ; make it a live folder
+			{
+				; MOVE THIS ? change fav type to "Menu" ? only if levels OK? #####
+				oNewItem.strFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+				oNewItem.strFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments
+				oNewItem.strFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns
+				oNewItem.strFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude
+				oNewItem.strFavoriteFolderLiveExtensions := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions
+				oNewItem.strFavoriteFolderLiveSort := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort
+			}
+			if (oNewItem.AA.strFavoriteType = "Menu") ; this is a submenu favorite, link to the submenu object
+				oNewItem.AA.oSubMenu := oNewSubMenu
+			
+			oNewSubMenu.SA.Push(oNewItem) ; add to the current container object
+		}
+
+		; attach live folder menu to live folder favorite object
+		o_FavoriteLiveFolder.AA.oSubMenu := oNewSubMenu
+	}
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	GetSortCriteria(strSort)
+	;------------------------------------------------------------
+	{
+		; sort criteria 1 file name, 2 extension, 3 size or 4 modified date (22)
+		strSortCriteria := SubStr(strSort, 2, 1)
+		
+		if (strSortCriteria = "4")
+			strCriteria := A_LoopFileTimeModified . A_LoopFileName
+		else if (strSortCriteria = "3")
+		{		
+			strCriteria := A_LoopFileSize
+			while StrLen(strCriteria) < 16 ; OK up to 1024 TB
+				strCriteria := "0" . strCriteria
+			strCriteria .= A_LoopFileName ; in case we have equal sizes
+		}
+		else if (strSortCriteria = "2")
+			strCriteria := A_LoopFileExt . A_LoopFileName
+		else ; 1 default if strSort not set, fallback for live folfers before v9
+			strCriteria := A_LoopFileName
+		
+		return strCriteria
+	}
+	;------------------------------------------------------------
+
+/*
+;------------------------------------------------------------
+BuildLiveFolderMenu(o_LiveFolder, strMenuParentPath, intMenuParentPosition)
+;------------------------------------------------------------
+{
+	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(o_LiveFolder.AA.strFavoriteLocation))
+	
+	objNewMenu := Object() ; create the submenu object
+	objNewMenu.IsLiveMenu := true
+	objNewMenu.LiveMenuParentPath := strMenuParentPath
+	objNewMenu.LiveMenuParentPosition := intMenuParentPosition
+	objNewMenu.MenuPath := strMenuParentPath . g_strMenuPathSeparatorWithSpaces  . o_LiveFolder.AA.strFavoriteName
+	objNewMenu.MenuType := "Menu"
+	
+	; fake back menu
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "B"
+	objNewMenuItem.FavoriteName := ".."
+	objNewMenu.Insert(objNewMenuItem)
+
+	; self Live Folder item
+	objNewMenuItem := Object()
+	objNewMenuItem.FavoriteType := "Folder"
+	objNewMenuItem.FavoriteName := DoubleAmpersand(o_LiveFolder.AA.strFavoriteName)
+	objNewMenuItem.FavoriteLocation := strExpandedLocation
+	strFolderIcon := GetFolderIcon(objNewMenuItem.FavoriteLocation)
+	if (strFolderIcon = "iconFolder")
+		strFolderIcon := o_LiveFolder.AA.strFavoriteIconResource
+	if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
+		strFolderIcon := "iconFolderLiveOpened"
+	ParseIconResource(strFolderIcon, strThisIconFile, intThisIconIndex, "iconFolderLiveOpened")
+	objNewMenuItem.FavoriteIconResource := strThisIconFile . "," . intThisIconIndex
+	objNewMenu.Insert(objNewMenuItem)
+	
+	; scan folders in live folder
+	strFolders := ""
+	Loop, Files, %strExpandedLocation%\*.*, D ; directories
+	{
+		g_intNbLiveFolderItems++
+		if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+			Break
+		if !InStr(A_LoopFileAttrib, "H")
+			strFolders .= GetSortCriteria(o_LiveFolder.AA.strFavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
+	}
+	
+	Sort, strFolders, % (SubStr(o_LiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
+	
+	; scan files in live folder
+	strFiles := ""
+	if (o_LiveFolder.AA.strFavoriteFolderLiveDocuments)
+		Loop, Files, %strExpandedLocation%\*.*, F ; files
+			if !StrLen(o_LiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
+				or (o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+				or (!o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and !InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+			{
+				; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
+				g_intNbLiveFolderItems++
+				if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+					Break
+				; favorite type Document is OK for Application items
+
+				if (A_LoopFileExt = "lnk")
+				{
+					SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
+					; FileGetShortcut, %file%, OutTarget, OutDir, OutArgs, OutDesc, OutIcon, OutIconNum, OutRunState
+					FileGetShortcut, %A_LoopFileLongPath%, strFileLocation, strAppWorkingDir, strArguments, , strShortcutIconFile, strShortcutIconIndex
+					if !StrLen(strFileLocation)
+						strFileLocation := A_LoopFileLongPath
+				}
+				else
+				{
+					strFileName := A_LoopFileName
+					strFileLocation := A_LoopFileLongPath
+				}
+				
+				strExtension := GetFileExtension(strFileLocation)
+				if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
+					strFavoriteType := "Application"
+				else
+					strFavoriteType := "Document"
+				
+				strFiles .= GetSortCriteria(o_LiveFolder.AA.strFavoriteFolderLiveSort) . "`t" . strFavoriteType . "`t" . strFileName . "`t"
+					. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
+				
+				; get icon for link or shortcut, and add start in directory and args for applications
+				if (A_LoopFileExt = "url")
+					strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+				else if (A_LoopFileExt = "lnk")
+					strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
+						. "`t" . strArguments . "`t" . strAppWorkingDir
+				; else icon resource will be set when building menu
+				
+				strFiles .= "`n"
+			}
+
+	if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+	{
+		Oops(o_L["OopsMaxLiveFolder"], o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
+		return
+	}
+
+	Sort, strFiles, % (SubStr(o_LiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
+	
+	strContent := (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
+
+	Loop, Parse, strContent, `n
+	{
+		if !StrLen(A_LoopField)
+			break
+		
+		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
+		StringSplit, arrItem, A_LoopField, `t
+		
+		if (o_LiveFolder.AA.strFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_LiveFolder.AA.strFavoriteFolderLiveColumns)) ; insert column break
+		{
+			objNewMenuItem := Object()
+			objNewMenuItem.FavoriteType := "K"
+			objNewMenu.Insert(objNewMenuItem)
+		}
+		else if (arrItem2 = "X") ; insert separator between folders and files except if we are at a column break
+		{
+			objNewMenuItem := Object()
+			objNewMenuItem.FavoriteType := "X"
+		}
+		
+		if  (arrItem2 <> "X") ; do not use "else" because we must insert this item even if we inserted a column break
+		{
+			objNewMenuItem := Object()
+			objNewMenuItem.FavoriteType := arrItem2
+			objNewMenuItem.FavoriteName := DoubleAmpersand(arrItem3)
+			objNewMenuItem.FavoriteLocation := arrItem4
+			objNewMenuItem.FavoriteIconResource := arrItem5
+			if (arrItem2 = "Application")
+			{
+				objNewMenuItem.FavoriteArguments := arrItem6
+				objNewMenuItem.FavoriteAppWorkingDir := arrItem7
+			}
+			if (arrItem2 = "Folder") ; make it a live folder
+			{
+				objNewMenuItem.FavoriteFolderLiveLevels := o_LiveFolder.AA.strFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+				objNewMenuItem.FavoriteFolderLiveDocuments := o_LiveFolder.AA.strFavoriteFolderLiveDocuments
+				objNewMenuItem.FavoriteFolderLiveColumns := o_LiveFolder.AA.strFavoriteFolderLiveColumns
+				objNewMenuItem.FavoriteFolderLiveIncludeExclude := o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude
+				objNewMenuItem.FavoriteFolderLiveExtensions := o_LiveFolder.AA.strFavoriteFolderLiveExtensions
+				objNewMenuItem.FavoriteFolderLiveSort := o_LiveFolder.AA.strFavoriteFolderLiveSort
+			}
+		}
+		objNewMenu.Insert(objNewMenuItem)
+	}
+
+	; attach live folder menu to live folder favorite object
+	o_LiveFolder.AA.strSubMenu := objNewMenu
+}
+;------------------------------------------------------------
+
+;------------------------------------------------------------
+GetSortCriteria(strSort)
+;------------------------------------------------------------
+{
+	; sort criteria 1 file name, 2 extension, 3 size or 4 modified date (22)
+	strSortCriteria := SubStr(strSort, 2, 1)
+	
+	if (strSortCriteria = "4")
+		strCriteria := A_LoopFileTimeModified . A_LoopFileName
+	else if (strSortCriteria = "3")
+	{		
+		strCriteria := A_LoopFileSize
+		while StrLen(strCriteria) < 16 ; OK up to 1024 TB
+			strCriteria := "0" . strCriteria
+		strCriteria .= A_LoopFileName ; in case we have equal sizes
+	}
+	else if (strSortCriteria = "2")
+		strCriteria := A_LoopFileExt . A_LoopFileName
+	else ; 1 default if strSort not set, fallback for live folfers before v9
+		strCriteria := A_LoopFileName
+	
+	return strCriteria
 }
 ;------------------------------------------------------------
 */
