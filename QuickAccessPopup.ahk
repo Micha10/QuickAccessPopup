@@ -19960,21 +19960,15 @@ return
 ;------------------------------------------------------------
 BackupIniFile:
 BackupExternalIniFile:
-; o_Settings.strIniFile contains the basic QAP ini file or an external menu settings ini file
+; o_Settings.strIniFile contains the QAP ini file or an external menu settings ini file
 ;------------------------------------------------------------
 
-; this is the backup folder for the main ini file
-o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
+SplitPath, % o_Settings.strIniFile, strIniBackupFilename, strDefaultBackupFolder
+; check if we have a backup folder in current ini file, if not make the backup in the current ini folder
+o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", strDefaultBackupFolder, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
 
 ; delete old backup files (keep only 5/10 most recent files)
-strIniBackupFile := StrReplace(o_Settings.strIniFile, ".ini", "-backup-????????.ini")
-
-; if o_Settings.strIniFile is the main ini file, set the destination to backup folder
-; this excludes External ini files and alternative ini file (using the switch command) that are backuped in their own folder
-; but this includes main ini file when the working directory is set from the command line with "/Working:"
-if (A_ThisLabel = "BackupIniFile") and (o_Settings.strIniFile = o_Settings.strIniFileMain)
-	strIniBackupFile := StrReplace(strIniBackupFile, A_WorkingDir, o_Settings.SettingsFile.strBackupFolder.IniValue)
-
+strIniBackupFile := o_Settings.SettingsFile.strBackupFolder.IniValue . "\" . StrReplace(strIniBackupFilename, ".ini", "-backup-????????.ini")
 Loop, %strIniBackupFile%
 	strFileList .= A_LoopFileFullPath . "`n"
 Sort, strFileList, R
@@ -19986,10 +19980,12 @@ Loop, Parse, strFileList, `n
 
 ; create a daily backup of the ini file
 strIniBackupFile := StrReplace(strIniBackupFile, "????????", SubStr(A_Now, 1, 8))
-if !FileExist(strIniBackupFile)
-	FileCopy, % o_Settings.strIniFile, %strIniBackupFile%, 1
+; always keep the most recent backup for a given day
+FileCopy, % o_Settings.strIniFile, %strIniBackupFile%, 1
 
 strIniBackupFile := ""
+strIniBackupFilename := ""
+strDefaultBackupFolder := ""
 strFileList := ""
 intNumberOfBackups := ""
 
