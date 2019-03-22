@@ -25450,7 +25450,7 @@ class Container
 				if (this.SA[A_Index].AA.strFavoriteFolderLiveLevels)
 				{
 					this.BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
-					; ##### add to containers ; g_objMenusIndex.Insert(this.SA[A_Index].AA.oSubMenu.AA.MenuPath, this.SA[A_Index].AA.oSubMenu) ; add to the menu index
+					o_Containers.AA[this.SA[A_Index].AA.oSubMenu.AA.strMenuPath] := this.SA[A_Index].AA.oSubMenu
 				}
 				
 				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
@@ -25847,15 +25847,14 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			
 			oNewItem := new this.Item(saItemSource)
 			
-			if (saItemSource[2] = "Folder") ; make it a live folder
+			if (saItemSource[1] = "Folder" and A_Index > 1) ; make it a live folder, except if self folder
 			{
-				; MOVE THIS ? change fav type to "Menu" ? only if levels OK? #####
-				oNewItem.strFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
-				oNewItem.strFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments
-				oNewItem.strFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns
-				oNewItem.strFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude
-				oNewItem.strFavoriteFolderLiveExtensions := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions
-				oNewItem.strFavoriteFolderLiveSort := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort
+				oNewItem.AA.strFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+				oNewItem.AA.strFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments
+				oNewItem.AA.strFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns
+				oNewItem.AA.strFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude
+				oNewItem.AA.strFavoriteFolderLiveExtensions := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions
+				oNewItem.AA.strFavoriteFolderLiveSort := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort
 			}
 			if (oNewItem.AA.strFavoriteType = "Menu") ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
