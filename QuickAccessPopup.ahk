@@ -5242,8 +5242,6 @@ if StrLen(o_FileManagers.SA[3].strTCIniFileExpanded)
 }
 g_blnWinCmdIniFileExist := StrLen(o_FileManagers.SA[3].strTCIniFileExpanded) and FileExist(o_FileManagers.SA[3].strTCIniFileExpanded) ; TotalCommander settings file exists
 
-Gosub, RefreshTotalCommanderHotlist
-
 strTCDir := ""
 strAlternativeWinCmdIniFile := ""
 
@@ -6074,8 +6072,6 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	
 	o_TCMenu := new Container("Menu", o_L["TCMenuName"])
 	o_TCMenu.LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].strTCIniFileExpanded) ; RECURSIVE
-	
-	; RecursiveBuildOneMenu(o_TCMenu) ; recurse for submenus
 	o_TCMenu.BuildMenu() ; recurse for submenus
 	Tooltip
 }
@@ -6206,33 +6202,26 @@ Menu, % o_L["DOpusMenuName"], DeleteAll
 
 If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
 {
-	objDOpusMenu := Object() ; object of menu structure entry point
-	objDOpusMenu.MenuPath := o_L["DOpusMenuName"] ; localized name of the DOpus menu
-	objDOpusMenu.MenuType := "Menu"
-	
-	if (o_FileManagers.SA[2].RecursiveLoadDirectoryOpusFavoritesFromXML(objDOpusMenu) <> "EOM") ; build menu tree
-		Oops("An error occurred while reading the Directory Opus Favorites file.")
-	
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	If (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts and o_FileManagers.SA[2].DirectoryOpusLayoutsFileExist()) ; Directory Opus layouts order file exists, create submenu with layouts
+	o_DOpusMenu := new Container("Menu", o_L["DOpusMenuName"])
+	global xmlDirectoryOpusXML := New XML("xml")
+	o_DOpusMenu.LoadDirectoryOpusFavoritesFromXML() ; RECURSIVE
+	
+	if (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts and o_FileManagers.SA[2].DirectoryOpusLayoutsFileExist())
 	{
-		objLoadDOpusFavorite := Object() ; new separator item
-		objLoadDOpusFavorite.FavoriteType := "X"
-		objDOpusMenu.Insert(objLoadDOpusFavorite)
-
-		objDOpusLayoutsMenu := Object() ; object of menu structure entry point
-		objDOpusLayoutsMenu.FavoriteName := o_L["DOpusLayoutsName"] ; localized name of the DOpus menu
-		objDOpusLayoutsMenu.MenuPath := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ; localized name of the DOpus menu
-		objDOpusLayoutsMenu.MenuType := "Menu"
+		o_DOpusLayoutsMenu := new Container("Menu", o_L["DOpusLayoutsName"], o_DOpusMenu)
+		o_DOpusLayoutsMenu.LoadDirectoryOpusLayoutsFromXML()
+		o_DOpusLayoutsMenu.BuildMenu() ; recurse for submenus
 		
-		if (o_FileManagers.SA[2].RecursiveLoadDirectoryOpusLayoutsFromXML(objDOpusLayoutsMenu) <> "EOM") ; build menu tree
-			Oops("An error occurred while reading the Directory Opus Layouts file")
-		objDOpusMenu.Insert(objDOpusLayoutsMenu) ; add favorite object for Layouts submenu
-		objDOpusMenu[objDOpusMenu.MaxIndex()].SubMenu := objDOpusLayoutsMenu ; link new favorite in DOPus menu to Layouts menu
+		oNewItem := new Container.Item(["X"]) ; separator
+		o_DOpusMenu.SA.Push(oNewItem) ; add to the current container object
+		oNewItem := new Container.Item(["Menu", o_L["DOpusLayoutsName"]]) ; Layouts menu
+		oNewItem.AA.oSubMenu := o_DOpusLayoutsMenu ; attach menu
+		o_DOpusMenu.SA.Push(oNewItem) ; add to the current container object
 	}
 	
-	objDOpusMenu.BuildMenu() ; recurse for submenus
+	o_DOpusMenu.BuildMenu() ; recurse for submenus
 	Tooltip
 }
 else
@@ -23477,109 +23466,6 @@ TODO
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		RecursiveLoadDirectoryOpusFavoritesFromXML(objCurrentMenu, strNodeXml := "")
-		;-----------------------------------------------------
-		{
-			if !StrLen(strNodeXml) ; first level only
-			{
-				this.xmlDirectoryOpusXML := New XML("xml")
-				FileRead, strNodeXml, % this.strDirectoryOpusFavoritesFile
-			}
-
-			g_objMenusIndex[objCurrentMenu.MenuPath] := objCurrentMenu ; update the menu index
-
-			this.xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
-			
-			xmlNodeAll := this.xmlDirectoryOpusXML.SN("/*/*") ; select all nodes
-			while (xmlItem := xmlNodeAll.Item[A_Index-1])
-			{
-				xmlItemAttributes := this.xmlDirectoryOpusXML.EA(xmlItem)
-					
-				blnItemIsMenu := (xmlItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
-					and StrLen(xmlItemAttributes.label) ; to skip "<folder><separator/></folder>"
-				
-				if (blnItemIsMenu)
-				{
-					objNewMenu := Object() ; create the submenu object
-					objNewMenu.MenuPath := objCurrentMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . xmlItemAttributes.label
-					objNewMenu.MenuType := "Menu"
-					
-					; create a navigation entry to navigate to the parent menu
-					; (not used in Settings for this menu - but keep for code reusability)
-					objNewMenuBack := Object()
-					objNewMenuBack.FavoriteType := "B" ; for Back link to parent menu
-					objNewMenuBack.FavoriteName := BetweenParenthesis(GetDeepestMenuPath(objCurrentMenu.MenuPath))
-					objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
-					objNewMenu.Push(objNewMenuBack)
-					
-					strResult := this.RecursiveLoadDirectoryOpusFavoritesFromXML(objNewMenu, xmlItem.xml) ; RECURSIVE
-				}
-				
-				objLoadDOpusFavorite := Object() ; new favorite item
-				
-				if (!blnItemIsMenu and xmlItem.NodeName = "folder"
-					and SSN(xmlItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
-					
-					objLoadDOpusFavorite.FavoriteType := "X"
-					
-				else ; menu or folder (what if unexpected node?)
-				{
-					objLoadDOpusFavorite.FavoriteName := xmlItemAttributes.label
-					if (blnItemIsMenu)
-						objLoadDOpusFavorite.FavoriteType := "Menu"
-					else
-					{
-						if (SSN(xmlItem, "descendant::pathstring").NodeName = "pathstring")
-						{
-							objLoadDOpusFavorite.FavoriteLocation := SSN(xmlItem, "descendant::pathstring").text
-							objLoadDOpusFavorite.FavoriteIconResource := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation)
-							objLoadDOpusFavorite.FavoriteType := "Folder"
-						}
-						else if (SSN(xmlItem, "descendant::pidl").NodeName = "pidl")
-						/*
-							<path label="Ce PC">
-								<dir>
-									<pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
-								</dir>
-							</path>
-						*/
-						{
-							objLoadDOpusFavorite.FavoriteLocation := SSN(xmlItem, "descendant::pidl").text
-							
-							if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
-								objLoadDOpusFavorite.FavoriteLocation := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
-							else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfWA0aLPAhvlBDiLBzZ/yW7zwAAA==")
-								objLoadDOpusFavorite.FavoriteLocation := "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" ; DOpus alias "network"
-							else if (objLoadDOpusFavorite.FavoriteLocation = "?AAAAFAAfeEDwX2SBUBsQnwgAqgAvlU4AAA==")
-								objLoadDOpusFavorite.FavoriteLocation := "{645FF040-5081-101B-9F08-00AA002F954E}" ; DOpus alias "trash"
-							
-							if (SubStr(objLoadDOpusFavorite.FavoriteLocation, 1, 1) = "{")
-								objLoadDOpusFavorite.FavoriteIconResource := GetIconForClassId(objLoadDOpusFavorite.FavoriteLocation)
-							objLoadDOpusFavorite.FavoriteType := "Special"
-						}
-						else
-						{
-							objLoadDOpusFavorite.FavoriteName := "Please, report: label """ . xmlItemAttributes.label . """ / node: """ . xmlItem.NodeName . """"
-							objLoadDOpusFavorite.FavoriteType := "Text"
-						}
-					}
-					if !StrLen(objLoadDOpusFavorite.FavoriteName)
-						objLoadDOpusFavorite.FavoriteName := objLoadDOpusFavorite.FavoriteLocation
-				}
-				
-				; this is a submenu, link to the submenu object
-				if (blnItemIsMenu)
-					objLoadDOpusFavorite.SubMenu := objNewMenu
-				
-				; update the current menu object
-				objCurrentMenu.Push(objLoadDOpusFavorite)
-			}
-
-			return, "EOM" ; end of XML, last menu item
-		}
-		;-----------------------------------------------------
-
-		;-----------------------------------------------------
 		DirectoryOpusLayoutsFileExist()
 		;-----------------------------------------------------
 		{
@@ -23589,7 +23475,7 @@ TODO
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml := "", strLayoutMenuName := "")
+		OLD_RecursiveLoadDirectoryOpusLayoutsFromXML(objCurrentMenu, strNodeXml := "", strLayoutMenuName := "")
 		;-----------------------------------------------------
 		{
 			if !StrLen(strNodeXml) ; first level only
@@ -23609,7 +23495,7 @@ TODO
 				xmlItemAttributes := this.xmlDirectoryOpusXML.EA(xmlItem)
 				if (xmlItemAttributes.separator <> "yes")
 				{
-					strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(xmlItemAttributes.name, strNodeXml)
+					strFolderNodeXml := this.OLD_SearchDirectoryOpusLayoutsFolder(xmlItemAttributes.name, strNodeXml)
 					blnItemIsMenu := StrLen(strFolderNodeXml)
 					
 					if (blnItemIsMenu)
@@ -23626,7 +23512,7 @@ TODO
 						objNewMenuBack.ParentMenu := objCurrentMenu ; this is the link to the parent menu
 						objNewMenu.Push(objNewMenuBack)
 						
-						strResult := this.RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . xmlItemAttributes.name . "/") ; RECURSIVE
+						strResult := this.OLD_RecursiveLoadDirectoryOpusLayoutsFromXML(objNewMenu, strFolderNodeXml, strLayoutMenuName . xmlItemAttributes.name . "/") ; RECURSIVE
 					}
 				}
 				
@@ -23662,7 +23548,7 @@ TODO
 		;-----------------------------------------------------
 
 		;-----------------------------------------------------
-		SearchDirectoryOpusLayoutsFolder(strName, strNodeXml)
+		OLD_SearchDirectoryOpusLayoutsFolder(strName, strNodeXml)
 		; returns the XML of the folder node strName if it is found in strNodeXml or returns empty if not found
 		;-----------------------------------------------------
 		{
@@ -25207,18 +25093,17 @@ class Container
 	__New(strType, strContainerName, oParentMenu := "")
 	;---------------------------------------------------------
 	{
-		if (strContainerName = o_L["MainMenuName"])
-			this.AA.strMenuPath := o_L["MainMenuName"] ; no separator before name
-		else
-			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
-			this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
-				. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
 		if (oParentMenu)
 		{
+			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
+			this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
+				. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			this.AA.strParentMenuLabel := BetweenParenthesis(GetDeepestMenuPath(oParentMenu.AA.strMenuPath))
 			this.AA.oParentMenu := oParentMenu
 		}		
+		else
+			this.AA.strMenuPath := strContainerName ; for MainMenuName, DOpusMenuName, TCMenuName: no separator before name
 	}
 	;---------------------------------------------------------
 	
@@ -25330,7 +25215,7 @@ class Container
 		static intIniLine := 1
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
+			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 
 		Loop
 		{
@@ -25354,9 +25239,6 @@ class Container
 				strWinCmdItemName := SubStr(strWinCmdItemName, 2)
 				oNewSubMenu := new Container("Menu", strWinCmdItemName, this)
 				oNewSubMenu.LoadTCFavoritesFromIniFile(strIniFile) ; RECURSIVE
-				
-				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
-					Return, %strResult%
 			}
 			else if (SubStr(strWinCmdItemCommand, 1, 3) <> "cd ")
 				
@@ -25386,6 +25268,163 @@ class Container
 		}
 	}
 	;---------------------------------------------------------
+
+	;-----------------------------------------------------
+	LoadDirectoryOpusFavoritesFromXML(strNodeXml := "")
+	;-----------------------------------------------------
+	{
+		if !StrLen(strNodeXml) ; first level only
+		{
+			FileRead, strNodeXml, % o_FileManagers.SA[2].strDirectoryOpusFavoritesFile
+		}
+
+		xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
+		
+		xmlNodeAll := xmlDirectoryOpusXML.SN("/*/*") ; select all nodes
+		while (xmlItem := xmlNodeAll.Item[A_Index-1])
+		{
+			xmlItemAttributes := xmlDirectoryOpusXML.EA(xmlItem)
+				
+			blnItemIsMenu := (xmlItem.NodeName = "folder") ; "folder" in DOpus XML is a submenu
+				and StrLen(xmlItemAttributes.label) ; to skip "<folder><separator/></folder>"
+			
+			if (blnItemIsMenu)
+			{
+				oNewSubMenu := new Container("Menu", xmlItemAttributes.label, this)
+				oNewSubMenu.LoadDirectoryOpusFavoritesFromXML(xmlItem.xml) ; RECURSIVE
+			}
+			
+			saThisFavorite := Object() ; insert DOpus item values in standard QAP item values object
+			if (!blnItemIsMenu and xmlItem.NodeName = "folder"
+				and SSN(xmlItem, "descendant::separator").NodeName = "separator") ; this is "<folder><separator/></folder>"
+				saThisFavorite[1] := "X" ; FavoriteType separator
+			else ; menu or folder (what if unexpected node?)
+			{
+				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "Folder") ; FavoriteType
+				saThisFavorite[2] := xmlItemAttributes.label ; FavoriteName
+				
+				if (SSN(xmlItem, "descendant::pathstring").NodeName = "pathstring")
+				{
+					saThisFavorite[3] := SSN(xmlItem, "descendant::pathstring").text ; FavoriteLocation
+					saThisFavorite[4] := GetFolderIcon(objLoadDOpusFavorite.FavoriteLocation) ; FavoriteIconResource
+				}
+				else if (SSN(xmlItem, "descendant::pidl").NodeName = "pidl")
+					; <path label="Ce PC">
+						; <dir>
+							; <pidl>?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==</pidl>
+						; </dir>
+					; </path>
+				{
+					saThisFavorite[3] := SSN(xmlItem, "descendant::pidl").text ; FavoriteLocation
+					
+					if (saThisFavorite[3] = "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA==")
+						saThisFavorite[3] := "{20D04FE0-3AEA-1069-A2D8-08002B30309D}" ; DOpus alias "mycomputer"
+					else if (saThisFavorite[3] = "?AAAAFAAfWA0aLPAhvlBDiLBzZ/yW7zwAAA==")
+						saThisFavorite[3] := "{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" ; DOpus alias "network"
+					else if (saThisFavorite[3] = "?AAAAFAAfeEDwX2SBUBsQnwgAqgAvlU4AAA==")
+						saThisFavorite[3] := "{645FF040-5081-101B-9F08-00AA002F954E}" ; DOpus alias "trash"
+					
+					if (SubStr(saThisFavorite[3], 1, 1) = "{")
+						saThisFavorite[4] := GetIconForClassId(saThisFavorite[3])
+					saThisFavorite[1] := "Special"
+				}
+				else
+				{
+					saThisFavorite[2] := "Please, report: label """ . xmlItemAttributes.label . """ / node: """ . xmlItem.NodeName . """" ; FavoriteName
+					saThisFavorite[1] := "Text" ; FavoriteType
+				}
+				if !StrLen(saThisFavorite[2]) ; if no FavoriteName
+					saThisFavorite[2] := saThisFavorite[3] ; use FavoriteLocation
+			}
+			
+			oNewItem := new this.Item(saThisFavorite)
+			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
+				oNewItem.AA.oSubMenu := oNewSubMenu
+			this.SA.Push(oNewItem) ; add to the current container object
+		}
+		
+		o_Containers.AA[this.AA.strMenuPath] := this
+		; end of XML, last menu item
+	}
+	;-----------------------------------------------------
+
+	;-----------------------------------------------------
+	LoadDirectoryOpusLayoutsFromXML(strNodeXml := "", strLayoutMenuName := "")
+	;-----------------------------------------------------
+	{
+		if !StrLen(strNodeXml) ; first level only
+		{
+			xmlDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
+			FileRead, strNodeXml, % o_FileManagers.SA[2].strDirectoryOpusLayoutsFile
+		}
+		
+		xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
+		
+		xmlNodeAll := xmlDirectoryOpusXML.SN("/*/layout") ; select all layout nodes
+		while (xmlItem := xmlNodeAll.Item[A_Index-1])
+		{
+			blnItemIsMenu := false
+			xmlItemAttributes := xmlDirectoryOpusXML.EA(xmlItem)
+			if (xmlItemAttributes.separator <> "yes")
+			{
+				strFolderNodeXml := this.SearchDirectoryOpusLayoutsFolder(xmlItemAttributes.name, strNodeXml)
+				blnItemIsMenu := StrLen(strFolderNodeXml)
+				
+				if (blnItemIsMenu)
+				{
+					oNewSubMenu := new Container("Menu", xmlItemAttributes.name, this)
+					oNewSubMenu.LoadDirectoryOpusLayoutsFromXML(strFolderNodeXml) ; RECURSIVE
+				}
+			}
+			
+			saThisFavorite := Object() ; insert DOpus Layout item values in standard QAP item values object
+			
+			if (xmlItemAttributes.separator = "yes")
+				
+				saThisFavorite[1] := "X" ; FavoriteType
+				
+			else
+			{
+				saThisFavorite[2] := xmlItemAttributes.name ; FavoriteName
+				if (blnItemIsMenu)
+					saThisFavorite[4] := "iconSubmenu" ; FavoriteIconResource
+				else ; it is a layout
+				{
+					saThisFavorite[4] := "iconGroup" ; FavoriteIconResource
+					saThisFavorite[3] := strLayoutMenuName . xmlItemAttributes.name ; FavoriteLocation
+				}
+				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "Folder") ; FavoriteType
+			}
+			
+			oNewItem := new this.Item(saThisFavorite)
+			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
+				oNewItem.AA.oSubMenu := oNewSubMenu
+			this.SA.Push(oNewItem) ; add to the current container object
+		}
+
+		o_Containers.AA[this.AA.strMenuPath] := this
+		; end of XML, last menu item
+	}
+	;-----------------------------------------------------
+
+	;-----------------------------------------------------
+	SearchDirectoryOpusLayoutsFolder(strName, strNodeXml)
+	; returns the XML of the folder node strName if it is found in strNodeXml or returns empty if not found
+	;-----------------------------------------------------
+	{
+		xmlFolderXML := New XML("xml")
+		xmlFolderXML.XML.LoadXML(strNodeXml)
+		
+		xmlNodeFolder := xmlFolderXML.SN("/*/folder")
+		while (xmlFolderItem := xmlNodeFolder.Item[A_Index-1])
+		{
+			xmlFolderItemAttributes := xmlFolderXML.EA(xmlFolderItem)
+			if (xmlFolderItemAttributes.name = strName)
+				return xmlFolderItem.xml ; return folder node if found
+		}
+		return ; empty if not found
+	}
+	;-----------------------------------------------------
 
 	;------------------------------------------------------------
 	BuildMenu() ; build menu and recurse in submenus
