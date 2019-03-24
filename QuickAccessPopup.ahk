@@ -10139,7 +10139,7 @@ GuiFavoriteTabBasic:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Font, w700
-Gui, 2:Add, Text, x20 y50 w500, % o_L["DialogFavoriteType"] . ": " . o_Favorites.GetFavoriteTypeObject("g_objEditedFavorite.FavoriteType").strFavoriteTypeLabel
+Gui, 2:Add, Text, x20 y50 w500, % o_L["DialogFavoriteType"] . ": " . o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel
 Gui, 2:Font
 
 Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
