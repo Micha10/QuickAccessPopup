@@ -3478,8 +3478,10 @@ Gosub, SetTrayMenuIcon
 if (o_Settings.Launch.blnDisplayTrayTip.IniValue)
 {
 	TrayTip, % L(o_L["TrayTipInstalledTitle"], g_strAppNameText)
-		, % L(o_L["TrayTipInstalledDetail"], o_PopupHotkeys.SA[1].strPopupHotkeyText ; "NavigateOrLaunchHotkeyMouse"
-			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.SA[2].strPopupHotkeyText) ; "NavigateOrLaunchHotkeyKeyboard"
+		, % L(o_L["TrayTipInstalledDetail"]
+			, (HasShortcut(o_PopupHotkeys.SA[1].strPopupHotkeyText) ? o_PopupHotkeys.SA[1].strPopupHotkeyText : "") ; "NavigateOrLaunchHotkeyMouse"
+				. (HasShortcut(o_PopupHotkeys.SA[1].strPopupHotkeyText) and HasShortcut(o_PopupHotkeys.SA[2].strPopupHotkeyText) ? " " . o_L["DialogOr"] . " " : "")
+				. (HasShortcut(o_PopupHotkeys.SA[2].strPopupHotkeyText) ? o_PopupHotkeys.SA[2].strPopupHotkeyText : "")) ; "NavigateOrLaunchHotkeyKeyboard"
 		, , 17 ; 1 info icon + 16 no sound
 	Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 }
@@ -8282,18 +8284,18 @@ if InStr(o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyInternalName, "Mouse")
 else
 	intHotkeyType := 2 ; Keyboard
 
-strPopupHotkeysLocalBackup := o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey
-strNewHotkey := SelectShortcut(o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyLocalizedName
+strPopupHotkeysLocalBackup := o_PopupHotkeys.SA[intHotkeyIndex].P_strAhkHotkey
+strNewHotkey := SelectShortcut(o_PopupHotkeys.SA[intHotkeyIndex].P_strAhkHotkey, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyLocalizedName
 	, "", "", intHotkeyType, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyDefault, o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyLocalizedDescription)
-o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey := strNewHotkey
+o_PopupHotkeys.SA[intHotkeyIndex].P_strAhkHotkey := strNewHotkey
 
-if StrLen(o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey)
+if StrLen(o_PopupHotkeys.SA[intHotkeyIndex].P_strAhkHotkey)
 {
 	GuiControl, 2:, f_lblHotkeyText%intHotkeyIndex%, % o_PopupHotkeys.SA[intHotkeyIndex].strPopupHotkeyTextShort
 	Gosub, GuiOptionsGroupChanged
 }
 else
-	o_PopupHotkeys.SA[intHotkeyIndex].AhkHotkey := strPopupHotkeysLocalBackup
+	o_PopupHotkeys.SA[intHotkeyIndex].P_strAhkHotkey := strPopupHotkeysLocalBackup
 	
 strPopupHotkeysLocalBackup := ""
 strNewHotkey := ""
@@ -13558,7 +13560,7 @@ Loop, 2
 	{
 		; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 		loop, 4 ; load popup menu triggers, use loop 4 (not for ... in) to keep the 1-4 order
-			LV_Add(, , o_L["DialogNA"], o_PopupHotkeys.SA[A_Index].strPopupHotkeyLocalizedName, o_L["DialogHotkeysManagePopup"], (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.SA[A_Index].AhkHotkey
+			LV_Add(, , o_L["DialogNA"], o_PopupHotkeys.SA[A_Index].strPopupHotkeyLocalizedName, o_L["DialogHotkeysManagePopup"], (f_blnSeeShortHotkeyNames ? o_PopupHotkeys.SA[A_Index].P_strAhkHotkey
 				: o_PopupHotkeys.SA[A_Index].strPopupHotkeyText), o_L["DialogNA"])
 
 		for strQAPFeatureCode in o_QAPfeatures.aaQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
@@ -15173,9 +15175,9 @@ if ((strKeyPressed = "~LCtrl") and !(o_Settings.MenuPopup.blnLeftControlDoublePr
 
 if (A_PriorHotKey = strKeyPressed and A_TimeSincePriorHotkey < 400) ; ms maximum delay between Ctrl presses
 {
-	if CanNavigate(o_PopupHotkeys.SA[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	if CanNavigate(o_PopupHotkeys.SA[2].P_strAhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, NavigateHotkeyKeyboard
-	else if CanLaunch(o_PopupHotkeys.SA[2].AhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
+	else if CanLaunch(o_PopupHotkeys.SA[2].P_strAhkHotkey) ; fake pressing main QAP keyboard trigger (Windows + W or custom)
 		Gosub, LaunchHotkeyKeyboard
 	; else do nothing
 }
@@ -15339,8 +15341,8 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 {
 	global ; sets g_strTargetWinId, g_strTargetControl, g_strTargetClass
 
-	; Mouse hotkey (.AhkHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
-	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.SA[1].AhkHotkey)
+	; Mouse hotkey (.P_strAhkHotkey is NavigateOrLaunchHotkeyMouse value in ini file)
+	SetTargetWinInfo(strMouseOrKeyboard = o_PopupHotkeys.SA[1].P_strAhkHotkey)
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
@@ -15369,7 +15371,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 {
 	global
 
-	if (strMouseOrKeyboard = o_PopupHotkeys.SA[1].AhkHotkey) ; if hotkey is mouse
+	if (strMouseOrKeyboard = o_PopupHotkeys.SA[1].P_strAhkHotkey) ; if hotkey is mouse
 		Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListApp, |
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
@@ -16873,7 +16875,7 @@ GetWinInfo:
 
 g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.SA[1].AhkHotkey).Hotkey2Text())
+MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeys.SA[1].P_strAhkHotkey).Hotkey2Text())
 
 return
 ;------------------------------------------------------------
