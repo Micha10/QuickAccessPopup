@@ -3119,17 +3119,33 @@ VARIABLES NAMING CONVENTION
 ---------------------------
 
 typNameOfVariable
-^^^^^^^^^^^^^^^^^ description of the variable content, with name sections from general to specific
-
+^^^^^^^^^^^^^^^^^
+	description of the variable content, with name sections from general to specific
+ 
 typeNameOfVariable
-^^^^ type of variable, str for strings, int for integers (any size), dbl for reals (not used in this app),
-     arr for arrays, obj for objects, menu for menus, etc.
+^^^^
+	type of variable, str for strings, int for integers (any size), dbl for reals (not used in this app),
+	arr for pseudo-arrays (see OBJECTS), obj for objects (see OBJECTS), menu for menus, etc.
   
 g_typNameOfVariable
-^ g_ for global, nothing for local
+	g_ for global, nothing for local
 
 f_typNameOfVariable
-^ f_ for form (Gui) variables
+	f_ for form (Gui) variables
+
+OBJECTS NAMING CONVENTIONS
+--------------------------
+o_Var	class object
+.AA		associative arrays of a class
+.SA		simple arrays of a class
+aaVar	other associative array variable
+saVar	other simple array variable
+oVar	object variable inside a class (and elsewhere?)
+.P_var	class properties, with first letters of variable showing its type (as for other variables)
+
+- to be replaced
+objVar	REPLACE with one of the others
+arrVar	refactror pseudo-array to simple array
 
 */ 
 ;========================================================================================================================
@@ -7750,7 +7766,7 @@ o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 ; === PopupHotkeys ===
 
 for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA
-	o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.AhkHotkey)
+	o_Settings.MenuPopup["str" . objThisPopupHotkey.strPopupHotkeyInternalName].WriteIni(objThisPopupHotkey.P_strAhkHotkey)
 o_PopupHotkeys.EnablePopupHotkeys()
 o_Settings.MenuPopup.blnLeftControlDoublePressed.WriteIni(f_blnLeftControlDoublePressed)
 o_Settings.MenuPopup.blnRightControlDoublePressed.WriteIni(f_blnRightControlDoublePressed)
@@ -14767,7 +14783,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	
 	; check popup menu hotkeys
 	for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA
-		if (objThisPopupHotkey.AhkHotkey = strShortcut)
+		if (objThisPopupHotkey.P_strAhkHotkey = strShortcut)
 		{
 			strExistingName := objThisPopupHotkey.strPopupHotkeyLocalizedName
 			break
@@ -23159,7 +23175,7 @@ class Triggers.PopupHotkeys
 		- Triggers.PopupHotkeys.PopupHotkey.__New(): create one PopupHotkeyQAP menu trigger object
 		- Triggers.PopupHotkeys.PopupHotkey.EnableHotkey(): disable previous popup menu hotkey and enable the new hotkey
 		Properties
-		- Triggers.PopupHotkeys.PopupHotkey.AhkHotkey: set a new _PopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
+		- Triggers.PopupHotkeys.PopupHotkey.P_strAhkHotkey: set a new _PopupHotkey value and update dependent text values strPopupHotkeyText and strPopupHotkeyTextShort
 		Instance variables
 		- strPopupHotkey: mouse (like "MButton") or keyboard (like "#W" for Win + W) hotkey trigger for a the QAP menu
 		- strPopupHotkeyInternalName: one of the two mouse or two keyboard triggers internal names
@@ -23276,7 +23292,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			for intKey, oOnePopupHotkey in this.SA
-				oOnePopupHotkey.strPopupHotkeyPrevious := oOnePopupHotkey.AhkHotkey
+				oOnePopupHotkey.strPopupHotkeyPrevious := oOnePopupHotkey.P_strAhkHotkey
 		}
 		;-----------------------------------------------------
 		
@@ -23285,7 +23301,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			for intKey, oOnePopupHotkey in this.SA
-				oOnePopupHotkey.AhkHotkey := oOnePopupHotkey.strPopupHotkeyPrevious
+				oOnePopupHotkey.P_strAhkHotkey := oOnePopupHotkey.strPopupHotkeyPrevious
 		}
 		;-----------------------------------------------------
 		
@@ -23319,7 +23335,7 @@ class Triggers.MouseButtons
 			;-------------------------------------------------
 			{
 				this.strPopupHotkeyInternalName := strThisInternalName
-				this.AhkHotkey := strThisPopupHotkey
+				this.P_strAhkHotkey := strThisPopupHotkey
 				
 				this.strPopupHotkeyDefault := strThisPopupHotkeyDefault
 				this.strPopupHotkeyPrevious := ""
@@ -23329,12 +23345,12 @@ class Triggers.MouseButtons
 			;-------------------------------------------------
 			
 			;-------------------------------------------------
-			AhkHotkey[]
+			P_strAhkHotkey[]
 			;-------------------------------------------------
 			{
 				Get
 				{
-					return this._AhkHotkey ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
+					return this._strAhkHotkey ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
 				}
 				
 				Set
@@ -23343,7 +23359,7 @@ class Triggers.MouseButtons
 					this.strPopupHotkeyText := oHotkeyParts.Hotkey2Text()
 					this.strPopupHotkeyTextShort := oHotkeyParts.Hotkey2Text(true)
 					
-					return this._AhkHotkey := value
+					return this._strAhkHotkey := value
 				}
 			}
 			;-------------------------------------------------
@@ -23355,8 +23371,8 @@ class Triggers.MouseButtons
 				strLabel := strActionType . "Hotkey" . strTriggerType
 				if HasShortcut(this.strPopupHotkeyPrevious)
 					Hotkey, % this.strPopupHotkeyPrevious, , Off UseErrorLevel ; do nothing if error (probably because default mouse trigger not supported by system)
-				if HasShortcut(this.AhkHotkey)
-					Hotkey, % this.AhkHotkey, %strLabel%, On UseErrorLevel
+				if HasShortcut(this.P_strAhkHotkey)
+					Hotkey, % this.P_strAhkHotkey, %strLabel%, On UseErrorLevel
 				if (ErrorLevel)
 					Oops(o_L["DialogInvalidHotkey"], this.strPopupHotkeyText, this.strPopupHotkeyLocalizedName)
 			}
