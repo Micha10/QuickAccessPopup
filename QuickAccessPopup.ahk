@@ -4628,9 +4628,9 @@ if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultN
 	AddToIniOneDefaultMenu("{Settings}", o_L["MenuSettings"] . "...", "QAP", true) ; back in main menu
 
 }
-if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; Directory Opus or Total Commander
+if (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; Directory Opus or Total Commander
 {
-	strDOpusOrTCMenuName := (o_FileManagers.ActiveFileManager = 2 ? o_L["DOpusMenuName"] : o_L["TCMenuName"]) . "..."
+	strDOpusOrTCMenuName := (o_FileManagers.P_intActiveFileManager = 2 ? o_L["DOpusMenuName"] : o_L["TCMenuName"]) . "..."
 	
 	g_strAddThisMenuName := strDOpusOrTCMenuName
 	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
@@ -4638,7 +4638,7 @@ if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3
 	; (we cannot have this menu twice with "+" because, as all QAP features, o_L["TCMenuName"] always have the same menu name)
 	{
 		AddToIniOneDefaultMenu("", "", "X")
-		AddToIniOneDefaultMenu((o_FileManagers.ActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
+		AddToIniOneDefaultMenu((o_FileManagers.P_intActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
 	}
 }
 g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."] ; QAP feature code used here for comparison only, not for menu name
@@ -4739,23 +4739,23 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 			else ; o_L["MenuMyWindowsAppsMenu"]
 				strIconResource := "iconDesktop"
 		else if (strFavoriteType = "Special")
-			strIconResource := o_SpecialFolders.AA[strLocation].DefaultIcon
+			strIconResource := o_SpecialFolders.AA[strLocation].strDefaultIcon
 		else if (strFavoriteType = "WindowsApp")
 			strIconResource := "iconDesktop"
 		else
-			strIconResource := o_QAPfeatures.AA[strLocation].DefaultIcon
+			strIconResource := o_QAPfeatures.AA[strLocation].strDefaultIcon
 
 		if !StrLen(strName)
 			if (strFavoriteType = "Special")
-				strName := o_SpecialFolders.AA[strLocation].DefaultName
+				strName := o_SpecialFolders.AA[strLocation].strDefaultName
 			else
-				strName := o_QAPfeatures.AA[strLocation].DefaultName
+				strName := o_QAPfeatures.AA[strLocation].strDefaultName
 
 		if (g_blnIniFileCreation) ; do not add shortcut if not creation of ini file at first launch
 			if StrLen(strCustomShortcut)
 				strShortcut := strCustomShortcut
 			else if (blnAddShortcut)
-				strShortcut := o_QAPfeatures.AA[strLocation].DefaultShortcut
+				strShortcut := o_QAPfeatures.AA[strLocation].strDefaultShortcut
 
 		strNewIniLine := strFavoriteType . "|" . strName . "|" . strLocation . "|" . strIconResource . "||||||||||||||||" . strShortcut
 	}
@@ -4796,7 +4796,7 @@ for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
 	if (ErrorLevel)
-		Oops(o_L["DialogInvalidHotkey"], new Triggers.HotkeyParts(strHotkey).Hotkey2Text(), o_QAPfeatures.AA[strCode].LocalizedName) ; .LocalizedName OK because Alternative
+		Oops(o_L["DialogInvalidHotkey"], new Triggers.HotkeyParts(strHotkey).Hotkey2Text(), o_QAPfeatures.AA[strCode].strLocalizedName) ; .strLocalizedName OK because Alternative
 }
 
 strCode := ""
@@ -5731,7 +5731,7 @@ Diag(A_ThisLabel, "", "START")
 
 ; Gather Explorer and DOpus windows/listers
 
-if (o_FileManagers.ActiveFileManager = 2) ; DirectoryOpus
+if (o_FileManagers.P_intActiveFileManager = 2) ; DirectoryOpus
 {
 	Gosub, RefreshDOpusListersListText
 	objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
@@ -5748,7 +5748,7 @@ blnWeHaveFolders := false
 
 ; Process DOpus listers
 
-if (o_FileManagers.ActiveFileManager = 2) ; DirectoryOpus
+if (o_FileManagers.P_intActiveFileManager = 2) ; DirectoryOpus
 	for intIndex, objLister in objDOpusListers
 	{
 		; if we have no path or a DOpus collection, skip it
@@ -6174,7 +6174,7 @@ RecursiveLoadTotalCommanderHotlistFromIni(objCurrentMenu)
 			if (SubStr(objLoadIniFavorite.FavoriteLocation, 1, 2) = "::")
 			{
 				objLoadIniFavorite.FavoriteLocation := SubStr(objLoadIniFavorite.FavoriteLocation, 3)
-				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders.AA[objLoadIniFavorite.FavoriteLocation].DefaultIcon
+				objLoadIniFavorite.FavoriteIconResource := o_SpecialFolders.AA[objLoadIniFavorite.FavoriteLocation].strDefaultIcon
 				objLoadIniFavorite.FavoriteType := "Special"
 			}
 		}
@@ -6330,11 +6330,11 @@ intMenuNumber := 0
 Loop
 	if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
-		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].LocalizedName) ; .LocalizedName OK because Alternative
+		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strLocalizedName) ; .strLocalizedName OK because Alternative
 		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey)
 		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
-		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].DefaultIcon)
+		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon)
 	}
 	else
 		if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index + 1) ; there is another menu item, add a menu separator
@@ -6425,7 +6425,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		
 		if (objCurrentMenu[A_Index].FavoriteType = "QAP")
 			; if QAP feature attach menu option was changed when saving options
-			objCurrentMenu[A_Index].FavoriteName := o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName
+			objCurrentMenu[A_Index].FavoriteName := o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].strLocalizedName
 
 		strMenuName := objCurrentMenu[A_Index].FavoriteName
 		if StrLen(strMenuName)
@@ -6446,7 +6446,7 @@ RecursiveBuildOneMenu(objCurrentMenu)
 			if (ErrorLevel)
 				Oops(o_L["DialogInvalidHotkeyFavorite"], objCurrentMenu[A_Index].FavoriteShortcut
 					, (StrLen(objCurrentMenu[A_Index].FavoriteName) ? objCurrentMenu[A_Index].FavoriteName
-						: o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
+						: o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].strLocalizedName) ; if empty probably because it is a QAP feature name
 					, objCurrentMenu[A_Index].FavoriteLocation)
 		}
 		
@@ -6516,9 +6516,9 @@ RecursiveBuildOneMenu(objCurrentMenu)
 		}
 		else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 		{
-			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName)
+			if (objCurrentMenu[A_Index].FavoriteType = "QAP") and Strlen(o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].strQAPFeatureMenuName)
 				; menu should never be empty (if no item, it contains a "no item" menu)
-				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].QAPFeatureMenuName
+				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[objCurrentMenu[A_Index].FavoriteLocation].strQAPFeatureMenuName
 			else if (objCurrentMenu[A_Index].FavoriteType = "Group")
 				Menu, % objCurrentMenu.MenuPath, Add, %strMenuName%, OpenFavoriteGroup
 			else
@@ -7266,7 +7266,7 @@ Gui, 2:Add, Text, y%intGroupItemsY% x%g_intGroupItemsX% w590 center hidden vf_lb
 for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 {
 	Gui, 2:Font, s8 w700
-	Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 w240 hidden vf_lblAlternativeHotkeyName%intOrder%, % o_QAPfeatures.AA[strAlternativeCode].LocalizedName ; .LocalizedName OK because Alternative
+	Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 w240 hidden vf_lblAlternativeHotkeyName%intOrder%, % o_QAPfeatures.AA[strAlternativeCode].strLocalizedName ; .strLocalizedName OK because Alternative
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, x+10 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey hidden
 		, % new Triggers.HotkeyParts(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
@@ -7291,7 +7291,7 @@ Gui, 2:Add, Text, x%g_intGroupItemsX% y%intGroupItemsY% w590 center hidden vf_lb
 Gui, Font, w600
 Gui, 2:Add, Text, x%g_intGroupItemsTab4X% y+15 w300 Section hidden vf_lblFileManagerNavigateTitle, % o_L["OptionsTabFileManagersPreferences"]
 Gui, Font
-Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab4X% w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName)
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab4X% w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName)
 Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
@@ -7302,7 +7302,7 @@ Gui, 2:Add, Text, ys x%g_intGroupItemsX% w230 Section hidden vf_lblradActiveFile
 Gui, Font
 loop, % o_FileManagers.SA.Length()
 	Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab1X . " hidden gActiveFileManagerClicked vf_radActiveFileManager" . A_Index 
-		. (o_FileManagers.ActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
+		. (o_FileManagers.P_intActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
 
 ; --- bottom ---
 Gui, 2:Font, s8 w700
@@ -8307,9 +8307,9 @@ strThisAlternativeCode := o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[intA
 objThisAlternative := o_QAPfeatures.AA[strThisAlternativeCode]
 strAlternativeHotkeysBackup := o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode]
 
-; .LocalizedName OK because Alternative
-o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode], objThisAlternative.LocalizedName, o_L["DialogHotkeysManageAlternative"]
-	, "", 3, objThisAlternative.DefaultShortcut)
+; .strLocalizedName OK because Alternative
+o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode] := SelectShortcut(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode], objThisAlternative.strLocalizedName, o_L["DialogHotkeysManageAlternative"]
+	, "", 3, objThisAlternative.strDefaultShortcut)
 
 if StrLen(o_QAPfeatures.aaQAPFeaturesNewShortcuts[strThisAlternativeCode])
 {
@@ -9563,7 +9563,7 @@ If !StrLen(g_strNewLocation)
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
 		Gui, 1:+OwnDialogs 
-		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName, o_PopupHotkeys.SA[1].strPopupHotkeyText
+		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName, o_PopupHotkeys.SA[1].strPopupHotkeyText
 			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.SA[2].strPopupHotkeyText)
 	}
 	else
@@ -9653,8 +9653,8 @@ GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false
 		intThisIDIndex := A_Index
 		WinGetClass, strThisClass, % "ahk_id " . strIDs%intThisIDIndex%
 		if WindowIsExplorer(strThisClass)
-			or (WindowIsDirectoryOpus(strThisClass) and o_FileManagers.ActiveFileManager = 2)
-			or (WindowIsTotalCommander(strThisClass) and o_FileManagers.ActiveFileManager = 3)
+			or (WindowIsDirectoryOpus(strThisClass) and o_FileManagers.P_intActiveFileManager = 2)
+			or (WindowIsTotalCommander(strThisClass) and o_FileManagers.P_intActiveFileManager = 3)
 			or (WindowIsDialog(strThisClass, strIDs%intThisIDIndex%) and !blnExcludeDialogBox)
 		{
 			if (blnActivate)
@@ -9860,7 +9860,7 @@ BuildTabsList(strFavoriteType)
 	if (strFavoriteType = "Folder") and !(blnIsGroupMember)
 		strTabsList .= " | " . o_L["DialogAddFavoriteTabsLive"]
 	if (InStr(g_strTypesForTabWindowOptions, "|" . strFavoriteType)
-		and ((o_FileManagers.ActiveFileManager = 1 or o_FileManagers.ActiveFileManager = 3) or o_Settings.Execution.blnTryWindowPosition.IniValue)) ; Explorer or Total Commander
+		and ((o_FileManagers.P_intActiveFileManager = 1 or o_FileManagers.P_intActiveFileManager = 3) or o_Settings.Execution.blnTryWindowPosition.IniValue)) ; Explorer or Total Commander
 		strTabsList .= " | " . g_objFavoriteGuiTabs[3]
 	if InStr(g_strTypesForTabAdvancedOptions, "|" . strFavoriteType)
 		strTabsList .= " | " . g_objFavoriteGuiTabs[4]
@@ -10098,7 +10098,7 @@ else ; add favorite
 	}
 	
 	if (g_strAddFavoriteType = "FTP")
-		g_blnNewFavoriteFtpEncoding := (o_FileManagers.ActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
+		g_blnNewFavoriteFtpEncoding := (o_FileManagers.P_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
 
 	if (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(g_objEditedFavorite.FavoriteLocation) and !StrLen(g_strNewFavoriteIconResource)
 	{
@@ -10305,23 +10305,23 @@ if (g_objEditedFavorite.FavoriteType = "Group")
 	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupAdd " . (g_arrGroupSettingsGui1 ? "" : "checked"), % o_L["GuiGroupSaveAddWindowsLabel"]
 	Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupReplace " . (g_arrGroupSettingsGui1 ? "checked" : ""), % o_L["GuiGroupSaveReplaceWindowsLabel"]
 
-	if (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; DirectoryOpus or TotalCommander
+	if (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; DirectoryOpus or TotalCommander
 	{
 		Gui, 2:Add, Text, x20 y+20, % o_L["GuiGroupSaveRestoreWith"]
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupRestoreWithExplorer " . (g_arrGroupSettingsGui2 = "Windows Explorer" ? "checked" : ""), Windows Explorer
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupRestoreWithOther " . (g_arrGroupSettingsGui2 <> "Windows Explorer" ? "checked" : "")
-			, % o_FileManagers.SA[o_FileManagers.ActiveFileManager].strDisplayName ; will be selected by default if empty (when Add)
+			, % o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName ; will be selected by default if empty (when Add)
 	}
 }
 
 if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding folders or FTP sites
-	and (o_FileManagers.ActiveFileManager = 2 or o_FileManagers.ActiveFileManager = 3) ; in Directory Opus or TotalCommander
+	and (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
 	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
 	
-	Gui, 2:Add, Text, x20 y+20, % L(o_L["GuiGroupRestoreSide"], (o_FileManagers.ActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
+	Gui, 2:Add, Text, x20 y+20, % L(o_L["GuiGroupRestoreSide"], (o_FileManagers.P_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
 	Gui, 2:Add, Radio, % "x+10 yp vf_intRadioGroupRestoreSide " . (arrNewFavoriteWindowPosition8 <> "R" ? "checked" : ""), % o_L["DialogWindowPositionLeft"] ; if "L" or ""
 	Gui, 2:Add, Radio, % "x+10 yp " . (arrNewFavoriteWindowPosition8 = "R" ? "checked" : ""), % o_L["DialogWindowPositionRight"]
 }
@@ -10373,10 +10373,10 @@ objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesC
 strItemsNameCodeCategories := ""
 for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.AA)
 	if (A_ThisLabel = "LoadTreeviewQAP")
-		strItemsNameCodeCategories .= objItem.LocalizedName . "|" . strItemCode . "|" . objItem.QAPFeatureCategories . "`n"
+		strItemsNameCodeCategories .= objItem.strLocalizedName . "|" . strItemCode . "|" . objItem.strQAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial
-		if StrLen(objItem.DefaultName) ; to skip class object non-special folders items
-			strItemsNameCodeCategories .= objItem.DefaultName . "|" . strItemCode . "|" . StrReplace(objItem.Categories, "|", "~") . "`n"
+		if StrLen(objItem.strDefaultName) ; to skip class object non-special folders items
+			strItemsNameCodeCategories .= objItem.strDefaultName . "|" . strItemCode . "|" . StrReplace(objItem.strCategories, "|", "~") . "`n"
 Sort, strItemsNameCodeCategories
 
 for strCategory, strCategoryLabel in objCategories
@@ -10400,7 +10400,7 @@ for strCategory, strCategoryLabel in objCategories
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
-				if (!blnSelectDone and o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].LocalizedName = arrItem1)
+				if (!blnSelectDone and o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].strLocalizedName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -10413,7 +10413,7 @@ for strCategory, strCategoryLabel in objCategories
 			}
 			else
 			{
-				if (!blnSelectDone and o_SpecialFolders.AA[g_objEditedFavorite.FavoriteLocation].DefaultName = arrItem1)
+				if (!blnSelectDone and o_SpecialFolders.AA[g_objEditedFavorite.FavoriteLocation].strDefaultName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -10667,7 +10667,7 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 
 	if (g_objEditedFavorite.FavoriteType = "FTP")
 	{
-		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.ActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
+		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.P_intActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding = true)
 	}
 	
@@ -10888,7 +10888,7 @@ ButtonChangeFavoriteHotkey:
 Gui, 2:Submit, NoHide
 
 if (g_objEditedFavorite.FavoriteType = "QAP")
-	strQAPDefaultShortcut := o_QAPfeatures.AA[o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].DefaultShortcut
+	strQAPDefaultShortcut := o_QAPfeatures.AA[o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].strDefaultShortcut
 
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
 g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
@@ -11148,7 +11148,7 @@ if (A_GuiEvent = "S")
 {
 	Gui, 2:Submit, NoHide
 	
-	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
+	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].strDefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
@@ -11157,7 +11157,7 @@ if (A_GuiEvent = "S")
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
 		{
-			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.AA[strLocation].DefaultIcon : o_SpecialFolders.AA[strLocation].DefaultIcon)
+			g_strNewFavoriteIconResource := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.AA[strLocation].strDefaultIcon : o_SpecialFolders.AA[strLocation].strDefaultIcon)
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
@@ -11166,8 +11166,8 @@ if (A_GuiEvent = "S")
 			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
 				and !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
-				and !g_objFavoritesObjectsByShortcut.HasKey(o_QAPfeatures.AA[strLocation].DefaultShortcut) ; and default shortcut is not already used
-				g_strNewFavoriteShortcut := o_QAPfeatures.AA[strLocation].DefaultShortcut ; assign default shortcut for QAP feature
+				and !g_objFavoritesObjectsByShortcut.HasKey(o_QAPfeatures.AA[strLocation].strDefaultShortcut) ; and default shortcut is not already used
+				g_strNewFavoriteShortcut := o_QAPfeatures.AA[strLocation].strDefaultShortcut ; assign default shortcut for QAP feature
 				
 			GuiControl, , f_strHotkeyText, % new Triggers.HotkeyParts(g_strNewFavoriteShortcut).Hotkey2Text()
 			
@@ -11178,14 +11178,14 @@ if (A_GuiEvent = "S")
 
 	if (A_ThisLabel = "TreeViewQAPChanged")
 	{
-		GuiControl, , f_tvQAPDescription, % g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureDescription
-		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
-		GuiControl, , f_tvQAPFeatureURL, % "<a href=""https://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].QAPFeatureURL . "/"">" . o_L["DialogQAPFeaturesHelpLink"] . "</a>"
+		GuiControl, , f_tvQAPDescription, % g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureDescription
+		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
+		GuiControl, , f_tvQAPFeatureURL, % "<a href=""https://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL . "/"">" . o_L["DialogQAPFeaturesHelpLink"] . "</a>"
 	}
 }
 else if (A_GuiEvent = "DoubleClick")
 {
-	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].LocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].DefaultName)
+	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].strDefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 		if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 			gosub, GuiEditFavoriteSave
@@ -13499,7 +13499,7 @@ if (A_GuiEvent = "DoubleClick")
 				, g_objEditedFavorite.FavoriteName
 				, g_objEditedFavorite.FavoriteType
 				, g_objEditedFavorite.FavoriteLocation, 3
-				, o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].DefaultShortcut)
+				, o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].strDefaultShortcut)
 			; SelectShortcut returns the new shortcut, "None" if no shortcut or empty string if cancelled
 			if !StrLen(g_strNewFavoriteShortcut)
 				g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
@@ -13555,9 +13555,9 @@ Loop, 2
 				: o_PopupHotkeys.SA[A_Index].strPopupHotkeyText), o_L["DialogNA"])
 
 		for strQAPFeatureCode in o_QAPfeatures.aaQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
-			if (o_QAPfeatures.AA[strQAPFeatureCode].QAPFeatureAlternativeOrder)
+			if (o_QAPfeatures.AA[strQAPFeatureCode].intQAPFeatureAlternativeOrder)
 				if HasShortcut(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
-					LV_Add(, , o_L["DialogHotkeysManageAlternativeMenu"], o_QAPfeatures.AA[strQAPFeatureCode].LocalizedName, o_L["DialogHotkeysManageAlternative"]
+					LV_Add(, , o_L["DialogHotkeysManageAlternativeMenu"], o_QAPfeatures.AA[strQAPFeatureCode].strLocalizedName, o_L["DialogHotkeysManageAlternative"]
 						, new Triggers.HotkeyParts(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
 	}
 	
@@ -14794,7 +14794,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 		for strCode, objThisQAPFeature in o_QAPfeatures.AA
 			if (objThisQAPFeature.CurrentHotkey = strShortcut)
 			{
-				strExistingName := objThisQAPFeature.LocalizedName
+				strExistingName := objThisQAPFeature.strLocalizedName
 				break
 			}
 	
@@ -15337,9 +15337,9 @@ CanNavigate(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Express
 
 	blnCanNavigate := WindowIsExplorer(g_strTargetClass) or WindowIsConsole(g_strTargetClass)
 		or (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue and WindowIsDialog(g_strTargetClass, g_strTargetWinId) and !DialogBoxParentExcluded(g_strTargetWinId))
-		or (o_FileManagers.ActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
-		or (o_FileManagers.ActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
-		or (o_FileManagers.ActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
+		or (o_FileManagers.P_intActiveFileManager = 2 and WindowIsDirectoryOpus(g_strTargetClass))
+		or (o_FileManagers.P_intActiveFileManager = 3 and WindowIsTotalCommander(g_strTargetClass))
+		or (o_FileManagers.P_intActiveFileManager = 4 and WindowIsQAPconnect(g_strTargetWinId))
 		or WindowIsQuickAccessPopup(g_strTargetClass)
 
 	; check if we will show the "change folder alert" before opening the selected favorite, if the favorite is a folder
@@ -15616,8 +15616,8 @@ g_strAlternativeMenu := ""
 for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 	if (o_QAPfeatures.AA[strCode].CurrentHotkey = A_ThisHotkey)
 	{
-; .LocalizedName OK because Alternative
-		g_strAlternativeMenu := o_QAPfeatures.AA[strCode].LocalizedName
+; .strLocalizedName OK because Alternative
+		g_strAlternativeMenu := o_QAPfeatures.AA[strCode].strLocalizedName
 		break
 	}
 
@@ -15723,7 +15723,7 @@ Tooltip, % o_L["GuiGroupClosing"]
 
 if (g_arrGroupSettingsOpen2 = "Other")
 {
-	if (o_FileManagers.ActiveFileManager = 2) ; Directory Opus
+	if (o_FileManagers.P_intActiveFileManager = 2) ; Directory Opus
 	{
 		WinGet, arrIDs, List, ahk_class dopus.lister
 		Loop, %arrIDs%
@@ -15732,7 +15732,7 @@ if (g_arrGroupSettingsOpen2 = "Other")
 			Sleep, %intSleepTime%
 		}
 	}
-	else if (o_FileManagers.ActiveFileManager = 3) ; Total Commander
+	else if (o_FileManagers.P_intActiveFileManager = 3) ; Total Commander
 	{
 		WinGet, arrIDs, List, ahk_class TTOTAL_CMD
 		Loop, %arrIDs%
@@ -16064,7 +16064,7 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeOpenCo
 	}
 }
 
-if (o_FileManagers.ActiveFileManager = 2 and SubStr(g_objThisFavorite.FavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
+if (o_FileManagers.P_intActiveFileManager = 2 and SubStr(g_objThisFavorite.FavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
 {
 	g_strFullLocation := g_objThisFavorite.FavoriteLocation
 	g_strTargetAppName := "DirectoryOpus"
@@ -16305,9 +16305,9 @@ if (g_objThisFavorite.FavoriteType = "WindowsApp")
 ; --- QAP Command ---
 
 if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
-	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand)
+	and (g_objThisFavorite.FavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].strQAPFeatureCommand)
 {
-	Gosub, % o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].QAPFeatureCommand
+	Gosub, % o_QAPfeatures.AA[g_objThisFavorite.FavoriteLocation].strQAPFeatureCommand
 	
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -16400,19 +16400,19 @@ else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
 	g_strTargetAppName := "Dialog"
 ; else if WindowIsTreeview(g_strTargetWinId)
 ;	g_strTargetAppName := "Treeview"
-else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.ActiveFileManager = 2)
+else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 2)
 	g_strTargetAppName := "DirectoryOpus"
-else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.ActiveFileManager = 3)
+else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 3)
 	g_strTargetAppName := "TotalCommander"
-else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.ActiveFileManager = 4)
+else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.P_intActiveFileManager = 4)
 	g_strTargetAppName := "QAPconnect"
 else if WindowIsQuickAccessPopup(g_strTargetClass)
 {
-	if (o_FileManagers.ActiveFileManager = 2)
+	if (o_FileManagers.P_intActiveFileManager = 2)
 		g_strTargetAppName := "DirectoryOpus"
-	else if (o_FileManagers.ActiveFileManager = 3)
+	else if (o_FileManagers.P_intActiveFileManager = 3)
 		g_strTargetAppName := "TotalCommander"
-	else if (o_FileManagers.ActiveFileManager = 4)
+	else if (o_FileManagers.P_intActiveFileManager = 4)
 		g_strTargetAppName := "QAPconnect"
 	else
 		g_strTargetAppName := "Explorer"
@@ -16431,12 +16431,12 @@ if (g_strHotkeyTypeDetected = "Launch")
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
 		g_strTargetAppName := "Explorer"
 	else if InStr("Desktop|Dialog|Console|Unknown", g_strTargetAppName) ; these targets cannot launch in a new window
-		or (o_FileManagers.ActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
-		if (o_FileManagers.ActiveFileManager = 2)
+		or (o_FileManagers.P_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
+		if (o_FileManagers.P_intActiveFileManager = 2)
 			g_strTargetAppName := "DirectoryOpus"
-		else if (o_FileManagers.ActiveFileManager = 3)
+		else if (o_FileManagers.P_intActiveFileManager = 3)
 			g_strTargetAppName := "TotalCommander"
-		else if (o_FileManagers.ActiveFileManager = 4)
+		else if (o_FileManagers.P_intActiveFileManager = 4)
 			g_strTargetAppName := "QAPconnect"
 		else
 			g_strTargetAppName := "Explorer"
@@ -16717,23 +16717,23 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 	objSpecialFolder := o_SpecialFolders.AA[strLocation]
 	
 	if (strTargetName = "Explorer")
-		strUse := objSpecialFolder.Use4NavigateExplorer
+		strUse := objSpecialFolder.strUse4NavigateExplorer
 	else if (strTargetName = "Dialog")
-		strUse := objSpecialFolder.Use4Dialog
+		strUse := objSpecialFolder.strUse4Dialog
 	else if (strTargetName = "Console")
-		strUse := objSpecialFolder.Use4Console
+		strUse := objSpecialFolder.strUse4Console
 	else if (strTargetName = "DirectoryOpus")
-		strUse := objSpecialFolder.Use4DOpus
+		strUse := objSpecialFolder.strUse4DOpus
 	else if (strTargetName = "TotalCommander")
-		strUse := objSpecialFolder.Use4TC
+		strUse := objSpecialFolder.strUse4TC
 	else if (strTargetName = "QAPconnect")
-		strUse := objSpecialFolder.Use4FPc
+		strUse := objSpecialFolder.strUse4FPc
 	else
-		strUse := objSpecialFolder.Use4NewExplorer
+		strUse := objSpecialFolder.strUse4NewExplorer
 
 	if (strUse = "NEW") ; re-assign values as if it was a new window request to be open in *Explorer*
 	{
-		strUse := objSpecialFolder.Use4NewExplorer
+		strUse := objSpecialFolder.strUse4NewExplorer
 		strHotkeyTypeDetected := "Launch"
 		strTargetName := "Explorer"
 	}
@@ -16750,15 +16750,15 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 	}
 	else if (strUse = "AHK")
 	{
-		strAHKConstant := objSpecialFolder.AHKConstant ; for example "A_Desktop"
+		strAHKConstant := objSpecialFolder.strAHKConstant ; for example "A_Desktop"
 		strLocation := %strAHKConstant% ; the contant value, for example "C:\Users\jlalonde\Desktop"
 	}
 	else if (strUse = "DOA")
-		strLocation := "/" . objSpecialFolder.DOpusAlias
+		strLocation := "/" . objSpecialFolder.strDOpusAlias
 	else if (strUse = "SCT")
-		strLocation := "shell:" . objSpecialFolder.ShellConstantText
+		strLocation := "shell:" . objSpecialFolder.strShellConstantText
 	else if (strUse = "TCC")
-		strLocation := objSpecialFolder.TCCommand
+		strLocation := objSpecialFolder.strTCCommand
 	else
 	{
 		Oops(o_L["OopsCouldNotOpenSpecialFolder"], strTargetName, strLocation)
@@ -18203,9 +18203,9 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&is64=" . A_Is64bitOS
 	. "&setup=" . (blnSetup)
 				+ (2 * (o_Settings.Launch.blnDonor.IniValue ? 1 : 0))
-				+ (4 * (o_FileManagers.ActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
-				+ (8 * (o_FileManagers.ActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
-				+ (16 * (o_FileManagers.ActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
+				+ (4 * (o_FileManagers.P_intActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
+				+ (8 * (o_FileManagers.P_intActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
+				+ (16 * (o_FileManagers.P_intActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
 	. "&lsys=" . A_Language
 	. "&lfp=" . o_Settings.Launch.strLanguageCode.IniValue
 	. "&shd=" . "" ; strShell32Date not needed but keep empty value for MySQL database
@@ -21585,10 +21585,10 @@ GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
 		return GetIcon4Location(strGuiFavoriteLocation)
 	else if (objFavorite.FavoriteType = "Special")
 		; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
-		return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
+		return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].strDefaultIcon
 	else if (objFavorite.FavoriteType = "QAP")
 		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
-		return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].DefaultIcon
+		return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].strDefaultIcon
 	else if (objFavorite.FavoriteType = "Text" or objFavorite.FavoriteType = "X" or objFavorite.FavoriteType = "K")
 		return "iconNoIcon"
 	else if (objFavorite.FavoriteType = "WindowsApp")
@@ -22250,7 +22250,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strCaller = "Current Windows menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Current Windows menu" and strProcessPath = o_FileManagers.SA[2].strFileManagerPath and o_FileManagers.SA.ActiveFileManager = 2)
+	else if (strCaller = "Current Windows menu" and strProcessPath = o_FileManagers.SA[2].strFileManagerPath and o_FileManagers.SA.P_intActiveFileManager = 2)
 		return false
 	
 	else if (strCaller = "Current Windows menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
@@ -23653,11 +23653,11 @@ TODO
 			, "f_radActiveFileManager1|f_radActiveFileManager2|f_radActiveFileManager3|f_radActiveFileManager4") ; if not exist returns "ERROR"
 		if (intActiveFileManager = "ERROR") ; no selection
 			intActiveFileManager := this.DetectFileManager() ; returns 2 DirectoryOpus or 3 TotalCommander if detected, else 1 WindowsExplorer
-		this.ActiveFileManager := intActiveFileManager
+		this.P_intActiveFileManager := intActiveFileManager ; assigning to property checks if blnFileManagerValid
 
 		o_Settings.ReadIniOption("FileManagers", "blnAlwaysNavigate", "FileManagerAlwaysNavigate", 0
 			, "FileManagers", "f_lblFileManagersIntro|f_lblFileManagerNavigateTitle|f_lblFileManagerNavigate|f_radFileManagerNavigateCurrent|f_radFileManagerNavigateNew|f_lblradActiveFileManager") ; default false
-		; in main script, use o_FileManagers.ActiveFileManager instead of o_Settings.FileManagers.intActiveFileManager.IniValue
+		; in main script, use o_FileManagers.P_intActiveFileManager instead of o_Settings.FileManagers.intActiveFileManager.IniValue
 	}
 	;---------------------------------------------------------
 
@@ -23677,28 +23677,28 @@ TODO
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	ActiveFileManager[]
+	P_intActiveFileManager[]
 	; default 1 for "WindowsExplorer"
 	;---------------------------------------------------------
 	{
 		Get
 		{
-			return this._ActiveFileManager ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
+			return this._intActiveFileManager ; Lexikos: "One common convention is to use a single underscore for internal members, as in _propertyname. But it's just a convention."
 		}
 		
 		Set
 		{
 			if (this.SA[value].blnFileManagerValid)
-				this._ActiveFileManager := value
+				this._intActiveFileManager := value
 			else
 			{
 				if (value = 4) ; QAPconnect
 					Oops(o_L["OopsWrongThirdPartyPathQAPconnect"], this.SA[4].strQAPconnectFileManager, this.SA[4].strFileManagerPath, "QAPconnect.ini", L(o_L["MenuEditIniFile"], "QAPconnect.ini"), o_L["OptionsThirdParty"])
 				else ; 2 DirectoryOpus or 3 TotalCommander
 					Oops(o_L["OopsWrongThirdPartyPath"], this.SA[value].strDisplayName, this.SA[value].strFileManagerPath, o_L["OptionsThirdParty"])
-				this._ActiveFileManager := 1 ; fall back to Window Explorer
+				this._intActiveFileManager := 1 ; fall back to Window Explorer
 			}
-			return this._ActiveFileManager
+			return this._intActiveFileManager
 		}
 	}
 	;---------------------------------------------------------
@@ -24568,21 +24568,21 @@ class SpecialFolders
 
 	; Special Folder Object (aaOneSpecialFolder) definition:
 	;		strClassIdOrPath: key to access one Special Folder object (example: o_SpecialFolders.AA[strClassIdOrPath], saved to ini file
-	;		objSpecialFolder.ShellConstantText: text constant used to navigate using Explorer or Dialog box? What with DOpus and TC?
-	;		objSpecialFolder.ShellConstantNumeric: numeric ShellSpecialFolderConstants constant 
-	;		objSpecialFolder.AHKConstant: AutoHotkey constant
-	;		objSpecialFolder.DOpusAlias: Directory Opus constant
-	;		objSpecialFolder.TCCommand: Total Commander constant
-	;		objSpecialFolder.DefaultName:
-	;		objSpecialFolder.DefaultIcon: icon resource name in the format "file,index"
-	;		objSpecialFolder.Use4NavigateExplorer:
-	;		objSpecialFolder.Use4NewExplorer:
-	;		objSpecialFolder.Use4Dialog:
-	;		objSpecialFolder.Use4Console:
-	;		objSpecialFolder.Use4DOpus:
-	;		objSpecialFolder.Use4TC:
-	;		objSpecialFolder.Use4FPc:
-	;		objSpecialFolder.Categories: categories, one or many (tilde delimited) of 1-Basic~2-Power User~3-Sysadmin~4-Contents~5-Hardware
+	;		objSpecialFolder.strShellConstantText: text constant used to navigate using Explorer or Dialog box? What with DOpus and TC?
+	;		objSpecialFolder.strShellConstantNumeric: numeric ShellSpecialFolderConstants constant 
+	;		objSpecialFolder.strAHKConstant: AutoHotkey constant
+	;		objSpecialFolder.strDOpusAlias: Directory Opus constant
+	;		objSpecialFolder.strTCCommand: Total Commander constant
+	;		objSpecialFolder.strDefaultName:
+	;		objSpecialFolder.strDefaultIcon: icon resource name in the format "file,index"
+	;		objSpecialFolder.strUse4NavigateExplorer:
+	;		objSpecialFolder.strUse4NewExplorer:
+	;		objSpecialFolder.strUse4Dialog:
+	;		objSpecialFolder.strUse4Console:
+	;		objSpecialFolder.strUse4DOpus:
+	;		objSpecialFolder.strUse4TC:
+	;		objSpecialFolder.strUse4FPc:
+	;		objSpecialFolder.strCategories: categories, one or many (tilde delimited) of 1-Basic~2-Power User~3-Sysadmin~4-Contents~5-Hardware
 
 	;---------------------------------------------------------
 	{
@@ -24595,7 +24595,7 @@ class SpecialFolders
 		If !StrLen(strThisDefaultName)
 			strThisDefaultName := strDefaultName
 		this.aaClassIdOrPathByDefaultName[strThisDefaultName] := strClassIdOrPath
-		aaOneSpecialFolder.DefaultName := strThisDefaultName
+		aaOneSpecialFolder.strDefaultName := strThisDefaultName
 		
 		if (blnIsClsId)
 			strThisDefaultIcon := GetIconForClassId(strClassIdOrPath)
@@ -24603,28 +24603,27 @@ class SpecialFolders
 			strThisDefaultIcon := o_JLicons.AA[strDefaultIcon]
 		if !StrLen(strThisDefaultIcon)
 			strThisDefaultIcon := "%SystemRoot%\System32\shell32.dll,4" ; fallback folder icon from shell32.dll
-		aaOneSpecialFolder.DefaultIcon := strThisDefaultIcon
+		aaOneSpecialFolder.strDefaultIcon := strThisDefaultIcon
 
-		aaOneSpecialFolder.ShellConstantText := strShellConstantText
-		aaOneSpecialFolder.ShellConstantNumeric := intShellConstantNumeric
-		aaOneSpecialFolder.AHKConstant := strAHKConstant
-		aaOneSpecialFolder.DOpusAlias := strDOpusAlias
-		aaOneSpecialFolder.TCCommand := strTCCommand
+		aaOneSpecialFolder.strShellConstantText := strShellConstantText
+		aaOneSpecialFolder.strShellConstantNumeric := intShellConstantNumeric
+		aaOneSpecialFolder.strAHKConstant := strAHKConstant
+		aaOneSpecialFolder.strDOpusAlias := strDOpusAlias
+		aaOneSpecialFolder.strTCCommand := strTCCommand
 		
-		aaOneSpecialFolder.Use4NavigateExplorer := strUse4NavigateExplorer
-		aaOneSpecialFolder.Use4NewExplorer := strUse4NewExplorer
-		aaOneSpecialFolder.Use4Dialog := strUse4Dialog
-		aaOneSpecialFolder.Use4Console := strUse4Console
-		aaOneSpecialFolder.Use4DOpus := strUse4DOpus
-		aaOneSpecialFolder.Use4TC := strUse4TC
-		aaOneSpecialFolder.Use4FPc := strUse4FPc
+		aaOneSpecialFolder.strUse4NavigateExplorer := strUse4NavigateExplorer
+		aaOneSpecialFolder.strUse4NewExplorer := strUse4NewExplorer
+		aaOneSpecialFolder.strUse4Dialog := strUse4Dialog
+		aaOneSpecialFolder.strUse4Console := strUse4Console
+		aaOneSpecialFolder.strUse4DOpus := strUse4DOpus
+		aaOneSpecialFolder.strUse4TC := strUse4TC
+		aaOneSpecialFolder.strUse4FPc := strUse4FPc
 
-		aaOneSpecialFolder.Categories := strCategories
+		aaOneSpecialFolder.strCategories := strCategories
 
 		this.AA[strClassIdOrPath] := aaOneSpecialFolder
 	}
 	;---------------------------------------------------------
-
 }
 ;-------------------------------------------------------------
 
@@ -24910,15 +24909,15 @@ class QAPfeatures
 	{
 		aaOneQAPFeature := Object()
 		
-		aaOneQAPFeature.LocalizedName := strThisLocalizedName ; use as default value when adding QAP favorite, not to display name after (except for Alternative menus)
-		aaOneQAPFeature.DefaultIcon := strThisDefaultIcon
-		aaOneQAPFeature.QAPFeatureMenuName := strQAPFeatureMenuName
-		aaOneQAPFeature.QAPFeatureCommand := strQAPFeatureCommand
-		aaOneQAPFeature.QAPFeatureCategories := strQAPFeatureCategories
-		aaOneQAPFeature.QAPFeatureDescription := strQAPFeatureDescription
-		aaOneQAPFeature.QAPFeatureURL := strHelpUrl
-		aaOneQAPFeature.QAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
-		aaOneQAPFeature.DefaultShortcut := strDefaultShortcut
+		aaOneQAPFeature.strLocalizedName := strThisLocalizedName ; use as default value when adding QAP favorite, not to display name after (except for Alternative menus)
+		aaOneQAPFeature.strDefaultIcon := strThisDefaultIcon
+		aaOneQAPFeature.strQAPFeatureMenuName := strQAPFeatureMenuName
+		aaOneQAPFeature.strQAPFeatureCommand := strQAPFeatureCommand
+		aaOneQAPFeature.strQAPFeatureCategories := strQAPFeatureCategories
+		aaOneQAPFeature.strQAPFeatureDescription := strQAPFeatureDescription
+		aaOneQAPFeature.strQAPFeatureURL := strHelpUrl
+		aaOneQAPFeature.intQAPFeatureAlternativeOrder := intQAPFeatureAlternativeOrder
+		aaOneQAPFeature.strDefaultShortcut := strDefaultShortcut
 		
 		this.AA["{" . strQAPFeatureCode . "}"] := aaOneQAPFeature
 		this.aaQAPFeaturesCodeByDefaultName[strThisLocalizedName] := "{" . strQAPFeatureCode . "}"
