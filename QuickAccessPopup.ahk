@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.0.8 (2019-03-??)
+- rework how settings (ini) file is backuped for main, alternative (using Switch Settings file) or shared ini files: if a value BackupFolder= (under [Global]) is found in the current ini file, make backup in this folder, else make backup in the current ini file folder
+- the BackupFolder= (under [Global]) value could now be used in Shared menu ini files
+- fix bug favorite type not showing in Add/Edit Favorite dialog box header
+- internal variable renaming
+- ...
+
 Version ALPHA: 9.9.0.7 (2019-03-20)
 - improvements to the Options dialog box: adding buttons to switch groups of options (similar to tabs, but vertically)
 - improve paths validation  for temp folder, backup folder and tray icon file when saving options
