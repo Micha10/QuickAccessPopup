@@ -6126,6 +6126,7 @@ if (g_blnWorkingToolTip)
 
 if !(o_Settings.Launch.blnDonor.IniValue)
 {
+	; when time to convert will be: if (o_MainMenu.SA[o_MainMenu.SA.MaxIndex()].AA.strFavoriteType <> "K")
 	if (g_objMenusIndex[o_L["MainMenuName"]][g_objMenusIndex[o_L["MainMenuName"]].MaxIndex()].FavoriteType <> "K")
 	; column break not allowed if first item is a separator
 		Menu, % o_L["MainMenuName"], Add
@@ -6301,9 +6302,9 @@ if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 g_blnMenuReady := false
 g_blnRefreshQAPMenuInProgress := true
 
-for strMenuName, objThisMenu in g_objMenusIndex
-	if (objThisMenu.MenuType = "External") and ExternalMenuModifiedSinceLoaded(objThisMenu) ; refresh only if changed
-		ExternalMenuReloadAndRebuild(objThisMenu)
+for strMenuName, o_ThisContainer in o_Containers.AA
+	if (o_ThisContainer.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(o_ThisContainer) ; refresh only if changed
+		o_ThisContainer.BuildMenu() ; ExternalMenuReloadAndRebuild(objThisMenu)
 
 if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
@@ -21132,22 +21133,22 @@ ExternalMenuIsReadOnly(strFile)
 
 
 ;------------------------------------------------------------
-ExternalMenuModifiedSinceLoaded(objMenu)
+ExternalMenuModifiedSinceLoaded(o_Container)
 ;------------------------------------------------------------
 {
-	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalSettingsPath)
-	objMenu.MenuExternalLastModifiedNow := strLastModified
+	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", o_Container.AA.strMenuExternalSettingsPath)
+	o_Container.AA.strMenuExternalLastModifiedNow := strLastModified
 	; ###_V(A_ThisFunc, "Now: " . objMenu.MenuExternalLastModifiedNow
 		; , "When loaded: " . objMenu.MenuExternalLastModifiedWhenLoaded
 		; , "Modified since loaded: " . (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded))
 		
 	; check if the two timestamps are of the same type
 	; if not (could happen when an existing menu is changed of type), return that the menu has been modified
-	if InStr(objMenu.MenuExternalLastModifiedNow, "UTC") and !InStr(objMenu.MenuExternalLastModifiedWhenLoaded, "UTC")
-		or !InStr(objMenu.MenuExternalLastModifiedNow, "UTC") and InStr(objMenu.MenuExternalLastModifiedWhenLoaded, "UTC")
+	if InStr(o_Container.AA.strMenuExternalLastModifiedNow, "UTC") and !InStr(o_Container.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
+		or !InStr(o_Container.AA.strMenuExternalLastModifiedNow, "UTC") and InStr(o_Container.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
 		return true
 	
-	return (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded) ; both of same format YYYYMMDDHHMMSS or YYYYMMDDHHMMSSUTC
+	return (o_Container.AA.strMenuExternalLastModifiedNow > o_Container.AA.strMenuExternalLastModifiedWhenLoaded) ; both of same format YYYYMMDDHHMMSS or YYYYMMDDHHMMSSUTC
 }
 ;------------------------------------------------------------
 
@@ -24792,7 +24793,7 @@ class Container
 		static intIniLine := 1
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.MenuPath
+			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 
 		if (this.AA.strMenuType = "External")
 		{
@@ -24814,8 +24815,8 @@ class Container
 			this.AA.strMenuExternalSettingsPath := strIniFile
 			; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 			; FileGetTime, strLastModified, % objNewMenu.MenuExternalSettingsPath, M ; modified date
-			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.MenuExternalSettingsPath)
-			blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", this.AA.MenuExternalSettingsPath)
+			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.strMenuExternalSettingsPath)
+			blnLastModifiedFromNetworkOrCoud := o_Settings.ReadIniValue("LastModifiedFromSystem", " ", "Global", this.AA.strMenuExternalSettingsPath)
 			; ###_V(A_ThisFunc, strLastModified, blnLastModifiedFromNetworkOrCoud)
 			this.AA.strMenuExternalLastModifiedWhenLoaded := strLastModified
 			this.AA.strMenuExternalLastModifiedNow := strLastModified
@@ -24835,9 +24836,9 @@ class Container
 			if (strLoadIniLine = "ERROR")
 			{
 				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . strIniFile . "`nFavorite" . intIniLine . "=")
-				if (this.AA.MenuType = "External")
+				if (this.AA.strMenuType = "External")
 				{
-					this.AA.MenuExternalLoaded := false
+					this.AA.strMenuExternalLoaded := false
 					return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuExternalLoaded false - external menu will stop at the previous favorite
 				}
 				else
