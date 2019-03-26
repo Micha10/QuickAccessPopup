@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.4.1.5.1 (2019-03-26)
+add new ini value OfflineBypass to bypass file exist verification and icon retrieval when collecting recenmt items to avoid offline files
+
 Version: 9.4.1.5 (2019-02-27)
 - fix bug when filtering apps in List Applications window and in Current Windows menu when running with a language other than English
 - update dropdown menu labels in "List Applications" window (dropdown menu not localized at this time)
@@ -3078,7 +3081,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.5
+;@Ahk2Exe-SetVersion 9.4.1.5.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3183,7 +3186,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4.1.5.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
