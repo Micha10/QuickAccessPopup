@@ -5359,7 +5359,20 @@ Menu, % o_L["MenuDrives"], Show, %g_intMenuPosX%, %g_intMenuPosY%
 return
 ;------------------------------------------------------------
 
+/*
+	LoadFavoritesFromTable(saFavoritesTable)
+	; load items in saFavoritesTable to a simple Container object having no submenu
+	; saFavoritesTable is an simple-array object of simple array objects saFavorite for each favorite to load
+			; saFavorite:
+			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
+			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
+			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 strFavoriteElevate, 14 strFavoriteDisabled,
+			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
+			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
 
+*/
+#####
 ;------------------------------------------------------------
 RefreshDrivesMenu:
 ;------------------------------------------------------------
@@ -5385,6 +5398,15 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 }
 else ; get data directly from Windows (with variable response time)
 	gosub, GetDrivesMenuListRefresh ; update g_strMenuItemsListDrives
+
+; structure 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
+; Drives|C:  (39 GB free / 222 GB)|OpenDrives|iconDrives
+; Drives|D: NotReady|OpenDrives|iconDrives
+; Drives|E: Audio (1478 GB free / 1862 GB)|OpenDrives|iconDrives
+; Drives|J: Tera3 (172 GB free / 2794 GB)|OpenDrives|iconDrives
+; Drives|K: Backup (851 GB free / 2794 GB)|OpenDrives|iconDrives
+; Drives|M: MUSIQUE (675 GB free / 931 GB)|OpenDrives|iconDrives
+; Drives|N: Audio (1478 GB free / 1862 GB)|OpenDrives|iconDrives
 
 Menu, % o_L["MenuDrives"], Add
 Menu, % o_L["MenuDrives"], DeleteAll
@@ -6187,6 +6209,7 @@ AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
 ; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
+; strMenuItemName is ByRef because in OpenSwitchFolderOrApp g_objSwitchWindowIdsByName is using the modified name as key to find item from A_ThisMenuItem
 ;------------------------------------------------------------
 {
 	global g_blnMainIsFirstColumn
@@ -6194,11 +6217,11 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 	if !StrLen(strMenuItemName)
 		return
 	
-	strMenuItemName := DoubleAmpersand(strMenuItemName) ; double ampersand in menu item name
+	strMenuItemName := DoubleAmpersand(strMenuItemName) ; double ampersand in menu item name ### should not be returned ByRef
 	
 	; The names of menus and menu items can be up to 260 characters long.
 	if StrLen(strMenuItemName) > 260
-		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-)
+		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### OK to return ByRef
 	
 	Menu, %strMenuName%, Add, %strMenuItemName%, %strLabel%
 	if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
@@ -24786,6 +24809,28 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
+	LoadFavoritesFromTable(saFavoritesTable)
+	; load items in saFavoritesTable to a simple Container object having no submenu
+	; saFavoritesTable is an simple-array object of simple array objects saFavorite for each favorite to load
+			; saFavorite:
+			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
+			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
+			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 strFavoriteElevate, 14 strFavoriteDisabled,
+			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
+			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
+	;---------------------------------------------------------
+	{
+		Loop, % saFavoritesTable.MaxIndex()
+		{
+			; create new item and add it to the container
+			oNewItem := new this.Item(saFavoritesTable[A_Index])
+			this.SA.Push(oNewItem) ; add to the current container object
+		}
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
 	LoadFavoritesFromIniFile(strIniFile)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
@@ -25225,8 +25270,8 @@ class Container
 					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavoriteGroup
 				else
 				{
-					srLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"]
-					if (SubStr(this.AA.strMenuPath, 1, StrLen(srLayoutMenuName)) = srLayoutMenuName)
+					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"]
+					if (SubStr(this.AA.strMenuPath, 1, StrLen(strLayoutMenuName)) = strLayoutMenuName)
 						strCommandName := "OpenDOpusLayout"
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["DOpusMenuName"])) = o_L["DOpusMenuName"])
 						strCommandName := "OpenDOpusFavorite"
@@ -25453,12 +25498,12 @@ class Container
 		;---------------------------------------------------------
 		{
 			; saFavorite:
-			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, 4 FavoriteIconResource, 5 FavoriteArguments, 6 FavoriteAppWorkingDir,
-			; 7 FavoriteWindowPosition, (X FavoriteHotkey), 8 FavoriteLaunchWith, 9 FavoriteLoginName, 10 FavoritePassword,
-			; 11 FavoriteGroupSettings, 12 FavoriteFtpEncoding, 13 FavoriteElevate, 14 FavoriteDisabled,
-			; 15 FavoriteFolderLiveLevels, 16 FavoriteFolderLiveDocuments, 17 FavoriteFolderLiveColumns, 18 FavoriteFolderLiveIncludeExclude, 19 FavoriteFolderLiveExtensions
-			; 20 FavoriteShortcut, 21 FavoriteHotstring, 22 FavoriteFolderLiveSort, 23 FavoriteSoundLocation
-			; 24 FavoriteDateCreated, 25 FavoriteDateModified, 26 FavoriteUsageDb
+			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
+			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
+			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 strFavoriteElevate, 14 strFavoriteDisabled,
+			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
+			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
 			
 			if (saFavorite[1] = "QAP")
 			{
