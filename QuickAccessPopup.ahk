@@ -6115,9 +6115,6 @@ Menu, % o_L["MainMenuName"], DeleteAll
 if (g_blnUseColors)
 	Menu, % o_L["MainMenuName"], Color, %g_strMenuBackgroundColor%
 
-; re-init these objects before rebuilding menu
-global g_objMenuColumnBreaks := Object()
-
 ; disable (turn off) existing hotstrings in g_objFavoritesObjectsByHotstring (if any) before updating them
 gosub, DisableHotstrings
 g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; reset object, using instead of Object() to support case sensitive keys
@@ -6228,30 +6225,6 @@ AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabl
 	if !(blnEnabled)
 		Menu, %strMenuName%, Disable, %strMenuItemName%
 }
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-InsertColumnBreaks:
-; Based on Rexx Folder Menu (http://foldermenu.sourceforge.net/) and Lexikos code
-; http://www.autohotkey.com/board/topic/69553-menu-with-columns-problem-with-adding-column-separator/#entry440866
-;------------------------------------------------------------
-
-VarSetCapacity(mii, cb:=16+8*A_PtrSize, 0) ; A_PtrSize is used for 64-bit compatibility.
-NumPut(cb, mii, "uint")
-NumPut(0x100, mii, 4, "uint") ; fMask = MIIM_FTYPE
-NumPut(0x20, mii, 8, "uint") ; fType = MFT_MENUBARBREAK
-
-for intIndex, objMenuColumnBreak in g_objMenuColumnBreaks
-{
-	pMenuHandle := GetMenuHandle(objMenuColumnBreak.MenuPath) 
-	DllCall("SetMenuItemInfo", "ptr", pMenuHandle, "uint", objMenuColumnBreak.MenuPosition, "int", 1, "ptr", &mii)
-}
-
-intIndex := ""
-objMenuColumnBreak := ""
-
-return
 ;------------------------------------------------------------
 
 
@@ -14645,8 +14618,6 @@ if (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue)
 	Gosub, RefreshDrivesMenu
 }
 
-Gosub, InsertColumnBreaks
-
 Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
 SetWaitCursor(false) 
 
@@ -15263,7 +15234,6 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 			return
 
 	g_strTargetWinId := "" ; forget value from previous open favorite
-	Gosub, InsertColumnBreaks
 }
 
 if (A_ThisLabel = "OpenFavoriteFromGroup") ; object already set by OpenGroupOfFavorites
@@ -25215,10 +25185,10 @@ class Container
 				if (g_blnUseColors)
 					Try Menu, % this.SA[A_Index].AA.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
-				Try Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath
+				Try Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				; catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
 				catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavorite ; will never be called because disabled
+					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavorite, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; OpenFavorite will never be called because disabled
 				Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains no item
 				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
 				{
@@ -25246,22 +25216,18 @@ class Container
 				
 			else if (this.SA[A_Index].AA.strFavoriteType = "K") ; this is a column break
 			{
-				; See doc:
-				; +Break	[v1.1.23+]: The item begins a new column in a popup menu.
-				; +BarBreak	[v1.1.23+]: As above, but with a dividing line between columns.
 				intMenuItemsCount -= 1 ; column breaks do not take a slot in menus
-				objMenuColumnBreak := Object()
-				objMenuColumnBreak.MenuPath := this.AA.strMenuPath
-				objMenuColumnBreak.MenuPosition := intMenuItemsCount ; not required: - (this.AA.MenuPath <> o_L["MainMenuName"] ? 1 : 0)
-				g_objMenuColumnBreaks.Insert(objMenuColumnBreak)
+				blnFlagNextItemHasColumnBreak := true
+				
+				continue ; with the next menu item where the BarBreak option will be used
 			}
 			else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 			{
 				if (this.SA[A_Index].AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName)
 					; menu should never be empty (if no item, it contains a "no item" menu)
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName
+					Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				else if (this.SA[A_Index].AA.strFavoriteType = "Group")
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavoriteGroup
+					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavoriteGroup, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				else
 				{
 					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"]
@@ -25273,7 +25239,7 @@ class Container
 						strCommandName := "OpenFavoriteHotlist"
 					else
 						strCommandName := "OpenFavorite"
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, %strCommandName%
+					Menu, % this.AA.strMenuPath, Add, %strMenuName%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				}
 
 				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
@@ -25307,6 +25273,8 @@ class Container
 				if (this.SA[A_Index].AA.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
 					Menu, % this.AA.strMenuPath, Default, %strMenuName%
 			}
+			
+			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
 	}
 	;------------------------------------------------------------
