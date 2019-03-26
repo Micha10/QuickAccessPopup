@@ -4783,11 +4783,11 @@ LoadIniAlternativeMenuFeaturesHotkeys:
 
 ; Turn off previous QAP Alternative Menu features hotkeys
 for strCode, objThisQAPFeature in o_QAPfeatures.AA
-	if HasShortcut(objThisQAPFeature.CurrentHotkey)
+	if HasShortcut(objThisQAPFeature.strCurrentHotkey)
 	{
 		; do nothing if error (in case the hotkey does not exist yet when adding a new alternative hotkey)
-		Hotkey, % objThisQAPFeature.CurrentHotkey, , Off UseErrorLevel
-		objThisQAPFeature.CurrentHotkey := "" ; will be reset next when reloading from ini file
+		Hotkey, % objThisQAPFeature.strCurrentHotkey, , Off UseErrorLevel
+		objThisQAPFeature.strCurrentHotkey := "" ; will be reset next when reloading from ini file
 	}
 	
 ; Load QAP Alternative Menu hotkeys
@@ -4800,7 +4800,7 @@ for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
 	if (strHotkey <> "ERROR")
 	{
 		Hotkey, %strHotkey%, OpenAlternativeMenuHotkey, On UseErrorLevel
-		o_QAPfeatures.AA[strCode].CurrentHotkey := strHotkey
+		o_QAPfeatures.AA[strCode].strCurrentHotkey := strHotkey
 	}
 	else
 		ErrorLevel := 0 ; reset value that was changed to 5 when IniRead returned the string "ERROR"
@@ -6340,7 +6340,7 @@ Loop
 	if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
 		strMenuName := MenuNameWithNumericShortcut(intMenuNumber, o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strLocalizedName) ; .strLocalizedName OK because Alternative
-		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].CurrentHotkey)
+		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strCurrentHotkey)
 		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
 		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon)
@@ -7266,9 +7266,9 @@ if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 ; {Alternative Menu QAP Feature Codes}
 o_QAPfeatures.aaQAPFeaturesNewShortcuts := Object() ; re-init
 for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
-	if HasShortcut(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey)
+	if HasShortcut(o_QAPfeatures.AA[strAlternativeCode].strCurrentHotkey)
 		; o_QAPfeatures.aaQAPFeaturesNewShortcuts will be saved to ini file and o_QAPfeatures.AA will be used to turn off previous hotkeys
-		o_QAPfeatures.aaQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey
+		o_QAPfeatures.aaQAPFeaturesNewShortcuts[strAlternativeCode] := o_QAPfeatures.AA[strAlternativeCode].strCurrentHotkey
 		
 Gui, 2:Add, Text, y%intGroupItemsY% x%g_intGroupItemsX% w590 center hidden vf_lblAlternativeMenu, % o_L["OptionsAlternativeMenuFeaturesIntro"]
 
@@ -7278,7 +7278,7 @@ for intOrder, strAlternativeCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeBy
 	Gui, 2:Add, Text, x%g_intGroupItemsX% y+10 w240 hidden vf_lblAlternativeHotkeyName%intOrder%, % o_QAPfeatures.AA[strAlternativeCode].strLocalizedName ; .strLocalizedName OK because Alternative
 	Gui, 2:Font, s9 w500, Courier New
 	Gui, 2:Add, Text, x+10 yp w280 h20 center 0x1000 vf_lblAlternativeHotkeyText%intOrder% gButtonOptionsChangeAlternativeHotkey hidden
-		, % new Triggers.HotkeyParts(o_QAPfeatures.AA[strAlternativeCode].CurrentHotkey).Hotkey2Text(true)
+		, % new Triggers.HotkeyParts(o_QAPfeatures.AA[strAlternativeCode].strCurrentHotkey).Hotkey2Text(true)
 	Gui, 2:Font
 	Gui, 2:Add, Button, yp x+10 vf_btnChangeAlternativeHotkey%intOrder% gButtonOptionsChangeAlternativeHotkey hidden, % o_L["OptionsChangeHotkey"]
 }
@@ -13565,9 +13565,9 @@ Loop, 2
 
 		for strQAPFeatureCode in o_QAPfeatures.aaQAPFeaturesDefaultNameByCode ; load Alternative menu QAP Features shortcuts
 			if (o_QAPfeatures.AA[strQAPFeatureCode].intQAPFeatureAlternativeOrder)
-				if HasShortcut(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey) or f_blnSeeAllFavorites
+				if HasShortcut(o_QAPfeatures.AA[strQAPFeatureCode].strCurrentHotkey) or f_blnSeeAllFavorites
 					LV_Add(, , o_L["DialogHotkeysManageAlternativeMenu"], o_QAPfeatures.AA[strQAPFeatureCode].strLocalizedName, o_L["DialogHotkeysManageAlternative"]
-						, new Triggers.HotkeyParts(o_QAPfeatures.AA[strQAPFeatureCode].CurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
+						, new Triggers.HotkeyParts(o_QAPfeatures.AA[strQAPFeatureCode].strCurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
 	}
 	
 	g_intHotkeyListOrder := 0
@@ -14801,7 +14801,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	if !StrLen(strExistingName)
 		; check QAP Features Alternative menu hotkeys
 		for strCode, objThisQAPFeature in o_QAPfeatures.AA
-			if (objThisQAPFeature.CurrentHotkey = strShortcut)
+			if (objThisQAPFeature.strCurrentHotkey = strShortcut)
 			{
 				strExistingName := objThisQAPFeature.strLocalizedName
 				break
@@ -15623,7 +15623,7 @@ if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
 ; search Alternative menu code in o_QAPfeatures.AA to set g_strAlternativeMenu with localized name and gosub LaunchFromAlternativeMenu
 g_strAlternativeMenu := ""
 for intOrder, strCode in o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder
-	if (o_QAPfeatures.AA[strCode].CurrentHotkey = A_ThisHotkey)
+	if (o_QAPfeatures.AA[strCode].strCurrentHotkey = A_ThisHotkey)
 	{
 ; .strLocalizedName OK because Alternative
 		g_strAlternativeMenu := o_QAPfeatures.AA[strCode].strLocalizedName
