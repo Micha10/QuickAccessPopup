@@ -3269,6 +3269,8 @@ g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
+global g_blnOfflineBypass ; bypass file exist verification and icon retrieval when collecting recent items
+
 ;---------------------------------
 ; Initial validation
 
@@ -5200,6 +5202,7 @@ IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false,
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
 IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
 IniRead, g_blnTryWindowPosition, %g_strIniFile%, Global, TryWindowPosition, 0 ; default false
+IniRead, g_blnOfflineBypass, %g_strIniFile%, Global, OfflineBypass, 0 ; default false
 
 ; ---------------------
 ; Load favorites
@@ -12821,9 +12824,12 @@ return
 
 
 ;------------------------------------------------------------
-GetFolderIcon(strFolderLocation)
+GetFolderIcon(strFolderLocation, blnOfflineBypass := false)
 ;------------------------------------------------------------
 {
+	if (g_blnOfflineBypass and blnOfflineBypass)
+		return "iconFolder"
+	
 	; do not try to retrieve custom icon if file is on a network (path starting with "\\")
 	; return standard folder icon instead
 	if (SubStr(strFolderLocation, 1, 2) = "\\")
@@ -20854,14 +20860,13 @@ loop, parse, % "Folders|Files", |
 		strPath := objRow[1]
 		strTargetNb := objRow[2]
 		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
-		; RecentFileExistInPath to check if on an offline server
-		if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
+		if (strTargetNb <= 1 or !FileExistInPath(strPath, true)) ; skip if not enough frequent or if not exits, parameter true to bypass offline files
 			continue
 		intPopularItemsCount++
 		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strPath)
 		if (g_blnUsageDbShowPopularityIndex)
 			strMenuItemName .= " [" . strTargetNb . "]"
-		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath, true) : GetIcon4Location(strPath, true)) ; parameter true to bypass offline files
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
@@ -22024,14 +22029,15 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 
 ;------------------------------------------------------------
-GetIcon4Location(strLocation)
+GetIcon4Location(strLocation, blnOfflineBypass := false)
 ; returns an icon resource in icongroup format (file,index) or an index of o_JLicons
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
 ; index of o_JLicons will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	if (SubStr(strLocation, 1, 2) <> "\\") ;  for files not on a server, search in path
+	if !(g_blnOfflineBypass and blnOfflineBypass) ; skip if from collect files and bypass offline enabled
+		and (SubStr(strLocation, 1, 2) <> "\\") ;  for files not on a server, search in path
 		FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
@@ -22604,28 +22610,12 @@ LocationIsHTTP(strLocation)
 
 
 ;------------------------------------------------------------
-RecentFileExistInPath(ByRef strFile, strSource)
-; always return true if file si on an offline network drive
+FileExistInPath(ByRef strFile, blnOfflineBypass := false)
 ;------------------------------------------------------------
 {
-	if (SubStr(strFile, 1, 2) = "\\")
-	{
-		blnOffline := ServerIsOffline(strFile)
-		Diag(A_ThisFunc . " check if server is offline from: " . strSource, strFile . " " . (blnOffline ? "(OFFLINE)" : "(ONLINE)"), "ELAPSED")
-		if (blnOffline)
-			return false
-	}
-	; do not else
+	if (g_blnOfflineBypass and blnOfflineBypass) ; always return true if bypass enabled to avoid offline files
+		return true
 	
-	return FileExistInPath(strFile)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-FileExistInPath(ByRef strFile)
-;------------------------------------------------------------
-{
 	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%, and user variables like {DropBox}
 	if (!StrLen(strFile) or InStr(strFile, "://") or SubStr(strFile, 1, 1) = "{") ; this is not a file - caution some URLs in WhereIs cause an infinite loop
 		return, False
