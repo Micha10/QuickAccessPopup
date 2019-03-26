@@ -4222,7 +4222,7 @@ o_Settings.ReadIniOption("UserVariables", "strUserVariablesList", "UserVariables
 
 ; Group Database
 o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbIntervalSeconds", 60, "Database"
-	, "f_lblOptionUsageDbEnableStatement|f_lblOptionUsageDbEnableStatementTitle|f_blnOptionUsageDbEnable|f_lblUsageDbIntervalSeconds") ; g_intUsageDbIntervalSeconds
+	, "f_lblOptionUsageDbEnableStatement|f_lblOptionUsageDbEnableStatementTitle|f_blnOptionUsageDbEnable|f_lblUsageDbIntervalSeconds|f_intUsageDbIntervalSecondsEdit|f_intUsageDbIntervalSeconds") ; g_intUsageDbIntervalSeconds
 o_Settings.Database.intUsageDbIntervalSeconds.IniValue := ((o_Settings.Database.intUsageDbIntervalSeconds.IniValue <> 0
 	and o_Settings.Database.intUsageDbIntervalSeconds.IniValue < 60 and A_ComputerName <> "JEAN-PC")
 	? 60 : o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
@@ -8012,10 +8012,10 @@ return
 GuiOptionsGroupButtonClicked:
 ;------------------------------------------------------------
 
-if StrLen(A_GuiControl)
+if StrLen(A_GuiControl) or StrLen(strGotoGroup)
 {
 	strSettingsGroupPrev := g_strSettingsGroup
-	g_strSettingsGroup := StrReplace(A_GuiControl, "f_btnOptionsGroup")
+	g_strSettingsGroup := (StrLen(strGotoGroup) ? strGotoGroup : StrReplace(A_GuiControl, "f_btnOptionsGroup"))
 }
 
 GuiControl, -Default, % "f_btnOptionsGroup" . strSettingsGroupPrev ; will work even if A_GuiControl is empty
@@ -8037,6 +8037,7 @@ GuiControl, , f_lblOptionsGuiTitle, % L(o_L["Options" . g_strSettingsGroup] . " 
 Gosub, ActiveFileManagerClickedGroupButton
 
 strSettingsGroupPrev := ""
+strGotoGroup := ""
 
 return
 ;------------------------------------------------------------
@@ -8248,7 +8249,9 @@ OptionsTitlesDescriptionClicked:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-GuiControl, Choose, f_intOptionsTab, 6
+; GuiControl, Choose, f_intOptionsTab, 6
+strGotoGroup := "PopupMenu"
+Gosub, GuiOptionsGroupButtonClicked
 
 return
 ;------------------------------------------------------------
