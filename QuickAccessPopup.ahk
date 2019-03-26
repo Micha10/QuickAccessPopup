@@ -5359,20 +5359,7 @@ Menu, % o_L["MenuDrives"], Show, %g_intMenuPosX%, %g_intMenuPosY%
 return
 ;------------------------------------------------------------
 
-/*
-	LoadFavoritesFromTable(saFavoritesTable)
-	; load items in saFavoritesTable to a simple Container object having no submenu
-	; saFavoritesTable is an simple-array object of simple array objects saFavorite for each favorite to load
-			; saFavorite:
-			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
-			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
-			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 strFavoriteElevate, 14 strFavoriteDisabled,
-			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
-			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
-			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
 
-*/
-#####
 ;------------------------------------------------------------
 RefreshDrivesMenu:
 ;------------------------------------------------------------
@@ -5383,7 +5370,6 @@ if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Drives}")) ; we don't have this
 Diag(A_ThisLabel, "", "START")
 
 ; prepare data source
-
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT DrivesMenuData FROM zMetadata;"
@@ -5399,28 +5385,29 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 else ; get data directly from Windows (with variable response time)
 	gosub, GetDrivesMenuListRefresh ; update g_strMenuItemsListDrives
 
-; structure 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
-; Drives|C:  (39 GB free / 222 GB)|OpenDrives|iconDrives
-; Drives|D: NotReady|OpenDrives|iconDrives
-; Drives|E: Audio (1478 GB free / 1862 GB)|OpenDrives|iconDrives
-; Drives|J: Tera3 (172 GB free / 2794 GB)|OpenDrives|iconDrives
-; Drives|K: Backup (851 GB free / 2794 GB)|OpenDrives|iconDrives
-; Drives|M: MUSIQUE (675 GB free / 931 GB)|OpenDrives|iconDrives
-; Drives|N: Audio (1478 GB free / 1862 GB)|OpenDrives|iconDrives
-
-Menu, % o_L["MenuDrives"], Add
-Menu, % o_L["MenuDrives"], DeleteAll
+; prepare data for new Container
+saFavoritesTable := Object()
 Loop, Parse, g_strMenuItemsListDrives, `n
+	; g_strMenuItemsListDrives structure: 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
 	if StrLen(A_LoopField)
 	{
-		StringSplit, arrMenuItemsList, A_LoopField, |
-		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+		saOneLine := StrSplit(A_LoopField, "|")
+		saOneLine[1] := "Folder" ; force FavoriteType to Folder
+		; saOneLine[2] contain favorite name
+		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
+		; saOneLine[4] contain favorite icon
+		saFavoritesTable.Push(saOneLine)
 	}
+
+o_DrivesMenu := new Container("Menu", o_L["MenuDrives"])
+o_DrivesMenu.LoadFavoritesFromTable(saFavoritesTable)
+o_DrivesMenu.BuildMenu()
 AddCloseMenu(o_L["MenuDrives"])
 
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
-ResetArray("arrMenuItemsList")
+saOneLine := ""
+saFavoritesTable := ""
 
 Diag(A_ThisLabel, "", "STOP")
 
@@ -16173,9 +16160,13 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, objFa
 GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
+	; o_L["MenuDrives"] added when testing new object model for dynamic menus
+	; the +1 test for the back menu item will not be required after all menu are converted to the new object model
 	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
 
-	intMenuItemPos := A_ThisMenuItemPos + (A_ThisMenu = o_L["MainMenuName"] or A_ThisMenu = o_L["TCMenuName"] or A_ThisMenu = o_L["DOpusMenuName"] or A_ThisMenu = o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ? 0 : 1)
+	intMenuItemPos := A_ThisMenuItemPos
+		+ (A_ThisMenu = o_L["MainMenuName"] or A_ThisMenu = o_L["TCMenuName"] or A_ThisMenu = o_L["DOpusMenuName"] or A_ThisMenu = o_L["MenuDrives"]
+			or A_ThisMenu = o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ? 0 : 1)
 		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
 	return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
@@ -25170,7 +25161,7 @@ class Container
 			
 			if (this.SA[A_Index].AA.strFavoriteType = "QAP")
 				; if QAP feature attach menu option was changed when saving options
-				this.SA[A_Index].AA.strFavoriteName := o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].LocalizedName
+				this.SA[A_Index].AA.strFavoriteName := o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strLocalizedName
 
 			strMenuName := this.SA[A_Index].AA.strFavoriteName
 			if StrLen(strMenuName)
@@ -25263,9 +25254,9 @@ class Container
 			}
 			else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 			{
-				if (this.SA[A_Index].AA.strFavoriteType = "QAP") and Strlen(o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].QAPFeatureMenuName)
+				if (this.SA[A_Index].AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName)
 					; menu should never be empty (if no item, it contains a "no item" menu)
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].QAPFeatureMenuName
+					Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName
 				else if (this.SA[A_Index].AA.strFavoriteType = "Group")
 					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavoriteGroup
 				else
