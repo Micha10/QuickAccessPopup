@@ -3412,8 +3412,9 @@ Menu, Tray, UseErrorLevel, Off
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
+Gosub, InitDynamicMenus
+
 ; Menus attached or detached
-Gosub, BuildDrivesMenuInit
 Gosub, BuildRecentFoldersMenuInit
 Gosub, BuildRecentFilesMenuInit
 
@@ -5025,7 +5026,7 @@ return
 
 
 ;------------------------------------------------------------
-BuildDrivesMenuInit:
+; OLD MENU STRUCTURE
 BuildRecentFoldersMenuInit:
 BuildRecentFilesMenuInit:
 BuildClipboardMenuInit:
@@ -5043,8 +5044,6 @@ if (A_ThisLabel = "BuildClipboardMenuInit")
 	strMenuNames := o_L["MenuClipboard"]
 	strMenuItemLabel := o_L["MenuNoClipboard"]
 }
-if (A_ThisLabel = "BuildDrivesMenuInit")
-	strMenuNames := o_L["MenuDrives"]
 if (A_ThisLabel = "BuildRecentFoldersMenuInit")
 	strMenuNames := o_L["MenuRecentFolders"]
 if (A_ThisLabel = "BuildRecentFilesMenuInit")
@@ -5076,6 +5075,19 @@ loop, parse, strMenuNames, |
 strMenuNames := ""
 strThisMenuName := ""
 strMenuItemLabel := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+; NEW MENU STRUCTURE
+InitDynamicMenus:
+;------------------------------------------------------------
+
+strMenuToInit := "MenuDrives"
+loop, Parse, strMenuToInit, "|"
+	o_Menu := new Container("Menu", o_L[A_LoopField])
 
 return
 ;------------------------------------------------------------
@@ -5400,10 +5412,9 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 		saFavoritesTable.Push(saOneLine)
 	}
 
-o_DrivesMenu := new Container("Menu", o_L["MenuDrives"])
-o_DrivesMenu.LoadFavoritesFromTable(saFavoritesTable)
-o_DrivesMenu.BuildMenu()
-AddCloseMenu(o_L["MenuDrives"])
+o_Containers.AA[o_L["MenuDrives"]].LoadFavoritesFromTable(saFavoritesTable)
+o_Containers.AA[o_L["MenuDrives"]].BuildMenu()
+o_Containers.AA[o_L["MenuDrives"]].AddCloseMenu()
 
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
@@ -5680,6 +5691,26 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 }
 
 ; Build menu
+/*
+; prepare data for new Container
+saFavoritesTable := Object()
+Loop, Parse, g_strMenuItemsListDrives, `n
+	; g_strMenuItemsListDrives structure: 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
+	if StrLen(A_LoopField)
+	{
+		saOneLine := StrSplit(A_LoopField, "|")
+		saOneLine[1] := "Folder" ; force FavoriteType to Folder
+		; saOneLine[2] contain favorite name
+		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
+		; saOneLine[4] contain favorite icon
+		saFavoritesTable.Push(saOneLine)
+	}
+
+o_DrivesMenu := new Container("Menu", o_L["MenuDrives"])
+o_DrivesMenu.LoadFavoritesFromTable(saFavoritesTable)
+o_DrivesMenu.BuildMenu()
+AddCloseMenu(o_L["MenuDrives"])
+*/
 
 intMenuNumber := 0
 ; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
@@ -24781,7 +24812,21 @@ class Container
 			this.AA.oParentMenu := oParentMenu
 		}		
 		else
+		{
 			this.AA.strMenuPath := strContainerName ; for MainMenuName, DOpusMenuName, TCMenuName and other dynamic menus: name as-is, no separator before
+			
+			if (strContainerName <> o_L["MainMenuName"]) ; ???
+			{
+				Menu, %strContainerName%, Add 
+				Menu, %strContainerName%, DeleteAll
+				if (g_blnUseColors)
+					Menu, %strContainerName%, Color, %g_strMenuBackgroundColor%
+				strMenuItemLabel := (strContainerName = o_L["MenuClipboard"] ?  o_L["MenuNoClipboard"] : o_L["DialogNone"])
+				this.AddMenuIcon(strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+				this.AddCloseMenu()
+			}
+		}
+		o_Containers.AA[this.AA.strMenuPath] := this
 	}
 	;---------------------------------------------------------
 	
@@ -24870,11 +24915,9 @@ class Container
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
 			if (saThisFavorite[1] = "Z")
-			; container loaded without error
-			{
-				o_Containers.AA[this.AA.strMenuPath] := this
+				; container loaded without error
 				return "EOM" ; end of menu
-			}
+				
 			else if InStr("Menu|Group|External", saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
 			{
 				if (saThisFavorite[1] = "External")
@@ -24927,10 +24970,7 @@ class Container
 			intIniLine++
 	
 			if (strWinCmdItemName = "--")
-			{
-				o_Containers.AA[this.AA.strMenuPath] := this
 				return, "EOM" ; end of menu
-			}
 		
 			blnItemIsMenu := SubStr(strWinCmdItemName, 1, 1) = "-" and StrLen(strWinCmdItemName) > 1 ; begin a submenu "-MenuName", not "-"
 			
@@ -25043,7 +25083,6 @@ class Container
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
 		
-		o_Containers.AA[this.AA.strMenuPath] := this
 		; end of XML, last menu item
 	}
 	;-----------------------------------------------------
@@ -25102,7 +25141,6 @@ class Container
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
 
-		o_Containers.AA[this.AA.strMenuPath] := this
 		; end of XML, last menu item
 	}
 	;-----------------------------------------------------
@@ -25450,6 +25488,48 @@ class Container
 	}
 	;------------------------------------------------------------
 
+	;-------------------------------------------------------------
+	AddCloseMenu()
+	;-------------------------------------------------------------
+	{
+		if (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue)
+		{
+			Menu, % this.AA.strMenuPath, Add
+			this.AddMenuIcon(o_L["MenuCloseThisMenu"], "DoNothing", "iconClose")
+		}
+	}
+	;-------------------------------------------------------------
+	
+	;------------------------------------------------------------
+	AddMenuIcon(strMenuItemName, strLabel, strIconValue, blnEnabled := true)
+	; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
+	;------------------------------------------------------------
+	{
+		; The names of menus and menu items can be up to 260 characters long.
+		if StrLen(strMenuItemName) > 260
+			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
+		
+		strMenuItemName := DoubleAmpersand(strMenuItemName)
+		Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strLabel%
+		if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
+		{
+			Menu, % this.AA.strMenuPath, UseErrorLevel, on
+			ParseIconResource(strIconValue, strIconFile, intIconIndex)
+			Menu, % this.AA.strMenuPath, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
+			if (ErrorLevel)
+			{
+				ParseIconResource((strMenuName = o_L["MenuSwitchFolderOrApp"] ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
+				Menu, % this.AA.strMenuPath, Icon, %strMenuItemName%
+					, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
+			}
+			Menu, % this.AA.strMenuPath, UseErrorLevel, off
+		}
+		
+		if !(blnEnabled)
+			Menu, % this.AA.strMenuPath, Disable, %strMenuItemName%
+	}
+	;------------------------------------------------------------
+	
 	;-------------------------------------------------------------
 	class Item
 	;-------------------------------------------------------------
