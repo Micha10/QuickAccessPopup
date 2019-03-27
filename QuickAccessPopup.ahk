@@ -3149,6 +3149,7 @@ aaVar	other associative array variable
 saVar	other simple array variable
 oVar	object variable inside a class (and elsewhere?)
 .P_var	class properties, with first letters of variable showing its type (as for other variables)
+pVar	Pointer variable returned by a Windows object like ComObjCreate("Shell.Application")
 
 - to be replaced
 objVar	REPLACE with one of the others
@@ -5577,14 +5578,14 @@ Diag(A_ThisLabel, "", "START")
 if (o_FileManagers.P_intActiveFileManager = 2) ; DirectoryOpus
 {
 	Gosub, RefreshDOpusListersListText
-	objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+	saDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 }
 
-objExplorersWindows := CollectExplorers(ComObjCreate("Shell.Application").Windows)
+saExplorersWindows := CollectExplorers(ComObjCreate("Shell.Application").Windows)
 
-; Process Explorer windows, DOpus listers and applications windows and add it to objFoldersAndAppsList
+; Process Explorer windows, DOpus listers and applications windows and add it to saFoldersAndAppsList
 
-objFoldersAndAppsList := Object()
+saFoldersAndAppsList := Object()
 
 intWindowsIdIndex := 0
 blnWeHaveFolders := false
@@ -5592,47 +5593,46 @@ blnWeHaveFolders := false
 ; Process DOpus listers
 
 if (o_FileManagers.P_intActiveFileManager = 2) ; DirectoryOpus
-	for intIndex, objLister in objDOpusListers
+	for intIndex, aaLister in saDOpusListers
 	{
 		; if we have no path or a DOpus collection, skip it
-		if !StrLen(objLister.LocationURL) or InStr(objLister.LocationURL, "coll://")
+		if !StrLen(aaLister.strLocationURL) or InStr(aaLister.strLocationURL, "coll://")
 			continue
 		
-		if NameIsInObject(objLister.Name, objFoldersAndAppsList)
+		if NameIsInObject(aaLister.strName, saFoldersAndAppsList)
 			continue
 		
 		intWindowsIdIndex++
 		blnWeHaveFolders := true
-		objFolderOrApp := Object()
-		objFolderOrApp.LocationURL := objLister.LocationURL
-		objFolderOrApp.Name := objLister.Name
-		objFolderOrApp.WindowId := objLister.Lister
-		objFolderOrApp.WindowType := "DO"
+		aaFolderOrApp := Object()
+		aaFolderOrApp.strLocationURL := aaLister.strLocationURL
+		aaFolderOrApp.strName := aaLister.strName
+		aaFolderOrApp.strWindowId := aaLister.strLister
+		aaFolderOrApp.strWindowType := "DO"
 		
-		objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
+		saFoldersAndAppsList.Push(aaFolderOrApp)
 	}
 
 ; Process Explorer windows
 
-for intIndex, objFolder in objExplorersWindows
+for intIndex, aaFolder in saExplorersWindows
 {
 	; if we have no path, skip it
-	if !StrLen(objFolder.LocationURL)
+	if !StrLen(aaFolder.strLocationURL)
 		continue
 		
-	if NameIsInObject(objFolder.LocationName, objFoldersAndAppsList)
+	if NameIsInObject(aaFolder.strLocationName, saFoldersAndAppsList)
 		continue
 	
 	intWindowsIdIndex++
 	blnWeHaveFolders := true
-	objFolderOrApp := Object()
-	objFolderOrApp := Object()
-	objFolderOrApp.LocationURL := objFolder.LocationURL
-	objFolderOrApp.Name := objFolder.LocationName
-	objFolderOrApp.WindowId := objFolder.WindowId
-	objFolderOrApp.WindowType := "EX"
+	aaFolderOrApp := Object()
+	aajFolderOrApp.strLocationURL := aaFolder.strLocationURL
+	aaFolderOrApp.strName := aaFolder.strLocationName
+	aaFolderOrApp.strWindowId := aaFolder.strWindowId
+	aaFolderOrApp.strWindowType := "EX"
 
-	objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
+	saFoldersAndAppsList.Push(aaFolderOrApp)
 }
 
 if (A_ThisLabel <> "RefreshReopenFolderMenu")
@@ -5643,8 +5643,8 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	if (blnWeHaveFolders)
 	{
 		intWindowsIdIndex++
-		objFolderOrApp := Object()
-		objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
+		aaFolderOrApp := Object() ; empty for menu separator
+		saFoldersAndAppsList.Push(aaFolderOrApp)
 	}
 
 	; Gather and process running applications
@@ -5665,75 +5665,89 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Current Windows menu", objWindowProperties)
 		{
 			intWindowsIdIndex++
-			objFolderOrApp := Object()
-			objFolderOrApp.Name := objWindowProperties.WindowTitle
-			objFolderOrApp.LocationURL := objWindowProperties.ProcessPath
-			objFolderOrApp.WindowId := strWinIDs%A_Index%
-			objFolderOrApp.WindowType := "APP"
+			aaFolderOrApp := Object()
+			aaFolderOrApp.strName := objWindowProperties.WindowTitle
+			aaFolderOrApp.strLocationURL := objWindowProperties.ProcessPath
+			aaFolderOrApp.strWindowId := strWinIDs%A_Index%
+			aaFolderOrApp.strWindowType := "APP"
 
-			objFoldersAndAppsList.Insert(intWindowsIdIndex, objFolderOrApp)
+			saFoldersAndAppsList.Push(aaFolderOrApp)
 		}
 	}
+	
+	; simple array object used to pass data to MenuBuild for MenuSwitchFolderOrApp menu
+	saSwitchFolderOrAppTable := Object()
 }
 
 ; Build menu
 
 intMenuNumber := 0
-g_objReopenFolderLocationUrlByName := Object()
+; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
+g_aaReopenFolderLocationUrlByName := Object()
 
 Critical, On
-if (A_ThisLabel <> "RefreshReopenFolderMenu")
-	and o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
-{
-	g_objSwitchWindowIdsByName := Object()
-	Menu, % o_L["MenuSwitchFolderOrApp"], Add
-	Menu, % o_L["MenuSwitchFolderOrApp"], DeleteAll
-}
-
-Menu, % o_L["MenuCurrentFolders"], Add
-Menu, % o_L["MenuCurrentFolders"], DeleteAll
+saCurrentFoldersTable := Object()
 
 if (intWindowsIdIndex)
 {
-	for intIndex, objFolderOrApp in objFoldersAndAppsList
+	for intIndex, aaFolderOrApp in saFoldersAndAppsList
 	{
-		if !StrLen(objFolderOrApp.Name)
-			Menu, % o_L["MenuSwitchFolderOrApp"], Add
+		if !StrLen(aaFolderOrApp.strName)
+			saSwitchFolderOrAppTable.Push(["X"]) ; menu separator
 		else
 		{
-			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, objFolderOrApp.Name)
-			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:")
-				strFolderIcon := GetFolderIcon(objFolderOrApp.LocationURL)
-			if (objFolderOrApp.WindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
+			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, aaFolderOrApp.strName)
+			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:")
+				strFolderIcon := GetFolderIcon(aaFolderOrApp.strLocationURL)
+			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
-				g_objReopenFolderLocationUrlByName.Insert(strMenuName, objFolderOrApp.LocationURL) ; strMenuName can include the numeric shortcut
-				AddMenuIcon(o_L["MenuCurrentFolders"], strMenuName, "OpenReopenFolder", strFolderIcon)
+				; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
+				; g_aaReopenFolderLocationUrlByName[strMenuName] := aaFolderOrApp.strLocationURL) ; strMenuName can include the numeric shortcut
+				; TO DO: set type and adjust location in menu object (move code from OpenFavoriteGetFavoriteObject to here)
+				; for now, always set Type to "Folder" but could be "Special" or "FTP"
+				saCurrentFoldersTable.Push(["Folder", strMenuName, aaFolderOrApp.strLocationURL, strFolderIcon])
 			}
-			g_objSwitchWindowIdsByName.Insert(strMenuName, objFolderOrApp.WindowType . "|" . objFolderOrApp.WindowId)
-			AddMenuIcon(o_L["MenuSwitchFolderOrApp"], strMenuName, "OpenSwitchFolderOrApp"
-				, (objFolderOrApp.WindowType = "EX" ? strFolderIcon
-					: (objFolderOrApp.WindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.SA[2].strDirectoryOpusRtPath . ",1" : strFolderIcon)
-					: objFolderOrApp.LocationURL . ",1")))
+			; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this)
+			; g_aaSwitchWindowIdsByName[strMenuName] := aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId)
+			; ##### use "OpenSwitchFolderOrApp" as type to set this gosub in the Menu instead of OpenFolder...
+			; ##### set location to "aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId" to be split in OpenSwitchFolderOrApp
+			saSwitchFolderOrAppTable.Push("OpenSwitchFolderOrApp", strMenuName, aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId
+				, (aaFolderOrApp.strWindowType = "EX" ? strFolderIcon
+					: (aaFolderOrApp.strWindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.SA[2].strDirectoryOpusRtPath . ",1" : strFolderIcon)
+					: aaFolderOrApp.strLocationURL . ",1")))
 		}
 	}
 }
 else
-	AddMenuIcon(o_L["MenuSwitchFolderOrApp"], o_L["MenuNoCurrentFolder"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	; ##### use "GuiShowNeverCalled" as type to set this gosub in the Menu instead of OpenFolder... and to flag to disable the menu item
+	saSwitchFolderOrAppTable.Push(["GuiShowNeverCalled", o_L["MenuNoCurrentFolder"], "", "iconNoContent"])
 
 if !(blnWeHaveFolders)
-	AddMenuIcon(o_L["MenuCurrentFolders"], o_L["MenuNoCurrentFolder"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	; ##### use "GuiShowNeverCalled" as type to set this gosub in the Menu instead of OpenFolder... and to flag to disable the menu item
+	saCurrentFoldersTable.Push(["GuiShowNeverCalled", o_L["MenuNoCurrentFolder"], "", "iconNoContent"])
 
+if (A_ThisLabel <> "RefreshReopenFolderMenu")
+	and o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
+{
+	; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this)
+	; g_aaSwitchWindowIdsByName := Object()
+	o_MenuSwitchFolderOrApp := new Container("Menu", o_L["MenuSwitchFolderOrApp"])
+	o_MenuSwitchFolderOrApp.BuildMenu(saSwitchFolderOrAppTable)
+	AddCloseMenu(o_L["MenuSwitchFolderOrApp"])
+}
+
+o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
+o_MenuCurrentFolders.BuildMenu(saCurrentFoldersTable)
 AddCloseMenu(o_L["MenuCurrentFolders"])
-AddCloseMenu(o_L["MenuSwitchFolderOrApp"])
 
 Critical, Off
 
-objDOpusListers := ""
-objExplorersWindows := ""
-objFolderOrApp := ""
-objFoldersAndAppsList := ""
+saDOpusListers := ""
+saExplorersWindows := ""
+aaFolderOrApp := ""
+saFoldersAndAppsList := ""
 intIndex := ""
-objLister := ""
+aaLister := ""
 objFolder := ""
 intMenuNumber := ""
 strMenuName := ""
@@ -5783,12 +5797,12 @@ CollectDOpusListersList(strList)
 ; list all DirectoryOpus listers, excluding special folders like Recycle Bin, Network because they are not included in dopus-list.txt
 ;------------------------------------------------------------
 {
-	objListers := Object()
+	saListers := Object()
 	
 	strList := SubStr(strList, InStr(strList, "<path"))
 	Loop
 	{
-		objLister := Object()
+		aaLister := Object()
 		
 		strList := SubStr(strList, InStr(strList, "<path"))
 		strSubStr := SubStr(strList, InStr(strList, "<path"))
@@ -5796,32 +5810,31 @@ CollectDOpusListersList(strList)
 		
 		if (StrLen(strSubStr))
 		{
-			objLister.Active_lister := ParseDOpusListerProperty(strSubStr, "active_lister")
-			objLister.Active_tab := ParseDOpusListerProperty(strSubStr, "active_tab")
-			objLister.Lister := ParseDOpusListerProperty(strSubStr, "lister")
-			objLister.Side := ParseDOpusListerProperty(strSubStr, "side")
-			objLister.Tab := ParseDOpusListerProperty(strSubStr, "tab")
-			objLister.Tab_state := ParseDOpusListerProperty(strSubStr, "tab_state")
-			objLister.LocationURL := SubStr(strSubStr, InStr(strSubStr, ">") + 1)
+			aaLister.strActivelister := ParseDOpusListerProperty(strSubStr, "active_lister")
+			aaLister.strActiveTab := ParseDOpusListerProperty(strSubStr, "active_tab")
+			aaLister.strLister := ParseDOpusListerProperty(strSubStr, "lister")
+			aaLister.strSide := ParseDOpusListerProperty(strSubStr, "side")
+			aaLister.strTab := ParseDOpusListerProperty(strSubStr, "tab")
+			aaLister.strTabState := ParseDOpusListerProperty(strSubStr, "tab_state")
+			aaLister.strLocationURL := SubStr(strSubStr, InStr(strSubStr, ">") + 1)
 			
-			objLister.Name := ComUnHTML(objLister.LocationURL) ; convert HTML entities to text (like "&apos;")
+			aaLister.strName := ComUnHTML(aaLister.strLocationURL) ; convert HTML entities to text (like "&apos;")
 			
-			WinGetPos, intX, intY, intW, intH, % "ahk_id " . objLister.lister
-			objLister.Position := intX . "|" . intY . "|" . intW . "|" . intH
-			WinGet, intMinMax, MinMax, % "ahk_id " . objLister.lister
-			objLister.MinMax := intMinMax
-			objLister.Pane := objLister.Side
+			WinGetPos, intX, intY, intW, intH, % "ahk_id " . aaLister.strLister
+			aaLister.strPosition := intX . "|" . intY . "|" . intW . "|" . intH
+			WinGet, intMinMax, MinMax, % "ahk_id " . aaLister.strLister
+			aaLister.intMinMax := intMinMax
 			
-			; if !InStr(objLister.LocationURL, "ftp://") - removed in v6.0.6 - FTP from DOpus now supported
+			; if !InStr(aaLister.strLocationURL, "ftp://") - removed in v6.0.6 - FTP from DOpus now supported
 				; Swith Explorer to DOpus FTP folder not supported (see https://github.com/JnLlnd/FoldersPopup/issues/84)
 				
-			objListers.Insert(A_Index, objLister)
+			saListers.Push(aaLister)
 			
 			strList := SubStr(strList, StrLen(strSubStr))
 		}
 	} until	(!StrLen(strSubStr))
 
-	return objListers
+	return saListers
 }
 ;------------------------------------------------------------
 
@@ -5845,7 +5858,7 @@ ParseDOpusListerProperty(strSource, strProperty)
 CollectExplorers(pExplorers)
 ;------------------------------------------------------------
 {
-	objExplorers := Object()
+	saExplorers := Object()
 	intExplorers := 0
 	
 	For pExplorer in pExplorers
@@ -5866,31 +5879,31 @@ CollectExplorers(pExplorers)
 			and StrLen(strWindowID) ; must not be empty
 		{
 			intExplorers++
-			objExplorer := Object()
-			objExplorer.Position := pExplorer.Left . "|" . pExplorer.Top . "|" . pExplorer.Width . "|" . pExplorer.Height
+			aaExplorer := Object()
+			aaExplorer.strPosition := pExplorer.Left . "|" . pExplorer.Top . "|" . pExplorer.Width . "|" . pExplorer.Height
 
-			objExplorer.IsSpecialFolder := !StrLen(pExplorer.LocationURL) ; empty for special folders like Recycle bin
+			aaExplorer.blnIsSpecialFolder := !StrLen(pExplorer.LocationURL) ; empty for special folders like Recycle bin
 			
-			if (objExplorer.IsSpecialFolder)
+			if (aaExplorer.blnIsSpecialFolder)
 			{
-				objExplorer.LocationURL := pExplorer.Document.Folder.Self.Path
-				objExplorer.LocationName := pExplorer.LocationName ; see http://msdn.microsoft.com/en-us/library/aa752084#properties
+				aaExplorer.strLocationURL := pExplorer.Document.Folder.Self.Path
+				aaExplorer.strLocationName := pExplorer.LocationName ; see http://msdn.microsoft.com/en-us/library/aa752084#properties
 			}
 			else
 			{
-				objExplorer.LocationURL := pExplorer.LocationURL
-				objExplorer.LocationName :=  ProcessLocationURL(UriDecode(pExplorer.LocationURL))
+				aaExplorer.strLocationURL := pExplorer.LocationURL
+				aaExplorer.strLocationName :=  ProcessLocationURL(UriDecode(pExplorer.LocationURL))
 			}
 			
-			objExplorer.WindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
+			aaExplorer.strWindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
 			WinGet, intMinMax, MinMax, % "ahk_id " . pExplorer.HWND
-			objExplorer.MinMax := intMinMax
+			aaExplorer.intMinMax := intMinMax
 			
-			objExplorers.Insert(intExplorers, objExplorer) ; I was checking if StrLen(pExplorer.HWND) - any reason?
+			saExplorers.Push(aaExplorer) ; I was checking if StrLen(pExplorer.HWND) - any reason?
 		}
 	}
 	
-	return objExplorers
+	return saExplorers
 }
 ;------------------------------------------------------------
 
@@ -6193,7 +6206,7 @@ AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
 ; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
-; strMenuItemName is ByRef because in OpenSwitchFolderOrApp g_objSwitchWindowIdsByName is using the modified name as key to find item from A_ThisMenuItem
+; strMenuItemName is ByRef because in OpenSwitchFolderOrApp g_aaSwitchWindowIdsByName is using the modified name as key to find item from A_ThisMenuItem
 ;------------------------------------------------------------
 {
 	global g_blnMainIsFirstColumn
@@ -8987,7 +9000,6 @@ else
 	}
 }
 
-objDOpusListers := ""
 objPrevClipboard := ""
 strIDs := ""
 strMouseHotkey := ""
@@ -15104,15 +15116,15 @@ if (g_arrGroupSettingsOpen2 = "Other")
 else ; g_arrGroupSettingsOpen2 = "Windows Explorer" or ""
 {
 	strWindowsId := ""
-	for objExplorer in ComObjCreate("Shell.Application").Windows
+	for pExplorer in ComObjCreate("Shell.Application").Windows
 	{
 		; do not close in this loop as it mess up the handlers
 		strType := ""
-		try strType := objExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
+		try strType := pExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
 		strWindowID := ""
-		try strWindowID := objExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
+		try strWindowID := pExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
 		if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
-			strWindowsId .= objExplorer.HWND . "|"
+			strWindowsId .= pExplorer.HWND . "|"
 	}
 	StringTrimRight, strWindowsId, strWindowsId, 1 ; remove last | separator
 	Loop, Parse, strWindowsId, |
@@ -15126,7 +15138,7 @@ Tooltip ; clear tooltip
 
 intSleepTime := ""
 strWindowsId := ""
-objExplorer := ""
+pExplorer := ""
 ResetArray("arrIDs")
 
 return
@@ -15138,7 +15150,8 @@ OpenSwitchFolderOrApp:
 ;------------------------------------------------------------
 
 strThisMenuItem :=  A_ThisMenuItem
-strWindowId := g_objSwitchWindowIdsByName[strThisMenuItem]
+; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this) - see RefreshSwitchFolderOrAppMenu
+strWindowId := g_aaSwitchWindowIdsByName[strThisMenuItem]
 StringSplit, arrFolderWindowId, strWindowId, |
 
 if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
@@ -15907,12 +15920,14 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
-	If (InStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
+	; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
+	; TO DO: set type and adjust location in menu object in RefreshReopenFolderMenu
+	If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
 	{
-		strThisMenuItem := SubStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], 3) ; remove "::" from beginning
+		strThisMenuItem := SubStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], 3) ; remove "::" from beginning
 		strFavoriteType := "Special"
 	}
-	else if InStr(g_objReopenFolderLocationUrlByName[strThisMenuItem], "ftp://") ; possible with DOpus listers
+	else if InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "ftp://") ; possible with DOpus listers
 		strFavoriteType := "FTP"
 	else
 		strFavoriteType := "Folder"
@@ -17138,19 +17153,19 @@ return
 SetExplorersIDs:
 ;------------------------------------------------------------
 g_strExplorerIDs := ""
-objExplorerWindows := ComObjCreate("Shell.Application").Windows
-for objExplorer in objExplorerWindows
+pExplorerWindows := ComObjCreate("Shell.Application").Windows
+for pExplorer in pExplorerWindows
 {
 	strType := ""
-	try strType := objExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
+	try strType := pExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
 	strWindowID := ""
-	try strWindowID := objExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
+	try strWindowID := pExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
 	if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
-		g_strExplorerIDs .= objExplorer.HWND . "|"
+		g_strExplorerIDs .= pExplorer.HWND . "|"
 }
-ObjRelease(objExplorerWindows) ; free memory used by the object
+ObjRelease(pExplorerWindows) ; free memory used by the object
 
-objExplorer := ""
+pExplorer := ""
 strType := ""
 strWindowID := ""
 
@@ -17203,9 +17218,7 @@ g_strNewWindowId := "ahk_class dopus.lister"
 strTabParameter := ""
 strFavoriteWindowPosition := ""
 ResetArray("arrFavoriteWindowPosition")
-objDOpusListers := ""
 intIndex := ""
-objLister := ""
 
 return
 ;------------------------------------------------------------
@@ -19219,7 +19232,7 @@ GetCurrentLocation(strClass, strWinID)
 		if WindowIsDirectoryOpus(strClass)
 		{
 			Gosub, RefreshDOpusListersListText
-			objDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
+			saDOpusListers := CollectDOpusListersList(g_strDOpusListText) ; list all listers, excluding special folders like Recycle Bin
 			
 			; From leo @ GPSoftware (http://resource.dopus.com/viewtopic.php?f=3&t=23013):
 			; Lines will have active_lister="1" if they represent tabs from the active lister.
@@ -19228,10 +19241,10 @@ GetCurrentLocation(strClass, strWinID)
 			; tab_state="2" means it's the selected tab, on the inactive side of a dual-display lister.
 			; Tabs which are not visible (because another tab is selected on top of them) don't get a tab_state attribute at all.
 
-			for intIndex, objLister in objDOpusListers
-				if (objLister.active_lister = "1" and objLister.tab_state = "1") ; this is the active tab
+			for intIndex, aaLister in saDOpusListers
+				if (aaLister.strActiveLister = "1" and aaLister.strTabState = "1") ; this is the active tab
 				{
-					strLocation := ComUnHTML(objLister.LocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
+					strLocation := ComUnHTML(aaLister.strLocationURL) ; ComUnHTML convert HTML entities to text (like "&apos;")
 					break
 				}
 		}
@@ -19266,10 +19279,10 @@ GetCurrentLocation(strClass, strWinID)
 			else if WindowIsExplorer(strClass)
 			{
 				; Gets the active IE or Explorer window
-				for objExplorer in ComObjCreate("Shell.Application").Windows
-					if (objExplorer.HWND = strWinID)
+				for pExplorer in ComObjCreate("Shell.Application").Windows
+					if (pExplorer.HWND = strWinID)
 					{
-						strLocation :=  ProcessLocationURL(UriDecode(objExplorer.LocationURL))
+						strLocation :=  ProcessLocationURL(UriDecode(pExplorer.LocationURL))
 						Break
 					}
 			}
@@ -20341,11 +20354,11 @@ Url2Var(strUrl)
 
 
 ;------------------------------------------------------------
-NameIsInObject(strName, obj)
+NameIsInObject(strName, aa)
 ;------------------------------------------------------------
 {
-	loop, % obj.MaxIndex()
-		if (strName = obj[A_Index].Name)
+	loop, % aa.MaxIndex()
+		if (strName = aa[A_Index].strName)
 			return true
 		
 	return false
@@ -24768,7 +24781,7 @@ class Container
 			this.AA.oParentMenu := oParentMenu
 		}		
 		else
-			this.AA.strMenuPath := strContainerName ; for MainMenuName, DOpusMenuName, TCMenuName: no separator before name
+			this.AA.strMenuPath := strContainerName ; for MainMenuName, DOpusMenuName, TCMenuName and other dynamic menus: name as-is, no separator before
 	}
 	;---------------------------------------------------------
 	
