@@ -3419,10 +3419,7 @@ Gosub, BuildRecentFoldersMenuInit
 Gosub, BuildRecentFilesMenuInit
 
 ; Menus refreshed at each popup menu call
-Gosub, BuildClipboardMenuInit
 Gosub, BuildPopularMenusInit
-Gosub, BuildSwitchMenuInit 
-Gosub, BuildReopenFolderMenuInit
 Gosub, BuildLastActionsMenuInit
 Gosub, BuildTotalCommanderHotlistInit
 Gosub, BuildTotalCommanderHotlistPrepare
@@ -5029,9 +5026,9 @@ return
 ; OLD MENU STRUCTURE
 BuildRecentFoldersMenuInit:
 BuildRecentFilesMenuInit:
-BuildClipboardMenuInit:
-BuildSwitchMenuInit:
-BuildReopenFolderMenuInit:
+; BuildClipboardMenuInit:
+; BuildSwitchMenuInit:
+; BuildReopenFolderMenuInit:
 BuildLastActionsMenuInit:
 BuildTotalCommanderHotlistInit:
 BuildDirectoryOpusFavoritesInit:
@@ -5039,19 +5036,10 @@ BuildPopularMenusInit:
 ;------------------------------------------------------------
 
 strMenuItemLabel := o_L["DialogNone"]
-if (A_ThisLabel = "BuildClipboardMenuInit")
-{
-	strMenuNames := o_L["MenuClipboard"]
-	strMenuItemLabel := o_L["MenuNoClipboard"]
-}
 if (A_ThisLabel = "BuildRecentFoldersMenuInit")
 	strMenuNames := o_L["MenuRecentFolders"]
 if (A_ThisLabel = "BuildRecentFilesMenuInit")
 	strMenuNames := o_L["MenuRecentFiles"]
-if (A_ThisLabel = "BuildSwitchMenuInit")
-	strMenuNames := o_L["MenuSwitchFolderOrApp"]
-if (A_ThisLabel = "BuildReopenFolderMenuInit")
-	strMenuNames := o_L["MenuCurrentFolders"]
 if (A_ThisLabel = "BuildLastActionsMenuInit")
 	strMenuNames := o_L["MenuLastActions"]
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
@@ -5085,7 +5073,8 @@ return
 InitDynamicMenus:
 ;------------------------------------------------------------
 
-strMenuToInit := "MenuDrives"
+; o_L[""] keys used as names for dynamic menus
+strMenuToInit := "MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard"
 loop, Parse, strMenuToInit, "|"
 	o_Menu := new Container("Menu", o_L[A_LoopField])
 
@@ -5215,7 +5204,6 @@ RefreshClipboardMenu:
 ;------------------------------------------------------------
 
 if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Clipboard}") ; we don't have this QAP feature in at least one menu
-	or !StrLen(Clipboard) ; clipboard is empty (or contains only binary data)
 	return
 
 Diag(A_ThisLabel, "", "START")
@@ -5248,40 +5236,37 @@ if (StrLen(Clipboard) <= o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue) ;
 	}
 }
 
-; Critical, On
-Menu, % o_L["MenuClipboard"], Add
-Menu, % o_L["MenuClipboard"], DeleteAll
+; prepare data for new Container
+saFavoritesTable := Object()
 
 if !StrLen(strContentsInClipboard)
 {
 	if !StrLen(Clipboard)
 		strMenuName := o_L["MenuClipboardEmpty"]
-	if (StrLen(Clipboard) > o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue)
+	else if (StrLen(Clipboard) > o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue)
 		strMenuName := L(o_L["MenuClipboardTooLarge"], o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue)
 	else
 		strMenuName := o_L["MenuClipboardNoContent"]
 	
-	OLD_AddMenuIcon(o_L["MenuClipboard"], strMenuName, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	saFavoritesTable := [["DoNothing", strMenuName, "", "iconNoContent"]]
 }
 else
 {
 	Sort, strContentsInClipboard
 
 	Loop, parse, strContentsInClipboard, `n
-	{
-		if !StrLen(A_LoopField)
-			continue
-		
-		; arrContentsInClipboard1 = path or URL, arrContentsInClipboard2 = icon (file,index or icon code)
-		StringSplit, arrContentsInClipboard, A_LoopField, `t
-		
-		strMenuName := MenuNameWithNumericShortcut(intMenuNumberClipboardMenu, arrContentsInClipboard1)
-		if StrLen(strMenuName) < 260 ; skip too long URLs
-			OLD_AddMenuIcon(o_L["MenuClipboard"], strMenuName, "OpenClipboard", arrContentsInClipboard2)
-	}
-	OLD_AddCloseMenu(o_L["MenuClipboard"])
-	; Critical, Off
+		if StrLen(A_LoopField)
+		{
+			saOneLine := StrSplit(A_LoopField, "`t") ; saOneLine[1] = path or URL, saOneLine[2] = icon (file,index or icon code)
+			saOneLine.InsertAt(1, "OpenClipboard") ; pushed 2 = path or URL
+			saOneLine.InsertAt(3, saOneLine[2]) ; copied 2 in 3 = path or URL
+			; saOneLine[4] now = icon (file,index or icon code)
+			saFavoritesTable.Push(saOneLine)
+		}
 }
+
+o_Containers.AA[o_L["MenuClipboard"]].LoadFavoritesFromTable(saFavoritesTable)
+o_Containers.AA[o_L["MenuClipboard"]].BuildMenu()
 
 intMenuNumberClipboardMenu := ""
 strContentsInClipboard := ""
@@ -5414,7 +5399,6 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 
 o_Containers.AA[o_L["MenuDrives"]].LoadFavoritesFromTable(saFavoritesTable)
 o_Containers.AA[o_L["MenuDrives"]].BuildMenu()
-o_Containers.AA[o_L["MenuDrives"]].AddCloseMenu()
 
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
@@ -5575,7 +5559,7 @@ return
 RefreshSwitchFolderOrAppMenu:
 RefreshReopenFolderMenu:
 ; This command build two menus: "Reopen a Folder" and "Switch".
-; The first part of "Switch" has the same items as "Reopen a Folder" but with a "switch" command instead of "open".
+; The first part of "Switch" has the same items as "Reopen a Folder" but with the OpenSwitchFolderOrApp command instead of "OpenFavorite".
 ;------------------------------------------------------------
 
 if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Current Folders}") or o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}"))
@@ -5664,13 +5648,6 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	WinGet, strWinIDs, List	; Retrieve IDs of all the existing windows
 	DetectHiddenWindows, On ; revert to app default
 
-	/*
-	if (g_strCurrentBranch <> "prod")
-	{
-		strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-SWITCH_DIAG.txt"
-		FileDelete, %strDiagFile%
-	}
-	*/
 	Loop, %strWinIDs%
 	{
 		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Current Windows menu", objWindowProperties)
@@ -5691,30 +5668,9 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 }
 
 ; Build menu
-/*
-; prepare data for new Container
-saFavoritesTable := Object()
-Loop, Parse, g_strMenuItemsListDrives, `n
-	; g_strMenuItemsListDrives structure: 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
-	if StrLen(A_LoopField)
-	{
-		saOneLine := StrSplit(A_LoopField, "|")
-		saOneLine[1] := "Folder" ; force FavoriteType to Folder
-		; saOneLine[2] contain favorite name
-		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
-		; saOneLine[4] contain favorite icon
-		saFavoritesTable.Push(saOneLine)
-	}
-
-o_DrivesMenu := new Container("Menu", o_L["MenuDrives"])
-o_DrivesMenu.LoadFavoritesFromTable(saFavoritesTable)
-o_DrivesMenu.BuildMenu()
-OLD_AddCloseMenu(o_L["MenuDrives"])
-*/
 
 intMenuNumber := 0
-; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
-g_aaReopenFolderLocationUrlByName := Object()
+; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
 
 Critical, On
 saCurrentFoldersTable := Object()
@@ -5732,20 +5688,19 @@ if (intWindowsIdIndex)
 				strFolderIcon := GetFolderIcon(aaFolderOrApp.strLocationURL)
 			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
-				; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
 				; g_aaReopenFolderLocationUrlByName[strMenuName] := aaFolderOrApp.strLocationURL) ; strMenuName can include the numeric shortcut
-				; TO DO: set type and adjust location in menu object (move code from OpenFavoriteGetFavoriteObject to here)
+				; ##### TO DO: set type and adjust location in menu object (move code from OpenFavoriteGetFavoriteObject to here)
 				; for now, always set Type to "Folder" but could be "Special" or "FTP"
 				saCurrentFoldersTable.Push(["Folder", strMenuName, aaFolderOrApp.strLocationURL, strFolderIcon])
 			}
-			; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this)
+			; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]]
 			; g_aaSwitchWindowIdsByName[strMenuName] := aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId)
 			; ##### use "OpenSwitchFolderOrApp" as type to set this gosub in the Menu instead of OpenFolder...
 			; ##### set location to "aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId" to be split in OpenSwitchFolderOrApp
-			saSwitchFolderOrAppTable.Push("OpenSwitchFolderOrApp", strMenuName, aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId
+			saSwitchFolderOrAppTable.Push(["OpenSwitchFolderOrApp", strMenuName, aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId
 				, (aaFolderOrApp.strWindowType = "EX" ? strFolderIcon
 					: (aaFolderOrApp.strWindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.SA[2].strDirectoryOpusRtPath . ",1" : strFolderIcon)
-					: aaFolderOrApp.strLocationURL . ",1")))
+					: aaFolderOrApp.strLocationURL . ",1"))])
 		}
 	}
 }
@@ -5760,16 +5715,13 @@ if !(blnWeHaveFolders)
 if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	and o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Switch Folder or App}") ; we have this QAP features in at least one menu
 {
-	; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this)
-	; g_aaSwitchWindowIdsByName := Object()
-	o_MenuSwitchFolderOrApp := new Container("Menu", o_L["MenuSwitchFolderOrApp"])
-	o_MenuSwitchFolderOrApp.BuildMenu(saSwitchFolderOrAppTable)
-	o_MenuSwitchFolderOrApp.AddCloseMenu()
+	o_Containers.AA[o_L["MenuSwitchFolderOrApp"]].LoadFavoritesFromTable(saSwitchFolderOrAppTable)
+	o_Containers.AA[o_L["MenuSwitchFolderOrApp"]].BuildMenu()
 }
 
-o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
-o_MenuCurrentFolders.BuildMenu(saCurrentFoldersTable)
-o_MenuCurrentFolders.AddCloseMenu()
+; o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
+o_Containers.AA[o_L["MenuCurrentFolders"]].LoadFavoritesFromTable(saCurrentFoldersTable)
+o_Containers.AA[o_L["MenuCurrentFolders"]].BuildMenu()
 
 Critical, Off
 
@@ -5987,8 +5939,6 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 else
 	o_TCMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-o_TCMenu.AddCloseMenu()
-
 o_TCMenu := ""
 
 Diag(A_ThisLabel, "", "STOP")
@@ -6055,8 +6005,6 @@ If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favor
 }
 else
 	o_DOpusMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-
-o_DOpusMenu.AddCloseMenu()
 
 objDOpusMenu := ""
 objLoadDOpusFavorite := ""
@@ -15181,7 +15129,7 @@ OpenSwitchFolderOrApp:
 ;------------------------------------------------------------
 
 strThisMenuItem :=  A_ThisMenuItem
-; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] (or something close to this) - see RefreshSwitchFolderOrAppMenu
+; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] - see RefreshSwitchFolderOrAppMenu
 strWindowId := g_aaSwitchWindowIdsByName[strThisMenuItem]
 StringSplit, arrFolderWindowId, strWindowId, |
 
@@ -15951,7 +15899,7 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
-	; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]] (or something close to this)
+	; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
 	; TO DO: set type and adjust location in menu object in RefreshReopenFolderMenu
 	If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
 	{
@@ -24821,7 +24769,7 @@ class Container
 				Menu, %strContainerName%, DeleteAll
 				if (g_blnUseColors)
 					Menu, %strContainerName%, Color, %g_strMenuBackgroundColor%
-				strMenuItemLabel := (strContainerName = o_L["MenuClipboard"] ?  o_L["MenuNoClipboard"] : o_L["DialogNone"])
+				strMenuItemLabel := (strContainerName = o_L["MenuClipboard"] ?  o_L["MenuClipboardNoContent"] : o_L["DialogNone"])
 				this.AddMenuIcon(strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 				this.AddCloseMenu()
 			}
@@ -24843,6 +24791,7 @@ class Container
 			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
 	;---------------------------------------------------------
 	{
+		this.SA := Object() ; re-init
 		Loop, % saFavoritesTable.MaxIndex()
 		{
 			; create new item and add it to the container
@@ -24857,6 +24806,8 @@ class Container
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
+		this.SA := Object() ; re-init
+		
 		static intIniLine := 1
 		
 		if (g_blnWorkingToolTip)
@@ -24955,6 +24906,8 @@ class Container
 	LoadTCFavoritesFromIniFile(strIniFile)
 	;---------------------------------------------------------
 	{
+		this.SA := Object() ; re-init
+		
 		static intIniLine := 1
 		
 		if (g_blnWorkingToolTip)
@@ -25013,6 +24966,8 @@ class Container
 	LoadDirectoryOpusFavoritesFromXML(strNodeXml := "")
 	;-----------------------------------------------------
 	{
+		this.SA := Object() ; re-init
+		
 		if !StrLen(strNodeXml) ; first level only
 		{
 			FileRead, strNodeXml, % o_FileManagers.SA[2].strDirectoryOpusFavoritesFile
@@ -25091,6 +25046,8 @@ class Container
 	LoadDirectoryOpusLayoutsFromXML(strNodeXml := "", strLayoutMenuName := "")
 	;-----------------------------------------------------
 	{
+		this.SA := Object() ; re-init
+		
 		if !StrLen(strNodeXml) ; first level only
 		{
 			xmlDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
@@ -25172,7 +25129,8 @@ class Container
 		
 		; try because at first execution the strMenu menu does not exist and produces an error,
 		; but DeleteAll is required later for menu updates
-		try Menu, % this.AA.strMenuPath, DeleteAll
+		Menu, % this.AA.strMenuPath, Add ; to avoid an error if menu is empty
+		Menu, % this.AA.strMenuPath, DeleteAll
 		
 		intMenuItemsCount := 0 ; counter of items in this menu
 		
@@ -25184,72 +25142,73 @@ class Container
 			aaThisFavorite := this.SA[A_Index].AA
 			intMenuItemsCount++ ; for objMenuColumnBreak
 			
-			if (this.SA[A_Index].AA.strFavoriteType = "QAP")
+			strMenuItemAction := ""
+			; menu items from dynamic menus having custom Gosub in Type field
+			if !o_Favorites.saFavoriteTypesByName.HasKey(aaThisFavorite.strFavoriteType)
+				strMenuItemAction := aaThisFavorite.strFavoriteType
+				; keep strFavoriteType value, do not make empty to avoid InStr()
+			
+			if (aaThisFavorite.strFavoriteType = "QAP")
 				; if QAP feature attach menu option was changed when saving options
-				this.SA[A_Index].AA.strFavoriteName := o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strLocalizedName
+				aaThisFavorite.strFavoriteName := o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strLocalizedName
 
-			strMenuItemLabel := this.SA[A_Index].AA.strFavoriteName
+			strMenuItemLabel := aaThisFavorite.strFavoriteName
 			if StrLen(strMenuItemLabel)
 				strMenuItemLabel := MenuNameWithNumericShortcut(intMenuNumber, strMenuItemLabel)
 			
-			if (this.SA[A_Index].AA.strFavoriteType = "Group")
-				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . this.SA[A_Index].AA.oSubmenu.SA.MaxIndex() . g_strGroupIndicatorSuffix
+			if (aaThisFavorite.strFavoriteType = "Group")
+				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . aaThisFavorite.oSubmenu.SA.MaxIndex() . g_strGroupIndicatorSuffix
 			
-			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut) or StrLen(this.SA[A_Index].AA.strFavoriteHotstring)
-				strMenuItemLabel .= MenuNameReminder(this.SA[A_Index].AA.strFavoriteShortcut, GetHotstringTrigger(this.SA[A_Index].AA.strFavoriteHotstring))
+			if StrLen(aaThisFavorite.strFavoriteShortcut) or StrLen(aaThisFavorite.strFavoriteHotstring)
+				strMenuItemLabel .= MenuNameReminder(aaThisFavorite.strFavoriteShortcut, GetHotstringTrigger(aaThisFavorite.strFavoriteHotstring))
 			
-			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut)
+			if StrLen(aaThisFavorite.strFavoriteShortcut)
 			{
-				g_objFavoritesObjectsByShortcut[this.SA[A_Index].AA.strFavoriteShortcut] := this.SA[A_Index]
+				g_objFavoritesObjectsByShortcut[aaThisFavorite.strFavoriteShortcut] := this.SA[A_Index]
 
 				; enable shortcut
-				Hotkey, % this.SA[A_Index].AA.strFavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
+				Hotkey, % aaThisFavorite.strFavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 				if (ErrorLevel)
-					Oops(o_L["DialogInvalidHotkeyFavorite"], this.SA[A_Index].AA.strFavoriteShortcut
-						, (StrLen(this.SA[A_Index].AA.strFavoriteName) ? this.SA[A_Index].AA.strFavoriteName
-							: o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
-						, this.SA[A_Index].AA.strFavoriteLocation)
+					Oops(o_L["DialogInvalidHotkeyFavorite"], aaThisFavorite.strFavoriteShortcut
+						, (StrLen(aaThisFavorite.strFavoriteName) ? aaThisFavorite.strFavoriteName
+							: o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].LocalizedName) ; if empty probably because it is a QAP feature name
+						, aaThisFavorite.strFavoriteLocation)
 			}
 			
-			if StrLen(this.SA[A_Index].AA.strFavoriteHotstring)
+			if StrLen(aaThisFavorite.strFavoriteHotstring)
 			{
-				g_objFavoritesObjectsByHotstring.Add(this.SA[A_Index].AA.strFavoriteHotstring, this.SA[A_Index])
+				g_objFavoritesObjectsByHotstring.Add(aaThisFavorite.strFavoriteHotstring, this.SA[A_Index])
 				
 				; before creating an hotstring...
 				; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
 				; in hotstring replacement: decode end-of-lines and tabs (DecodeSnippet)
-				Hotstring(PrepareHotstringForFunction(this.SA[A_Index].AA.strFavoriteHotstring, this.SA[A_Index]), "OpenFavoriteFromHotstring", "On")
+				Hotstring(PrepareHotstringForFunction(aaThisFavorite.strFavoriteHotstring, this.SA[A_Index]), "OpenFavoriteFromHotstring", "On")
 			}
 			
-			; default values for this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus)
-			strMenuItemAction := "OpenFavorite"
-			strMenuItemIcon := "iconUnknown"
-			intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
-
-			if InStr("Menu|External", this.SA[A_Index].AA.strFavoriteType, true)
-				or (this.SA[A_Index].AA.strFavoriteFolderLiveLevels and LiveFolderHasContent(this.SA[A_Index]))
+			if InStr("Menu|External", aaThisFavorite.strFavoriteType, true)
+				or (aaThisFavorite.strFavoriteFolderLiveLevels and LiveFolderHasContent(this.SA[A_Index]))
 					and !(g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 			{
-				if (this.SA[A_Index].AA.strFavoriteFolderLiveLevels)
+				if (aaThisFavorite.strFavoriteFolderLiveLevels)
 				{
 					this.BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
-					o_Containers.AA[this.SA[A_Index].AA.oSubMenu.AA.strMenuPath] := this.SA[A_Index].AA.oSubMenu
+					o_Containers.AA[aaThisFavorite.oSubMenu.AA.strMenuPath] := aaThisFavorite.oSubMenu
 				}
 				
 				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
-				this.SA[A_Index].AA.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
+				aaThisFavorite.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
 
-				; ##### test maybe not required if dont in __New
+				; ##### test maybe not required if done in __New
 				; if (g_blnUseColors)
-					; Try Menu, % this.SA[A_Index].AA.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
+					; Try Menu, % aaThisFavorite.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
-				; Try Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
-				; catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
+				; Try Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . aaThisFavorite.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+				; catch ; when menu aaThisFavorite.oSubMenu.AA.MenuPath is empty
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
-				; Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuItemLabel% ; disable menu if contains no item
-				; if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
+				; Menu, % this.AA.strMenuPath, % (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuItemLabel% ; disable menu if contains no item
+				; if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (aaThisFavorite.strFavoriteIconResource <> "iconNoIcon")
 				; {
-					; ParseIconResource(this.SA[A_Index].AA.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
+					; ParseIconResource(aaThisFavorite.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
 					
 					; Menu, % this.AA.strMenuPath, UseErrorLevel, on
 					; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
@@ -25262,12 +25221,12 @@ class Container
 					; }
 					; Menu, % this.AA.strMenuPath, UseErrorLevel, off
 				; }
-				strMenuItemAction := ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath
-				intMenuItemStatus := (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0)
-				strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
+				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
+				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
+				strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
 			}
 			
-			else if (this.SA[A_Index].AA.strFavoriteType = "X") ; this is a separator
+			else if (aaThisFavorite.strFavoriteType = "X") ; this is a separator
 				
 				if (this.SA[A_Index - 1].FavoriteType = "K")
 					intMenuItemsCount -= 1 ; separator not allowed as first item is a column, skip it
@@ -25275,7 +25234,7 @@ class Container
 					strMenuItemLabel := ""
 					; Menu, % this.AA.strMenuPath, Add
 				
-			else if (this.SA[A_Index].AA.strFavoriteType = "K") ; this is a column break
+			else if (aaThisFavorite.strFavoriteType = "K") ; this is a column break
 			{
 				intMenuItemsCount -= 1 ; column breaks do not take a slot in menus
 				blnFlagNextItemHasColumnBreak := true
@@ -25284,42 +25243,42 @@ class Container
 			}
 			else ; this is a favorite (Folder, Document, Application, Special, URL, FTP, QAP, Group or Text)
 			{
-				if (this.SA[A_Index].AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName)
+				if (aaThisFavorite.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strQAPFeatureMenuName)
 					; menu should never be empty (if no item, it contains a "no item" menu)
-					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
-					strMenuItemAction := ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName
-				else if (this.SA[A_Index].AA.strFavoriteType = "Group")
+					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+					strMenuItemAction := ":" . o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strQAPFeatureMenuName
+				else if (aaThisFavorite.strFavoriteType = "Group")
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, OpenFavoriteGroup, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 					strMenuItemAction := "OpenFavoriteGroup"
-				else
+				else if !StrLen(strMenuItemAction) ; if we do not already have the action
 				{
-					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"]
+					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ; #### remove after completed conversion
 					if (SubStr(this.AA.strMenuPath, 1, StrLen(strLayoutMenuName)) = strLayoutMenuName)
-						strMenuItemAction := "OpenDOpusLayout"
+						strMenuItemAction := "OpenDOpusLayout" ; #### remove after completed conversion
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["DOpusMenuName"])) = o_L["DOpusMenuName"])
-						strMenuItemAction := "OpenDOpusFavorite"
+						strMenuItemAction := "OpenDOpusFavorite" ; #### remove after completed conversion
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["TCMenuName"])) = o_L["TCMenuName"])
-						strMenuItemAction := "OpenFavoriteHotlist"
+						strMenuItemAction := "OpenFavoriteHotlist" ; #### remove after completed conversion
 					else
-						strMenuItemAction := "OpenFavorite"
+						strMenuItemAction := "OpenFavorite" ; #### default value after conversion completed
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				}
 
-				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
+				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (aaThisFavorite.strFavoriteIconResource <> "iconNoIcon")
 				{
-					if (this.SA[A_Index].AA.strFavoriteType = "Folder") ; this is a folder
-						strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
-					else if (this.SA[A_Index].AA.strFavoriteType = "URL") ; this is an URL
-						if StrLen(this.SA[A_Index].AA.strFavoriteIconResource)
-							strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
+					if (aaThisFavorite.strFavoriteType = "Folder") ; this is a folder
+						strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
+					else if (aaThisFavorite.strFavoriteType = "URL") ; this is an URL
+						if StrLen(aaThisFavorite.strFavoriteIconResource)
+							strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
 						else
 							strMenuItemIcon := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 							; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 					else ; this is a document, application, Special, FTP or QAP
-						if StrLen(this.SA[A_Index].AA.strFavoriteIconResource)
-							strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
+						if StrLen(aaThisFavorite.strFavoriteIconResource)
+							strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
 						else
-							strMenuItemIcon := GetIcon4Location(this.SA[A_Index].AA.strFavoriteLocation)
+							strMenuItemIcon := GetIcon4Location(aaThisFavorite.strFavoriteLocation) ; #### default value for dynamic menus?
 					; ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon
 					
 					; Menu, % this.AA.strMenuPath, UseErrorLevel, on
@@ -25333,15 +25292,19 @@ class Container
 					; }
 					; Menu, % this.AA.strMenuPath, UseErrorLevel, off
 				}
-				if (this.SA[A_Index].AA.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
+				if (aaThisFavorite.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
 					intMenuItemStatus := 2 ; 0 disabled, 1 enabled, 2 default
 					; Menu, % this.AA.strMenuPath, Default, %strMenuItemLabel%
-				
+				else
+					intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
 			}
 			
 			this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
+		
+		if (!IsObject(this.AA.oParentMenu) and o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue)
+			this.AddCloseMenu()
 	}
 	;------------------------------------------------------------
 
