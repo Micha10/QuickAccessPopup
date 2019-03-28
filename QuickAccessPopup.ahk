@@ -25193,7 +25193,7 @@ class Container
 				strMenuItemLabel := MenuNameWithNumericShortcut(intMenuNumber, strMenuItemLabel)
 			
 			if (this.SA[A_Index].AA.strFavoriteType = "Group")
-				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . this.SA[A_Index].AA.oSubmenu.SA.MaxIndex() - 1 . g_strGroupIndicatorSuffix
+				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . this.SA[A_Index].AA.oSubmenu.SA.MaxIndex() . g_strGroupIndicatorSuffix
 			
 			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut) or StrLen(this.SA[A_Index].AA.strFavoriteHotstring)
 				strMenuItemLabel .= MenuNameReminder(this.SA[A_Index].AA.strFavoriteShortcut, GetHotstringTrigger(this.SA[A_Index].AA.strFavoriteHotstring))
@@ -25264,7 +25264,7 @@ class Container
 				; }
 				strMenuItemAction := ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath
 				intMenuItemStatus := (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0)
-				strMenuItemIcon := ""
+				strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
 			}
 			
 			else if (this.SA[A_Index].AA.strFavoriteType = "X") ; this is a separator
@@ -25337,9 +25337,9 @@ class Container
 					intMenuItemStatus := 2 ; 0 disabled, 1 enabled, 2 default
 					; Menu, % this.AA.strMenuPath, Default, %strMenuItemLabel%
 				
-				this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			}
 			
+			this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
 	}
