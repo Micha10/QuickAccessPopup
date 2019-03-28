@@ -5068,8 +5068,8 @@ loop, parse, strMenuNames, |
 	Menu, %strThisMenuName%, DeleteAll
 	if (g_blnUseColors)
 		Menu, %strThisMenuName%, Color, %g_strMenuBackgroundColor%
-	AddMenuIcon(strThisMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-	AddCloseMenu(strThisMenuName)
+	OLD_AddMenuIcon(strThisMenuName, strMenuItemLabel, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	OLD_AddCloseMenu(strThisMenuName)
 }
 
 strMenuNames := ""
@@ -5176,9 +5176,9 @@ loop, parse, % "Folders|Files", |
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+			OLD_AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-	AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
+	OLD_AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
 }
 
 ResetArray("arrMenuItemsList")
@@ -5261,7 +5261,7 @@ if !StrLen(strContentsInClipboard)
 	else
 		strMenuName := o_L["MenuClipboardNoContent"]
 	
-	AddMenuIcon(o_L["MenuClipboard"], strMenuName, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	OLD_AddMenuIcon(o_L["MenuClipboard"], strMenuName, "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 }
 else
 {
@@ -5277,9 +5277,9 @@ else
 		
 		strMenuName := MenuNameWithNumericShortcut(intMenuNumberClipboardMenu, arrContentsInClipboard1)
 		if StrLen(strMenuName) < 260 ; skip too long URLs
-			AddMenuIcon(o_L["MenuClipboard"], strMenuName, "OpenClipboard", arrContentsInClipboard2)
+			OLD_AddMenuIcon(o_L["MenuClipboard"], strMenuName, "OpenClipboard", arrContentsInClipboard2)
 	}
-	AddCloseMenu(o_L["MenuClipboard"])
+	OLD_AddCloseMenu(o_L["MenuClipboard"])
 	; Critical, Off
 }
 
@@ -5486,9 +5486,9 @@ if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+			OLD_AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-	AddCloseMenu(o_L["MenuRecentFolders"])
+	OLD_AddCloseMenu(o_L["MenuRecentFolders"])
 }
 
 if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Files}"))
@@ -5499,9 +5499,9 @@ if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent Files}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+			OLD_AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
-	AddCloseMenu(o_L["MenuRecentFiles"])
+	OLD_AddCloseMenu(o_L["MenuRecentFiles"])
 }
 
 g_strMenuItemsListRecentFolders := ""
@@ -5709,7 +5709,7 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 o_DrivesMenu := new Container("Menu", o_L["MenuDrives"])
 o_DrivesMenu.LoadFavoritesFromTable(saFavoritesTable)
 o_DrivesMenu.BuildMenu()
-AddCloseMenu(o_L["MenuDrives"])
+OLD_AddCloseMenu(o_L["MenuDrives"])
 */
 
 intMenuNumber := 0
@@ -5764,12 +5764,12 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	; g_aaSwitchWindowIdsByName := Object()
 	o_MenuSwitchFolderOrApp := new Container("Menu", o_L["MenuSwitchFolderOrApp"])
 	o_MenuSwitchFolderOrApp.BuildMenu(saSwitchFolderOrAppTable)
-	AddCloseMenu(o_L["MenuSwitchFolderOrApp"])
+	o_MenuSwitchFolderOrApp.AddCloseMenu()
 }
 
 o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
 o_MenuCurrentFolders.BuildMenu(saCurrentFoldersTable)
-AddCloseMenu(o_L["MenuCurrentFolders"])
+o_MenuCurrentFolders.AddCloseMenu()
 
 Critical, Off
 
@@ -5985,9 +5985,9 @@ If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 	Tooltip
 }
 else
-	AddMenuIcon(o_L["TCMenuName"], o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	o_TCMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-AddCloseMenu(o_L["TCMenuName"])
+o_TCMenu.AddCloseMenu()
 
 o_TCMenu := ""
 
@@ -6054,9 +6054,9 @@ If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favor
 	Tooltip
 }
 else
-	AddMenuIcon(o_L["DOpusMenuName"], o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	o_DOpusMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-AddCloseMenu(o_L["DOpusMenuName"])
+o_DOpusMenu.AddCloseMenu()
 
 objDOpusMenu := ""
 objLoadDOpusFavorite := ""
@@ -6102,9 +6102,9 @@ Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 	{
 		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberLastActionsMenu, A_LoopField)
-		AddMenuIcon(o_L["MenuLastActions"], strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
+		OLD_AddMenuIcon(o_L["MenuLastActions"], strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
 	}
-AddCloseMenu(o_L["MenuLastActions"])
+OLD_AddCloseMenu(o_L["MenuLastActions"])
 
 intMenuNumberLastActionsMenu := ""
 strMenuItemName := ""
@@ -6130,7 +6130,7 @@ Loop
 		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strCurrentHotkey)
 		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
 		
-		AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon)
+		OLD_AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon)
 	}
 	else
 		if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index + 1) ; there is another menu item, add a menu separator
@@ -6138,7 +6138,7 @@ Loop
 		else
 			break ; menu finished
 
-AddCloseMenu("g_menuAlternative")
+OLD_AddCloseMenu("g_menuAlternative")
 
 strMenuName := ""
 
@@ -6180,10 +6180,10 @@ if !(o_Settings.Launch.blnDonor.IniValue)
 	if (g_objMenusIndex[o_L["MainMenuName"]][g_objMenusIndex[o_L["MainMenuName"]].MaxIndex()].FavoriteType <> "K")
 	; column break not allowed if first item is a separator
 		Menu, % o_L["MainMenuName"], Add
-	AddMenuIcon(o_L["MainMenuName"], o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
+	OLD_AddMenuIcon(o_L["MainMenuName"], o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
 }
 
-AddCloseMenu(o_L["MainMenuName"])
+OLD_AddCloseMenu(o_L["MainMenuName"])
 
 return
 ;------------------------------------------------------------
@@ -6222,20 +6222,20 @@ LiveFolderHasContent(o_LiveFolder)
 
 
 ;------------------------------------------------------------
-AddCloseMenu(strMenuName)
+OLD_AddCloseMenu(strMenuName)
 ;------------------------------------------------------------
 {
 	if (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue)
 	{
 		Menu, %strMenuName%, Add
-		AddMenuIcon(strMenuName, o_L["MenuCloseThisMenu"], "DoNothing", "iconClose")
+		OLD_AddMenuIcon(strMenuName, o_L["MenuCloseThisMenu"], "DoNothing", "iconClose")
 	}
 }
 ;------------------------------------------------------------
 
 
 ;------------------------------------------------------------
-AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
+OLD_AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
 ; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 ; strMenuItemName is ByRef because in OpenSwitchFolderOrApp g_aaSwitchWindowIdsByName is using the modified name as key to find item from A_ThisMenuItem
 ;------------------------------------------------------------
@@ -25181,21 +25181,22 @@ class Container
 
 		Loop, % this.SA.MaxIndex()
 		{
+			aaThisFavorite := this.SA[A_Index].AA
 			intMenuItemsCount++ ; for objMenuColumnBreak
 			
 			if (this.SA[A_Index].AA.strFavoriteType = "QAP")
 				; if QAP feature attach menu option was changed when saving options
 				this.SA[A_Index].AA.strFavoriteName := o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strLocalizedName
 
-			strMenuName := this.SA[A_Index].AA.strFavoriteName
-			if StrLen(strMenuName)
-				strMenuName := MenuNameWithNumericShortcut(intMenuNumber, strMenuName)
+			strMenuItemLabel := this.SA[A_Index].AA.strFavoriteName
+			if StrLen(strMenuItemLabel)
+				strMenuItemLabel := MenuNameWithNumericShortcut(intMenuNumber, strMenuItemLabel)
 			
 			if (this.SA[A_Index].AA.strFavoriteType = "Group")
-				strMenuName .= " " . g_strGroupIndicatorPrefix . this.SA[A_Index].AA.oSubmenu.SA.MaxIndex() - 1 . g_strGroupIndicatorSuffix
+				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . this.SA[A_Index].AA.oSubmenu.SA.MaxIndex() - 1 . g_strGroupIndicatorSuffix
 			
 			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut) or StrLen(this.SA[A_Index].AA.strFavoriteHotstring)
-				strMenuName .= MenuNameReminder(this.SA[A_Index].AA.strFavoriteShortcut, GetHotstringTrigger(this.SA[A_Index].AA.strFavoriteHotstring))
+				strMenuItemLabel .= MenuNameReminder(this.SA[A_Index].AA.strFavoriteShortcut, GetHotstringTrigger(this.SA[A_Index].AA.strFavoriteHotstring))
 			
 			if StrLen(this.SA[A_Index].AA.strFavoriteShortcut)
 			{
@@ -25220,6 +25221,11 @@ class Container
 				Hotstring(PrepareHotstringForFunction(this.SA[A_Index].AA.strFavoriteHotstring, this.SA[A_Index]), "OpenFavoriteFromHotstring", "On")
 			}
 			
+			; default values for this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus)
+			strMenuItemAction := "OpenFavorite"
+			strMenuItemIcon := "iconUnknown"
+			intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
+
 			if InStr("Menu|External", this.SA[A_Index].AA.strFavoriteType, true)
 				or (this.SA[A_Index].AA.strFavoriteFolderLiveLevels and LiveFolderHasContent(this.SA[A_Index]))
 					and !(g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
@@ -25232,30 +25238,33 @@ class Container
 				
 				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 				this.SA[A_Index].AA.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
+
+				; ##### test maybe not required if dont in __New
+				; if (g_blnUseColors)
+					; Try Menu, % this.SA[A_Index].AA.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
-				if (g_blnUseColors)
-					Try Menu, % this.SA[A_Index].AA.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
-				
-				Try Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
-				; catch e ; when menu objCurrentMenu[A_Index].SubMenu.MenuPath is empty
-				catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavorite, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; OpenFavorite will never be called because disabled
-				Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuName% ; disable menu if contains no item
-				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
-				{
-					ParseIconResource(this.SA[A_Index].AA.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
+				; Try Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+				; catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
+					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
+				; Menu, % this.AA.strMenuPath, % (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuItemLabel% ; disable menu if contains no item
+				; if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
+				; {
+					; ParseIconResource(this.SA[A_Index].AA.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
 					
-					Menu, % this.AA.strMenuPath, UseErrorLevel, on
-					Menu, % this.AA.strMenuPath, Icon, %strMenuName%
-						, %strThisIconFile%, %intThisIconIndex% , % o_Settings.MenuIcons.intIconSize.IniValue
-					if (ErrorLevel)
-					{
-						ParseIconResource("iconUnknown", strIconFile, intIconIndex)
-						Menu, % this.AA.strMenuPath, Icon, %strMenuName%
-							, %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-					}
-					Menu, % this.AA.strMenuPath, UseErrorLevel, off
-				}
+					; Menu, % this.AA.strMenuPath, UseErrorLevel, on
+					; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
+						; , %strThisIconFile%, %intThisIconIndex% , % o_Settings.MenuIcons.intIconSize.IniValue
+					; if (ErrorLevel)
+					; {
+						; ParseIconResource("iconUnknown", strIconFile, intIconIndex)
+						; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
+							; , %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
+					; }
+					; Menu, % this.AA.strMenuPath, UseErrorLevel, off
+				; }
+				strMenuItemAction := ":" . this.SA[A_Index].AA.oSubMenu.AA.strMenuPath
+				intMenuItemStatus := (this.SA[A_Index].AA.oSubMenu.SA.MaxIndex() > 0)
+				strMenuItemIcon := ""
 			}
 			
 			else if (this.SA[A_Index].AA.strFavoriteType = "X") ; this is a separator
@@ -25263,7 +25272,8 @@ class Container
 				if (this.SA[A_Index - 1].FavoriteType = "K")
 					intMenuItemsCount -= 1 ; separator not allowed as first item is a column, skip it
 				else
-					Menu, % this.AA.strMenuPath, Add
+					strMenuItemLabel := ""
+					; Menu, % this.AA.strMenuPath, Add
 				
 			else if (this.SA[A_Index].AA.strFavoriteType = "K") ; this is a column break
 			{
@@ -25276,53 +25286,58 @@ class Container
 			{
 				if (this.SA[A_Index].AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName)
 					; menu should never be empty (if no item, it contains a "no item" menu)
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+					strMenuItemAction := ":" . o_QAPfeatures.AA[this.SA[A_Index].AA.strFavoriteLocation].strQAPFeatureMenuName
 				else if (this.SA[A_Index].AA.strFavoriteType = "Group")
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, OpenFavoriteGroup, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, OpenFavoriteGroup, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+					strMenuItemAction := "OpenFavoriteGroup"
 				else
 				{
 					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"]
 					if (SubStr(this.AA.strMenuPath, 1, StrLen(strLayoutMenuName)) = strLayoutMenuName)
-						strCommandName := "OpenDOpusLayout"
+						strMenuItemAction := "OpenDOpusLayout"
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["DOpusMenuName"])) = o_L["DOpusMenuName"])
-						strCommandName := "OpenDOpusFavorite"
+						strMenuItemAction := "OpenDOpusFavorite"
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["TCMenuName"])) = o_L["TCMenuName"])
-						strCommandName := "OpenFavoriteHotlist"
+						strMenuItemAction := "OpenFavoriteHotlist"
 					else
-						strCommandName := "OpenFavorite"
-					Menu, % this.AA.strMenuPath, Add, %strMenuName%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
+						strMenuItemAction := "OpenFavorite"
+					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				}
 
 				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (this.SA[A_Index].AA.strFavoriteIconResource <> "iconNoIcon")
 				{
 					if (this.SA[A_Index].AA.strFavoriteType = "Folder") ; this is a folder
-						strThisIconFileIndex := this.SA[A_Index].AA.strFavoriteIconResource
+						strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
 					else if (this.SA[A_Index].AA.strFavoriteType = "URL") ; this is an URL
 						if StrLen(this.SA[A_Index].AA.strFavoriteIconResource)
-							strThisIconFileIndex := this.SA[A_Index].AA.strFavoriteIconResource
+							strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
 						else
-							strThisIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+							strMenuItemIcon := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 							; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 					else ; this is a document, application, Special, FTP or QAP
 						if StrLen(this.SA[A_Index].AA.strFavoriteIconResource)
-							strThisIconFileIndex := this.SA[A_Index].AA.strFavoriteIconResource
+							strMenuItemIcon := this.SA[A_Index].AA.strFavoriteIconResource
 						else
-							strThisIconFileIndex := GetIcon4Location(this.SA[A_Index].AA.strFavoriteLocation)
-					ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon
+							strMenuItemIcon := GetIcon4Location(this.SA[A_Index].AA.strFavoriteLocation)
+					; ParseIconResource(strThisIconFileIndex, strThisIconFile, intThisIconIndex, "iconFolder") ; only folder favorite may need the default icon
 					
-					Menu, % this.AA.strMenuPath, UseErrorLevel, on
-					ErrorLevel := 0 ; for safety clear in case Menu is not called in next if
-					Menu, % this.AA.strMenuPath, Icon, %strMenuName%, %strThisIconFile%, %intThisIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-					if (ErrorLevel)
-					{
-						ParseIconResource("iconUnknown", strIconFile, intIconIndex)
-						Menu, % this.AA.strMenuPath, Icon, %strMenuName%
-							, %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-					}
-					Menu, % this.AA.strMenuPath, UseErrorLevel, off
+					; Menu, % this.AA.strMenuPath, UseErrorLevel, on
+					; ErrorLevel := 0 ; for safety clear in case Menu is not called in next if
+					; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%, %strThisIconFile%, %intThisIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
+					; if (ErrorLevel)
+					; {
+						; ParseIconResource("iconUnknown", strIconFile, intIconIndex)
+						; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
+							; , %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
+					; }
+					; Menu, % this.AA.strMenuPath, UseErrorLevel, off
 				}
 				if (this.SA[A_Index].AA.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
-					Menu, % this.AA.strMenuPath, Default, %strMenuName%
+					intMenuItemStatus := 2 ; 0 disabled, 1 enabled, 2 default
+					; Menu, % this.AA.strMenuPath, Default, %strMenuItemLabel%
+				
+				this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			}
 			
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
@@ -25501,7 +25516,7 @@ class Container
 	;-------------------------------------------------------------
 	
 	;------------------------------------------------------------
-	AddMenuIcon(strMenuItemName, strLabel, strIconValue, blnEnabled := true)
+	AddMenuIcon(strMenuItemName, strAction, strIconValue, intStatus := true, blnHasColumnBreak := false)
 	; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 	;------------------------------------------------------------
 	{
@@ -25510,7 +25525,16 @@ class Container
 			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
 		
 		strMenuItemName := DoubleAmpersand(strMenuItemName)
-		Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strLabel%
+		
+		if SubStr(strAction, 1, 1) = ":" ; this is a menu
+		{
+			Try Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%, % (blnHasColumnBreak ? "BarBreak" : "")
+			catch ; when menu this.SA[A_Index].AA.oSubMenu.AA.MenuPath is empty
+				Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
+		}
+		else
+			Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%
+		
 		if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
 		{
 			Menu, % this.AA.strMenuPath, UseErrorLevel, on
@@ -25518,15 +25542,17 @@ class Container
 			Menu, % this.AA.strMenuPath, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 			if (ErrorLevel)
 			{
-				ParseIconResource((strMenuName = o_L["MenuSwitchFolderOrApp"] ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
+				ParseIconResource((this.AA.strMenuPath = o_L["MenuSwitchFolderOrApp"] ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
 				Menu, % this.AA.strMenuPath, Icon, %strMenuItemName%
 					, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
 			}
 			Menu, % this.AA.strMenuPath, UseErrorLevel, off
 		}
 		
-		if !(blnEnabled)
+		if !(intStatus)
 			Menu, % this.AA.strMenuPath, Disable, %strMenuItemName%
+		else if (intStatus =2)
+			Menu, % this.AA.strMenuPath, Default, %strMenuItemName%
 	}
 	;------------------------------------------------------------
 	
