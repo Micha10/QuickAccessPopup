@@ -3419,9 +3419,7 @@ Gosub, BuildRecentFoldersMenuInit
 Gosub, BuildRecentFilesMenuInit
 
 ; Menus refreshed at each popup menu call
-Gosub, BuildTotalCommanderHotlistInit
-Gosub, BuildTotalCommanderHotlistPrepare
-Gosub, BuildDirectoryOpusFavoritesInit
+Gosub, BuildTotalCommanderHotlistPrepare ; ##### ??
 
 ; Other menus
 Gosub, BuildMainMenu
@@ -5028,8 +5026,8 @@ BuildRecentFilesMenuInit:
 ; BuildSwitchMenuInit:
 ; BuildReopenFolderMenuInit:
 ; BuildLastActionsMenuInit:
-BuildTotalCommanderHotlistInit:
-BuildDirectoryOpusFavoritesInit:
+; BuildTotalCommanderHotlistInit:
+; BuildDirectoryOpusFavoritesInit:
 ; BuildPopularMenusInit:
 ;------------------------------------------------------------
 
@@ -5038,10 +5036,6 @@ if (A_ThisLabel = "BuildRecentFoldersMenuInit")
 	strMenuNames := o_L["MenuRecentFolders"]
 if (A_ThisLabel = "BuildRecentFilesMenuInit")
 	strMenuNames := o_L["MenuRecentFiles"]
-if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
-	strMenuNames := o_L["TCMenuName"]
-if (A_ThisLabel = "BuildDirectoryOpusFavoritesInit")
-	strMenuNames := o_L["DOpusMenuName"]
 
 loop, parse, strMenuNames, |
 {
@@ -5069,7 +5063,7 @@ InitDynamicMenus:
 
 ; o_L[""] keys used as names for dynamic menus
 
-strMenuToInit := "MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders"
+strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders"
 
 loop, Parse, strMenuToInit, "|"
 	o_Menu := new Container("Menu", o_L[A_LoopField])
@@ -5941,23 +5935,18 @@ Diag(A_ThisLabel, "", "START")
 
 ; Init TC Directory hotlist if wincmd.ini file exists
 
-Menu, % o_L["TCMenuName"], Add 
-Menu, % o_L["TCMenuName"], DeleteAll
-
-clipboard := o_FileManagers.SA[3].strTCIniFileExpanded
 If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
 {
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	
-	o_TCMenu := new Container("Menu", o_L["TCMenuName"])
-	o_TCMenu.LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].strTCIniFileExpanded) ; RECURSIVE
-	o_TCMenu.BuildMenu() ; recurse for submenus
+	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].strTCIniFileExpanded) ; RECURSIVE
+	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	Tooltip
 }
 else
-	o_TCMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	o_Containers.AA[o_L["TCMenuName"]].AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-o_TCMenu := ""
+o_Containers.AA[o_L["TCMenuName"]] := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -5994,41 +5983,32 @@ if !o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{DOpus Favorites}")
 
 Diag(A_ThisLabel, "", "START")
 
-Menu, % o_L["DOpusMenuName"], Add 
-Menu, % o_L["DOpusMenuName"], DeleteAll
-
 If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
 {
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
 	
-	o_DOpusMenu := new Container("Menu", o_L["DOpusMenuName"])
 	global xmlDirectoryOpusXML := New XML("xml")
-	o_DOpusMenu.LoadDirectoryOpusFavoritesFromXML() ; RECURSIVE
+	o_Containers.AA[o_L["DOpusMenuName"]].LoadDirectoryOpusFavoritesFromXML() ; RECURSIVE
 	
 	if (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts and o_FileManagers.SA[2].DirectoryOpusLayoutsFileExist())
 	{
-		o_DOpusLayoutsMenu := new Container("Menu", o_L["DOpusLayoutsName"], o_DOpusMenu)
-		o_DOpusLayoutsMenu.LoadDirectoryOpusLayoutsFromXML()
-		o_DOpusLayoutsMenu.BuildMenu() ; recurse for submenus
+		o_Containers.AA[o_L["DOpusLayoutsName"]].LoadDirectoryOpusLayoutsFromXML()
+		o_Containers.AA[o_L["DOpusLayoutsName"]].BuildMenu() ; recurse for submenus
 		
 		oNewItem := new Container.Item(["X"]) ; separator
-		o_DOpusMenu.SA.Push(oNewItem) ; add to the current container object
+		o_Containers.AA[o_L["DOpusMenuName"]].SA.Push(oNewItem) ; add to the current container object
 		oNewItem := new Container.Item(["Menu", o_L["DOpusLayoutsName"]]) ; Layouts menu
-		oNewItem.AA.oSubMenu := o_DOpusLayoutsMenu ; attach menu
-		o_DOpusMenu.SA.Push(oNewItem) ; add to the current container object
+		oNewItem.AA.oSubMenu := o_Containers.AA[o_L["DOpusLayoutsName"]] ; attach menu
+		o_Containers.AA[o_L["DOpusMenuName"]].SA.Push(oNewItem) ; add to the current container object
 	}
 	
-	o_DOpusMenu.BuildMenu() ; recurse for submenus
+	o_Containers.AA[o_L["DOpusMenuName"]].BuildMenu() ; recurse for submenus
 	Tooltip
 }
 else
-	o_DOpusMenu.AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
+	o_Containers.AA[o_L["DOpusMenuName"]].AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
 
-objDOpusMenu := ""
-objLoadDOpusFavorite := ""
-strDirectoryOpusFavoritesXml := ""
-strDirectoryOpusLayoutsXml := ""
-objDOpusLayoutsMenu := ""
+oNewItem := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -15517,7 +15497,6 @@ if (g_blnAlternativeMenu)
 	{
 		if !InStr("Group|QAP", g_objThisFavorite.FavoriteType) ; for these types, there is no path to copy
 		{
-			Clipboard := g_strFullLocation
 			TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 		}
