@@ -3419,8 +3419,6 @@ Gosub, BuildRecentFoldersMenuInit
 Gosub, BuildRecentFilesMenuInit
 
 ; Menus refreshed at each popup menu call
-Gosub, BuildPopularMenusInit
-Gosub, BuildLastActionsMenuInit
 Gosub, BuildTotalCommanderHotlistInit
 Gosub, BuildTotalCommanderHotlistPrepare
 Gosub, BuildDirectoryOpusFavoritesInit
@@ -5029,10 +5027,10 @@ BuildRecentFilesMenuInit:
 ; BuildClipboardMenuInit:
 ; BuildSwitchMenuInit:
 ; BuildReopenFolderMenuInit:
-BuildLastActionsMenuInit:
+; BuildLastActionsMenuInit:
 BuildTotalCommanderHotlistInit:
 BuildDirectoryOpusFavoritesInit:
-BuildPopularMenusInit:
+; BuildPopularMenusInit:
 ;------------------------------------------------------------
 
 strMenuItemLabel := o_L["DialogNone"]
@@ -5040,18 +5038,14 @@ if (A_ThisLabel = "BuildRecentFoldersMenuInit")
 	strMenuNames := o_L["MenuRecentFolders"]
 if (A_ThisLabel = "BuildRecentFilesMenuInit")
 	strMenuNames := o_L["MenuRecentFiles"]
-if (A_ThisLabel = "BuildLastActionsMenuInit")
-	strMenuNames := o_L["MenuLastActions"]
 if (A_ThisLabel = "BuildTotalCommanderHotlistInit")
 	strMenuNames := o_L["TCMenuName"]
 if (A_ThisLabel = "BuildDirectoryOpusFavoritesInit")
 	strMenuNames := o_L["DOpusMenuName"]
-if (A_ThisLabel = "BuildPopularMenusInit")
-	strMenuNames := o_L["MenuPopularFolders"] . "|" . o_L["MenuPopularFiles"]
 
 loop, parse, strMenuNames, |
 {
-	strThisMenuName := (A_ThisLabel = "BuildPopularMenusInit" ? L(o_L["MenuPopularMenus"], A_LoopField) : A_LoopField)
+	strThisMenuName := A_LoopField
 	Menu, %strThisMenuName%, Add 
 	Menu, %strThisMenuName%, DeleteAll
 	if (g_blnUseColors)
@@ -5074,9 +5068,13 @@ InitDynamicMenus:
 ;------------------------------------------------------------
 
 ; o_L[""] keys used as names for dynamic menus
-strMenuToInit := "MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard"
+
+strMenuToInit := "MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders"
+
 loop, Parse, strMenuToInit, "|"
 	o_Menu := new Container("Menu", o_L[A_LoopField])
+
+strPopularMenusFoldersAndFiles := ""
 
 return
 ;------------------------------------------------------------
@@ -5124,7 +5122,7 @@ CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Wi
 
 SetWaitCursor(false)
 
-Menu, % L(o_L["MenuPopularMenus"], (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularFolders"] : o_L["MenuPopularFiles"])), Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"]), Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -5142,7 +5140,7 @@ Diag(A_ThisLabel, "", "START")
 loop, parse, % "Folders|Files", |
 {
 	strFoldersOrFiles := A_Loopfield
-	strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], (strFoldersOrFiles = "Folders" ? o_L["MenuPopularFolders"] : o_L["MenuPopularFiles"]))
+	strFoldersOrFilesMenuNameLocalized := (strFoldersOrFiles = "Folders" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"])
 	
 	if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Popular " . strFoldersOrFiles . "}")) ; we don't have this QAP features in at least one menu
 		continue
@@ -5158,22 +5156,30 @@ loop, parse, % "Folders|Files", |
 	objMetadataRecordSet.Next(objMetadataRow)
 	strMenuItemsList := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
 	objMetadataRecordSet.Free()
-
-	Menu, %strFoldersOrFilesMenuNameLocalized%, Add
-	Menu, %strFoldersOrFilesMenuNameLocalized%, DeleteAll
+	
+	; for each line in strMenuItemsList: 1) Frequent Folders/Files|2) Name/Location|3) Action|4) Icon
+	; example: Frequent Folders|E:\Dropbox\AutoHotkey\QuickAccessPopup|OpenPopularMenus|iconFolder
+	
+	saMenuItemsTable := Object()
 	Loop, Parse, strMenuItemsList, `n
 		if StrLen(A_LoopField)
 		{
-			StringSplit, arrMenuItemsList, A_LoopField, |
-			OLD_AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
+			saOneLine := StrSplit(A_LoopField, "|")
+			saOneLine[1] := saOneLine[3] ; put action in 1
+			saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
+			; keep icon in 4
+			saMenuItemsTable.Push(saOneLine)
 		}
-	OLD_AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
+	
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles]].LoadFavoritesFromTable(saMenuItemsTable)
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles]].BuildMenu()
 }
 
 ResetArray("arrMenuItemsList")
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
-strMenuItemsList := ""
+saOneLine := ""
+saMenuItemsTable := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -5237,7 +5243,7 @@ if (StrLen(Clipboard) <= o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue) ;
 }
 
 ; prepare data for new Container
-saFavoritesTable := Object()
+saMenuItemsTable := Object()
 
 if !StrLen(strContentsInClipboard)
 {
@@ -5248,7 +5254,7 @@ if !StrLen(strContentsInClipboard)
 	else
 		strMenuName := o_L["MenuClipboardNoContent"]
 	
-	saFavoritesTable := [["DoNothing", strMenuName, "", "iconNoContent"]]
+	saMenuItemsTable := [["DoNothing", strMenuName, "", "iconNoContent"]]
 }
 else
 {
@@ -5261,17 +5267,19 @@ else
 			saOneLine.InsertAt(1, "OpenClipboard") ; pushed 2 = path or URL
 			saOneLine.InsertAt(3, saOneLine[2]) ; copied 2 in 3 = path or URL
 			; saOneLine[4] now = icon (file,index or icon code)
-			saFavoritesTable.Push(saOneLine)
+			saMenuItemsTable.Push(saOneLine)
 		}
 }
 
-o_Containers.AA[o_L["MenuClipboard"]].LoadFavoritesFromTable(saFavoritesTable)
+o_Containers.AA[o_L["MenuClipboard"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuClipboard"]].BuildMenu()
 
 intMenuNumberClipboardMenu := ""
 strContentsInClipboard := ""
 strClipboardLineExpanded := ""
 strURLSearchString := ""
+saOneLine := ""
+saMenuItemsTable := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -5384,7 +5392,7 @@ else ; get data directly from Windows (with variable response time)
 	gosub, GetDrivesMenuListRefresh ; update g_strMenuItemsListDrives
 
 ; prepare data for new Container
-saFavoritesTable := Object()
+saMenuItemsTable := Object()
 Loop, Parse, g_strMenuItemsListDrives, `n
 	; g_strMenuItemsListDrives structure: 1 Menu, 2 Item Name, 3 Label Gosub, 4 Icon
 	if StrLen(A_LoopField)
@@ -5394,16 +5402,16 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 		; saOneLine[2] contain favorite name
 		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
 		; saOneLine[4] contain favorite icon
-		saFavoritesTable.Push(saOneLine)
+		saMenuItemsTable.Push(saOneLine)
 	}
 
-o_Containers.AA[o_L["MenuDrives"]].LoadFavoritesFromTable(saFavoritesTable)
+o_Containers.AA[o_L["MenuDrives"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuDrives"]].BuildMenu()
 
 strUsageDbSQL := ""
 objMetadataRecordSet := ""
 saOneLine := ""
-saFavoritesTable := ""
+saMenuItemsTable := ""
 
 Diag(A_ThisLabel, "", "STOP")
 
@@ -6052,20 +6060,19 @@ if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't hav
 
 Diag(A_ThisLabel, "", "START")
 
-intMenuNumberLastActionsMenu := 0
 
-Menu, % o_L["MenuLastActions"], Add
-Menu, % o_L["MenuLastActions"], DeleteAll
+; prepare data for new Container
+intMenuNumberLastActionsMenu := 0
+saMenuItemsTable := Object()
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
-	{
-		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberLastActionsMenu, A_LoopField)
-		OLD_AddMenuIcon(o_L["MenuLastActions"], strMenuItemName, "RepeatLastAction", g_objLastActions[A_LoopField].FavoriteIconResource)
-	}
-OLD_AddCloseMenu(o_L["MenuLastActions"])
+		saMenuItemsTable.Push(["RepeatLastAction", MenuNameWithNumericShortcut(intMenuNumberLastActionsMenu, A_LoopField), A_LoopField, g_objLastActions[A_LoopField].FavoriteIconResource])
+
+o_Containers.AA[o_L["MenuLastActions"]].LoadFavoritesFromTable(saMenuItemsTable)
+o_Containers.AA[o_L["MenuLastActions"]].BuildMenu()
 
 intMenuNumberLastActionsMenu := ""
-strMenuItemName := ""
+saMenuItemsTable := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -7792,8 +7799,7 @@ RefreshedMenusAttachedClicked:
 Gosub, GuiOptionsGroupChanged
 
 Oops(o_L["OptionsRefreshedMenusAttachedInfo"], o_L["MenuRecentFolders"], o_L["MenuRecentFiles"]
-	, L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]), L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"])
-	, o_L["MenuDrives"])
+	, o_L["MenuPopularMenusFolders"], o_L["MenuPopularMenusFiles"], o_L["MenuDrives"])
 
 return
 ;------------------------------------------------------------
@@ -15816,7 +15822,7 @@ if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 else
 	strThisMenuItem :=  A_ThisMenuItem
 if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue)
-	and (A_ThisMenu = L(o_L["MenuPopularMenus"],  o_L["MenuPopularFolders"]) or A_ThisMenu = L(o_L["MenuPopularMenus"],  o_L["MenuPopularFiles"])) ; remove popularity index
+	and (A_ThisMenu = o_L["MenuPopularMenusFolders"] or A_ThisMenu = o_L["MenuPopularMenusFiles"]) ; remove popularity index
 	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " [", false, 0) - 1) ; strip " [n]" from end
 if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 {
@@ -18908,7 +18914,7 @@ loop, parse, % "Folders|Files", |
 		else
 		{
 			strTargetType := "Folder"
-			strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"])
+			strFoldersOrFilesMenuNameLocalized := o_L["MenuPopularMenusFolders"]
 		}
 	else ; "Files"
 		if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Popular Files}")) ; we don't have this QAP features in at least one menu
@@ -18916,7 +18922,7 @@ loop, parse, % "Folders|Files", |
 		else
 		{
 			strTargetType := "File"
-			strFoldersOrFilesMenuNameLocalized := L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"])
+			strFoldersOrFilesMenuNameLocalized := o_L["MenuPopularMenusFiles"]
 		}
 
 	; SQLite GetTable
@@ -24034,13 +24040,13 @@ class QAPfeatures
 			, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuRecentFilesDescription"], 0, "iconRecentFolders",	""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
-		this.AddQAPFeatureObject("Popular Folders", L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]) . (blnAttached ? "" : "...")
-			, (blnAttached ? L(o_L["MenuPopularMenus"], o_L["MenuPopularFolders"]) : "")
+		this.AddQAPFeatureObject("Popular Folders", o_L["MenuPopularMenusFolders"] . (blnAttached ? "" : "...")
+			, (blnAttached ? o_L["MenuPopularMenusFolders"] : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFolders"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
-		this.AddQAPFeatureObject("Popular Files", L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"]) . (blnAttached ? "" : "...")
-			, (blnAttached ? L(o_L["MenuPopularMenus"], o_L["MenuPopularFiles"]) : "")
+		this.AddQAPFeatureObject("Popular Files", o_L["MenuPopularMenusFiles"] . (blnAttached ? "" : "...")
+			, (blnAttached ? o_L["MenuPopularMenusFiles"] : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFiles"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
@@ -24788,9 +24794,9 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromTable(saFavoritesTable)
-	; load items in saFavoritesTable to a simple Container object having no submenu
-	; saFavoritesTable is an simple-array object of simple array objects saFavorite for each favorite to load
+	LoadFavoritesFromTable(saMenuItemsTable)
+	; load items in saMenuItemsTable to a simple Container object having no submenu
+	; saMenuItemsTable is an simple-array object of simple array objects saFavorite for each favorite to load
 			; saFavorite:
 			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
 			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
@@ -24801,10 +24807,10 @@ class Container
 	;---------------------------------------------------------
 	{
 		this.SA := Object() ; re-init
-		Loop, % saFavoritesTable.MaxIndex()
+		Loop, % saMenuItemsTable.MaxIndex()
 		{
 			; create new item and add it to the container
-			oNewItem := new this.Item(saFavoritesTable[A_Index])
+			oNewItem := new this.Item(saMenuItemsTable[A_Index])
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
 	}
