@@ -5670,7 +5670,7 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 ; Build menu
 
 intMenuNumber := 0
-; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
+; ### g_aaReopenFolderLocationUrlByName: replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
 
 Critical, On
 saCurrentFoldersTable := Object()
@@ -5684,14 +5684,23 @@ if (intWindowsIdIndex)
 		else
 		{
 			strMenuName := MenuNameWithNumericShortcut(intMenuNumber, aaFolderOrApp.strName)
+			strFolderLocationUrl := aaFolderOrApp.strLocationURL
 			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:")
 				strFolderIcon := GetFolderIcon(aaFolderOrApp.strLocationURL)
-			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:") ; do not support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
+			if (aaFolderOrApp.strWindowType <> "APP")
+				; and !InStr(strMenuName, "ftp:") ; test if we can support reopen for FTP sites (Explorer reports "ftp:\\" DOpus "ftp://")
 			{
-				; g_aaReopenFolderLocationUrlByName[strMenuName] := aaFolderOrApp.strLocationURL) ; strMenuName can include the numeric shortcut
-				; ##### TO DO: set type and adjust location in menu object (move code from OpenFavoriteGetFavoriteObject to here)
-				; for now, always set Type to "Folder" but could be "Special" or "FTP"
-				saCurrentFoldersTable.Push(["Folder", strMenuName, aaFolderOrApp.strLocationURL, strFolderIcon])
+				If (InStr(strMenuName, "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
+				{
+					strMenuName := SubStr(strMenuName, 3) ; remove "::" from beginning
+					strFavoriteType := "Special"
+				}
+				else if InStr(strMenuName, "ftp:") ; ftp:// with DOpus listers , is it working with Explorer ftp:\\ ?
+					strFavoriteType := "FTP"
+				else
+					strFavoriteType := "Folder"
+				; g_aaReopenFolderLocationUrlByName[strMenuName] := aaFolderOrApp.strLocationURL) ; replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
+				saCurrentFoldersTable.Push([strFavoriteType, strMenuName, strFolderLocationUrl, strFolderIcon])
 			}
 			; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]]
 			; g_aaSwitchWindowIdsByName[strMenuName] := aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId)
@@ -5743,6 +5752,7 @@ strDiagFile := ""
 intExStyle := ""
 strWinTitlesWinApps := ""
 strFolderIcon := ""
+strFavoriteType := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -15899,17 +15909,16 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 }
 else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
-	; ### g_aaReopenFolderLocationUrlByName to be replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
-	; TO DO: set type and adjust location in menu object in RefreshReopenFolderMenu
-	If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
-	{
-		strThisMenuItem := SubStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], 3) ; remove "::" from beginning
-		strFavoriteType := "Special"
-	}
-	else if InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "ftp://") ; possible with DOpus listers
-		strFavoriteType := "FTP"
-	else
-		strFavoriteType := "Folder"
+	; ### g_aaReopenFolderLocationUrlByName replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
+	; If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
+	; {
+		; strThisMenuItem := SubStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], 3) ; remove "::" from beginning
+		; strFavoriteType := "Special"
+	; }
+	; else if InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "ftp://") ; possible with DOpus listers
+		; strFavoriteType := "FTP"
+	; else
+		; strFavoriteType := "Folder"
 	
 	g_objThisFavorite := Object() ; temporary favorite object
 	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
