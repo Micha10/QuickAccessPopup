@@ -3415,13 +3415,10 @@ g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.
 Gosub, InitDynamicMenus
 
 ; Menus attached or detached
-Gosub, BuildRecentFoldersMenuInit
-Gosub, BuildRecentFilesMenuInit
+Gosub, BuildRecentFoldersMenuInit ; to be removed
+Gosub, BuildRecentFilesMenuInit ; to be removed
 
-; Menus refreshed at each popup menu call
-Gosub, BuildTotalCommanderHotlistPrepare ; ##### ??
-
-; Other menus
+; Build main menus
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 Gosub, BuildTrayMenu
@@ -5075,31 +5072,6 @@ return
 
 
 ;------------------------------------------------------------
-BuildTotalCommanderHotlistPrepare:
-;------------------------------------------------------------
-
-if StrLen(o_FileManagers.SA[3].strTCIniFileExpanded)
-{
-	strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("AlternateUserIni", " ", "Configuration", o_FileManagers.SA[3].strTCIniFileExpanded) ; empty by default
-	if !StrLen(strAlternativeWinCmdIniFile)
-		;  only wincmd.ini can redirect, redirection is not recursive (https://ghisler.ch/board/viewtopic.php?p=315939#315939)
-		strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("RedirectSection", " ", "DirMenu", o_FileManagers.SA[3].strTCIniFileExpanded) ; empty by default
-	if StrLen(strAlternativeWinCmdIniFile)
-	{
-		SplitPath, % o_FileManagers.SA[3].strTCIniFileExpanded, , strTCDir
-		o_FileManagers.SA[3].strTCIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
-	}
-}
-g_blnWinCmdIniFileExist := StrLen(o_FileManagers.SA[3].strTCIniFileExpanded) and FileExist(o_FileManagers.SA[3].strTCIniFileExpanded) ; TotalCommander settings file exists
-
-strTCDir := ""
-strAlternativeWinCmdIniFile := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 PopularFoldersMenuShortcut:
 PopularFilesMenuShortcut:
 ;------------------------------------------------------------
@@ -5935,7 +5907,7 @@ Diag(A_ThisLabel, "", "START")
 
 ; Init TC Directory hotlist if wincmd.ini file exists
 
-If (g_blnWinCmdIniFileExist) ; TotalCommander settings file exists
+If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander settings file exists
 {
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	
@@ -11825,7 +11797,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 		OopsGui2(o_L["OopsHttpLocationTransformed"], (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
-	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !g_blnWinCmdIniFileExist)
+	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist())
 	{
 		OopsGui2(o_L["OopsInvalidWinCmdIni"])
 		gosub, GuiAddFavoriteSaveCleanup
@@ -23281,9 +23253,33 @@ TODO
 				else
 					this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
 				
+				; was BuildTotalCommanderHotlistPrepare:
+				if StrLen(this.strTCIniFileExpanded)
+				{
+					strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("AlternateUserIni", " ", "Configuration", this.strTCIniFileExpanded) ; empty by default
+					if !StrLen(strAlternativeWinCmdIniFile)
+						;  only wincmd.ini can redirect, redirection is not recursive (https://ghisler.ch/board/viewtopic.php?p=315939#315939)
+						strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("RedirectSection", " ", "DirMenu", this.strTCIniFileExpanded) ; empty by default
+					if StrLen(strAlternativeWinCmdIniFile)
+					{
+						SplitPath, % this.strTCIniFileExpanded, , strTCDir
+						this.strTCIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
+					}
+				}
+				
 				o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
 			}
 		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		TotalCommanderWinCmdIniFileExist()
+		;-----------------------------------------------------
+		{
+			return StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
+		}
+		;-----------------------------------------------------
+		
 	}
 	;---------------------------------------------------------
 	
