@@ -24622,6 +24622,8 @@ class Container
 	AA := Object() ; associative array for container's properties
 	SA := Object() ; simple array for container's items
 	
+	static intMenuShortcutNumber
+	
 	;---------------------------------------------------------
 	###__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -24782,8 +24784,6 @@ class Container
 			}
 			
 			; create new item and add it to the container
-			if InStr("Menu|Group|External", saThisFavorite[1], true)
-				##### := #####
 			oNewItem := new this.Item(saThisFavorite)
 			if InStr("Menu|Group|External", oNewItem.AA.strFavoriteType, true) ; this is a submenu favorite
 			{
@@ -25018,7 +25018,7 @@ class Container
 	BuildMenu() ; build menu and recurse in submenus
 	;------------------------------------------------------------
 	{
-		intMenuNumber := 0
+		this.intMenuShortcutNumber := 0
 		
 		; try because at first execution the strMenu menu does not exist and produces an error,
 		; but DeleteAll is required later for menu updates
@@ -25048,7 +25048,7 @@ class Container
 
 			strMenuItemLabel := aaThisFavorite.strFavoriteName
 			if StrLen(strMenuItemLabel)
-				strMenuItemLabel := this.MenuNameWithNumericShortcut(intMenuNumber, strMenuItemLabel)
+				strMenuItemLabel := this.MenuNameWithNumericShortcut(strMenuItemLabel)
 			
 			if (aaThisFavorite.strFavoriteType = "Group")
 				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . aaThisFavorite.oSubmenu.SA.MaxIndex() . g_strGroupIndicatorSuffix
@@ -25418,30 +25418,24 @@ class Container
 	;------------------------------------------------------------
 	
 	;------------------------------------------------------------
-	MenuNameWithNumericShortcut(ByRef intMenuNumber, strMenuName)
+	MenuNameWithNumericShortcut(strMenuName)
 	;------------------------------------------------------------
 	{
-		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (intMenuNumber <= 35))
-			return "&" . this.NextMenuShortcut(intMenuNumber) . " " . StrReplace(strMenuName, "&", "&&")
-		else
-			return strMenuName
-	}
-	;------------------------------------------------------------
-
-	;------------------------------------------------------------
-	NextMenuShortcut(ByRef intMenuNumber)
-	;------------------------------------------------------------
-	{
-		if (intMenuNumber < 10)
+		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (this.intMenuShortcutNumber <= 35))
 		{
-			; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
-			strShortcut := Mod(intMenuNumber + (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue ? 1 : 0), 10)
+			if (this.intMenuShortcutNumber < 10)
+			{
+				; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
+				strShortcut := Mod(this.intMenuShortcutNumber + (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue ? 1 : 0), 10)
+			}
+			else
+				strShortcut := Chr(this.intMenuShortcutNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
+			this.intMenuShortcutNumber++
+			
+			return "&" . strShortcut . " " . StrReplace(strMenuName, "&", "&&")
 		}
 		else
-			strShortcut := Chr(intMenuNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
-		
-		intMenuNumber := intMenuNumber + 1
-		return strShortcut
+			return strMenuName
 	}
 	;------------------------------------------------------------
 
