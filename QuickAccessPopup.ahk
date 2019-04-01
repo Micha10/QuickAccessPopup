@@ -5023,6 +5023,8 @@ loop, Parse, strMenuToInit, "|"
 
 strPopularMenusFoldersAndFiles := ""
 
+o_Menu := ""
+
 return
 ;------------------------------------------------------------
 
@@ -5977,25 +5979,26 @@ return
 BuildAlternativeMenu:
 ;------------------------------------------------------------
 
-Menu, g_menuAlternative, Add
-Menu, g_menuAlternative, DeleteAll
+new Container("Menu", "menuAlternative")
 
+saMenuItemsTable := Object()
 Loop
 	if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index)
 	{
 		strMenuName := o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strLocalizedName ; .strLocalizedName OK because Alternative
 		strMenuName .= MenuNameReminder(o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strCurrentHotkey)
 		; hotkey reminder "`t..." or " (...)" will be removed from A_ThisMenuItem in order to flag what alternative menu feature has been activated
-		
-		OLD_AddMenuIcon("g_menuAlternative", strMenuName, "OpenAlternativeMenu", o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon)
+		saMenuItemsTable.Push(["OpenAlternativeMenu", strMenuName, o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]
+			, o_QAPfeatures.AA[o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder[A_Index]].strDefaultIcon])
 	}
 	else
 		if o_QAPfeatures.saQAPFeaturesAlternativeCodeByOrder.Haskey(A_Index + 1) ; there is another menu item, add a menu separator
-			Menu, g_menuAlternative, Add
+			Menu, menuAlternative, Add
 		else
 			break ; menu finished
 
-OLD_AddCloseMenu("g_menuAlternative")
+o_Containers.AA["menuAlternative"].LoadFavoritesFromTable(saMenuItemsTable)
+o_Containers.AA["menuAlternative"].BuildMenu()
 
 strMenuName := ""
 
@@ -14537,7 +14540,7 @@ g_strHotkeyTypeDetected := "Alternative"
 
 SetTargetWinInfo(A_ThisLabel = "AlternativeHotkeyMouse")
 Gosub, SetMenuPosition
-Menu, g_menuAlternative, Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, menuAlternative, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -25484,10 +25487,6 @@ class Container
 			; this is a regular favorite, add it to the current menu
 			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
 			this.InsertItemValue("strFavoriteName", StrReplace(saFavorite[2], g_strEscapePipe, "|")) ; display name of this menu item
-			; if InStr("Menu|Group|External", saFavorite[1], true)
-				; recreate the menu path (without Main menu name), not relying on ini file content because this field could be empty for menu favorites in ini file saved with v7.4.0.2 to v7.4.2)
-				; this.InsertItemValue("strFavoriteLocation", StrReplace(this.AA.strMenuPath, o_L["MainMenuName"] . " ")) ; ##### objNewMenu.MenuPath ???
-			; else
 			this.InsertItemValue("strFavoriteLocation", StrReplace(saFavorite[3], g_strEscapePipe, "|")) ; path, URL or menu path (without "Main") for this menu item
 			this.InsertItemValue("strFavoriteIconResource", saFavorite[4]) ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 			this.InsertItemValue("strFavoriteArguments", StrReplace(saFavorite[5], g_strEscapePipe, "|")) ; application arguments
