@@ -5629,7 +5629,7 @@ if (intWindowsIdIndex)
 			; ##### set location to "aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId" to be split in OpenSwitchFolderOrApp
 			saSwitchFolderOrAppTable.Push(["OpenSwitchFolderOrApp", strMenuName, aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId
 				, (aaFolderOrApp.strWindowType = "EX" ? strFolderIcon
-					: (aaFolderOrApp.strWindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.SA[2].strDirectoryOpusRtPath . ",1" : strFolderIcon)
+					: (aaFolderOrApp.strWindowType = "DO" ? (strFolderIcon = "iconFolder" ? o_FileManagers.SA[2].AA.strDirectoryOpusRtPath . ",1" : strFolderIcon)
 					: aaFolderOrApp.strLocationURL . ",1"))])
 		}
 	}
@@ -5857,7 +5857,7 @@ If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander sett
 {
 	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
 	
-	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].strTCIniFileExpanded) ; RECURSIVE
+	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(o_FileManagers.SA[3].AA.strTCIniFileExpanded) ; RECURSIVE
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	Tooltip
 }
@@ -5904,7 +5904,7 @@ If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favor
 	global xmlDirectoryOpusXML := New XML("xml")
 	o_Containers.AA[o_L["DOpusMenuName"]].LoadDirectoryOpusFavoritesFromXML() ; RECURSIVE
 	
-	if (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts and o_FileManagers.SA[2].DirectoryOpusLayoutsFileExist())
+	if (o_FileManagers.SA[2].AA.blnFileManagerDirectoryOpusShowLayouts and o_FileManagers.SA[2].DirectoryOpusLayoutsFileExist())
 	{
 		o_Containers.AA[o_L["DOpusLayoutsName"]].LoadDirectoryOpusLayoutsFromXML()
 		o_Containers.AA[o_L["DOpusLayoutsName"]].BuildMenu() ; recurse for submenus
@@ -6489,7 +6489,7 @@ Gui, 2:Add, Text, x%g_intGroupItemsX% y%intGroupItemsY% w590 center hidden vf_lb
 Gui, Font, w600
 Gui, 2:Add, Text, x%g_intGroupItemsTab4X% y+15 w300 Section hidden vf_lblFileManagerNavigateTitle, % o_L["OptionsTabFileManagersPreferences"]
 Gui, Font
-Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab4X% w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName)
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab4X% w300 vf_lblFileManagerNavigate hidden, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].AA.strDisplayName)
 Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateCurrent gGuiOptionsGroupChanged" . (o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsTab4X . " w250 hidden vf_radFileManagerNavigateNew gGuiOptionsGroupChanged" . (! o_Settings.FileManagers.blnAlwaysNavigate.IniValue ? " checked" : "")
 
@@ -6500,7 +6500,7 @@ Gui, 2:Add, Text, ys x%g_intGroupItemsX% w230 Section hidden vf_lblradActiveFile
 Gui, Font
 loop, % o_FileManagers.SA.Length()
 	Gui, 2:Add, Radio, % "y+10 x" . g_intGroupItemsTab1X . " hidden gActiveFileManagerClicked vf_radActiveFileManager" . A_Index 
-		. (o_FileManagers.P_intActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].strDisplayName
+		. (o_FileManagers.P_intActiveFileManager = A_Index ? " checked" : ""), % o_FileManagers.SA[A_Index].AA.strDisplayName
 
 ; --- bottom ---
 Gui, 2:Font, s8 w700
@@ -6510,7 +6510,7 @@ Gui, 2:Add, Text, y+10 x%g_intGroupItemsTab2X% w500 vf_lblFileManagerDetail hidd
 
 ; Windows Explorer OpenFavoritesOnActiveMonitor
 Gui, 2:Add, CheckBox, yp x%g_intGroupItemsTab2X% w500 vf_blnOpenFavoritesOnActiveMonitor gGuiOptionsGroupChanged hidden, % o_L["OptionsOpenFavoritesOnActiveMonitor"]
-GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor = true)
+GuiControl, , f_blnOpenFavoritesOnActiveMonitor, % (o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor = true)
 
 ; DirectoryOpusPath
 ; TotalCommanderPath
@@ -6519,8 +6519,8 @@ Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strFileManagerPath hidd
 
 ; QAPconnectFileManager
 Gui, 2:Add, DropDownList, xp yp w300 vf_drpQAPconnectFileManager hidden Sort gGuiOptionsGroupChanged
-if StrLen(o_FileManagers.SA[4].strQAPconnectFileManager)
-	GuiControl, ChooseString, f_drpQAPconnectFileManager, % o_FileManagers.SA[4].strQAPconnectFileManager
+if StrLen(o_FileManagers.SA[4].AA.strQAPconnectFileManager)
+	GuiControl, ChooseString, f_drpQAPconnectFileManager, % o_FileManagers.SA[4].AA.strQAPconnectFileManager
 Gui, 2:Add, Button, x+10 yp vf_btnFileManagerPath gButtonSelectFileManagerPath hidden, % o_L["DialogBrowseButton"]
 
 ; DirectoryOpusUseTabs
@@ -6540,7 +6540,7 @@ Gui, 2:Add, Button, x+10 yp vf_btnTotalCommanderWinCmd gButtonSelectTotalCommand
 
 ; FileManagerDOpusShowLayouts
 Gui, 2:Add, Checkbox, yp x%g_intGroupItemsTab3X% w590 vf_blnFileManagerDirectoryOpusShowLayouts gGuiOptionsGroupChanged hidden, % L(o_L["DopusMenuNameShowLayout"], o_L["DOpusLayoutsName"])
-GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.SA[2].blnFileManagerDirectoryOpusShowLayouts = true)
+GuiControl, , f_blnFileManagerDirectoryOpusShowLayouts, % (o_FileManagers.SA[2].AA.blnFileManagerDirectoryOpusShowLayouts = true)
 
 Gosub, ActiveFileManagerClickedInit
 Gosub, FileManagerNavigateClickedInit
@@ -6754,7 +6754,7 @@ if (g_intClickedFileManager = 4) ; QAPconnect
 	blnOptionsPathsOK := StrLen(f_drpQAPconnectFileManager)
 	if (blnOptionsPathsOK)
 	{
-		strQAPconnectPath := o_Settings.ReadIniValue("AppPath", " ", f_drpQAPconnectFileManager, o_FileManagers.SA[4].strQAPconnectIniPath) ; empty by default
+		strQAPconnectPath := o_Settings.ReadIniValue("AppPath", " ", f_drpQAPconnectFileManager, o_FileManagers.SA[4].AA.strQAPconnectIniPath) ; empty by default
 		blnOptionsPathsOK := FileExistInPath(strQAPconnectPath) ; return strQAPconnectPath expanded
 	}
 }
@@ -6783,9 +6783,9 @@ if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK) or !blnTCWinCmdOK)
 		Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
 	else if (!blnOptionsPathsOK) ; 2 DirectoryOpus or 3 TotalCommander
 		if StrLen(f_strFileManagerPath)
-			Oops(o_L["OptionsThirdPartyFileNotFound"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName, f_strFileManagerPath)
+			Oops(o_L["OptionsThirdPartyFileNotFound"], o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName, f_strFileManagerPath)
 		else
-			Oops(o_L["OptionsThirdPartySelectFile"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
+			Oops(o_L["OptionsThirdPartySelectFile"], o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName)
 	if (!blnTCWinCmdOK)
 		Oops(o_L["OptionsTCWinCmd"], f_strTotalCommanderWinCmd)
 	
@@ -6989,12 +6989,12 @@ strNewShortcut := ""
 o_Settings.FileManagers.intActiveFileManager.WriteIni(g_intClickedFileManager)
 o_Settings.FileManagers.blnAlwaysNavigate.WriteIni(f_radFileManagerNavigateCurrent)
 	
-strClickedFileManagerSystemName := o_FileManagers.SA[g_intClickedFileManager].strFileManagerSystemName
+strClickedFileManagerSystemName := o_FileManagers.SA[g_intClickedFileManager].AA.strFileManagerSystemName
 
 if (g_intClickedFileManager = 1)
 	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIni(f_blnOpenFavoritesOnActiveMonitor)
 else if (g_intClickedFileManager = 4) ; QAPconnect
-	o_Settings.FileManagers.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
+	o_Settings.FileManagers.AA.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
 	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
@@ -7313,32 +7313,32 @@ else ; f_radActiveFileManager1
 	strHelpUrl := "https://www.quickaccesspopup.com/how-does-qap-work-on-multi-monitor-systems/"
 }
 
-GuiControl, , f_lnkFileManagerHelp, % L(o_L["OptionsThirdPartySelectedHelp"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName, strHelpUrl, o_L["GuiHelp"])
+GuiControl, , f_lnkFileManagerHelp, % L(o_L["OptionsThirdPartySelectedHelp"], o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName, strHelpUrl, o_L["GuiHelp"])
 if !(f_radActiveFileManager1) ; DirectoryOpus, TotalCommander or QAPconnect
 {
 	GuiControl, , f_lblFileManagerDetail, % (f_radActiveFileManager4 ? L(o_L["OptionsThirdPartyDetailQAPconnect"], "QAPconnect.ini")
-		: L(o_L["OptionsThirdPartyDetail"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName))
-	GuiControl, , f_strFileManagerPath, % o_FileManagers.SA[g_intClickedFileManager].strFileManagerPath ; was the cause of the group changed flag bug
+		: L(o_L["OptionsThirdPartyDetail"], o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName))
+	GuiControl, , f_strFileManagerPath, % o_FileManagers.SA[g_intClickedFileManager].AA.strFileManagerPath ; was the cause of the group changed flag bug
 
 	if (f_radActiveFileManager4) ; QAPconnect
 	{
-		IniRead, strQAPconnectFileManagersList, % o_FileManagers.SA[4].strQAPconnectIniPath, , , %A_Space% ; list of QAPconnect.ini applications, empty by default
+		IniRead, strQAPconnectFileManagersList, % o_FileManagers.SA[4].AA.strQAPconnectIniPath, , , %A_Space% ; list of QAPconnect.ini applications, empty by default
 		if StrLen(strQAPconnectFileManagersList)
 		{
 			strQAPconnectFileManagersList .= "|"
 			strQAPconnectFileManagersList := StrReplace(strQAPconnectFileManagersList, "`n", "|")
-			if StrLen(o_FileManagers.SA[4].strQAPconnectFileManager)
-				strQAPconnectFileManagersList := StrReplace(strQAPconnectFileManagersList, o_FileManagers.SA[4].strQAPconnectFileManager . "|"
-					, o_FileManagers.SA[4].strQAPconnectFileManager . "||")
+			if StrLen(o_FileManagers.SA[4].AA.strQAPconnectFileManager)
+				strQAPconnectFileManagersList := StrReplace(strQAPconnectFileManagersList, o_FileManagers.SA[4].AA.strQAPconnectFileManager . "|"
+					, o_FileManagers.SA[4].AA.strQAPconnectFileManager . "||")
 		}
 		GuiControl, , f_drpQAPconnectFileManager, |%strQAPconnectFileManagersList%
 	}
 	else ; DirectoryOpus or TotalCommander
 
-		GuiControl, , f_blnFileManagerUseTabs, % (o_FileManagers.SA[g_intClickedFileManager].blnFileManagerUseTabs ? 1 : 0)
+		GuiControl, , f_blnFileManagerUseTabs, % (o_FileManagers.SA[g_intClickedFileManager].AA.blnFileManagerUseTabs ? 1 : 0)
 
 	if (f_radActiveFileManager3) ; TotalCommander
-		GuiControl, , f_strTotalCommanderWinCmd, % o_FileManagers.SA[3].strTCIniFile
+		GuiControl, , f_strTotalCommanderWinCmd, % o_FileManagers.SA[3].AA.strTCIniFile
 }
 
 strHelpUrl := ""
@@ -7358,11 +7358,11 @@ Gui, 2:Submit, NoHide
 if (A_ThisLabel = "FileManagerNavigateClicked")
 	Gosub, GuiOptionsGroupChanged
 
-GuiControl, , f_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
+GuiControl, , f_lblFileManagerNavigate, % L(o_L["OptionsFileManagerNavigateIntro"], o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName)
 GuiControl, Text, f_radFileManagerNavigateCurrent, % L((f_blnFileManagerUseTabs ? o_L["OptionsFileManagerNavigateCurrentTab"] : o_L["OptionsFileManagerNavigateCurrent"])
-	, o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
+	, o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName)
 GuiControl, Text, f_radFileManagerNavigateNew, % L((f_blnFileManagerUseTabs ? o_L["OptionsFileManagerNavigateNewTab"] : o_L["OptionsFileManagerNavigateNew"])
-	, o_FileManagers.SA[g_intClickedFileManager].strDisplayName)
+	, o_FileManagers.SA[g_intClickedFileManager].AA.strDisplayName)
 
 return
 ;------------------------------------------------------------
@@ -7713,12 +7713,12 @@ Gui, 2:+OwnDialogs
 if (A_ThisLabel = "ButtonSelectFileManagerPath")
 {
 	strControlName := "f_strFileManagerPath"
-	strDefault := o_FileManagers.SA[g_intClickedFileManager].strFileManagerPath
+	strDefault := o_FileManagers.SA[g_intClickedFileManager].AA.strFileManagerPath
 }
 else if (A_ThisLabel = "ButtonSelectTotalCommanderWinCmd")
 {
 	strControlName := "f_strTotalCommanderWinCmd"
-	strDefault := o_FileManagers.SA[3].strTCIniFile
+	strDefault := o_FileManagers.SA[3].AA.strTCIniFile
 }
 else ; (A_ThisLabel = "ButtonAlternativeTrayIcon")
 {
@@ -8763,7 +8763,7 @@ If !StrLen(g_strNewLocation)
 	if (A_ThisLabel = "AddThisFolder" and g_blnLaunchFromTrayIcon)
 	{
 		Gui, 1:+OwnDialogs 
-		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName, o_PopupHotkeys.SA[1].strPopupHotkeyText
+		Oops(o_L["OopsAddThisFolderTip"], o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].AA.strDisplayName, o_PopupHotkeys.SA[1].strPopupHotkeyText
 			. " " . o_L["DialogOr"] . " " . o_PopupHotkeys.SA[2].strPopupHotkeyText)
 	}
 	else
@@ -9509,7 +9509,7 @@ if (g_objEditedFavorite.FavoriteType = "Group")
 		Gui, 2:Add, Text, x20 y+20, % o_L["GuiGroupSaveRestoreWith"]
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupRestoreWithExplorer " . (g_arrGroupSettingsGui2 = "Windows Explorer" ? "checked" : ""), Windows Explorer
 		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupRestoreWithOther " . (g_arrGroupSettingsGui2 <> "Windows Explorer" ? "checked" : "")
-			, % o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].strDisplayName ; will be selected by default if empty (when Add)
+			, % o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].AA.strDisplayName ; will be selected by default if empty (when Add)
 	}
 }
 
@@ -14757,7 +14757,7 @@ WindowIsQAPconnect(strWinId)
 	
 	; get filename only and compare with QAPconnect filename or QAPconnect target filename (see QAPconnect doc)
 	SplitPath, strFCAppFile, strFCAppFile
-	return (strFCAppFile = o_FileManagers.SA[4].strQAPconnectAppFilename) or (strFCAppFile = o_FileManagers.SA[4].strQAPconnectCompanionFilename)
+	return (strFCAppFile = o_FileManagers.SA[4].AA.strQAPconnectAppFilename) or (strFCAppFile = o_FileManagers.SA[4].AA.strQAPconnectCompanionFilename)
 }
 ;------------------------------------------------------------
 
@@ -15302,7 +15302,7 @@ StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
 if InStr("Explorer|TotalCommander", g_strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
 {
 	SysGet, intNbMonitors, MonitorCount
-	if (o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
+	if (o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
 		GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intMonitorReferencePositionX, intMonitorReferencePositionY)
 }
 
@@ -15374,7 +15374,7 @@ if (g_objThisFavorite.FavoriteType = "Text")
 
 if (A_ThisLabel = "OpenDOpusLayout")
 {
-	Run, % """" . o_FileManagers.SA[2].strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
+	Run, % """" . o_FileManagers.SA[2].AA.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
 	
 	gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
@@ -15538,7 +15538,7 @@ if (g_strHotkeyTypeDetected = "Launch")
 	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
 {
 	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
-	if ((g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor) ;  we need to position window
+	if ((g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
 		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue))
 		; we can access new Explorer or Total Commander windows, or try with other apps
 		gosub, OpenFavoriteWindowPosition
@@ -16691,7 +16691,7 @@ else
 		WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 		Sleep, 200
 	}
-	Run, % o_FileManagers.SA[3].strFileManagerPath . " /O /S /L=""" . g_strFullLocation . """" ; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
+	Run, % o_FileManagers.SA[3].AA.strFileManagerPath . " /O /S /L=""" . g_strFullLocation . """" ; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
 }
 
 return
@@ -16702,9 +16702,9 @@ return
 OpenFavoriteNavigateQAPconnect:
 ;------------------------------------------------------------
 
-if InStr(g_strFullLocation, " ") and !(o_FileManagers.SA[4].strQAPconnectNeverQuotes)
+if InStr(g_strFullLocation, " ") and !(o_FileManagers.SA[4].AA.strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-strQAPconnectParamString := StrReplace(o_FileManagers.SA[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation)
+strQAPconnectParamString := StrReplace(o_FileManagers.SA[4].AA.strQAPconnectCommandLine, "%Path%", g_strFullLocation)
 strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%")
 
 if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
@@ -16712,7 +16712,7 @@ if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped ou
 	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
 	Sleep, 200
 }
-Run, % o_FileManagers.SA[4].strFileManagerPath . " " . strQAPconnectParamString
+Run, % o_FileManagers.SA[4].AA.strFileManagerPath . " " . strQAPconnectParamString
 
 strQAPconnectParamString :=""
 
@@ -16913,7 +16913,7 @@ http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
 OpenFavoriteInNewWindowExplorer:
 ;------------------------------------------------------------
 
-if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor)
+if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor)
 {
 	; get new window ID
 	; when run -> pid? if not scan Explorer ids
@@ -16923,10 +16923,10 @@ if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiv
 
 if (StrLen(g_objThisFavorite.FavoriteArguments)
 	or (g_blnAlternativeMenu and g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"])
-	or g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor)
+	or g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor)
 	; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
 	; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
-	Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
+	Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
 else
 {
 	; When moving the window is not required and there is no parameter, this technique is preferred because, if call multiple times, it uses the
@@ -16937,7 +16937,7 @@ else
 }
 ; */
 
-if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor)
+if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor)
 {
 	Loop
 	{
@@ -16959,7 +16959,7 @@ if (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiv
 			Break ; we have a new window
 	}
 }
-if !StrLen(g_strNewWindowId) and (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor)
+if !StrLen(g_strNewWindowId) and (g_arrFavoriteWindowPosition1 or o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor)
 ; we will not be able to move the window, just show it now
 {
 	Sleep, 100
@@ -17009,12 +17009,12 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 	if (g_blnFirstFolderOfGroup) and !(g_blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
 	; for the first member of the group, if we add to existing tabs, make sure a lister is running
 	{
-		Run, % o_FileManagers.SA[2].strFileManagerPath
+		Run, % o_FileManagers.SA[2].AA.strFileManagerPath
 		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
 		Sleep, 200 ; sometimes without delay DOpus left the new tab empty
 	}
 	
-	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers.SA[2].blnFileManagerUseTabs)
+	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers.SA[2].AA.blnFileManagerUseTabs)
 		strTabParameter := "NEW=nodual" ; force left in new lister
 	else
 	{
@@ -17024,12 +17024,12 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 		if StrLen(arrFavoriteWindowPosition8)
 			strTabParameter := "NEWTAB " . (arrFavoriteWindowPosition8 = "L" ? "OPENINLEFT" : "OPENINRIGHT")
 		else
-			strTabParameter := o_FileManagers.SA[2].strNewTabOrWindow
+			strTabParameter := o_FileManagers.SA[2].AA.strNewTabOrWindow
 	}
 }
 else
 {
-	strTabParameter := o_FileManagers.SA[2].strNewTabOrWindow
+	strTabParameter := o_FileManagers.SA[2].AA.strNewTabOrWindow
 	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
 }
 
@@ -17066,10 +17066,10 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 if g_strFullLocation is integer
 {
 	if !WinExist("ahk_class TTOTAL_CMD") ; open a first instance
-		or InStr(o_FileManagers.SA[3].strNewTabOrWindow, "/N") ; or open a new instance
+		or InStr(o_FileManagers.SA[3].AA.strNewTabOrWindow, "/N") ; or open a new instance
 		or (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows))
 	{
-		Run, % o_FileManagers.SA[3].strFileManagerPath
+		Run, % o_FileManagers.SA[3].AA.strFileManagerPath
 		WinWaitActive, ahk_class TTOTAL_CMD, , 10
 		Sleep, 200 ; wait additional time to improve SendMessage reliability in OpenFavoriteNavigateTotalCommander
 	}
@@ -17084,7 +17084,7 @@ if g_strFullLocation is integer
 		SendMessage, 0x433, %intTCCommandFocus%, , , ahk_class TTOTAL_CMD
 	}
 	
-	if !InStr(o_FileManagers.SA[3].strNewTabOrWindow, "/N") ; open the folder in a new tab
+	if !InStr(o_FileManagers.SA[3].AA.strNewTabOrWindow, "/N") ; open the folder in a new tab
 	{
 		intTCCommandOpenNewTab := 3001 ; cm_OpenNewTab
 		Sleep, 100 ; wait to improve SendMessage reliability
@@ -17100,22 +17100,22 @@ if g_strFullLocation is integer
 else ; normal folder
 {
 	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers.SA[3].blnFileManagerUseTabs)
+		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(o_FileManagers.SA[3].AA.blnFileManagerUseTabs)
 			strTabParameter := "/N" ; /N new window
 		else
 			strTabParameter := "/O /T" ; /O same instance, /T new tab
 	else
 	{
-		; o_FileManagers.SA[3].strNewTabOrWindow should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
-		strTabParameter := o_FileManagers.SA[3].strNewTabOrWindow
+		; o_FileManagers.SA[3].AA.strNewTabOrWindow should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
+		strTabParameter := o_FileManagers.SA[3].AA.strNewTabOrWindow
 		strSideParameter := ""
 	}
 	
 	if StrLen(strSideParameter)
-		Run, % o_FileManagers.SA[3].strFileManagerPath . " " . strTabParameter . " /" . strSideParameter . "=""" . g_strFullLocation . """"
+		Run, % o_FileManagers.SA[3].AA.strFileManagerPath . " " . strTabParameter . " /" . strSideParameter . "=""" . g_strFullLocation . """"
 	else
 		; use active parameter with /S instead of L/R side parameter
-		Run, % o_FileManagers.SA[3].strFileManagerPath . " " . strTabParameter . " /S """ . g_strFullLocation . """"
+		Run, % o_FileManagers.SA[3].AA.strFileManagerPath . " " . strTabParameter . " /S """ . g_strFullLocation . """"
 
 	WinWaitActive, ahk_class TTOTAL_CMD, , 10
 }
@@ -17136,24 +17136,24 @@ return
 OpenFavoriteInNewWindowQAPconnect:
 ;------------------------------------------------------------
 
-if InStr(g_strFullLocation, " ") and !(o_FileManagers.SA[4].strQAPconnectNeverQuotes)
+if InStr(g_strFullLocation, " ") and !(o_FileManagers.SA[4].AA.strQAPconnectNeverQuotes)
 	g_strFullLocation := """" . g_strFullLocation . """"
-strQAPconnectParamString := StrReplace(o_FileManagers.SA[4].strQAPconnectCommandLine, "%Path%", g_strFullLocation)
-strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", o_FileManagers.SA[4].strQAPconnectNewTabSwitch)
+strQAPconnectParamString := StrReplace(o_FileManagers.SA[4].AA.strQAPconnectCommandLine, "%Path%", g_strFullLocation)
+strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", o_FileManagers.SA[4].AA.strQAPconnectNewTabSwitch)
 
-Run, % o_FileManagers.SA[4].strFileManagerPath . " " . strQAPconnectParamString
+Run, % o_FileManagers.SA[4].AA.strFileManagerPath . " " . strQAPconnectParamString
 
-if StrLen(o_FileManagers.SA[4].strQAPconnectWindowID)
-; o_FileManagers.SA[4].strQAPconnectWindowID contains "ahk_exe " and the file name of the FM executable.
+if StrLen(o_FileManagers.SA[4].AA.strQAPconnectWindowID)
+; o_FileManagers.SA[4].AA.strQAPconnectWindowID contains "ahk_exe " and the file name of the FM executable.
 ; It is used here to wait for the FM window and it is copied to g_strNewWindowId.
 {
 	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
 	SetTitleMatchMode, RegEx ; change match mode to RegEx
 	; with RegEx, for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
 	; (because by default, regular expressions find a match anywhere in the target string).
-	WinWaitActive, % o_FileManagers.SA[4].strQAPconnectWindowID, , 10 ; wait for the window as identified in QAPconnect.ini
+	WinWaitActive, % o_FileManagers.SA[4].AA.strQAPconnectWindowID, , 10 ; wait for the window as identified in QAPconnect.ini
 	SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
-	g_strNewWindowId := o_FileManagers.SA[4].strQAPconnectWindowID
+	g_strNewWindowId := o_FileManagers.SA[4].AA.strQAPconnectWindowID
 }
 else
 	g_strNewWindowId := ""
@@ -17183,7 +17183,7 @@ OpenFavoriteWindowPosition:
 if !StrLen(g_strNewWindowId) ; we can't access the new window
 	return
 
-if (g_arrFavoriteWindowPosition1) ; this has precedence on o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor
+if (g_arrFavoriteWindowPosition1) ; this has precedence on o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor
 {
 	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
 	
@@ -17211,7 +17211,7 @@ if (g_arrFavoriteWindowPosition1) ; this has precedence on o_FileManagers.SA[1].
 		Sleep, %g_arrFavoriteWindowPosition7%
 	}
 }
-else if (o_FileManagers.SA[1].blnOpenFavoritesOnActiveMonitor and (intNbMonitors > 1) and (g_strTargetAppName = "Explorer") and (g_strHotkeyTypeDetected = "Launch"))
+else if (o_FileManagers.SA[1].AA.blnOpenFavoritesOnActiveMonitor and (intNbMonitors > 1) and (g_strTargetAppName = "Explorer") and (g_strHotkeyTypeDetected = "Launch"))
 	and GetWindowPositionOnActiveMonitor(g_strNewWindowId, intMonitorReferencePositionX, intMonitorReferencePositionY, intNewWindowX, intNewWindowY)
 {
 	; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
@@ -17311,10 +17311,10 @@ return
 ShowQAPconnectIniFile:
 ;------------------------------------------------------------
 
-if FileExist(o_FileManagers.SA[4].strQAPconnectIniPath)
-	Run, % o_FileManagers.SA[4].strQAPconnectIniPath
+if FileExist(o_FileManagers.SA[4].AA.strQAPconnectIniPath)
+	Run, % o_FileManagers.SA[4].AA.strQAPconnectIniPath
 else
-	Oops(o_L["OptionsThirdPartyFileNotFound"], "QAPconnect", o_FileManagers.SA[4].strQAPconnectIniPath)
+	Oops(o_L["OptionsThirdPartyFileNotFound"], "QAPconnect", o_FileManagers.SA[4].AA.strQAPconnectIniPath)
 
 return
 ;------------------------------------------------------------
@@ -21403,7 +21403,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	else if (strCaller = "Current Windows menu" and strProcessPath = A_WinDir . "\explorer.exe")
 		return false
 	
-	else if (strCaller = "Current Windows menu" and strProcessPath = o_FileManagers.SA[2].strFileManagerPath and o_FileManagers.SA.P_intActiveFileManager = 2)
+	else if (strCaller = "Current Windows menu" and strProcessPath = o_FileManagers.SA[2].AA.strFileManagerPath and o_FileManagers.SA.P_intActiveFileManager = 2)
 		return false
 	
 	else if (strCaller = "Current Windows menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
@@ -22824,7 +22824,7 @@ TODO
 		###_O("o_FileManagers", this) ; to capture instance values
 		###_O("o_FileManagers.SA (strFileManagerSystemName)", this.SA, "strFileManagerSystemName") ; to capture instance values
 		loop, % saActiveFileManagerSystemNames.Length()
-			###_O("o_FileManagers.SA[" . A_Index . "] (" . this.SA[A_Index].strFileManagerSystemName . ")", this.SA[A_Index]) ; to capture instance values
+			###_O("o_FileManagers.SA[" . A_Index . "] (" . this.SA[A_Index].AA.strFileManagerSystemName . ")", this.SA[A_Index]) ; to capture instance values
 		###_D(Clipboard, 1, 1) ; to capture instance values
 	}
 	;---------------------------------------------------------
@@ -22841,14 +22841,14 @@ TODO
 		
 		Set
 		{
-			if (this.SA[value].blnFileManagerValid)
+			if (this.SA[value].AA.blnFileManagerValid)
 				this._intActiveFileManager := value
 			else
 			{
 				if (value = 4) ; QAPconnect
-					Oops(o_L["OopsWrongThirdPartyPathQAPconnect"], this.SA[4].strQAPconnectFileManager, this.SA[4].strFileManagerPath, "QAPconnect.ini", L(o_L["MenuEditIniFile"], "QAPconnect.ini"), o_L["OptionsThirdParty"])
+					Oops(o_L["OopsWrongThirdPartyPathQAPconnect"], this.SA[4].AA.strQAPconnectFileManager, this.SA[4].AA.strFileManagerPath, "QAPconnect.ini", L(o_L["MenuEditIniFile"], "QAPconnect.ini"), o_L["OptionsThirdParty"])
 				else ; 2 DirectoryOpus or 3 TotalCommander
-					Oops(o_L["OopsWrongThirdPartyPath"], this.SA[value].strDisplayName, this.SA[value].strFileManagerPath, o_L["OptionsThirdParty"])
+					Oops(o_L["OopsWrongThirdPartyPath"], this.SA[value].AA.strDisplayName, this.SA[value].AA.strFileManagerPath, o_L["OptionsThirdParty"])
 				this._intActiveFileManager := 1 ; fall back to Window Explorer
 			}
 			return this._intActiveFileManager
@@ -22864,9 +22864,9 @@ TODO
 		loop, 2
 		{
 			intFileManager := A_Index + 1 ; 2 DirectoryOpus or 3 TotalCommander
-			if (this.SA[intFileManager].blnFileManagerValid)
+			if (this.SA[intFileManager].AA.blnFileManagerValid)
 			{
-				MsgBox, 52, %g_strAppNameText%, % L(o_L["DialogThirdPartyDetected"], g_strAppNameText, this.SA[intFileManager].strDisplayName)
+				MsgBox, 52, %g_strAppNameText%, % L(o_L["DialogThirdPartyDetected"], g_strAppNameText, this.SA[intFileManager].AA.strDisplayName)
 				IfMsgBox, Yes
 				{
 					intSelected := intFileManager
@@ -22884,6 +22884,8 @@ TODO
 	class FileManager
 	;---------------------------------------------------------
 	{
+		AA := Object() ; associative array
+		
 		;---------------------------------------------------------
 		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
@@ -22900,8 +22902,8 @@ TODO
 		__New(strThisSystemName, strThisDisplayName)
 		;-----------------------------------------------------
 		{
-			this.strFileManagerSystemName := strThisSystemName
-			this.strDisplayName := strThisDisplayName
+			this.AA.strFileManagerSystemName := strThisSystemName
+			this.AA.strDisplayName := strThisDisplayName
 		}
 		;-----------------------------------------------------
 	}
@@ -22929,9 +22931,9 @@ TODO
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
 			
-			this.blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniOption("FileManagers", "blnExplorerOpenFavoritesOnActiveMonitor"
+			this.AA.blnOpenFavoritesOnActiveMonitor := o_Settings.ReadIniOption("FileManagers", "blnExplorerOpenFavoritesOnActiveMonitor"
 				, "OpenFavoritesOnActiveMonitor", 0, "FileManagers", "f_lnkFileManagerHelp|f_lblFileManagerDetail|f_blnOpenFavoritesOnActiveMonitor")
-			this.blnFileManagerValid := true
+			this.AA.blnFileManagerValid := true
 		}
 		;-----------------------------------------------------
 	}
@@ -22963,30 +22965,30 @@ TODO
 				strPath := A_ProgramFiles . "\GPSoftware\Directory Opus\dopus.exe"
 			if !FileExist(strPath)
 				strPath := "dopus.exe"
-			this.strFileManagerPath := strPath
-			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			this.AA.strFileManagerPath := strPath
+			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
+				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
 				
-			if (this.blnFileManagerValid)
+			if (this.AA.blnFileManagerValid)
 			{
-				this.strDirectoryOpusRtPath := StrReplace(this.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
+				this.AA.strDirectoryOpusRtPath := StrReplace(this.AA.strFileManagerPath, "\dopus.exe", "\dopusrt.exe")
 				
-				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagers", "f_blnFileManagerUseTabs")
-				this.strDirectoryOpusCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusCustomNewTabOrWindow", "DirectoryOpusNewTabOrWindow", "", "FileManagers", "")
+				this.AA.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusUseTabs", "DirectoryOpusUseTabs", 1, "FileManagers", "f_blnFileManagerUseTabs")
+				this.AA.strDirectoryOpusCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strDirectoryOpusCustomNewTabOrWindow", "DirectoryOpusNewTabOrWindow", "", "FileManagers", "")
 				
-				if (this.strDirectoryOpusCustomNewTabOrWindow <> "ERROR")
+				if (this.AA.strDirectoryOpusCustomNewTabOrWindow <> "ERROR")
 					; allow user to customize (other than "NEW" or "NEWTAB")
-					this.strNewTabOrWindow := this.strDirectoryOpusCustomNewTabOrWindow
-				else if (this.blnFileManagerUseTabs)
-					this.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
+					this.AA.strNewTabOrWindow := this.AA.strDirectoryOpusCustomNewTabOrWindow
+				else if (this.AA.blnFileManagerUseTabs)
+					this.AA.strNewTabOrWindow := "NEWTAB" ; open new folder in a new lister tab
 				else
-					this.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
+					this.AA.strNewTabOrWindow := "NEW" ; open new folder in a new DOpus lister (instance)
 				
-				this.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagers"
+				this.AA.blnFileManagerDirectoryOpusShowLayouts := o_Settings.ReadIniOption("FileManagers", "blnDirectoryOpusShowLayouts", "FileManagerDOpusShowLayouts", 1, "FileManagers"
 					, "f_blnFileManagerDirectoryOpusShowLayouts")
 				
-				o_JLicons.AddIcon("DirectoryOpus", this.strFileManagerPathExpanded . ",1")
+				o_JLicons.AddIcon("DirectoryOpus", this.AA.strFileManagerPathExpanded . ",1")
 			}
 		}
 		
@@ -23003,8 +23005,8 @@ TODO
 					return
 			}
 			
-			if FileExist(this.strDirectoryOpusRtPath) ; for safety only
-				Run, % """" . this.strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
+			if FileExist(this.AA.strDirectoryOpusRtPath) ; for safety only
+				Run, % """" . this.AA.strDirectoryOpusRtPath . """ " . strCommand . " """ . strLocation . """" . strParam
 		}
 		;-----------------------------------------------------
 
@@ -23012,8 +23014,8 @@ TODO
 		DirectoryOpusFavoritesFileExist()
 		;-----------------------------------------------------
 		{
-			this.strDirectoryOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
-			return FileExist(this.strDirectoryOpusFavoritesFile)
+			this.AA.strDirectoryOpusFavoritesFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\ConfigFiles\favorites.ofv")
+			return FileExist(this.AA.strDirectoryOpusFavoritesFile)
 		}
 		;-----------------------------------------------------
 
@@ -23021,8 +23023,8 @@ TODO
 		DirectoryOpusLayoutsFileExist()
 		;-----------------------------------------------------
 		{
-			this.strDirectoryOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
-			return FileExist(this.strDirectoryOpusLayoutsFile)
+			this.AA.strDirectoryOpusLayoutsFile := EnvVars("%APPDATA%\GPSoftware\Directory Opus\Layouts\order.xml")
+			return FileExist(this.AA.strDirectoryOpusLayoutsFile)
 		}
 		;-----------------------------------------------------
 
@@ -23062,12 +23064,12 @@ TODO
 				else
 					strPath := strPath . "\TOTALCMD.EXE"
 			}
-			this.strFileManagerPath := strPath
-			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			this.AA.strFileManagerPath := strPath
+			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
+				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
 				
-			if (this.blnFileManagerValid)
+			if (this.AA.blnFileManagerValid)
 			{
 				strIniFile := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderWinCmd", "TotalCommanderWinCmd", " ", "FileManagers"
 					, "f_lblTotalCommanderWinCmdPrompt|f_strTotalCommanderWinCmd|f_btnTotalCommanderWinCmd")
@@ -23075,36 +23077,36 @@ TODO
 					RegRead, strIniFile, HKEY_CURRENT_USER, Software\Ghisler\Total Commander\, IniFileName
 				If !StrLen(strIniFile)
 					RegRead, strIniFile, HKEY_LOCAL_MACHINE, Software\Ghisler\Total Commander\, IniFileName
-				this.strTCIniFile := strIniFile
-				this.strTCIniFileExpanded := EnvVars(this.strTCIniFile)
-				this.blnFileManagerValid := StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
+				this.AA.strTCIniFile := strIniFile
+				this.AA.strTCIniFileExpanded := EnvVars(this.AA.strTCIniFile)
+				this.AA.blnFileManagerValid := StrLen(this.AA.strTCIniFileExpanded) and FileExist(this.AA.strTCIniFileExpanded) ; TotalCommander settings file exists
 				
-				this.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagers", "")
-				this.strTotalCommanderCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderCustomNewTabOrWindow", "TotalCommanderNewTabOrWindow", "", "FileManagers", "")
+				this.AA.blnFileManagerUseTabs := o_Settings.ReadIniOption("FileManagers", "blnTotalCommanderUseTabs", "TotalCommanderUseTabs", 1, "FileManagers", "")
+				this.AA.strTotalCommanderCustomNewTabOrWindow := o_Settings.ReadIniOption("FileManagers", "strTotalCommanderCustomNewTabOrWindow", "TotalCommanderNewTabOrWindow", "", "FileManagers", "")
 				
-				if (this.strTotalCommanderCustomNewTabOrWindow <> "ERROR")
+				if (this.AA.strTotalCommanderCustomNewTabOrWindow <> "ERROR")
 					; allow user to customize (other than "/O /T" or "/N")
-					this.strNewTabOrWindow := this.strTotalCommanderCustomNewTabOrWindow
-				if (this.blnFileManagerUseTabs)
-					this.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
+					this.AA.strNewTabOrWindow := this.AA.strTotalCommanderCustomNewTabOrWindow
+				if (this.AA.blnFileManagerUseTabs)
+					this.AA.strNewTabOrWindow := "/O /T" ; open new folder in a new tab
 				else
-					this.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
+					this.AA.strNewTabOrWindow := "/N" ; open new folder in a new window (TC instance)
 				
 				; was BuildTotalCommanderHotlistPrepare:
-				if StrLen(this.strTCIniFileExpanded)
+				if StrLen(this.AA.strTCIniFileExpanded)
 				{
-					strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("AlternateUserIni", " ", "Configuration", this.strTCIniFileExpanded) ; empty by default
+					strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("AlternateUserIni", " ", "Configuration", this.AA.strTCIniFileExpanded) ; empty by default
 					if !StrLen(strAlternativeWinCmdIniFile)
 						;  only wincmd.ini can redirect, redirection is not recursive (https://ghisler.ch/board/viewtopic.php?p=315939#315939)
-						strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("RedirectSection", " ", "DirMenu", this.strTCIniFileExpanded) ; empty by default
+						strAlternativeWinCmdIniFile := o_Settings.ReadIniValue("RedirectSection", " ", "DirMenu", this.AA.strTCIniFileExpanded) ; empty by default
 					if StrLen(strAlternativeWinCmdIniFile)
 					{
-						SplitPath, % this.strTCIniFileExpanded, , strTCDir
-						this.strTCIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
+						SplitPath, % this.AA.strTCIniFileExpanded, , strTCDir
+						this.AA.strTCIniFileExpanded := PathCombine(strTCDir, EnvVars(strAlternativeWinCmdIniFile))
 					}
 				}
 				
-				o_JLicons.AddIcon("TotalCommander", this.strFileManagerPathExpanded . ",1")
+				o_JLicons.AddIcon("TotalCommander", this.AA.strFileManagerPathExpanded . ",1")
 			}
 		}
 		;-----------------------------------------------------
@@ -23113,7 +23115,7 @@ TODO
 		TotalCommanderWinCmdIniFileExist()
 		;-----------------------------------------------------
 		{
-			return StrLen(this.strTCIniFileExpanded) and FileExist(this.strTCIniFileExpanded) ; TotalCommander settings file exists
+			return StrLen(this.AA.strTCIniFileExpanded) and FileExist(this.AA.strTCIniFileExpanded) ; TotalCommander settings file exists
 		}
 		;-----------------------------------------------------
 		
@@ -23144,8 +23146,8 @@ TODO
 			
 			strQAPconnectFileManager := o_Settings.ReadIniOption("FileManagers", "strQAPconnectFileManager", "QAPconnectFileManager", " ", "FileManagers"
 				, "f_drpQAPconnectFileManager|f_btnFileManagerPath|f_btnQAPconnectEdit|f_btnQAPconnectRefresh")
-			this.strQAPconnectFileManager := strQAPconnectFileManager
-			this.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
+			this.AA.strQAPconnectFileManager := strQAPconnectFileManager
+			this.AA.strQAPconnectIniPath := A_WorkingDir . "\QAPconnect.ini"
 			/* QAPconnect.ini sample:
 			[EF Commander Free (v9.50)]
 			; http://www.softpedia.com/get/File-managers/EF-Commander-Free.shtml
@@ -23155,33 +23157,33 @@ TODO
 			CompanionPath=EFCWT.EXE
 			NeverQuotes=
 			*/
-			strPath := o_Settings.ReadIniValue("AppPath", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
-			this.strFileManagerPath := strPath
-			this.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.blnFileManagerValid := StrLen(this.strFileManagerPathExpanded)
-				and FileExistInPath(this.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			strPath := o_Settings.ReadIniValue("AppPath", " ", strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
+			this.AA.strFileManagerPath := strPath
+			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
+			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
+				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
 				
-			if (this.blnFileManagerValid)
+			if (this.AA.blnFileManagerValid)
 			{
 				SplitPath, strPath, strFilename
-				this.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
-				this.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
+				this.AA.strQAPconnectAppFilename := strFilename ; ahk_exe worked with filename only, not with full exe path
+				this.AA.strQAPconnectWindowID := "ahk_exe " . strFilename ; ahk_exe worked with filename only, not with full exe path
 				
-				strCommandLine := o_Settings.ReadIniValue("CommandLine", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
-				this.strQAPconnectCommandLine := strCommandLine
+				strCommandLine := o_Settings.ReadIniValue("CommandLine", " ", strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
+				this.AA.strQAPconnectCommandLine := strCommandLine
 				
-				strNewTabSwitch := o_Settings.ReadIniValue("NewTabSwitch", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
-				this.strQAPconnectNewTabSwitch := strNewTabSwitch
+				strNewTabSwitch := o_Settings.ReadIniValue("NewTabSwitch", " ", strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
+				this.AA.strQAPconnectNewTabSwitch := strNewTabSwitch
 				
-				strCompanionPath := o_Settings.ReadIniValue("CompanionPath", " ", strQAPconnectFileManager, this.strQAPconnectIniPath)
+				strCompanionPath := o_Settings.ReadIniValue("CompanionPath", " ", strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
 				if StrLen(strCompanionPath)
 					FileExistInPath(strCompanionPath) ; return strQAPconnectCompanionPath expanded and searched in PATH
 				SplitPath, strCompanionPath, strCompanionFilename ; used to detect window
-				this.strQAPconnectCompanionPath := strCompanionPath
-				this.strQAPconnectCompanionFilename := strCompanionFilename
+				this.AA.strQAPconnectCompanionPath := strCompanionPath
+				this.AA.strQAPconnectCompanionFilename := strCompanionFilename
 				
-				strNeverQuotes := o_Settings.ReadIniValue("NeverQuotes", 0, strQAPconnectFileManager, this.strQAPconnectIniPath)
-				this.strQAPconnectNeverQuotes := strNeverQuotes
+				strNeverQuotes := o_Settings.ReadIniValue("NeverQuotes", 0, strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
+				this.AA.strQAPconnectNeverQuotes := strNeverQuotes
 			}
 		}
 		;-----------------------------------------------------
@@ -24802,7 +24804,7 @@ class Container
 		
 		if !StrLen(strNodeXml) ; first level only
 		{
-			FileRead, strNodeXml, % o_FileManagers.SA[2].strDirectoryOpusFavoritesFile
+			FileRead, strNodeXml, % o_FileManagers.SA[2].AA.strDirectoryOpusFavoritesFile
 		}
 
 		xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
@@ -24883,7 +24885,7 @@ class Container
 		if !StrLen(strNodeXml) ; first level only
 		{
 			xmlDirectoryOpusXML := New XML("xml") ; could use existing instamce created for favorites?
-			FileRead, strNodeXml, % o_FileManagers.SA[2].strDirectoryOpusLayoutsFile
+			FileRead, strNodeXml, % o_FileManagers.SA[2].AA.strDirectoryOpusLayoutsFile
 		}
 		
 		xmlDirectoryOpusXML.XML.LoadXML(strNodeXml)
