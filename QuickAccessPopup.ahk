@@ -5861,10 +5861,6 @@ If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander sett
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	Tooltip
 }
-else
-	o_Containers.AA[o_L["TCMenuName"]].AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
-
-o_Containers.AA[o_L["TCMenuName"]] := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -6034,17 +6030,6 @@ o_MainMenu.BuildMenu() ; recurse for submenus
 if (g_blnWorkingToolTip)
 	Tooltip
 
-if !(o_Settings.Launch.blnDonor.IniValue)
-{
-	; when time to convert will be: if (o_MainMenu.SA[o_MainMenu.SA.MaxIndex()].AA.strFavoriteType <> "K")
-	if (g_objMenusIndex[o_L["MainMenuName"]][g_objMenusIndex[o_L["MainMenuName"]].MaxIndex()].FavoriteType <> "K")
-	; column break not allowed if first item is a separator
-		Menu, % o_L["MainMenuName"], Add
-	OLD_AddMenuIcon(o_L["MainMenuName"], o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
-}
-
-OLD_AddCloseMenu(o_L["MainMenuName"])
-
 return
 ;------------------------------------------------------------
 
@@ -6077,57 +6062,6 @@ LiveFolderHasContent(o_LiveFolder)
 ;	###_D("No folder")
 	
 	return false
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OLD_AddCloseMenu(strMenuName)
-;------------------------------------------------------------
-{
-	if (o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue)
-	{
-		Menu, %strMenuName%, Add
-		OLD_AddMenuIcon(strMenuName, o_L["MenuCloseThisMenu"], "DoNothing", "iconClose")
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OLD_AddMenuIcon(strMenuName, ByRef strMenuItemName, strLabel, strIconValue, blnEnabled := true)
-; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
-; strMenuItemName is ByRef because in OpenSwitchFolderOrApp g_aaSwitchWindowIdsByName is using the modified name as key to find item from A_ThisMenuItem
-;------------------------------------------------------------
-{
-	global g_blnMainIsFirstColumn
-
-	if !StrLen(strMenuItemName)
-		return
-	
-	strMenuItemName := DoubleAmpersand(strMenuItemName) ; double ampersand in menu item name ### should not be returned ByRef
-	
-	; The names of menus and menu items can be up to 260 characters long.
-	if StrLen(strMenuItemName) > 260
-		strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### OK to return ByRef
-	
-	Menu, %strMenuName%, Add, %strMenuItemName%, %strLabel%
-	if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
-	{
-		Menu, %strMenuName%, UseErrorLevel, on
-		ParseIconResource(strIconValue, strIconFile, intIconIndex)
-		Menu, %strMenuName%, Icon, %strMenuItemName%, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-		if (ErrorLevel)
-		{
-			ParseIconResource((strMenuName = o_L["MenuSwitchFolderOrApp"] ? "iconApplication" : "iconUnknown"), strIconFile, intIconIndex)
-			Menu, %strMenuName%, Icon, %strMenuItemName%
-				, % EnvVars(strIconFile), %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-		}
-		Menu, %strMenuName%, UseErrorLevel, off
-	}
-	
-	if !(blnEnabled)
-		Menu, %strMenuName%, Disable, %strMenuItemName%
 }
 ;------------------------------------------------------------
 
@@ -14519,6 +14453,8 @@ if (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue)
 	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
 }
+if (g_blnWorkingToolTip)
+	ToolTip ; clear tooltip after refresh
 
 Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
 SetWaitCursor(false) 
@@ -25203,6 +25139,12 @@ class Container
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
 		
+		if !(o_Settings.Launch.blnDonor.IniValue) and (this.AA.strMenuPath = o_L["MainMenuName"])
+		{
+			this.AddMenuIcon("", "", "")
+			this.AddMenuIcon(o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
+		}
+
 		if (!IsObject(this.AA.oParentMenu) and o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
 			and SubStr(this.AA.strMenuPath, 1, 7) <> "menuBar")
 			this.AddCloseMenu()
