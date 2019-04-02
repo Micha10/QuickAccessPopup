@@ -31,8 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.4.1.5.1 (2019-03-26)
-add new ini value OfflineBypass to bypass file exist verification and icon retrieval when collecting recenmt items to avoid offline files
+Version: 9.4.1.6 (2019-04-02)
+- add in "Options", "More" tab, "Quick Access Popup Database", new chekbox "Retrieve icon from files when refreshing Frequent items menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
+- fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
 
 Version: 9.4.1.5 (2019-02-27)
 - fix bug when filtering apps in List Applications window and in Current Windows menu when running with a language other than English
@@ -3081,7 +3082,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.4.1.5.1
+;@Ahk2Exe-SetVersion 9.4.1.6
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3186,7 +3187,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.4.1.5.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.4.1.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
@@ -3272,7 +3273,7 @@ g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
-global g_blnOfflineBypass ; bypass file exist verification and icon retrieval when collecting recent items
+global g_blnRetrieveIconInFrequentMenus ; retrieve icon when pre-processing Frequent files and Frequent folders menus (avoid if often offline files)
 
 ;---------------------------------
 ; Initial validation
@@ -5205,7 +5206,7 @@ IniRead, g_blnRunAsAdmin, %g_strIniFile%, Global, RunAsAdmin, 0 ; default false,
 IniRead, g_strHotstringsDefaultOptions, %g_strIniFile%, Global, HotstringsDefaultOptions, %A_Space% ; default empty
 IniRead, g_blnRefreshWindowsAppsListAtStartup, %g_strIniFile%, Global, RefreshWindowsAppsListAtStartup, 0 ; default false
 IniRead, g_blnTryWindowPosition, %g_strIniFile%, Global, TryWindowPosition, 0 ; default false
-IniRead, g_blnOfflineBypass, %g_strIniFile%, Global, OfflineBypass, 0 ; default false
+IniRead, g_blnRetrieveIconInFrequentMenus, %g_strIniFile%, Global, RetrieveIconInFrequentMenus, 0 ; default false
 
 ; ---------------------
 ; Load favorites
@@ -8530,6 +8531,7 @@ Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeco
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
 Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
+Gui, 2:Add, Edit, vf_blnRetrieveIconInFrequentMenus hidden, %g_blnRetrieveIconInFrequentMenus%
 
 Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
 Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(g_strIconReplacementList), "|", "`n")
@@ -9103,7 +9105,10 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndexMore, %lOptionsUsageDbShowPopularityIndex%
 	GuiControl, , f_blnUsageDbShowPopularityIndexMore, %f_blnUsageDbShowPopularityIndex%
 	
-	Gui, 3:Add, Button, x10 y+10 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, %lOptionsUsageDbFlushDatabase%
+	Gui, 3:Add, CheckBox, x10 y+5 vf_blnRetrieveIconInFrequentMenusMore, %lOptionsUsageDbRetrieveIconInFrequentMenus%
+	GuiControl, , f_blnRetrieveIconInFrequentMenusMore, %f_blnRetrieveIconInFrequentMenus%
+	
+	Gui, 3:Add, Button, x10 y+15 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, %lOptionsUsageDbFlushDatabase%
 
 	Gosub, OptionUsageDbEnableClicked
 }
@@ -9171,6 +9176,7 @@ GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
 GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_fltUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
+GuiControl, %strAction%, f_blnRetrieveIconInFrequentMenusMore
 GuiControl, %strAction%, f_btnUsageDbFlush
 
 strAction := ""
@@ -9226,6 +9232,7 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 		else
 			GuiControl, 2:, f_fltUsageDbMaximumSize, %f_fltUsageDbMaximumSizeMore% ; save Edit control's value (not UpDown control) to allow fractions
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
+		GuiControl, 2:, f_blnRetrieveIconInFrequentMenus, % (f_blnOptionUsageDbEnable ? f_blnRetrieveIconInFrequentMenusMore : false)
 	}
 	else if (g_strMoreWindowName = "UserVariablesList")
 		GuiControl, 2:, f_strUserVariablesList, %f_strUserVariablesListMore%
@@ -9522,6 +9529,9 @@ IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
+
+g_blnRetrieveIconInFrequentMenus := f_blnRetrieveIconInFrequentMenus
+IniWrite, %g_blnRetrieveIconInFrequentMenus%, %g_strIniFile%, Global, RetrieveIconInFrequentMenus
 
 blnUseSQLitePrev := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
@@ -12264,7 +12274,7 @@ Gui, 2:Submit, NoHide
 if (g_objEditedFavorite.FavoriteType = "URL")
 	return
 
-if !StrLen(f_strFavoriteShortName)
+if !StrLen(f_strFavoriteShortName) or (g_objEditedFavorite.FavoriteType = "Application") ; always update when browsing the running apps list
 	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
@@ -12827,10 +12837,10 @@ return
 
 
 ;------------------------------------------------------------
-GetFolderIcon(strFolderLocation, blnOfflineBypass := false)
+GetFolderIcon(strFolderLocation, blnCheckForFrequentMenu := false)
 ;------------------------------------------------------------
 {
-	if (g_blnOfflineBypass and blnOfflineBypass)
+	if (!g_blnRetrieveIconInFrequentMenus and blnCheckForFrequentMenu)
 		return "iconFolder"
 	
 	; do not try to retrieve custom icon if file is on a network (path starting with "\\")
@@ -20863,13 +20873,13 @@ loop, parse, % "Folders|Files", |
 		strPath := objRow[1]
 		strTargetNb := objRow[2]
 		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
-		if (strTargetNb <= 1 or !FileExistInPath(strPath, true)) ; skip if not enough frequent or if not exits, parameter true to bypass offline files
+		if (strTargetNb <= 1 or !FileExistInPath(strPath, true)) ; skip if not enough frequent or if not exits, parameter true to avoid when refreshing Frequent items menus
 			continue
 		intPopularItemsCount++
 		strMenuItemName := MenuNameWithNumericShortcut(intMenuNumberMenu, strPath)
 		if (g_blnUsageDbShowPopularityIndex)
 			strMenuItemName .= " [" . strTargetNb . "]"
-		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath, true) : GetIcon4Location(strPath, true)) ; parameter true to bypass offline files
+		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath, true) : GetIcon4Location(strPath, true)) ; parameter true to avoid when refreshing Frequent items menus
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= g_intRecentFoldersMax)
@@ -22032,15 +22042,15 @@ ParseIconResource(strIconResource, ByRef strIconFile, ByRef intIconIndex, strDef
 
 
 ;------------------------------------------------------------
-GetIcon4Location(strLocation, blnOfflineBypass := false)
+GetIcon4Location(strLocation, blnCheckForFrequentMenu := false)
 ; returns an icon resource in icongroup format (file,index) or an index of o_JLicons
 ; icongroup will be splitted by ParseIconResource before being used by Menu command
 ; index of o_JLicons will converted to icongroup by ParseIconResource before being splitted
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	if !(g_blnOfflineBypass and blnOfflineBypass) ; skip if from collect files and bypass offline enabled
-		and (SubStr(strLocation, 1, 2) <> "\\") ;  for files not on a server, search in path
+	if (!g_blnRetrieveIconInFrequentMenus and blnCheckForFrequentMenu) ; skip if from pre-process Frequent menus and bypass icon retrieval
+		and (SubStr(strLocation, 1, 2) <> "\\") ; skip for files on a server, search in path
 		FileExistInPath(strLocation) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
@@ -22613,10 +22623,10 @@ LocationIsHTTP(strLocation)
 
 
 ;------------------------------------------------------------
-FileExistInPath(ByRef strFile, blnOfflineBypass := false)
+FileExistInPath(ByRef strFile, blnCheckForFrequentMenus := false)
 ;------------------------------------------------------------
 {
-	if (g_blnOfflineBypass and blnOfflineBypass) ; always return true if bypass enabled to avoid offline files
+	if (!g_blnRetrieveIconInFrequentMenus and blnCheckForFrequentMenus) ; always return true if for FrequentMenu to avoid offline files
 		return true
 	
 	strFile := EnvVars(strFile) ; expand environment variables like %APPDATA% or %USERPROFILE%, and user variables like {DropBox}
