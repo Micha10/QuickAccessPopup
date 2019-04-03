@@ -31,15 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.0.8 (2019-04-??)
-- changes from master v9.4.1.5.2)
-  - add in Menu Icon options group new chekbox "Retrieve icons when refreshing Frequent folders and Frequent files menus (avoid if some files are often offline)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
-  - fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
-- rework how settings (ini) file is backuped for main, alternative (using Switch Settings file) or shared ini files: if a value BackupFolder= (under [Global]) is found in the current ini file, make backup in this folder, else make backup in the current ini file folder
-- the BackupFolder= (under [Global]) value could now be used in Shared menu ini files
-- fix bug favorite type not showing in Add/Edit Favorite dialog box header
-- internal variable renaming
-- ...
+Version ALPHA: 9.9.0.8 (2019-04-03)
+- changes from master v9.4.1.6 to be released soon)
+  - add in "Menu Icon" section of options a new chekbox "Retrieve icons when refreshing Frequent folders and Frequent files menus (avoid if some files are often offline)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
+  - fix bug: update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
+- fix bug: display "Collection and refresh interval" option in Database section of Options
+- fix broken links in Options
+- adjust tray tip if there is only one hotkey (mouse or keyboard) to open popup menu
+- rework how settings (ini) file is backuped for main, alternative (using Switch Settings file) and Shared menu ini files: if a value BackupFolder= (under [Global]) is found in the current ini file, make backup in this folder, else make backup in the current ini file folder
+- the BackupFolder= value could now be used in Shared menu ini files (under [Global])
+- fix bug: favorite type not showing in "Add/Edit Favorite" dialog box header
 
 Version ALPHA: 9.9.0.7 (2019-03-20)
 - improvements to the Options dialog box: adding buttons to switch groups of options (similar to tabs, but vertically)
@@ -3166,7 +3167,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.7
+;@Ahk2Exe-SetVersion 9.9.0.8
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3258,7 +3259,7 @@ Gosub, InitFileInstall
 ; --- Global variables
 
 global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.0.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
