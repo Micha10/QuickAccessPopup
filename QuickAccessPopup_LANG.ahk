@@ -737,6 +737,7 @@ this["OptionsIconReplacementListDescription"] := "Replacement for default icons 
 this["OptionsIconReplacementListInstructions"] := "Enter QAP icon replacements, one by line. Each line must start with the QAP icon name (e.g. ""iconFolderLive""), followed by the equal sign ""="" and the ""file,index"" of the replacement icon. The ""file,index"" is the path to the file (.ico, .dll or .exe) containing the icon and the index is the position of the icon in this file, e.g. ""C:\Icons\MyFile.dll,1""."
 this["OptionsIconSize"] := "&Menu icons size"
 this["OptionsIconsManageRows"] := "Manage Icons window rows (0 for maximum available space)" ; remove `n only
+this["OptionsIconsRetrieveInFrequentMenus"] := "Retrieve icons when refreshing Frequent folders and Frequent files menus (avoid if some files are often offline)"
 this["OptionsLanguage"] := "&Language"
 this["OptionsLanguageLabels"] := "English|French|German|Spanish|Brazilian Portuguese|Italian|Traditional Chinese|Portuguese|Simplified Chinese|Dutch|Korean"
 this["OptionsMenuActiveWindow"] := "Top-left of acti&ve window"
