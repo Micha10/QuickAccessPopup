@@ -31,7 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.0.8 (2019-03-??)
+Version ALPHA: 9.9.0.8 (2019-04-??)
+- changes from master v9.4.1.5.2)
+  - add in Menu Icon options group new chekbox "Retrieve icons when refreshing Frequent folders and Frequent files menus (avoid if some files are often offline)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
+  - fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
 - rework how settings (ini) file is backuped for main, alternative (using Switch Settings file) or shared ini files: if a value BackupFolder= (under [Global]) is found in the current ini file, make backup in this folder, else make backup in the current ini file folder
 - the BackupFolder= (under [Global]) value could now be used in Shared menu ini files
 - fix bug favorite type not showing in Add/Edit Favorite dialog box header
@@ -4170,6 +4173,7 @@ o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0,
 o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", "f_blnDisplayIcons") ; g_blnDisplayIcons
 o_Settings.ReadIniOption("MenuIcons", "intIconSize", "IconSize", 32, "MenuIcons", "f_lblIconSize|f_drpIconSize") ; g_intIconSize
 o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManageRows", 0, "MenuIcons", "f_intIconsManageRowsSettingsEdit|f_intIconsManageRowsSettings|f_lblIconsManageRows") ; g_intIconsManageRowsSettings
+o_Settings.ReadIniOption("MenuIcons", "blnRetrieveIconInFrequentMenus", "RetrieveIconInFrequentMenus", 0, "MenuIcons", "f_blnRetrieveIconInFrequentMenus") ; avoid offline delay when retrieving icons for Frequent items menus
 o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "IconReplacementList", " ", "MenuIcons", "f_lnkIconReplacementList1|f_lnkIconReplacementList2|f_strIconReplacementList") ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
@@ -6329,6 +6333,10 @@ Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRow
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
 Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), % o_L["OptionsIconsManageRows"]
 
+; RetrieveIconInFrequentMenus
+Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w580 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
+GuiControl, , f_blnRetrieveIconInFrequentMenus, % (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue = true)
+
 ; strIconReplacementList
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+25 x%g_intGroupItemsX% w500 hidden vf_lnkIconReplacementList1
@@ -6924,6 +6932,7 @@ o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
 o_Settings.MenuIcons.blnDisplayIcons.WriteIni(f_blnDisplayIcons)
 o_Settings.MenuIcons.intIconSize.WriteIni(f_drpIconSize)
 o_Settings.MenuIcons.intIconsManageRowsSettings.WriteIni(f_intIconsManageRowsSettings)
+o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.WriteIni(f_blnRetrieveIconInFrequentMenus)
 o_Settings.MenuIcons.strIconReplacementList.WriteIni(OptionsListCleanup(f_strIconReplacementList))
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
@@ -10426,7 +10435,7 @@ Gui, 2:Submit, NoHide
 if (g_objEditedFavorite.FavoriteType = "URL")
 	return
 
-if !StrLen(f_strFavoriteShortName)
+if !StrLen(f_strFavoriteShortName) or (g_objEditedFavorite.FavoriteType = "Application") ; always update when browsing the running apps list
 	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
 if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
@@ -18796,13 +18805,20 @@ loop, parse, % "Folders|Files", |
 		strTargetNb := objRow[2]
 		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
 		; RecentFileExistInPath to check if on an offline server
-		if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
-			continue
+		
+		if (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue)
+			if (strTargetNb <= 1 or !RecentFileExistInPath(strPath, A_ThisLabel)) ; skip if not enough frequent or if not exits
+				continue
+		; else consider that file exists if we do not retrieve icon
+		
 		intPopularItemsCount++
 		strMenuItemName := strPath
 		if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue)
 			strMenuItemName .= " [" . strTargetNb . "]"
-		strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		if (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue)
+			strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
+		else
+			strIcon := (strFoldersOrFiles = "Folders" ? "iconFolder" : "iconDocuments")
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
 		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= o_Settings.Menu.intRecentFoldersMax.IniValue)
