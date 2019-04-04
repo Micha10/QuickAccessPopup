@@ -3329,7 +3329,12 @@ global g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
 
-global g_blnAlternativeMenu ; used in OpenFavorite
+;---------------------------------
+; Used in OpenFavorite
+global g_blnAlternativeMenu
+global g_strAlternativeMenu
+global g_blnLaunchFromTrayIcon
+global g_strTargetWinId
 
 ;---------------------------------
 ; Initial validation
@@ -15107,17 +15112,6 @@ o_ThisFavorite.OpenFavorite()
 return
 ; =======================================
 
-
-if (o_ThisFavorite.AA.strFavoriteType = "Snippet")
-	and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
-{
-	gosub, PasteSnippet ; using g_strLocationWithPlaceholders DO IT LATER
-	
-	gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
 if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu <> o_L["MenuAlternativeNewWindow"])
 	and InStr("|Folder|Special|FTP", "|" . o_ThisFavorite.AA.strFavoriteType)
 	and !WindowIsDialog(g_strTargetClass, g_strTargetWinId))
@@ -16239,157 +16233,6 @@ else ; TurnOffMonitorComputer, LowPowerMonitorComputer or StartScreenSaverComput
 }
 
 strPrompt := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-PasteSnippet:
-;------------------------------------------------------------
-
-strWaitTime := 10
-
-strFavoriteSnippetOptions := g_objThisFavorite.FavoriteLaunchWith . ";;;" ; safety
-; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
-; 2 prompt (pause prompt before pasting/launching the snippet)
-StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
-
-WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
-
-if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(arrFavoriteSnippetOptions2))
-{
-	arrFavoriteSnippetOptions2 := ExpandPlaceholders(arrFavoriteSnippetOptions2, ""
-		, (InStr(arrFavoriteSnippetOptions2, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-		, (InStr(arrFavoriteSnippetOptions2, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-	ToolTip, % L((StrLen(arrFavoriteSnippetOptions2) ? arrFavoriteSnippetOptions2 . "`n" : "")
-		. (arrFavoriteSnippetOptions1 = 1 ? o_L["TooltipSnippetWaitMacro"] : o_L["TooltipSnippetWaitText"]), o_L["TooltipSnippetWaitEnter"], o_L["TooltipSnippetWaitSpace"], strWaitTime, o_L["TooltipSnippetWaitEscape"])
-	Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
-	strErrorLevel := ErrorLevel
-	ToolTip
-	if !InStr(strErrorLevel, "EndKey:") or InStr(strErrorLevel, "Escape")
-	{
-		Gosub, PasteSnippetCleanup
-		return
-	}
-}
-else
-	WinActivate, ahk_id %g_strTargetWinId%
-
-; arrFavoriteSnippetOptions1 is 1 for Macro snippet, anything else is Text snippet
-blnTextSnippet := (arrFavoriteSnippetOptions1 <> 1)
-
-if (blnTextSnippet)
-{
-	BlockInput, On
-	objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
-	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[1] ; safety delay default 40 ms
-	ClipBoard := ""
-	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[2] ; safety delay default 80 ms
-	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-	ClipBoard := DecodeSnippet(g_strLocationWithPlaceholders, true) ; g_strLocationWithPlaceholders contains g_objThisFavorite.FavoriteLocation with expanded placeholders
-	ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
-	intErrorLevel := ErrorLevel
-	if (intErrorLevel)
-	{
-		Gosub, PasteSnippetCleanup
-		return
-	}
-	
-	; avoid using SendInput to send ^v
-	; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
-	; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
-	Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[3] ; delay required by some application, including Notepad, default 180 ms
-	SendEvent, ^v
-	BlockInput, Off
-	Sleep, 100 ; safety
-	
-	Clipboard := objPrevClipboard ; Restore the original clipboard
-}
-else ; snippet of type Macro
-{
-	; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-	strTemp := DecodeSnippet(g_strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
-
-	Loop
-	{
-		if InStr(strTemp, g_strSnippetCommandStart)
-		{
-			intCommandStart := InStr(strTemp, g_strSnippetCommandStart)
-			intCommandEnd := InStr(strTemp, g_strSnippetCommandEnd, , intCommandStart)
-			strSend := SubStr(strTemp, 1, intCommandStart - 1)
-			strCommand := Trim(SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2))
-			
-			if StrLen(strSend)
-				Send, %strSend% ; SendMode is Input mode by default until user sends a SetKeyDelay where it would be changed to Event mode
-			
-			if StrLen(strCommand)
-			; {&Sleep:n} or {&n}: pause sending the snippet for n milliseconds (see https://autohotkey.com/docs/commands/Sleep.htm)
-			; {&SetKeyDelay:n, option}: speed down the sending of the snippet (see https://autohotkey.com/docs/commands/SetKeyDelay.htm)
-			; {&KeyWait:keyname, options}: pause sending the snippet until user press the specified key, option D by default, added option B to "Beep" (see https://autohotkey.com/docs/commands/KeyWait.htm)
-			{
-				if strCommand is integer ; shortcut {&n} for {&Sleep:n} command
-				{
-					strOptions := strCommand ; copy the n of milliseconds to sleep
-					strCommand := "Sleep" ; set the shortcut command
-				}
-				else if InStr(strCommand, g_strSnippetOptionsSeparator)
-				{
-					strOptions := SubStr(strCommand, InStr(strCommand, g_strSnippetOptionsSeparator) + 1)
-					strCommand := Trim(SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1))
-				}
-				else
-					strOptions := ""
-
-				strOptions .= ",,,,," ; append comas to make sure we init an empty array
-				StringSplit, arrOptions, strOptions, `,
-				loop, %arrOptions0%
-					arrOptions%A_Index% := Trim(arrOptions%A_Index%)
-				
-				if (strCommand = "Sleep")
-					Sleep, %arrOptions1%
-				else if (strCommand = "SetKeyDelay")
-				{
-					SendMode, Event ; to support key delay
-					SetKeyDelay, %arrOptions1%, %arrOptions2%
-				}
-				else if (strCommand = "KeyWait")
-				{
-					strOptions := Trim(arrOptions2 . " " . arrOptions3 . " " . arrOptions4)
-					if !InStr(strOptions, "D")
-						strOptions .= " D"
-					ToolTip, % L(o_L["TooltipSnippetKeyWait"], arrOptions1)
-					if InStr(strOptions, "B")
-						SoundBeep
-					KeyWait, %arrOptions1%, %strOptions%
-					ToolTip
-				}
-			}
-			
-			strTemp := SubStr(strTemp, intCommandEnd + 1) ; loop with the remaining of the snippet
-		}
-		else ; this is the last section of the snippet
-		{
-			if StrLen(strTemp)
-				Send, %strTemp%
-			break
-		}
-	}
-
-	SendMode, Input ; restore default SendMode to Input mode
-}
-
-PasteSnippetCleanup:
-strWaitTime := ""
-intErrorLevel := ""
-blnTextSnippet := ""
-objPrevClipboard := ""
-strClassSnippet := ""
-strTemp := ""
-strSend := ""
-strCommand := ""
-ResetArray("arrFavoriteSnippetOptions")
-strFavoriteSnippetOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -25475,10 +25318,13 @@ class Container
 				; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
 				
 				; copy to g_strLocationWithPlaceholders to avoid modification of location in o_ThisFavorite 
-				this.AA.strLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
+				this.AA.strFavoriteLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
 					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
 					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-
+					
+				if (this.AA.strFavoriteType = "Snippet")
+					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
+					this.PasteSnippet() ; using this.AA.strFavoriteLocationWithPlaceholders
 			}
 			
 			
@@ -25527,6 +25373,139 @@ class Container
 			}
 		}
 		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		PasteSnippet()
+		;---------------------------------------------------------
+		{
+			strWaitTime := 10
+
+			; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
+			; 2 prompt (pause prompt before pasting/launching the snippet)
+			this.AA.saFavoriteSnippetOptions := StrSplit(this.AA.strFavoriteLaunchWith, ";") ; was arrFavoriteSnippetOptions
+			this.AA.blnSnippetMacroMode := this.AA.saFavoriteSnippetOptions[1]
+			this.AA.strSnippetPrompt := this.AA.saFavoriteSnippetOptions[2]
+
+			WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
+
+			if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(this.AA.strSnippetPrompt))
+			{
+				this.AA.strSnippetPromptExpanded := ExpandPlaceholders(this.AA.strSnippetPrompt, ""
+					, (InStr(this.AA.strSnippetPrompt, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+					, (InStr(this.AA.strSnippetPrompt, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+				ToolTip, % L((StrLen(this.AA.strSnippetPromptExpanded) ? this.AA.strSnippetPromptExpanded . "`n" : "")
+					. (this.AA.blnSnippetMacroMode = 1 ? o_L["TooltipSnippetWaitMacro"] : o_L["TooltipSnippetWaitText"])
+						, o_L["TooltipSnippetWaitEnter"], o_L["TooltipSnippetWaitSpace"], strWaitTime, o_L["TooltipSnippetWaitEscape"])
+				Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
+				strErrorLevel := ErrorLevel
+				ToolTip
+				if !InStr(strErrorLevel, "EndKey:") or InStr(strErrorLevel, "Escape")
+					return
+			}
+			else
+				WinActivate, ahk_id %g_strTargetWinId%
+
+
+			; this.AA.blnSnippetMacroMode is 1 for Macro snippet, anything else is Text snippet
+			if (this.AA.blnSnippetMacroMode <> 1)
+			{
+				BlockInput, On
+				objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
+				Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[1] ; safety delay default 40 ms
+				ClipBoard := ""
+				Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[2] ; safety delay default 80 ms
+				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
+				ClipBoard := DecodeSnippet(this.AA.strFavoriteLocationWithPlaceholders, true)
+				ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
+				intErrorLevel := ErrorLevel
+				if (intErrorLevel)
+					return
+				
+				; avoid using SendInput to send ^v
+				; (see: https://autohotkey.com/board/topic/77928-ctrl-v-sendinput-v-is-not-working-in-many-applications/#entry495555)
+				; tried "ControlSend, %g_strTargetControl%, ^v" with disappointing results (not working on Explorer address zone, send "v" to Word, etc.)
+				Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[3] ; delay required by some application, including Notepad, default 180 ms
+				SendEvent, ^v
+				BlockInput, Off
+				Sleep, 100 ; safety
+				
+				Clipboard := objPrevClipboard ; Restore the original clipboard
+			}
+			else ; snippet of type Macro
+			{
+				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
+				strTemp := DecodeSnippet(this.AA.strFavoriteLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
+
+				Loop
+				{
+					if InStr(strTemp, g_strSnippetCommandStart)
+					{
+						intCommandStart := InStr(strTemp, g_strSnippetCommandStart)
+						intCommandEnd := InStr(strTemp, g_strSnippetCommandEnd, , intCommandStart)
+						strSend := SubStr(strTemp, 1, intCommandStart - 1)
+						strCommand := Trim(SubStr(strTemp, intCommandStart + 2, intCommandEnd - intCommandStart - 2))
+						
+						if StrLen(strSend)
+							Send, %strSend% ; SendMode is Input mode by default until user sends a SetKeyDelay where it would be changed to Event mode
+						
+						if StrLen(strCommand)
+						; {&Sleep:n} or {&n}: pause sending the snippet for n milliseconds (see https://autohotkey.com/docs/commands/Sleep.htm)
+						; {&SetKeyDelay:n, option}: speed down the sending of the snippet (see https://autohotkey.com/docs/commands/SetKeyDelay.htm)
+						; {&KeyWait:keyname, options}: pause sending the snippet until user press the specified key, option D by default, added option B to "Beep" (see https://autohotkey.com/docs/commands/KeyWait.htm)
+						{
+							if strCommand is integer ; shortcut {&n} for {&Sleep:n} command
+							{
+								strOptions := strCommand ; copy the n of milliseconds to sleep
+								strCommand := "Sleep" ; set the shortcut command
+							}
+							else if InStr(strCommand, g_strSnippetOptionsSeparator)
+							{
+								strOptions := SubStr(strCommand, InStr(strCommand, g_strSnippetOptionsSeparator) + 1)
+								strCommand := Trim(SubStr(strCommand, 1, InStr(strCommand, g_strSnippetOptionsSeparator) - 1))
+							}
+							else
+								strOptions := ""
+
+							saOptions := StrSplit(strOptions, ",")
+							loop, % saOptions.MaxIndex()
+								saOptions[A_Index] := Trim(saOptions[A_Index])
+							
+							if (strCommand = "Sleep")
+								Sleep, % saOptions[1]
+							else if (strCommand = "SetKeyDelay")
+							{
+								SendMode, Event ; to support key delay
+								SetKeyDelay, % saOptions[1], % saOptions[2]
+							}
+							else if (strCommand = "KeyWait")
+							{
+								strOptions := Trim(saOptions[2] . " " . saOptions[3] . " " . saOptions[4])
+								if !InStr(strOptions, "D")
+									strOptions .= " D"
+								ToolTip, % L(o_L["TooltipSnippetKeyWait"], saOptions[1])
+								if InStr(strOptions, "B")
+									SoundBeep
+								KeyWait, % saOptions[1], %strOptions%
+								ToolTip
+							}
+						}
+						
+						strTemp := SubStr(strTemp, intCommandEnd + 1) ; loop with the remaining of the snippet
+					}
+					else ; this is the last section of the snippet
+					{
+						if StrLen(strTemp)
+							Send, %strTemp%
+						break
+					}
+				}
+
+				SendMode, Input ; restore default SendMode to Input mode
+			}
+			;------------------------------------------------------------
+		}
+		;---------------------------------------------------------
+
 	}
 	;-------------------------------------------------------------
 
