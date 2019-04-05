@@ -3335,6 +3335,8 @@ global g_blnAlternativeMenu
 global g_strAlternativeMenu
 global g_blnLaunchFromTrayIcon
 global g_strTargetWinId
+global g_strTargetClass
+global g_strHotkeyTypeDetected
 
 ;---------------------------------
 ; Initial validation
@@ -15105,13 +15107,7 @@ if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been collecte
 	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
 	gosub, CollectLastActions ; update g_objLastActions ##### DO IT LATER
 
-; beginning of OpenFavorite execution
-
-o_ThisFavorite.OpenFavorite()
-
-return
-; =======================================
-
+; alwasy navigate
 if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu <> o_L["MenuAlternativeNewWindow"])
 	and InStr("|Folder|Special|FTP", "|" . o_ThisFavorite.AA.strFavoriteType)
 	and !WindowIsDialog(g_strTargetClass, g_strTargetWinId))
@@ -15121,37 +15117,12 @@ if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu
 	g_strHotkeyTypeDetected := "Navigate"
 }
 
-if InStr("Folder|Document|Application", o_ThisFavorite.AA.strFavoriteType) ; for these favorites, file/folder must exist
-	and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"]) ; except if we edit the favorite
-	and !LocationIsHTTP(g_strLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
-	and !(SubStr(g_strLocationWithPlaceholders, 1, 3) = "\\\" and A_ThisLabel = "OpenFavoriteHotlist")
-		; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
-	and !(SubStr(g_strLocationWithPlaceholders, 1, 1) = "?" and A_ThisLabel = "OpenDOpusFavorite")
-		; except if the location is a DOpus Favorite special folder identified with <pidl>
-	and (A_ThisLabel <> "OpenDOpusLayout")
-		; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
-{
-	if !FileExistInPath(g_strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
-		and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-	{
-		Gui, 1:+OwnDialogs
-		MsgBox, % (o_ThisFavorite.AA.strFavoritePseudo ? 0 : 4) ; ##### HAVE TO CHECK FOR PSEUDO
-			, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
-			, % L(o_L["DialogFavoriteDoesNotExistPrompt"], o_ThisFavorite.AA.strFavoriteLocation
-				, (StrLen(g_strLocationWithPlaceholders) and g_strLocationWithPlaceholders <> o_ThisFavorite.AA.strFavoriteLocation ? " (" . g_strLocationWithPlaceholders . ")" : ""))
-				. (o_ThisFavorite.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
-		IfMsgBox, Yes
-		{
-			g_blnAlternativeMenu := true
-			g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-		}
-		else
-		{
-			gosub, OpenFavoriteCleanup
-			return
-		}
-	}
-}
+; beginning of OpenFavorite execution
+
+o_ThisFavorite.OpenFavorite(g_strOpenFavoriteLabel)
+
+return
+; =======================================
 
 ; preparation for Alternative menu features before setting the full location
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"])
@@ -24558,6 +24529,11 @@ class Container
 				oNewItem.AA.oSubMenu := oNewSubMenu ; link to the submenu object
 				oNewItem.AA.strFavoriteLocation := saThisFavorite[3] ; update location with container path
 			}
+			else if (this.AA.strMenuType = "Group")
+			{
+				oNewItem.AA.blnFavoritePseudo := true
+				oNewItem.AA.blnIsGroupMember := true
+			}
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
 	}
@@ -25264,9 +25240,17 @@ class Container
 			this.InsertItemValue("strFavoriteAppWorkingDir", saFavorite[6]) ; application working directory
 			this.InsertItemValue("strFavoriteWindowPosition", saFavorite[7]) ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
 			this.InsertItemValue("strFavoriteLaunchWith", saFavorite[8]) ; launch favorite with this executable, or various options for type Application and Snippet
+			if (this.AA.strFavoriteType = "Snippet" and this.AA.HasKey("strFavoriteLaunchWith"))
+			{
+				saTemp := StrSplit(this.AA.strFavoriteLaunchWith, ";") ; was arrFavoriteSnippetOptions
+				this.AA.blnSnippetMacroMode := saTemp[1]
+				this.AA.strSnippetPrompt := saTemp[2]
+			}
 			this.InsertItemValue("strFavoriteLoginName", StrReplace(saFavorite[9], g_strEscapePipe, "|")) ; login name for FTP favorite
 			this.InsertItemValue("strFavoritePassword", StrReplace(saFavorite[10], g_strEscapePipe, "|")) ; password for FTP favorite
 			this.InsertItemValue("strFavoriteGroupSettings", saFavorite[11]) ; coma separated values for group restore settings or external menu starting line
+			if (this.AA.HasKey("strFavoriteGroupSettings"))
+				this.AA.saFavoriteGroupSettings := StrSplit(this.AA.strFavoriteGroupSettings, ",")
 			this.InsertItemValue("strFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
 			this.InsertItemValue("blnFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
 			this.InsertItemValue("blnFavoriteDisabled", saFavorite[14]) ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
@@ -25306,25 +25290,35 @@ class Container
 		;---------------------------------------------------------
 		
 		;---------------------------------------------------------
-		OpenFavorite()
+		OpenFavorite(strOpenFavoriteLabel)
 		;---------------------------------------------------------
 		{
+			this.aaTemp := Object() ; reset item temporary values
+			
+			; GROUP
 			if (this.AA.strFavoriteType = "Group") and !(g_blnAlternativeMenu)
 				this.OpenGroup()
 			else
 			{
+				; EXPAND PLACEHOLDERS
 				; expand placeholders for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME},
 				; {CUR_...}, etc, selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
 				; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
-				
 				; copy to g_strLocationWithPlaceholders to avoid modification of location in o_ThisFavorite 
-				this.AA.strFavoriteLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
+				this.aaTemp.strFavoriteLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
 					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
 					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-					
+				
+				; SNIPPETS
 				if (this.AA.strFavoriteType = "Snippet")
 					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
 					this.PasteSnippet() ; using this.AA.strFavoriteLocationWithPlaceholders
+					
+				; TYPES WITH FILE/FOLDER THAT MUST EXIST
+				else if this.FileExistIfMust(strOpenFavoriteLabel)
+				{
+					### := ###
+				}
 			}
 			
 			
@@ -25332,7 +25326,7 @@ class Container
 			
 			
 			
-			
+			; LOG ACTION
 			if !(this.AA.blnIsGroupMember) ; not if group member
 			{
 				gosub, OpenFavoritePlaySoundAndCleanup
@@ -25353,23 +25347,21 @@ class Container
 			; .saGroupSettings[1]: boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
 			; .saGroupSettings[2]: restore folders with "Explorer" or "Other" (Directory Opus, Total Commander or QAPconnect)
 			; .saGroupSettings[3]: delay in milliseconds to insert between each favorite to restore (in addition to default 200 ms)
-			this.AA.saGroupSettings := StrSplit(this.AA.strFavoriteGroupSettings, ",")
-
 			if (this.AA.saGroupSettings[1]) ; was g_blnGroupReplaceWindows
 				gosub, OpenGroupOfFavoritesCloseExplorers
 				
 			intFolderItemsCount := 0
 			for intMemberNumber, o_GroupMember in this.AA.oSubMenu.SA ; o_Containers.AA[o_L["MainMenuName"] . " " . objThisGroupFavorite.FavoriteLocation] 
 			{
-				o_GroupMember.AA.blnFavoritePseudo := true
-				o_GroupMember.AA.blnIsGroupMember := true
-				If InStr("Folder|Special|FTP", o_GroupMember.AA.strFavoriteType)
-					intFolderItemsCount++ ; do it that way because first member could be other than a folder
-				o_GroupMember.AA.blnFirstFolderOfGroup := (intFolderItemsCount = 1) ; was g_blnFirstFolderOfGroup
-
-				Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
 				if !(o_GroupMember.AA.blnFavoriteDisabled)
+				{
+					If InStr("Folder|Special|FTP", o_GroupMember.AA.strFavoriteType)
+						intFolderItemsCount++ ; do it that way because first member could be other than a folder
+					o_GroupMember.aaTemp.blnFirstFolderOfGroup := (intFolderItemsCount = 1) ; was g_blnFirstFolderOfGroup
+
+					Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
 					o_GroupMember.OpenFavorite()
+				}
 			}
 		}
 		;---------------------------------------------------------
@@ -25380,20 +25372,14 @@ class Container
 		{
 			strWaitTime := 10
 
-			; 1 boolean (true: send snippet to current application using macro mode / else paste as raw text)
-			; 2 prompt (pause prompt before pasting/launching the snippet)
-			this.AA.saFavoriteSnippetOptions := StrSplit(this.AA.strFavoriteLaunchWith, ";") ; was arrFavoriteSnippetOptions
-			this.AA.blnSnippetMacroMode := this.AA.saFavoriteSnippetOptions[1]
-			this.AA.strSnippetPrompt := this.AA.saFavoriteSnippetOptions[2]
-
 			WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
 
 			if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(this.AA.strSnippetPrompt))
 			{
-				this.AA.strSnippetPromptExpanded := ExpandPlaceholders(this.AA.strSnippetPrompt, ""
+				this.aaTemp.strSnippetPromptExpanded := ExpandPlaceholders(this.AA.strSnippetPrompt, ""
 					, (InStr(this.AA.strSnippetPrompt, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
 					, (InStr(this.AA.strSnippetPrompt, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-				ToolTip, % L((StrLen(this.AA.strSnippetPromptExpanded) ? this.AA.strSnippetPromptExpanded . "`n" : "")
+				ToolTip, % L((StrLen(this.aaTemp.strSnippetPromptExpanded) ? this.aaTemp.strSnippetPromptExpanded . "`n" : "")
 					. (this.AA.blnSnippetMacroMode = 1 ? o_L["TooltipSnippetWaitMacro"] : o_L["TooltipSnippetWaitText"])
 						, o_L["TooltipSnippetWaitEnter"], o_L["TooltipSnippetWaitSpace"], strWaitTime, o_L["TooltipSnippetWaitEscape"])
 				Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
@@ -25404,10 +25390,9 @@ class Container
 			}
 			else
 				WinActivate, ahk_id %g_strTargetWinId%
-
-
+			
 			; this.AA.blnSnippetMacroMode is 1 for Macro snippet, anything else is Text snippet
-			if (this.AA.blnSnippetMacroMode <> 1)
+			if (this.AA.blnSnippetMacroMode <> 1) ; snippet of type Text
 			{
 				BlockInput, On
 				objPrevClipboard := ClipboardAll ; save the clipboard (text or data)
@@ -25505,6 +25490,45 @@ class Container
 			;------------------------------------------------------------
 		}
 		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		FileExistIfMust(strOpenFavoriteLabel)
+		;---------------------------------------------------------
+		{
+			if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; for these favorites, file/folder must exist on file system
+				and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"]) ; except if we edit the favorite
+				and !LocationIsHTTP(this.aaTemp.strFavoriteLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
+				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 3) = "\\\" and strOpenFavoriteLabel = "OpenFavoriteHotlist")
+					; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
+				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 1) = "?" and strOpenFavoriteLabel = "OpenDOpusFavorite")
+					; except if the location is a DOpus Favorite special folder identified with <pidl>
+				and (strOpenFavoriteLabel <> "OpenDOpusLayout")
+					; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
+					
+				if !FileExistInPath(this.aaTemp.strFavoriteLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
+				{
+					Gui, 1:+OwnDialogs
+					MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4) ; ##### HAVE TO CHECK FOR PSEUDO
+						, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
+						, % L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
+							, (StrLen(this.aaTemp.strFavoriteLocationWithPlaceholders) and this.aaTemp.strFavoriteLocationWithPlaceholders <> this.AA.strFavoriteLocation ? " (" . this.aaTemp.strFavoriteLocationWithPlaceholders . ")" : ""))
+							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
+					IfMsgBox, Yes
+					{
+						g_blnAlternativeMenu := true
+						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
+						return true
+					}
+					else
+						return false
+				}
+			; location exists or must not exist on file system
+			return true
+		}
+		;---------------------------------------------------------
+
+
+
 
 	}
 	;-------------------------------------------------------------
