@@ -15131,39 +15131,6 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeNewWin
 	g_strHotkeyTypeDetected := "Launch"
 }
 
-if (o_ThisFavorite.AA.strFavoriteType = "Application")
-{
-	strAppWorkingDirWithPlaceholders := o_ThisFavorite.AA.strFavoriteAppWorkingDir
-	if StrLen(o_ThisFavorite.AA.strFavoriteAppWorkingDir)
-	{
-		strAppWorkingDirWithPlaceholders := ExpandPlaceholders(o_ThisFavorite.AA.strFavoriteAppWorkingDir, g_strLocationWithPlaceholders
-			, (InStr(o_ThisFavorite.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-			, (InStr(o_ThisFavorite.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-
-		strAppWorkingDirBeforeFileExist := strAppWorkingDirWithPlaceholders
-		if StrLen(strAppWorkingDirWithPlaceholders) and !FileExistInPath(strAppWorkingDirWithPlaceholders) ; return strAppWorkingDirWithPlaceholders with expanded relative path and envvars, also search in PATH
-			and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-		{
-			Gui, 1:+OwnDialogs
-			MsgBox, % (o_ThisFavorite.AA.strFavoritePseudo ? 0 : 4)
-				, % L(o_L["DialogFavoriteWorkingDirNotFoundTitle"], g_strAppNameText)
-				, % L(o_L["DialogFavoriteWorkingDirNotFoundPrompt"], o_ThisFavorite.AA.strFavoriteName, o_ThisFavorite.AA.strFavoriteAppWorkingDir
-				. (o_ThisFavorite.AA.strFavoriteAppWorkingDir <> strAppWorkingDirBeforeFileExist ? " (" . strAppWorkingDirBeforeFileExist . ")": ""))
-				. (o_ThisFavorite.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
-			IfMsgBox, Yes
-			{
-				g_blnAlternativeMenu := true
-				g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-			}
-			else
-			{
-				gosub, OpenFavoriteCleanup
-				return
-			}
-		}
-	}
-}
-
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
 { ; DO IT LATER
 	if InStr("Folder|Document|Application", o_ThisFavorite.AA.strFavoriteType)
@@ -25300,15 +25267,14 @@ class Container
 				this.OpenGroup()
 			else
 			{
-				; EXPAND PLACEHOLDERS
-				; expand placeholders for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME},
-				; {CUR_...}, etc, selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
+				; EXPAND PLACEHOLDERS in location
+				; for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME}, {CUR_...}, etc,
+				; selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
 				; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
-				; copy to g_strLocationWithPlaceholders to avoid modification of location in o_ThisFavorite 
 				this.aaTemp.strFavoriteLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
 					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
 					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-				
+					
 				; SNIPPETS
 				if (this.AA.strFavoriteType = "Snippet")
 					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
@@ -25328,6 +25294,7 @@ class Container
 			
 			; LOG ACTION
 			if !(this.AA.blnIsGroupMember) ; not if group member
+				and !(g_blnAlternativeMenu) ; not if alternative menu action
 			{
 				gosub, OpenFavoritePlaySoundAndCleanup
 				gosub, UsageDbCollectMenu ; DO IT LATER
@@ -25515,21 +25482,45 @@ class Container
 							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
 					IfMsgBox, Yes
 					{
-						g_blnAlternativeMenu := true
+						 := true
 						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
 						return true
 					}
 					else
 						return false
 				}
-			; location exists or must not exist on file system
+				
+				if (this.AA.strFavoriteType = "Application") and StrLen(this.AA.strFavoriteAppWorkingDir)
+				{
+					this.aaTemp.strAppWorkingDirWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteAppWorkingDir, this.aaTemp.strLocationWithPlaceholders
+						, (InStr(this.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+						, (InStr(this.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+
+					strAppWorkingDirBeforeFileExist := this.aaTemp.strAppWorkingDirWithPlaceholders
+					if StrLen(this.aaTemp.strAppWorkingDirWithPlaceholders) and !FileExistInPath(this.aaTemp.strAppWorkingDirWithPlaceholders)
+						; FileExistInPath returns strAppWorkingDirWithPlaceholders with expanded relative path and envvars, also search in PATH
+						and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
+					{
+						Gui, 1:+OwnDialogs
+						MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4)
+							, % L(o_L["DialogFavoriteWorkingDirNotFoundTitle"], g_strAppNameText)
+							, % L(o_L["DialogFavoriteWorkingDirNotFoundPrompt"], this.AA.strFavoriteName, this.AA.strFavoriteAppWorkingDir
+							. (this.AA.strFavoriteAppWorkingDir <> strAppWorkingDirBeforeFileExist ? " (" . strAppWorkingDirBeforeFileExist . ")": ""))
+							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
+						IfMsgBox, Yes
+						{
+							g_blnAlternativeMenu := true
+							g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
+						}
+						else
+							return false
+					}
+				}
+				
+			; location (and working directory for applications) exists or do not have to exist on file system
 			return true
 		}
 		;---------------------------------------------------------
-
-
-
-
 	}
 	;-------------------------------------------------------------
 
