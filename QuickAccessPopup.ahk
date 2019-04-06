@@ -15158,35 +15158,6 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeOpenCo
 	}
 }
 
-if (o_FileManagers.P_intActiveFileManager = 2 and SubStr(o_ThisFavorite.AA.strFavoriteLocation, 1, 1) = "?") ; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
-{
-	g_strFullLocation := o_ThisFavorite.AA.strFavoriteLocation
-	g_strTargetAppName := "DirectoryOpus"
-	if (g_strHotkeyTypeDetected = "Navigate" and !WindowIsDirectoryOpus(g_strTargetClass))
-		g_strHotkeyTypeDetected := "Launch"
-}
-else if (A_ThisLabel = "OpenDOpusLayout")
-
-	g_strFullLocation := o_ThisFavorite.AA.strFavoriteLocation
-
-else
-{
-	if InStr("|Folder|Special|FTP", "|" . o_ThisFavorite.AA.strFavoriteType)
-		gosub, SetTargetName ; sets g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
-	else
-		g_strTargetAppName := ""
-
-	if (o_ThisFavorite.AA.strFavoriteType <> "Text") ; text separators don't have location
-	{
-		gosub, OpenFavoriteGetFullLocation ; sets g_strFullLocation
-
-		if !StrLen(g_strFullLocation) ; OpenFavoriteGetFullLocation was aborted
-		{
-			gosub, OpenFavoriteCleanup
-			return
-		}
-	}
-}
 
 ; preparation for window position
 
@@ -15484,67 +15455,6 @@ return
 
 
 ;------------------------------------------------------------
-SetTargetName:
-;------------------------------------------------------------
-
-if WindowIsExplorer(g_strTargetClass)
-	g_strTargetAppName := "Explorer"
-else if WindowIsDesktop(g_strTargetClass)
-	g_strTargetAppName := "Desktop"
-; else if WindowIsTray(g_strTargetClass)
-;	g_strTargetAppName := "Tray"
-else if WindowIsConsole(g_strTargetClass)
-	g_strTargetAppName := "Console"
-else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
-	g_strTargetAppName := "Dialog"
-; else if WindowIsTreeview(g_strTargetWinId)
-;	g_strTargetAppName := "Treeview"
-else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 2)
-	g_strTargetAppName := "DirectoryOpus"
-else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 3)
-	g_strTargetAppName := "TotalCommander"
-else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.P_intActiveFileManager = 4)
-	g_strTargetAppName := "QAPconnect"
-else if WindowIsQuickAccessPopup(g_strTargetClass)
-{
-	if (o_FileManagers.P_intActiveFileManager = 2)
-		g_strTargetAppName := "DirectoryOpus"
-	else if (o_FileManagers.P_intActiveFileManager = 3)
-		g_strTargetAppName := "TotalCommander"
-	else if (o_FileManagers.P_intActiveFileManager = 4)
-		g_strTargetAppName := "QAPconnect"
-	else
-		g_strTargetAppName := "Explorer"
-	g_strHotkeyTypeDetected := "Launch"
-}
-else
-	g_strTargetAppName := "Unknown"
-
-if (g_strTargetAppName = "Desktop")
-{
-	g_strTargetWinId := "" ; never use target window when clicked on the desktop
-	g_strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
-}
-
-if (g_strHotkeyTypeDetected = "Launch")
-	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and g_arrGroupSettingsOpen2 = "Windows Explorer")
-		g_strTargetAppName := "Explorer"
-	else if InStr("Desktop|Dialog|Console|Unknown", g_strTargetAppName) ; these targets cannot launch in a new window
-		or (o_FileManagers.P_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
-		if (o_FileManagers.P_intActiveFileManager = 2)
-			g_strTargetAppName := "DirectoryOpus"
-		else if (o_FileManagers.P_intActiveFileManager = 3)
-			g_strTargetAppName := "TotalCommander"
-		else if (o_FileManagers.P_intActiveFileManager = 4)
-			g_strTargetAppName := "QAPconnect"
-		else
-			g_strTargetAppName := "Explorer"
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 OpenFavoriteGetFavoriteObject:
 ;------------------------------------------------------------
 
@@ -15724,124 +15634,30 @@ return
 
 
 ;------------------------------------------------------------
-OpenFavoriteGetFullLocation:
-;------------------------------------------------------------
-
-g_strFullLocation := g_strLocationWithPlaceholders
-
-if (o_ThisFavorite.AA.strFavoriteType = "FTP")
-{
-	; ftp://username:password@ftp.domain.ext/public_ftp/incoming/
-	if (g_strTargetAppName = "TotalCommander")
-		or !(o_ThisFavorite.AA.strFavoriteFtpEncoding) ; do not encode
-	{
-		; must NOT encode username and password with UriEncode
-		strLoginName := o_ThisFavorite.AA.strFavoriteLoginName
-		strPassword := o_ThisFavorite.AA.strFavoritePassword
-	}
-	else
-	{
-		; must encode username and password with UriEncode
-		strLoginName := UriEncode(o_ThisFavorite.AA.strFavoriteLoginName)
-		strPassword := UriEncode(o_ThisFavorite.AA.strFavoritePassword)
-	}
-	
-	g_strFullLocation := StrReplace(g_strFullLocation, "ftp://", "ftp://" . strLoginName . (StrLen(strPassword) ? ":" . strPassword : "") . (StrLen(strLoginName) ? "@" : ""))
-}
-else
-	if InStr("Folder|Document|Application", o_ThisFavorite.AA.strFavoriteType) ; not for URL, Special Folder and others
-		and !LocationIsHTTP(o_ThisFavorite.AA.strFavoriteLocation) ; except if the folder location is on a server (like WebDAV)
-	{
-		if InStr(g_strFullLocation, "{CUR_") ; here, expand only if current location is used
-			g_strFullLocation := ExpandPlaceholders(g_strFullLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
-		
-		; expand system variables
-		; make the location absolute based on the current working directory
-		blnFileExist := FileExistInPath(g_strFullLocation) ; return g_strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
-		; was g_strFullLocation := PathCombine(A_WorkingDir, EnvVars(g_strFullLocation))
-	}
-	else if (o_ThisFavorite.AA.strFavoriteType = "WindowsApp")
-	{
-		if (SubStr(g_strFullLocation, 1, 7) = "Custom:")
-			StringTrimLeft, g_strFullLocation, g_strFullLocation, 7 ; ##### DEPRECATED
-		; for archive, older method of launching Windows Apps before using IApplicationActivationManager
-		; g_strFullLocation := "shell:Appsfolder\" . g_strFullLocation
-		
-		return ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
-	}
-	else if (o_ThisFavorite.AA.strFavoriteType = "Special")
-		g_strFullLocation := GetSpecialFolderLocation(g_strHotkeyTypeDetected, g_strTargetAppName, o_ThisFavorite.AA) ; can change values of g_strHotkeyTypeDetected and g_strTargetAppName
-	; else URL or QAP (no need to expand or make absolute), keep g_strFullLocation as in g_objThisFavorite.FavoriteLocation
-
-if StrLen(o_ThisFavorite.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", o_ThisFavorite.AA.strFavoriteType) ; ignore for Application or Snippet favorites
-{
-	strFullLaunchWith := o_ThisFavorite.AA.strFavoriteLaunchWith
-	blnFileExist := FileExistInPath(strFullLaunchWith) ; return strFullLaunchWith expanded and searched in PATH
-	if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-	{
-		Gui, 1:+OwnDialogs
-		MsgBox, % (o_ThisFavorite.AA.strFavoritePseudo ? 0 : 4)
-			, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], strFullLaunchWith)
-			. (o_ThisFavorite.AA.strFavoritePseudo ? "" : " " . o_L["DialogFavoriteDoesNotExistEdit"])
-		IfMsgBox, Yes
-		{
-			g_blnAlternativeMenu := true
-			g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-		}
-		else 
-			g_strFullLocation := ""
-	}
-	else
-		g_strFullLocation := strFullLaunchWith . " """ . g_strFullLocation . """" ; enclose document path in double-quotes
-}
-
-if StrLen(o_ThisFavorite.AA.strFavoriteArguments)
-	; let user enter double-quotes as required by his arguments
-	g_strFullLocation .= " " . ExpandPlaceholders(o_ThisFavorite.AA.strFavoriteArguments, g_strFullLocation
-		, (InStr(o_ThisFavorite.AA.strFavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-		, (InStr(o_ThisFavorite.AA.strFavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-
-OpenFavoriteGetFullLocationCleanup:
-strArguments := ""
-strOutFileName := ""
-strOutDir := ""
-strOutExtension := ""
-strOutNameNoExt := ""
-strOutDrive := ""
-strLoginName := ""
-strPassword := ""
-strFullLaunchWith := ""
-blnFileExist := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, o_Favorite)
+GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, aaItem)
 ;------------------------------------------------------------
 {
-	strLocation := o_Favorite.strFavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
-	o_SpecialFolder := o_SpecialFolders.AA[strLocation]
+	strLocation := aaItem.strFavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
+	aaSpecialFolder := aaSpecialFolders.AA[strLocation]
 	
 	if (strTargetName = "Explorer")
-		strUse := o_SpecialFolder.strUse4NavigateExplorer
+		strUse := aaSpecialFolder.strUse4NavigateExplorer
 	else if (strTargetName = "Dialog")
-		strUse := o_SpecialFolder.strUse4Dialog
+		strUse := aaSpecialFolder.strUse4Dialog
 	else if (strTargetName = "Console")
-		strUse := o_SpecialFolder.strUse4Console
+		strUse := aaSpecialFolder.strUse4Console
 	else if (strTargetName = "DirectoryOpus")
-		strUse := o_SpecialFolder.strUse4DOpus
+		strUse := aaSpecialFolder.strUse4DOpus
 	else if (strTargetName = "TotalCommander")
-		strUse := o_SpecialFolder.strUse4TC
+		strUse := aaSpecialFolder.strUse4TC
 	else if (strTargetName = "QAPconnect")
-		strUse := o_SpecialFolder.strUse4FPc
+		strUse := aaSpecialFolder.strUse4FPc
 	else
-		strUse := o_SpecialFolder.strUse4NewExplorer
+		strUse := aaSpecialFolder.strUse4NewExplorer
 
 	if (strUse = "NEW") ; re-assign values as if it was a new window request to be open in *Explorer*
 	{
-		strUse := o_SpecialFolder.strUse4NewExplorer
+		strUse := aaSpecialFolder.strUse4NewExplorer
 		strHotkeyTypeDetected := "Launch"
 		strTargetName := "Explorer"
 	}
@@ -15858,15 +15674,15 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, o_Fav
 	}
 	else if (strUse = "AHK")
 	{
-		strAHKConstant := o_SpecialFolder.strAHKConstant ; for example "A_Desktop"
+		strAHKConstant := aaSpecialFolder.strAHKConstant ; for example "A_Desktop"
 		strLocation := %strAHKConstant% ; the contant value, for example "C:\Users\jlalonde\Desktop"
 	}
 	else if (strUse = "DOA")
-		strLocation := "/" . o_SpecialFolder.strDOpusAlias
+		strLocation := "/" . aaSpecialFolder.strDOpusAlias
 	else if (strUse = "SCT")
-		strLocation := "shell:" . o_SpecialFolder.strShellConstantText
+		strLocation := "shell:" . aaSpecialFolder.strShellConstantText
 	else if (strUse = "TCC")
-		strLocation := o_SpecialFolder.strTCCommand
+		strLocation := aaSpecialFolder.strTCCommand
 	else
 	{
 		Oops(o_L["OopsCouldNotOpenSpecialFolder"], strTargetName, strLocation)
@@ -25217,7 +25033,11 @@ class Container
 			this.InsertItemValue("strFavoritePassword", StrReplace(saFavorite[10], g_strEscapePipe, "|")) ; password for FTP favorite
 			this.InsertItemValue("strFavoriteGroupSettings", saFavorite[11]) ; coma separated values for group restore settings or external menu starting line
 			if (this.AA.HasKey("strFavoriteGroupSettings"))
+				; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
+				; 2 restore folders with "Windows Explorer" or "Other" (Directory Opus, Total Commander or FPconnect)
+				; 3 delay in milliseconds to insert between each favorite to restore
 				this.AA.saFavoriteGroupSettings := StrSplit(this.AA.strFavoriteGroupSettings, ",")
+
 			this.InsertItemValue("strFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
 			this.InsertItemValue("blnFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
 			this.InsertItemValue("blnFavoriteDisabled", saFavorite[14]) ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
@@ -25261,6 +25081,7 @@ class Container
 		;---------------------------------------------------------
 		{
 			this.aaTemp := Object() ; reset item temporary values
+			this.aaTemp.strOpenFavoriteLabel := strOpenFavoriteLabel
 			
 			; GROUP
 			if (this.AA.strFavoriteType = "Group") and !(g_blnAlternativeMenu)
@@ -25281,8 +25102,16 @@ class Container
 					this.PasteSnippet() ; using this.AA.strFavoriteLocationWithPlaceholders
 					
 				; TYPES WITH FILE/FOLDER THAT MUST EXIST
-				else if this.FileExistIfMust(strOpenFavoriteLabel)
+				else if this.FileExistIfMust(this.aaTemp.strOpenFavoriteLabel)
 				{
+					if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
+						if !this.SetTargetName() ; sets old g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
+							return
+					
+					if (this.AA.strFavoriteType <> "Text") ; text separators don't have location
+						if !this.SetFullLocation()
+							return
+						
 					### := ###
 				}
 			}
@@ -25459,17 +25288,166 @@ class Container
 		;---------------------------------------------------------
 
 		;---------------------------------------------------------
-		FileExistIfMust(strOpenFavoriteLabel)
+		SetTargetName()
+		; set this.aaTemp.strTargetAppName (was g_strTargetAppName)
+		;---------------------------------------------------------
+		{
+			if WindowIsExplorer(g_strTargetClass)
+				this.aaTemp.strTargetAppName := "Explorer"
+			else if WindowIsDesktop(g_strTargetClass)
+				this.aaTemp.strTargetAppName := "Desktop"
+			; else if WindowIsTray(g_strTargetClass)
+			;	this.aaTemp.strTargetAppName := "Tray"
+			else if WindowIsConsole(g_strTargetClass)
+				this.aaTemp.strTargetAppName := "Console"
+			else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+				this.aaTemp.strTargetAppName := "Dialog"
+			; else if WindowIsTreeview(g_strTargetWinId)
+			;	this.aaTemp.strTargetAppName := "Treeview"
+			else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 2)
+				this.aaTemp.strTargetAppName := "DirectoryOpus"
+			else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 3)
+				this.aaTemp.strTargetAppName := "TotalCommander"
+			else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.P_intActiveFileManager = 4)
+				this.aaTemp.strTargetAppName := "QAPconnect"
+			else if WindowIsQuickAccessPopup(g_strTargetClass)
+			{
+				if (o_FileManagers.P_intActiveFileManager = 2)
+					this.aaTemp.strTargetAppName := "DirectoryOpus"
+				else if (o_FileManagers.P_intActiveFileManager = 3)
+					this.aaTemp.strTargetAppName := "TotalCommander"
+				else if (o_FileManagers.P_intActiveFileManager = 4)
+					this.aaTemp.strTargetAppName := "QAPconnect"
+				else
+					this.aaTemp.strTargetAppName := "Explorer"
+				g_strHotkeyTypeDetected := "Launch"
+			}
+			else
+				this.aaTemp.strTargetAppName := "Unknown"
+
+			if (this.aaTemp.strTargetAppName = "Desktop")
+			{
+				g_strTargetWinId := "" ; never use target window when clicked on the desktop
+				g_strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
+			}
+
+			if (g_strHotkeyTypeDetected = "Launch")
+				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.saFavoriteGroupSettings[2] = "Windows Explorer")
+					this.aaTemp.strTargetAppName := "Explorer"
+				else if InStr("Desktop|Dialog|Console|Unknown", this.aaTemp.strTargetAppName) ; these targets cannot launch in a new window
+					or (o_FileManagers.P_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
+					if (o_FileManagers.P_intActiveFileManager = 2)
+						this.aaTemp.strTargetAppName := "DirectoryOpus"
+					else if (o_FileManagers.P_intActiveFileManager = 3)
+						this.aaTemp.strTargetAppName := "TotalCommander"
+					else if (o_FileManagers.P_intActiveFileManager = 4)
+						this.aaTemp.strTargetAppName := "QAPconnect"
+					else
+						this.aaTemp.strTargetAppName := "Explorer"
+					
+			return (this.aaTemp.strTargetAppName <> "Unknown")
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		SetFullLocation()
+		; set this.aaTemp.strFullLocation (was g_strFullLocation)
+		;---------------------------------------------------------
+		{
+			; Directory Opus pidl value like "?AAAAFAAfUOBP0CDqOmkQotgIACswMJ0AAA=="
+			if (o_FileManagers.P_intActiveFileManager = 2 and SubStr(this.AA.strFavoriteLocation, 1, 1) = "?")
+			{
+				this.aaTemp.strFullLocation := this.AA.strFavoriteLocation
+				this.aaTemp.strTargetAppName := "DirectoryOpus"
+				if (g_strHotkeyTypeDetected = "Navigate" and !WindowIsDirectoryOpus(g_strTargetClass))
+					g_strHotkeyTypeDetected := "Launch"
+			}
+			; Directory Opus Layouts
+			else if (this.aaTemp.strOpenFavoriteLabel = "OpenDOpusLayout")
+
+				this.aaTemp.strFullLocation := this.AA.strFavoriteLocation
+
+			else
+			{
+				this.aaTemp.strFullLocation := this.aaTemp.strLocationWithPlaceholders
+
+				if (this.AA.strFavoriteType = "FTP")
+				{
+					; ftp://username:password@ftp.domain.ext/public_ftp/incoming/
+					if (this.aaTemp.strTargetAppName = "TotalCommander")
+						or !(this.AA.strFavoriteFtpEncoding) ; do not encode
+					{
+						; must NOT encode username and password with UriEncode
+						this.aaTemp.strLoginName := this.AA.strFavoriteLoginName
+						this.aaTemp.strPassword := this.AA.strFavoritePassword
+					}
+					else
+					{
+						; must encode username and password with UriEncode
+						this.aaTemp.strLoginName := UriEncode(this.AA.strFavoriteLoginName)
+						this.aaTemp.strPassword := UriEncode(this.AA.strFavoritePassword)
+					}
+					
+					this.aaTemp.strFullLocation := StrReplace(this.aaTemp.strFullLocation, "ftp://"
+						, "ftp://" . this.aaTemp.strLoginName
+						. (StrLen(this.aaTemp.strPassword) ? ":" . this.aaTemp.strPassword : "") . (StrLen(this.aaTemp.strLoginName) ? "@" : ""))
+				}
+				else
+					if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; not for URL, Special Folder and others
+						and !LocationIsHTTP(this.AA.strFavoriteLocation) ; except if the folder location is on a server (like WebDAV)
+					{
+						; ##### necessary or already done before???
+						if InStr(this.aaTemp.strFullLocation, "{CUR_") ; here, expand only if current location is used
+							this.aaTemp.strFullLocation := ExpandPlaceholders(this.aaTemp.strFullLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
+						
+						; ##### necessary or already done before???
+						; expand system variables
+						; make the location absolute based on the current working directory
+						blnFileExist := FileExistInPath(this.aaTemp.strFullLocation) ; return this.aaTemp.strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
+					}
+					else if (this.AA.strFavoriteType = "WindowsApp")
+					{
+						if (SubStr(this.aaTemp.strFullLocation, 1, 7) = "Custom:")
+							this.aaTemp.strFullLocation := SubStr(this.aaTemp.strFullLocation, 8)
+						; for archive, older method of launching Windows Apps before using IApplicationActivationManager
+						; this.aaTemp.strFullLocation := "shell:Appsfolder\" . this.aaTemp.strFullLocation
+						
+						return ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
+					}
+					else if (this.AA.strFavoriteType = "Special")
+						this.aaTemp.strFullLocation := GetSpecialFolderLocation(g_strHotkeyTypeDetected, g_strTargetAppName, this.AA) ; can change values of g_strHotkeyTypeDetected and g_strTargetAppName
+					; else URL or QAP (no need to expand or make absolute), keep this.aaTemp.strFullLocation as in g_objThisFavorite.FavoriteLocation
+
+				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
+					this.aaTemp.strFullLocation := this.aaTemp.strExpandedLaunchWith . " """ . this.aaTemp.strFullLocation . """" ; enclose document path in double-quotes
+
+				if StrLen(this.AA.strFavoriteArguments)
+					; let user enter double-quotes as required by his arguments
+					this.aaTemp.strFullLocation .= " " . ExpandPlaceholders(this.AA.strFavoriteArguments, this.aaTemp.strFullLocation
+						, (InStr(this.AA.strFavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+						, (InStr(this.AA.strFavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+				
+				if !StrLen(this.aaTemp.strFullLocation) ; OpenFavoriteGetFullLocation was aborted
+				{
+					gosub, OpenFavoriteCleanup
+					return
+				}
+			}
+		}
+		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		FileExistIfMust()
 		;---------------------------------------------------------
 		{
 			if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; for these favorites, file/folder must exist on file system
 				and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"]) ; except if we edit the favorite
 				and !LocationIsHTTP(this.aaTemp.strFavoriteLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
-				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 3) = "\\\" and strOpenFavoriteLabel = "OpenFavoriteHotlist")
+				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 3) = "\\\" and this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteHotlist")
 					; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
-				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 1) = "?" and strOpenFavoriteLabel = "OpenDOpusFavorite")
+				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 1) = "?" and this.aaTemp.strOpenFavoriteLabel = "OpenDOpusFavorite")
 					; except if the location is a DOpus Favorite special folder identified with <pidl>
-				and (strOpenFavoriteLabel <> "OpenDOpusLayout")
+				and (this.aaTemp.strOpenFavoriteLabel <> "OpenDOpusLayout")
 					; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
 					
 				if !FileExistInPath(this.aaTemp.strFavoriteLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
@@ -25490,7 +25468,7 @@ class Container
 						return false
 				}
 				
-				if (this.AA.strFavoriteType = "Application") and StrLen(this.AA.strFavoriteAppWorkingDir)
+				if StrLen(this.AA.strFavoriteAppWorkingDir) and (this.AA.strFavoriteType = "Application")
 				{
 					this.aaTemp.strAppWorkingDirWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteAppWorkingDir, this.aaTemp.strLocationWithPlaceholders
 						, (InStr(this.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
@@ -25513,6 +25491,27 @@ class Container
 							g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
 						}
 						else
+							return false
+					}
+				}
+				
+				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
+				{
+					this.aaTemp.strExpandedLaunchWith := this.AA.strFavoriteLaunchWith
+					blnFileExist := FileExistInPath(this.aaTemp.strExpandedLaunchWith) ; return this.aaTemp.strExpandedLaunchWith expanded and searched in PATH
+					
+					if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
+					{
+						Gui, 1:+OwnDialogs
+						MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4)
+							, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
+							. (this.AA.strFavoritePseudo ? "" : " " . o_L["DialogFavoriteDoesNotExistEdit"])
+						IfMsgBox, Yes
+						{
+							g_blnAlternativeMenu := true
+							g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
+						}
+						else 
 							return false
 					}
 				}
