@@ -3337,6 +3337,7 @@ global g_blnLaunchFromTrayIcon
 global g_strTargetWinId
 global g_strTargetClass
 global g_strHotkeyTypeDetected
+global g_strNewWindowId
 
 ;---------------------------------
 ; Initial validation
@@ -10598,7 +10599,7 @@ ButtonPlayFavoriteSoundLocation:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-OpenFavoritePlaySound(f_strFavoriteSoundLocation)
+; OpenFavoritePlaySound(f_strFavoriteSoundLocation)
 
 return
 ;------------------------------------------------------------
@@ -15119,7 +15120,7 @@ if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu
 
 ; beginning of OpenFavorite execution
 
-o_ThisFavorite.OpenFavorite(g_strOpenFavoriteLabel)
+o_ThisFavorite.OpenFavorite(g_strMenuTriggerLabel, g_strOpenFavoriteLabel, g_strTargetWinId, g_strHotkeyTypeDetected)
 
 return
 ; =======================================
@@ -15156,22 +15157,6 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeOpenCo
 		gosub, OpenFavoriteCleanup
 		return
 	}
-}
-
-
-; preparation for window position
-
-; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
-; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
-; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
-strFavoriteWindowPosition := o_ThisFavorite.AA.strFavoriteWindowPosition . ",,,,,,,,,," ; additional "," to avoid ghost values if FavoriteWindowPosition is empty
-StringSplit, g_arrFavoriteWindowPosition, strFavoriteWindowPosition, `, ; ##### DEPRECATED
-
-if InStr("Explorer|TotalCommander", g_strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
-{
-	SysGet, intNbMonitors, MonitorCount
-	if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and intNbMonitors > 1)
-		GetPositionFromMouseOrKeyboard(g_strMenuTriggerLabel, A_ThisHotkey, intMonitorReferencePositionX, intMonitorReferencePositionY)
 }
 
 ; === ACTIONS ===
@@ -15237,19 +15222,11 @@ if (g_blnAlternativeMenu)
 	}
 }
 
-if (o_ThisFavorite.AA.strFavoriteType = "Text")
-; if we do not have to edit a Text Separator, we must stop here
-; ##### test if we should move under if MenuAlternativeEditFavorite above
-{
-	gosub, OpenFavoriteCleanup
-	return
-}
-
 if (A_ThisLabel = "OpenDOpusLayout")
 {
 	Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
 	
-	gosub, OpenFavoritePlaySoundAndCleanup
+	; gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
 	return
 }
@@ -15269,7 +15246,7 @@ if (o_ThisFavorite.AA.strFavoriteType = "Application")
 		WinRestore, ahk_id %strAppID%
 	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
 	
-	gosub, OpenFavoritePlaySoundAndCleanup
+	; gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
 	return
 }
@@ -15286,13 +15263,13 @@ if InStr("Document|URL", o_ThisFavorite.AA.strFavoriteType)
 	else
 		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
 	; ##### fix g_arrFavoriteWindowPosition1 deprecated LATER
-		if (g_arrFavoriteWindowPosition1 and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
+		if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
 		{
 			g_strNewWindowId := "ahk_pid " . intPid
-			gosub, OpenFavoriteWindowPosition
+			; gosub, OpenFavoriteWindowPosition -> will be this.SetWindowPosition()
 		}
 
-	gosub, OpenFavoritePlaySoundAndCleanup
+	; gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
 	return
 }
@@ -15327,13 +15304,13 @@ if (o_ThisFavorite.AA.strFavoriteType = "Application")
 			Oops(o_L["OopsUnknownTargetAppName"])
 		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
 	}
-    else if (g_arrFavoriteWindowPosition1 and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
+    else if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
 	{
 		g_strNewWindowId := "ahk_pid " . intPid
-		gosub, OpenFavoriteWindowPosition
+		; gosub, OpenFavoriteWindowPosition -> will be this.SetWindowPosition()
 	}
 
-	gosub, OpenFavoritePlaySoundAndCleanup
+	; gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
 	return
 }
@@ -15379,57 +15356,21 @@ if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFa
 {
 	Gosub, % o_QAPfeatures.AA[o_ThisFavorite.AA.strFavoriteLocation].strQAPFeatureCommand
 	
-	gosub, OpenFavoritePlaySoundAndCleanup
+	; gosub, OpenFavoritePlaySoundAndCleanup
 	gosub, UsageDbCollectMenu
 	return
 }
 
-; --- Navigate Folder ---
-
-if (InStr("Folder|FTP", o_ThisFavorite.AA.strFavoriteType) and g_strHotkeyTypeDetected = "Navigate")
-{
-	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	
-	gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- Navigate Special Folder ---
-
-if (o_ThisFavorite.AA.strFavoriteType = "Special") and (g_strHotkeyTypeDetected = "Navigate")
-{
-	gosub, OpenFavoriteNavigate%g_strTargetAppName%
-	
-	gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- New window ---
-
-if (g_strHotkeyTypeDetected = "Launch")
-	or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
-{
-	gosub, OpenFavoriteInNewWindow%g_strTargetAppName% ; updates g_strNewWindowId with new Explorer window ID
-	if ((g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
-		and (InStr("Explorer|TotalCommander", g_strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue))
-		; we can access new Explorer or Total Commander windows, or try with other apps
-		gosub, OpenFavoriteWindowPosition
-		
-	gosub, UsageDbCollectMenu
-}
 
 OpenFavoritePlaySoundAndCleanup:
 
-if StrLen(o_ThisFavorite.AA.strFavoriteSoundLocation)
-	OpenFavoritePlaySound(o_ThisFavorite.AA.strFavoriteSoundLocation)
+; if StrLen(o_ThisFavorite.AA.strFavoriteSoundLocation)
+	; OpenFavoritePlaySound(o_ThisFavorite.AA.strFavoriteSoundLocation)
 
 OpenFavoriteCleanup:
 
 o_ThisFavorite := ""
 strFavoriteWindowPosition := ""
-ResetArray("g_arrFavoriteWindowPosition")
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
 strTempArguments := ""
@@ -16184,237 +16125,8 @@ return
 
 ;========================================================================================================================
 !_074_NAVIGATE:
+return ;  a label must not point to a function.
 ;========================================================================================================================
-
-;------------------------------------------------------------
-OpenFavoriteNavigateExplorer:
-; Excerpt and adapted from RMApp_Explorer_Navigate(FullPath, hwnd="") by Learning One
-; http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
-; http://msdn.microsoft.com/en-us/library/windows/desktop/bb774096%28v=vs.85%29.aspx
-; http://msdn.microsoft.com/en-us/library/aa752094
-;------------------------------------------------------------
-
-if !Regexmatch(g_strFullLocation, "#.*\\") ; prevent the hash bug in Shell.Application - when a hash in path is followed by a backslash like in "c:\abc#xyz\abc")
-{
-	intCountMatch := 0
-	For pExplorer in ComObjCreate("Shell.Application").Windows
-	{
-		if (pExplorer.hwnd = g_strTargetWinId)
-		{
-			intCountMatch++
-			if IsInteger(g_strFullLocation) ; ShellSpecialFolderConstant
-			{
-				try pExplorer.Navigate2(g_strFullLocation)
-				catch, objErr
-					Oops(o_L["NavigateSpecialError"], g_strFullLocation)
-			}
-			else
-			{
-				try pExplorer.Navigate(g_strFullLocation)
-				catch, objErr
-					; Note: If an error occurs in Navigate, the error message is given by Navigate itself and this script does not
-					; receive an error notification. From my experience, the following line would never be executed.
-					Oops(o_L["NavigateFileError"], g_strFullLocation)
-			}
-		}
-	}
-	if !(intCountMatch) ; open a new window
-	; for Explorer add-ons like Clover (verified - it now opens the folder in a new tab), others?
-	; also when g_strTargetWinId is DOpus window and DOpus is not used
-		if IsInteger(g_strFullLocation) ; ShellSpecialFolderConstant
-			ComObjCreate("Shell.Application").Explore(g_strFullLocation)
-		else
-			SendInput, {F4}{Esc}{Raw}%g_strFullLocation%`n
-			; if I receive bug reports from Clover users, insert delays or fall back to; Run, Explorer "%g_strFullLocation%"
-}
-else
-	; Workaround for the hash (aka Sharp / "#") bug in Shell.Application - occurs only when navigating in the current Explorer window
-	; see http://stackoverflow.com/questions/22868546/navigate-shell-command-not-working-when-the-path-includes-an-hash
-	; and http://ahkscript.org/boards/viewtopic.php?f=5&t=526&p=25287#p25274
-	SendInput, {F4}{Esc}{Raw}%g_strFullLocation%`n
-
-intCountMatch := ""
-pExplorer := ""
-objErr := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateDirectoryOpus:
-;------------------------------------------------------------
-
-if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
-	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-
-o_FileManagers.SA[2].RunDOpusRt("/aCmd Go", g_strFullLocation) ; navigate the current lister
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateTotalCommander:
-;------------------------------------------------------------
-
-if g_strFullLocation is integer
-{
-	SendMessage, 0x433, %g_strFullLocation%, , , ahk_class TTOTAL_CMD
-	Sleep, 100 ; wait to improve SendMessage reliability
-	WinActivate, ahk_class TTOTAL_CMD
-}
-else
-{
-	if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
-	{
-		WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-		Sleep, 200
-	}
-	Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " /O /S /L=""" . g_strFullLocation . """" ; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
-}
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateQAPconnect:
-;------------------------------------------------------------
-
-if InStr(g_strFullLocation, " ") and !(g_aaFileManagerQAPconnect.strQAPconnectNeverQuotes)
-	g_strFullLocation := """" . g_strFullLocation . """"
-strQAPconnectParamString := StrReplace(g_aaFileManagerQAPconnect.strQAPconnectCommandLine, "%Path%", g_strFullLocation)
-strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%")
-
-if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
-{
-	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-	Sleep, 200
-}
-Run, % g_aaFileManagerQAPconnect.strFileManagerPath . " " . strQAPconnectParamString
-
-strQAPconnectParamString :=""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateConsole:
-;------------------------------------------------------------
-
-if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
-	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-
-WinGet, strProcessName, ProcessName, ahk_id %g_strTargetWinId%
-; add /D option only for cmd.exe, not required for powershell.exe
-strCommand := "CD " . (strProcessName = "powershell.exe" ? "" : "/D ") ; must end with space
-
-if (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue)
-; using ALT+0nnn ASCII codes for console with international keyboard input language
-{
-	strCommand .= """" . g_strFullLocation . """" ; double-quotes required for PowerShell
-	loop, parse, strCommand
-		; ANSI characters (like "é") are supported by preceeding the ASCII code with 0, but Unicode characters are not supported
-		; see https://autohotkey.com/docs/commands/Send.htm#asc
-		strSendToConsoleAscCodes .= "{ASC 0" . Asc(A_LoopField) . "}"
-	SendInput, %strSendToConsoleAscCodes%
-
-	strSendToConsoleAscCodes := ""
-}
-else
-	SendInput, % "{Raw}" . strCommand . """" . g_strFullLocation . """" ; double-quotes required for PowerShell
-
-Sleep, 200
-SendInput, {Enter}
-
-strProcessName := ""
-strCommand := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateDialog:
-;------------------------------------------------------------
-
-if ControlIsVisible("ahk_id " . g_strTargetWinId, "Edit1")
-	strEditControl := "Edit1"
-	; in standard dialog windows, "Edit1" control is the right choice
-Else if ControlIsVisible("ahk_id " . g_strTargetWinId, "Edit2")
-	strEditControl := "Edit2"
-	; but sometimes in MS office, if condition above fails, "Edit2" control is the right choice 
-Else ; if above fails - just return and do nothing.
-{
-	gosub, OpenFavoriteNavigateDialogCleanUp
-	return
-}
-
-;===In this part (if we reached it), we'll send strLocation to control and restore control's initial text after navigating to specified folder===
-
-ControlGetText, strPrevControlText, %strEditControl%, ahk_id %g_strTargetWinId% ; we'll get and store control's initial text first
-
-; for app's (like Notepad++ v7.5.6) Save As dialog box trying to save instead of navigating if location does not end with backslash
-strFullLocationTemp := g_strFullLocation . (SubStr(g_strFullLocation, StrLen(g_strFullLocation), 1) <> "\" ? "\" : "")
-
-if !ControlSetTextR(strEditControl, strFullLocationTemp, "ahk_id " . g_strTargetWinId) ; set control's text to strLocation
-{
-	gosub, OpenFavoriteNavigateDialogCleanUp
-	return ; abort if control is not set
-}
-if !ControlSetFocusR(strEditControl, "ahk_id " . g_strTargetWinId) ; focus control
-{
-	gosub, OpenFavoriteNavigateDialogCleanUp
-	return
-}
-if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
-	WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
-
-;=== Avoid accidental hotkey & hotstring triggereing while doing SendInput - can be done simply by #UseHook, but do it if user doesn't have #UseHook in the script ===
-
-Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control before sending {Enter} to it
-If (A_IsSuspended)
-	blnWasSuspended := True
-if (!blnWasSuspended)
-	Suspend, On
-; Changed from SendInput to SendEvent in v8.0.9.2 to introduce a key delay to solve issue with Firefox dialog box
-; SendInput, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
-SetKeyDelay, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
-SendEvent, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
-if (!blnWasSuspended)
-	Suspend, Off
-
-Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control after sending {Enter} to it
-ControlGetText, strControlTextAfterNavigation, %strEditControl%, ahk_id %g_strTargetWinId% ; sometimes controls automatically restore their initial text
-if (strControlTextAfterNavigation <> strPrevControlText)
-	ControlSetTextR(strEditControl, strPrevControlText, "ahk_id " . g_strTargetWinId) ; we'll set control's text to its initial text
-
-if (WinExist("A") <> g_strTargetWinId) ; sometimes initialy active window loses focus, so we'll activate it again
-	WinActivate, ahk_id %g_strTargetWinId%
-
-OpenFavoriteNavigateDialogCleanUp:
-strEditControl := ""
-strPrevControlText := ""
-blnWasSuspended := ""
-strControlTextAfterNavigation := ""
-strFullLocationTemp := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteNavigateUnknown:
-;------------------------------------------------------------
-; avoid an error message if target app name is unknown
-
-Oops(o_L["OopsUnknownTargetAppName"])
-
-return
-;------------------------------------------------------------
-
 
 ;------------------------------------------------------------
 ControlIsVisible(strWinTitle, strControlClass)
@@ -16488,336 +16200,6 @@ http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
 ;========================================================================================================================
 !_075_NEW_WINDOW:
 ;========================================================================================================================
-
-;------------------------------------------------------------
-OpenFavoriteInNewWindowExplorer:
-;------------------------------------------------------------
-
-if (g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
-{
-	; get new window ID
-	; when run -> pid? if not scan Explorer ids
-	gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
-	strExplorerIDsBefore := g_strExplorerIDs ;  save the list before launching this new Explorer
-}
-
-if (StrLen(g_objThisFavorite.FavoriteArguments)
-	or (g_blnAlternativeMenu and g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"])
-	or g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
-	; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
-	; It is preferred to "Run, %g_strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
-	Run, % "Explorer """ . g_strFullLocation . """", , % (g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
-else
-{
-	; When moving the window is not required and there is no parameter, this technique is preferred because, if call multiple times, it uses the
-	; same Explorer instance created by QAP.
-	Run, %g_strFullLocation%
-	g_strNewWindowId := ""
-	return
-}
-; */
-
-if (g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
-{
-	Loop
-	{
-		if (A_Index > 20)
-			; stop showing tray message from v9.3.1.9.1
-			; TrayTip, % L(o_L["TrayTipInstalledTitle"], g_strAppNameText), % L(o_L["DialogErrorMoving"], g_strFullLocation), , 2 ; warning icon with sound
-			; Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-			Break
-			
-		Sleep, % (g_arrFavoriteWindowPosition1 ? g_arrFavoriteWindowPosition7 : 400) ; 400 ms if opening window on the active monitor
-		gosub, SetExplorersIDs ;  refresh the list of existing Explorer windows g_strExplorerIDs
-		Loop, Parse, g_strExplorerIDs, |
-			if !InStr(strExplorerIDsBefore, A_LoopField . "|")
-			{
-				g_strNewWindowId  := "ahk_id " . A_LoopField
-				break
-			}
-		If StrLen(g_strNewWindowId)
-			Break ; we have a new window
-	}
-}
-if !StrLen(g_strNewWindowId) and (g_arrFavoriteWindowPosition1 or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
-; we will not be able to move the window, just show it now
-{
-	Sleep, 100
-	WinShow, A
-	WinActivate, A ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
-}
-
-strExplorerIDsBefore := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-SetExplorersIDs:
-;------------------------------------------------------------
-g_strExplorerIDs := ""
-pExplorerWindows := ComObjCreate("Shell.Application").Windows
-for pExplorer in pExplorerWindows
-{
-	strType := ""
-	try strType := pExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
-	strWindowID := ""
-	try strWindowID := pExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
-	if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
-		g_strExplorerIDs .= pExplorer.HWND . "|"
-}
-ObjRelease(pExplorerWindows) ; free memory used by the object
-
-pExplorer := ""
-strType := ""
-strWindowID := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteInNewWindowDirectoryOpus:
-;------------------------------------------------------------
-
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " NEWTAB") ; open in a new tab of pane 1
-; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
-; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
-{
-	if (g_blnFirstFolderOfGroup) and !(g_blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
-	; for the first member of the group, if we add to existing tabs, make sure a lister is running
-	{
-		Run, % g_aaFileManagerDirectoryOpus.strFileManagerPath
-		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
-		Sleep, 200 ; sometimes without delay DOpus left the new tab empty
-	}
-	
-	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(g_aaFileManagerDirectoryOpus.blnFileManagerUseTabs)
-		strTabParameter := "NEW=nodual" ; force left in new lister
-	else
-	{
-		; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
-		strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
-		StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
-		if StrLen(arrFavoriteWindowPosition8)
-			strTabParameter := "NEWTAB " . (arrFavoriteWindowPosition8 = "L" ? "OPENINLEFT" : "OPENINRIGHT")
-		else
-			strTabParameter := g_aaFileManagerDirectoryOpus.strNewTabOrWindow
-	}
-}
-else
-{
-	strTabParameter := g_aaFileManagerDirectoryOpus.strNewTabOrWindow
-	arrFavoriteWindowPosition8 := "" ; in case later retrieving position with only 7 values
-}
-
-strTabParameter := StrReplace(strTabParameter, "NEWTAB", "NEWTAB=tofront") ; instead of activating by QAP as in previous versions
-o_FileManagers.SA[2].RunDOpusRt("/acmd Go ", g_strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
-if (g_blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
-	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
-g_strNewWindowId := "ahk_class dopus.lister"
-
-strTabParameter := ""
-strFavoriteWindowPosition := ""
-ResetArray("arrFavoriteWindowPosition")
-intIndex := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteInNewWindowTotalCommander:
-;------------------------------------------------------------
-
-if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-{
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
-	strFavoriteWindowPosition := g_objThisFavorite.FavoriteWindowPosition
-	StringSplit, arrFavoriteWindowPosition, strFavoriteWindowPosition, `,
-	if StrLen(arrFavoriteWindowPosition8)
-		strSideParameter := arrFavoriteWindowPosition8
-	else
-		strSideParameter := "L"
-}
-	
-if g_strFullLocation is integer
-{
-	if !WinExist("ahk_class TTOTAL_CMD") ; open a first instance
-		or InStr(g_aaFileManagerTotalCommander.strNewTabOrWindow, "/N") ; or open a new instance
-		or (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows))
-	{
-		Run, % g_aaFileManagerTotalCommander.strFileManagerPath
-		WinWaitActive, ahk_class TTOTAL_CMD, , 10
-		Sleep, 200 ; wait additional time to improve SendMessage reliability in OpenFavoriteNavigateTotalCommander
-	}
-	
-	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-	{
-		if (strSideParameter = "L")
-			intTCCommandFocus := 4001 ; cm_FocusLeft
-		else
-			intTCCommandFocus := 4002 ; cm_FocusRight
-		Sleep, 100 ; wait to improve SendMessage reliability
-		SendMessage, 0x433, %intTCCommandFocus%, , , ahk_class TTOTAL_CMD
-	}
-	
-	if !InStr(g_aaFileManagerTotalCommander.strNewTabOrWindow, "/N") ; open the folder in a new tab
-	{
-		intTCCommandOpenNewTab := 3001 ; cm_OpenNewTab
-		Sleep, 100 ; wait to improve SendMessage reliability
-		SendMessage, 0x433, %intTCCommandOpenNewTab%, , , ahk_class TTOTAL_CMD
-	}
-	Sleep, 100 ; wait to improve SendMessage reliability in OpenFavoriteNavigateTotalCommander
-	gosub, OpenFavoriteNavigateTotalCommander
-	; Since g_strFullLocation is integer, OpenFavoriteNavigateTotalCommander is doing:
-	; SendMessage, 0x433, %intTCCommand%, , , ahk_class TTOTAL_CMD
-	; Sleep, 100 ; wait to improve SendMessage reliability
-	; WinActivate, ahk_class TTOTAL_CMD
-}
-else ; normal folder
-{
-	if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
-		if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(g_aaFileManagerTotalCommander.blnFileManagerUseTabs)
-			strTabParameter := "/N" ; /N new window
-		else
-			strTabParameter := "/O /T" ; /O same instance, /T new tab
-	else
-	{
-		; g_aaFileManagerTotalCommander.strNewTabOrWindow should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
-		strTabParameter := g_aaFileManagerTotalCommander.strNewTabOrWindow
-		strSideParameter := ""
-	}
-	
-	if StrLen(strSideParameter)
-		Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " " . strTabParameter . " /" . strSideParameter . "=""" . g_strFullLocation . """"
-	else
-		; use active parameter with /S instead of L/R side parameter
-		Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " " . strTabParameter . " /S """ . g_strFullLocation . """"
-
-	WinWaitActive, ahk_class TTOTAL_CMD, , 10
-}
-g_strNewWindowId := "ahk_class TTOTAL_CMD"
-
-intTCCommandOpenNewTab := ""
-intTCCommandFocus := ""
-strTabParameter := ""
-strSideParameter := ""
-strFavoriteWindowPosition := ""
-ResetArray("arrFavoriteWindowPosition")
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteInNewWindowQAPconnect:
-;------------------------------------------------------------
-
-if InStr(g_strFullLocation, " ") and !(g_aaFileManagerQAPconnect.strQAPconnectNeverQuotes)
-	g_strFullLocation := """" . g_strFullLocation . """"
-strQAPconnectParamString := StrReplace(g_aaFileManagerQAPconnect.strQAPconnectCommandLine, "%Path%", g_strFullLocation)
-strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", g_aaFileManagerQAPconnect.strQAPconnectNewTabSwitch)
-
-Run, % g_aaFileManagerQAPconnect.strFileManagerPath . " " . strQAPconnectParamString
-
-if StrLen(g_aaFileManagerQAPconnect.strQAPconnectWindowID)
-; g_aaFileManagerQAPconnect.strQAPconnectWindowID contains "ahk_exe " and the file name of the FM executable.
-; It is used here to wait for the FM window and it is copied to g_strNewWindowId.
-{
-	intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
-	SetTitleMatchMode, RegEx ; change match mode to RegEx
-	; with RegEx, for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
-	; (because by default, regular expressions find a match anywhere in the target string).
-	WinWaitActive, % g_aaFileManagerQAPconnect.strQAPconnectWindowID, , 10 ; wait for the window as identified in QAPconnect.ini
-	SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
-	g_strNewWindowId := g_aaFileManagerQAPconnect.strQAPconnectWindowID
-}
-else
-	g_strNewWindowId := ""
-
-intPreviousTitleMatchMode := ""
-strQAPconnectParamString := ""
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteInNewWindowUnknown:
-;------------------------------------------------------------
-; avoid an error message if target app name is unknown
-
-Oops(o_L["OopsUnknownTargetAppName"])
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OpenFavoriteWindowPosition:
-;------------------------------------------------------------
-
-if !StrLen(g_strNewWindowId) ; we can't access the new window
-	return
-
-if (g_arrFavoriteWindowPosition1) ; this has precedence on g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor
-{
-	Sleep, % g_arrFavoriteWindowPosition7 * (g_blnFirstFolderOfGroup ? 2 : 1)
-	
-	if (g_arrFavoriteWindowPosition8 and g_arrFavoriteWindowPosition8 <= intNbMonitors) ; maximize or minimize on this monitor
-	{
-		SysGet, arrMonitorsCoordinates, Monitor, %g_arrFavoriteWindowPosition8%
-		WinMove, %g_strNewWindowId%,
-			, %arrMonitorsCoordinatesLeft% ; left
-			, %arrMonitorsCoordinatesTop% ; top
-	}
-	; do not else
-	if (g_arrFavoriteWindowPosition2 = -1) ; Minimized
-		WinMinimize, %g_strNewWindowId%
-	else if (g_arrFavoriteWindowPosition2 = 1) ; Maximized
-		WinMaximize, %g_strNewWindowId%
-	else ; Normal
-	{
-		; see WinRestore doc PostMessage, 0x112, 0xF120,,, %g_strNewWindowId% ; 0x112 = WM_SYSCOMMAND, 0xF120 = SC_RESTORE
-		WinMove, %g_strNewWindowId%,
-			, %g_arrFavoriteWindowPosition3% ; left
-			, %g_arrFavoriteWindowPosition4% ; top
-			, %g_arrFavoriteWindowPosition5% ; width
-			, %g_arrFavoriteWindowPosition6% ; height
-		WinRestore, %g_strNewWindowId%
-		Sleep, %g_arrFavoriteWindowPosition7%
-	}
-}
-else if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and (intNbMonitors > 1) and (g_strTargetAppName = "Explorer") and (g_strHotkeyTypeDetected = "Launch"))
-	and GetWindowPositionOnActiveMonitor(g_strNewWindowId, intMonitorReferencePositionX, intMonitorReferencePositionY, intNewWindowX, intNewWindowY)
-{
-	; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
-	g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
-	intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
-	intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
-	
-	WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
-	Sleep, 100
-}
-
-if (g_arrFavoriteWindowPosition2 <> -1) ; not Minimized
-{
-	WinShow, %g_strNewWindowId%
-	WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
-}
-
-intNewWindowX := ""
-intNewWindowY := ""
-strScreenConfiguration := ""
-ResetArray("arrConfig")
-ResetArray("arrMonitorsCoordinates")
-
-return
-;------------------------------------------------------------
-
 
 ;========================================================================================================================
 ; END OF NEW WINDOW
@@ -18183,7 +17565,7 @@ strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
 
 strUsageDbMenuTargetClass := g_strTargetClass
 strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
-strUsageDbMenuTargetAppName := g_strTargetAppName
+strUsageDbMenuTargetAppName := this.aaTemp.strTargetAppName ; ##### need fix
 
 strUsageDbTargetPathExpanded := g_objThisFavorite.FavoriteLocation
 if InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType)
@@ -21026,41 +20408,6 @@ ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 
 
 ;------------------------------------------------------------
-OpenFavoritePlaySound(strSound)
-;------------------------------------------------------------
-{
-	if (SubStr(strSound, 1, 2) = "*|")
-		intFavoriteSoundType := 1 ; sequence
-	else if (SubStr(strSound, 1, 1) = "*")
-		intFavoriteSoundType := 2 ; system
-	else
-		intFavoriteSoundType := 3 ; file
-
-	if (intFavoriteSoundType = 1)
-		Loop, Parse, % strSound, |, *
-			if StrLen(A_LoopField)
-			{
-				StringSplit, arrThisSound, A_LoopField, @
-				SoundBeep, %arrThisSound2%, %arrThisSound1%
-			}
-	
-	if (intFavoriteSoundType > 1) ; do not use else with previous if(s)
-	{
-		strFavoriteSoundLocationExpanded := (intFavoriteSoundType = 2
-			? strSound ; system
-			: PathCombine(A_WorkingDir, EnvVars(strSound))) ; file
-			
-		if (intFavoriteSoundType = 3) ; if file do not exist play system sound
-			if !FileExist(strFavoriteSoundLocationExpanded)
-				strFavoriteSoundLocationExpanded := "*16" ; Hand (stop/error)
-			
-		SoundPlay, %strFavoriteSoundLocationExpanded%
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RecentGetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strDateTime, ByRef strExtension, strSource)
 ;------------------------------------------------------------
 {
@@ -23242,7 +22589,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
 			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
 			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
-		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"],					"menuOptions",					"OptionsMenuShortcut",					"7-QAPManagement"
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"],					"menuBarOptions",					"OptionsMenuShortcut",					"7-QAPManagement"
 			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
 
@@ -25021,7 +24368,7 @@ class Container
 			this.InsertItemValue("strFavoriteIconResource", saFavorite[4]) ; icon resource in format "iconfile,iconindex" or JLicons index "iconXYZ"
 			this.InsertItemValue("strFavoriteArguments", StrReplace(saFavorite[5], g_strEscapePipe, "|")) ; application arguments
 			this.InsertItemValue("strFavoriteAppWorkingDir", saFavorite[6]) ; application working directory
-			this.InsertItemValue("strFavoriteWindowPosition", saFavorite[7]) ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited)
+			this.InsertItemValue("strFavoriteWindowPosition", saFavorite[7]) ; Boolean,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (will be split when open favorite)
 			this.InsertItemValue("strFavoriteLaunchWith", saFavorite[8]) ; launch favorite with this executable, or various options for type Application and Snippet
 			if (this.AA.strFavoriteType = "Snippet" and this.AA.HasKey("strFavoriteLaunchWith"))
 			{
@@ -25033,10 +24380,15 @@ class Container
 			this.InsertItemValue("strFavoritePassword", StrReplace(saFavorite[10], g_strEscapePipe, "|")) ; password for FTP favorite
 			this.InsertItemValue("strFavoriteGroupSettings", saFavorite[11]) ; coma separated values for group restore settings or external menu starting line
 			if (this.AA.HasKey("strFavoriteGroupSettings"))
+			{
 				; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
 				; 2 restore folders with "Windows Explorer" or "Other" (Directory Opus, Total Commander or FPconnect)
 				; 3 delay in milliseconds to insert between each favorite to restore
-				this.AA.saFavoriteGroupSettings := StrSplit(this.AA.strFavoriteGroupSettings, ",")
+				saTemp := StrSplit(this.AA.strFavoriteGroupSettings, ",")
+				this.AA.blnGroupReplaceWindows := saTemp[1]
+				this.AA.strGroupRestoreWithExplorerOrOther := saTemp[2]
+				this.AA.intGroupRestoringDelay := saTemp[3]
+			}
 
 			this.InsertItemValue("strFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
 			this.InsertItemValue("blnFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
@@ -25077,11 +24429,17 @@ class Container
 		;---------------------------------------------------------
 		
 		;---------------------------------------------------------
-		OpenFavorite(strOpenFavoriteLabel)
+		OpenFavorite(strMenuTriggerLabel, strOpenFavoriteLabel, strTargetWinId, strHotkeyTypeDetected)
 		;---------------------------------------------------------
 		{
 			this.aaTemp := Object() ; reset item temporary values
+			this.aaTemp.strMenuTriggerLabel := strMenuTriggerLabel
 			this.aaTemp.strOpenFavoriteLabel := strOpenFavoriteLabel
+			this.aaTemp.strTargetWinId := strTargetWinId
+			this.aaTemp.strHotkeyTypeDetected := strHotkeyTypeDetected
+			
+			if (this.AA.strFavoriteType = "Text")
+				return
 			
 			; GROUP
 			if (this.AA.strFavoriteType = "Group") and !(g_blnAlternativeMenu)
@@ -25092,41 +24450,515 @@ class Container
 				; for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME}, {CUR_...}, etc,
 				; selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
 				; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
-				this.aaTemp.strFavoriteLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
-					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+				this.aaTemp.strLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
+					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
+					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 					
 				; SNIPPETS
 				if (this.AA.strFavoriteType = "Snippet")
 					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
-					this.PasteSnippet() ; using this.AA.strFavoriteLocationWithPlaceholders
+					this.PasteSnippet() ; using this.AA.strLocationWithPlaceholders
 					
-				; TYPES WITH FILE/FOLDER THAT MUST EXIST
+				; CHECK IF FILE/FOLDER MUST EXIST
 				else if this.FileExistIfMust(this.aaTemp.strOpenFavoriteLabel)
 				{
 					if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
-						if !this.SetTargetName() ; sets old g_strTargetAppName, can change g_strHotkeyTypeDetected to "Launch", can empty g_strTargetWinId if Desktop
+						if !this.SetTargetName() ; sets old g_strTargetAppName, can change this.aaTemp.strHotkeyTypeDetected to "Launch", can empty this.aaTemp.strTargetWinId if Desktop
 							return
 					
 					if (this.AA.strFavoriteType <> "Text") ; text separators don't have location
 						if !this.SetFullLocation()
 							return
 						
+					; WINDOW POSITION PREPARATION
+					; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
+					; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+					this.aaTemp.saFavoriteWindowPosition := StrSplit(o_ThisFavorite.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
+					; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+					if InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
+					{
+						SysGet, intNbMonitors, MonitorCount
+						this.aaTemp.intNbMonitors := intNbMonitors
+						if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and this.aaTemp.intNbMonitors > 1)
+							GetPositionFromMouseOrKeyboard(this.aaTemp.strMenuTriggerLabel, A_ThisHotkey, this.aaTemp.intMonitorReferencePositionX, this.aaTemp.intMonitorReferencePositionY)
+					}
+					
+					; FOLDER
+					if InStr("Folder|FTP|Special", this.AA.strFavoriteType)
+						blnOpenOK := this.OpenFolder()
+
 					### := ###
 				}
 			}
 			
-			
-			
-			
-			
-			
-			; LOG ACTION
-			if !(this.AA.blnIsGroupMember) ; not if group member
-				and !(g_blnAlternativeMenu) ; not if alternative menu action
+			if (blnOpenOK)
 			{
-				gosub, OpenFavoritePlaySoundAndCleanup
-				gosub, UsageDbCollectMenu ; DO IT LATER
+				; SET WINDOW POSITION
+				if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
+					and (InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue)
+					; we can access new Explorer or Total Commander windows, or try with other apps
+					this.SetWindowPosition() ; was OpenFavoriteWindowPosition
+				
+				if StrLen(this.AA.strFavoriteSoundLocation)
+					this.OpenFavoritePlaySound()
+				
+				; LOG ACTION
+				if !(this.AA.blnIsGroupMember) ; not if group member
+					and !(g_blnAlternativeMenu) ; not if alternative menu action
+					gosub, UsageDbCollectMenu ; DO IT LATER
+			}
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		OpenFolder()
+		; returns true if open went well, otherwhise false
+		;---------------------------------------------------------
+		{
+			; Navigate
+			if (this.aaTemp.strHotkeyTypeDetected = "Navigate")
+				and StrLen(g_strTargetClass) and (g_strTargetWinId)
+			{
+				if (this.aaTemp.strTargetAppName = "Explorer")
+				{
+					;------------------------------------------------------------
+					; Excerpt and adapted from RMApp_Explorer_Navigate(FullPath, hwnd="") by Learning One
+					; http://ahkscript.org/boards/viewtopic.php?f=5&t=526&start=20#p4673
+					; http://msdn.microsoft.com/en-us/library/windows/desktop/bb774096%28v=vs.85%29.aspx
+					; http://msdn.microsoft.com/en-us/library/aa752094
+					;------------------------------------------------------------
+					
+					if !RegexMatch(this.aaTemp.strFullLocation, "#.*\\") ; prevent the hash bug in Shell.Application - when a hash in path is followed by a backslash like in "c:\abc#xyz\abc")
+					{
+						intCountMatch := 0
+						For pExplorer in ComObjCreate("Shell.Application").Windows
+						{
+							if (pExplorer.hwnd = g_strTargetWinId)
+							{
+								intCountMatch++
+								if IsInteger(this.aaTemp.strFullLocation) ; ShellSpecialFolderConstant
+								{
+									try pExplorer.Navigate2(this.aaTemp.strFullLocation)
+									catch, objErr
+										Oops(o_L["NavigateSpecialError"], this.aaTemp.strFullLocation)
+								}
+								else
+								{
+									try pExplorer.Navigate(this.aaTemp.strFullLocation)
+									catch, objErr
+										; Note: If an error occurs in Navigate, the error message is given by Navigate itself and this script does not
+										; receive an error notification. From my experience, the following line would never be executed.
+										Oops(o_L["NavigateFileError"], this.aaTemp.strFullLocation)
+								}
+							}
+						}
+						if !(intCountMatch) ; open a new window
+						; for Explorer add-ons like Clover (verified - it now opens the folder in a new tab), others?
+						; also when g_strTargetWinId is DOpus window and DOpus is not used
+							if IsInteger(this.aaTemp.strFullLocation) ; ShellSpecialFolderConstant
+								ComObjCreate("Shell.Application").Explore(this.aaTemp.strFullLocation)
+							else
+								SendInput, % "{F4}{Esc}{Raw}" . this.aaTemp.strFullLocation . "`n"
+								; if I receive bug reports from Clover users, insert delays or fall back to; Run, Explorer "%this.aaTemp.strFullLocation%"
+					}
+					else
+						; Workaround for the hash (aka Sharp / "#") bug in Shell.Application - occurs only when navigating in the current Explorer window
+						; see http://stackoverflow.com/questions/22868546/navigate-shell-command-not-working-when-the-path-includes-an-hash
+						; and http://ahkscript.org/boards/viewtopic.php?f=5&t=526&p=25287#p25274
+						SendInput, % "{F4}{Esc}{Raw}" . this.aaTemp.strFullLocation . "`n"
+				}
+				else if (this.aaTemp.strTargetAppName = "DirectoryOpus")
+				{
+					if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
+						WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
+					
+					o_FileManagers.SA[2].RunDOpusRt("/aCmd Go", this.aaTemp.strFullLocation) ; navigate the current lister
+					
+				}
+				else if (this.aaTemp.strTargetAppName = "TotalCommander")
+				{
+					if IsInteger(this.aaTemp.strFullLocation)
+					{
+						SendMessage, 0x433, % this.aaTemp.strFullLocation, , , ahk_class TTOTAL_CMD
+						Sleep, 100 ; wait to improve SendMessage reliability
+						WinActivate, ahk_class TTOTAL_CMD
+					}
+					else
+					{
+						if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
+						{
+							WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
+							Sleep, 200
+						}
+						Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " /O /S /L=""" . this.aaTemp.strFullLocation . """"
+						; /O existing file list, /S source-dest /L=source (active pane) - change folder in the active pane/tab
+					}
+				}
+				else if (this.aaTemp.strTargetAppName = "QAPconnect")
+				{
+					if InStr(this.aaTemp.strFullLocation, " ") and !(g_aaFileManagerQAPconnect.strQAPconnectNeverQuotes)
+						this.aaTemp.strFullLocation := """" . this.aaTemp.strFullLocation . """"
+					strQAPconnectParamString := StrReplace(g_aaFileManagerQAPconnect.strQAPconnectCommandLine, "%Path%", this.aaTemp.strFullLocation)
+					strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%")
+					
+					if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
+					{
+						WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
+						Sleep, 200
+					}
+					Run, % g_aaFileManagerQAPconnect.strFileManagerPath . " " . strQAPconnectParamString
+				}
+				else if (this.aaTemp.strTargetAppName = "Console")
+				{
+					if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
+						WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
+					
+					WinGet, strProcessName, ProcessName, ahk_id %g_strTargetWinId%
+					; add /D option only for cmd.exe, not required for powershell.exe
+					strCommand := "CD " . (strProcessName = "powershell.exe" ? "" : "/D ") ; must end with space
+					
+					if (o_Settings.Execution.blnSendToConsoleWithAlt.IniValue)
+					; using ALT+0nnn ASCII codes for console with international keyboard input language
+					{
+						strCommand .= """" . this.aaTemp.strFullLocation . """" ; double-quotes required for PowerShell
+						loop, parse, strCommand
+							; ANSI characters (like "é") are supported by preceeding the ASCII code with 0, but Unicode characters are not supported
+							; see https://autohotkey.com/docs/commands/Send.htm#asc
+							strSendToConsoleAscCodes .= "{ASC 0" . Asc(A_LoopField) . "}"
+						SendInput, %strSendToConsoleAscCodes%
+						
+						strSendToConsoleAscCodes := ""
+					}
+					else
+						SendInput, % "{Raw}" . strCommand . """" . this.aaTemp.strFullLocation . """" ; double-quotes required for PowerShell
+					
+					Sleep, 200
+					SendInput, {Enter}
+				}
+				else if (this.aaTemp.strTargetAppName = "Dialog")
+				{
+					if ControlIsVisible("ahk_id " . g_strTargetWinId, "Edit1")
+						strEditControl := "Edit1"
+						; in standard dialog windows, "Edit1" control is the right choice
+					else if ControlIsVisible("ahk_id " . g_strTargetWinId, "Edit2")
+						strEditControl := "Edit2"
+						; but sometimes in MS office, if condition above fails, "Edit2" control is the right choice 
+					else ; if above fails - just return false and do nothing.
+						return false
+					
+					;=== In this part (if we reached it), we'll send strLocation to control and restore control's initial text after navigating to specified folder===
+					
+					ControlGetText, strPrevControlText, %strEditControl%, ahk_id %g_strTargetWinId% ; we'll get and store control's initial text first
+					
+					; for app's (like Notepad++ v7.5.6) Save As dialog box trying to save instead of navigating if location does not end with backslash
+					strFullLocationTemp := this.aaTemp.strFullLocation . (SubStr(this.aaTemp.strFullLocation, StrLen(this.aaTemp.strFullLocation), 1) <> "\" ? "\" : "")
+					
+					if !ControlSetTextR(strEditControl, strFullLocationTemp, "ahk_id " . g_strTargetWinId) ; set control's text to strLocation
+						return false ; abort if control is not set
+					
+					if !ControlSetFocusR(strEditControl, "ahk_id " . g_strTargetWinId) ; focus control
+						return false
+					
+					if (WinExist("A") <> g_strTargetWinId) ; in case that some window just popped out, and initialy active window lost focus
+						WinActivate, ahk_id %g_strTargetWinId% ; we'll activate initialy active window
+					
+					;=== Avoid accidental hotkey & hotstring triggereing while doing SendInput - can be done simply by #UseHook, but do it if user doesn't have #UseHook in the script ===
+					
+					Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control before sending {Enter} to it
+					If (A_IsSuspended)
+						blnWasSuspended := True
+					if (!blnWasSuspended)
+						Suspend, On
+					; Changed from SendInput to SendEvent in v8.0.9.2 to introduce a key delay to solve issue with Firefox dialog box
+					; SendInput, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
+					SetKeyDelay, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue
+					SendEvent, {End}{Space}{Backspace}{Enter} ; silly but necessary part - go to end of control, send dummy space, delete it, and then send enter
+					if (!blnWasSuspended)
+						Suspend, Off
+					
+					Sleep, % o_Settings.DialogBoxes.intWaitDelayInDialogBox.IniValue ; give some time to control after sending {Enter} to it
+					ControlGetText, strControlTextAfterNavigation, %strEditControl%, ahk_id %g_strTargetWinId% ; sometimes controls automatically restore their initial text
+					if (strControlTextAfterNavigation <> strPrevControlText)
+						ControlSetTextR(strEditControl, strPrevControlText, "ahk_id " . g_strTargetWinId) ; we'll set control's text to its initial text
+					
+					if (WinExist("A") <> g_strTargetWinId) ; sometimes initialy active window loses focus, so we'll activate it again
+						WinActivate, ahk_id %g_strTargetWinId%
+				}
+				else ; Unknown
+				{
+					; avoid an error message if target app name is unknown
+					Oops(o_L["OopsUnknownTargetAppName"])
+					return false
+				}
+			}
+			else ; New window
+			; this.aaTemp.strHotkeyTypeDetected = "Launch" (new window) or !StrLen(g_strTargetClass) or (g_strTargetWinId = 0) ; for situations where the target window could not be detected
+			{
+				; updates g_strNewWindowId with new Explorer window ID
+				if (this.aaTemp.strTargetAppName = "Explorer")
+				{
+					if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
+					{
+						; get new window ID
+						; when run -> pid? if not scan Explorer ids
+						this.SetExplorersIDs() ;  refresh the list of existing Explorer windows this.aaTemp.strExplorerIDs (was g_strExplorerIDs)
+						strExplorerIDsBefore := this.aaTemp.strExplorerIDs ;  save the list before launching this new Explorer
+					}
+					
+					if (StrLen(this.AA.FavoriteArguments)
+						or (g_blnAlternativeMenu and g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"])
+						or this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
+						; This technique creates a new Explorer instance at every call unless the current location is already an active Explorer window (as of Win 10).
+						; It is preferred to "Run, %this.aaTemp.strFullLocation%" because it gives better result getting the new Explorer window ID required to move the window.
+						Run, % "Explorer """ . this.aaTemp.strFullLocation . """", , % (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor ? "Hide" : "")
+					else
+					{
+						; When moving the window is not required and there is no parameter, this technique is preferred because, if call multiple times, it uses the
+						; same Explorer instance created by QAP.
+						Run, % this.aaTemp.strFullLocation
+						g_strNewWindowId := ""
+					}
+					
+					if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
+					{
+						Loop
+						{
+							if (A_Index > 20)
+								; stop showing tray message from v9.3.1.9.1
+								; TrayTip, % L(o_L["TrayTipInstalledTitle"], g_strAppNameText), % L(o_L["DialogErrorMoving"], this.aaTemp.strFullLocation), , 2 ; warning icon with sound
+								; Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+								Break
+								
+							Sleep, % (this.aaTemp.saFavoriteWindowPosition[1] ? this.aaTemp.saFavoriteWindowPosition[7] : 400) ; 400 ms if opening window on the active monitor
+							this.SetExplorersIDs() ;  refresh the list of existing Explorer windows this.aaTemp.strExplorerIDs
+							Loop, Parse, % this.aaTemp.strExplorerIDs, |
+								if !InStr(strExplorerIDsBefore, A_LoopField . "|")
+								{
+									g_strNewWindowId  := "ahk_id " . A_LoopField
+									break
+								}
+							If StrLen(g_strNewWindowId)
+								Break ; we have a new window
+						}
+					}
+					if !StrLen(g_strNewWindowId) and (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor)
+					; we will not be able to move the window, just show it now
+					{
+						Sleep, 100
+						WinShow, A
+						WinActivate, A ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
+					}
+					
+					strExplorerIDsBefore := ""
+				}
+				else if (this.aaTemp.strTargetAppName = "DirectoryOpus")
+				{
+					if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
+					{
+						if (this.aaTemp.blnFirstFolderOfGroup) and !(this.AA.blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
+						; for the first member of the group, if we add to existing tabs, make sure a lister is running
+						{
+							Run, % g_aaFileManagerDirectoryOpus.strFileManagerPath
+							WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+							Sleep, 200 ; sometimes without delay DOpus left the new tab empty
+						}
+						
+						if (this.aaTemp.blnFirstFolderOfGroup and this.AA.blnGroupReplaceWindows) or !(g_aaFileManagerDirectoryOpus.blnFileManagerUseTabs)
+							strTabParameter := "NEW=nodual" ; force left in new lister
+						else
+						{
+							if StrLen(this.aaTemp.saFavoriteWindowPosition[8])
+								strTabParameter := "NEWTAB " . (this.aaTemp.saFavoriteWindowPosition[8] = "L" ? "OPENINLEFT" : "OPENINRIGHT")
+							else
+								strTabParameter := g_aaFileManagerDirectoryOpus.strNewTabOrWindow
+						}
+					}
+					else
+						strTabParameter := g_aaFileManagerDirectoryOpus.strNewTabOrWindow
+					
+					strTabParameter := StrReplace(strTabParameter, "NEWTAB", "NEWTAB=tofront") ; instead of activating by QAP as in previous versions
+					o_FileManagers.SA[2].RunDOpusRt("/acmd Go ", this.aaTemp.strFullLocation, " " . strTabParameter) ; open in a new lister or tab, left or right
+					; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " NEWTAB") ; open in a new tab of pane 1
+					; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
+					; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
+					
+					if (this.aaTemp.blnFirstFolderOfGroup) ; after the first member of the group, make sure the lister is fully launched before processing the second
+						WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+					g_strNewWindowId := "ahk_class dopus.lister"
+				}
+				else if (this.aaTemp.strTargetAppName = "TotalCommander")
+				{
+					if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
+					{
+						; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
+						if StrLen(this.aaTemp.saFavoriteWindowPosition[8])
+							strSideParameter := this.aaTemp.saFavoriteWindowPosition[8]
+						else
+							strSideParameter := "L"
+					}
+						
+					if IsInteger(this.aaTemp.strFullLocation)
+					{
+						if !WinExist("ahk_class TTOTAL_CMD") ; open a first instance
+							or InStr(g_aaFileManagerTotalCommander.strNewTabOrWindow, "/N") ; or open a new instance
+							or (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup" and (this.aaTemp.blnFirstFolderOfGroup and this.AA.blnGroupReplaceWindows))
+						{
+							Run, % g_aaFileManagerTotalCommander.strFileManagerPath
+							WinWaitActive, ahk_class TTOTAL_CMD, , 10
+							Sleep, 200 ; wait additional time to improve SendMessage reliability in OpenFavoriteNavigateTotalCommander
+						}
+						
+						if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
+						{
+							if (strSideParameter = "L")
+								intTCCommandFocus := 4001 ; cm_FocusLeft
+							else
+								intTCCommandFocus := 4002 ; cm_FocusRight
+							Sleep, 100 ; wait to improve SendMessage reliability
+							SendMessage, 0x433, %intTCCommandFocus%, , , ahk_class TTOTAL_CMD
+						}
+						
+						if !InStr(g_aaFileManagerTotalCommander.strNewTabOrWindow, "/N") ; open the folder in a new tab
+						{
+							intTCCommandOpenNewTab := 3001 ; cm_OpenNewTab
+							Sleep, 100 ; wait to improve SendMessage reliability
+							SendMessage, 0x433, %intTCCommandOpenNewTab%, , , ahk_class TTOTAL_CMD
+						}
+						Sleep, 100 ; wait to improve SendMessage reliability in OpenFavoriteNavigateTotalCommander
+						this.aaTemp.strHotkeyTypeDetected := "Navigate"
+						this.OpenFolder() 
+						; ??? check this:
+						; Since this.aaTemp.strFullLocation is integer, OpenFavoriteNavigateTotalCommander is doing:
+						; SendMessage, 0x433, %intTCCommand%, , , ahk_class TTOTAL_CMD
+						; Sleep, 100 ; wait to improve SendMessage reliability
+						; WinActivate, ahk_class TTOTAL_CMD
+					}
+					else ; normal folder
+					{
+						if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
+							if (this.aaTemp.blnFirstFolderOfGroup and this.AA.blnGroupReplaceWindows) or !(g_aaFileManagerTotalCommander.blnFileManagerUseTabs)
+								strTabParameter := "/N" ; /N new window
+							else
+								strTabParameter := "/O /T" ; /O same instance, /T new tab
+						else
+						{
+							; g_aaFileManagerTotalCommander.strNewTabOrWindow should contain "/O /T" to open in an new tab of the existing file list (default), or "/N" to open in a new file list
+							strTabParameter := g_aaFileManagerTotalCommander.strNewTabOrWindow
+							strSideParameter := ""
+						}
+						
+						if StrLen(strSideParameter)
+							Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " " . strTabParameter . " /" . strSideParameter . "=""" . this.aaTemp.strFullLocation . """"
+						else
+							; use active parameter with /S instead of L/R side parameter
+							Run, % g_aaFileManagerTotalCommander.strFileManagerPath . " " . strTabParameter . " /S """ . this.aaTemp.strFullLocation . """"
+						
+						WinWaitActive, ahk_class TTOTAL_CMD, , 10
+					}
+					g_strNewWindowId := "ahk_class TTOTAL_CMD"
+				}
+				else if (this.aaTemp.strTargetAppName = "QAPconnect")
+				{
+					if InStr(this.aaTemp.strFullLocation, " ") and !(g_aaFileManagerQAPconnect.strQAPconnectNeverQuotes)
+						this.aaTemp.strFullLocation := """" . this.aaTemp.strFullLocation . """"
+					strQAPconnectParamString := StrReplace(g_aaFileManagerQAPconnect.strQAPconnectCommandLine, "%Path%", this.aaTemp.strFullLocation)
+					strQAPconnectParamString := StrReplace(strQAPconnectParamString, "%NewTabSwitch%", g_aaFileManagerQAPconnect.strQAPconnectNewTabSwitch)
+					
+					Run, % g_aaFileManagerQAPconnect.strFileManagerPath . " " . strQAPconnectParamString
+					
+					if StrLen(g_aaFileManagerQAPconnect.strQAPconnectWindowID)
+					; g_aaFileManagerQAPconnect.strQAPconnectWindowID contains "ahk_exe " and the file name of the FM executable.
+					; It is used here to wait for the FM window and it is copied to g_strNewWindowId.
+					{
+						intPreviousTitleMatchMode := A_TitleMatchMode ; save current match mode
+						SetTitleMatchMode, RegEx ; change match mode to RegEx
+						; with RegEx, for example, ahk_class IEFrame searches for any window whose class name contains IEFrame anywhere
+						; (because by default, regular expressions find a match anywhere in the target string).
+						WinWaitActive, % g_aaFileManagerQAPconnect.strQAPconnectWindowID, , 10 ; wait for the window as identified in QAPconnect.ini
+						SetTitleMatchMode, %intPreviousTitleMatchMode% ; restore previous match mode
+						g_strNewWindowId := g_aaFileManagerQAPconnect.strQAPconnectWindowID
+					}
+					else
+						g_strNewWindowId := ""
+				}
+				else ; Unknown
+					; avoid an error message if target app name is unknown
+					Oops(o_L["OopsUnknownTargetAppName"])
+			}
+			return true
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		SetExplorersIDs()
+		;---------------------------------------------------------
+		{
+			this.aaTemp.strExplorerIDs := ""
+			pExplorerWindows := ComObjCreate("Shell.Application").Windows
+			for pExplorer in pExplorerWindows
+			{
+				strType := ""
+				try strType := pExplorer.Type ; Gets the type name of the contained document object. "Document HTML" for IE windows. Should be empty for file Explorer windows.
+				strWindowID := ""
+				try strWindowID := pExplorer.HWND ; Try to get the handle of the window. Some ghost Explorer in the ComObjCreate may return an empty handle
+				if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
+					this.aaTemp.strExplorerIDs .= pExplorer.HWND . "|"
+			}
+			ObjRelease(pExplorerWindows) ; free memory used by the object
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		SetWindowPosition() ; was OpenFavoriteWindowPosition
+		;---------------------------------------------------------
+		{
+			if !StrLen(g_strNewWindowId) ; we can't access the new window
+				return
+			
+			if (this.aaTemp.saFavoriteWindowPosition[1]) ; this has precedence on g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor
+			{
+				Sleep, % this.aaTemp.saFavoriteWindowPosition[7] * (this.aaTemp.blnFirstFolderOfGroup ? 2 : 1)
+				
+				if (this.aaTemp.saFavoriteWindowPosition[8] and this.aaTemp.saFavoriteWindowPosition[8] <= this.aaTemp.intNbMonitors) ; maximize or minimize on this monitor
+				{
+					SysGet, arrMonitorsCoordinates, Monitor, % this.aaTemp.saFavoriteWindowPosition[8]
+					WinMove, %g_strNewWindowId%,
+						, %arrMonitorsCoordinatesLeft% ; left
+						, %arrMonitorsCoordinatesTop% ; top
+				}
+				; do not else
+				if (this.aaTemp.saFavoriteWindowPosition[2] = -1) ; Minimized
+					WinMinimize, %g_strNewWindowId%
+				else if (this.aaTemp.saFavoriteWindowPosition[2] = 1) ; Maximized
+					WinMaximize, %g_strNewWindowId%
+				else ; Normal
+				{
+					; see WinRestore doc PostMessage, 0x112, 0xF120,,, %g_strNewWindowId% ; 0x112 = WM_SYSCOMMAND, 0xF120 = SC_RESTORE
+					WinMove, %g_strNewWindowId%,
+						, % this.aaTemp.saFavoriteWindowPosition[3] ; left
+						, % this.aaTemp.saFavoriteWindowPosition[4] ; top
+						, % this.aaTemp.saFavoriteWindowPosition[5] ; width
+						, % this.aaTemp.saFavoriteWindowPosition[6] ; height
+					WinRestore, %g_strNewWindowId%
+					Sleep, % this.aaTemp.saFavoriteWindowPosition[7]
+				}
+			}
+			else if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and (this.aaTemp.intNbMonitors > 1) and (this.aaTemp.strTargetAppName = "Explorer") and (this.aaTemp.strHotkeyTypeDetected = "Launch"))
+				and GetWindowPositionOnActiveMonitor(g_strNewWindowId, intMonitorReferencePositionX, intMonitorReferencePositionY, intNewWindowX, intNewWindowY)
+			{
+				; offset multiple Explorer windows positioned at center of screen (from -100/-100 to +80/+80
+				g_intNewWindowOffset := Mod(g_intNewWindowOffset + 1, 9) ; value 0..8
+				intNewWindowX := intNewWindowX + ((g_intNewWindowOffset - 4) * 20) ; value (-4 * 20)..(+4 * 20)
+				intNewWindowY := intNewWindowy + ((g_intNewWindowOffset - 4) * 20)
+				
+				WinMove, %g_strNewWindowId%, , %intNewWindowX%, %intNewWindowY%
+				Sleep, 100
+			}
+			
+			if (this.aaTemp.saFavoriteWindowPosition[2] <> -1) ; not Minimized
+			{
+				WinShow, %g_strNewWindowId%
+				WinActivate, %g_strNewWindowId% ; safe to activate after WinShow to prevent unexpected minimize of the Explorer window
 			}
 		}
 		;---------------------------------------------------------
@@ -25135,15 +24967,10 @@ class Container
 		OpenGroup()
 		;---------------------------------------------------------
 		{
-			g_strTargetWinId := "" ; never use target window when launched in a group
-			g_strHotkeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
+			this.aaTemp.strTargetWinId := "" ; never use target window when launched in a group
+			this.aaTemp.strHotkeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
 
-			; o_ThisGroupFavorite := this ; is this iotself the group - if yes no need for o_ThisGroupFavorite, loop this
-
-			; .saGroupSettings[1]: boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
-			; .saGroupSettings[2]: restore folders with "Explorer" or "Other" (Directory Opus, Total Commander or QAPconnect)
-			; .saGroupSettings[3]: delay in milliseconds to insert between each favorite to restore (in addition to default 200 ms)
-			if (this.AA.saGroupSettings[1]) ; was g_blnGroupReplaceWindows
+			if (this.AA.blnGroupReplaceWindows) ; was g_blnGroupReplaceWindows
 				gosub, OpenGroupOfFavoritesCloseExplorers
 				
 			intFolderItemsCount := 0
@@ -25168,13 +24995,13 @@ class Container
 		{
 			strWaitTime := 10
 
-			WinGetClass, strClassSnippet, ahk_id %g_strTargetWinId%
+			WinGetClass, strClassSnippet, % "ahk_id " . this.aaTemp.strTargetWinId
 
 			if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(this.AA.strSnippetPrompt))
 			{
 				this.aaTemp.strSnippetPromptExpanded := ExpandPlaceholders(this.AA.strSnippetPrompt, ""
-					, (InStr(this.AA.strSnippetPrompt, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-					, (InStr(this.AA.strSnippetPrompt, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+					, (InStr(this.AA.strSnippetPrompt, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
+					, (InStr(this.AA.strSnippetPrompt, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 				ToolTip, % L((StrLen(this.aaTemp.strSnippetPromptExpanded) ? this.aaTemp.strSnippetPromptExpanded . "`n" : "")
 					. (this.AA.blnSnippetMacroMode = 1 ? o_L["TooltipSnippetWaitMacro"] : o_L["TooltipSnippetWaitText"])
 						, o_L["TooltipSnippetWaitEnter"], o_L["TooltipSnippetWaitSpace"], strWaitTime, o_L["TooltipSnippetWaitEscape"])
@@ -25185,7 +25012,7 @@ class Container
 					return
 			}
 			else
-				WinActivate, ahk_id %g_strTargetWinId%
+				WinActivate, % "ahk_id " . this.aaTemp.strTargetWinId
 			
 			; this.AA.blnSnippetMacroMode is 1 for Macro snippet, anything else is Text snippet
 			if (this.AA.blnSnippetMacroMode <> 1) ; snippet of type Text
@@ -25196,7 +25023,7 @@ class Container
 				ClipBoard := ""
 				Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[2] ; safety delay default 80 ms
 				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-				ClipBoard := DecodeSnippet(this.AA.strFavoriteLocationWithPlaceholders, true)
+				ClipBoard := DecodeSnippet(this.AA.strLocationWithPlaceholders, true)
 				ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 				intErrorLevel := ErrorLevel
 				if (intErrorLevel)
@@ -25215,7 +25042,7 @@ class Container
 			else ; snippet of type Macro
 			{
 				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-				strTemp := DecodeSnippet(this.AA.strFavoriteLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
+				strTemp := DecodeSnippet(this.AA.strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
 
 				Loop
 				{
@@ -25234,7 +25061,7 @@ class Container
 						; {&SetKeyDelay:n, option}: speed down the sending of the snippet (see https://autohotkey.com/docs/commands/SetKeyDelay.htm)
 						; {&KeyWait:keyname, options}: pause sending the snippet until user press the specified key, option D by default, added option B to "Beep" (see https://autohotkey.com/docs/commands/KeyWait.htm)
 						{
-							if strCommand is integer ; shortcut {&n} for {&Sleep:n} command
+							if IsInteger(strCommand) ; shortcut {&n} for {&Sleep:n} command
 							{
 								strOptions := strCommand ; copy the n of milliseconds to sleep
 								strCommand := "Sleep" ; set the shortcut command
@@ -25300,15 +25127,15 @@ class Container
 			;	this.aaTemp.strTargetAppName := "Tray"
 			else if WindowIsConsole(g_strTargetClass)
 				this.aaTemp.strTargetAppName := "Console"
-			else if WindowIsDialog(g_strTargetClass, g_strTargetWinId)
+			else if WindowIsDialog(g_strTargetClass, this.aaTemp.strTargetWinId)
 				this.aaTemp.strTargetAppName := "Dialog"
-			; else if WindowIsTreeview(g_strTargetWinId)
+			; else if WindowIsTreeview(this.aaTemp.strTargetWinId)
 			;	this.aaTemp.strTargetAppName := "Treeview"
 			else if WindowIsDirectoryOpus(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 2)
 				this.aaTemp.strTargetAppName := "DirectoryOpus"
 			else if WindowIsTotalCommander(g_strTargetClass) and (o_FileManagers.P_intActiveFileManager = 3)
 				this.aaTemp.strTargetAppName := "TotalCommander"
-			else if WindowIsQAPconnect(g_strTargetWinId) and (o_FileManagers.P_intActiveFileManager = 4)
+			else if WindowIsQAPconnect(this.aaTemp.strTargetWinId) and (o_FileManagers.P_intActiveFileManager = 4)
 				this.aaTemp.strTargetAppName := "QAPconnect"
 			else if WindowIsQuickAccessPopup(g_strTargetClass)
 			{
@@ -25320,19 +25147,19 @@ class Container
 					this.aaTemp.strTargetAppName := "QAPconnect"
 				else
 					this.aaTemp.strTargetAppName := "Explorer"
-				g_strHotkeyTypeDetected := "Launch"
+				this.aaTemp.strHotkeyTypeDetected := "Launch"
 			}
 			else
 				this.aaTemp.strTargetAppName := "Unknown"
 
 			if (this.aaTemp.strTargetAppName = "Desktop")
 			{
-				g_strTargetWinId := "" ; never use target window when clicked on the desktop
-				g_strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
+				this.aaTemp.strTargetWinId := "" ; never use target window when clicked on the desktop
+				this.aaTemp.strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
 			}
 
-			if (g_strHotkeyTypeDetected = "Launch")
-				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.saFavoriteGroupSettings[2] = "Windows Explorer")
+			if (this.aaTemp.strHotkeyTypeDetected = "Launch")
+				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.strGroupRestoreWithExplorerOrOther[2] = "Windows Explorer")
 					this.aaTemp.strTargetAppName := "Explorer"
 				else if InStr("Desktop|Dialog|Console|Unknown", this.aaTemp.strTargetAppName) ; these targets cannot launch in a new window
 					or (o_FileManagers.P_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
@@ -25359,8 +25186,8 @@ class Container
 			{
 				this.aaTemp.strFullLocation := this.AA.strFavoriteLocation
 				this.aaTemp.strTargetAppName := "DirectoryOpus"
-				if (g_strHotkeyTypeDetected = "Navigate" and !WindowIsDirectoryOpus(g_strTargetClass))
-					g_strHotkeyTypeDetected := "Launch"
+				if (this.aaTemp.strHotkeyTypeDetected = "Navigate" and !WindowIsDirectoryOpus(g_strTargetClass))
+					this.aaTemp.strHotkeyTypeDetected := "Launch"
 			}
 			; Directory Opus Layouts
 			else if (this.aaTemp.strOpenFavoriteLabel = "OpenDOpusLayout")
@@ -25398,7 +25225,7 @@ class Container
 					{
 						; ##### necessary or already done before???
 						if InStr(this.aaTemp.strFullLocation, "{CUR_") ; here, expand only if current location is used
-							this.aaTemp.strFullLocation := ExpandPlaceholders(this.aaTemp.strFullLocation, "", GetCurrentLocation(g_strTargetClass, g_strTargetWinId), -1)
+							this.aaTemp.strFullLocation := ExpandPlaceholders(this.aaTemp.strFullLocation, "", GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId), -1)
 						
 						; ##### necessary or already done before???
 						; expand system variables
@@ -25412,10 +25239,11 @@ class Container
 						; for archive, older method of launching Windows Apps before using IApplicationActivationManager
 						; this.aaTemp.strFullLocation := "shell:Appsfolder\" . this.aaTemp.strFullLocation
 						
-						return ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
+						return true ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
 					}
 					else if (this.AA.strFavoriteType = "Special")
-						this.aaTemp.strFullLocation := GetSpecialFolderLocation(g_strHotkeyTypeDetected, g_strTargetAppName, this.AA) ; can change values of g_strHotkeyTypeDetected and g_strTargetAppName
+						this.aaTemp.strFullLocation := GetSpecialFolderLocation(this.aaTemp.strHotkeyTypeDetected, this.aaTemp.strTargetAppName, this.AA)
+							; can change values of this.aaTemp.strHotkeyTypeDetected and this.aaTemp.strTargetAppName
 					; else URL or QAP (no need to expand or make absolute), keep this.aaTemp.strFullLocation as in g_objThisFavorite.FavoriteLocation
 
 				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
@@ -25424,15 +25252,12 @@ class Container
 				if StrLen(this.AA.strFavoriteArguments)
 					; let user enter double-quotes as required by his arguments
 					this.aaTemp.strFullLocation .= " " . ExpandPlaceholders(this.AA.strFavoriteArguments, this.aaTemp.strFullLocation
-						, (InStr(this.AA.strFavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-						, (InStr(this.AA.strFavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+						, (InStr(this.AA.strFavoriteArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
+						, (InStr(this.AA.strFavoriteArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 				
-				if !StrLen(this.aaTemp.strFullLocation) ; OpenFavoriteGetFullLocation was aborted
-				{
-					gosub, OpenFavoriteCleanup
-					return
-				}
 			}
+			
+			return StrLen(this.aaTemp.strFullLocation) ; if empty, SetFullLocation was aborted, return false, else return true
 		}
 		;---------------------------------------------------------
 
@@ -25442,25 +25267,25 @@ class Container
 		{
 			if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; for these favorites, file/folder must exist on file system
 				and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"]) ; except if we edit the favorite
-				and !LocationIsHTTP(this.aaTemp.strFavoriteLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
-				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 3) = "\\\" and this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteHotlist")
+				and !LocationIsHTTP(this.aaTemp.strLocationWithPlaceholders) ; except if the folder location is on a server (WebDAV)
+				and !(SubStr(this.aaTemp.strLocationWithPlaceholders, 1, 3) = "\\\" and this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteHotlist")
 					; except if the location is a TC Hotlist folder managed by a file system plugin (like VirtualPanel)
-				and !(SubStr(this.aaTemp.strFavoriteLocationWithPlaceholders, 1, 1) = "?" and this.aaTemp.strOpenFavoriteLabel = "OpenDOpusFavorite")
+				and !(SubStr(this.aaTemp.strLocationWithPlaceholders, 1, 1) = "?" and this.aaTemp.strOpenFavoriteLabel = "OpenDOpusFavorite")
 					; except if the location is a DOpus Favorite special folder identified with <pidl>
 				and (this.aaTemp.strOpenFavoriteLabel <> "OpenDOpusLayout")
 					; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
 					
-				if !FileExistInPath(this.aaTemp.strFavoriteLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
+				if !FileExistInPath(this.aaTemp.strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 				{
 					Gui, 1:+OwnDialogs
 					MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4) ; ##### HAVE TO CHECK FOR PSEUDO
 						, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
 						, % L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
-							, (StrLen(this.aaTemp.strFavoriteLocationWithPlaceholders) and this.aaTemp.strFavoriteLocationWithPlaceholders <> this.AA.strFavoriteLocation ? " (" . this.aaTemp.strFavoriteLocationWithPlaceholders . ")" : ""))
+							, (StrLen(this.aaTemp.strLocationWithPlaceholders) and this.aaTemp.strLocationWithPlaceholders <> this.AA.strFavoriteLocation ? " (" . this.aaTemp.strLocationWithPlaceholders . ")" : ""))
 							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
 					IfMsgBox, Yes
 					{
-						 := true
+						g_blnAlternativeMenu := true
 						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
 						return true
 					}
@@ -25471,8 +25296,8 @@ class Container
 				if StrLen(this.AA.strFavoriteAppWorkingDir) and (this.AA.strFavoriteType = "Application")
 				{
 					this.aaTemp.strAppWorkingDirWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteAppWorkingDir, this.aaTemp.strLocationWithPlaceholders
-						, (InStr(this.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-						, (InStr(this.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+						, (InStr(this.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
+						, (InStr(this.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 
 					strAppWorkingDirBeforeFileExist := this.aaTemp.strAppWorkingDirWithPlaceholders
 					if StrLen(this.aaTemp.strAppWorkingDirWithPlaceholders) and !FileExistInPath(this.aaTemp.strAppWorkingDirWithPlaceholders)
@@ -25518,6 +25343,40 @@ class Container
 				
 			; location (and working directory for applications) exists or do not have to exist on file system
 			return true
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		OpenFavoritePlaySound()
+		;---------------------------------------------------------
+		{
+			if (SubStr(this.AA.strFavoriteSoundLocation, 1, 2) = "*|")
+				intFavoriteSoundType := 1 ; sequence
+			else if (SubStr(this.AA.strFavoriteSoundLocation, 1, 1) = "*")
+				intFavoriteSoundType := 2 ; system
+			else
+				intFavoriteSoundType := 3 ; file
+
+			if (intFavoriteSoundType = 1)
+				Loop, Parse, % this.AA.strFavoriteSoundLocation, |, *
+					if StrLen(A_LoopField)
+					{
+						saThisSound := StrSplit(A_LoopField, "@")
+						SoundBeep, % saThisSound[2], % saThisSound[1]
+					}
+			
+			if (intFavoriteSoundType > 1) ; do not use else with previous if(s)
+			{
+				strFavoriteSoundLocationExpanded := (intFavoriteSoundType = 2
+					? this.AA.strFavoriteSoundLocation ; system
+					: PathCombine(A_WorkingDir, EnvVars(this.AA.strFavoriteSoundLocation))) ; file
+					
+				if (intFavoriteSoundType = 3) ; if file do not exist play system sound
+					if !FileExist(strFavoriteSoundLocationExpanded)
+						strFavoriteSoundLocationExpanded := "*16" ; Hand (stop/error)
+					
+				SoundPlay, %strFavoriteSoundLocationExpanded%
+			}
 		}
 		;---------------------------------------------------------
 	}
