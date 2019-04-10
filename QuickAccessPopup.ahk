@@ -3368,10 +3368,10 @@ Gosub, InitGuiControls
 ; Init class for Triggers (must be before LoadIniFile)
 global o_MouseButtons := new Triggers.MouseButtons
 global o_PopupHotkeys := new Triggers.PopupHotkeys ; load QAP menu triggers from ini file
-o_PopupHotkeyNavigateOrLaunchHotkeyMouse := o_PopupHotkeys.SA[1]
-o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard := o_PopupHotkeys.SA[2]
-o_PopupHotkeyAlternativeHotkeyMouse := o_PopupHotkeys.SA[3]
-o_PopupHotkeyAlternativeHotkeyKeyboard := o_PopupHotkeys.SA[4]
+global o_PopupHotkeyNavigateOrLaunchHotkeyMouse := o_PopupHotkeys.SA[1]
+global o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard := o_PopupHotkeys.SA[2]
+global o_PopupHotkeyAlternativeHotkeyMouse := o_PopupHotkeys.SA[3]
+global o_PopupHotkeyAlternativeHotkeyKeyboard := o_PopupHotkeys.SA[4]
 
 ;---------------------------------
 ; Init class for Favorites (types) - must be before new QAPfeatures
@@ -14831,7 +14831,7 @@ if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 4) ; remove "&1 " from menu item
 if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1
-		, InStr(g_strAlternativeMenu, (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue ? "`t" : " (") - 1)) ; and remove hotkey reminder
+		, InStr(g_strAlternativeMenu, (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue ? "`t" : " (")) - 1) ; and remove hotkey reminder
 
 gosub, OpenAlternativeMenuTrayTip
 gosub, LaunchFromAlternativeMenu
@@ -15103,12 +15103,11 @@ if (blnShiftPressed or blnControlPressed)
 }
 
 ; collect last actions
-
 if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been collected - no need to collect group members
 	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
 	gosub, CollectLastActions ; update g_objLastActions ##### DO IT LATER
 
-; alwasy navigate
+; always navigate
 if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu <> o_L["MenuAlternativeNewWindow"])
 	and InStr("|Folder|Special|FTP", "|" . o_ThisFavorite.AA.strFavoriteType)
 	and !WindowIsDialog(g_strTargetClass, g_strTargetWinId))
@@ -15118,13 +15117,6 @@ if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu
 	g_strHotkeyTypeDetected := "Navigate"
 }
 
-; beginning of OpenFavorite execution
-
-o_ThisFavorite.OpenFavorite(g_strMenuTriggerLabel, g_strOpenFavoriteLabel, g_strTargetWinId, g_strHotkeyTypeDetected)
-
-return
-; =======================================
-
 ; preparation for Alternative menu features before setting the full location
 if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"])
 {
@@ -15132,32 +15124,12 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeNewWin
 	g_strHotkeyTypeDetected := "Launch"
 }
 
-if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
-{ ; DO IT LATER
-	if InStr("Folder|Document|Application", o_ThisFavorite.AA.strFavoriteType)
-	{
-		objContainingFavorite := Object() ; build a replacement favorite object
-		objContainingFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
-		objContainingFavorite.FavoriteType := "Folder"
-		objContainingFavorite.FavoriteName := "Containing Folder" ; not shown
-		strContainingFolder := g_strLocationWithPlaceholders
-		SplitPath, strContainingFolder, , strContainingFolder
-		objContainingFavorite.FavoriteLocation := strContainingFolder . "\"
-		o_ThisFavorite := objContainingFavorite ; replace the current favorite object
-		; check if need .AA ?
-		g_strLocationWithPlaceholders := o_ThisFavorite.AA.strFavoriteLocation
+; beginning of OpenFavorite execution
 
-		if (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"]) and CanNavigate(A_ThisHotkey)
-			g_strHotkeyTypeDetected := "Navigate"
-		else
-			g_strHotkeyTypeDetected := "Launch"
-	}
-	else
-	{
-		gosub, OpenFavoriteCleanup
-		return
-	}
-}
+o_ThisFavorite.OpenFavorite(g_strMenuTriggerLabel, g_strOpenFavoriteLabel, g_strTargetWinId, g_strHotkeyTypeDetected)
+
+return
+; =======================================
 
 ; === ACTIONS ===
 
@@ -15205,6 +15177,7 @@ if (g_blnAlternativeMenu)
 	{
 		if !InStr("Group|QAP", o_ThisFavorite.AA.strFavoriteType) ; for these types, there is no path to copy
 		{
+			Clipboard := g_strFullLocation
 			TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
 			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
 		}
@@ -24438,6 +24411,14 @@ class Container
 			this.aaTemp.strTargetWinId := strTargetWinId
 			this.aaTemp.strHotkeyTypeDetected := strHotkeyTypeDetected
 			
+			; EXPAND PLACEHOLDERS in location
+			; for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME}, {CUR_...}, etc,
+			; selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
+			; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
+			this.aaTemp.strLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
+				, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
+				, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
+			
 			if (this.AA.strFavoriteType = "Text")
 				return
 			
@@ -24446,16 +24427,30 @@ class Container
 				this.OpenGroup()
 			else
 			{
-				; EXPAND PLACEHOLDERS in location
-				; for favorite's location {LOC}, {DIR}, {NAME}, etc, current location {CUR_LOC}, {CUR_NAME}, {CUR_...}, etc,
-				; selected file location {SEL_LOC}, {SEL_NAME}, {SEL_...}, etc and current content of clipboard {Clipboard}
-				; for favorite's location, favorite's parameter, application favorite's start in directory, snippet's content
-				this.aaTemp.strLocationWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteLocation, ""
-					, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
-					, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
-					
+				; ALTERNATIVE
+				if (this.aaTemp.strHotkeyTypeDetected = "Alternative") and InStr("Folder|Document|Application", this.AA.strFavoriteType)
+					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
+					{
+						SplitPath, % this.aaTemp.strLocationWithPlaceholders, , strContainingFolder
+						strContainingFolder .= "\"
+						saContainingItem := ["Folder", "Containing Folder", strContainingFolder]
+						o_ContainingFolderItem := new Container.Item(saContainingItem)
+						o_ContainingFolderItem.aaTemp := Object()
+						o_ContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
+						o_ContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
+						if (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"])
+							and CanNavigate((A_ThisHotkey = o_PopupHotkeyAlternativeHotkeyMouse.P_strAhkHotkey ? o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey
+								: o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.P_strAhkHotkey))
+							; substitude Alternative hotkey with corresponding regular hotkey
+							o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Navigate"
+						else
+							o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Launch"
+						if o_ContainingFolderItem.SetTargetName() ; sets old g_strTargetAppName, can change aaTemp.strHotkeyTypeDetected to "Launch", can empty aaTemp.strTargetWinId if Desktop
+							o_ContainingFolderItem.OpenFolder()
+					}
+				
 				; SNIPPETS
-				if (this.AA.strFavoriteType = "Snippet")
+				else if (this.AA.strFavoriteType = "Snippet")
 					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
 					this.PasteSnippet() ; using this.AA.strLocationWithPlaceholders
 					
@@ -24486,9 +24481,11 @@ class Container
 					; FOLDER
 					if InStr("Folder|FTP|Special", this.AA.strFavoriteType)
 						blnOpenOK := this.OpenFolder()
-
+					
 					### := ###
 				}
+				else
+					blnOpenOK := false
 			}
 			
 			if (blnOpenOK)
