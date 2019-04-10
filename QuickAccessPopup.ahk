@@ -3338,6 +3338,9 @@ global g_strTargetWinId
 global g_strTargetClass
 global g_strHotkeyTypeDetected
 global g_strNewWindowId
+global g_intOriginalMenuPosition
+global g_objEditedFavorite
+global g_objMenuInGui
 
 ;---------------------------------
 ; Initial validation
@@ -15135,66 +15138,6 @@ return
 
 ; --- Alternative Menu actions ---
 
-if (g_blnAlternativeMenu)
-{
-	; ###_V(A_ThisLabel, "*g_strFullLocation", g_strFullLocation
-		; , "*A_ThisMenu", A_ThisMenu
-		; , "*g_objMenusIndex[A_ThisMenu].MenuPath", g_objMenusIndex[A_ThisMenu].MenuPath
-		; , "*g_intOriginalMenuPosition", g_intOriginalMenuPosition
-		; , "*GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition)", GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition).FavoriteName
-		; , "")
-	if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
-	{
-		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
-		
-		if (g_objMenusIndex[A_ThisMenu].blnIsLiveMenu)
-		{
-			; trying to edit items inside live folder leads to edit the parent live folder favorite
-			; no need to consider column breaks, disabled items and back link because already taken into account in .intLiveMenuParentPosition
-			g_intOriginalMenuPosition := o_Containers.AA[A_ThisMenu].AA.intLiveMenuParentPosition
-			; g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition] ; with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
-			g_objEditedFavorite := o_Containers.AA[o_Containers.AA[A_ThisMenu].strLiveMenuParentPath][g_intOriginalMenuPosition]
-			; ##### check later -> with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
-			g_objMenuInGui := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].strLiveMenuParentPath]
-			; ##### change g_objEditedFavorite and g_objMenuInGui variables later
-		}
-		else
-		{
-			g_objMenuInGui := o_Containers.AA[A_ThisMenu]
-			g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
-			; ##### change g_objEditedFavorite and g_objMenuInGui variables later
-		}
-		gosub, GuiShowFromAlternative
-		gosub, GuiEditFavoriteFromAlternative
-		
-		gosub, OpenFavoriteCleanup
-		gosub, UsageDbCollectMenu
-		
-		return
-	}
-	
-	if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
-	{
-		if !InStr("Group|QAP", o_ThisFavorite.AA.strFavoriteType) ; for these types, there is no path to copy
-		{
-			Clipboard := g_strFullLocation
-			TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
-			Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-		}
-		
-		gosub, OpenFavoriteCleanup
-		gosub, UsageDbCollectMenu
-		return
-	}
-	
-	if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (o_ThisFavorite.AA.strFavoriteType = "Group")
-	; cannot open group in new window
-	{
-		gosub, OpenFavoriteCleanup
-		return
-	}
-}
-
 if (A_ThisLabel = "OpenDOpusLayout")
 {
 	Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
@@ -24428,26 +24371,31 @@ class Container
 			else
 			{
 				; ALTERNATIVE
-				if (this.aaTemp.strHotkeyTypeDetected = "Alternative") and InStr("Folder|Document|Application", this.AA.strFavoriteType)
-					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
+				if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
+				{
+					if InStr("Folder|Document|Application", this.AA.strFavoriteType)
+						and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
+						
+						this.AlternativeOpenContainer()
+						
+					else if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
+						
+						this.AlternativeEditFavorite()
+						
+					else if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
 					{
-						SplitPath, % this.aaTemp.strLocationWithPlaceholders, , strContainingFolder
-						strContainingFolder .= "\"
-						saContainingItem := ["Folder", "Containing Folder", strContainingFolder]
-						o_ContainingFolderItem := new Container.Item(saContainingItem)
-						o_ContainingFolderItem.aaTemp := Object()
-						o_ContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
-						o_ContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
-						if (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"])
-							and CanNavigate((A_ThisHotkey = o_PopupHotkeyAlternativeHotkeyMouse.P_strAhkHotkey ? o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey
-								: o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.P_strAhkHotkey))
-							; substitude Alternative hotkey with corresponding regular hotkey
-							o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Navigate"
-						else
-							o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Launch"
-						if o_ContainingFolderItem.SetTargetName() ; sets old g_strTargetAppName, can change aaTemp.strHotkeyTypeDetected to "Launch", can empty aaTemp.strTargetWinId if Desktop
-							o_ContainingFolderItem.OpenFolder()
+						if !InStr("Group|QAP", this.AA.strFavoriteType) ; for these types, there is no path to copy
+						{
+							Clipboard := this.aaTemp.strLocationWithPlaceholders
+							TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
+							Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+							blnOpenOK := true
+						}
 					}
+					else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (o_ThisFavorite.AA.strFavoriteType = "Group")
+						; cannot open group in new window
+						blnOpenOK := false
+				}
 				
 				; SNIPPETS
 				else if (this.AA.strFavoriteType = "Snippet")
@@ -24504,6 +24452,61 @@ class Container
 					and !(g_blnAlternativeMenu) ; not if alternative menu action
 					gosub, UsageDbCollectMenu ; DO IT LATER
 			}
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		AlternativeOpenContainer()
+		;---------------------------------------------------------
+		{
+			SplitPath, % this.aaTemp.strLocationWithPlaceholders, , strContainingFolder
+			strContainingFolder .= "\"
+			saContainingItem := ["Folder", "Containing Folder", strContainingFolder]
+			o_ContainingFolderItem := new Container.Item(saContainingItem)
+			o_ContainingFolderItem.aaTemp := Object()
+			o_ContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
+			o_ContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
+			if (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"])
+				and CanNavigate((A_ThisHotkey = o_PopupHotkeyAlternativeHotkeyMouse.P_strAhkHotkey ? o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey
+					: o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.P_strAhkHotkey))
+				; substitude Alternative hotkey with corresponding regular hotkey
+				o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Navigate"
+			else
+				o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Launch"
+			if o_ContainingFolderItem.SetTargetName() ; sets old g_strTargetAppName, can change aaTemp.strHotkeyTypeDetected to "Launch", can empty aaTemp.strTargetWinId if Desktop
+				o_ContainingFolderItem.OpenFolder()
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		AlternativeEditFavorite()
+		;---------------------------------------------------------
+		{
+			; 	FINISH AND TEST IT WHEN EDIT GUI DONE
+			; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
+			
+			if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
+			{
+				; trying to edit items inside live folder leads to edit the parent live folder favorite
+				; no need to consider column breaks, disabled items and back link because already taken into account in .intLiveMenuParentPosition
+				g_intOriginalMenuPosition := o_Containers.AA[A_ThisMenu].AA.intLiveMenuParentPosition
+				; g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition] ; with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
+				g_objEditedFavorite := o_Containers.AA[o_Containers.AA[A_ThisMenu].strLiveMenuParentPath][g_intOriginalMenuPosition]
+				###_a := o_Containers.AA[o_Containers.AA[A_ThisMenu].strLiveMenuParentPath][g_intOriginalMenuPosition]
+				###_b := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
+				###_V(A_ThisFunc, ###_a, ###_b)
+				; ##### check later -> with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
+				g_objMenuInGui := o_Containers.AA[o_Containers.AA.AA[A_ThisMenu].AA.strLiveMenuParentPath]
+				; ##### change g_objEditedFavorite and g_objMenuInGui variables later
+			}
+			else
+			{
+				g_objMenuInGui := o_Containers.AA[A_ThisMenu]
+				g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
+				; ##### change g_objEditedFavorite and g_objMenuInGui variables later
+			}
+			gosub, GuiShowFromAlternative
+			gosub, GuiEditFavoriteFromAlternative
 		}
 		;---------------------------------------------------------
 		
