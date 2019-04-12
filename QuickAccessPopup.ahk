@@ -15138,15 +15138,6 @@ return
 
 ; --- Alternative Menu actions ---
 
-if (A_ThisLabel = "OpenDOpusLayout")
-{
-	Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . g_strFullLocation . """"
-	
-	; gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
 if (o_ThisFavorite.AA.strFavoriteType = "Application")
 	and (o_ThisFavorite.AA.strFavoriteLaunchWith = 1) ; 1 activate existing if running
 	and AppIsRunning(g_strFullLocation, o_ThisFavorite.AA.blnFavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
@@ -23772,7 +23763,7 @@ class Container
 					saThisFavorite[4] := "iconGroup" ; FavoriteIconResource
 					saThisFavorite[3] := strLayoutMenuName . xmlItemAttributes.name ; FavoriteLocation
 				}
-				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "Folder") ; FavoriteType
+				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "OpenDOpusLayout") ; FavoriteType
 			}
 			
 			oNewItem := new this.Item(saThisFavorite)
@@ -24367,7 +24358,16 @@ class Container
 			
 			; GROUP
 			if (this.AA.strFavoriteType = "Group") and !(g_blnAlternativeMenu)
+			{
 				this.OpenGroup()
+				blnOpenOK := true
+			}
+			; DIRECTORY OPUS LAYOUT
+			else if (this.AA.strFavoriteType = "OpenDOpusLayout")
+			{
+				this.OpenDirectoryOpusLayout()
+				blnOpenOK := true
+			}	
 			else
 			{
 				; ALTERNATIVE
@@ -25111,6 +25111,13 @@ class Container
 				SendMode, Input ; restore default SendMode to Input mode
 			}
 			;------------------------------------------------------------
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		OpenDirectoryOpusLayout()
+		{
+			Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . this.AA.strFavoriteLocation . """"
 		}
 		;---------------------------------------------------------
 
