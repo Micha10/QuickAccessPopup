@@ -3341,6 +3341,8 @@ global g_strNewWindowId
 global g_intOriginalMenuPosition
 global g_objEditedFavorite
 global g_objMenuInGui
+global g_intMenuPosX
+global g_intMenuPosY
 
 ;---------------------------------
 ; Initial validation
@@ -15136,63 +15138,6 @@ return
 
 ; === ACTIONS ===
 
-; --- Alternative Menu actions ---
-
-if (o_ThisFavorite.AA.strFavoriteType = "Application")
-	and (o_ThisFavorite.AA.strFavoriteLaunchWith = 1) ; 1 activate existing if running
-	and AppIsRunning(g_strFullLocation, o_ThisFavorite.AA.blnFavoriteElevate, strAppID) ; returns true if app is running with same UAC level and updates strAppID
-{
-	; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
-	; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
-	; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
-	; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
-	
-	; WinShow, ahk_id %strAppID% ; not required because WinGet in AppIsRunning lists only non-hidden windows
-	WinGet, intMinMax, MinMax, ahk_id %strAppID%
-	if (intMinMax = -1) ; restore if window is minimized
-		WinRestore, ahk_id %strAppID%
-	WinActivate, ahk_id %strAppID% ; strAppID from AppIsRunning
-	
-	; gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- Document or Link ---
-; --- Launch with ---
-
-if InStr("Document|URL", o_ThisFavorite.AA.strFavoriteType)
-	or (StrLen(o_ThisFavorite.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", o_ThisFavorite.AA.strFavoriteType))
-{
-	Run, %g_strFullLocation%, , UseErrorLevel, intPid
-	if (ErrorLevel = "ERROR")
-		Oops(o_L["OopsUnknownTargetAppName"])
-	else
-		; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
-	; ##### fix g_arrFavoriteWindowPosition1 deprecated LATER
-		if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
-		{
-			g_strNewWindowId := "ahk_pid " . intPid
-			; gosub, OpenFavoriteWindowPosition -> will be this.SetWindowPosition()
-		}
-
-	; gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- Menu type ---
-
-if InStr("Menu|External", o_ThisFavorite.AA.strFavoriteType, true)
-{
-	Gosub, SetMenuPosition
-	Menu, % o_L["MainMenuName"] . " " . g_strFullLocation, Show, %g_intMenuPosX%, %g_intMenuPosY%
-	
-	gosub, OpenFavoriteCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
 ; --- Application ---
 
 if (o_ThisFavorite.AA.strFavoriteType = "Application")
@@ -24353,6 +24298,14 @@ class Container
 				, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
 				, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 			
+			if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
+				if !this.SetTargetName() ; sets old g_strTargetAppName, can change this.aaTemp.strHotkeyTypeDetected to "Launch", can empty this.aaTemp.strTargetWinId if Desktop
+					return
+			
+			if (this.AA.strFavoriteType <> "Text") ; text separators don't have location
+				if !this.SetFullLocation()
+					return
+				
 			if (this.AA.strFavoriteType = "Text")
 				return
 			
@@ -24362,79 +24315,89 @@ class Container
 				this.OpenGroup()
 				blnOpenOK := true
 			}
+			; MENU
+			else if InStr("Menu|External", this.AA.strFavoriteType, true)
+			{
+				Gosub, SetMenuPosition
+				Menu, % o_L["MainMenuName"] . " " . this.aaTemp.strFulLocation, Show, %g_intMenuPosX%, %g_intMenuPosY%
+				blnOpenOK := true
+			}
 			; DIRECTORY OPUS LAYOUT
 			else if (this.AA.strFavoriteType = "OpenDOpusLayout")
 			{
 				this.OpenDirectoryOpusLayout()
 				blnOpenOK := true
-			}	
-			else
+			}
+			; ACTIVATE RUNNING APPLICATION
+			else if (this.AA.strFavoriteType = "Application")
+				and (this.AA.strFavoriteLaunchWith = 1) ; 1 activate existing if running
+				and AppIsRunning(this.aaTemp.strLocationWithPlaceholders, this.AA.blnFavoriteElevate, this.aaTemp.strAppID) ; returns true if app is running with same UAC level and updates strAppID
 			{
-				; ALTERNATIVE
-				if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
+				this.ActivateRunningApplication()
+				blnOpenOK := true
+			}
+			; DOCUMENTS, LINK and LAUNCH WITH
+			else if InStr("Document|URL", this.AA.strFavoriteType)
+				or (StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType))
+			{
+				this.LaunchFullLocation()
+				blnOpenOK := true
+			}
+			; ALTERNATIVE
+			if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
+			{
+				if InStr("Folder|Document|Application", this.AA.strFavoriteType)
+					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
+					
+					this.AlternativeOpenContainer()
+					
+				else if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
+					
+					this.AlternativeEditFavorite()
+					
+				else if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
 				{
-					if InStr("Folder|Document|Application", this.AA.strFavoriteType)
-						and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
-						
-						this.AlternativeOpenContainer()
-						
-					else if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
-						
-						this.AlternativeEditFavorite()
-						
-					else if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
+					if !InStr("Group|QAP", this.AA.strFavoriteType) ; for these types, there is no path to copy
 					{
-						if !InStr("Group|QAP", this.AA.strFavoriteType) ; for these types, there is no path to copy
-						{
-							Clipboard := this.aaTemp.strLocationWithPlaceholders
-							TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
-							Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-							blnOpenOK := true
-						}
+						Clipboard := this.aaTemp.strLocationWithPlaceholders
+						TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
+						Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+						blnOpenOK := true
 					}
-					else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (o_ThisFavorite.AA.strFavoriteType = "Group")
-						; cannot open group in new window
-						blnOpenOK := false
 				}
-				
-				; SNIPPETS
-				else if (this.AA.strFavoriteType = "Snippet")
-					and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
-					this.PasteSnippet() ; using this.AA.strLocationWithPlaceholders
-					
-				; CHECK IF FILE/FOLDER MUST EXIST
-				else if this.FileExistIfMust(this.aaTemp.strOpenFavoriteLabel)
-				{
-					if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
-						if !this.SetTargetName() ; sets old g_strTargetAppName, can change this.aaTemp.strHotkeyTypeDetected to "Launch", can empty this.aaTemp.strTargetWinId if Desktop
-							return
-					
-					if (this.AA.strFavoriteType <> "Text") ; text separators don't have location
-						if !this.SetFullLocation()
-							return
-						
-					; WINDOW POSITION PREPARATION
-					; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
-					; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
-					this.aaTemp.saFavoriteWindowPosition := StrSplit(o_ThisFavorite.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
-					; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
-					if InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
-					{
-						SysGet, intNbMonitors, MonitorCount
-						this.aaTemp.intNbMonitors := intNbMonitors
-						if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and this.aaTemp.intNbMonitors > 1)
-							GetPositionFromMouseOrKeyboard(this.aaTemp.strMenuTriggerLabel, A_ThisHotkey, this.aaTemp.intMonitorReferencePositionX, this.aaTemp.intMonitorReferencePositionY)
-					}
-					
-					; FOLDER
-					if InStr("Folder|FTP|Special", this.AA.strFavoriteType)
-						blnOpenOK := this.OpenFolder()
-					
-					### := ###
-				}
-				else
+				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (o_ThisFavorite.AA.strFavoriteType = "Group")
+					; cannot open group in new window
 					blnOpenOK := false
 			}
+			; SNIPPETS
+			else if (this.AA.strFavoriteType = "Snippet")
+				and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
+			{
+				this.PasteSnippet() ; using this.AA.strLocationWithPlaceholders
+				blnOpenOK := false
+			}	
+			; CHECK IF FILE/FOLDER MUST EXIST
+			else if this.FileExistIfMust(this.aaTemp.strOpenFavoriteLabel)
+			{
+				; WINDOW POSITION PREPARATION
+				; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
+				; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
+				this.aaTemp.saFavoriteWindowPosition := StrSplit(o_ThisFavorite.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
+				; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
+				if InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
+				{
+					SysGet, intNbMonitors, MonitorCount
+					this.aaTemp.intNbMonitors := intNbMonitors
+					if (g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor and this.aaTemp.intNbMonitors > 1)
+						GetPositionFromMouseOrKeyboard(this.aaTemp.strMenuTriggerLabel, A_ThisHotkey, this.aaTemp.intMonitorReferencePositionX, this.aaTemp.intMonitorReferencePositionY)
+				}
+				
+				; FOLDER
+				if InStr("Folder|FTP|Special", this.AA.strFavoriteType)
+					blnOpenOK := this.OpenFolder()
+			}
+			else
+				blnOpenOK := false
 			
 			if (blnOpenOK)
 			{
@@ -24442,6 +24405,7 @@ class Container
 				if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
 					and (InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue)
 					; we can access new Explorer or Total Commander windows, or try with other apps
+					
 					this.SetWindowPosition() ; was OpenFavoriteWindowPosition
 				
 				if StrLen(this.AA.strFavoriteSoundLocation)
@@ -25120,7 +25084,37 @@ class Container
 			Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . this.AA.strFavoriteLocation . """"
 		}
 		;---------------------------------------------------------
-
+		
+		;---------------------------------------------------------
+		ActivateRunningApplication()
+		;---------------------------------------------------------
+		{
+			; If an app is installed in more one location, it will be activated only if the one running is from the same location as the favorite.
+			; If the favorite has "Parameters" in "Advanced Settings", it will be launched anyway, regardless of an existing running instance.
+			; If the favorite has "Start in" option or "Window Options", they will be ignored if we activate the existing instance of the app.
+			; (since v8.7) Running instance will be activated only if it has the requested UAC level (elevated - as admin - or normal)
+			
+			WinGet, intMinMax, MinMax, % "ahk_id " . this.aaTemp.strAppID
+			if (intMinMax = -1) ; restore if window is minimized
+				WinRestore, % "ahk_id " . this.aaTemp.strAppID
+			WinActivate, % "ahk_id " . this.aaTemp.strAppID ; strAppID from AppIsRunning
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		LaunchFullLocation()
+		;---------------------------------------------------------
+		{
+			Run, % this.aaTemp.strFullLocation, , UseErrorLevel, intPid
+			if (ErrorLevel = "ERROR")
+				Oops(o_L["OopsUnknownTargetAppName"])
+			else
+				; intPid may not be set for some doc types; could help if document is launch with a FavoriteLaunchWith
+				if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
+					g_strNewWindowId := "ahk_pid " . intPid
+		}
+		;---------------------------------------------------------
+		
 		;---------------------------------------------------------
 		SetTargetName()
 		; set this.aaTemp.strTargetAppName (was g_strTargetAppName)
