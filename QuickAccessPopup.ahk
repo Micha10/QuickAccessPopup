@@ -4868,13 +4868,6 @@ if (o_Settings.Launch.blnDiagMode.IniValue)
 		Run, %g_strDiagFile%
 }
 
-strSettingsPosition := ""
-intMinMax := ""
-intX := ""
-intY := ""
-intW := ""
-intH := ""
-
 ExitApp
 ;-----------------------------------------------------------
 
@@ -15133,115 +15126,14 @@ if (g_blnAlternativeMenu) and (g_strAlternativeMenu = o_L["MenuAlternativeNewWin
 
 o_ThisFavorite.OpenFavorite(g_strMenuTriggerLabel, g_strOpenFavoriteLabel, g_strTargetWinId, g_strHotkeyTypeDetected)
 
-return
-; =======================================
-
-; === ACTIONS ===
-
-; --- Application ---
-
-if (o_ThisFavorite.AA.strFavoriteType = "Application")
-{
-	; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
-	; see RunAs doc remarks
-	; Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.blnFavoriteElevate or g_strAlternativeMenu = o_L["MenuAlternativeRunAs"] ? "*RunAs " : "No"))
-	; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
-	; Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
-	
-	Run, % (o_ThisFavorite.AA.blnFavoriteElevate or g_strAlternativeMenu = o_L["MenuAlternativeRunAs"] ? "*RunAs " : "") . g_strFullLocation, %strAppWorkingDirWithPlaceholders%, UseErrorLevel, intPid
-	
-	if (ErrorLevel = "ERROR")
-	{
-		if (A_LastError <> 1223)
-			Oops(o_L["OopsUnknownTargetAppName"])
-		; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
-	}
-    else if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
-	{
-		g_strNewWindowId := "ahk_pid " . intPid
-		; gosub, OpenFavoriteWindowPosition -> will be this.SetWindowPosition()
-	}
-
-	; gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- Windows App ---
-
-if (o_ThisFavorite.AA.strFavoriteType = "WindowsApp")
-{
-	; for archive, before using IApplicationActivationManager
-		; Run, %g_strFullLocation%, , UseErrorLevel
-		; if (ErrorLevel = "ERROR")
-		; {
-			; if (A_LastError <> 1223)
-				; Oops(o_L["OopsUnknownTargetAppName"])
-			; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
-		; }
-	
-	strTempArguments := ExpandPlaceholders(o_ThisFavorite.AA.strFavoriteArguments, g_strFullLocation
-		, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
-		, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
-	; from https://www.reddit.com/r/windows/comments/4aac5b/how_do_i_run_edge_browser_with_autohotkey/
-	objIApplicationActivationManager := ComObjCreate("{45BA127D-10A8-46EA-8AB7-56EA9078943C}", "{2e941141-7f97-4756-ba1d-9decde894a3d}")
-	strTempArguments := ExpandPlaceholders(o_ThisFavorite.AA.strFavoriteArguments, g_strFullLocation
-		, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : "")
-		, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : ""))
-	DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
-		, "Ptr", objIApplicationActivationManager
-		, "Str", g_strFullLocation
-		, "Str", strTempArguments
-		, "UInt", 0
-		, "IntP", intProcessId)
-	ObjRelease(objIApplicationActivationManager)
-
-	gosub, OpenFavoriteCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-; --- QAP Command ---
-
-if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
-	and (o_ThisFavorite.AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[o_ThisFavorite.AA.strFavoriteLocation].strQAPFeatureCommand)
-{
-	Gosub, % o_QAPfeatures.AA[o_ThisFavorite.AA.strFavoriteLocation].strQAPFeatureCommand
-	
-	; gosub, OpenFavoritePlaySoundAndCleanup
-	gosub, UsageDbCollectMenu
-	return
-}
-
-
-OpenFavoritePlaySoundAndCleanup:
-
-; if StrLen(o_ThisFavorite.AA.strFavoriteSoundLocation)
-	; OpenFavoritePlaySound(o_ThisFavorite.AA.strFavoriteSoundLocation)
-
 OpenFavoriteCleanup:
 
 o_ThisFavorite := ""
-strFavoriteWindowPosition := ""
 g_blnAlternativeMenu := ""
 g_strAlternativeMenu := ""
-strTempArguments := ""
-strAppWorkingDirWithPlaceholders := ""
-strAppWorkingDirBeforeFileExist := ""
 blnShiftPressed := ""
 blnControlPressed := ""
-strCurrentAppWorkingDir := ""
-objContainingFavorite := ""
-strContainingFolder := ""
-intMinMax := ""
 g_blnLaunchFromTrayIcon := ""
-objIApplicationActivationManager := ""
-intProcessId := ""
-strTempArguments := ""
-intNbMonitors := ""
-strPositionReference := ""
-intMonitorReferencePositionX := ""
-intMonitorReferencePositionY := ""
 
 return
 ;------------------------------------------------------------
@@ -24322,6 +24214,19 @@ class Container
 				Menu, % o_L["MainMenuName"] . " " . this.aaTemp.strFulLocation, Show, %g_intMenuPosX%, %g_intMenuPosY%
 				blnOpenOK := true
 			}
+			; WINDOWS APPS
+			else if (o_ThisFavorite.AA.strFavoriteType = "WindowsApp")
+			{
+				this.LaunchWindowsApp()
+				blnOpenOK := true
+			}
+			; QAP COMMAND
+			else if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", strMenuTriggerLabel)
+				and (this.AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.AA.strFavoriteLocation].strQAPFeatureCommand)
+			{
+				Gosub, % o_QAPfeatures.AA[o_ThisFavorite.AA.strFavoriteLocation].strQAPFeatureCommand
+				blnOpenOK := true
+			}
 			; DIRECTORY OPUS LAYOUT
 			else if (this.AA.strFavoriteType = "OpenDOpusLayout")
 			{
@@ -24341,6 +24246,12 @@ class Container
 				or (StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType))
 			{
 				this.LaunchFullLocation()
+				blnOpenOK := true
+			}
+			; APPLICATION
+			else if (this.AA.strFavoriteType = "Application")
+			{
+				this.LaunchApplication()
 				blnOpenOK := true
 			}
 			; ALTERNATIVE
@@ -25082,6 +24993,52 @@ class Container
 		OpenDirectoryOpusLayout()
 		{
 			Run, % """" . g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . """ " . "/acmd Prefs LAYOUT=""" . this.AA.strFavoriteLocation . """"
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		LaunchApplication()
+		;---------------------------------------------------------
+		{
+			; since 1.0.95.00, Run supports verbs with parameters, such as Run *RunAs %A_ScriptFullPath% /Param.
+			; see RunAs doc remarks
+			; Diag(A_ThisLabel . ":RunAs", (g_objThisFavorite.blnFavoriteElevate or g_strAlternativeMenu = o_L["MenuAlternativeRunAs"] ? "*RunAs " : "No"))
+			; Diag(A_ThisLabel . ":g_strFullLocation", g_strFullLocation)
+			; Diag(A_ThisLabel . ":strAppWorkingDirWithPlaceholders", strAppWorkingDirWithPlaceholders)
+			
+			Run, % (this.AA.blnFavoriteElevate or g_strAlternativeMenu = o_L["MenuAlternativeRunAs"] ? "*RunAs " : "") . this.aaTemp.strFullLocation
+				, % this.aaTemp.strAppWorkingDirWithPlaceholders, UseErrorLevel, intPid
+			
+			if (ErrorLevel = "ERROR")
+			{
+				if (A_LastError <> 1223)
+					Oops(o_L["OopsUnknownTargetAppName"])
+				; else no error message - error 1223 because user canceled on the Run as admnistrator prompt
+			}
+			else if (this.aaTemp.saFavoriteWindowPosition[1] and intPid and o_Settings.Execution.blnTryWindowPosition.IniValue)
+				g_strNewWindowId := "ahk_pid " . intPid
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		LaunchWindowsApp()
+		;---------------------------------------------------------
+		{
+			strTempArguments := ExpandPlaceholders(this.AA.strFavoriteArguments, this.aaTemp.strFullLocation
+				, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : -1)
+				, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : -1))
+			; from https://www.reddit.com/r/windows/comments/4aac5b/how_do_i_run_edge_browser_with_autohotkey/
+			objIApplicationActivationManager := ComObjCreate("{45BA127D-10A8-46EA-8AB7-56EA9078943C}", "{2e941141-7f97-4756-ba1d-9decde894a3d}")
+			strTempArguments := ExpandPlaceholders(this.AA.strFavoriteArguments, this.aaTemp.strFullLocation
+				, (InStr(strTempArguments, "{CUR_") ? GetCurrentLocation(g_strTargetClass, g_strTargetWinId) : "")
+				, (InStr(strTempArguments, "{SEL_") ? GetSelectedLocation(g_strTargetClass, g_strTargetWinId) : ""))
+			DllCall(NumGet(NumGet(objIApplicationActivationManager + 0) + 3 * A_PtrSize)
+				, "Ptr", objIApplicationActivationManager
+				, "Str", this.aaTemp.strFullLocation
+				, "Str", strTempArguments
+				, "UInt", 0
+				, "IntP", intProcessId)
+			ObjRelease(objIApplicationActivationManager)
 		}
 		;---------------------------------------------------------
 		
