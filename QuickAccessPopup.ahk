@@ -6334,17 +6334,17 @@ GuiControl, , f_blnDisplayIcons, % (o_Settings.MenuIcons.blnDisplayIcons.IniValu
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% vf_lblIconSize Disabled hidden, % o_L["OptionsIconSize"]
 Gui, 2:Add, DropDownList, yp x+10 w75 vf_drpIconSize Disabled hidden, 16|24|32|48|64 ; gLabel after Gosub that changes the value below
 GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniValue
-gosub, DisplayIconsClickedInit
 GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 
 ; IconsManageRows
 Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
-Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled"), % o_L["OptionsIconsManageRows"]
+Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : " Disabled"), % o_L["OptionsIconsManageRows"]
 
 ; RetrieveIconInFrequentMenus
 Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w580 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
 GuiControl, , f_blnRetrieveIconInFrequentMenus, % (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue = true)
+gosub, DisplayIconsClickedInit
 
 ; strIconReplacementList
 Gui, 2:Font, s8 w700
@@ -6813,7 +6813,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		}
 	}
 }
-if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK) or !blnTCWinCmdOK)
+if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 {
 	if (g_intClickedFileManager = 4)
 		Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
@@ -7417,7 +7417,10 @@ if (A_ThisLabel = "DisplayIconsClicked")
 strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
 GuiControl, %strEnableDisableCommand%, f_lblIconSize
 GuiControl, %strEnableDisableCommand%, f_drpIconSize
-
+GuiControl, %strEnableDisableCommand%, f_intIconsManageRowsSettingsEdit
+GuiControl, %strEnableDisableCommand%, f_intIconsManageRowsSettings
+GuiControl, %strEnableDisableCommand%, f_lblIconsManageRows
+GuiControl, %strEnableDisableCommand%, f_blnRetrieveIconInFrequentMenus
 strEnableDisableCommand := ""
 
 return
