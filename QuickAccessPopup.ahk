@@ -8374,11 +8374,14 @@ GuiControl, , f_blnDisplayIcons, %g_blnDisplayIcons%
 Gui, 2:Add, Text, y+5 xs vf_drpIconSizeLabel Disabled, %lOptionsIconSize%
 Gui, 2:Add, DropDownList, yp x+10 w40 vf_drpIconSize Sort Disabled, 16|24|32|48|64
 GuiControl, ChooseString, f_drpIconSize, %g_intIconSize%
-gosub, DisplayIconsClicked
 
 Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number center" . (g_blnDisplayIcons ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
-Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows" . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
+Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows " . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
+
+Gui, 2:Add, CheckBox, xs y+10 w300 vf_blnRetrieveIconInFrequentMenus, %lOptionsUsageDbRetrieveIconInFrequentMenus%
+GuiControl, , f_blnRetrieveIconInFrequentMenus, %g_blnRetrieveIconInFrequentMenus%
+gosub, DisplayIconsClicked
 
 Gui, 2:Add, Checkbox, y+15 xs w300 vf_blnRefreshQAPMenuEnable gRefreshQAPMenuEnableClicked, %lOptionsRefreshQAPMenuTitle%
 GuiControl, , f_blnRefreshQAPMenuEnable, % (g_intRefreshQAPMenuIntervalSec > 0)
@@ -8531,7 +8534,6 @@ Gui, 2:Add, Edit, vf_intUsageDbIntervalSeconds hidden, %g_intUsageDbIntervalSeco
 Gui, 2:Add, Edit, vf_intUsageDbDaysInPopular hidden, %g_intUsageDbDaysInPopular%
 Gui, 2:Add, Edit, vf_fltUsageDbMaximumSize hidden, %g_fltUsageDbMaximumSize%
 Gui, 2:Add, Edit, vf_blnUsageDbShowPopularityIndex hidden, %g_blnUsageDbShowPopularityIndex%
-Gui, 2:Add, Edit, vf_blnRetrieveIconInFrequentMenus hidden, %g_blnRetrieveIconInFrequentMenus%
 
 Gui, 2:Add, Edit, vf_strUserVariablesList hidden, % ReplaceAllInString(Trim(g_strUserVariablesList), "|", "`n")
 Gui, 2:Add, Edit, vf_strIconReplacementList hidden, % ReplaceAllInString(Trim(g_strIconReplacementList), "|", "`n")
@@ -8703,6 +8705,10 @@ Gui, 2:Submit, NoHide
 strEnableDisableCommand := (f_blnDisplayIcons ? "Enable" : "Disable")
 GuiControl, %strEnableDisableCommand%, f_drpIconSizeLabel
 GuiControl, %strEnableDisableCommand%, f_drpIconSize
+GuiControl, %strEnableDisableCommand%, f_intIconsManageRowsSettingsEdit
+GuiControl, %strEnableDisableCommand%, f_intIconsManageRowsSettings
+GuiControl, %strEnableDisableCommand%, f_lblIconsManageRows
+GuiControl, %strEnableDisableCommand%, f_blnRetrieveIconInFrequentMenus
 
 strEnableDisableCommand := ""
 
@@ -9105,9 +9111,6 @@ else if (g_strMoreWindowName = "UsageDb")
 	Gui, 3:Add, CheckBox, x10 y+5 vf_blnUsageDbShowPopularityIndexMore, %lOptionsUsageDbShowPopularityIndex%
 	GuiControl, , f_blnUsageDbShowPopularityIndexMore, %f_blnUsageDbShowPopularityIndex%
 	
-	Gui, 3:Add, CheckBox, x10 y+5 vf_blnRetrieveIconInFrequentMenusMore, %lOptionsUsageDbRetrieveIconInFrequentMenus%
-	GuiControl, , f_blnRetrieveIconInFrequentMenusMore, %f_blnRetrieveIconInFrequentMenus%
-	
 	Gui, 3:Add, Button, x10 y+15 vf_btnUsageDbFlush gButtonUsageDbFlushClicked, %lOptionsUsageDbFlushDatabase%
 
 	Gosub, OptionUsageDbEnableClicked
@@ -9176,7 +9179,6 @@ GuiControl, %strAction%, f_lblUsageDbDaysInPopularMore
 GuiControl, %strAction%, f_lblUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_fltUsageDbMaximumSizeMore
 GuiControl, %strAction%, f_blnUsageDbShowPopularityIndexMore
-GuiControl, %strAction%, f_blnRetrieveIconInFrequentMenusMore
 GuiControl, %strAction%, f_btnUsageDbFlush
 
 strAction := ""
@@ -9232,7 +9234,6 @@ if (A_ThisLabel = "GuiOptionsMoreTemplateOK")
 		else
 			GuiControl, 2:, f_fltUsageDbMaximumSize, %f_fltUsageDbMaximumSizeMore% ; save Edit control's value (not UpDown control) to allow fractions
 		GuiControl, 2:, f_blnUsageDbShowPopularityIndex, % (f_blnOptionUsageDbEnable ? f_blnUsageDbShowPopularityIndexMore : false)
-		GuiControl, 2:, f_blnRetrieveIconInFrequentMenus, % (f_blnOptionUsageDbEnable ? f_blnRetrieveIconInFrequentMenusMore : false)
 	}
 	else if (g_strMoreWindowName = "UserVariablesList")
 		GuiControl, 2:, f_strUserVariablesList, %f_strUserVariablesListMore%
@@ -9415,6 +9416,8 @@ g_intIconSize := f_drpIconSize
 IniWrite, %g_intIconSize%, %g_strIniFile%, Global, IconSize
 g_intIconsManageRowsSettings := f_intIconsManageRowsSettings
 IniWrite, %g_intIconsManageRowsSettings%, %g_strIniFile%, Global, IconsManageRows
+g_blnRetrieveIconInFrequentMenus := f_blnRetrieveIconInFrequentMenus
+IniWrite, %g_blnRetrieveIconInFrequentMenus%, %g_strIniFile%, Global, RetrieveIconInFrequentMenus
 g_intNbLastActions := f_intNbLastActions
 IniWrite, %g_intNbLastActions%, %g_strIniFile%, Global, NbLastActions
 
@@ -9529,9 +9532,6 @@ IniWrite, %g_fltUsageDbMaximumSize%, %g_strIniFile%, Global, UsageDbMaximumSize
 
 g_blnUsageDbShowPopularityIndex := f_blnUsageDbShowPopularityIndex
 IniWrite, %g_blnUsageDbShowPopularityIndex%, %g_strIniFile%, Global, UsageDbShowPopularityIndex
-
-g_blnRetrieveIconInFrequentMenus := f_blnRetrieveIconInFrequentMenus
-IniWrite, %g_blnRetrieveIconInFrequentMenus%, %g_strIniFile%, Global, RetrieveIconInFrequentMenus
 
 blnUseSQLitePrev := g_blnUsageDbEnabled
 g_blnUsageDbEnabled := (g_intUsageDbIntervalSeconds > 0)
@@ -22049,9 +22049,8 @@ GetIcon4Location(strLocation, blnCheckForFrequentMenu := false)
 ; get icon, extract from kiu http://www.autohotkey.com/board/topic/8616-kiu-icons-manager-quickly-change-icon-files/
 ;------------------------------------------------------------
 {
-	if (!g_blnRetrieveIconInFrequentMenus and blnCheckForFrequentMenu) ; skip if from pre-process Frequent menus and bypass icon retrieval
-		and (SubStr(strLocation, 1, 2) <> "\\") ; skip for files on a server, search in path
-		FileExistInPath(strLocation) ; expand strLocation and search in PATH
+	if (SubStr(strLocation, 1, 2) <> "\\") ; skip for files on a server, search in path
+		FileExistInPath(strLocation, blnCheckForFrequentMenu) ; expand strLocation and search in PATH
 
 	if !StrLen(strLocation)
 		return "iconUnknown"
