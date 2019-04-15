@@ -8379,7 +8379,7 @@ Gui, 2:Add, Edit, % "y+10 xs w51 h22 vf_intIconsManageRowsSettingsEdit number ce
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999, %g_intIconsManageRowsSettings%
 Gui, 2:Add, Text, % "yp x+10 w235 vf_lblIconsManageRows " . (g_blnDisplayIcons ? "" : "Disabled"), %lOptionsIconsManageRows%
 
-Gui, 2:Add, CheckBox, xs y+10 w300 vf_blnRetrieveIconInFrequentMenus, %lOptionsUsageDbRetrieveIconInFrequentMenus%
+Gui, 2:Add, CheckBox, xs y+10 w300 vf_blnRetrieveIconInFrequentMenus, %lOptionsIconsRetrieveInFrequentMenus%
 GuiControl, , f_blnRetrieveIconInFrequentMenus, %g_blnRetrieveIconInFrequentMenus%
 gosub, DisplayIconsClicked
 
