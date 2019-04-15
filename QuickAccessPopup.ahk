@@ -7597,7 +7597,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 		}
 	}
 }
-if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK) or !blnTCWinCmdOK)
+if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 {
 	if (g_intClickedFileManager = 4)
 		Oops(o_L["OptionsThirdPartyFileNotFound"], f_drpQAPconnectFileManager, strQAPconnectPath)
