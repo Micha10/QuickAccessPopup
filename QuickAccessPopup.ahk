@@ -5570,7 +5570,7 @@ for intIndex, aaFolder in saExplorersWindows
 	intWindowsIdIndex++
 	blnWeHaveFolders := true
 	aaFolderOrApp := Object()
-	aajFolderOrApp.strLocationURL := aaFolder.strLocationURL
+	aaFolderOrApp.strLocationURL := aaFolder.strLocationURL
 	aaFolderOrApp.strName := aaFolder.strLocationName
 	aaFolderOrApp.strWindowId := aaFolder.strWindowId
 	aaFolderOrApp.strWindowType := "EX"
@@ -5630,6 +5630,7 @@ if (intWindowsIdIndex)
 			saSwitchFolderOrAppTable.Push(["X"]) ; menu separator
 		else
 		{
+			strMenuName := aaFolderOrApp.strName
 			strFolderLocationUrl := aaFolderOrApp.strLocationURL
 			if (aaFolderOrApp.strWindowType <> "APP") and !InStr(strMenuName, "ftp:")
 				strFolderIcon := GetFolderIcon(aaFolderOrApp.strLocationURL)
@@ -5646,12 +5647,8 @@ if (intWindowsIdIndex)
 				else
 					strFavoriteType := "Folder"
 				; g_aaReopenFolderLocationUrlByName[strMenuName] := aaFolderOrApp.strLocationURL) ; replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
-				saCurrentFoldersTable.Push([strFavoriteType, strMenuName, strFolderLocationUrl, strFolderIcon])
+				saCurrentFoldersTable.Push([strFavoriteType, strMenuName, strMenuName, strFolderIcon]) ; insert strMenuName as location because it is decoded
 			}
-			; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]]
-			; g_aaSwitchWindowIdsByName[strMenuName] := aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId)
-			; ##### use "OpenSwitchFolderOrApp" as type to set this gosub in the Menu instead of OpenFolder...
-			; ##### set location to "aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId" to be split in OpenSwitchFolderOrApp
 			saSwitchFolderOrAppTable.Push(["OpenSwitchFolderOrApp", strMenuName, aaFolderOrApp.strWindowType . "|" . aaFolderOrApp.strWindowId
 				, (aaFolderOrApp.strWindowType = "EX" ? strFolderIcon
 					: (aaFolderOrApp.strWindowType = "DO" ? (strFolderIcon = "iconFolder" ? g_aaFileManagerDirectoryOpus.strDirectoryOpusRtPath . ",1" : strFolderIcon)
@@ -5833,7 +5830,7 @@ CollectExplorers(pExplorers)
 				aaExplorer.strLocationName :=  ProcessLocationURL(UriDecode(pExplorer.LocationURL))
 			}
 			
-			aaExplorer.strWindowId := pExplorer.HWND ; not used for Explorer windows, but keep it
+			aaExplorer.strWindowId := strWindowID ; not used for Explorer windows, but keep it
 			WinGet, intMinMax, MinMax, % "ahk_id " . pExplorer.HWND
 			aaExplorer.intMinMax := intMinMax
 			
@@ -14963,34 +14960,6 @@ return
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-OpenSwitchFolderOrApp:
-;------------------------------------------------------------
-
-strThisMenuItem :=  A_ThisMenuItem
-; ### g_aaSwitchWindowIdsByName to be replaced by menu o_Containers.AA[o_L["MenuSwitchFolderOrApp"]] - see RefreshSwitchFolderOrAppMenu
-strWindowId := g_aaSwitchWindowIdsByName[strThisMenuItem]
-StringSplit, arrFolderWindowId, strWindowId, |
-
-if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
-	StringTrimLeft, strThisMenuItem, strThisMenuItem, 3 ; remove "&1 " from menu item
-
-if (arrFolderWindowId1 = "EX") ; Explorer
-	WinActivate, % "ahk_id " . arrFolderWindowId2
-else if (arrFolderWindowId1 = "DO") ; Directory Opus
-	; double % for DOpusRT (http://resource.dopus.com/viewtopic.php?f=3&t=23013#p124395)
-	; strThisMenuItem := StrReplace(strThisMenuItem, "%", "%%")
-	; remove because does not seem to be required anymore?
-	o_FileManagers.SA[2].RunDOpusRt("/acmd Go ", strThisMenuItem, " EXISTINGLISTER") ; activate an existing lister listing this path
-else ; APP
-	WinActivate, % "ahk_id " . arrFolderWindowId2
-
-strThisMenuItem := ""
-
-return
-;------------------------------------------------------------
-
-
 ;-----------------------------------------------------------
 RepeatLastAction:
 RepeatLastActionShortcut:
@@ -15021,7 +14990,6 @@ return
 
 ;------------------------------------------------------------
 OpenFavorite:
-OpenFavoriteGroup:
 OpenFavoriteFromShortcut:
 OpenFavoriteFromLastAction:
 OpenRecentFolder:
@@ -15037,6 +15005,7 @@ OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
 OpenPopularMenus:
 OpenWorkingDirectory:
+OpenSwitchFolderOrApp:
 ;------------------------------------------------------------
 
 if (g_blnChangeShortcutInProgress or g_blnChangeHotstringInProgress)
@@ -15046,7 +15015,7 @@ g_strOpenFavoriteLabel := A_ThisLabel
 g_strNewWindowId := "" ; start fresh for any new favorite to open, used to position Explorer and Total Commander windows only
 
 ; avoid conflict with hotkeys and avoid editing menu items not in favorites list
-if InStr("OpenFavorite|OpenFavoriteGroup|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteFromLastAction", g_strOpenFavoriteLabel)
 {
 	blnShiftPressed := GetKeyState("Shift")
 	blnControlPressed := GetKeyState("Control")
@@ -15148,9 +15117,86 @@ OpenFavoriteGetFavoriteObject:
 
 g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, so kill this variable
 
-o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
-; ###_O("o_ThisFavorite.AA / " . intMenuItemPos, o_ThisFavorite.AA)
-###_V(A_ThisLabel, A_ThisMenu, A_ThisMenuItem, A_ThisMenuItemPos, o_Containers.AA[A_ThisMenu].SA[A_ThisMenuItemPos].AA.strFavoriteName)
+if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavoriteLabel . "|")
+{
+	o_ThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
+		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
+		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
+
+	if !IsObject(o_ThisFavorite)
+	{
+		objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
+		SplitHotstring(A_ThisHotkey, strOopsTrigger, strHotstringOppsOptionsShort)
+		Oops(o_L["OopsHotkeyObjectNotFound"]
+			, g_strAppNameText
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? objShortcutHotstringLower[1] : objShortcutHotstringLower[2])
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? A_ThisHotkey : strOopsTrigger))
+		return
+	}
+	
+	if InStr("Menu|External", o_ThisFavorite.AA.strFavoriteType, true)
+	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
+	{
+		saMenu := o_ThisFavorite.AA.oSubMenu.SA ; #####
+		if saMenu.MaxIndex() ; has items
+		{
+			loop, % saMenu.MaxIndex()
+			; this scans only this menu, not its submenu - QAP features needing to be refreshed may be in submenu...
+				if (saMenu[A_Index].AA.strFavoriteType = "QAP")
+					if (saMenu[A_Index].AA.strFavoriteLocation = "{Clipboard}")
+						Gosub, RefreshClipboardMenu
+					else if InStr("{Switch Folder or App}|{Current Folders}", saMenu[A_Index].strFavoriteLocation)
+						Gosub, RefreshSwitchFolderOrAppMenu
+		}
+		else
+		{
+			Oops(o_L["MenuMenu"] . " """ . o_ThisFavorite.AA.strFavoriteName . """ " . o_L["OopsEmpty"])
+			o_ThisFavorite := ""
+		}
+	}
+
+	if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotstring")
+	{
+		g_strTargetWinId := "" ; never use target window when launched from hotstring
+		g_strHotkeyTypeDetected := "Launch"
+	}
+	else if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
+		g_strHotkeyTypeDetected := "Navigate"
+	else if CanLaunch(A_ThisHotkey)
+	{
+		g_strTargetWinId := "" ; never use target window when launched from hotkey
+		g_strHotkeyTypeDetected := "Launch"
+	}
+	else
+	{
+		gosub, OpenFavoriteGetFavoriteObjectCleanup
+		return ; active window is on exclusion list
+	}
+}
+else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
+{
+	if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder") ; reopen in dialog box
+		; returns current or latest file manager window ID and Window class, excluding dialog boxes
+		; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
+		GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
+	else ; OpenReopenInNewWindow reopen from dialog box
+	{
+		; get location from current file dialog box
+		strReopenWindowsID := g_strTargetWinId
+		strReopenWindowClass := g_strTargetClass
+		; open in a new window
+		g_strTargetWinId := ""
+		g_strTargetClass := ""
+		g_strHotkeyTypeDetected := "Launch"
+	}
+
+	o_ThisFavorite := new Container.Item([["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)]])
+	o_ThisFavorite.aaTemp.blnFavoritePseudo := true
+}
+else
+	o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
+
+saMenu := ""
 
 return ; #####
 
@@ -15167,9 +15213,8 @@ if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
 	strThisMenuItem :=  SubStr(A_ThisMenuItem, 1, InStr(A_ThisMenuItem, g_strGroupIndicatorPrefix) - 2) ; remove indicator with nb of group members
 	strThisMenuItem .=  " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix ; add empty indicators to retrieve fav name in objects
 }
-*/
 
-if InStr("OpenFavorite|OpenFavoriteHotlist|OpenDOpusFavorite|OpenFavoriteGroup|OpenDOpusLayout", g_strOpenFavoriteLabel)
+if InStr("OpenFavorite|OpenFavoriteHotlist|OpenDOpusFavorite|#out#OpenFavoriteGroup|OpenDOpusLayout", g_strOpenFavoriteLabel)
 	
 	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
 	
@@ -15229,7 +15274,8 @@ else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFav
 		return ; active window is on exclusion list
 	}
 }
-else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
+else 
+if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
 {
 	if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder") ; reopen in dialog box
 		; returns current or latest file manager window ID and Window class, excluding dialog boxes
@@ -15252,7 +15298,9 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
 	g_objThisFavorite.FavoriteType := "Folder"
 }
-else if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
+else 
+*/
+if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
 {
 	; ### g_aaReopenFolderLocationUrlByName replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
 	; If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
@@ -15326,7 +15374,7 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, aaIte
 ;------------------------------------------------------------
 {
 	strLocation := aaItem.strFavoriteLocation ; make sure FavoriteLocation was not expanded by EnvVars
-	aaSpecialFolder := aaSpecialFolders.AA[strLocation]
+	aaSpecialFolder := o_SpecialFolders.AA[strLocation]
 	
 	if (strTargetName = "Explorer")
 		strUse := aaSpecialFolder.strUse4NavigateExplorer
@@ -23762,18 +23810,15 @@ class Container
 					; menu should never be empty (if no item, it contains a "no item" menu)
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strQAPFeatureMenuName, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 					strMenuItemAction := ":" . o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strQAPFeatureMenuName
-				else if (aaThisFavorite.strFavoriteType = "Group")
-					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, OpenFavoriteGroup, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
-					strMenuItemAction := "OpenFavoriteGroup"
 				else if !StrLen(strMenuItemAction) ; if we do not already have the action
 				{
 					strLayoutMenuName := o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ; #### remove after completed conversion
 					if (SubStr(this.AA.strMenuPath, 1, StrLen(strLayoutMenuName)) = strLayoutMenuName)
-						strMenuItemAction := "OpenDOpusLayout" ; #### remove after completed conversion
+						strMenuItemAction := "OpenDOpusLayout" ; keep for conditional action when opening item 
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["DOpusMenuName"])) = o_L["DOpusMenuName"])
-						strMenuItemAction := "OpenDOpusFavorite" ; #### remove after completed conversion
+						strMenuItemAction := "OpenDOpusFavorite" ; keep for conditional action when opening item
 					else if (SubStr(this.AA.strMenuPath, 1, StrLen(o_L["TCMenuName"])) = o_L["TCMenuName"])
-						strMenuItemAction := "OpenFavoriteHotlist" ; #### remove after completed conversion
+						strMenuItemAction := "OpenFavoriteHotlist" ; keep for conditional action when opening item
 					else
 						strMenuItemAction := "OpenFavorite" ; #### default value after conversion completed
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
@@ -24214,20 +24259,26 @@ class Container
 			else if InStr("Menu|External", this.AA.strFavoriteType, true)
 			{
 				Gosub, SetMenuPosition
-				Menu, % o_L["MainMenuName"] . " " . this.aaTemp.strFulLocation, Show, %g_intMenuPosX%, %g_intMenuPosY%
+				Menu, % o_L["MainMenuName"] . " " . this.aaTemp.strFullLocation, Show, %g_intMenuPosX%, %g_intMenuPosY%
 				blnOpenOK := true
 			}
 			; WINDOWS APPS
-			else if (o_ThisFavorite.AA.strFavoriteType = "WindowsApp")
+			else if (this.AA.strFavoriteType = "WindowsApp")
 			{
 				this.LaunchWindowsApp()
 				blnOpenOK := true
 			}
 			; QAP COMMAND
-			else if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", strMenuTriggerLabel)
+			else if InStr("OpenFavorite|OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|OpenFavoriteFromGroup|OpenFavoriteFromLastAction", strOpenFavoriteLabel)
 				and (this.AA.strFavoriteType = "QAP") and StrLen(o_QAPfeatures.AA[this.AA.strFavoriteLocation].strQAPFeatureCommand)
 			{
-				Gosub, % o_QAPfeatures.AA[o_ThisFavorite.AA.strFavoriteLocation].strQAPFeatureCommand
+				Gosub, % o_QAPfeatures.AA[this.AA.strFavoriteLocation].strQAPFeatureCommand
+				blnOpenOK := true
+			}
+			; SWITCH APP
+			else if (this.AA.strFavoriteType = "OpenSwitchFolderOrApp")
+			{
+				this.SwitchFolderOrApp()
 				blnOpenOK := true
 			}
 			; DIRECTORY OPUS LAYOUT
@@ -24258,7 +24309,7 @@ class Container
 				blnOpenOK := true
 			}
 			; ALTERNATIVE
-			if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
+			else if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
 			{
 				if InStr("Folder|Document|Application", this.AA.strFavoriteType)
 					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
@@ -24279,7 +24330,7 @@ class Container
 						blnOpenOK := true
 					}
 				}
-				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (o_ThisFavorite.AA.strFavoriteType = "Group")
+				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (this.AA.strFavoriteType = "Group")
 					; cannot open group in new window
 					blnOpenOK := false
 			}
@@ -24296,7 +24347,7 @@ class Container
 				; WINDOW POSITION PREPARATION
 				; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
 				; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
-				this.aaTemp.saFavoriteWindowPosition := StrSplit(o_ThisFavorite.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
+				this.aaTemp.saFavoriteWindowPosition := StrSplit(this.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
 				; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
 				if InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
 				{
@@ -24989,6 +25040,23 @@ class Container
 				SendMode, Input ; restore default SendMode to Input mode
 			}
 			;------------------------------------------------------------
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		SwitchFolderOrApp()
+		;---------------------------------------------------------
+		{
+			saFolderWindowId := StrSplit(this.AA.strFavoriteLocation, "|")
+			if (saFolderWindowId[1] = "EX") ; Explorer
+				WinActivate, % "ahk_id " . saFolderWindowId[2]
+			else if (saFolderWindowId[1] = "DO") ; Directory Opus
+				; double % for DOpusRT (http://resource.dopus.com/viewtopic.php?f=3&t=23013#p124395)
+				; this.strFavoriteName := StrReplace(this.strFavoriteName, "%", "%%")
+				; remove because does not seem to be required anymore?
+				o_FileManagers.SA[2].RunDOpusRt("/acmd Go ", this.AA.strFavoriteName, " EXISTINGLISTER") ; activate an existing lister listing this path
+			else ; APP
+				WinActivate, % "ahk_id " . saFolderWindowId[2]
 		}
 		;---------------------------------------------------------
 		
