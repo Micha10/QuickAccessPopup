@@ -5107,14 +5107,15 @@ loop, parse, % "Folders|Files", |
 	objMetadataRecordSet.Free()
 	
 	; for each line in strMenuItemsList: 1) Frequent Folders/Files|2) Name/Location|3) Action|4) Icon
-	; example: Frequent Folders|E:\Dropbox\AutoHotkey\QuickAccessPopup|OpenPopularMenus|iconFolder
+	; example: Frequent Folders|E:\Dropbox\AutoHotkey\QuickAccessPopup|Folder|iconFolder
 	
 	saMenuItemsTable := Object()
 	Loop, Parse, strMenuItemsList, `n
 		if StrLen(A_LoopField)
 		{
+			; swap items for backward compatibility pre-v10
 			saOneLine := StrSplit(A_LoopField, "|")
-			saOneLine[1] := saOneLine[3] ; put action in 1
+			saOneLine[1] := saOneLine[3] ; put favorite type in 1
 			saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
 			; keep icon in 4
 			saMenuItemsTable.Push(saOneLine)
@@ -5174,13 +5175,12 @@ if (StrLen(Clipboard) <= o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue) ;
 
 		if FileExistInPath(strClipboardLineExpanded) ; rerturn strClipboardLineExpanded with expanded relative path and envvars, and search in PATH
 		{
+			; 1 Location/Menu name (for sorting), 2 Favorite Type, 3 Icon
 			strContentsInClipboard .= "`n" . A_LoopField
-			
+			strClipboardContentType := (RecentLocationIsDocument(strClipboardLineExpanded, A_ThisLabel) ? "Document" : "Folder")
+			strContentsInClipboard .= "`t" . strClipboardContentType
 			if (o_Settings.MenuIcons.blnDisplayIcons.IniValue)
-				if RecentLocationIsDocument(strClipboardLineExpanded, A_ThisLabel) ; RecentLocationIsDocument to check if on an offline server
-					strContentsInClipboard .= "`t" . GetIcon4Location(strClipboardLineExpanded)
-				else
-					strContentsInClipboard .= "`t" . "iconFolder"
+				strContentsInClipboard .= "`t" . (strClipboardContentType = "Document" ? GetIcon4Location(strClipboardLineExpanded) : "iconFolder")
 		}
 
 		; Parse Clipboard line for URLs (anywhere on the line)
@@ -5210,10 +5210,12 @@ else
 	Loop, parse, strContentsInClipboard, `n
 		if StrLen(A_LoopField)
 		{
-			saOneLine := StrSplit(A_LoopField, "`t") ; saOneLine[1] = path or URL, saOneLine[2] = icon (file,index or icon code)
-			saOneLine.InsertAt(1, "OpenClipboard") ; pushed 2 = path or URL
-			saOneLine.InsertAt(3, saOneLine[2]) ; copied 2 in 3 = path or URL
-			; saOneLine[4] now = icon (file,index or icon code)
+			saOneLine := StrSplit(A_LoopField, "`t") ; saOneLine[1] = path or URL, saOneLine[2] = favorite type, saOneLine[3] = icon (file,index or icon code)
+			strFavoriteLocationSwap := saOneLine[1]
+			saOneLine[1] := saOneLine[2] ; favorite type
+			saOneLine[2] := strFavoriteLocationSwap ; name
+			saOneLine[4] := saOneLine[3] ; icon
+			saOneLine[3] := strFavoriteLocationSwap ; location
 			saMenuItemsTable.Push(saOneLine)
 		}
 }
@@ -5226,6 +5228,7 @@ strClipboardLineExpanded := ""
 strURLSearchString := ""
 saOneLine := ""
 saMenuItemsTable := ""
+strFavoriteLocationSwap := ""
 
 Diag(A_ThisLabel, "", "STOP")
 return
@@ -5287,7 +5290,7 @@ StringTrimLeft, strURLSearchString, strURLSearchString, %intCharactersToOmit%
 
 Gosub, GetURLsInClipboardLine ; Recursive call to self (end of loop)
 
-strContentsInClipboard .= "`n" . strURLCleansed . "`t" . g_strURLIconFileIndex
+strContentsInClipboard .= "`n" . strURLCleansed . "`t" . "URL" . "`t" . g_strURLIconFileIndex
 
 return
 ;------------------------------------------------------------
@@ -5424,12 +5427,11 @@ Loop, Parse, % "Folders|Files", |
 		Loop, Parse, g_strMenuItemsListRecent%strFoldersOrFiles%, `n ; g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 			if StrLen(A_LoopField)
 			{
-				; transform 1)Recent Folders/Files|2)MenuName|3)OpenRecentFolder/File|4)Icon
+				; transform 1)Recent Folders/Files|2)MenuName|3)FavoriteType|4)Icon
 				; to 1)Type|2)MenuName|3)Location|4)Icon
 				saOneLine := StrSplit(A_LoopField, "|") 
-				saOneLine[1] := (strFoldersOrFiles = "Folders" ? "Folder" : "Document") ; FavoriteType
+				saOneLine[1] := saOneLine[3] ; FavoriteType
 				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
-				; keep name in 2 (##### add numeric shortcut?)
 				; keep icon in 4
 				saMenuItemsTable.Push(saOneLine)
 			}
@@ -5975,7 +5977,6 @@ if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't hav
 	return
 
 Diag(A_ThisLabel, "", "START")
-
 
 ; prepare data for new Container
 saMenuItemsTable := Object()
@@ -14992,10 +14993,7 @@ return
 OpenFavorite:
 OpenFavoriteFromShortcut:
 OpenFavoriteFromLastAction:
-OpenRecentFolder:
-OpenRecentFile:
 OpenReopenFolder:
-OpenClipboard:
 OpenDrives:
 OpenFavoriteHotlist:
 OpenDOpusFavorite:
@@ -15003,7 +15001,6 @@ OpenDOpusLayout:
 OpenReopenCurrentFolder:
 OpenReopenInNewWindow:
 OpenFavoriteFromHotstring:
-OpenPopularMenus:
 OpenWorkingDirectory:
 OpenSwitchFolderOrApp:
 ;------------------------------------------------------------
@@ -15193,165 +15190,23 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 	o_ThisFavorite := new Container.Item([["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)]])
 	o_ThisFavorite.aaTemp.blnFavoritePseudo := true
 }
+else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
+{
+	; ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
+	o_ThisFavorite := new Container.Item(["Folder", o_L["MenuOpenWorkingDirectory"], A_WorkingDir])
+	o_ThisFavorite.aaTemp.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
+	g_strHotkeyTypeDetected := "Launch"
+}
 else
 	o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
 
 saMenu := ""
 
-return ; #####
-
-/*
-if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
-	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
-else
-	strThisMenuItem :=  A_ThisMenuItem
-if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue)
-	and (A_ThisMenu = o_L["MenuPopularMenusFolders"] or A_ThisMenu = o_L["MenuPopularMenusFiles"]) ; remove popularity index
-	strThisMenuItem := SubStr(strThisMenuItem, 1, InStr(strThisMenuItem, " [", false, 0) - 1) ; strip " [n]" from end
-if (g_strOpenFavoriteLabel = "OpenFavoriteGroup")
-{
-	strThisMenuItem :=  SubStr(A_ThisMenuItem, 1, InStr(A_ThisMenuItem, g_strGroupIndicatorPrefix) - 2) ; remove indicator with nb of group members
-	strThisMenuItem .=  " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix ; add empty indicators to retrieve fav name in objects
-}
-
-if InStr("OpenFavorite|OpenFavoriteHotlist|OpenDOpusFavorite|#out#OpenFavoriteGroup|OpenDOpusLayout", g_strOpenFavoriteLabel)
-	
-	g_objThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; returns the object and ByRef intMenuItemPos (unused here)
-	
-else if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring", g_strOpenFavoriteLabel)
-{
-	g_objThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
-		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
-		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
-
-	if !IsObject(g_objThisFavorite)
-	{
-		objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
-		SplitHotstring(A_ThisHotkey, strOopsTrigger, strHotstringOppsOptionsShort)
-		Oops(o_L["OopsHotkeyObjectNotFound"]
-			, g_strAppNameText
-			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? objShortcutHotstringLower[1] : objShortcutHotstringLower[2])
-			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? A_ThisHotkey : strOopsTrigger))
-		return
-	}
-	
-	if InStr("Menu|External", g_objThisFavorite.FavoriteType, true)
-	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
-	{
-		objMenu := g_objThisFavorite.SubMenu
-		if objMenu.MaxIndex() > 1 ; has more than the backlink entry
-		{
-			loop, % objMenu.MaxIndex()
-			; this scans only this menu, not its submenu - QAP features needing to be refreshed may be in submenu...
-				if (objMenu[A_Index].FavoriteType = "QAP")
-					if (objMenu[A_Index].FavoriteLocation = "{Clipboard}")
-						Gosub, RefreshClipboardMenu
-					else if InStr("{Switch Folder or App}|{Current Folders}", objMenu[A_Index].FavoriteLocation)
-						Gosub, RefreshSwitchFolderOrAppMenu
-		}
-		else
-		{
-			Oops(o_L["MenuMenu"] . " """ . g_objThisFavorite.FavoriteName . """ " . o_L["OopsEmpty"])
-			g_objThisFavorite := ""
-		}
-	}
-
-	if (g_strOpenFavoriteLabel = "OpenFavoriteFromHotstring")
-	{
-		g_strTargetWinId := "" ; never use target window when launched from hotstring
-		g_strHotkeyTypeDetected := "Launch"
-	}
-	else if CanNavigate(A_ThisHotkey) ; update g_strTargetWinId
-		g_strHotkeyTypeDetected := "Navigate"
-	else if CanLaunch(A_ThisHotkey)
-	{
-		g_strTargetWinId := "" ; never use target window when launched from hotkey
-		g_strHotkeyTypeDetected := "Launch"
-	}
-	else
-	{
-		gosub, OpenFavoriteGetFavoriteObjectCleanup
-		return ; active window is on exclusion list
-	}
-}
-else 
-if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavoriteLabel . "|")
-{
-	if (g_strOpenFavoriteLabel = "OpenReopenCurrentFolder") ; reopen in dialog box
-		; returns current or latest file manager window ID and Window class, excluding dialog boxes
-		; GetTargetWinIdAndClass(ByRef strThisId, ByRef strThisClass, blnActivate := false, blnExcludeDialogBox := false, blnIncludeBrowsers := false)
-		GetTargetWinIdAndClass(strReopenWindowsID, strReopenWindowClass, false, true) ; returns current or latest file manager window ID and Window class, so not activate, exclude dialog box
-	else ; OpenReopenInNewWindow reopen from dialog box
-	{
-		; get location from current file dialog box
-		strReopenWindowsID := g_strTargetWinId
-		strReopenWindowClass := g_strTargetClass
-		; open in a new window
-		g_strTargetWinId := ""
-		g_strTargetClass := ""
-		g_strHotkeyTypeDetected := "Launch"
-	}
-
-	g_objThisFavorite := Object() ; temporary favorite object
-	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
-	; g_objThisFavorite.FavoriteName not needed because menu object never used for menu building
-	g_objThisFavorite.FavoriteLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
-	g_objThisFavorite.FavoriteType := "Folder"
-}
-else 
-*/
-if (g_strOpenFavoriteLabel = "OpenReopenFolder") 
-{
-	; ### g_aaReopenFolderLocationUrlByName replaced by menu o_Containers.AA[o_L["MenuCurrentFolders"]]
-	; If (InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "::") = 1) ; A_ThisMenuItem can include the numeric shortcut
-	; {
-		; strThisMenuItem := SubStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], 3) ; remove "::" from beginning
-		; strFavoriteType := "Special"
-	; }
-	; else if InStr(g_aaReopenFolderLocationUrlByName[strThisMenuItem], "ftp://") ; possible with DOpus listers
-		; strFavoriteType := "FTP"
-	; else
-		; strFavoriteType := "Folder"
-	
-	g_objThisFavorite := Object() ; temporary favorite object
-	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
-	g_objThisFavorite.FavoriteName := strThisMenuItem
-	g_objThisFavorite.FavoriteLocation := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
-	g_objThisFavorite.FavoriteType := strFavoriteType
-}
-else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
-{
-	g_objThisFavorite := Object() ; temporary favorite object
-	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
-	g_objThisFavorite.FavoriteName := o_L["MenuOpenWorkingDirectory"]
-	g_objThisFavorite.FavoriteLocation := A_WorkingDir
-	g_objThisFavorite.FavoriteType :=  "Folder"
-	g_strHotkeyTypeDetected := "Launch"
-}
-else ; OpenRecentFolder, OpenRecentFile, OpenClipboard or OpenPopularMenus
-{
-	if InStr(strThisMenuItem, "http://") = 1 or InStr(strThisMenuItem, "https://") = 1 or InStr(strThisMenuItem, "www.") = 1
-		strFavoriteType := "URL"
-	else
-	{
-		strExtension := GetFileExtension(strThisMenuItem)
-		if StrLen(strExtension) and InStr("exe.com.bat.vbs.ahk", strExtension)
-			strFavoriteType := "Application" ; application
-		else
-			strFavoriteType := (LocationIsDocument(EnvVars(strThisMenuItem)) ? "Document" : "Folder")
-	}
-	
-	g_objThisFavorite := Object() ; temporary favorite object
-	g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
-	g_objThisFavorite.FavoriteName := strThisMenuItem
-	strThisMenuItem := StrReplace(strThisMenuItem, "&&", "&") ; remove double ampersand from menu name
-	g_objThisFavorite.FavoriteLocation := (g_strOpenFavoriteLabel = "OpenDrives" ? SubStr(strThisMenuItem, 1, 1) . ":\" : strThisMenuItem)
-	g_objThisFavorite.FavoriteType :=  (g_strOpenFavoriteLabel = "OpenDrives" ? "Folder" : strFavoriteType)
-}
+; remove code when FavoritePseudo reviewed
 ; pseudo favorite object, set an icon ressource for repeat actions menu
-if (g_objThisFavorite.FavoritePseudo)
-	g_objThisFavorite.FavoriteIconResource := (g_objThisFavorite.FavoriteType = "Folder" ? GetFolderIcon(g_objThisFavorite.FavoriteLocation)
-		: GetIcon4Location(g_objThisFavorite.FavoriteLocation))
+; if (g_objThisFavorite.FavoritePseudo)
+	; g_objThisFavorite.FavoriteIconResource := (g_objThisFavorite.FavoriteType = "Folder" ? GetFolderIcon(g_objThisFavorite.FavoriteLocation)
+		; : GetIcon4Location(g_objThisFavorite.FavoriteLocation))
 
 OpenFavoriteGetFavoriteObjectCleanup:
 strThisMenuItem := ""
@@ -17548,7 +17403,8 @@ loop, parse, % "Folders|Files", |
 			strIcon := (strFoldersOrFiles = "Folders" ? GetFolderIcon(strPath) : GetIcon4Location(strPath))
 		else
 			strIcon := (strFoldersOrFiles = "Folders" ? "iconFolder" : "iconDocuments")
-		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName . "|OpenPopularMenus|" . strIcon . "`n"
+		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . strMenuItemName
+			. (strFoldersOrFiles = "Folders" ? "|Folder|" : "|Document|") . strIcon . "`n"
 		Diag(A_ThisLabel . ":Processing Stop", intPopularItemsCount, "ELAPSED")
 		if (intPopularItemsCount >= o_Settings.Menu.intRecentFoldersMax.IniValue)
 			break ; Folders or Files menus is complete
@@ -17743,14 +17599,14 @@ Loop
 	strIcon := (strTargetType = "Folder" ? GetFolderIcon(strTargetPath) : GetIcon4Location(strTargetPath))
 	if (strTargetType = "Folder") and (intRecentFoldersCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
-		g_strMenuItemsListRecentFolders .= o_L["MenuRecentFolders"] . "|" . strMenuName . "|OpenRecentFolder|" . strIcon . "`n"
+		g_strMenuItemsListRecentFolders .= o_L["MenuRecentFolders"] . "|" . strMenuName . "|Folder|" . strIcon . "`n"
 		intRecentFoldersCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-Folder", intRecentFoldersCount, "ELAPSED")
 	}
 	; do not "else"
 	if (strTargetType = "File") and (intRecentFilesCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 	{
-		g_strMenuItemsListRecentFiles .= o_L["MenuRecentFiles"] . "|" . strMenuName . "|OpenRecentFile|" . strIcon . "`n"
+		g_strMenuItemsListRecentFiles .= o_L["MenuRecentFiles"] . "|" . strMenuName . "|Document|" . strIcon . "`n"
 		intRecentFilesCount++
 		Diag(A_ThisLabel . ":ProcessingFinish-File", intRecentFoldersCount, "ELAPSED")
 	}
@@ -17933,6 +17789,8 @@ BackupExternalIniFile:
 SplitPath, % o_Settings.strIniFile, strIniBackupFilename, strDefaultBackupFolder
 ; check if we have a backup folder in current ini file, if not make the backup in the current ini folder
 o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", strDefaultBackupFolder, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
+if !StrLen(o_Settings.SettingsFile.strBackupFolder.IniValue) ; if value exist but is empty
+	o_Settings.SettingsFile.strBackupFolder.IniValue := strDefaultBackupFolder
 
 ; delete old backup files (keep only 5/10 most recent files)
 strIniBackupFile := o_Settings.SettingsFile.strBackupFolder.IniValue . "\" . StrReplace(strIniBackupFilename, ".ini", "-backup-????????.ini")
