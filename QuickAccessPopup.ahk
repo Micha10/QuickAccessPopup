@@ -6065,13 +6065,13 @@ LiveFolderHasContent(o_LiveFolder)
 {
 ;	###_O(o_LiveFolder.AA.strFavoriteLocation, objLiveFolder)
 	strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(o_LiveFolder.AA.strFavoriteLocation))
-	if (o_LiveFolder.AA.strFavoriteFolderLiveDocuments)
+	if (o_LiveFolder.AA.blnFavoriteFolderLiveDocuments)
 	{
 		Loop, Files, %strExpandedLocation%\*.*, F ; files
 		{
 			if !StrLen(o_LiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
-				or (o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
-				or (!o_LiveFolder.AA.strFavoriteFolderLiveIncludeExclude and !InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+				or (o_LiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+				or (!o_LiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and !InStr(o_LiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
 			{
 			;	###_V("YES DOCUMENT", A_LoopFileFullPath)
 				return true
@@ -8213,60 +8213,61 @@ Gui, 1:Default
 Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
-if (g_objMenuInGui.MenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
+; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
+if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
 	ExternalMenuReloadAndRebuild(g_objMenuInGui)
 
-Loop, % g_objMenuInGui.MaxIndex()
+Loop, % o_MenuInGui.SA.MaxIndex()
 {
-	strThisType := GetFavoriteTypeForList(g_objMenuInGui[A_Index])
-	strThisHotkey := new Triggers.HotkeyParts(g_objMenuInGui[A_Index].FavoriteShortcut).Hotkey2Text(true)
-	if StrLen(g_objMenuInGui[A_Index].FavoriteHotstring)
-		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objMenuInGui[A_Index].FavoriteHotstring))
+	strThisType := GetFavoriteTypeForList(o_MenuInGui.SA[A_Index])
+	strThisHotkey := new Triggers.HotkeyParts(o_MenuInGui.SA[A_Index].FavoriteShortcut).Hotkey2Text(true)
+	if StrLen(o_MenuInGui.SA[A_Index].FavoriteHotstring)
+		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(o_MenuInGui.SA[A_Index].FavoriteHotstring))
 	
-	if InStr("Menu|Group|External", g_objMenuInGui[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
+	if InStr("Menu|Group|External", o_MenuInGui.SA[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
 	{
-		if (g_objMenuInGui[A_Index].FavoriteType = "Menu")
+		if (o_MenuInGui.SA[A_Index].FavoriteType = "Menu")
 			strGuiMenuLocation := g_strMenuPathSeparator
-		else if (g_objMenuInGui[A_Index].FavoriteType = "Group")
+		else if (o_MenuInGui.SA[A_Index].FavoriteType = "Group")
 			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
-		else ; g_objMenuInGui[A_Index].FavoriteType = "External"
+		else ; o_MenuInGui.SA[A_Index].FavoriteType = "External"
 		{
-			if ExternalMenuModifiedSinceLoaded(g_objMenuInGui[A_Index].SubMenu)
-				ExternalMenuReloadAndRebuild(g_objMenuInGui[A_Index].SubMenu)
-			if ExternalMenuIsReadOnly(g_objMenuInGui[A_Index].SubMenu.MenuExternalSettingsPath)
+			if ExternalMenuModifiedSinceLoaded(o_MenuInGui.SA[A_Index].SubMenu)
+				ExternalMenuReloadAndRebuild(o_MenuInGui.SA[A_Index].SubMenu)
+			if ExternalMenuIsReadOnly(o_MenuInGui.SA[A_Index].SubMenu.MenuExternalSettingsPath)
 				strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-			else if !(g_objMenuInGui[A_Index].SubMenu.MenuExternalLoaded)
+			else if !(o_MenuInGui.SA[A_Index].SubMenu.MenuExternalLoaded)
 				strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
 			else
 				strGuiMenuLocation := ""
-			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . g_objMenuInGui[A_Index].SubMenu.MenuExternalSettingsPath
+			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . o_MenuInGui.SA[A_Index].SubMenu.MenuExternalSettingsPath
 		}
 		
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and g_objMenuInGui[A_Index].FavoriteUsageDb
-			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
+		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and o_MenuInGui.SA[A_Index].intFavoriteUsageDb
+			? " [" . o_MenuInGui.SA[A_Index].intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
 	}
-	else if (g_objMenuInGui[A_Index].FavoriteType = "X") ; this is a separator
+	else if (o_MenuInGui.SA[A_Index].FavoriteType = "X") ; this is a separator
 		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
 	
-	else if (g_objMenuInGui[A_Index].FavoriteType = "K") ; this is a column break
+	else if (o_MenuInGui.SA[A_Index].FavoriteType = "K") ; this is a column break
 		LV_Add(, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine
 		, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
 		
-	else if (g_objMenuInGui[A_Index].FavoriteType = "B") ; this is a back link
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName, "   ..   ", "", "")
+	else if (o_MenuInGui.SA[A_Index].FavoriteType = "B") ; this is a back link
+		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName, "   ..   ", "", "")
 		
 	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
-		LV_Add(, g_objMenuInGui[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and g_objMenuInGui[A_Index].FavoriteUsageDb
-			? " [" . g_objMenuInGui[A_Index].FavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
-			, (g_objMenuInGui[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(g_objMenuInGui[A_Index].FavoriteLocation, 250) : g_objMenuInGui[A_Index].FavoriteLocation))
+		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and o_MenuInGui.SA[A_Index].intFavoriteUsageDb
+			? " [" . o_MenuInGui.SA[A_Index].intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
+			, (o_MenuInGui.SA[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(o_MenuInGui.SA[A_Index].FavoriteLocation, 250) : o_MenuInGui.SA[A_Index].FavoriteLocation))
 }
 
 ; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
-LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (g_objMenuInGui[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
+LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (o_MenuInGui.SA[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
 
 Gosub, AdjustColumnsWidth
 
-GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|"
+GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, o_MenuInGui.SA.MenuPath) . "|"
 
 GuiControl, Focus, f_lvFavoritesList
 
@@ -13399,7 +13400,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateCreated . "|" ; 24
 			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
-			strIniLine .= objCurrentMenu[A_Index].FavoriteUsageDb . "|" ; 26
+			strIniLine .= objCurrentMenu[A_Index].intFavoriteUsageDb . "|" ; 26
 
 			IniWrite, %strIniLine%, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine
 			o_Settings.intIniLine++
@@ -17241,7 +17242,7 @@ Diag(A_ThisLabel, "", "START")
 for strUsageDbUpdateMenuName, objUsageDbUpdateMenu in g_objMenusIndex
 	for intUsageDbUpdateIndex, objUsageDbUpdateFavorite in objUsageDbUpdateMenu
 		if StrLen(objUsageDbUpdateFavorite.FavoriteLocation)
-			objUsageDbUpdateFavorite.FavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
+			objUsageDbUpdateFavorite.intFavoriteUsageDb := GetUsageDbFavoriteUsage(objUsageDbUpdateFavorite)
 
 if (g_blnUsageDbDebug)
 {
@@ -19219,10 +19220,10 @@ SettingsUnsaved()
 
 
 ;------------------------------------------------------------
-GetFavoriteTypeForList(objFavorite)
+GetFavoriteTypeForList(o_Favorite)
 ;------------------------------------------------------------
 {
-	if (objFavorite.FavoriteFolderLiveLevels)
+	if (o_Favorite.AA.intFavoriteFolderLiveLevels)
 		strType := o_L["DialogFavoriteFolderLiveType"]
 	else
 		strType := o_Favorites.GetFavoriteTypeObject(objFavorite.FavoriteType).strFavoriteTypeShortName
@@ -20079,10 +20080,10 @@ GetUsageDbFavoriteUsage(objFavorite)
 		return
 	}
 	objRecordSet.Next(objRow)
-	strValue := objRow[1] ; COUNT(*) is the first (and only) field
+	intValue := objRow[1] ; COUNT(*) is the first (and only) field
 	objRecordSet.Free()
 
-	return strValue
+	return intValue
 }
 ;------------------------------------------------------------
 
@@ -23161,10 +23162,10 @@ class Container
 			; saFavorite:
 			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
 			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
-			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
-			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
+			; 11 strFavoriteGroupSettings, 12 blnFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
+			; 15 intFavoriteFolderLiveLevels, 16 blnFavoriteFolderLiveDocuments, 17 intFavoriteFolderLiveColumns, 18 blnFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
 			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
-			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb
 	;---------------------------------------------------------
 	{
 		this.SA := Object() ; re-init
@@ -23571,10 +23572,10 @@ class Container
 			}
 			
 			if InStr("Menu|External", aaThisFavorite.strFavoriteType, true)
-				or (aaThisFavorite.strFavoriteFolderLiveLevels and LiveFolderHasContent(this.SA[A_Index]))
+				or (aaThisFavorite.intFavoriteFolderLiveLevels and LiveFolderHasContent(this.SA[A_Index]))
 					and !(g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 			{
-				if (aaThisFavorite.strFavoriteFolderLiveLevels)
+				if (aaThisFavorite.intFavoriteFolderLiveLevels)
 				{
 					this.BuildLiveFolderMenu(this.SA[A_Index], this.AA.strMenuPath, A_Index)
 					o_Containers.AA[aaThisFavorite.oSubMenu.AA.strMenuPath] := aaThisFavorite.oSubMenu
@@ -23733,11 +23734,11 @@ class Container
 		
 		; scan files in live folder
 		strFiles := ""
-		if (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments)
+		if (o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveDocuments)
 			Loop, Files, %strExpandedLocation%\*.*, F ; files
 				if !StrLen(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
-					or (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
-					or (!o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude and !InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+					or (o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
+					or (!o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and !InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
 				{
 					; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
 					g_intNbLiveFolderItems++
@@ -23803,7 +23804,7 @@ class Container
 			saItemSource.RemoveAt(1) ; remove sorting criteria, order becomes as expected by new Item class
 			; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk), 5 args (for applications), 6 working dir (for applications)
 			
-			if (o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns)) ; insert column break before new item
+			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
 			{
 				oNewItem := new this.Item(["K"]) ; simple array object with only favorite type "K"
 				this.SA.Push(oNewItem) ; add column break to the current container object
@@ -23815,10 +23816,10 @@ class Container
 			
 			if (saItemSource[1] = "Folder" and A_Index > 1) ; make it a live folder, except if self folder
 			{
-				oNewItem.AA.strFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
-				oNewItem.AA.strFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveDocuments
-				oNewItem.AA.strFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveColumns
-				oNewItem.AA.strFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveIncludeExclude
+				oNewItem.AA.intFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.intFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+				oNewItem.AA.blnFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveDocuments
+				oNewItem.AA.intFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns
+				oNewItem.AA.blnFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude
 				oNewItem.AA.strFavoriteFolderLiveExtensions := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions
 				oNewItem.AA.strFavoriteFolderLiveSort := o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort
 			}
@@ -23958,10 +23959,10 @@ class Container
 			; saFavorite:
 			; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
 			; 7 strFavoriteWindowPosition, (X strFavoriteHotkey), 8 strFavoriteLaunchWith, 9 strFavoriteLoginName, 10 strFavoritePassword,
-			; 11 strFavoriteGroupSettings, 12 strFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
-			; 15 strFavoriteFolderLiveLevels, 16 strFavoriteFolderLiveDocuments, 17 strFavoriteFolderLiveColumns, 18 strFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
+			; 11 strFavoriteGroupSettings, 12 blnFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
+			; 15 intFavoriteFolderLiveLevels, 16 blnFavoriteFolderLiveDocuments, 17 intFavoriteFolderLiveColumns, 18 blnFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
 			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
-			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 strFavoriteUsageDb
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb
 			
 			if (saFavorite[1] = "QAP")
 			{
@@ -24004,13 +24005,13 @@ class Container
 				this.AA.intGroupRestoringDelay := saTemp[3]
 			}
 
-			this.InsertItemValue("strFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
+			this.InsertItemValue("blnFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
 			this.InsertItemValue("blnFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
 			this.InsertItemValue("blnFavoriteDisabled", saFavorite[14]) ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
-			this.InsertItemValue("strFavoriteFolderLiveLevels", saFavorite[15]) ; number of subfolders to include in submenu(s), 0 if not a live folder
-			this.InsertItemValue("strFavoriteFolderLiveDocuments", saFavorite[16]) ; also include documents in live folder
-			this.InsertItemValue("strFavoriteFolderLiveColumns", saFavorite[17]) ; number of items per columns in live folder menus
-			this.InsertItemValue("strFavoriteFolderLiveIncludeExclude", saFavorite[18]) ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
+			this.InsertItemValue("intFavoriteFolderLiveLevels", saFavorite[15]) ; number of subfolders to include in submenu(s), 0 if not a live folder
+			this.InsertItemValue("blnFavoriteFolderLiveDocuments", saFavorite[16]) ; also include documents in live folder
+			this.InsertItemValue("intFavoriteFolderLiveColumns", saFavorite[17]) ; number of items per columns in live folder menus
+			this.InsertItemValue("blnFavoriteFolderLiveIncludeExclude", saFavorite[18]) ; if true include extensions in FavoriteFolderLiveExtensions, if false exclude them
 			this.InsertItemValue("strFavoriteFolderLiveExtensions", saFavorite[19]) ; extensions of files to include or exclude in live folder
 			this.InsertItemValue("strFavoriteShortcut", saFavorite[20]) ; (new in v8.7.1.93) shortcut (mouse or keyboard hotkey) to launch this favorite
 			this.InsertItemValue("strFavoriteHotstring", StrReplace(saFavorite[21], g_strEscapePipe, "|")) ; (changed in v8.7.1.96) hotstring to launch this favorite (AHK format: ":option:trigger")
@@ -24018,7 +24019,7 @@ class Container
 			this.InsertItemValue("strFavoriteSoundLocation", StrReplace(saFavorite[23], g_strEscapePipe, "|")) ; path and file of sound to play when launching the favorite
 			this.InsertItemValue("strFavoriteDateCreated", saFavorite[24]) ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 			this.InsertItemValue("strFavoriteDateModified", saFavorite[25]) ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
-			this.InsertItemValue("strFavoriteUsageDb", saFavorite[26]) ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
+			this.InsertItemValue("intFavoriteUsageDb", saFavorite[26]) ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
 
 			if (!StrLen(this.AA.strFavoriteIconResource) or this.AA.strFavoriteIconResource = "iconUnknown")
 			; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
@@ -25067,7 +25068,7 @@ class Container
 				{
 					; ftp://username:password@ftp.domain.ext/public_ftp/incoming/
 					if (this.aaTemp.strTargetAppName = "TotalCommander")
-						or !(this.AA.strFavoriteFtpEncoding) ; do not encode
+						or !(this.AA.blnFavoriteFtpEncoding) ; do not encode
 					{
 						; must NOT encode username and password with UriEncode
 						this.aaTemp.strLoginName := this.AA.strFavoriteLoginName
