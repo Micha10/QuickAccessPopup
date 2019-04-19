@@ -3340,7 +3340,8 @@ global g_strHotkeyTypeDetected
 global g_strNewWindowId
 global g_intOriginalMenuPosition
 global g_objEditedFavorite
-global g_objMenuInGui
+global g_objMenuInGui ; to be replaced with o_MenuInGui
+global o_MenuInGui ; replace g_objMenuInGui
 global g_intMenuPosX
 global g_intMenuPosY
 
@@ -3569,7 +3570,7 @@ Hotkey, If
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectMenuData, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
-; gosub, GuiOptionsGroupGeneral ; ####
+gosub, GuiShow ; #####
 return
 
 ;========================================================================================================================
@@ -4041,7 +4042,8 @@ LoadIniFile:
 Gosub, BackupIniFile
 
 ; reinit after Settings save if already exist
-g_objMenuInGui := Object() ; object of menu currently in Gui
+; g_objMenuInGui := Object() ; object of menu currently in Gui
+o_MenuInGui := Object() ; object of menu currently in Gui
 
 g_blnIniFileCreation := !FileExist(o_Settings.strIniFile)
 if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was created by ImportFavoritesFP2QAP.ahk during install
@@ -10968,12 +10970,32 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ;
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
 		strThisMenu := A_ThisMenu
-	g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+	; g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+	o_MenuInGui := o_Containers.AA[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
+	; ###_V(A_ThisLabel, A_ThisMenu, strThisMenu, o_MenuInGui.AA.strMenuPath)
 }
 
 Gosub, RefreshQAPMenuExternalOnly
 
-Gosub, BackupMenusObjects
+; to test backup/restore
+; ###avant1 := o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
+; ###avant2 := o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
+
+o_MainMenuBK := o_MainMenu.Backup() ; backup menu content
+
+; to test backup/restore
+; o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName := "Item Menu 1 MOD"
+; o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName := "Item Menu 2 MOD"
+; ###apres1 := o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
+; ###apres2 := o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
+
+o_MainMenu := o_MainMenuBK
+o_MainMenu.RestoreContainersIndex()
+
+; to test backup/restore
+; ###_V("o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName", ###avant1, ###apres1, ###avant2, ###apres2
+	; , o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
+	; , o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName)
 
 if (A_ThisLabel = "GuiShowFromAlternative")
 	Gosub, LoadMenuInGuiFromAlternative
@@ -14128,7 +14150,9 @@ if (blnCancelEnabled)
 	{
 		g_blnMenuReady := false
 		
-		Gosub, RestoreBackupMenusObjects
+		; Gosub, RestoreBackupContainers
+		o_MainMenu := o_MainMenuBK
+		o_MainMenu.UpdateContainersIndex()
 		
 		GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
@@ -14257,107 +14281,6 @@ Gui, 2:-Disabled
 Gui, 3:Destroy
 if (g_intGui2WinID <> A_ScriptHwnd)
 	WinActivate, ahk_id %g_intGui2WinID%
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-BackupMenusObjects:
-RestoreBackupMenusObjects:
-; in case of Gui Cancel to restore objects to original state
-;------------------------------------------------------------
-
-if (A_ThisLabel = "BackupMenusObjects")
-{
-	objMenusSource := g_objMenusIndex
-	g_objMenusBK := Object() ; re-init
-}
-else ; RestoreBackupMenusObjects
-{
-	objMenusSource := g_objMenusBK
-	g_objMenusIndex := Object() ; re-init
-}
-
-for strMenuPath, objMenuSource in objMenusSource
-{
-	objMenuDest := Object()
-	objMenuDest.MenuPath := objMenuSource.MenuPath
-	objMenuDest.MenuType := objMenuSource.MenuType
-	objMenuDest.MenuExternalSettingsPath := objMenuSource.MenuExternalSettingsPath
-	objMenuDest.MenuExternalLoaded := objMenuSource.MenuExternalLoaded
-	objMenuDest.MenuExternalLastModifiedNow := objMenuSource.MenuExternalLastModifiedNow
-	objMenuDest.MenuExternalLastModifiedWhenLoaded := objMenuSource.MenuExternalLastModifiedWhenLoaded
-	objMenuDest.MenuExternalLastModifiedFromNetworkOrCoud := objMenuSource.MenuExternalLastModifiedFromNetworkOrCoud
-
-	loop, % objMenuSource.MaxIndex()
-	{
-		objFavorite := Object()
-		objFavorite := CopyFavoriteObject(objMenuSource[A_Index])
-		objMenuDest.Insert(objFavorite)
-	}
-	
-	if (A_ThisLabel = "BackupMenusObjects")
-		g_objMenusBK.Insert(strMenuPath, objMenuDest)
-	else ; RestoreBackupMenusObjects
-		g_objMenusIndex.Insert(strMenuPath, objMenuDest)
-}
-
-; reconnect submenu after they are recreated during restore
-if (A_ThisLabel = "RestoreBackupMenusObjects")
-{
-	g_objMainMenu := g_objMenusIndex[o_L["MainMenuName"]] ; re-connect main menu
-	for strMenuPath, objMenuDest in g_objMenusIndex
-	{
-		; reconnect parent menu
-		if (objMenuDest.MenuPath <> o_L["MainMenuName"])
-		{
-			intInStr := InStr(objMenuDest.MenuPath, " > ", , 0)	; search from end
-			strParentPath := SubStr(objMenuDest.MenuPath, 1, intInStr - 1) ; strip the last submenu
-			objParentMenu := g_objMenusIndex[strParentPath]
-			objMenuDest[1].ParentMenu := objParentMenu
-		}
-		loop, % objMenuDest.MaxIndex()
-			if InStr("Menu|Group|External", objMenuDest[A_Index].FavoriteType, true)
-			{
-				objSubMenu := Object()
-				objSubMenu.MenuPath := o_L["MainMenuName"] . " " . objMenuDest[A_Index].FavoriteLocation
-				objSubMenu.MenuType := objMenuDest[A_Index].FavoriteType
-				objMenuDest[A_Index].SubMenu := g_objMenusIndex[objSubMenu.MenuPath] ; re-connect sub menu
-			}
-	}
-
-	g_objMenusBK := ""
-}
-
-/*
-; Was with g_objHotkeysByNameLocation
-; also backup hotkey objects
-
-if (A_ThisLabel = "BackupMenusObjects")
-{
-	g_objHotkeysByNameLocationBK := Object()
-	for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocation
-		g_objHotkeysByNameLocationBK.Insert(strThisNameLocation, strThisHotkey)
-}
-else
-{
-	for strThisNameLocation, strThisHotkey in g_objHotkeysByNameLocationBK
-		g_objHotkeysByNameLocation.Insert(strThisNameLocation, strThisHotkey)
-	g_objHotkeysByNameLocationBK := ""
-}
-*/
-
-objMenusSource := ""
-strMenuPath := ""
-objMenuSource := ""
-objMenuDest := ""
-objFavorite := ""
-objSubMenu := ""
-strThisLocation := ""
-intInStr := ""
-strParentPath := ""
-objParentMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -23159,15 +23082,18 @@ class Container
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	__New(strType, strContainerName, oParentMenu := "")
+	__New(strType, strContainerName, oParentMenu := "", strAction := "init")
 	;---------------------------------------------------------
 	{
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
 		if (oParentMenu)
 		{
 			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
-			this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
-				. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			if SubStr(strContainerName, 1, StrLen(o_L["MainMenuName"])) = o_L["MainMenuName"] ; strContainerName is already fully formed (when creating a backup or restore)
+				this.AA.strMenuPath := strContainerName
+			else
+				this.AA.strMenuPath := oParentMenu.AA.strMenuPath . g_strMenuPathSeparatorWithSpaces . strContainerName
+					. (strType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 			this.AA.strParentMenuLabel := BetweenParenthesis(GetDeepestMenuPath(oParentMenu.AA.strMenuPath))
 			this.AA.oParentMenu := oParentMenu
 		}		
@@ -23175,7 +23101,7 @@ class Container
 		{
 			this.AA.strMenuPath := strContainerName ; for MainMenuName, DOpusMenuName, TCMenuName and other dynamic menus: name as-is, no separator before
 			
-			if (strContainerName <> o_L["MainMenuName"]) ; ???
+			if (strAction = "init" and strContainerName <> o_L["MainMenuName"]) ; ???
 			{
 				Menu, %strContainerName%, Add 
 				Menu, %strContainerName%, DeleteAll
@@ -23186,10 +23112,48 @@ class Container
 				this.AddCloseMenu()
 			}
 		}
-		o_Containers.AA[this.AA.strMenuPath] := this
+		
+		if (strAction = "init") ; avoid updating containers index when creating a backup of the menu objects
+			o_Containers.AA[this.AA.strMenuPath] := this
 	}
 	;---------------------------------------------------------
 	
+	;---------------------------------------------------------
+	Backup()
+	; copy of associative array AA and simple array SA to another object of class Container
+	;---------------------------------------------------------
+	{
+		oCopy := new Container(this.AA.strMenuType, this.AA.strMenuPath
+			, (this.AA.strMenuPath = o_L["MainMenuName"] ? "" : this) ; no parent for Main menu
+			, "backup") ; pass action to avoid re-creating menu or updating o_Containers index when creating backup
+		
+		for strKey, varValue in this.AA
+			oCopy.AA[strKey] := varValue
+		
+		for intKey, oItem in this.SA
+		{
+			oCopy.SA[intKey] := oItem.Backup()
+			if oItem.IsContainer()
+				oCopy.SA[intKey].AA.oSubMenu := oItem.AA.oSubMenu.Backup() ; recursive
+		}
+			
+		return oCopy
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	RestoreContainersIndex()
+	; update containers index with restored containers
+	;---------------------------------------------------------
+	{
+		o_Containers.AA[this.AA.strMenuPath] := this
+		
+		for intKey, oItem in this.SA
+			if oItem.IsContainer()
+				oItem.AA.oSubMenu.RestoreContainersIndex() ; recursive
+	}
+	;---------------------------------------------------------
+
 	;---------------------------------------------------------
 	LoadFavoritesFromTable(saMenuItemsTable)
 	; load items in saMenuItemsTable to a simple Container object having no submenu
@@ -24071,10 +24035,24 @@ class Container
 		;---------------------------------------------------------
 		
 		;---------------------------------------------------------
+		Backup()
+		; copy of associative array AA to another object of class Item
+		;---------------------------------------------------------
+		{
+			oCopy := new Container.Item
+			
+			for strKey, varValue in this.AA
+				oCopy.AA[strKey] := varValue
+				
+			return oCopy
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
 		IsContainer()
 		;---------------------------------------------------------
 		{
-			return InStr("|Menu|Group|External", "|" . this.FavoriteType, true) ; does not include LiveFolder
+			return InStr("|Menu|Group|External", "|" . this.AA.strFavoriteType, true) ; does not include LiveFolder
 		}
 		;---------------------------------------------------------
 		
