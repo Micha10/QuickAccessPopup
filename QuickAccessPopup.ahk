@@ -8213,54 +8213,14 @@ Gui, 1:Default
 Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
-; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
 if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
+; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
 	ExternalMenuReloadAndRebuild(g_objMenuInGui)
 
-Loop, % o_MenuInGui.SA.MaxIndex()
-{
-	strThisType := GetFavoriteTypeForList(o_MenuInGui.SA[A_Index])
-	strThisHotkey := new Triggers.HotkeyParts(o_MenuInGui.SA[A_Index].FavoriteShortcut).Hotkey2Text(true)
-	if StrLen(o_MenuInGui.SA[A_Index].FavoriteHotstring)
-		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(o_MenuInGui.SA[A_Index].FavoriteHotstring))
-	
-	if InStr("Menu|Group|External", o_MenuInGui.SA[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
-	{
-		if (o_MenuInGui.SA[A_Index].FavoriteType = "Menu")
-			strGuiMenuLocation := g_strMenuPathSeparator
-		else if (o_MenuInGui.SA[A_Index].FavoriteType = "Group")
-			strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
-		else ; o_MenuInGui.SA[A_Index].FavoriteType = "External"
-		{
-			if ExternalMenuModifiedSinceLoaded(o_MenuInGui.SA[A_Index].SubMenu)
-				ExternalMenuReloadAndRebuild(o_MenuInGui.SA[A_Index].SubMenu)
-			if ExternalMenuIsReadOnly(o_MenuInGui.SA[A_Index].SubMenu.MenuExternalSettingsPath)
-				strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-			else if !(o_MenuInGui.SA[A_Index].SubMenu.MenuExternalLoaded)
-				strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
-			else
-				strGuiMenuLocation := ""
-			strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . o_MenuInGui.SA[A_Index].SubMenu.MenuExternalSettingsPath
-		}
-		
-		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and o_MenuInGui.SA[A_Index].intFavoriteUsageDb
-			? " [" . o_MenuInGui.SA[A_Index].intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
-	}
-	else if (o_MenuInGui.SA[A_Index].FavoriteType = "X") ; this is a separator
-		LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
-	
-	else if (o_MenuInGui.SA[A_Index].FavoriteType = "K") ; this is a column break
-		LV_Add(, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine
-		, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
-		
-	else if (o_MenuInGui.SA[A_Index].FavoriteType = "B") ; this is a back link
-		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName, "   ..   ", "", "")
-		
-	else ; this is a Folder, Document, QAP feature, URL, Application or Windows App
-		LV_Add(, o_MenuInGui.SA[A_Index].FavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and o_MenuInGui.SA[A_Index].intFavoriteUsageDb
-			? " [" . o_MenuInGui.SA[A_Index].intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
-			, (o_MenuInGui.SA[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(o_MenuInGui.SA[A_Index].FavoriteLocation, 250) : o_MenuInGui.SA[A_Index].FavoriteLocation))
-}
+; ##### here? copy to temp Container with insert backlink IsertAt(1, ...) if not Main menu
+; oItem.AA.strFavoriteType := "B") ; this is a back link
+
+o_MenuInGui.LoadInGui()
 
 ; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
 LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (o_MenuInGui.SA[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
@@ -8357,7 +8317,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 			strHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
 			strHotkey := (strHotkey = o_L["DialogNone"] ? "" : strHotkey)
 			strSearchIn .= " " . o_Favorites.GetFavoriteTypeObject(objCurrentMenu[A_Index].FavoriteType).strFavoriteTypeLocationLabelNoAmpersand
-				. " " . GetFavoriteTypeForList(objCurrentMenu[A_Index]) ; include short names and Live Folder label
+				. " " . objCurrentMenu[A_Index].GetItemTypeLabelForList() ; include short names and Live Folder label
 				. " " . strHotkey
 				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
 				. " " . objCurrentMenu[A_Index].FavoriteLocation
@@ -8372,7 +8332,7 @@ RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
 		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
 			and InStr(strSearchIn, strFilter)
 		{
-			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
+			strThisType := objCurrentMenu[A_Index].GetItemTypeLabelForList()
 			strThisHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
 			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
@@ -12041,7 +12001,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 	else
 		strThisLocation := g_objEditedFavorite.FavoriteLocation
 
-	strThisType := GetFavoriteTypeForList(g_objEditedFavorite)
+	strThisType := g_objEditedFavorite.GetItemTypeLabelForList()
 	strThisHotkey := new Triggers.HotkeyParts(g_objEditedFavorite.FavoriteShortcut).Hotkey2Text(true)
 	if StrLen(g_objEditedFavorite.FavoriteHotstring)
 		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objEditedFavorite.FavoriteHotstring))
@@ -12856,7 +12816,7 @@ RecursiveLoadMenuHotkeys(objCurrentMenu, intIndex)
 			or StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
 			or f_blnSeeAllFavorites)
 		{
-			strThisType := GetFavoriteTypeForList(objCurrentMenu[A_Index])
+			strThisType := objCurrentMenu[A_Index].GetItemTypeLabelForList()
 			g_intHotkeyListOrder++
 			
 			if (intIndex = 1 and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) or f_blnSeeAllFavorites))
@@ -19220,22 +19180,6 @@ SettingsUnsaved()
 
 
 ;------------------------------------------------------------
-GetFavoriteTypeForList(o_Favorite)
-;------------------------------------------------------------
-{
-	if (o_Favorite.AA.intFavoriteFolderLiveLevels)
-		strType := o_L["DialogFavoriteFolderLiveType"]
-	else
-		strType := o_Favorites.GetFavoriteTypeObject(objFavorite.FavoriteType).strFavoriteTypeShortName
-	if (objFavorite.blnFavoriteDisabled)
-		strType := BetweenParenthesis(strType)
-	
-	return strType
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 GetFileExtension(strFile)
 ;------------------------------------------------------------
 {
@@ -23239,6 +23183,8 @@ class Container
 				else
 					Return, "EOF" ; end of file - an unknown error occurred while reading the ini file - menu loading will be aborted
 			}
+			else
+				this.AA.blnMenuExternalLoaded := true
 			
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
@@ -23931,6 +23877,57 @@ class Container
 		}
 		else
 			return strMenuName
+	}
+	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	LoadInGui()
+	;------------------------------------------------------------
+	{
+		for intKey, oItem in this.SA
+		{
+			strThisType := oItem.GetItemTypeLabelForList()
+			strThisHotkey := new Triggers.HotkeyParts(oItem.AA.strFavoriteShortcut).Hotkey2Text(true)
+			if StrLen(oItem.AA.strFavoriteHotstring)
+				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(oItem.AA.strFavoriteHotstring))
+			
+			if oItem.IsContainer() ; this is a menu, a group or an external menu
+			{
+				if (oItem.AA.strFavoriteType = "Menu")
+					strGuiMenuLocation := g_strMenuPathSeparator
+				else if (oItem.AA.strFavoriteType = "Group")
+					strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+				else ; oItem.AA.strFavoriteType = "External"
+				{
+					if ExternalMenuModifiedSinceLoaded(oItem.AA.oSubMenu)
+						ExternalMenuReloadAndRebuild(oItem.AA.oSubMenu)
+					if ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
+						strGuiMenuLocation := o_L["DialogReadOnly"] . " "
+					else if !(oItem.AA.oSubMenu.AA.blnMenuExternalLoaded)
+						strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
+					else
+						strGuiMenuLocation := ""
+					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath
+				}
+				
+				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
+					? " [" . oItem.AA.intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, strGuiMenuLocation)
+			}
+			else if (oItem.AA.strFavoriteType = "X") ; this is a separator
+				LV_Add(, g_strGuiMenuSeparator, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparatorShort, g_strGuiMenuSeparator . g_strGuiMenuSeparator)
+
+			else if (oItem.AA.strFavoriteType = "K") ; this is a column break
+				LV_Add(, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine
+				, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
+				
+			else if (oItem.AA.strFavoriteType = "B") ; this is a back link
+				LV_Add(, oItem.AA.strFavoriteName, "   ..   ", "", "")
+				
+			else ; this is a Folder, Document, QAP feature, URL, Application, Snippet or Windows App
+				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
+					? " [" . oItem.AA.intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
+					, (oItem.AA.strFavoriteType = "Snippet" ? StringLeftDotDotDot(oItem.AA.strFavoriteLocation, 250) : oItem.AA.strFavoriteLocation))
+		}
 	}
 	;------------------------------------------------------------
 
@@ -25245,6 +25242,22 @@ class Container
 			}
 		}
 		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		GetItemTypeLabelForList()
+		;---------------------------------------------------------
+		{
+			if (this.AA.intFavoriteFolderLiveLevels)
+				strType := o_L["DialogFavoriteFolderLiveType"]
+			else
+				strType := o_Favorites.GetFavoriteTypeObject(this.AA.strFavoriteType).strFavoriteTypeShortName
+			if (this.AA.blnFavoriteDisabled)
+				strType := BetweenParenthesis(strType)
+			
+			return strType
+		}
+		;---------------------------------------------------------
+		
 	}
 	;-------------------------------------------------------------
 
