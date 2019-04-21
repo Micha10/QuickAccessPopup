@@ -8215,13 +8215,10 @@ if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded
 ; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
 	ExternalMenuReloadAndRebuild(g_objMenuInGui)
 
-if (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] and o_MenuInGui.SA[1].AA.strFavoriteType <> "B") ; submenu has not been added a back item at first item
-	o_MenuInGui.SA.InsertAt(1, new Container.Item(["B"])) ; add back item at first position
-
 o_MenuInGui.LoadInGui()
 
 ; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
-LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? 1 : 0)), "Select Focus")
+LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1), "Select Focus")
 
 Gosub, AdjustColumnsWidth
 
@@ -8486,8 +8483,6 @@ if (A_GuiEvent = "DoubleClick")
 	g_intOriginalMenuPosition := LV_GetNext()
 	if StrLen(o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType) and InStr("Menu|Group|External", o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType, true)
 		Gosub, OpenMenuFromGuiHotkey
-	else if (o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType = "B")
-		Gosub, GuiGotoUpMenu
 	else
 		gosub, GuiEditFavorite
 }
@@ -15170,10 +15165,7 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
 	; #### no need to have 2 variables, the function could return the position in object
 
-	intMenuItemPos := A_ThisMenuItemPos
-		; + (A_ThisMenu = o_L["MainMenuName"] or A_ThisMenu = o_L["TCMenuName"] or A_ThisMenu = o_L["DOpusMenuName"] or A_ThisMenu = o_L["MenuDrives"]
-			; or A_ThisMenu = o_L["DOpusMenuName"] . g_strMenuPathSeparatorWithSpaces . o_L["DOpusLayoutsName"] ? 0 : 1)
-		+ intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
+	intMenuItemPos := A_ThisMenuItemPos + intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
 	; return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 	return o_Containers.AA[A_ThisMenu].SA[intMenuItemPos]
@@ -15187,7 +15179,6 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 {
 	intColumnBreaksBeforeThisItem := 0
 	intDisabledItemsBeforeThisItem := 0
-	; intMenuObjectItemOffset := (A_ThisMenu = o_L["MainMenuName"] or A_ThisMenu = o_L["TCMenuName"] ? 0 : 1)
 	
 	Loop
 	{
@@ -23910,9 +23901,6 @@ class Container
 			else if (oItem.AA.strFavoriteType = "K") ; this is a column break
 				LV_Add(, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine
 				, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
-				
-			else if (oItem.AA.strFavoriteType = "B") ; this is a back link
-				LV_Add(, "   ..   ", "", "", BetweenParenthesis(this.AA.oParentMenu.AA.strMenupath))
 				
 			else ; this is a Folder, Document, QAP feature, URL, Application, Snippet or Windows App
 				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
