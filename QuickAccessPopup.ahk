@@ -3286,8 +3286,8 @@ global g_blnMenuReady := false
 global g_blnChangeShortcutInProgress := false
 global g_blnChangeHotstringInProgress := false
 
-global g_arrSubmenuStack := Object()
-global g_arrSubmenuStackPosition := Object()
+global g_saSubmenuStack := Object() ; simple array of menu path opened in gui
+global g_saSubmenuStackPosition := Object() ; simple array of menu position in gui for each path in g_saSubmenuStack
 
 global g_strMenuPathSeparator := ">" ; spaces before/after are added only when submenus are added, separate submenu levels, not allowed in menu and group names
 global g_strMenuPathSeparatorWithSpaces := " " . g_strMenuPathSeparator . " "
@@ -3340,8 +3340,7 @@ global g_strHotkeyTypeDetected
 global g_strNewWindowId
 global g_intOriginalMenuPosition
 global g_objEditedFavorite
-global g_objMenuInGui ; to be replaced with o_MenuInGui
-global o_MenuInGui ; replace g_objMenuInGui
+global o_MenuInGui ; replace g_objMenuInGui, back item added at top when first loaded in gui
 global g_intMenuPosX
 global g_intMenuPosY
 
@@ -4042,7 +4041,6 @@ LoadIniFile:
 Gosub, BackupIniFile
 
 ; reinit after Settings save if already exist
-; g_objMenuInGui := Object() ; object of menu currently in Gui
 o_MenuInGui := Object() ; object of menu currently in Gui
 
 g_blnIniFileCreation := !FileExist(o_Settings.strIniFile)
@@ -8217,17 +8215,18 @@ if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded
 ; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
 	ExternalMenuReloadAndRebuild(g_objMenuInGui)
 
-; ##### here? copy to temp Container with insert backlink IsertAt(1, ...) if not Main menu
-; oItem.AA.strFavoriteType := "B") ; this is a back link
+if (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] and o_MenuInGui.SA[1].AA.strFavoriteType <> "B") ; submenu has not been added a back item at first item
+	o_MenuInGui.SA.InsertAt(1, new Container.Item(["B"])) ; add back item at first position
 
 o_MenuInGui.LoadInGui()
 
 ; keep original position from LoadMenuInGuiFromAlternative and LoadMenuInGuiFromGuiSearch (not from LoadMenuInGuiFromHotkeysManage)
-LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (o_MenuInGui.SA[1].FavoriteType = "B" ? 1 : 0)), "Select Focus") 
+LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMenuInGuiFromGuiSearch" ? g_intOriginalMenuPosition : 1 + (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? 1 : 0)), "Select Focus")
 
 Gosub, AdjustColumnsWidth
 
-GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, o_MenuInGui.SA.MenuPath) . "|"
+; GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, o_MenuInGui.SA.MenuPath) . "|"
+GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(o_MainMenu, o_MenuInGui.AA.strMenuPath) . "|"
 
 GuiControl, Focus, f_lvFavoritesList
 
@@ -8485,9 +8484,9 @@ Gui, 1:ListView, f_lvFavoritesList
 if (A_GuiEvent = "DoubleClick")
 {
 	g_intOriginalMenuPosition := LV_GetNext()
-	if StrLen(g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType) and InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
+	if StrLen(o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType) and InStr("Menu|Group|External", o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType, true)
 		Gosub, OpenMenuFromGuiHotkey
-	else if (g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType = "B")
+	else if (o_MenuInGui.SA[g_intOriginalMenuPosition].AA.strFavoriteType = "B")
 		Gosub, GuiGotoUpMenu
 	else
 		gosub, GuiEditFavorite
@@ -10814,7 +10813,7 @@ if (A_ThisLabel = "GuiMenusListChanged")
 {
 	GuiControlGet, strNewDropdownMenu, , f_drpMenusList
 
-	if (strNewDropdownMenu = g_objMenuInGui.MenuPath) ; user selected the current menu in the dropdown
+	if (strNewDropdownMenu = o_MenuInGui.AA.strMenuPath) ; user selected the current menu in the dropdown
 	{
 		gosub, GuiMenusListChangedCleanup
 		return
@@ -10823,37 +10822,34 @@ if (A_ThisLabel = "GuiMenusListChanged")
 
 if (A_ThisLabel = "GuiGotoPreviousMenu")
 {
-	g_objMenuInGui := g_objMenusIndex[g_arrSubmenuStack[1]] ; pull the top menu from the left arrow stack
-	g_arrSubmenuStack.Remove(1) ; remove the top menu from the left arrow stack
-
-	intCurrentLastPosition := g_arrSubmenuStackPosition[1] ; pull the focus position in top menu from the left arrow stack
-	g_arrSubmenuStackPosition.Remove(1) ; remove the top position from the left arrow stack
+	o_MenuInGui := o_Containers.AA[g_saSubmenuStack.Pop()] ; pull the last menu from the left arrow stack and remove it from the left arrow stack
+	intCurrentLastPosition := g_saSubmenuStackPosition.Pop() ; pull the focus position in last menu from the left arrow stack and remove it from stack
 }
 else
 {
-	g_arrSubmenuStack.Insert(1, g_objMenuInGui.MenuPath) ; push the current menu to the left arrow stack
+	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
 	
 	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath)
 	; ###_O("g_objMenuInGui", g_objMenuInGui, "FavoriteName")
 	; ###_O("g_objMenuInGui[1]", g_objMenuInGui[1])
 	if (A_ThisLabel = "GuiMenusListChanged")
-		objNewMenuInGui := g_objMenusIndex[strNewDropdownMenu]
+		objNewMenuInGui := o_Containers.AA[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		objNewMenuInGui := g_objMenuInGui[1].ParentMenu
+		objNewMenuInGui := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
-		objNewMenuInGui := g_objMenuInGui[g_intOriginalMenuPosition].SubMenu
+		objNewMenuInGui := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
 	else if (A_ThisLabel = "OpenMenuFromGuiSearch")
-		objNewMenuInGui := g_objMenuInGui ;  we already have the menu object in g_objMenuInGui from the search event
+		objNewMenuInGui := o_MenuInGui ;  we already have the menu object in g_objMenuInGui from the search event
 	
-	g_objMenuInGui := objNewMenuInGui
+	o_MenuInGui := objNewMenuInGui
 	
-	g_arrSubmenuStackPosition.Insert(1, LV_GetNext("Focused"))
+	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 }
 
-GuiControl, % (g_arrSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
-GuiControl, % (g_objMenuInGui.MenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
+GuiControl, % (g_saSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
+GuiControl, % (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
 
-gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with g_objMenuInGui
+gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with o_MenuInGui
 
 if (A_ThisLabel = "OpenMenuFromGuiSearch")
 	Gosub, LoadMenuInGuiFromGuiSearch
@@ -10925,15 +10921,13 @@ GuiShowNeverCalled:
 
 if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
 {
-	if (g_objMenusIndex[A_ThisMenu].blnIsLiveMenu)
-		strThisMenu := g_objMenusIndex[A_ThisMenu].strLiveMenuParentPath ; with Container class, replace with ...AA.oParentMenu.AA.strMenuPath ?
+	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
+		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
 	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !g_objMenusIndex.HasKey(A_ThisMenu)) ; A_ThisMenu = "" and HasKey by safety
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
 		strThisMenu := A_ThisMenu
-	; g_objMenuInGui := g_objMenusIndex[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
 	o_MenuInGui := o_Containers.AA[strThisMenu] ; A_ThisMenu is "Main" or "Main > Submenu"...
-	; ###_V(A_ThisLabel, A_ThisMenu, strThisMenu, o_MenuInGui.AA.strMenuPath)
 }
 
 Gosub, RefreshQAPMenuExternalOnly
@@ -10949,11 +10943,8 @@ o_MainMenuBK := o_MainMenu.Backup() ; backup menu content
 ; o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName := "Item Menu 2 MOD"
 ; ###apres1 := o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
 ; ###apres2 := o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
-
-o_MainMenu := o_MainMenuBK
-o_MainMenu.RestoreContainersIndex()
-
-; to test backup/restore
+; o_MainMenu := o_MainMenuBK
+; o_MainMenu.RestoreContainersIndex()
 ; ###_V("o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName", ###avant1, ###apres1, ###avant2, ###apres2
 	; , o_MainMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName
 	; , o_MainMenu.SA[2].AA.oSubMenu.SA[2].AA.oSubMenu.SA[1].AA.strFavoriteName)
@@ -15071,7 +15062,7 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 		g_strHotkeyTypeDetected := "Launch"
 	}
 
-	o_ThisFavorite := new Container.Item([["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)]])
+	o_ThisFavorite := new Container.Item(["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)])
 	o_ThisFavorite.aaTemp.blnFavoritePseudo := true
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
@@ -18351,38 +18342,38 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 
 
 ;------------------------------------------------------------
-RecursiveBuildMenuTreeDropDown(objMenu, strDefaultMenuName, strSkipMenuName := "", blnExcludeReadonly := false)
+RecursiveBuildMenuTreeDropDown(o_Menu, strDefaultMenuName, strSkipMenuName := "", blnExcludeReadonly := false)
 ; recursive function
 ;------------------------------------------------------------
 {
-	strList := objMenu.MenuPath
-	if (objMenu.MenuPath = strDefaultMenuName)
+	strList := o_Menu.AA.strMenuPath
+	if (o_Menu.AA.strMenuPath = strDefaultMenuName)
 		strList .= "|" ; default value
 
-	Loop, % objMenu.MaxIndex()
+	Loop, % o_Menu.SA.MaxIndex()
 	{
-		if !InStr("Menu|Group|External", objMenu[A_Index].FavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
+		if !InStr("Menu|Group|External", o_Menu.SA[A_Index].AA.strFavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
 			continue
 		
 		; this object has a .Submenu property
 		
 		; skip to avoid moving a submenu under itself (in GuiEditFavorite)
-		if StrLen(strSkipMenuName) and (objMenu[A_Index].Submenu.MenuPath = strSkipMenuName)
+		if StrLen(strSkipMenuName) and (o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuPath = strSkipMenuName)
 			continue
 		
-		if (objMenu[A_Index].Submenu.MenuType = "External")
+		if (o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuType = "External")
 		{
 			; skip read-only external menus
-			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(objMenu[A_Index].Submenu.MenuExternalSettingsPath)
+			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuExternalSettingsPath)
 				continue
 			
 			; skip external menus if not loaded
-			if !(objMenu[A_Index].Submenu.MenuExternalLoaded)
+			if !(o_Menu.SA[A_Index].AA.oSubMenu.AA.blnMenuExternalLoaded)
 				continue
 		}
 
 		; if we get here, we keep this menu and recurse in it
-		strList .= "|" . RecursiveBuildMenuTreeDropDown(objMenu[A_Index].Submenu, strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
+		strList .= "|" . RecursiveBuildMenuTreeDropDown(o_Menu.SA[A_Index].AA.oSubMenu, strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
 	}
 	return strList
 }
@@ -23069,7 +23060,7 @@ class Container
 	;---------------------------------------------------------
 	{
 		oCopy := new Container(this.AA.strMenuType, this.AA.strMenuPath
-			, (this.AA.strMenuPath = o_L["MainMenuName"] ? "" : this) ; no parent for Main menu
+			, (this.AA.strMenuPath = o_L["MainMenuName"] ? "" : this.AA.oParentMenu) ; no parent for Main menu
 			, "backup") ; pass action to avoid re-creating menu or updating o_Containers index when creating backup
 		
 		for strKey, varValue in this.AA
@@ -23921,7 +23912,7 @@ class Container
 				, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
 				
 			else if (oItem.AA.strFavoriteType = "B") ; this is a back link
-				LV_Add(, oItem.AA.strFavoriteName, "   ..   ", "", "")
+				LV_Add(, "   ..   ", "", "", BetweenParenthesis(this.AA.oParentMenu.AA.strMenupath))
 				
 			else ; this is a Folder, Document, QAP feature, URL, Application, Snippet or Windows App
 				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
@@ -24072,6 +24063,35 @@ class Container
 				, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
 				, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 			
+			; ALTERNATIVE
+			if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
+			{
+				if InStr("Folder|Document|Application", this.AA.strFavoriteType)
+					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
+					
+					this.AlternativeOpenContainer()
+					
+				else if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
+					
+					this.AlternativeEditFavorite()
+					
+				else if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
+				{
+					if !InStr("Group|QAP", this.AA.strFavoriteType) ; for these types, there is no path to copy
+					{
+						Clipboard := this.aaTemp.strLocationWithPlaceholders
+						TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
+						Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
+						blnOpenOK := true
+					}
+				}
+				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (this.AA.strFavoriteType = "Group")
+					; cannot open group in new window
+					blnOpenOK := false
+					
+				return ; ##### OK?
+			}
+			
 			if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
 				if !this.SetTargetName() ; sets old g_strTargetAppName, can change this.aaTemp.strHotkeyTypeDetected to "Launch", can empty this.aaTemp.strTargetWinId if Desktop
 					return
@@ -24141,32 +24161,6 @@ class Container
 			{
 				this.LaunchApplication()
 				blnOpenOK := true
-			}
-			; ALTERNATIVE
-			else if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
-			{
-				if InStr("Folder|Document|Application", this.AA.strFavoriteType)
-					and (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"] or g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingNew"])
-					
-					this.AlternativeOpenContainer()
-					
-				else if (g_strAlternativeMenu = o_L["MenuAlternativeEditFavorite"] and A_ThisMenu <> o_L["MenuLastActions"])
-					
-					this.AlternativeEditFavorite()
-					
-				else if (g_strAlternativeMenu = o_L["MenuCopyLocation"]) ; EnvVars expanded
-				{
-					if !InStr("Group|QAP", this.AA.strFavoriteType) ; for these types, there is no path to copy
-					{
-						Clipboard := this.aaTemp.strLocationWithPlaceholders
-						TrayTip, %g_strAppNameText%, % o_L["CopyLocationCopiedToClipboard"], , 17 ; 1 info icon + 16 no sound
-						Sleep, 20 ; tip from Lexikos for Windows 10 "Just sleep for any amount of time after each call to TrayTip" (http://ahkscript.org/boards/viewtopic.php?p=50389&sid=29b33964c05f6a937794f88b6ac924c0#p50389)
-						blnOpenOK := true
-					}
-				}
-				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (this.AA.strFavoriteType = "Group")
-					; cannot open group in new window
-					blnOpenOK := false
 			}
 			; SNIPPETS
 			else if (this.AA.strFavoriteType = "Snippet")
