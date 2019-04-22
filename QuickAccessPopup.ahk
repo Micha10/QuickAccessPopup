@@ -5933,9 +5933,9 @@ If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favor
 		o_Containers.AA[o_L["DOpusLayoutsName"]].LoadDirectoryOpusLayoutsFromXML()
 		o_Containers.AA[o_L["DOpusLayoutsName"]].BuildMenu() ; recurse for submenus
 		
-		oNewItem := new Container.Item(["X"]) ; separator
+		oNewItem := new Container.Item(["X"], o_Containers.AA[o_L["DOpusLayoutsName"]]) ; separator
 		o_Containers.AA[o_L["DOpusMenuName"]].SA.Push(oNewItem) ; add to the current container object
-		oNewItem := new Container.Item(["Menu", o_L["DOpusLayoutsName"]]) ; Layouts menu
+		oNewItem := new Container.Item(["Menu", o_L["DOpusLayoutsName"]], o_Containers.AA[o_L["DOpusLayoutsName"]]) ; Layouts menu
 		oNewItem.AA.oSubMenu := o_Containers.AA[o_L["DOpusLayoutsName"]] ; attach menu
 		o_Containers.AA[o_L["DOpusMenuName"]].SA.Push(oNewItem) ; add to the current container object
 	}
@@ -8157,9 +8157,11 @@ Gui, 1:Font, s8 w400 normal, Verdana
 Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, % o_L["GuiSubmenuDropdownLabel"] ; Static34
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
-Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, % o_L["DialogSearch"] ; Edit1
+Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
+g_objToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
 Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered, % o_L["DialogExtendedSearch"] ; Button2
+g_objToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, % o_L["GuiLvFavoritesHeader"] ; SysHeader321 / SysListView321
@@ -8285,7 +8287,7 @@ Gui, 1:ListView, f_lvFavoritesListFiltered
 LV_Delete()
 LV_ModifyCol(6, 0) ; do early to avoid flash
 
-RecursiveLoadFavoritesListFiltered(g_objMainMenu, strFavoritesListFilter, blnFavoritesListFilterExtended)
+o_MenuInGui.LoadInGuiFiltered(strFavoritesListFilter, blnFavoritesListFilterExtended)
 
 LV_Modify(1, "Select Focus") 
 Loop, % LV_GetCount("Column") - 1
@@ -8298,69 +8300,6 @@ Critical, Off ; enables the current thread to be interrupted
 strFavoritesListFilter := ""
 
 return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RecursiveLoadFavoritesListFiltered(objCurrentMenu, strFilter, strExtended)
-;------------------------------------------------------------
-{
-	Loop, % objCurrentMenu.MaxIndex()
-	{
-		strSearchIn := objCurrentMenu[A_Index].FavoriteName
-		if (strExtended)
-		{
-			strHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
-			strHotkey := (strHotkey = o_L["DialogNone"] ? "" : strHotkey)
-			strSearchIn .= " " . o_Favorites.GetFavoriteTypeObject(objCurrentMenu[A_Index].FavoriteType).strFavoriteTypeLocationLabelNoAmpersand
-				. " " . objCurrentMenu[A_Index].GetItemTypeLabelForList() ; include short names and Live Folder label
-				. " " . strHotkey
-				. " " . GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring)
-				. " " . objCurrentMenu[A_Index].FavoriteLocation
-				. " " . objCurrentMenu[A_Index].FavoriteArguments
-				. " " . objCurrentMenu[A_Index].FavoriteAppWorkingDir
-				. " " . objCurrentMenu[A_Index].FavoriteLaunchWith
-				. " " . objCurrentMenu[A_Index].FavoriteLoginName
-				. " " . objCurrentMenu[A_Index].FavoritePassword
-				. " " . objCurrentMenu[A_Index].FavoriteSoundLocation
-			; do not include objCurrentMenu.MenuPath unless I isolate the last submenu name
-		}
-		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType)
-			and InStr(strSearchIn, strFilter)
-		{
-			strThisType := objCurrentMenu[A_Index].GetItemTypeLabelForList()
-			strThisHotkey := new Triggers.HotkeyParts(objCurrentMenu[A_Index].FavoriteShortcut).Hotkey2Text(true)
-			if StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
-				strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(objCurrentMenu[A_Index].FavoriteHotstring))
-			if InStr("Menu|Group|External", objCurrentMenu[A_Index].FavoriteType, true) ; this is a menu, a group or an external menu
-			{
-				if (objCurrentMenu[A_Index].FavoriteType = "Menu")
-					strGuiMenuLocation := g_strMenuPathSeparator
-				else if (objCurrentMenu[A_Index].FavoriteType = "Group")
-					strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
-				else ; objCurrentMenu[A_Index].FavoriteType = "External"
-				{
-					if ExternalMenuIsReadOnly(objCurrentMenu[A_Index].SubMenu.MenuExternalSettingsPath)
-						strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-					else if !(objCurrentMenu[A_Index].SubMenu.MenuExternalLoaded)
-						strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
-					else
-						strGuiMenuLocation := ""
-					strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . objCurrentMenu[A_Index].SubMenu.MenuExternalSettingsPath
-				}
-				
-				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey, strGuiMenuLocation, A_Index)
-			}
-			else ; this is a folder, document, etc.
-				LV_Add(, objCurrentMenu[A_Index].FavoriteName, objCurrentMenu.MenuPath, strThisType, strThisHotkey
-					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 250) : objCurrentMenu[A_Index].FavoriteLocation)
-					, A_Index)
-		}
-		
-		if InStr("Menu|External|Group", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadFavoritesListFiltered(objCurrentMenu[A_Index].SubMenu, strFilter, strExtended) ; RECURSIVE
-	}
-}
 ;------------------------------------------------------------
 
 
@@ -20380,7 +20319,7 @@ WM_MOUSEMOVE(wParam, lParam)
 	}
 	DllCall("SetCursor", "UInt", g_objHandCursor)
 	
-	; display tooltip for selected buttons
+	; display tooltip for hovered control
 	if (strControl <> strControlPrev) ;  prevent flicker caused by repeating tooltip when mouse moving over the same control
 		and StrLen(g_objToolTipsMessages[strControl])
 	{
@@ -23098,7 +23037,7 @@ class Container
 		Loop, % saMenuItemsTable.MaxIndex()
 		{
 			; create new item and add it to the container
-			oNewItem := new this.Item(saMenuItemsTable[A_Index])
+			oNewItem := new this.Item(saMenuItemsTable[A_Index], this)
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
 	}
@@ -23199,7 +23138,7 @@ class Container
 			}
 			
 			; create new item and add it to the container
-			oNewItem := new this.Item(saThisFavorite)
+			oNewItem := new this.Item(saThisFavorite, this)
 			if oNewItem.IsContainer() ; this is a submenu favorite
 			{
 				oNewItem.AA.oSubMenu := oNewSubMenu ; link to the submenu object
@@ -23267,7 +23206,7 @@ class Container
 				}
 			}
 			
-			oNewItem := new this.Item(saThisFavorite)
+			oNewItem := new this.Item(saThisFavorite, this)
 			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
 			this.SA.Push(oNewItem) ; add to the current container object
@@ -23345,7 +23284,7 @@ class Container
 					saThisFavorite[2] := saThisFavorite[3] ; use FavoriteLocation
 			}
 			
-			oNewItem := new this.Item(saThisFavorite)
+			oNewItem := new this.Item(saThisFavorite, this)
 			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
 			this.SA.Push(oNewItem) ; add to the current container object
@@ -23405,7 +23344,7 @@ class Container
 				saThisFavorite[1] := (blnItemIsMenu ? "Menu" : "OpenDOpusLayout") ; FavoriteType
 			}
 			
-			oNewItem := new this.Item(saThisFavorite)
+			oNewItem := new this.Item(saThisFavorite, this)
 			if (blnItemIsMenu) ; this is a submenu favorite, link to the submenu object
 				oNewItem.AA.oSubMenu := oNewSubMenu
 			this.SA.Push(oNewItem) ; add to the current container object
@@ -23734,13 +23673,13 @@ class Container
 			
 			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
 			{
-				oNewItem := new this.Item(["K"]) ; simple array object with only favorite type "K"
+				oNewItem := new this.Item(["K"], this) ; simple array object with only favorite type "K"
 				this.SA.Push(oNewItem) ; add column break to the current container object
 				if (saItemSource[1] = "X") ; skip line separator after a column break
 					break ; continue with next line in strContent
 			}
 			
-			oNewItem := new this.Item(saItemSource)
+			oNewItem := new this.Item(saItemSource, this)
 			
 			if (saItemSource[1] = "Folder" and A_Index > 1) ; make it a live folder, except if self folder
 			{
@@ -23910,6 +23849,68 @@ class Container
 	}
 	;------------------------------------------------------------
 
+	;------------------------------------------------------------
+	LoadInGuiFiltered(strFilter, blnExtended)
+	;------------------------------------------------------------
+	{
+		; Loop, % this.SA.MaxIndex()
+		for intKey, oItem in this.SA
+		{
+			strSearchIn := oItem.AA.strFavoriteName
+			if (blnExtended)
+			{
+				strHotkey := new Triggers.HotkeyParts(oItem.AA.strFavoriteShortcut).Hotkey2Text(true)
+				strHotkey := (strHotkey = o_L["DialogNone"] ? "" : strHotkey)
+				strSearchIn .= " " . o_Favorites.GetFavoriteTypeObject(oItem.AA.strFavoriteType).strFavoriteTypeLocationLabelNoAmpersand
+					. " " . oItem.GetItemTypeLabelForList() ; include short names and Live Folder label
+					. " " . strHotkey
+					. " " . GetHotstringTrigger(oItem.AA.strFavoriteHotstring)
+					. " " . oItem.AA.strFavoriteLocation
+					. " " . oItem.AA.strFavoriteArguments
+					. " " . oItem.AA.strFavoriteAppWorkingDir
+					. " " . oItem.AA.strFavoriteLaunchWith
+					. " " . oItem.AA.strFavoriteLoginName
+					. " " . oItem.AA.strFavoritePassword
+					. " " . oItem.AA.strFavoriteSoundLocation
+			}
+			if !InStr("X|K", oItem.AA.strFavoriteType)
+				and InStr(strSearchIn, strFilter)
+			{
+				strThisType := oItem.GetItemTypeLabelForList()
+				strThisHotkey := new Triggers.HotkeyParts(oItem.AA.strFavoriteShortcut).Hotkey2Text(true)
+				if StrLen(oItem.AA.strFavoriteHotstring)
+					strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(oItem.AA.strFavoriteHotstring))
+				if InStr("Menu|Group|External", oItem.AA.strFavoriteType, true) ; this is a menu, a group or an external menu
+				{
+					if (oItem.AA.strFavoriteType = "Menu")
+						strGuiMenuLocation := g_strMenuPathSeparator
+					else if (oItem.AA.strFavoriteType = "Group")
+						strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+					else ; oItem.AA.strFavoriteType = "External"
+					{
+						if ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
+							strGuiMenuLocation := o_L["DialogReadOnly"] . " "
+						else if !(oItem.AA.oSubMenu.AA.strMenuExternalLoaded)
+							strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
+						else
+							strGuiMenuLocation := ""
+						strGuiMenuLocation .= g_strMenuPathSeparator . g_strMenuPathSeparator . " " . oItem.AA.oSubMenu.AA.strrMenuExternalSettingsPath
+					}
+					
+					LV_Add(, oItem.AA.strFavoriteName, oItem.AA.oParentMenu.AA.strMenuPath, strThisType, strThisHotkey, strGuiMenuLocation, A_Index)
+				}
+				else ; this is a folder, document, etc.
+					LV_Add(, oItem.AA.strFavoriteName, oItem.AA.oParentMenu.AA.strMenuPath, strThisType, strThisHotkey
+						, (oItem.AA.strFavoriteType = "Snippet" ? StringLeftDotDotDot(oItem.AA.strFavoriteLocation, 250) : oItem.AA.strFavoriteLocation)
+						, A_Index)
+			}
+			
+			if InStr("Menu|External|Group", oItem.AA.strFavoriteType, true)
+				oItem.AA.oSubMenu.LoadInGuiFiltered(strFilter, blnExtended) ; RECURSIVE
+		}
+	}
+	;------------------------------------------------------------
+
 	;-------------------------------------------------------------
 	class Item
 	;-------------------------------------------------------------
@@ -23929,7 +23930,7 @@ class Container
 		;---------------------------------------------------------
 
 		;---------------------------------------------------------
-		__New(saFavorite)
+		__New(saFavorite, oParentMenu := "")
 		;---------------------------------------------------------
 		{
 			; saFavorite:
@@ -23939,6 +23940,8 @@ class Container
 			; 15 intFavoriteFolderLiveLevels, 16 blnFavoriteFolderLiveDocuments, 17 intFavoriteFolderLiveColumns, 18 blnFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
 			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
 			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb
+			
+			this.AA.oParentMenu := oParentMenu
 			
 			if (saFavorite[1] = "QAP")
 			{
