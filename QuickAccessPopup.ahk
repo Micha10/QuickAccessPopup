@@ -3905,9 +3905,9 @@ FileInstall, FileInstall\down_circular-26_c.png, %g_strTempDir%\down_circular-26
 FileInstall, FileInstall\edit_property-48_c.png, %g_strTempDir%\edit_property-48_c.png
 FileInstall, FileInstall\edit_property-48d_c.png, %g_strTempDir%\edit_property-48d_c.png
 FileInstall, FileInstall\help-32_c.png, %g_strTempDir%\help-32_c.png
-FileInstall, FileInstall\left-12_c.png, %g_strTempDir%\left-12_c.png
+FileInstall, FileInstall\left-24_c.png, %g_strTempDir%\left-24_c.png
 FileInstall, FileInstall\settings-32_c.png, %g_strTempDir%\settings-32_c.png
-FileInstall, FileInstall\up-12_c.png, %g_strTempDir%\up-12_c.png
+FileInstall, FileInstall\left2-24_c.png, %g_strTempDir%\left2-24_c.png
 FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.png
 FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
 FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
@@ -3979,8 +3979,8 @@ InsertGuiControlPos("f_picAddColumnBreak",				  10,  255)
 InsertGuiControlPos("f_picAddSeparator",				  10,  225)
 InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  195)
 InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
-InsertGuiControlPos("f_picPreviousMenu",				  10,   84)
-InsertGuiControlPos("f_picUpMenu",						  25,   84)
+InsertGuiControlPos("f_picUpMenu",						  10,   70)
+InsertGuiControlPos("f_picPreviousMenu",				  10,   90)
 InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -185)
 InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -185)
 InsertGuiControlPos("f_picSortFavorites",				  10,  -215)
@@ -8112,9 +8112,9 @@ Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_str
 Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static7
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
 Gui, 1:Add, Picture, vf_picGuiOptions gShowGuiOptionsMenu x+1 yp ; , %g_strTempDir%\settings-32_c.png ; Static9
-Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-12_c.png ; Static10
+Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-24_c.png ; Static10
 g_objToolTipsMessages["Static10"] := o_L["ControlToolTipPreviousMenu"]
-Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\up-12_c.png ; Static11
+Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\left2-24_c.png ; Static11
 g_objToolTipsMessages["Static11"] := o_L["ControlToolTipParentMenu"]
 Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static12
 g_objToolTipsMessages["Static12"] := o_L["ControlToolTipMoveUp"]
