@@ -12321,6 +12321,7 @@ GuiMoveOneFavoriteUp:
 GuiMoveOneFavoriteDown:
 ;------------------------------------------------------------
 
+; ##### convert external functions to Container class LATER
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
 {
 	objExternalMenu := ""
@@ -12338,9 +12339,7 @@ if (g_intSelectedRow = 0)
 	Oops(o_L["DialogSelectItemToMove"])
 	return
 }
-if (g_intSelectedRow = (InStr(A_ThisLabel, "Up") ? (g_objMenuInGui[1].FavoriteType = "B" ? 2 : 1) ; if Up not higher that first non-back link favorite
-	: LV_GetCount())) ; if Down not lower that last
-	or (g_objMenuInGui[g_intSelectedRow].FavoriteType = "B") ; cannot move back link
+if (g_intSelectedRow = (InStr(A_ThisLabel, "Up") ? 1 : LV_GetCount())) ; if first or last item
 {
 	if InStr(A_ThisLabel, "One")
 		g_blnAbortMultipleMove := true
@@ -12349,19 +12348,27 @@ if (g_intSelectedRow = (InStr(A_ThisLabel, "Up") ? (g_objMenuInGui[1].FavoriteTy
 
 ; --- move in menu object ---
 
-MoveFavoriteInMenuObject(g_objMenuInGui, g_intSelectedRow, (InStr(A_ThisLabel, "Up") ? -1 : 1))
+o_MenuInGui.MoveFavorite(g_intSelectedRow, (InStr(A_ThisLabel, "Up") ? -1 : 1))
 
 ; --- move in Gui ---
 
+saThisRow := Object()
 Loop, 4
-	LV_GetText(arrThis%A_Index%, g_intSelectedRow, A_Index)
+{
+	LV_GetText(strThisPos, g_intSelectedRow, A_Index)
+	saThisRow[A_Index] := strThisPos
+}
 
+saOtherRow := Object()
 Loop, 4
-	LV_GetText(arrOther%A_Index%, g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), A_Index)
+{
+	LV_GetText(strThisPos, g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), A_Index)
+	saOtherRow[A_Index] := strThisPos
+}
 
 LV_Modify(g_intSelectedRow, "-Select")
-LV_Modify(g_intSelectedRow, "", arrOther1, arrOther2, arrOther3, arrOther4)
-LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), , arrThis1, arrThis2, arrThis3, arrThis4)
+LV_Modify(g_intSelectedRow, "", saOtherRow[1], saOtherRow[2], saOtherRow[3], saOtherRow[4])
+LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), , saThisRow[1], saThisRow[2], saThisRow[3], saThisRow[4])
 
 if !InStr(A_ThisLabel, "One")
 	LV_Modify(g_intSelectedRow + (InStr(A_ThisLabel, "Up") ? -1 : 1), "Select Focus Vis")
@@ -12369,28 +12376,16 @@ if !InStr(A_ThisLabel, "One")
 Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
+if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) ; LATER
 	objExternalMenu.NeedSave := true
 
 objExternalMenu := ""
+saThisRow := ""
+saOtherRow := ""
+strThisPos := ""
 
 return
 
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
-; intDirection = +1 to to down or -1 to go up
-;------------------------------------------------------------
-{
-	if (intItem + intDirection > objMenu.MaxIndex())
-		or (intItem + intDirection < o.MinIndex())
-		return
-
-	objMenu.Insert(intItem + intDirection + (intDirection > 0 ? 1 : 0), objMenu[intItem])
-	objMenu.Remove(intItem + (intDirection > 0 ? 0 : 1))
-}	
 ;------------------------------------------------------------
 
 
@@ -23910,6 +23905,34 @@ class Container
 		}
 	}
 	;------------------------------------------------------------
+	
+	;------------------------------------------------------------
+	MoveFavorite(intPosition, intDirection)
+	;------------------------------------------------------------
+	{
+		if (intPosition + intDirection > this.SA.MaxIndex())
+			or (intPosition + intDirection < 1)
+			return
+
+		this.SA.InsertAt(intPosition + intDirection + (intDirection > 0 ? 1 : 0), this.SA[intPosition])
+		this.SA.RemoveAt(intPosition + (intDirection > 0 ? 0 : 1))
+	}	
+	;------------------------------------------------------------
+/*
+;------------------------------------------------------------
+MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
+; intDirection = +1 to to down or -1 to go up
+;------------------------------------------------------------
+{
+	if (intItem + intDirection > objMenu.MaxIndex())
+		or (intItem + intDirection < o.MinIndex())
+		return
+
+	objMenu.Insert(intItem + intDirection + (intDirection > 0 ? 1 : 0), objMenu[intItem])
+	objMenu.Remove(intItem + (intDirection > 0 ? 0 : 1))
+}	
+;------------------------------------------------------------
+*/
 
 	;-------------------------------------------------------------
 	class Item
