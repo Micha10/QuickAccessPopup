@@ -3144,6 +3144,10 @@ g_typNameOfVariable
 f_typNameOfVariable
 	f_ for form (Gui) variables
 
+s_typNameOfVariable
+	s_ for static variables variables
+
+
 OBJECTS NAMING CONVENTIONS
 --------------------------
 o_Var	class object
@@ -4383,7 +4387,7 @@ else
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	o_Settings.intIniLine := 1 ; start reading Favorites at top of ini file
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
-	if (o_MainMenu.LoadFavoritesFromIniFile(o_Settings.strIniFile) <> "EOM")
+	if (o_MainMenu.LoadFavoritesFromIniFile() <> "EOM")
 		ExitApp
 }
 
@@ -6095,10 +6099,10 @@ GetMenuHandle(strMenuName)
 ; http://www.autohotkey.com/board/topic/20253-menu-icons-v2/
 ;------------------------------------------------------------
 {
-	static pMenuDummy
+	static s_pMenuDummy
 	
-	; v2.2: Check for !pMenuDummy instead of pMenuDummy="" in case init failed last time.
-	If !pMenuDummy
+	; v2.2: Check for !s_pMenuDummy instead of s_pMenuDummy="" in case init failed last time.
+	If !s_pMenuDummy
 	{
 		Menu, menuDummy, Add
 		Menu, menuDummy, DeleteAll
@@ -6107,19 +6111,19 @@ GetMenuHandle(strMenuName)
 		; v2.2: Use LastFound method instead of window title. [Thanks animeaime.]
 		Gui, 99:+LastFound
 		
-		pMenuDummy := DllCall("GetMenu", "uint", WinExist())
+		s_pMenuDummy := DllCall("GetMenu", "uint", WinExist())
 		
 		Gui, 99:Menu
 		Gui, 99:Destroy
 		
 		; v2.2: Return only after cleaning up. [Thanks animeaime.]
-		if !pMenuDummy
+		if !s_pMenuDummy
 			return 0
 	}
 
 	Menu, menuDummy, Add, :%strMenuName%
-	pMenu := DllCall( "GetSubMenu", "uint", pMenuDummy, "int", 0 )
-	DllCall( "RemoveMenu", "uint", pMenuDummy, "uint", 0, "uint", 0x400 )
+	pMenu := DllCall( "GetSubMenu", "uint", s_pMenuDummy, "int", 0 )
+	DllCall( "RemoveMenu", "uint", s_pMenuDummy, "uint", 0, "uint", 0x400 )
 	Menu, menuDummy, Delete, :%strMenuName%
 
 	return pMenu
@@ -8214,7 +8218,7 @@ Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
 if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
-; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile(strIniFile) ?
+; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile() ?
 	ExternalMenuReloadAndRebuild(g_objMenuInGui)
 
 o_MenuInGui.LoadInGui()
@@ -8604,13 +8608,13 @@ Gui, 2:Submit, NoHide
 g_strAddFavoriteType := "" ; start fresh
 
 ; Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp
-Loop, % o_Favorites.SA.Length()
+Loop, % o_Favorites.s_SA.Length()
 {
-	strThisType := o_Favorites.SA[A_Index].strFavoriteTypeSystemName
+	strThisType := o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName
 	GuiControlGet, blnThisType, , % "f_intRadioFavoriteType" . strThisType
 	if (blnThisType)
 	{
-		GuiControl, , f_lblAddFavoriteTypeHelp, % o_Favorites.SA[A_Index].strFavoriteTypeHelp
+		GuiControl, , f_lblAddFavoriteTypeHelp, % o_Favorites.s_SA[A_Index].strFavoriteTypeHelp
 		g_strAddFavoriteType := strThisType
 		break
 	}
@@ -11717,7 +11721,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 		if FileExist(strExternalMenuPath) ; file path exists
 			; load the external menu to menu object objNewMenu created earlier
-			strResult := LoadExternalMenu(objNewMenu, strExternalMenuPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+			strResult := OLD_LoadExternalMenu(objNewMenu, strExternalMenuPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
 			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], strExternalMenuPath)
@@ -12001,9 +12005,10 @@ return
 
 
 ;------------------------------------------------------------
-LoadExternalMenu(objExternalMenu, strExternalMenuPath)
+OLD_LoadExternalMenu(objExternalMenu, strExternalMenuPath)
 ;------------------------------------------------------------
 {
+	###_V(A_ThisFunc, "?")
 	; remove existing menu entries but keep entry #1 (back menu)
 	loop, % objExternalMenu.MaxIndex() -  1
 		objExternalMenu.Delete(objExternalMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
@@ -17981,27 +17986,27 @@ GetOSVersionInfo()
 ; reference: http://msdn.microsoft.com/en-ca/library/windows/desktop/ms724833(v=vs.85).aspx
 ;------------------------------------------------------------
 {
-	static Ver
+	static s_oVer
 
-	If !Ver
+	If !s_oVer
 	{
 		VarSetCapacity(OSVer, 284, 0)
 		NumPut(284, OSVer, 0, "UInt")
 		If !DllCall("GetVersionExW", "Ptr", &OSVer)
 		   return 0 ; GetSysErrorText(A_LastError)
-		Ver := Object()
-		Ver.MajorVersion      := NumGet(OSVer, 4, "UInt")
-		Ver.MinorVersion      := NumGet(OSVer, 8, "UInt")
-		Ver.BuildNumber       := NumGet(OSVer, 12, "UInt")
-		Ver.PlatformId        := NumGet(OSVer, 16, "UInt")
-		Ver.ServicePackString := StrGet(&OSVer+20, 128, "UTF-16")
-		Ver.ServicePackMajor  := NumGet(OSVer, 276, "UShort")
-		Ver.ServicePackMinor  := NumGet(OSVer, 278, "UShort")
-		Ver.SuiteMask         := NumGet(OSVer, 280, "UShort")
-		Ver.ProductType       := NumGet(OSVer, 282, "UChar") ; 1 = VER_NT_WORKSTATION, 2 = VER_NT_DOMAIN_CONTROLLER, 3 = VER_NT_SERVER
-		Ver.EasyVersion       := Ver.MajorVersion . "." . Ver.MinorVersion . "." . Ver.BuildNumber
+		s_oVer := Object()
+		s_oVer.MajorVersion      := NumGet(OSVer, 4, "UInt")
+		s_oVer.MinorVersion      := NumGet(OSVer, 8, "UInt")
+		s_oVer.BuildNumber       := NumGet(OSVer, 12, "UInt")
+		s_oVer.PlatformId        := NumGet(OSVer, 16, "UInt")
+		s_oVer.ServicePackString := StrGet(&OSVer+20, 128, "UTF-16")
+		s_oVer.ServicePackMajor  := NumGet(OSVer, 276, "UShort")
+		s_oVer.ServicePackMinor  := NumGet(OSVer, 278, "UShort")
+		s_oVer.SuiteMask         := NumGet(OSVer, 280, "UShort")
+		s_oVer.ProductType       := NumGet(OSVer, 282, "UChar") ; 1 = VER_NT_WORKSTATION, 2 = VER_NT_DOMAIN_CONTROLLER, 3 = VER_NT_SERVER
+		s_oVer.EasyVersion       := s_oVer.MajorVersion . "." . s_oVer.MinorVersion . "." . s_oVer.BuildNumber
 	}
-	return Ver
+	return s_oVer
 }
 ;------------------------------------------------------------
 
@@ -18111,10 +18116,10 @@ DiagWindowInfo(strName)
 Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 ;------------------------------------------------
 {
-	static g_intStartTick
-	static g_intStartFullTick
-	static g_intStartShowTick
-	static g_intStartCollectTick
+	static s_intStartTick
+	static s_intStartFullTick
+	static s_intStartShowTick
+	static s_intStartCollectTick
 
 	if !(o_Settings.Launch.blnDiagMode.IniValue or blnForceForFirstStartup)
 		return
@@ -18127,31 +18132,31 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 		strDiag .= "`t" . strStartElapsedStop . "`t" . A_TickCount
 		
 		if (strStartElapsedStop = "START-REFRESH")
-			g_intStartFullTick := A_TickCount
+			s_intStartFullTick := A_TickCount
 		else if (strStartElapsedStop = "START-SHOW")
-			g_intStartShowTick := A_TickCount
+			s_intStartShowTick := A_TickCount
 		else if (strStartElapsedStop = "START-COLLECT")
-			g_intStartCollectTick := A_TickCount
+			s_intStartCollectTick := A_TickCount
 		else if (strStartElapsedStop = "START")
-			g_intStartTick := A_TickCount
+			s_intStartTick := A_TickCount
 		else if InStr(strStartElapsedStop, "-REFRESH") ; ELAPSED-REFRESH or STOP-REFRESH
 		{
-			intTicksAll := A_TickCount - g_intStartFullTick
+			intTicksAll := A_TickCount - s_intStartFullTick
 			strDiag .= "`t" . intTicksAll . "`t" . (intTicksAll > 500 ? "*FLAG1*" : "")
 		}
 		else if InStr(strStartElapsedStop, "-SHOW") ; ELAPSED-SHOW or STOP-SHOW
 		{
-			intTicksShow := A_TickCount - g_intStartShowTick
+			intTicksShow := A_TickCount - s_intStartShowTick
 			strDiag .= "`t" . intTicksShow . "`t" . (intTicksShow > 1000 ? "*FLAG2*" : "")
 		}
 		else if InStr(strStartElapsedStop, "-COLLECT") ; ELAPSED-COLLECT or STOP-COLLECT
 		{
-			intTicksCollect := A_TickCount - g_intStartCollectTick
+			intTicksCollect := A_TickCount - s_intStartCollectTick
 			strDiag .= "`t" . intTicksCollect . "`t" . (intTicksCollect > 2000 ? "*FLAG3*" : "")
 		}
 		else ; ELAPSED
 		{
-			intTicks := A_TickCount - g_intStartTick
+			intTicks := A_TickCount - s_intStartTick
 			strDiag .= "`t" . intTicks . "`t" . (intTicks > 2000 and strStartElapsedStop <> "ELAPSED" ? "*FLAG4*" : "")
 		}
 	}
@@ -18167,13 +18172,13 @@ Diag(strName, strData, strStartElapsedStop, blnForceForFirstStartup := false)
 	until !ErrorLevel or (A_Index > 50) ; after 1 second (20ms x 50), we have a problem
 	
 	if (strStartElapsedStop = "STOP")
-		g_intStartTick := ""
+		s_intStartTick := ""
 	else if (strStartElapsedStop = "STOP-REFRESH")
-		g_intStartFullTick := ""
+		s_intStartFullTick := ""
 	else if (strStartElapsedStop = "STOP-SHOW")
-		g_intStartShowTick := ""
+		s_intStartShowTick := ""
 	else if (strStartElapsedStop = "STOP-COLLECT")
-		g_intStartCollectTick := ""
+		s_intStartCollectTick := ""
 }
 ;------------------------------------------------
 
@@ -18984,23 +18989,23 @@ SetWaitCursor(blnOnOff)
 ; from Gio in https://autohotkey.com/boards/viewtopic.php?f=5&t=13284
 ;------------------------------------------------------------
 {
-	static blnCursorWaitAlreadyOn
-	static objWaitCursor
+	static s_blnCursorWaitAlreadyOn
+	static s_oWaitCursor
 	
 	if (blnOnOff)
-		if (blnCursorWaitAlreadyOn)
+		if (s_blnCursorWaitAlreadyOn)
 			return
 		else
 		{
 			; The line of code below loads a cursor from the system set (specifically, the wait cursor - 32514).
-			objWaitCursor :=  DllCall("LoadImage", "Uint", 0, "Uint", 32514, "Uint", 2, "Uint", 0, "Uint", 0, "Uint", 0x8000)
+			s_oWaitCursor :=  DllCall("LoadImage", "Uint", 0, "Uint", 32514, "Uint", 2, "Uint", 0, "Uint", 0, "Uint", 0x8000)
 
 			; And then we set all the default system cursors to be our choosen cursor. CopyImage is necessary as SetSystemCursor destroys the cursor we pass to it after using it.
 			strCursors := "32650,32512,32515,32649,32651,32513,32648,32646,32643,32645,32642,32644,32516,32514"
 			Loop, Parse, strCursors, `,
-				DllCall("SetSystemCursor", "Uint", DllCall("CopyImage", "Uint", objWaitCursor, "Uint", 2, "Int", 0, "Int", 0, "Uint", 0), "Uint", A_LoopField)
+				DllCall("SetSystemCursor", "Uint", DllCall("CopyImage", "Uint", s_oWaitCursor, "Uint", 2, "Int", 0, "Int", 0, "Uint", 0), "Uint", A_LoopField)
 			
-			blnCursorWaitAlreadyOn := true
+			s_blnCursorWaitAlreadyOn := true
 		}
 	else
 	{
@@ -19010,8 +19015,8 @@ SetWaitCursor(blnOnOff)
 		DllCall("SystemParametersInfo", "Uint", 0x0057, "Uint", 0, "Uint", 0, "Uint", 0)
 		Sleep, 50
 		
-		objWaitCursor := ""
-		blnCursorWaitAlreadyOn := false
+		s_oWaitCursor := ""
+		s_blnCursorWaitAlreadyOn := false
 	}
 }
 ;------------------------------------------------------------
@@ -19393,7 +19398,7 @@ ExternalMenuFolderIsReadOnly(strFile)
 ExternalMenuReloadAndRebuild(objMenu)
 ;------------------------------------------------------------
 {
-	strResult := LoadExternalMenu(objMenu, objMenu.MenuExternalSettingsPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
+	strResult := OLD_LoadExternalMenu(objMenu, objMenu.MenuExternalSettingsPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
 	
 	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalSettingsPath)
 	objMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
@@ -19435,9 +19440,9 @@ ScriptInfo(Command)
 	; ExitApp
 ;------------------------------------------------------------
 {
-    static hEdit := 0, pfn, bkp
-    if !hEdit {
-        hEdit := DllCall("GetWindow", "ptr", A_ScriptHwnd, "uint", 5, "ptr")
+    static s_hEdit := 0, pfn, bkp
+    if !s_hEdit {
+        s_hEdit := DllCall("GetWindow", "ptr", A_ScriptHwnd, "uint", 5, "ptr")
         user32 := DllCall("GetModuleHandle", "str", "user32.dll", "ptr")
         pfn := [], bkp := []
         for i, fn in ["SetForegroundWindow", "ShowWindow"] {
@@ -19455,13 +19460,13 @@ ScriptInfo(Command)
         NumPut(0x0008C200000001B8, pfn[2], 0, "int64")  ; return TRUE
     }
  
-    static cmds := {ListLines:65406, ListVars:65407, ListHotkeys:65408, KeyHistory:65409}
-    cmds[Command] ? DllCall("SendMessage", "ptr", A_ScriptHwnd, "uint", 0x111, "ptr", cmds[Command], "ptr", 0) : 0
+    static s_cmds := {ListLines:65406, ListVars:65407, ListHotkeys:65408, KeyHistory:65409}
+    s_cmds[Command] ? DllCall("SendMessage", "ptr", A_ScriptHwnd, "uint", 0x111, "ptr", s_cmds[Command], "ptr", 0) : 0
  
     NumPut(bkp[1], pfn[1], 0, "int64")  ; Enable SetForegroundWindow.
     NumPut(bkp[2], pfn[2], 0, "int64")  ; Enable ShowWindow.
  
-    ControlGetText, text,, ahk_id %hEdit%
+    ControlGetText, text,, ahk_id %s_hEdit%
     return text
 }
 ;------------------------------------------------------------
@@ -19564,9 +19569,9 @@ GetCurrentUrlAccInit()
 ; Found at http://autohotkey.com/board/topic/77303-/?p=491516
 ;------------------------------------------------------------
 {
-	static h
-	If Not h
-		h := DllCall("LoadLibrary", "Str", "oleacc", "Ptr")
+	static s_h
+	If Not s_h
+		s_h := DllCall("LoadLibrary", "Str", "oleacc", "Ptr")
 }
 ;------------------------------------------------------------
 
@@ -19729,9 +19734,10 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 ; strCaller: one of "List All", "Current Windows", "Close All Windows menu" or "Running Applications"
 ;------------------------------------------------------------
 {
-	static strWinTitlesWinApps
+	static s_strWinTitlesWinApps
+	
 	if (intIndex = 1)
-		strWinTitlesWinApps := "" ; #### to be validated or continued
+		s_strWinTitlesWinApps := "" ; #### to be validated or continued
 	
 	objWindowProperties := Object()
 	objWindowProperties.Index := intIndex
@@ -19769,15 +19775,15 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 		; if (intExStyle = 0x00200000) ; WS_EX_NOREDIRECTIONBITMAP (see https://greenshot.atlassian.net/browse/BUG-2017)
 		; {
 			; remember titles of window of intExStyle 0x00200000 because another window with same name and intExStyle 0x00200100 is also a ghost window (not real active window)
-			; strWinTitlesWinApps .= strWindowTitle . "|"
-			; ###_V("strWinTitlesWinApps", strWinTitlesWinApps)
+			; s_strWinTitlesWinApps .= strWindowTitle . "|"
+			; ###_V("s_strWinTitlesWinApps", s_strWinTitlesWinApps)
 			; always skip windows with intExStyle is 0x00200000 because it is a ghost Windows app (not real active window)
 		; }
 		; #### to be validated or continued
 		; #### run after loops, not here
 		; remove apps of ExStyle 0x00200100 if we previously had a ghost Windows app of same title
 		; Loop, % objFoldersAndAppsList.MaxIndex()
-		;	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
+		;	if (objFoldersAndAppsList[A_Index].ExStyle = 0x00200100) and InStr(s_strWinTitlesWinApps, objFoldersAndAppsList[A_Index].Name . "|")
 		;		objFoldersAndAppsList.Remove(A_Index)
 	}
 	
@@ -20273,7 +20279,8 @@ WM_MOUSEMOVE(wParam, lParam)
 ; and https://autohotkey.com/board/topic/83045-solved-onmessage-gui-tooltips-issues/#entry528803
 ;------------------------------------------------
 {
-	static strControl, strControlPrev
+	static s_strControl
+	static s_strControlPrev
 	
 	global g_objHandCursor
 	global g_strGuiFullTitle
@@ -20295,19 +20302,19 @@ WM_MOUSEMOVE(wParam, lParam)
 		}
 
 	; get hover control name and Static control number
-	strControlPrev := strControl
-	MouseGetPos, , , , strControl ; Static1, StaticN, Button1, ButtonN
-	intControl := StrReplace(strControl, "Static")
+	s_strControlPrev := s_strControl
+	MouseGetPos, , , , s_strControl ; Static1, StaticN, Button1, ButtonN
+	intControl := StrReplace(s_strControl, "Static")
 	
 	; display hand cursor over selected buttons
-	if InStr(strControl, "Static")
+	if InStr(s_strControl, "Static")
 	{
 		; 2-36 except 34 (and except 3, 4 and 25 if Edit disabled)
 		if (intControl < 2) or (intControl = 34) or (intControl > 35)
 			or ((intControl = 3 or intControl = 4 or intControl = 25) and g_blnEditButtonDisabled)
 			return
 	}
-	else if !InStr(strControl, "Button")
+	else if !InStr(s_strControl, "Button")
 	{
 		ToolTip ; turn ToolTip off
 		return
@@ -20315,11 +20322,11 @@ WM_MOUSEMOVE(wParam, lParam)
 	DllCall("SetCursor", "UInt", g_objHandCursor)
 	
 	; display tooltip for hovered control
-	if (strControl <> strControlPrev) ;  prevent flicker caused by repeating tooltip when mouse moving over the same control
-		and StrLen(g_objToolTipsMessages[strControl])
+	if (s_strControl <> s_strControlPrev) ;  prevent flicker caused by repeating tooltip when mouse moving over the same control
+		and StrLen(g_objToolTipsMessages[s_strControl])
 	{
-		ToolTip, % g_objToolTipsMessages[strControl] ; display tooltip or remove tooltip if no message for this control
-		if StrLen(g_objToolTipsMessages[strControl])
+		ToolTip, % g_objToolTipsMessages[s_strControl] ; display tooltip or remove tooltip if no message for this control
+		if StrLen(g_objToolTipsMessages[s_strControl])
 			SetTimer, RemoveToolTip, 2500 ; will remove tooltip if not removed by mouse going hovering elsewhere (required if window become inactive)
 	}
 
@@ -20352,8 +20359,8 @@ WM_LBUTTONDBLCLK(wParam, lParam, msg, hwnd)
         ; Send a WM_COMMAND message to the Gui to trigger the control's g-label.
         Gui +LastFound
         id := DllCall("GetDlgCtrlID", "ptr", hwnd) ; Requires AutoHotkey v1.1.
-        static STN_DBLCLK := 1
-        PostMessage 0x111, id | (STN_DBLCLK << 16), hwnd
+        static s_STN_DBLCLK := 1
+        PostMessage 0x111, id | (s_STN_DBLCLK << 16), hwnd
         ; Return a value to prevent the default handling of this message.
         return 0
     }
@@ -22157,11 +22164,11 @@ class QAPfeatures
 
 		this.AddAttachedOrDetachedQAPFeatureObject()
 
-		Loop, % o_Favorites.SA.Length()
-			if StrLen(o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.SA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
-					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.SA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
-					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
+		Loop, % o_Favorites.s_SA.Length()
+			if StrLen(o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
+				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
+					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
 
 		; Alternative Menu features
@@ -22308,8 +22315,8 @@ FAVORITE TYPES REPLACED
 	}
 	;---------------------------------------------------------
 
-	static SA := Object()
-	static saFavoriteTypesByName := Object()
+	static s_SA := Object()
+	static s_saFavoriteTypesByName := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -22323,9 +22330,9 @@ FAVORITE TYPES REPLACED
 		
 		Loop, % saFavoriteTypes.Length()
 		{
-			this.SA[A_Index] := new Favorites.Type(saFavoriteTypes[A_Index], saFavoriteTypesLabels[A_Index], saFavoriteTypesShortNames[A_Index]
+			this.s_SA[A_Index] := new Favorites.Type(saFavoriteTypes[A_Index], saFavoriteTypesLabels[A_Index], saFavoriteTypesShortNames[A_Index]
 				, saFavoriteTypesLocationLabels[A_Index], saFavoriteTypesLocationLabelsNoAmpersand[A_Index], o_L["DialogFavoriteTypesHelp" . A_Index])
-			this.saFavoriteTypesByName[saFavoriteTypes[A_Index]] := this.SA[A_Index]
+			this.s_saFavoriteTypesByName[saFavoriteTypes[A_Index]] := this.s_SA[A_Index]
 		}
 	}
 	;---------------------------------------------------------
@@ -22334,7 +22341,7 @@ FAVORITE TYPES REPLACED
 	GetFavoriteTypeObject(strTypeSystemName)
 	;---------------------------------------------------------
 	{
-		return this.saFavoriteTypesByName[strTypeSystemName]
+		return this.s_saFavoriteTypesByName[strTypeSystemName]
 	}
 	;---------------------------------------------------------
 	
@@ -22928,7 +22935,7 @@ class Container
 	AA := Object() ; associative array for container's properties
 	SA := Object() ; simple array for container's items
 	
-	static intMenuShortcutNumber
+	static s_intMenuShortcutNumber
 	
 	;---------------------------------------------------------
 	###__Call(function, parameters*)
@@ -23039,35 +23046,39 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(strIniFile)
+	LoadFavoritesFromIniFile()
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
 		this.SA := Object() ; re-init
 		
-		static intIniLine := 1
+		static s_intIniLine := 1
+		static s_strIniFile
+		
+		if !StrLen(s_strIniFile)
+			s_strIniFile := o_Settings.strIniFile
 		
 		if (g_blnWorkingToolTip)
 			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 
 		if (this.AA.strMenuType = "External")
 		{
-			if !FileExist(strIniFile)
+			if !FileExist(s_strIniFile)
 			{
 				this.AA.blnMenuExternalLoaded := false ; true if the external menu was loaded, false if not loaded (or not an external menu)
 				strExternalErrorMessageExclusions := o_Settings.ReadIniValue("ExternalErrorMessageExclusions", " ", "Global", o_Settings.strIniFile) ; not documented, internal use only
-				if !InStr(strExternalErrorMessageExclusions, strIniFile)
+				if !InStr(strExternalErrorMessageExclusions, s_strIniFile)
 				{
-					MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . strIniFile
+					MsgBox, 52, %g_strAppNameText%, % o_L["OopsErrorIniFileUnavailable"] . ":`n`n" . s_strIniFile
 						. "`n`n" . L(o_L["OopsErrorIniFileRetry"], g_strAppNameText)
 						. "`n`n" . o_L["OopsErrorIniFileDisplayErrorMessage"]
 					IfMsgBox, No
-						IniWrite, % strExternalErrorMessageExclusions . strIniFile . "|", % o_Settings.strIniFile, Global, ExternalErrorMessageExclusions
+						IniWrite, % strExternalErrorMessageExclusions . s_strIniFile . "|", % o_Settings.strIniFile, Global, ExternalErrorMessageExclusions
 				}
 				return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuExternalLoaded false - external menu will be empty
 			}
 			
-			this.AA.strMenuExternalSettingsPath := strIniFile
+			this.AA.strMenuExternalSettingsPath := s_strIniFile
 			; instead of FileGetTime, read last modified date from [Global] value updated only when content is changed
 			; FileGetTime, strLastModified, % objNewMenu.MenuExternalSettingsPath, M ; modified date
 			strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.strMenuExternalSettingsPath)
@@ -23085,12 +23096,12 @@ class Container
 		
 		Loop
 		{
-			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . intIniLine, "", "Favorites", strIniFile)
-			intIniLine++
+			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . s_intIniLine, "", "Favorites", s_strIniFile)
+			s_intIniLine++
 			
 			if (strLoadIniLine = "ERROR")
 			{
-				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . strIniFile . "`nFavorite" . intIniLine . "=")
+				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLine . "=")
 				if (this.AA.strMenuType = "External")
 				{
 					this.AA.strMenuExternalLoaded := false
@@ -23099,7 +23110,7 @@ class Container
 				else
 					Return, "EOF" ; end of file - an unknown error occurred while reading the ini file - menu loading will be aborted
 			}
-			else
+			else if (this.AA.strMenuType = "External")
 				this.AA.blnMenuExternalLoaded := true
 			
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
@@ -23112,21 +23123,23 @@ class Container
 			{
 				if (saThisFavorite[1] = "External")
 				{
-					intPreviousIniLine := intIniLine
-					intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
-					if !StrLen(intIniLine)
-						intIniLine := 1 ; always 1 for menu added since v8.1.9.1
-					strSubMenuIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6]))
+					intPreviousIniLine := s_intIniLine
+					strPreviousIniFile := s_strIniFile
+					s_intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+					if !StrLen(s_intIniLine)
+						s_intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+					s_strIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6]))
 				}
-				else
-					strSubMenuIniFile := o_Settings.strIniFile
 				
 				; load the submenu
 				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this)
-				strResult := oNewSubMenu.LoadFavoritesFromIniFile(strSubMenuIniFile) ; RECURSIVE
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile() ; RECURSIVE
 				
 				if (saThisFavorite[1] = "External")
-					intIniLine := intPreviousIniLine
+				{
+					s_intIniLine := intPreviousIniLine
+					s_strIniFile := strPreviousIniFile
+				}
 				
 				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
 					Return, %strResult%
@@ -23155,19 +23168,19 @@ class Container
 	{
 		this.SA := Object() ; re-init
 		
-		static intIniLine := 1
+		static s_intIniLine := 1
 		
 		if (g_blnWorkingToolTip)
 			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 
 		Loop
 		{
-			strWinCmdItemName := o_Settings.ReadIniValue("menu" . intIniLine, "", "DirMenu", strIniFile)
+			strWinCmdItemName := o_Settings.ReadIniValue("menu" . s_intIniLine, "", "DirMenu", strIniFile)
 			if (strWinCmdItemName = "ERROR")
 				Return, "EOM" ; end of DirMenu section (there is no marker for end of DirMenu section)
 				
-			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . intIniLine, " ", "DirMenu", strIniFile) ; empty by default
-			intIniLine++
+			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . s_intIniLine, " ", "DirMenu", strIniFile) ; empty by default
+			s_intIniLine++
 	
 			if (strWinCmdItemName = "--")
 				return, "EOM" ; end of menu
@@ -23372,7 +23385,7 @@ class Container
 	BuildMenu() ; build menu and recurse in submenus
 	;------------------------------------------------------------
 	{
-		this.intMenuShortcutNumber := 0
+		this.s_intMenuShortcutNumber := 0
 		
 		; try because at first execution the strMenu menu does not exist and produces an error,
 		; but DeleteAll is required later for menu updates
@@ -23392,7 +23405,7 @@ class Container
 			
 			strMenuItemAction := ""
 			; menu items from dynamic menus having custom Gosub in Type field
-			if !o_Favorites.saFavoriteTypesByName.HasKey(aaThisFavorite.strFavoriteType)
+			if !o_Favorites.s_saFavoriteTypesByName.HasKey(aaThisFavorite.strFavoriteType)
 				strMenuItemAction := aaThisFavorite.strFavoriteType
 				; keep strFavoriteType value, do not make empty to avoid InStr()
 			
@@ -23778,16 +23791,16 @@ class Container
 	MenuNameWithNumericShortcut(strMenuName)
 	;------------------------------------------------------------
 	{
-		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (this.intMenuShortcutNumber <= 35))
+		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (this.s_intMenuShortcutNumber <= 35))
 		{
-			if (this.intMenuShortcutNumber < 10)
+			if (this.s_intMenuShortcutNumber < 10)
 			{
 				; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
-				strShortcut := Mod(this.intMenuShortcutNumber + (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue ? 1 : 0), 10)
+				strShortcut := Mod(this.s_intMenuShortcutNumber + (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue ? 1 : 0), 10)
 			}
 			else
-				strShortcut := Chr(this.intMenuShortcutNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
-			this.intMenuShortcutNumber++
+				strShortcut := Chr(this.s_intMenuShortcutNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
+			this.s_intMenuShortcutNumber++
 			
 			return "&" . strShortcut . " " . StrReplace(strMenuName, "&", "&&")
 		}
@@ -23918,22 +23931,9 @@ class Container
 		this.SA.RemoveAt(intPosition + (intDirection > 0 ? 0 : 1))
 	}	
 	;------------------------------------------------------------
-/*
-;------------------------------------------------------------
-MoveFavoriteInMenuObject(objMenu, intItem, intDirection)
-; intDirection = +1 to to down or -1 to go up
-;------------------------------------------------------------
-{
-	if (intItem + intDirection > objMenu.MaxIndex())
-		or (intItem + intDirection < o.MinIndex())
-		return
 
-	objMenu.Insert(intItem + intDirection + (intDirection > 0 ? 1 : 0), objMenu[intItem])
-	objMenu.Remove(intItem + (intDirection > 0 ? 0 : 1))
-}	
-;------------------------------------------------------------
-*/
-
+	; === end of methods for class Container ===
+	
 	;-------------------------------------------------------------
 	class Item
 	;-------------------------------------------------------------
