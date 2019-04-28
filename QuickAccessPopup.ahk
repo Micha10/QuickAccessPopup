@@ -8539,11 +8539,12 @@ GuiAddFavoriteFromQAPFeature:
 if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 {
 	gosub, GuiShowFromGuiAddFavoriteQAPFeature
-	g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
+	g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : o_Containers.AA[A_ThisMenu].SA.MaxIndex() + 1) ; 
 }
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
+; ##### Later
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
@@ -8845,6 +8846,7 @@ GuiCopyFavorite:
 GuiAddExternalFromCatalogue:
 GuiAddExternalOtherExternal:
 ;------------------------------------------------------------
+
 strGuiFavoriteLabel := A_ThisLabel
 g_blnAbordEdit := false
 
@@ -8860,7 +8862,7 @@ if (g_blnAbordEdit)
 	return
 }
 
-if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
+if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue") ; ##### GuiAddExternalFromCatalogue does nothing - is this an error?
 {
 	if InStr(strGuiFavoriteLabel, "Xpress")
 		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
@@ -8888,6 +8890,7 @@ Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavo
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
+; #####
 
 Gosub, GuiFavoriteTabBasic
 
@@ -9026,8 +9029,9 @@ GuiFavoriteInit:
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 
 if (blnFavoriteFromSearch)
-	g_objMenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
+	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition) ; ##### test later
 
+; ##### Later
 if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
 ; this favorite could not be added or edited because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
@@ -9037,7 +9041,7 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMen
 	return
 }
 
-if (blnFavoriteFromSearch)
+if (blnFavoriteFromSearch) ; ##### later
 {
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
@@ -9051,13 +9055,12 @@ if (blnFavoriteFromSearch)
 	}
 }
 
-g_objEditedFavorite := Object()
+; make it global? #####
+o_EditedFavorite := new Container.Item([])
 g_strDefaultIconResource := ""
 g_strNewFavoriteIconResource := ""
-strGroupSettings := ",,,,,,," ; ,,, to make sure all fields are re-init
-StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
 
-blnIsGroupMember := InStr(g_objMenuInGui.MenuPath, g_strGroupIndicatorPrefix)
+blnIsGroupMember := (o_MenuInGui.AA.strMenuType = "Group")
 
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
 {
@@ -9073,42 +9076,37 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	}
 	
 	if (strGuiFavoriteLabel = "GuiCopyFavorite")
-		g_objEditedFavorite := CopyFavoriteObject(g_objMenuInGui[g_intOriginalMenuPosition])
+		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition].Backup()
 	else
-		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
+		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition]
 	
-	if (g_objEditedFavorite.FavoriteType = "B")
+	if InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; favorite is menu separator or column break
 		g_blnAbordEdit := true
-	else if InStr("X|K", g_objEditedFavorite.FavoriteType) ; favorite is menu separator or column break
-		g_blnAbordEdit := true
-	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)) ; menu or group cannot be copied
+	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)) ; menu or group cannot be copied
 	{
-		Oops(o_L["OopsCannotCopyFavorite"], o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeShortName)
+		Oops(o_L["OopsCannotCopyFavorite"], o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeShortName)
 		g_blnAbordEdit := true
 	}
 	
 	if (g_blnAbordEdit = true)
 		return
 
-	g_strNewFavoriteIconResource := g_objEditedFavorite.FavoriteIconResource
-	g_strNewFavoriteWindowPosition := g_objEditedFavorite.FavoriteWindowPosition
-	g_blnNewFavoriteFtpEncoding := g_objEditedFavorite.FavoriteFtpEncoding
+	g_strNewFavoriteIconResource := o_EditedFavorite.AA.strFavoriteIconResource
+	g_strNewFavoriteWindowPosition := o_EditedFavorite.AA.strFavoriteWindowPosition
+	g_blnNewFavoriteFtpEncoding := o_EditedFavorite.AA.blnFavoriteFtpEncoding
 
 	if (strGuiFavoriteLabel = "GuiCopyFavorite")
 		g_strNewFavoriteShortcut := "None" ; copied favorite has no hotkey
 	else
-		g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
+		g_strNewFavoriteShortcut := o_EditedFavorite.AA.strFavoriteShortcut
 
-	if (g_objEditedFavorite.FavoriteType = "Group")
-	{
-	   ; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
-	   ; 2 restore folders with "Explorer" or "Other" (Directory Opus, Total Commander or QAPconnect)
-	   ; 3 delay in milliseconds to insert between each favorite to restore
-		strGroupSettings := g_objEditedFavorite.FavoriteGroupSettings . ",,,," ; ,,, to make sure all fields are re-init
-		StringSplit, g_arrGroupSettingsGui, strGroupSettings, `,
-	}
+	if (o_EditedFavorite.AA.strFavoriteType = "Group")
+		; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
+		; 2 restore folders with "Explorer" or "Other" (Directory Opus, Total Commander or QAPconnect)
+		; 3 delay in milliseconds to insert between each favorite to restore
+		g_saGroupInGuiSettings := StrSplit(o_EditedFavorite.AA.strFavoriteGroupSettings, ",")
 	
-	g_objEditedFavorite.FavoriteDateModified := A_NowUTC
+	o_EditedFavorite.AA.strFavoriteDateModified := A_NowUTC
 }
 else ; add favorite
 {
@@ -9135,7 +9133,7 @@ else ; add favorite
 		g_strNewFavoriteWindowPosition := "0," . intMinMax . "," . intX . "," . intY . "," . intWidth . "," . intHeight . ",200"
 	}
 	else
-		g_strNewFavoriteWindowPosition := ",,,,,,," ; to avoid having phantom values
+		g_strNewFavoriteWindowPosition := ""
 
 	if (strGuiFavoriteLabel = "GuiAddExternalOtherExternal")
 	{
@@ -9152,99 +9150,99 @@ else ; add favorite
 		; g_strNewLocation is received from AddThisFolder (etc.), GuiDropFiles or ButtonAddExternalMenusFromCatalogue
 		if (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue")
 		{
-			g_objEditedFavorite.FavoriteAppWorkingDir := g_strNewLocation
+			o_EditedFavorite.AA.strFavoriteAppWorkingDir := g_strNewLocation
 			strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", g_strNewLocation)
-			g_objEditedFavorite.FavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetLocationPathName(g_strNewLocation))
-			g_objEditedFavorite.FavoriteType := "External"
+			o_EditedFavorite.AA.strFavoriteName := (StrLen(strExternalMenuName) ? strExternalMenuName : GetLocationPathName(g_strNewLocation))
+			o_EditedFavorite.AA.strFavoriteType := "External"
 			g_strNewFavoriteIconResource := "iconSubmenu"
 		}
         else if (strOriginalExtension = "lnk")
             
-            g_objEditedFavorite.FavoriteName := strShortcutFilename ; other fields filled later
+            o_EditedFavorite.AA.strFavoriteName := strShortcutFilename ; other fields filled later
             
 		else ; all other labels
 		{
-			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
+			o_EditedFavorite.AA.strFavoriteLocation := g_strNewLocation
 			if LocationIsHttp(g_strNewLocation)
 			{
-				g_objEditedFavorite.FavoriteType := "URL"
-				g_objEditedFavorite.FavoriteName := o_L["ToolTipRetrievingWebPageTitle"]
+				o_EditedFavorite.AA.strFavoriteType := "URL"
+				o_EditedFavorite.AA.strFavoriteName := o_L["ToolTipRetrievingWebPageTitle"]
 				g_strNewFavoriteIconResource := g_strURLIconFileIndex
 			}
 			else
-				g_objEditedFavorite.FavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetLocationPathName(g_strNewLocation))
+				o_EditedFavorite.AA.strFavoriteName := (StrLen(g_strNewLocationSpecialName) ? g_strNewLocationSpecialName : GetLocationPathName(g_strNewLocation))
 		}
 	}
 	g_strNewFavoriteShortcut := "None" ; internal name
 
 	if (strGuiFavoriteLabel = "GuiAddFavorite")
 	{
-		g_objEditedFavorite.FavoriteType := g_strAddFavoriteType
+		o_EditedFavorite.AA.strFavoriteType := g_strAddFavoriteType
 		
 		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(EnvVars(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue))
 		{
 			Gosub, AddExternalMenusFromCatalogue
-			g_blnAbordEdit := true
+			g_blnAbordEdit := true ; data from AddExternalMenusFromCatalogue already saved in ButtonAddExternalMenusFromCatalogue
 			return
 		}
 	}
 	else if InStr(strGuiFavoriteLabel, "GuiAddThisFolder") ; includes GuiAddThisFolderXpress, GuiAddThisFolderFromMsg and GuiAddThisFolderFromMsgXpress
 	{
-		if !StrLen(g_objEditedFavorite.FavoriteType) ; exclude case where FavoriteType was set earlier
+		if !StrLen(o_EditedFavorite.AA.strFavoriteType) ; exclude case where FavoriteType was set earlier
 			if StrLen(g_strNewLocationSpecialName)
-				g_objEditedFavorite.FavoriteType := "Special"
+				o_EditedFavorite.AA.strFavoriteType := "Special"
 			else if SubStr(g_strNewLocation, 1, 6) = "ftp://"
-				g_objEditedFavorite.FavoriteType := "FTP"
+				o_EditedFavorite.AA.strFavoriteType := "FTP"
 			else
-				g_objEditedFavorite.FavoriteType := "Folder"
+				o_EditedFavorite.AA.strFavoriteType := "Folder"
 	}
 	else if InStr("GuiAddFromDropFiles|GuiAddThisFileFromMsg|GuiAddThisFileFromMsgXpress|GuiAddShortcutFromMsg", strGuiFavoriteLabel)
 	{
 		strExtension := GetFileExtension(g_strNewLocation)
 		if StrLen(strExtension) and InStr("exe|com|bat|ahk|vbs|cmd", strExtension)
-			g_objEditedFavorite.FavoriteType := "Application"
+			o_EditedFavorite.AA.strFavoriteType := "Application"
 		else if LocationIsDocument(g_strNewLocation)
-			g_objEditedFavorite.FavoriteType := "Document"
+			o_EditedFavorite.AA.strFavoriteType := "Document"
 		else
-			g_objEditedFavorite.FavoriteType := "Folder"
+			o_EditedFavorite.AA.strFavoriteType := "Folder"
 		
 		if (strGuiFavoriteLabel = "GuiAddThisFileFromMsgXpress")
 		{
-			g_strNewFavoriteIconResource := GetDefaultIcon4Type(g_objEditedFavorite, g_strNewLocation)
-			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+			g_strNewFavoriteIconResource := o_EditedFavorite.GetDefaultIcon4Type(g_strNewLocation)
+			o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
 		}
 		
 		if (strGuiFavoriteLabel = "GuiAddShortcutFromMsg" or strOriginalExtension = "lnk")
 			; as of v9.3.1, the "AddShortcut" context menu (calling this code) has not been fully deployed in setup and portable install scripts
 		{
-			g_objEditedFavorite.FavoriteLocation := g_strNewLocation
-			g_objEditedFavorite.FavoriteAppWorkingDir := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutWorkingDir : "")
-			g_objEditedFavorite.FavoriteArguments := (g_objEditedFavorite.FavoriteType = "Application" ? strShortcutArgs : "")
+			o_EditedFavorite.AA.strFavoriteLocation := g_strNewLocation
+			o_EditedFavorite.AA.strFavoriteAppWorkingDir := (o_EditedFavorite.AA.strFavoriteType = "Application" ? strShortcutWorkingDir : "")
+			o_EditedFavorite.AA.strFavoriteArguments := (o_EditedFavorite.AA.strFavoriteType = "Application" ? strShortcutArgs : "")
 			g_strNewFavoriteIconResource := (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : "")
-			g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
-			if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType)
+			o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
+			if InStr(g_strTypesForTabWindowOptions, "|" . o_EditedFavorite.AA.strFavoriteType)
 			{
 				; before: intShortcutRunState = Shortcut RunState -> 1 Normal / 3 Maximized / 7 Minimized
 				intShortcutRunStateWindowsOptions := (intShortcutRunState = 3 ? 1 : (intShortcutRunState = 7 ? -1 : 0))
 				; after: intShortcutRunStateWindowsOptions = QAP RunState -> -1 Minimized / 0 Normal / 1 Maximized
 				g_strNewFavoriteWindowPosition :=  (intShortcutRunStateWindowsOptions <> 0 ? "1" : "0") . "," . intShortcutRunStateWindowsOptions ; if state is not normal enable Windows options for Min or Max
 			}
-			; else g_strNewFavoriteWindowPosition keeps ",,,,,,,"
-			g_objEditedFavorite.FavoriteWindowPosition := g_strNewFavoriteWindowPosition
+			; else keep g_strNewFavoriteWindowPosition empty
+			o_EditedFavorite.AA.strFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 		}
 	}
 	
 	if (g_strAddFavoriteType = "FTP")
 		g_blnNewFavoriteFtpEncoding := (o_FileManagers.P_intActiveFileManager = 3 ? false : true) ; if TotalCommander URL should not be encoded (as hardcoded in OpenFavorite)
 
-	if (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(g_objEditedFavorite.FavoriteLocation) and !StrLen(g_strNewFavoriteIconResource)
+	if (o_EditedFavorite.AA.strFavoriteType = "Folder") and StrLen(o_EditedFavorite.AA.strFavoriteLocation) and !StrLen(g_strNewFavoriteIconResource)
 	{
-		g_strNewFavoriteIconResource := GetFolderIcon(g_objEditedFavorite.FavoriteLocation)
-		g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+		g_strNewFavoriteIconResource := GetFolderIcon(o_EditedFavorite.AA.strFavoriteLocation)
+		o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
 	}
 	
-	g_objEditedFavorite.FavoriteDateCreated := A_NowUTC
-	g_objEditedFavorite.FavoriteDateModified := g_objEditedFavorite.FavoriteDateCreated
+	o_EditedFavorite.AA.strFavoriteDateCreated := A_NowUTC
+	o_EditedFavorite.AA.strFavoriteDateModified := o_EditedFavorite.AA.strFavoriteDateCreated
 }
 
 ; Gosub, GuiFavoriteIconDefault DO NOT INIT DEFAULT ICON HERE BECAUSE WE NEED f_strFavoriteLocation TO BE SET BEFORE WHEN CREATING THE 1ST TAB
@@ -9254,7 +9252,6 @@ intY := ""
 intWidth := ""
 intHeight := ""
 intMinMax := ""
-strGroupSettings := ""
 strExternalMenuName := ""
 blnNoExternalMenusCatalogue := ""
 strShortcutWorkingDir := ""
@@ -9439,14 +9436,14 @@ if (g_objEditedFavorite.FavoriteType = "FTP")
 if (g_objEditedFavorite.FavoriteType = "Group")
 {
 	Gui, 2:Add, Text, x20 y+20, % o_L["GuiGroupSaveRestoreOption"]
-	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupAdd " . (g_arrGroupSettingsGui1 ? "" : "checked"), % o_L["GuiGroupSaveAddWindowsLabel"]
-	Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupReplace " . (g_arrGroupSettingsGui1 ? "checked" : ""), % o_L["GuiGroupSaveReplaceWindowsLabel"]
+	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupAdd " . (g_saGroupInGuiSettings[1] ? "" : "checked"), % o_L["GuiGroupSaveAddWindowsLabel"]
+	Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupReplace " . (g_saGroupInGuiSettings[1] ? "checked" : ""), % o_L["GuiGroupSaveReplaceWindowsLabel"]
 
 	if (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; DirectoryOpus or TotalCommander
 	{
 		Gui, 2:Add, Text, x20 y+20, % o_L["GuiGroupSaveRestoreWith"]
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupRestoreWithExplorer " . (g_arrGroupSettingsGui2 = "Windows Explorer" ? "checked" : ""), Windows Explorer
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupRestoreWithOther " . (g_arrGroupSettingsGui2 <> "Windows Explorer" ? "checked" : "")
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupRestoreWithExplorer " . (g_saGroupInGuiSettings[2] = "Windows Explorer" ? "checked" : ""), Windows Explorer
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioGroupRestoreWithOther " . (g_saGroupInGuiSettings[2] <> "Windows Explorer" ? "checked" : "")
 			, % o_FileManagers.SA[o_FileManagers.P_intActiveFileManager].AA.strDisplayName ; will be selected by default if empty (when Add)
 	}
 }
@@ -9456,11 +9453,11 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	and (blnIsGroupMember) ; in a group
 {
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "0,,,,,,,L"
-	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
+	saNewFavoriteWindowPosition := StrSplit(g_strNewFavoriteWindowPosition, ",")
 	
 	Gui, 2:Add, Text, x20 y+20, % L(o_L["GuiGroupRestoreSide"], (o_FileManagers.P_intActiveFileManager = 2 ? "Directory Opus" : "Total Commander"))
-	Gui, 2:Add, Radio, % "x+10 yp vf_intRadioGroupRestoreSide " . (arrNewFavoriteWindowPosition8 <> "R" ? "checked" : ""), % o_L["DialogWindowPositionLeft"] ; if "L" or ""
-	Gui, 2:Add, Radio, % "x+10 yp " . (arrNewFavoriteWindowPosition8 = "R" ? "checked" : ""), % o_L["DialogWindowPositionRight"]
+	Gui, 2:Add, Radio, % "x+10 yp vf_intRadioGroupRestoreSide " . (saNewFavoriteWindowPosition[8] <> "R" ? "checked" : ""), % o_L["DialogWindowPositionLeft"] ; if "L" or ""
+	Gui, 2:Add, Radio, % "x+10 yp " . (saNewFavoriteWindowPosition[8] = "R" ? "checked" : ""), % o_L["DialogWindowPositionRight"]
 }
 
 if (g_objEditedFavorite.FavoriteType = "External")
@@ -9478,7 +9475,7 @@ Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.Favor
 	. " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? o_L["DialogFavoriteDisabledGroupMember"] : o_L["DialogFavoriteDisabled"])
 
-ResetArray("arrNewFavoriteWindowPosition")
+saNewFavoriteWindowPosition := ""
 ResetArray("arrPosTypeHelp")
 ResetArray("arrPosFixedFont")
 ResetArray("arrPosFixedFont")
@@ -9710,38 +9707,40 @@ if InStr(g_strTabsList, g_objFavoriteGuiTabs[3])
 	Gui, 2:Tab, % ++intTabNumber
 
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
-	StringSplit, arrNewFavoriteWindowPosition, g_strNewFavoriteWindowPosition, `,
+	saNewFavoriteWindowPosition := StrSplit(g_strNewFavoriteWindowPosition, ",")
 
-	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (arrNewFavoriteWindowPosition1 ? "" : "checked")
+	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (saNewFavoriteWindowPosition[1] ? "" : "checked")
 		, % o_L["DialogUseDefaultWindowPosition"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
 	
-	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["DialogState"]
+	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogState"]
 	
 	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax1 gRadioButtonWindowPositionMinMaxClicked" 
-		. (arrNewFavoriteWindowPosition1 ? "" : " hidden") . (!arrNewFavoriteWindowPosition2 ? " checked" : ""), % o_L["DialogNormal"]
+		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] ? " checked" : ""), % o_L["DialogNormal"]
 	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax2 gRadioButtonWindowPositionMinMaxClicked"
-		. (arrNewFavoriteWindowPosition1 ? "" : " hidden") . (arrNewFavoriteWindowPosition2 = 1 ? " checked" : ""), % o_L["DialogMaximized"]
+		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = 1 ? " checked" : ""), % o_L["DialogMaximized"]
 	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax3 gRadioButtonWindowPositionMinMaxClicked"
-		. (arrNewFavoriteWindowPosition1 ? "" : " hidden") . (arrNewFavoriteWindowPosition2 = -1 ? " checked" : ""), % o_L["DialogMinimized"]
+		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = -1 ? " checked" : ""), % o_L["DialogMinimized"]
 
-	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionDelayLabel " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["DialogWindowPositionDelay"]
-	Gui, 2:Add, Edit, % "yp x+20 w36 center number limit5 vf_lblWindowPositionDelay " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % (arrNewFavoriteWindowPosition7 = "" ? 200 : arrNewFavoriteWindowPosition7)
-	Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["GuiGroupRestoreDelayMilliseconds"]
-	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["DialogWindowPositionMayFail"]
+	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionDelayLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionDelay"]
+	Gui, 2:Add, Edit, % "yp x+20 w36 center number limit5 vf_lblWindowPositionDelay " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % (saNewFavoriteWindowPosition[7] = "" ? 200 : saNewFavoriteWindowPosition[7])
+	Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["GuiGroupRestoreDelayMilliseconds"]
+	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionMayFail"]
 	
-	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (arrNewFavoriteWindowPosition1 ? "" : "hidden"), % o_L["DialogWindowPosition"]
+	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPosition"]
 
-	Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), % o_L["DialogWindowPositionX"]
-	Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 <> 0 ? "" : "hidden"), % BuildMonitorsList(arrNewFavoriteWindowPosition8)
-	Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), % o_L["DialogWindowPositionY"]
-	Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), % o_L["DialogWindowPositionW"]
-	Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), % o_L["DialogWindowPositionH"]
+	Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionX"]
+	Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] <> 0 ? "" : "hidden"), % BuildMonitorsList(saNewFavoriteWindowPosition[8])
+	Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionY"]
+	Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionW"]
+	Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionH"]
 	
-	Gui, 2:Add, Edit, % "ys+20 xs+72 w36 h17 vf_intWindowPositionX center limit5 " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %arrNewFavoriteWindowPosition3%
-	Gui, 2:Add, Edit, % "ys+40 xs+72 w36 h17 vf_intWindowPositionY center limit5 " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %arrNewFavoriteWindowPosition4%
-	Gui, 2:Add, Edit, % "ys+60 xs+72 w36 h17 vf_intWindowPositionW center number limit5 " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %arrNewFavoriteWindowPosition5%
-	Gui, 2:Add, Edit, % "ys+80 xs+72 w36 h17 vf_intWindowPositionH center number limit5 " . (arrNewFavoriteWindowPosition1 and arrNewFavoriteWindowPosition2 = 0 ? "" : "hidden"), %arrNewFavoriteWindowPosition6%
+	Gui, 2:Add, Edit, % "ys+20 xs+72 w36 h17 vf_intWindowPositionX center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[3]
+	Gui, 2:Add, Edit, % "ys+40 xs+72 w36 h17 vf_intWindowPositionY center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[4]
+	Gui, 2:Add, Edit, % "ys+60 xs+72 w36 h17 vf_intWindowPositionW center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[5]
+	Gui, 2:Add, Edit, % "ys+80 xs+72 w36 h17 vf_intWindowPositionH center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[6]
 }
+
+saNewFavoriteWindowPosition := ""
 
 return
 ;------------------------------------------------------------
@@ -9770,7 +9769,7 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 	else if (g_objEditedFavorite.FavoriteType = "Group")
 	{
 		Gui, 2:Add, Text, x20 y50, % o_L["GuiGroupRestoreDelay"]
-		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, %g_arrGroupSettingsGui3%
+		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, % g_saGroupInGuiSettings[3]
 		Gui, 2:Add, Text, x+10 yp, % o_L["GuiGroupRestoreDelayMilliseconds"]
 	}
 	else if (g_objEditedFavorite.FavoriteType = "Snippet")
@@ -10557,7 +10556,7 @@ GuiFavoriteIconDefault:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-g_strDefaultIconResource := GetDefaultIcon4Type(g_objEditedFavorite, f_strFavoriteLocation)
+g_strDefaultIconResource := o_EditedFavorite.GetDefaultIcon4Type(f_strFavoriteLocation)
 
 if !StrLen(g_strNewFavoriteIconResource) or (g_strNewFavoriteIconResource = "iconUnknown") or (g_strNewFavoriteIconResource = o_JLicons.AA["iconUnknown"])
 	g_strNewFavoriteIconResource := g_strDefaultIconResource
@@ -11342,7 +11341,7 @@ Loop
 	if (blnMove)
 		g_objEditedFavorite := g_objMenuInGui[g_intOriginalMenuPosition]
 	else
-		g_objEditedFavorite := CopyFavoriteObject(g_objMenuInGui[g_intOriginalMenuPosition])
+		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition].Backup()
 
 	if (blnMove)
 	{
@@ -11802,7 +11801,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	; for safety check if icon resource is empty, if yes, set default icon for type
 	if !StrLen(g_strNewFavoriteIconResource)
-		GetDefaultIcon4Type(g_objEditedFavorite, strNewFavoriteLocation)
+		o_EditedFavorite.GetDefaultIcon4Type(strNewFavoriteLocation)
 	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
 	
 	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
@@ -12969,7 +12968,7 @@ RecursiveLoadMenuIconsManage(objCurrentMenu)
 			objThisFavorite.FavoriteName := objCurrentMenu[A_Index].FavoriteName
 			objThisFavorite.FavoriteLocation := objCurrentMenu[A_Index].FavoriteLocation
 			objThisFavorite.FavoriteIconResource := objCurrentMenu[A_Index].FavoriteIconResource
-			objThisFavorite.FavoriteDefaultIconResource := GetDefaultIcon4Type(objCurrentMenu[A_Index], objCurrentMenu[A_Index].FavoriteLocation)
+			objThisFavorite.FavoriteDefaultIconResource := objCurrentMenu[A_Index].GetDefaultIcon4Type(objCurrentMenu[A_Index].FavoriteLocation) ; ##### convertir objCurrentMenu[A_Index] to class Item object
 			g_objManageIcons.Insert(objThisFavorite)
 		}
 		
@@ -15151,8 +15150,8 @@ if StrLen(g_strLastActionRepeated) ; we are repeating an action
 }
 else
 {
-	objNewLastAction := Object()
-	objNewLastAction := CopyFavoriteObject(g_objThisFavorite)
+	o_NewLastAction := new Container.Item([])
+	o_NewLastAction := o_ThisFavorite.Backup() ; check o_ThisFavorite init and elsewhere
 	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
 }
 objNewLastAction.OpenTimeStamp := A_Now
@@ -19111,59 +19110,6 @@ GetFileExtension(strFile)
 
 
 ;------------------------------------------------------------
-GetDefaultIcon4Type(objFavorite, strGuiFavoriteLocation)
-;------------------------------------------------------------
-{
-	if InStr("|Menu|External", "|" . objFavorite.FavoriteType, true)
-		; default submenu icon
-		return "iconSubmenu"
-	else if (objFavorite.FavoriteType = "Group")
-		; default group icon
-		return "iconGroup"
-	else if (objFavorite.FavoriteType = "Folder")
-		if (objFavorite.FavoriteFolderLiveLevels)
-			; default live folder icon
-			return "iconFolderLive"
-		else
-			; default folder icon
-			return "iconFolder"
-	else if (objFavorite.FavoriteType = "URL")
-		; default browser icon
-		return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-	else if (objFavorite.FavoriteType = "FTP")
-		; default FTP icon
-		return "iconFTP"
-	else if (objFavorite.FavoriteType = "Snippet")
-	{
-		strSnippetProperties := objFavorite.FavoriteLaunchWith
-		StringSplit, arrSnippetProperties, strSnippetProperties, `;
-		if (arrSnippetProperties1)
-			; default macro Snippet icon
-			return "iconPasteSpecial"
-		else
-			; default text Snippet icon
-			return "iconPaste"
-	}
-	else if InStr("|Document|Application", "|" . objFavorite.FavoriteType) and StrLen(strGuiFavoriteLocation)
-		; default icon for the selected file in add/edit favorite
-		return GetIcon4Location(strGuiFavoriteLocation)
-	else if (objFavorite.FavoriteType = "Special")
-		; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
-		return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].strDefaultIcon
-	else if (objFavorite.FavoriteType = "QAP")
-		; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
-		return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : objFavorite.FavoriteLocation)].strDefaultIcon
-	else if (objFavorite.FavoriteType = "Text" or objFavorite.FavoriteType = "X" or objFavorite.FavoriteType = "K")
-		return "iconNoIcon"
-	else if (objFavorite.FavoriteType = "WindowsApp")
-		return "iconDesktop"
-	else ; should not
-		return "iconUnknown"
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 PickIconDialog(strFavoriteIconResource)
 ;------------------------------------------------------------
 {
@@ -19630,19 +19576,6 @@ GetCurrentUrlAccChildren(objAcc)
 		Else
 			ErrorLevel := "AccessibleChildren DllCall Failed"
 	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-CopyFavoriteObject(objSourceFavorite)
-;------------------------------------------------------------
-{
-	objDestFavorite := Object()
-	for strKey, strValue in objSourceFavorite
-		objDestFavorite[strKey] := strValue
-	
-	return objDestFavorite
 }
 ;------------------------------------------------------------
 
@@ -24025,7 +23958,7 @@ class Container
 
 			if (!StrLen(this.AA.strFavoriteIconResource) or this.AA.strFavoriteIconResource = "iconUnknown")
 			; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
-				this.AA.strFavoriteIconResource := GetDefaultIcon4Type(this, this.AA.strFavoriteLocation)
+				this.AA.strFavoriteIconResource := this.GetDefaultIcon4Type(this.AA.strFavoriteLocation)
 		}
 		;---------------------------------------------------------
 		
@@ -25265,12 +25198,57 @@ class Container
 			return strType
 		}
 		;---------------------------------------------------------
-		
+
+		;---------------------------------------------------------
+		GetDefaultIcon4Type(strGuiFavoriteLocation)
+		;---------------------------------------------------------
+		{
+			if InStr("|Menu|External", "|" . oFavorite.AA.strFavoriteType, true)
+				; default submenu icon
+				return "iconSubmenu"
+			else if (oFavorite.AA.strFavoriteType = "Group")
+				; default group icon
+				return "iconGroup"
+			else if (oFavorite.AA.strFavoriteType = "Folder")
+				if (oFavorite.AA.intFavoriteFolderLiveLevels)
+					; default live folder icon
+					return "iconFolderLive"
+				else
+					; default folder icon
+					return "iconFolder"
+			else if (oFavorite.AA.strFavoriteType = "URL")
+				; default browser icon
+				return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+			else if (oFavorite.AA.strFavoriteType = "FTP")
+				; default FTP icon
+				return "iconFTP"
+			else if (oFavorite.AA.strFavoriteType = "Snippet")
+				return (StrSplit(oFavorite.AA.strFavoriteLaunchWith, ";")[1] ? "iconPasteSpecial" : "iconPaste") ; check first snippet property value (true: macro mode / else text)
+			else if InStr("|Document|Application", "|" . oFavorite.AA.strFavoriteType) and StrLen(strGuiFavoriteLocation)
+				; default icon for the selected file in add/edit favorite
+				return GetIcon4Location(strGuiFavoriteLocation)
+			else if (oFavorite.AA.strFavoriteType = "Special")
+				; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
+				return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : oFavorite.AA.strFavoriteLocation)].strDefaultIcon
+			else if (oFavorite.AA.strFavoriteType = "QAP")
+				; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
+				return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : oFavorite.AA.strFavoriteLocation)].strDefaultIcon
+			else if (oFavorite.AA.strFavoriteType = "Text" or oFavorite.AA.strFavoriteType = "X" or oFavorite.AA.strFavoriteType = "K")
+				return "iconNoIcon"
+			else if (oFavorite.AA.strFavoriteType = "WindowsApp")
+				return "iconDesktop"
+			else ; should not
+				return "iconUnknown"
+		}
+		;---------------------------------------------------------
+
 	}
 	;-------------------------------------------------------------
+	; === end of class Item ===
 
 }
 ;---------------------------------------------------------
+; === end of class Containers ===
 
 ;-------------------------------------------------------------
 class Model
