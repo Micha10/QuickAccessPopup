@@ -3343,7 +3343,7 @@ global g_strTargetClass
 global g_strHotkeyTypeDetected
 global g_strNewWindowId
 global g_intOriginalMenuPosition
-global g_objEditedFavorite
+global o_EditedFavorite ; was g_objEditedFavorite
 global o_MenuInGui ; replace g_objMenuInGui, back item added at top when first loaded in gui
 global g_intMenuPosX
 global g_intMenuPosY
@@ -8862,7 +8862,7 @@ if (g_blnAbordEdit)
 	return
 }
 
-if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue") ; ##### GuiAddExternalFromCatalogue does nothing - is this an error?
+if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue") ; ##### GuiAddExternalFromCatalogue does nothing except GuiFavoriteInit - is this an error?
 {
 	if InStr(strGuiFavoriteLabel, "Xpress")
 		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
@@ -8877,7 +8877,7 @@ if (strGuiFavoriteLabel = "GuiAddFavorite")
 
 strGuiTitle := L(o_L["DialogAddEditFavoriteTitle"]
 	, (InStr(strGuiFavoriteLabel, "GuiEditFavorite") ? o_L["DialogEdit"] : (strGuiFavoriteLabel = "GuiCopyFavorite" ? o_L["DialogCopy"] : o_L["DialogAdd"]))
-	, g_strAppNameText, g_strAppVersion, g_objEditedFavorite.FavoriteType)
+	, g_strAppNameText, g_strAppVersion, o_EditedFavorite.AA.strFavoriteType)
 Gui, 2:New, +Resize -MaximizeBox +MinSize560x505 +MaxSizex505 +Hwndg_strGui2Hwnd, %strGuiTitle%
 Gui, 2:+Owner1
 Gui, 2:+OwnDialogs
@@ -8885,7 +8885,7 @@ if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
 intTabHeight := 440
-g_strTabsList := BuildTabsList(g_objEditedFavorite.FavoriteType)
+g_strTabsList := BuildTabsList(o_EditedFavorite.AA.strFavoriteType)
 Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavoriteTabChanged AltSubmit", %g_strTabsList%
 intTabNumber := 0
 
@@ -8937,14 +8937,14 @@ else
 	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
 }
 
-if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
+if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType)
 	GuiControl, 2:+Default, f_btnSelectFolderLocation
 else
 	GuiControl, 2:+Default, f_btnAddFavoriteAdd
 
-if (g_objEditedFavorite.FavoriteType = "Special")
+if (o_EditedFavorite.AA.strFavoriteType = "Special")
 	GuiControl, 2:Focus, f_tvSpecial
-else if (g_objEditedFavorite.FavoriteType = "QAP")
+else if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 	GuiControl, 2:Focus, f_tvQAP
 else
 {
@@ -8963,11 +8963,11 @@ if (intGui2Height < 544) ; minimum height since v8.7.0.9.2
 WinMove, ahk_id %g_strGui2Hwnd%, , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
 Gosub, ShowGui2AndDisableGui1
 
-if (g_objEditedFavorite.FavoriteName = o_L["ToolTipRetrievingWebPageTitle"])
+if (o_EditedFavorite.AA.strFavoriteName = o_L["ToolTipRetrievingWebPageTitle"])
 {
 	GuiControl, Disable, f_strFavoriteShortName
-	g_objEditedFavorite.FavoriteName := GetWebPageTitle(g_strNewLocation)
-	GuiControl, , f_strFavoriteShortName, % g_objEditedFavorite.FavoriteName
+	o_EditedFavorite.AA.strFavoriteName := GetWebPageTitle(g_strNewLocation)
+	GuiControl, , f_strFavoriteShortName, % o_EditedFavorite.AA.strFavoriteName
 	GuiControl, Enable, f_strFavoriteShortName
 }
 
@@ -9055,8 +9055,7 @@ if (blnFavoriteFromSearch) ; ##### later
 	}
 }
 
-; make it global? #####
-o_EditedFavorite := new Container.Item([])
+o_EditedFavorite := new Container.Item([]) ; declared global in header
 g_strDefaultIconResource := ""
 g_strNewFavoriteIconResource := ""
 
@@ -9273,51 +9272,51 @@ GuiFavoriteTabBasic:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Font, w700
-Gui, 2:Add, Text, x20 y50 w500, % o_L["DialogFavoriteType"] . ": " . o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel
+Gui, 2:Add, Text, x20 y50 w500, % o_L["DialogFavoriteType"] . ": " . o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel
 Gui, 2:Font
 
-Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
+Gui, 2:Add, Text, x20 y+10 w500 vf_TypeHelp, % "> " . StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeHelp, "`n`n", "`n> ")
 
-if (g_objEditedFavorite.FavoriteType = "Snippet")
+if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 {
 	GuiControlGet, arrPosTypeHelp, Pos, f_TypeHelp
 	g_intTypeHelpY := arrPosTypeHelpY
 }
 
-if (g_objEditedFavorite.FavoriteType = "QAP")
-	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % g_objEditedFavorite.FavoriteName ; not allow to change favorite short name for QAP feature favorites
+if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % o_EditedFavorite.AA.strFavoriteName ; not allow to change favorite short name for QAP feature favorites
 else
 {
-	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (g_objEditedFavorite.FavoriteType = "Text" ? o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLocationLabel : o_L["DialogFavoriteShortNameLabel"]) . " *"
+	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (o_EditedFavorite.AA.strFavoriteType = "Text" ? o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLocationLabel : o_L["DialogFavoriteShortNameLabel"]) . " *"
 
 	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (g_objEditedFavorite.FavoriteType = "Menu" ? 50 : 0)
-		, % g_objEditedFavorite.FavoriteName
+		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (o_EditedFavorite.AA.strFavoriteType = "Menu" ? 50 : 0)
+		, % o_EditedFavorite.AA.strFavoriteName
 }
 
-if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
-	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (g_objEditedFavorite.FavoriteType = "Group" ? o_L["DialogOpenThisGroup"] : o_L["DialogOpenThisMenu"])
-else if (g_objEditedFavorite.FavoriteType = "URL")
+if (InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
+	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (o_EditedFavorite.AA.strFavoriteType = "Group" ? o_L["DialogOpenThisGroup"] : o_L["DialogOpenThisMenu"])
+else if (o_EditedFavorite.AA.strFavoriteType = "URL")
 	Gui, 2:Add, Button, x+10 yp gGuiGetWebPageTitle, % o_L["DialogGetWebPageTitle"]
 
-if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
+if !InStr("Special|QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType)
 {
-	if !InStr("|Menu|Group|External|Text", "|" . g_objEditedFavorite.FavoriteType, true)
+	if !InStr("|Menu|Group|External|Text", "|" . o_EditedFavorite.AA.strFavoriteType, true)
 	{
-		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 			Gui, Font, w700
 			
-		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLocationLabel . " *"
+		Gui, 2:Add, Text, x20 y+10 vf_lblLocation, % o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLocationLabel . " *"
 		
-		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 		{
-			if !StrLen(g_objEditedFavorite.FavoriteLaunchWith) ; default values
-				g_objEditedFavorite.FavoriteLaunchWith := o_Settings.Snippets.blnSnippetDefaultMacro.IniValue . ";;"
+			if !StrLen(o_EditedFavorite.AA.strFavoriteLaunchWith) ; default values
+				o_EditedFavorite.AA.strFavoriteLaunchWith := o_Settings.Snippets.blnSnippetDefaultMacro.IniValue . ";;"
 					. o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue . ";" 
 					. o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue . ";"
 					. o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
 			
-			strFavoriteSnippetOptions := g_objEditedFavorite.FavoriteLaunchWith . ";;;;;;" ; safety
+			strFavoriteSnippetOptions := o_EditedFavorite.AA.strFavoriteLaunchWith . ";;;;;;" ; safety
 			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
 			; 2 prompt (text) pause prompt before pasting/launching the snippet
 			; 3 encode (boolean) true: automatically encode / false: do not encode
@@ -9337,37 +9336,37 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 		}
 		
 		Gui, 2:Add, Edit, % "x20 y+10 vf_strFavoriteLocation "
-			. (g_objEditedFavorite.FavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
-			, % g_objEditedFavorite.FavoriteLocation ; do not process snippet according to f_blnProcessEOLTab here
-		if (g_objEditedFavorite.FavoriteType = "Snippet")
+			. (o_EditedFavorite.AA.strFavoriteType = "Snippet" ? "w500 r5 t8" : "gEditFavoriteLocationChanged w400 h20")
+			, % o_EditedFavorite.AA.strFavoriteLocation ; do not process snippet according to f_blnProcessEOLTab here
+		if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 		{
 			GuiControlGet, arrPosSnippetContent, Pos, f_strFavoriteLocation
 			g_intSnippetContentH := arrPosSnippetContentH
 		}
 			
-		if (g_objEditedFavorite.FavoriteType = "Snippet")
+		if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 			gosub, ContentEditFontChanged
 			
-		if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType)
+		if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType)
 			Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteLocation vf_btnSelectFolderLocation, % o_L["DialogBrowseButton"]
 
-		if !InStr("Snippet|WindowsApp|", g_objEditedFavorite.FavoriteType . "|")
+		if !InStr("Snippet|WindowsApp|", o_EditedFavorite.AA.strFavoriteType . "|")
 			Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 		
-        if (g_objEditedFavorite.FavoriteType = "Application")
+        if (o_EditedFavorite.AA.strFavoriteType = "Application")
 		{
 			Gui, 2:Add, Text, x20 y+20 vf_lblSelectRunningApplication, % o_L["DialogBrowseOrSelectApplication"]
 			Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpRunningApplication gDropdownRunningApplicationChanged
-				, % CollectRunningApplications(g_objEditedFavorite.FavoriteLocation)
+				, % CollectRunningApplications(o_EditedFavorite.AA.strFavoriteLocation)
 			Gui, 2:Add, Checkbox, x20 y+20 w400 vf_strFavoriteLaunchWith, % o_L["DialogActivateAlreadyRunning"]
-			GuiControl, , f_strFavoriteLaunchWith, % (g_objEditedFavorite.FavoriteLaunchWith = 1)
+			GuiControl, , f_strFavoriteLaunchWith, % (o_EditedFavorite.AA.strFavoriteLaunchWith = 1)
 		}
 
 		if (strGuiFavoriteLabel = "GuiCopyFavorite")
-			g_objEditedFavorite.FavoriteLocation := "" ; to avoid side effect on original favorite hotkey
+			o_EditedFavorite.AA.strFavoriteLocation := "" ; to avoid side effect on original favorite hotkey
 	}
 	
-	if (g_objEditedFavorite.FavoriteType = "Snippet")
+	if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	{
 		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
 		Gui, 2:Add, Checkbox, % "x20 y+10 w320 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), % o_L["DialogFavoriteSnippetProcessEOLTab"]
@@ -9386,34 +9385,34 @@ if !InStr("Special|QAP|WindowsApp", g_objEditedFavorite.FavoriteType)
 }
 else ; "Special", "QAP" or "WindowsApp"
 {
-	if (g_objEditedFavorite.FavoriteType <> "WindowsApp")
-		Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % g_objEditedFavorite.FavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
-	Gui, 2:Add, Text, % (g_objEditedFavorite.FavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel . " *"
+	if (o_EditedFavorite.AA.strFavoriteType <> "WindowsApp")
+		Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % o_EditedFavorite.AA.strFavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
+	Gui, 2:Add, Text, % (o_EditedFavorite.AA.strFavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel . " *"
 
-	if (g_objEditedFavorite.FavoriteType = "WindowsApp")
+	if (o_EditedFavorite.AA.strFavoriteType = "WindowsApp")
 	{
-		blnIsCustomWindowsApp := (SubStr(g_objEditedFavorite.FavoriteLocation, 1, 7) = "Custom:")
+		blnIsCustomWindowsApp := (SubStr(o_EditedFavorite.AA.strFavoriteLocation, 1, 7) = "Custom:")
 		Gui, 2:Add, Text, x20 y+5 vf_lblWindowsAppsList, % o_L["DialogWindowsAppsList"]
-		strWindowsAppsDropdownList := LoadWindowsAppsList(g_objEditedFavorite.FavoriteLocation)
+		strWindowsAppsDropdownList := LoadWindowsAppsList(o_EditedFavorite.AA.strFavoriteLocation)
 		Gui, 2:Add, DropDownList, x20 y+5 w400 vf_drpWindowsAppsList gDropdownWindowsAppsListChanged
 			, % strWindowsAppsDropdownList . "|* " . o_L["DialogWindowsAppsListCustom"] . (blnIsCustomWindowsApp ? "||" : "")
 		Gui, 2:Add, Button, x+10 yp gButtonRefreshWindowsAppsList vf_btnRefreshWindowsAppsList, % o_L["DialogRefresh"]
 		Gui, 2:Add, Edit, % "x20 y+5 section vf_strFavoriteLocation w400 h20"
 			. (blnIsCustomWindowsApp ? "" : " hidden") ; hidden because Windows Apps dropdown list except if starts with "Custom:"
-			, % (blnIsCustomWindowsApp ? SubStr(g_objEditedFavorite.FavoriteLocation, 8) : g_objEditedFavorite.FavoriteLocation)
+			, % (blnIsCustomWindowsApp ? SubStr(o_EditedFavorite.AA.strFavoriteLocation, 8) : o_EditedFavorite.AA.strFavoriteLocation)
 	}
 	else
 	{
 		GuiControlGet, arrLocationLabelPos, Pos, f_lblLocation
 		intTreeViewHeight := intTabHeight - arrLocationLabelPosY - 43 ; 43 = space required below)
 			
-		if (g_objEditedFavorite.FavoriteType = "QAP")
+		if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 			Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
 		
-		intTreeViewWidth := (g_objEditedFavorite.FavoriteType = "QAP" ? "300" : "400")
-		Gui, 2:Add, TreeView, % "x20 y+5 w" . intTreeViewWidth . " h" . intTreeViewHeight . " " . (g_objEditedFavorite.FavoriteType = "QAP" ? "vf_tvQAP gTreeViewQAPChanged" : "vf_tvSpecial gTreeViewSpecialChanged")
+		intTreeViewWidth := (o_EditedFavorite.AA.strFavoriteType = "QAP" ? "300" : "400")
+		Gui, 2:Add, TreeView, % "x20 y+5 w" . intTreeViewWidth . " h" . intTreeViewHeight . " " . (o_EditedFavorite.AA.strFavoriteType = "QAP" ? "vf_tvQAP gTreeViewQAPChanged" : "vf_tvSpecial gTreeViewSpecialChanged")
 		
-		if (g_objEditedFavorite.FavoriteType = "QAP")
+		if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 		{
 			Gui, 2:Add, Edit, % "x+5 yp w200 h" . intTreeViewHeight . " ReadOnly vf_tvQAPDescription"
 			gosub, LoadTreeviewQAP
@@ -9423,17 +9422,17 @@ else ; "Special", "QAP" or "WindowsApp"
 	}
 }
 
-if (g_objEditedFavorite.FavoriteType = "FTP")
+if (o_EditedFavorite.AA.strFavoriteType = "FTP")
 {
 	Gui, 2:Add, Text, x20 y+5, % o_L["GuiLoginName"]
 	Gui, 2:Add, Text, x230 yp, % o_L["GuiPassword"]
 	
-	Gui, 2:Add, Edit, x20 y+5 w190 h20 vf_strFavoriteLoginName, % g_objEditedFavorite.FavoriteLoginName
-	Gui, 2:Add, Edit, x230 yp w190 h20 Password vf_strFavoritePassword, % g_objEditedFavorite.FavoritePassword
+	Gui, 2:Add, Edit, x20 y+5 w190 h20 vf_strFavoriteLoginName, % o_EditedFavorite.AA.strFavoriteLoginName
+	Gui, 2:Add, Edit, x230 yp w190 h20 Password vf_strFavoritePassword, % o_EditedFavorite.AA.strFavoritePassword
 	Gui, 2:Add, Text, x20 y+5, % o_L["GuiPasswordNotEncripted"]
 }
 
-if (g_objEditedFavorite.FavoriteType = "Group")
+if (o_EditedFavorite.AA.strFavoriteType = "Group")
 {
 	Gui, 2:Add, Text, x20 y+20, % o_L["GuiGroupSaveRestoreOption"]
 	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioGroupAdd " . (g_saGroupInGuiSettings[1] ? "" : "checked"), % o_L["GuiGroupSaveAddWindowsLabel"]
@@ -9448,7 +9447,7 @@ if (g_objEditedFavorite.FavoriteType = "Group")
 	}
 }
 
-if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding folders or FTP sites
+if InStr("Folder|Special|FTP", o_EditedFavorite.AA.strFavoriteType) ; when adding folders or FTP sites
 	and (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; in Directory Opus or TotalCommander
 	and (blnIsGroupMember) ; in a group
 {
@@ -9460,19 +9459,19 @@ if InStr("Folder|Special|FTP", g_objEditedFavorite.FavoriteType) ; when adding f
 	Gui, 2:Add, Radio, % "x+10 yp " . (saNewFavoriteWindowPosition[8] = "R" ? "checked" : ""), % o_L["DialogWindowPositionRight"]
 }
 
-if (g_objEditedFavorite.FavoriteType = "External")
+if (o_EditedFavorite.AA.strFavoriteType = "External")
 {
 	Gui, 2:Add, Text, x20 y+10, % o_L["DialogExternalLocation"] . "*"
-	Gui, 2:Add, Edit, % (StrLen(g_objEditedFavorite.FavoriteAppWorkingDir) ? "Disabled " : "") .  "x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir", % g_objEditedFavorite.FavoriteAppWorkingDir
-	if StrLen(g_objEditedFavorite.FavoriteAppWorkingDir)
+	Gui, 2:Add, Edit, % (StrLen(o_EditedFavorite.AA.strFavoriteAppWorkingDir) ? "Disabled " : "") .  "x20 y+5 w400 Limit250 gEditFavoriteExternalLocationChanged vf_strFavoriteAppWorkingDir", % o_EditedFavorite.AA.strFavoriteAppWorkingDir
+	if StrLen(o_EditedFavorite.AA.strFavoriteAppWorkingDir)
 		Gui, 2:Add, Text, x20 y+5 w500, % o_L["DialogExternalLocationReadOnly"]
 	else
 		Gui, 2:Add, Button, x+10 yp gButtonSelectExternalSettingsFile, % o_L["DialogBrowseButton"]
 	Gui, 2:Add, Link, x20 y+15 w500, % L(o_L["DialogFavoriteExternalHelpWeb"], "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
 }
 
-Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", g_objEditedFavorite.FavoriteType) ? "10" : (g_objEditedFavorite.FavoriteType = "Snippet" ? "30" : "20"))
-	. " vf_blnFavoriteDisabled " . (g_objEditedFavorite.FavoriteDisabled ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", o_EditedFavorite.AA.strFavoriteType) ? "10" : (o_EditedFavorite.AA.strFavoriteType = "Snippet" ? "30" : "20"))
+	. " vf_blnFavoriteDisabled " . (o_EditedFavorite.AA.blnFavoriteDisabled ? "checked" : "")
 	, % (blnIsGroupMember ? o_L["DialogFavoriteDisabledGroupMember"] : o_L["DialogFavoriteDisabled"])
 
 saNewFavoriteWindowPosition := ""
@@ -9534,7 +9533,7 @@ for strCategory, strCategoryLabel in objCategories
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
-				if (!blnSelectDone and o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].strLocalizedName = arrItem1)
+				if (!blnSelectDone and o_QAPfeatures.AA[o_EditedFavorite.AA.strFavoriteLocation].strLocalizedName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -9547,7 +9546,7 @@ for strCategory, strCategoryLabel in objCategories
 			}
 			else
 			{
-				if (!blnSelectDone and o_SpecialFolders.AA[g_objEditedFavorite.FavoriteLocation].strDefaultName = arrItem1)
+				if (!blnSelectDone and o_SpecialFolders.AA[o_EditedFavorite.AA.strFavoriteLocation].strDefaultName = arrItem1)
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -9606,10 +9605,10 @@ GuiFavoriteTabMenuOptions:
 Gui, 2:Tab, % ++intTabNumber
 
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
-	, % (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? o_L["DialogSubmenuParentMenu"] : o_L["DialogFavoriteParentMenu"])
+	, % (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuParentMenu"] : o_L["DialogFavoriteParentMenu"])
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
 	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath
-		, (InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? o_L["MainMenuName"] . " " . g_objEditedFavorite.FavoriteLocation : "") ; exclude self
+		, (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["MainMenuName"] . " " . o_EditedFavorite.AA.strFavoriteLocation : "") ; exclude self
 		, true) . "|" ; exclude read-only external menus
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % o_L["DialogFavoriteMenuPosition"]
@@ -9622,19 +9621,19 @@ if !(blnIsGroupMember)
 	Gui, 2:Add, Text, x+5 yp vf_lblRemoveIcon gGuiRemoveIcon, X
 	Gui, 2:Add, Link, x20 ys+57 gGuiPickIconDialog, % "<a>" . o_L["DialogSelectIcon"] . "</a>"
 	Gui, 2:Add, Link, x+20 yp gGuiPickIconDialogNo, % "<a>" . o_L["DialogSelectIconNo"] . "</a>"
-	if (g_objEditedFavorite.FavoriteType = "Folder")
+	if (o_EditedFavorite.AA.strFavoriteType = "Folder")
 		Gui, 2:Add, Link, x270 yp w240 vf_lblSetWindowsFolderIcon gSetWindowsFolderIcon, % "<a>" . o_L["DialogWindowsFolderIconSet"] . "</a>"
 	Gui, 2:Add, Link, x20 ys+74 w240 gGuiEditIconDialog, % "<a>" . o_L["DialogEditIcon"] . "</a>"
 	Gui, 2:Add, Link, x20 ys+91 w240 gGuiPickIconDialogJL vf_lblSelectIconJL, % "<a>" . o_L["DialogSelectIconJL"] . "</a>"
 
-	if (g_objEditedFavorite.FavoriteType <> "Text")
+	if (o_EditedFavorite.AA.strFavoriteType <> "Text")
 	{
 		Gui, 2:Add, Text, x20 y+20, % o_L["DialogShortcut"]
 		Gui, 2:Add, Link, x+5 yp, % "(<a href=""https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"">" . o_L["GuiHelp"] . "</a>)"
 		Gui, 2:Add, Text, x20 y+5 w300 h23 0x1000 vf_strHotkeyText gButtonChangeFavoriteHotkey, % new Triggers.HotkeyParts(g_strNewFavoriteShortcut).Hotkey2Text()
 		Gui, 2:Add, Button, yp x+10 gButtonChangeFavoriteHotkey, % o_L["OptionsChangeHotkey"]
 		
-		g_strNewFavoriteHotstring := g_objEditedFavorite.FavoriteHotstring
+		g_strNewFavoriteHotstring := o_EditedFavorite.AA.strFavoriteHotstring
 		SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 		Gui, 2:Add, Text, x20 y+20, % o_L["DialogHotstringTriggerOptions"]
 		Gui, 2:Add, Link, x+5 yp, % "(<a href=""https://www.quickaccesspopup.com/what-are-hotstrings/"">" . o_L["GuiHelp"] . "</a>)"
@@ -9658,20 +9657,20 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsLive"])
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (g_objEditedFavorite.FavoriteFolderLiveLevels ? "checked" : ""), % o_L["DialogFavoriteFolderLive"]
+	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (o_EditedFavorite.AA.intFavoriteFolderLiveLevels ? "checked" : ""), % o_L["DialogFavoriteFolderLive"]
 	
 	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
-	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % g_objEditedFavorite.FavoriteFolderLiveLevels
+	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % o_EditedFavorite.AA.intFavoriteFolderLiveLevels
 	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, % o_L["DialogFavoriteFolderLiveLevels"]
 	
-	if !StrLen(g_objEditedFavorite.FavoriteFolderLiveSort)
-		g_objEditedFavorite.FavoriteFolderLiveSort := "A1"
-	strLiveFolderSortOrder := SubStr(g_objEditedFavorite.FavoriteFolderLiveSort, 1, 1)
+	if !StrLen(o_EditedFavorite.AA.strFavoriteFolderLiveSort)
+		o_EditedFavorite.AA.strFavoriteFolderLiveSort := "A1"
+	strLiveFolderSortOrder := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 1, 1)
 	Gui, 2:Add, Text, y+20 x200 section vf_lblLiveFolderSortOrderLabel hidden, % o_L["DialogSortOrder"] . ":"
 	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortA hidden group" . (strLiveFolderSortOrder = "A" ? " checked" : ""), % o_L["DialogAscending"]
 	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortD hidden" . (strLiveFolderSortOrder = "D" ? " checked" : ""), % o_L["DialogDescending"]
 
-	strLiveFolderSortCriteria := SubStr(g_objEditedFavorite.FavoriteFolderLiveSort, 2, 1)
+	strLiveFolderSortCriteria := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 2, 1)
 	Gui, 2:Add, Text, ys x20 vf_lblLiveFolderSortCriteriaLabel hidden, % o_L["DialogSortBy"] . ":"
 	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort1 hidden section" . (strLiveFolderSortCriteria = "1" ? " checked" : ""), % o_L["DialogFileName"]
 	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort2 hidden" . (strLiveFolderSortCriteria = "2" ? " checked" : ""), % o_L["DialogFileExtension"]
@@ -9679,16 +9678,16 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsLive"])
 	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort4 hidden" . (strLiveFolderSortCriteria = "4" ? " checked" : ""), % o_L["DialogModifiedDate"]
 
 	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
-	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % g_objEditedFavorite.FavoriteFolderLiveColumns
+	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % o_EditedFavorite.AA.intFavoriteFolderLiveColumns
 	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, % o_L["DialogFavoriteFolderLiveColumns"]
 	
-	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (g_objEditedFavorite.FavoriteFolderLiveDocuments ? "checked" : "")
+	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments ? "checked" : "")
 		, % o_L["DialogFavoriteFolderLiveDocuments"]
 
-	Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
-	Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (g_objEditedFavorite.FavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
+	Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
+	Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
 	Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % "..." . o_L["DialogFavoriteFolderLiveExtensions"]
-	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % g_objEditedFavorite.FavoriteFolderLiveExtensions
+	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % o_EditedFavorite.AA.strFavoriteFolderLiveExtensions
 
 	strLiveFolderSortOrder := ""
 	strLiveFolderSortCriteria := ""
@@ -9754,25 +9753,25 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 {
 	Gui, 2:Tab, % ++intTabNumber
 
-	if (g_objEditedFavorite.FavoriteType = "Application")
+	if (o_EditedFavorite.AA.strFavoriteType = "Application")
 	{
 		Gui, 2:Add, Checkbox, x20 y50 w400 vf_blnFavoriteElevate, % o_L["DialogElevate"]
-		GuiControl, , f_blnFavoriteElevate, % (g_objEditedFavorite.FavoriteElevate = 1)	
+		GuiControl, , f_blnFavoriteElevate, % (o_EditedFavorite.AA.blnFavoriteElevate = 1)	
 		Gui, 2:Add, Text, x20 y+20 w400, % o_L["DialogWorkingDirLabel"]
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % g_objEditedFavorite.FavoriteAppWorkingDir
+		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % o_EditedFavorite.AA.strFavoriteAppWorkingDir
 		Gui, 2:Add, Button, x+10 yp vf_btnBrowseAppWorkingDir gButtonSelectWorkingDir, % o_L["DialogBrowseButton"]
 		Gui, 2:Add, Checkbox, x20 y+5 w500 vf_blnAppWorkingDirCurrent gButtonAppWorkingDirCurrentChanged, % o_L["DialogAppWorkingDirCurrent"] . "."
-		GuiControl, , f_blnAppWorkingDirCurrent, % (g_objEditedFavorite.FavoriteAppWorkingDir = "{CUR_LOC}")
+		GuiControl, , f_blnAppWorkingDirCurrent, % (o_EditedFavorite.AA.strFavoriteAppWorkingDir = "{CUR_LOC}")
 		Gosub, ButtonAppWorkingDirCurrentChanged
 		Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 	}
-	else if (g_objEditedFavorite.FavoriteType = "Group")
+	else if (o_EditedFavorite.AA.strFavoriteType = "Group")
 	{
 		Gui, 2:Add, Text, x20 y50, % o_L["GuiGroupRestoreDelay"]
 		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, % g_saGroupInGuiSettings[3]
 		Gui, 2:Add, Text, x+10 yp, % o_L["GuiGroupRestoreDelayMilliseconds"]
 	}
-	else if (g_objEditedFavorite.FavoriteType = "Snippet")
+	else if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Text, x20 y50, % o_L["DialogFavoriteSnippetSendMode"]
 		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeText"]
@@ -9781,17 +9780,17 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(o_L["DialogFavoriteSnippetPromptLabel"], (arrFavoriteSnippetOptions1 = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
 		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
 	}
-	else if !InStr("QAP|WindowsApp", g_objEditedFavorite.FavoriteType, true) ; Folder, Document, Special, URL and FTP
+	else if !InStr("QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
 		Gui, 2:Add, Text, x20 y50 w400 vf_lblFavoriteLaunchWith, % o_L["DialogLaunchWith"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % g_objEditedFavorite.FavoriteLaunchWith
+		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % o_EditedFavorite.AA.strFavoriteLaunchWith
 		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, % o_L["DialogBrowseButton"]
 	}
 
-	if !InStr("Group|Snippet|QAP", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("Group|Snippet|QAP", o_EditedFavorite.AA.strFavoriteType, true)
 	{
 		Gui, 2:Add, Text, y+20 x20 w400  vf_lblFavoriteArguments, % o_L["DialogArgumentsLabel"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % g_objEditedFavorite.FavoriteArguments
+		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % o_EditedFavorite.AA.strFavoriteArguments
 		Gui, 2:Add, Text, x20 y+5 w500, % o_L["DialogArgumentsLabelHelp"]
 		Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 		
@@ -9801,14 +9800,14 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 		gosub, FavoriteArgumentChanged
 	}
 
-	if (g_objEditedFavorite.FavoriteType = "FTP")
+	if (o_EditedFavorite.AA.strFavoriteType = "FTP")
 	{
 		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.P_intActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
 		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding = true)
 	}
 	
 	Gui, 2:Add, Link, x20 y+10, % L(o_L["DialogSoundLabel"], "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", o_L["GuiHelp"])
-	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % g_objEditedFavorite.FavoriteSoundLocation
+	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % o_EditedFavorite.AA.strFavoriteSoundLocation
 	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, % o_L["DialogBrowseButton"]
 	Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, % o_L["DialogPlay"]
 }
@@ -9855,7 +9854,7 @@ if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
 	
 	; Gui, 2:Add, Text, x20 y+15, % o_L["DialogExternalStartingNumber"] ; DEPRECATED since v8.1.9.1
 	; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
-	; 	, % (g_objEditedFavorite.FavoriteGroupSettings > 0 ? g_objEditedFavorite.FavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
+	; 	, % (o_EditedFavorite.AA.strFavoriteGroupSettings > 0 ? o_EditedFavorite.AA.strFavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
 	gosub, LoadExternalFileGlobalValues
 	gosub, LoadExternalFileGlobalReadOnly
 	gosub, RadioButtonExternalMenuInit
@@ -10023,11 +10022,11 @@ ButtonChangeFavoriteHotkey:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (g_objEditedFavorite.FavoriteType = "QAP")
+if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 	strQAPDefaultShortcut := o_QAPfeatures.AA[o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strQAPFeatureSelectedLocalizedName]].strDefaultShortcut
 
 strBackupFavoriteShortcut := g_strNewFavoriteShortcut
-g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
+g_strNewFavoriteShortcut := SelectShortcut(g_strNewFavoriteShortcut, f_strFavoriteShortName, o_EditedFavorite.AA.strFavoriteType, f_strFavoriteLocation, 3, strQAPDefaultShortcut)
 if StrLen(g_strNewFavoriteShortcut)
 	GuiControl, 2:, f_strHotkeyText, % new Triggers.HotkeyParts(g_strNewFavoriteShortcut).Hotkey2Text()
 else
@@ -10045,7 +10044,7 @@ ButtonChangeFavoriteHotstring:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-g_strNewFavoriteHotstring := SelectHotstring(g_strNewFavoriteHotstring, f_strFavoriteShortName, g_objEditedFavorite.FavoriteType, f_strFavoriteLocation)
+g_strNewFavoriteHotstring := SelectHotstring(g_strNewFavoriteHotstring, f_strFavoriteShortName, o_EditedFavorite.AA.strFavoriteType, f_strFavoriteLocation)
 
 SplitHotstring(g_strNewFavoriteHotstring, g_strNewFavoriteHotstringTrigger, g_strNewFavoriteHotstringOptionsShort)
 
@@ -10065,7 +10064,7 @@ Gui, 2:Submit, NoHide ; updates f_intAddFavoriteTab
 
 if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external menu values
 {
-	if !StrLen(g_strNewFavoriteIconResource) and (g_objEditedFavorite.FavoriteType = "Folder") and StrLen(f_strFavoriteLocation)
+	if !StrLen(g_strNewFavoriteIconResource) and (o_EditedFavorite.AA.strFavoriteType = "Folder") and StrLen(f_strFavoriteLocation)
 		g_strNewFavoriteIconResource := GetFolderIcon(f_strFavoriteLocation)
 	
 	Gosub, GuiFavoriteIconDefault
@@ -10076,11 +10075,11 @@ if (intFromTab = 1) ; if last tab was 1 we need to update the icon and external 
 		gosub, LoadExternalFileGlobalValues
 		g_blnExternalLocationChanged := false
 	}
-	if !InStr("Group|Snippet", g_objEditedFavorite.FavoriteType, true)
+	if !InStr("Group|Snippet", o_EditedFavorite.AA.strFavoriteType, true)
 		gosub, FavoriteArgumentChanged
 	
 }
-else if (intFromTab = 3 and g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive)
+else if (intFromTab = 3 and o_EditedFavorite.AA.strFavoriteType = "Folder" and f_blnFavoriteFolderLive)
 {
 	; back from Live Folder tab, check if we replace default iconFolder with iconFolderLive
 	if (g_strNewFavoriteIconResource = "iconFolder")
@@ -10090,9 +10089,9 @@ else if (intFromTab = 3 and g_objEditedFavorite.FavoriteType = "Folder" and f_bl
 	}
 }
 else ; to tab 1
-	if (g_objEditedFavorite.FavoriteType = "Special")
+	if (o_EditedFavorite.AA.strFavoriteType = "Special")
 		GuiControl, 2:Focus, f_tvSpecial
-	else if (g_objEditedFavorite.FavoriteType = "QAP")
+	else if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 		GuiControl, 2:Focus, f_tvQAP
 
 ; normally this should be called only if g_blnExternalLocationChanged but it need to run at each tab change to keep control's r-o option, do not know why
@@ -10113,7 +10112,7 @@ Gui, 2:Submit, NoHide
 Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
 {
 	if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "B") ; skip ".." back link to parent menu
-		or (g_objEditedFavorite.FavoriteName = g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteName)
+		or (o_EditedFavorite.AA.strFavoriteName = g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteName)
 			and (g_objMenuInGui.MenuPath = g_objMenusIndex[f_drpParentMenu].MenuPath ; skip edited item itself if not a separator
 			and !InStr("X|K", g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType) ; but make sure to keep separators
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
@@ -10227,7 +10226,7 @@ if (A_ThisLabel <> "ButtonRefreshWindowsAppsListAtStartup")
 	if FileExist(strWindowsAppsListFile)
 	{
 		FileCopy, %strWindowsAppsListFile%, %g_strWindosListAppsCacheFile%, 1
-		GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList(g_objEditedFavorite.FavoriteLocation)
+		GuiControl, , f_drpWindowsAppsList, % "|" . LoadWindowsAppsList(o_EditedFavorite.AA.strFavoriteLocation)
 		MsgBox, 0, %g_strAppNameText%, % o_L["DialogWindowsAppsListSuccess"]
 	}
 	else
@@ -10269,7 +10268,7 @@ Gui, 2:Submit, NoHide
 if StrLen(f_strFavoriteLocation)
 	GuiControl, , f_strFavoriteShortName, % GetWebPageTitle(f_strFavoriteLocation)
 else
-	Oops(o_L["OopsFirstEnterUrl"], o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLocationLabel)
+	Oops(o_L["OopsFirstEnterUrl"], o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLocationLabel)
 
 return
 ;------------------------------------------------------------
@@ -10341,13 +10340,13 @@ EditFavoriteExternalLocationChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-if (g_objEditedFavorite.FavoriteType = "URL")
+if (o_EditedFavorite.AA.strFavoriteType = "URL")
 	return
 
-if !StrLen(f_strFavoriteShortName) or (g_objEditedFavorite.FavoriteType = "Application") ; always update when browsing the running apps list
+if !StrLen(f_strFavoriteShortName) or (o_EditedFavorite.AA.strFavoriteType = "Application") ; always update when browsing the running apps list
 	GuiControl, 2:, f_strFavoriteShortName, % GetLocationPathName((A_ThisLabel = "EditFavoriteLocationChanged" ? f_strFavoriteLocation : f_strFavoriteAppWorkingDir))
 
-if InStr("|Folder|Document|Application", "|" . g_objEditedFavorite.FavoriteType)
+if InStr("|Folder|Document|Application", "|" . o_EditedFavorite.AA.strFavoriteType)
 {
 	if RegExMatch(f_strFavoriteLocation, """.*""") ; trim unneeded double quotes if location is enclosed with double quotes
 		GuiControl, 2:, f_strFavoriteLocation, % Trim(f_strFavoriteLocation, """")
@@ -10430,7 +10429,7 @@ Gui, 2:+OwnDialogs
 if (A_ThisLabel = "ButtonSelectFavoriteLocation")
 {
 	strDefault := f_strFavoriteLocation
-	strType := (g_objEditedFavorite.FavoriteType = "Folder" ? "Folder" : "File")
+	strType := (o_EditedFavorite.AA.strFavoriteType = "Folder" ? "Folder" : "File")
 }
 else if InStr("ButtonSelectWorkingDir|ButtonSelectExternalSettingsFile", A_ThisLabel)
 {
@@ -10512,7 +10511,7 @@ GuiEditIconDialog:
 Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
 
-if InStr("|Document|Application", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(f_strFavoriteLocation)
+if InStr("|Document|Application", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(f_strFavoriteLocation)
 {
 	OopsGui2(o_L["PickIconNoLocation"])
 	return
@@ -10575,11 +10574,11 @@ GuiControl, , f_picIcon, *icon%intThisIconIndex% %strExpandedIconFile%
 GuiControl, % (g_strNewFavoriteIconResource <> g_strDefaultIconResource ? "Show" : "Hide"), f_lblRemoveIcon
 GuiControl, % (strThisIconFile <> o_JLicons.strFileLocation ? "Show" : "Hide"), f_lblSelectIconJL
 
-strThisFolder := (g_objEditedFavorite.FavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
+strThisFolder := (o_EditedFavorite.AA.strFavoriteType = "Folder" and StrLen(f_strFavoriteLocation) ? PathCombine(A_WorkingDir, EnvVars(f_strFavoriteLocation)) : "")
 blnThisDesktopIniExist := (StrLen(strThisFolder) ? FileExist(strThisFolder . "\desktop.ini") : false)
 strCurrentDesktopIcon := (StrLen(strThisFolder) ? GetFolderIcon(strThisFolder) : "")
 
-if (g_objEditedFavorite.FavoriteType = "Folder")
+if (o_EditedFavorite.AA.strFavoriteType = "Folder")
 {
 	GuiControl, % ((blnThisDesktopIniExist) ; desktop.ini exists
 		or (g_strNewFavoriteIconResource <> g_strDefaultIconResource ; or icon is not default
@@ -11402,13 +11401,13 @@ else ; GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiCopyOn
 }
 
 if (strThisLabel = "GuiAddExternalSave")
-	strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", g_objEditedFavorite.FavoriteAppWorkingDir) ; empty if not found
+	strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", o_EditedFavorite.AA.strFavoriteAppWorkingDir) ; empty if not found
 
 if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 {
-	strNewFavoriteShortName := (StrLen(g_objEditedFavorite.FavoriteName) ? g_objEditedFavorite.FavoriteName : strExternalMenuName)
-	strNewFavoriteLocation := g_objEditedFavorite.FavoriteLocation
-	strFavoriteAppWorkingDir := g_objEditedFavorite.FavoriteAppWorkingDir ; for external menu from catalogue
+	strNewFavoriteShortName := (StrLen(o_EditedFavorite.AA.strFavoriteName) ? o_EditedFavorite.AA.strFavoriteName : strExternalMenuName)
+	strNewFavoriteLocation := o_EditedFavorite.AA.strFavoriteLocation
+	strFavoriteAppWorkingDir := o_EditedFavorite.AA.strFavoriteAppWorkingDir ; for external menu from catalogue
 	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
 	
 	if (strThisLabel = "GuiAddFavoriteSaveXpress")
@@ -11440,12 +11439,12 @@ else
 	strDestinationMenu := f_drpParentMenu
 
 	; if gui was closed from Live Folder Options tab (without changing tab), update Live folder icon
-	if (g_objEditedFavorite.FavoriteType = "Folder" and f_blnFavoriteFolderLive
+	if (o_EditedFavorite.AA.strFavoriteType = "Folder" and f_blnFavoriteFolderLive
 		and g_strNewFavoriteIconResource = "iconFolder")
 			g_strNewFavoriteIconResource := "iconFolderLive"
 }
 
-if InStr("Folder|Document|Application", g_objEditedFavorite.FavoriteType) ; for these favorites, file/folder must exist
+if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType) ; for these favorites, file/folder must exist
 	and StrLen(strNewFavoriteLocation) ; to exclude situations (like move) where strNewFavoriteLocation is empty
 {
 	strExpandedNewFavoriteLocation := strNewFavoriteLocation
@@ -11476,11 +11475,11 @@ if (!g_intNewItemPos)
 
 ; validation to avoid unauthorized favorite types in groups
 ; validation to avoid external settings file under another external settings file
-if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true))
-	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and g_objEditedFavorite.FavoriteType = "External")
+if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true))
+	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and o_EditedFavorite.AA.strFavoriteType = "External")
 {
 	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
-		OopsGui2(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", ""))
+		OopsGui2(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", ""))
 	else
 		OopsGui2(o_L["OopsExternalNotAllowedUnderExternal"])
 	if (strThisLabel = "GuiMoveOneFavoriteSave")
@@ -11489,7 +11488,7 @@ if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group
 	return
 }
 
-if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
+if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
 {
 	; make sure the we have a file name
 	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
@@ -11521,21 +11520,21 @@ if (g_objEditedFavorite.FavoriteType = "External") and !InStr("|GuiEditFavoriteS
 
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
-	if !StrLen(strNewFavoriteShortName) and (g_objEditedFavorite.FavoriteType <> "QAP")
+	if !StrLen(strNewFavoriteShortName) and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
 	{
-		OopsGui2(InStr("Menu|External", g_objEditedFavorite.FavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
+		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
-	if  InStr("|Folder|Document|Application|URL|FTP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
+	if  InStr("|Folder|Document|Application|URL|FTP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
 		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
-	if  (g_objEditedFavorite.FavoriteType = "Snippet")
+	if  (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	{
 		if InStr(f_strFavoriteSnippetPrompt, "|")
 		{
@@ -11554,22 +11553,22 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			strNewFavoriteLocation := (g_strSnippetFormat = "display" ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
 	}
 
-	if (g_objEditedFavorite.FavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
+	if (o_EditedFavorite.AA.strFavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
 	{
 		OopsGui2(o_L["OopsFtpLocationProtocol"])
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
-	if  InStr("|Special|QAP", "|" . g_objEditedFavorite.FavoriteType) and !StrLen(strNewFavoriteLocation)
+	if  InStr("|Special|QAP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
-		OopsGui2(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(g_objEditedFavorite.FavoriteType).strFavoriteTypeLabel, "&", "")
-			, (g_objEditedFavorite.FavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
+		OopsGui2(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", "")
+			, (o_EditedFavorite.AA.strFavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
 		gosub, GuiAddFavoriteSaveCleanup
 		return
 	}
 
-	if InStr("|Menu|Group|External", "|" . g_objEditedFavorite.FavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
+	if InStr("|Menu|Group|External", "|" . o_EditedFavorite.AA.strFavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
 	{
 		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strMenuPathSeparator))
 		gosub, GuiAddFavoriteSaveCleanup
@@ -11586,7 +11585,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
 		OopsGui2(o_L["OopsAmpersandInName"])
 	
-	if InStr(g_strTypesForTabWindowOptions, "|" . g_objEditedFavorite.FavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
+	if InStr(g_strTypesForTabWindowOptions, "|" . o_EditedFavorite.AA.strFavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
 	{
 		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
 		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
@@ -11606,7 +11605,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		}
 	}
 
-	if (g_objEditedFavorite.FavoriteType = "External")
+	if (o_EditedFavorite.AA.strFavoriteType = "External")
 	{
 		strExternalSettingsExtension := GetFileExtension(strFavoriteAppWorkingDir)
 
@@ -11620,8 +11619,8 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		}
 	}
 	
-	if LocationTransformedFromHTTP2UNC(g_objEditedFavorite.FavoriteType, (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
-		OopsGui2(o_L["OopsHttpLocationTransformed"], (g_objEditedFavorite.FavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+	if LocationTransformedFromHTTP2UNC(o_EditedFavorite.AA.strFavoriteType, (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		OopsGui2(o_L["OopsHttpLocationTransformed"], (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
 
 	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist())
 	{
@@ -11632,31 +11631,31 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 }
 
 loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
-	if !FavoriteNameIsNew((InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)  ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
-		and !InStr("X|K", g_objEditedFavorite.FavoriteType) ; same name OK for separators
+	if !FavoriteNameIsNew((InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)  ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
+		and !InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; same name OK for separators
 	{
-		; ###_V("if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (strThisLabel = ""GuiAddFavoriteSaveXpress"")"
-			; , if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) or (strThisLabel = "GuiAddFavoriteSaveXpress")
-			; , strDestinationMenu, strOriginalMenu, strNewFavoriteShortName, g_objEditedFavorite.FavoriteName, strThisLabel)
+		; ###_V("if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) or (strThisLabel = ""GuiAddFavoriteSaveXpress"")"
+			; , if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) or (strThisLabel = "GuiAddFavoriteSaveXpress")
+			; , strDestinationMenu, strOriginalMenu, strNewFavoriteShortName, o_EditedFavorite.AA.strFavoriteName, strThisLabel)
 		; we have the same name in the destination menu
 		if (strOriginalMenu <> strDestinationMenu) ; the favorite was moved to new destination menu
 			or (strThisLabel = "GuiCopyOneFavoriteSave") ; if same name in same menu to duplicate with multiple copy
-			or (strNewFavoriteShortName <> g_objEditedFavorite.FavoriteName) ; when the name has been edited from another menu
+			or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) ; when the name has been edited from another menu
 			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
 		{
 			; #### decide if we allow automatic rename, or after confirmation
 			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
-				and (g_objEditedFavorite.FavoriteType <> "QAP")
+				and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
 				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
-					g_objEditedFavorite.FavoriteName .= " [!]" ; and loop
+					o_EditedFavorite.AA.strFavoriteName .= " [!]" ; and loop
 				else
 					strNewFavoriteShortName .= " [!]" ; and loop
 			else
 			{
-				if (g_objEditedFavorite.FavoriteType = "QAP")
-					OopsGui2(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
+				if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+					OopsGui2(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
 				else
-					OopsGui2(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? g_objEditedFavorite.FavoriteName : strNewFavoriteShortName))
+					OopsGui2(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
 				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
 					g_intOriginalMenuPosition++
 				gosub, GuiAddFavoriteSaveCleanup
@@ -11664,7 +11663,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 					g_blnMulipleMoveOrCopyAborted := true
 				return
 			}
-			; ###_V("strNewFavoriteShortName / g_objEditedFavorite.FavoriteName", strNewFavoriteShortName, g_objEditedFavorite.FavoriteName, "*strThisLabel", strThisLabel)
+			; ###_V("strNewFavoriteShortName / o_EditedFavorite.AA.strFavoriteName", strNewFavoriteShortName, o_EditedFavorite.AA.strFavoriteName, "*strThisLabel", strThisLabel)
 		}
 		else
 			break ; name is not new but is OK - exit loop
@@ -11674,11 +11673,11 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 
 ; check that a menu cannot be moved under itself when part of a multiple move (not copy because menu cannot be copied)
 if (strThisLabel = "GuiMoveOneFavoriteSave")
-	and InStr("|Menu|External", "|" . g_objEditedFavorite.FavoriteType)
-	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . g_objEditedFavorite.FavoriteName) = 1) ; = 1 to check if equal from start only
-		and !InStr("K|X", g_objEditedFavorite.FavoriteType) ; no risk with separators
+	and InStr("|Menu|External", "|" . o_EditedFavorite.AA.strFavoriteType)
+	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName) = 1) ; = 1 to check if equal from start only
+		and !InStr("K|X", o_EditedFavorite.AA.strFavoriteType) ; no risk with separators
 	{
-		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], g_objEditedFavorite.FavoriteName)
+		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], o_EditedFavorite.AA.strFavoriteName)
 		g_intOriginalMenuPosition++ ; will be reduced by GuiMoveMultipleFavoritesSave
 		gosub, GuiAddFavoriteSaveCleanup
 		return
@@ -11686,12 +11685,12 @@ if (strThisLabel = "GuiMoveOneFavoriteSave")
 
 ; if adding menu or group, create submenu object
 
-if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
+if (InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true) and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
 	objNewMenu := Object() ; object for the new menu or group
 	objNewMenu.MenuPath := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . strNewFavoriteShortName
-		. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-	objNewMenu.MenuType := g_objEditedFavorite.FavoriteType
+		. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+	objNewMenu.MenuType := o_EditedFavorite.AA.strFavoriteType
 	if (objNewMenu.MenuType = "External")
 	{
 		objNewMenu.MenuExternalSettingsPath := strFavoriteAppWorkingDir
@@ -11706,7 +11705,7 @@ if (InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true) and InS
 	objNewMenu.Insert(objNewMenuBack)
 	
 	g_objMenusIndex.Insert(objNewMenu.MenuPath, objNewMenu)
-	g_objEditedFavorite.Submenu := objNewMenu
+	o_EditedFavorite.AA.oSubmenu := objNewMenu
 }
 
 ; update menu object and hotkeys object except if we multiple move or copy favorites
@@ -11715,7 +11714,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	; if external menu file exists, load the submenu from the external settings ini file
 
-	if (g_objEditedFavorite.FavoriteType = "External")
+	if (o_EditedFavorite.AA.strFavoriteType = "External")
 	{
 		strExternalMenuPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir)) ; FavoriteAppWorkingDir, settings file path
 		if FileExist(strExternalMenuPath) ; file path exists
@@ -11754,18 +11753,18 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 				; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 
 			; update object's last modified dates anyway
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedNow := strLastModified
-			g_objEditedFavorite.SubMenu.MenuExternalLastModifiedFromNetworkOrCoud := (f_radExternalSourceCloud = 1)
+			o_EditedFavorite.AA.oSubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
+			o_EditedFavorite.AA.oSubMenu.MenuExternalLastModifiedNow := strLastModified
+			o_EditedFavorite.AA.oSubMenu.MenuExternalLastModifiedFromNetworkOrCoud := (f_radExternalSourceCloud = 1)
 		}
 	}
 
-	g_objEditedFavorite.FavoriteName := strNewFavoriteShortName
+	o_EditedFavorite.AA.strFavoriteName := strNewFavoriteShortName
 
-	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
+	if InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)
 	{
 		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . strNewFavoriteShortName
-			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
 		
 		if (strThisLabel = "GuiEditFavoriteSave") ; only this label, not required for Add, Copy, Move
@@ -11791,45 +11790,45 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	}
 	else
 	{
-		if (g_objEditedFavorite.FavoriteType = "WindowsApp") and (f_drpWindowsAppsList = "* " . o_L["DialogWindowsAppsListCustom"])
+		if (o_EditedFavorite.AA.strFavoriteType = "WindowsApp") and (f_drpWindowsAppsList = "* " . o_L["DialogWindowsAppsListCustom"])
 			strNewFavoriteLocation := "Custom:" . strNewFavoriteLocation
-		g_objEditedFavorite.FavoriteLocation := strNewFavoriteLocation
+		o_EditedFavorite.AA.strFavoriteLocation := strNewFavoriteLocation
 	}
 
 	Gosub, UpdateFavoriteObjectSaveShortcut
-	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in g_objEditedFavorite.FavoriteHotstring
+	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in o_EditedFavorite.AA.strFavoriteHotstring
 
 	; for safety check if icon resource is empty, if yes, set default icon for type
 	if !StrLen(g_strNewFavoriteIconResource)
 		o_EditedFavorite.GetDefaultIcon4Type(strNewFavoriteLocation)
-	g_objEditedFavorite.FavoriteIconResource := g_strNewFavoriteIconResource
+	o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
 	
-	g_objEditedFavorite.FavoriteWindowPosition := strNewFavoriteWindowPosition
+	o_EditedFavorite.AA.strFavoriteWindowPosition := strNewFavoriteWindowPosition
 	
-	if (g_objEditedFavorite.FavoriteType = "Group")
+	if (o_EditedFavorite.AA.strFavoriteType = "Group")
 	{
-		g_objEditedFavorite.FavoriteGroupSettings := f_blnRadioGroupReplace
-		g_objEditedFavorite.FavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
-		g_objEditedFavorite.FavoriteGroupSettings .= "," . f_intGroupRestoreDelay
+		o_EditedFavorite.AA.strFavoriteGroupSettings := f_blnRadioGroupReplace
+		o_EditedFavorite.AA.strFavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
+		o_EditedFavorite.AA.strFavoriteGroupSettings .= "," . f_intGroupRestoreDelay
 	}
-	else if (g_objEditedFavorite.FavoriteType = "External")
-		g_objEditedFavorite.FavoriteGroupSettings := f_intExternalStartingNumber
+	else if (o_EditedFavorite.AA.strFavoriteType = "External")
+		o_EditedFavorite.AA.strFavoriteGroupSettings := f_intExternalStartingNumber
 
-	g_objEditedFavorite.FavoriteLoginName := f_strFavoriteLoginName
-	g_objEditedFavorite.FavoritePassword := f_strFavoritePassword
-	g_objEditedFavorite.FavoriteFtpEncoding := f_blnFavoriteFtpEncoding
+	o_EditedFavorite.AA.strFavoriteLoginName := f_strFavoriteLoginName
+	o_EditedFavorite.AA.strFavoritePassword := f_strFavoritePassword
+	o_EditedFavorite.AA.blnFavoriteFtpEncoding := f_blnFavoriteFtpEncoding
 	
-	g_objEditedFavorite.FavoriteArguments := f_strFavoriteArguments
-	g_objEditedFavorite.FavoriteAppWorkingDir := strFavoriteAppWorkingDir
-	g_objEditedFavorite.FavoriteDisabled := f_blnFavoriteDisabled
+	o_EditedFavorite.AA.strFavoriteArguments := f_strFavoriteArguments
+	o_EditedFavorite.AA.strFavoriteAppWorkingDir := strFavoriteAppWorkingDir
+	o_EditedFavorite.AA.blnFavoriteDisabled := f_blnFavoriteDisabled
 	
-	g_objEditedFavorite.FavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
-	g_objEditedFavorite.FavoriteFolderLiveDocuments := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : "")
-	g_objEditedFavorite.FavoriteFolderLiveColumns := (f_blnFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
-	g_objEditedFavorite.FavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
-	g_objEditedFavorite.FavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
+	o_EditedFavorite.AA.intFavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
+	o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : "")
+	o_EditedFavorite.AA.intFavoriteFolderLiveColumns := (f_blnFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
+	o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
+	o_EditedFavorite.AA.strFavoriteFolderLiveExtensions := (f_blnFavoriteFolderLive ? f_strFavoriteFolderLiveExtensions : "")
 
-	g_objEditedFavorite.FavoriteSoundLocation := strNewFavoriteSoundLocation
+	o_EditedFavorite.AA.strFavoriteSoundLocation := strNewFavoriteSoundLocation
 
 	if (f_blnFavoriteFolderLive)
 	{
@@ -11838,39 +11837,39 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			if (f_radLiveFolderSort%A_Index%)
 				strLoopCriteria := A_Index
 		until (strLoopCriteria > 0)
-		g_objEditedFavorite.FavoriteFolderLiveSort := (f_radLiveFolderSortA ? "A" : "D") . strLoopCriteria
+		o_EditedFavorite.AA.strFavoriteFolderLiveSort := (f_radLiveFolderSortA ? "A" : "D") . strLoopCriteria
 	}
 
-	if (g_objEditedFavorite.FavoriteType = "Snippet")
+	if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 		; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
 		; 2 prompt (text) pause prompt before pasting/launching the snippet
 		; 3 encode (boolean) true: automatically encode / false: do not encode
 		; 4 fixed width (boolean) true: fixed width / false: proportional width
 		; 5 font size (integer)
-		g_objEditedFavorite.FavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt . ";" . f_blnProcessEOLTab . ";" . f_blnFixedFont . ";" . f_intFontSize
+		o_EditedFavorite.AA.strFavoriteLaunchWith := f_blnRadioSendModeMacro . ";" . f_strFavoriteSnippetPrompt . ";" . f_blnProcessEOLTab . ";" . f_blnFixedFont . ";" . f_intFontSize
 	else
 	{
-		g_objEditedFavorite.FavoriteLaunchWith := f_strFavoriteLaunchWith
-		g_objEditedFavorite.FavoriteElevate := f_blnFavoriteElevate
+		o_EditedFavorite.AA.strFavoriteLaunchWith := f_strFavoriteLaunchWith
+		o_EditedFavorite.AA.blnFavoriteElevate := f_blnFavoriteElevate
 	}
 }
 else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because menu cannot be part of multiple copy)
-	if InStr("Menu|Group|External", g_objEditedFavorite.FavoriteType, true)
+	if InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)
 	; for Menu and Group in multiple moved, update the .FavoriteLocation in favorite object and update menus and hotkeys index objects
 	{
 		; was for g_objHotkeysByNameLocation
-		; strPreviousName := (g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName) ; save it to be able to remove hotkey if there is one for this location
-		; strPreviousLocation := g_objEditedFavorite.FavoriteLocation ; save it to be able to remove hotkey if there is one for this location
+		; strPreviousName := (o_EditedFavorite.AA.strFavoriteType = "QAP" ? "" : o_EditedFavorite.AA.strFavoriteName) ; save it to be able to remove hotkey if there is one for this location
+		; strPreviousLocation := o_EditedFavorite.AA.strFavoriteLocation ; save it to be able to remove hotkey if there is one for this location
 		
-		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . g_objEditedFavorite.FavoriteName
-			. (g_objEditedFavorite.FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName
+			. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
 		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
 
 		; was for g_objHotkeysByNameLocation
 		; if g_objHotkeysByNameLocation.HasKey(strPreviousName . "|" . strPreviousLocation)
 		; {
 			; strMenuLocation := StrReplace(strMenuLocation, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
-			; g_objHotkeysByNameLocation.Insert((g_objEditedFavorite.FavoriteType = "QAP" ? "" : g_objEditedFavorite.FavoriteName)
+			; g_objHotkeysByNameLocation.Insert((o_EditedFavorite.AA.strFavoriteType = "QAP" ? "" : o_EditedFavorite.AA.strFavoriteName)
 				; . "|" . strMenuLocation, g_objHotkeysByNameLocation[strPreviousName . "|" . strPreviousLocation])
 			; g_objHotkeysByNameLocation.Remove(strPreviousName . "|" . strPreviousLocation) ; must be after the g_objHotkeysByNameLocation.Insert
 		; }
@@ -11919,26 +11918,26 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 {
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(0, "-Select")
-	if (g_objEditedFavorite.FavoriteType = "Menu")
+	if (o_EditedFavorite.AA.strFavoriteType = "Menu")
 		strThisLocation := g_strMenuPathSeparator
-	else if (g_objEditedFavorite.FavoriteType = "External")
+	else if (o_EditedFavorite.AA.strFavoriteType = "External")
 		strThisLocation := (ExternalMenuIsReadOnly(strFavoriteAppWorkingDir) ? o_L["DialogReadOnly"] . " " : "")
 			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strFavoriteAppWorkingDir
-	else if (g_objEditedFavorite.FavoriteType = "Group")
+	else if (o_EditedFavorite.AA.strFavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 	else
-		strThisLocation := g_objEditedFavorite.FavoriteLocation
+		strThisLocation := o_EditedFavorite.AA.strFavoriteLocation
 
-	strThisType := g_objEditedFavorite.GetItemTypeLabelForList()
-	strThisHotkey := new Triggers.HotkeyParts(g_objEditedFavorite.FavoriteShortcut).Hotkey2Text(true)
-	if StrLen(g_objEditedFavorite.FavoriteHotstring)
-		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(g_objEditedFavorite.FavoriteHotstring))
+	strThisType := o_EditedFavorite.AA.GetItemTypeLabelForList()
+	strThisHotkey := new Triggers.HotkeyParts(o_EditedFavorite.AA.strFavoriteShortcut).Hotkey2Text(true)
+	if StrLen(o_EditedFavorite.AA.strFavoriteHotstring)
+		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(o_EditedFavorite.AA.strFavoriteHotstring))
 
 	; GuiCopyOneFavoriteSave condition to protect selected items in multiple copy to same folder
 	if (g_intNewItemPos)
-		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, strThisHotkey, strThisLocation)
+		LV_Insert(g_intNewItemPos, (strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), o_EditedFavorite.AA.strFavoriteName, strThisType, strThisHotkey, strThisLocation)
 	else
-		LV_Add((strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), g_objEditedFavorite.FavoriteName, strThisType, strThisHotkey, strThisLocation)
+		LV_Add((strThisLabel <>"GuiCopyOneFavoriteSave" ? "Select Focus" : ""), o_EditedFavorite.AA.strFavoriteName, strThisType, strThisHotkey, strThisLocation)
 	
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(LV_GetNext(), "Vis")
@@ -12639,26 +12638,26 @@ if (A_GuiEvent = "DoubleClick")
 		}
 		else
 		{
-			g_strNewFavoriteShortcut := SelectShortcut(g_objEditedFavorite.FavoriteShortcut
-				, g_objEditedFavorite.FavoriteName
-				, g_objEditedFavorite.FavoriteType
-				, g_objEditedFavorite.FavoriteLocation, 3
-				, o_QAPfeatures.AA[g_objEditedFavorite.FavoriteLocation].strDefaultShortcut)
+			g_strNewFavoriteShortcut := SelectShortcut(o_EditedFavorite.AA.strFavoriteShortcut
+				, o_EditedFavorite.AA.strFavoriteName
+				, o_EditedFavorite.AA.strFavoriteType
+				, o_EditedFavorite.AA.strFavoriteLocation, 3
+				, o_QAPfeatures.AA[o_EditedFavorite.AA.strFavoriteLocation].strDefaultShortcut)
 			; SelectShortcut returns the new shortcut, "None" if no shortcut or empty string if cancelled
 			if !StrLen(g_strNewFavoriteShortcut)
-				g_strNewFavoriteShortcut := g_objEditedFavorite.FavoriteShortcut
+				g_strNewFavoriteShortcut := o_EditedFavorite.AA.strFavoriteShortcut
 			
-			Gosub, UpdateFavoriteObjectSaveShortcutList ; updates g_objEditedFavorite.FavoriteShortcut with g_strNewFavoriteShortcut and enable Settings save/Cancel buttons
+			Gosub, UpdateFavoriteObjectSaveShortcutList ; updates o_EditedFavorite.AA.strFavoriteShortcut with g_strNewFavoriteShortcut and enable Settings save/Cancel buttons
 		}
 	else ; Hotstring
 	{
-		g_strNewFavoriteHotstring := SelectHotstring(g_objEditedFavorite.FavoriteHotstring
-			, g_objEditedFavorite.FavoriteName
-			, g_objEditedFavorite.FavoriteType
-			, g_objEditedFavorite.FavoriteLocation)
+		g_strNewFavoriteHotstring := SelectHotstring(o_EditedFavorite.AA.strFavoriteHotstring
+			, o_EditedFavorite.AA.strFavoriteName
+			, o_EditedFavorite.AA.strFavoriteType
+			, o_EditedFavorite.AA.strFavoriteLocation)
 		; SelectHotstring returns the new hotstring (AHK format ":options:trigger"), empty string if no trigger or existing hotstring if cancelled
 		
-		Gosub, UpdateFavoriteObjectSaveHotstringList ; updates g_objEditedFavorite.FavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
+		Gosub, UpdateFavoriteObjectSaveHotstringList ; updates o_EditedFavorite.AA.strFavoriteHotstring with g_strNewFavoriteHotstring and enable Settings save/Cancel buttons
 	}
 }
 
@@ -13272,9 +13271,9 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
 			strIniLine .= objCurrentMenu[A_Index].blnFavoriteElevate . "|" ; 13
-			strIniLine .= objCurrentMenu[A_Index].FavoriteDisabled . "|" ; 14
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveLevels . "|" ; 15
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveDocuments . "|" ; 16
+			strIniLine .= objCurrentMenu[A_Index].blnFavoriteDisabled . "|" ; 14
+			strIniLine .= objCurrentMenu[A_Index].intFavoriteFolderLiveLevels . "|" ; 15
+			strIniLine .= objCurrentMenu[A_Index].blnFavoriteFolderLiveDocuments . "|" ; 16
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveColumns . "|" ; 17
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
 			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
@@ -13843,8 +13842,8 @@ UpdateFavoriteObjectSaveShortcut:
 UpdateFavoriteObjectSaveShortcutList:
 ;-----------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteShortcut = g_strNewFavoriteShortcut) ; if not changed
-	or (!HasShortcut(g_objEditedFavorite.FavoriteShortcut) and !HasShortcut(g_strNewFavoriteShortcut)) ; if both are "None" or empty
+if (o_EditedFavorite.AA.strFavoriteShortcut = g_strNewFavoriteShortcut) ; if not changed
+	or (!HasShortcut(o_EditedFavorite.AA.strFavoriteShortcut) and !HasShortcut(g_strNewFavoriteShortcut)) ; if both are "None" or empty
 	return
 
 ; shortcut was added, changed or removed
@@ -13856,11 +13855,11 @@ if HasShortcut(g_strNewFavoriteShortcut)
 	g_objShortcutsToRemoveWhenBuilingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before (not using deprecated function .Remove)
 }
 
-if HasShortcut(g_objEditedFavorite.FavoriteShortcut)
+if HasShortcut(o_EditedFavorite.AA.strFavoriteShortcut)
 {
 	; remove item from g_objFavoritesObjectsByShortcut and add it to g_objShortcutsToRemoveWhenBuilingMenu
-	g_objFavoritesObjectsByShortcut.Delete(g_objEditedFavorite.FavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
-	g_objShortcutsToRemoveWhenBuilingMenu[g_objEditedFavorite.FavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
+	g_objFavoritesObjectsByShortcut.Delete(o_EditedFavorite.AA.strFavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
+	g_objShortcutsToRemoveWhenBuilingMenu[o_EditedFavorite.AA.strFavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
 }
 
 if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
@@ -13870,7 +13869,7 @@ if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
 	GuiControl, 1:, f_btnGuiCancel, % o_L["GuiCancelAmpersand"]
 }
 
-g_objEditedFavorite.FavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
+o_EditedFavorite.AA.strFavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
 
 if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
 	Gosub, HotkeysManageListLoad
@@ -13884,7 +13883,7 @@ UpdateFavoriteObjectSaveHotstring:
 UpdateFavoriteObjectSaveHotstringList:
 ;-----------------------------------------------------------
 
-if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
+if (o_EditedFavorite.AA.strFavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
 	return
 
 ; Hotstring was added, changed or removed. Do not add new, change or remove hotstring to g_objFavoritesObjectsByHotstring
@@ -13892,14 +13891,14 @@ if (g_objEditedFavorite.FavoriteHotstring == g_strNewFavoriteHotstring) ; if not
 
 ; if an hostring does not already need restart, check if this hotstring's options changed and need restart
 if !(g_blnHotstringNeedRestart)
-	and (GetHotstringOptions(g_objEditedFavorite.FavoriteHotstring) <> GetHotstringOptions(g_strNewFavoriteHotstring))
+	and (GetHotstringOptions(o_EditedFavorite.AA.strFavoriteHotstring) <> GetHotstringOptions(g_strNewFavoriteHotstring))
 {
 	g_blnHotstringNeedRestart := true
 	Oops(o_L["DialogChangeHotstringReload"], g_strAppNameText)
 }
 
 ; update favorite object
-g_objEditedFavorite.FavoriteHotstring := g_strNewFavoriteHotstring
+o_EditedFavorite.AA.strFavoriteHotstring := g_strNewFavoriteHotstring
 
 if (A_ThisLabel = "UpdateFavoriteObjectSaveHotstringList")
 {
@@ -17036,7 +17035,7 @@ if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "
 	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
 	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
 	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
-	strUsageDbMenuLiveLevels := g_objThisFavorite.FavoriteFolderLiveLevels
+	strUsageDbMenuLiveLevels := g_objThisFavorite.intFavoriteFolderLiveLevels
 	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
 	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
 	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
