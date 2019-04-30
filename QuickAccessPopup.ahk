@@ -3327,7 +3327,7 @@ global g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 global g_objLastActions := Object()
 
 global g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
-global g_objWindowsAppsIDsByName := Object()
+global g_aaWindowsAppsIDsByName := Object()
 
 global g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
@@ -8890,21 +8890,20 @@ Gui, 2:Add, Tab2, % "vf_intAddFavoriteTab w520 h" . intTabHeight . " gGuiAddFavo
 intTabNumber := 0
 
 ; ------ BUILD TABS ------
-; #####
 
 Gosub, GuiFavoriteTabBasic
 
 Gosub, GuiFavoriteIconDefault ; init default icon now that f_strFavoriteLocation has been set in the Basic tab
 
-Gosub, GuiFavoriteTabMenuOptions
+; Gosub, GuiFavoriteTabMenuOptions
 
-Gosub, GuiFavoriteTabLiveFolderOptions
+; Gosub, GuiFavoriteTabLiveFolderOptions
 
-Gosub, GuiFavoriteTabWindowOptions
+; Gosub, GuiFavoriteTabWindowOptions
 
-Gosub, GuiFavoriteTabAdvancedSettings
+; Gosub, GuiFavoriteTabAdvancedSettings
 
-Gosub, GuiFavoriteTabExternal
+; Gosub, GuiFavoriteTabExternal
 
 Gosub, CheckboxFolderLiveClicked
 
@@ -8953,6 +8952,7 @@ else
 		SendInput, ^a
 }
 
+; #### QA DropdownParentMenuChanged after tabs are converted
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
@@ -8960,6 +8960,7 @@ Gui, 2:Add, Text
 GetGui2Size("AddEditCopyFavoriteDialogPosition", intGui2Width, intGui2Height)
 if (intGui2Height < 544) ; minimum height since v8.7.0.9.2
 	intGui2Height := 544
+; ##### not working - check after tabs are converted
 WinMove, ahk_id %g_strGui2Hwnd%, , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
 Gosub, ShowGui2AndDisableGui1
 
@@ -9310,19 +9311,17 @@ if !InStr("Special|QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType)
 		
 		if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 		{
-			if !StrLen(o_EditedFavorite.AA.strFavoriteLaunchWith) ; default values
-				o_EditedFavorite.AA.strFavoriteLaunchWith := o_Settings.Snippets.blnSnippetDefaultMacro.IniValue . ";;"
-					. o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue . ";" 
-					. o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue . ";"
-					. o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
-			
-			strFavoriteSnippetOptions := o_EditedFavorite.AA.strFavoriteLaunchWith . ";;;;;;" ; safety
 			; 1 macro (boolean) true: send snippet to current application using macro mode / else paste as raw text
 			; 2 prompt (text) pause prompt before pasting/launching the snippet
 			; 3 encode (boolean) true: automatically encode / false: do not encode
 			; 4 fixed width (boolean) true: fixed width / false: proportional width
 			; 5 font size (integer)
-			StringSplit, arrFavoriteSnippetOptions, strFavoriteSnippetOptions, `;
+			if !StrLen(o_EditedFavorite.AA.strFavoriteLaunchWith) ; default values
+				o_EditedFavorite.AA.strFavoriteLaunchWith := o_Settings.Snippets.blnSnippetDefaultMacro.IniValue . ";;"
+					. o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue . ";" 
+					. o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue . ";"
+					. o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
+			saFavoriteSnippetOptions := StrSplit(strFavoriteSnippetOptions, ";")
 			
 			Gui, Font
 			Gui, Font, w700
@@ -9369,15 +9368,15 @@ if !InStr("Special|QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType)
 	if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	{
 		g_strSnippetFormat := "raw" ; control initialy loaded with unprocessed content as in ini file
-		Gui, 2:Add, Checkbox, % "x20 y+10 w320 vf_blnProcessEOLTab gProcessEOLTabChanged " . (arrFavoriteSnippetOptions3 <> 0 ? "checked" : ""), % o_L["DialogFavoriteSnippetProcessEOLTab"]
-		Gui, 2:Add, Checkbox, % "x360 yp w160 vf_blnFixedFont gContentEditFontChanged " . (arrFavoriteSnippetOptions4 = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetFixedFont"]
+		Gui, 2:Add, Checkbox, % "x20 y+10 w320 vf_blnProcessEOLTab gProcessEOLTabChanged " . (saFavoriteSnippetOptions[3] <> 0 ? "checked" : ""), % o_L["DialogFavoriteSnippetProcessEOLTab"]
+		Gui, 2:Add, Checkbox, % "x360 yp w160 vf_blnFixedFont gContentEditFontChanged " . (saFavoriteSnippetOptions[4] = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetFixedFont"]
 		
 		Gui, 2:Add, Link, x20 y+5 vf_lblSnippetHelp w320, `n`n ; keep `n to make sure a second line is available for the control
 		Gui, 2:Add, Text, x360 yp vf_lblFontSize, % o_L["DialogFavoriteSnippetFontSize"]
 		GuiControlGet, arrPosFontSizeLabel, Pos, f_lblFontSize
 		Gui, 2:Add, Edit, x+5 yp w40 vf_intFontSize gContentEditFontChanged
 		GuiControlGet, arrPosFontSize, Pos, f_intFontSize
-		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(arrFavoriteSnippetOptions5) ? arrFavoriteSnippetOptions5 : o_Settings.Snippets.intSnippetDefaultFontSize.IniValue)
+		Gui, 2:Add, UpDown, Range6-18 vf_intFontUpDown, % (StrLen(saFavoriteSnippetOptions[5]) ? saFavoriteSnippetOptions[5] : o_Settings.Snippets.intSnippetDefaultFontSize.IniValue)
 		GuiControlGet, arrPosUpDown, Pos, f_intFontUpDown
 		
 		Gosub, ProcessEOLTabChanged ; encode/decode snippet and update f_lblSnippetHelp text
@@ -9403,8 +9402,8 @@ else ; "Special", "QAP" or "WindowsApp"
 	}
 	else
 	{
-		GuiControlGet, arrLocationLabelPos, Pos, f_lblLocation
-		intTreeViewHeight := intTabHeight - arrLocationLabelPosY - 43 ; 43 = space required below)
+		GuiControlGet, arrPosLocationLabel, Pos, f_lblLocation
+		intTreeViewHeight := intTabHeight - arrPosLocationLabelY - 43 ; 43 = space required below)
 			
 		if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 			Gui, 2:Add, Link, x+5 yp w200 vf_tvQAPFeatureURL
@@ -9475,13 +9474,6 @@ Gui, 2:Add, Checkbox, % "x20 y+" (InStr("Special|QAP", o_EditedFavorite.AA.strFa
 	, % (blnIsGroupMember ? o_L["DialogFavoriteDisabledGroupMember"] : o_L["DialogFavoriteDisabled"])
 
 saNewFavoriteWindowPosition := ""
-ResetArray("arrPosTypeHelp")
-ResetArray("arrPosFixedFont")
-ResetArray("arrPosFixedFont")
-ResetArray("arrPosFontSizeLabel")
-ResetArray("arrPosEnlarge")
-ResetArray("arrPosSnippetContent")
-ResetArray("arrLocationLabelPos")
 intTreeViewHeight := ""
 intTreeViewWidth := ""
 strWindowsAppsDropdownList := ""
@@ -9497,29 +9489,29 @@ LoadTreeviewSpecial:
 ;------------------------------------------------------------
 
 blnSelectDone := false
-objCategoriesID := Object()
-g_objTreeViewItemsByIDs := Object()
+aaCategoriesID := Object()
+global g_aaTreeViewItemsByIDs := Object()
 
-objCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
+aaCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
-for strItemCode, objItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.AA)
+for strItemCode, oItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.AA)
 	if (A_ThisLabel = "LoadTreeviewQAP")
-		strItemsNameCodeCategories .= objItem.strLocalizedName . "|" . strItemCode . "|" . objItem.strQAPFeatureCategories . "`n"
+		strItemsNameCodeCategories .= oItem.strLocalizedName . "|" . strItemCode . "|" . oItem.strQAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial
-		if StrLen(objItem.strDefaultName) ; to skip class object non-special folders items
-			strItemsNameCodeCategories .= objItem.strDefaultName . "|" . strItemCode . "|" . StrReplace(objItem.strCategories, "|", "~") . "`n"
+		if StrLen(oItem.strDefaultName) ; to skip class object non-special folders items
+			strItemsNameCodeCategories .= oItem.strDefaultName . "|" . strItemCode . "|" . StrReplace(oItem.strCategories, "|", "~") . "`n"
 Sort, strItemsNameCodeCategories
 
-for strCategory, strCategoryLabel in objCategories
+for strCategory, strCategoryLabel in aaCategories
 {
 	if (strCategory = "3.1-AddFavoriteOfType")
-		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, objCategoriesID["3-QAPMenuEditing"], "First Bold")
+		aaCategoriesID[strCategory] := TV_Add(strCategoryLabel, aaCategoriesID["3-QAPMenuEditing"], "First Bold")
 	else if (strCategory = "5.1-CloseComputer")
-		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, objCategoriesID["5-WindowsFeature"], "First Bold")
+		aaCategoriesID[strCategory] := TV_Add(strCategoryLabel, aaCategoriesID["5-WindowsFeature"], "First Bold")
 	else
-		objCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 and InStr(strGuiFavoriteLabel, "GuiAdd") ? "Expand" : "") " Bold")
+		aaCategoriesID[strCategory] := TV_Add(strCategoryLabel, , (A_Index = 1 and InStr(strGuiFavoriteLabel, "GuiAdd") ? "Expand" : "") " Bold")
 	
 	loop, Parse, strItemsNameCodeCategories, `n
 	{
@@ -9527,13 +9519,13 @@ for strCategory, strCategoryLabel in objCategories
 			continue
 		
 		; name|code|categories
-		StringSplit, arrItem, A_LoopField, |
+		saItem := StrSplit(A_LoopField, "|")
 		
-		if InStr(arrItem3, strCategory)
+		if InStr(saItem[3], strCategory)
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
-				if (!blnSelectDone and o_QAPfeatures.AA[o_EditedFavorite.AA.strFavoriteLocation].strLocalizedName = arrItem1)
+				if (!blnSelectDone and o_QAPfeatures.AA[o_EditedFavorite.AA.strFavoriteLocation].strLocalizedName = saItem[1])
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -9541,12 +9533,12 @@ for strCategory, strCategoryLabel in objCategories
 				else
 					strSelect := ""
 				
-				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
-				g_objTreeViewItemsByIDs[intItemID] := o_QAPfeatures.AA[arrItem2]
+				intItemID := TV_Add(saItem[1], aaCategoriesID[strCategory], strSelect)
+				g_aaTreeViewItemsByIDs[intItemID] := o_QAPfeatures.AA[saItem[2]]
 			}
 			else
 			{
-				if (!blnSelectDone and o_SpecialFolders.AA[o_EditedFavorite.AA.strFavoriteLocation].strDefaultName = arrItem1)
+				if (!blnSelectDone and o_SpecialFolders.AA[o_EditedFavorite.AA.strFavoriteLocation].strDefaultName = saItem[1])
 				{
 					strSelect := "Select"
 					blnSelectDone := true
@@ -9554,19 +9546,19 @@ for strCategory, strCategoryLabel in objCategories
 				else
 					strSelect := ""
 				
-				intItemID := TV_Add(arrItem1, objCategoriesID[strCategory], strSelect)
-				g_objTreeViewItemsByIDs[intItemID] := o_SpecialFolders.AA[arrItem2]
+				intItemID := TV_Add(saItem[1], aaCategoriesID[strCategory], strSelect)
+				g_aaTreeViewItemsByIDs[intItemID] := o_SpecialFolders.AA[saItem[2]]
 			}
 		}
 	}
 }
 
-objCategoriesID := ""
-objCategories := ""
+aaCategoriesID := ""
+aaCategories := ""
 strCategory := ""
 strCategoryLabel := ""
 strItemCode := ""
-objItem := ""
+oItem := ""
 intItemID := ""
 strSelect := ""
 blnSelectDone := ""
@@ -9593,6 +9585,8 @@ GuiControl, Move, f_lblLocation, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY
 GuiControl, Move, f_btnEnlarge, % "y" . (strEnlargeLabel = "+" ? g_intTypeHelpY : g_intContentLabelY)
 
 GuiControl, , f_btnEnlarge, % (strEnlargeLabel = "+" ? "-" : "+")
+
+strEnlargeLabel := ""
 
 return
 ;------------------------------------------------------------
@@ -9774,11 +9768,11 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 	else if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	{
 		Gui, 2:Add, Text, x20 y50, % o_L["DialogFavoriteSnippetSendMode"]
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (arrFavoriteSnippetOptions1 <> 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeText"]
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (arrFavoriteSnippetOptions1 = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeMacro"]
+		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (saFavoriteSnippetOptions[1] <> 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeText"]
+		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (saFavoriteSnippetOptions[1] = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeMacro"]
 		
-		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(o_L["DialogFavoriteSnippetPromptLabel"], (arrFavoriteSnippetOptions1 = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, %arrFavoriteSnippetOptions2%
+		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(o_L["DialogFavoriteSnippetPromptLabel"], (saFavoriteSnippetOptions[1] = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
+		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, % saFavoriteSnippetOptions[2]
 	}
 	else if !InStr("QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType, true) ; Folder, Document, Special, URL and FTP
 	{
@@ -9813,7 +9807,7 @@ If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
 }
 
 strFavoriteSnippetOptions := ""
-ResetArray("arrFavoriteSnippetOptions")
+saFavoriteSnippetOptions := ""
 
 return
 ;------------------------------------------------------------
@@ -10109,30 +10103,31 @@ DropdownParentMenuChanged:
 strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to cancel
 Gui, 2:Submit, NoHide
 
-Loop, % g_objMenusIndex[f_drpParentMenu].MaxIndex()
-{
-	if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "B") ; skip ".." back link to parent menu
-		or (o_EditedFavorite.AA.strFavoriteName = g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteName)
-			and (g_objMenuInGui.MenuPath = g_objMenusIndex[f_drpParentMenu].MenuPath ; skip edited item itself if not a separator
-			and !InStr("X|K", g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType) ; but make sure to keep separators
+aaThisMenu := o_Containers.AA[f_drpParentMenu].AA
+
+for intIndex, o_Item in aaThisMenu
+	if (o_EditedFavorite.AA.strFavoriteName = o_Item.strFavoriteName)
+			and (o_MenuInGui.AA.strMenuPath = aaThisMenu.strMenuPath ; skip edited item itself if not a separator
+			and !InStr("X|K", o_Item.strFavoriteType) ; but make sure to keep separators
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
-	else if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "X")
+	else if (aaThisMenu.strFavoriteType = "X")
 		strDropdownParentMenuItems .= g_strGuiMenuSeparator . g_strGuiMenuSeparator . "|"
-	else if (g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteType = "K")
+	else if (o_Item.AA.FavoriteType = "K")
 		strDropdownParentMenuItems .= g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine . "|"
 	else
-		strDropdownParentMenuItems .= g_objMenusIndex[f_drpParentMenu][A_Index].FavoriteName . "|"
-}
+		strDropdownParentMenuItems .= o_Item.AA.strFavoriteName . "|"
 
 GuiControl, , f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . o_L["DialogEndOfMenu"] . " " . g_strGuiDoubleLine
-if (f_drpParentMenu = g_objMenuInGui.MenuPath) and (g_intOriginalMenuPosition <> 0xFFFF)
-	GuiControl, Choose, f_drpParentMenuItems, % g_intOriginalMenuPosition - (g_objMenusIndex[f_drpParentMenu][1].FavoriteType = "B" ? 1 : 0)
+if (f_drpParentMenu = o_MenuInGui.AA.strMenuPath) and (g_intOriginalMenuPosition <> 0xFFFF)
+	GuiControl, Choose, f_drpParentMenuItems, %g_intOriginalMenuPosition%
 else
 	GuiControl, ChooseString, f_drpParentMenuItems, % g_strGuiDoubleLine . " " . o_L["DialogEndOfMenu"] . " " . g_strGuiDoubleLine
 g_intNewItemPos := "" ; if new item position g_intNewItemPos is set, reset it and let f_drpParentMenuItems set it later #### not sure if safe...
 
 strDropdownParentMenuItems := ""
+aaThisMenu := ""
+o_Item := ""
 
 return
 ;------------------------------------------------------------
@@ -10164,7 +10159,7 @@ else
 	GuiControl, Hide, f_strFavoriteLocation
 	
 	GuiControl, , f_strFavoriteShortName, %f_drpWindowsAppsList%
-	GuiControl, , f_strFavoriteLocation, % g_objWindowsAppsIDsByName[f_drpWindowsAppsList]
+	GuiControl, , f_strFavoriteLocation, % g_aaWindowsAppsIDsByName[f_drpWindowsAppsList]
 }
 
 return
@@ -10283,7 +10278,7 @@ if (A_GuiEvent = "S")
 {
 	Gui, 2:Submit, NoHide
 	
-	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].strDefaultName)
+	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_aaTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_aaTreeViewItemsByIDs[A_EventInfo].strDefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
@@ -10313,14 +10308,14 @@ if (A_GuiEvent = "S")
 
 	if (A_ThisLabel = "TreeViewQAPChanged")
 	{
-		GuiControl, , f_tvQAPDescription, % g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureDescription
-		GuiControl, % (StrLen(g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
-		GuiControl, , f_tvQAPFeatureURL, % "<a href=""https://www.quickaccesspopup.com/" . g_objTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL . "/"">" . o_L["DialogQAPFeaturesHelpLink"] . "</a>"
+		GuiControl, , f_tvQAPDescription, % g_aaTreeViewItemsByIDs[A_EventInfo].strQAPFeatureDescription
+		GuiControl, % (StrLen(g_aaTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL) ? "Show" : "Hide"), f_tvQAPFeatureURL
+		GuiControl, , f_tvQAPFeatureURL, % "<a href=""https://www.quickaccesspopup.com/" . g_aaTreeViewItemsByIDs[A_EventInfo].strQAPFeatureURL . "/"">" . o_L["DialogQAPFeaturesHelpLink"] . "</a>"
 	}
 }
 else if (A_GuiEvent = "DoubleClick")
 {
-	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_objTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_objTreeViewItemsByIDs[A_EventInfo].strDefaultName)
+	strItemSelectedName := (A_ThisLabel = "TreeViewQAPChanged" ? g_aaTreeViewItemsByIDs[A_EventInfo].strLocalizedName : g_aaTreeViewItemsByIDs[A_EventInfo].strDefaultName)
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 		if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 			gosub, GuiEditFavoriteSave
@@ -18432,23 +18427,23 @@ LoadWindowsAppsList(strCurrentAppID)
 	if !FileExist(g_strWindosListAppsCacheFile)
 		return
 	
-	g_objWindowsAppsIDsByName := Object() ; reset object
+	g_aaWindowsAppsIDsByName := Object() ; reset object
 	Loop, Read, %g_strWindosListAppsCacheFile%
 	{
-		StringSplit, arrWindowsApp, A_LoopReadLine, `t ; $app.Name + "`t" + $app.packagefamilyname + "!" + $id
-		; arrWindowsApp1 = name / arrWindowsApp2 = packagefamilyname!id (required to execute a Windows App)
-		StringSplit, arrWindowsAppID, arrWindowsApp2, ! ; $app.packagefamilyname + "!" + $id
-		; arrWindowsAppID1 = packagefamilyname / arrWindowsAppID2 = id
-		if (arrWindowsAppID2 = "App" or arrWindowsAppID2 = arrWindowsApp1)
-			strWindowAppUniqueKey := arrWindowsApp1
+		saWindowsApp := StrSplit(A_LoopReadLine, "`t") ; $app.Name + "`t" + $app.packagefamilyname + "!" + $id
+		; saWindowsApp[1] = name / saWindowsApp[2] = packagefamilyname!id (required to execute a Windows App)
+		saWindowsAppID := StrSplit(saWindowsApp[2], "!") ; $app.packagefamilyname + "!" + $id
+		; saWindowsAppID[1] = packagefamilyname / saWindowsAppID[2] = id
+		if (saWindowsAppID[2] = "App" or saWindowsAppID[2] = saWindowsApp[1])
+			strWindowAppUniqueKey := saWindowsApp[1]
 		else
-			strWindowAppUniqueKey := arrWindowsApp1 . " - " . arrWindowsAppID2
-		g_objWindowsAppsIDsByName[strWindowAppUniqueKey] := arrWindowsApp2
+			strWindowAppUniqueKey := saWindowsApp[1] . " - " . saWindowsAppID[2]
+		g_aaWindowsAppsIDsByName[strWindowAppUniqueKey] := saWindowsApp[2]
 	}
 
-	for strThisApp, strThisAppID in g_objWindowsAppsIDsByName ; to list apps sorted by name
+	for strThisApp, strThisAppID in g_aaWindowsAppsIDsByName ; to list apps sorted by name
 		strWindowsAppsList .= strThisApp . "|" . (strThisAppID = strCurrentAppID ? "|" : "")
-	StringTrimRight, strWindowsAppsList, strWindowsAppsList, 1
+	strWindowsAppsList := SubStr(strWindowsAppsList, 1, -1) ; trim last char
 
 	return %strWindowsAppsList%
 }
@@ -19921,7 +19916,7 @@ ScreenConfigurationChanged()
 GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
 ;------------------------------------------------------------
 {
-	strPosition := o_Settings.ReadIniValue("%strThisDialog%", "")
+	strPosition := o_Settings.ReadIniValue(strThisDialog, "")
 	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
 }
 ;------------------------------------------------------------
@@ -25239,6 +25234,13 @@ class Container
 			else ; should not
 				return "iconUnknown"
 		}
+		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		; Method()
+		;---------------------------------------------------------
+		; {
+		; }
 		;---------------------------------------------------------
 
 	}
