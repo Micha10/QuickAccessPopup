@@ -8896,13 +8896,17 @@ Gosub, GuiFavoriteIconDefault ; init default icon now that f_strFavoriteLocation
 
 Gosub, GuiFavoriteTabMenuOptions
 
-Gosub, GuiFavoriteTabLiveFolderOptions
+if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsLive"])
+	Gosub, GuiFavoriteTabLiveFolderOptions
 
-; Gosub, GuiFavoriteTabWindowOptions
+if InStr(g_strTabsList, g_objFavoriteGuiTabs[3])
+	Gosub, GuiFavoriteTabWindowOptions
 
-; Gosub, GuiFavoriteTabAdvancedSettings
+If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
+	Gosub, GuiFavoriteTabAdvancedSettings
 
-; Gosub, GuiFavoriteTabExternal
+if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
+	Gosub, GuiFavoriteTabExternal
 
 Gosub, CheckboxFolderLiveClicked
 
@@ -9646,45 +9650,42 @@ return
 GuiFavoriteTabLiveFolderOptions:
 ;------------------------------------------------------------
 
-if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsLive"])
-{
-	Gui, 2:Tab, % ++intTabNumber
+Gui, 2:Tab, % ++intTabNumber
 
-	Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (o_EditedFavorite.AA.intFavoriteFolderLiveLevels ? "checked" : ""), % o_L["DialogFavoriteFolderLive"]
-	
-	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
-	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % o_EditedFavorite.AA.intFavoriteFolderLiveLevels
-	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, % o_L["DialogFavoriteFolderLiveLevels"]
-	
-	if !StrLen(o_EditedFavorite.AA.strFavoriteFolderLiveSort)
-		o_EditedFavorite.AA.strFavoriteFolderLiveSort := "A1"
-	strLiveFolderSortOrder := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 1, 1)
-	Gui, 2:Add, Text, y+20 x200 section vf_lblLiveFolderSortOrderLabel hidden, % o_L["DialogSortOrder"] . ":"
-	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortA hidden group" . (strLiveFolderSortOrder = "A" ? " checked" : ""), % o_L["DialogAscending"]
-	Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortD hidden" . (strLiveFolderSortOrder = "D" ? " checked" : ""), % o_L["DialogDescending"]
+Gui, 2:Add, Checkbox, % "x20 y50 w500 vf_blnFavoriteFolderLive gCheckboxFolderLiveClicked " . (o_EditedFavorite.AA.intFavoriteFolderLiveLevels ? "checked" : ""), % o_L["DialogFavoriteFolderLive"]
 
-	strLiveFolderSortCriteria := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 2, 1)
-	Gui, 2:Add, Text, ys x20 vf_lblLiveFolderSortCriteriaLabel hidden, % o_L["DialogSortBy"] . ":"
-	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort1 hidden section" . (strLiveFolderSortCriteria = "1" ? " checked" : ""), % o_L["DialogFileName"]
-	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort2 hidden" . (strLiveFolderSortCriteria = "2" ? " checked" : ""), % o_L["DialogFileExtension"]
-	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort3 hidden" . (strLiveFolderSortCriteria = "3" ? " checked" : ""), % o_L["DialogFileSize"]
-	Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort4 hidden" . (strLiveFolderSortCriteria = "4" ? " checked" : ""), % o_L["DialogModifiedDate"]
+Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveLevelsEdit number limit1 center hidden
+Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveLevels Range1-9, % o_EditedFavorite.AA.intFavoriteFolderLiveLevels
+Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveLevels hidden, % o_L["DialogFavoriteFolderLiveLevels"]
 
-	Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
-	Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % o_EditedFavorite.AA.intFavoriteFolderLiveColumns
-	Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, % o_L["DialogFavoriteFolderLiveColumns"]
-	
-	Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments ? "checked" : "")
-		, % o_L["DialogFavoriteFolderLiveDocuments"]
+if !StrLen(o_EditedFavorite.AA.strFavoriteFolderLiveSort)
+	o_EditedFavorite.AA.strFavoriteFolderLiveSort := "A1"
+strLiveFolderSortOrder := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 1, 1)
+Gui, 2:Add, Text, y+20 x200 section vf_lblLiveFolderSortOrderLabel hidden, % o_L["DialogSortOrder"] . ":"
+Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortA hidden group" . (strLiveFolderSortOrder = "A" ? " checked" : ""), % o_L["DialogAscending"]
+Gui, 2:Add, Radio, % "y+5 x200 vf_radLiveFolderSortD hidden" . (strLiveFolderSortOrder = "D" ? " checked" : ""), % o_L["DialogDescending"]
 
-	Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
-	Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
-	Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % "..." . o_L["DialogFavoriteFolderLiveExtensions"]
-	Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % o_EditedFavorite.AA.strFavoriteFolderLiveExtensions
+strLiveFolderSortCriteria := SubStr(o_EditedFavorite.AA.strFavoriteFolderLiveSort, 2, 1)
+Gui, 2:Add, Text, ys x20 vf_lblLiveFolderSortCriteriaLabel hidden, % o_L["DialogSortBy"] . ":"
+Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort1 hidden section" . (strLiveFolderSortCriteria = "1" ? " checked" : ""), % o_L["DialogFileName"]
+Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort2 hidden" . (strLiveFolderSortCriteria = "2" ? " checked" : ""), % o_L["DialogFileExtension"]
+Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort3 hidden" . (strLiveFolderSortCriteria = "3" ? " checked" : ""), % o_L["DialogFileSize"]
+Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort4 hidden" . (strLiveFolderSortCriteria = "4" ? " checked" : ""), % o_L["DialogModifiedDate"]
 
-	strLiveFolderSortOrder := ""
-	strLiveFolderSortCriteria := ""
-}
+Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
+Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % o_EditedFavorite.AA.intFavoriteFolderLiveColumns
+Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, % o_L["DialogFavoriteFolderLiveColumns"]
+
+Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments ? "checked" : "")
+	, % o_L["DialogFavoriteFolderLiveDocuments"]
+
+Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
+Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
+Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % "..." . o_L["DialogFavoriteFolderLiveExtensions"]
+Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % o_EditedFavorite.AA.strFavoriteFolderLiveExtensions
+
+strLiveFolderSortOrder := ""
+strLiveFolderSortCriteria := ""
 
 return
 ;------------------------------------------------------------
@@ -9694,43 +9695,40 @@ return
 GuiFavoriteTabWindowOptions:
 ;------------------------------------------------------------
 
-if InStr(g_strTabsList, g_objFavoriteGuiTabs[3])
-{
-	Gui, 2:Tab, % ++intTabNumber
+Gui, 2:Tab, % ++intTabNumber
 
-	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
-	saNewFavoriteWindowPosition := StrSplit(g_strNewFavoriteWindowPosition, ",")
+; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay, RestoreSide/Monitor; for example: "1,0,100,50,640,480,200"
+saNewFavoriteWindowPosition := StrSplit(g_strNewFavoriteWindowPosition, ",")
 
-	Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (saNewFavoriteWindowPosition[1] ? "" : "checked")
-		, % o_L["DialogUseDefaultWindowPosition"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
-	
-	Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogState"]
-	
-	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax1 gRadioButtonWindowPositionMinMaxClicked" 
-		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] ? " checked" : ""), % o_L["DialogNormal"]
-	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax2 gRadioButtonWindowPositionMinMaxClicked"
-		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = 1 ? " checked" : ""), % o_L["DialogMaximized"]
-	Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax3 gRadioButtonWindowPositionMinMaxClicked"
-		. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = -1 ? " checked" : ""), % o_L["DialogMinimized"]
+Gui, 2:Add, Checkbox, % "x20 y50 section vf_blnUseDefaultWindowPosition gCheckboxWindowPositionClicked " . (saNewFavoriteWindowPosition[1] ? "" : "checked")
+	, % o_L["DialogUseDefaultWindowPosition"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
 
-	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionDelayLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionDelay"]
-	Gui, 2:Add, Edit, % "yp x+20 w36 center number limit5 vf_lblWindowPositionDelay " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % (saNewFavoriteWindowPosition[7] = "" ? 200 : saNewFavoriteWindowPosition[7])
-	Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["GuiGroupRestoreDelayMilliseconds"]
-	Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionMayFail"]
-	
-	Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPosition"]
+Gui, 2:Add, Text, % "y+20 x20 section vf_lblWindowPositionState " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogState"]
 
-	Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionX"]
-	Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] <> 0 ? "" : "hidden"), % BuildMonitorsList(saNewFavoriteWindowPosition[8])
-	Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionY"]
-	Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionW"]
-	Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionH"]
-	
-	Gui, 2:Add, Edit, % "ys+20 xs+72 w36 h17 vf_intWindowPositionX center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[3]
-	Gui, 2:Add, Edit, % "ys+40 xs+72 w36 h17 vf_intWindowPositionY center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[4]
-	Gui, 2:Add, Edit, % "ys+60 xs+72 w36 h17 vf_intWindowPositionW center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[5]
-	Gui, 2:Add, Edit, % "ys+80 xs+72 w36 h17 vf_intWindowPositionH center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[6]
-}
+Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax1 gRadioButtonWindowPositionMinMaxClicked" 
+	. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] ? " checked" : ""), % o_L["DialogNormal"]
+Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax2 gRadioButtonWindowPositionMinMaxClicked"
+	. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = 1 ? " checked" : ""), % o_L["DialogMaximized"]
+Gui, 2:Add, Radio, % "y+10 x20 vf_lblWindowPositionMinMax3 gRadioButtonWindowPositionMinMaxClicked"
+	. (saNewFavoriteWindowPosition[1] ? "" : " hidden") . (saNewFavoriteWindowPosition[2] = -1 ? " checked" : ""), % o_L["DialogMinimized"]
+
+Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionDelayLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionDelay"]
+Gui, 2:Add, Edit, % "yp x+20 w36 center number limit5 vf_lblWindowPositionDelay " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % (saNewFavoriteWindowPosition[7] = "" ? 200 : saNewFavoriteWindowPosition[7])
+Gui, 2:Add, Text, % "x+10 yp vf_lblWindowPositionMillisecondsLabel " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["GuiGroupRestoreDelayMilliseconds"]
+Gui, 2:Add, Text, % "y+20 x20 vf_lblWindowPositionMayFail " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPositionMayFail"]
+
+Gui, 2:Add, Text, % "ys x200 section vf_lblWindowPosition " . (saNewFavoriteWindowPosition[1] ? "" : "hidden"), % o_L["DialogWindowPosition"]
+
+Gui, 2:Add, Text, % "ys+20 xs vf_lblWindowPositionX " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionX"]
+Gui, 2:Add, DropDownList, % "yp xs vf_drpWindowMonitor " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] <> 0 ? "" : "hidden"), % BuildMonitorsList(saNewFavoriteWindowPosition[8])
+Gui, 2:Add, Text, % "ys+40 xs vf_lblWindowPositionY " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionY"]
+Gui, 2:Add, Text, % "ys+60 xs vf_lblWindowPositionW " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionW"]
+Gui, 2:Add, Text, % "ys+80 xs vf_lblWindowPositionH " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % o_L["DialogWindowPositionH"]
+
+Gui, 2:Add, Edit, % "ys+20 xs+72 w36 h17 vf_intWindowPositionX center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[3]
+Gui, 2:Add, Edit, % "ys+40 xs+72 w36 h17 vf_intWindowPositionY center limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[4]
+Gui, 2:Add, Edit, % "ys+60 xs+72 w36 h17 vf_intWindowPositionW center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[5]
+Gui, 2:Add, Edit, % "ys+80 xs+72 w36 h17 vf_intWindowPositionH center number limit5 " . (saNewFavoriteWindowPosition[1] and saNewFavoriteWindowPosition[2] = 0 ? "" : "hidden"), % saNewFavoriteWindowPosition[6]
 
 saNewFavoriteWindowPosition := ""
 
@@ -9742,68 +9740,65 @@ return
 GuiFavoriteTabAdvancedSettings:
 ;------------------------------------------------------------
 
-If InStr(g_strTabsList, g_objFavoriteGuiTabs[4])
+Gui, 2:Tab, % ++intTabNumber
+
+if (o_EditedFavorite.AA.strFavoriteType = "Application")
 {
-	Gui, 2:Tab, % ++intTabNumber
-
-	if (o_EditedFavorite.AA.strFavoriteType = "Application")
-	{
-		Gui, 2:Add, Checkbox, x20 y50 w400 vf_blnFavoriteElevate, % o_L["DialogElevate"]
-		GuiControl, , f_blnFavoriteElevate, % (o_EditedFavorite.AA.blnFavoriteElevate = 1)	
-		Gui, 2:Add, Text, x20 y+20 w400, % o_L["DialogWorkingDirLabel"]
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % o_EditedFavorite.AA.strFavoriteAppWorkingDir
-		Gui, 2:Add, Button, x+10 yp vf_btnBrowseAppWorkingDir gButtonSelectWorkingDir, % o_L["DialogBrowseButton"]
-		Gui, 2:Add, Checkbox, x20 y+5 w500 vf_blnAppWorkingDirCurrent gButtonAppWorkingDirCurrentChanged, % o_L["DialogAppWorkingDirCurrent"] . "."
-		GuiControl, , f_blnAppWorkingDirCurrent, % (o_EditedFavorite.AA.strFavoriteAppWorkingDir = "{CUR_LOC}")
-		Gosub, ButtonAppWorkingDirCurrentChanged
-		Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
-	}
-	else if (o_EditedFavorite.AA.strFavoriteType = "Group")
-	{
-		Gui, 2:Add, Text, x20 y50, % o_L["GuiGroupRestoreDelay"]
-		Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, % g_saGroupInGuiSettings[3]
-		Gui, 2:Add, Text, x+10 yp, % o_L["GuiGroupRestoreDelayMilliseconds"]
-	}
-	else if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
-	{
-		Gui, 2:Add, Text, x20 y50, % o_L["DialogFavoriteSnippetSendMode"]
-		Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (saFavoriteSnippetOptions[1] <> 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeText"]
-		Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (saFavoriteSnippetOptions[1] = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeMacro"]
-		
-		Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(o_L["DialogFavoriteSnippetPromptLabel"], (saFavoriteSnippetOptions[1] = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, % saFavoriteSnippetOptions[2]
-	}
-	else if !InStr("QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType, true) ; Folder, Document, Special, URL and FTP
-	{
-		Gui, 2:Add, Text, x20 y50 w400 vf_lblFavoriteLaunchWith, % o_L["DialogLaunchWith"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % o_EditedFavorite.AA.strFavoriteLaunchWith
-		Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, % o_L["DialogBrowseButton"]
-	}
-
-	if !InStr("Group|Snippet|QAP", o_EditedFavorite.AA.strFavoriteType, true)
-	{
-		Gui, 2:Add, Text, y+20 x20 w400  vf_lblFavoriteArguments, % o_L["DialogArgumentsLabel"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
-		Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % o_EditedFavorite.AA.strFavoriteArguments
-		Gui, 2:Add, Text, x20 y+5 w500, % o_L["DialogArgumentsLabelHelp"]
-		Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
-		
-		Gui, 2:Add, Text, x20 y+10 w500 vf_PlaceholdersCheckLabel, % o_L["DialogArgumentsPlaceholdersCheckLabel"]
-		Gui, 2:Add, Edit, x20 y+5 w500 vf_strPlaceholdersCheck ReadOnly
-		
-		gosub, FavoriteArgumentChanged
-	}
-
-	if (o_EditedFavorite.AA.strFavoriteType = "FTP")
-	{
-		Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.P_intActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
-		GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding = true)
-	}
-	
-	Gui, 2:Add, Link, x20 y+10, % L(o_L["DialogSoundLabel"], "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", o_L["GuiHelp"])
-	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % o_EditedFavorite.AA.strFavoriteSoundLocation
-	Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, % o_L["DialogBrowseButton"]
-	Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, % o_L["DialogPlay"]
+	Gui, 2:Add, Checkbox, x20 y50 w400 vf_blnFavoriteElevate, % o_L["DialogElevate"]
+	GuiControl, , f_blnFavoriteElevate, % (o_EditedFavorite.AA.blnFavoriteElevate = 1)	
+	Gui, 2:Add, Text, x20 y+20 w400, % o_L["DialogWorkingDirLabel"]
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteAppWorkingDir, % o_EditedFavorite.AA.strFavoriteAppWorkingDir
+	Gui, 2:Add, Button, x+10 yp vf_btnBrowseAppWorkingDir gButtonSelectWorkingDir, % o_L["DialogBrowseButton"]
+	Gui, 2:Add, Checkbox, x20 y+5 w500 vf_blnAppWorkingDirCurrent gButtonAppWorkingDirCurrentChanged, % o_L["DialogAppWorkingDirCurrent"] . "."
+	GuiControl, , f_blnAppWorkingDirCurrent, % (o_EditedFavorite.AA.strFavoriteAppWorkingDir = "{CUR_LOC}")
+	Gosub, ButtonAppWorkingDirCurrentChanged
+	Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
 }
+else if (o_EditedFavorite.AA.strFavoriteType = "Group")
+{
+	Gui, 2:Add, Text, x20 y50, % o_L["GuiGroupRestoreDelay"]
+	Gui, 2:Add, Edit, x20 y+5 w50 center number Limit4 vf_intGroupRestoreDelay, % g_saGroupInGuiSettings[3]
+	Gui, 2:Add, Text, x+10 yp, % o_L["GuiGroupRestoreDelayMilliseconds"]
+}
+else if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
+{
+	Gui, 2:Add, Text, x20 y50, % o_L["DialogFavoriteSnippetSendMode"]
+	Gui, 2:Add, Radio, % "x20 y+10 vf_blnRadioSendModeText gSnippetModeChanged " . (saFavoriteSnippetOptions[1] <> 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeText"]
+	Gui, 2:Add, Radio, % "x20 y+5 vf_blnRadioSendModeMacro gSnippetModeChanged " . (saFavoriteSnippetOptions[1] = 1 ? "checked" : ""), % o_L["DialogFavoriteSnippetSendModeMacro"]
+	
+	Gui, 2:Add, Text, x20 y+15 vf_lblSnippetPrompt w400, % L(o_L["DialogFavoriteSnippetPromptLabel"], (saFavoriteSnippetOptions[1] = 1 ? o_L["DialogFavoriteSnippetPromptLabelLaunching"] : o_L["DialogFavoriteSnippetPromptLabelPasting"]))
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteSnippetPrompt, % saFavoriteSnippetOptions[2]
+}
+else if !InStr("QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType, true) ; Folder, Document, Special, URL and FTP
+{
+	Gui, 2:Add, Text, x20 y50 w400 vf_lblFavoriteLaunchWith, % o_L["DialogLaunchWith"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteLaunchWith, % o_EditedFavorite.AA.strFavoriteLaunchWith
+	Gui, 2:Add, Button, x+10 yp vf_btnFavoriteLaunchWith gButtonSelectLaunchWith, % o_L["DialogBrowseButton"]
+}
+
+if !InStr("Group|Snippet|QAP", o_EditedFavorite.AA.strFavoriteType, true)
+{
+	Gui, 2:Add, Text, y+20 x20 w400  vf_lblFavoriteArguments, % o_L["DialogArgumentsLabel"] . " " . o_L["DialogUnavailableWithLiveFolders"] ; last part generally hidden but make room for when visible
+	Gui, 2:Add, Edit, x20 y+5 w400 Limit250 vf_strFavoriteArguments gFavoriteArgumentChanged, % o_EditedFavorite.AA.strFavoriteArguments
+	Gui, 2:Add, Text, x20 y+5 w500, % o_L["DialogArgumentsLabelHelp"]
+	Gui, 2:Add, Link, x20 y+5 w500, % L(o_L["DialogPlaceholders"], "https://www.quickaccesspopup.com/can-i-insert-values-in-favorites-location-or-parameters-using-placeholders")
+	
+	Gui, 2:Add, Text, x20 y+10 w500 vf_PlaceholdersCheckLabel, % o_L["DialogArgumentsPlaceholdersCheckLabel"]
+	Gui, 2:Add, Edit, x20 y+5 w500 vf_strPlaceholdersCheck ReadOnly
+	
+	gosub, FavoriteArgumentChanged
+}
+
+if (o_EditedFavorite.AA.strFavoriteType = "FTP")
+{
+	Gui, 2:Add, Checkbox, x20 y+5 vf_blnFavoriteFtpEncoding, % (o_FileManagers.P_intActiveFileManager = 3 ? o_L["OptionsFtpEncodingTC"] : o_L["OptionsFtpEncoding"])
+	GuiControl, , f_blnFavoriteFtpEncoding, % (g_blnNewFavoriteFtpEncoding = true)
+}
+
+Gui, 2:Add, Link, x20 y+10, % L(o_L["DialogSoundLabel"], "https://www.quickaccesspopup.com/can-i-play-a-sound-when-i-launch-a-favorite/", o_L["GuiHelp"])
+Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % o_EditedFavorite.AA.strFavoriteSoundLocation
+Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, % o_L["DialogBrowseButton"]
+Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, % o_L["DialogPlay"]
 
 strFavoriteSnippetOptions := ""
 saFavoriteSnippetOptions := ""
@@ -9816,42 +9811,39 @@ return
 GuiFavoriteTabExternal:
 ;------------------------------------------------------------
 
-if InStr(g_strTabsList, o_L["DialogAddFavoriteTabsExternal"])
-{
-	objExternalTypes := StrSplit(o_L["DialogExternalTypes"], "|")
-	
-	Gui, 2:Tab, % ++intTabNumber
+objExternalTypes := StrSplit(o_L["DialogExternalTypes"], "|")
 
-	if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
-		Gui, 2:Add, Text, x20 y50 w500, % L(o_L["DialogFavoriteExternalSaveNote"], (InStr(strGuiFavoriteLabel, "Add") ? o_L["DialogAdd"] : o_L["DialogOK"]))
-	Gui, 2:Add, Link, x20 y+10 w500, % L(o_L["DialogFavoriteExternalHelpWeb"], "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
-	
-	Gui, 2:Add, Text, x20 y+10 w500, % o_L["DialogExternalTypesTitle"]
-	Loop, 3 ; no default type
-		Gui, 2:Add, Radio, % "x20 y+5 w480 gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % objExternalTypes[A_Index] ; current value set by LoadExternalFileGlobalValues
+Gui, 2:Tab, % ++intTabNumber
 
-	; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, % o_L["DialogReadOnly"]
-	Gui, 2:Add, Text, x20 y+10 vf_lblExternalMenuName, % o_L["DialogExternalMenuName"]
-	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
-	
-	Gui, 2:Add, Text, x20 y+10 w500 vf_lblExternalSource, % o_L["DialogExternalSource"]
-	Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceNetwork, % o_L["DialogExternalSourceNetwork"] ; current value set by LoadExternalFileGlobalValues
-	GuiControl, , f_radExternalSourceNetwork, 1 ; default true (Network), backward compatible value for pre-v9.1
-	Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceCloud, % o_L["DialogExternalSourceCloud"]
-	
-	Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessUsers, % o_L["DialogExternalWriteAccessUsers"]
-	Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalWriteAccessUsers
-	
-	Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessMessage, % o_L["DialogExternalWriteAccessMessage"]
-	Gui, 2:Add, Edit, x20 y+5 w400 r3 vf_strExternalWriteAccessMessage
-	
-	; Gui, 2:Add, Text, x20 y+15, % o_L["DialogExternalStartingNumber"] ; DEPRECATED since v8.1.9.1
-	; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
-	; 	, % (o_EditedFavorite.AA.strFavoriteGroupSettings > 0 ? o_EditedFavorite.AA.strFavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
-	gosub, LoadExternalFileGlobalValues
-	gosub, LoadExternalFileGlobalReadOnly
-	gosub, RadioButtonExternalMenuInit
-}
+if !ExternalMenuIsReadOnly(f_strFavoriteAppWorkingDir)
+	Gui, 2:Add, Text, x20 y50 w500, % L(o_L["DialogFavoriteExternalSaveNote"], (InStr(strGuiFavoriteLabel, "Add") ? o_L["DialogAdd"] : o_L["DialogOK"]))
+Gui, 2:Add, Link, x20 y+10 w500, % L(o_L["DialogFavoriteExternalHelpWeb"], "https://www.quickaccesspopup.com/can-a-submenu-be-shared-on-different-pcs-or-by-different-users/")
+
+Gui, 2:Add, Text, x20 y+10 w500, % o_L["DialogExternalTypesTitle"]
+Loop, 3 ; no default type
+	Gui, 2:Add, Radio, % "x20 y+5 w480 gRadioButtonExternalMenuClicked vf_radExternalMenuType" . A_Index, % objExternalTypes[A_Index] ; current value set by LoadExternalFileGlobalValues
+
+; Gui, 2:Add, Checkbox, x20 y50 vf_blnExternalMenuReadOnly gExternalMenuReadOnlyClicked, % o_L["DialogReadOnly"]
+Gui, 2:Add, Text, x20 y+10 vf_lblExternalMenuName, % o_L["DialogExternalMenuName"]
+Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalMenuName
+
+Gui, 2:Add, Text, x20 y+10 w500 vf_lblExternalSource, % o_L["DialogExternalSource"]
+Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceNetwork, % o_L["DialogExternalSourceNetwork"] ; current value set by LoadExternalFileGlobalValues
+GuiControl, , f_radExternalSourceNetwork, 1 ; default true (Network), backward compatible value for pre-v9.1
+Gui, 2:Add, Radio, x20 y+5 w480 vf_radExternalSourceCloud, % o_L["DialogExternalSourceCloud"]
+
+Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessUsers, % o_L["DialogExternalWriteAccessUsers"]
+Gui, 2:Add, Edit, x20 y+5 w400 vf_strExternalWriteAccessUsers
+
+Gui, 2:Add, Text, x20 y+10 vf_lblExternalWriteAccessMessage, % o_L["DialogExternalWriteAccessMessage"]
+Gui, 2:Add, Edit, x20 y+5 w400 r3 vf_strExternalWriteAccessMessage
+
+; Gui, 2:Add, Text, x20 y+15, % o_L["DialogExternalStartingNumber"] ; DEPRECATED since v8.1.9.1
+; Gui, 2:Add, Edit, % "x20 y+5 w50 center number Limit4 vf_intExternalStartingNumber " . (strGuiFavoriteLabel <> "GuiAddFavorite" ? "Disabled" : "")
+; 	, % (o_EditedFavorite.AA.strFavoriteGroupSettings > 0 ? o_EditedFavorite.AA.strFavoriteGroupSettings : 1) ; DEPRECATED since v8.1.9.1
+gosub, LoadExternalFileGlobalValues
+gosub, LoadExternalFileGlobalReadOnly
+gosub, RadioButtonExternalMenuInit
 
 objExternalTypes := ""
 
@@ -10398,7 +10390,7 @@ FavoriteArgumentChanged:
 ;------------------------------------------------------------
 Gui, 2:Submit, NoHide
 
-strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z_]*}") ? "Show" : "Hide") ; "i){[a-z]*}" case insensitive, between {},  zero, one or more a-z
+strCommand := (RegExMatch(f_strFavoriteArguments, "i){[a-z_]*}") ? "Show" : "Hide") ; "i){[a-z]*}" case insensitive, between {}, zero, one or more a-z
 
 GuiControl, %strCommand%, f_PlaceholdersCheckLabel
 GuiControl, %strCommand%, f_strPlaceholdersCheck 
