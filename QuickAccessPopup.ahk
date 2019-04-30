@@ -8228,8 +8228,7 @@ LV_Modify((A_ThisLabel = "LoadMenuInGuiFromAlternative" or A_ThisLabel = "LoadMe
 
 Gosub, AdjustColumnsWidth
 
-; GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, o_MenuInGui.SA.MenuPath) . "|"
-GuiControl, , f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(o_MainMenu, o_MenuInGui.AA.strMenuPath) . "|"
+GuiControl, , f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|"
 
 GuiControl, Focus, f_lvFavoritesList
 
@@ -8895,9 +8894,9 @@ Gosub, GuiFavoriteTabBasic
 
 Gosub, GuiFavoriteIconDefault ; init default icon now that f_strFavoriteLocation has been set in the Basic tab
 
-; Gosub, GuiFavoriteTabMenuOptions
+Gosub, GuiFavoriteTabMenuOptions
 
-; Gosub, GuiFavoriteTabLiveFolderOptions
+Gosub, GuiFavoriteTabLiveFolderOptions
 
 ; Gosub, GuiFavoriteTabWindowOptions
 
@@ -9601,7 +9600,7 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuParentMenu"] : o_L["DialogFavoriteParentMenu"])
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath
+	, % g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath
 		, (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["MainMenuName"] . " " . o_EditedFavorite.AA.strFavoriteLocation : "") ; exclude self
 		, true) . "|" ; exclude read-only external menus
 
@@ -9983,7 +9982,7 @@ Gui, 2:Add, Text, x10 y10 vf_lblFavoriteParentMenu
 	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteParentMenuMove"] : o_L["DialogFavoritesParentMenuMove"])
 	: o_L["DialogFavoritesParentMenuCopy"]), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
-	, % RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath, , true) ; include self but exclude read-only external
+	, % g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath, , true) ; include self but exclude read-only external
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteMenuPosition"] : o_L["DialogFavoritesMenuPosition"])
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -11938,7 +11937,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		LV_Modify(LV_GetNext(), "Vis")
 }
 
-GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
+GuiControl, 1:, f_drpMenusList, % "|" . g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
@@ -12248,7 +12247,7 @@ g_objMenuInGui.Remove(intItemToRemove)
 ; refresh menu dropdpown in gui
 
 if (blnItemIsMenu)
-	GuiControl, 1:, f_drpMenusList, % "|" . RecursiveBuildMenuTreeDropDown(g_objMainMenu, g_objMenuInGui.MenuPath) . "|"
+	GuiControl, 1:, f_drpMenusList, % "|" . g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|"
 
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
@@ -18265,45 +18264,6 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 
 
 ;------------------------------------------------------------
-RecursiveBuildMenuTreeDropDown(o_Menu, strDefaultMenuName, strSkipMenuName := "", blnExcludeReadonly := false)
-; recursive function
-;------------------------------------------------------------
-{
-	strList := o_Menu.AA.strMenuPath
-	if (o_Menu.AA.strMenuPath = strDefaultMenuName)
-		strList .= "|" ; default value
-
-	Loop, % o_Menu.SA.MaxIndex()
-	{
-		if !InStr("Menu|Group|External", o_Menu.SA[A_Index].AA.strFavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
-			continue
-		
-		; this object has a .Submenu property
-		
-		; skip to avoid moving a submenu under itself (in GuiEditFavorite)
-		if StrLen(strSkipMenuName) and (o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuPath = strSkipMenuName)
-			continue
-		
-		if (o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuType = "External")
-		{
-			; skip read-only external menus
-			if (blnExcludeReadonly) and ExternalMenuIsReadOnly(o_Menu.SA[A_Index].AA.oSubMenu.AA.strMenuExternalSettingsPath)
-				continue
-			
-			; skip external menus if not loaded
-			if !(o_Menu.SA[A_Index].AA.oSubMenu.AA.blnMenuExternalLoaded)
-				continue
-		}
-
-		; if we get here, we keep this menu and recurse in it
-		strList .= "|" . RecursiveBuildMenuTreeDropDown(o_Menu.SA[A_Index].AA.oSubMenu, strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
-	}
-	return strList
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 RecentLocationIsDocument(strLocation, strSource)
 ; check atrtributes except if on network offline check file extension
 ;------------------------------------------------------------
@@ -19913,11 +19873,13 @@ ScreenConfigurationChanged()
 
 
 ;------------------------------------------------------------
-GetGui2Size(strThisDialog, ByRef arrPosition3, ByRef arrPosition4)
+GetGui2Size(strThisDialog, ByRef intWidth, ByRef intHeight)
 ;------------------------------------------------------------
 {
 	strPosition := o_Settings.ReadIniValue(strThisDialog, "")
-	StringSplit, arrPosition, strPosition, | ; array is returned by ByRef parameters
+	saPosition := StrSplit(strPosition, "|") ; array is returned by ByRef parameters
+	intWidth := saPosition[3]
+	intHeight := saPosition[4]
 }
 ;------------------------------------------------------------
 
@@ -23859,6 +23821,41 @@ class Container
 	}	
 	;------------------------------------------------------------
 
+	;------------------------------------------------------------
+	BuildMenuListDropDown(strDefaultMenuName, strSkipMenuName := "", blnExcludeReadonly := false)
+	;------------------------------------------------------------
+	{
+		strList := this.AA.strMenuPath
+		if (this.AA.strMenuPath = strDefaultMenuName)
+			strList .= "|" ; default value
+		
+		for intKey, oItem in this.SA
+			if !InStr("Menu|Group|External", oItem.AA.strFavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
+				continue
+			
+			; this object has a .Submenu property
+			
+			; skip to avoid moving a submenu under itself (in GuiEditFavorite)
+			if StrLen(strSkipMenuName) and (oItem.AA.oSubMenu.AA.strMenuPath = strSkipMenuName)
+				continue
+			
+			if (oItem.AA.oSubMenu.AA.strMenuType = "External")
+			{
+				; skip read-only external menus
+				if (blnExcludeReadonly) and ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
+					continue
+				
+				; skip external menus if not loaded
+				if !(oItem.AA.oSubMenu.AA.blnMenuExternalLoaded)
+					continue
+			}
+
+			; if we get here, we keep this menu and recurse in it
+			strList .= "|" . oItem.AA.oSubMenu.BuildMenuListDropDown(strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
+		}
+		return strList
+	}
+	;------------------------------------------------------------
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
