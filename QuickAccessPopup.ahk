@@ -8845,7 +8845,7 @@ GuiAddExternalOtherExternal:
 ;------------------------------------------------------------
 
 strGuiFavoriteLabel := A_ThisLabel
-g_blnAbordEdit := false
+g_blnAbortEdit := false
 
 ; must be before GuiFavoriteInit and GuiAddFavoriteSaveXpress
 g_strTypesForTabWindowOptions := "|Folder|Special|FTP" . (o_Settings.Execution.blnTryWindowPosition.IniValue ? "|Document|Application|URL|WindowsApp" : "") ; must start with "|"
@@ -8853,7 +8853,7 @@ g_strTypesForTabAdvancedOptions := "|Folder|Document|Application|Special|URL|FTP
 
 Gosub, GuiFavoriteInit
 
-if (g_blnAbordEdit)
+if (g_blnAbortEdit)
 {
 	gosub, GuiAddFavoriteCleanup
 	return
@@ -8976,7 +8976,7 @@ GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
 ResetArray("arrTop")
 g_strNewLocation := ""
-g_blnAbordEdit := ""
+g_blnAbortEdit := ""
 objExternalMenu := ""
 strDialogPosition := ""
 intGui2Width := ""
@@ -9037,7 +9037,7 @@ if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMen
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
 {
-	g_blnAbordEdit := true
+	g_blnAbortEdit := true
 	return
 }
 
@@ -9050,7 +9050,7 @@ if (blnFavoriteFromSearch) ; ##### later
 	{
 		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
 		g_blnOpenFromDoubleClick := false ; reset value
-		g_blnAbordEdit := true
+		g_blnAbortEdit := true
 		return
 	}
 }
@@ -9070,7 +9070,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	if !(g_intOriginalMenuPosition)
 	{
 		Oops(o_L["DialogSelectItemToEdit"])
-		g_blnAbordEdit := true
+		g_blnAbortEdit := true
 		return
 	}
 	
@@ -9080,14 +9080,14 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition]
 	
 	if InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; favorite is menu separator or column break
-		g_blnAbordEdit := true
+		g_blnAbortEdit := true
 	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)) ; menu or group cannot be copied
 	{
 		Oops(o_L["OopsCannotCopyFavorite"], o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeShortName)
-		g_blnAbordEdit := true
+		g_blnAbortEdit := true
 	}
 	
-	if (g_blnAbordEdit = true)
+	if (g_blnAbortEdit = true)
 		return
 
 	g_strNewFavoriteIconResource := o_EditedFavorite.AA.strFavoriteIconResource
@@ -9181,7 +9181,7 @@ else ; add favorite
 		if (g_strAddFavoriteType = "External") and !(blnNoExternalMenusCatalogue) and FileExist(EnvVars(o_Settings.SettingsFile.strExternalMenusCataloguePath.IniValue))
 		{
 			Gosub, AddExternalMenusFromCatalogue
-			g_blnAbordEdit := true ; data from AddExternalMenusFromCatalogue already saved in ButtonAddExternalMenusFromCatalogue
+			g_blnAbortEdit := true ; data from AddExternalMenusFromCatalogue already saved in ButtonAddExternalMenusFromCatalogue
 			return
 		}
 	}
@@ -11364,299 +11364,14 @@ Gui, 2:Submit, NoHide
 Gui, 2:+OwnDialogs
 
 strThisLabel := A_ThisLabel
+g_blnAbortSave := false
 
-; original and destination menus values
-if InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
-	strOriginalMenu := g_objMenuInGui.MenuPath
-else ; GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiCopyOneFavoriteSave|GuiAddExternalSave|
+gosub, GuiAddFavoriteSaveValidate
+if (g_blnAbortSave)
 {
-	strOriginalMenu := "" ; no change required in original menu
-	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; but keep original menu position for multiple copy
-		g_intOriginalMenuPosition := 0
-}
-
-if (strThisLabel = "GuiAddExternalSave")
-	strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", o_EditedFavorite.AA.strFavoriteAppWorkingDir) ; empty if not found
-
-if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
-{
-	strNewFavoriteShortName := (StrLen(o_EditedFavorite.AA.strFavoriteName) ? o_EditedFavorite.AA.strFavoriteName : strExternalMenuName)
-	strNewFavoriteLocation := o_EditedFavorite.AA.strFavoriteLocation
-	strFavoriteAppWorkingDir := o_EditedFavorite.AA.strFavoriteAppWorkingDir ; for external menu from catalogue
-	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
-	
-	if (strThisLabel = "GuiAddFavoriteSaveXpress")
-	{
-		; add new favorite in first or last position of menu where the XPress command was used
-		strDestinationMenu := A_ThisMenu
-		if !StrLen(strDestinationMenu) ; for GuiAddFavoriteSaveXpress favorite is added from context menu (no A_ThisMenu)
-			strDestinationMenu := o_L["MainMenuName"]
-		g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue
-			? (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 2 : 1) : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
-	}
-	else ; GuiAddExternalSave
-	{
-		; add new shared menu in current Main menu
-		Gui, 1:Default
-		Gui, 1:ListView, f_lvFavoritesList
-		g_intNewItemPos := LV_GetNext()
-		strDestinationMenu := g_objMenuInGui.MenuPath
-	}
-}
-else
-{
-	strNewFavoriteShortName := f_strFavoriteShortName
-	strNewFavoriteLocation := f_strFavoriteLocation
-	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
-	strNewFavoriteSoundLocation := f_strFavoriteSoundLocation
-	
-	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
-	strDestinationMenu := f_drpParentMenu
-
-	; if gui was closed from Live Folder Options tab (without changing tab), update Live folder icon
-	if (o_EditedFavorite.AA.strFavoriteType = "Folder" and f_blnFavoriteFolderLive
-		and g_strNewFavoriteIconResource = "iconFolder")
-			g_strNewFavoriteIconResource := "iconFolderLive"
-}
-
-if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType) ; for these favorites, file/folder must exist
-	and StrLen(strNewFavoriteLocation) ; to exclude situations (like move) where strNewFavoriteLocation is empty
-{
-	strExpandedNewFavoriteLocation := strNewFavoriteLocation
-	if !FileExistInPath(strExpandedNewFavoriteLocation)
-	{
-		OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
-			. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . o_L["OopsFileExpandedFrom"] . ":`n" . strNewFavoriteLocation : ""))
-		return
-	}
-}
-
-; now that we know original and destination menus, check if we need to lock them
-if FavoriteIsUnderExternalMenu(g_objMenusIndex[strDestinationMenu], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
-; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
-	return
-if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
-	if FavoriteIsUnderExternalMenu(g_objMenusIndex[strOriginalMenu], objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
-	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
-		return
-
-if (!g_intNewItemPos)
-	; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress, GuiAddExternalSave, 
-	; GuiAddFavoriteFromQAPFeature or GuiAddFavoriteFromQAPFeatureFolder (and other types)
-	if (f_drpParentMenuItems)
-		g_intNewItemPos := f_drpParentMenuItems + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
-	else ; if f_drpParentMenuItems is not set, add to the end of menu
-		g_intNewItemPos := g_objMenusIndex[strDestinationMenu].MaxIndex() + (g_objMenusIndex[strDestinationMenu][1].FavoriteType = "B" ? 1 : 0)
-
-; validation to avoid unauthorized favorite types in groups
-; validation to avoid external settings file under another external settings file
-if (g_objMenusIndex[strDestinationMenu].MenuType = "Group" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true))
-	or (g_objMenusIndex[strDestinationMenu].MenuType = "External" and o_EditedFavorite.AA.strFavoriteType = "External")
-{
-	if (g_objMenusIndex[strDestinationMenu].MenuType = "Group")
-		OopsGui2(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", ""))
-	else
-		OopsGui2(o_L["OopsExternalNotAllowedUnderExternal"])
-	if (strThisLabel = "GuiMoveOneFavoriteSave")
-		g_intOriginalMenuPosition++
 	gosub, GuiAddFavoriteSaveCleanup
 	return
 }
-
-if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
-{
-	; make sure the we have a file name
-	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
-	if !StrLen(strExternalFilenameNoExt)
-	{
-		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-	
-	; make sure the user selected the type of the new external menu
-	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
-	{
-		gosub, LoadExternalFileGlobalValues ; load values if file exists
-		Gui, 2:Submit, NoHide
-	}
-	
-	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
-	{
-		OopsGui2(o_L["OopsExternalSelectType"])
-		GuiControl, ChooseString, f_intAddFavoriteTab, % " " . o_L["DialogAddFavoriteTabsExternal"] ; space (only) before tab name
-		g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-}
-
-; validation (not required for GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave because info in g_objEditedFavorite is not changed)
-
-if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
-{
-	if !StrLen(strNewFavoriteShortName) and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
-	{
-		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if  InStr("|Folder|Document|Application|URL|FTP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
-	{
-		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if  (o_EditedFavorite.AA.strFavoriteType = "Snippet")
-	{
-		if InStr(f_strFavoriteSnippetPrompt, "|")
-		{
-			OopsGui2(o_L["DialogFavoriteSnippetPromptNoPipe"])
-			gosub, GuiAddFavoriteSaveCleanup
-			return
-		}
-		if !StrLen(strNewFavoriteLocation)
-		{
-			OopsGui2(o_L["DialogFavoriteSnippetEmpty"])
-			gosub, GuiAddFavoriteSaveCleanup
-			return
-		}
-		else
-			; if content of gui is "display", encode it to make it ready for saving to ini file
-			strNewFavoriteLocation := (g_strSnippetFormat = "display" ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
-	}
-
-	if (o_EditedFavorite.AA.strFavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
-	{
-		OopsGui2(o_L["OopsFtpLocationProtocol"])
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if  InStr("|Special|QAP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
-	{
-		OopsGui2(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", "")
-			, (o_EditedFavorite.AA.strFavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if InStr("|Menu|Group|External", "|" . o_EditedFavorite.AA.strFavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
-	{
-		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strMenuPathSeparator))
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if InStr(strNewFavoriteShortName, g_strGroupIndicatorPrefix)
-	{
-		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strGroupIndicatorPrefix))
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-
-	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
-		OopsGui2(o_L["OopsAmpersandInName"])
-	
-	if InStr(g_strTypesForTabWindowOptions, "|" . o_EditedFavorite.AA.strFavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
-	{
-		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
-		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
-			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
-		
-		GuiControlGet, intRadioGroupRestoreSide, , f_intRadioGroupRestoreSide
-		if !(ErrorLevel) ; if errorlevel, control does not exist
-			strNewFavoriteWindowPosition .= "," . (f_intRadioGroupRestoreSide = 1 ? "L" : "R")
-		else
-			strNewFavoriteWindowPosition .= "," . StrReplace(f_drpWindowMonitor, o_L["DialogWindowMonitor"] . " ", "")
-
-		if !ValidateWindowPosition(strNewFavoriteWindowPosition)
-		{
-			OopsGui2(o_L["OopsInvalidWindowPosition"])
-			gosub, GuiAddFavoriteSaveCleanup
-			return
-		}
-	}
-
-	if (o_EditedFavorite.AA.strFavoriteType = "External")
-	{
-		strExternalSettingsExtension := GetFileExtension(strFavoriteAppWorkingDir)
-
-		if !StrLen(strExternalSettingsExtension)
-			strFavoriteAppWorkingDir .= ".ini"
-		else if (strExternalSettingsExtension <> "ini")
-		{
-			OopsGui2(o_L["DialogExternalLocationIni"])
-			gosub, GuiAddFavoriteSaveCleanup
-			return
-		}
-	}
-	
-	if LocationTransformedFromHTTP2UNC(o_EditedFavorite.AA.strFavoriteType, (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
-		OopsGui2(o_L["OopsHttpLocationTransformed"], (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
-
-	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist())
-	{
-		OopsGui2(o_L["OopsInvalidWinCmdIni"])
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
-}
-
-loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
-	if !FavoriteNameIsNew((InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)  ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName), g_objMenusIndex[strDestinationMenu])
-		and !InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; same name OK for separators
-	{
-		; ###_V("if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) or (strThisLabel = ""GuiAddFavoriteSaveXpress"")"
-			; , if (strDestinationMenu <> strOriginalMenu) or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) or (strThisLabel = "GuiAddFavoriteSaveXpress")
-			; , strDestinationMenu, strOriginalMenu, strNewFavoriteShortName, o_EditedFavorite.AA.strFavoriteName, strThisLabel)
-		; we have the same name in the destination menu
-		if (strOriginalMenu <> strDestinationMenu) ; the favorite was moved to new destination menu
-			or (strThisLabel = "GuiCopyOneFavoriteSave") ; if same name in same menu to duplicate with multiple copy
-			or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) ; when the name has been edited from another menu
-			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
-		{
-			; #### decide if we allow automatic rename, or after confirmation
-			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
-				and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
-					o_EditedFavorite.AA.strFavoriteName .= " [!]" ; and loop
-				else
-					strNewFavoriteShortName .= " [!]" ; and loop
-			else
-			{
-				if (o_EditedFavorite.AA.strFavoriteType = "QAP")
-					OopsGui2(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
-				else
-					OopsGui2(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
-					g_intOriginalMenuPosition++
-				gosub, GuiAddFavoriteSaveCleanup
-				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
-					g_blnMulipleMoveOrCopyAborted := true
-				return
-			}
-			; ###_V("strNewFavoriteShortName / o_EditedFavorite.AA.strFavoriteName", strNewFavoriteShortName, o_EditedFavorite.AA.strFavoriteName, "*strThisLabel", strThisLabel)
-		}
-		else
-			break ; name is not new but is OK - exit loop
-	}
-	else
-		break ; name is new - exit loop
-
-; check that a menu cannot be moved under itself when part of a multiple move (not copy because menu cannot be copied)
-if (strThisLabel = "GuiMoveOneFavoriteSave")
-	and InStr("|Menu|External", "|" . o_EditedFavorite.AA.strFavoriteType)
-	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName) = 1) ; = 1 to check if equal from start only
-		and !InStr("K|X", o_EditedFavorite.AA.strFavoriteType) ; no risk with separators
-	{
-		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], o_EditedFavorite.AA.strFavoriteName)
-		g_intOriginalMenuPosition++ ; will be reduced by GuiMoveMultipleFavoritesSave
-		gosub, GuiAddFavoriteSaveCleanup
-		return
-	}
 
 ; if adding menu or group, create submenu object
 
@@ -12054,6 +11769,319 @@ return
 
 
 ;------------------------------------------------------------
+GuiAddFavoriteSaveValidate:
+;------------------------------------------------------------
+
+; validate original and destination menus values
+
+if InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
+	strOriginalMenu := o_MenuInGui.AA.strMenuPath
+else ; GuiAddFavoriteSave|GuiAddFavoriteSaveXpress|GuiCopyFavoriteSave|GuiCopyOneFavoriteSave|GuiAddExternalSave|
+{
+	strOriginalMenu := "" ; no change required in original menu
+	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; but keep original menu position for multiple copy
+		g_intOriginalMenuPosition := 0
+}
+
+if (strThisLabel = "GuiAddExternalSave")
+	strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", o_EditedFavorite.AA.strFavoriteAppWorkingDir) ; empty if not found
+
+if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
+{
+	strNewFavoriteShortName := (StrLen(o_EditedFavorite.AA.strFavoriteName) ? o_EditedFavorite.AA.strFavoriteName : strExternalMenuName)
+	strNewFavoriteLocation := o_EditedFavorite.AA.strFavoriteLocation
+	strFavoriteAppWorkingDir := o_EditedFavorite.AA.strFavoriteAppWorkingDir ; for external menu from catalogue
+	strNewFavoriteWindowPosition := g_strNewFavoriteWindowPosition
+	
+	if (strThisLabel = "GuiAddFavoriteSaveXpress")
+	{
+		; add new favorite in first or last position of menu where the XPress command was used
+		strDestinationMenu := A_ThisMenu
+		if !StrLen(strDestinationMenu) ; for GuiAddFavoriteSaveXpress favorite is added from context menu (no A_ThisMenu)
+			strDestinationMenu := o_L["MainMenuName"]
+		g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
+	}
+	else ; GuiAddExternalSave
+	{
+		; add new shared menu in current Main menu
+		Gui, 1:Default
+		Gui, 1:ListView, f_lvFavoritesList
+		g_intNewItemPos := LV_GetNext()
+		strDestinationMenu := o_MenuInGui.AA.strMenuPath
+	}
+}
+else
+{
+	strNewFavoriteShortName := f_strFavoriteShortName
+	strNewFavoriteLocation := f_strFavoriteLocation
+	strFavoriteAppWorkingDir := f_strFavoriteAppWorkingDir
+	strNewFavoriteSoundLocation := f_strFavoriteSoundLocation
+	
+	; f_drpParentMenu and f_drpParentMenuItems have same field name in 2 gui: GuiAddFavorite and GuiMoveMultipleFavoritesToMenu
+	strDestinationMenu := f_drpParentMenu
+
+	; if gui was closed from Live Folder Options tab (without changing tab), update Live folder icon
+	if (o_EditedFavorite.AA.strFavoriteType = "Folder" and f_blnFavoriteFolderLive
+		and g_strNewFavoriteIconResource = "iconFolder")
+			g_strNewFavoriteIconResource := "iconFolderLive"
+}
+
+; now that we know original and destination menus, check if we need to lock them
+
+if FavoriteIsUnderExternalMenu(o_Containers.AA[strDestinationMenu], o_ExternalMenu) and !ExternalMenuAvailableForLock(o_ExternalMenu, true) ; blnLockItForMe
+; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
+{
+	g_blnAbortSave := true
+	return
+}
+if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
+	if FavoriteIsUnderExternalMenu(o_Containers.AA[strOriginalMenu], o_ExternalMenu) and !ExternalMenuAvailableForLock(o_ExternalMenu, true) ; blnLockItForMe
+	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
+	{
+		g_blnAbortSave := true
+		return
+	}
+
+if (!g_intNewItemPos)
+	; g_intNewItemPos may be already set if in GuiMoveOneFavoriteSave, GuiCopyOneFavoriteSave, GuiAddFavoriteSaveXpress, GuiAddExternalSave, 
+	; GuiAddFavoriteFromQAPFeature or GuiAddFavoriteFromQAPFeatureFolder (and other types)
+	if (f_drpParentMenuItems)
+		g_intNewItemPos := f_drpParentMenuItems
+	else ; if f_drpParentMenuItems is not set, add to the end of menu
+		g_intNewItemPos := g_objMenusIndex[strDestinationMenu].MaxIndex()
+
+; for these favorites, file/folder must exist
+
+if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType)
+	and StrLen(strNewFavoriteLocation) ; to exclude situations (like move) where strNewFavoriteLocation is empty
+{
+	strExpandedNewFavoriteLocation := strNewFavoriteLocation
+	if !FileExistInPath(strExpandedNewFavoriteLocation)
+	{
+		OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
+			. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . o_L["OopsFileExpandedFrom"] . ":`n" . strNewFavoriteLocation : ""))
+		g_blnAbortSave := true
+		return
+	}
+}
+
+; validation to avoid unauthorized favorite types in groups
+; validation to avoid external settings file under another external settings file
+
+if (o_Containers[strDestinationMenu].AA.strMenuType = "Group" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true))
+	or (o_Containers[strDestinationMenu].AA.strMenuType = "External" and o_EditedFavorite.AA.strFavoriteType = "External")
+{
+	if (o_Containers[strDestinationMenu].AA.strMenuType = "Group")
+		OopsGui2(o_L["DialogFavoriteNameNotAllowed"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", ""))
+	else
+		OopsGui2(o_L["OopsExternalNotAllowedUnderExternal"])
+	if (strThisLabel = "GuiMoveOneFavoriteSave")
+		g_intOriginalMenuPosition++
+	g_blnAbortSave := true
+	return
+}
+
+; validate External menu location and external menu type
+
+if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavoriteSave|GuiMoveOneFavoriteSave", "|" . strThisLabel)
+{
+	; make sure we have a file name
+	SplitPath, strFavoriteAppWorkingDir, , , , strExternalFilenameNoExt
+	if !StrLen(strExternalFilenameNoExt)
+	{
+		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
+		g_blnAbortSave := true
+		return
+	}
+	
+	; make sure the user selected the type of the new external menu
+	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
+	{
+		gosub, LoadExternalFileGlobalValues ; load values if file exists
+		Gui, 2:Submit, NoHide
+	}
+	if (f_radExternalMenuType1 + f_radExternalMenuType2 + f_radExternalMenuType3 = 0)
+	{
+		OopsGui2(o_L["OopsExternalSelectType"])
+		GuiControl, ChooseString, f_intAddFavoriteTab, % " " . o_L["DialogAddFavoriteTabsExternal"] ; space (only) before tab name
+		g_blnExternalLocationChanged := 0 ; reset to 0, important to make sure the external file is created by GuiAddExternalSave
+		g_blnAbortSave := true
+		return
+	}
+}
+
+; various validations (not required for GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave because info in o_EditedFavorite is not changed)
+
+if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+{
+	if !StrLen(strNewFavoriteShortName) and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
+	{
+		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
+		g_blnAbortSave := true
+		return
+	}
+
+	if  InStr("|Folder|Document|Application|URL|FTP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
+	{
+		OopsGui2(o_L["DialogFavoriteLocationEmpty"])
+		g_blnAbortSave := true
+		return
+	}
+
+	if  (o_EditedFavorite.AA.strFavoriteType = "Snippet")
+	{
+		if InStr(f_strFavoriteSnippetPrompt, "|")
+		{
+			OopsGui2(o_L["DialogFavoriteSnippetPromptNoPipe"])
+			g_blnAbortSave := true
+			return
+		}
+		if !StrLen(strNewFavoriteLocation)
+		{
+			OopsGui2(o_L["DialogFavoriteSnippetEmpty"])
+			g_blnAbortSave := true
+			return
+		}
+		else
+			; if content of gui is "display", encode it to make it ready for saving to ini file
+			strNewFavoriteLocation := (g_strSnippetFormat = "display" ? EncodeSnippet(strNewFavoriteLocation) : strNewFavoriteLocation)
+	}
+
+	if (o_EditedFavorite.AA.strFavoriteType = "FTP" and SubStr(strNewFavoriteLocation, 1, 6) <> "ftp://")
+	{
+		OopsGui2(o_L["OopsFtpLocationProtocol"])
+		g_blnAbortSave := true
+		return
+	}
+
+	if  InStr("|Special|QAP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
+	{
+		OopsGui2(o_L["DialogFavoriteDropdownEmpty"], StrReplace(o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel, "&", "")
+			, (o_EditedFavorite.AA.strFavoriteType = "Special" ? o_L["DialogDropDown"] : o_L["DialogTreeView"]))
+		g_blnAbortSave := true
+		return
+	}
+
+	if InStr("|Menu|Group|External", "|" . o_EditedFavorite.AA.strFavoriteType, true) and InStr(strNewFavoriteShortName, g_strMenuPathSeparator)
+	{
+		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strMenuPathSeparator))
+		g_blnAbortSave := true
+		return
+	}
+
+	if InStr(strNewFavoriteShortName, g_strGroupIndicatorPrefix)
+	{
+		OopsGui2(L(o_L["DialogFavoriteNameNoSeparator"], g_strGroupIndicatorPrefix))
+		g_blnAbortSave := true
+		return
+	}
+
+	if InStr(strNewFavoriteShortName, "& ") and !InStr(strNewFavoriteShortName, "&&")
+		OopsGui2(o_L["OopsAmpersandInName"])
+		; do not abort for this
+	
+	if InStr(g_strTypesForTabWindowOptions, "|" . o_EditedFavorite.AA.strFavoriteType) and (strThisLabel <> "GuiAddFavoriteSaveXpress")
+	{
+		strNewFavoriteWindowPosition := (f_blnUseDefaultWindowPosition ? 0 : 1)
+		strNewFavoriteWindowPosition .= "," . (f_lblWindowPositionMinMax1 ? 0 : (f_lblWindowPositionMinMax2 ? 1 : -1))
+			. "," . f_intWindowPositionX . "," . f_intWindowPositionY . "," . f_intWindowPositionW . "," . f_intWindowPositionH . "," . f_lblWindowPositionDelay
+		
+		GuiControlGet, intRadioGroupRestoreSide, , f_intRadioGroupRestoreSide
+		if !(ErrorLevel) ; if errorlevel, control does not exist
+			strNewFavoriteWindowPosition .= "," . (f_intRadioGroupRestoreSide = 1 ? "L" : "R")
+		else
+			strNewFavoriteWindowPosition .= "," . StrReplace(f_drpWindowMonitor, o_L["DialogWindowMonitor"] . " ", "")
+
+		if !ValidateWindowPosition(strNewFavoriteWindowPosition) ; ##### convert to StrSplit
+		{
+			OopsGui2(o_L["OopsInvalidWindowPosition"])
+			g_blnAbortSave := true
+			return
+		}
+	}
+
+	if (o_EditedFavorite.AA.strFavoriteType = "External")
+	{
+		strExternalSettingsExtension := GetFileExtension(strFavoriteAppWorkingDir)
+
+		if !StrLen(strExternalSettingsExtension)
+			strFavoriteAppWorkingDir .= ".ini"
+		else if (strExternalSettingsExtension <> "ini")
+		{
+			OopsGui2(o_L["DialogExternalLocationIni"])
+			g_blnAbortSave := true
+			return
+		}
+	}
+	
+	if LocationTransformedFromHTTP2UNC(o_EditedFavorite.AA.strFavoriteType, (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		OopsGui2(o_L["OopsHttpLocationTransformed"], (o_EditedFavorite.AA.strFavoriteType = "External" ? strFavoriteAppWorkingDir : strNewFavoriteLocation))
+		; do not abort
+
+	if (strNewFavoriteLocation = "{TC Directory hotlist}" and !o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist())
+	{
+		OopsGui2(o_L["OopsInvalidWinCmdIni"])
+		g_blnAbortSave := true
+		return
+	}
+}
+
+; avoid duplicate names when saving express
+
+loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
+	if !o_Containers[strDestinationMenu].FavoriteNameIsNew(InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName)
+		and !InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; same name OK for separators
+	{
+		; we have the same name in the destination menu
+		if (strOriginalMenu <> strDestinationMenu) ; the favorite was moved to new destination menu
+			or (strThisLabel = "GuiCopyOneFavoriteSave") ; if same name in same menu to duplicate with multiple copy
+			or (strNewFavoriteShortName <> o_EditedFavorite.AA.strFavoriteName) ; when the name has been edited from another menu
+			or (strThisLabel = "GuiAddFavoriteSaveXpress") ; for new favorite having the same name
+		{
+			if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave", strThisLabel . "|")
+				and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
+					o_EditedFavorite.AA.strFavoriteName .= " [!]" ; and loop
+				else
+					strNewFavoriteShortName .= " [!]" ; and loop
+			else
+			{
+				if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+					OopsGui2(o_L["DialogFavoriteNameNotNewQAPfeature"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
+				else
+					OopsGui2(o_L["DialogFavoriteNameNotNew"], (InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName))
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ; #### not in effect now
+					g_intOriginalMenuPosition++
+				if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+					g_blnMulipleMoveOrCopyAborted := true
+				g_blnAbortSave := true
+				return
+			}
+		}
+		else
+			break ; name is not new but is OK - exit loop
+	}
+	else
+		break ; name is new - exit loop
+
+; check that a menu cannot be moved under itself when part of a multiple move (not when copy because menu cannot be copied)
+
+if (strThisLabel = "GuiMoveOneFavoriteSave")
+	and InStr("|Menu|External", "|" . o_EditedFavorite.AA.strFavoriteType)
+	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName) = 1) ; = 1 to check if equal from start only
+		and !InStr("K|X", o_EditedFavorite.AA.strFavoriteType) ; no risk with separators
+	{
+		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], o_EditedFavorite.AA.strFavoriteName)
+		g_intOriginalMenuPosition++ ; will be reduced by GuiMoveMultipleFavoritesSave
+		g_blnAbortSave := true
+		return
+	}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
 ; update submenus and their childrens and groups to the new path of the parent menu
 ;------------------------------------------------------------
@@ -12110,19 +12138,6 @@ ValidateWindowPosition(strPosition)
 	 	blnOK := (arrPosition5 > 0) and (arrPosition6 > 0) and (arrPosition7 >= 0) ; Width, Height and Delay must be positive
 	
 	return blnOK
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-FavoriteNameIsNew(strCandidateName, objMenu)
-;------------------------------------------------------------
-{
-	Loop, % objMenu.MaxIndex()
-		if (strCandidateName = objMenu[A_Index].FavoriteName)
-			return False
-
-	return True
 }
 ;------------------------------------------------------------
 
@@ -23840,6 +23855,19 @@ class Container
 		return strList
 	}
 	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	FavoriteNameIsNew(strCandidateName)
+	;------------------------------------------------------------
+	{
+		for intKey, oItem in this.SA
+			if (strCandidateName = oItem.AA.strFavoriteName)
+				return false
+			
+		return true
+	}
+	;------------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
