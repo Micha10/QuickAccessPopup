@@ -9050,7 +9050,7 @@ if (blnFavoriteFromSearch) ; ##### later
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
 
-	if (InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true) and g_blnOpenFromDoubleClick)
+	if (InStr("Menu|Group|External", o_MenuInGui.SA[g_intOriginalMenuPosition].FavoriteType, true) and g_blnOpenFromDoubleClick)
 	{
 		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
 		g_blnOpenFromDoubleClick := false ; reset value
@@ -9604,7 +9604,7 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuParentMenu"] : o_L["DialogFavoriteParentMenu"])
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
-	, % g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath
+	, % g_objMainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath
 		, (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["MainMenuName"] . " " . o_EditedFavorite.AA.strFavoriteLocation : "") ; exclude self
 		, true) . "|" ; exclude read-only external menus
 
@@ -9974,7 +9974,7 @@ Gui, 2:Add, Text, x10 y10 vf_lblFavoriteParentMenu
 	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteParentMenuMove"] : o_L["DialogFavoritesParentMenuMove"])
 	: o_L["DialogFavoritesParentMenuCopy"]), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
-	, % g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath, , true) ; include self but exclude read-only external
+	, % o_MainMenu.BuildMenuListDropDown(o_MenuinGui.AA.strMenuPath, , true) ; include self but exclude read-only external
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteMenuPosition"] : o_L["DialogFavoritesMenuPosition"])
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -10751,19 +10751,13 @@ else
 {
 	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
 	
-	; ###_V(A_ThisLabel, g_objMenuInGui.MenuPath)
-	; ###_O("g_objMenuInGui", g_objMenuInGui, "FavoriteName")
-	; ###_O("g_objMenuInGui[1]", g_objMenuInGui[1])
 	if (A_ThisLabel = "GuiMenusListChanged")
-		objNewMenuInGui := o_Containers.AA[strNewDropdownMenu]
+		o_MenuInGui := o_Containers.AA[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		objNewMenuInGui := o_MenuInGui.AA.oParentMenu
+		o_MenuInGui := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
-		objNewMenuInGui := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
-	else if (A_ThisLabel = "OpenMenuFromGuiSearch")
-		objNewMenuInGui := o_MenuInGui ;  we already have the menu object in g_objMenuInGui from the search event
-	
-	o_MenuInGui := objNewMenuInGui
+		o_MenuInGui := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
+	; else if (A_ThisLabel = "OpenMenuFromGuiSearch") ; we already have the menu object in o_MenuInGui from the search event
 	
 	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 }
@@ -10790,7 +10784,6 @@ if (A_ThisLabel = "GuiMenusListChanged") ; keep focus on dropdown list
 GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
 strNewDropdownMenu := ""
-objNewMenuInGui := ""
 strWriteAccessMessage := ""
 strExternalMenuName := ""
 
@@ -23822,6 +23815,7 @@ class Container
 			strList .= "|" ; default value
 		
 		for intKey, oItem in this.SA
+		{
 			if !InStr("Menu|Group|External", oItem.AA.strFavoriteType, true) ; this is not a menu or a group, case sensitive because type X is included in External ...
 				continue
 			
