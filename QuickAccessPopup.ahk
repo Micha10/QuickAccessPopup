@@ -5663,11 +5663,9 @@ if (intWindowsIdIndex)
 	}
 }
 else
-	; ##### use "GuiShowNeverCalled" as type to set this gosub in the Menu instead of OpenFolder... and to flag to disable the menu item
 	saSwitchFolderOrAppTable.Push(["GuiShowNeverCalled", o_L["MenuNoCurrentFolder"], "", "iconNoContent"])
 
 if !(blnWeHaveFolders)
-	; ##### use "GuiShowNeverCalled" as type to set this gosub in the Menu instead of OpenFolder... and to flag to disable the menu item
 	saCurrentFoldersTable.Push(["GuiShowNeverCalled", o_L["MenuNoCurrentFolder"], "", "iconNoContent"])
 
 if (A_ThisLabel <> "RefreshReopenFolderMenu")
@@ -9604,7 +9602,7 @@ Gui, 2:Tab, % ++intTabNumber
 Gui, 2:Add, Text, x20 y50 vf_lblFavoriteParentMenu
 	, % (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuParentMenu"] : o_L["DialogFavoriteParentMenu"])
 Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChanged
-	, % g_objMainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath
+	, % o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath
 		, (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["MainMenuName"] . " " . o_EditedFavorite.AA.strFavoriteLocation : "") ; exclude self
 		, true) . "|" ; exclude read-only external menus
 
@@ -10094,15 +10092,15 @@ DropdownParentMenuChanged:
 strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to cancel
 Gui, 2:Submit, NoHide
 
-aaThisMenu := o_Containers.AA[f_drpParentMenu].AA
+saThisMenu := o_Containers.AA[f_drpParentMenu].SA
 
-for intIndex, o_Item in aaThisMenu
+for intIndex, o_Item in saThisMenu
 	if (o_EditedFavorite.AA.strFavoriteName = o_Item.strFavoriteName)
-			and (o_MenuInGui.AA.strMenuPath = aaThisMenu.strMenuPath ; skip edited item itself if not a separator
+			and (o_MenuInGui.AA.strMenuPath = saThisMenu.strMenuPath ; skip edited item itself if not a separator
 			and !InStr("X|K", o_Item.strFavoriteType) ; but make sure to keep separators
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
-	else if (aaThisMenu.strFavoriteType = "X")
+	else if (saThisMenu.strFavoriteType = "X")
 		strDropdownParentMenuItems .= g_strGuiMenuSeparator . g_strGuiMenuSeparator . "|"
 	else if (o_Item.AA.FavoriteType = "K")
 		strDropdownParentMenuItems .= g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine . "|"
@@ -10117,7 +10115,7 @@ else
 g_intNewItemPos := "" ; if new item position g_intNewItemPos is set, reset it and let f_drpParentMenuItems set it later #### not sure if safe...
 
 strDropdownParentMenuItems := ""
-aaThisMenu := ""
+saThisMenu := ""
 o_Item := ""
 
 return
@@ -11922,7 +11920,7 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		LV_Modify(LV_GetNext(), "Vis")
 }
 
-GuiControl, 1:, f_drpMenusList, % "|" . g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
+GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
@@ -12232,7 +12230,7 @@ g_objMenuInGui.Remove(intItemToRemove)
 ; refresh menu dropdpown in gui
 
 if (blnItemIsMenu)
-	GuiControl, 1:, f_drpMenusList, % "|" . g_objMainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|"
+	GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|"
 
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
@@ -23430,6 +23428,8 @@ class Container
 				if (aaThisFavorite.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
 					intMenuItemStatus := 2 ; 0 disabled, 1 enabled, 2 default
 					; Menu, % this.AA.strMenuPath, Default, %strMenuItemLabel%
+				else if (strMenuItemAction = "GuiShowNeverCalled")
+					intMenuItemStatus := 0 ; 0 disabled, 1 enabled, 2 default
 				else
 					intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
 			}
