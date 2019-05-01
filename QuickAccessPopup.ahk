@@ -8953,7 +8953,6 @@ else
 		SendInput, ^a
 }
 
-; #### QA DropdownParentMenuChanged after tabs are converted
 Gosub, DropdownParentMenuChanged ; to init the content of menu items
 
 Gui, 2:Add, Text
@@ -8961,8 +8960,7 @@ Gui, 2:Add, Text
 GetGui2Size("AddEditCopyFavoriteDialogPosition", intGui2Width, intGui2Height)
 if (intGui2Height < 544) ; minimum height since v8.7.0.9.2
 	intGui2Height := 544
-; ##### not working - check after tabs are converted
-WinMove, ahk_id %g_strGui2Hwnd%, , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
+WinMove, ahk_id %g_strGui2Hwnd%, , , , %intGui2Width%, %intGui2Height% ; restore only size, always position relative to Settings window
 Gosub, ShowGui2AndDisableGui1
 
 if (o_EditedFavorite.AA.strFavoriteName = o_L["ToolTipRetrievingWebPageTitle"])
@@ -19861,7 +19859,7 @@ GetGui2Size(strThisDialog, ByRef intWidth, ByRef intHeight)
 {
 	strPosition := o_Settings.ReadIniValue(strThisDialog, "")
 	saPosition := StrSplit(strPosition, "|") ; array is returned by ByRef parameters
-	intWidth := saPosition[3]
+	intWidth := saPosition[3] + 10 ; + 10 correction from trial/error
 	intHeight := saPosition[4]
 }
 ;------------------------------------------------------------
@@ -19872,12 +19870,12 @@ CalculateTopGuiPosition(g_strTopHwnd, g_strRefHwnd, ByRef intTopGuiX, ByRef intT
 ;------------------------------------------------------------
 {
 	WinGetPos, intRefGuiX, intRefGuiY, intRefGuiW, intRefGuiH, ahk_id %g_strRefHwnd%
-	intRefGuiCenterX := intRefGuiX + (intRefGuiW / 2)
-	intRefGuiCenterY := intRefGuiY + (intRefGuiH / 2)
+	intRefGuiCenterX := intRefGuiX + (intRefGuiW // 2)
+	intRefGuiCenterY := intRefGuiY + (intRefGuiH // 2)
 
 	WinGetPos, , , intTopGuiW, intTopGuiH, ahk_id %g_strTopHwnd%
-	intTopGuiX := intRefGuiCenterX - (intTopGuiW / 2)
-	intTopGuiY := intRefGuiCenterY - (intTopGuiH / 2)
+	intTopGuiX := intRefGuiCenterX - (intTopGuiW // 2) + 5 ; + 5 correction from trial/error
+	intTopGuiY := intRefGuiCenterY - (intTopGuiH // 2)
 	
 	WinGetPos, intWindowX, intWindowY, intWindowWidth, intWindowHeight, ahk_id %g_strRefHwnd%
 	WinGetTitle, v, ahk_id %g_strRefHwnd%
