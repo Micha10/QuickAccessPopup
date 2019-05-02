@@ -3316,8 +3316,8 @@ global g_objGuiControls := Object() ; to build Settings gui
 global g_objFavoritesObjectsByShortcut := Object()
 global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
-global g_objExternaleMenuToRelease := Object() ; Array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
-global g_objExternalMenuFolderReadOnly := Object() ;  array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
+global g_saExternaleMenuToRelease := Object() ; simple array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
+global g_aaExternalMenuFolderIsReadOnly := Object() ; associative array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
 
 global g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
 
@@ -6149,8 +6149,11 @@ g_blnMenuReady := false
 g_blnRefreshQAPMenuInProgress := true
 
 for strMenuName, o_ThisContainer in o_Containers.AA
-	if (o_ThisContainer.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(o_ThisContainer) ; refresh only if changed
-		o_ThisContainer.BuildMenu() ; ExternalMenuReloadAndRebuild(objThisMenu)
+	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
+	{
+		o_ThisContainer.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_ThisContainer.BuildMenu()
+	}
 
 if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
@@ -8215,9 +8218,12 @@ Gui, 1:Default
 Gui, 1:ListView, f_lvFavoritesList
 LV_Delete()
 
-if (o_MenuInGui.AA.strMenuType = "External") and ExternalMenuModifiedSinceLoaded(g_objMenuInGui) ; refresh only if changed
-; #### check later, load using o_MenuInGui.LoadFavoritesFromIniFile() ?
-	ExternalMenuReloadAndRebuild(g_objMenuInGui)
+if (o_MenuInGui.AA.strMenuType = "External") and o_MenuInGui.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
+	; was ExternalMenuReloadAndRebuild(g_objMenuInGui)
+	{
+		o_MenuInGui.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_MenuInGui.BuildMenu()
+	}
 
 o_MenuInGui.LoadInGui()
 
@@ -14164,12 +14170,11 @@ return
 ExternalMenusRelease:
 ;------------------------------------------------------------
 
-; dialog box could hang exit ###_V(A_ThisLabel, g_objExternaleMenuToRelease.MaxIndex())
-loop, % g_objExternaleMenuToRelease.MaxIndex()
+; do not use ###_V(): dialog box could hang exit
+loop, % g_saExternaleMenuToRelease.MaxIndex()
 {
-	; dialog box could hang ExitApp ###_V(g_objExternaleMenuToRelease[1])
-	IniWrite, % "", % g_objExternaleMenuToRelease[1], Global, MenuReservedBy ; no need to update LastModified for this change
-	g_objExternaleMenuToRelease.Remove(1)
+	IniWrite, % "", % g_saExternaleMenuToRelease[1], Global, MenuReservedBy ; no need to update LastModified for this change
+	g_saExternaleMenuToRelease.RemoveAt(1)
 }
 
 return
@@ -19155,7 +19160,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 
 	; here, we know that this menu can be locked
 
-	if (blnLockItForMe) and ExternalMenuModifiedSinceLoaded(objMenu)
+	if (blnLockItForMe) and objMenu.ExternalMenuModifiedSinceLoaded()
 	; check if shared menu has been modified since it was loaded and, if yes, refresh menu
 	{
 		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
@@ -19166,7 +19171,12 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 			return false
 		}
 		else
-			ExternalMenuReloadAndRebuild(objMenu)
+		; was ExternalMenuReloadAndRebuild(objMenu)
+		; NOT tested here #####
+		{
+			objMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+			objMenu.BuildMenu()
+		}
 	}
 	
 	; lock is allowed, return true
@@ -19182,7 +19192,7 @@ ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
 		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
 			, % objMenu.MenuExternalSettingsPath, Global, MenuReservedBy ; no need to update LastModified for this change
 		; remember to free when saving or canceling
-		g_objExternaleMenuToRelease.Insert(objMenu.MenuExternalSettingsPath)
+		g_saExternaleMenuToRelease.Push(objMenu.MenuExternalSettingsPath)
 		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalSettingsPath, 999)
 	}
 
@@ -19222,36 +19232,15 @@ ExternalMenuIsReadOnly(strFile)
 
 
 ;------------------------------------------------------------
-ExternalMenuModifiedSinceLoaded(o_Container)
-;------------------------------------------------------------
-{
-	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", o_Container.AA.strMenuExternalSettingsPath)
-	o_Container.AA.strMenuExternalLastModifiedNow := strLastModified
-	; ###_V(A_ThisFunc, "Now: " . objMenu.MenuExternalLastModifiedNow
-		; , "When loaded: " . objMenu.MenuExternalLastModifiedWhenLoaded
-		; , "Modified since loaded: " . (objMenu.MenuExternalLastModifiedNow > objMenu.MenuExternalLastModifiedWhenLoaded))
-		
-	; check if the two timestamps are of the same type
-	; if not (could happen when an existing menu is changed of type), return that the menu has been modified
-	if InStr(o_Container.AA.strMenuExternalLastModifiedNow, "UTC") and !InStr(o_Container.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
-		or !InStr(o_Container.AA.strMenuExternalLastModifiedNow, "UTC") and InStr(o_Container.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
-		return true
-	
-	return (o_Container.AA.strMenuExternalLastModifiedNow > o_Container.AA.strMenuExternalLastModifiedWhenLoaded) ; both of same format YYYYMMDDHHMMSS or YYYYMMDDHHMMSSUTC
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 ExternalMenuFolderIsReadOnly(strFile)
 ; Test if user can write to folder containing an external ini file, returns true if file is in a read-only folder, false if it is not read-only
-; add folder to object g_objExternalMenuFolderReadOnly to avoid checking same folder again (refreshed only when QAP is restarted)
+; add folder to object g_aaExternalMenuFolderIsReadOnly to avoid checking same folder again (refreshed only when QAP is restarted)
 ;------------------------------------------------------------
 {
 	strFile := PathCombine(A_WorkingDir, EnvVars(strFile))
 	SplitPath, strFile, , strFolder
 	
-	if !g_objExternalMenuFolderReadOnly.HasKey(strFolder) ; if folder of file was not already checked
+	if !g_aaExternalMenuFolderIsReadOnly.HasKey(strFolder) ; if folder of file was not already checked
 	{
 		; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 		strRandomFile := strFolder . "\~$_QAP_Test_file_" . RandomBetween() . ".ini" ; Dropbox does not syn files starting with ~$
@@ -19278,29 +19267,14 @@ ExternalMenuFolderIsReadOnly(strFile)
 					; ###_V(A_ThisFunc . " CAN WRITE, FILE DELETED", ErrorLevel, A_LastError, strFile, strFolder, intRandom, strRandomFile, strRead)
 					break
 			}
-			g_objExternalMenuFolderReadOnly[strFolder] := false ; folder is not read-only
+			g_aaExternalMenuFolderIsReadOnly[strFolder] := false ; folder is not read-only
 		}
 		else
 			; ###_V(A_ThisFunc . " CANNOT WRITE", strFile, strFolder, intRandom, strRandomFile, strRead)
-			g_objExternalMenuFolderReadOnly[strFolder] := true ; folder is read-only
+			g_aaExternalMenuFolderIsReadOnly[strFolder] := true ; folder is read-only
 	}
 
-	return g_objExternalMenuFolderReadOnly[strFolder]
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ExternalMenuReloadAndRebuild(objMenu)
-;------------------------------------------------------------
-{
-	strResult := OLD_LoadExternalMenu(objMenu, objMenu.MenuExternalSettingsPath) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
-	
-	strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", objMenu.MenuExternalSettingsPath)
-	objMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
-	objMenu.MenuExternalLastModifiedNow := strLastModified
-	
-	objMenu.BuildMenu()
+	return g_aaExternalMenuFolderIsReadOnly[strFolder]
 }
 ;------------------------------------------------------------
 
@@ -22931,7 +22905,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile()
+	LoadFavoritesFromIniFile(blnRefreshExternal := false)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -22939,6 +22913,12 @@ class Container
 		
 		static s_intIniLine := 1
 		static s_strIniFile
+		
+		if (blnRefreshExternal) ; do not pass this value when recursing
+		{
+			s_strIniFile := this.AA.strMenuExternalSettingsPath
+			s_intIniLine := 1
+		}
 		
 		if !StrLen(s_strIniFile)
 			s_strIniFile := o_Settings.strIniFile
@@ -23715,8 +23695,12 @@ class Container
 					strGuiMenuLocation := " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
 				else ; oItem.AA.strFavoriteType = "External"
 				{
-					if ExternalMenuModifiedSinceLoaded(oItem.AA.oSubMenu)
-						ExternalMenuReloadAndRebuild(oItem.AA.oSubMenu)
+					if oItem.AA.oSubMenu.ExternalMenuModifiedSinceLoaded()
+					; was ExternalMenuReloadAndRebuild(oItem.AA.oSubMenu)
+					{
+						oItem.AA.oSubMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+						oItem.AA.oSubMenu.BuildMenu()
+					}
 					if ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
 						strGuiMenuLocation := o_L["DialogReadOnly"] . " "
 					else if !(oItem.AA.oSubMenu.AA.blnMenuExternalLoaded)
@@ -23867,6 +23851,25 @@ class Container
 		return true
 	}
 	;------------------------------------------------------------
+
+	;------------------------------------------------------------
+	ExternalMenuModifiedSinceLoaded()
+	;------------------------------------------------------------
+	{
+		strLastModified := o_Settings.ReadIniValue("LastModified", " ", "Global", this.AA.strMenuExternalSettingsPath)
+		this.AA.strMenuExternalLastModifiedNow := strLastModified
+			
+		; check if the two timestamps are of the same type
+		; if not (could happen when an existing menu is changed of type), return that the menu has been modified
+		if InStr(this.AA.strMenuExternalLastModifiedNow, "UTC") and !InStr(this.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
+			or !InStr(this.AA.strMenuExternalLastModifiedNow, "UTC") and InStr(this.AA.strMenuExternalLastModifiedWhenLoaded, "UTC")
+			return true
+		
+		return (this.AA.strMenuExternalLastModifiedNow > this.AA.strMenuExternalLastModifiedWhenLoaded) ; both of same format YYYYMMDDHHMMSS or YYYYMMDDHHMMSSUTC
+	}
+	;------------------------------------------------------------
+	
+
 
 	; === end of methods for class Container ===
 	
