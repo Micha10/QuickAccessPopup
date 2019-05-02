@@ -8522,7 +8522,7 @@ gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
 g_intOriginalMenuPosition := g_intNewItemPos
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
 ; this favorite could not be added because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
@@ -8547,8 +8547,7 @@ if (A_ThisLabel = "GuiAddFavoriteFromQAPFeature")
 
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
 
-; ##### Later
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
 ; this favorite could not be added because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
@@ -9037,8 +9036,7 @@ blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 if (blnFavoriteFromSearch)
 	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition) ; ##### test later
 
-; ##### Later
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu)
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
 ; this favorite could not be added or edited because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
@@ -11645,11 +11643,11 @@ Gosub, AdjustColumnsWidth
 Gosub, EnableSaveAndCancel
 
 ; if favorite's original or destination menu are in an external settings file, flag that they need to be saved
-if FavoriteIsUnderExternalMenu(g_objMenusIndex[strDestinationMenu], objExternalMenu)
-	objExternalMenu.NeedSave := true
+if g_objMenusIndex[strDestinationMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	o_ExternalMenu.NeedSave := true ; fix add .AA ?
 if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
-	if FavoriteIsUnderExternalMenu(g_objMenusIndex[strOriginalMenu], objExternalMenu)
-		objExternalMenu.NeedSave := true
+	if o_MenusIndex[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+		o_ExternalMenu.NeedSave := true ; fix add .AA ?
 
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
@@ -11834,14 +11832,14 @@ else
 
 ; now that we know original and destination menus, check if we need to lock them
 
-if FavoriteIsUnderExternalMenu(o_Containers.AA[strDestinationMenu], o_ExternalMenu) and !ExternalMenuAvailableForLock(o_ExternalMenu, true) ; blnLockItForMe
+if o_Containers.AA[strDestinationMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 ; if the destination menu is an external menu that cannot be locked, user received an error message, then abort save
 {
 	g_blnAbortSave := true
 	return
 }
 if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
-	if FavoriteIsUnderExternalMenu(o_Containers.AA[strOriginalMenu], o_ExternalMenu) and !ExternalMenuAvailableForLock(o_ExternalMenu, true) ; blnLockItForMe
+	if o_Containers.AA[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 	; if the original menu changed by the save is an external menu that cannot be locked, user received an error message, then abort save
 	{
 		g_blnAbortSave := true
@@ -12204,7 +12202,7 @@ if !(intItemToRemove)
 	return
 }
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 ; if the menu is an external menu that cannot be locked, user received an error message, then abort
 {
 	if (A_ThisLabel = "GuiRemoveOneFavorite")
@@ -12263,8 +12261,8 @@ Gosub, AdjustColumnsWidth
 Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
-	objExternalMenu.NeedSave := true
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	o_ExternalMenu.NeedSave := true
 
 if (g_blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
@@ -12320,10 +12318,9 @@ GuiMoveOneFavoriteUp:
 GuiMoveOneFavoriteDown:
 ;------------------------------------------------------------
 
-; ##### convert external functions to Container class LATER
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 {
-	objExternalMenu := ""
+	o_ExternalMenu := ""
 	return
 }
 
@@ -12375,8 +12372,8 @@ if !InStr(A_ThisLabel, "One")
 Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) ; LATER
-	objExternalMenu.NeedSave := true
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) ; LATER
+	o_ExternalMenu.NeedSave := true ; fix add .AA ?
 
 objExternalMenu := ""
 saThisRow := ""
@@ -12392,9 +12389,9 @@ return
 GuiSortFavorites:
 ;------------------------------------------------------------
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 {
-	objExternalMenu := ""
+	o_ExternalMenu := ""
 	return
 }
 
@@ -12444,8 +12441,8 @@ if (intRowsToSort > 1) ; sort only if required
 	Gosub, EnableSaveAndCancel
 
 	; if favorite's menu is in an external settings file, flag that it needs to be saved
-	if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
-		objExternalMenu.NeedSave := true
+	if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
+		o_ExternalMenu.NeedSave := true
 }
 else
 {
@@ -12993,14 +12990,14 @@ GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . str
 
 if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
 {
-	if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu)
-		if !ExternalMenuAvailableForLock(objExternalMenu)
+	if g_objMenusIndex[g_objManageIcons[o_ExternalMenu].MenuPath].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+		if !objExternalMenu.ExternalMenuAvailableForLock()
 			; this favorite could not be edited because it is in an external menu locked by another user,
 			; or because external settings file is in a read-only folder, or because external files was modified 
 			; by another user since it was loaded in QAP by this user
 			goto, IconsManagePickIconDialogCleanup
 		else ; flag that this external menu needs to be saved
-			objExternalMenu.NeedSave := true
+			o_ExternalMenu.NeedSave := true ; fix add .AA ?
 	; else continue
 
 	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
@@ -13022,7 +13019,7 @@ GuiAddSeparator:
 GuiAddColumnBreak:
 ;------------------------------------------------------------
 
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu) and !ExternalMenuAvailableForLock(objExternalMenu, true) ; blnLockItForMe
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock(true) ; blnLockItForMe
 ; if the menu is an external menu that cannot be locked, user received an error message, then abort
 	return
 
@@ -13068,12 +13065,12 @@ Gosub, AdjustColumnsWidth
 Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
-if FavoriteIsUnderExternalMenu(g_objMenuInGui, objExternalMenu)
-	objExternalMenu.NeedSave := true
+if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	o_ExternalMenu.NeedSave := true ; fix add .AA ?
 
 intInsertPosition := ""
 objNewFavorite := ""
-objExternalMenu := ""
+o_ExternalMenu := ""
 
 return
 ;------------------------------------------------------------
@@ -18986,36 +18983,6 @@ StringLeftDotDotDot(strText, intMax)
 
 
 ;------------------------------------------------------------
-FavoriteIsUnderExternalMenu(objMenu, ByRef objExternalMenu)
-; return true if objMenu is an external menu or is under an external menu
-; objExternalMenu returns the parent external menu object (equal to objMenu if objMenu is an external menu itself)
-;------------------------------------------------------------
-{
-	if !IsObject(objMenu)
-		return false
-	
-	Loop
-	{
-		; ###_V(A_ThisLabel, objMenu.MenuExternalSettingsPath, objMenu.blnIsLiveMenu, objMenu.MenuPath, objMenu.MenuType, "-"
-		;	, objMenu[1].HasKey("ParentMenu"), objMenu[1].ParentMenu.MenuPath, objMenu[1].ParentMenu.MenuType)
-		if (objMenu.MenuType = "External")
-		{
-			objExternalMenu := objMenu ; return the top level external menu object
-			return true
-		}
-		else if (objMenu.MenuPath = o_L["MainMenuName"])
-			return false ; up to Main menu, no External menu
-		else
-			if !(objMenu[1].HasKey("ParentMenu"))
-				return false ; should not occur, no parent menu
-			else
-				objMenu := objMenu[1].ParentMenu ; up one level and loop
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 LocationTransformedFromHTTP2UNC(strType, ByRef strLocation)
 ;------------------------------------------------------------
 {
@@ -19113,90 +19080,6 @@ ActiveMonitorInfo(ByRef intTop, ByRef intLeft, ByRef intWidth, ByRef intHeight)
 			return
 		}
 	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
-;------------------------------------------------------------
-{
-	global g_objMenuInGui
-
-	; ###_O(A_ThisFunc . " - objMenu", objMenu)
-	if (objMenu.MenuType <> "External")
-	; not an external menu, checking lock is not required, return true
-		return true
-	
-	intMenuExternalType := o_Settings.ReadIniValue("MenuType", 1, "Global", objMenu.MenuExternalSettingsPath) ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
-	strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
-
-	; ###_V(A_ThisFunc, objMenu.MenuExternalSettingsPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
-	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalSettingsPath))
-	{
-		strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
-		strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
-		Oops(o_L["OopsErrorIniFileReadOnly"] . (StrLen(strExternalMenuName) ? "`n`n" . o_L["DialogExternalMenuName"] . ":`n" . strExternalMenuName : "")
-			. (StrLen(strWriteAccessMessage) ? "`n`n" . o_L["DialogExternalWriteAccessMessage"] . ":`n" . strWriteAccessMessage : ""))
-		return
-	}
-	else if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy))
-		; the collaborative or centralized menu is reserved...
-		if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
-			; ... already reserved for this user, return true
-			return true
-		else
-		{
-			; ... reserved by another user, return false
-			Oops(o_L["OopsMenuExternalReservedBy"], (intMenuExternalType = 2 ? o_L["OopsMenuExternalCollaborative"] : o_L["OopsMenuExternalCentralized"]), strMenuExternalReservedBy)
-			return false
-		}
-	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalSettingsPath))
-	; user cannot write to collaborative external ini file, could not lock it, return false
-	{
-		Oops(o_L["OopsExternalFileWriteErrorCollaborative"])
-		return false
-	}
-
-	; here, we know that this menu can be locked
-
-	if (blnLockItForMe) and objMenu.ExternalMenuModifiedSinceLoaded()
-	; check if shared menu has been modified since it was loaded and, if yes, refresh menu
-	{
-		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
-		; this menu is in gui - inform user that his change cannot be saved and reload menu in gui
-		{
-			Oops(o_L["OopsErrorIniFileModified"])
-			Gosub, LoadMenuInGui ; will ExternalMenuReloadAndRebuild
-			return false
-		}
-		else
-		; was ExternalMenuReloadAndRebuild(objMenu)
-		; NOT tested here #####
-		{
-			objMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
-			objMenu.BuildMenu()
-		}
-	}
-	
-	; lock is allowed, return true
-	
-	if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
-		; personal menu is changed on another system - only inform user, lock overwriting is allowed
-		Oops(o_L["OopsMenuExternalPersonalChangedBy"], strMenuExternalReservedBy)
-	
-	if (blnLockItForMe)
-	; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
-	{
-		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
-		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
-			, % objMenu.MenuExternalSettingsPath, Global, MenuReservedBy ; no need to update LastModified for this change
-		; remember to free when saving or canceling
-		g_saExternaleMenuToRelease.Push(objMenu.MenuExternalSettingsPath)
-		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalSettingsPath, 999)
-	}
-
-	return true
 }
 ;------------------------------------------------------------
 
@@ -23869,7 +23752,190 @@ class Container
 	}
 	;------------------------------------------------------------
 	
+	;------------------------------------------------------------
+	FavoriteIsUnderExternalMenu(ByRef oExternalMenu)
+	;------------------------------------------------------------
+	{
+		oContainer := this
+		Loop ; loop going up in submenus chain
+		{
+			if (oContainer.AA.strMenuType = "External")
+			{
+				oExternalMenu := oContainer ; return the top level external menu object
+				return true
+			}
+			else if (oContainer.AA.strMenuPath = o_L["MainMenuName"])
+				return false ; up to Main menu, no External menu
+			else
+				oContainer := oContainer.AA.oParentMenu ; up one level and loop
+		}
+	}
+	;------------------------------------------------------------
+	
+	;------------------------------------------------------------
+	ExternalMenuAvailableForLock(blnLockItForMe := false)
+	;------------------------------------------------------------
+	{
+		if (this.AA.strMenuType <> "External")
+		; not an external menu, checking lock is not required, return true
+			return true
+		
+		intMenuExternalType := o_Settings.ReadIniValue("MenuType", 1, "Global", this.AA.strMenuExternalSettingsPath) ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
+		strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", this.AA.strMenuExternalSettingsPath) ; empty if not found
 
+		if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(this.AA.strMenuExternalSettingsPath))
+		{
+			strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", this.AA.strMenuExternalSettingsPath) ; empty if not found
+			strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", this.AA.strMenuExternalSettingsPath) ; empty if not found
+			Oops(o_L["OopsErrorIniFileReadOnly"] . (StrLen(strExternalMenuName) ? "`n`n" . o_L["DialogExternalMenuName"] . ":`n" . strExternalMenuName : "")
+				. (StrLen(strWriteAccessMessage) ? "`n`n" . o_L["DialogExternalWriteAccessMessage"] . ":`n" . strWriteAccessMessage : ""))
+			return false
+		}
+		else if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy))
+			; the collaborative or centralized menu is reserved...
+			if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+				; ... already reserved for this user, return true
+				return true
+			else
+			{
+				; ... reserved by another user, return false
+				Oops(o_L["OopsMenuExternalReservedBy"], (intMenuExternalType = 2 ? o_L["OopsMenuExternalCollaborative"] : o_L["OopsMenuExternalCentralized"]), strMenuExternalReservedBy)
+				return false
+			}
+		else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(this.AA.strMenuExternalSettingsPath))
+		; user cannot write to collaborative external ini file, could not lock it, return false
+		{
+			Oops(o_L["OopsExternalFileWriteErrorCollaborative"])
+			return false
+		}
+
+		; here, we know that this menu can be locked
+
+		if (blnLockItForMe) and this.ExternalMenuModifiedSinceLoaded()
+		; check if shared menu has been modified since it was loaded and, if yes, refresh menu
+		{
+			if (this.AA.strMenuPath = o_MenuInGui.AA.strMenuPath)
+			; this menu is in gui - inform user that his change cannot be saved and reload menu in gui
+			{
+				Oops(o_L["OopsErrorIniFileModified"])
+				Gosub, LoadMenuInGui ; will ExternalMenuReloadAndRebuild
+				return false
+			}
+			else
+			; was ExternalMenuReloadAndRebuild(objMenu)
+			; NOT tested here #####
+			{
+				this.LoadFavoritesFromIniFile(true) ; true for Refresh External
+				this.BuildMenu()
+			}
+		}
+		
+		; lock is allowed, return true
+		
+		if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
+			; personal menu is changed on another system - only inform user, lock overwriting is allowed
+			Oops(o_L["OopsMenuExternalPersonalChangedBy"], strMenuExternalReservedBy)
+		
+		if (blnLockItForMe)
+		; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
+		{
+			; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
+			IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
+				, % this.AA.strMenuExternalSettingsPath, Global, MenuReservedBy ; no need to update LastModified for this change
+			; remember to free when saving or canceling
+			g_saExternaleMenuToRelease.Push(this.AA.strMenuExternalSettingsPath)
+		}
+
+		return true
+	}
+	;------------------------------------------------------------
+	
+/*
+;------------------------------------------------------------
+ExternalMenuAvailableForLock(objMenu, blnLockItForMe := false)
+;------------------------------------------------------------
+{
+	global g_objMenuInGui
+
+	; ###_O(A_ThisFunc . " - objMenu", objMenu)
+	if (objMenu.MenuType <> "External")
+	; not an external menu, checking lock is not required, return true
+		return true
+	
+	intMenuExternalType := o_Settings.ReadIniValue("MenuType", 1, "Global", objMenu.MenuExternalSettingsPath) ; 1 Personal (default), 2 Collaborative or 3 Centralized (should be 1 or 2, never 3)
+	strMenuExternalReservedBy := o_Settings.ReadIniValue("MenuReservedBy", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
+
+	; ###_V(A_ThisFunc, objMenu.MenuExternalSettingsPath, intMenuExternalType, strMenuExternalReservedBy, A_UserName, A_ComputerName)
+	if (intMenuExternalType = 3 and ExternalMenuIsReadOnly(objMenu.MenuExternalSettingsPath))
+	{
+		strWriteAccessMessage := o_Settings.ReadIniValue("WriteAccessMessage", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
+		strExternalMenuName := o_Settings.ReadIniValue("MenuName", " ", "Global", objMenu.MenuExternalSettingsPath) ; empty if not found
+		Oops(o_L["OopsErrorIniFileReadOnly"] . (StrLen(strExternalMenuName) ? "`n`n" . o_L["DialogExternalMenuName"] . ":`n" . strExternalMenuName : "")
+			. (StrLen(strWriteAccessMessage) ? "`n`n" . o_L["DialogExternalWriteAccessMessage"] . ":`n" . strWriteAccessMessage : ""))
+		return
+	}
+	else if (intMenuExternalType > 1 and StrLen(strMenuExternalReservedBy))
+		; the collaborative or centralized menu is reserved...
+		if (strMenuExternalReservedBy = A_UserName . " (" . A_ComputerName . ")")
+			; ... already reserved for this user, return true
+			return true
+		else
+		{
+			; ... reserved by another user, return false
+			Oops(o_L["OopsMenuExternalReservedBy"], (intMenuExternalType = 2 ? o_L["OopsMenuExternalCollaborative"] : o_L["OopsMenuExternalCentralized"]), strMenuExternalReservedBy)
+			return false
+		}
+	else if (intMenuExternalType = 2 and ExternalMenuFolderIsReadOnly(objMenu.MenuExternalSettingsPath))
+	; user cannot write to collaborative external ini file, could not lock it, return false
+	{
+		Oops(o_L["OopsExternalFileWriteErrorCollaborative"])
+		return false
+	}
+
+	; here, we know that this menu can be locked
+
+	if (blnLockItForMe) and objMenu.ExternalMenuModifiedSinceLoaded()
+	; check if shared menu has been modified since it was loaded and, if yes, refresh menu
+	{
+		if (objMenu.MenuPath = g_objMenuInGui.MenuPath)
+		; this menu is in gui - inform user that his change cannot be saved and reload menu in gui
+		{
+			Oops(o_L["OopsErrorIniFileModified"])
+			Gosub, LoadMenuInGui ; will ExternalMenuReloadAndRebuild
+			return false
+		}
+		else
+		; was ExternalMenuReloadAndRebuild(objMenu)
+		; NOT tested here #####
+		{
+			objMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+			objMenu.BuildMenu()
+		}
+	}
+	
+	; lock is allowed, return true
+	
+	if (intMenuExternalType = 1 and StrLen(strMenuExternalReservedBy) and strMenuExternalReservedBy <> A_ComputerName . " (" . A_UserName . ")")
+		; personal menu is changed on another system - only inform user, lock overwriting is allowed
+		Oops(o_L["OopsMenuExternalPersonalChangedBy"], strMenuExternalReservedBy)
+	
+	if (blnLockItForMe)
+	; lock external menu for this user (do it only when saving changes to the menu, not when checking before opening the add/edit favorite dialog box)
+	{
+		; in personal menu save "computer (user)", in collaborative or centralized menu save "user (computer)"
+		IniWrite, % (intMenuExternalType = 1 ? A_ComputerName . " (" . A_UserName . ")" : A_UserName . " (" . A_ComputerName . ")")
+			, % objMenu.MenuExternalSettingsPath, Global, MenuReservedBy ; no need to update LastModified for this change
+		; remember to free when saving or canceling
+		g_saExternaleMenuToRelease.Push(objMenu.MenuExternalSettingsPath)
+		; ###_V(A_ThisFunc . " LOCKED", objMenu.MenuExternalSettingsPath, 999)
+	}
+
+	return true
+}
+;------------------------------------------------------------
+
+
+*/
 
 	; === end of methods for class Container ===
 	
