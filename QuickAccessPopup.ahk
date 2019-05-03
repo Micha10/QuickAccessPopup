@@ -11379,16 +11379,18 @@ if (g_blnAbortSave)
 
 if (o_EditedFavorite.IsContainer() and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
-	o_NewMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu] ) ; class instance for the new menu or group
+	o_EditedFavoriteMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu] ) ; class instance for the new menu or group
 
-	if (o_NewMenu.AA.strMenuType = "External")
+	if (o_EditedFavoriteMenu.AA.strMenuType = "External")
 	{
-		o_NewMenu.AA.strMenuExternalSettingsPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir))
-		o_NewMenu.AA.strMenuExternalLoaded := true ; consider as loaded since it is new and empty
+		o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir))
+		o_EditedFavoriteMenu.AA.strMenuExternalLoaded := true ; consider as loaded since it is new and empty
 	}
 
-	o_EditedFavorite.AA.oSubmenu := o_NewMenu
+	o_EditedFavorite.AA.oSubmenu := o_EditedFavoriteMenu
 }
+else
+	o_EditedFavoriteMenu := o_EditedFavorite.AA.oSubmenu
 
 ; update menu object except if we multiple move or copy favorites
 
@@ -11398,38 +11400,38 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 	if (o_EditedFavorite.AA.strFavoriteType = "External")
 	{
-		if FileExist(o_NewMenu.AA.strMenuExternalSettingsPath) ; file path exists
-			; load the external menu to menu instance o_NewMenu created earlier
-			o_NewMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
+			; load the external menu to menu instance o_EditedFavoriteMenu created earlier
+			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
-			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_NewMenu.AA.strMenuExternalSettingsPath)
+			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
 			IfMsgBox, No
 			{
 				gosub, GuiAddFavoriteSaveCleanup
 				return
 			}
-			IniWrite, Z, % o_NewMenu.AA.strMenuExternalSettingsPath, Favorites, Favorite1
+			IniWrite, Z, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Favorites, Favorite1
 			Sleep, 20 ; for safety
 		}
 		
 		; if external settings file is not read-only, write [Global] values to external settings file
-		if !ExternalMenuIsReadOnly(o_NewMenu.AA.strMenuExternalSettingsPath)
+		if !ExternalMenuIsReadOnly(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
 		{
 			if !(g_blnExternalLocationChanged) and !(strThisLabel = "GuiAddExternalSave") ; only if external menu created with dialog box
 			{
 				intMenuExternalType := (f_radExternalMenuType1 ? 1 : (f_radExternalMenuType2 ? 2 : 3))
-				IniWrite, %intMenuExternalType%, % o_NewMenu.AA.strMenuExternalSettingsPath, Global, MenuType
-				IniWrite, %f_strExternalMenuName%, % o_NewMenu.AA.strMenuExternalSettingsPath, Global, MenuName
-				IniWrite, %f_strExternalWriteAccessUsers%, % o_NewMenu.AA.strMenuExternalSettingsPath, Global, WriteAccessUsers
-				IniWrite, %f_strExternalWriteAccessMessage%, % o_NewMenu.AA.strMenuExternalSettingsPath, Global, WriteAccessMessage
+				IniWrite, %intMenuExternalType%, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, MenuType
+				IniWrite, %f_strExternalMenuName%, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, MenuName
+				IniWrite, %f_strExternalWriteAccessUsers%, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, WriteAccessUsers
+				IniWrite, %f_strExternalWriteAccessMessage%, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, WriteAccessMessage
 				; update last modified value in ini file because values requiring update by other users were changed
-				IniWrite, % (f_radExternalSourceCloud = 1), % o_NewMenu.AA.strMenuExternalSettingsPath, Global, LastModifiedFromSystem
-				strLastModified := ExternalMenuGetModifiedDateTime(o_NewMenu.AA.strMenuExternalSettingsPath)
-				IniWrite, %strLastModified%, % o_NewMenu.AA.strMenuExternalSettingsPath, Global, LastModified
+				IniWrite, % (f_radExternalSourceCloud = 1), % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, LastModifiedFromSystem
+				strLastModified := ExternalMenuGetModifiedDateTime(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
+				IniWrite, %strLastModified%, % o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath, Global, LastModified
 			}
 			else
-				strLastModified := ExternalMenuGetModifiedDateTime(o_NewMenu.AA.strMenuExternalSettingsPath)
+				strLastModified := ExternalMenuGetModifiedDateTime(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
 				; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
 
 			; update object's last modified dates anyway
@@ -11442,33 +11444,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	o_EditedFavorite.AA.strFavoriteName := strNewFavoriteShortName
 
 	if o_EditedFavorite.IsContainer()
-#####		
-	{
-		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . strNewFavoriteShortName
-			. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
-		
-		if (strThisLabel = "GuiEditFavoriteSave") ; only this label, not required for Add, Copy, Move
-		{
-			; update g_objMenusIndex
-			strIndexToRemove := ""
-			for strThisMenuIndexPath, objThisMenu in g_objMenusIndex
-				if (strThisMenuIndexPath <> objThisMenu.MenuPath)
-				; because the menu (or group) name changed, update the menu path of this menu and submenus entries in g_objMenusIndex
-				{
-					; add index item objThisMenu.MenuPath containing the new path
-					g_objMenusIndex.Insert(objThisMenu.MenuPath, objThisMenu)
-					; remember to delete index entry with old path (remove only after loop because remove would break it)
-					strIndexToRemove .= strThisMenuIndexPath . "|"
-				}
-			if StrLen(strIndexToRemove)
-				Loop, Parse, strIndexToRemove, |
-					; remove index entry containing path before rename
-					if StrLen(A_LoopField) ; skip last field
-						g_objMenusIndex.Remove(A_LoopField)
-					
-		}
-	}
+		o_EditedFavorite.UpdateMenusPathAndLocation(strDestinationMenu) ; also update o_Containers
 	else
 	{
 		if (o_EditedFavorite.AA.strFavoriteType = "WindowsApp") and (f_drpWindowsAppsList = "* " . o_L["DialogWindowsAppsListCustom"])
@@ -11476,12 +11452,13 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		o_EditedFavorite.AA.strFavoriteLocation := strNewFavoriteLocation
 	}
 
+	; ##### later
 	Gosub, UpdateFavoriteObjectSaveShortcut
 	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in o_EditedFavorite.AA.strFavoriteHotstring
 
 	; for safety check if icon resource is empty, if yes, set default icon for type
 	if !StrLen(g_strNewFavoriteIconResource)
-		o_EditedFavorite.GetDefaultIcon4Type(strNewFavoriteLocation)
+		g_strNewFavoriteIconResource := o_EditedFavorite.GetDefaultIcon4Type(strNewFavoriteLocation)
 	o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
 	
 	o_EditedFavorite.AA.strFavoriteWindowPosition := strNewFavoriteWindowPosition
@@ -11492,8 +11469,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		o_EditedFavorite.AA.strFavoriteGroupSettings .= "," . (f_blnRadioGroupRestoreWithOther ? "Other" : "Windows Explorer")
 		o_EditedFavorite.AA.strFavoriteGroupSettings .= "," . f_intGroupRestoreDelay
 	}
-	else if (o_EditedFavorite.AA.strFavoriteType = "External")
-		o_EditedFavorite.AA.strFavoriteGroupSettings := f_intExternalStartingNumber
 
 	o_EditedFavorite.AA.strFavoriteLoginName := f_strFavoriteLoginName
 	o_EditedFavorite.AA.strFavoritePassword := f_strFavoritePassword
@@ -11534,40 +11509,16 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		o_EditedFavorite.AA.blnFavoriteElevate := f_blnFavoriteElevate
 	}
 }
-else ; GuiMoveOneFavoriteSave (does not apply to GuiCopyOneFavoriteSave because menu cannot be part of multiple copy)
-	if InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)
-	; for Menu and Group in multiple moved, update the .FavoriteLocation in favorite object and update menus and hotkeys index objects
-	{
-		strMenuLocation := strDestinationMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName
-			. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
-		RecursiveUpdateMenuPathAndLocation(g_objEditedFavorite, strMenuLocation)
-		
-		; update g_objMenusIndex
-		strIndexToRemove := ""
-		for strThisMenuIndexPath, objThisMenu in g_objMenusIndex
-		{
-			if (strThisMenuIndexPath <> objThisMenu.MenuPath)
-			; because the menu (or group) name changed, update the menu path of this menu and submenus entries in g_objMenusIndex
-			{
-				; add index item objThisMenu.MenuPath containing the new path
-				g_objMenusIndex.Insert(objThisMenu.MenuPath, objThisMenu)
-				; remember to delete index entry with old path (remove only after loop because remove would break it)
-				strIndexToRemove .= strThisMenuIndexPath . "|"
-			}
-		}
-		if StrLen(strIndexToRemove)
-			Loop, Parse, strIndexToRemove, |
-				; remove index entry containing path before rename
-				if StrLen(A_LoopField) ; skip last field
-					g_objMenusIndex.Remove(A_LoopField)
-	}
+else ; GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave (but GuiCopyOneFavoriteSave cannot be part of multiple copy)
+	if o_EditedFavorite.IsContainer()
+		; for Menu and Group in multiple moved, update the strFavoriteLocation in favorite object and update menus and hotkeys index objects
+		o_EditedFavorite.UpdateMenusPathAndLocation(strDestinationMenu)
 
 ; updating original and destination menu objects (these can be the same)
 
 if (strOriginalMenu <> "")
-	g_objMenusIndex[strOriginalMenu].Remove(g_intOriginalMenuPosition)
-
-g_objMenusIndex[strDestinationMenu].Insert(g_intNewItemPos, g_objEditedFavorite)
+	o_Containers.AA[strOriginalMenu].SA.RemoveAt(g_intOriginalMenuPosition) `use .RemoveAt, not .Delete
+o_Containers.AA[strDestinationMenu].SA.InsertAt(g_intNewItemPos, o_EditedFavorite)
 
 ; updating listview
 if (strThisLabel <> "GuiAddExternalSave")
@@ -11579,10 +11530,10 @@ Gui, 1:Default
 GuiControl, 1:Focus, lvFavoritesList
 Gui, 1:ListView, lvFavoritesList
 
-if (strOriginalMenu = g_objMenuInGui.MenuPath) ; remove original from Listview if original in Gui (can be replaced with modified)
+if (strOriginalMenu = o_MenuInGui.AA.strMenuPath) ; remove original from Listview if original in Gui (can be replaced with modified)
 	LV_Delete(g_intOriginalMenuPosition)
 
-if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
+if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview if destination in Gui (can replace original deleted)
 {
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(0, "-Select")
@@ -11611,17 +11562,17 @@ if (strDestinationMenu = g_objMenuInGui.MenuPath) ; add modified to Listview if 
 		LV_Modify(LV_GetNext(), "Vis")
 }
 
-GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|" ; required if submenu was added
+GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|" ; required if submenu was added
 Gosub, AdjustColumnsWidth
 
 Gosub, EnableSaveAndCancel
 
 ; if favorite's original or destination menu are in an external settings file, flag that they need to be saved
-if g_objMenusIndex[strDestinationMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
-	o_ExternalMenu.NeedSave := true ; fix add .AA ?
+if o_Containers.AA[strDestinationMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	o_ExternalMenu.AA.blnNeedSave := true
 if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 	if o_MenusIndex[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
-		o_ExternalMenu.NeedSave := true ; fix add .AA ?
+		o_ExternalMenu.AA.blnNeedSave := true
 
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
@@ -12059,24 +12010,6 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveUpdateMenuPathAndLocation(objEditedFavorite, strMenuPath)
-; update submenus and their childrens and groups to the new path of the parent menu
-;------------------------------------------------------------
-{
-	objEditedFavorite.SubMenu.MenuPath := strMenuPath
-	strMenuLocation := StrReplace(strMenuPath, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
-	objEditedFavorite.FavoriteLocation := strMenuLocation
-	
-	Loop, % objEditedFavorite.SubMenu.MaxIndex()
-		if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
-			RecursiveUpdateMenuPathAndLocation(objEditedFavorite.SubMenu[A_Index]
-				, objEditedFavorite.SubMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objEditedFavorite.SubMenu[A_Index].FavoriteName
-				. (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 ValidateWindowPosition(strPosition)
 ;------------------------------------------------------------
 {
@@ -12225,7 +12158,7 @@ Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
-	o_ExternalMenu.NeedSave := true
+	o_ExternalMenu.AA.blnNeedSave := true
 
 if (g_blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
@@ -12336,7 +12269,7 @@ Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) ; LATER
-	o_ExternalMenu.NeedSave := true ; fix add .AA ?
+	o_ExternalMenu.AA.blnNeedSave := true ; fix add .AA ?
 
 objExternalMenu := ""
 saThisRow := ""
@@ -12405,7 +12338,7 @@ if (intRowsToSort > 1) ; sort only if required
 
 	; if favorite's menu is in an external settings file, flag that it needs to be saved
 	if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
-		o_ExternalMenu.NeedSave := true
+		o_ExternalMenu.AA.blnNeedSave := true
 }
 else
 {
@@ -12960,7 +12893,7 @@ if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResourc
 			; by another user since it was loaded in QAP by this user
 			goto, IconsManagePickIconDialogCleanup
 		else ; flag that this external menu needs to be saved
-			o_ExternalMenu.NeedSave := true ; fix add .AA ?
+			o_ExternalMenu.AA.blnNeedSave := true ; fix add .AA ?
 	; else continue
 
 	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
@@ -13029,7 +12962,7 @@ Gosub, EnableSaveAndCancel
 
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
-	o_ExternalMenu.NeedSave := true ; fix add .AA ?
+	o_ExternalMenu.AA.blnNeedSave := true ; fix add .AA ?
 
 intInsertPosition := ""
 objNewFavorite := ""
@@ -13249,7 +13182,7 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 			or (objCurrentMenu[A_Index].FavoriteType = "External"
 				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
 				and objCurrentMenu[A_Index].SubMenu.MenuExternalLoaded
-				and objCurrentMenu[A_Index].SubMenu.NeedSave)
+				and objCurrentMenu[A_Index].SubMenu.AA.blnNeedSave)
 		{
 			if (objCurrentMenu[A_Index].FavoriteType = "External")
 			{
@@ -13275,10 +13208,10 @@ RecursiveSaveFavoritesToIniFile(objCurrentMenu)
 				strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(o_Settings.strIniFile)
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
 				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
-				objCurrentMenu[A_Index].SubMenu.NeedSave := false
+				objCurrentMenu[A_Index].SubMenu.AA.blnNeedSave := false
 				IniWrite, %strIniDateTimeAfter%, % o_Settings.strIniFile, Global, LastModified
 				; ###_V("DateTime AFTER", o_Settings.strIniFile, strIniDateTimeAfter)
-					
+				
 				o_Settings.strIniFile := strPreviousIniFile
 				o_Settings.intIniLine := intPreviousIniLine
 			}
@@ -22764,6 +22697,7 @@ class Container
 		{
 			s_strIniFile := this.AA.strMenuExternalSettingsPath
 			s_intIniLine := 1
+			this.AA.blnNeedSave := false
 		}
 		
 		if !StrLen(s_strIniFile)
@@ -25188,6 +25122,33 @@ class Container
 				return "iconDesktop"
 			else ; should not
 				return "iconUnknown"
+		}
+		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		UpdateMenusPathAndLocation(strNewDestinationMenu)
+		; update submenus and their childrens to the new path of the parent menu
+		;---------------------------------------------------------
+		{
+			strNewMenuPath := strNewDestinationMenu . g_strMenuPathSeparatorWithSpaces . this.AA.strFavoriteName
+				. (o_EditedFavorite.AA.strFavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "")
+			
+			o_Containers.AA.Delete(this.AA.oSubMenu.AA.strMenuPath) ; remove old path from o_Containers
+			this.AA.oSubMenu.AA.strMenuPath := strNewMenuPath ; update menu path
+			o_Containers.AA[strNewMenuPath] := this.AA.oSubMenu ; add new path to o_Containers
+			this.AA.strFavoriteLocation := StrReplace(strNewMenuPath, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
+			
+			; update submenus (recursive)
+			if (o_EditedFavorite.AA.strFavoriteType <> "Group") ; groups have no submenu
+				for intKey, oItem in this.AA.oSubMenu.SA
+					if oItem.IsContainer()
+						oItem.UpdateMenusPathAndLocation(strNewMenuPath) ; RECURSIVE
+				
+			; Loop, % objEditedFavorite.SubMenu.MaxIndex()
+				; if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
+					; RecursiveUpdateMenuPathAndLocation(objEditedFavorite.SubMenu[A_Index]
+						; , objEditedFavorite.SubMenu.MenuPath . g_strMenuPathSeparatorWithSpaces . objEditedFavorite.SubMenu[A_Index].FavoriteName
+						; . (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
 		}
 		;---------------------------------------------------------
 
