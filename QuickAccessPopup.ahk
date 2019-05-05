@@ -4042,8 +4042,6 @@ LoadIniFile:
 ; load options, load favorites to menu object
 ;-----------------------------------------------------------
 
-Gosub, BackupIniFile
-
 ; reinit after Settings save if already exist
 o_MenuInGui := Object() ; object of menu currently in Gui
 
@@ -4128,6 +4126,8 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 }
 else
 {
+	Settings.BackupIniFile(o_Settings.strIniFile) ; backup main ini file
+
 	g_strIniBefore := "DONT"
 	o_Settings.ReadIniOption("SettingsFile", "blnDoNotConvertSettingsToUnicode", "DoNotConvertSettingsToUnicode", 0) ; blnDoNotConvertSettingsToUnicode
 	if !(o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.IniValue)
@@ -4296,7 +4296,7 @@ if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersio
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-; o_Settings.SettingsFile.strBackupFolder.IniValue is read when doing BackupIniFile before LoadIniFile
+o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", strDefaultBackupFolder, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
 
 ; ---------------------
 ; Load favorites
@@ -4315,7 +4315,6 @@ strAlternativeHotkeyKeyboardDefault := ""
 objThisFavorite := ""
 objLoadIniFavorite := ""
 ResetArray("arrSubMenu")
-o_Settings.intIniLine := ""
 strFileList := ""
 intNumberOfBackups := ""
 objIniFile := ""
@@ -4385,9 +4384,8 @@ else
 	global g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-	o_Settings.intIniLine := 1 ; start reading Favorites at top of ini file
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
-	if (o_MainMenu.LoadFavoritesFromIniFile() <> "EOM")
+	if (o_MainMenu.LoadFavoritesFromIniFile(true) <> "EOM")
 		ExitApp
 }
 
@@ -6151,7 +6149,7 @@ g_blnRefreshQAPMenuInProgress := true
 for strMenuName, o_ThisContainer in o_Containers.AA
 	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	{
-		o_ThisContainer.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_ThisContainer.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
 		o_ThisContainer.BuildMenu()
 	}
 
@@ -8221,7 +8219,7 @@ LV_Delete()
 if (o_MenuInGui.AA.strMenuType = "External") and o_MenuInGui.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	; was ExternalMenuReloadAndRebuild(g_objMenuInGui)
 	{
-		o_MenuInGui.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_MenuInGui.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
 		o_MenuInGui.BuildMenu()
 	}
 
@@ -11384,7 +11382,7 @@ if (o_EditedFavorite.IsContainer() and InStr("GuiAddFavoriteSave|GuiAddExternalS
 	if (o_EditedFavoriteMenu.AA.strMenuType = "External")
 	{
 		o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath := PathCombine(A_WorkingDir, EnvVars(strFavoriteAppWorkingDir))
-		o_EditedFavoriteMenu.AA.strMenuExternalLoaded := true ; consider as loaded since it is new and empty
+		o_EditedFavoriteMenu.AA.blnMenuExternalLoaded := true ; consider as loaded since it is new and empty
 	}
 
 	o_EditedFavorite.AA.oSubmenu := o_EditedFavoriteMenu
@@ -11402,7 +11400,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
 			; load the external menu to menu instance o_EditedFavoriteMenu created earlier
-			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
 			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
@@ -11617,30 +11615,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 }
 
 return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OLD_LoadExternalMenu(objExternalMenu, strExternalMenuPath)
-;------------------------------------------------------------
-{
-	###_V(A_ThisFunc, "?")
-	; remove existing menu entries but keep entry #1 (back menu)
-	loop, % objExternalMenu.MaxIndex() -  1
-		objExternalMenu.Delete(objExternalMenu.MaxIndex()) ; do not use .RemoveAt() because all keys in object are not numeric - risk of side effects
-	
-	strPreviousIniFile := o_Settings.strIniFile
-	intPreviousIniLine := o_Settings.intIniLine
-	o_Settings.strIniFile := strExternalMenuPath ; settings file path for external menu
-	o_Settings.intIniLine := 1 ; starting number always 1 for new menus since v8.1.9.1
-	
-	strResult := ; OLD_#####_RecursiveLoadMenuFromIni(objExternalMenu) ; strResult is not checked here because already processed in RecursiveLoadMenuFromIni
-	
-	o_Settings.strIniFile := strPreviousIniFile
-	o_Settings.intIniLine := intPreviousIniLine
-	
-	return strResult
-}
 ;------------------------------------------------------------
 
 
@@ -13055,20 +13029,15 @@ GuiSaveAndReloadQAP:
 ;------------------------------------------------------------
 
 g_blnMenuReady := false
-strSavedMenuInGui := g_objMenuInGui.MenuPath
+strSavedMenuInGui := o_MenuInGui.AA.strMenuPath
 
 GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
 GuiControl, Disable, f_btnGuiCancel
 
-IniRead, strTempIniFavoritesSection, % o_Settings.strIniFile, Favorites
-IniWrite, %strTempIniFavoritesSection%, % o_Settings.strIniFile, Favorites-backup
-IniDelete, % o_Settings.strIniFile, Favorites
-
 g_blnWorkingToolTip := true
-o_Settings.intIniLine := 1 ; reset counter before saving to another ini file
-RecursiveSaveFavoritesToIniFile(g_objMainMenu)
+o_MainMenu.SaveFavoritesToIniFile()
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -13096,133 +13065,18 @@ g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
 {
-	if (g_objMenusIndex[strSavedMenuInGui].MenuType = "External")
-		g_objMenuInGui := g_objMenusIndex[o_L["MainMenuName"]]
-	else
-		g_objMenuInGui := g_objMenusIndex[strSavedMenuInGui]
+	if o_Containers.AA[strSavedMenuInGui].FavoriteIsUnderExternalMenu(o_ExternalMenu) ; by safety, reload in main menu to make sure entering in the external menu is properly processed
+		o_MenuInGui := o_Containers.AA[o_L["MainMenuName"]]
 	Gosub, GuiShowFromGuiSettings
 }
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
-o_Settings.intIniLine := ""
 strSavedMenuInGui := ""
 strThisNameLocation := ""
 strThisHotkey := ""
 
 return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RecursiveSaveFavoritesToIniFile(objCurrentMenu)
-;------------------------------------------------------------
-{
-	; ###_V("RecursiveSaveFavoritesToIniFile Begin", o_Settings.strIniFile, o_Settings.intIniLine)
-	; ###_O("objCurrentMenu", objCurrentMenu, "FavoriteLocation")
-	if (g_blnWorkingToolTip)
-		Tooltip, % o_L["ToolTipSaving"] . "`n" . objCurrentMenu.MenuPath
-
-	Loop, % objCurrentMenu.MaxIndex()
-	{
-		; skip ".." back link to parent menu
-		blnIsBackMenu := (objCurrentMenu[A_Index].FavoriteType = "B")
-		if !(blnIsBackMenu)
-		{
-			; make sure we do not save a menu separator after a column break - this would confuse the references to menu object index
-			if (A_Index > 1)
-				if (objCurrentMenu[A_Index].FavoriteType = "X") and (objCurrentMenu[A_Index - 1].FavoriteType = "K")
-					continue
-
-			strIniLine := objCurrentMenu[A_Index].FavoriteType . "|" ; 1
-			if (objCurrentMenu[A_Index].FavoriteType = "QAP")
-				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
-			else
-				strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteName, "|", g_strEscapePipe) . "|" ; 2
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
-			if StrLen(o_JLicons.AA[objCurrentMenu[A_Index].FavoriteIconResource]) ; save index of o_JLicons.AA
-				strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
-			else
-			{
-				ParseIconResource(objCurrentMenu[A_Index].FavoriteIconResource, strIconFile, intIconIndex)
-				if (strIconFile = o_JLicons.strFileLocation) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
-					strIniLine .= o_JLicons.GetName(intIconIndex) . "|" ; 4
-				else ; use icongroup as is
-					strIniLine .= objCurrentMenu[A_Index].FavoriteIconResource . "|" ; 4
-			}
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
-			strIniLine .= objCurrentMenu[A_Index].FavoriteAppWorkingDir . "|" ; 6
-			strIniLine .= objCurrentMenu[A_Index].FavoriteWindowPosition . "|" ; 7
-			; REMOVED strIniLine .= objCurrentMenu[A_Index].FavoriteHotkey . "|" ; 8
-			strIniLine .= objCurrentMenu[A_Index].FavoriteLaunchWith . "|" ; 8
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteLoginName, "|", g_strEscapePipe) . "|" ; 9
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoritePassword, "|", g_strEscapePipe) . "|" ; 10
-			strIniLine .= objCurrentMenu[A_Index].FavoriteGroupSettings . "|" ; 11
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFtpEncoding . "|" ; 12
-			strIniLine .= objCurrentMenu[A_Index].blnFavoriteElevate . "|" ; 13
-			strIniLine .= objCurrentMenu[A_Index].blnFavoriteDisabled . "|" ; 14
-			strIniLine .= objCurrentMenu[A_Index].intFavoriteFolderLiveLevels . "|" ; 15
-			strIniLine .= objCurrentMenu[A_Index].blnFavoriteFolderLiveDocuments . "|" ; 16
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveColumns . "|" ; 17
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveIncludeExclude . "|" ; 18
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveExtensions . "|" ; 19
-			strIniLine .= objCurrentMenu[A_Index].FavoriteShortcut . "|" ; 20
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
-			strIniLine .= objCurrentMenu[A_Index].FavoriteFolderLiveSort . "|" ; 22
-			strIniLine .= StrReplace(objCurrentMenu[A_Index].FavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
-			strIniLine .= objCurrentMenu[A_Index].FavoriteDateCreated . "|" ; 24
-			strIniLine .= objCurrentMenu[A_Index].FavoriteDateModified . "|" ; 25
-			strIniLine .= objCurrentMenu[A_Index].intFavoriteUsageDb . "|" ; 26
-
-			IniWrite, %strIniLine%, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine
-			o_Settings.intIniLine++
-		}
-
-		if (InStr("Menu|Group", objCurrentMenu[A_Index].FavoriteType, true) and !(blnIsBackMenu))
-			or (objCurrentMenu[A_Index].FavoriteType = "External"
-				and !ExternalMenuIsReadOnly(objCurrentMenu[A_Index].FavoriteAppWorkingDir)
-				and objCurrentMenu[A_Index].SubMenu.MenuExternalLoaded
-				and objCurrentMenu[A_Index].SubMenu.AA.blnNeedSave)
-		{
-			if (objCurrentMenu[A_Index].FavoriteType = "External")
-			{
-				strPreviousIniFile := o_Settings.strIniFile
-				intPreviousIniLine := o_Settings.intIniLine
-				o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(objCurrentMenu[A_Index].FavoriteAppWorkingDir)) ; settings file path
-				o_Settings.intIniLine := objCurrentMenu[A_Index].FavoriteGroupSettings ; starting number - DEPRECATED since v8.1.9.1
-				if !StrLen(o_Settings.intIniLine)
-					o_Settings.intIniLine := 1 ; always 1 for menu added from v8.1.9.1
-				
-				gosub, BackupExternalIniFile ; backup external settings ini file, if required
-				
-				IniRead, strTempIniFavoritesSection, % o_Settings.strIniFile, Favorites
-				IniWrite, %strTempIniFavoritesSection%, % o_Settings.strIniFile, Favorites-backup
-				IniDelete, % o_Settings.strIniFile, Favorites
-			}
-			
-			RecursiveSaveFavoritesToIniFile(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
-			
-			if (objCurrentMenu[A_Index].FavoriteType = "External")
-			{
-				Sleep, 20 ; for safety
-				strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(o_Settings.strIniFile)
-				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
-				objCurrentMenu[A_Index].SubMenu.MenuExternalLastModifiedNow := strIniDateTimeAfter
-				objCurrentMenu[A_Index].SubMenu.AA.blnNeedSave := false
-				IniWrite, %strIniDateTimeAfter%, % o_Settings.strIniFile, Global, LastModified
-				; ###_V("DateTime AFTER", o_Settings.strIniFile, strIniDateTimeAfter)
-				
-				o_Settings.strIniFile := strPreviousIniFile
-				o_Settings.intIniLine := intPreviousIniLine
-			}
-		}
-	}
-		
-	IniWrite, Z, % o_Settings.strIniFile, Favorites, % "Favorite" . o_Settings.intIniLine ; end of menu marker
-	o_Settings.intIniLine++
-	
-	return
-}
 ;------------------------------------------------------------
 
 
@@ -17466,44 +17320,6 @@ LV_ModifyCol(intNbColAuto + 1, g_intListW - intColSum - 21) ; adjust column widt
 
 intColSum := ""
 */
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-BackupIniFile:
-BackupExternalIniFile:
-; o_Settings.strIniFile contains the QAP ini file or an external menu settings ini file
-;------------------------------------------------------------
-
-SplitPath, % o_Settings.strIniFile, strIniBackupFilename, strDefaultBackupFolder
-; check if we have a backup folder in current ini file, if not make the backup in the current ini folder
-o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", strDefaultBackupFolder, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
-if !StrLen(o_Settings.SettingsFile.strBackupFolder.IniValue) ; if value exist but is empty
-	o_Settings.SettingsFile.strBackupFolder.IniValue := strDefaultBackupFolder
-
-; delete old backup files (keep only 5/10 most recent files)
-strIniBackupFile := o_Settings.SettingsFile.strBackupFolder.IniValue . "\" . StrReplace(strIniBackupFilename, ".ini", "-backup-????????.ini")
-Loop, %strIniBackupFile%
-	strFileList .= A_LoopFileFullPath . "`n"
-Sort, strFileList, R
-intNumberOfBackups := (g_strCurrentBranch <> "prod" ? 10 : 5)
-Loop, Parse, strFileList, `n
-	if (A_Index > intNumberOfBackups)
-		if StrLen(A_LoopField)
-			FileDelete, %A_LoopField%
-
-; create a daily backup of the ini file
-strIniBackupFile := StrReplace(strIniBackupFile, "????????", SubStr(A_Now, 1, 8))
-; always keep the most recent backup for a given day
-FileCopy, % o_Settings.strIniFile, %strIniBackupFile%, 1
-
-strIniBackupFile := ""
-strIniBackupFilename := ""
-strDefaultBackupFolder := ""
-strFileList := ""
-intNumberOfBackups := ""
 
 return
 ;------------------------------------------------------------
@@ -22277,7 +22093,6 @@ TODO
 	;---------------------------------------------------------
 	{
 		this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
-		this.intIniLine := ""
 		
 		this.saOptionsGroups := ["General", "SettingsWindow", "MenuIcons", "MenuAppearance"
 			, "PopupMenu", "PopupHotkeys", "PopupHotkeysAlternative", "FileManagers"
@@ -22395,6 +22210,36 @@ TODO
 	}
 	;---------------------------------------------------------
 	
+	;---------------------------------------------------------
+	BackupIniFile(strIniFile, blnIsExternal := false)
+	; call as base class function Settings.BackupIniFile() only, not as an instance method
+	; (because various ini files are not instances of this class - could be done later)
+	;---------------------------------------------------------
+	{
+		SplitPath, strIniFile, strIniFileFilename, strIniFileFolder
+		
+		strThisBackupFolder := o_Settings.ReadIniValue("BackupFolder", "", "Global", strIniFile) ; can be main ini file, alternative ini or external ini file backup folder
+		if !StrLen(strThisBackupFolder) ; if no backup folder in ini file, backup in ini file's folder
+			strThisBackupFolder := strIniFileFolder
+		
+		; delete old backup files (keep only 5/10 most recent files)
+		strIniBackupFile := strThisBackupFolder . "\" . StrReplace(strIniFileFilename, ".ini", "-backup-????????.ini")
+		Loop, %strIniBackupFile%
+			strFilesList .= A_LoopFileFullPath . "`n"
+		Sort, strFilesList, R ; reverse alphabetical order - most recent first 
+		intNumberOfBackups := (g_strCurrentBranch <> "prod" ? 10 : 5)
+		Loop, Parse, strFilesList, `n
+			if (A_Index > intNumberOfBackups)
+				if StrLen(A_LoopField)
+					FileDelete, %A_LoopField%
+
+		; create a daily backup of the ini file
+		strIniBackupFile := StrReplace(strIniBackupFile, "????????", SubStr(A_Now, 1, 8))
+		; always keep the most recent backup for a given day
+		FileCopy, %strIniFile%, %strIniBackupFile%, 1
+	}
+	;---------------------------------------------------------
+
 	;---------------------------------------------------------
 	class IniValueExclusionMouseList extends Settings.IniValue
 	;---------------------------------------------------------
@@ -22684,7 +22529,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(blnRefreshExternal := false)
+	LoadFavoritesFromIniFile(blnEntryMenu := false, blnRefreshExternal := false)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -22693,10 +22538,12 @@ class Container
 		static s_intIniLine := 1
 		static s_strIniFile
 		
+		if (blnEntryMenu) ; do not pass this value when recursing
+			s_intIniLine := 1
+		
 		if (blnRefreshExternal) ; do not pass this value when recursing
 		{
 			s_strIniFile := this.AA.strMenuExternalSettingsPath
-			s_intIniLine := 1
 			this.AA.blnNeedSave := false
 		}
 		
@@ -22749,7 +22596,7 @@ class Container
 				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLine . "=")
 				if (this.AA.strMenuType = "External")
 				{
-					this.AA.strMenuExternalLoaded := false
+					this.AA.blnMenuExternalLoaded := false
 					return, "EOM" ; end of menu because of error inside settings file - error is noted in .MenuExternalLoaded false - external menu will stop at the previous favorite
 				}
 				else
@@ -23549,7 +23396,7 @@ class Container
 					{
 						if ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
 							strGuiMenuLocation := o_L["DialogReadOnly"] . " "
-						else if !(oItem.AA.oSubMenu.AA.strMenuExternalLoaded)
+						else if !(oItem.AA.oSubMenu.AA.blnMenuExternalLoaded)
 							strGuiMenuLocation := o_L["OopsErrorIniFileUnavailable"] . " "
 						else
 							strGuiMenuLocation := ""
@@ -23747,6 +23594,113 @@ class Container
 	}
 	;------------------------------------------------------------
 	
+	;---------------------------------------------------------
+	SaveFavoritesToIniFile()
+	;---------------------------------------------------------
+	{
+		static s_intIniLine := 1
+		static s_strIniFile
+		
+		if !StrLen(s_strIniFile)
+			s_strIniFile := o_Settings.strIniFile
+		
+		if (s_intIniLine = 1) ; this is the first line of the file, make internal backup
+		{
+			IniRead, strTempIniFavoritesSection, %s_strIniFile%, Favorites
+			IniWrite, %strTempIniFavoritesSection%, %s_strIniFile%, Favorites-backup
+			IniDelete, %s_strIniFile%, Favorites
+		}
+		
+		if (g_blnWorkingToolTip)
+			Tooltip, % o_L["ToolTipSaving"] . "`n" . this.AA.strMenuPath
+		
+		for intKey, oItem in this.SA
+		{
+			; make sure we do not save a menu separator after a column break - this would confuse the references to menu object index
+			if (intKey > 1)
+				if (oItem.AA.strFavoriteType = "X") and (this.SA[intKey - 1].AA.strFavoriteType = "K")
+					continue
+
+			strIniLine := oItem.AA.strFavoriteType . "|" ; 1
+			if (oItem.AA.strFavoriteType = "QAP")
+				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
+			else
+				strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			strIniLine .= StrReplace(oItem.AA.strFavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
+			if StrLen(o_JLicons.AA[oItem.AA.strFavoriteIconResource]) ; save index of o_JLicons.AA
+				strIniLine .= oItem.AA.strFavoriteIconResource . "|" ; 4
+			else
+			{
+				ParseIconResource(oItem.AA.strFavoriteIconResource, strIconFile, intIconIndex)
+				if (strIconFile = o_JLicons.strFileLocation) ; use JLicons.dll index to store JLicons.dll index like "iconXYZ"
+					strIniLine .= o_JLicons.GetName(intIconIndex) . "|" ; 4
+				else ; use icongroup as is
+					strIniLine .= oItem.AA.strFavoriteIconResource . "|" ; 4
+			}
+			strIniLine .= StrReplace(oItem.AA.strFavoriteArguments, "|", g_strEscapePipe) . "|" ; 5
+			strIniLine .= oItem.AA.strFavoriteAppWorkingDir . "|" ; 6
+			strIniLine .= oItem.AA.strFavoriteWindowPosition . "|" ; 7
+			strIniLine .= oItem.AA.strFavoriteLaunchWith . "|" ; 8
+			strIniLine .= StrReplace(oItem.AA.strFavoriteLoginName, "|", g_strEscapePipe) . "|" ; 9
+			strIniLine .= StrReplace(oItem.AA.strFavoritePassword, "|", g_strEscapePipe) . "|" ; 10
+			strIniLine .= oItem.AA.strFavoriteGroupSettings . "|" ; 11
+			strIniLine .= oItem.AA.blnFavoriteFtpEncoding . "|" ; 12
+			strIniLine .= oItem.AA.blnFavoriteElevate . "|" ; 13
+			strIniLine .= oItem.AA.blnFavoriteDisabled . "|" ; 14
+			strIniLine .= oItem.AA.intFavoriteFolderLiveLevels . "|" ; 15
+			strIniLine .= oItem.AA.blnFavoriteFolderLiveDocuments . "|" ; 16
+			strIniLine .= oItem.AA.intFavoriteFolderLiveColumns . "|" ; 17
+			strIniLine .= oItem.AA.blnFavoriteFolderLiveIncludeExclude . "|" ; 18
+			strIniLine .= oItem.AA.strFavoriteFolderLiveExtensions . "|" ; 19
+			strIniLine .= oItem.AA.strFavoriteShortcut . "|" ; 20
+			strIniLine .= StrReplace(oItem.AA.strFavoriteHotstring, "|", g_strEscapePipe) . "|" ; 21
+			strIniLine .= oItem.AA.strFavoriteFolderLiveSort . "|" ; 22
+			strIniLine .= StrReplace(oItem.AA.strFavoriteSoundLocation, "|", g_strEscapePipe) . "|" ; 23
+			strIniLine .= oItem.AA.strFavoriteDateCreated . "|" ; 24
+			strIniLine .= oItem.AA.strFavoriteDateModified . "|" ; 25
+			strIniLine .= oItem.AA.intFavoriteUsageDb . "|" ; 26
+
+			IniWrite, %strIniLine%, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLine
+			s_intIniLine++
+			
+			if InStr("Menu|Group", oItem.AA.strFavoriteType, true)
+				or (oItem.AA.strFavoriteType = "External"
+					and !ExternalMenuIsReadOnly(oItem.AA.strFavoriteAppWorkingDir)
+					and oItem.AA.oSubMenu.AA.blnMenuExternalLoaded
+					and oItem.AA.oSubMenu.AA.blnNeedSave)
+			{
+				if (oItem.AA.strFavoriteType = "External")
+				{
+					intPreviousIniLine := s_intIniLine
+					strPreviousIniFile := s_strIniFile
+					
+					s_strIniFile := oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath
+					s_intIniLine := 1 ; reset to 1 for the external file
+					
+					Settings.BackupIniFile(s_strIniFile, true) ; backup external settings ini file, if required
+				}
+				
+				oItem.AA.oSubMenu.SaveFavoritesToIniFile() ; RECURSIVE
+				
+				if (oItem.AA.strFavoriteType = "External")
+				{
+					Sleep, 20 ; for safety
+					strIniDateTimeAfter := ExternalMenuGetModifiedDateTime(s_strIniFile)
+					oItem.AA.oSubMenu.strMenuExternalLastModifiedWhenLoaded := strIniDateTimeAfter
+					oItem.AA.oSubMenu.strMenuExternalLastModifiedNow := strIniDateTimeAfter
+					oItem.AA.oSubMenu.blnNeedSave := false
+					IniWrite, %strIniDateTimeAfter%, %s_strIniFile%, Global, LastModified
+					
+					s_strIniFile := strPreviousIniFile
+					s_intIniLine := intPreviousIniLine
+				}
+			}
+		}
+		
+		IniWrite, Z, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLine ; end of menu marker
+		s_intIniLine++
+	}
+	;---------------------------------------------------------
 
 	; === end of methods for class Container ===
 	
