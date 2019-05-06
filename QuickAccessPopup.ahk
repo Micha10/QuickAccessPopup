@@ -8862,7 +8862,7 @@ if (g_blnAbortEdit)
 	return
 }
 
-if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue") ; ##### GuiAddExternalFromCatalogue does nothing except GuiFavoriteInit - is this an error?
+if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExternalFromCatalogue") ; when from GuiAddExternalFromCatalogue, item is saved in ButtonAddExternalMenusFromCatalogue
 {
 	if InStr(strGuiFavoriteLabel, "Xpress")
 		gosub, GuiAddFavoriteSaveXpress ; save this new favorite and return
@@ -10711,7 +10711,7 @@ Gui, 1:ListView, f_lvFavoritesList
 
 g_intOriginalMenuPosition := LV_GetNext()
 
-if InStr("Menu|Group|External", g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType, true)
+if o_MenuInGui.SA[g_intOriginalMenuPosition].IsContainer()
 	Gosub, OpenMenuFromGuiHotkey
 
 return
@@ -11309,7 +11309,7 @@ Loop
 	g_intOriginalMenuPosition := LV_GetNext(g_intOriginalMenuPosition)
 	if (!g_intOriginalMenuPosition)
         break
-	if (!blnMove and InStr("|Menu|Group|External", "|" . g_objMenuInGui[g_intOriginalMenuPosition].FavoriteType)) ; skip menus and groups for copy
+	if (!blnMove and o_MenuInGui.SA[g_intOriginalMenuPosition].IsContainer()) ; skip menus and groups for copy
 		continue
 
 	if (blnMove)
@@ -11515,7 +11515,9 @@ else ; GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave (but GuiCopyOneFavorite
 ; updating original and destination menu objects (these can be the same)
 
 if (strOriginalMenu <> "")
-	o_Containers.AA[strOriginalMenu].SA.RemoveAt(g_intOriginalMenuPosition) `use .RemoveAt, not .Delete
+	o_Containers.AA[strOriginalMenu].SA.RemoveAt(g_intOriginalMenuPosition) ; use .RemoveAt, not .Delete
+if !(g_intNewItemPos)
+	g_intNewItemPos := o_Containers.AA[strDestinationMenu].SA.MaxIndex() + 1
 o_Containers.AA[strDestinationMenu].SA.InsertAt(g_intNewItemPos, o_EditedFavorite)
 
 ; updating listview
@@ -11545,7 +11547,7 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 	else
 		strThisLocation := o_EditedFavorite.AA.strFavoriteLocation
 
-	strThisType := o_EditedFavorite.AA.GetItemTypeLabelForList()
+	strThisType := o_EditedFavorite.GetItemTypeLabelForList()
 	strThisHotkey := new Triggers.HotkeyParts(o_EditedFavorite.AA.strFavoriteShortcut).Hotkey2Text(true)
 	if StrLen(o_EditedFavorite.AA.strFavoriteHotstring)
 		strThisHotkey .= " " . BetweenParenthesis(GetHotstringTrigger(o_EditedFavorite.AA.strFavoriteHotstring))
@@ -12032,9 +12034,6 @@ GuiRemoveMultipleFavorites:
 GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
-if (LV_GetNext() = 1 and g_objMenuInGui[1].FavoriteType = "B")
-	LV_Modify(1, "-Select") ; deselect back link entry
-
 if LV_GetCount("Selected") > 1
 {
 	MsgBox, 52, %g_strAppNameText%, % L(o_L["DialogRemoveMultipleFavorites"], LV_GetCount("Selected"))
@@ -12057,7 +12056,7 @@ GuiRemoveOneFavorite:
 
 g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 if (g_blnFavoriteFromSearch)
-	g_objMenuInGui := GetMenuForGuiFiltered(intItemToRemove)
+	o_MenuInGui := GetMenuForGuiFiltered(intItemToRemove)
 else
 {
 	GuiControl, Focus, f_lvFavoritesList
@@ -12081,23 +12080,16 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.E
 	return
 }
 
-if (g_objMenuInGui[intItemToRemove].FavoriteType = "B") ; cannot occur from filtered list
-{
-	if (A_ThisLabel = "GuiRemoveOneFavorite")
-		LV_Modify(LV_GetNext(), "-Select")
-	return
-}
-
 ; remove favorite in object model (if menu, leaving submenu objects unlinked without releasing them)
 
-blnItemIsMenu := InStr("Menu|Group|External", g_objMenuInGui[intItemToRemove].FavoriteType, true)
+blnItemIsMenu := o_MenuInGui.SA[intItemToRemove].IsContainer()
 
 if (blnItemIsMenu)
 {
 	MsgBox, 52, % L(o_L["DialogFavoriteRemoveTitle"], g_strAppNameText)
 		, % L((g_objMenuInGui[intItemToRemove].FavoriteType = "Menu" ? o_L["DialogFavoriteRemovePrompt"]
 			: (g_objMenuInGui[intItemToRemove].FavoriteType = "External" ? o_L["DialogFavoriteRemoveExternalPrompt"]
-			: o_L["DialogFavoriteRemoveGroupPrompt"])), g_objMenuInGui[intItemToRemove].Submenu.MenuPath)
+			: o_L["DialogFavoriteRemoveGroupPrompt"])), o_MenuInGui.SA[intItemToRemove].AA.oSubmenu.AA.strMenuPath)
 	IfMsgBox, No
 	{
 		if (A_ThisLabel = "GuiRemoveOneFavorite")
@@ -12105,19 +12097,19 @@ if (blnItemIsMenu)
 		gosub, GuiRemoveFavoriteCleanup
 		return
 	}
-	g_objMenusIndex.Remove(g_objMenuInGui[intItemToRemove].Submenu.MenuPath) ; if user cancels settings changes, menu object will not be re-created (we live with it)
+	o_Containers.AA.Delete(o_MenuInGui.SA[intItemToRemove].AA.oSubmenu.AA.strMenuPath) ; if user cancels settings changes, menu object will not be re-created (we live with it)
 }
 
-g_objEditedFavorite := g_objMenuInGui[intItemToRemove] ; for UpdateFavoriteObjectSaveShortcut
+o_EditedFavorite := o_MenuInGui.SA[intItemToRemove] ; for UpdateFavoriteObjectSaveShortcut
 g_strNewFavoriteShortcut := "" ; for UpdateFavoriteObjectSaveShortcut
 Gosub, UpdateFavoriteObjectSaveShortcut
 
-g_objMenuInGui.Remove(intItemToRemove)
+o_MenuInGui.SA.Delete(intItemToRemove)
 
 ; refresh menu dropdpown in gui
 
 if (blnItemIsMenu)
-	GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(g_objMenuInGui.MenuPath) . "|"
+	GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|"
 
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
@@ -12968,7 +12960,6 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 	Gui, 1:ListView, f_lvFavoritesListFiltered
 
 	intPositionInListView := LV_GetNext()
-	; ###_V(A_ThisFunc, intPositionInListView)
 	if !(intPositionInListView)
 	{
 		intPositionInMenuForGui := 0
@@ -12978,18 +12969,7 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 	LV_GetText(strMenuPath, intPositionInListView, 2)
 	LV_GetText(intPositionInMenuForGui, intPositionInListView, 6)
 	
-	return g_objMenusIndex[strMenuPath]
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetFavoritesListFilter()
-;------------------------------------------------------------
-{
-	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
-
-	return ((strFilter = o_L["DialogSearch"] and g_blnFavoritesListFilterNeverFocused) ? "" : Trim(strFilter))
+	return oContainers.AA[strMenuPath]
 }
 ;------------------------------------------------------------
 
@@ -13009,6 +12989,17 @@ if !(g_blnFavoritesListFilterNeverFocused)
 gosub, LoadMenuInGui
 
 return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GetFavoritesListFilter()
+;------------------------------------------------------------
+{
+	GuiControlGet, strFilter, 1:, f_strFavoritesListFilter
+
+	return ((strFilter = o_L["DialogSearch"] and g_blnFavoritesListFilterNeverFocused) ? "" : Trim(strFilter))
+}
 ;------------------------------------------------------------
 
 
