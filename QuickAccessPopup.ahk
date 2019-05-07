@@ -9081,7 +9081,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 	else
 		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition]
 	
-	if InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; favorite is menu separator or column break
+	if o_EditedFavorite.IsSeparator() ; favorite is menu separator or column break
 		g_blnAbortEdit := true
 	else if (strGuiFavoriteLabel = "GuiCopyFavorite" and InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true)) ; menu or group cannot be copied
 	{
@@ -10097,7 +10097,7 @@ saThisMenu := o_Containers.AA[f_drpParentMenu].SA
 for intIndex, o_Item in saThisMenu
 	if (o_EditedFavorite.AA.strFavoriteName = o_Item.strFavoriteName)
 			and (o_MenuInGui.AA.strMenuPath = saThisMenu.strMenuPath ; skip edited item itself if not a separator
-			and !InStr("X|K", o_Item.strFavoriteType) ; but make sure to keep separators
+			and !o_Item.IsSeparator() ; but make sure to keep separators
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
 	else if (saThisMenu.strFavoriteType = "X")
@@ -11934,7 +11934,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 
 loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternalSave (from Catalogue), add " [!]" if name is not new.
 	if !o_Containers.AA[strDestinationMenu].FavoriteNameIsNew(InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) ? o_EditedFavorite.AA.strFavoriteName : strNewFavoriteShortName)
-		and !InStr("X|K", o_EditedFavorite.AA.strFavoriteType) ; same name OK for separators
+		and !o_EditedFavorite.IsSeparator() ; same name OK for separators
 	{
 		; we have the same name in the destination menu
 		if (strOriginalMenu <> strDestinationMenu) ; the favorite was moved to new destination menu
@@ -11973,7 +11973,7 @@ loop ; loop for duplicate names; if in Add this Folder Express or GuiAddExternal
 if (strThisLabel = "GuiMoveOneFavoriteSave")
 	and InStr("|Menu|External", "|" . o_EditedFavorite.AA.strFavoriteType)
 	if (InStr(strDestinationMenu, strOriginalMenu . g_strMenuPathSeparatorWithSpaces . o_EditedFavorite.AA.strFavoriteName) = 1) ; = 1 to check if equal from start only
-		and !InStr("K|X", o_EditedFavorite.AA.strFavoriteType) ; no risk with separators
+		and !o_EditedFavorite.IsSeparator() ; no risk with separators
 	{
 		OopsGui2(o_L["DialogMenuNotMoveUnderItself"], o_EditedFavorite.AA.strFavoriteName)
 		g_intOriginalMenuPosition++ ; will be reduced by GuiMoveMultipleFavoritesSave
@@ -12087,8 +12087,8 @@ blnItemIsMenu := o_MenuInGui.SA[intItemToRemove].IsContainer()
 if (blnItemIsMenu)
 {
 	MsgBox, 52, % L(o_L["DialogFavoriteRemoveTitle"], g_strAppNameText)
-		, % L((g_objMenuInGui[intItemToRemove].FavoriteType = "Menu" ? o_L["DialogFavoriteRemovePrompt"]
-			: (g_objMenuInGui[intItemToRemove].FavoriteType = "External" ? o_L["DialogFavoriteRemoveExternalPrompt"]
+		, % L((o_MenuInGui.SA[intItemToRemove].strFavoriteType = "Menu" ? o_L["DialogFavoriteRemovePrompt"]
+			: (o_MenuInGui.SA[intItemToRemove].strFavoriteType = "External" ? o_L["DialogFavoriteRemoveExternalPrompt"]
 			: o_L["DialogFavoriteRemoveGroupPrompt"])), o_MenuInGui.SA[intItemToRemove].AA.oSubmenu.AA.strMenuPath)
 	IfMsgBox, No
 	{
@@ -12263,35 +12263,31 @@ Gui, 1:ListView, f_lvFavoritesList
 intFirstSelectedRow := LV_GetNext(0)
 
 if (LV_GetCount("Selected") <= 1) ; if one or no row is selected, select all and sort until the first separator
-{
 	LV_Modify(0, "Select") ; select all rows
-	if (g_objMenuInGui[1].FavoriteType = "B")
-		LV_Modify(1, "-Select") ; deselect backlink
-}
 	
 Gosub, GetSelectedRows ; updated strSelectedRows (pipe delimited list of selected row numbers)
-StringSplit, arrSelectedRows, strSelectedRows, |
+saSelectedRows := StrSplit(strSelectedRows, "|")
 
-objNewOrder := Object() ; keys of object are favorite names, sorting object array by favorite names
+aaNewOrder := Object() ; associative array of Item objects to be sorted by favorite names
 
 intRowsToSort := 0 ; counter, sort only if at least 2 rows to sort
 strSortedRows := "" ; keep track of sorted rows to re-select only these rows
 
 Loop, Parse, strSelectedRows, |
 {
-	if !StrLen(g_objMenuInGui[A_LoopField].FavoriteName) ; stop at first separator
+	if o_MenuInGui.SA[A_LoopField].IsSeparator() ; stop at first separator
 		break
 	intRowsToSort++
-	strSortedRows .= arrSelectedRows%A_Index% . "|"
-	objNewOrder[GuiSortCleanFavoriteName(g_objMenuInGui[A_LoopField].FavoriteName)] := g_objMenuInGui[A_LoopField] ; add object of favorite to sort
+	strSortedRows .= saSelectedRows[A_Index] . "|"
+	aaNewOrder[GuiSortCleanFavoriteName(o_MenuInGui.SA[A_LoopField].AA.strFavoriteName)] := o_MenuInGui.SA[A_LoopField] ; add object of favorite to sort
 }
-StringTrimRight, strSortedRows, strSortedRows, 1
+strSortedRows := SubStr(strSortedRows, 1, -1) ; trim last char
 
 if (intRowsToSort > 1) ; sort only if required
 {
-	for strThisName, objThisFavorite in objNewOrder
+	for strThisName, o_Item in aaNewOrder
 		; replace gui menu objects to sort with favorites object sorted
-		g_objMenuInGui[arrSelectedRows%A_Index%] := objThisFavorite
+		o_MenuInGui.SA[saSelectedRows[A_Index]] := o_Item
 
 	gosub, LoadMenuInGui ; refresh menu in gui
 	
@@ -12315,13 +12311,13 @@ else
 intFirstSelectedRow := ""
 objExternalMenu := ""
 strSelectedRows := ""
-ResetArray("arrSelectedRows")
+saSelectedRows := ""
 intSelected := ""
-objNewOrder := ""
+aaNewOrder := ""
 intRowsToSort := ""
 strSortedRows := ""
 strThisName := ""
-objThisFavorite := ""
+o_Item := ""
 
 return
 ;------------------------------------------------------------
@@ -12813,7 +12809,8 @@ RecursiveLoadMenuIconsManage(objCurrentMenu)
 
 	Loop, % objCurrentMenu.MaxIndex()
 	{
-		if !InStr("B|X|K", objCurrentMenu[A_Index].FavoriteType) ; skip back links and separators
+		; ##### adjust object var
+		if !objCurrentMenu.IsSeparator() ; skip back links and separators
 		{
 			objThisFavorite := Object()
 			objThisFavorite.MenuPath := objCurrentMenu.MenuPath
@@ -12889,27 +12886,12 @@ GuiControl, Focus, f_lvFavoritesList
 Gui, 1:ListView, f_lvFavoritesList
 
 if (LV_GetCount("Selected") > 1)
-	or (LV_GetNext() = 1 and g_objMenuInGui[1].FavoriteType = "B")
 	return
 
 intInsertPosition := LV_GetCount() ? (LV_GetNext() ? LV_GetNext() : LV_GetCount() + 1) : 1
 
 ; --- add in menu object ---
-
-objNewFavorite := Object()
-if (A_ThisLabel = "GuiAddSeparator")
-{
-	objNewFavorite.FavoriteType := "X"
-	objNewFavorite.FavoriteName := ""
-	objNewFavorite.FavoriteLocation := ""
-}
-else ; GuiAddColumnBreak
-{
-	objNewFavorite.FavoriteType := "K"
-	objNewFavorite.FavoriteName := ""
-	objNewFavorite.FavoriteLocation := ""
-}
-g_objMenuInGui.Insert(intInsertPosition, objNewFavorite)
+o_MenuInGui.SA.InsertAt(intInsertPosition, new Container.Item([(A_ThisLabel = "GuiAddSeparator" ? "X" : "K")]))
 
 ; --- add in Gui ---
 
@@ -23370,7 +23352,7 @@ class Container
 					. " " . oItem.AA.strFavoritePassword
 					. " " . oItem.AA.strFavoriteSoundLocation
 			}
-			if !InStr("X|K", oItem.AA.strFavoriteType)
+			if !oItem.IsSeparator()
 				and InStr(strSearchIn, strFilter)
 			{
 				strThisType := oItem.GetItemTypeLabelForList()
@@ -23817,6 +23799,14 @@ class Container
 		;---------------------------------------------------------
 		{
 			return InStr("|Menu|Group|External", "|" . this.AA.strFavoriteType, true) ; does not include LiveFolder
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		IsSeparator()
+		;---------------------------------------------------------
+		{
+			return InStr("|X|K", "|" . this.AA.strFavoriteType, true)
 		}
 		;---------------------------------------------------------
 		
