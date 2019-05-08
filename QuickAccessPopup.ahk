@@ -3311,7 +3311,7 @@ global g_strHotstringOptionsSeparator := ":" ; separator between trigger and opt
 global g_strHotstringOptionsLongSeparator := " / " ; separator between hotstrings options long text
 global g_strHotstringOptionsExecute := "X"
 
-global g_objGuiControls := Object() ; to build Settings gui
+global g_saGuiControls := Object() ; to build Settings gui
 
 global g_objFavoritesObjectsByShortcut := Object()
 global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
@@ -4023,16 +4023,14 @@ return
 InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := false)
 ;------------------------------------------------------------
 {
-	objGuiControl := Object()
-	objGuiControl.Name := strControlName
-	objGuiControl.X := intX
-	objGuiControl.Y := intY
-	objGuiControl.Center := blnCenter
-	objGuiControl.Draw := blnDraw
+	aaGuiControl := Object()
+	aaGuiControl.Name := strControlName
+	aaGuiControl.X := intX
+	aaGuiControl.Y := intY
+	aaGuiControl.Center := blnCenter
+	aaGuiControl.Draw := blnDraw
 	
-	g_objGuiControls.Insert(objGuiControl)
-	
-	objGuiControl := ""
+	g_saGuiControls.Push(aaGuiControl)
 }
 ;------------------------------------------------------------
 
@@ -8323,35 +8321,35 @@ intFavoritesListFilterCloseW := 25
 ; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
 intButtonSpacing := (A_GuiWidth - 100 - 150 - (3 * 100)) // 4
 
-for intIndex, objGuiControl in g_objGuiControls
+for intIndex, aaGuiControl in g_saGuiControls
 {
-	intX := objGuiControl.X
-	intY := objGuiControl.Y
+	intX := aaGuiControl.X
+	intY := aaGuiControl.Y
 
 	if (intX < 0)
 		intX:= A_GuiWidth + intX
 	if (intY < 0)
 		intY := A_GuiHeight + intY
 
-	if (objGuiControl.Center)
+	if (aaGuiControl.Center)
 	{
-		GuiControlGet, arrPos, Pos, % objGuiControl.Name
+		GuiControlGet, arrPos, Pos, % aaGuiControl.Name
 		intX := intX - (arrPosW // 2) ; Floor divide
 	}
 
-	if (objGuiControl.Name = "f_lnkGuiDropHelpClicked")
+	if (aaGuiControl.Name = "f_lnkGuiDropHelpClicked")
 	{
 		GuiControlGet, arrPos, Pos, f_lnkGuiDropHelpClicked
 		intX := intX - arrPosW
 	}
-	else if (objGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
+	else if (aaGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
 		intX := 100 + intButtonSpacing
-	else if (objGuiControl.Name = "f_btnGuiSaveAndStayFavorites")
+	else if (aaGuiControl.Name = "f_btnGuiSaveAndStayFavorites")
 		intX := 100 + (2 * intButtonSpacing) + 100
-	else if (objGuiControl.Name = "f_btnGuiCancel")
+	else if (aaGuiControl.Name = "f_btnGuiCancel")
 		intX := 100 + (3 * intButtonSpacing) + 200
 		
-	GuiControl, % "1:Move" . (objGuiControl.Draw ? "Draw" : ""), % objGuiControl.Name, % "x" . intX	.  " y" . intY
+	GuiControl, % "1:Move" . (aaGuiControl.Draw ? "Draw" : ""), % aaGuiControl.Name, % "x" . intX	.  " y" . intY
 		
 }
 
@@ -8369,7 +8367,7 @@ Gosub, AdjustColumnsWidth
 intListH := ""
 intButtonSpacing := ""
 intIndex := ""
-objGuiControl := ""
+aaGuiControl := ""
 intX := ""
 intY := ""
 ResetArray("arrPos")
