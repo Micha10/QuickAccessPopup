@@ -9032,7 +9032,7 @@ GuiFavoriteInit:
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 
 if (blnFavoriteFromSearch)
-	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition) ; ##### test later
+	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
 
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
 ; this favorite could not be added or edited because it is in an external menu locked by another user,
@@ -9043,12 +9043,12 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.E
 	return
 }
 
-if (blnFavoriteFromSearch) ; ##### later
+if (blnFavoriteFromSearch)
 {
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
 
-	if (InStr("Menu|Group|External", o_MenuInGui.SA[g_intOriginalMenuPosition].FavoriteType, true) and g_blnOpenFromDoubleClick)
+	if (o_MenuInGui.SA[g_intOriginalMenuPosition].IsContainer() and g_blnOpenFromDoubleClick)
 	{
 		gosub, OpenMenuFromGuiHotkey ; load the selected found menu in gui
 		g_blnOpenFromDoubleClick := false ; reset value
@@ -11377,7 +11377,7 @@ if (g_blnAbortSave)
 
 if (o_EditedFavorite.IsContainer() and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
-	o_EditedFavoriteMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu] ) ; class instance for the new menu or group
+	o_EditedFavoriteMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu]) ; class instance for the new menu or group
 
 	if (o_EditedFavoriteMenu.AA.strMenuType = "External")
 	{
@@ -11449,6 +11449,9 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			strNewFavoriteLocation := "Custom:" . strNewFavoriteLocation
 		o_EditedFavorite.AA.strFavoriteLocation := strNewFavoriteLocation
 	}
+
+	; attach favorite object to its parent menu
+	o_EditedFavorite.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
 
 	; ##### later
 	Gosub, UpdateFavoriteObjectSaveShortcut
@@ -11571,7 +11574,7 @@ Gosub, EnableSaveAndCancel
 if o_Containers.AA[strDestinationMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
 	o_ExternalMenu.AA.blnNeedSave := true
 if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
-	if o_MenusIndex[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	if o_Containers.AA[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
 		o_ExternalMenu.AA.blnNeedSave := true
 
 if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
@@ -12951,7 +12954,7 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 	LV_GetText(strMenuPath, intPositionInListView, 2)
 	LV_GetText(intPositionInMenuForGui, intPositionInListView, 6)
 	
-	return oContainers.AA[strMenuPath]
+	return o_Containers.AA[strMenuPath]
 }
 ;------------------------------------------------------------
 
