@@ -10836,7 +10836,7 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ;
 {
 	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
-	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !g_objMenusIndex.HasKey(A_ThisMenu)) ; A_ThisMenu = "" and HasKey by safety
+	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !o_Containers.AA.HasKey(A_ThisMenu)) ; A_ThisMenu = "" and HasKey by safety
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
 		strThisMenu := A_ThisMenu
@@ -14555,7 +14555,7 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 }
 
 if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have o_ThisFavorite from RepeatLastAction ##### DO IT LATER
-	gosub, OpenFavoriteGetFavoriteObject ; define o_ThisFavoritE
+	gosub, OpenFavoriteGetFavoriteObject ; define o_ThisFavorite
 
 if !IsObject(o_ThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	or (o_ThisFavorite.AA.strFavoriteType = "Folder") and !StrLen(o_ThisFavorite.AA.strFavoriteLocation) ; no current location found
@@ -23132,10 +23132,17 @@ class Container
 		
 		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
 
-		; objNewMenu := Object() ; create the submenu object
 		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this)
 		oNewSubMenu.AA.blnIsLiveMenu := true
-		oNewSubMenu.AA.intLiveMenuParentPosition := intMenuParentPosition
+		oNewSubMenu.AA.intLiveFolderParentPosition := intMenuParentPosition ; could be changed if we are in a Live Folder submenu
+		oNewSubMenu.AA.strLiveFolderParentPath := strMenuParentPath ; could be changed if we are in a Live Folder submenu
+		if (o_Containers.AA[oNewSubMenu.AA.strLiveFolderParentPath].AA.blnIsLiveMenu)
+		; we are in a Live Folder submenu - we must get the strLiveFolderParentPath and intLiveFolderParentPosition from top Live Folder item
+		{
+			; intLiveFolderParentPosition must be changed before strLiveFolderParentPath
+			oNewSubMenu.AA.intLiveFolderParentPosition := o_Containers.AA[oNewSubMenu.AA.strLiveFolderParentPath].AA.intLiveFolderParentPosition
+			oNewSubMenu.AA.strLiveFolderParentPath := o_Containers.AA[oNewSubMenu.AA.strLiveFolderParentPath].AA.strLiveFolderParentPath
+		}
 		
 		Loop, Parse, strContent, `n
 		{
@@ -24002,31 +24009,24 @@ class Container
 		
 		;---------------------------------------------------------
 		AlternativeEditFavorite()
+		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
 		;---------------------------------------------------------
 		{
-			; 	FINISH AND TEST IT WHEN EDIT GUI DONE
-			; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
-			
 			if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 			{
-				; trying to edit items inside live folder leads to edit the parent live folder favorite
-				; no need to consider column breaks, disabled items and back link because already taken into account in .intLiveMenuParentPosition
-				g_intOriginalMenuPosition := o_Containers.AA[A_ThisMenu].AA.intLiveMenuParentPosition
-				; g_objEditedFavorite := g_objMenusIndex[g_objMenusIndex[A_ThisMenu].LiveMenuParentPath][g_intOriginalMenuPosition] ; with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
-				g_objEditedFavorite := o_Containers.AA[o_Containers.AA[A_ThisMenu].strLiveMenuParentPath][g_intOriginalMenuPosition]
-				###_a := o_Containers.AA[o_Containers.AA[A_ThisMenu].strLiveMenuParentPath][g_intOriginalMenuPosition]
-				###_b := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
-				###_V(A_ThisFunc, ###_a, ###_b)
-				; ##### check later -> with Container class, replace LiveMenuParentPath with ...AA.oParentMenu.AA.strMenuPath ?
-				g_objMenuInGui := o_Containers.AA[o_Containers.AA.AA[A_ThisMenu].AA.strLiveMenuParentPath]
-				; ##### change g_objEditedFavorite and g_objMenuInGui variables later
+				; trying to edit items inside live folder leads to edit the top parent live folder favorite
+				; no need to consider column breaks or disabled items because already taken into account in .intLiveFolderParentPosition
+				g_intOriginalMenuPosition := o_Containers.AA[A_ThisMenu].AA.intLiveFolderParentPosition
+				o_MenuInGui := o_Containers.AA[o_Containers.AA[A_ThisMenu].AA.strLiveFolderParentPath]
+				o_EditedFavorite := o_Containers.AA[o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath].SA[g_intOriginalMenuPosition]
 			}
 			else
 			{
-				g_objMenuInGui := o_Containers.AA[A_ThisMenu]
-				g_objEditedFavorite := GetFavoriteObjectFromMenuPosition(g_intOriginalMenuPosition) ; returns the object and ByRef g_intOriginalMenuPosition
-				; ##### change g_objEditedFavorite and g_objMenuInGui variables later
+				g_intOriginalMenuPosition := A_ThisMenuItemPos
+				o_MenuInGui := o_Containers.AA[A_ThisMenu]
+				; no need to set o_EditedFavorite here, it will be set in GuiEditFavoriteFromAlternative / GuiFavoriteInit
 			}
+			
 			gosub, GuiShowFromAlternative
 			gosub, GuiEditFavoriteFromAlternative
 		}
