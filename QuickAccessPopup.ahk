@@ -3313,7 +3313,7 @@ global g_strHotstringOptionsExecute := "X"
 
 global g_saGuiControls := Object() ; to build Settings gui
 
-global g_objFavoritesObjectsByShortcut := Object()
+global g_aaItemsByShortcut := Object()
 global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
 
 global g_saExternaleMenuToRelease := Object() ; simple array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
@@ -4682,35 +4682,35 @@ Loop ; convert each LocationHotkeys to shortcut for the first favorites matching
 	strLocationHotkey := o_Settings.ReadIniValue("Hotkey" . A_Index, "", "LocationHotkeys")
 	if (strLocationHotkey = "ERROR")
 		break
-	StringSplit, arrLocationHotkey, strLocationHotkey, | ; name|location|hotkey (v8.1+ format)
+	saLocationHotkey := StrSplit(strLocationHotkey, "|") ; name|location|hotkey (v8.1+ format)
 	
 	if !(blnHotkeysUpgradedToNameLocation)
 	; convert format from pre-v8.1 "location|hotkey" to "name|location|hotkey", using the name of the first favorite found for location
 	{
-		arrLocationHotkey3 := arrLocationHotkey2 ; in this order, move hotkey to 3rd position
-		arrLocationHotkey2 := arrLocationHotkey1 ; in this order, move location to 2nd position
+		saLocationHotkey[3] := saLocationHotkey[2] ; in this order, move hotkey to 3rd position
+		saLocationHotkey[2] := saLocationHotkey[1] ; in this order, move location to 2nd position
 		Loop
 		{
 			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . A_Index, "", "Favorites")
 			if (strLoadIniLine = "ERROR")
 				break
 			; 1 FavoriteType, 2 FavoriteName, 3 FavoriteLocation, ...
-			StringSplit, arrLoadIniLine, strLoadIniLine, |
-			if (arrLoadIniLine3 = arrLocationHotkey1)
-				arrLocationHotkey1 := arrLoadIniLine2 ; put name in arrLocationHotkey1
+			saLoadIniLine := StrSplit(strLoadIniLine, "|")
+			if (saLoadIniLine[3] = saLocationHotkey[1])
+				saLocationHotkey[1] := saLoadIniLine[2] ; put name in saLocationHotkey[1]
 		}
 	}
-	; now arrLocationHotkey1 contains the name, arrLocationHotkey2 contains the location and arrLocationHotkey3 contains the hotkey
+	; now saLocationHotkey[1] contains the name, saLocationHotkey[2] contains the location and saLocationHotkey[3] contains the hotkey
 	; find first favorite for this name-location in menu object 
-	for strMenuName, objThisMenu in g_objMenusIndex
-		for intIndex, objThisFavorite in objThisMenu
+	for strMenuName, oContainer in o_Containers.AA
+		for intIndex, oItem in oContainer.SA
 		{
-			strThisFavoriteName := (objThisFavorite.FavoriteType = "QAP" ? "" : objThisFavorite.FavoriteName) ; compare empty name for QAP Features favorites
-			if (strThisFavoriteName = arrLocationHotkey1) and (objThisFavorite.FavoriteLocation = arrLocationHotkey2)
+			strThisItemName := (oItem.AA.strFavoriteType = "QAP" ? "" : oItem.AA.strFavoriteName) ; compare empty name for QAP Features favorites
+			if (strThisItemName = saLocationHotkey[1]) and (oItem.AA.strFavoriteLocation = saLocationHotkey[2])
 			{
-				objThisFavorite.FavoriteShortcut := arrLocationHotkey3
+				oItem.AA.strFavoriteShortcut := saLocationHotkey[3]
 				blnNeedToSave := true
-				break, 2 ; exit 2 for-loops
+				break, 2 ; exit the 2 for-loops
 			}
 		}			
 }
@@ -4732,14 +4732,14 @@ if (blnNeedToSave)
 blnNameLocationHotkeysUpgraded := ""
 blnHotkeysUpgradedToNameLocation := ""
 strLocationHotkey := ""
-ResetArray("arrLocationHotkey")
+saLocationHotkey := ""
 strLoadIniLine := ""
-ResetArray("arrLoadIniLine")
+saLoadIniLine := ""
 strMenuName := ""
-objThisMenu := ""
+oContainer := ""
 intIndex := ""
-objThisFavorite := ""
-strThisFavoriteName := ""
+oItem := ""
+strThisItemName := ""
 blnNeedToSave := ""
 strHotkeysIniSection := ""
 
@@ -6042,8 +6042,8 @@ g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; reset
 
 ; disable shortcuts and re-init shortcuts objects before rebuilding menu
 gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
-g_objFavoritesObjectsByShortcut := Object()
-g_objShortcutsToRemoveWhenBuilingMenu := Object()
+g_aaItemsByShortcut := Object()
+g_aaItemsByShortcutToRemoveWhenBuildingMenu := Object()
 
 global g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 ; RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
@@ -6180,10 +6180,10 @@ return
 DisableShortcuts:
 ;------------------------------------------------------------
 
-for strShortcut in g_objFavoritesObjectsByShortcut
+for strShortcut in g_aaItemsByShortcut
 	Hotkey, %strShortcut%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 
-for strShortcut in g_objShortcutsToRemoveWhenBuilingMenu
+for strShortcut in g_aaItemsByShortcutToRemoveWhenBuildingMenu
 	Hotkey, %strShortcut%, , Off, UseErrorLevel ; do nothing if error (probably because default hotkey not supported by keyboard)
 
 strShortcut := ""
@@ -10283,7 +10283,7 @@ if (A_GuiEvent = "S")
 			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
 				and !HasShortcut(g_strNewFavoriteShortcut) ; edited favorite don't have shortcut
-				and !g_objFavoritesObjectsByShortcut.HasKey(o_QAPfeatures.AA[strLocation].strDefaultShortcut) ; and default shortcut is not already used
+				and !g_aaItemsByShortcut.HasKey(o_QAPfeatures.AA[strLocation].strDefaultShortcut) ; and default shortcut is not already used
 				g_strNewFavoriteShortcut := o_QAPfeatures.AA[strLocation].strDefaultShortcut ; assign default shortcut for QAP feature
 				
 			GuiControl, , f_strHotkeyText, % new Triggers.HotkeyParts(g_strNewFavoriteShortcut).Hotkey2Text()
@@ -10830,7 +10830,7 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|", A_ThisLabel . "|") ; menu object already set in these cases
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOptions|", A_ThisLabel . "|") ; menu object already set in these cases
 {
 	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
@@ -12556,9 +12556,7 @@ Loop, 2
 						, new Triggers.HotkeyParts(o_QAPfeatures.AA[strQAPFeatureCode].strCurrentHotkey).Hotkey2Text(), strQAPFeatureCode)
 	}
 	
-	g_intHotkeyListOrder := 0
-	RecursiveLoadMenuHotkeys(g_objMainMenu, A_Index) ; load favorite shortcuts (1) and hotstrings (2)
-	g_intHotkeyListOrder := ""
+	o_MainMenu.LoadMenuHotkeysToManageList(A_Index, f_blnSeeAllFavorites, f_blnSeeShortHotkeyNames) ; load favorite shortcuts (1) and hotstrings (2)
 
 	LV_ModifyCol(1, "Integer Sort")
 	Loop, % LV_GetCount("Column") - 1
@@ -12572,59 +12570,6 @@ intHotkeysManageListWinID := ""
 strQAPFeatureCode := ""
 
 return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RecursiveLoadMenuHotkeys(objCurrentMenu, intIndex)
-; intIndex: (1) shortcuts and (2) hotstrings
-;------------------------------------------------------------
-{
-	global f_blnSeeAllFavorites
-	global f_blnSeeShortHotkeyNames
-	global g_intHotkeyListOrder
-	
-	Loop, % objCurrentMenu.MaxIndex()
-	{
-		if !InStr("B|X", objCurrentMenu[A_Index].FavoriteType)
-			and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut)
-			or StrLen(objCurrentMenu[A_Index].FavoriteHotstring)
-			or f_blnSeeAllFavorites)
-		{
-			strThisType := objCurrentMenu[A_Index].GetItemTypeLabelForList()
-			g_intHotkeyListOrder++
-			
-			if (intIndex = 1 and (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) or f_blnSeeAllFavorites))
-			{
-				strThisHotkey := (StrLen(objCurrentMenu[A_Index].FavoriteShortcut) ? objCurrentMenu[A_Index].FavoriteShortcut : o_L["DialogNone"])
-				; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
-				LV_Add(, g_intHotkeyListOrder
-					, objCurrentMenu.MenuPath
-					, objCurrentMenu[A_Index].FavoriteName
-					, strThisType
-					, (f_blnSeeShortHotkeyNames ? strThisHotkey : new Triggers.HotkeyParts(strThisHotkey).Hotkey2Text())
-					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
-					, A_Index)
-			}
-			else if (intIndex = 2 and (StrLen(objCurrentMenu[A_Index].FavoriteHotstring) or f_blnSeeAllFavorites))
-			{
-				SplitHotstring(objCurrentMenu[A_Index].FavoriteHotstring, strTrigger, strOptionsShort)
-				; #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
-				LV_Add(, g_intHotkeyListOrder
-					, objCurrentMenu.MenuPath
-					, objCurrentMenu[A_Index].FavoriteName
-					, strThisType
-					, strTrigger
-					, (f_blnSeeShortHotkeyNames ? strOptionsShort : GetHotstringOptionsLong(strOptionsShort))
-					, (objCurrentMenu[A_Index].FavoriteType = "Snippet" ? StringLeftDotDotDot(objCurrentMenu[A_Index].FavoriteLocation, 50) : objCurrentMenu[A_Index].FavoriteLocation)
-					, A_Index)
-			}
-		}
-		
-		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadMenuHotkeys(objCurrentMenu[A_Index].SubMenu, intIndex) ; RECURSIVE
-	}
-}
 ;------------------------------------------------------------
 
 
@@ -13567,16 +13512,16 @@ if (o_EditedFavorite.AA.strFavoriteShortcut = g_strNewFavoriteShortcut) ; if not
 
 if HasShortcut(g_strNewFavoriteShortcut)
 {
-	; add item to g_objFavoritesObjectsByShortcut and remove from g_objShortcutsToRemoveWhenBuilingMenu (because it is now re-used)
-	g_objFavoritesObjectsByShortcut[g_strNewFavoriteShortcut] := g_objEditedFavorite ; insert new shortcut as in g_strNewFavoriteShortcut
-	g_objShortcutsToRemoveWhenBuilingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before (not using deprecated function .Remove)
+	; add item to g_aaItemsByShortcut and remove from g_aaItemsByShortcutToRemoveWhenBuildingMenu (because it is now re-used)
+	g_aaItemsByShortcut[g_strNewFavoriteShortcut] := o_EditedFavorite ; insert new shortcut as in g_strNewFavoriteShortcut
+	g_aaItemsByShortcutToRemoveWhenBuildingMenu.Delete(g_strNewFavoriteShortcut) ; in case this shortcut was removed from another favorite before
 }
 
 if HasShortcut(o_EditedFavorite.AA.strFavoriteShortcut)
 {
-	; remove item from g_objFavoritesObjectsByShortcut and add it to g_objShortcutsToRemoveWhenBuilingMenu
-	g_objFavoritesObjectsByShortcut.Delete(o_EditedFavorite.AA.strFavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
-	g_objShortcutsToRemoveWhenBuilingMenu[o_EditedFavorite.AA.strFavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored (not using deprecated function .Insert)
+	; remove item from g_aaItemsByShortcut and add it to g_aaItemsByShortcutToRemoveWhenBuildingMenu
+	g_aaItemsByShortcut.Delete(o_EditedFavorite.AA.strFavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
+	g_aaItemsByShortcutToRemoveWhenBuildingMenu[o_EditedFavorite.AA.strFavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored
 }
 
 if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
@@ -13658,7 +13603,7 @@ ShortcutIfAvailable(strShortcut, strFavoriteName)
 	
 	; check favorites hotkeys
 	if !StrLen(strExistingName)
-		strExistingName := g_objFavoritesObjectsByShortcut[strShortcut].FavoriteName
+		strExistingName := g_aaItemsByShortcut[strShortcut].AA.strFavoriteName
 
 	if StrLen(strExistingName)
 	{
@@ -13820,14 +13765,15 @@ if (g_strOptionsGuiTitle = strThisTitle)
 		MsgBox, 36, % L(o_L["DialogCancelTitle"], g_strAppNameText, g_strAppVersion), % o_L["DialogCancelPrompt"]
 		
 		IfMsgBox, Yes
+		{
 			g_blnGroupChanged := false
+			; revert to previous content of o_PopupHotkeys.SA
+			o_PopupHotkeys.RestorePopupHotkeys()
+		}
 		IfMsgBox, No
 			return
 	}
 	g_strSettingsGroup := ""
-
-	; revert to previous content of o_PopupHotkeys.SA
-	o_PopupHotkeys.RestorePopupHotkeys()
 }
 else
 {
@@ -14640,7 +14586,7 @@ g_strLastActionRepeated := "" ; if we are here, we are not repeating an action, 
 if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavoriteLabel . "|")
 {
 	o_ThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
-		? g_objFavoritesObjectsByShortcut[A_ThisHotkey]
+		? g_aaItemsByShortcut[A_ThisHotkey]
 		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
 
 	if !IsObject(o_ThisFavorite)
@@ -17691,9 +17637,9 @@ GetOSVersionInfo()
 GetFavoriteHotkeyFromLocation(strLocation)
 ;------------------------------------------------------------
 {
-	for strShortcut, objFavorite in g_objFavoritesObjectsByShortcut
-		if (objFavorite.FavoriteLocation = strLocation)
-			return objFavorite.FavoriteShortcut
+	for strShortcut, oItem in g_aaItemsByShortcut
+		if (oItem.AA.strFavoriteLocation = strLocation)
+			return oItem.AA.strFavoriteShortcut
 		
 	return o_L["DialogNone"]
 }
@@ -20184,7 +20130,7 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -20269,7 +20215,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			;---------------------------------------------------------
-			__Call(function, parameters*)
+			###__Call(function, parameters*)
 			; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 			{
 				funcRef := Func(funcName := this.__class "." function)
@@ -20341,7 +20287,7 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22891,7 +22837,7 @@ class Container
 			
 			if StrLen(aaThisFavorite.strFavoriteShortcut)
 			{
-				g_objFavoritesObjectsByShortcut[aaThisFavorite.strFavoriteShortcut] := this.SA[A_Index]
+				g_aaItemsByShortcut[aaThisFavorite.strFavoriteShortcut] := this.SA[A_Index]
 
 				; enable shortcut
 				Hotkey, % aaThisFavorite.strFavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
@@ -23680,6 +23626,58 @@ class Container
 		
 		IniWrite, Z, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLine ; end of menu marker
 		s_intIniLine++
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	LoadMenuHotkeysToManageList(intShortcutOrHotstrings, blnSeeAllFavorites, blnSeeShortHotkeyNames)
+	; intShortcutOrHotstrings: (1) shortcuts and (2) hotstrings
+	;---------------------------------------------------------
+	{
+		static intHotkeyListOrder
+		
+		if (this.AA.strMenuPath = o_L["MainMenuName"])
+			intHotkeyListOrder := 0
+		
+		for intKey, oItem in this.SA
+		{
+			if (StrLen(oItem.AA.strFavoriteShortcut) and (intShortcutOrHotstrings = 1)
+				or (StrLen(oItem.AA.strFavoriteHotstring) and intShortcutOrHotstrings = 2)
+				or blnSeeAllFavorites)
+			{
+				strThisType := oItem.GetItemTypeLabelForList()
+				intHotkeyListOrder++
+				
+				if (intShortcutOrHotstrings = 1 and StrLen(oItem.AA.strFavoriteShortcut)) or (blnSeeAllFavorites)
+				{
+					strThisHotkey := (StrLen(oItem.AA.strFavoriteShortcut) ? oItem.AA.strFavoriteShortcut : o_L["DialogNone"])
+					; #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
+					LV_Add(, intHotkeyListOrder
+						, this.AA.strMenuPath
+						, oItem.AA.strFavoriteName
+						, strThisType
+						, (blnSeeShortHotkeyNames ? strThisHotkey : new Triggers.HotkeyParts(strThisHotkey).Hotkey2Text())
+						, (oItem.AA.strFavoriteType = "Snippet" ? StringLeftDotDotDot(oItem.AA.strFavoriteLocation, 50) : oItem.AA.strFavoriteLocation)
+						, intKey)
+				}
+				else if (intShortcutOrHotstrings = 2 and StrLen(oItem.AA.strFavoriteHotstring)) or (blnSeeAllFavorites)
+				{
+					SplitHotstring(oItem.AA.strFavoriteHotstring, strTrigger, strOptionsShort)
+					; #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
+					LV_Add(, intHotkeyListOrder
+						, this.AA.strMenuPath
+						, oItem.AA.strFavoriteName
+						, strThisType
+						, strTrigger
+						, (blnSeeShortHotkeyNames ? strOptionsShort : GetHotstringOptionsLong(strOptionsShort))
+						, (oItem.AA.strFavoriteType = "Snippet" ? StringLeftDotDotDot(oItem.AA.strFavoriteLocation, 50) : oItem.AA.strFavoriteLocation)
+						, intKey)
+				}
+			}
+			
+			if InStr("Menu|External", oItem.AA.strFavoriteType, true)
+				this.AA.oSubMenu.LoadMenuHotkeysToManageList(intShortcutOrHotstrings, blnSeeAllFavorites, blnSeeShortHotkeyNames) ; RECURSIVE
+		}
 	}
 	;---------------------------------------------------------
 
