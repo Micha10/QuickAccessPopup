@@ -3158,6 +3158,7 @@ saVar	other simple array variable
 oVar	object variable inside a class (and elsewhere?)
 .P_var	class properties, with first letters of variable showing its type (as for other variables)
 pVar	Pointer variable returned by a Windows object like ComObjCreate("Shell.Application")
+dicVar	Scripting.Dictionary object (used for case-sensitive keys)
 
 - to be replaced
 objVar	REPLACE with one of the others
@@ -3314,7 +3315,7 @@ global g_strHotstringOptionsExecute := "X"
 global g_saGuiControls := Object() ; to build Settings gui
 
 global g_aaItemsByShortcut := Object()
-global g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; instead of Object() to support case sensitive keys
+global g_dicItemsByHotstring := ComObjCreate("Scripting.Dictionary") ; use Scripting.Dictionary instead of Object() to support case sensitive keys
 
 global g_saExternaleMenuToRelease := Object() ; simple array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 global g_aaExternalMenuFolderIsReadOnly := Object() ; associative array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
@@ -6036,9 +6037,9 @@ Menu, % o_L["MainMenuName"], DeleteAll
 if (g_blnUseColors)
 	Menu, % o_L["MainMenuName"], Color, %g_strMenuBackgroundColor%
 
-; disable (turn off) existing hotstrings in g_objFavoritesObjectsByHotstring (if any) before updating them
+; disable (turn off) existing hotstrings in g_dicItemsByHotstring (if any) before updating them
 gosub, DisableHotstrings
-g_objFavoritesObjectsByHotstring := ComObjCreate("Scripting.Dictionary") ; reset object, using instead of Object() to support case sensitive keys
+g_dicItemsByHotstring := ComObjCreate("Scripting.Dictionary") ; reset object, using Scripting.Dictionary instead of Object() to support case sensitive keys
 
 ; disable shortcuts and re-init shortcuts objects before rebuilding menu
 gosub, DisableShortcuts ; turn off all favorites keyboard and mouse hotkeys
@@ -6196,15 +6197,11 @@ return
 DisableHotstrings:
 ;------------------------------------------------------------
 
-for strHotstring in g_objFavoritesObjectsByHotstring
-{
-	; before disabling an hotstring...
-	; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
-	; set the label "OpenFavoriteFromHotstring" for hotstrings with Execute option
-	Hotstring(PrepareHotstringForFunction(strHotstring, g_objFavoritesObjectsByHotstring.Item(strHotstring)), "OpenFavoriteFromHotstring", "Off")
-}
-
-strHotstringForFunction := ""
+; before disabling an hotstring:
+; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
+; set the label "OpenFavoriteFromHotstring" for hotstrings with Execute option
+for strHotstring in g_dicItemsByHotstring
+	Hotstring(PrepareHotstringForFunction(strHotstring, g_dicItemsByHotstring.Item(strHotstring)), "OpenFavoriteFromHotstring", "Off")
 
 return
 ;------------------------------------------------------------
@@ -9024,8 +9021,8 @@ GuiFavoriteInit:
 
 ; g_strNewFavoriteShortcut -> actual hotkey in internal format displayed as text in the Add/Edit dialog box
 
-; when edit favorite, keep original values in g_objEditedFavorite
-; when add favorite, put initial or default values in g_objEditedFavorite and update them when gui save
+; when edit favorite, keep original values in o_EditedFavorite
+; when add favorite, put initial or default values in o_EditedFavorite and update them when gui save
 
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 
@@ -11451,7 +11448,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	; attach favorite object to its parent menu
 	o_EditedFavorite.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
 
-	; ##### later
 	Gosub, UpdateFavoriteObjectSaveShortcut
 	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in o_EditedFavorite.AA.strFavoriteHotstring
 
@@ -12396,15 +12392,14 @@ Gui, 2:+OwnDialogs
 if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 
-arrShortcutsHotstrings1 := o_L["DialogShortcuts"]
-arrShortcutsHotstrings2 := o_L["DialogHotstrings"]
-objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
-arrHotkeysHeader1 := L(o_L["DialogHotkeysManageListHeader"], arrShortcutsHotstrings1)
-arrHotkeysHeader2 := L(o_L["DialogHotkeysManageListHeader"], o_L["DialogHotkeysManageListHeaderHotstrings"])
-arrHotkeysUrl1 := "https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
-arrHotkeysUrl2 := "https://www.quickaccesspopup.com/what-are-hotstrings/"
+saShortcutsHotstrings := [o_L["DialogShortcuts"], o_L["DialogHotstrings"]]
+saShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
+saHotkeysHeader := [L(o_L["DialogHotkeysManageListHeader"], saShortcutsHotstrings[1])
+	, L(o_L["DialogHotkeysManageListHeader"], o_L["DialogHotkeysManageListHeaderHotstrings"])]
+saHotkeysUrl := ["https://www.quickaccesspopup.com/can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts/"
+	, "https://www.quickaccesspopup.com/what-are-hotstrings/"]
 
-Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460 vf_HotkeysTab AltSubmit", %arrShortcutsHotstrings1%|%arrShortcutsHotstrings2%
+Gui, 2:Add, Tab2, % "w" . intWidth + 20 . " h460 vf_HotkeysTab AltSubmit", % saShortcutsHotstrings[1] . "|" . saShortcutsHotstrings[2]
 
 Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
 {
@@ -12412,15 +12407,15 @@ Loop, 2 ; create Listviews tabs Shortcuts and Hotstrings
 	Gui, 2:Font, w600
 	Gui, 2:Add, Text, x20 y40, % L((A_Index = 1 ? o_L["DialogHotkeysManageAboutShortcuts"] : o_L["DialogHotkeysManageAboutHotstrings"]), g_strAppNameText)
 	Gui, 2:Font
-	Gui, 2:Add, Link, x+5 yp, % "(<a href=""" . arrHotkeysUrl%A_Index% . """>" . o_L["GuiHelp"] . "</a>)"
-	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(o_L["DialogHotkeysManageIntro"], objShortcutHotstringLower[A_Index])
+	Gui, 2:Add, Link, x+5 yp, % "(<a href=""" . saHotkeysUrl[A_Index] . """>" . o_L["GuiHelp"] . "</a>)"
+	Gui, 2:Add, Text, x20 y+10 w%intWidth%, % L(o_L["DialogHotkeysManageIntro"], saShortcutHotstringLower[A_Index])
 
 	; 1 -> #|Menu|Favorite Name|Type|Shortcuts|Favorite Location|Object Position (hidden)
 	; 2 -> #|Menu|Favorite Name|Type|Trigger|Options|Favorite Location|Object Position (hidden)
 	Gui, 2:Add, Listview
 		, % "vf_lvHotkeysManageList" . A_Index . " Count32 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") 
 		. " gHotkeysManageListEvents x20 y+10 w" . intWidth - 0. " h340"
-		, % "#|" . arrHotkeysHeader%A_Index% . "|Object Position (hidden)"
+		, % "#|" . saHotkeysHeader[A_Index] . "|Object Position (hidden)"
 }
 Gui, 2:Tab
 
@@ -12473,7 +12468,7 @@ if (A_GuiEvent = "DoubleClick")
 	LV_GetText(strFavoritePosition, intItemPosition, LV_GetCount("Column"))
 	LV_GetText(strMenuPath, intItemPosition, 2)
 	
-	g_objEditedFavorite := g_objMenusIndex[strMenuPath][strFavoritePosition]
+	o_EditedFavorite := o_Containers.AA[strMenuPath].SA[strFavoritePosition]
 	
 	if (intActiveTab = 1) ; Shortcut
 		if (strHotkeyType = o_L["DialogHotkeysManagePopup"]) ; this is a popup menu hotkey, go to Options, Menu hotkeys
@@ -13520,7 +13515,7 @@ if HasShortcut(g_strNewFavoriteShortcut)
 if HasShortcut(o_EditedFavorite.AA.strFavoriteShortcut)
 {
 	; remove item from g_aaItemsByShortcut and add it to g_aaItemsByShortcutToRemoveWhenBuildingMenu
-	g_aaItemsByShortcut.Delete(o_EditedFavorite.AA.strFavoriteShortcut) ; remove old shortcut as in g_objEditedFavorite
+	g_aaItemsByShortcut.Delete(o_EditedFavorite.AA.strFavoriteShortcut) ; remove old shortcut as in o_EditedFavorite
 	g_aaItemsByShortcutToRemoveWhenBuildingMenu[o_EditedFavorite.AA.strFavoriteShortcut] := "foo" ; to disable the shortcut when reloading the menu; only key is used, the value is ignored
 }
 
@@ -13548,7 +13543,7 @@ UpdateFavoriteObjectSaveHotstringList:
 if (o_EditedFavorite.AA.strFavoriteHotstring == g_strNewFavoriteHotstring) ; if not changed (case-sensitive equal)
 	return
 
-; Hotstring was added, changed or removed. Do not add new, change or remove hotstring to g_objFavoritesObjectsByHotstring
+; Hotstring was added, changed or removed. Do not add new, change or remove hotstring to g_dicItemsByHotstring
 ; because we would not be able to turn it off in DisableHotstrings since it does not exist yet
 
 ; if an hostring does not already need restart, check if this hotstring's options changed and need restart
@@ -14587,15 +14582,15 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 {
 	o_ThisFavorite := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut"
 		? g_aaItemsByShortcut[A_ThisHotkey]
-		: g_objFavoritesObjectsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
+		: g_dicItemsByHotstring.Item(g_strHotstringOptionsSeparator . SubStr(A_ThisHotkey, 3))) ; remove "X" (g_strHotstringOptionsExecute) as first option (":X:trigger" or ":XC*:trigger")
 
 	if !IsObject(o_ThisFavorite)
 	{
-		objShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
+		saShortcutHotstringLower := StrSplit(o_L["DialogHotkeysManageShortcutHotstringLower"], "|")
 		SplitHotstring(A_ThisHotkey, strOopsTrigger, strHotstringOppsOptionsShort)
 		Oops(o_L["OopsHotkeyObjectNotFound"]
 			, g_strAppNameText
-			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? objShortcutHotstringLower[1] : objShortcutHotstringLower[2])
+			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? saShortcutHotstringLower[1] : saShortcutHotstringLower[2])
 			, (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? A_ThisHotkey : strOopsTrigger))
 		return
 	}
@@ -22850,7 +22845,7 @@ class Container
 			
 			if StrLen(aaThisFavorite.strFavoriteHotstring)
 			{
-				g_objFavoritesObjectsByHotstring.Add(aaThisFavorite.strFavoriteHotstring, this.SA[A_Index])
+				g_dicItemsByHotstring.Add(aaThisFavorite.strFavoriteHotstring, this.SA[A_Index])
 				
 				; before creating an hotstring...
 				; in hotstring options: insert "X" (Execute) option g_strHotstringOptionsExecute (PrepareHotstringForFunction)
