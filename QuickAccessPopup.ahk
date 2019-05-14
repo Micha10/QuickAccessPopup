@@ -3320,7 +3320,7 @@ global g_dicItemsByHotstring := ComObjCreate("Scripting.Dictionary") ; use Scrip
 global g_saExternaleMenuToRelease := Object() ; simple array of file path of External menu reserved by user to release when saving/cancelling Settings changes or quitting QAP
 global g_aaExternalMenuFolderIsReadOnly := Object() ; associative array of folders containing external settings files, registering if these folders are read-only (true) or not (false)
 
-global g_objToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
+global g_aaToolTipsMessages := Object() ; messages to display by ToolTip when mouse is over selected buttons in Settings
 
 global g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
 global g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
@@ -8111,25 +8111,25 @@ Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDi
 Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
 Gui, 1:Add, Picture, vf_picGuiOptions gShowGuiOptionsMenu x+1 yp ; , %g_strTempDir%\settings-32_c.png ; Static9
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-24_c.png ; Static10
-g_objToolTipsMessages["Static10"] := o_L["ControlToolTipPreviousMenu"]
+g_aaToolTipsMessages["Static10"] := o_L["ControlToolTipPreviousMenu"]
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\left2-24_c.png ; Static11
-g_objToolTipsMessages["Static11"] := o_L["ControlToolTipParentMenu"]
+g_aaToolTipsMessages["Static11"] := o_L["ControlToolTipParentMenu"]
 Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static12
-g_objToolTipsMessages["Static12"] := o_L["ControlToolTipMoveUp"]
+g_aaToolTipsMessages["Static12"] := o_L["ControlToolTipMoveUp"]
 Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26_c.png ; Static13
-g_objToolTipsMessages["Static13"] := o_L["ControlToolTipMoveDown"]
+g_aaToolTipsMessages["Static13"] := o_L["ControlToolTipMoveDown"]
 Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26_c.png ; Static14
-g_objToolTipsMessages["Static14"] := o_L["ControlToolTipSeparator"]
+g_aaToolTipsMessages["Static14"] := o_L["ControlToolTipSeparator"]
 Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26_c.png ; Static15
-g_objToolTipsMessages["Static15"] := o_L["ControlToolTipColumnBreak"]
+g_aaToolTipsMessages["Static15"] := o_L["ControlToolTipColumnBreak"]
 Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
-g_objToolTipsMessages["Static16"] := o_L["ControlToolTipTextSeparator"]
+g_aaToolTipsMessages["Static16"] := o_L["ControlToolTipTextSeparator"]
 Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static17
-g_objToolTipsMessages["Static17"] := o_L["ControlToolTipSortFavorites"]
+g_aaToolTipsMessages["Static17"] := o_L["ControlToolTipSortFavorites"]
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static18
-g_objToolTipsMessages["Static18"] := o_L["ControlToolTipAlwaysOnTopOn"]
+g_aaToolTipsMessages["Static18"] := o_L["ControlToolTipAlwaysOnTopOn"]
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static19
-g_objToolTipsMessages["Static19"] := o_L["ControlToolTipAlwaysOnTopOff"]
+g_aaToolTipsMessages["Static19"] := o_L["ControlToolTipAlwaysOnTopOff"]
 Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static20
 Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static21
 Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
@@ -8157,9 +8157,9 @@ Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
-g_objToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
+g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
 Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered, % o_L["DialogExtendedSearch"] ; Button2
-g_objToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
+g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, % o_L["GuiLvFavoritesHeader"] ; SysHeader321 / SysListView321
@@ -19692,10 +19692,10 @@ WM_MOUSEMOVE(wParam, lParam)
 	
 	; display tooltip for hovered control
 	if (s_strControl <> s_strControlPrev) ;  prevent flicker caused by repeating tooltip when mouse moving over the same control
-		and StrLen(g_objToolTipsMessages[s_strControl])
+		and StrLen(g_aaToolTipsMessages[s_strControl])
 	{
-		ToolTip, % g_objToolTipsMessages[s_strControl] ; display tooltip or remove tooltip if no message for this control
-		if StrLen(g_objToolTipsMessages[s_strControl])
+		ToolTip, % g_aaToolTipsMessages[s_strControl] ; display tooltip or remove tooltip if no message for this control
+		if StrLen(g_aaToolTipsMessages[s_strControl])
 			SetTimer, RemoveToolTip, 2500 ; will remove tooltip if not removed by mouse going hovering elsewhere (required if window become inactive)
 	}
 
