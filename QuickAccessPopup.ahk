@@ -3325,7 +3325,7 @@ global g_aaToolTipsMessages := Object() ; messages to display by ToolTip when mo
 global g_strModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,Slimjet_WidgetWin_1,MozillaWindowClass"
 global g_strLegacyBrowsers := "IEFrame,OperaWindowClass"
 
-global g_objLastActions := Object()
+global g_aaLastActions := Object()
 
 global g_strWindosListAppsCacheFile := A_WorkingDir . "\WindowsAppsList.tsv"
 global g_aaWindowsAppsIDsByName := Object()
@@ -5981,7 +5981,7 @@ Diag(A_ThisLabel, "", "START")
 saMenuItemsTable := Object()
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
-		saMenuItemsTable.Push(["RepeatLastAction", A_LoopField, A_LoopField, g_objLastActions[A_LoopField].FavoriteIconResource])
+		saMenuItemsTable.Push(["RepeatLastAction", A_LoopField, A_LoopField, g_aaLastActions[A_LoopField].AA.strFavoriteIconResource])
 
 o_Containers.AA[o_L["MenuLastActions"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuLastActions"]].BuildMenu()
@@ -14431,7 +14431,7 @@ RepeatLastActionShortcut:
 ;-----------------------------------------------------------
 
 if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
-	StringTrimLeft, strThisMenuItem, A_ThisMenuItem, 3 ; remove "&1 " from menu item
+	strThisMenuItem := SubStr(A_ThisMenuItem, 4) ; remove "&1 " from menu item
 else
 	strThisMenuItem :=  A_ThisMenuItem
 
@@ -14442,8 +14442,8 @@ if (A_ThisLabel = "RepeatLastActionShortcut" ; Repeat Last Action shortcut
 else ; item from the Repeat Last Actions menu
 	g_strLastActionRepeated := strThisMenuItem
 
-g_objThisFavorite := g_objLastActions[g_strLastActionRepeated]
-g_objThisFavorite.FavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
+o_ThisFavorite := g_aaLastActions[g_strLastActionRepeated]
+o_ThisFavorite.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 gosub, OpenFavoriteFromLastAction
 
@@ -14496,7 +14496,7 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 	g_strTargetWinId := "" ; forget value from previous open favorite
 }
 
-if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have o_ThisFavorite from RepeatLastAction ##### DO IT LATER
+if (A_ThisLabel <> "OpenFavoriteFromLastAction") ; we already have o_ThisFavorite from RepeatLastAction
 	gosub, OpenFavoriteGetFavoriteObject ; define o_ThisFavorite
 
 if !IsObject(o_ThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
@@ -14536,7 +14536,7 @@ if (blnShiftPressed or blnControlPressed)
 ; collect last actions
 if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been collected - no need to collect group members
 	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
-	gosub, CollectLastActions ; update g_objLastActions ##### DO IT LATER
+	gosub, CollectLastActions ; update g_aaLastActions
 
 ; always navigate
 if (o_Settings.FileManagers.blnAlwaysNavigate.IniValue and (g_strAlternativeMenu <> o_L["MenuAlternativeNewWindow"])
@@ -14652,13 +14652,13 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 	}
 
 	o_ThisFavorite := new Container.Item(["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)])
-	o_ThisFavorite.aaTemp.blnFavoritePseudo := true
+	o_ThisFavorite.AA.blnFavoritePseudo := true
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
 {
 	; ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
 	o_ThisFavorite := new Container.Item(["Folder", o_L["MenuOpenWorkingDirectory"], A_WorkingDir])
-	o_ThisFavorite.aaTemp.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
+	o_ThisFavorite.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_strHotkeyTypeDetected := "Launch"
 }
 else
@@ -14666,11 +14666,10 @@ else
 
 saMenu := ""
 
-; remove code when FavoritePseudo reviewed
 ; pseudo favorite object, set an icon ressource for repeat actions menu
-; if (g_objThisFavorite.FavoritePseudo)
-	; g_objThisFavorite.FavoriteIconResource := (g_objThisFavorite.FavoriteType = "Folder" ? GetFolderIcon(g_objThisFavorite.FavoriteLocation)
-		; : GetIcon4Location(g_objThisFavorite.FavoriteLocation))
+if (o_ThisFavorite.AA.blnFavoritePseudo)
+	o_ThisFavorite.AA.strFavoriteIconResource := (o_ThisFavorite.AA.strFavoriteType = "Folder" ? GetFolderIcon(o_ThisFavorite.AA.strFavoriteLocation)
+		: GetIcon4Location(o_ThisFavorite.AA.strFavoriteLocation))
 
 OpenFavoriteGetFavoriteObjectCleanup:
 strThisMenuItem := ""
@@ -14794,32 +14793,32 @@ CollectLastActions:
 ; add opened favorite to last actions and update g_strLastActionsOrderedKeys
 ;------------------------------------------------------------
 
-if (g_objThisFavorite.FavoriteName = o_L["MenuLastAction"]) ; do not collect QAP feature Repeat Last Action
-	or (g_objThisFavorite.FavoriteName = o_L["MenuLastActions"]) ; do not collect QAP feature Repeat Last Actions
-	or (g_objThisFavorite.FavoriteType = "Text") ; do not collect text separators
+if (o_ThisFavorite.AA.strFavoriteName = o_L["MenuLastAction"]) ; do not collect QAP feature Repeat Last Action
+	or (o_ThisFavorite.AA.strFavoriteName = o_L["MenuLastActions"]) ; do not collect QAP feature Repeat Last Actions
+	or (o_ThisFavorite.AA.strFavoriteType = "Text") ; do not collect text separators
 	return
 
 if StrLen(g_strLastActionRepeated) ; we are repeating an action
 {
-	objNewLastAction := g_objLastActions[g_strLastActionRepeated]
+	o_NewLastAction := g_aaLastActions[g_strLastActionRepeated]
 	strLastActionLabel := g_strLastActionRepeated
 }
 else
 {
 	o_NewLastAction := new Container.Item([])
-	o_NewLastAction := o_ThisFavorite.Backup() ; check o_ThisFavorite init and elsewhere
-	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . g_objThisFavorite.FavoriteName) ; double ampersand in menu item name
+	o_NewLastAction := o_ThisFavorite.Backup()
+	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
 }
-objNewLastAction.OpenTimeStamp := A_Now
+o_NewLastAction.AA.strOpenTimeStamp := A_Now
 
-; insert in g_objLastActions
-if g_objLastActions.HasKey(strLastActionLabel)
-	g_objLastActions.Delete(strLastActionLabel) ; kill previous item for this key
-g_objLastActions[strLastActionLabel] := objNewLastAction ; this overwrites older item with same key
+; insert in g_aaLastActions
+if g_aaLastActions.HasKey(strLastActionLabel)
+	g_aaLastActions.Delete(strLastActionLabel) ; kill previous item for this key
+g_aaLastActions[strLastActionLabel] := o_NewLastAction ; this overwrites older item with same key
 
 strLastActionsOrdered := ""
-for strLastActionLabel, objLastAction in g_objLastActions
-	strLastActionsOrdered .= objLastAction.OpenTimeStamp . g_strEscapePipe . strLastActionLabel . "`n"
+for strLastActionLabel, o_LastAction in g_aaLastActions
+	strLastActionsOrdered .= o_LastAction.AA.strOpenTimeStamp . g_strEscapePipe . strLastActionLabel . "`n"
 
 Sort, strLastActionsOrdered, R
 
@@ -14830,7 +14829,7 @@ loop, parse, strLastActionsOrdered, `n
 		break
 	strThisLastActionKey := SubStr(A_LoopField, InStr(A_LoopField, g_strEscapePipe) + StrLen(g_strEscapePipe))
 	if (A_Index > o_Settings.Menu.intNbLastActions.IniValue)
-		g_objLastActions.Delete(strThisLastActionKey) ; kill older items
+		g_aaLastActions.Delete(strThisLastActionKey) ; kill older items
 	else
 		g_strLastActionsOrderedKeys .= SubStr(strThisLastActionKey, 1) . "`n"
 }
@@ -24894,11 +24893,11 @@ class Container
 				if !FileExistInPath(this.aaTemp.strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 				{
 					Gui, 1:+OwnDialogs
-					MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4) ; ##### HAVE TO CHECK FOR PSEUDO
+					MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
 						, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
 						, % L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
 							, (StrLen(this.aaTemp.strLocationWithPlaceholders) and this.aaTemp.strLocationWithPlaceholders <> this.AA.strFavoriteLocation ? " (" . this.aaTemp.strLocationWithPlaceholders . ")" : ""))
-							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
+							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
 					IfMsgBox, Yes
 					{
 						g_blnAlternativeMenu := true
@@ -24921,11 +24920,11 @@ class Container
 						and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
 					{
 						Gui, 1:+OwnDialogs
-						MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4)
+						MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
 							, % L(o_L["DialogFavoriteWorkingDirNotFoundTitle"], g_strAppNameText)
 							, % L(o_L["DialogFavoriteWorkingDirNotFoundPrompt"], this.AA.strFavoriteName, this.AA.strFavoriteAppWorkingDir
 							. (this.AA.strFavoriteAppWorkingDir <> strAppWorkingDirBeforeFileExist ? " (" . strAppWorkingDirBeforeFileExist . ")": ""))
-							. (this.AA.strFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
+							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
 						IfMsgBox, Yes
 						{
 							g_blnAlternativeMenu := true
@@ -24944,9 +24943,9 @@ class Container
 					if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
 					{
 						Gui, 1:+OwnDialogs
-						MsgBox, % (this.AA.strFavoritePseudo ? 0 : 4)
+						MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
 							, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
-							. (this.AA.strFavoritePseudo ? "" : " " . o_L["DialogFavoriteDoesNotExistEdit"])
+							. (this.AA.blnFavoritePseudo ? "" : " " . o_L["DialogFavoriteDoesNotExistEdit"])
 						IfMsgBox, Yes
 						{
 							g_blnAlternativeMenu := true
