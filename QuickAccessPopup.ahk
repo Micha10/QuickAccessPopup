@@ -22251,7 +22251,7 @@ TODO
 				; if localized language file does not exists, keep "EN" language code and existing EN values
 				this._LanguageCode := (FileExist(strLanguageFile) ? value : "EN")
 			}
-
+			
 			if StrLen(strLanguageFile) and FileExist(strLanguageFile) ; we have an existing localized language file
 			{
 				strReplacementForSemicolon := g_strEscapeReplacement ; for non-comment semi-colons ";" escaped as ";;"
@@ -22450,11 +22450,11 @@ class Container
 	{
 		this.SA := Object() ; re-init
 		
-		static s_intIniLine := 1
+		static s_intIniLineLoad := 1
 		static s_strIniFile
 		
 		if (blnEntryMenu) ; do not pass this value when recursing
-			s_intIniLine := 1
+			s_intIniLineLoad := 1
 		
 		if (blnRefreshExternal) ; do not pass this value when recursing
 		{
@@ -22467,7 +22467,7 @@ class Container
 		
 		if (g_blnWorkingToolTip)
 			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
-
+		
 		if (this.AA.strMenuType = "External")
 		{
 			if !FileExist(s_strIniFile)
@@ -22503,12 +22503,12 @@ class Container
 		
 		Loop
 		{
-			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . s_intIniLine, "", "Favorites", s_strIniFile)
-			s_intIniLine++
+			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . s_intIniLineLoad, "", "Favorites", s_strIniFile)
+			s_intIniLineLoad++
 			
 			if (strLoadIniLine = "ERROR")
 			{
-				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLine . "=")
+				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLineLoad . "=")
 				if (this.AA.strMenuType = "External")
 				{
 					this.AA.blnMenuExternalLoaded := false
@@ -22530,11 +22530,11 @@ class Container
 			{
 				if (saThisFavorite[1] = "External")
 				{
-					intPreviousIniLine := s_intIniLine
+					intPreviousIniLine := s_intIniLineLoad
 					strPreviousIniFile := s_strIniFile
-					s_intIniLine := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
-					if !StrLen(s_intIniLine)
-						s_intIniLine := 1 ; always 1 for menu added since v8.1.9.1
+					s_intIniLineLoad := saThisFavorite[11] ; FavoriteGroupSettings, starting number - DEPRECATED since v8.1.9.1
+					if !StrLen(s_intIniLineLoad)
+						s_intIniLineLoad := 1 ; always 1 for menu added since v8.1.9.1
 					s_strIniFile := PathCombine(A_WorkingDir, EnvVars(saThisFavorite[6]))
 				}
 				
@@ -22544,7 +22544,7 @@ class Container
 				
 				if (saThisFavorite[1] = "External")
 				{
-					s_intIniLine := intPreviousIniLine
+					s_intIniLineLoad := intPreviousIniLine
 					s_strIniFile := strPreviousIniFile
 				}
 				
@@ -22575,20 +22575,20 @@ class Container
 	{
 		this.SA := Object() ; re-init
 		
-		static s_intIniLine := 1
+		static s_intIniLineLoadTC := 1
 		
 		if (g_blnWorkingToolTip)
 			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
-
+		
 		Loop
 		{
-			strWinCmdItemName := o_Settings.ReadIniValue("menu" . s_intIniLine, "", "DirMenu", strIniFile)
+			strWinCmdItemName := o_Settings.ReadIniValue("menu" . s_intIniLineLoadTC, "", "DirMenu", strIniFile)
 			if (strWinCmdItemName = "ERROR")
 				Return, "EOM" ; end of DirMenu section (there is no marker for end of DirMenu section)
 				
-			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . s_intIniLine, " ", "DirMenu", strIniFile) ; empty by default
-			s_intIniLine++
-	
+			strWinCmdItemCommand := o_Settings.ReadIniValue("cmd" . s_intIniLineLoadTC, " ", "DirMenu", strIniFile) ; empty by default
+			s_intIniLineLoadTC++
+			
 			if (strWinCmdItemName = "--")
 				return, "EOM" ; end of menu
 		
@@ -22764,7 +22764,6 @@ class Container
 				oNewItem.AA.oSubMenu := oNewSubMenu
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
-
 		; end of XML, last menu item
 	}
 	;-----------------------------------------------------
@@ -22803,7 +22802,7 @@ class Container
 		
 		if (g_blnWorkingToolTip)
 			Tooltip, % o_L["ToolTipBuilding"] . "`n" . this.AA.strMenuPath
-
+		
 		Loop, % this.SA.MaxIndex()
 		{
 			aaThisFavorite := this.SA[A_Index].AA
@@ -22819,7 +22818,7 @@ class Container
 			if (aaThisFavorite.strFavoriteType = "QAP")
 				; if QAP feature attach menu option was changed when saving options
 				aaThisFavorite.strFavoriteName := o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strLocalizedName
-
+			
 			strMenuItemLabel := aaThisFavorite.strFavoriteName
 			if StrLen(strMenuItemLabel)
 				strMenuItemLabel := this.MenuNameWithNumericShortcut(strMenuItemLabel)
@@ -22833,7 +22832,7 @@ class Container
 			if StrLen(aaThisFavorite.strFavoriteShortcut)
 			{
 				g_aaItemsByShortcut[aaThisFavorite.strFavoriteShortcut] := this.SA[A_Index]
-
+				
 				; enable shortcut
 				Hotkey, % aaThisFavorite.strFavoriteShortcut, OpenFavoriteFromShortcut, On UseErrorLevel
 				if (ErrorLevel)
@@ -22865,7 +22864,7 @@ class Container
 				
 				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 				aaThisFavorite.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
-
+				
 				; ##### test maybe not required if done in __New
 				; if (g_blnUseColors)
 					; Try Menu, % aaThisFavorite.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
@@ -22928,7 +22927,7 @@ class Container
 						strMenuItemAction := "OpenFavorite" ; #### default value after conversion completed
 					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, %strCommandName%, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
 				}
-
+				
 				if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (aaThisFavorite.strFavoriteIconResource <> "iconNoIcon")
 				{
 					if (aaThisFavorite.strFavoriteType = "Folder") ; this is a folder
@@ -22978,7 +22977,7 @@ class Container
 			this.AddMenuIcon("", "", "")
 			this.AddMenuIcon(o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
 		}
-
+		
 		if (!IsObject(this.AA.oParentMenu) and o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
 			and SubStr(this.AA.strMenuPath, 1, 7) <> "menuBar")
 			this.AddCloseMenu()
@@ -23517,17 +23516,18 @@ class Container
 	;------------------------------------------------------------
 	
 	;---------------------------------------------------------
-	SaveFavoritesToIniFile()
+	SaveFavoritesToIniFile(blnRoot := true)
 	;---------------------------------------------------------
 	{
-		static s_intIniLine := 1
+		static s_intIniLineSave
 		static s_strIniFile
 		
-		if !StrLen(s_strIniFile)
-			s_strIniFile := o_Settings.strIniFile
-		
-		if (s_intIniLine = 1) ; this is the first line of the file, make internal backup
+		if (blnRoot) ; this is first call to the method
 		{
+			s_intIniLineSave := 1
+			s_strIniFile := o_Settings.strIniFile
+			
+			; make internal backup
 			IniRead, strTempIniFavoritesSection, %s_strIniFile%, Favorites
 			IniWrite, %strTempIniFavoritesSection%, %s_strIniFile%, Favorites-backup
 			IniDelete, %s_strIniFile%, Favorites
@@ -23582,8 +23582,8 @@ class Container
 			strIniLine .= oItem.AA.strFavoriteDateModified . "|" ; 25
 			strIniLine .= oItem.AA.intFavoriteUsageDb . "|" ; 26
 
-			IniWrite, %strIniLine%, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLine
-			s_intIniLine++
+			IniWrite, %strIniLine%, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLineSave
+			s_intIniLineSave++
 			
 			if InStr("Menu|Group", oItem.AA.strFavoriteType, true)
 				or (oItem.AA.strFavoriteType = "External"
@@ -23593,16 +23593,16 @@ class Container
 			{
 				if (oItem.AA.strFavoriteType = "External")
 				{
-					intPreviousIniLine := s_intIniLine
+					intPreviousIniLine := s_intIniLineSave
 					strPreviousIniFile := s_strIniFile
 					
 					s_strIniFile := oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath
-					s_intIniLine := 1 ; reset to 1 for the external file
+					s_intIniLineSave := 1 ; reset to 1 for the external file
 					
 					Settings.BackupIniFile(s_strIniFile, true) ; backup external settings ini file, if required
 				}
 				
-				oItem.AA.oSubMenu.SaveFavoritesToIniFile() ; RECURSIVE
+				oItem.AA.oSubMenu.SaveFavoritesToIniFile(false) ; RECURSIVE
 				
 				if (oItem.AA.strFavoriteType = "External")
 				{
@@ -23614,13 +23614,13 @@ class Container
 					IniWrite, %strIniDateTimeAfter%, %s_strIniFile%, Global, LastModified
 					
 					s_strIniFile := strPreviousIniFile
-					s_intIniLine := intPreviousIniLine
+					s_intIniLineSave := intPreviousIniLine
 				}
 			}
 		}
 		
-		IniWrite, Z, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLine ; end of menu marker
-		s_intIniLine++
+		IniWrite, Z, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLineSave ; end of menu marker
+		s_intIniLineSave++
 	}
 	;---------------------------------------------------------
 
