@@ -11893,7 +11893,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 		else
 			strNewFavoriteWindowPosition .= "," . StrReplace(f_drpWindowMonitor, o_L["DialogWindowMonitor"] . " ", "")
 
-		if !ValidateWindowPosition(strNewFavoriteWindowPosition) ; ##### convert to StrSplit
+		if !ValidateWindowPosition(strNewFavoriteWindowPosition)
 		{
 			OopsGui2(o_L["OopsInvalidWindowPosition"])
 			g_blnAbortSave := true
@@ -11989,26 +11989,26 @@ ValidateWindowPosition(strPosition)
 	; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor
 	; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
 	; L Left / R Right / 1 primary monitor / 2 secondary monitor...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
-	StringSplit, arrPosition, strPosition, `,
-	if !(arrPosition1) or (arrPosition2 <> 0) ; no position to validate
+	saPosition := StrSplit(strPosition, ",")
+	if !(saPosition[1]) or (saPosition[2] <> 0) ; no position to validate
 		return true
 	
-	if arrPosition3 is not integer
+	if saPosition[3] is not integer
 		blnOK := false
-	else if arrPosition4 is not integer
+	else if saPosition[4] is not integer
 		blnOK := false
-	else if arrPosition5 is not integer
+	else if saPosition[5] is not integer
 		blnOK := false
-	else if arrPosition6 is not integer
+	else if saPosition[6] is not integer
 		blnOK := false
-	else if arrPosition7 is not integer
+	else if saPosition[7] is not integer
 		blnOK := false
-	; arrPosition8 can be letter or number
+	; saPosition[8] can be letter or number
 	else
 		blnOK := true
 
 	if (blnOK)
-	 	blnOK := (arrPosition5 > 0) and (arrPosition6 > 0) and (arrPosition7 >= 0) ; Width, Height and Delay must be positive
+	 	blnOK := (saPosition[5] > 0) and (saPosition[6] > 0) and (saPosition[7] >= 0) ; Width, Height and Delay must be positive
 	
 	return blnOK
 }
@@ -12790,7 +12790,9 @@ GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . str
 
 if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
 {
-	if g_objMenusIndex[g_objManageIcons[o_ExternalMenu].MenuPath].FavoriteIsUnderExternalMenu(o_ExternalMenu)
+	; if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu)
+		; if !ExternalMenuAvailableForLock(objExternalMenu)
+	if g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath].FavoriteIsUnderExternalMenu(o_ExternalMenu)
 		if !objExternalMenu.ExternalMenuAvailableForLock()
 			; this favorite could not be edited because it is in an external menu locked by another user,
 			; or because external settings file is in a read-only folder, or because external files was modified 
