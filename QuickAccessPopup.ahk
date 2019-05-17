@@ -6333,7 +6333,7 @@ GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniV
 GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 
 ; IconsManageRows
-Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
+Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit gGuiOptionsGroupChanged number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
 Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : " Disabled"), % o_L["OptionsIconsManageRows"]
 
@@ -12598,8 +12598,8 @@ GuiIconsManageFromQAPFeature:
 if (A_ThisLabel = "GuiIconsManageFromQAPFeature")
 	Gosub, GuiShowFromIconsManage
 
-g_objManageIcons := Object()
-RecursiveLoadMenuIconsManage(g_objMainMenu)
+global g_saManageIcons := Object() ; was g_objManageIcons
+o_MainMenu.LoadMenuIconsManage()
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
@@ -12646,7 +12646,6 @@ Loop, %g_intIconsManageRows%
 	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManagePickIconDialog vf_btnPickDialog" . A_Index, % o_L["DialogSelectIcon"]
 	Gui, 2:Add, Picture, % "yp-7 x+" . intMarginWidth . " w" . intIconSize . " h" . intIconSize . " gIconsManageSetDefault vf_picIconDefault" . A_Index
 	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, % o_L["DialogIconsManageSetDefaultIcon"]
-	Gui, 2:Add, Text, % "hidden yp x+" . intMarginWidth . " w20 vf_lblFavoriteIndex" . A_Index
 }
 
 Gui, 2:Add, Button, % "x10 y+" . intIconsManageRowsHeight . " vf_btnIconsManagePrev gLoadIconsManageListPrev h33", % o_L["DialogIconsManagePrevious"]
@@ -12700,32 +12699,30 @@ Loop, %g_intIconsManageRows%
 {
 	intThisItemInMenu := A_Index + g_intIconsManageStartingRow - 1
 	
-	strShowHide := (intThisItemInMenu <= g_objManageIcons.MaxIndex() ? "Show" : "Hide")
+	strShowHide := (intThisItemInMenu <= g_saManageIcons.MaxIndex() ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_picIconCurrent%A_Index%
 	GuiControl, %strShowHide%, f_btnPickDialog%A_Index%
 	GuiControl, %strShowHide%, f_picIconDefault%A_Index%
 	GuiControl, %strShowHide%, f_btnSetDefault%A_Index%
 	GuiControl, %strShowHide%, f_lblFavoriteName%A_Index%
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
-	; GuiControl, %strShowHide%, f_lblFavoriteIndex%A_Index%
 	
-	if !StrLen(g_objManageIcons[intThisItemInMenu].FavoriteIconResource)
-		g_objManageIcons[intThisItemInMenu].FavoriteIconResource := g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource
-	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
+	if !StrLen(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource) ; for safety
+		g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource := g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation)
+	ParseIconResource(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
 	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	ParseIconResource(g_objManageIcons[intThisItemInMenu].FavoriteDefaultIconResource, strInconFile, intIconIndex)
+	ParseIconResource(g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation), strInconFile, intIconIndex)
 	GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	strShowHide := (A_Index = 1 or (g_objManageIcons[intThisItemInMenu].MenuPath <> strPreviousMenuPath and intThisItemInMenu <= g_objManageIcons.MaxIndex()) ? "Show" : "Hide")
+	strShowHide := (A_Index = 1 or (g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath <> strPreviousMenuPath
+		and intThisItemInMenu <= g_saManageIcons.MaxIndex()) ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 
-	GuiControl, , f_lblFavoriteName%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteName
-	GuiControl, , f_lblMenuPath%A_Index%, % g_objManageIcons[intThisItemInMenu].MenuPath
-	GuiControl, , f_lblFavoriteIndex%A_Index%, % g_objManageIcons[intThisItemInMenu].FavoriteIndex
-	strPreviousMenuPath := g_objManageIcons[intThisItemInMenu].MenuPath
+	GuiControl, , f_lblFavoriteName%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.strFavoriteName
+	GuiControl, , f_lblMenuPath%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
+	strPreviousMenuPath := g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
 }
 
-; ###_V("", g_intIconsManageStartingRow, g_intIconsManageRows, g_objManageIcons.MaxIndex(), "", (g_intIconsManageStartingRow + g_intIconsManageRows) < g_objManageIcons.MaxIndex(), g_intIconsManageStartingRow > 1)
-GuiControl, % ((g_intIconsManageStartingRow + g_intIconsManageRows) < g_objManageIcons.MaxIndex() ? "Enable" : "Disable"), f_btnIconsManageNext
+GuiControl, % ((g_intIconsManageStartingRow + g_intIconsManageRows) < g_saManageIcons.MaxIndex() ? "Enable" : "Disable"), f_btnIconsManageNext
 GuiControl, % (g_intIconsManageStartingRow > 1 ? "Enable" : "Disable"), f_btnIconsManagePrev
 GuiControl, Focus, f_btnIconsManageClose
 
@@ -12743,35 +12740,6 @@ return
 
 
 ;------------------------------------------------------------
-RecursiveLoadMenuIconsManage(objCurrentMenu)
-;------------------------------------------------------------
-{
-	global g_objManageIcons
-
-	Loop, % objCurrentMenu.MaxIndex()
-	{
-		; ##### adjust object var
-		if !objCurrentMenu.IsSeparator() ; skip back links and separators
-		{
-			objThisFavorite := Object()
-			objThisFavorite.MenuPath := objCurrentMenu.MenuPath
-			objThisFavorite.FavoriteIndex := A_Index
-			objThisFavorite.FavoriteType := objCurrentMenu[A_Index].FavoriteType
-			objThisFavorite.FavoriteName := objCurrentMenu[A_Index].FavoriteName
-			objThisFavorite.FavoriteLocation := objCurrentMenu[A_Index].FavoriteLocation
-			objThisFavorite.FavoriteIconResource := objCurrentMenu[A_Index].FavoriteIconResource
-			objThisFavorite.FavoriteDefaultIconResource := objCurrentMenu[A_Index].GetDefaultIcon4Type(objCurrentMenu[A_Index].FavoriteLocation) ; ##### convertir objCurrentMenu[A_Index] to class Item object
-			g_objManageIcons.Insert(objThisFavorite)
-		}
-		
-		if InStr("Menu|External", objCurrentMenu[A_Index].FavoriteType, true)
-			RecursiveLoadMenuIconsManage(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE
-	}
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 IconsManagePickIconDialog:
 IconsManageSetDefault:
 ;------------------------------------------------------------
@@ -12783,17 +12751,15 @@ intIconRow := StrReplace(intIconRow, "f_btnSetDefault")
 intManageIconsIndex := g_intIconsManageStartingRow + intIconRow - 1
 
 strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
-	? PickIconDialog(g_objManageIcons[intManageIconsIndex].FavoriteIconResource) 
-	: g_objManageIcons[intManageIconsIndex].FavoriteDefaultIconResource)
+	? PickIconDialog(g_saManageIcons[intManageIconsIndex].AA.strFavoriteIconResource) 
+	: g_saManageIcons[intManageIconsIndex].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation))
 ParseIconResource(strIconResource, strInconFile, intIconIndex)
 GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . strInconFile
 
-if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResource)
+if (g_saManageIcons[intManageIconsIndex].AA.strFavoriteIconResource <> strIconResource)
 {
-	; if FavoriteIsUnderExternalMenu(g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath], objExternalMenu)
-		; if !ExternalMenuAvailableForLock(objExternalMenu)
-	if g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath].FavoriteIsUnderExternalMenu(o_ExternalMenu)
-		if !objExternalMenu.ExternalMenuAvailableForLock()
+	if g_saManageIcons[intManageIconsIndex].AA.oParentMenu.FavoriteIsUnderExternalMenu(o_ExternalMenu)
+		if !o_ExternalMenu.ExternalMenuAvailableForLock()
 			; this favorite could not be edited because it is in an external menu locked by another user,
 			; or because external settings file is in a read-only folder, or because external files was modified 
 			; by another user since it was loaded in QAP by this user
@@ -12802,8 +12768,9 @@ if (g_objManageIcons[intManageIconsIndex].FavoriteIconResource <> strIconResourc
 			o_ExternalMenu.AA.blnNeedSave := true ; fix add .AA ?
 	; else continue
 
-	g_objManageIcons[intManageIconsIndex].FavoriteIconResource := strIconResource
-	g_objMenusIndex[g_objManageIcons[intManageIconsIndex].MenuPath][g_objManageIcons[intManageIconsIndex].FavoriteIndex].FavoriteIconResource := strIconResource
+	; save new icon in item
+	g_saManageIcons[intManageIconsIndex].AA.strFavoriteIconResource := strIconResource
+	
 	Gosub, EnableSaveAndCancel
 }
 
@@ -23677,6 +23644,22 @@ class Container
 	}
 	;---------------------------------------------------------
 
+	;---------------------------------------------------------
+	LoadMenuIconsManage()
+	; populate simple array g_saManageIcons with items, used to put content in Manage Icons dialog box
+	;---------------------------------------------------------
+	{
+		for intKey, oItem in this.SA
+		{
+			if !oItem.IsSeparator() ; skip separators
+				g_saManageIcons.Push(oItem)
+			
+			if InStr("Menu|External", oItem.AA.strFavoriteType, true)
+				oItem.AA.oSubMenu.LoadMenuIconsManage() ; RECURSIVE
+		}
+	}
+	;---------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
@@ -25016,39 +24999,39 @@ class Container
 		GetDefaultIcon4Type(strGuiFavoriteLocation)
 		;---------------------------------------------------------
 		{
-			if InStr("|Menu|External", "|" . oFavorite.AA.strFavoriteType, true)
+			if InStr("|Menu|External", "|" . this.AA.strFavoriteType, true)
 				; default submenu icon
 				return "iconSubmenu"
-			else if (oFavorite.AA.strFavoriteType = "Group")
+			else if (this.AA.strFavoriteType = "Group")
 				; default group icon
 				return "iconGroup"
-			else if (oFavorite.AA.strFavoriteType = "Folder")
-				if (oFavorite.AA.intFavoriteFolderLiveLevels)
+			else if (this.AA.strFavoriteType = "Folder")
+				if (this.AA.intFavoriteFolderLiveLevels)
 					; default live folder icon
 					return "iconFolderLive"
 				else
 					; default folder icon
 					return "iconFolder"
-			else if (oFavorite.AA.strFavoriteType = "URL")
+			else if (this.AA.strFavoriteType = "URL")
 				; default browser icon
 				return GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-			else if (oFavorite.AA.strFavoriteType = "FTP")
+			else if (this.AA.strFavoriteType = "FTP")
 				; default FTP icon
 				return "iconFTP"
-			else if (oFavorite.AA.strFavoriteType = "Snippet")
-				return (StrSplit(oFavorite.AA.strFavoriteLaunchWith, ";")[1] ? "iconPasteSpecial" : "iconPaste") ; check first snippet property value (true: macro mode / else text)
-			else if InStr("|Document|Application", "|" . oFavorite.AA.strFavoriteType) and StrLen(strGuiFavoriteLocation)
+			else if (this.AA.strFavoriteType = "Snippet")
+				return (StrSplit(this.AA.strFavoriteLaunchWith, ";")[1] ? "iconPasteSpecial" : "iconPaste") ; check first snippet property value (true: macro mode / else text)
+			else if InStr("|Document|Application", "|" . this.AA.strFavoriteType) and StrLen(strGuiFavoriteLocation)
 				; default icon for the selected file in add/edit favorite
 				return GetIcon4Location(strGuiFavoriteLocation)
-			else if (oFavorite.AA.strFavoriteType = "Special")
+			else if (this.AA.strFavoriteType = "Special")
 				; default icon for new Special folder if new location exists, or, if not, for existing favorite object location
-				return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : oFavorite.AA.strFavoriteLocation)].strDefaultIcon
-			else if (oFavorite.AA.strFavoriteType = "QAP")
+				return o_SpecialFolders.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : this.AA.strFavoriteLocation)].strDefaultIcon
+			else if (this.AA.strFavoriteType = "QAP")
 				; default icon for new QAP Feature if new location exists, or, if not, for existing favorite object location
-				return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : oFavorite.AA.strFavoriteLocation)].strDefaultIcon
-			else if (oFavorite.AA.strFavoriteType = "Text" or oFavorite.AA.strFavoriteType = "X" or oFavorite.AA.strFavoriteType = "K")
+				return o_QAPfeatures.AA[(StrLen(strGuiFavoriteLocation) ? strGuiFavoriteLocation : this.AA.strFavoriteLocation)].strDefaultIcon
+			else if (this.AA.strFavoriteType = "Text" or this.AA.strFavoriteType = "X" or this.AA.strFavoriteType = "K")
 				return "iconNoIcon"
-			else if (oFavorite.AA.strFavoriteType = "WindowsApp")
+			else if (this.AA.strFavoriteType = "WindowsApp")
 				return "iconDesktop"
 			else ; should not
 				return "iconUnknown"
