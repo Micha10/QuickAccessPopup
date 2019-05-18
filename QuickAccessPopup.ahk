@@ -3150,15 +3150,15 @@ s_typNameOfVariable
 
 OBJECTS NAMING CONVENTIONS
 --------------------------
-o_Var	class object
 .AA		associative arrays of a class
 .SA		simple arrays of a class
-aaVar	other associative array variable
-saVar	other simple array variable
-oVar	object variable inside a class (and elsewhere?)
 .P_var	class properties, with first letters of variable showing its type (as for other variables)
-pVar	Pointer variable returned by a Windows object like ComObjCreate("Shell.Application")
+aaVar	other associative array variable
 dicVar	Scripting.Dictionary object (used for case-sensitive keys)
+o_Var	class object (always make o_Var variables global)
+oVar	object variable, inside a class or elsewhere (not global)
+pVar	Pointer variable returned by a Windows object like ComObjCreate("Shell.Application")
+saVar	other simple array variable
 
 - to be replaced
 objVar	REPLACE with one of the others
@@ -3466,7 +3466,7 @@ g_strUsageDbFileOld := A_WorkingDir . "\QAP_Popular.DB"
 g_intUsageDbRecentLimit := 150
 
 if (g_blnUsageDbEnabled)
-	gosub, UsageDbInit ; creates g_objUsageDb
+	gosub, UsageDbInit ; creates o_UsageDb
 
 if (g_blnUsageDbEnabled) ;  repeat if because g_blnUsageDbEnabled could change in UsageDbInit
 {
@@ -4250,13 +4250,13 @@ o_Settings.ReadIniOption("Database", "intUsageDbIntervalSeconds", "UsageDbInterv
 o_Settings.Database.intUsageDbIntervalSeconds.IniValue := ((o_Settings.Database.intUsageDbIntervalSeconds.IniValue <> 0
 	and o_Settings.Database.intUsageDbIntervalSeconds.IniValue < 60 and A_ComputerName <> "JEAN-PC")
 	? 60 : o_Settings.Database.intUsageDbIntervalSeconds.IniValue)
-g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
+global g_blnUsageDbEnabled := (o_Settings.Database.intUsageDbIntervalSeconds.IniValue > 0)
 o_Settings.ReadIniOption("Database", "intUsageDbDaysInPopular", "UsageDbDaysInPopular", 30, "Database", "f_lblUsageDbDaysInPopular|f_intUsageDbDaysInPopularEdit|f_intUsageDbDaysInPopular") ; g_intUsageDbDaysInPopular
 o_Settings.ReadIniOption("Database", "fltUsageDbMaximumSize", "UsageDbMaximumSize", 3, "Database", "f_lblUsageDbMaximumSize|f_fltUsageDbMaximumSize|f_btnUsageDbFlush") ; g_fltUsageDbMaximumSize
 o_Settings.ReadIniOption("Database", "blnUsageDbShowPopularityIndex", "UsageDbShowPopularityIndex", 0, "Database", "f_blnUsageDbShowPopularityIndex") ; g_blnUsageDbShowPopularityIndex
 o_Settings.ReadIniOption("Database", "intUsageDbDebug", "UsageDbDebug", 0, "Database", "") ; g_intUsageDbDebug (not in Gui)
-g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
-g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
+global g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
+global g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; Group MenuAdvanced
 o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
@@ -4839,11 +4839,11 @@ FileRemoveDir, %g_strTempDir%, 1 ; Remove all files and subdirectories
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 
-if IsObject(g_objUsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it was turned false in this session
+if IsObject(o_UsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it was turned false in this session
 {
 	; before backup the db, close it to avoid lock
 	Loop
-		if g_objUsageDb.CloseDb()
+		if o_UsageDb.CloseDb()
 		{
 			blnDbClosed := true
 			break
@@ -4982,7 +4982,7 @@ BuildGuiMenuBar:
 ;------------------------------------------------------------
 
 loop, Parse, % "Main|File|Temp|Options|MoreOptions", "|"
-	o_Menu := new Container("Menu", "menuBar" . A_LoopField)
+	new Container("Menu", "menuBar" . A_LoopField)
 
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["TrayMenuExitApp", L(o_L["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
@@ -5045,11 +5045,9 @@ strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitc
 	. "|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders|MenuRecentFolders|MenuRecentFiles"
 
 loop, Parse, strMenuToInit, "|"
-	o_Menu := new Container("Menu", o_L[A_LoopField])
+	new Container("Menu", o_L[A_LoopField])
 
 strPopularMenusFoldersAndFiles := ""
-
-o_Menu := ""
 
 return
 ;------------------------------------------------------------
@@ -5096,10 +5094,10 @@ loop, parse, % "Folders|Files", |
 		continue
 		
 	strUsageDbSQL := "SELECT Popular" . strFoldersOrFiles .  "MenuData FROM zMetadata;"
-	if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
-		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
@@ -5329,10 +5327,10 @@ Diag(A_ThisLabel, "", "START")
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT DrivesMenuData FROM zMetadata;"
-	if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
-		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	}
 	objMetadataRecordSet.Next(objMetadataRow)
 	g_strMenuItemsListDrives := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
@@ -5407,10 +5405,10 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 		if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} or {Recent Files}
 		{
 			strUsageDbSQL := "SELECT Recent" . A_LoopField . "MenuData FROM zMetadata;" ; RecentFoldersMenuData and RecentFilesMenuData
-			if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+			if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 			{
 				Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
-				Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+				Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 			}
 			objMetadataRecordSet.Next(objMetadataRow)
 			g_strMenuItemsListRecent%A_LoopField% := objMetadataRow[1] ; g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
@@ -7056,7 +7054,7 @@ else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 }
 
 ; Re-init class for FileManagers, reloading ini values
-o_FileManagers := new FileManagers
+o_FileManagers := new FileManagers ; declared global earlier
 strClickedFileManagerSystemName := ""
 
 ; === Snippets ===
@@ -7814,8 +7812,8 @@ MsgBox, 36, %g_strAppNameText%, % o_L["OptionsUsageDbFlushDatabaseConfirm"]
 IfMsgBox, Yes
 {
 	strUsageDbSQL := "DELETE FROM Usage;" ; do not delete zMetadata (and if yes in the future, do not delete record, empty LatestCollected)
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-		Oops("SQLite FLUSH Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	If !o_UsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite FLUSH Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	else
 		Oops(o_L["OptionsUsageDbFlushDatabaseDone"])
 }
@@ -9052,7 +9050,7 @@ if (blnFavoriteFromSearch)
 	}
 }
 
-o_EditedFavorite := new Container.Item([]) ; declared global in header
+o_EditedFavorite := new Container.Item([]) ; declared global earlier
 g_strDefaultIconResource := ""
 g_strNewFavoriteIconResource := ""
 
@@ -11372,7 +11370,7 @@ if (g_blnAbortSave)
 
 if (o_EditedFavorite.IsContainer() and InStr("GuiAddFavoriteSave|GuiAddExternalSave|", strThisLabel . "|"))
 {
-	o_EditedFavoriteMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu]) ; class instance for the new menu or group
+	global o_EditedFavoriteMenu := new Container(o_EditedFavorite.AA.strFavoriteType, strNewFavoriteShortName, o_Containers.AA[strDestinationMenu]) ; class instance for the new menu or group
 
 	if (o_EditedFavoriteMenu.AA.strMenuType = "External")
 	{
@@ -11588,7 +11586,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel) 
 	strThisHotkey := ""
 	strNewFavoriteWindowPosition := ""
 	strMenuPath := ""
-	objMenu := ""
 	g_intNewItemPos := "" ; in case we abort save and retry
 	strIndexToRemove := ""
 	strThisMenuIndexPath := ""
@@ -12992,7 +12989,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_strModifiersSymbols := "+|^|!|#"
 	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
 	
-	o_HotkeyActual := new Triggers.HotkeyParts(P_strActualShortcut)
+	o_HotkeyActual := new Triggers.HotkeyParts(P_strActualShortcut) ; global
 
 	g_intGui2WinID := WinExist("A")
 	
@@ -13150,7 +13147,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if !StrLen(SS_strHotkeyControl)
 		return
 
-	o_HotkeyCheckModifiers := new Triggers.HotkeyParts(SS_strHotkeyControl)
+	o_HotkeyCheckModifiers := new Triggers.HotkeyParts(SS_strHotkeyControl) ; global
 
 	if StrLen(o_HotkeyCheckModifiers.strModifiers) ; we have a modifier and we don't want it, reset keyboard to none and return
 		GuiControl, , %A_GuiControl%, None
@@ -14567,7 +14564,7 @@ if InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavorit
 	if InStr("Menu|External", o_ThisFavorite.AA.strFavoriteType, true)
 	; if favorite is a submenu, check if it is empty or if some of its items are QAP features needing to be refreshed
 	{
-		saMenu := o_ThisFavorite.AA.oSubMenu.SA ; #####
+		saMenu := o_ThisFavorite.AA.oSubMenu.SA
 		if saMenu.MaxIndex() ; has items
 		{
 			loop, % saMenu.MaxIndex()
@@ -14620,20 +14617,19 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 		g_strHotkeyTypeDetected := "Launch"
 	}
 
-	o_ThisFavorite := new Container.Item(["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)])
+	global o_ThisFavorite := new Container.Item(["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)])
 	o_ThisFavorite.AA.blnFavoritePseudo := true
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
 {
 	; ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource, 5 strFavoriteArguments, 6 strFavoriteAppWorkingDir,
-	o_ThisFavorite := new Container.Item(["Folder", o_L["MenuOpenWorkingDirectory"], A_WorkingDir])
+	global o_ThisFavorite := new Container.Item(["Folder", o_L["MenuOpenWorkingDirectory"], A_WorkingDir])
 	o_ThisFavorite.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 	g_strHotkeyTypeDetected := "Launch"
 }
 else
 	o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
 
-saMenu := ""
 
 ; pseudo favorite object, set an icon ressource for repeat actions menu
 if (o_ThisFavorite.AA.blnFavoritePseudo)
@@ -14641,6 +14637,7 @@ if (o_ThisFavorite.AA.blnFavoritePseudo)
 		: GetIcon4Location(o_ThisFavorite.AA.strFavoriteLocation))
 
 OpenFavoriteGetFavoriteObjectCleanup:
+saMenu := ""
 strThisMenuItem := ""
 strFavoriteType := ""
 intMenuItemPos := ""
@@ -14648,7 +14645,6 @@ strThisNameLocation := ""
 ResetArray("arrThisNameLocation")
 strTempName := ""
 strMenuPath := ""
-objMenu := ""
 strReopenWindowsID := ""
 strReopenWindowClass := ""
 
@@ -14774,7 +14770,7 @@ if StrLen(g_strLastActionRepeated) ; we are repeating an action
 }
 else
 {
-	o_NewLastAction := new Container.Item([])
+	global o_NewLastAction := new Container.Item([])
 	o_NewLastAction := o_ThisFavorite.Backup()
 	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
 }
@@ -16365,7 +16361,7 @@ if StrLen(strError)
 	return
 }
 else ; init SQLite wraper object
-	g_objUsageDb := New SQLiteDb
+	global o_UsageDb := New SQLiteDb ; was g_objUsageDb
 
 ; for pre-v9.1.9.10 version upgrading to v9.1.9.11
 if !FileExist(g_strUsageDbFile) and FileExist(g_strUsageDbFileOld)
@@ -16373,10 +16369,10 @@ if !FileExist(g_strUsageDbFile) and FileExist(g_strUsageDbFileOld)
 
 blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
-if !g_objUsageDb.OpenDb(g_strUsageDbFile)
+if !o_UsageDb.OpenDb(g_strUsageDbFile)
 {
-	Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . g_objUsageDb.ErrorMsg . " Code: " . g_objUsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
-	Oops("SQLite Error OpenDb`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
+	Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+	Oops("SQLite Error OpenDb`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
 	g_blnUsageDbEnabled := false
 	return
 }
@@ -16397,10 +16393,10 @@ if (blnUsageDbIsNew)
 	strUsageDbSQL .= "`n" . "CREATE TABLE IF NOT EXISTS zMetadata (LatestCollected, PopularFoldersMenuData, PopularFilesMenuData, DrivesMenuData, RecentFoldersMenuData, RecentFilesMenuData);"
 	strUsageDbSQL .= "`n" . "INSERT INTO zMetadata VALUES('0', '', '', '', '', '');" ; make sure it has values for all columns
 
-	If !g_objUsageDb.Exec(strUsageDbSQL)
+	If !o_UsageDb.Exec(strUsageDbSQL)
 	{
-		Diag(A_ThisLabel, "SQLite CREATE Error Message: " . g_objUsageDb.ErrorMsg . " Code: " . g_objUsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
-		Oops("SQLite CREATE Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		Diag(A_ThisLabel, "SQLite CREATE Error Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+		Oops("SQLite CREATE Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
@@ -16420,9 +16416,9 @@ else ; modifications for previous versions
 		strUsageDbSQL .= "ALTER TABLE zMetaData ADD COLUMN RecentFilesMenuData;"
 	}
 	If StrLen(strUsageDbSQL)
-		!g_objUsageDb.Exec(strUsageDbSQL)
+		!o_UsageDb.Exec(strUsageDbSQL)
 		{
-			Oops("SQLite ALTER Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+			Oops("SQLite ALTER Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 			g_blnUsageDbEnabled := false
 			return
 		}
@@ -16435,20 +16431,20 @@ intMaximumSizeBytes := Round(o_Settings.Database.fltUsageDbMaximumSize.IniValue 
 if (intSizeBeforeDelete > intMaximumSizeBytes)
 {
 	strUsageDbSQL := "SELECT id FROM Usage;"
-	If !g_objUsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
-		Oops("SQLite GetTable Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+	If !o_UsageDb.GetTable(strUsageDbSQL, objUsageDbTable)
+		Oops("SQLite GetTable Error`n`nMsg:`t" . o_UsageDb.ErrorMsg . "`nCode:`t" . o_UsageDb.ErrorCode . "`n" . strUsageDbSQL)
 	
 	fltProportionOfRecordsToDelete := ((intSizeBeforeDelete - intMaximumSizeBytes) / intSizeBeforeDelete)
 	intRecordsToDelete := Round(objUsageDbTable.RowCount * fltProportionOfRecordsToDelete, 0) + Round(objUsageDbTable.RowCount / 10, 0) ;  difference + 10%
 	
 	strUsageDbSQL := "DELETE FROM Usage WHERE id in (SELECT id FROM Usage ORDER BY id LIMIT "
 		. intRecordsToDelete . ");" ; delete 10% latest entries of the database
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-		Oops("SQLite DELETE Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+	If !o_UsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite DELETE Error`n`nMsg:`t" . o_UsageDb.ErrorMsg . "`nCode:`t" . o_UsageDb.ErrorCode . "`n" . strUsageDbSQL)
 	
 	strUsageDbSQL := "VACUUM;"
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-		Oops("SQLite VACUUM Error`n`nMsg:`t" . g_objUsageDb.ErrorMsg . "`nCode:`t" . g_objUsageDb.ErrorCode . "`n" . strUsageDbSQL)
+	If !o_UsageDb.Exec(strUsageDbSQL)
+		Oops("SQLite VACUUM Error`n`nMsg:`t" . o_UsageDb.ErrorMsg . "`nCode:`t" . o_UsageDb.ErrorCode . "`n" . strUsageDbSQL)
 }
 
 str64or32 := ""
@@ -16496,10 +16492,10 @@ if (g_blnUsageDbDebug or o_Settings.Launch.blnDiagMode.IniValue)
 intUsageDbtNbItems := 0
 
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
-if !g_objUsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 {
 	Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
-	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
 	return
 }
@@ -16566,30 +16562,30 @@ Diag(A_ThisLabel . ":intUsageDbtNbItems", intUsageDbtNbItems, "ELAPSED")
 if (g_blnUsageDbDebug)
 	ToolTip, % StringLeftDotDotDot(strUsageDbSQL, 5000)
 
-g_objUsageDb.Exec("BEGIN TRANSACTION;")
-If (intUsageDbtNbItems) and !g_objUsageDb.Exec(strUsageDbSQL)
+o_UsageDb.Exec("BEGIN TRANSACTION;")
+If (intUsageDbtNbItems) and !o_UsageDb.Exec(strUsageDbSQL)
 {
 	Diag(A_ThisLabel, "SQLite INSERT Recent Items Error: " . strUsageDbSQL, "STOP")
-	Oops("SQLite INSERT Recent Items Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	Oops("SQLite INSERT Recent Items Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`n`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
-	g_objUsageDb.Exec("ROLLBACK;")
+	o_UsageDb.Exec("ROLLBACK;")
 	return
 }	
 
 strUsageDbPreviousLatestCollected := strUsageDbLatestCollected
 
 strUsageDbSQL := "UPDATE zMetadata SET LatestCollected = '" . strUsageDbLatestCollected . "';"
-If !g_objUsageDb.Exec(strUsageDbSQL)
+If !o_UsageDb.Exec(strUsageDbSQL)
 {
 	Diag(A_ThisLabel, "SQLite UPDATE LatestCollected zMETADATA Error: " . strUsageDbSQL, "STOP")
-	Oops("SQLite UPDATE LatestCollected zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+	Oops("SQLite UPDATE LatestCollected zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	g_blnUsageDbEnabled := false
-	g_objUsageDb.Exec("ROLLBACK;")
+	o_UsageDb.Exec("ROLLBACK;")
 	return
 }
 
 ; we had no error
-g_objUsageDb.Exec("COMMIT;")
+o_UsageDb.Exec("COMMIT;")
 
 if (g_blnUsageDbDebug)
 {
@@ -16627,119 +16623,8 @@ return
 
 
 ;------------------------------------------------------------
-UsageDbCollectMenu:
-;------------------------------------------------------------
-; add action to UsageDB
-
-if !(g_blnUsageDbEnabled)
-	return
-
-Diag(A_ThisLabel, "", "START")
-
-strUsageMenuDateTime := A_Now
-strUsageDbMenuPath :=  A_ThisMenu ; remember this could be older value if favorite was launched by an hotkey
-strUsageDbMenuTrigger :=  A_ThisHotkey ; remember this could be older value if favorite was launched by a menu
-strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
-
-strUsageDbMenuTargetClass := g_strTargetClass
-strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
-strUsageDbMenuTargetAppName := this.aaTemp.strTargetAppName ; ##### need fix
-
-strUsageDbTargetPathExpanded := g_objThisFavorite.FavoriteLocation
-if InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType)
-	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
-	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPathExpanded) ; FileExistInPath expands strUsageDbTargetPathExpanded and returns the file's atributes
-GetUsageDbTargetFileInfo((InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType) ? strUsageDbTargetPathExpanded : "") ; setting 1st param empty makes remainings empty
-	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
-
-if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType) ; include Special even if no attributes
-	; for Folder, Document and Application, file must exist, not for other types
-{
-	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
-	strUsageDbMenuFavoriteName := g_objThisFavorite.FavoriteName
-	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
-	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
-	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
-	strUsageDbMenuLiveLevels := g_objThisFavorite.intFavoriteFolderLiveLevels
-	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
-	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
-	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
-	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
-	strUsageDbMenuDateCreated := g_objThisFavorite.FavoriteDateCreated
-	strUsageDbMenuDateModified := g_objThisFavorite.FavoriteDateModified
-
-	strUsageDbSQL := "INSERT INTO Usage ("
-		. "TargetPath,TargetDateTime"
-		. ",CollectType,CollectDateTime,CollectPath"
-		. ",TargetAttributes,TargetType,TargetExtension"
-		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
-		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
-		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
-		. ",MenuDateCreated,MenuDateModified"
-		. ") VALUES("
-		; target file and date-time
-		. "'" . EscapeQuote(strUsageDbTargetPathExpanded) . "'"
-		. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
-		
-		; collect type, time and menu path
-		. ",'Menu'"
-		. ",'" . ConvertUsageDbDateFormat(strUsageMenuDateTime) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
-		
-		; target file info
-		. ",'" . strUsageDbTargetAttributes . "'"
-		. ",'" . strUsageDbTargetType . "'"
-		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-
-		; QAP launch info
-		. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
-		. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
-		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
-
-		; QAP favorite info
-		. ",'" . strUsageDbMenuFavoriteType . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
-		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
-		. ",'" . strUsageDbMenuLiveLevels . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
-		
-		. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
-		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
-		. ",'" . strUsageDbMenuDateCreated . "'"
-		. ",'" . strUsageDbMenuDateModified . "'"
-		. ");"
-
-	if (g_blnUsageDbDebug)
-		ToolTip, !!! %strUsageDbSQL%
-	
-	If !g_objUsageDb.Exec(strUsageDbSQL)
-	{
-		Diag(A_ThisLabel, "SQLite INSERT ACTION Error: " . strUsageDbSQL, "STOP")
-		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
-		g_blnUsageDbEnabled := false
-		return
-	}	
-	if (g_blnUsageDbDebug)
-	{
-		Sleep, 2000
-		ToolTip
-	}
-}
-
-Diag(A_ThisLabel, "", "STOP")
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 UsageDbUpdateFavorites:
-;------------------------------------------------------------
+;------------------------------------------------------------ #####
 
 Diag(A_ThisLabel, "", "START")
 
@@ -16799,10 +16684,10 @@ loop, parse, % "Folders|Files", |
 	; Parse table
 	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
-	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY POPULAR MENUS Error", "STOP")
-		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
@@ -16872,10 +16757,10 @@ if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent 
 	strDynamicDbSQL := "UPDATE zMetadata SET " . strDynamicDbSQL . ";" ; add opening command and ending semi-colon
 	; Diag(A_ThisLabel . ":strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
-	If !g_objUsageDb.Exec(strDynamicDbSQL)
+	If !o_UsageDb.Exec(strDynamicDbSQL)
 	{
 		Diag(A_ThisLabel, "SQLite UPDATE zMETADATA Error: " . StrReplace(strDynamicDbSQL, "`n", "``n"), "STOP")
-		Oops("SQLite UPDATE Popular zMETADATA Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strDynamicDbSQL)
+		Oops("SQLite UPDATE Popular zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strDynamicDbSQL)
 		return
 	}
 }
@@ -16958,10 +16843,10 @@ GetMenusListRecentItemsRefresh:
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
-	if !g_objUsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, objRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY Build menu Error", "STOP")
-		Oops("SQLite QUERY Build menu Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		Oops("SQLite QUERY Build menu Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		return
 	}
 	objDuplicatesFinder := Object()
@@ -17421,19 +17306,19 @@ if FileExist(strGoogleDriveDbFile)
 {
 	strGoogleDriveDbFileCopy := g_strTempDir . "\Temp_GoogleDrive_Database.DB"
 	FileCopy, %strGoogleDriveDbFile%, %strGoogleDriveDbFileCopy%, 1 ; no need to delete because is in the QAP temp directory
-	objGoogleDriveDb := New SQLiteDb
-	if objGoogleDriveDb.OpenDb(strGoogleDriveDbFileCopy)
-	; no error message if false - Oops("SQLite Error Opening Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nFile: " . strGoogleDriveDbFileCopy)
+	global o_GoogleDriveDb := New SQLiteDb
+	if o_GoogleDriveDb.OpenDb(strGoogleDriveDbFileCopy)
+	; no error message if false - Oops("SQLite Error Opening Google Drive database`n`nMessage: " . o_GoogleDriveDb.ErrorMsg . "`nCode: " . o_GoogleDriveDb.ErrorCode . "`nFile: " . strGoogleDriveDbFileCopy)
 	{
 		strSQLGoogleDriveQuery := "SELECT data_value FROM data WHERE entry_key='local_sync_root_path'"
-		If objGoogleDriveDb.Query(strSQLGoogleDriveQuery, objGoogleDriveRecordSet)
-		; no error message if false - Oops("SQLite Error Reading Google Drive database`n`nMessage: " . objGoogleDriveDb.ErrorMsg . "`nCode: " . objGoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
+		If o_GoogleDriveDb.Query(strSQLGoogleDriveQuery, objGoogleDriveRecordSet)
+		; no error message if false - Oops("SQLite Error Reading Google Drive database`n`nMessage: " . o_GoogleDriveDb.ErrorMsg . "`nCode: " . o_GoogleDriveDb.ErrorCode . "`nQuery: " . strSQLGoogleDriveQuery)
 		{
 			objGoogleDriveRecordSet.Next(objGoogleDriveRow)
 			o_Settings.UserVariables.strUserVariablesList.IniValue .= "{GoogleDrive}=" . SubStr(objGoogleDriveRow[1], 5) . "|"
 		}
 		objGoogleDriveRecordSet.Free()
-		objGoogleDriveDb.CloseDb()
+		o_GoogleDriveDb.CloseDb()
 	}
 }
 
@@ -17445,7 +17330,7 @@ if FileExist(strICloudDrive)
 strDropboxJsonFileContent := ""
 strOneDrive := ""
 strGoogleDriveDbFile := ""
-objGoogleDriveDb := ""
+o_GoogleDriveDb := ""
 strSQLGoogleDriveQuery := ""
 objGoogleDriveRecordSet := ""
 objGoogleDriveRow := ""
@@ -19252,9 +19137,9 @@ GetUsageDbTargetFileInfo(strPath, ByRef strAttributes, ByRef strType, ByRef strD
 GetUsageDbColumnExist(strTable, strColumnName)
 ;------------------------------------------------------------
 {
-	global g_objUsageDb
+	global o_UsageDb
 	
-	g_objUsageDb.GetTable("PRAGMA table_info('" . strTable . "');", objRecordSet)
+	o_UsageDb.GetTable("PRAGMA table_info('" . strTable . "');", objRecordSet)
 	
 	for intRow, objRow in objRecordSet.Rows
 		if (objRow[2] = strColumnName)
@@ -19270,13 +19155,13 @@ GetUsageDbFavoriteUsage(objFavorite)
 ; 2018-08-20 Take 1: one point per occurence of the location in usage (RecentItems or Menu)
 ;------------------------------------------------------------
 {
-	global g_objUsageDb
+	global o_UsageDb
 
 	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
-	if !g_objUsageDb.Query(strGetUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strGetUsageDbSQL, objRecordSet)
 	{
-		Oops("Message: " . g_objUsageDb.ErrorMsg . "`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
+		Oops("Message: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
@@ -23957,7 +23842,8 @@ class Container
 				; LOG ACTION
 				if !(this.AA.blnIsGroupMember) ; not if group member
 					and !(g_blnAlternativeMenu) ; not if alternative menu action
-					gosub, UsageDbCollectMenu ; DO IT LATER
+					; gosub, UsageDbCollectMenu ; DO IT LATER
+					this.CollectUsageDb() ; was UsageDbCollectMenu:
 			}
 		}
 		;---------------------------------------------------------
@@ -23969,19 +23855,19 @@ class Container
 			SplitPath, % this.aaTemp.strLocationWithPlaceholders, , strContainingFolder
 			strContainingFolder .= "\"
 			saContainingItem := ["Folder", "Containing Folder", strContainingFolder]
-			o_ContainingFolderItem := new Container.Item(saContainingItem)
-			o_ContainingFolderItem.aaTemp := Object()
-			o_ContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
-			o_ContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
+			oContainingFolderItem := new Container.Item(saContainingItem)
+			oContainingFolderItem.aaTemp := Object()
+			oContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
+			oContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
 			if (g_strAlternativeMenu = o_L["MenuAlternativeOpenContainingCurrent"])
 				and CanNavigate((A_ThisHotkey = o_PopupHotkeyAlternativeHotkeyMouse.P_strAhkHotkey ? o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey
 					: o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.P_strAhkHotkey))
 				; substitude Alternative hotkey with corresponding regular hotkey
-				o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Navigate"
+				oContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Navigate"
 			else
-				o_ContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Launch"
-			if o_ContainingFolderItem.SetTargetName() ; sets old g_strTargetAppName, can change aaTemp.strHotkeyTypeDetected to "Launch", can empty aaTemp.strTargetWinId if Desktop
-				o_ContainingFolderItem.OpenFolder()
+				oContainingFolderItem.aaTemp.strHotkeyTypeDetected := "Launch"
+			if oContainingFolderItem.SetTargetName() ; sets old g_strTargetAppName, can change aaTemp.strHotkeyTypeDetected to "Launch", can empty aaTemp.strTargetWinId if Desktop
+				oContainingFolderItem.OpenFolder()
 		}
 		;---------------------------------------------------------
 		
@@ -25064,6 +24950,226 @@ class Container
 						; . (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
 		}
 		;---------------------------------------------------------
+
+		;---------------------------------------------------------
+		CollectUsageDb()
+		; add action to UsageDB
+		;---------------------------------------------------------
+		{
+			if !(g_blnUsageDbEnabled)
+				return
+			
+			Diag(A_ThisFunc, "", "START")
+			
+			strUsageMenuDateTime := A_Now
+			strUsageDbMenuPath :=  A_ThisMenu ; remember this could be older value if favorite was launched by an hotkey
+			strUsageDbMenuTrigger :=  A_ThisHotkey ; remember this could be older value if favorite was launched by a menu
+			strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
+			
+			strUsageDbMenuTargetClass := g_strTargetClass
+			strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
+			strUsageDbMenuTargetAppName := this.aaTemp.strTargetAppName
+			
+			strUsageDbTargetPathExpanded := this.AA.strFavoriteLocation
+			if InStr("|Folder|Special|Document|Application", "|" . this.AA.strFavoriteType)
+				; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
+				strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPathExpanded) ; FileExistInPath expands strUsageDbTargetPathExpanded and returns the file's atributes
+			GetUsageDbTargetFileInfo((InStr("|Folder|Special|Document|Application", "|" . this.AA.strFavoriteType) ? strUsageDbTargetPathExpanded : "") ; setting 1st param empty makes remainings empty
+				, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+			
+			if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . this.AA.strFavoriteType) ; include Special even if no attributes
+				; for Folder, Document and Application, file must exist, not for other types
+			{
+				strUsageDbMenuFavoriteType := this.AA.strFavoriteType
+				strUsageDbMenuFavoriteName := this.AA.strFavoriteName
+				strUsageDbMenuParameters := this.AA.strFavoriteArguments
+				strUsageDbMenuStartIn := this.AA.strFavoriteAppWorkingDir
+				strUsageDbMenuLaunchWith := this.AA.strFavoriteLaunchWith
+				intUsageDbMenuLiveLevels := this.AA.intFavoriteFolderLiveLevels
+				strUsageDbMenuIconResource := this.AA.strFavoriteIconResource
+				strUsageDbMenuShortcut := this.AA.strFavoriteShortcut
+				strUsageDbMenuHotstring := this.AA.strFavoriteHotstring
+				strUsageDbMenuSoundLocation := this.AA.strFavoriteSoundLocation
+				strUsageDbMenuDateCreated := this.AA.strFavoriteDateCreated
+				strUsageDbMenuDateModified := this.AA.strFavoriteDateModified
+				
+				strUsageDbSQL := "INSERT INTO Usage ("
+					. "TargetPath,TargetDateTime"
+					. ",CollectType,CollectDateTime,CollectPath"
+					. ",TargetAttributes,TargetType,TargetExtension"
+					. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+					. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+					. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+					. ",MenuDateCreated,MenuDateModified"
+					. ") VALUES("
+					; target file and date-time
+					. "'" . EscapeQuote(strUsageDbTargetPathExpanded) . "'"
+					. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
+					
+					; collect type, time and menu path
+					. ",'Menu'"
+					. ",'" . ConvertUsageDbDateFormat(strUsageMenuDateTime) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
+					
+					; target file info
+					. ",'" . strUsageDbTargetAttributes . "'"
+					. ",'" . strUsageDbTargetType . "'"
+					. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+
+					; QAP launch info
+					. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
+					. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
+					. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
+
+					; QAP favorite info
+					. ",'" . strUsageDbMenuFavoriteType . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
+					. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
+					. ",'" . intUsageDbMenuLiveLevels . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
+					
+					. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
+					. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
+					. ",'" . strUsageDbMenuDateCreated . "'"
+					. ",'" . strUsageDbMenuDateModified . "'"
+					. ");"
+
+				if (g_blnUsageDbDebug)
+					ToolTip, !!! %strUsageDbSQL%
+				
+				If !o_UsageDb.Exec(strUsageDbSQL)
+				{
+					Diag(A_ThisFunc, "SQLite INSERT ACTION Error: " . strUsageDbSQL, "STOP")
+					Oops("SQLite INSERT ACTION Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`n`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+					g_blnUsageDbEnabled := false
+					return
+				}	
+				if (g_blnUsageDbDebug)
+				{
+					Sleep, 2000
+					ToolTip
+				}
+			}
+			
+			Diag(A_ThisFunc, "", "STOP")
+		}
+		;---------------------------------------------------------
+/*
+;------------------------------------------------------------
+UsageDbCollectMenu:
+;------------------------------------------------------------
+
+if !(g_blnUsageDbEnabled)
+	return
+
+Diag(A_ThisLabel, "", "START")
+
+strUsageMenuDateTime := A_Now
+strUsageDbMenuPath :=  A_ThisMenu ; remember this could be older value if favorite was launched by an hotkey
+strUsageDbMenuTrigger :=  A_ThisHotkey ; remember this could be older value if favorite was launched by a menu
+strUsageBdMenuAlternative := (g_blnAlternativeMenu ? g_strAlternativeMenu : "")
+
+strUsageDbMenuTargetClass := g_strTargetClass
+strUsageDbMenuHotkeyTypeDetected := g_strHotkeyTypeDetected
+strUsageDbMenuTargetAppName := this.aaTemp.strTargetAppName ; ##### need fix 
+
+strUsageDbTargetPathExpanded := g_objThisFavorite.FavoriteLocation
+if InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType)
+	; for files, check if in path, check envars and relative path; strUsageDbTargetAttributes will be updated again in GetUsageDbTargetFileInfo
+	strUsageDbTargetAttributes := FileExistInPath(strUsageDbTargetPathExpanded) ; FileExistInPath expands strUsageDbTargetPathExpanded and returns the file's atributes
+GetUsageDbTargetFileInfo((InStr("|Folder|Special|Document|Application", "|" . g_objThisFavorite.FavoriteType) ? strUsageDbTargetPathExpanded : "") ; setting 1st param empty makes remainings empty
+	, strUsageDbTargetAttributes, strUsageDbTargetType, strUsageDbTargetDateTime, strUsageDbTargetExtension)
+
+if StrLen(strUsageDbTargetAttributes) or !InStr("Folder|Document|Application", "|" . g_objThisFavorite.FavoriteType) ; include Special even if no attributes
+	; for Folder, Document and Application, file must exist, not for other types
+{
+	strUsageDbMenuFavoriteType := g_objThisFavorite.FavoriteType
+	strUsageDbMenuFavoriteName := g_objThisFavorite.FavoriteName
+	strUsageDbMenuParameters := g_objThisFavorite.FavoriteArguments
+	strUsageDbMenuStartIn := g_objThisFavorite.FavoriteAppWorkingDir
+	strUsageDbMenuLaunchWith := g_objThisFavorite.FavoriteLaunchWith
+	strUsageDbMenuLiveLevels := g_objThisFavorite.intFavoriteFolderLiveLevels
+	strUsageDbMenuIconResource := g_objThisFavorite.FavoriteIconResource
+	strUsageDbMenuShortcut := g_objThisFavorite.FavoriteShortcut
+	strUsageDbMenuHotstring := g_objThisFavorite.FavoriteHotstring
+	strUsageDbMenuSoundLocation := g_objThisFavorite.FavoriteSoundLocation
+	strUsageDbMenuDateCreated := g_objThisFavorite.FavoriteDateCreated
+	strUsageDbMenuDateModified := g_objThisFavorite.FavoriteDateModified
+
+	strUsageDbSQL := "INSERT INTO Usage ("
+		. "TargetPath,TargetDateTime"
+		. ",CollectType,CollectDateTime,CollectPath"
+		. ",TargetAttributes,TargetType,TargetExtension"
+		. ",MenuTrigger,MenuHotkeyTypeDetected,MenuAlternative,MenuTargetAppName,MenuTargetClass"
+		. ",MenuFavoriteType,MenuFavoriteName,MenuOriginalLocation,MenuLiveLevels,MenuShortcut,MenuHotstring"
+		. ",MenuIconResource,MenuParameters,MenuStartIn,MenuLaunchWith,MenuSoundLocation"
+		. ",MenuDateCreated,MenuDateModified"
+		. ") VALUES("
+		; target file and date-time
+		. "'" . EscapeQuote(strUsageDbTargetPathExpanded) . "'"
+		. ",'" . ConvertUsageDbDateFormat(strUsageDbTargetDateTime) . "'"
+		
+		; collect type, time and menu path
+		. ",'Menu'"
+		. ",'" . ConvertUsageDbDateFormat(strUsageMenuDateTime) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuPath) . "'"
+		
+		; target file info
+		. ",'" . strUsageDbTargetAttributes . "'"
+		. ",'" . strUsageDbTargetType . "'"
+		. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
+
+		; QAP launch info
+		. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
+		. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
+		. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
+
+		; QAP favorite info
+		. ",'" . strUsageDbMenuFavoriteType . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
+		. ",'" . EscapeQuote(g_objThisFavorite.FavoriteLocation) . "'" ; original location (before expanding)
+		. ",'" . strUsageDbMenuLiveLevels . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuShortcut) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuHotstring) . "'"
+		
+		. ",'" . EscapeQuote(strUsageDbMenuIconResource) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuParameters) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuStartIn) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuLaunchWith) . "'"
+		. ",'" . EscapeQuote(strUsageDbMenuSoundLocation) . "'"
+		. ",'" . strUsageDbMenuDateCreated . "'"
+		. ",'" . strUsageDbMenuDateModified . "'"
+		. ");"
+
+	if (g_blnUsageDbDebug)
+		ToolTip, !!! %strUsageDbSQL%
+	
+	If !g_objUsageDb.Exec(strUsageDbSQL)
+	{
+		Diag(A_ThisLabel, "SQLite INSERT ACTION Error: " . strUsageDbSQL, "STOP")
+		Oops("SQLite INSERT ACTION Error`n`nMessage: " . g_objUsageDb.ErrorMsg . "`n`nCode: " . g_objUsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
+		g_blnUsageDbEnabled := false
+		return
+	}	
+	if (g_blnUsageDbDebug)
+	{
+		Sleep, 2000
+		ToolTip
+	}
+}
+
+Diag(A_ThisLabel, "", "STOP")
+return
+;------------------------------------------------------------
+*/
 
 		;---------------------------------------------------------
 		; Method()
