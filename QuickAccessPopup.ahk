@@ -5419,7 +5419,7 @@ else ; get data directly from Windows (with variable response time)
 	gosub, GetMenusListRecentItemsRefresh ; update g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
 
 Loop, Parse, % "Folders|Files", |
-	if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent " . strFoldersOrFiles . "}")) ; {Recent Folders} and {Recent Files}
+	if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} and {Recent Files}
 	{
 		strFoldersOrFiles := A_LoopField
 		saMenuItemsTable := Object()
@@ -6331,9 +6331,10 @@ GuiControl, ChooseString, f_drpIconSize, % o_Settings.MenuIcons.intIconSize.IniV
 GuiControl, 2:+gGuiOptionsGroupChanged, f_drpIconSize
 
 ; IconsManageRows
-Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit gGuiOptionsGroupChanged number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
+Gui, 2:Add, Edit, % "y+10 x" . g_intGroupItemsX . " w51 h22 vf_intIconsManageRowsSettingsEdit number center hidden" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : "Disabled")
 Gui, 2:Add, UpDown, vf_intIconsManageRowsSettings Range0-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuIcons.intIconsManageRowsSettings.IniValue
 Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.MenuIcons.blnDisplayIcons.IniValue ? "" : " Disabled"), % o_L["OptionsIconsManageRows"]
+GuiControl, 2:+gGuiOptionsGroupChanged, f_intIconsManageRowsSettingsEdit
 
 ; RetrieveIconInFrequentMenus
 Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w580 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
@@ -23506,7 +23507,7 @@ class Container
 
 		for intKey, oItem in this.SA
 			if StrLen(oItem.AA.strFavoriteLocation) ; exclude separators
-				oItem.AA.intFavoriteUsageDb := this.GetUsageDbFavoriteUsage()
+				oItem.AA.intFavoriteUsageDb := oItem.GetUsageDbFavoriteUsage()
 		
 		if (g_blnUsageDbDebug)
 		{
@@ -24991,14 +24992,14 @@ class Container
 					. ",'" . strUsageDbTargetAttributes . "'"
 					. ",'" . strUsageDbTargetType . "'"
 					. ",'" . EscapeQuote(strUsageDbTargetExtension) . "'"
-
+					
 					; QAP launch info
 					. ",'" . EscapeQuote(strUsageDbMenuTrigger) . "'"
 					. ",'" . strUsageDbMenuHotkeyTypeDetected . "'"
 					. ",'" . EscapeQuote(strUsageBdMenuAlternative) . "'"
 					. ",'" . EscapeQuote(strUsageDbMenuTargetAppName) . "'"
 					. ",'" . EscapeQuote(strUsageDbMenuTargetClass) . "'"
-
+					
 					; QAP favorite info
 					. ",'" . strUsageDbMenuFavoriteType . "'"
 					. ",'" . EscapeQuote(strUsageDbMenuFavoriteName) . "'"
@@ -25015,7 +25016,7 @@ class Container
 					. ",'" . strUsageDbMenuDateCreated . "'"
 					. ",'" . strUsageDbMenuDateModified . "'"
 					. ");"
-
+				
 				if (g_blnUsageDbDebug)
 					ToolTip, !!! %strUsageDbSQL%
 				
@@ -25058,16 +25059,15 @@ class Container
 			return intValue
 		}
 		;---------------------------------------------------------
-
+		
 /*
-
 		;---------------------------------------------------------
 		; Method()
 		;---------------------------------------------------------
 		; {
 		; }
 		;---------------------------------------------------------
-
+*/
 	}
 	;-------------------------------------------------------------
 	; === end of class Item ===
