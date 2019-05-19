@@ -5094,16 +5094,16 @@ loop, parse, % "Folders|Files", |
 		continue
 		
 	strUsageDbSQL := "SELECT Popular" . strFoldersOrFiles .  "MenuData FROM zMetadata;"
-	if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, o_MetadataRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
 		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
-	objMetadataRecordSet.Next(objMetadataRow)
-	strMenuItemsList := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
-	objMetadataRecordSet.Free()
+	o_MetadataRecordSet.Next(o_MetadataRow)
+	strMenuItemsList := o_MetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
+	o_MetadataRecordSet.Free()
 	
 	; for each line in strMenuItemsList: 1) Frequent Folders/Files|2) Name/Location|3) Action|4) Icon
 	; example: Frequent Folders|E:\Dropbox\AutoHotkey\QuickAccessPopup|Folder|iconFolder
@@ -5124,9 +5124,9 @@ loop, parse, % "Folders|Files", |
 	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles]].BuildMenu()
 }
 
-ResetArray("arrMenuItemsList")
+saOneLine := ""
 strUsageDbSQL := ""
-objMetadataRecordSet := ""
+o_MetadataRecordSet := ""
 saOneLine := ""
 saMenuItemsTable := ""
 
@@ -5327,14 +5327,14 @@ Diag(A_ThisLabel, "", "START")
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT DrivesMenuData FROM zMetadata;"
-	if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, o_MetadataRecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
 		Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 	}
-	objMetadataRecordSet.Next(objMetadataRow)
-	g_strMenuItemsListDrives := objMetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
-	objMetadataRecordSet.Free()
+	o_MetadataRecordSet.Next(o_MetadataRow)
+	g_strMenuItemsListDrives := o_MetadataRow[1] ; first (and only) field is PopularFoldersMenuData or PopularFilesMenuData
+	o_MetadataRecordSet.Free()
 }
 else ; get data directly from Windows (with variable response time)
 	gosub, GetDrivesMenuListRefresh ; update g_strMenuItemsListDrives
@@ -5357,7 +5357,7 @@ o_Containers.AA[o_L["MenuDrives"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuDrives"]].BuildMenu()
 
 strUsageDbSQL := ""
-objMetadataRecordSet := ""
+o_MetadataRecordSet := ""
 saOneLine := ""
 saMenuItemsTable := ""
 
@@ -5405,14 +5405,14 @@ if (g_blnUsageDbEnabled) ; use SQLite usage database
 		if (o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Recent " . A_LoopField . "}")) ; {Recent Folders} or {Recent Files}
 		{
 			strUsageDbSQL := "SELECT Recent" . A_LoopField . "MenuData FROM zMetadata;" ; RecentFoldersMenuData and RecentFilesMenuData
-			if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+			if !o_UsageDb.Query(strUsageDbSQL, o_MetadataRecordSet)
 			{
 				Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
 				Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 			}
-			objMetadataRecordSet.Next(objMetadataRow)
-			g_strMenuItemsListRecent%A_LoopField% := objMetadataRow[1] ; g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
-			objMetadataRecordSet.Free()
+			o_MetadataRecordSet.Next(o_MetadataRow)
+			g_strMenuItemsListRecent%A_LoopField% := o_MetadataRow[1] ; g_strMenuItemsListRecentFolders and g_strMenuItemsListRecentFiles
+			o_MetadataRecordSet.Free()
 		}
 	}
 else ; get data directly from Windows (with variable response time)
@@ -7834,7 +7834,7 @@ OptionsListCleanup(strList)
 	Loop, Parse, strListCleanup, |
 		if StrLen(A_LoopField)
 			strList .= Trim(A_LoopField) . "|"
-	StringTrimRight, strList, strList, 1 ; remove last |
+	strList := SubStr(strList, 1, -1) ; remove last |
 	return strList
 }
 ;------------------------------------------------------------
@@ -12361,7 +12361,7 @@ loop
 	strSelectedRows .= g_intRowToProcess . "|"
 }
 until !LV_GetNext(g_intRowToProcess)
-StringTrimRight, strSelectedRows, strSelectedRows, 1
+strSelectedRows := SubStr(strSelectedRows, 1, -1) ; remove last |
 
 return
 ;------------------------------------------------------------
@@ -14372,7 +14372,7 @@ else ; g_arrGroupSettingsOpen2 = "Windows Explorer" or ""
 		if !StrLen(strType) and StrLen(strWindowID) ; strType must be empty and strWindowID must not be empty
 			strWindowsId .= pExplorer.HWND . "|"
 	}
-	StringTrimRight, strWindowsId, strWindowsId, 1 ; remove last | separator
+	strWindowsId := SubStr(1, -1) ; remove last | separator
 	Loop, Parse, strWindowsId, |
 	{
 		WinClose, ahk_id %A_LoopField%
@@ -16492,7 +16492,7 @@ if (g_blnUsageDbDebug or o_Settings.Launch.blnDiagMode.IniValue)
 intUsageDbtNbItems := 0
 
 strUsageDbSQL := "SELECT LatestCollected FROM zMetadata;"
-if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
+if !o_UsageDb.Query(strUsageDbSQL, o_MetadataRecordSet)
 {
 	Diag(A_ThisLabel, "SQLite QUERY zMETADATA Error: " . strUsageDbSQL, "STOP")
 	Oops("SQLite QUERY zMETADATA Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
@@ -16500,9 +16500,9 @@ if !o_UsageDb.Query(strUsageDbSQL, objMetadataRecordSet)
 	return
 }
 
-objMetadataRecordSet.Next(objMetadataRow)
-strUsageDbPreviousLatestCollected := objMetadataRow[1] ; first (and only) field is LatestCollected
-objMetadataRecordSet.Free()
+o_MetadataRecordSet.Next(o_MetadataRow)
+strUsageDbPreviousLatestCollected := o_MetadataRow[1] ; first (and only) field is LatestCollected
+o_MetadataRecordSet.Free()
 ; Diag(A_ThisLabel . ":strUsageDbPreviousLatestCollected (before)", strUsageDbPreviousLatestCollected)
 
 strUsageDbSQL := "INSERT INTO Usage ("
@@ -16517,9 +16517,9 @@ Loop, parse, strUsageDbItemsList, `n
 	if (A_Index > g_intUsageDbRecentLimit)
 		break
 
-	arrUsageDbShortcutFullPath := StrSplit(A_LoopField, A_Tab)
-	strUsageDbShortcutDateTime := arrUsageDbShortcutFullPath[1]
-	strUsageDbShortcutPath := arrUsageDbShortcutFullPath[2]
+	saUsageDbShortcutFullPath := StrSplit(A_LoopField, A_Tab)
+	strUsageDbShortcutDateTime := saUsageDbShortcutFullPath[1]
+	strUsageDbShortcutPath := saUsageDbShortcutFullPath[2]
 	
 	if (A_Index = 1) ; because sorted by shortcut date reverse, first is most recent
 		strUsageDbLatestCollected := strUsageDbShortcutDateTime
@@ -16604,8 +16604,8 @@ strUsageDbItemsList := ""
 strUsageDbReport := ""
 intUsageDbtNbItems := ""
 strUsageDbSQL := ""
-objMetadataRecordSet := ""
-ResetArray("arrUsageDbShortcutFullPath")
+o_MetadataRecordSet := ""
+saUsageDbShortcutFullPath := ""
 strUsageDbShortcutDateTime := ""
 strUsageDbShortcutPath := ""
 strUsageDbLatestCollected := ""
@@ -16624,7 +16624,7 @@ return
 
 ;------------------------------------------------------------
 UsageDbUpdateFavorites:
-;------------------------------------------------------------ #####
+;------------------------------------------------------------
 
 Diag(A_ThisLabel, "", "START")
 
@@ -16684,22 +16684,22 @@ loop, parse, % "Folders|Files", |
 	; Parse table
 	strUsageDbSQL := "SELECT TargetPath, COUNT(TargetPath) AS 'Nb' FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetType='" . strTargetType . "' COLLATE NOCASE ORDER BY COUNT(TargetPath) DESC;"
-	if !o_UsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, o_RecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY POPULAR MENUS Error", "STOP")
 		Oops("SQLite QUERY POPULAR MENUS Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
-	Diag(A_ThisLabel . ":After SQLiteQuery", objRecordSet.HasRows, "ELAPSED")
+	Diag(A_ThisLabel . ":After SQLiteQuery", o_RecordSet.HasRows, "ELAPSED")
 
 	intPopularItemsCount := 0
 	Loop
 	{
-		if objRecordSet.Next(objRow) = -1 ; end of recordset
+		if o_RecordSet.Next(o_Row) = -1 ; end of recordset
 			break
-		strPath := objRow[1]
-		strTargetNb := objRow[2]
+		strPath := o_Row[1]
+		strTargetNb := o_Row[2]
 		Diag(A_ThisLabel . ":Processing Start", strPath . " " . strTargetType, "ELAPSED")
 		; RecentFileExistInPath to check if on an offline server
 		
@@ -16722,7 +16722,7 @@ loop, parse, % "Folders|Files", |
 		if (intPopularItemsCount >= o_Settings.Menu.intRecentFoldersMax.IniValue)
 			break ; Folders or Files menus is complete
 	}
-	objRecordSet.Free()
+	o_RecordSet.Free()
 	if (intPopularItemsCount < o_Settings.Menu.intRecentFoldersMax.IniValue)
 		strMenuItemsList%strFoldersOrFiles% .= strFoldersOrFilesMenuNameLocalized . "|" . L(o_L["MenuPopularMenusWillImprove"], g_strAppNameText) . "|GuiShowNeverCalled|iconAbout`n"
 
@@ -16753,7 +16753,7 @@ Diag(A_ThisLabel . ":g_strMenuItemsListRecentFiles", StrReplace(g_strMenuItemsLi
 
 if StrLen(strDynamicDbSQL) ; if menu does not contain Drives, Popular or Recent menus, strDynamicDbSQL is empty
 {
-	StringTrimRight, strDynamicDbSQL, strDynamicDbSQL, 2 ; remove last ", "
+	strDynamicDbSQL := SubStr(strDynamicDbSQL, 1, -2) ; remove last ", "
 	strDynamicDbSQL := "UPDATE zMetadata SET " . strDynamicDbSQL . ";" ; add opening command and ending semi-colon
 	; Diag(A_ThisLabel . ":strDynamicDbSQL", StrReplace(strDynamicDbSQL, "`n", "``n"))
 
@@ -16770,8 +16770,8 @@ strPath := ""
 strMenuItemName := ""
 strIcon := ""
 strUsageDbSQL := ""
-objRecordSet := ""
-objRow := ""
+o_RecordSet := ""
+o_Row := ""
 strTargetType := ""
 strMenuItemsList := ""
 strDynamicDbSQL := ""
@@ -16843,7 +16843,7 @@ GetMenusListRecentItemsRefresh:
 if (g_blnUsageDbEnabled) ; use SQLite usage database
 {
 	strUsageDbSQL := "SELECT TargetPath, TargetType FROM Usage WHERE (TargetType='Folder' OR TargetType='File') ORDER BY CollectDateTime DESC;"
-	if !o_UsageDb.Query(strUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strUsageDbSQL, o_RecordSet)
 	{
 		Diag(A_ThisLabel, "SQLite QUERY Build menu Error", "STOP")
 		Oops("SQLite QUERY Build menu Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
@@ -16874,10 +16874,10 @@ Loop
 	; get next item
 	if (g_blnUsageDbEnabled)
 	{
-		if objRecordSet.Next(objRow) = -1 ; end of recordset
+		if o_RecordSet.Next(o_Row) = -1 ; end of recordset
 			break
-		strTargetPath := objRow[1]
-		strTargetType := objRow[2]
+		strTargetPath := o_Row[1]
+		strTargetType := o_Row[2]
 		if (objDuplicatesFinder.HasKey(strTargetPath))
 		{
 			Diag(A_ThisLabel . ":Skip Duplicate", strTargetPath . " " . strTargetType, "ELAPSED")
@@ -16928,13 +16928,13 @@ Loop
 		break ; both Folders and Files menus are complete
 }
 if (g_blnUsageDbEnabled) ; use SQLite usage database
-	objRecordSet.Free()
+	o_RecordSet.Free()
 
 intRecentFoldersCount := ""
 intRecentFilesCount := ""
 strUsageDbSQL := ""
-objRecordSet := ""
-objRow := ""
+o_RecordSet := ""
+o_Row := ""
 strTargetPath := ""
 strTargetType := ""
 objDuplicatesFinder := ""
@@ -17542,7 +17542,7 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 		. (InStr(strHotstringOptionsShort, "B0") ? o_L["DialogHotstringKeepHotstring"] . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "*") ? o_L["DialogHotstringNotWaitEndingKey"] . g_strHotstringOptionsLongSeparator : "")
 	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
-		StringTrimRight, strHotstringOptionsLong, strHotstringOptionsLong, % StrLen(g_strHotstringOptionsLongSeparator)
+		strHotstringOptionsLong := SubStr(strHotstringOptionsLong, StrLen(g_strHotstringOptionsLongSeparator)) ; ##### test
 	
 	return strHotstringOptionsLong
 }
@@ -18712,7 +18712,9 @@ GetCurrentUrlDDE(strClass)
 ;------------------------------------------------------------
 {
 	WinGet, strServer, ProcessName, % "ahk_class " . strClass
-	StringTrimRight, strServer, strServer, 4
+	; StringTrimRight, strServer, strServer, 4
+	strServer := SubStr(strServer, 1, -4) ; ##### test
+
 	intCodePage := (A_IsUnicode ? 0x04B0 : 0x03EC) ; 0x04B0 = CP_WINUNICODE, 0x03EC = CP_WINANSI
 	
 	DllCall("DdeInitialize", "UPtrP", idInst, "Uint", 0, "Uint", 0, "Uint", 0)
@@ -19139,10 +19141,10 @@ GetUsageDbColumnExist(strTable, strColumnName)
 {
 	global o_UsageDb
 	
-	o_UsageDb.GetTable("PRAGMA table_info('" . strTable . "');", objRecordSet)
+	o_UsageDb.GetTable("PRAGMA table_info('" . strTable . "');", o_RecordSet)
 	
-	for intRow, objRow in objRecordSet.Rows
-		if (objRow[2] = strColumnName)
+	for intRow, o_Row in o_RecordSet.Rows
+		if (o_Row[2] = strColumnName)
 			return true
 		
 	return false
@@ -19159,15 +19161,15 @@ GetUsageDbFavoriteUsage(objFavorite)
 
 	strGetUsageDbSQL := "SELECT COUNT(*) FROM Usage WHERE CollectDateTime >= date('now','-" . o_Settings.Database.intUsageDbDaysInPopular.IniValue . " day') "
 		. "GROUP BY TargetPath COLLATE NOCASE HAVING TargetPath='" . EscapeQuote(objFavorite.FavoriteLocation) . "' COLLATE NOCASE;"
-	if !o_UsageDb.Query(strGetUsageDbSQL, objRecordSet)
+	if !o_UsageDb.Query(strGetUsageDbSQL, o_RecordSet)
 	{
 		Oops("Message: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strGetUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
 	}
-	objRecordSet.Next(objRow)
-	intValue := objRow[1] ; COUNT(*) is the first (and only) field
-	objRecordSet.Free()
+	o_RecordSet.Next(o_Row)
+	intValue := o_Row[1] ; COUNT(*) is the first (and only) field
+	o_RecordSet.Free()
 
 	return intValue
 }
