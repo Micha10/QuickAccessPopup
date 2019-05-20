@@ -5115,7 +5115,10 @@ loop, parse, % "Folders|Files", |
 			; swap items for backward compatibility pre-v10
 			saOneLine := StrSplit(A_LoopField, "|")
 			saOneLine[1] := saOneLine[3] ; put favorite type in 1
-			saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
+			if (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue) ; remove popularity index
+				saOneLine[3] := SubStr(saOneLine[2], 1, InStr(saOneLine[2], " [", false, 0) - 1) ; strip " [n]" from end
+			else
+				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
 			; keep icon in 4
 			saMenuItemsTable.Push(saOneLine)
 		}
@@ -14631,7 +14634,6 @@ else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
 else
 	o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
 
-
 ; pseudo favorite object, set an icon ressource for repeat actions menu
 if (o_ThisFavorite.AA.blnFavoritePseudo)
 	o_ThisFavorite.AA.strFavoriteIconResource := (o_ThisFavorite.AA.strFavoriteType = "Folder" ? GetFolderIcon(o_ThisFavorite.AA.strFavoriteLocation)
@@ -23782,7 +23784,7 @@ class Container
 				blnOpenOK := false
 			}	
 			; CHECK IF FILE/FOLDER MUST EXIST
-			else if this.FileExistIfMust(this.aaTemp.strOpenFavoriteLabel)
+			else if this.FileExistIfMust(this.aaTemp.strFullLocation)
 			{
 				; WINDOW POSITION PREPARATION
 				; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
