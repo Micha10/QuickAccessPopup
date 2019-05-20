@@ -17520,7 +17520,7 @@ GetHotstringOptionsLong(strHotstringOptionsShort)
 		. (InStr(strHotstringOptionsShort, "B0") ? o_L["DialogHotstringKeepHotstring"] . g_strHotstringOptionsLongSeparator : "")
 		. (InStr(strHotstringOptionsShort, "*") ? o_L["DialogHotstringNotWaitEndingKey"] . g_strHotstringOptionsLongSeparator : "")
 	if (SubStr(strHotstringOptionsLong, StrLen(strHotstringOptionsLong) - StrLen(g_strHotstringOptionsLongSeparator) + 1) = g_strHotstringOptionsLongSeparator)
-		strHotstringOptionsLong := SubStr(strHotstringOptionsLong, StrLen(g_strHotstringOptionsLongSeparator)) ; ##### test
+		strHotstringOptionsLong := SubStr(strHotstringOptionsLong, 1, -StrLen(g_strHotstringOptionsLongSeparator))
 	
 	return strHotstringOptionsLong
 }
@@ -18690,8 +18690,7 @@ GetCurrentUrlDDE(strClass)
 ;------------------------------------------------------------
 {
 	WinGet, strServer, ProcessName, % "ahk_class " . strClass
-	; StringTrimRight, strServer, strServer, 4
-	strServer := SubStr(strServer, 1, -4) ; ##### test
+	SplitPath, strServer, , , , strServer ; remove executable file extention
 
 	intCodePage := (A_IsUnicode ? 0x04B0 : 0x03EC) ; 0x04B0 = CP_WINUNICODE, 0x03EC = CP_WINANSI
 	
