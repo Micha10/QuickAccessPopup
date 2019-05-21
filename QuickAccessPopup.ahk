@@ -22670,32 +22670,8 @@ class Container
 					o_Containers.AA[aaThisFavorite.oSubMenu.AA.strMenuPath] := aaThisFavorite.oSubMenu
 				}
 				
-				; RecursiveBuildOneMenu(objCurrentMenu[A_Index].SubMenu) ; RECURSIVE - build the submenu first
 				aaThisFavorite.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
 				
-				; ##### test maybe not required if done in __New
-				; if (g_blnUseColors)
-					; Try Menu, % aaThisFavorite.oSubMenu.AA.MenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
-				
-				; Try Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, % ":" . aaThisFavorite.oSubMenu.AA.strMenuPath, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "")
-				; catch ; when menu aaThisFavorite.oSubMenu.AA.MenuPath is empty
-					; Menu, % this.AA.strMenuPath, Add, %strMenuItemLabel%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
-				; Menu, % this.AA.strMenuPath, % (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0 ? "Enable" : "Disable"), %strMenuItemLabel% ; disable menu if contains no item
-				; if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (aaThisFavorite.strFavoriteIconResource <> "iconNoIcon")
-				; {
-					; ParseIconResource(aaThisFavorite.strFavoriteIconResource, strThisIconFile, intThisIconIndex, "iconSubmenu")
-					
-					; Menu, % this.AA.strMenuPath, UseErrorLevel, on
-					; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
-						; , %strThisIconFile%, %intThisIconIndex% , % o_Settings.MenuIcons.intIconSize.IniValue
-					; if (ErrorLevel)
-					; {
-						; ParseIconResource("iconUnknown", strIconFile, intIconIndex)
-						; Menu, % this.AA.strMenuPath, Icon, %strMenuItemLabel%
-							; , %strIconFile%, %intIconIndex%, % o_Settings.MenuIcons.intIconSize.IniValue
-					; }
-					; Menu, % this.AA.strMenuPath, UseErrorLevel, off
-				; }
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
 				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
 				strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
@@ -23296,7 +23272,6 @@ class Container
 			}
 			else
 			; was ExternalMenuReloadAndRebuild(objMenu)
-			; NOT tested here #####
 			{
 				this.LoadFavoritesFromIniFile(true) ; true for Refresh External
 				this.BuildMenu()
