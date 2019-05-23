@@ -4402,7 +4402,7 @@ else
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
-	if (o_MainMenu.LoadFavoritesFromIniFile(true) <> "EOM")
+	if (o_MainMenu.LoadFavoritesFromIniFile() <> "EOM")
 		ExitApp
 }
 
@@ -6167,7 +6167,7 @@ g_blnRefreshQAPMenuInProgress := true
 for strMenuName, o_ThisContainer in o_Containers.AA
 	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	{
-		o_ThisContainer.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+		o_ThisContainer.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		o_ThisContainer.BuildMenu()
 	}
 
@@ -8159,7 +8159,7 @@ Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered hidden, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
 Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered hidden, % o_L["DialogExtendedSearch"] ; Button1
 g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
-Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20 hidden, X ; Button2
+Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmptyButton x+10 yp w20 h20 hidden, X ; Button2
 g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
@@ -8189,7 +8189,7 @@ sleep, 100
 if (saSettingsPosition[1] <> -1)
 	WinMove, ahk_id %g_strAppHwnd%, , , , % saSettingsPosition[3], % saSettingsPosition[4]
 
-GuiControl, Focus, f_drpMenusList
+GuiControl, Focus, f_lvFavoritesList
 saSettingsPosition := ""
 saDonateButtons := ""
 strTextColor := ""
@@ -8212,7 +8212,7 @@ LV_Delete()
 if (o_MenuInGui.AA.strMenuType = "External") and o_MenuInGui.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	; was ExternalMenuReloadAndRebuild(g_objMenuInGui)
 	{
-		o_MenuInGui.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+		o_MenuInGui.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		o_MenuInGui.BuildMenu()
 	}
 
@@ -8225,6 +8225,8 @@ Gosub, AdjustColumnsWidth
 
 GuiControl, , f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|"
 
+Gosub, GuiFavoritesListFilterHide
+	
 GuiControl, Focus, f_lvFavoritesList
 
 strGuiMenuLocation := ""
@@ -8489,10 +8491,16 @@ return
 
 ;------------------------------------------------------------
 GuiFavoritesListFilterButton:
+GuiFavoritesListFilterHide:
 ;------------------------------------------------------------
 
-GuiControlGet, g_blnFilterVisible, Visible, f_strFavoritesListFilter
-g_blnFilterVisible := !g_blnFilterVisible ; reverse visible state
+if (A_ThisLabel = "GuiFavoritesListFilterButton")
+{
+	GuiControlGet, g_blnFilterVisible, Visible, f_strFavoritesListFilter
+	g_blnFilterVisible := !g_blnFilterVisible ; reverse visible state
+}
+else ; GuiFavoritesListFilterHide
+	g_blnFilterVisible := false ; force hide
 
 strShowHideCommand := (g_blnFilterVisible ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_drpMenusList
@@ -10790,7 +10798,7 @@ if (intCurrentLastPosition) ; we went to a previous menu
 }
 
 if (A_ThisLabel = "GuiMenusListChanged") ; keep focus on dropdown list
-	GuiControl, Focus, f_drpMenusList
+	GuiControl, Focus, f_lvFavoritesList
 
 GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
@@ -11413,7 +11421,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
 			; load the external menu to menu instance o_EditedFavoriteMenu created earlier
-			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
 			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
@@ -12885,9 +12893,11 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 
 ;------------------------------------------------------------
 GuiFavoritesListFilterEmpty:
+GuiFavoritesListFilterEmptyButton:
 ;------------------------------------------------------------
 
-gosub, GuiFavoritesListFilterButton
+if (A_ThisLabel = "GuiFavoritesListFilterEmptyButton")
+	gosub, GuiFavoritesListFilterButton
 
 if !StrLen(GetFavoritesListFilter())
 	return
@@ -22284,7 +22294,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(blnEntryMenu := false, blnRefreshExternal := false)
+	LoadFavoritesFromIniFile(blnRefreshExternal := false, blnEntryMenu := true)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -22380,7 +22390,7 @@ class Container
 				
 				; load the submenu
 				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this)
-				strResult := oNewSubMenu.LoadFavoritesFromIniFile() ; RECURSIVE
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile(false, false) ; RECURSIVE, false not external root, false non entre menu
 				
 				if (saThisFavorite[1] = "External")
 				{
