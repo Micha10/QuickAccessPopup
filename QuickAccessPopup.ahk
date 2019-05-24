@@ -3415,10 +3415,22 @@ if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; add [admin] tag only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option
 	g_strAppNameText .= " [" . o_L["OptionsRunAsAdminShort"] . "]"
 
-; Now included in build menu
-; Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
+intStartups := o_Settings.ReadIniValue("Startups", 1)
+strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod")), 0.0)
 
-IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
+; Sponsor message when launching a prod release for the first time and user is not a sponsor
+if (g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
+	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
+{
+	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
+		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
+	IfMsgBox, Yes
+		Gosub, GuiDonate
+}
+
+; after sponsor message, we can update these values in ini file
+IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
+IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
@@ -4276,7 +4288,7 @@ o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly"
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
 o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0)
-o_Settings.ReadIniOption("Launch", "blnSponsor", "Sponsor", " ")
+o_Settings.ReadIniOption("Launch", "strSponsor", "Sponsor", " ")
 Gosub, ProcessSponsorName
 
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
@@ -4326,17 +4338,17 @@ ProcessSponsorName:
 
 if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
 ; donor code need to be updated
-	g_SponsoredMessage := "<a href=""https://quickaccesspopup.com/"">" . o_L["SponsoredUpdate"] . "</a>"
-else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.blnSponsor.IniValue . g_strEscapePipe, true), 13, 8))
+	g_SponsoredMessage := "<a id=""update"">" . o_L["SponsoredUpdate"] . "</a>"
+else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsor.IniValue . g_strEscapePipe, true), 13, 8))
 ; donor code matching the sponsor name
 {
-	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.blnSponsor.IniValue)
+	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsor.IniValue)
 	o_Settings.Launch.blnDonor.IniValue := 1 ; boolean value used later
 }
 else
 ; no donor code or donor code not matching the sponsor name
 {
-	g_SponsoredMessage := "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["SponsoredNone"] . "</a>"
+	g_SponsoredMessage := "<a id=""none"">" . o_L["SponsoredNone"] . "</a>"
 	o_Settings.Launch.blnDonor.IniValue := 0
 }
 
@@ -4975,7 +4987,7 @@ Menu, Tray, Default, % o_L["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
-	. (o_Settings.Launch.blnDonor.IniValue ? o_L["DonateThankyou"] : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
+	. (o_Settings.Launch.blnDonor.IniValue ? L(o_L["DonateThankyou"], o_Settings.Launch.strSponsor.IniValue) : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -8175,7 +8187,7 @@ Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h35, % o_L["
 
 Gui, 1:Font, s8 w400 c404040 normal, Verdana
 
-Gui, 1:Add, Link, vf_lnkSponsoredBy x0 y+1, %g_SponsoredMessage% ; SysLink, center option not working for links
+Gui, 1:Add, Link, vf_lnkSponsoredBy x0 y+1 gSponsoredByClicked, %g_SponsoredMessage% ; SysLink, center option not working for links
 GuiControlGet, arrPos, Pos, f_lnkSponsoredBy
 g_intLnkSponsoredByWidth := arrPosW
 
@@ -8366,6 +8378,23 @@ intX := ""
 intY := ""
 arrPos := ""
 intFavoritesListFilterCloseW := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SponsoredByClicked:
+;------------------------------------------------------------
+
+strLink := ErrorLevel
+if (strLink = "update")
+	Run, https://www.quickaccesspopup.com ; ##### update with forum page about updating donor code
+else if (strLink = "none")
+	Gosub, GuiDonate
+; else do nothing
+
+strLink := ""
 
 return
 ;------------------------------------------------------------
@@ -13740,6 +13769,11 @@ else if WindowIsToMenuDialogBox(strThisTitle)
 }
 strThisTitle := ""
 
+if (g_intLnkWhySponsorWidth) ; resizing GuiDonate
+	GuiControl, 2:Move, f_lnkWhySponsor, % "x" . (A_GuiWidth - g_intLnkWhySponsorWidth) // 2
+
+g_intLnkWhySponsorWidth := ""
+
 return
 ;------------------------------------------------------------
 
@@ -15445,20 +15479,6 @@ strLatestUsedBeta := o_Settings.ReadIniValue("LastVersionUsedBeta", 0.0)
 strLatestSkippedAlpha := o_Settings.ReadIniValue("LatestVersionSkippedAlpha", 0.0)
 strLatestUsedAlpha := o_Settings.ReadIniValue("LastVersionUsedAlpha", 0.0)
 
-intStartups := o_Settings.ReadIniValue("Startups", 1)
-
-if (A_ThisMenuItem <> o_L["MenuUpdateAmpersand"])
-{
-	if Time2Donate(intStartups, o_Settings.Launch.blnDonor.IniValue)
-	{
-		MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
-			, % l(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
-		IfMsgBox, Yes
-			Gosub, GuiDonate
-	}
-	IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
-}
-
 blnSetup := (FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt") = "" ? 0 : 1)
 
 ; FileGetTime, strShell32Date, %A_WinDir%\System32\shell32.dll
@@ -15562,7 +15582,6 @@ strLatestSkippedBeta := ""
 strLatestSkippedProd := ""
 strLatestUsedAlpha := ""
 strLatestUsedBeta := ""
-intStartups := ""
 
 return
 ;------------------------------------------------------------
@@ -15629,15 +15648,6 @@ PrepareVersionNumber(strVersionNumber)
 	}
 	
 	return strResult
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-Time2Donate(intStartups, blnDonor)
-;------------------------------------------------------------
-{
-	return !Mod(intStartups, 20) and (intStartups > 40) and !(blnDonor)
 }
 ;------------------------------------------------------------
 
@@ -16169,10 +16179,13 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(o_L["DonateText1"], g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, x175 w185 y+10, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/")
-loop, Parse, % "4|1|2|3", |
+Gui, 2:Add, Link, x10 w185 y+10 vf_lnkWhySponsor, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/") ; will be centered by 2GuiSize
+GuiControlGet, arrPos, Pos, f_lnkWhySponsor
+g_intLnkWhySponsorWidth := arrPosW
+
+loop, Parse, % "1|2|3|4", |
 {
-	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName" . A_LoopField]
+	Gui, 2:Add, Button, % (A_Index = 1 ? "y+20 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName" . A_LoopField]
 	Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment" . A_LoopField]
 }
 ; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, % o_L["DonatePlatformName2"] ; Patreon out
@@ -16216,6 +16229,7 @@ strDonateReviewUrlRight1 := ""
 strDonateReviewUrlRight2 := ""
 strDonateReviewUrlRight3 := ""
 strGuiTitle := ""
+arrPos := ""
 
 return
 ;------------------------------------------------------------
