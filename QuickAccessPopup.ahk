@@ -3285,7 +3285,7 @@ else ; setup mode
 	global o_JLicons := new JLIcons(A_AppDataCommon . "\JeanLalonde\JLicons.dll") ; in setup mode, shared data folder
 
 global g_intGuiDefaultWidth := 636
-global g_intGuiDefaultHeight := 601
+global g_intGuiDefaultHeight := 496 ; was 601
 
 global g_blnMenuReady := false
 global g_blnChangeShortcutInProgress := false
@@ -3333,6 +3333,8 @@ global g_aaWindowsAppsIDsByName := Object()
 global g_blnFavoritesListFilterNeverFocused := true ; init before showing gui
 
 global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows positioned at center of screen
+
+global g_strLastConfiguration ; last screen configuration updated by GetScreenConfiguration
 
 ;---------------------------------
 ; Used in OpenFavorite
@@ -3917,6 +3919,7 @@ FileInstall, FileInstall\up_circular-26_c.png, %g_strTempDir%\up_circular-26_c.p
 FileInstall, FileInstall\QAP-pin-off-26_c.png, %g_strTempDir%\QAP-pin-off-26_c.png
 FileInstall, FileInstall\QAP-pin-on-26_c.png, %g_strTempDir%\QAP-pin-on-26_c.png
 FileInstall, FileInstall\text-26_c.png, %g_strTempDir%\text-26_c.png
+FileInstall, FileInstall\search-24_c.png, %g_strTempDir%\search-24_c.png
 
 FileInstall, FileInstall\thumbs_up-32_c.png, %g_strTempDir%\thumbs_up-32_c.png
 FileInstall, FileInstall\solutions-32_c.png, %g_strTempDir%\solutions-32_c.png
@@ -3959,62 +3962,50 @@ return
 
 ;------------------------------------------------------------
 InitGuiControls:
+; Order of controls important to avoid drawgins gliches when resizing
 ;------------------------------------------------------------
 
-; Order of controls important to avoid drawgins gliches when resizing
+; InsertGuiControlPos(strControlName, intX, intY, blnCenter := false, blnDraw := false)
 
-InsertGuiControlPos("f_lnkGuiDropHelpClicked",			 -88, -145)
-InsertGuiControlPos("f_lnkGuiHotkeysHelpClicked",		  40, -145)
+InsertGuiControlPos("f_picGuiAddFavorite",				 -44,   54, true, true)
+InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  127, true)
+InsertGuiControlPos("f_picGuiEditFavorited",			 -44,  127, true)
+InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  202, true)
+InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  277, true)
+InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  352, true)
 
-InsertGuiControlPos("f_picGuiOptions",					 -44,   10, true) ; true = center
-InsertGuiControlPos("f_picGuiDonate",					-124,   10, true, true)
-InsertGuiControlPos("f_picGuiAddFavorite",				 -44,  135, true)
-InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  210, true)
-InsertGuiControlPos("f_picGuiEditFavorited",			 -44,  210, true)
-InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  285, true)
-InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  360, true)
-InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  435, true)
-InsertGuiControlPos("f_picGuiHotkeysManage",			-124,  -100, true, true) ; true = center, true = draw
-InsertGuiControlPos("f_picGuiIconsManage",				 -44,  -94, true, true)
-InsertGuiControlPos("f_picGuiHelp",						  30,  -84, true, true)
-InsertGuiControlPos("f_picGuiAbout",					  72,  -84, true, true)
+InsertGuiControlPos("f_picAddTextSeparator",			  10,  209)
+InsertGuiControlPos("f_picAddColumnBreak",				  10,  174)
+InsertGuiControlPos("f_picAddSeparator",				  10,  144)
+InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  113)
+InsertGuiControlPos("f_picMoveFavoriteUp",				  10,   85)
 
-InsertGuiControlPos("f_picAddTextSeparator",			  10,  290) ; +25 for Search box
-InsertGuiControlPos("f_picAddColumnBreak",				  10,  255)
-InsertGuiControlPos("f_picAddSeparator",				  10,  225)
-InsertGuiControlPos("f_picMoveFavoriteDown",			  10,  195)
-InsertGuiControlPos("f_picMoveFavoriteUp",				  10,  165)
-InsertGuiControlPos("f_picUpMenu",						  10,   70)
-InsertGuiControlPos("f_picPreviousMenu",				  10,   90)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -185)
-InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -185)
-InsertGuiControlPos("f_picSortFavorites",				  10,  -215)
+InsertGuiControlPos("f_picUpMenu",						  10,   22)
+InsertGuiControlPos("f_picPreviousMenu",				  10,   56)
 
-InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -84, , true)
-InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -84, , true)
-InsertGuiControlPos("f_btnGuiCancel",					  0,  -84, , true)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOn",			  10,  -105, , true)
+InsertGuiControlPos("f_picGuiAlwaysOnTopOff",			  10,  -105, , true)
+InsertGuiControlPos("f_picSortFavorites",				  10,  -135, , true)
+InsertGuiControlPos("f_picSearch",						-111,    23, , true)
 
-InsertGuiControlPos("f_drpMenusList",					  40,   84)
+InsertGuiControlPos("f_btnGuiSaveAndCloseFavorites",	  0,  -70, , true)
+InsertGuiControlPos("f_btnGuiSaveAndStayFavorites",		  0,  -70, , true)
+InsertGuiControlPos("f_btnGuiCancel",					  0,  -70, , true)
+
+InsertGuiControlPos("f_drpMenusList",					  40, 23)
 	
-InsertGuiControlPos("f_lblGuiAbout",					  70,  -46, true)
-InsertGuiControlPos("f_lblGuiHelp",						  28,  -46, true)
-InsertGuiControlPos("f_lblAppName",						  10,   10)
-InsertGuiControlPos("f_lblAppTagLine",					  10,   42)
-InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  183, true) ; 170 - 2
-InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  258, true) ; 240 + 5 - 2
-InsertGuiControlPos("f_lblGuiOptions",					 -44,   45, true)
-InsertGuiControlPos("f_lblGuiDonate",					-124,   45, true)
-InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  333, true)
-InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  408, true)
-InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  483, true)
-InsertGuiControlPos("f_lblSubmenuDropdownLabel",		  40,   66)
-InsertGuiControlPos("f_lblGuiHotkeysManageShortcuts",	-124,  -57, true)
-InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	-124,  -44, true, true)
-InsertGuiControlPos("f_lblGuiIconsManage",				 -44,  -44, true)
+InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  100, true)
+InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  175, true)
+InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  250, true)
+InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  325, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  400, true)
+InsertGuiControlPos("f_lblMenuDropdownOrSearchLabel",	  40,    5)
 
-InsertGuiControlPos("f_strFavoritesListFilter",			  40,  115)
-InsertGuiControlPos("f_lvFavoritesList",				  40,  140)
-InsertGuiControlPos("f_lvFavoritesListFiltered",		  40,  140)
+InsertGuiControlPos("f_strFavoritesListFilter",			  40,   23)
+InsertGuiControlPos("f_lvFavoritesList",				  40,   57)
+InsertGuiControlPos("f_lvFavoritesListFiltered",		  40,   57)
+
+InsertGuiControlPos("f_lnkSponsoredBy",             	  10,  -25)
 
 return
 ;------------------------------------------------------------
@@ -4284,7 +4275,10 @@ o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusion
 o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", "ExternalMenusCataloguePathReadOnly", 0) ; false by default
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
-o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0) ; Please, be fair. Don't cheat with this.; g_
+o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0)
+o_Settings.ReadIniOption("Launch", "blnSponsor", "Sponsor", " ")
+Gosub, ProcessSponsorName
+
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
 o_Settings.ReadIniOption("Launch", "blnDefaultDynamicMenusBuilt", "DefaultDynamicMenusBuilt", 0) ; blnDefaultDynamicMenusBuilt
 if !(o_Settings.Launch.blnDefaultDynamicMenusBuilt.IniValue)
@@ -4321,6 +4315,30 @@ strFileEncoding := ""
 strIniFileContent := ""
 strGuiTitle := ""
 strMenuDynamicMenus := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ProcessSponsorName:
+;------------------------------------------------------------
+
+if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
+; donor code need to be updated
+	g_SponsoredMessage := "<a href=""https://quickaccesspopup.com/"">" . o_L["SponsoredUpdate"] . "</a>"
+else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.blnSponsor.IniValue . g_strEscapePipe, true), 13, 8))
+; donor code matching the sponsor name
+{
+	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.blnSponsor.IniValue)
+	o_Settings.Launch.blnDonor.IniValue := 1 ; boolean value used later
+}
+else
+; no donor code or donor code not matching the sponsor name
+{
+	g_SponsoredMessage := "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["SponsoredNone"] . "</a>"
+	o_Settings.Launch.blnDonor.IniValue := 0
+}
 
 return
 ;------------------------------------------------------------
@@ -4384,7 +4402,7 @@ else
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
-	if (o_MainMenu.LoadFavoritesFromIniFile(true) <> "EOM")
+	if (o_MainMenu.LoadFavoritesFromIniFile() <> "EOM")
 		ExitApp
 }
 
@@ -6149,7 +6167,7 @@ g_blnRefreshQAPMenuInProgress := true
 for strMenuName, o_ThisContainer in o_Containers.AA
 	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	{
-		o_ThisContainer.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+		o_ThisContainer.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		o_ThisContainer.BuildMenu()
 	}
 
@@ -8098,104 +8116,82 @@ if (g_blnUseColors)
 
 ; Order of controls important to avoid drawgins gliches when resizing
 
-Gui, 1:Font, % "s12 w700 " . (g_blnUseColors ? "c" . strTextColor : ""), Verdana
-Gui, 1:Add, Text, vf_lblAppName x0 y0, % g_strAppNameText . " " . g_strAppVersion
-	. (StrLen(o_Settings.Launch.strUserBanner.IniValue) ? " " . o_Settings.Launch.strUserBanner.IniValue : "") ; Static1 (see WM_MOUSEMOVE)
-Gui, 1:Font, s9 w400, Verdana
-Gui, 1:Add, Link, vf_lblAppTagLine, % o_L["AppTagline"] ; SysLink1
-
-Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48_c.png ; Static2
-Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48_c.png ; Static3
-Gui, 1:Add, Picture, vf_picGuiEditFavorited xp yp, %g_strTempDir%\edit_property-48d_c.png ; Static4
-Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48_c.png ; Static5
-Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static6
-Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static7
-Gui, 1:Add, Picture, vf_picGuiHotkeysManage gGuiHotkeysManage x+1 yp, %g_strTempDir%\keyboard-48_c.png ; Static8
-Gui, 1:Add, Picture, vf_picGuiOptions gShowGuiOptionsMenu x+1 yp ; , %g_strTempDir%\settings-32_c.png ; Static9
-Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-24_c.png ; Static10
-g_aaToolTipsMessages["Static10"] := o_L["ControlToolTipPreviousMenu"]
-Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\left2-24_c.png ; Static11
-g_aaToolTipsMessages["Static11"] := o_L["ControlToolTipParentMenu"]
-Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static12
-g_aaToolTipsMessages["Static12"] := o_L["ControlToolTipMoveUp"]
-Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26_c.png ; Static13
-g_aaToolTipsMessages["Static13"] := o_L["ControlToolTipMoveDown"]
-Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26_c.png ; Static14
-g_aaToolTipsMessages["Static14"] := o_L["ControlToolTipSeparator"]
-Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26_c.png ; Static15
-g_aaToolTipsMessages["Static15"] := o_L["ControlToolTipColumnBreak"]
-Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static16
-g_aaToolTipsMessages["Static16"] := o_L["ControlToolTipTextSeparator"]
-Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static17
-g_aaToolTipsMessages["Static17"] := o_L["ControlToolTipSortFavorites"]
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static18
-g_aaToolTipsMessages["Static18"] := o_L["ControlToolTipAlwaysOnTopOn"]
-Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static19
-g_aaToolTipsMessages["Static19"] := o_L["ControlToolTipAlwaysOnTopOff"]
-Gui, 1:Add, Picture, vf_picGuiAbout gGuiAbout x+1 yp, %g_strTempDir%\about-32_c.png ; Static20
-Gui, 1:Add, Picture, vf_picGuiHelp gGuiHelp x+1 yp, %g_strTempDir%\help-32_c.png ; Static21
-Gui, 1:Add, Picture, vf_picGuiIconsManage gGuiIconsManage x+1 yp, %g_strTempDir%\details-48_c.png ; Static22
+Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48_c.png ; Static1
+Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48_c.png ; Static2
+Gui, 1:Add, Picture, vf_picGuiEditFavorited xp yp, %g_strTempDir%\edit_property-48d_c.png ; Static3
+Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48_c.png ; Static4
+Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static5
+Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static6
+Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\left2-24_c.png ; Static7
+g_aaToolTipsMessages["Static7"] := o_L["ControlToolTipParentMenu"]
+Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-24_c.png ; Static8
+g_aaToolTipsMessages["Static8"] := o_L["ControlToolTipPreviousMenu"]
+Gui, 1:Add, Picture, vf_picMoveFavoriteUp gGuiMoveFavoriteUp x+1 yp, %g_strTempDir%\up_circular-26_c.png ; Static9
+g_aaToolTipsMessages["Static9"] := o_L["ControlToolTipMoveUp"]
+Gui, 1:Add, Picture, vf_picMoveFavoriteDown gGuiMoveFavoriteDown x+1 yp, %g_strTempDir%\down_circular-26_c.png ; Static10
+g_aaToolTipsMessages["Static10"] := o_L["ControlToolTipMoveDown"]
+Gui, 1:Add, Picture, vf_picAddSeparator gGuiAddSeparator x+1 yp, %g_strTempDir%\separator-26_c.png ; Static11
+g_aaToolTipsMessages["Static11"] := o_L["ControlToolTipSeparator"]
+Gui, 1:Add, Picture, vf_picAddColumnBreak gGuiAddColumnBreak x+1 yp, %g_strTempDir%\column-26_c.png ; Static12
+g_aaToolTipsMessages["Static12"] := o_L["ControlToolTipColumnBreak"]
+Gui, 1:Add, Picture, vf_picAddTextSeparator gGuiAddTextSeparator x+1 yp, %g_strTempDir%\text-26_c.png ; Static13
+g_aaToolTipsMessages["Static13"] := o_L["ControlToolTipTextSeparator"]
+Gui, 1:Add, Picture, vf_picSortFavorites gGuiSortFavorites x+1 yp, %g_strTempDir%\generic_sorting-26_c.png ; Static14
+g_aaToolTipsMessages["Static14"] := o_L["ControlToolTipSortFavorites"]
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_strTempDir%\QAP-pin-on-26_c.png ; Static15
+g_aaToolTipsMessages["Static15"] := o_L["ControlToolTipAlwaysOnTopOn"]
+Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static16
+g_aaToolTipsMessages["Static16"] := o_L["ControlToolTipAlwaysOnTopOff"]
+Gui, 1:Add, Picture, vf_picSearch gGuiFavoritesListFilterButton x+1 yp, %g_strTempDir%\search-24_c.png ; Static17
+g_aaToolTipsMessages["Static17"] := o_L["ControlToolTipSearchButton"]
 
 Gui, 1:Font, s8 w400, Arial ; button legend
-Gui, 1:Add, Text, vf_lblGuiOptions x0 y+20 ; , % o_L["GuiOptions"] ; Static23 button disabled in alpha v9.9.0.6
-Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x+1 yp, % o_L["GuiAddFavorite"] ; Static24
-Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, % o_L["GuiEditFavorite"] ; Static25, w88 to make room fot when multiple favorites are selected
-Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, % o_L["GuiRemoveFavorite"] ; Static26
-Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, % o_L["GuiMove"] ; Static27
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, % o_L["DialogCopy"] ; Static28
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageShortcuts center gGuiHotkeysManage x+1 yp, % o_L["DialogShortcuts"] ; Static29
-Gui, 1:Add, Text, vf_lblGuiHotkeysManageHotstrings center gGuiHotkeysManageHotstrings x+1 yp, % o_L["DialogHotstringsShort"] ; Static30
-Gui, 1:Add, Text, vf_lblGuiIconsManage center gGuiIconsManage x+1 yp, % o_L["DialogIconsManage"] ; Static31
-Gui, 1:Add, Text, vf_lblGuiAbout center gGuiAbout x+1 yp, % o_L["GuiAbout"] ; Static32
-Gui, 1:Add, Text, vf_lblGuiHelp center gGuiHelp x+1 yp, % o_L["GuiHelp"] ; Static33
-
-Gui, 1:Font, s8 w400 italic, Verdana
-Gui, 1:Add, Link, vf_lnkGuiHotkeysHelpClicked gGuiHotkeysHelpClicked x0 y+1, % "<a>" . o_L["GuiHotkeysHelp"] . "</a>" ; SysLink2 center option not working SysLink1
-Gui, 1:Add, Link, vf_lnkGuiDropHelpClicked gGuiDropFilesHelpClicked right x+1 yp, % "<a>" . o_L["GuiDropFilesHelp"] . "</a>" ; SysLink3
+Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x0 y+20, % o_L["GuiAddFavorite"] ; Static18
+Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, % o_L["GuiEditFavorite"] ; Static19, w88 to make room fot when multiple favorites are selected
+Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, % o_L["GuiRemoveFavorite"] ; Static20
+Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, % o_L["GuiMove"] ; Static21
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, % o_L["DialogCopy"] ; Static22
 
 Gui, 1:Font, s8 w400 normal, Verdana
-Gui, 1:Add, Text, vf_lblSubmenuDropdownLabel x+1 yp, % o_L["GuiSubmenuDropdownLabel"] ; Static34
+Gui, 1:Add, Text, vf_lblMenuDropdownOrSearchLabel x+1 yp, % o_L["GuiSubmenuDropdownLabel"] ; Static23
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
-Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
-Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmpty x+10 yp w20 h20, X ; Button1
-g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
-Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered, % o_L["DialogExtendedSearch"] ; Button2
+Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered hidden, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
+Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered hidden, % o_L["DialogExtendedSearch"] ; Button1
 g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
+Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmptyButton x+10 yp w20 h20 hidden, X ; Button2
+g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, % o_L["GuiLvFavoritesHeader"] ; SysHeader321 / SysListView321
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesListFiltered Count32 AltSubmit LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
-	, % o_L["GuiLvFavoritesHeaderFiltered"] . "|Object Position (hidden)" ; SysHeader321 / SysListView321
+	, % o_L["GuiLvFavoritesHeaderFiltered"] . "|Object Position (hidden)" ; SysHeader322 / SysListView322
 
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w100 h50, % o_L["GuiSaveAndCloseAmpersand"] ; Button3
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h50, % o_L["GuiSaveAndStayAmpersand"] ; Button4
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h50, % o_L["GuiCloseAmpersand"] ; Close until changes occur - Button5
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w140 h35, % o_L["GuiSaveAndCloseAmpersand"] ; Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h35, % o_L["GuiSaveAndStayAmpersand"] ; Button4
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h35, % o_L["GuiCloseAmpersand"] ; Close until changes occur - Button5
 
-if !(o_Settings.Launch.blnDonor.IniValue)
-{
-	strDonateButtons := "thumbs_up|solutions|handshake|conference|gift"
-	StringSplit, arrDonateButtons, strDonateButtons, |
-	intDonateButton := RandomBetween(1, 5)
+Gui, 1:Font, s8 w400 c404040 normal, Verdana
 
-	Gui, 1:Add, Picture, vf_picGuiDonate gGuiDonate x0 y+1, % g_strTempDir . "\" . arrDonateButtons%intDonateButton% . "-32_c.png" ; Static35
-	Gui, 1:Font, s8 w400, Arial ; button legend
-	Gui, 1:Add, Text, vf_lblGuiDonate center gGuiDonate x0 y+1, % o_L["GuiDonate"] ; Static36
-}
+Gui, 1:Add, Link, vf_lnkSponsoredBy x0 y+1, %g_SponsoredMessage% ; SysLink, center option not working for links
+GuiControlGet, arrPos, Pos, f_lnkSponsoredBy
+g_intLnkSponsoredByWidth := arrPosW
 
-GetSavedSettingsWindowPosition(arrSettingsPosition1, arrSettingsPosition2, arrSettingsPosition3, arrSettingsPosition4)
+GetSavedSettingsWindowPosition(saSettingsPosition) ; format: x|y|w|h
 
 Gui, 1:Show, % "Hide "
-	. (arrSettingsPosition1 = -1 or arrSettingsPosition1 = "" or arrSettingsPosition2 = ""
+	. (saSettingsPosition[1] = -1 or saSettingsPosition[1] = "" or saSettingsPosition[2] = ""
 	? "center w" . g_intGuiDefaultWidth . " h" . g_intGuiDefaultHeight
-	: "x" . arrSettingsPosition1 . " y" . arrSettingsPosition2)
+	: "x" . saSettingsPosition[1] . " y" . saSettingsPosition[2])
 sleep, 100
-if (arrSettingsPosition1 <> -1)
-	WinMove, ahk_id %g_strAppHwnd%, , , , %arrSettingsPosition3%, %arrSettingsPosition4%
+if (saSettingsPosition[1] <> -1)
+	WinMove, ahk_id %g_strAppHwnd%, , , , % saSettingsPosition[3], % saSettingsPosition[4]
 
-ResetArray("arrSettingsPosition")
+GuiControl, Focus, f_lvFavoritesList
+saSettingsPosition := ""
+saDonateButtons := ""
 strTextColor := ""
 
 return
@@ -8216,7 +8212,7 @@ LV_Delete()
 if (o_MenuInGui.AA.strMenuType = "External") and o_MenuInGui.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	; was ExternalMenuReloadAndRebuild(g_objMenuInGui)
 	{
-		o_MenuInGui.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+		o_MenuInGui.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		o_MenuInGui.BuildMenu()
 	}
 
@@ -8229,6 +8225,8 @@ Gosub, AdjustColumnsWidth
 
 GuiControl, , f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|"
 
+Gosub, GuiFavoritesListFilterHide
+	
 GuiControl, Focus, f_lvFavoritesList
 
 strGuiMenuLocation := ""
@@ -8312,13 +8310,14 @@ GuiSize:
 if (A_EventInfo = 1)  ; The window has been minimized.  No action needed.
     return
 
+intListH := A_GuiHeight - 139
 g_intListW := A_GuiWidth - 40 - 88
-intListH := A_GuiHeight - 115 - 132 - 25 - 20 ; - 25 to reduce list height to give space for search box (in v8.2.9.2), -20 for v9
 intFavoritesListFilterCloseW := 25
+intFavoritesListFilterButton := 30
 
 ; space before, between and after save/reload/close buttons
-; = (A_GuiWidth - left margin - right margin - (3 * buttons width)) // 4 (left, between x 2, right)
-intButtonSpacing := (A_GuiWidth - 100 - 150 - (3 * 100)) // 4
+; = (A_GuiWidth - left margin - right margin - (3 buttons width)) // 4 (left, between x 2, right)
+intButtonSpacing := (A_GuiWidth - 120 - 120 - (140 + 100 + 100)) // 4
 
 for intIndex, aaGuiControl in g_saGuiControls
 {
@@ -8336,30 +8335,26 @@ for intIndex, aaGuiControl in g_saGuiControls
 		intX := intX - (arrPosW // 2) ; Floor divide
 	}
 
-	if (aaGuiControl.Name = "f_lnkGuiDropHelpClicked")
-	{
-		GuiControlGet, arrPos, Pos, f_lnkGuiDropHelpClicked
-		intX := intX - arrPosW
-	}
-	else if (aaGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
-		intX := 100 + intButtonSpacing
+	if (aaGuiControl.Name = "f_btnGuiSaveAndCloseFavorites")
+		intX := 120 + intButtonSpacing
 	else if (aaGuiControl.Name = "f_btnGuiSaveAndStayFavorites")
-		intX := 100 + (2 * intButtonSpacing) + 100
+		intX := 120 + (2 * intButtonSpacing) + 140 ; 140 for 1st button
 	else if (aaGuiControl.Name = "f_btnGuiCancel")
-		intX := 100 + (3 * intButtonSpacing) + 200
+		intX := 120 + (3 * intButtonSpacing) + 140 + 100 ; 140 for 1st button, 100 for 2nd button
 		
 	GuiControl, % "1:Move" . (aaGuiControl.Draw ? "Draw" : ""), % aaGuiControl.Name, % "x" . intX	.  " y" . intY
 		
 }
 
 GuiControlGet, arrFavoritesListFilterExtendedPos, Pos, f_blnFavoritesListFilterExtended
-GuiControl, 1:Move, f_drpMenusList, w%g_intListW%
+GuiControl, 1:Move, f_drpMenusList, % " w" . g_intListW - intFavoritesListFilterButton
 GuiControl, 1:Move, f_strFavoritesListFilter, % "h21 w" . g_intListW - intFavoritesListFilterCloseW - arrFavoritesListFilterExtendedPosW - 10
 GuiControlGet, arrFavoritesListFilterPos, Pos, f_strFavoritesListFilter
-GuiControl, 1:Move, f_btnFavoritesListNoFilter, % "y" . arrFavoritesListFilterPosY . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + 5
-GuiControl, 1:Move, f_blnFavoritesListFilterExtended, % "y" . arrFavoritesListFilterPosY + 3 . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + 10 + intFavoritesListFilterCloseW
+GuiControl, 1:Move, f_blnFavoritesListFilterExtended, % "y" . arrFavoritesListFilterPosY + 3 . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + 10
+GuiControl, 1:Move, f_btnFavoritesListNoFilter, % "y" . arrFavoritesListFilterPosY . " x" . arrFavoritesListFilterPosX + arrFavoritesListFilterPosW + arrFavoritesListFilterExtendedPosW + 16
 GuiControl, 1:Move, f_lvFavoritesList, w%g_intListW% h%intListH%
 GuiControl, 1:Move, f_lvFavoritesListFiltered, w%g_intListW% h%intListH%
+GuiControl, 1:Move, f_lnkSponsoredBy, % "x" . (A_GuiWidth - g_intLnkSponsoredByWidth) // 2
 
 Gosub, AdjustColumnsWidth
 
@@ -8369,7 +8364,7 @@ intIndex := ""
 aaGuiControl := ""
 intX := ""
 intY := ""
-ResetArray("arrPos")
+arrPos := ""
 intFavoritesListFilterCloseW := ""
 
 return
@@ -8489,6 +8484,35 @@ if (A_GuiEvent = "DoubleClick")
 	g_blnOpenFromDoubleClick := true
 	gosub, GuiEditFavorite
 }
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiFavoritesListFilterButton:
+GuiFavoritesListFilterHide:
+;------------------------------------------------------------
+
+if (A_ThisLabel = "GuiFavoritesListFilterButton")
+{
+	GuiControlGet, g_blnFilterVisible, Visible, f_strFavoritesListFilter
+	g_blnFilterVisible := !g_blnFilterVisible ; reverse visible state
+}
+else ; GuiFavoritesListFilterHide
+	g_blnFilterVisible := false ; force hide
+
+strShowHideCommand := (g_blnFilterVisible ? "Hide" : "Show")
+GuiControl, %strShowHideCommand%, f_drpMenusList
+GuiControl, %strShowHideCommand%, f_picSearch
+GuiControl, , f_lblMenuDropdownOrSearchLabel, % (g_blnFilterVisible ? o_L["DialogSearch"] . ":" : o_L["GuiSubmenuDropdownLabel"])
+
+strShowHideCommand := (g_blnFilterVisible ? "Show" : "Hide")
+GuiControl, %strShowHideCommand%, f_strFavoritesListFilter
+GuiControl, %strShowHideCommand%, f_btnFavoritesListNoFilter
+GuiControl, %strShowHideCommand%, f_blnFavoritesListFilterExtended
+
+strShowHideCommand := ""
 
 return
 ;------------------------------------------------------------
@@ -10774,7 +10798,7 @@ if (intCurrentLastPosition) ; we went to a previous menu
 }
 
 if (A_ThisLabel = "GuiMenusListChanged") ; keep focus on dropdown list
-	GuiControl, Focus, f_drpMenusList
+	GuiControl, Focus, f_lvFavoritesList
 
 GuiMenusListChangedCleanup:
 intCurrentLastPosition := ""
@@ -11397,7 +11421,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
 			; load the external menu to menu instance o_EditedFavoriteMenu created earlier
-			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true, true) ; true for Refresh External
+			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
 			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
@@ -12869,7 +12893,11 @@ GetMenuForGuiFiltered(ByRef intPositionInMenuForGui)
 
 ;------------------------------------------------------------
 GuiFavoritesListFilterEmpty:
+GuiFavoritesListFilterEmptyButton:
 ;------------------------------------------------------------
+
+if (A_ThisLabel = "GuiFavoritesListFilterEmptyButton")
+	gosub, GuiFavoritesListFilterButton
 
 if !StrLen(GetFavoritesListFilter())
 	return
@@ -12879,6 +12907,7 @@ if !(g_blnFavoritesListFilterNeverFocused)
 	GuiControl, 1:, f_strFavoritesListFilter, % ""
 	g_blnFavoritesListFilterNeverFocused := false
 }
+
 gosub, LoadMenuInGui
 
 return
@@ -19149,8 +19178,6 @@ ScreenConfigurationChanged()
 ; used when showing Settings window only, using current (not saved) g_strLastConfiguration
 ;------------------------------------------------------------
 {
-	global g_strLastConfiguration
-	
 	strCurrentScreenConfiguration := GetScreenConfiguration()
 	blnConfigurationChanged := (strCurrentScreenConfiguration <> g_strLastConfiguration)
 	g_strLastConfiguration := strCurrentScreenConfiguration
@@ -19196,13 +19223,11 @@ CalculateTopGuiPosition(g_strTopHwnd, g_strRefHwnd, ByRef intTopGuiX, ByRef intT
 
 
 ;------------------------------------------------------------
-GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosition2, ByRef arrSettingsPosition3, ByRef arrSettingsPosition4)
+GetSavedSettingsWindowPosition(ByRef saSettingsPosition)
 ; use LastScreenConfiguration and window position from ini file
 ; if screen configuration changed, return -1 instead of the saved position
 ;------------------------------------------------------------
 {
-	global g_strLastConfiguration
-	
 	g_strLastScreenConfiguration := o_Settings.ReadIniValue("LastScreenConfiguration", " ") ; to reset position if screen config changed since last session
 	
 	strCurrentScreenConfiguration := GetScreenConfiguration()
@@ -19215,7 +19240,7 @@ GetSavedSettingsWindowPosition(ByRef arrSettingsPosition1, ByRef arrSettingsPosi
 		if (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue)
 		{
 			strSettingsPosition := o_Settings.ReadIniValue("SettingsPosition", -1) ; by default -1 to center at minimal size
-			StringSplit, arrSettingsPosition, strSettingsPosition, | ; array is returned by ByRef parameters
+			saSettingsPosition := StrSplit(strSettingsPosition, "|")
 		}
 		else ; delete Settings position
 		{
@@ -19254,6 +19279,7 @@ GetScreenConfiguration()
 
 ;------------------------------------------------------------
 SaveWindowPosition(strThisWindow, strWindowHandle)
+; format: x|y|w|h
 ;------------------------------------------------------------
 {
 	if (strThisWindow <> "SettingsPosition" or o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue)
@@ -19436,6 +19462,22 @@ GetIconForClassId(strClassId)
 }
 ;------------------------------------------------------------
 
+
+;------------------------------------------------------------
+MD5(str, blnCase := false)
+; by SKAN | rewritten by jNizM (https://www.autohotkey.com/boards/viewtopic.php?f=76&t=14927&p=75925&hilit=MD5sum#p75944)
+;------------------------------------------------------------
+{
+	static MD5_DIGEST_LENGTH := 16
+	hModule := DllCall("LoadLibrary", "Str", "advapi32.dll", "Ptr")
+		, VarSetCapacity(MD5_CTX, 104, 0), DllCall("advapi32\MD5Init", "Ptr", &MD5_CTX)
+		, DllCall("advapi32\MD5Update", "Ptr", &MD5_CTX, "AStr", str, "UInt", StrLen(str))
+		, DllCall("advapi32\MD5Final", "Ptr", &MD5_CTX)
+	loop % MD5_DIGEST_LENGTH
+		o .= Format("{:02" (blnCase ? "X" : "x") "}", NumGet(MD5_CTX, 87 + A_Index, "UChar"))
+	return o, DllCall("FreeLibrary", "Ptr", hModule)
+}
+;------------------------------------------------------------
 
 
 ;========================================================================================================================
@@ -22252,7 +22294,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(blnEntryMenu := false, blnRefreshExternal := false)
+	LoadFavoritesFromIniFile(blnRefreshExternal := false, blnEntryMenu := true)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -22348,7 +22390,7 @@ class Container
 				
 				; load the submenu
 				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this)
-				strResult := oNewSubMenu.LoadFavoritesFromIniFile() ; RECURSIVE
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile(false, false) ; RECURSIVE, false not external root, false non entre menu
 				
 				if (saThisFavorite[1] = "External")
 				{
