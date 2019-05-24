@@ -3252,8 +3252,18 @@ if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	else
 		o_Settings.Launch.strQAPTempFolderParent.IniValue := A_WorkingDir ; for installations installed before v8.6.9.2
 
+; remove temporary folders older than 7 days
+global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue))
+Loop, Files, %g_strTempDir%\_QAP_temp_*,  D
+{
+	strDate := A_Now
+	EnvSub, strDate, %A_LoopFileTimeModified%, D
+	if (strDate > 5)
+		FileRemoveDir, %A_LoopFileFullPath%, 1 ; Remove all files and subdirectories
+}
+
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue)) . "\_QAP_temp_" . RandomBetween()
+g_strTempDir .= "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
