@@ -5152,7 +5152,7 @@ strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitc
 	. "|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders|MenuRecentFolders|MenuRecentFiles"
 
 loop, Parse, strMenuToInit, "|"
-	new Container("Menu", o_L[A_LoopField])
+	new Container("Menu", o_L[A_LoopField], "", "", true) ; last parameter true for blnDynamic
 
 strPopularMenusFoldersAndFiles := ""
 
@@ -5780,7 +5780,6 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	o_Containers.AA[o_L["MenuSwitchFolderOrApp"]].BuildMenu()
 }
 
-; o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
 o_Containers.AA[o_L["MenuCurrentFolders"]].LoadFavoritesFromTable(saCurrentFoldersTable)
 o_Containers.AA[o_L["MenuCurrentFolders"]].BuildMenu()
 
@@ -22428,10 +22427,11 @@ class Container
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	__New(strType, strContainerName, oParentMenu := "", strAction := "init")
+	__New(strType, strContainerName, oParentMenu := "", strAction := "init", blnDynamic := false)
 	;---------------------------------------------------------
 	{
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
+		this.AA.blnMenuDynamic := blnDynamic ; when building menu, replace "&" with "&&" in dynamic menus only
 		if (oParentMenu)
 		{
 			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
@@ -23058,7 +23058,7 @@ class Container
 			strFolderIcon := o_FavoriteLiveFolder.AA.strFavoriteIconResource
 		if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
 			strFolderIcon := "iconFolderLiveOpened"
-		strSelfFolder := "`tFolder`t" . o_FavoriteLiveFolder.AA.strFavoriteName . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
+		strSelfFolder := "`tFolder`t" . StrReplace(o_FavoriteLiveFolder.AA.strFavoriteName, "&", "") . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
 		
 		; scan folders in live folder
 		strFolders := ""
@@ -23131,7 +23131,7 @@ class Container
 		
 		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
 
-		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this)
+		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this, "", true)
 		oNewSubMenu.AA.blnIsLiveMenu := true
 		oNewSubMenu.AA.intLiveFolderParentPosition := intMenuParentPosition ; could be changed if we are in a Live Folder submenu
 		oNewSubMenu.AA.strLiveFolderParentPath := strMenuParentPath ; could be changed if we are in a Live Folder submenu
@@ -23230,7 +23230,8 @@ class Container
 		if StrLen(strMenuItemName) > 260
 			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
 		
-		strMenuItemName := DoubleAmpersand(strMenuItemName)
+		if (this.AA.blnMenuDynamic) ; replace "&" with "&&" in dynamic menus only
+			strMenuItemName := DoubleAmpersand(strMenuItemName)
 		
 		if SubStr(strAction, 1, 1) = ":" ; this is a menu
 		{
