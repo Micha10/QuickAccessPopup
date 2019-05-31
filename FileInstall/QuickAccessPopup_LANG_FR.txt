@@ -678,7 +678,7 @@ lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
 lOptionsAlternativeMenuOptions	Options du Menu Alternatif
 lOptionsAlternativeMenuShowNotification	Afficher la notification lorsque le Menu Alternatif est utilisé
-lOptionsBackupFolder	Dossier pour les copies de sécurité du fichier de configuration principal
+lOptionsBackupFolder	Dossier pour les copies de sécurité
 lOptionsCatalogueHelp	Catalogue des menus partagés (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Dossier racine du catalogue
 lOptionsChangeFolderInDialog	Changer de dossier dans les boîtes de dialogue avec le bouton de souris ou le raccourcis clavier du menu principal de QAP

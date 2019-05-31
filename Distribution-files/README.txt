@@ -64,7 +64,7 @@ instructions within.
 For more info, see the page http://www.quickaccesspopup.com/explorer-context-menus-help/
 
 
-Quick Access Popup – Copyright (C) 2013-2017 Jean Lalonde
+Quick Access Popup – Copyright (C) 2013-2019 Jean Lalonde
 ---------------------------------------------------------
 
 Quick Access Popup can be freely distributed over the internet in an unchanged form.

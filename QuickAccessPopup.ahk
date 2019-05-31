@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version ALPHA: 9.9.1 (2019-05-28)
+- to do
+
 Version ALPHA: 9.9.0.8 (2019-04-03)
 - changes from master v9.4.1.6 to be released soon)
   - add in "Menu Icon" section of options a new chekbox "Retrieve icons when refreshing Frequent folders and Frequent files menus (avoid if some files are often offline)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
@@ -3172,7 +3175,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.0.8
+;@Ahk2Exe-SetVersion 9.9.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3204,6 +3207,12 @@ DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
 SetWaitCursor(false)
 
 ;---------------------------------
+; App Name
+
+global g_strAppNameFile := "QuickAccessPopup"
+global g_strAppNameText := "Quick Access Popup"
+
+;---------------------------------
 ; Init class for command line parameters
 ; "/Settings:file_path" (must end with ".ini"), "/AdminSilent" and "/Working:path"
 global o_CommandLineParameters := new CommandLineParameters()
@@ -3225,11 +3234,6 @@ ListLines, On
 OnExit, CleanUpBeforeExit ; must be positioned before InitFileInstall to ensure deletion of temporary files
 
 ;---------------------------------
-; App Name
-
-global g_strAppNameFile := "QuickAccessPopup"
-
-;---------------------------------
 ; Init Settings instance
 global o_Settings := new Settings
 
@@ -3242,9 +3246,8 @@ if StrLen(o_CommandLineParameters.AA["Settings"])
 ;---------------------------------
 ; Create temporary folder
 
-If FileExist(o_Settings.strIniFile)
-	o_Settings.ReadIniOption("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General"
-		, "f_strQAPTempFolderParentPath|f_lblQAPTempFolderParentPath|f_btnQAPTempFolderParentPath") ; g_strQAPTempFolderParent
+o_Settings.ReadIniOption("Launch", "strQAPTempFolderParent", "QAPTempFolder", " ", "General"
+	, "f_strQAPTempFolderParentPath|f_lblQAPTempFolderParentPath|f_btnQAPTempFolderParentPath") ; g_strQAPTempFolderParent
 
 if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	if StrLen(EnvVars("%TEMP%")) ; make sure the environment variable exists
@@ -3252,8 +3255,18 @@ if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	else
 		o_Settings.Launch.strQAPTempFolderParent.IniValue := A_WorkingDir ; for installations installed before v8.6.9.2
 
+; remove temporary folders older than 7 days
+global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue))
+Loop, Files, %g_strTempDir%\_QAP_temp_*,  D
+{
+	strDate := A_Now
+	EnvSub, strDate, %A_LoopFileTimeModified%, D
+	if (strDate > 5)
+		FileRemoveDir, %A_LoopFileFullPath%, 1 ; Remove all files and subdirectories
+}
+
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue)) . "\_QAP_temp_" . RandomBetween()
+g_strTempDir .= "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ;---------------------------------
@@ -3263,8 +3276,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strAppNameText := "Quick Access Popup"
-global g_strCurrentVersion := "9.9.0.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -3274,8 +3286,12 @@ global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 ;---------------------------------
 ; Init language variables (must be after g_strCurrentBranch init)
 global g_strEscapeReplacement := "!r4nd0mt3xt!"
-global o_L = new Language
+global o_L := new Language
 o_Settings.InitOptionsGroupsLabels() ; init options groups labels after language is initialized
+
+; now that we have langage set, check if we have to move pre-v10 settings
+if (g_blnImportPreV10Settings) ; pre-v10 settings exist
+	Gosub, ProcessPreV10Settings
 
 ;---------------------------------
 ; Init class for JLicons
@@ -3415,10 +3431,22 @@ if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; add [admin] tag only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option
 	g_strAppNameText .= " [" . o_L["OptionsRunAsAdminShort"] . "]"
 
-; Now included in build menu
-; Gosub, EnableLocationHotkeys ; enable name|location hotkeys from g_objHotkeysByNameLocation
+intStartups := o_Settings.ReadIniValue("Startups", 1)
+strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod")), 0.0)
 
-IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" .  (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
+; Sponsor message when launching a prod release for the first time and user is not a sponsor
+if (g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
+	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
+{
+	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
+		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
+	IfMsgBox, Yes
+		Gosub, GuiDonate
+}
+
+; after sponsor message, we can update these values in ini file
+IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
+IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
@@ -3515,14 +3543,21 @@ OnMessage(0x404, "AHK_NOTIFYICON")
 
 ; the next gosubs can be done after menu is declared ready
 
-; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
-IfExist, %A_Startup%\%g_strAppNameFile%.lnk
+If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 {
-	; if the startup shortcut exists, update it at each execution in case the exe filename changed
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-	Gosub, CreateStartupShortcut
-	Menu, Tray, Check, % o_L["MenuRunAtStartupAmpersand"]
+	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk ; delete file if portable or setup
+	if (g_blnPortableMode)
+	{
+		; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
+		; if the startup shortcut exists, update it at each execution in case the exe filename changed
+		Gosub, CreateStartupShortcut
+		Menu, Tray, Check, % o_L["MenuRunAtStartupAmpersand"]
+	}
 }
+
+if !(g_blnPortableMode) and RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+	Menu, Tray, Check, % o_L["MenuRunAtStartupAmpersand"]
+
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
 	FileDelete, %A_Startup%\FoldersPopup.lnk
@@ -3745,131 +3780,189 @@ return
 ;-----------------------------------------------------------
 SetQAPWorkingDirectory:
 ;-----------------------------------------------------------
-/*
 
-First, the whole story...
+; WORKING PARAMETER
 
-WORKING PARAMETER
+; If the "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\path"),
+; set it as A_WorkingDir and return after setting the portable or setup mode below.
 
-If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"),
-this value have precedence. It allows to set a registry value to autostart QAP, for example:
-Key:	HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
-Value:	"C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
-
-INSTALL MODE
-
-Check in what mode QAP is running:
-- if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
-- else we are in Portable mode.
-
-IF PORTABLE
-
-If we are in Portable mode, we keep the A_WorkingDir and return. It is equal to A_ScriptDir except if the user set the "Start In" folder in a shortcut.
-
-IF SETUP
-
-In the Start Menu Group "Quick Access Popup", setup program created a shortcut with "Start In" set to "{commonappdata}\Quick Access Popup"
-(the Start Menu Group is created under the All Users profile unless the user installing the app does not have administrative privileges,
-in which case it is created in the user's profile).
-
-If A_WorkingDir equals A_ScriptDir and we are Setup mode, it means that QAP has been launched directly in the Program Files directory
-instead of using the Start menu or Startup shortcuts. In this situation, we know that the working directory has not been set properly.
-We change it to "{commonappdata}\Quick Access Popup".
-
-In "{commonappdata}\Quick Access Popup", setup program created or saved the file:
-- "quickaccesspopup-setup.ini" (used to set initial QAP language to setup program language)
-
-If, during setup, the user selected the "Import Folders Popup settings and favorites" option, the setup program will import the FP settings
-and create the file "quickaccesspopup.ini" in "{commonappdata}\Quick Access Popup". An administrator could also create this file that will
-be used as a template to be copied to "{userappdata}\Quick Access Popup" when QAP is launched for the first time.
-
-Normally, when the user starts QAP with the Start Group shortcut, A_WorkingDir is set to "{commonappdata}\Quick Access Popup".
-If not, keep the A_WorkingDir set by the user and return.
-
-If A_WorkingDir is "{commonappdata}\Quick Access Popup", check if "{userappdata}\Quick Access Popup" exists. If not, create it.
-If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup", copy them
-from "{commonappdata}\Quick Access Popup" if they exist.
-
-Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
-
-AFTER A_WORKINGDIR IS SET (PORTABLE OR SETUP)
-
-- QAP copy the FileInstall temporary icon and localisation files.
-
-- QAP checks if QAPconnect.ini exists in A_WorkingDir. If not, it creates a fresh one from the FileInstall file QAPconnect-default.ini.
-If QAPconnect.ini already exists, it is not overwritten. Instead, a fresh copy of FileInstall file QAPconnect-default.ini is written to
-A_WorkingDir where user can check if new file managers are supported.
-
-- QAP checks if quickaccesspopup.ini exists in A_WorkingDir. If not, it creates a new one from an internal template.
-
-Then, it continues initialization with quickaccesspopup.ini.
-
-STARTUP SHORTCUT
-
-If the "Run at startup" is enabled, a shortcut is created in the user's startup folder with "Start In" set to the current A_WorkingDir.
-In Portable mode, A_WorkingDir is what the user decided. In Setup mode, A_WorkingDir is "{userappdata}\Quick Access Popup" (unless user changed it).
-
-*/
-
-; Now, step-by-step...
-
-; If "/Working:" parameter is used from the command line (i.e. "c:\path\quickaccesspopup.exe /working:c:\another_path"),
-; this value have precedence. It allows to set a registry value to autostart QAP, for example:
-; Key: HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup
-; Value: "C:\QAP_path\QuickAccessPopup.exe" "/Working:C:\any_path" (use double-quotes if space in found in path)
+; FYI, the "/Working:" parameter can be set by the user at the command line, in a Windows file shortcut or in the
+; current user registry Run key. It has precedence on the Working Folder value in settings file.
 
 if StrLen(o_CommandLineParameters.AA["Working"])
+{
 	SetWorkingDir, % o_CommandLineParameters.AA["Working"]
+	; ###_V(A_ThisLabel . " - /Working: parameter", A_WorkingDir)
+}
+
+; DETECT INSTALL MODE
 
 ; Check in what mode QAP is running:
 ; - if the file "_do_not_remove_or_rename.txt" is in A_ScriptDir, we are in Setup mode
 ; - else we are in Portable mode.
 
-; If we are in Portable mode, we keep the A_WorkingDir and return. It is equal to A_ScriptDir except if the user set the "Start In" folder in a shortcut.
-if !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
+g_blnPortableMode := !FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt")
+
+; IF PORTABLE MODE
+
+; If we are in Portable mode and the parameter "/Working:" is absent, keep the current A_WorkingDir and return. The
+; A_WorkingDir is equal to A_ScriptDir except if the user set the "Start In" folder in a Windows file shortcut.
+; For example, if the "Run at startup" is enabled with QAP in portable mode, a shortcut is created in the user's
+; startup folder with "Start In" set to the current A_WorkingDir.
+
+if (g_blnPortableMode)
+	return ; keep current A_WorkingDir
+
+; FIRST LAUNCH IN SETUP MODE
+
+; The first time QAP is launched after an install (and also for re-install or upgrade), QAP completes its setup.
+; To detect if this is the first launch, check if the A_WorkingDir is "C:\ProgramData\Quick Access Popup".
+
+if (A_WorkingDir = A_AppDataCommon . "\" . g_strAppNameText) ; this is first launch after installation or update
 {
-	g_blnPortableMode := true ; set this variable for use later during init
-	return
+	; Check if pre-v10 settings could be imported by searching for the "%A_AppData%\Quick Access Popup" folder
+	; (e.g. C:\Users\Jean\AppData\Roaming\Quick Access Popup) and if v10 has never run by checking if the
+	; registry key "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder") exists.
+	
+	g_blnImportPreV10Settings := FileExist(A_AppData . "\" . g_strAppNameText) ; pre-v10 settings are found
+		and !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder") ; v10 has never run
+	
+	if (g_blnImportPreV10Settings) ; pre-v10 settings could be imported
+	{
+		; Set the working folder to the pre-v10 folder. After language class instance will be initialised later,
+		; we will ask if user wants to copy the settings from the pre-v10 location (in ProcessPreV10Settings).
+		SetWorkingDir, %A_AppData%\%g_strAppNameText% ; keep pre-v10 working folder until we copy file in ProcessPreV10Settings
+		###_V(A_ThisLabel . " - keep pre-v10 working folder, waiting for ProcessPreV10Settings", A_WorkingDir)
+		
+		; If pre-v10 autostart option is enabled, create the Run registry key and remove the old startup file shortcut.
+		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
+		{
+			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
+			###_V(A_ThisLabel . " - setup mode, previous settings exist, previous startup on, set Run registry key", "*FileExist(A_Startup...", FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk"))
+		}
+	}
+	else ; new user installing v10 or re-installing for user who used pre-v10
+	{
+		if RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		; If registry key "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder") exists, set it as working folder.
+		; If the working folder is missing, show an error message and quit.
+		{
+			strExistingWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+			if FileExist(strExistingWorkingFolder)
+			{
+				SetWorkingDir, %strExistingWorkingFolder%
+				###_V(A_ThisLabel . " - setup with existing working folder", A_WorkingDir)
+			}
+			else
+			{
+				Oops("~1~ Setting folder does not exist.`n`nIf it is on a network or external drive, make sure it is online.`n`n~1~ will be closed.", g_strAppNameText)
+				ExitApp
+			}
+		}
+		else
+		{
+			; If the "WorkingFolder" registry key does not exists, create it and set the default working folder under the user's
+			; "My Documents" folder (e.g. "C:\Users\UserName\Documents\Quick Access Popup\"). Create this folder before if required.
+			if !FileExist(A_MyDocuments . "\" . g_strAppNameText)
+			{
+				FileCreateDir, %A_MyDocuments%\%g_strAppNameText%
+			}
+			SetWorkingDir, %A_MyDocuments%\%g_strAppNameText%
+			###_V(A_ThisLabel . " - setup mode, created (probably) A_WorkingDir", A_WorkingDir)
+		}
+
+		; Copy to QAP working folder the files "quickaccesspopup-setup.ini" (indicating in what language to run QAP) created by the setup script
+		; in the "Common Application Data" folder (e.g. "C:\ProgramData\Quick Access Popup") and, if they exist, the template files for new
+		; installations on the same machine/server created by a sysadmin for "quickaccesspopup.ini" and "QAPconnect.ini".
+		
+		if !FileExist(A_WorkingDir . "\quickaccesspopup-setup.ini")
+			FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %A_WorkingDir%
+		if !FileExist(A_WorkingDir . "\quickaccesspopup.ini")
+			FileCopy, %A_AppDataCommon%\quickaccesspopup.ini, %A_WorkingDir%
+		if !FileExist(A_WorkingDir . "\QAPconnect.ini")
+			FileCopy, %A_AppDataCommon%\QAPconnect.ini, %A_WorkingDir%
+		
+		; If this is the first install (if the "WorkingFolder" registry does not exist), set the default autostart key.
+		; If the "WorkingFolder" key exists, avoid setting Run again at next install if user turned it off.
+		if !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		{
+			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+			###_V(A_ThisLabel . " - setup mode, first installl, set Run registry key", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+		}
+			
+		; Create the registry key to register QAP working folder. This key is removed when uninstalling QAP:
+		; "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder".
+		SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		###_V(A_ThisLabel . " - setup mode, set working folder registry key", A_WorkingDir)
+	}
+}
+; end of first launch
+
+; AT EVERY LAUNCH IN SETUP MODE (except at first launch if we have to import pre-v10 settings to new location)
+
+if !(g_blnImportPreV10Settings)
+{
+	; Set working folder by reading the working folder in the registry key:
+	; "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder".
+
+	strWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+
+	; If this folder exists, it sets the A_WorkingDir to this folder (e.g. "C:\Users\UserName\Documents\Quick Access Popup\").
+	; If this folder does not exist, displays an error message and exits the application.
+
+	if StrLen(strWorkingFolder) and FileExist(strWorkingFolder)
+	{
+		SetWorkingDir, %strWorkingFolder%
+		###_V(A_ThisLabel . " - working folder exists, set it as working folder", A_WorkingDir, o_Settings.strIniFile)
+	}
+	else
+	{
+		Oops(o_L["OopsWorkingFolderMissing"]) ; continue with previous working folder or abort? #####
+		ExitApp
+	}
+}
+; else working folder will be created and set in ProcessPreV10Settings after o_L is initialised.
+	
+return
+;-----------------------------------------------------------
+
+
+;-----------------------------------------------------------
+ProcessPreV10Settings:
+;-----------------------------------------------------------
+
+; Pre-v10 settings has been found. Offer user to move these settings (the whole content of the folder) to the new v10 settings location
+; ("C:\Users\UserName\Documents\Quick Access Popup\"). If user accepts, QAP copies files, check success of copy and remove the old
+; folder (if possible? #####). If the user declines, the working folder is set to previous pre-v10 location "%A_AppData%\Quick Access Popup".
+
+MsgBox, 36, %g_strAppNameText%, % L(o_L["DialogMoveSettingsToMyDocumentsQuestion"], g_strAppNameText, A_AppData . "\" . g_strAppNameText, A_MyDocuments . "\" . g_strAppNameText)
+	. (FileExist(A_MyDocuments . "\" . g_strAppNameText) ? "`n`n" . o_L["DialogMoveSettingsToMyDocumentsOverwrite"] : "")
+	. "`n`n" . o_L["DialogMoveSettingsToMyDocumentsInfo"]
+
+IfMsgBox, Yes
+{
+	; change value BackupFolder to new working folder - must be done before copy
+	if (o_Settings.SettingsFile.strBackupFolder.IniValue = A_AppData . "\" . g_strAppNameText)
+		o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strWorkingFolder)
+
+	FileCopyDir, %A_AppData%\%g_strAppNameText%, %A_MyDocuments%\%g_strAppNameText%, 1 ; overwrite
+	; ##### check if errorlevel (for example, if folder or file locked)
+	; ##### check if copy worked
+	; ##### delete pre-v10 settings - NOT POSSIBLE IF BUSY #####
+	SetWorkingDir, %A_MyDocuments%\%g_strAppNameText%
+	###_V(A_ThisLabel . " - file from pre-v10 copied", A_WorkingDir)
+	Oops(o_L["DialogMoveSettingsToMyDocumentsReload"], g_strAppNameText)
+	SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+
+	Gosub, ReloadQAP
 }
 else
-	g_blnPortableMode := false ; set this variable for use later during init
-
-if StrLen(o_CommandLineParameters.AA["Working"]) ; we don't need to continue
-	return
-
-; Now we are in Setup mode
-
-; If A_WorkingDir equals A_ScriptDir and we are Setup mode, it means that QAP has been launched directly in the Program Files directory
-; instead of using the Start menu or Startup shortcuts. In this situation, we know that the working directory has not been set properly.
-; We change it to "{commonappdata}\Quick Access Popup".
-
-if (A_WorkingDir = A_ScriptDir) and FileExist(A_WorkingDir . "\_do_not_remove_or_rename.txt")
-	SetWorkingDir, %A_AppDataCommon%\Quick Access Popup
-
-; Normally, when the user starts QAP with the Start Group shortcut, A_WorkingDir is set to "{commonappdata}\Quick Access Popup".
-; If not, QAP was possibily launched with a Startup shortcut that set the A_WorkingDir to "{userappdata}\Quick Access Popup".
-; Keep the A_WorkingDir set by the shortcut and return.
-
-if (A_WorkingDir <> A_AppDataCommon . "\Quick Access Popup")
-	return
-
-; If A_WorkingDir is "{commonappdata}\Quick Access Popup", check if "{userappdata}\Quick Access Popup" exists. If not, create it.
-
-if !FileExist(A_AppData . "\Quick Access Popup")
-	FileCreateDir, %A_AppData%\Quick Access Popup
-
-; If the files "quickaccesspopup-setup.ini", "quickaccesspopup.ini" and "QAPconnect.ini" do not exist in "{userappdata}\Quick Access Popup",
-; copy them from "{commonappdata}\Quick Access Popup" if they exist.
-if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup-setup.ini")
-	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %A_AppData%\Quick Access Popup
-if !FileExist(A_AppData . "\Quick Access Popup\quickaccesspopup.ini")
-	FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup.ini, %A_AppData%\Quick Access Popup
-if !FileExist(A_AppData . "\Quick Access Popup\QAPconnect.ini")
-	FileCopy, %A_AppDataCommon%\Quick Access Popup\QAPconnect.ini, %A_AppData%\Quick Access Popup
-
-; Then, set A_WorkingDir to "{userappdata}\Quick Access Popup" and return.
-
-SetWorkingDir, %A_AppData%\Quick Access Popup
+{
+	; keep A_WorkingDir pre-v10 settings location ("%A_AppData%\Quick Access Popup" if user did not changte it)
+	SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	###_V(A_ThisLabel . " - setup mode, keep pre-v10 working folder, set working folder registry key", A_WorkingDir, o_Settings.strIniFile)
+}
 
 return
 ;-----------------------------------------------------------
@@ -4039,9 +4132,6 @@ g_blnIniFileCreation := !FileExist(o_Settings.strIniFile)
 if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was created by ImportFavoritesFP2QAP.ahk during install
 {
 	g_strIniBefore := "NEW"
-	; if not in portable mode, create the startup shortcut at first execution of LoadIniFile (if ini file does not exist)
-	if !(g_blnPortableMode)
-		Gosub, CreateStartupShortcut
 
 	blnExplorerContextMenus := (g_blnPortableMode ? 0 : 1) ; context menus enabled if installed with the setup program (not if portable)
 
@@ -4276,7 +4366,7 @@ o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly"
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
 o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0)
-o_Settings.ReadIniOption("Launch", "blnSponsor", "Sponsor", " ")
+o_Settings.ReadIniOption("Launch", "strSponsor", "Sponsor", " ")
 Gosub, ProcessSponsorName
 
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
@@ -4289,7 +4379,7 @@ if !(o_Settings.Launch.blnDefaultWindowsAppsMenuBuilt.IniValue) and (GetOSVersio
 o_Settings.ReadIniOption("Launch", "blnDefaultMenuBuilt", "DefaultMenuBuilt", 0) ; blnDefaultMenuBuilt
 if !(o_Settings.Launch.blnDefaultMenuBuilt.IniValue)
  	Gosub, AddToIniDefaultMenu ; modify the ini file Favorites section before reading it
-o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", strDefaultBackupFolder, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder")
+o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_WorkingDir, "General", "f_lblBackupFolder|f_strBackupFolder|f_btnBackupFolder|f_lblWorkingFolder|f_strWorkingFolder|f_btnWorkingFolder")
 
 ; ---------------------
 ; Load favorites
@@ -4326,17 +4416,17 @@ ProcessSponsorName:
 
 if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
 ; donor code need to be updated
-	g_SponsoredMessage := "<a href=""https://quickaccesspopup.com/"">" . o_L["SponsoredUpdate"] . "</a>"
-else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.blnSponsor.IniValue . g_strEscapePipe, true), 13, 8))
+	g_SponsoredMessage := "<a id=""update"">" . o_L["SponsoredUpdate"] . "</a>"
+else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsor.IniValue . g_strEscapePipe, true), 13, 8))
 ; donor code matching the sponsor name
 {
-	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.blnSponsor.IniValue)
+	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsor.IniValue)
 	o_Settings.Launch.blnDonor.IniValue := 1 ; boolean value used later
 }
 else
 ; no donor code or donor code not matching the sponsor name
 {
-	g_SponsoredMessage := "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["SponsoredNone"] . "</a>"
+	g_SponsoredMessage := "<a id=""none"">" . o_L["SponsoredNone"] . "</a>"
 	o_Settings.Launch.blnDonor.IniValue := 0
 }
 
@@ -4368,7 +4458,6 @@ else if (A_GuiControl = "f_btnConvertSettingsEncodingNo")
 	
 	o_Settings.SettingsFile.blnDoNotConvertSettingsToUnicode.WriteIni(1)
 
-	
 ; else do nothing
 
 g_strIniAfter := "SKIP"
@@ -4956,7 +5045,7 @@ Menu, Tray, Add, % L(o_L["MenuReload"], g_strAppNameText), ReloadQAP
 Menu, Tray, Add
 Menu, Tray, Add, % o_L["MenuRefreshMenu"], RefreshQAPMenu
 Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], RunAtStartup
+Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], UpdateRunAtStartup ; function UpdateRunAtStartup replaces RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, % o_L["MenuSuspendHotkeys"], SuspendHotkeys
 Menu, Tray, Add
@@ -4975,7 +5064,7 @@ Menu, Tray, Default, % o_L["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
-	. (o_Settings.Launch.blnDonor.IniValue ? o_L["DonateThankyou"] : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
+	. (o_Settings.Launch.blnDonor.IniValue ? L(o_L["DonateThankyou"], o_Settings.Launch.strSponsor.IniValue) : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -5063,7 +5152,7 @@ strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitc
 	. "|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders|MenuRecentFolders|MenuRecentFiles"
 
 loop, Parse, strMenuToInit, "|"
-	new Container("Menu", o_L[A_LoopField])
+	new Container("Menu", o_L[A_LoopField], "", "", true) ; last parameter true for blnDynamic
 
 strPopularMenusFoldersAndFiles := ""
 
@@ -5691,7 +5780,6 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 	o_Containers.AA[o_L["MenuSwitchFolderOrApp"]].BuildMenu()
 }
 
-; o_MenuCurrentFolders := new Container("Menu", o_L["MenuCurrentFolders"])
 o_Containers.AA[o_L["MenuCurrentFolders"]].LoadFavoritesFromTable(saCurrentFoldersTable)
 o_Containers.AA[o_L["MenuCurrentFolders"]].BuildMenu()
 
@@ -6277,7 +6365,10 @@ Gosub, GuiOptionsHeader
 
 ; RunAtStartup
 Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsTab3X% vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRunAtStartup"]
-GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
+if (g_blnPortableMode) ; get value from existence of stratup file shortcut
+	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
+else ; setup mode, get value form current user registry
+	GuiControl, , f_blnOptionsRunAtStartup, % (RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText) ? 1 : 0)
 
 ; LanguageCode
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblLanguage hidden, % o_L["OptionsLanguage"]
@@ -6302,21 +6393,31 @@ Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow vf_lnkCheck4Update hidden, % "(<a>" . 
 Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
 GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
-; QAPTempFolder
-Gui, 2:Add, Text, y+15 x%g_intGroupItemsX% w105 vf_lblQAPTempFolderParentPath hidden, % o_L["OptionsQAPTempFolder"] . ":"
-Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strQAPTempFolderParentPath hidden ; gLabel after GuiControl that changes the value below
-Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath vf_btnQAPTempFolderParentPath hidden, % o_L["DialogBrowseButton"]
-GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
-GuiControl, 2:+gGuiOptionsGroupChanged, f_strQAPTempFolderParentPath
+; Working folder (only for Setup installation)
+if (!g_blnPortableMode)
+{
+	Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% w105 vf_lblWorkingFolder hidden, % o_L["OptionsWorkingFolder"] . ":"
+	Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strWorkingFolder hidden ; gLabel after GuiControl that changes the value below
+	Gui, 2:Add, Button, x+5 yp w100 gButtonWorkingFolder vf_btnWorkingFolder hidden, % o_L["DialogBrowseButton"]
+	GuiControl, 2:, f_strWorkingFolder, % GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	GuiControl, 2:+gGuiOptionsGroupChanged, f_strWorkingFolder
+}
 
 ; BackupFolder
-Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblBackupFolder hidden, % o_L["OptionsBackupFolder"] . ":"
+Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% w105 vf_lblBackupFolder hidden, % o_L["OptionsBackupFolder"] . ":"
 Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strBackupFolder hidden ; gLabel after GuiControl that changes the value below
 Gui, 2:Add, Button, x+5 yp w100 gButtonBackupFolder vf_btnBackupFolder hidden, % o_L["DialogBrowseButton"]
 GuiControl, 2:, f_strBackupFolder, % o_Settings.SettingsFile.strBackupFolder.IniValue
 GuiControl, 2:+gGuiOptionsGroupChanged, f_strBackupFolder
 
-GuiControlGet, arrPos, Pos, f_btnBackupFolder
+; QAPTempFolder
+Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% w105 vf_lblQAPTempFolderParentPath hidden, % o_L["OptionsQAPTempFolder"] . ":"
+Gui, 2:Add, Edit, yp x%g_intGroupItemsTab3X% w300 h20 vf_strQAPTempFolderParentPath hidden ; gLabel after GuiControl that changes the value below
+Gui, 2:Add, Button, x+5 yp w100 gButtonQAPTempFolderParentPath vf_btnQAPTempFolderParentPath hidden, % o_L["DialogBrowseButton"]
+GuiControl, 2:, f_strQAPTempFolderParentPath, % o_Settings.Launch.strQAPTempFolderParent.IniValue
+GuiControl, 2:+gGuiOptionsGroupChanged, f_strQAPTempFolderParentPath
+
+GuiControlGet, arrPos, Pos, f_btnQAPTempFolderParentPath
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 	g_intOptionsFooterY := arrPosY + arrPosH
 
@@ -6443,7 +6544,7 @@ GuiControl, , f_blnRefreshedMenusAttached, % (o_Settings.MenuPopup.blnRefreshedM
 ; ExplorerContextMenus
 if !(g_blnPortableMode)
 {
-	Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsTab3X% w500 vf_blnExplorerContextMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsExplorerContextMenus"]
+	Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsX% w500 vf_blnExplorerContextMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsExplorerContextMenus"]
 	GuiControl, , f_blnExplorerContextMenus, % (o_Settings.MenuPopup.blnExplorerContextMenus.IniValue = true)
 }
 
@@ -6844,26 +6945,36 @@ if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 	return
 }
 
-strTempLocation := f_strQAPTempFolderParentPath
-blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
-if (!blnOptionsPathsOK)
-	Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathTemp"], f_strQAPTempFolderParentPath)
+if (!g_blnPortableMode and !FolderExistOrCreate(f_strWorkingFolder)) ; Working folder (only for Setup installation)
+	or !FolderExistOrCreate(f_strBackupFolder) ; Backup folder
+	or !FolderExistOrCreate(f_strQAPTempFolderParentPath) ; Temp folder
+	return
 
-strTempLocation := f_strBackupFolder
-blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
-if (!blnOptionsPathsOK)
-	Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathBackup"], f_strBackupFolder)
+if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
+{
+	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	if (f_strWorkingFolder <> strWorkingFolderPrev)
+	{
+		MsgBox, 547, %g_strAppNameText%, % L(o_L["OptionsMoveWorkingFolderType"], f_strWorkingFolder, g_strAppNameText) ; Option 2 Yes-No-Cancel + 5 question icon + 512 cancel default
+		IfMsgBox, Cancel
+			return
+		IfMsgBox, Yes
+			blnMoveSettingsToNewWorkingFolder := true ; will be done after saving other settings at the end of this command
+		else
+			blnMoveSettingsToNewWorkingFolder := false
+	}
+}
 
 if StrLen(f_strAlternativeTrayIcon) ; because f_strAlternativeTrayIcon is optional
 {
 	strTempLocation := f_strAlternativeTrayIcon
 	blnOptionsPathsOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
 	if (!blnOptionsPathsOK)
+	{
 		Oops(o_L["OopsOptionsPathNotExist"], o_L["OopsOptionsPathTrayIcon"], f_strAlternativeTrayIcon)
+		return
+	}
 }
-
-if !(blnOptionsPathsOK)
-	return
 
 blnOptionsPathsOK := ""
 strTempLocation := ""
@@ -6876,11 +6987,7 @@ g_blnMenuReady := false
 
 ; === General ===
 
-IfExist, %A_Startup%\%g_strAppNameFile%.lnk
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-if (f_blnOptionsRunAtStartup)
-	Gosub, CreateStartupShortcut
-Menu, Tray, % f_blnOptionsRunAtStartup ? "Check" : "Uncheck", % o_L["MenuRunAtStartupAmpersand"]
+UpdateRunAtStartup()
 
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
@@ -6899,52 +7006,11 @@ o_Settings.Launch.blnDisplayTrayTip.WriteIni(f_blnDisplayTrayTip)
 o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
 o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIni(f_blnChangeFolderInDialog)
 
+o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strBackupFolder)
+
 strQAPTempFolderParentPrev := o_Settings.Launch.strQAPTempFolderParent.IniValue
 if StrLen(f_strQAPTempFolderParentPath)
 	o_Settings.Launch.strQAPTempFolderParent.WriteIni(f_strQAPTempFolderParentPath)
-
-o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strBackupFolder)
-
-; if language, theme or temporary folder changed, offer to restart the app
-if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
-	or (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
-	or (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
-{
-	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
-	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsLanguage"], "&")
-		strValue := g_strLanguageLabel
-	}
-	else if (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
-	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsTheme"], "&")
-		strValue := o_Settings.Launch.strTheme.IniValue
-	}
-	else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
-	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsQAPTempFolder"], "&")
-		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
-	}
-
-	MsgBox, 52, %g_strAppNameText%, % L(o_L["ReloadPrompt"], strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
-	IfMsgBox, Yes
-		Gosub, ReloadQAP
-	else ; if user declines to reload, restore previous value (but new value will be loaded at next launch)
-	{
-		if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
-			o_Settings.Launch.strLanguageCode.IniValue := strLanguageCodePrev
-		else if (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
-			o_Settings.Launch.strTheme.IniValue := strThemePrev
-		else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
-			o_Settings.Launch.strQAPTempFolderParent.IniValue := strQAPTempFolderParentPrev
-	}
-}
-
-strLanguageCodePrev := ""
-strThemePrev := ""
-strQAPTempFolderParentPrev := ""
-strOptionNoAmpersand := ""
-strValue := ""
 
 ; === SettingsWindow ===
 
@@ -7157,6 +7223,75 @@ o_Settings.Snippets.arrWaitDelayInSnippet.IniValue := StrSplit(o_Settings.Snippe
 o_Settings.Execution.strSwitchExclusionList.WriteIni(OptionsListCleanup(f_strSwitchExclusionList))
 strNewHotstringsDefaultOptions := ""
 
+; === Save new Working Folder in current user registry entry and update o_Settings.strIniFile
+
+if (!g_blnPortableMode) ; Working folder (only for Setup installation)
+{
+	if (f_strWorkingFolder <> strWorkingFolderPrev)
+	{
+		
+		SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
+		; QAP will reload with new A_WorkingDir at the end of save
+		
+		if (blnMoveSettingsToNewWorkingFolder) ; asked in the validation section above
+		{
+			; if blnMoveSettingsToNewWorkingFolder and BackupFolder is in the working folder change value to new working folder - must be done before FileCopyDir 
+			if (o_Settings.SettingsFile.strBackupFolder.IniValue = strWorkingFolderPrev)
+				o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strWorkingFolder)
+			
+			FileCopyDir, %strWorkingFolderPrev%, %f_strWorkingFolder%, 1
+			; ##### check if errorlevel (for example, if file existed, it is not overwritten)
+			; ##### check if copy worked
+			; ##### delete pre-v10 settings
+		}
+	}
+}
+
+; === Need to restart QAP for new working folder
+
+if (strWorkingFolderPrev <> f_strWorkingFolder)
+{
+	Oops(o_L["DialogMoveSettingsToMyDocumentsReload"], g_strAppNameText)
+	Gosub, ReloadQAP
+}
+
+; === Optional restart if language, theme or temporary folder changed
+
+if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+	or (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
+	or (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
+{
+	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+	{
+		strOptionNoAmpersand := StrReplace(o_L["OptionsLanguage"], "&")
+		strValue := g_strLanguageLabel
+	}
+	else if (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
+	{
+		strOptionNoAmpersand := StrReplace(o_L["OptionsTheme"], "&")
+		strValue := o_Settings.Launch.strTheme.IniValue
+	}
+	else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
+	{
+		strOptionNoAmpersand := StrReplace(o_L["OptionsQAPTempFolder"], "&")
+		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
+	}
+
+	MsgBox, 52, %g_strAppNameText%, % L(o_L["ReloadPrompt"], strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
+	IfMsgBox, Yes
+		Gosub, ReloadQAP
+	else ; if user declines to reload, restore previous value (but new value will be loaded at next launch)
+	{
+		if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+			o_Settings.Launch.strLanguageCode.IniValue := strLanguageCodePrev
+		else if (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
+			o_Settings.Launch.strTheme.IniValue := strThemePrev
+		else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
+			o_Settings.Launch.strQAPTempFolderParent.IniValue := strQAPTempFolderParentPrev
+	}
+}
+
 g_blnGroupChanged := false
 Gosub, 2GuiClose
 
@@ -7174,6 +7309,12 @@ Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
 
 g_blnMenuReady := true
+
+strLanguageCodePrev := ""
+strThemePrev := ""
+strQAPTempFolderParentPrev := ""
+strOptionNoAmpersand := ""
+strValue := ""
 
 return
 ;------------------------------------------------------------
@@ -7722,11 +7863,17 @@ return
 ButtonQAPTempFolderParentPath:
 ButtonExternalMenuSelectCataloguePath:
 ButtonBackupFolder:
+ButtonWorkingFolder:
 ;------------------------------------------------------------
 Gui, 2:+OwnDialogs
 Gui, 2:Submit, NoHide
 
-if (A_ThisLabel = "ButtonQAPTempFolderParentPath")
+if (A_ThisLabel = "ButtonWorkingFolder")
+{
+	strControlName := "f_strWorkingFolder"
+	strPrompt := o_L["OptionsSelectWorkingFolder"]
+}
+else if (A_ThisLabel = "ButtonQAPTempFolderParentPath")
 {
 	strControlName := "f_strQAPTempFolderParentPath"
 	strPrompt := o_L["OptionsSelectQAPTempFolder"]
@@ -8175,7 +8322,7 @@ Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h35, % o_L["
 
 Gui, 1:Font, s8 w400 c404040 normal, Verdana
 
-Gui, 1:Add, Link, vf_lnkSponsoredBy x0 y+1, %g_SponsoredMessage% ; SysLink, center option not working for links
+Gui, 1:Add, Link, vf_lnkSponsoredBy x0 y+1 gSponsoredByClicked, %g_SponsoredMessage% ; SysLink, center option not working for links
 GuiControlGet, arrPos, Pos, f_lnkSponsoredBy
 g_intLnkSponsoredByWidth := arrPosW
 
@@ -8366,6 +8513,23 @@ intX := ""
 intY := ""
 arrPos := ""
 intFavoritesListFilterCloseW := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+SponsoredByClicked:
+;------------------------------------------------------------
+
+strLink := ErrorLevel
+if (strLink = "update")
+	Run, https://www.quickaccesspopup.com ; ##### update with forum page about updating donor code
+else if (strLink = "none")
+	Gosub, GuiDonate
+; else do nothing
+
+strLink := ""
 
 return
 ;------------------------------------------------------------
@@ -13740,6 +13904,11 @@ else if WindowIsToMenuDialogBox(strThisTitle)
 }
 strThisTitle := ""
 
+if (g_intLnkWhySponsorWidth) ; resizing GuiDonate
+	GuiControl, 2:Move, f_lnkWhySponsor, % "x" . (A_GuiWidth - g_intLnkWhySponsorWidth) // 2
+
+g_intLnkWhySponsorWidth := ""
+
 return
 ;------------------------------------------------------------
 
@@ -15389,21 +15558,6 @@ return
 
 
 ;------------------------------------------------------------
-RunAtStartup:
-;------------------------------------------------------------
-; Startup code adapted from Avi Aryan Ryan in Clipjump
-
-Menu, Tray, Togglecheck, % o_L["MenuRunAtStartupAmpersand"]
-IfExist, %A_Startup%\%g_strAppNameFile%.lnk
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-else
-	Gosub, CreateStartupShortcut
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 CreateStartupShortcut:
 ;------------------------------------------------------------
 
@@ -15444,20 +15598,6 @@ strLatestSkippedBeta := o_Settings.ReadIniValue("LatestVersionSkippedBeta", 0.0)
 strLatestUsedBeta := o_Settings.ReadIniValue("LastVersionUsedBeta", 0.0)
 strLatestSkippedAlpha := o_Settings.ReadIniValue("LatestVersionSkippedAlpha", 0.0)
 strLatestUsedAlpha := o_Settings.ReadIniValue("LastVersionUsedAlpha", 0.0)
-
-intStartups := o_Settings.ReadIniValue("Startups", 1)
-
-if (A_ThisMenuItem <> o_L["MenuUpdateAmpersand"])
-{
-	if Time2Donate(intStartups, o_Settings.Launch.blnDonor.IniValue)
-	{
-		MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
-			, % l(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
-		IfMsgBox, Yes
-			Gosub, GuiDonate
-	}
-	IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
-}
 
 blnSetup := (FileExist(A_ScriptDir . "\_do_not_remove_or_rename.txt") = "" ? 0 : 1)
 
@@ -15562,7 +15702,6 @@ strLatestSkippedBeta := ""
 strLatestSkippedProd := ""
 strLatestUsedAlpha := ""
 strLatestUsedBeta := ""
-intStartups := ""
 
 return
 ;------------------------------------------------------------
@@ -15629,15 +15768,6 @@ PrepareVersionNumber(strVersionNumber)
 	}
 	
 	return strResult
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-Time2Donate(intStartups, blnDonor)
-;------------------------------------------------------------
-{
-	return !Mod(intStartups, 20) and (intStartups > 40) and !(blnDonor)
 }
 ;------------------------------------------------------------
 
@@ -16169,10 +16299,13 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(o_L["DonateText1"], g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, x175 w185 y+10, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/")
-loop, Parse, % "4|1|2|3", |
+Gui, 2:Add, Link, x10 w185 y+10 vf_lnkWhySponsor, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/") ; will be centered by 2GuiSize
+GuiControlGet, arrPos, Pos, f_lnkWhySponsor
+g_intLnkWhySponsorWidth := arrPosW
+
+loop, Parse, % "1|2|3|4", |
 {
-	Gui, 2:Add, Button, % (A_Index = 1 ? "y+10 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName" . A_LoopField]
+	Gui, 2:Add, Button, % (A_Index = 1 ? "y+20 Default vbtnDonateDefault " : "") . " xm w150 gButtonDonate" . A_LoopField, % o_L["DonatePlatformName" . A_LoopField]
 	Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment" . A_LoopField]
 }
 ; Gui, 2:Add, Button, y+10 Default vbtnDonateDefault xm w150 gButtonDonate2, % o_L["DonatePlatformName2"] ; Patreon out
@@ -16216,6 +16349,7 @@ strDonateReviewUrlRight1 := ""
 strDonateReviewUrlRight2 := ""
 strDonateReviewUrlRight3 := ""
 strGuiTitle := ""
+arrPos := ""
 
 return
 ;------------------------------------------------------------
@@ -19480,6 +19614,99 @@ MD5(str, blnCase := false)
 ;------------------------------------------------------------
 
 
+;---------------------------------------------------------
+RegistryExist(strKeyName, strValueName)
+;---------------------------------------------------------
+{
+	RegRead, strValue, %strKeyName%, %strValueName%
+	
+	return StrLen(strValue)
+}
+;---------------------------------------------------------
+
+
+;---------------------------------------------------------
+GetRegistry(strKeyName, strValueName)
+;---------------------------------------------------------
+{
+	RegRead, strValue, %strKeyName%, %strValueName%
+	
+	return strValue
+}
+;---------------------------------------------------------
+
+
+;---------------------------------------------------------
+SetRegistry(strValue, strKeyName, strValueName)
+;---------------------------------------------------------
+{
+	RegWrite, REG_SZ, %strKeyName%, %strValueName%, %strValue%
+	if (ErrorLevel)
+		Oops("An error occurreed while write the registre key.`n`nValue: " . strValueName . "`nKey name: " . strKeyName)
+}
+;---------------------------------------------------------
+
+
+;---------------------------------------------------------
+RemoveRegistry(strKeyName, strValueName)
+;---------------------------------------------------------
+{
+	if !RegistryExist(strKeyName, strValueName)
+		return
+	
+	RegDelete, %strKeyName%, %strValueName%
+	if (ErrorLevel)
+		Oops("An error occurreed while removing the registre key.`n`nValue: " . strValueName . "`nKey name: " . strKeyName)	
+}
+;---------------------------------------------------------
+
+
+;------------------------------------------------------------
+UpdateRunAtStartup()
+;------------------------------------------------------------
+{
+	Menu, Tray, Togglecheck, % o_L["MenuRunAtStartupAmpersand"]
+
+	if (g_blnPortableMode)
+		
+		; Startup code adapted from Avi Aryan Ryan in Clipjump
+		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
+			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
+		else
+			Gosub, CreateStartupShortcut
+
+	else ; setup mode
+
+		if RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+			RemoveRegistry("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+		else
+			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FolderExistOrCreate(strFolder)
+;------------------------------------------------------------
+{
+	strTempLocation := strFolder
+	blnOK := FileExistInPath(strTempLocation) ; return strTempLocation with expanded relative path and envvars, and absolute location if in PATH
+	if (!blnOK)
+	{
+		MsgBox, 36, %g_strAppNameText%, % L(o_L["DialogOptionsPathNotExist"], strFolder)
+		IfMsgBox, Yes
+		{
+			FileCreateDir, %strFolder%
+			blnOK := FolderExistOrCreate(strFolder) ; recursive
+		}
+	}
+	return blnOK
+}
+;------------------------------------------------------------
+
+
+
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
 ;========================================================================================================================
@@ -21864,6 +22091,7 @@ TODO
 			, "Snippets", "UserVariables", "Database"
 			, "MenuAdvanced", "AdvancedLaunch", "AdvancedOther"]
 			
+; /* ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 		; Set developement ini file
 ;@Ahk2Exe-IgnoreBegin
 		; Start of code for developement environment only - won't be compiled
@@ -21873,6 +22101,7 @@ TODO
 			this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 		; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
+; */ ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 
 		; set file name used for Edit settings label
 		SplitPath, % this.strIniFile, strIniFileNameExtOnly
@@ -22198,10 +22427,11 @@ class Container
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	__New(strType, strContainerName, oParentMenu := "", strAction := "init")
+	__New(strType, strContainerName, oParentMenu := "", strAction := "init", blnDynamic := false)
 	;---------------------------------------------------------
 	{
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
+		this.AA.blnMenuDynamic := blnDynamic ; when building menu, replace "&" with "&&" in dynamic menus only
 		if (oParentMenu)
 		{
 			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
@@ -22794,6 +23024,8 @@ class Container
 					intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
 			}
 			
+			if (intMenuItemStatus = 0 and !StrLen(strMenuItemLabel)) ; ##### debugging
+				###_V(A_ThisFunc, strMenuItemLabel, intMenuItemStatus)
 			this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
@@ -22826,7 +23058,7 @@ class Container
 			strFolderIcon := o_FavoriteLiveFolder.AA.strFavoriteIconResource
 		if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
 			strFolderIcon := "iconFolderLiveOpened"
-		strSelfFolder := "`tFolder`t" . o_FavoriteLiveFolder.AA.strFavoriteName . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
+		strSelfFolder := "`tFolder`t" . StrReplace(o_FavoriteLiveFolder.AA.strFavoriteName, "&", "") . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
 		
 		; scan folders in live folder
 		strFolders := ""
@@ -22899,7 +23131,7 @@ class Container
 		
 		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
 
-		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this)
+		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this, "", true)
 		oNewSubMenu.AA.blnIsLiveMenu := true
 		oNewSubMenu.AA.intLiveFolderParentPosition := intMenuParentPosition ; could be changed if we are in a Live Folder submenu
 		oNewSubMenu.AA.strLiveFolderParentPath := strMenuParentPath ; could be changed if we are in a Live Folder submenu
@@ -22992,11 +23224,14 @@ class Container
 	; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 	;------------------------------------------------------------
 	{
+		if (!StrLen(strMenuItemName) and !intStatus)
+			###_V(A_ThisFunc, strMenuItemName, this.AA.strMenuPath)
 		; The names of menus and menu items can be up to 260 characters long.
 		if StrLen(strMenuItemName) > 260
 			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
 		
-		strMenuItemName := DoubleAmpersand(strMenuItemName)
+		if (this.AA.blnMenuDynamic) ; replace "&" with "&&" in dynamic menus only
+			strMenuItemName := DoubleAmpersand(strMenuItemName)
 		
 		if SubStr(strAction, 1, 1) = ":" ; this is a menu
 		{
@@ -24404,7 +24639,7 @@ class Container
 				ClipBoard := ""
 				Sleep, % o_Settings.Snippets.arrWaitDelayInSnippet.IniValue[2] ; safety delay default 80 ms
 				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-				ClipBoard := DecodeSnippet(this.AA.strLocationWithPlaceholders, true)
+				ClipBoard := DecodeSnippet(this.aaTemp.strLocationWithPlaceholders, true)
 				ClipWait, 0 ; SecondsToWait, specifying 0 is the same as specifying 0.5
 				intErrorLevel := ErrorLevel
 				if (intErrorLevel)
@@ -24423,7 +24658,7 @@ class Container
 			else ; snippet of type Macro
 			{
 				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
-				strTemp := DecodeSnippet(this.AA.strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
+				strTemp := DecodeSnippet(this.aaTemp.strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
 
 				Loop
 				{
