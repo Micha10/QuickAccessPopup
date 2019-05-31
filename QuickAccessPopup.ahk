@@ -3448,6 +3448,15 @@ if (g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
 IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
 IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
+; not sure it is required to have a physical file with .html extension - but keep it as is by safety
+g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
+
+Gosub, InitDynamicMenus
+
+; Build main menus
+Gosub, BuildMainMenu
+Gosub, BuildAlternativeMenu
+
 if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
 if (g_blnUseColors)
@@ -3455,6 +3464,7 @@ if (g_blnUseColors)
 
 ; Build menu used in Settings Gui
 Gosub, BuildGuiMenuBar ; must be before BuildMainMenu
+Gosub, BuildTrayMenu
 
 ; Build Settings Gui
 Gosub, BuildGui
@@ -3466,16 +3476,6 @@ Menu, Tray, UseErrorLevel
 Menu, Tray, Icon, % o_JLicons.strFileLocation, % (g_strCurrentBranch = "alpha" ? 59 : 60), 1 ; 60 is iconQAPloading, 59 is iconQAPdev (red) if loading alpha branch, last 1 to freeze icon during pause or suspend
 g_blnTrayIconError := ErrorLevel
 Menu, Tray, UseErrorLevel, Off
-
-; not sure it is required to have a physical file with .html extension - but keep it as is by safety
-g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
-
-Gosub, InitDynamicMenus
-
-; Build main menus
-Gosub, BuildMainMenu
-Gosub, BuildAlternativeMenu
-Gosub, BuildTrayMenu
 
 o_Settings.ReadIniOption("MenuAdvanced", "intRefreshQAPMenuIntervalSec", "RefreshQAPMenuIntervalSec", 0, "MenuAdvanced"
 	, "f_blnRefreshQAPMenuEnable|f_intRefreshQAPMenuIntervalSecEdit|f_intRefreshQAPMenuIntervalSec|f_lblRefreshQAPMenuIntervalSec") ; g_intRefreshQAPMenuIntervalSec
@@ -5038,6 +5038,8 @@ Menu, menuTraySettingsFileOptions, Add, % o_L["ImpExpMenu"] . "...", ImportExpor
 
 Menu, Tray, Add, % o_L["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
+Menu, Tray, Add, % o_L["MenuFile"], :menuBarFile
+Menu, Tray, Add
 Menu, Tray, Add, % L(o_L["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), ShowSettingsIniFile
 Menu, Tray, Add, % o_L["MenuSettingsFileOptions"] . "...", :menuTraySettingsFileOptions
 Menu, Tray, Add
@@ -5091,10 +5093,26 @@ BuildGuiMenuBar:
 loop, Parse, % "Main|File|Temp|Options|MoreOptions", "|"
 	new Container("Menu", "menuBar" . A_LoopField)
 
+; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 saMenuItemsTable := Object()
+saMenuItemsTable.Push(["GuiSaveAndStayFavorites", L(o_L["GuiSaveAndStayAmpersand"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCancel", o_L["GuiCancelAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCancel", L(o_L["GuiCloseAmpersand"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["ShowSettingsIniFile", L(o_L["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), "", "iconNoIcon"])
+saMenuItemsTable.Push(["SwitchSettings", o_L["MenuSwitchSettings"] . "...", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SwitchSettingsDefault", o_L["MenuSwitchSettingsDefault"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["ImportExport", o_L["ImpExpMenu"] . "...", "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["ReloadQAP", L(o_L["MenuReload"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["TrayMenuExitApp", L(o_L["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu()
+Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndStayAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Disable, % o_L["GuiCancelAmpersand"]
 
 o_Containers.AA["menuBarTemp"].LoadFavoritesFromTable([["DoNothing", "To be developped", "", "iconNoIcon"]])
 o_Containers.AA["menuBarTemp"].BuildMenu()
@@ -13113,6 +13131,11 @@ GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
 GuiControl, Disable, f_btnGuiCancel
 
+Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndStayAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Disable, % o_L["GuiCancelAmpersand"]
+Menu, menuBarFile, Enable, % L(o_L["GuiCloseAmpersand"], g_strAppNameText)
+
 g_blnWorkingToolTip := true
 o_MainMenu.SaveFavoritesToIniFile()
 
@@ -15904,7 +15927,7 @@ if SettingsUnsaved()
 }
 
 if (A_ThisLabel = "SwitchSettingsDefault")
-	g_strSwitchSettingsFile := o_Settings.strIniFile
+	g_strSwitchSettingsFile := o_Settings.strIniFileDefault
 else
 {
 	strSwitchSettingsFolder := o_Settings.ReadIniValue("SwitchSettingsFolder", A_WorkingDir)
@@ -15927,11 +15950,7 @@ if !StrLen(strIniSettingsGlobal) or !StrLen(strIniSettingsFavorite1)
 	return
 }
 
-MsgBox, 52, %g_strAppNameText%, % L(o_L["DialogSwitchSettingsReady"], g_strSwitchSettingsFile, g_strAppNameText)
-IfMsgBox, Yes
-	Gosub, ReloadQAPSwitch
-IfMsgBox, No
-	Oops(o_L["DialogSwitchSettingsCancel"], o_Settings.strIniFile)
+Gosub, ReloadQAPSwitch
 
 strSwitchSettingsFolder := ""
 strSwitchSettingsExt := ""
@@ -17241,6 +17260,11 @@ EnableSaveAndCancel:
 GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
 GuiControl, 1:, f_btnGuiCancel, % o_L["GuiCancelAmpersand"]
+
+Menu, menuBarFile, Enable, % L(o_L["GuiSaveAndStayAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Enable, % L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameText)
+Menu, menuBarFile, Enable, % o_L["GuiCancelAmpersand"]
+Menu, menuBarFile, Disable, % L(o_L["GuiCloseAmpersand"], g_strAppNameText)
 
 return
 ;------------------------------------------------------------
@@ -22085,7 +22109,8 @@ TODO
 	;---------------------------------------------------------
 	{
 		this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
-		
+		this.strIniFileDefault := this.strIniFile
+
 		this.saOptionsGroups := ["General", "SettingsWindow", "MenuIcons", "MenuAppearance"
 			, "PopupMenu", "PopupHotkeys", "PopupHotkeysAlternative", "FileManagers"
 			, "Snippets", "UserVariables", "Database"
