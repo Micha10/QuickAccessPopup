@@ -10382,7 +10382,7 @@ for intIndex, o_Item in saThisMenu
 			and !o_Item.IsSeparator() ; but make sure to keep separators
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
-	else if (saThisMenu.strFavoriteType = "X")
+	else if (o_Item.AA.strFavoriteType = "X")
 		strDropdownParentMenuItems .= g_strGuiMenuSeparator . g_strGuiMenuSeparator . "|"
 	else if (o_Item.AA.FavoriteType = "K")
 		strDropdownParentMenuItems .= g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine . "|"
