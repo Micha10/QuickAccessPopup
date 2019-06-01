@@ -5111,7 +5111,7 @@ Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameTex
 Menu, menuBarFile, Disable, % o_L["GuiCancelAmpersand"]
 
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiSortFavorites", o_L["ControlToolTipSortFavorites"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiAddFavoriteSelectType", o_L["DialogAddAmpersand"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiEditFavorite", o_L["DialogEditAmpersand"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiRemoveFavorite", o_L["GuiRemoveFavoriteAmpersand"], "", "iconNoIcon"])
@@ -5120,14 +5120,14 @@ saMenuItemsTable.Push(["GuiCopyFavorite", o_L["DialogCopyAmpersand"], "", "iconN
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiMoveFavoriteUp", o_L["ControlToolTipMoveUp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiMoveFavoriteDown", o_L["ControlToolTipMoveDown"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiSortFavorites", o_L["ControlToolTipSortFavorites"], "", "iconNoIcon"])
 o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu()
 
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiAddFavoriteSelectType", o_L["DialogAddAmpersand"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiFocusFilter", o_L["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton ???
-saMenuItemsTable.Push(["GuiFocusFilterExtended", o_L["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiFocusFilter", o_L["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
+saMenuItemsTable.Push(["FilterExtendedClick", o_L["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiHotkeysManage", o_L["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", o_L["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
@@ -8363,7 +8363,7 @@ Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOn gGuiAlwaysOnTop hidden x+1 yp, %g_st
 g_aaToolTipsMessages["Static15"] := o_L["ControlToolTipAlwaysOnTopOn"]
 Gui, 1:Add, Picture, vf_picGuiAlwaysOnTopOff gGuiAlwaysOnTop x+1 yp, %g_strTempDir%\QAP-pin-off-26_c.png ; Static16
 g_aaToolTipsMessages["Static16"] := o_L["ControlToolTipAlwaysOnTopOff"]
-Gui, 1:Add, Picture, vf_picSearch gGuiFavoritesListFilterButton x+1 yp, %g_strTempDir%\search-24_c.png ; Static17
+Gui, 1:Add, Picture, vf_picSearch gGuiFocusFilter x+1 yp, %g_strTempDir%\search-24_c.png ; Static17
 g_aaToolTipsMessages["Static17"] := o_L["ControlToolTipSearchButton"]
 
 Gui, 1:Font, s8 w400, Arial ; button legend
@@ -8378,7 +8378,7 @@ Gui, 1:Add, Text, vf_lblMenuDropdownOrSearchLabel x+1 yp, % o_L["GuiSubmenuDropd
 Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox1
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered hidden, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
-Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered hidden, % o_L["DialogExtendedSearch"] ; Button1
+Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gFilterExtendedClicked hidden, % o_L["DialogExtendedSearch"] ; Button1
 g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxExtended"]
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmptyButton x+10 yp w20 h20 hidden, X ; Button2
 g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxClear"]
@@ -8455,6 +8455,22 @@ strThisType := ""
 strThisHotkey := ""
 strExternalMenuName := ""
 strFavoriteName := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+FilterExtendedClick:
+FilterExtendedClicked:
+;------------------------------------------------------------
+Gui, 1:Submit, NoHide
+
+if (A_ThisLabel = "FilterExtendedClick")
+	GuiControl, , f_blnFavoritesListFilterExtended, % (f_blnFavoritesListFilterExtended ? 0 : 1)
+Menu, menuBarTools, ToggleCheck, % o_L["DialogExtendedSearch"]
+
+Gosub, LoadFavoritesInGuiFiltered
 
 return
 ;------------------------------------------------------------
@@ -8709,6 +8725,11 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiMoveFavoriteUp, f_picMoveFavoriteUp
 		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
 	}
+
+	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % o_L["DialogEditAmpersand"] ; edit menu only if one item is selected
+	loop, Parse, % "GuiRemoveFavoriteAmpersand|GuiMoveAmpersand|DialogCopyAmpersand|ControlToolTipMoveUp|ControlToolTipMoveDown", |
+		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable"), % o_L[A_LoopField] ; enable only if at least one item is selected
+
 }
 
 return
@@ -8717,10 +8738,7 @@ return
 
 ;------------------------------------------------------------
 GuiFocusFilter:
-GuiFocusFilterExtended:
 ;------------------------------------------------------------
-
-GuiControl, , f_blnFavoritesListFilterExtended, % (A_ThisLabel = "GuiFocusFilterExtended")
 
 gosub, GuiFavoritesListFilterShow
 
@@ -9353,7 +9371,7 @@ if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiC
 
 	if !(g_intOriginalMenuPosition)
 	{
-		Oops(o_L["DialogSelectItemToEdit"])
+		Oops(o_L[(strGuiFavoriteLabel = "GuiCopyFavorite" ? "DialogSelectItemOneOrMore" : "DialogSelectItemToEdit")])
 		g_blnAbortEdit := true
 		return
 	}
@@ -10239,6 +10257,12 @@ GuiCopyMultipleFavoritesToMenu:
 ;------------------------------------------------------------
 strGuiFavoriteLabel := A_ThisLabel
 g_intGui1WinID := WinExist("A")
+
+if (LV_GetNext() = 0)
+{
+	Oops(o_L["DialogSelectItemOneOrMore"])
+	return
+}
 
 blnMove := InStr(A_ThisLabel, "GuiMove")
 
@@ -12544,7 +12568,10 @@ strSortedRows := "" ; keep track of sorted rows to re-select only these rows
 Loop, Parse, strSelectedRows, |
 {
 	if o_MenuInGui.SA[A_LoopField].IsSeparator() ; stop at first separator
+	{
+		blnSeparatorFound := true
 		break
+	}
 	intRowsToSort++
 	strSortedRows .= saSelectedRows[A_Index] . "|"
 	aaNewOrder[GuiSortCleanFavoriteName(o_MenuInGui.SA[A_LoopField].AA.strFavoriteName)] := o_MenuInGui.SA[A_LoopField] ; add object of favorite to sort
@@ -12573,8 +12600,11 @@ if (intRowsToSort > 1) ; sort only if required
 else
 {
 	LV_Modify(0, "-Select") ; deselect all
-	LV_Modify(intFirstSelectedRow, "Select") ; re-select first selected
+	LV_Modify((intFirstSelectedRow ? intFirstSelectedRow : 1), "Select") ; re-select first selected
 }
+
+if (blnSeparatorFound)
+	Oops(o_L["OopsSortUpToSeparator"])
 
 intFirstSelectedRow := ""
 objExternalMenu := ""
@@ -12586,6 +12616,7 @@ intRowsToSort := ""
 strSortedRows := ""
 strThisName := ""
 o_Item := ""
+blnSeparatorFound := ""
 
 return
 ;------------------------------------------------------------
