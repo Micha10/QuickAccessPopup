@@ -3439,7 +3439,7 @@ if (g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
 	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
 {
 	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
-		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"]), g_strAppNameText, intStartups)
+		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"] . " " . o_L["DonateCheckPrompt5"]), g_strAppNameText, intStartups)
 	IfMsgBox, Yes
 		Gosub, GuiDonate
 }
@@ -5038,30 +5038,26 @@ Menu, menuTraySettingsFileOptions, Add, % o_L["ImpExpMenu"] . "...", ImportExpor
 
 Menu, Tray, Add, % o_L["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuFile"], :menuBarFile
-Menu, Tray, Add
-Menu, Tray, Add, % L(o_L["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), ShowSettingsIniFile
-Menu, Tray, Add, % o_L["MenuSettingsFileOptions"] . "...", :menuTraySettingsFileOptions
+Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], UpdateRunAtStartup ; function UpdateRunAtStartup replaces RunAtStartup
 Menu, Tray, Add
 Menu, Tray, Add, % L(o_L["MenuReload"], g_strAppNameText), ReloadQAP
 Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuRefreshMenu"], RefreshQAPMenu
+Menu, Tray, Add, % o_L["MenuFile"], :menuBarFile
+Menu, Tray, Add, % o_L["MenuFavorite"], :menuBarFavorite
+Menu, Tray, Add, % o_L["MenuTools"], :menuBarTools
+Menu, Tray, Add, % o_L["MenuOptions"], :menuBarOptions
+Menu, Tray, Add, % o_L["MenuHelp"], :menuBarHelp
+if (!o_Settings.Launch.blnDonor.IniValue)
+{
+	Menu, Tray, Add
+	Menu, Tray, Add, % o_L["GuiDonate"], GuiDonate
+}
+;@Ahk2Exe-IgnoreBegin
+; Start of code for developement phase only - won't be compiled
 Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], UpdateRunAtStartup ; function UpdateRunAtStartup replaces RunAtStartup
-Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuSuspendHotkeys"], SuspendHotkeys
-Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuRestoreSettingsWindowPosition"], GuiShowRestoreDefaultPosition
-Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuUpdateAmpersand"], Check4Update
-Menu, Tray, Add, % o_L["MenuOpenWorkingDirectory"], OpenWorkingDirectory
-Menu, Tray, Add, % o_L["MenuWebSiteSupport"], OpenWebSiteSupport
-Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuHelp"], GuiHelp
-Menu, Tray, Add, % o_L["MenuAboutAmpersand"], GuiAbout
-Menu, Tray, Add, % o_L["GuiDonate"], GuiDonate
-Menu, Tray, Add
-Menu, Tray, Add, % L(o_L["MenuExitApp"], g_strAppNameText), TrayMenuExitApp
+; / End of code for developement phase only - won't be compiled
+;@Ahk2Exe-IgnoreEnd
+
 Menu, Tray, Default, % o_L["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
@@ -5090,7 +5086,7 @@ BuildGuiMenuBar:
 ; see https://docs.microsoft.com/fr-fr/windows/desktop/uxguide/cmd-menus
 ;------------------------------------------------------------
 
-loop, Parse, % "Main|File|Temp|Options|MoreOptions", "|"
+loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 	new Container("Menu", "menuBar" . A_LoopField)
 
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
@@ -5114,9 +5110,36 @@ Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndStayAmpersand"], g_strAppNameText
 Menu, menuBarFile, Disable, % L(o_L["GuiSaveAndCloseAmpersand"], g_strAppNameText)
 Menu, menuBarFile, Disable, % o_L["GuiCancelAmpersand"]
 
-o_Containers.AA["menuBarTemp"].LoadFavoritesFromTable([["DoNothing", "To be developped", "", "iconNoIcon"]])
-o_Containers.AA["menuBarTemp"].BuildMenu()
-; Menu, % o_Containers.AA["menuBarTemp"].AA.strMenuPath, Show
+saMenuItemsTable := Object()
+saMenuItemsTable.Push(["GuiSortFavorites", o_L["ControlToolTipSortFavorites"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiEditFavorite", o_L["DialogEditAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiRemoveFavorite", o_L["GuiRemoveFavoriteAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiMoveFavoriteToMenu", o_L["GuiMoveAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCopyFavorite", o_L["DialogCopyAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiMoveFavoriteUp", o_L["ControlToolTipMoveUp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiMoveFavoriteDown", o_L["ControlToolTipMoveDown"], "", "iconNoIcon"])
+o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
+o_Containers.AA["menuBarFavorite"].BuildMenu()
+
+saMenuItemsTable := Object()
+saMenuItemsTable.Push(["GuiAddFavoriteSelectType", o_L["DialogAddAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiFocusFilter", o_L["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton ???
+saMenuItemsTable.Push(["GuiFocusFilterExtended", o_L["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiHotkeysManage", o_L["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", o_L["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiIconsManage", o_L["DialogIconsManage"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["RefreshQAPMenu", o_L["MenuRefreshMenu"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["SuspendHotkeys", o_L["MenuSuspendHotkeys"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", o_L["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+ saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiAlwaysOnTop", o_L["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
+o_Containers.AA["menuBarTools"].BuildMenu()
 
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiOptionsGroupMenuAdvanced", o_L["OptionsMenuAdvanced"], "", "iconNoIcon"])
@@ -5147,14 +5170,47 @@ saMenuItemsTable.Push(["X", "", "", ""])
 o_Containers.AA["menuBarOptions"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarOptions"].BuildMenu()
 
+saMenuItemsTable := Object()
+saMenuItemsTable.Push(["GuiHelp", o_L["MenuHelp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["Check4Update", o_L["MenuUpdateAmpersand"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["HelpQuickStart", o_L["HelpMenuQuickStart"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["HelpKnowledgeBase", o_L["HelpMenuKnowledgeBase"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["HelpSupportForum", o_L["HelpMenuSupportForum"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiHotkeysHelpClicked", o_L["GuiHotkeysHelp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiDropFilesHelpClicked", o_L["GuiDropFilesHelp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiDonate", o_L["GuiDonate"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiAbout", o_L["MenuAboutAmpersand"], "", "iconNoIcon"])
+o_Containers.AA["menuBarHelp"].LoadFavoritesFromTable(saMenuItemsTable)
+o_Containers.AA["menuBarHelp"].BuildMenu()
+
 ; done here because LoadFavoritesFromTable does not support submenus yet (impact: no numeric shortcut on these items)
 Menu, menuBarOptions, Add, % o_L["OptionsMoreOptions"], :menuBarMoreOptions
 Menu, menuBar, Add, % o_L["MenuFile"], :menuBarFile
-Menu, menuBar, Add, % o_L["MenuInsert"], :menuBarTemp
-Menu, menuBar, Add, % o_L["MenuFavorite"], :menuBarTemp
-Menu, menuBar, Add, % o_L["MenuTools"], :menuBarTemp
+Menu, menuBar, Add, % o_L["MenuFavorite"], :menuBarFavorite
+Menu, menuBar, Add, % o_L["MenuTools"], :menuBarTools
 Menu, menuBar, Add, % o_L["MenuOptions"], :menuBarOptions
-Menu, menuBar, Add, % o_L["MenuHelp"], :menuBarTemp
+Menu, menuBar, Add, % o_L["MenuHelp"], :menuBarHelp
+
+return
+;------------------------------------------------------------
+
+;------------------------------------------------------------
+HelpQuickStart:
+HelpKnowledgeBase:
+HelpSupportForum:
+;------------------------------------------------------------
+
+if (A_ThisLabel = "HelpQuickStart")
+	Run, https://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/
+else if (A_ThisLabel = "HelpKnowledgeBase")
+	Run, https://www.quickaccesspopup.com/frequently-asked-questions/
+else if (A_ThisLabel = "HelpSupportForum")
+	Run, https://forum.quickaccesspopup.com
 
 return
 ;------------------------------------------------------------
@@ -8323,9 +8379,9 @@ Gui, 1:Add, DropDownList, vf_drpMenusList gGuiMenusListChanged x0 y+1 ; ComboBox
 
 Gui, 1:Add, Edit, vf_strFavoritesListFilter r1 gLoadFavoritesInGuiFiltered hidden, % o_L["DialogSearch"] ; Edit1 (EditN controls do not support tooltips)
 Gui, 1:Add, Checkbox, vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered hidden, % o_L["DialogExtendedSearch"] ; Button1
-g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxExtended"]
+g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxExtended"]
 Gui, 1:Add, Button, vf_btnFavoritesListNoFilter gGuiFavoritesListFilterEmptyButton x+10 yp w20 h20 hidden, X ; Button2
-g_aaToolTipsMessages["Button1"] := o_L["ControlToolTipSearchBoxClear"]
+g_aaToolTipsMessages["Button2"] := o_L["ControlToolTipSearchBoxClear"]
 Gui, 1:Add, ListView
 	, % "vf_lvFavoritesList Count32 AltSubmit NoSortHdr LV0x10 " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListEvents x+1 yp"
 	, % o_L["GuiLvFavoritesHeader"] ; SysHeader321 / SysListView321
@@ -8570,9 +8626,11 @@ GuiAlwaysOnTop:
 ;------------------------------------------------------------
 
 g_Gui1AlwaysOnTop := !g_Gui1AlwaysOnTop
+
 WinSet, AlwaysOnTop, % (g_Gui1AlwaysOnTop ? "On" : "Off"), % L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion) ; do not use default Toogle for safety
 GuiControl, % (g_Gui1AlwaysOnTop ? "Show" : "Hide"), f_picGuiAlwaysOnTopOn
 GuiControl, % (g_Gui1AlwaysOnTop ? "Hide" : "Show"), f_picGuiAlwaysOnTopOff
+Menu, menuBarTools, ToggleCheck, % o_L["ControlToolTipAlwaysOnTopOff"]
 
 return
 ;------------------------------------------------------------
@@ -8658,6 +8716,26 @@ return
 
 
 ;------------------------------------------------------------
+GuiFocusFilter:
+GuiFocusFilterExtended:
+;------------------------------------------------------------
+
+GuiControl, , f_blnFavoritesListFilterExtended, % (A_ThisLabel = "GuiFocusFilterExtended")
+
+gosub, GuiFavoritesListFilterShow
+
+GuiControl, 1:Focus, f_strFavoritesListFilter
+if (g_blnFavoritesListFilterNeverFocused)
+{
+	GuiControl, 1:, f_strFavoritesListFilter, % ""
+	g_blnFavoritesListFilterNeverFocused := false
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiFavoritesListFilteredEvents:
 ;------------------------------------------------------------
 
@@ -8673,6 +8751,7 @@ return
 
 ;------------------------------------------------------------
 GuiFavoritesListFilterButton:
+GuiFavoritesListFilterShow:
 GuiFavoritesListFilterHide:
 ;------------------------------------------------------------
 
@@ -8682,7 +8761,7 @@ if (A_ThisLabel = "GuiFavoritesListFilterButton")
 	g_blnFilterVisible := !g_blnFilterVisible ; reverse visible state
 }
 else ; GuiFavoritesListFilterHide
-	g_blnFilterVisible := false ; force hide
+	g_blnFilterVisible := (A_ThisLabel = "GuiFavoritesListFilterShow" ? true : false) ; show else hide
 
 strShowHideCommand := (g_blnFilterVisible ? "Hide" : "Show")
 GuiControl, %strShowHideCommand%, f_drpMenusList
@@ -10998,21 +11077,6 @@ GuiAddFavoriteCancel:
 
 Gosub, GuiAddFavoriteFlush
 Gosub, 2GuiClose
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GuiFocusFilter:
-;------------------------------------------------------------
-
-GuiControl, 1:Focus, f_strFavoritesListFilter
-if (g_blnFavoritesListFilterNeverFocused)
-{
-	GuiControl, 1:, f_strFavoritesListFilter, % ""
-	g_blnFavoritesListFilterNeverFocused := false
-}
 
 return
 ;------------------------------------------------------------
@@ -15601,6 +15665,7 @@ else
 	Suspend, On
 
 Menu, Tray, % (A_IsSuspended ? "check" : "uncheck"), % o_L["MenuSuspendHotkeys"]
+Menu, menuBarTools, ToggleCheck, % o_L["MenuSuspendHotkeys"]
 
 return
 ;------------------------------------------------------------
@@ -16332,7 +16397,7 @@ loop, Parse, % "1|2|3|4", |
 ; Gui, 2:Add, Button, y+10 Default xm w150 gButtonDonate1, % o_L["DonatePlatformName1"]
 ; Gui, 2:Add, Link, x+10 w235 yp, % o_L["DonatePlatformComment1"]
 
-Gui, 2:Add, Link, xm y+15 w420, % L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt4"])
+Gui, 2:Add, Link, xm y+15 w420, % L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt4"] . " " . o_L["DonateCheckPrompt5"])
 
 Gui, 2:Font, s10 w700, Verdana
 Gui, 2:Add, Link, xm y+20 w420, % o_L["DonateText3"]
