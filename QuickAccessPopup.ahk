@@ -24673,9 +24673,6 @@ class Container
 		OpenGroup()
 		;---------------------------------------------------------
 		{
-			this.aaTemp.strTargetWinId := "" ; never use target window when launched in a group
-			this.aaTemp.strHotkeyTypeDetected := "Launch" ; all favorites in group are for Launch, never navigate
-
 			if (this.AA.blnGroupReplaceWindows) ; was g_blnGroupReplaceWindows
 				gosub, OpenGroupOfFavoritesCloseExplorers
 				
@@ -24689,7 +24686,9 @@ class Container
 					o_GroupMember.aaTemp.blnFirstFolderOfGroup := (intFolderItemsCount = 1) ; was g_blnFirstFolderOfGroup
 
 					Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
-					o_GroupMember.OpenFavorite()
+					o_GroupMember.OpenFavorite(this.aaTemp.strMenuTriggerLabel, this.aaTemp.strOpenFavoriteLabel
+						, "" ; never use target window when launched in a group
+						, "Launch") ; all favorites in group are for Launch, never navigate
 				}
 			}
 		}
