@@ -15692,7 +15692,6 @@ if (A_IsSuspended)
 else
 	Suspend, On
 
-Menu, Tray, % (A_IsSuspended ? "check" : "uncheck"), % o_L["MenuSuspendHotkeys"]
 Menu, menuBarTools, ToggleCheck, % o_L["MenuSuspendHotkeys"]
 
 return
