@@ -5032,11 +5032,6 @@ return
 BuildTrayMenu:
 ;------------------------------------------------------------
 
-Menu, menuTraySettingsFileOptions, Add, % o_L["MenuSwitchSettings"] . "...", SwitchSettings
-Menu, menuTraySettingsFileOptions, Add, % o_L["MenuSwitchSettingsDefault"], SwitchSettingsDefault
-Menu, menuTraySettingsFileOptions, Add
-Menu, menuTraySettingsFileOptions, Add, % o_L["ImpExpMenu"] . "...", ImportExport
-
 Menu, Tray, Add, % o_L["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
 if (g_blnPortableMode)
@@ -5197,6 +5192,8 @@ Menu, menuBar, Add, % o_L["MenuFavorite"], :menuBarFavorite
 Menu, menuBar, Add, % o_L["MenuTools"], :menuBarTools
 Menu, menuBar, Add, % o_L["MenuOptions"], :menuBarOptions
 Menu, menuBar, Add, % o_L["MenuHelp"], :menuBarHelp
+
+ToolTip ; close menu building tooltip
 
 return
 ;------------------------------------------------------------
@@ -6065,7 +6062,7 @@ If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander sett
 	
 	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded) ; RECURSIVE
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
-	Tooltip
+	ToolTip
 }
 
 Diag(A_ThisLabel, "", "STOP")
@@ -6123,7 +6120,7 @@ If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favor
 	}
 	
 	o_Containers.AA[o_L["DOpusMenuName"]].BuildMenu() ; recurse for submenus
-	Tooltip
+	ToolTip
 }
 else
 	o_Containers.AA[o_L["DOpusMenuName"]].AddMenuIcon(o_L["DialogNone"], "GuiShowNeverCalled", "iconNoContent", false) ; will never be called because disabled
@@ -6233,7 +6230,7 @@ global g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs m
 ; RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
 o_MainMenu.BuildMenu() ; recurse for submenus
 if (g_blnWorkingToolTip)
-	Tooltip
+	ToolTip
 
 return
 ;------------------------------------------------------------
@@ -7489,7 +7486,7 @@ loop, Parse, % strSettingsGroupPrev . "|" . g_strSettingsGroup, |
 			for intControlKey, strGuiControl in StrSplit(aaIniValue.strGuiControls, "|")
 				if StrLen(strGuiControl)
 					GuiControl, % (A_LoopField = strSettingsGroupPrev ? "Hide" : "Show"), %strGuiControl%
-Tooltip
+ToolTip
 
 GuiControl, , f_lblOptionsGuiTitle, % L(o_L["Options" . g_strSettingsGroup] . " - " . o_L["OptionsGuiTitle"], g_strAppNameText)
 
@@ -14658,7 +14655,7 @@ OpenGroupOfFavoritesCloseExplorers:
 ;------------------------------------------------------------
 
 intSleepTime := 67 ; for visual effect only...
-Tooltip, % o_L["GuiGroupClosing"]
+ToolTip, % o_L["GuiGroupClosing"]
 
 if (g_arrGroupSettingsOpen2 = "Other")
 {
@@ -14702,7 +14699,7 @@ else ; g_arrGroupSettingsOpen2 = "Windows Explorer" or ""
 	}
 }
 
-Tooltip ; clear tooltip
+ToolTip ; clear tooltip
 
 intSleepTime := ""
 strWindowsId := ""
@@ -19788,8 +19785,12 @@ ToggleRunAtStartup(blnForce := -1)
 ; blnForce: -1 toggle, 0 disable, 1 enable
 ;------------------------------------------------------------
 {
+	if (blnForce = o_L["MenuRunAtStartupAmpersand"])
+	; because function as Tray menu command puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+		blnForce := -1
+	
 	if (g_blnPortableMode)
-		blnValueBefore := FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
+		blnValueBefore := StrLen(FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")) ; convert file attribute to numeric (boolean) value
 	else
 		blnValueBefore := RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
 
@@ -20554,8 +20555,8 @@ class Triggers.MouseButtons
 			if StrLen(this.strKey) ; localize system key names
 			{
 				strSystemKeyNames := "sc15D|AppsKey|Space|Enter|Escape"
-				saLocalizedKeyNames := StrSplit(o_L["DialogMenuKey"] . "|" . o_L["DialogMenuKey"] . "|" . o_L["TooltipSnippetWaitSpace"]
-					. "|" . o_L["TooltipSnippetWaitEnter"] . "|" . o_L["TooltipSnippetWaitEscape"], "|")
+				saLocalizedKeyNames := StrSplit(o_L["DialogMenuKey"] . "|" . o_L["DialogMenuKey"] . "|" . o_L["ToolTipSnippetWaitSpace"]
+					. "|" . o_L["ToolTipSnippetWaitEnter"] . "|" . o_L["ToolTipSnippetWaitEscape"], "|")
 				Loop, Parse, strSystemKeyNames, |
 					if (this.strKey = A_LoopField)
 						this.strKey := saLocalizedKeyNames[A_Index]
@@ -22296,7 +22297,8 @@ TODO
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		; ### to disabe validation because validation does not support exteneded class IniValueExclusionMouseList
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22369,7 +22371,8 @@ TODO
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		; ### to disabe validation because validation does not support exteneded class IniValueExclusionMouseList
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22676,7 +22679,7 @@ class Container
 			s_strIniFile := o_Settings.strIniFile
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
+			ToolTip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 		
 		if (this.AA.strMenuType = "External")
 		{
@@ -22788,7 +22791,7 @@ class Container
 		static s_intIniLineLoadTC := 1
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
+			ToolTip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 		
 		Loop
 		{
@@ -23011,7 +23014,7 @@ class Container
 		intMenuItemsCount := 0 ; counter of items in this menu
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipBuilding"] . "`n" . this.AA.strMenuPath
+			ToolTip, % o_L["ToolTipBuilding"] . "`n" . this.AA.strMenuPath
 		
 		Loop, % this.SA.MaxIndex()
 		{
@@ -23724,7 +23727,7 @@ class Container
 		}
 		
 		if (g_blnWorkingToolTip)
-			Tooltip, % o_L["ToolTipSaving"] . "`n" . this.AA.strMenuPath
+			ToolTip, % o_L["ToolTipSaving"] . "`n" . this.AA.strMenuPath
 		
 		for intKey, oItem in this.SA
 		{
@@ -24748,8 +24751,8 @@ class Container
 					, (InStr(this.AA.strSnippetPrompt, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
 					, (InStr(this.AA.strSnippetPrompt, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 				ToolTip, % L((StrLen(this.aaTemp.strSnippetPromptExpanded) ? this.aaTemp.strSnippetPromptExpanded . "`n" : "")
-					. (this.AA.blnSnippetMacroMode = 1 ? o_L["TooltipSnippetWaitMacro"] : o_L["TooltipSnippetWaitText"])
-						, o_L["TooltipSnippetWaitEnter"], o_L["TooltipSnippetWaitSpace"], strWaitTime, o_L["TooltipSnippetWaitEscape"])
+					. (this.AA.blnSnippetMacroMode = 1 ? o_L["ToolTipSnippetWaitMacro"] : o_L["ToolTipSnippetWaitText"])
+						, o_L["ToolTipSnippetWaitEnter"], o_L["ToolTipSnippetWaitSpace"], strWaitTime, o_L["ToolTipSnippetWaitEscape"])
 				Input, strTemp, T%strWaitTime%, {Enter}{Space}{Escape}
 				strErrorLevel := ErrorLevel
 				ToolTip
@@ -24835,7 +24838,7 @@ class Container
 								strOptions := Trim(saOptions[2] . " " . saOptions[3] . " " . saOptions[4])
 								if !InStr(strOptions, "D")
 									strOptions .= " D"
-								ToolTip, % L(o_L["TooltipSnippetKeyWait"], saOptions[1])
+								ToolTip, % L(o_L["ToolTipSnippetKeyWait"], saOptions[1])
 								if InStr(strOptions, "B")
 									SoundBeep
 								KeyWait, % saOptions[1], %strOptions%
