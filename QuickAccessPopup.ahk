@@ -3434,20 +3434,6 @@ if (A_IsAdmin and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 intStartups := o_Settings.ReadIniValue("Startups", 1)
 strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod")), 0.0)
 
-; Sponsor message when launching a prod release for the first time and user is not a sponsor
-if (g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
-	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
-{
-	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
-		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"] . " " . o_L["DonateCheckPrompt5"]), g_strAppNameText, intStartups)
-	IfMsgBox, Yes
-		Gosub, GuiDonate
-}
-
-; after sponsor message, we can update these values in ini file
-IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
-IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
-
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
@@ -3470,6 +3456,21 @@ Gosub, BuildTrayMenu
 Gosub, BuildGui
 if (o_Settings.Launch.blnCheck4Update.IniValue) ; must be after BuildGui
 	Gosub, Check4Update
+
+; Must be after BuildGui
+; Sponsor message when launching a portable prod release for the first time and user is not a sponsor
+if (g_blnPortableMode and g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
+	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
+{
+	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
+		, % L(o_L["DonateCheckPrompt"] . "`n`n" . L(o_L["DonateCheckPrompt2"], o_L["DonateCheckPrompt3"] . " " . o_L["DonateCheckPrompt5"]), g_strAppNameText, intStartups)
+	IfMsgBox, Yes
+		Gosub, GuiDonate
+}
+
+; after sponsor message, we can update these values in ini file
+IniWrite, % (intStartups + 1), % o_Settings.strIniFile, Global, Startups
+IniWrite, %g_strCurrentVersion%, % o_Settings.strIniFile, Global, % "LastVersionUsed" . (g_strCurrentBranch = "alpha" ? "Alpha" : (g_strCurrentBranch = "beta" ? "Beta" : "Prod"))
 
 ; now that the Gui is built, temporary change the tray icon to loading icon
 Menu, Tray, UseErrorLevel
@@ -5038,10 +5039,11 @@ Menu, menuTraySettingsFileOptions, Add, % o_L["ImpExpMenu"] . "...", ImportExpor
 
 Menu, Tray, Add, % o_L["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
-Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], UpdateRunAtStartup ; function UpdateRunAtStartup replaces RunAtStartup
-Menu, Tray, Add
-Menu, Tray, Add, % L(o_L["MenuReload"], g_strAppNameText), ReloadQAP
-Menu, Tray, Add
+if (g_blnPortableMode)
+{
+	Menu, Tray, Add, % o_L["MenuRunAtStartupAmpersand"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
+	Menu, Tray, Add
+}
 Menu, Tray, Add, % o_L["MenuFile"], :menuBarFile
 Menu, Tray, Add, % o_L["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % o_L["MenuTools"], :menuBarTools
@@ -5226,7 +5228,7 @@ strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitc
 	. "|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders|MenuRecentFolders|MenuRecentFiles"
 
 loop, Parse, strMenuToInit, "|"
-	new Container("Menu", o_L[A_LoopField], "", "", true) ; last parameter true for blnDynamic
+	new Container("Menu", o_L[A_LoopField], "", "init", true) ; last parameter true for blnDynamic
 
 strPopularMenusFoldersAndFiles := ""
 
@@ -6439,7 +6441,7 @@ Gosub, GuiOptionsHeader
 
 ; RunAtStartup
 Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsTab3X% vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRunAtStartup"]
-if (g_blnPortableMode) ; get value from existence of stratup file shortcut
+if (g_blnPortableMode) ; get value from existence of startup file shortcut
 	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
 else ; setup mode, get value form current user registry
 	GuiControl, , f_blnOptionsRunAtStartup, % (RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText) ? 1 : 0)
@@ -7061,7 +7063,7 @@ g_blnMenuReady := false
 
 ; === General ===
 
-UpdateRunAtStartup()
+ToggleRunAtStartup(f_blnOptionsRunAtStartup)
 
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
@@ -19782,26 +19784,33 @@ RemoveRegistry(strKeyName, strValueName)
 
 
 ;------------------------------------------------------------
-UpdateRunAtStartup()
+ToggleRunAtStartup(blnForce := -1)
+; blnForce: -1 toggle, 0 disable, 1 enable
 ;------------------------------------------------------------
 {
-	Menu, Tray, Togglecheck, % o_L["MenuRunAtStartupAmpersand"]
+	if (g_blnPortableMode)
+		blnValueBefore := FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
+	else
+		blnValueBefore := RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+
+	blnValueAfter := (blnForce = -1 ? !blnValueBefore : blnForce)
+	
+	Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % o_L["MenuRunAtStartupAmpersand"]
 
 	if (g_blnPortableMode)
-		
+	{
 		; Startup code adapted from Avi Aryan Ryan in Clipjump
 		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-		else
+		if (blnValueAfter)
 			Gosub, CreateStartupShortcut
-
+	}
 	else ; setup mode
 
-		if RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-			RemoveRegistry("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-		else
+		if (blnValueAfter)
 			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-
+		else
+			RemoveRegistry("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
 }
 ;------------------------------------------------------------
 
@@ -20322,7 +20331,7 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -20407,7 +20416,7 @@ class Triggers.MouseButtons
 		;-----------------------------------------------------
 		{
 			;---------------------------------------------------------
-			###__Call(function, parameters*)
+			__Call(function, parameters*)
 			; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 			{
 				funcRef := Func(funcName := this.__class "." function)
@@ -20479,7 +20488,7 @@ class Triggers.MouseButtons
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -21870,7 +21879,7 @@ FAVORITE TYPES REPLACED
 ;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
-	###__Call(function, parameters*)
+	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -21916,7 +21925,7 @@ FAVORITE TYPES REPLACED
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22185,7 +22194,7 @@ TODO
 ;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
-	###__Call(function, parameters*)
+	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -22287,7 +22296,7 @@ TODO
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22360,7 +22369,7 @@ TODO
 	;---------------------------------------------------------
 	{
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
@@ -22505,7 +22514,7 @@ class Containers
 	AA := Object() ; replace g_objMenusIndex, associative array of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	
 	;---------------------------------------------------------
-	###__Call(function, parameters*)
+	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -22536,7 +22545,7 @@ class Container
 	static s_intMenuShortcutNumber
 	
 	;---------------------------------------------------------
-	###__Call(function, parameters*)
+	__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -23905,7 +23914,7 @@ class Container
 		AA := Object() ; associative array for item's properties
 		
 		;---------------------------------------------------------
-		###__Call(function, parameters*)
+		__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
