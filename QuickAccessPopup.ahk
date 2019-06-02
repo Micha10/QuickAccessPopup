@@ -7441,8 +7441,9 @@ g_intOptionsFooterY += 20 ; place buttons below highest options group
 
 Gui, 2:Add, Button, x10 y%g_intOptionsFooterY% vf_btnOptionsSave gGuiOptionsGroupSave disabled Default, % o_L["GuiSaveAmpersand"]
 Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % o_L["GuiCancelAmpersand"]
-Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButtonAmpersand"]
-GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", "f_btnOptionsDonate")
+if (!o_Settings.Launch.blnDonor.IniValue)
+	Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButtonAmpersand"]
+GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", (!o_Settings.Launch.blnDonor.IniValue ? "f_btnOptionsDonate" : ""))
 
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
@@ -14019,10 +14020,14 @@ else if WindowIsToMenuDialogBox(strThisTitle)
 }
 strThisTitle := ""
 
-if (g_intLnkWhySponsorWidth) ; resizing GuiDonate
+; resizing GuiDonate
+if (g_intLnkWhySponsorWidth) 
 	GuiControl, 2:Move, f_lnkWhySponsor, % "x" . (A_GuiWidth - g_intLnkWhySponsorWidth) // 2
 
+if (g_intLnkSendLink) ; resizing GuiDonate
+	GuiControl, 2:Move, f_lnkSendLink, % "x" . (A_GuiWidth - g_intLnkSendLink) // 2
 g_intLnkWhySponsorWidth := ""
+g_intLnkSendLink := ""
 
 return
 ;------------------------------------------------------------
@@ -16444,7 +16449,9 @@ loop, 3
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . o_L["DonateReviewNameRight" . A_Index] . "</a>"
 
-Gui, 2:Add, Link, y+10 x130, % "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["DonateText5"] . "</a>"
+Gui, 2:Add, Link, y+10 x10 vf_lnkSendLink, % "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["DonateText5"] . "</a>"
+GuiControlGet, arrPos, Pos, f_lnkSendLink
+g_intLnkSendLink := arrPosW
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, % o_L["GuiCloseAmpersand"]
@@ -17974,26 +17981,31 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 	Gui, Show, Hide ; why?
 	WinGetPos, , , intWidth, , %strWindow%
 
+	; find largest control height and width
 	intMaxControlWidth := 0
 	intMaxControlHeight := 0
+	intNbControls := 0
 	for intIndex, strControl in arrControls
-	{
-		GuiControlGet, arrControlPos, Pos, %strControl%
-		if (arrControlPosW > intMaxControlWidth)
-			intMaxControlWidth := arrControlPosW
-		if (arrControlPosH > intMaxControlHeight)
-			intMaxControlHeight := arrControlPosH
-	}
+		if StrLen(strControl) ; avoid emtpy control names
+		{
+			intNbControls+ +; use instead of arrControls.MaxIndex() in case we get empty control names
+			GuiControlGet, arrControlPos, Pos, %strControl%
+			if (arrControlPosW > intMaxControlWidth)
+				intMaxControlWidth := arrControlPosW
+			if (arrControlPosH > intMaxControlHeight)
+				intMaxControlHeight := arrControlPosH
+		}
 	
 	intMaxControlWidth := intMaxControlWidth + intInsideHorizontalMargin
-	intButtonsWidth := (arrControls.MaxIndex() * intMaxControlWidth) + ((arrControls.MaxIndex()  - 1) * intDistanceBetweenButtons)
+	intButtonsWidth := (intNbControls * intMaxControlWidth) + ((intNbControls  - 1) * intDistanceBetweenButtons)
 	intLeftMargin := (intWidth - intButtonsWidth) // 2
 
 	for intIndex, strControl in arrControls
-		GuiControl, Move, %strControl%
-			, % "x" . intLeftMargin + ((intIndex - 1) * intMaxControlWidth) + ((intIndex - 1) * intDistanceBetweenButtons)
-			. " w" . intMaxControlWidth
-			. " h" . intMaxControlHeight + intInsideVerticalMargin
+		if StrLen(strControl) ; avoid emtpy control names
+			GuiControl, Move, %strControl%
+				, % "x" . intLeftMargin + ((intIndex - 1) * intMaxControlWidth) + ((intIndex - 1) * intDistanceBetweenButtons)
+				. " w" . intMaxControlWidth
+				. " h" . intMaxControlHeight + intInsideVerticalMargin
 }
 ;------------------------------------------------------------
 
