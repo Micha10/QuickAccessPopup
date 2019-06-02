@@ -3556,9 +3556,6 @@ If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 	}
 }
 
-if !(g_blnPortableMode) and RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-	Menu, Tray, Check, % o_L["MenuRunAtStartupAmpersand"]
-
 ; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
 IfExist, %A_Startup%\FoldersPopup.lnk
 	FileDelete, %A_Startup%\FoldersPopup.lnk
@@ -8469,6 +8466,7 @@ if (A_ThisLabel = "FilterExtendedClick")
 	GuiControl, , f_blnFavoritesListFilterExtended, % (f_blnFavoritesListFilterExtended ? 0 : 1)
 Menu, menuBarTools, ToggleCheck, % o_L["DialogExtendedSearch"]
 
+Gosub, GuiFocusFilter
 Gosub, LoadFavoritesInGuiFiltered
 
 return
@@ -19795,11 +19793,11 @@ ToggleRunAtStartup(blnForce := -1)
 		blnValueBefore := RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
 
 	blnValueAfter := (blnForce = -1 ? !blnValueBefore : blnForce)
-	
-	Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % o_L["MenuRunAtStartupAmpersand"]
 
 	if (g_blnPortableMode)
 	{
+		Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % o_L["MenuRunAtStartupAmpersand"]
+		
 		; Startup code adapted from Avi Aryan Ryan in Clipjump
 		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
