@@ -3609,7 +3609,9 @@ Hotkey, If
 if (g_blnUsageDbEnabled)
 	SetTimer, UsageDbCollectMenuData, % (o_Settings.Database.intUsageDbIntervalSeconds.IniValue * 1000), -100 ; delay before repeating UsageDbCollectMenuData / priority -100 (not sure?)
 
-gosub, GuiShow ; #####
+if (o_Settings.SettingsWindow.blnDisplaySettingsStartup.IniValue)
+	gosub, GuiShow
+
 return
 
 ;========================================================================================================================
@@ -4263,6 +4265,7 @@ global g_blnUseColors := (o_Settings.Launch.strTheme.IniValue <> "Windows")
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 
 ; Group SettingsWindow
+o_Settings.ReadIniOption("SettingsWindow", "blnDisplaySettingsStartup", "DisplaySettingsStartup", 1, "SettingsWindow", "f_blnDisplaySettingsStartup")
 o_Settings.ReadIniOption("SettingsWindow", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "SettingsWindow", "f_blnRememberSettingsPosition") ; g_blnRememberSettingsPosition
 o_Settings.ReadIniOption("SettingsWindow", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "SettingsWindow", "f_blnOpenSettingsOnActiveMonitor") ; g_blnOpenSettingsOnActiveMonitor
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", "f_lblAddAutoAtTop|f_blnAddAutoAtTop0|f_blnAddAutoAtTop1") ; g_blnAddAutoAtTop
@@ -4364,7 +4367,7 @@ o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly"
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
 o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0)
-o_Settings.ReadIniOption("Launch", "strSponsor", "Sponsor", " ")
+o_Settings.ReadIniOption("Launch", "strSponsorName", "Sponsor", " ")
 Gosub, ProcessSponsorName
 
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
@@ -4415,10 +4418,10 @@ ProcessSponsorName:
 if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
 ; donor code need to be updated
 	g_SponsoredMessage := "<a id=""update"">" . o_L["SponsoredUpdate"] . "</a>"
-else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsor.IniValue . g_strEscapePipe, true), 13, 8))
+else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsorName.IniValue . g_strEscapePipe, true), 13, 8))
 ; donor code matching the sponsor name
 {
-	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsor.IniValue)
+	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsorName.IniValue)
 	o_Settings.Launch.blnDonor.IniValue := 1 ; boolean value used later
 }
 else
@@ -5056,7 +5059,7 @@ Menu, Tray, Default, % o_L["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
-	. (o_Settings.Launch.blnDonor.IniValue ? L(o_L["DonateThankyou"], o_Settings.Launch.strSponsor.IniValue) : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
+	. (o_Settings.Launch.blnDonor.IniValue ? L(o_L["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : o_L["DonateButtonAmpersand"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -5177,6 +5180,7 @@ saMenuItemsTable.Push(["GuiHotkeysHelpClicked", o_L["GuiHotkeysHelp"], "", "icon
 saMenuItemsTable.Push(["GuiDropFilesHelpClicked", o_L["GuiDropFilesHelp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiDonate", o_L["GuiDonate"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiDonateCodeInput", o_L["GuiDonateCodeInput"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiAbout", o_L["MenuAboutAmpersand"], "", "iconNoIcon"])
 o_Containers.AA["menuBarHelp"].LoadFavoritesFromTable(saMenuItemsTable)
@@ -6426,6 +6430,8 @@ GuiOptionsGroupAdvancedOther:
 
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
+if !StrLen(o_MenuInGui.AA.strMenuPath)
+	o_MenuInGui := o_MainMenu
 Gosub, GuiShowFromGuiOptions
 g_intGui1WinID := WinExist("A")
 
@@ -6433,15 +6439,8 @@ Gosub, GuiOptionsHeader
 
 ; === General ===
 
-; RunAtStartup
-Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsTab3X% vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRunAtStartup"]
-if (g_blnPortableMode) ; get value from existence of startup file shortcut
-	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
-else ; setup mode, get value form current user registry
-	GuiControl, , f_blnOptionsRunAtStartup, % (RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText) ? 1 : 0)
-
 ; LanguageCode
-Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblLanguage hidden, % o_L["OptionsLanguage"]
+Gui, 2:Add, Text, y%intGroupItemsY% x%g_intGroupItemsX% w105 vf_lblLanguage hidden, % o_L["OptionsLanguage"]
 Gui, 2:Add, DropDownList, yp x%g_intGroupItemsTab3X% w200 vf_drpLanguage Sort gGuiOptionsGroupChanged hidden, % o_L["OptionsLanguageLabels"]
 GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
@@ -6449,6 +6448,13 @@ GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblTheme hidden, % o_L["OptionsTheme"]
 Gui, 2:Add, DropDownList, yp x%g_intGroupItemsTab3X% w200 vf_drpTheme gGuiOptionsGroupChanged hidden, % o_Settings.SettingsWindow.strAvailableThemes.IniValue
 GuiControl, ChooseString, f_drpTheme, % o_Settings.Launch.strTheme.IniValue
+
+; RunAtStartup
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnOptionsRunAtStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsRunAtStartup"]
+if (g_blnPortableMode) ; get value from existence of startup file shortcut
+	GuiControl, , f_blnOptionsRunAtStartup, % (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk") ? 1 : 0)
+else ; setup mode, get value form current user registry
+	GuiControl, , f_blnOptionsRunAtStartup, % (RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText) ? 1 : 0)
 
 ; DisplayTrayTip
 Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnDisplayTrayTip gGuiOptionsGroupChanged hidden, % o_L["OptionsTrayTip"]
@@ -6493,8 +6499,12 @@ if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 
 ; === SettingsWindow ===
 
+; DisplaySettingsStartup
+Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsX% vf_blnDisplaySettingsStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsSettingsStartup"]
+GuiControl, , f_blnDisplaySettingsStartup, % (o_Settings.SettingsWindow.blnDisplaySettingsStartup.IniValue = true)
+
 ; RememberSettingsPosition
-Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsX% w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged hidden, % o_L["OptionsRememberSettingsPosition"]
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged hidden, % o_L["OptionsRememberSettingsPosition"]
 GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 ; OpenSettingsOnActiveMonitor
@@ -7084,6 +7094,7 @@ if StrLen(f_strQAPTempFolderParentPath)
 
 ; === SettingsWindow ===
 
+o_Settings.SettingsWindow.blnDisplaySettingsStartup.WriteIni(f_blnDisplaySettingsStartup)
 o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIni(f_blnRememberSettingsPosition)
 o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIni(f_blnOpenSettingsOnActiveMonitor)
 o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
@@ -16454,8 +16465,10 @@ GuiControlGet, arrPos, Pos, f_lnkSendLink
 g_intLnkSendLink := arrPosW
 
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Button, x175 y+20 g2GuiClose vf_btnDonateClose, % o_L["GuiCloseAmpersand"]
-GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateClose")
+Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % o_L["GuiDonateCodeInput"]
+Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateClose, % o_L["GuiCloseAmpersand"]
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateCodeInuput", "f_btnDonateClose")
+Gui, 2:Add, Text
 
 GuiControl, Focus, btnDonateDefault
 Gosub, ShowGui2AndDisableGui1
@@ -16487,6 +16500,74 @@ strDonatePlatformUrl4 := "https://www.quickaccesspopup.com/why-support-freeware/
 
 intButton := StrReplace(A_ThisLabel, "ButtonDonate")
 Run, % strDonatePlatformUrl%intButton%
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiDonateCodeInput:
+;------------------------------------------------------------
+
+g_intGui1WinID := WinExist("A")
+Gui, 1:Submit, NoHide
+
+strGuiTitle := L(o_L["DonateTitle"], g_strAppNameText, g_strAppVersion)
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+Gui, 2:+Owner1
+Gui, 2:Font, s12 w700, Verdana
+Gui, 2:Add, Link, y10 w420, % L(o_L["DonateText1"], g_strAppNameText)
+Gui, 2:Font, s8 w400, Verdana
+
+Gui, 2:Add, Text, y+20, % o_L["GuiDonateCodeInputDonorLabel"]
+Gui, 2:Add, Edit, y+10 w200 vf_strDonorCode
+
+Gui, 2:Add, Text, y+20, % o_L["GuiDonateCodeInputSponsorLabel"]
+Gui, 2:Add, Edit, y+10 w200 vf_strSponsorName
+
+Gui, 2:Font, s8 w400, Verdana
+Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInputSave vf_btnDonateCodeInputSave, % o_L["GuiSaveAndStayAmpersand"]
+Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateCodeInputCancel, % o_L["DialogCancelButton"]
+GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateCodeInputSave", "f_btnDonateCodeInputCancel")
+Gui, 2:Add, Text
+
+GuiControl, Focus, btnDonateDefault
+Gosub, ShowGui2AndDisableGui1
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+GuiDonateCodeInputSave:
+;------------------------------------------------------------
+Gui, 2:Submit, NoHide
+
+strDonorCode := Trim(f_strDonorCode)
+strSponsorName := Trim(f_strSponsorName)
+
+; Donor code must contain only numbers and capital letters and be 8 digits
+if (StrLen(strDonorCode) <> 8 or RegExMatch(strDonorCode, "[^A-Z^0-9]")) ; [^A-Z^0-9] any digit not in A-Z and not in 0-9
+	or (strDonorCode <> SubStr(MD5(g_strEscapePipe . strSponsorName . g_strEscapePipe, true), 13, 8))
+{
+	Oops(o_L["GuiDonateCodeInputDonorInvalid"])
+	return
+}
+
+o_Settings.Launch.blnDonor.WriteIni(strDonorCode)
+o_Settings.Launch.strSponsorName.WriteIni(strSponsorName)
+
+MsgBox, 0, %g_strAppNameText%, % L(o_L["DonateThankyou"], strSponsorName), 10
+
+Gosub, 2GuiClose
+Gosub, BuildGui
+o_MenuInGui := o_MainMenu
+Gosub, GuiShowFromGuiOptions
+
+strDonorCode := ""
+strSponsorName := ""
 
 return
 ;------------------------------------------------------------
@@ -17988,7 +18069,7 @@ GuiCenterButtons(strWindow, intInsideHorizontalMargin := 10, intInsideVerticalMa
 	for intIndex, strControl in arrControls
 		if StrLen(strControl) ; avoid emtpy control names
 		{
-			intNbControls+ +; use instead of arrControls.MaxIndex() in case we get empty control names
+			intNbControls++ ; use instead of arrControls.MaxIndex() in case we get empty control names
 			GuiControlGet, arrControlPos, Pos, %strControl%
 			if (arrControlPosW > intMaxControlWidth)
 				intMaxControlWidth := arrControlPosW
@@ -21699,6 +21780,8 @@ class QAPfeatures
 			, "how-can-i-edit-the-file-quickaccesspopup-ini")
 		this.AddQAPFeatureObject("List Applications", 		o_L["MenuListApplications"],				"", "ListApplications",						"7-QAPManagement"
 			, o_L["MenuListApplicationsDescription"], 0, "iconDesktop", "", "")
+		this.AddQAPFeatureObject("Donor Code Input", 		o_L["GuiDonateCodeInput"],					"", "GuiDonateCodeInput",					"7-QAPManagement"
+			, o_L["GuiDonateCodeInputDescription"], 0, "iconDonate", "", "why-support-freeware")
 
 		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"], 			"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
 			, o_L["DialogCloseComputerControlDescription"], 0, "iconExit", ""
@@ -24177,7 +24260,7 @@ class Container
 				blnOpenOK := false
 			}	
 			; CHECK IF FILE/FOLDER MUST EXIST
-			else if this.FileExistIfMust(this.aaTemp.strFullLocation)
+			else if this.FileExistIfMust()
 			{
 				; WINDOW POSITION PREPARATION
 				; Boolean,MinMax,Left,Top,Width,Height,Delay,RestoreSide/Monitor (comma delimited) (7)
