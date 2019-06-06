@@ -24656,16 +24656,16 @@ class Container
 				}
 				else if (this.aaTemp.strTargetAppName = "DirectoryOpus")
 				{
+					; check if DOpus lister exist before opening a folder in order to open the last used folders before adding the selected one
+					if !WinExist("ahk_class dopus.lister")
+					{
+						Run, % g_aaFileManagerDirectoryOpus.strFileManagerPath
+						WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+						Sleep, 200 ; sometimes without delay DOpus left the new tab empty
+					}
+					
 					if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 					{
-						if (this.aaTemp.blnFirstFolderOfGroup) and !(this.AA.blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
-						; for the first member of the group, if we add to existing tabs, make sure a lister is running
-						{
-							Run, % g_aaFileManagerDirectoryOpus.strFileManagerPath
-							WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
-							Sleep, 200 ; sometimes without delay DOpus left the new tab empty
-						}
-						
 						if (this.aaTemp.blnFirstFolderOfGroup and this.AA.blnGroupReplaceWindows) or !(g_aaFileManagerDirectoryOpus.blnFileManagerUseTabs)
 							strTabParameter := "NEW=nodual" ; force left in new lister
 						else
