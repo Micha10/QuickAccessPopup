@@ -18881,19 +18881,19 @@ return
 OpenFavoriteInNewWindowDirectoryOpus:
 ;------------------------------------------------------------
 
+; check if DOpus lister exists before opening a folder in order to open the last used folders before adding the selected one
+if !WinExist("ahk_class dopus.lister")
+{
+	Run, %g_strDirectoryOpusPath%
+	WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
+	Sleep, 200 ; sometimes without delay DOpus left the new tab empty
+}
+	
 if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " NEWTAB") ; open in a new tab of pane 1
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT") ; open in a first tab of pane 2
 ; RunDOpusRt("/acmd Go ", objIniExplorersInGroup[intDOIndexPane].Name, " OPENINRIGHT NEWTAB") ; open in a new tab of pane 2
 {
-	if (g_blnFirstFolderOfGroup) and !(g_blnGroupReplaceWindows) and !WinExist("ahk_class dopus.lister")
-	; for the first member of the group, if we add to existing tabs, make sure a lister is running
-	{
-		Run, %g_strDirectoryOpusPath%
-		WinWait, ahk_class dopus.lister, , 2 ; max 2 seconds
-		Sleep, 200 ; sometimes without delay DOpus left the new tab empty
-	}
-		
 	if (g_blnFirstFolderOfGroup and g_blnGroupReplaceWindows) or !(g_blnDirectoryOpusUseTabs)
 		strTabParameter := "NEW=nodual" ; force left in new lister
 	else
