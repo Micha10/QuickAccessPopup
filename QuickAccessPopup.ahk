@@ -3287,7 +3287,7 @@ global g_strDiagFile := A_WorkingDir . "\" . g_strAppNameFile . "-DIAG.txt"
 ; Init language variables (must be after g_strCurrentBranch init)
 global g_strEscapeReplacement := "!r4nd0mt3xt!"
 global o_L := new Language
-o_Settings.InitOptionsGroupsLabels() ; init options groups labels after language is initialized
+o_Settings.InitOptionsGroupsLabelNames() ; init options groups labels after language is initialized
 
 ; now that we have langage set, check if we have to move pre-v10 settings
 if (g_blnImportPreV10Settings) ; pre-v10 settings exist
@@ -3552,7 +3552,7 @@ If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 		; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
 		; if the startup shortcut exists, update it at each execution in case the exe filename changed
 		Gosub, CreateStartupShortcut
-		Menu, Tray, Check, % o_L["MenuRunAtStartup"] ; ##### adjust Ampersand
+		Menu, Tray, Check, % aaMenuTrayL["MenuRunAtStartup"]
 	}
 }
 
@@ -5027,23 +5027,24 @@ return
 BuildTrayMenu:
 ;------------------------------------------------------------
 
-; ##### Ampersand
-Menu, Tray, Add, % o_L["MenuSettings"] . "...", GuiShowFromTray
+global g_aaMenuTrayL := o_L.InsertAmpersand("MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
+	, "MenuOptions", "MenuHelp", "GuiDonate")
+Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
 if (g_blnPortableMode)
 {
-	Menu, Tray, Add, % o_L["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 	Menu, Tray, Add
 }
-Menu, Tray, Add, % o_L["MenuFile"], :menuBarFile
-Menu, Tray, Add, % o_L["MenuFavorite"], :menuBarFavorite
-Menu, Tray, Add, % o_L["MenuTools"], :menuBarTools
-Menu, Tray, Add, % o_L["MenuOptions"], :menuBarOptions
-Menu, Tray, Add, % o_L["MenuHelp"], :menuBarHelp
+Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
+Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
+Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
+Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
+Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
 if (!o_Settings.Launch.blnDonor.IniValue)
 {
 	Menu, Tray, Add
-	Menu, Tray, Add, % o_L["GuiDonate"], GuiDonate
+	Menu, Tray, Add, % g_aaMenuTrayL["GuiDonate"], GuiDonate
 }
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
@@ -5051,11 +5052,11 @@ Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-Menu, Tray, Default, % o_L["MenuSettings"] . "..."
+Menu, Tray, Default, % g_aaMenuTrayL["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
-	. (o_Settings.Launch.blnDonor.IniValue ? L(o_L["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : o_L["DonateButton"]) ; A_PtrSize * 8 = 32 or 64
+	. (o_Settings.Launch.blnDonor.IniValue ? L(g_aaMenuTrayL["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : g_aaMenuTrayL["DonateButton"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -5141,17 +5142,9 @@ saMenuItemsTable.Push(["GuiAlwaysOnTop", aaL["ControlToolTipAlwaysOnTopOff"], ""
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarTools"].BuildMenu()
 
-aaL := o_L.InsertAmpersand("OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther")
-saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiOptionsGroupMenuAdvanced", aaL["OptionsMenuAdvanced"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiOptionsGroupAdvancedLaunch", aaL["OptionsAdvancedLaunch"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiOptionsGroupAdvancedOther", aaL["OptionsAdvancedOther"], "", "iconNoIcon"])
-o_Containers.AA["menuBarMoreOptions"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarMoreOptions"].BuildMenu()
-
 aaL := o_L.InsertAmpersand("OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
-	, "OptionsDatabase", "OptionsMoreOptions")
+	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiOptionsGroupGeneral", aaL["OptionsOtherOptions"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiOptionsGroupSettingsWindow", aaL["OptionsSettingsWindow"], "", "iconNoIcon"])
@@ -5171,10 +5164,11 @@ saMenuItemsTable.Push(["GuiOptionsGroupUserVariables", aaL["OptionsUserVariables
 saMenuItemsTable.Push(["X", "", "", ""])
 saMenuItemsTable.Push(["GuiOptionsGroupDatabase", aaL["OptionsDatabase"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X", "", "", ""])
+saMenuItemsTable.Push(["GuiOptionsGroupMenuAdvanced", aaL["OptionsMenuAdvanced"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiOptionsGroupAdvancedLaunch", aaL["OptionsAdvancedLaunch"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiOptionsGroupAdvancedOther", aaL["OptionsAdvancedOther"], "", "iconNoIcon"])
 o_Containers.AA["menuBarOptions"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarOptions"].BuildMenu()
-; done after because LoadFavoritesFromTable does not support submenus yet (impact: no numeric shortcut on these items)
-Menu, menuBarOptions, Add, % aaL["OptionsMoreOptions"], :menuBarMoreOptions
 
 aaHelpL := o_L.InsertAmpersand("MenuHelp", "MenuUpdate", "HelpMenuQuickStart", "HelpMenuKnowledgeBase", "HelpMenuSupportForum"
 	, "GuiHotkeysHelp", "GuiDropFilesHelp", "GuiDonate", "GuiDonateCodeInput", "MenuAbout")
@@ -6441,6 +6435,10 @@ if !WinExist(g_strGuiFullTitle)
 DetectHiddenWindows, On ; revert to app default
 g_intGui1WinID := WinExist("A")
 
+aaL := o_L.InsertAmpersand("OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
+	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
+	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther", "GuiSave", "GuiCancel")
+
 Gosub, GuiOptionsHeader
 
 ; === General ===
@@ -7402,6 +7400,7 @@ strThemePrev := ""
 strQAPTempFolderParentPrev := ""
 strOptionNoAmpersand := ""
 strValue := ""
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -7421,7 +7420,7 @@ Gui, 2:+Owner1
 intMaxWidth := 0
 for intKey, strGroup in o_Settings.saOptionsGroups
 {
-	Gui, 2:Add, Button, % "x10 y" . (intKey = 1 ? "+15" : "p+22") . " gGuiOptionsGroupButtonClicked vf_btnOptionsGroup" . strGroup , % o_Settings.saOptionsGroupsLabels[intKey]
+	Gui, 2:Add, Button, % "x10 y" . (intKey = 1 ? "+15" : "p+22") . " gGuiOptionsGroupButtonClicked vf_btnOptionsGroup" . strGroup , % aaL[o_Settings.saOptionsGroupsLabelNames[intKey]]
 	GuiControlGet, arrPos, Pos, % "f_btnOptionsGroup" . strGroup
 	if (arrPosW > intMaxWidth) ; get max control width to get X of group items
 		intMaxWidth := arrPosW
@@ -7456,9 +7455,8 @@ GuiOptionsFooter:
 
 g_intOptionsFooterY += 20 ; place buttons below highest options group
 
-; ##### Ampersand
-Gui, 2:Add, Button, x10 y%g_intOptionsFooterY% vf_btnOptionsSave gGuiOptionsGroupSave disabled Default, % o_L["GuiSave"]
-Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % o_L["GuiCancel"]
+Gui, 2:Add, Button, x10 y%g_intOptionsFooterY% vf_btnOptionsSave gGuiOptionsGroupSave disabled Default, % aaL["GuiSave"]
+Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % aaL["GuiCancel"]
 if (!o_Settings.Launch.blnDonor.IniValue)
 	Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButton"]
 GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", (!o_Settings.Launch.blnDonor.IniValue ? "f_btnOptionsDonate" : ""))
@@ -19895,9 +19893,8 @@ ToggleRunAtStartup(blnForce := -1)
 ; blnForce: -1 toggle, 0 disable, 1 enable
 ;------------------------------------------------------------
 {
-	; ##### adjust Ampersand
-	if (blnForce = o_L["MenuRunAtStartup"])
-	; because function as Tray menu command puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+	if (blnForce = g_aaMenuTrayL["MenuRunAtStartup"]) ; toggle from Tray menu
+		; because function as Tray menu command puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
 		blnForce := -1
 	
 	if (g_blnPortableMode)
@@ -19909,8 +19906,7 @@ ToggleRunAtStartup(blnForce := -1)
 
 	if (g_blnPortableMode)
 	{
-		; ##### adjust Ampersand
-		Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % o_L["MenuRunAtStartup"]
+		Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % g_aaMenuTrayL["MenuRunAtStartup"]
 		
 		; Startup code adapted from Avi Aryan Ryan in Clipjump
 		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
@@ -22323,7 +22319,7 @@ TODO
 
 	aaGroupItems := Object()
 	saOptionsGroups := Object()
-	saOptionsGroupsLabels := Object()
+	saOptionsGroupsLabelNames := Object()
 	
 	;---------------------------------------------------------
 	__New()
@@ -22360,14 +22356,14 @@ TODO
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	InitOptionsGroupsLabels()
+	InitOptionsGroupsLabelNames()
 	; called after o_L is initialized
 	;---------------------------------------------------------
 	{
-		this.saOptionsGroupsLabels := [o_L["OptionsOtherOptions"], o_L["OptionsSettingsWindow"], o_L["OptionsMenuIcons"], o_L["OptionsMenuAppearance"]
-			, o_L["OptionsPopupMenu"], o_L["OptionsPopupHotkeys"], o_L["OptionsPopupHotkeysAlternative"], o_L["OptionsFileManagers"]
-			, o_L["OptionsSnippets"], o_L["OptionsUserVariables"], o_L["OptionsDatabase"]
-			, o_L["OptionsMenuAdvanced"], o_L["OptionsAdvancedLaunch"], o_L["OptionsAdvancedOther"]]
+		this.saOptionsGroupsLabelNames := ["OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance"
+			, "OptionsPopupMenu", "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers"
+			, "OptionsSnippets", "OptionsUserVariables", "OptionsDatabase"
+			, "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther"]
 	}
 	;---------------------------------------------------------
 
