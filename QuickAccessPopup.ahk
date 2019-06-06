@@ -3943,8 +3943,8 @@ IfMsgBox, Yes
 
 	FileCopyDir, %A_AppData%\%g_strAppNameText%, %A_MyDocuments%\%g_strAppNameText%, 1 ; overwrite
 	; ##### check if errorlevel (for example, if folder or file locked)
-	; ##### check if copy worked
-	; ##### delete pre-v10 settings - NOT POSSIBLE IF BUSY #####
+	; check if copy worked
+	; delete pre-v10 settings - NOT POSSIBLE IF BUSY
 	SetWorkingDir, %A_MyDocuments%\%g_strAppNameText%
 	###_V(A_ThisLabel . " - file from pre-v10 copied", A_WorkingDir)
 	Oops(o_L["DialogMoveSettingsToMyDocumentsReload"], g_strAppNameText)
@@ -5125,7 +5125,7 @@ o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu()
 
 aaL := o_L.InsertAmpersand("ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
-	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition")
+	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiFocusFilter", aaL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
 saMenuItemsTable.Push(["FilterExtendedClick", aaL["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
@@ -5191,12 +5191,12 @@ saMenuItemsTable.Push(["GuiAbout", aaHelpL["MenuAbout"], "", "iconNoIcon"])
 o_Containers.AA["menuBarHelp"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarHelp"].BuildMenu()
 
-aaL := o_L.InsertAmpersand("MenuFile", "MenuFavorite", "MenuTools", "MenuOptions", "MenuHelp")
-Menu, menuBar, Add, % aaL["MenuFile"], :menuBarFile
-Menu, menuBar, Add, % aaL["MenuFavorite"], :menuBarFavorite
-Menu, menuBar, Add, % aaL["MenuTools"], :menuBarTools
-Menu, menuBar, Add, % aaL["MenuOptions"], :menuBarOptions
-Menu, menuBar, Add, % aaL["MenuHelp"], :menuBarHelp
+aaMenuBarL := o_L.InsertAmpersand("MenuFile", "MenuFavorite", "MenuTools", "MenuOptions", "MenuHelp")
+Menu, menuBar, Add, % aaMenuBarL["MenuFile"], :menuBarFile
+Menu, menuBar, Add, % aaMenuBarL["MenuFavorite"], :menuBarFavorite
+Menu, menuBar, Add, % aaMenuBarL["MenuTools"], :menuBarTools
+Menu, menuBar, Add, % aaMenuBarL["MenuOptions"], :menuBarOptions
+Menu, menuBar, Add, % aaMenuBarL["MenuHelp"], :menuBarHelp
 
 ToolTip ; close menu building tooltip
 
@@ -6426,14 +6426,7 @@ GuiOptionsFromQAPFeature:
 
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
-if !StrLen(o_MenuInGui.AA.strMenuPath)
-	o_MenuInGui := o_MainMenu
-
-DetectHiddenWindows, Off
-if !WinExist(g_strGuiFullTitle) 
-	Gosub, GuiShowFromGuiOptions
-DetectHiddenWindows, On ; revert to app default
-g_intGui1WinID := WinExist("A")
+gosub, CheckShowSettings
 
 aaL := o_L.InsertAmpersand("OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
@@ -7327,8 +7320,8 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 			
 			FileCopyDir, %strWorkingFolderPrev%, %f_strWorkingFolder%, 1
 			; ##### check if errorlevel (for example, if file existed, it is not overwritten)
-			; ##### check if copy worked
-			; ##### delete pre-v10 settings
+			; check if copy worked
+			; delete pre-v10 settings
 		}
 	}
 }
@@ -7837,7 +7830,6 @@ Gui, 3:Font
 Gui, 3:Add, Text, x10 w400, % o_L["OptionsChangeFolderInDialogText"]
 Gui, 3:Add, Text, x10 w400, % o_L["OptionsChangeFolderInDialogCheckbox"]
 
-; ##### Ampersand
 Gui, 3:Add, Button, y+25 x10 vf_btnChangeFolderInDialogOK gChangeFoldersInDialogOK, % o_L["DialogOK"]
 Gui, 3:Add, Button, yp x+20 vf_btnChangeFolderInDialogCancel gChangeFoldersInDialogCancel, % o_L["GuiCancel"]
 	
@@ -8349,6 +8341,9 @@ Gui, Menu, menuBar
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
 
+; ampersand labels for gui buttons (this does not work with image buttons' label)
+aaSettingsL := o_L.InsertAmpersand("*" . aaMenuBarL.strUsed, "GuiSaveAndClose", "GuiSave", "GuiClose", "GuiCancel")
+
 ; Order of controls important to avoid drawgins gliches when resizing
 
 Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempDir%\add_property-48_c.png ; Static1
@@ -8403,11 +8398,10 @@ Gui, 1:Add, ListView
 	, % "vf_lvFavoritesListFiltered Count32 AltSubmit LV0x10 -Multi hidden " . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "") . " gGuiFavoritesListFilteredEvents x+1 yp"
 	, % o_L["GuiLvFavoritesHeaderFiltered"] . "|Object Position (hidden)" ; SysHeader322 / SysListView322
 
-; ##### Ampersand
 Gui, 1:Font, s8 w600, Verdana
-Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w140 h35, % o_L["GuiSaveAndClose"] ; Button3
-Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h35, % o_L["GuiSave"] ; Button4
-Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h35, % o_L["GuiClose"] ; Close until changes occur - Button5
+Gui, 1:Add, Button, vf_btnGuiSaveAndCloseFavorites Disabled gGuiSaveAndCloseFavorites x200 y400 w140 h35, % aaSettingsL["GuiSaveAndClose"] ; Button3
+Gui, 1:Add, Button, vf_btnGuiSaveAndStayFavorites Disabled gGuiSaveAndStayFavorites x350 yp w100 h35, % aaSettingsL["GuiSave"] ; Button4
+Gui, 1:Add, Button, vf_btnGuiCancel gGuiCancel Default x500 yp w100 h35, % aaSettingsL["GuiClose"] ; Close until changes occur - Button5
 
 Gui, 1:Font, s8 w400 c404040 normal, Verdana
 
@@ -8742,8 +8736,8 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
 	}
 
-	; ##### Ampersand
 	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % aaFavoriteL["DialogEdit"] ; edit menu only if one item is selected
+	Menu, menuBarFavorite, Enable, % aaFavoriteL["ControlToolTipSortFavorites"] ; re-enable if disabled by GuiCancel for Favorite Tray menu
 	loop, Parse, % "GuiRemoveFavorite|GuiMove|DialogCopy|ControlToolTipMoveUp|ControlToolTipMoveDown", |
 		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable"), % aaFavoriteL[A_LoopField] ; enable only if at least one item is selected
 }
@@ -8902,9 +8896,8 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButto
 
 Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLabel
 
-; ##### Ampersand
-Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, % o_L["DialogContinue"]
-Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
+Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, % o_L["DialogContinue"] ; no ampersand
+Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"] ; no ampersand
 Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h290, % L(o_L["DialogFavoriteSelectType"], o_L["DialogContinue"])
 
@@ -9187,7 +9180,8 @@ if InStr(strGuiFavoriteLabel, "Xpress") or (strGuiFavoriteLabel = "GuiAddExterna
 	return
 }
 
-g_intGui1WinID := WinExist("A")
+gosub, CheckShowSettings
+
 Gui, 1:Submit, NoHide
 if (strGuiFavoriteLabel = "GuiAddFavorite")
 	Gosub, 2GuiClose ; to avoid flashing Gui 1:
@@ -11128,6 +11122,28 @@ return
 
 
 ;------------------------------------------------------------
+CheckShowSettings:
+;------------------------------------------------------------
+
+if !StrLen(o_MenuInGui.AA.strMenuPath)
+	o_MenuInGui := o_MainMenu
+
+DetectHiddenWindows, Off
+if !WinExist(g_strGuiFullTitle) 
+{
+	Gosub, GuiShowFromGuiOutside
+	Gui, 1:Default
+	Gui, 1:ListView, f_lvFavoritesList
+	LV_Modify(0, "-Select")
+}
+DetectHiddenWindows, On ; revert to app default
+g_intGui1WinID := WinExist("A")
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GuiShow:
 GuiShowFromAlternative:
 GuiShowRestoreDefaultPosition:
@@ -11136,7 +11152,7 @@ GuiShowFromGuiAddFavoriteQAPFeature:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
 GuiShowFromTray:
 SettingsHotkey:
-GuiShowFromGuiOptions:
+GuiShowFromGuiOutside:
 GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
 GuiShowFromIconsManage:
@@ -11144,7 +11160,7 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOptions|", A_ThisLabel . "|") ; menu object already set in these cases
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOutside|", A_ThisLabel . "|") ; menu object already set in these cases
 {
 	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
@@ -13829,8 +13845,7 @@ if (A_ThisLabel = "UpdateFavoriteObjectSaveShortcutList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-	; ##### Ampersand ?
-	GuiControl, 1:, f_btnGuiCancel, % o_L["GuiCancel"]
+	GuiControl, 1:, f_btnGuiCancel, % aaSettingsL["GuiCancel"]
 }
 
 o_EditedFavorite.AA.strFavoriteShortcut := (HasShortcut(g_strNewFavoriteShortcut) ? g_strNewFavoriteShortcut : "")
@@ -13868,8 +13883,7 @@ if (A_ThisLabel = "UpdateFavoriteObjectSaveHotstringList")
 {
 	GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 	GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-	; ##### Ampersand ?
-	GuiControl, 1:, f_btnGuiCancel, % o_L["GuiCancel"]
+	GuiControl, 1:, f_btnGuiCancel, % aaSettingsL["GuiCancel"]
 	
 	Gosub, HotkeysManageListLoad
 }
@@ -13991,7 +14005,7 @@ if !(g_blnFavoritesListFilterNeverFocused)
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
 ; ##### Ampersand ?
-blnCancelEnabled := (strCancelLabel = o_L["GuiCancel"])
+blnCancelEnabled := (strCancelLabel = aaSettingsL["GuiCancel"])
 if (blnCancelEnabled)
 {
 	Gui, 1:+OwnDialogs
@@ -14019,6 +14033,10 @@ if (blnCancelEnabled)
 	}
 }
 Gosub, ExternalMenusRelease ; release cancel enabled or not
+
+; disable Favorite menu items in Tray menu
+loop, Parse, % "DialogEdit|GuiRemoveFavorite|GuiMove|DialogCopy|ControlToolTipMoveUp|ControlToolTipMoveDown|ControlToolTipSortFavorites", |
+	Menu, menuBarFavorite, Disable, % aaFavoriteL[A_LoopField]
 
 Gui, 1:Cancel
 
@@ -16578,7 +16596,7 @@ MsgBox, 0, %g_strAppNameText%, % L(o_L["DonateThankyou"], strSponsorName), 10
 Gosub, 2GuiClose
 Gosub, BuildGui
 o_MenuInGui := o_MainMenu
-Gosub, GuiShowFromGuiOptions
+Gosub, GuiShowFromGuiOutside
 
 strDonorCode := ""
 strSponsorName := ""
@@ -17452,15 +17470,14 @@ return
 EnableSaveAndCancel:
 ;------------------------------------------------------------
 
-; ##### Ampersand
 GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
-GuiControl, 1:, f_btnGuiCancel, % o_L["GuiCancel"]
+GuiControl, 1:, f_btnGuiCancel, % aaSettingsL["GuiCancel"]
 
-Menu, menuBarFile, Enable, % L(o_L["GuiSave"], g_strAppNameText)
-Menu, menuBarFile, Enable, % L(o_L["GuiSaveAndClose"], g_strAppNameText)
-Menu, menuBarFile, Enable, % o_L["GuiCancel"]
-Menu, menuBarFile, Disable, % L(o_L["GuiClose"], g_strAppNameText)
+Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSave"], g_strAppNameText)
+Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
+Menu, menuBarFile, Enable, % aaMenuFileL["GuiCancel"]
+Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiClose"], g_strAppNameText)
 
 return
 ;------------------------------------------------------------
@@ -18859,9 +18876,8 @@ SettingsUnsaved()
 {
 	global
 
-	; ##### Ampersand
 	GuiControlGet, strCancelButtonLabel, 1:, f_btnGuiCancel ; get Settings Cancel button label ("Cancel" or "Close")
-	blnDialogOpen := (strCancelButtonLabel = o_L["GuiCancel"]) ; Settings open with changes to save if Cancel button label is "Cancel"
+	blnDialogOpen := (strCancelButtonLabel = aaSettingsL["GuiCancel"]) ; Settings open with changes to save if Cancel button label is "Cancel"
 	; GuiControlGet, blnDialogOpen, 1:Enabled, f_btnGuiSaveAndCloseFavorites ; check if Settings is open with Save button enabled
 
 	return blnDialogOpen
@@ -22009,8 +22025,7 @@ FAVORITE TYPES REPLACED
 	;---------------------------------------------------------
 	{
 		saFavoriteTypes := StrSplit("Folder|Document|Application|Special|URL|FTP|QAP|Menu|Group|X|K|B|Snippet|External|Text|WindowsApp", "|")
-		; ##### Ampersand DialogFavoriteTypesLabels
-		saFavoriteTypesLabels := StrSplit(o_L["DialogFavoriteTypesLabels"], "|")
+		saFavoriteTypesLabels := StrSplit(o_L.InsertAmpersandInString(o_L["DialogFavoriteTypesLabels"]), "|") ; insert ampersands in string
 		saFavoriteTypesShortNames := StrSplit(o_L["DialogFavoriteTypesShortNames"], "|")
 		saFavoriteTypesLocationLabels := StrSplit(o_L["DialogFavoriteTypesLocationLabels"], "|")
 		saFavoriteTypesLocationLabelsNoAmpersand := StrSplit(o_L["DialogFavoriteTypesLabels"], "|")
@@ -22620,10 +22635,14 @@ TODO
 	
 	;---------------------------------------------------------
 	InsertAmpersand(saIn*)
+	; if first item starts with "*", it is a list of pre-used letters
 	;---------------------------------------------------------
 	{
 		saContentCleaned := Object() ; contains only letters that can be used as shortcuts (this also excludes "~n~")
+		aaOut := Object()
 		
+		if (SubStr(saIn[1], 1, 1) = "*") ; this is already used letters in strUsed
+			aaOut.strUsed := SubStr(saIn.RemoveAt(1), 2) ; remove leading "*"
 		; sort items to process first the shortest labels (those with the least valid shortcut chars)
 		Loop, % saIn.MaxIndex()
 		{
@@ -22636,7 +22655,6 @@ TODO
 		Sort, strSort, N
 		saSorted := StrSplit(strSort, "`n")
 		
-		aaOut := Object()
 		for intKey, strThisStr in saSorted
 		{
 			saThisStr := StrSplit(strThisStr, "|")
@@ -22644,10 +22662,10 @@ TODO
 			aaOut[saThisStr[2]] := o_L[saThisStr[2]] ; backup will be replaced if a letter can be used
 			Loop, Parse, % saContentCleaned[saThisStr[3]] ; scan available letters in label 
 			{
-				; ###_V("", strUsed, A_LoopField)
-				if !InStr(strUsed, A_LoopField) ; not case sensitive by default
+				; ###_V("", aaOut.strUsed, A_LoopField)
+				if !InStr(aaOut.strUsed, A_LoopField) ; not case sensitive by default
 				{
-					strUsed .= A_LoopField ; use this letter for this label
+					aaOut.strUsed .= A_LoopField ; use this letter for this label
 					aaOut[saThisStr[2]] := StrReplace(o_L[saThisStr[2]], A_LoopField, "&" . A_LoopField, , 1)
 					break
 				}
@@ -22655,6 +22673,53 @@ TODO
 		}
 		; ###_O(strUsed, aaOut)
 		return aaOut
+	}
+	;---------------------------------------------------------
+
+	;---------------------------------------------------------
+	InsertAmpersandInString(strIn)
+	; strIn and strOut delimited with "|"
+	; (this is based on InsertAmpersand but adapted to process the favorite types labels string and avoid having to refactor how these labels are managed)
+	;---------------------------------------------------------
+	{
+		saContentCleaned := Object() ; contains only letters that can be used as shortcuts (this also excludes "~n~")
+		saOut := Object()
+		
+		; sort items to process first the shortest labels (those with the least valid shortcut chars)
+		Loop, Parse, strIn, |
+		{
+			strCleaned := RegExReplace(A_LoopField, "[^a-zA-Z]", "")
+			; strSort line: 1) length, 2) cleaned string, 3) original string
+			strSort .= StrLen(strCleaned) . "|" . strCleaned . "|" . A_Index . "|" . A_LoopField . "`n"
+		}
+		
+		strSort := SubStr(strSort, 1, -1)
+		Sort, strSort, N
+		saSorted := StrSplit(strSort, "`n")
+		
+		for intKey, strThisStr in saSorted
+		{
+			; ###_O("saOut", saOut)
+			saThisStr := StrSplit(strThisStr, "|")
+			; ###_V(A_ThisFunc, saThisStr[1], saThisStr[2], saThisStr[3], saThisStr[4])
+			saOut[saThisStr[3]] := saThisStr[4] ; backup will be replaced if a letter can be used
+			Loop, Parse, % saThisStr[2] ; scan available letters in label 
+			{
+				if !InStr(strUsed, A_LoopField) ; not case sensitive by default
+				{
+					strUsed .= A_LoopField ; use this letter for this label
+					saOut[saThisStr[3]] := StrReplace(saThisStr[4], A_LoopField, "&" . A_LoopField, , 1)
+					break
+				}
+			}
+		}
+		
+		for intKey, strValue in saOut
+			strOut .= strValue . "|"
+		strOut := SubStr(strOut, 1, -1)
+
+		; ###_V("strOut", strOut)
+		return strOut
 	}
 	;---------------------------------------------------------
 }
