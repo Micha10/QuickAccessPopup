@@ -6584,9 +6584,7 @@ Gui, 2:Add, Text, yp x+10 w235 hidden vf_lblRecentFoldersMax, % o_L["OptionsRece
 Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w500 hidden vf_lblNbLastActionsMaxTitle, % o_L["MenuLastActions"]
 Gui, 2:Add, Edit, y+5 x%g_intGroupItemsX% w51 h22 vf_intNbLastActionsMaxEdit number center hidden ; %g_intNbLastActions%
 Gui, 2:Add, UpDown, vf_intNbLastActions Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.Menu.intNbLastActions.IniValue
-strOptionsLastActions := StrReplace(o_L["OptionsRecentFolders"], "&") ; remove ampersand
-Gui, 2:Add, Text, yp x+10 w235 hidden vf_lblNbLastActionsMax, %strOptionsLastActions%
-strOptionsLastActions := ""
+Gui, 2:Add, Text, yp x+10 w235 hidden vf_lblNbLastActionsMax, % o_L["OptionsRecentFolders"]
 
 ; AddCloseToDynamicMenus
 Gui, 2:Add, CheckBox, y+25 x%g_intGroupItemsX% w500 vf_blnAddCloseToDynamicMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsAddCloseToDynamicMenus"]
@@ -7342,21 +7340,21 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 {
 	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsLanguage"], "&")
+		strOption := o_L["OptionsLanguage"]
 		strValue := g_strLanguageLabel
 	}
 	else if (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
 	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsTheme"], "&")
+		strOption := o_L["OptionsTheme"]
 		strValue := o_Settings.Launch.strTheme.IniValue
 	}
 	else ; (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	{
-		strOptionNoAmpersand := StrReplace(o_L["OptionsQAPTempFolder"], "&")
+		strOption := o_L["OptionsQAPTempFolder"]
 		strValue := o_Settings.Launch.strQAPTempFolderParent.IniValue
 	}
 
-	MsgBox, 52, %g_strAppNameText%, % L(o_L["ReloadPrompt"], strOptionNoAmpersand, """" . strValue . """", g_strAppNameText)
+	MsgBox, 52, %g_strAppNameText%, % L(o_L["ReloadPrompt"], strOption, """" . strValue . """", g_strAppNameText)
 	IfMsgBox, Yes
 		Gosub, ReloadQAP
 	else ; if user declines to reload, restore previous value (but new value will be loaded at next launch)
@@ -7391,7 +7389,7 @@ g_blnMenuReady := true
 strLanguageCodePrev := ""
 strThemePrev := ""
 strQAPTempFolderParentPrev := ""
-strOptionNoAmpersand := ""
+strOption := ""
 strValue := ""
 aaL := ""
 
@@ -8896,8 +8894,8 @@ Gui, 2:Add, Radio, xs vf_intRadioFavoriteTypeGroup gFavoriteSelectTypeRadioButto
 
 Gui, 2:Add, Radio, xs y+15 vf_intRadioFavoriteTypeText gFavoriteSelectTypeRadioButtonsChanged, % o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLabel
 
-Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, % o_L["DialogContinue"] ; no ampersand
-Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"] ; no ampersand
+Gui, 2:Add, Button, x+20 y+20 vf_btnAddFavoriteSelectTypeContinue gGuiAddFavoriteSelectTypeContinue default, % o_L["DialogContinue"]
+Gui, 2:Add, Button, yp vf_btnAddFavoriteSelectTypeCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
 Gui, Add, Text
 Gui, 2:Add, Text, xs+120 ys vf_lblAddFavoriteTypeHelp w250 h290, % L(o_L["DialogFavoriteSelectType"], o_L["DialogContinue"])
 
@@ -9224,6 +9222,8 @@ Gosub, CheckboxFolderLiveClicked
 
 ; ------ TABS End ------
 
+aaL := o_L.InsertAmpersand("DialogAdd", "DialogOK", "GuiCancel", "DialogCopy") 
+
 Gui, 2:Tab
 
 intButtonsY := 460
@@ -9231,23 +9231,22 @@ intButtonsY := 460
 ; see same if/else conditions in TreeViewQAPChanged and TreeViewSpecialChanged to save favorite when event DoubleClick
 if InStr(strGuiFavoriteLabel, "GuiEditFavorite")
 {
-	; ##### Ampersand
-	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, % o_L["DialogOK"]
-	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnEditFavoriteSave gGuiEditFavoriteSave default, % aaL["DialogOK"]
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % aaL["GuiCancel"]
 	
 	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnEditFavoriteSave", "f_btnAddFavoriteCancel")
 }
 else if InStr(strGuiFavoriteLabel, "GuiCopyFavorite")
 {
-	Gui, 2:Add, Button, y%intButtonsY% vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, % o_L["DialogCopy"]
-	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnCopyFavoriteCopy gGuiCopyFavoriteSave default, % aaL["DialogCopy"]
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % aaL["GuiCancel"]
 	
 	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnCopyFavoriteCopy", "f_btnAddFavoriteCancel")
 }
 else
 {
-	Gui, 2:Add, Button, y%intButtonsY% vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, % o_L["DialogAdd"]
-	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
+	Gui, 2:Add, Button, y%intButtonsY% vf_btnAddFavoriteAdd gGuiAddFavoriteSave default, % aaL["DialogAdd"]
+	Gui, 2:Add, Button, yp vf_btnAddFavoriteCancel gGuiAddFavoriteCancel, % aaL["GuiCancel"]
 	
 	GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAddFavoriteAdd", "f_btnAddFavoriteCancel")
 }
@@ -9298,6 +9297,7 @@ intGui2Width := ""
 intGui2Height := ""
 ResetArray("arrDialogPosition")
 strGuiTitle := ""
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -10296,9 +10296,10 @@ Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "G
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
 GuiControl, 2:, f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . o_L["DialogEndOfMenu"] . " " . g_strGuiDoubleLine
 
-; ##### Ampersand
-Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? o_L["GuiMove"] : o_L["GuiCopy"])
-Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiAddFavoriteCancel, % o_L["GuiCancel"]
+aaL := o_L.InsertAmpersand("GuiCancel", "GuiCopy", "GuiMove") 
+
+Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? aaL["GuiMove"] : aaL["GuiCopy"])
+Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiAddFavoriteCancel, % aaL["GuiCancel"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnMoveOrCopyFavoritesSave", "f_btnMoveOrCopyFavoritesCancel")
 
 g_intOriginalMenuPosition := 0xFFFF ; to select end of menu by default
@@ -12764,7 +12765,6 @@ GuiControl, , f_blnSeeShortHotkeyNames, % (o_Settings.Menu.intHotkeyReminders.In
 
 Gosub, HotkeysManageListLoad
 
-; ##### Ampersand
 Gui, 2:Tab
 Gui, 2:Add, Button, x+10 y+30 vf_btnHotkeysManageClose gGuiHotkeysManageClose h33 Default, % o_L["GuiClose"]
 GuiCenterButtons(strGuiTitle, , , , "f_btnHotkeysManageClose")
@@ -12988,10 +12988,11 @@ Loop, %g_intIconsManageRows%
 	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, % o_L["DialogIconsManageSetDefaultIcon"]
 }
 
-; ##### Ampersand
-Gui, 2:Add, Button, % "x10 y+" . intIconsManageRowsHeight . " vf_btnIconsManagePrev gLoadIconsManageListPrev h33", % o_L["DialogIconsManagePrevious"]
-Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext h33, % o_L["DialogIconsManageNext"]
-Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose h33, % o_L["GuiClose"]
+aaL := o_L.InsertAmpersand("DialogIconsManagePrevious", "DialogIconsManageNext", "GuiClose") 
+
+Gui, 2:Add, Button, x10 y+25 vf_btnIconsManagePrev gLoadIconsManageListPrev h20, % aaL["DialogIconsManagePrevious"]
+Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext, % aaL["DialogIconsManageNext"]
+Gui, 2:Add, Button, x10 yp vf_btnIconsManageClose g2GuiClose, % aaL["GuiClose"]
 Gui, 2:Add, Text, x10, %A_Space%
 
 Gosub, LoadIconsManageList
@@ -13014,6 +13015,7 @@ intFavoriteNameWidth := ""
 intButtonsWidth := ""
 intButtonsHeight := ""
 strGuiTitle := ""
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -13337,6 +13339,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	; Use SS_ prefix in local variable names to avoid conflicts outside the function and empty these variable because the function will not do it.
 	global
 
+	SS_aaL := o_L.InsertAmpersand("DialogOK", "GuiCancel", "DialogNone", "GuiResetDefault")
+	
 	g_blnChangeShortcutInProgress := true
 	SS_strModifiersLabels := "Shift|Ctrl|Alt|Win"
 	StringSplit, SS_arrModifiersLabels, SS_strModifiersLabels, |
@@ -13398,10 +13402,10 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if (P_intShortcutType <> 1)
 		Gui, Add, Link, y+5 xs w200 gShortcutInvisibleKeysClicked, % L(o_L["DialogHotkeyInvisibleKeys"], "Space", "Tab", "Enter", "Esc", "Menu")
 
-	Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnNoneShortcut gSelectNoneShortcutClicked", % o_L["DialogNone"]
+	Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnNoneShortcut gSelectNoneShortcutClicked", % SS_aaL["DialogNone"]
 	if StrLen(P_strDefaultShortcut)
 	{
-		Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnResetShortcut gButtonResetShortcut", % o_L["GuiResetDefault"]
+		Gui, Add, Button, % "x10 y" . SS_arrTopY + 100 . " vf_btnResetShortcut gButtonResetShortcut", % SS_aaL["GuiResetDefault"]
 		GuiCenterButtons(SS_strGuiTitle, 10, 5, 20, "f_btnNoneShortcut", "f_btnResetShortcut")
 	}
 	else
@@ -13424,9 +13428,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	}
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 
-	; ##### Ampersand
-	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, % o_L["DialogOK"]
-	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, % o_L["GuiCancel"]
+	Gui, Add, Button, y+25 x10 vf_btnChangeShortcutOK gButtonChangeShortcutOK, % SS_aaL["DialogOK"]
+	Gui, Add, Button, yp x+20 vf_btnChangeShortcutCancel gButtonChangeShortcutCancel, % SS_aaL["GuiCancel"]
 	
 	GuiCenterButtons(SS_strGuiTitle, 10, 5, 20, "f_btnChangeShortcutOK", "f_btnChangeShortcutCancel")
 
@@ -13468,6 +13471,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	SS_intX := ""
 	SS_intY := ""
 	SS_strGuiTitle := ""
+	SS_aaL := ""
 
 	return SS_strNewShortcut ; returning value
 	
@@ -13731,9 +13735,10 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	; Keep default EndChars "-()[]{}:;'"/\,.?!" + Enter, Space and Tab
 	; Keep default MouseReset option (recognizer resets monitored string on mouse click)
 
-	; ##### Ampersand
-	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, % o_L["DialogOK"]
-	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, % o_L["GuiCancel"]
+	SH_aaL := o_L.InsertAmpersand("DialogOK", "GuiCancel")
+	
+	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, % SH_aaL["DialogOK"]
+	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, % SH_aaL["GuiCancel"]
 	
 	GuiCenterButtons(SH_strGuiTitle, 10, 5, 20, "f_btnChangeHotstringOK", "f_btnChangeHotstringCancel")
 
@@ -13770,6 +13775,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	SH_strTempOptions := ""
 	SH_intX := ""
 	SH_intY := ""
+	SH_aaL := ""
 	
 	return SH_strNewHotstring ; returning value
 	
@@ -14004,7 +14010,6 @@ if !(g_blnFavoritesListFilterNeverFocused)
 }
 GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
-; ##### Ampersand ?
 blnCancelEnabled := (strCancelLabel = aaSettingsL["GuiCancel"])
 if (blnCancelEnabled)
 {
@@ -14020,8 +14025,7 @@ if (blnCancelEnabled)
 		
 		GuiControl, Disable, f_btnGuiSaveAndCloseFavorites
 		GuiControl, Disable, f_btnGuiSaveAndStayFavorites
-		; ##### Ampersand
-		GuiControl, , f_btnGuiCancel, % o_L["GuiClose"]
+		GuiControl, , f_btnGuiCancel, % aaSettingsL["GuiClose"]
 		
 		g_blnHotstringNeedRestart := false
 		g_blnMenuReady := true
@@ -16130,9 +16134,10 @@ Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, % o_L["ImpE
 Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, % o_L["ImpExpOptionAlternative"]
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, % o_L["ImpExpFileThemes"]
 
-; ##### Ampersand ImpExpExport and ImpExpImport
-Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, % o_L["ImpExpExport"]
-Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, % o_L["GuiClose"]
+aaImportExportL := o_L.InsertAmpersand("ImpExpImport", "ImpExpExport", "GuiClose")
+
+Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, % aaImportExportL["ImpExpExport"]
+Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, % aaImportExportL["GuiClose"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnImpExpGo", "f_btnImpExpClose")
 Gui, ImpExp:Add, Text
 
@@ -16143,7 +16148,6 @@ Gui, ImpExp:Show, AutoSize x%intX% y%intY%
 
 intX := ""
 intY := ""
-
 strGuiTitle := ""
 
 return
@@ -16157,7 +16161,7 @@ Gui, ImpExp:Submit, NoHide
 
 GuiControl, , f_lblImpExpFile, % L(o_L["ImpExpFile"], (f_radImpExpExport ? o_L["ImpExpDestination"] : o_L["ImpExpSource"]))
 GuiControl, , f_lblImpExpOptions, % L(f_radImpExpExport ? o_L["ImpExpExport"] : o_L["ImpExpImport"])
-GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? o_L["ImpExpExport"] : o_L["ImpExpImport"]) ; ##### replace o_L for ampersand, not on previous lines because labels
+GuiControl, , f_btnImpExpGo, % L(f_radImpExpExport ? o_L["ImpExpExport"] : aaImportExportL["ImpExpImport"])
 
 if (f_radImpExpExport)
 	strImpExpFile := o_Settings.ReadIniValue("LastExportFile", " ") ; empty if not found
@@ -16426,9 +16430,10 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(o_L["AboutText4"])
 Gui, 2:Font, s8 w400, Verdana
 
-; ##### Ampersand
-Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, % o_L["DonateButton"]
-Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, % o_L["GuiClose"]
+aaL := o_L.InsertAmpersand("GuiClose", "DonateButton")
+
+Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, % aaL["DonateButton"]
+Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, % aaL["GuiClose"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnAboutDonate", "f_btnAboutClose")
 
 GuiControl, Focus, f_btnAboutClose
@@ -16436,6 +16441,7 @@ Gosub, ShowGui2AndDisableGui1
 
 strYear := ""
 strGuiTitle := ""
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -16494,10 +16500,11 @@ Gui, 2:Add, Link, y+10 x10 vf_lnkSendLink, % "<a href=""https://www.quickaccessp
 GuiControlGet, arrPos, Pos, f_lnkSendLink
 g_intLnkSendLink := arrPosW
 
-; ##### Ampersand
+aaL := o_L.InsertAmpersand("GuiDonateCodeInput", "GuiClose")
+
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % o_L["GuiDonateCodeInput"]
-Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateClose, % o_L["GuiClose"]
+Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % aaL["GuiDonateCodeInput"]
+Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateClose, % aaL["GuiClose"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateCodeInuput", "f_btnDonateClose")
 Gui, 2:Add, Text
 
@@ -16512,6 +16519,7 @@ strDonateReviewUrlRight2 := ""
 strDonateReviewUrlRight3 := ""
 strGuiTitle := ""
 arrPos := ""
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -16558,15 +16566,18 @@ Gui, 2:Add, Edit, y+10 w200 vf_strDonorCode
 Gui, 2:Add, Text, y+20, % o_L["GuiDonateCodeInputSponsorLabel"]
 Gui, 2:Add, Edit, y+10 w200 vf_strSponsorName
 
-; ##### Ampersand
+aaL := o_L.InsertAmpersand("GuiSave", "DialogCancelButton")
+
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInputSave vf_btnDonateCodeInputSave, % o_L["GuiSave"] ; ##### Ampersand
-Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateCodeInputCancel, % o_L["DialogCancelButton"]
+Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInputSave vf_btnDonateCodeInputSave, % aaL["GuiSave"]
+Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateCodeInputCancel, % aaL["DialogCancelButton"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateCodeInputSave", "f_btnDonateCodeInputCancel")
 Gui, 2:Add, Text
 
 GuiControl, Focus, btnDonateDefault
 Gosub, ShowGui2AndDisableGui1
+
+aaL := ""
 
 return
 ;------------------------------------------------------------
@@ -16609,6 +16620,8 @@ return
 GuiHelp:
 ;------------------------------------------------------------
 
+aaL := o_L.InsertAmpersand("DonateButton", "GuiClose", "DialogTabNext")
+
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
 
@@ -16633,14 +16646,14 @@ Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText11"], o_PopupHotkeyNavigateOrLau
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText12"]
 Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText13"], o_PopupHotkeyAlternativeHotkeyMouse.AA.strPopupHotkeyText, o_PopupHotkeyAlternativeHotkeyKeyboard.AA.strPopupHotkeyText)
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText14"]
-Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, % o_L["DialogTabNext"]
+Gui, 2:Add, Button, y+25 vf_btnNext1 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText21"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText22"]
 Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText23"], o_PopupHotkeyNavigateOrLaunchHotkeyMouse.AA.strPopupHotkeyText, o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.AA.strPopupHotkeyText)
-Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, % o_L["DialogTabNext"]
+Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
 Gui, 2:Tab, 3
@@ -16648,7 +16661,7 @@ Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText31"]
 Gui, 2:Add, Link, w%intWidth% y+3, % o_L["HelpText32"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText33"]
 Gui, 2:Add, Link, w%intWidth% y+3, % L(o_L["HelpText34"], new Triggers.HotkeyParts(GetFavoriteHotkeyFromLocation("{Settings}")).Hotkey2Text())
-Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, % o_L["DialogTabNext"]
+Gui, 2:Add, Button, y+25 vf_btnNext3 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext3")
 
 Gui, 2:Tab, 4 ; has text numbered 51, 52, etc.
@@ -16660,7 +16673,7 @@ Gui, 2:Add, Link, y+2 w%intWidth%, % " - " . objSharedMenuTypes[3]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText52"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText53"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText54"]
-Gui, 2:Add, Button, y+25 vf_btnNext4 gNextHelpButtonClicked, % o_L["DialogTabNext"]
+Gui, 2:Add, Button, y+25 vf_btnNext4 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext4")
 
 Gui, 2:Tab, 5 ; has text numbered 41, 42, etc.
@@ -16670,11 +16683,11 @@ Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText43"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText44"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText45"]
 
-; ##### Ampersand
+
 Gui, 2:Tab
 GuiControlGet, arrTabPos, Pos, f_intHelpTab
-Gui, 2:Add, Button, % "x180 y" . arrTabPosY + arrTabPosH + 10. " vf_btnHelpDonate gGuiDonate", % o_L["DonateButton"]
-Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, % o_L["GuiClose"]
+Gui, 2:Add, Button, % "x180 y" . arrTabPosY + arrTabPosH + 10. " vf_btnHelpDonate gGuiDonate", % aaL["DonateButton"]
+Gui, 2:Add, Button, x+80 yp g2GuiClose vf_btnHelpClose, % aaL["GuiClose"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
 
 GuiControl, Focus, btnHelpClose
@@ -17514,13 +17527,17 @@ SettingsNotSavedReturn()
 SettingsNotSavedChangeButtonNames:
 ;------------------------------------------------------------
 
-; ##### Ampersand
+aaL := o_L.InsertAmpersand("GuiSave", "MenuSettings", "GuiCancel")
+
 IfWinNotExist, % L(o_L["DialogSettingsNotSavedTitle"], g_strAppNameText)
     return  ; Keep waiting.
 SetTimer, SettingsNotSavedChangeButtonNames, Off
 WinActivate, % L(o_L["DialogSettingsNotSavedTitle"], g_strAppNameText)
-ControlSetText, Button1, % o_L["GuiSave"]
-ControlSetText, Button2, % o_L["MenuSettings"]
+ControlSetText, Button1, % aaL["GuiSave"]
+ControlSetText, Button2, % aaL["MenuSettings"]
+ControlSetText, Button3, % aaL["GuiCancel"]
+
+aa_ := ""
 
 return
 ;------------------------------------------------------------
