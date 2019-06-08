@@ -14875,8 +14875,7 @@ if (blnShiftPressed or blnControlPressed)
 }
 
 ; collect last actions
-if (g_strOpenFavoriteLabel <> "OpenFavoriteFromGroup") ; group has been collected - no need to collect group members
-	and !(g_blnAlternativeMenu) ; do not collect Alternative menu features
+if !(g_blnAlternativeMenu) ; do not collect Alternative menu features
 	gosub, CollectLastActions ; update g_aaLastActions
 
 ; always navigate
@@ -22986,7 +22985,11 @@ class Container
 				
 				; load the submenu
 				oNewSubMenu := new Container(saThisFavorite[1], saThisFavorite[2], this)
-				strResult := oNewSubMenu.LoadFavoritesFromIniFile(false, false) ; RECURSIVE, false not external root, false non entre menu
+				
+				if (oNewSubMenu.AA.strMenuType = "Group")
+					oNewSubMenu.AA.strFavoriteGroupSettings := saThisFavorite[11]
+
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile(false, false) ; RECURSIVE, false not external root, false non entry menu
 				
 				if (saThisFavorite[1] = "External")
 				{
@@ -23005,8 +23008,17 @@ class Container
 				oNewItem.AA.oSubMenu := oNewSubMenu ; link to the submenu object
 				oNewItem.AA.strFavoriteLocation := saThisFavorite[3] ; update location with container path
 			}
+			; else because group items cannot also be container
 			else if (this.AA.strMenuType = "Group")
 			{
+				; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
+				; 2 restore folders with "Windows Explorer" or "Other" (Directory Opus, Total Commander or FPconnect)
+				; 3 delay in milliseconds to insert between each favorite to restore
+				saTemp := StrSplit(this.AA.strFavoriteGroupSettings, ",")
+				oNewItem.AA.blnGroupReplaceWindows := saTemp[1]
+				oNewItem.AA.strGroupRestoreWithExplorerOrOther := saTemp[2]
+				oNewItem.AA.intGroupRestoringDelay := saTemp[3]
+				
 				oNewItem.AA.blnFavoritePseudo := true
 				oNewItem.AA.blnIsGroupMember := true
 			}
@@ -24186,7 +24198,7 @@ class Container
 				; to keep track of QAP features in menus to allow enable/disable menu items
 				o_QAPfeatures.aaQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 			}
-
+			
 			; this is a regular favorite, add it to the current menu
 			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
 			this.InsertItemValue("strFavoriteName", StrReplace(saFavorite[2], g_strEscapePipe, "|")) ; display name of this menu item
@@ -24205,17 +24217,6 @@ class Container
 			this.InsertItemValue("strFavoriteLoginName", StrReplace(saFavorite[9], g_strEscapePipe, "|")) ; login name for FTP favorite
 			this.InsertItemValue("strFavoritePassword", StrReplace(saFavorite[10], g_strEscapePipe, "|")) ; password for FTP favorite
 			this.InsertItemValue("strFavoriteGroupSettings", saFavorite[11]) ; coma separated values for group restore settings or external menu starting line
-			if (this.AA.HasKey("strFavoriteGroupSettings"))
-			{
-				; 1 boolean value (replace existing Explorer windows if true, add to existing Explorer Windows if false)
-				; 2 restore folders with "Windows Explorer" or "Other" (Directory Opus, Total Commander or FPconnect)
-				; 3 delay in milliseconds to insert between each favorite to restore
-				saTemp := StrSplit(this.AA.strFavoriteGroupSettings, ",")
-				this.AA.blnGroupReplaceWindows := saTemp[1]
-				this.AA.strGroupRestoreWithExplorerOrOther := saTemp[2]
-				this.AA.intGroupRestoringDelay := saTemp[3]
-			}
-
 			this.InsertItemValue("blnFavoriteFtpEncoding", saFavorite[12]) ; encoding of FTP username and password, 0 do not encode, 1 encode
 			this.InsertItemValue("blnFavoriteElevate", saFavorite[13]) ; elevate application, 0 do not elevate, 1 elevate
 			this.InsertItemValue("blnFavoriteDisabled", saFavorite[14]) ; favorite disabled, not shown in menu, can be a submenu then all subitems are skipped
@@ -24337,6 +24338,8 @@ class Container
 			; GROUP
 			if (this.AA.strFavoriteType = "Group") and !(g_blnAlternativeMenu)
 			{
+				; fake use of the old command label OpenFavoriteFromGroup used in different places to flag that a group member is being processed
+				this.aaTemp.strOpenFavoriteLabel := "OpenFavoriteFromGroup"
 				this.OpenGroup()
 				blnOpenOK := true
 			}
@@ -24743,7 +24746,7 @@ class Container
 						Sleep, 200 ; sometimes without delay DOpus left the new tab empty
 					}
 					
-					if (g_strOpenFavoriteLabel = "OpenFavoriteFromGroup")
+					if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup")
 					{
 						if (this.aaTemp.blnFirstFolderOfGroup and this.AA.blnGroupReplaceWindows) or !(g_aaFileManagerDirectoryOpus.blnFileManagerUseTabs)
 							strTabParameter := "NEW=nodual" ; force left in new lister
@@ -24960,8 +24963,8 @@ class Container
 					If InStr("Folder|Special|FTP", o_GroupMember.AA.strFavoriteType)
 						intFolderItemsCount++ ; do it that way because first member could be other than a folder
 					o_GroupMember.aaTemp.blnFirstFolderOfGroup := (intFolderItemsCount = 1) ; was g_blnFirstFolderOfGroup
-
-					Sleep, % g_arrGroupSettingsOpen3 + 200 ; add 200 ms as minimal default delay
+					
+					Sleep, % o_GroupMember.AA.intGroupRestoringDelay + 200 ; add 200 ms as minimal default delay
 					o_GroupMember.OpenFavorite(this.aaTemp.strMenuTriggerLabel, this.aaTemp.strOpenFavoriteLabel
 						, "" ; never use target window when launched in a group
 						, "Launch") ; all favorites in group are for Launch, never navigate
@@ -25240,7 +25243,7 @@ class Container
 			}
 
 			if (this.aaTemp.strHotkeyTypeDetected = "Launch")
-				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.strGroupRestoreWithExplorerOrOther[2] = "Windows Explorer")
+				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.strGroupRestoreWithExplorerOrOther = "Windows Explorer")
 					this.aaTemp.strTargetAppName := "Explorer"
 				else if InStr("Desktop|Dialog|Console|Unknown", this.aaTemp.strTargetAppName) ; these targets cannot launch in a new window
 					or (o_FileManagers.P_intActiveFileManager > 1) ; use file managers DirectoryOpus, TotalCommander or QAPconnect
