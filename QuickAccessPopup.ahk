@@ -22780,7 +22780,8 @@ class Container
 	static s_intMenuShortcutNumber
 	
 	;---------------------------------------------------------
-	__Call(function, parameters*)
+	###__Call(function, parameters*)
+	; Disable because it breaks ByRef in FavoriteIsUnderExternalMenu(ByRef oExternalMenu)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -24061,9 +24062,9 @@ class Container
 		
 		for intKey, oItem in this.SA
 		{
-			if (StrLen(oItem.AA.strFavoriteShortcut) and (intShortcutOrHotstrings = 1)
-				or (StrLen(oItem.AA.strFavoriteHotstring) and intShortcutOrHotstrings = 2)
-				or blnSeeAllFavorites)
+			if (StrLen(oItem.AA.strFavoriteShortcut) and (intShortcutOrHotstrings = 1))
+				or (StrLen(oItem.AA.strFavoriteHotstring) and (intShortcutOrHotstrings = 2))
+				or (blnSeeAllFavorites and !oItem.IsSeparator()) ; see all except separators
 			{
 				strThisType := oItem.GetItemTypeLabelForList()
 				intHotkeyListOrder++
