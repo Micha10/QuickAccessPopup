@@ -3744,7 +3744,7 @@ SettingsCtrlE: ; ^E::
 GuiControlGet, strFocusedControl, FocusV
 if (strFocusedControl = "f_strFavoritesListFilter")
 	return
-Gosub, FilterExtendedClick
+Gosub, GuiEditFavorite
 return
 
 SettingsCtrlH: ; ^H::
@@ -5124,21 +5124,21 @@ saMenuItemsTable.Push(["GuiSortFavorites", aaFavoriteL["ControlToolTipSortFavori
 o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu()
 
-aaL := o_L.InsertAmpersand("ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
+aaMenuToolsL := o_L.InsertAmpersand("ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
 	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiFocusFilter", aaL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
-saMenuItemsTable.Push(["FilterExtendedClick", aaL["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
+saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiHotkeysManage", aaL["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaL["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiIconsManage", aaL["DialogIconsManage"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaMenuToolsL["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiIconsManage", aaMenuToolsL["DialogIconsManage"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["RefreshQAPMenu", aaL["MenuRefreshMenu"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["SuspendHotkeys", aaL["MenuSuspendHotkeys"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["RefreshQAPMenu", aaMenuToolsL["MenuRefreshMenu"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["SuspendHotkeys", aaMenuToolsL["MenuSuspendHotkeys"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
  saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiAlwaysOnTop", aaL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarTools"].BuildMenu()
 
@@ -8475,7 +8475,7 @@ Gui, 1:Submit, NoHide
 
 if (A_ThisLabel = "FilterExtendedClick")
 	GuiControl, , f_blnFavoritesListFilterExtended, % (f_blnFavoritesListFilterExtended ? 0 : 1)
-Menu, menuBarTools, ToggleCheck, % o_L["DialogExtendedSearch"]
+Menu, menuBarTools, ToggleCheck, % aaMenuToolsL["DialogExtendedSearch"]
 
 Gosub, GuiFocusFilter
 Gosub, LoadFavoritesInGuiFiltered
@@ -9149,7 +9149,6 @@ GuiAddThisFileFromMsgXpress:
 GuiAddShortcutFromMsg:
 GuiAddFromDropFiles:
 GuiEditFavorite:
-GuiEditFavoriteFromAlternative:
 GuiCopyFavorite:
 GuiAddExternalFromCatalogue:
 GuiAddExternalOtherExternal:
@@ -9263,7 +9262,7 @@ else if (o_EditedFavorite.AA.strFavoriteType = "QAP")
 else
 {
 	GuiControl, 2:Focus, f_strFavoriteShortName
-	if InStr(strGuiFavoriteLabel, "GuiEditFavorite") 
+	if InStr("GuiEditFavorite|GuiCopyFavorite", strGuiFavoriteLabel) 
 		SendInput, ^a
 }
 
@@ -9375,11 +9374,10 @@ g_strNewFavoriteIconResource := ""
 
 blnIsGroupMember := (o_MenuInGui.AA.strMenuType = "Group")
 
-if InStr(strGuiFavoriteLabel, "GuiEditFavorite") or (strGuiFavoriteLabel = "GuiCopyFavorite") ; includes GuiEditFavoriteFromAlternative
+if InStr("GuiEditFavorite|GuiCopyFavorite", strGuiFavoriteLabel)
 {
 	Gui, 1:ListView, f_lvFavoritesList
-	if !(strGuiFavoriteLabel = "GuiEditFavoriteFromAlternative" or blnFavoriteFromSearch) ; if from Alternative menu or from Search we already have g_intOriginalMenuPosition
-		g_intOriginalMenuPosition := LV_GetNext()
+	g_intOriginalMenuPosition := LV_GetNext()
 
 	if !(g_intOriginalMenuPosition)
 	{
@@ -24487,11 +24485,11 @@ class Container
 			{
 				g_intOriginalMenuPosition := A_ThisMenuItemPos
 				o_MenuInGui := o_Containers.AA[A_ThisMenu]
-				; no need to set o_EditedFavorite here, it will be set in GuiEditFavoriteFromAlternative / GuiFavoriteInit
+				; no need to set o_EditedFavorite here, it will be set in GuiEditFavorite / GuiFavoriteInit
 			}
 			
 			gosub, GuiShowFromAlternative
-			gosub, GuiEditFavoriteFromAlternative
+			gosub, GuiEditFavorite
 		}
 		;---------------------------------------------------------
 		
