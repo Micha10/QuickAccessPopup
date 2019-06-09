@@ -12417,8 +12417,8 @@ blnItemIsMenu := o_MenuInGui.SA[intItemToRemove].IsContainer()
 if (blnItemIsMenu)
 {
 	MsgBox, 52, % L(o_L["DialogFavoriteRemoveTitle"], g_strAppNameText)
-		, % L((o_MenuInGui.SA[intItemToRemove].strFavoriteType = "Menu" ? o_L["DialogFavoriteRemovePrompt"]
-			: (o_MenuInGui.SA[intItemToRemove].strFavoriteType = "External" ? o_L["DialogFavoriteRemoveExternalPrompt"]
+		, % L((o_MenuInGui.SA[intItemToRemove].AA.strFavoriteType = "Menu" ? o_L["DialogFavoriteRemovePrompt"]
+			: (o_MenuInGui.SA[intItemToRemove].AA.strFavoriteType = "External" ? o_L["DialogFavoriteRemoveExternalPrompt"]
 			: o_L["DialogFavoriteRemoveGroupPrompt"])), o_MenuInGui.SA[intItemToRemove].AA.oSubmenu.AA.strMenuPath)
 	IfMsgBox, No
 	{
@@ -12434,7 +12434,7 @@ o_EditedFavorite := o_MenuInGui.SA[intItemToRemove] ; for UpdateFavoriteObjectSa
 g_strNewFavoriteShortcut := "" ; for UpdateFavoriteObjectSaveShortcut
 Gosub, UpdateFavoriteObjectSaveShortcut
 
-o_MenuInGui.SA.Delete(intItemToRemove)
+o_MenuInGui.SA.RemoveAt(intItemToRemove)
 
 ; refresh menu dropdpown in gui
 
@@ -24162,7 +24162,7 @@ class Container
 		AA := Object() ; associative array for item's properties
 		
 		;---------------------------------------------------------
-		__Call(function, parameters*)
+		###__Call(function, parameters*)
 		; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 		{
 			funcRef := Func(funcName := this.__class "." function)
