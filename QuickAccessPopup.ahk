@@ -5081,7 +5081,7 @@ BuildGuiMenuBar:
 ;------------------------------------------------------------
 
 loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
-	new Container("Menu", "menuBar" . A_LoopField)
+	new Container("MenuBar", "menuBar" . A_LoopField)
 
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 
@@ -8654,7 +8654,7 @@ g_Gui1AlwaysOnTop := !g_Gui1AlwaysOnTop
 WinSet, AlwaysOnTop, % (g_Gui1AlwaysOnTop ? "On" : "Off"), % L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion) ; do not use default Toogle for safety
 GuiControl, % (g_Gui1AlwaysOnTop ? "Show" : "Hide"), f_picGuiAlwaysOnTopOn
 GuiControl, % (g_Gui1AlwaysOnTop ? "Hide" : "Show"), f_picGuiAlwaysOnTopOff
-Menu, menuBarTools, ToggleCheck, % o_L["ControlToolTipAlwaysOnTopOff"]
+Menu, menuBarTools, ToggleCheck, % aaMenuToolsL["ControlToolTipAlwaysOnTopOff"]
 
 return
 ;------------------------------------------------------------
@@ -11144,13 +11144,13 @@ return
 
 ;------------------------------------------------------------
 GuiShow:
+GuiShowFromQAPFeature:
 GuiShowFromAlternative:
 GuiShowRestoreDefaultPosition:
 GuiShowFromGuiSettings:
 GuiShowFromGuiAddFavoriteQAPFeature:
 ; next labels are not required, they could be GuiShow (but keep them in case of future debugging needs)
 GuiShowFromTray:
-SettingsHotkey:
 GuiShowFromGuiOutside:
 GuiShowFromAddThisFolder:
 GuiShowFromHotkeysManage:
@@ -11159,11 +11159,13 @@ GuiShowFromExternalCatalogue:
 GuiShowNeverCalled:
 ;------------------------------------------------------------
 
-if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOutside|", A_ThisLabel . "|") ; menu object already set in these cases
+if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOutside|GuiShowRestoreDefaultPosition|", A_ThisLabel . "|") ; menu object already set in these cases
+	or !IsObject(o_MenuInGui.AA) ; or in some situation at startup where o_MenuInGui is not defined
 {
 	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
-	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !o_Containers.AA.HasKey(A_ThisMenu)) ; A_ThisMenu = "" and HasKey by safety
+	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !o_Containers.AA.HasKey(A_ThisMenu)
+		or o_Containers.AA[A_ThisMenu].AA.strMenuType = "MenuBar") ; A_ThisMenu is empty or menu not in containers or menu is menu bar
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
 		strThisMenu := A_ThisMenu
@@ -15232,10 +15234,10 @@ Gui, CloseComputer:Add, Radio, x10 y+10 w250 gCloseComputerComboClicked vf_Close
 Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerMonitorLowPower, % o_L["DialogCloseComputerMonitorLowPower"]
 Gui, CloseComputer:Add, Radio, x10 y+5 w250 gCloseComputerComboClicked vf_CloseComputerStartScreenSaver, % o_L["DialogCloseComputerStartScreenSaver"]
 
-Gui, CloseComputer:Add, Checkbox, x270 ys w250 vf_CloseComputerSuspendImmediately hidden, % o_L["DialogCloseComputerSuspendImmediately"]
-Gui, CloseComputer:Add, Checkbox, x270 y+5 w250 vf_CloseComputerDisableWakeEvents hidden, % o_L["DialogCloseComputerDisableWakeEvents"]
+Gui, CloseComputer:Add, Checkbox, x270 ys w250 vf_CloseComputerSuspendImmediately disabled, % o_L["DialogCloseComputerSuspendImmediately"]
+Gui, CloseComputer:Add, Checkbox, x270 y+5 w250 vf_CloseComputerDisableWakeEvents disabled, % o_L["DialogCloseComputerDisableWakeEvents"]
 GuiControlGet, arrGroup1Pos, Pos, f_CloseComputerA9
-Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w250 vf_CloseComputerForce hidden, % o_L["DialogCloseComputerForce"]
+Gui, CloseComputer:Add, Checkbox, x270 y%arrGroup1PosY% w250 vf_CloseComputerForce disabled, % o_L["DialogCloseComputerForce"]
 
 GuiControlGet, arrGroupLastPos, Pos, f_CloseComputerStartScreenSaver
 Gui, CloseComputer:Add, Button, % "x10 y" . arrGroupLastPosY + 25 . " gCloseComputerGuiGo vf_btnCloseComputerGo default", % o_L["DialogCloseComputerGo"]
@@ -15261,9 +15263,9 @@ return
 CloseComputerComboClicked:
 ;------------------------------------------------------------
 
-GuiControl, % (InStr(A_GuiControl, "f_CloseComputerA") ? "Show" : "Hide"), f_CloseComputerForce
-GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Show" : "Hide"), f_CloseComputerSuspendImmediately
-GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Show" : "Hide"), f_CloseComputerDisableWakeEvents
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerA") ? "Enable" : "Disable"), f_CloseComputerForce
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Enable" : "Disable"), f_CloseComputerSuspendImmediately
+GuiControl, % (InStr(A_GuiControl, "f_CloseComputerB") ? "Enable" : "Disable"), f_CloseComputerDisableWakeEvents
 
 strCloseComputerControlSelected := A_GuiControl
 
@@ -15747,7 +15749,7 @@ if (A_IsSuspended)
 else
 	Suspend, On
 
-Menu, menuBarTools, ToggleCheck, % o_L["MenuSuspendHotkeys"]
+Menu, menuBarTools, ToggleCheck, % aaMenuToolsL["MenuSuspendHotkeys"]
 
 return
 ;------------------------------------------------------------
@@ -21777,7 +21779,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Icons",					o_L["DialogIconsManage"] . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
 			, o_L["DialogIconsManageDescription"], 0, "iconIcons", ""
 			, "can-i-manage-all-my-menu-icons-in-one-screen")
-		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"] . "...",				"", "SettingsHotkey",						"3-QAPMenuEditing~7-QAPManagement"
+		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"] . "...",				"", "GuiShowFromQAPFeature",				"3-QAPMenuEditing~7-QAPManagement"
 			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^s"
 			, "what-should-i-know-about-quick-access-popup-before-starting")
 		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . "...",					"", "GuiDonate",							"7-QAPManagement"
