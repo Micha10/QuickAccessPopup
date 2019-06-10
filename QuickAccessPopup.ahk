@@ -3108,8 +3108,14 @@ SendMode, Input
 StringCaseSense, Off
 ComObjError(False) ; we will do our own error handling
 
-; Changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
-; ##### "\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run\QuickAccessPopup.exe"
+; Remove startup Run registry key created by QAP v10 (or alpha v9.9.2) for backward compatibility
+RegRead, strQAPRun, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run, Quick Access Popup
+if (strQAPRun = "QuickAccessPopup.exe") ; only without full path and "/Working:" parameter (if full path or parameter exist, it has been created by the user)
+{
+	RegDelete, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run, Quick Access Popup
+	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.`n`nPlease, restart Quick Access Popup.
+	ExitApp
+}
 
 #Include %A_ScriptDir%\XML_Class.ahk ; by Maestrith (Chad) https://autohotkey.com/boards/viewtopic.php?f=62&t=33114
 
