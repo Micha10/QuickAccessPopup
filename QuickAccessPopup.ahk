@@ -3292,10 +3292,6 @@ global g_strEscapeReplacement := "!r4nd0mt3xt!"
 global o_L := new Language
 o_Settings.InitOptionsGroupsLabelNames() ; init options groups labels after language is initialized
 
-; now that we have langage set, check if we have to move pre-v10 settings
-if (g_blnImportPreV10Settings) ; pre-v10 settings exist
-	Gosub, ProcessPreV10Settings
-
 ;---------------------------------
 ; Init class for JLicons
 if (g_blnPortableMode)
@@ -3815,152 +3811,110 @@ if (g_blnPortableMode)
 
 ; The first time QAP is launched after an install (and also for re-install or upgrade), QAP completes its setup.
 ; To detect if this is the first launch, check if the A_WorkingDir is "C:\ProgramData\Quick Access Popup".
+; Note: when launched from the Start menu shortcut, A_WorkingDir can also be "C:\ProgramData\Quick Access Popup".
 
 if (A_WorkingDir = A_AppDataCommon . "\" . g_strAppNameText) ; this is first launch after installation or update
 {
-	; Check if pre-v10 settings could be imported by searching for the "%A_AppData%\Quick Access Popup" folder
+	; Check if pre-v10 settings exist by searching for the "%A_AppData%\Quick Access Popup" folder
 	; (e.g. C:\Users\Jean\AppData\Roaming\Quick Access Popup) and if v10 has never run by checking if the
 	; registry key "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder") exists.
 	
-	g_blnImportPreV10Settings := FileExist(A_AppData . "\" . g_strAppNameText) ; pre-v10 settings are found
-		and !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder") ; v10 has never run
-	
-	if (g_blnImportPreV10Settings) ; pre-v10 settings could be imported
+	if (FileExist(A_AppData . "\" . g_strAppNameText)
+		and !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder"))
+		; Pre-v10 settings are found and v10 has never run.
 	{
-		; Set the working folder to the pre-v10 folder. After language class instance will be initialised later,
-		; we will ask if user wants to copy the settings from the pre-v10 location (in ProcessPreV10Settings).
-		SetWorkingDir, %A_AppData%\%g_strAppNameText% ; keep pre-v10 working folder until we copy file in ProcessPreV10Settings
-		###_V(A_ThisLabel . " - keep pre-v10 working folder, waiting for ProcessPreV10Settings", A_WorkingDir)
+		; Keep pre-v10 working folder and settings location ("%A_AppData%\Quick Access Popup").
+		; Create the registry value to register QAP working folder ("HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder").
+		; The key "HKEY_CURRENT_USER\Software\Jean Lalonde\" is key is removed when uninstalling QAP.
+		strWorkingFolder := A_AppData . "\" . g_strAppNameText
+		SetRegistry(strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		; ###_V(A_ThisLabel . " - setup mode, first run after install, keep pre-v10 working folder, set working folder registry key"
+			; , "*WorkingFolder registry key", GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder"))
 		
 		; If pre-v10 autostart option is enabled, create the Run registry key and remove the old startup file shortcut.
 		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 		{
 			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
 			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
-			###_V(A_ThisLabel . " - setup mode, previous settings exist, previous startup on, set Run registry key", "*FileExist(A_Startup...", FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk"))
+			; ###_V(A_ThisLabel . " - setup mode, first run after install, startup shortcut file replaced with Run registry key"
+				; , "*FileExist(A_Startup...", FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
+				; , "*Run registry key", GetRegistry("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText))
 		}
-	}
-	else ; new user installing v10 or re-installing for user who used pre-v10
-	{
-		if RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-		; If registry key "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder") exists, set it as working folder.
-		; If the working folder is missing, show an error message and quit.
-		{
-			strExistingWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-			if FileExist(strExistingWorkingFolder)
-			{
-				SetWorkingDir, %strExistingWorkingFolder%
-				###_V(A_ThisLabel . " - setup with existing working folder", A_WorkingDir)
-			}
-			else
-			{
-				Oops("~1~ Setting folder does not exist.`n`nIf it is on a network or external drive, make sure it is online.`n`n~1~ will be closed.", g_strAppNameText)
-				ExitApp
-			}
-		}
-		else
-		{
-			; If the "WorkingFolder" registry key does not exists, create it and set the default working folder under the user's
-			; "My Documents" folder (e.g. "C:\Users\UserName\Documents\Quick Access Popup\"). Create this folder before if required.
-			if !FileExist(A_MyDocuments . "\" . g_strAppNameText)
-			{
-				FileCreateDir, %A_MyDocuments%\%g_strAppNameText%
-			}
-			SetWorkingDir, %A_MyDocuments%\%g_strAppNameText%
-			###_V(A_ThisLabel . " - setup mode, created (probably) A_WorkingDir", A_WorkingDir)
-		}
-
-		; Copy to QAP working folder the files "quickaccesspopup-setup.ini" (indicating in what language to run QAP) created by the setup script
-		; in the "Common Application Data" folder (e.g. "C:\ProgramData\Quick Access Popup") and, if they exist, the template files for new
-		; installations on the same machine/server created by a sysadmin for "quickaccesspopup.ini" and "QAPconnect.ini".
-		
-		if !FileExist(A_WorkingDir . "\quickaccesspopup-setup.ini")
-			FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %A_WorkingDir%
-		if !FileExist(A_WorkingDir . "\quickaccesspopup.ini")
-			FileCopy, %A_AppDataCommon%\quickaccesspopup.ini, %A_WorkingDir%
-		if !FileExist(A_WorkingDir . "\QAPconnect.ini")
-			FileCopy, %A_AppDataCommon%\QAPconnect.ini, %A_WorkingDir%
-		
-		; If this is the first install (if the "WorkingFolder" registry does not exist), set the default autostart key.
-		; If the "WorkingFolder" key exists, avoid setting Run again at next install if user turned it off.
-		if !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-		{
-			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-			###_V(A_ThisLabel . " - setup mode, first installl, set Run registry key", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
-		}
-			
-		; Create the registry key to register QAP working folder. This key is removed when uninstalling QAP:
-		; "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder".
-		SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-		###_V(A_ThisLabel . " - setup mode, set working folder registry key", A_WorkingDir)
-	}
-}
-; end of first launch
-
-; AT EVERY LAUNCH IN SETUP MODE (except at first launch if we have to import pre-v10 settings to new location)
-
-if !(g_blnImportPreV10Settings)
-{
-	; Set working folder by reading the working folder in the registry key:
-	; "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder".
-
-	strWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-
-	; If this folder exists, it sets the A_WorkingDir to this folder (e.g. "C:\Users\UserName\Documents\Quick Access Popup\").
-	; If this folder does not exist, displays an error message and exits the application.
-
-	if StrLen(strWorkingFolder) and FileExist(strWorkingFolder)
-	{
-		SetWorkingDir, %strWorkingFolder%
-		###_V(A_ThisLabel . " - working folder exists, set it as working folder", A_WorkingDir, o_Settings.strIniFile)
 	}
 	else
 	{
-		Oops(o_L["OopsWorkingFolderMissing"]) ; continue with previous working folder or abort? #####
-		ExitApp
+		; This is the first run after installing or re-installing v10 for user who never used pre-v10 (or QAP was launched from the Start menu shortcut).
+		
+		if !RegistryExist("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		{
+			; This is the first install (the "WorkingFolder" registry does not exist), set the default autostart key
+			; (check if the "WorkingFolder" key exists to avoid setting Run again at next install if user turned it off).
+			SetRegistry("QuickAccessPopup.exe", "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
+			; ###_V(A_ThisLabel . " - setup mode, first run after FIRST install, set Run registry key"
+				; , "*Run registry key", GetRegistry("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText))
+			
+			; If the "WorkingFolder" registry value does not exists, create it under the user's "My Documents" folder
+			; (e.g. "C:\Users\UserName\Documents\Quick Access Popup\"). Create this folder before if required.
+			strWorkingFolder := A_MyDocuments . "\" . g_strAppNameText
+			if !FileExist(strWorkingFolder) ; must be created before setting the registry key
+				FileCreateDir, %strWorkingFolder%
+			
+			; Create the registry value to register QAP working folder ("HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder").
+			; The key "HKEY_CURRENT_USER\Software\Jean Lalonde\" is key is removed when uninstalling QAP.
+			SetRegistry(strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+			; ###_V(A_ThisLabel . " - setup mode, first run after FIRST install, created (probably) working folder under A_MyDocuments and set working folder registry key"
+				; , "*WorkingFolder registry key", GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder"))
+		}
+		else
+		{
+			; This is first run after re-install or QAP was launched from the Start menu shortcut. The working folder registry value exists.
+			strWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+			; ###_V(A_ThisLabel . " - setup mode, first run after RE-install or launched from Start menu, get working folder registry key"
+				; , "*WorkingFolder registry key", GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder"))
+		}
 	}
 }
-; else working folder will be created and set in ProcessPreV10Settings after o_L is initialised.
+else ; NOT first launch
+{
+	; Set working folder by reading the working folder in the registry key:
+	; "HKEY_CURRENT_USER\Software\Jean Lalonde\Quick Access Popup\WorkingFolder".
+	strWorkingFolder := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	; ###_V(A_ThisLabel . " - setup mode, not first run after install, get working folder registry key"
+		; , "*WorkingFolder registry key", GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder"))
+}
+
+; At each launch, copy templates files if they do not exist and set the working folder as A_WorkingDir.
+if StrLen(strWorkingFolder) 
+{
+	; Recreate the folder in case the WorkingFolder registry key exists but the folder was deleted
+	if !FileExist(strWorkingFolder) 
+	{
+		FileCreateDir, %strWorkingFolder%
+		; ###_V(A_ThisLabel . " - each run, SHOULD NOT happen, created working folder", strWorkingFolder)
+	}
 	
-return
-;-----------------------------------------------------------
+	; If they do not exist in the working folder, copy the files "quickaccesspopup-setup.ini" (indicating in what language to run QAP)
+	; created by the setup script in the "Common Application Data" folder (e.g. "C:\ProgramData\Quick Access Popup") and, if they exist, 
+	; the template files for new installations on the same machine/server created by a sysadmin for "quickaccesspopup.ini" and "QAPconnect.ini".
+	if !FileExist(strWorkingFolder . "\quickaccesspopup-setup.ini")
+		FileCopy, %A_AppDataCommon%\Quick Access Popup\quickaccesspopup-setup.ini, %strWorkingFolder%
+	if !FileExist(strWorkingFolder . "\quickaccesspopup.ini")
+		FileCopy, %A_AppDataCommon%\quickaccesspopup.ini, %strWorkingFolder%
+	if !FileExist(strWorkingFolder . "\QAPconnect.ini")
+		FileCopy, %A_AppDataCommon%\QAPconnect.ini, %strWorkingFolder%
 
-
-;-----------------------------------------------------------
-ProcessPreV10Settings:
-;-----------------------------------------------------------
-
-; Pre-v10 settings has been found. Offer user to move these settings (the whole content of the folder) to the new v10 settings location
-; ("C:\Users\UserName\Documents\Quick Access Popup\"). If user accepts, QAP copies files, check success of copy and remove the old
-; folder (if possible? #####). If the user declines, the working folder is set to previous pre-v10 location "%A_AppData%\Quick Access Popup".
-
-MsgBox, 36, %g_strAppNameText%, % L(o_L["DialogMoveSettingsToMyDocumentsQuestion"], g_strAppNameText, A_AppData . "\" . g_strAppNameText, A_MyDocuments . "\" . g_strAppNameText)
-	. (FileExist(A_MyDocuments . "\" . g_strAppNameText) ? "`n`n" . o_L["DialogMoveSettingsToMyDocumentsOverwrite"] : "")
-	. "`n`n" . o_L["DialogMoveSettingsToMyDocumentsInfo"]
-
-IfMsgBox, Yes
-{
-	; change value BackupFolder to new working folder - must be done before copy
-	if (o_Settings.SettingsFile.strBackupFolder.IniValue = A_AppData . "\" . g_strAppNameText)
-		o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strWorkingFolder)
-
-	FileCopyDir, %A_AppData%\%g_strAppNameText%, %A_MyDocuments%\%g_strAppNameText%, 1 ; overwrite
-	; ##### check if errorlevel (for example, if folder or file locked)
-	; check if copy worked
-	; delete pre-v10 settings - NOT POSSIBLE IF BUSY
-	SetWorkingDir, %A_MyDocuments%\%g_strAppNameText%
-	###_V(A_ThisLabel . " - file from pre-v10 copied", A_WorkingDir)
-	Oops(o_L["DialogMoveSettingsToMyDocumentsReload"], g_strAppNameText)
-	SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-
-	Gosub, ReloadQAP
+	; If working folder exists, sets the A_WorkingDir to this folder.
+	; If this folder does not exist, displays an error message and exits the application.
+	SetWorkingDir, %strWorkingFolder%
+	; ###_V(A_ThisLabel . " - each run, working folder exists, set it as working folder", "*A_WorkingDir", A_WorkingDir)
 }
-else
+else ; This could happen if the working folder registry value exist but is empty. Ask user to re-install QAP and quit.
 {
-	; keep A_WorkingDir pre-v10 settings location ("%A_AppData%\Quick Access Popup" if user did not changte it)
-	SetRegistry(A_WorkingDir, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-	###_V(A_ThisLabel . " - setup mode, keep pre-v10 working folder, set working folder registry key", A_WorkingDir, o_Settings.strIniFile)
+	Oops("The Quick Access Popup settings folder could not be found.`n`nPlease, re-install Quick Access Popup.") ; language file is not available yet
+	ExitApp
 }
+
+strWorkingFolder := ""
 
 return
 ;-----------------------------------------------------------
