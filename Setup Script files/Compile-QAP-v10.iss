@@ -121,8 +121,10 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName}"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#MyAppExeName}"; ValueType: string; ValueName: "Path"; ValueData: "{app}"; Flags: uninsdeletekey
 
-; DELETE RUN - startup in current user (do not create but delete when uninstall)
+; DELETE Run (startup) value in current user (do not create but delete when uninstall)
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "{#MyAppName}"; Flags: dontcreatekey uninsdeletevalue
+; DELETE Software key (including WorkingFolder value) in current user (do not create but delete when uninstall)
+Root: HKCU; Subkey: "Software\Jean Lalonde\Quick Access Popup"; ValueType: none; Flags: dontcreatekey uninsdeletekey
 
 ; --- CONTEXTUAL MENUS KEYS ---
 ; ADD FILE - for remainig lines of the section setup only if SetupExplorerContextMenus()
