@@ -14,7 +14,7 @@ http://www.autohotkey.com/docs/scripts/FavoriteFolders.htm
 or Rexx version Folder Menu
 http://www.autohotkey.com/board/topic/13392-folder-menu-a-popup-menu-to-quickly-change-your-folders/
 
-Copyright 2013-2017 Jean Lalonde
+Copyright 2013-2019 Jean Lalonde
 --------------------------------
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.5 (2019-06-??)
-TODO
+Version: 9.5 (2019-06-11)
 - changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
 
 Version: 9.4.1.5.2 (2019-04-02)
