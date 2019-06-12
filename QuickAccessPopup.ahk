@@ -5105,11 +5105,11 @@ saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTop
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarTools"].BuildMenu()
 
-aaL := o_L.InsertAmpersand("OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
+aaL := o_L.InsertAmpersand("OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
 	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiOptionsGroupGeneral", aaL["OptionsOtherOptions"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiOptionsGroupGeneral", aaL["OptionsGeneral"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiOptionsGroupSettingsWindow", aaL["OptionsSettingsWindow"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X", "", "", ""])
 saMenuItemsTable.Push(["GuiOptionsGroupMenuIcons", aaL["OptionsMenuIcons"], "", "iconNoIcon"])
@@ -6391,7 +6391,7 @@ g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
 gosub, CheckShowSettings
 
-aaL := o_L.InsertAmpersand("OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
+aaL := o_L.InsertAmpersand("OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
 	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther", "GuiSave", "GuiCancel")
 
@@ -6993,7 +6993,9 @@ if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
 	if (f_strWorkingFolder <> strWorkingFolderPrev)
 	{
-		MsgBox, 547, %g_strAppNameText%, % L(o_L["OptionsMoveWorkingFolderType"], f_strWorkingFolder, g_strAppNameText) ; Option 2 Yes-No-Cancel + 5 question icon + 512 cancel default
+		SetTimer, MoveWorkingFolderChangeButtonNames, 50
+		MsgBox, 547, % o_L["OptionsMoveWorkingFolderTitle"], % L(o_L["OptionsMoveWorkingFolderType"], f_strWorkingFolder, g_strAppNameText) ; Option 2 Yes-No-Cancel + 5 question icon + 512 cancel default
+
 		IfMsgBox, Cancel
 			return
 		IfMsgBox, Yes
@@ -7268,11 +7270,6 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 {
 	if (f_strWorkingFolder <> strWorkingFolderPrev)
 	{
-		
-		SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-		o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
-		; QAP will reload with new A_WorkingDir at the end of save
-		
 		if (blnMoveSettingsToNewWorkingFolder) ; asked in the validation section above
 		{
 			; if blnMoveSettingsToNewWorkingFolder and BackupFolder is in the working folder change value to new working folder - must be done before FileCopyDir 
@@ -7284,6 +7281,10 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 			; check if copy worked
 			; delete pre-v10 settings
 		}
+		
+		SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+		o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
+		; QAP will reload with new A_WorkingDir at the end of save
 	}
 }
 
@@ -8271,6 +8272,23 @@ strContextAddFolderXpress := ""
 strContextAddShortcut := ""
 strContextShowMenu := ""
 strContextShowMenuAlternative := ""
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+MoveWorkingFolderChangeButtonNames:
+;------------------------------------------------------------
+
+IfWinNotExist, % o_L["OptionsMoveWorkingFolderTitle"]
+    return  ; Keep waiting.
+
+SetTimer, MoveWorkingFolderChangeButtonNames, Off
+WinActivate
+
+ControlSetText, Button1, % o_L["DialogCopy"]
+ControlSetText, Button2, % o_L["DialogNew"]
 
 return
 ;------------------------------------------------------------
@@ -22354,7 +22372,7 @@ TODO
 	; called after o_L is initialized
 	;---------------------------------------------------------
 	{
-		this.saOptionsGroupsLabelNames := ["OptionsOtherOptions", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance"
+		this.saOptionsGroupsLabelNames := ["OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance"
 			, "OptionsPopupMenu", "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers"
 			, "OptionsSnippets", "OptionsUserVariables", "OptionsDatabase"
 			, "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther"]
