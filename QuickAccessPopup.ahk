@@ -33,7 +33,7 @@ HISTORY
 
 Version: 9.5 (2019-06-11)
 - changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
-- add in "Options", "More" tab, "Quick Access Popup Database", new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
+- add in "Options", "Icon" tab, new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
 - fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
 - for Directory Opus users, check if DOpus lister exists before opening a folder in order to protect the last used folders
 
