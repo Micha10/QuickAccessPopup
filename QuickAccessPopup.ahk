@@ -41,7 +41,14 @@ Version ALPHA: 9.9.1.1 (2019-06-10)
 - to do
 
 Version ALPHA: 9.9.1 (2019-05-28)
-- to do
+- to be completed
+
+Bug fixes
+- fix bug about Total Commander ini file not found when saving options
+
+Internal
+- implement object oriented data model (using classes, etc.) for favorites (create, edit, execute), 
+
 
 Version ALPHA: 9.9.0.8 (2019-04-03)
 - changes from master v9.4.1.6 to be released soon)
@@ -4990,7 +4997,7 @@ return
 BuildTrayMenu:
 ;------------------------------------------------------------
 
-global g_aaMenuTrayL := o_L.InsertAmpersand("MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
+global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
 	, "MenuOptions", "MenuHelp", "GuiDonate")
 Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
@@ -5048,7 +5055,7 @@ loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 
-aaMenuFileL := o_L.InsertAmpersand("GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuEditIniFile"
+aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuEditIniFile"
 	, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiSaveAndStayFavorites", L(aaMenuFileL["GuiSave"], g_strAppNameText), "", "iconNoIcon"])
@@ -5065,12 +5072,12 @@ saMenuItemsTable.Push(["ReloadQAP", L(aaMenuFileL["MenuReload"], g_strAppNameTex
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["TrayMenuExitApp", L(aaMenuFileL["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarFile"].BuildMenu()
+o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSave"], g_strAppNameText)
 Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
 
-aaFavoriteL := o_L.InsertAmpersand("DialogAdd", "DialogEdit", "GuiRemoveFavorite", "GuiMove", "DialogCopy"
+aaFavoriteL := o_L.InsertAmpersand(true, "DialogAdd", "DialogEdit", "GuiRemoveFavorite", "GuiMove", "DialogCopy"
 	, "ControlToolTipMoveUp", "ControlToolTipMoveDown", "ControlToolTipSortFavorites")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiAddFavoriteSelectType", aaFavoriteL["DialogAdd"], "", "iconNoIcon"])
@@ -5085,9 +5092,9 @@ saMenuItemsTable.Push(["GuiMoveFavoriteDown", aaFavoriteL["ControlToolTipMoveDow
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiSortFavorites", aaFavoriteL["ControlToolTipSortFavorites"], "", "iconNoIcon"])
 o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarFavorite"].BuildMenu()
+o_Containers.AA["menuBarFavorite"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
-aaMenuToolsL := o_L.InsertAmpersand("ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
+aaMenuToolsL := o_L.InsertAmpersand(true, "ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
 	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
@@ -5103,9 +5110,9 @@ saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestor
  saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarTools"].BuildMenu()
+o_Containers.AA["menuBarTools"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
-aaL := o_L.InsertAmpersand("OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
+aaL := o_L.InsertAmpersand(true, "OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
 	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther")
 saMenuItemsTable := Object()
@@ -5131,9 +5138,9 @@ saMenuItemsTable.Push(["GuiOptionsGroupMenuAdvanced", aaL["OptionsMenuAdvanced"]
 saMenuItemsTable.Push(["GuiOptionsGroupAdvancedLaunch", aaL["OptionsAdvancedLaunch"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiOptionsGroupAdvancedOther", aaL["OptionsAdvancedOther"], "", "iconNoIcon"])
 o_Containers.AA["menuBarOptions"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarOptions"].BuildMenu()
+o_Containers.AA["menuBarOptions"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
-aaHelpL := o_L.InsertAmpersand("MenuHelp", "MenuUpdate", "HelpMenuQuickStart", "HelpMenuKnowledgeBase", "HelpMenuSupportForum"
+aaHelpL := o_L.InsertAmpersand(true, "MenuHelp", "MenuUpdate", "HelpMenuQuickStart", "HelpMenuKnowledgeBase", "HelpMenuSupportForum"
 	, "GuiHotkeysHelp", "GuiDropFilesHelp", "GuiDonate", "GuiDonateCodeInput", "MenuAbout")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiHelp", aaHelpL["MenuHelp"], "", "iconNoIcon"])
@@ -5152,9 +5159,9 @@ saMenuItemsTable.Push(["GuiDonateCodeInput", aaHelpL["GuiDonateCodeInput"], "", 
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiAbout", aaHelpL["MenuAbout"], "", "iconNoIcon"])
 o_Containers.AA["menuBarHelp"].LoadFavoritesFromTable(saMenuItemsTable)
-o_Containers.AA["menuBarHelp"].BuildMenu()
+o_Containers.AA["menuBarHelp"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
-aaMenuBarL := o_L.InsertAmpersand("MenuFile", "MenuFavorite", "MenuTools", "MenuOptions", "MenuHelp")
+aaMenuBarL := o_L.InsertAmpersand(false, "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions", "MenuHelp")
 Menu, menuBar, Add, % aaMenuBarL["MenuFile"], :menuBarFile
 Menu, menuBar, Add, % aaMenuBarL["MenuFavorite"], :menuBarFavorite
 Menu, menuBar, Add, % aaMenuBarL["MenuTools"], :menuBarTools
@@ -6198,7 +6205,7 @@ g_aaItemsByShortcutToRemoveWhenBuildingMenu := Object()
 
 global g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 ; RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
-o_MainMenu.BuildMenu() ; recurse for submenus
+o_MainMenu.BuildMenu(g_blnWorkingToolTip) ; recurse for submenus
 if (g_blnWorkingToolTip)
 	ToolTip
 
@@ -6391,7 +6398,7 @@ g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
 
 gosub, CheckShowSettings
 
-aaL := o_L.InsertAmpersand("OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
+aaL := o_L.InsertAmpersand(false, "OptionsGeneral", "OptionsSettingsWindow", "OptionsMenuIcons", "OptionsMenuAppearance", "OptionsPopupMenu"
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
 	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther", "GuiSave", "GuiCancel")
 
@@ -8321,7 +8328,7 @@ if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
 
 ; ampersand labels for gui buttons (this does not work with image buttons' label)
-aaSettingsL := o_L.InsertAmpersand("*" . aaMenuBarL.strUsed, "GuiSaveAndClose", "GuiSave", "GuiClose", "GuiCancel")
+aaSettingsL := o_L.InsertAmpersand(false, "*" . aaMenuBarL.strUsed, "GuiSaveAndClose", "GuiSave", "GuiClose", "GuiCancel")
 
 ; Order of controls important to avoid drawgins gliches when resizing
 
@@ -9202,7 +9209,7 @@ Gosub, CheckboxFolderLiveClicked
 
 ; ------ TABS End ------
 
-aaL := o_L.InsertAmpersand("DialogAdd", "DialogOK", "GuiCancel", "DialogCopy") 
+aaL := o_L.InsertAmpersand(false, "DialogAdd", "DialogOK", "GuiCancel", "DialogCopy") 
 
 Gui, 2:Tab
 
@@ -10275,7 +10282,7 @@ Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "G
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
 GuiControl, 2:, f_drpParentMenuItems, % "|" . strDropdownParentMenuItems . g_strGuiDoubleLine . " " . o_L["DialogEndOfMenu"] . " " . g_strGuiDoubleLine
 
-aaL := o_L.InsertAmpersand("GuiCancel", "GuiCopy", "GuiMove") 
+aaL := o_L.InsertAmpersand(false, "GuiCancel", "GuiCopy", "GuiMove") 
 
 Gui, 2:Add, Button, % "y+20 vf_btnMoveOrCopyFavoritesSave default g" . (blnMove ? "GuiMoveMultipleFavoritesSave" : "GuiCopyMultipleFavoritesSave"), % (blnMove ? aaL["GuiMove"] : aaL["GuiCopy"])
 Gui, 2:Add, Button, yp vf_btnMoveOrCopyFavoritesCancel gGuiAddFavoriteCancel, % aaL["GuiCancel"]
@@ -12969,7 +12976,7 @@ Loop, %g_intIconsManageRows%
 	Gui, 2:Add, Button, % "yp+7 x+" . intMarginWidth // 2 . " h" . intButtonsHeight . " w" . intButtonsWidth . " gIconsManageSetDefault vf_btnSetDefault" . A_Index, % o_L["DialogIconsManageSetDefaultIcon"]
 }
 
-aaL := o_L.InsertAmpersand("DialogIconsManagePrevious", "DialogIconsManageNext", "GuiClose") 
+aaL := o_L.InsertAmpersand(false, "DialogIconsManagePrevious", "DialogIconsManageNext", "GuiClose") 
 
 Gui, 2:Add, Button, x10 y+25 vf_btnIconsManagePrev gLoadIconsManageListPrev h20, % aaL["DialogIconsManagePrevious"]
 Gui, 2:Add, Button, x10 yp vf_btnIconsManageNext gLoadIconsManageListNext, % aaL["DialogIconsManageNext"]
@@ -13320,7 +13327,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	; Use SS_ prefix in local variable names to avoid conflicts outside the function and empty these variable because the function will not do it.
 	global
 
-	SS_aaL := o_L.InsertAmpersand("DialogOK", "GuiCancel", "DialogNone", "GuiResetDefault")
+	SS_aaL := o_L.InsertAmpersand(false, "DialogOK", "GuiCancel", "DialogNone", "GuiResetDefault")
 	
 	g_blnChangeShortcutInProgress := true
 	SS_strModifiersLabels := "Shift|Ctrl|Alt|Win"
@@ -13716,7 +13723,7 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	; Keep default EndChars "-()[]{}:;'"/\,.?!" + Enter, Space and Tab
 	; Keep default MouseReset option (recognizer resets monitored string on mouse click)
 
-	SH_aaL := o_L.InsertAmpersand("DialogOK", "GuiCancel")
+	SH_aaL := o_L.InsertAmpersand(false, "DialogOK", "GuiCancel")
 	
 	Gui, Add, Button, y+25 x10 vf_btnChangeHotstringOK gButtonChangeHotstringOK default, % SH_aaL["DialogOK"]
 	Gui, Add, Button, yp x+20 vf_btnChangeHotstringCancel gButtonChangeHotstringCancel, % SH_aaL["GuiCancel"]
@@ -15803,7 +15810,7 @@ strLatestVersionBeta := objLatestVersions[2]
 strLatestVersionAlpha := objLatestVersions[3]
 
 ; DEGUG VALUES
-; g_strCurrentVersion := "9.3"
+; g_strCurrentVersion := "9.9.0.8"
 ; strLatestVersionAlpha := "9.3.1"
 ; strLatestUsedAlpha := "1.1"
 ; strLatestSkippedAlpha := "9.3.2"
@@ -16114,7 +16121,7 @@ Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpGlobal Checked, % o_L["ImpE
 Gui, ImpExp:Add, CheckBox, y+10 x10 w400 vf_blnImpExpAlternative Checked, % o_L["ImpExpOptionAlternative"]
 Gui, ImpExp:Add, Checkbox, y+10 x10 w400 vf_blnImpExpThemes Checked, % o_L["ImpExpFileThemes"]
 
-aaImportExportL := o_L.InsertAmpersand("ImpExpImport", "ImpExpExport", "GuiClose")
+aaImportExportL := o_L.InsertAmpersand(false, "ImpExpImport", "ImpExpExport", "GuiClose")
 
 Gui, ImpExp:Add, Button, y+20 x10 vf_btnImpExpGo gButtonImpExpGo default, % aaImportExportL["ImpExpExport"]
 Gui, ImpExp:Add, Button, yp x+20 vf_btnImpExpClose gButtonImpExpClose, % aaImportExportL["GuiClose"]
@@ -16410,7 +16417,7 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, w380, % L(o_L["AboutText4"])
 Gui, 2:Font, s8 w400, Verdana
 
-aaL := o_L.InsertAmpersand("GuiClose", "DonateButton")
+aaL := o_L.InsertAmpersand(false, "GuiClose", "DonateButton")
 
 Gui, 2:Add, Button, y+20 vf_btnAboutDonate gGuiDonate, % aaL["DonateButton"]
 Gui, 2:Add, Button, yp vf_btnAboutClose g2GuiClose, % aaL["GuiClose"]
@@ -16480,7 +16487,7 @@ Gui, 2:Add, Link, y+10 x10 vf_lnkSendLink, % "<a href=""https://www.quickaccessp
 GuiControlGet, arrPos, Pos, f_lnkSendLink
 g_intLnkSendLink := arrPosW
 
-aaL := o_L.InsertAmpersand("GuiDonateCodeInput", "GuiClose")
+aaL := o_L.InsertAmpersand(false, "GuiDonateCodeInput", "GuiClose")
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % aaL["GuiDonateCodeInput"]
@@ -16546,7 +16553,7 @@ Gui, 2:Add, Edit, y+10 w200 vf_strDonorCode
 Gui, 2:Add, Text, y+20, % o_L["GuiDonateCodeInputSponsorLabel"]
 Gui, 2:Add, Edit, y+10 w200 vf_strSponsorName
 
-aaL := o_L.InsertAmpersand("GuiSave", "DialogCancelButton")
+aaL := o_L.InsertAmpersand(false, "GuiSave", "DialogCancelButton")
 
 Gui, 2:Font, s8 w400, Verdana
 Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInputSave vf_btnDonateCodeInputSave, % aaL["GuiSave"]
@@ -16600,7 +16607,7 @@ return
 GuiHelp:
 ;------------------------------------------------------------
 
-aaL := o_L.InsertAmpersand("DonateButton", "GuiClose", "DialogTabNext")
+aaL := o_L.InsertAmpersand(false, "DonateButton", "GuiClose", "DialogTabNext")
 
 g_intGui1WinID := WinExist("A")
 Gui, 1:Submit, NoHide
@@ -17507,7 +17514,7 @@ SettingsNotSavedReturn()
 SettingsNotSavedChangeButtonNames:
 ;------------------------------------------------------------
 
-aaL := o_L.InsertAmpersand("GuiSave", "MenuSettings", "GuiCancel")
+aaL := o_L.InsertAmpersand(false, "GuiSave", "MenuSettings", "GuiCancel")
 
 IfWinNotExist, % L(o_L["DialogSettingsNotSavedTitle"], g_strAppNameText)
     return  ; Keep waiting.
@@ -18692,7 +18699,7 @@ WhereIs(strThisFile)
 	Loop, Parse, strPaths, `;
 		If StrLen(A_LoopField)
 			If FileExist(A_LoopField . "\" . strThisFile)
-				Return, RegExReplace(A_LoopField . "\" . strThisFile,  "\\\\", "") ; RegExReplace to prevent results like C:\\Directory
+				Return, RegExReplace(A_LoopField . "\" . strThisFile, "\\\\", "\") ; RegExReplace to prevent results like C:\\Directory
 	
 	; if not found, check in registry paths for this filename
 	RegRead, strAppPath, HKLM, SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\%strThisFile%
@@ -19769,12 +19776,12 @@ DoubleAmpersand(str)
 
 
 ;------------------------------------------------------------
-RemoveSingleAmpersand(str)
+RemoveSingleAmpersand(str, blnMakeDoubleSingle = false)
 ;------------------------------------------------------------
 {
 	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
 	str := StrReplace(str, "&", "") ; remove single ampersand
-	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
+	str := StrReplace(str, g_strEscapeReplacement, (blnMakeDoubleSingle ? "&" : "&&")) ; restore preserved double ampersand
 
 	return str
 }
@@ -22631,7 +22638,7 @@ TODO
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	InsertAmpersand(saIn*)
+	InsertAmpersand(blnAddNumericShortcut, saIn*)
 	; if first item starts with "*", it is a list of pre-used letters
 	;---------------------------------------------------------
 	{
@@ -22655,20 +22662,24 @@ TODO
 		for intKey, strThisStr in saSorted
 		{
 			saThisStr := StrSplit(strThisStr, "|")
-			; ###_V(A_ThisFunc, saThisStr[1], o_L[saThisStr[2]], saThisStr[2], saThisStr[3])
 			aaOut[saThisStr[2]] := o_L[saThisStr[2]] ; backup will be replaced if a letter can be used
-			Loop, Parse, % saContentCleaned[saThisStr[3]] ; scan available letters in label 
+			if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and blnAddNumericShortcut) ; insert ampersand for numeric shortcuts
 			{
-				; ###_V("", aaOut.strUsed, A_LoopField)
-				if !InStr(aaOut.strUsed, A_LoopField) ; not case sensitive by default
-				{
-					aaOut.strUsed .= A_LoopField ; use this letter for this label
-					aaOut[saThisStr[2]] := StrReplace(o_L[saThisStr[2]], A_LoopField, "&" . A_LoopField, , 1)
-					break
-				}
+				Container.s_intMenuShortcutNumber := saThisStr[3] - 1
+				aaOut[saThisStr[2]] := Container.MenuNameWithNumericShortcut(aaOut[saThisStr[2]])
 			}
+			else ; insert ampersand in menu name
+				Loop, Parse, % saContentCleaned[saThisStr[3]] ; scan available letters in label 
+				{
+					if !InStr(aaOut.strUsed, A_LoopField) ; not case sensitive by default
+					{
+						aaOut.strUsed .= A_LoopField ; use this letter for this label
+						aaOut[saThisStr[2]] := StrReplace(o_L[saThisStr[2]], A_LoopField, "&" . A_LoopField, , 1)
+						break
+					}
+				}
 		}
-		; ###_O(strUsed, aaOut)
+		
 		return aaOut
 	}
 	;---------------------------------------------------------
@@ -23227,7 +23238,7 @@ class Container
 	;-----------------------------------------------------
 
 	;------------------------------------------------------------
-	BuildMenu() ; build menu and recurse in submenus
+	BuildMenu(blnWorkingToolTip := false, blnMenuShortcutAlreadyInserted := false) ; build menu and recurse in submenus
 	;------------------------------------------------------------
 	{
 		this.s_intMenuShortcutNumber := 0
@@ -23239,7 +23250,7 @@ class Container
 		
 		intMenuItemsCount := 0 ; counter of items in this menu
 		
-		if (g_blnWorkingToolTip)
+		if (blnWorkingToolTip)
 			ToolTip, % o_L["ToolTipBuilding"] . "`n" . this.AA.strMenuPath
 		
 		Loop, % this.SA.MaxIndex()
@@ -23259,7 +23270,7 @@ class Container
 				aaThisFavorite.strFavoriteName := o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strLocalizedName
 			
 			strMenuItemLabel := aaThisFavorite.strFavoriteName
-			if StrLen(strMenuItemLabel)
+			if (StrLen(strMenuItemLabel) and !blnMenuShortcutAlreadyInserted)
 				strMenuItemLabel := this.MenuNameWithNumericShortcut(strMenuItemLabel)
 			
 			if (aaThisFavorite.strFavoriteType = "Group")
@@ -23628,6 +23639,9 @@ class Container
 	{
 		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (this.s_intMenuShortcutNumber <= 35))
 		{
+			; remove single ampersand in menu name (keep double ampersands)
+			strMenuName := RemoveSingleAmpersand(strMenuName, true) ; true to also convert double ampersand to single
+			
 			if (this.s_intMenuShortcutNumber < 10)
 			{
 				; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
@@ -24371,12 +24385,6 @@ class Container
 				this.LaunchFullLocation()
 				blnOpenOK := true
 			}
-			; APPLICATION
-			else if (this.AA.strFavoriteType = "Application")
-			{
-				this.LaunchApplication()
-				blnOpenOK := true
-			}
 			; SNIPPETS
 			else if (this.AA.strFavoriteType = "Snippet")
 				and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
@@ -24392,7 +24400,7 @@ class Container
 				; 0 for use default / 1 for remember, -1 Minimized / 0 Normal / 1 Maximized, Left (X), Top (Y), Width, Height, Delay (default 200 ms),
 				this.aaTemp.saFavoriteWindowPosition := StrSplit(this.AA.strFavoriteWindowPosition, ",") ; reset simple array for all favorites, replace g_arrFavoriteWindowPosition
 				; DOpus or TC: L Left / R Right / Explorer or TC: Monitor 1 / Monitor 2...; for example: "1,0,100,50,640,480,200" or "0,,,,,,,L"
-				if InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
+				if StrLen(this.aaTemp.strTargetAppName) and InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) ; if we need to position the new Explorer or Total Commander window on the active monitor
 				{
 					SysGet, intNbMonitors, MonitorCount
 					this.aaTemp.intNbMonitors := intNbMonitors
@@ -24400,6 +24408,12 @@ class Container
 						GetPositionFromMouseOrKeyboard(this.aaTemp.strMenuTriggerLabel, A_ThisHotkey, this.aaTemp.intMonitorReferencePositionX, this.aaTemp.intMonitorReferencePositionY)
 				}
 				
+				; APPLICATION
+				if (this.AA.strFavoriteType = "Application")
+				{
+					this.LaunchApplication()
+					blnOpenOK := true
+				}
 				; FOLDER
 				if InStr("Folder|FTP|Special", this.AA.strFavoriteType)
 					blnOpenOK := this.OpenFolder()
