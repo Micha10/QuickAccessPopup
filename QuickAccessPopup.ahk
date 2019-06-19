@@ -37,17 +37,47 @@ Version: 9.5 (2019-06-11)
 - fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
 - for Directory Opus users, check if DOpus lister exists before opening a folder in order to protect the last used folders
 
+Version: 9.5 (2019-06-11)
+- changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
+- add in "Options", "Icon" tab, new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
+- fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
+- for Directory Opus users, check if DOpus lister exists before opening a folder in order to protect the last used folders
+
 Version ALPHA: 9.9.1.1 (2019-06-10)
 - to do
+- for users upgrading, keep the folder under AppData
 
 Version ALPHA: 9.9.1 (2019-05-28)
-- to be completed
+- to be completed from 2019-05-31
+
+Settings window
+- remove "parent menu" item (".."), enlarge parent menu (up) and previous menu (back) arrows
+- search box filters item from current menu instead of from main menu
+- add a Search button to show the Search filter text box instead of the Munu dropdown list
+- add a menu bar with File, Favorite, Tools, Options and Help menus
+- remove various buttons for features now available in the menu bar, remove help links and program title/version at the top of window
+
+Sponsoring
+- remove donation reminders shjown every n startups
+- display a donation reminder when launching a new release for the first time (not for beta or alpha releases)
+- add sponsor message at bottom of window with name of sponsor
 
 Bug fixes
 - fix bug about Total Commander ini file not found when saving options
+- clean up temporary folders older than 7 days not deleted when quitting QAP as it should be normally done
 
 Internal
 - implement object oriented data model (using classes, etc.) for favorites (create, edit, execute), 
+
+Setup installation only (no impact for portable installation)
+
+Settings folder
+- for new installations, the default settings folder is now under "My Documents\Quick Access Popup" (instead of user's AppData folder)
+- offer pre-v10 user to move its settings to the new location (this wilklbe removed in v9.9.1.1 for backward compatibility)
+- register the settings folder in a user's registry key under "HKEY_CURRENT_USER\Software\Jean Lalonde\
+- Settings folder can now be changed in Options, General section
+- when installed using setup mode, replace startup shortcut by using user's registry Run key (keep file shortcut when running in portable mode) and delete startup file shortcut
+- when unstalling QAP, setup program deletes user's QAP Run and QAP Settings folder registry keys
 
 
 Version ALPHA: 9.9.0.8 (2019-04-03)
