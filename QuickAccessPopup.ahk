@@ -31,54 +31,77 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.5 (2019-06-11)
-- changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
-- add in "Options", "Icon" tab, new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
-- fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
-- for Directory Opus users, check if DOpus lister exists before opening a folder in order to protect the last used folders
+Version ALPHA: 9.9.1.2 (2019-06-19)
+(Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> 9.9.2.x (to be released) -> v10)
+- for pre-v10 users upgrading to this release, stop offering to move settings files and keep it under appdata
+
+Version ALPHA: 9.9.0.10 (2019-06-19)
+- fix bug giving error message about Total Commander ini file when saving options
 
 Version: 9.5 (2019-06-11)
+(Prod: 9.4.1.5 -> 9.5.n -> v10)
 - changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
 - add in "Options", "Icon" tab, new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
 - fix bug, update the short name for menu when browsing the list of running application in "Add Favorite" for "Application" type
 - for Directory Opus users, check if DOpus lister exists before opening a folder in order to protect the last used folders
 
 Version ALPHA: 9.9.1.1 (2019-06-10)
-- to do
-- for users upgrading, keep the folder under AppData
+ 
+Settings window
+- add an option under "General" section of "Options" dialog box to open the "Settings" window at startup (default on)
+- add a menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus
+- give access to menus from menu bar in the QAP system menu (right click on QAP icon in Notification zone)
+- add menu entries under "Tools" to activate "Search" and toggle "Extended search"
+- Ctrl-O opens the new Options window
+- Ctrl-Right now changes the menu in Settings window if a menu is selected or opens the selected favorite
+- Ctrl-E edits selected item (menu or favorites)
+- give feedback tpo user if sort command must stop at a line or column separator
+ 
+Sponsoring
+- new dialog box to enter sponsor code and add the "Enter your sponsor code" menu item to "Help" menu
+- adapt "Donate" dialog box to new sponsoring language
+ 
+Install/Uninstall
+- show startup sponsor message only in portable mode (sponsoring message is also shown in Setup last dialog box)
+- Setup mode: replace startup shortcut by using user's registry Run key and delete startup file shortcut and, when unstalling QAP, delete user's QAP Run and QAP Settings folder registry keys
+- Portable mode: keep startup file shortcut
+ 
+Internal changes
+- keyboard shortcut in QAP menus or dialog boxes (using ampersand "&") are now assigned automatically in any language (except Korean and Chineese); this will simplify the insertion of ampersands (&) in these labels when translating labels
+ 
+Various
+- when in portabler mode show "Startup" menu option in QAP system menu (right click on QAP icon in Notification zone)
+- in "Options" dialog box, show "Sponsor this software" button only if user is not a sponsor
+- when switching Settings file, stop asking for confirmation
+ 
+Bug fixes
+- when launching a folder with Directory Opus the active file manager not running, keep previously saved folders in DOpus when launching it
 
 Version ALPHA: 9.9.1 (2019-05-28)
-- to be completed from 2019-05-31
-
+ 
 Settings window
 - remove "parent menu" item (".."), enlarge parent menu (up) and previous menu (back) arrows
+- add a Search button to show the Search filter text box instead of the Menu dropdown list
 - search box filters item from current menu instead of from main menu
-- add a Search button to show the Search filter text box instead of the Munu dropdown list
-- add a menu bar with File, Favorite, Tools, Options and Help menus
-- remove various buttons for features now available in the menu bar, remove help links and program title/version at the top of window
-
+- remove various buttons for features that will be available in the menu bar, remove help links and program title/version at the top of window
+ 
+Settings Folder (Setup installation only - no impact for portable installation)
+- for new installations, the default settings folder is now under "My Documents\Quick Access Popup" (instead of user's AppData folder)
+- offer pre-v10 user to move settings to the new location (this option will be removed in v9.9.1.1 for safer backward compatibility)
+- register the settings folder in a user's registry key under "HKEY_CURRENT_USER\Software\Jean Lalonde\WorkingFolder"
+- Settings folder can now be changed in Options, "General" section, with dialog box asking if user wants to copy actual settings to the new folder or use the settings already in this new location (or create new settings, if necessary)
+ 
 Sponsoring
-- remove donation reminders shjown every n startups
+- remove donation reminders shown every n startups
 - display a donation reminder when launching a new release for the first time (not for beta or alpha releases)
 - add sponsor message at bottom of window with name of sponsor
 
+Internal changes
+- implement object oriented data model (using classes, etc.) for favorites data
+ 
 Bug fixes
 - fix bug about Total Commander ini file not found when saving options
 - clean up temporary folders older than 7 days not deleted when quitting QAP as it should be normally done
-
-Internal
-- implement object oriented data model (using classes, etc.) for favorites (create, edit, execute), 
-
-Setup installation only (no impact for portable installation)
-
-Settings folder
-- for new installations, the default settings folder is now under "My Documents\Quick Access Popup" (instead of user's AppData folder)
-- offer pre-v10 user to move its settings to the new location (this wilklbe removed in v9.9.1.1 for backward compatibility)
-- register the settings folder in a user's registry key under "HKEY_CURRENT_USER\Software\Jean Lalonde\
-- Settings folder can now be changed in Options, General section
-- when installed using setup mode, replace startup shortcut by using user's registry Run key (keep file shortcut when running in portable mode) and delete startup file shortcut
-- when unstalling QAP, setup program deletes user's QAP Run and QAP Settings folder registry keys
-
 
 Version ALPHA: 9.9.0.8 (2019-04-03)
 - changes from master v9.4.1.6 to be released soon)
