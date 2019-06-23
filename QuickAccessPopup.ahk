@@ -4506,12 +4506,14 @@ else
 	; global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	
 	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
-	global g_blnWorkingToolTip := (A_ThisLabel = "LoadMenuFromIniWithStatus")
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
-	if (o_MainMenu.LoadFavoritesFromIniFile() <> "EOM")
+	if (o_MainMenu.LoadFavoritesFromIniFile((A_ThisLabel = "LoadMenuFromIniWithStatus")) <> "EOM")
 		ExitApp
+	if (A_ThisLabel = "LoadMenuFromIniWithStatus")
+		ToolTip ; clear tooltip after refresh
+
 }
 
 return
@@ -6088,8 +6090,6 @@ Diag(A_ThisLabel, "", "START")
 
 If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander settings file exists
 {
-	g_blnWorkingToolTip := (A_ThisLabel = "RefreshTotalCommanderHotlist")
-	
 	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded) ; RECURSIVE
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	ToolTip
@@ -6132,8 +6132,6 @@ Diag(A_ThisLabel, "", "START")
 
 If o_FileManagers.SA[2].DirectoryOpusFavoritesFileExist() ; Directory Opus favorites file exists
 {
-	g_blnWorkingToolTip := (A_ThisLabel = "RefreshDirectoryOpusFavorites")
-	
 	global xmlDirectoryOpusXML := New XML("xml")
 	o_Containers.AA[o_L["DOpusMenuName"]].LoadDirectoryOpusFavoritesFromXML() ; RECURSIVE
 	
@@ -6240,8 +6238,6 @@ BuildMainMenuWithStatus:
 BuildMainMenuScheduled:
 ;------------------------------------------------------------
 
-g_blnWorkingToolTip := (A_ThisLabel = "BuildMainMenuWithStatus")
-
 Menu, % o_L["MainMenuName"], Add
 Menu, % o_L["MainMenuName"], DeleteAll
 if (g_blnUseColors)
@@ -6258,8 +6254,8 @@ g_aaItemsByShortcutToRemoveWhenBuildingMenu := Object()
 
 global g_intNbLiveFolderItems := 0 ; number of items added to live folders (vs maximum set in ini file)
 ; RecursiveBuildOneMenu(g_objMainMenu) ; recurse for submenus
-o_MainMenu.BuildMenu(g_blnWorkingToolTip) ; recurse for submenus
-if (g_blnWorkingToolTip)
+o_MainMenu.BuildMenu(A_ThisLabel = "BuildMainMenuWithStatus") ; recurse for submenus
+if (A_ThisLabel = "BuildMainMenuWithStatus")
 	ToolTip
 
 return
@@ -6358,7 +6354,7 @@ g_blnRefreshQAPMenuInProgress := true
 for strMenuName, o_ThisContainer in o_Containers.AA
 	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	{
-		o_ThisContainer.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_ThisContainer.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
 		o_ThisContainer.BuildMenu()
 	}
 
@@ -8481,7 +8477,7 @@ LV_Delete()
 if (o_MenuInGui.AA.strMenuType = "External") and o_MenuInGui.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
 	; was ExternalMenuReloadAndRebuild(g_objMenuInGui)
 	{
-		o_MenuInGui.LoadFavoritesFromIniFile(true) ; true for Refresh External
+		o_MenuInGui.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
 		o_MenuInGui.BuildMenu()
 	}
 
@@ -11770,7 +11766,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	{
 		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
 			; load the external menu to menu instance o_EditedFavoriteMenu created earlier
-			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+			o_EditedFavoriteMenu.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
 		else ; if external settings file does not exist, create empty [Favorites] section
 		{
 			MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogExternalMenuNotExist"], o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
@@ -13313,8 +13309,8 @@ Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
 Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiClose"], g_strAppNameText)
 
-g_blnWorkingToolTip := true
 o_MainMenu.SaveFavoritesToIniFile()
+ToolTip ; clear tooltip after refresh
 
 if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 	Gosub, ReloadQAP
@@ -14337,8 +14333,7 @@ if (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue)
 	Gosub, RefreshRecentItemsMenus
 	Gosub, RefreshDrivesMenu
 }
-if (g_blnWorkingToolTip)
-	ToolTip ; clear tooltip after refresh
+ToolTip ; clear tooltip after refresh
 
 Diag(A_ThisLabel, "", "STOP-SHOW") ; must be before Menu Show
 SetWaitCursor(false) 
@@ -22934,7 +22929,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(blnRefreshExternal := false, blnEntryMenu := true)
+	LoadFavoritesFromIniFile(blnWorkingToolTip := false, blnRefreshExternal := false, blnEntryMenu := true)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -22955,7 +22950,7 @@ class Container
 		if !StrLen(s_strIniFile)
 			s_strIniFile := o_Settings.strIniFile
 		
-		if (g_blnWorkingToolTip)
+		if (blnWorkingToolTip)
 			ToolTip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 		
 		if (this.AA.strMenuType = "External")
@@ -23034,7 +23029,7 @@ class Container
 				if (oNewSubMenu.AA.strMenuType = "Group")
 					oNewSubMenu.AA.strFavoriteGroupSettings := saThisFavorite[11]
 
-				strResult := oNewSubMenu.LoadFavoritesFromIniFile(false, false) ; RECURSIVE, false not external root, false non entry menu
+				strResult := oNewSubMenu.LoadFavoritesFromIniFile(blnWorkingToolTip, false, false) ; RECURSIVE, 2nd param false not external root, 3rd param false non entry menu
 				
 				if (saThisFavorite[1] = "External")
 				{
@@ -23079,9 +23074,6 @@ class Container
 		this.SA := Object() ; re-init
 		
 		static s_intIniLineLoadTC := 1
-		
-		if (g_blnWorkingToolTip)
-			ToolTip, % o_L["ToolTipLoading"] . "`n" . this.AA.strMenuPath
 		
 		Loop
 		{
@@ -23365,7 +23357,7 @@ class Container
 					o_Containers.AA[aaThisFavorite.oSubMenu.AA.strMenuPath] := aaThisFavorite.oSubMenu
 				}
 				
-				aaThisFavorite.oSubMenu.BuildMenu() ; RECURSIVE - build the submenu first
+				aaThisFavorite.oSubMenu.BuildMenu(blnWorkingToolTip, blnMenuShortcutAlreadyInserted) ; RECURSIVE - build the submenu first
 				
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
 				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
@@ -23733,7 +23725,7 @@ class Container
 					if oItem.AA.oSubMenu.ExternalMenuModifiedSinceLoaded()
 					; was ExternalMenuReloadAndRebuild(oItem.AA.oSubMenu)
 					{
-						oItem.AA.oSubMenu.LoadFavoritesFromIniFile(true) ; true for Refresh External
+						oItem.AA.oSubMenu.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
 						oItem.AA.oSubMenu.BuildMenu()
 					}
 					if ExternalMenuIsReadOnly(oItem.AA.oSubMenu.AA.strMenuExternalSettingsPath)
@@ -23976,7 +23968,7 @@ class Container
 			else
 			; was ExternalMenuReloadAndRebuild(objMenu)
 			{
-				this.LoadFavoritesFromIniFile(true) ; true for Refresh External
+				this.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
 				this.BuildMenu()
 			}
 		}
@@ -24019,8 +24011,7 @@ class Container
 			IniDelete, %s_strIniFile%, Favorites
 		}
 		
-		if (g_blnWorkingToolTip)
-			ToolTip, % o_L["ToolTipSaving"] . "`n" . this.AA.strMenuPath
+		ToolTip, % o_L["ToolTipSaving"] . "`n" . this.AA.strMenuPath
 		
 		for intKey, oItem in this.SA
 		{
@@ -24088,7 +24079,7 @@ class Container
 					Settings.BackupIniFile(s_strIniFile, true) ; backup external settings ini file, if required
 				}
 				
-				oItem.AA.oSubMenu.SaveFavoritesToIniFile(false) ; RECURSIVE
+				oItem.AA.oSubMenu.SaveFavoritesToIniFile(false) ; RECURSIVE false not root
 				
 				if (oItem.AA.strFavoriteType = "External")
 				{
