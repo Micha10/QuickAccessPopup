@@ -5331,6 +5331,7 @@ loop, parse, % "Folders|Files", |
 				saOneLine[3] := SubStr(saOneLine[2], 1, InStr(saOneLine[2], " [", false, 0) - 1) ; strip " [n]" from end
 			else
 				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
+			saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 			; keep icon in 4
 			saMenuItemsTable.Push(saOneLine)
 		}
@@ -5646,6 +5647,7 @@ Loop, Parse, % "Folders|Files", |
 				saOneLine := StrSplit(A_LoopField, "|") 
 				saOneLine[1] := saOneLine[3] ; FavoriteType
 				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
+				saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 				; keep icon in 4
 				saMenuItemsTable.Push(saOneLine)
 			}
