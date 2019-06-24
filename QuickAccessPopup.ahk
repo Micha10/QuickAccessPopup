@@ -3295,12 +3295,12 @@ global o_CommandLineParameters := new CommandLineParameters()
 global g_blnPortableMode
 Gosub, SetQAPWorkingDirectory
 
+ListLines, On ; keep on while debugging AddIcon method, move back in following section after debugging
 ; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for development environment only - won't be compiled
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
-ListLines, On
 ; #### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
@@ -7041,6 +7041,16 @@ if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 	return
 }
 
+if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
+{
+	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	if InStr(f_strWorkingFolder, strWorkingFolderPrev) ; check that dest is not under current location (preventing a recursive copy)
+	{
+		Oops(o_L["DialogMoveSettingsUnder"])
+		return
+	}
+}
+
 if (!g_blnPortableMode and !FolderExistOrCreate(f_strWorkingFolder)) ; Working folder (only for Setup installation)
 	or !FolderExistOrCreate(f_strBackupFolder) ; Backup folder
 	or !FolderExistOrCreate(f_strQAPTempFolderParentPath) ; Temp folder
@@ -7048,7 +7058,6 @@ if (!g_blnPortableMode and !FolderExistOrCreate(f_strWorkingFolder)) ; Working f
 
 if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 {
-	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
 	if (f_strWorkingFolder <> strWorkingFolderPrev)
 	{
 		SetTimer, MoveWorkingFolderChangeButtonNames, 50
@@ -7328,6 +7337,8 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 {
 	if (f_strWorkingFolder <> strWorkingFolderPrev)
 	{
+		blnSettingsMoveOK := true
+		
 		if (blnMoveSettingsToNewWorkingFolder) ; asked in the validation section above
 		{
 			; if blnMoveSettingsToNewWorkingFolder and BackupFolder is in the working folder change value to new working folder - must be done before FileCopyDir 
@@ -7335,14 +7346,33 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 				o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strWorkingFolder)
 			
 			FileCopyDir, %strWorkingFolderPrev%, %f_strWorkingFolder%, 1
-			; ##### check if errorlevel (for example, if file existed, it is not overwritten)
-			; check if copy worked
-			; delete pre-v10 settings
+			
+			FileGetSize, intSettingsSizePrev, %strWorkingFolderPrev%\%g_strAppNameFile%.ini
+			FileGetSize, intSettingsSize, %f_strWorkingFolder%\%g_strAppNameFile%.ini
+			
+			; could also use ComObjCreate("Scripting.FileSystemObject").GetFolder(A_MyDocuments).Files.Count
+			intSettingsFilesNbPrev := ComObjCreate("Shell.Application").NameSpace(strWorkingFolderPrev).Items.Count ;  in root folder only, does not recurse
+			intSettingsFilesNb := ComObjCreate("Shell.Application").NameSpace(f_strWorkingFolder).Items.Count
+			
+			; check if settings file is good and if all files were copied in root folder (use > in case the destination folder already contained files)
+			blnSettingsMoveOK := (intSettingsSizePrev = intSettingsSize and intSettingsFilesNbPrev >= intSettingsFilesNb) ; copy successful
+			
+			if (blnSettingsMoveOK)
+				MsgBox, 0, %g_strAppNameText%, % L(o_L["DialogMoveSettingsSuccess"], strWorkingFolderPrev, f_strWorkingFolder, g_strAppNameText)
+			else
+			{
+				Oops(o_L["DialogMoveSettingsFail"])
+				if (o_Settings.SettingsFile.strBackupFolder.IniValue = strWorkingFolderPrev) ; reset backup folder
+					o_Settings.SettingsFile.strBackupFolder.WriteIni(strWorkingFolderPrev)
+			}
 		}
 		
-		SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-		o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
-		; QAP will reload with new A_WorkingDir at the end of save
+		if (blnSettingsMoveOK)
+		{
+			SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+			o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
+			; QAP will reload with new A_WorkingDir at the end of save
+		}
 	}
 }
 
@@ -7350,7 +7380,7 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 
 if (strWorkingFolderPrev <> f_strWorkingFolder)
 {
-	Oops(o_L["DialogMoveSettingsToMyDocumentsReload"], g_strAppNameText)
+	Oops(o_L["DialogMoveSettingsReload"], g_strAppNameText)
 	Gosub, ReloadQAP
 }
 
@@ -7415,6 +7445,9 @@ strQAPTempFolderParentPrev := ""
 strOption := ""
 strValue := ""
 aaL := ""
+intSettingsSize := ""
+intSettingsSizePrev := ""
+blnSettingsMoveOK := ""
 
 return
 ;------------------------------------------------------------
@@ -19940,7 +19973,7 @@ SetRegistry(strValue, strKeyName, strValueName)
 {
 	RegWrite, REG_SZ, %strKeyName%, %strValueName%, %strValue%
 	if (ErrorLevel)
-		Oops("An error occurreed while write the registre key.`n`nValue: " . strValueName . "`nKey name: " . strKeyName)
+		Oops("An error occurred while writing the registry key.`n`nValue: " . strValueName . "`nKey name: " . strKeyName)
 }
 ;---------------------------------------------------------
 
@@ -22413,7 +22446,7 @@ TODO
 			this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 		; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-; */ ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
+; */ ; ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 
 		; set file name used for Edit settings label
 		SplitPath, % this.strIniFile, strIniFileNameExtOnly
