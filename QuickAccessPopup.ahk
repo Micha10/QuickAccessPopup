@@ -7044,7 +7044,7 @@ if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 {
 	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-	if InStr(f_strWorkingFolder, strWorkingFolderPrev) ; check that dest is not under current location (preventing a recursive copy)
+	if (f_strWorkingFolder <> strWorkingFolderPrev) and InStr(f_strWorkingFolder, strWorkingFolderPrev) ; check that dest is not under current location (preventing a recursive copy)
 	{
 		Oops(o_L["DialogMoveSettingsUnder"])
 		return
@@ -7355,14 +7355,14 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 			intSettingsFilesNb := ComObjCreate("Shell.Application").NameSpace(f_strWorkingFolder).Items.Count
 			
 			; check if settings file is good and if all files were copied in root folder (use > in case the destination folder already contained files)
-			blnSettingsMoveOK := (intSettingsSizePrev = intSettingsSize and intSettingsFilesNbPrev >= intSettingsFilesNb) ; copy successful
+			blnSettingsMoveOK := (intSettingsSizePrev = intSettingsSize and intSettingsFilesNbPrev <= intSettingsFilesNb) ; copy successful
 			
 			if (blnSettingsMoveOK)
 				MsgBox, 0, %g_strAppNameText%, % L(o_L["DialogMoveSettingsSuccess"], strWorkingFolderPrev, f_strWorkingFolder, g_strAppNameText)
 			else
 			{
 				Oops(o_L["DialogMoveSettingsFail"])
-				if (o_Settings.SettingsFile.strBackupFolder.IniValue = strWorkingFolderPrev) ; reset backup folder
+				if (o_Settings.SettingsFile.strBackupFolder.IniValue = f_strWorkingFolder) ; reset backup folder
 					o_Settings.SettingsFile.strBackupFolder.WriteIni(strWorkingFolderPrev)
 			}
 		}
@@ -7378,7 +7378,7 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 
 ; === Need to restart QAP for new working folder
 
-if (strWorkingFolderPrev <> f_strWorkingFolder)
+if (strWorkingFolderPrev <> f_strWorkingFolder and blnSettingsMoveOK)
 {
 	Oops(o_L["DialogMoveSettingsReload"], g_strAppNameText)
 	Gosub, ReloadQAP
