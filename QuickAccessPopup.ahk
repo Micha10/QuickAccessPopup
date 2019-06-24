@@ -31,8 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.1.2 (2019-06-19)
+Version ALPHA: 9.9.1.3 (2019-06-24)
 (Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> 9.9.2.x (to be released) -> v10)
+- use parameter instead of a global variable to flag if display tooltip when loading favorites or builing menus;
+- stop display tooltip when refreshing some menus
+- make sure tooltip is removed
+- fix bug ampersand lost in Recent items when Numeric shorcuts are enabled (fixed in alpha - will not fix in v9.5)
+
+Version ALPHA: 9.9.1.2 (2019-06-19)
 - for pre-v10 users upgrading to this release, stop offering to move settings files and keep it under appdata
 
 Version ALPHA: 9.9.0.10 (2019-06-19)
@@ -3244,7 +3250,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.1.1
+;@Ahk2Exe-SetVersion 9.9.1.3
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3345,7 +3351,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.1.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5050,10 +5056,19 @@ return
 
 ;------------------------------------------------------------
 BuildTrayMenu:
+BuildTrayMenuRefresh:
 ;------------------------------------------------------------
 
-global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
-	, "MenuOptions", "MenuHelp", "GuiDonate")
+if (g_blnPortableMode)
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
+		, "MenuOptions", "MenuHelp", "GuiDonate")
+else
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools"
+		, "MenuOptions", "MenuHelp", "GuiDonate")
+
+if (A_ThisLabel = "BuildTrayMenuRefresh")
+	Menu, Tray, DeleteAll
+
 Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
 if (g_blnPortableMode)
@@ -5082,19 +5097,6 @@ if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
 	. (o_Settings.Launch.blnDonor.IniValue ? L(g_aaMenuTrayL["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : g_aaMenuTrayL["DonateButton"]) ; A_PtrSize * 8 = 32 or 64
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-OptionsMenuShortcut:
-;------------------------------------------------------------
-
-Gosub, SetMenuPosition
-CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Window" : "Screen")
-
-Menu, menuOptions, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -6441,8 +6443,6 @@ GuiOptionsGroupDatabase:
 GuiOptionsGroupMenuAdvanced:
 GuiOptionsGroupAdvancedLaunch:
 GuiOptionsGroupAdvancedOther:
-GuiOptionsFromQAPFeature:
-
 ;------------------------------------------------------------
 
 g_strSettingsGroup := StrReplace(A_ThisLabel, "GuiOptionsGroup")
@@ -7405,6 +7405,7 @@ ResetArray("arrMenu")
 
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
+Gosub, BuildTrayMenuRefresh
 
 g_blnMenuReady := true
 
@@ -21787,9 +21788,6 @@ class QAPfeatures
 		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
 			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
 			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
-		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"],					"menuBarOptions",					"OptionsMenuShortcut",					"7-QAPManagement"
-			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
-			, "what-are-the-essential-global-options-to-know")
 
 		; Command features
 
@@ -21817,6 +21815,9 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Icons",					o_L["DialogIconsManage"] . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
 			, o_L["DialogIconsManageDescription"], 0, "iconIcons", ""
 			, "can-i-manage-all-my-menu-icons-in-one-screen")
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",					"",	"GuiOptionsGroupGeneral",				"7-QAPManagement"
+			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
+			, "what-are-the-essential-global-options-to-know")
 		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"] . "...",				"", "GuiShowFromQAPFeature",				"3-QAPMenuEditing~7-QAPManagement"
 			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^s"
 			, "what-should-i-know-about-quick-access-popup-before-starting")
@@ -23642,7 +23643,11 @@ class Container
 	;------------------------------------------------------------
 	{
 		if (!StrLen(strMenuItemName) and !intStatus)
-			###_V(A_ThisFunc, strMenuItemName, this.AA.strMenuPath)
+		{
+			###_V(A_ThisFunc, "SEE LIST LINES IN CLIPBOARD", this.AA.strMenuPath)
+			Clipboard := ScriptInfo("ListLines")
+		}
+		
 		; The names of menus and menu items can be up to 260 characters long.
 		if StrLen(strMenuItemName) > 260
 			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
