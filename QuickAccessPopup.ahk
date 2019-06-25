@@ -31,8 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.1.3 (2019-06-24)
+Version ALPHA: 9.9.1.4 (2019-06-??)
 (Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> 9.9.2.x (to be released) -> v10)
+- todo
+
+Version ALPHA: 9.9.1.3 (2019-06-24)
 - use parameter instead of a global variable to flag if display tooltip when loading favorites or builing menus;
 - stop display tooltip when refreshing some menus
 - make sure tooltip is removed
@@ -3250,7 +3253,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.1.3
+;@Ahk2Exe-SetVersion 9.9.1.4
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3294,6 +3297,10 @@ global o_CommandLineParameters := new CommandLineParameters()
 
 global g_blnPortableMode
 Gosub, SetQAPWorkingDirectory
+; To test Setup mode in dev environement:
+; 1- rename !!_do_not_remove_or_rename.txt to _do_not_remove_or_rename.txt
+; 2- Below ;@Ahk2Exe-IgnoreBegin, comment out line "SetWorkingDir, %A_ScriptDir%"
+; 3- In class Settings, uner __New(), comment out lines changing "this.strIniFile := ..."
 
 ListLines, On ; keep on while debugging AddIcon method, move back in following section after debugging
 ; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
@@ -3351,7 +3358,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.1.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.1.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5112,13 +5119,15 @@ loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 
-aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuEditIniFile"
-	, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
+aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuOpenWorkingDirectory"
+	, "MenuEditIniFile", "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiSaveAndStayFavorites", L(aaMenuFileL["GuiSave"], g_strAppNameText), "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText), "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiCancel"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiCancel", L(aaMenuFileL["GuiClose"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ShowSettingsIniFile", L(aaMenuFileL["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettings", aaMenuFileL["MenuSwitchSettings"] . "...", "", "iconNoIcon"])
@@ -7041,27 +7050,32 @@ if (g_intClickedFileManager > 1 and (!blnOptionsPathsOK or !blnTCWinCmdOK))
 	return
 }
 
+; Expand Temp, Backup and Settings folders
+strTempFolderNew := EnvVars(f_strQAPTempFolderParentPath) ; save unexpanded to ini file
+strBackupFolderNew := EnvVars(f_strBackupFolder) ; save unexpanded to ini file
+
 if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 {
+	strWorkingFolderNew := EnvVars(f_strWorkingFolder) ; do not PathCombine, save expanded to registry
 	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-	if (f_strWorkingFolder <> strWorkingFolderPrev) and InStr(f_strWorkingFolder, strWorkingFolderPrev) ; check that dest is not under current location (preventing a recursive copy)
+	if (strWorkingFolderNew <> strWorkingFolderPrev) and InStr(strWorkingFolderNew, strWorkingFolderPrev . "\") ; check that dest is not under current location (preventing a recursive copy)
 	{
 		Oops(o_L["DialogMoveSettingsUnder"])
 		return
 	}
 }
 
-if (!g_blnPortableMode and !FolderExistOrCreate(f_strWorkingFolder)) ; Working folder (only for Setup installation)
-	or !FolderExistOrCreate(f_strBackupFolder) ; Backup folder
-	or !FolderExistOrCreate(f_strQAPTempFolderParentPath) ; Temp folder
+if (!g_blnPortableMode and !FolderExistOrCreate(strWorkingFolderNew)) ; Working folder (only for Setup installation)
+	or !FolderExistOrCreate(strBackupFolderNew) ; Backup folder
+	or !FolderExistOrCreate(strTempFolderNew) ; Temp folder
 	return
 
 if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 {
-	if (f_strWorkingFolder <> strWorkingFolderPrev)
+	if (strWorkingFolderNew <> strWorkingFolderPrev)
 	{
 		SetTimer, MoveWorkingFolderChangeButtonNames, 50
-		MsgBox, 547, % o_L["OptionsMoveWorkingFolderTitle"], % L(o_L["OptionsMoveWorkingFolderType"], f_strWorkingFolder, g_strAppNameText) ; Option 2 Yes-No-Cancel + 5 question icon + 512 cancel default
+		MsgBox, 547, % o_L["OptionsMoveWorkingFolderTitle"], % L(o_L["OptionsMoveWorkingFolderType"], strWorkingFolderNew, g_strAppNameText) ; Option 2 Yes-No-Cancel + 5 question icon + 512 cancel default
 
 		IfMsgBox, Cancel
 			return
@@ -7113,11 +7127,11 @@ o_Settings.Launch.blnDisplayTrayTip.WriteIni(f_blnDisplayTrayTip)
 o_Settings.Launch.blnCheck4Update.WriteIni(f_blnCheck4Update)
 o_Settings.MenuPopup.blnChangeFolderInDialog.WriteIni(f_blnChangeFolderInDialog)
 
-o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strBackupFolder)
+o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strBackupFolder) ; save unexpanded to ini file
 
 strQAPTempFolderParentPrev := o_Settings.Launch.strQAPTempFolderParent.IniValue
-if StrLen(f_strQAPTempFolderParentPath)
-	o_Settings.Launch.strQAPTempFolderParent.WriteIni(f_strQAPTempFolderParentPath)
+if StrLen(strTempFolderNew)
+	o_Settings.Launch.strQAPTempFolderParent.WriteIni(f_strQAPTempFolderParentPath) ; save unexpanded to ini file
 
 ; === SettingsWindow ===
 
@@ -7335,7 +7349,7 @@ strNewHotstringsDefaultOptions := ""
 
 if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 {
-	if (f_strWorkingFolder <> strWorkingFolderPrev)
+	if (strWorkingFolderNew <> strWorkingFolderPrev)
 	{
 		blnSettingsMoveOK := true
 		
@@ -7343,34 +7357,34 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 		{
 			; if blnMoveSettingsToNewWorkingFolder and BackupFolder is in the working folder change value to new working folder - must be done before FileCopyDir 
 			if (o_Settings.SettingsFile.strBackupFolder.IniValue = strWorkingFolderPrev)
-				o_Settings.SettingsFile.strBackupFolder.WriteIni(f_strWorkingFolder)
+				o_Settings.SettingsFile.strBackupFolder.WriteIni(strWorkingFolderNew)
 			
-			FileCopyDir, %strWorkingFolderPrev%, %f_strWorkingFolder%, 1
+			FileCopyDir, %strWorkingFolderPrev%, %strWorkingFolderNew%, 1
 			
 			FileGetSize, intSettingsSizePrev, %strWorkingFolderPrev%\%g_strAppNameFile%.ini
-			FileGetSize, intSettingsSize, %f_strWorkingFolder%\%g_strAppNameFile%.ini
+			FileGetSize, intSettingsSize, %strWorkingFolderNew%\%g_strAppNameFile%.ini
 			
 			; could also use ComObjCreate("Scripting.FileSystemObject").GetFolder(A_MyDocuments).Files.Count
 			intSettingsFilesNbPrev := ComObjCreate("Shell.Application").NameSpace(strWorkingFolderPrev).Items.Count ;  in root folder only, does not recurse
-			intSettingsFilesNb := ComObjCreate("Shell.Application").NameSpace(f_strWorkingFolder).Items.Count
+			intSettingsFilesNb := ComObjCreate("Shell.Application").NameSpace(strWorkingFolderNew).Items.Count
 			
 			; check if settings file is good and if all files were copied in root folder (use > in case the destination folder already contained files)
 			blnSettingsMoveOK := (intSettingsSizePrev = intSettingsSize and intSettingsFilesNbPrev <= intSettingsFilesNb) ; copy successful
 			
 			if (blnSettingsMoveOK)
-				MsgBox, 0, %g_strAppNameText%, % L(o_L["DialogMoveSettingsSuccess"], strWorkingFolderPrev, f_strWorkingFolder, g_strAppNameText)
+				MsgBox, 0, %g_strAppNameText%, % L(o_L["DialogMoveSettingsSuccess"], strWorkingFolderPrev, strWorkingFolderNew, g_strAppNameText)
 			else
 			{
 				Oops(o_L["DialogMoveSettingsFail"])
-				if (o_Settings.SettingsFile.strBackupFolder.IniValue = f_strWorkingFolder) ; reset backup folder
+				if (o_Settings.SettingsFile.strBackupFolder.IniValue = strWorkingFolderNew) ; reset backup folder
 					o_Settings.SettingsFile.strBackupFolder.WriteIni(strWorkingFolderPrev)
 			}
 		}
 		
 		if (blnSettingsMoveOK)
 		{
-			SetRegistry(f_strWorkingFolder, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
-			o_Settings.strIniFile := f_strWorkingFolder . "\" . g_strAppNameFile . ".ini"
+			SetRegistry(strWorkingFolderNew, "HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder") ; save expanded to registry
+			o_Settings.strIniFile := strWorkingFolderNew . "\" . g_strAppNameFile . ".ini"
 			; QAP will reload with new A_WorkingDir at the end of save
 		}
 	}
@@ -7378,7 +7392,7 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 
 ; === Need to restart QAP for new working folder
 
-if (strWorkingFolderPrev <> f_strWorkingFolder and blnSettingsMoveOK)
+if (strWorkingFolderPrev <> strWorkingFolderNew and blnSettingsMoveOK)
 {
 	Oops(o_L["DialogMoveSettingsReload"], g_strAppNameText)
 	Gosub, ReloadQAP
@@ -7448,6 +7462,9 @@ aaL := ""
 intSettingsSize := ""
 intSettingsSizePrev := ""
 blnSettingsMoveOK := ""
+strWorkingFolderNew := ""
+strBackupFolderNew := ""
+strTempFolderNew := ""
 
 return
 ;------------------------------------------------------------
@@ -22562,6 +22579,8 @@ TODO
 		if !StrLen(strThisBackupFolder) ; if no backup folder in ini file, backup in ini file's folder
 			strThisBackupFolder := strIniFileFolder
 		
+		strThisBackupFolder := PathCombine(A_WorkingDir, EnvVars(strThisBackupFolder))
+		
 		; delete old backup files (keep only 5/10 most recent files)
 		strIniBackupFile := strThisBackupFolder . "\" . StrReplace(strIniFileFilename, ".ini", "-backup-????????.ini")
 		Loop, %strIniBackupFile%
@@ -23476,7 +23495,11 @@ class Container
 			}
 			
 			if (intMenuItemStatus = 0 and !StrLen(strMenuItemLabel)) ; ##### debugging
+			{
 				###_V(A_ThisFunc, strMenuItemLabel, intMenuItemStatus)
+				###_V(A_ThisFunc, "*DEBUG:", "SEE LIST LINES IN CLIPBOARD", "*strMenuItemLabel", strMenuItemLabel, "*intMenuItemStatus", intMenuItemStatus, "*this.AA.strMenuPath", this.AA.strMenuPath)
+				Clipboard := ScriptInfo("ListLines")
+			}
 			this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
@@ -23675,7 +23698,7 @@ class Container
 	; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 	;------------------------------------------------------------
 	{
-		if (!StrLen(strMenuItemName) and !intStatus)
+		if (!StrLen(strMenuItemName) and !intStatus) ; ##### debugging
 		{
 			###_V(A_ThisFunc, "SEE LIST LINES IN CLIPBOARD", this.AA.strMenuPath)
 			Clipboard := ScriptInfo("ListLines")
