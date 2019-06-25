@@ -3302,12 +3302,12 @@ Gosub, SetQAPWorkingDirectory
 ; 2- Below ;@Ahk2Exe-IgnoreBegin, comment out line "SetWorkingDir, %A_ScriptDir%"
 ; 3- In class Settings, uner __New(), comment out lines changing "this.strIniFile := ..."
 
-ListLines, On ; keep on while debugging AddIcon method, move back in following section after debugging
 ; Force A_WorkingDir to A_ScriptDir if uncomplied (development environment)
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for development environment only - won't be compiled
 ; see http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 SetWorkingDir, %A_ScriptDir%
+ListLines, On
 ; #### BuildUserAhkApi(A_ScriptFullPath,1) ; used for index of type ahead? From Joe Glines
 ; to test user data directory: SetWorkingDir, %A_AppData%\Quick Access Popup
 ; / End of code for developement enviuronment only - won't be compiled
@@ -14723,8 +14723,11 @@ g_strAlternativeMenu := A_ThisMenuItem
 if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue)
 	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 4) ; remove "&1 " from menu item
 if (o_Settings.Menu.intHotkeyReminders.IniValue > 1)
-	g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1
-		, InStr(g_strAlternativeMenu, (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue ? "`t" : " (")) - 1) ; and remove hotkey reminder
+	if (o_Settings.Menu.blnHotkeyRemindersRightAlign.IniValue) and InStr(g_strAlternativeMenu, "`t")
+		g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, "`t")) ; and remove hotkey reminder from tab
+	else if InStr(g_strAlternativeMenu, " (")
+		; InStr 0 param to search from the end, allowing the name to include " ("
+		g_strAlternativeMenu := SubStr(g_strAlternativeMenu, 1, InStr(g_strAlternativeMenu, " (", , 0) - 1) ; and remove hotkey reminder from " ("
 
 gosub, OpenAlternativeMenuTrayTip
 gosub, LaunchFromAlternativeMenu
@@ -23360,6 +23363,8 @@ class Container
 			intMenuItemsCount++ ; for objMenuColumnBreak
 			
 			strMenuItemAction := ""
+			intMenuItemStatus := 1 ; by default
+			
 			; menu items from dynamic menus having custom Gosub in Type field
 			if !o_Favorites.s_saFavoriteTypesByName.HasKey(aaThisFavorite.strFavoriteType)
 				strMenuItemAction := aaThisFavorite.strFavoriteType
@@ -24422,8 +24427,9 @@ class Container
 				else if (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]) and (this.AA.strFavoriteType = "Group")
 					; cannot open group in new window
 					blnOpenOK := false
-					
-				return ; ##### OK?
+				
+				if (g_strAlternativeMenu <> o_L["MenuAlternativeRunAs"]) ; will be launched under APPLICATION below, else this is finished
+					return
 			}
 			
 			if InStr("|Folder|Special|FTP", "|" . this.AA.strFavoriteType) ; must be before SetFullLocation()
