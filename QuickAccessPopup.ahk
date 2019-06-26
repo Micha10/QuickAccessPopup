@@ -65,6 +65,7 @@ Settings window
 - Ctrl-Right now changes the menu in Settings window if a menu is selected or opens the selected favorite
 - Ctrl-E edits selected item (menu or favorites)
 - give feedback tpo user if sort command must stop at a line or column separator
+- when saving a favorite of type folder, document or application, validate if file exists (except if location includes a placeholder {...})
  
 Sponsoring
 - new dialog box to enter sponsor code and add the "Enter your sponsor code" menu item to "Help" menu
@@ -4449,7 +4450,8 @@ ProcessSponsorName:
 if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
 ; donor code need to be updated
 	g_SponsoredMessage := "<a id=""update"">" . o_L["SponsoredUpdate"] . "</a>"
-else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsorName.IniValue . g_strEscapePipe, true), 13, 8))
+else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . StrLower(o_Settings.Launch.strSponsorName.IniValue) . g_strEscapePipe, true), 13, 8)) ; lower case starting 2019-06-27
+	or (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsorName.IniValue . g_strEscapePipe, true), 13, 8)) ; for backward compatibiity for donors in 201905-201906
 ; donor code matching the sponsor name
 {
 	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsorName.IniValue)
@@ -12178,6 +12180,7 @@ if (!g_intNewItemPos)
 
 if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType)
 	and StrLen(strNewFavoriteLocation) ; to exclude situations (like move) where strNewFavoriteLocation is empty
+	and !RegExMatch(strNewFavoriteLocation, "i){(|CUR_|SEL_)(LOC|NAME|DIR|EXT|NOEXT|DRIVE|Clipboard)}") ; case insensitive
 {
 	strExpandedNewFavoriteLocation := strNewFavoriteLocation
 	if !FileExistInPath(strExpandedNewFavoriteLocation)
@@ -20068,6 +20071,26 @@ FolderExistOrCreate(strFolder)
 ;------------------------------------------------------------
 
 
+;------------------------------------------------------------
+StrLower(str)
+;------------------------------------------------------------
+{
+	StringLower, strLower, str
+	return strLower
+}
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+StrUpper(str)
+;------------------------------------------------------------
+{
+	StringUpper, strUpper, str
+	return strUpper
+}
+;------------------------------------------------------------
+
+
 
 ;========================================================================================================================
 ; END OF VARIOUS_FUNCTIONS
@@ -20815,10 +20838,7 @@ class Triggers.MouseButtons
 					str := str . o_MouseButtons.GetMouseButtonLocalized4InternalName(this.strMouseButton, blnShort)
 					
 				if StrLen(this.strKey)
-				{
-					StringUpper, strUpper, % this.strKey
-					str := str . strUpper
-				}
+					str := str . StrUpper(this.strKey)
 			}
 			
 			return str
