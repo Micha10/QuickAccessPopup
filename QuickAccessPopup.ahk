@@ -31,9 +31,74 @@ limitations under the License.
 HISTORY
 =======
 
-Version ALPHA: 9.9.1.4 (2019-06-??)
-(Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> 9.9.2.x (to be released) -> v10)
-- todo
+Version BETA: 9.9.2 (2019-07-??)
+(Beta 9.9.2.x -> v10)
+ 
+Settings window menu bar
+- add a menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus
+- make these menes available from the the QAP system menu (right click on QAP icon in Notification zone)
+- remove from Settings window various buttons for features and links now available in the menu bar
+- remove program title/version at the top of window (keep it in the window title)
+ 
+Settings window keyboard shortcuts
+- Ctrl-O opens the new Options window
+- Ctrl-E edits selected item (menu or favorites)
+- Ctrl-Right now changes the menu in Settings window if a menu is selected or opens the selected favorite
+ 
+Settings window various improvements
+- hide the Search box under the submenus dropdown list and add a Search button to show the Search box (the "X" button shows the submenu dropdown list)
+- the Search box now filters items from current menu instead of from the top menu (main)
+- in items list, remove the "parent menu" item ("..") and make parent menu (up) and previous menu (back) arrows more visible
+- add an option under "General" section of the "Options" dialog box to open the "Settings" window at startup (default on)
+- when saving a favorite of type folder, document or application, check if the file exists (except if location includes a placeholder {...})
+- give feedback to user if a Sort command must stop at a line or column separator
+ 
+Settings Folder
+(these changes impact only usera who installed QAP using the Setup executable file)
+- for new installations, the default settings folder is now under "My Documents\Quick Access Popup" (instead of user's AppData folder)
+- register the Settings Folder in a user's registry key under "HKEY_CURRENT_USER\Software\Jean Lalonde\WorkingFolder"
+- Settings folder can be changed in "Options", "General" section, with dialog box asking if user wants to copy actual settings to the new folder or use the settings already in this new location (or create new settings, if necessary)
+- after the settings folder content is copied, if an error is detected, display an error message; if it succeded, confirm it and inform user that the original files were *not* deleted
+ 
+Sponsoring
+- new dialog box to enter Sponsor code and add the "Enter your sponsor code" menu item to "Help" menu
+- Donor code must now matched the sponsor's name displayed at bottom of Settings window (the sponsor name cannot be changed except to change upper/lower case of name)
+- remove donation reminders shown at startup for users who did not make a donation
+- display a sponsoring reminder when launching a new release for the first time (not in beta releases), for portable installation only (setup installation see a reminder in the setup program)
+ 
+Install/Uninstall
+- Setup mode: use the Registry Run key to set QAP as a startup program (delete startup file shortcut)
+- Setup mode: when unstalling QAP, delete from Registry the QAP Run key and QAP Settings folder key
+- Portable mode: keep startup file shortcut
+ 
+### Various changes
+- when in portabler mode show "Startup" menu option in QAP system menu (right click on QAP icon in Notification zone)
+- in "Options" dialog box, show "Sponsor this software" button only if user is not a sponsor
+- when switching Settings file, stop asking for confirmation
+- stop display tooltip when refreshing some menus
+- support environment variables in new temporary, working and backup folders
+
+Internal changes
+- implement object oriented data model (using classes, etc.) for favorites data
+- keyboard shortcut in QAP menus or dialog boxes (using ampersand "&") are now assigned automatically in any language (except Korean and Chineese); this will simplify the insertion of ampersands (&) in these labels when translating labels
+
+Bug fixes
+- fix bug about Total Commander ini file not found when saving options
+- clean up temporary folders older than 7 days not deleted when quitting QAP as it should be normally done
+- when launching a folder with Directory Opus the active file manager not running, keep previously saved folders in DOpus when launching it
+- fix bug ampersand lost in Recent items when Numeric shorcuts are enabled (fixed in alpha - will not fix in v9.5)
+
+Version ALPHA: 9.9.1.4 (2019-07-08)
+(Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> Beta 9.9.2.x (to be released) -> v10)
+- support environment variables in new temporary, working and backup folders
+- add "Open QAP Settings Folder" to File menu
+- in Setup installation mode only, when moving the settings folder, check that the new folder is not under the current folder (preventing recursive copy)
+- in Setup installation mode only, when moving the settings folder, check that settings quickaccesspopup.ini file has same size and that the number of files in the new folder is at least as in old folder; if error, give error message and restore backup folder (if it was changed); if success, confirm the copy and inform user that original files are *not* deleted
+- do not reload if moving settings folder was cancelled
+- when saving a file favorite, do not check if the file exists if its location includes placeholders
+- debug alternative menu features
+- debug empty menu label in BuildMenu
+- when checking the Donor code, use the Sponsor name case insensitive (allowing user to change the case of the displayed name)
 
 Version ALPHA: 9.9.1.3 (2019-06-24)
 - use parameter instead of a global variable to flag if display tooltip when loading favorites or builing menus;
@@ -46,6 +111,12 @@ Version ALPHA: 9.9.1.2 (2019-06-19)
 
 Version ALPHA: 9.9.0.10 (2019-06-19)
 - fix bug giving error message about Total Commander ini file when saving options
+
+Version: 9.9.0.9 (2019-06-11) 
+(pre v9.9.2 and v10 release)
+- in anticipation of the launch of Quick Access Popup Alpha release v9.9.2 (expected in the next weeks), changes in release v9.9.0.9 will make things smoother if user installing QAP with the "Setup executable file" needs to revert to previous release after having run v9.9.2 release (this will not be required for users installing QAP with the "portable zip file")
+- FYI, only the startup process needed changes in regard with v9.9.2 new startup process
+- v9.9.2 settings file will be backward compatible with v9.9.0.9 settings files
 
 Version: 9.5 (2019-06-11)
 (Prod: 9.4.1.5 -> 9.5.n -> v10)
@@ -3254,7 +3325,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.1.4
+;@Ahk2Exe-SetVersion 9.9.2
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3359,8 +3430,8 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.1.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-global g_strCurrentBranch := "alpha" ; "prod", "beta" or "alpha", always lowercase for filename
+global g_strCurrentVersion := "9.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
 
@@ -8714,7 +8785,7 @@ SponsoredByClicked:
 
 strLink := ErrorLevel
 if (strLink = "update")
-	Run, https://www.quickaccesspopup.com ; ##### update with forum page about updating donor code
+	Run, https://www.quickaccesspopup.com/upgrading-donor-code/
 else if (strLink = "none")
 	Gosub, GuiDonate
 ; else do nothing
@@ -10505,9 +10576,8 @@ Gui, 2:Submit, NoHide
 saThisMenu := o_Containers.AA[f_drpParentMenu].SA
 
 for intIndex, o_Item in saThisMenu
-	if (o_EditedFavorite.AA.strFavoriteName = o_Item.strFavoriteName)
-			and (o_MenuInGui.AA.strMenuPath = saThisMenu.strMenuPath ; skip edited item itself if not a separator
-			and !o_Item.IsSeparator() ; but make sure to keep separators
+	if (o_EditedFavorite.AA.strFavoriteName = o_Item.AA.strFavoriteName)
+			and (o_MenuInGui.AA.strMenuPath = o_Containers.AA[f_drpParentMenu].AA.strMenuPath ; skip edited item itself
 			and !InStr(strGuiFavoriteLabel, "Copy")) ; and that we are not copying a favorite
 		Continue
 	else if (o_Item.AA.strFavoriteType = "X")
@@ -13389,7 +13459,7 @@ Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 
 GuiControl, Enable, f_btnGuiCancel
-GuiControl, , f_btnGuiCancel, % aaMenuFileL["GuiClose"]
+GuiControl, , f_btnGuiCancel, % aaSettingsL["GuiClose"]
 g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
@@ -16556,7 +16626,7 @@ Gui, 2:+Owner1
 Gui, 2:Font, s12 w700, Verdana
 Gui, 2:Add, Link, y10 w420, % L(o_L["DonateText1"], g_strAppNameText)
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Link, x10 w185 y+10 vf_lnkWhySponsor, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/why-support-freeware/") ; will be centered by 2GuiSize
+Gui, 2:Add, Link, x10 w185 y+10 vf_lnkWhySponsor, % L(o_L["DonateText2"], "https://www.quickaccesspopup.com/sponsoring/") ; will be centered by 2GuiSize
 GuiControlGet, arrPos, Pos, f_lnkWhySponsor
 g_intLnkWhySponsorWidth := arrPosW
 
@@ -16590,7 +16660,7 @@ loop, 3
 loop, 3
 	Gui, 2:Add, Link, % (A_Index = 1 ? "ys+20" : "y+5") . " x175 w150", % "<a href=""" . strDonateReviewUrlRight%A_Index% . """>" . o_L["DonateReviewNameRight" . A_Index] . "</a>"
 
-Gui, 2:Add, Link, y+10 x10 vf_lnkSendLink, % "<a href=""https://www.quickaccesspopup.com/why-support-freeware/"">" . o_L["DonateText5"] . "</a>"
+Gui, 2:Add, Link, y+10 x10 vf_lnkSendLink, % "<a href=""https://www.quickaccesspopup.com/sponsoring/"">" . o_L["DonateText5"] . "</a>"
 GuiControlGet, arrPos, Pos, f_lnkSendLink
 g_intLnkSendLink := arrPosW
 
@@ -16629,7 +16699,7 @@ ButtonDonate4:
 strDonatePlatformUrl1 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"
 strDonatePlatformUrl2 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"
 strDonatePlatformUrl3 := "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"
-strDonatePlatformUrl4 := "https://www.quickaccesspopup.com/why-support-freeware/"
+strDonatePlatformUrl4 := "https://www.quickaccesspopup.com/sponsoring/"
 
 intButton := StrReplace(A_ThisLabel, "ButtonDonate")
 Run, % strDonatePlatformUrl%intButton%
@@ -17879,6 +17949,7 @@ GetSelectedLocation(strClass, strWinId)
 		strFirstItem := SubStr(g_strDOpusSelectedListText, InStr(g_strDOpusSelectedListText, "<item id="))
 		strFirstItem := SubStr(strFirstItem, InStr(strFirstItem, "path=""") + 6)
 		strFirstItem := SubStr(strFirstItem, 1, InStr(strFirstItem, """ type=") - 1)
+		strFirstItem := ComUnHTML(strFirstItem) ; convert html entities like "&apos;" converted to "'"
 	}
 	; no reliable technique to retrieve the active item in dialog boxes and Total Commander
 	else if WindowIsTotalCommander(strClass)
@@ -21896,7 +21967,7 @@ class QAPfeatures
 			, "what-should-i-know-about-quick-access-popup-before-starting")
 		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . "...",					"", "GuiDonate",							"7-QAPManagement"
 			, o_L["GuiDonateDescription"], 0, "iconDonate", ""
-			, "why-support-freeware")
+			, "sponsoring")
 		this.AddQAPFeatureObject("GetWinInfo",				o_L["MenuGetWinInfo"] . "...",				"", "GetWinInfo",							"6-Utility"
 			, o_L["MenuGetWinInfoDescription"], 0, "iconAbout", ""
 			, "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps")
@@ -21943,7 +22014,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("List Applications", 		o_L["MenuListApplications"],				"", "ListApplications",						"7-QAPManagement"
 			, o_L["MenuListApplicationsDescription"], 0, "iconDesktop", "", "")
 		this.AddQAPFeatureObject("Donor Code Input", 		o_L["GuiDonateCodeInput"],					"", "GuiDonateCodeInput",					"7-QAPManagement"
-			, o_L["GuiDonateCodeInputDescription"], 0, "iconDonate", "", "why-support-freeware")
+			, o_L["GuiDonateCodeInputDescription"], 0, "iconDonate", "", "sponsoring")
 
 		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"], 			"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
 			, o_L["DialogCloseComputerControlDescription"], 0, "iconExit", ""
@@ -22476,7 +22547,7 @@ TODO
 			, "Snippets", "UserVariables", "Database"
 			, "MenuAdvanced", "AdvancedLaunch", "AdvancedOther"]
 			
-; /* ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
+; /* #### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 		; Set developement ini file
 ;@Ahk2Exe-IgnoreBegin
 		; Start of code for developement environment only - won't be compiled
@@ -22486,7 +22557,7 @@ TODO
 			this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . "-WORK.ini"
 		; / End of code for developement environment only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
-; */ ; ##### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
+; */ ; #### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 
 		; set file name used for Edit settings label
 		SplitPath, % this.strIniFile, strIniFileNameExtOnly
@@ -23519,12 +23590,14 @@ class Container
 					intMenuItemStatus := 1 ; 0 disabled, 1 enabled, 2 default
 			}
 			
-			if (intMenuItemStatus = 0 and !StrLen(strMenuItemLabel)) ; ##### debugging
+			/* #### was for debugging
+			if 1 or (intMenuItemStatus = 0 and !StrLen(strMenuItemLabel))
 			{
 				###_V(A_ThisFunc, strMenuItemLabel, intMenuItemStatus)
 				###_V(A_ThisFunc, "*DEBUG:", "SEE LIST LINES IN CLIPBOARD", "*strMenuItemLabel", strMenuItemLabel, "*intMenuItemStatus", intMenuItemStatus, "*this.AA.strMenuPath", this.AA.strMenuPath)
 				Clipboard := ScriptInfo("ListLines")
 			}
+			*/
 			this.AddMenuIcon(strMenuItemLabel, strMenuItemAction, strMenuItemIcon, intMenuItemStatus, blnFlagNextItemHasColumnBreak)
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
@@ -23723,11 +23796,13 @@ class Container
 	; strIconValue can be an index from o_JLicons.AA (eg: "iconFolder") or a "file,index" icongroup (eg: "imageres.dll,33")
 	;------------------------------------------------------------
 	{
-		if (!StrLen(strMenuItemName) and !intStatus) ; ##### debugging
+		/* #### was for debugging
+		if (!StrLen(strMenuItemName) and !intStatus)
 		{
 			###_V(A_ThisFunc, "SEE LIST LINES IN CLIPBOARD", this.AA.strMenuPath)
 			Clipboard := ScriptInfo("ListLines")
 		}
+		*/
 		
 		; The names of menus and menu items can be up to 260 characters long.
 		if StrLen(strMenuItemName) > 260
@@ -25434,16 +25509,11 @@ class Container
 				else
 					if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; not for URL, Special Folder and others
 						and !LocationIsHTTP(this.AA.strFavoriteLocation) ; except if the folder location is on a server (like WebDAV)
-					{
-						; ##### necessary or already done before???
-						if InStr(this.aaTemp.strFullLocation, "{CUR_") ; here, expand only if current location is used
-							this.aaTemp.strFullLocation := ExpandPlaceholders(this.aaTemp.strFullLocation, "", GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId), -1)
-						
-						; ##### necessary or already done before???
-						; expand system variables
+					
+						; placeholders are already expanded but neet to expand other variables
 						; make the location absolute based on the current working directory
 						blnFileExist := FileExistInPath(this.aaTemp.strFullLocation) ; return this.aaTemp.strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
-					}
+						
 					else if (this.AA.strFavoriteType = "WindowsApp")
 					{
 						if (SubStr(this.aaTemp.strFullLocation, 1, 7) = "Custom:")
