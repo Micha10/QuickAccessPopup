@@ -31,12 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2 (2019-07-??)
+Version BETA: 9.9.2 (2019-07-10)
 (Beta 9.9.2.x -> v10)
  
 Settings window menu bar
 - add a menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus
-- make these menes available from the the QAP system menu (right click on QAP icon in Notification zone)
+- make these menus available from the the QAP system menu (right click on QAP icon in Notification zone)
 - remove from Settings window various buttons for features and links now available in the menu bar
 - remove program title/version at the top of window (keep it in the window title)
  
@@ -68,25 +68,25 @@ Sponsoring
  
 Install/Uninstall
 - Setup mode: use the Registry Run key to set QAP as a startup program (delete startup file shortcut)
-- Setup mode: when unstalling QAP, delete from Registry the QAP Run key and QAP Settings folder key
+- Setup mode: when uninstalling QAP, delete from Registry the QAP Run key and QAP Settings folder key
 - Portable mode: keep startup file shortcut
  
-### Various changes
-- when in portabler mode show "Startup" menu option in QAP system menu (right click on QAP icon in Notification zone)
+Various changes
+- when in portable mode, add "Run at Startup" menu in QAP system menu (right click on QAP icon in Notification zone)
 - in "Options" dialog box, show "Sponsor this software" button only if user is not a sponsor
 - when switching Settings file, stop asking for confirmation
 - stop display tooltip when refreshing some menus
-- support environment variables in new temporary, working and backup folders
-
+- support environment variables (like %TEMP%) in new temporary, working and backup folders
+ 
 Internal changes
 - implement object oriented data model (using classes, etc.) for favorites data
 - keyboard shortcut in QAP menus or dialog boxes (using ampersand "&") are now assigned automatically in any language (except Korean and Chineese); this will simplify the insertion of ampersands (&) in these labels when translating labels
-
+ 
 Bug fixes
+- fix bug ampersand lost in Recent items when numeric shorcuts are enabled
 - fix bug about Total Commander ini file not found when saving options
-- clean up temporary folders older than 7 days not deleted when quitting QAP as it should be normally done
-- when launching a folder with Directory Opus the active file manager not running, keep previously saved folders in DOpus when launching it
-- fix bug ampersand lost in Recent items when Numeric shorcuts are enabled (fixed in alpha - will not fix in v9.5)
+- clean up temporary folders older than 7 days not deleted when quitting QAP (as it should be normally done)
+- fix bug when launching a folder with Directory Opus as active file manager but when DOpus is not running, launch DOpus keeping previously saved folders
 
 Version ALPHA: 9.9.1.4 (2019-07-08)
 (Alpha: 9.9.0.8 -> 9.9.0.9 -> 9.9.0.10 -> 9.9.1.x (private) -> Beta 9.9.2.x (to be released) -> v10)
