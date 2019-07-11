@@ -31,8 +31,16 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.2 (2019-07-11)
+- fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
+- remove temporary debugging code for QAPmessenger checking if QAP is running
+
+Version BETA: 9.9.2.1 (2019-07-11)
+- fix bug not finding Run at startup menu item
+- fix bug building live folder with dynamic colum breaks; increase the number of items in first column of live folder
+- temporary debugging code for QAPmessenger checking if QAP is running
+
 Version BETA: 9.9.2 (2019-07-10)
-(Beta 9.9.2.x -> v10)
  
 Settings window menu bar
 - add a menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus
@@ -3325,7 +3333,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.1
+;@Ahk2Exe-SetVersion 9.9.2.2
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3430,7 +3438,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -16757,7 +16765,7 @@ strSponsorName := Trim(f_strSponsorName)
 
 ; Donor code must contain only numbers and capital letters and be 8 digits
 if (StrLen(strDonorCode) <> 8 or RegExMatch(strDonorCode, "[^A-Z^0-9]")) ; [^A-Z^0-9] any digit not in A-Z and not in 0-9
-	or (strDonorCode <> SubStr(MD5(g_strEscapePipe . strSponsorName . g_strEscapePipe, true), 13, 8))
+	or (strDonorCode <> SubStr(MD5(g_strEscapePipe . StrLower(strSponsorName) . g_strEscapePipe, true), 13, 8))
 {
 	Oops(o_L["GuiDonateCodeInputDonorInvalid"])
 	return
@@ -20292,8 +20300,6 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
-	ToolTip, #### QAP is running ####
-	Sleep, 2000
 	return true
 } 
 ;------------------------------------------------------------
