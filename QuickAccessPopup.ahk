@@ -33,6 +33,7 @@ HISTORY
 
 Version BETA: 9.9.2.2 (2019-07-11)
 - fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
+- refresh sponsor message after sponsor code is entered
 - remove temporary debugging code for QAPmessenger checking if QAP is running
 
 Version BETA: 9.9.2.1 (2019-07-11)
@@ -4542,6 +4543,7 @@ else
 	g_SponsoredMessage := "<a id=""none"">" . o_L["SponsoredNone"] . "</a>"
 	o_Settings.Launch.blnDonor.IniValue := 0
 }
+g_SponsoredMessage := "                    " . g_SponsoredMessage . "                    " ; give extra space to control in case it is replaced with longer text
 
 return
 ;------------------------------------------------------------
@@ -16779,6 +16781,9 @@ MsgBox, 0, %g_strAppNameText%, % L(o_L["DonateThankyou"], strSponsorName), 10
 Gosub, 2GuiClose
 Gosub, BuildGui
 o_MenuInGui := o_MainMenu
+
+Gosub, ProcessSponsorName
+GuiControl, , f_lnkSponsoredBy, %g_SponsoredMessage%
 Gosub, GuiShowFromGuiOutside
 
 strDonorCode := ""
