@@ -3325,7 +3325,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2
+;@Ahk2Exe-SetVersion 9.9.2.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3430,7 +3430,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -3702,7 +3702,7 @@ If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 		; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
 		; if the startup shortcut exists, update it at each execution in case the exe filename changed
 		Gosub, CreateStartupShortcut
-		Menu, Tray, Check, % aaMenuTrayL["MenuRunAtStartup"]
+		Menu, Tray, Check, % g_aaMenuTrayL["MenuRunAtStartup"]
 	}
 }
 
@@ -20292,6 +20292,8 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
+	ToolTip, ##### QAP is running #####
+	Sleep, 2000
 	return true
 } 
 ;------------------------------------------------------------
@@ -23724,10 +23726,10 @@ class Container
 			saItemSource.RemoveAt(1) ; remove sorting criteria, order becomes as expected by new Item class
 			; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk), 5 args (for applications), 6 working dir (for applications)
 			
-			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
+			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and (A_Index > 2) and !Mod(A_Index - 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
 			{
 				oNewItem := new this.Item(["K"], this) ; simple array object with only favorite type "K"
-				this.SA.Push(oNewItem) ; add column break to the current container object
+				oNewSubMenu.SA.Push(oNewItem) ; add column break to the current container object
 				if (saItemSource[1] = "X") ; skip line separator after a column break
 					break ; continue with next line in strContent
 			}
@@ -23818,7 +23820,7 @@ class Container
 				Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
 		}
 		else
-			Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%
+			Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%, % (blnHasColumnBreak ? "BarBreak" : "")
 		
 		if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
 		{
