@@ -20292,7 +20292,7 @@ AHK_NOTIFYICON(wParam, lParam)
 REPLY_QAPISRUNNING(wParam, lParam) 
 ;------------------------------------------------------------
 {
-	ToolTip, ##### QAP is running #####
+	ToolTip, #### QAP is running ####
 	Sleep, 2000
 	return true
 } 
