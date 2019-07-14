@@ -9,7 +9,6 @@ lAlternativeMenuTrayTipEditFavorite	Choisissez le favori à modifier
 lAlternativeMenuTrayTipNewWindow	Choisissez le dossier à ouvrir dans une nouvelle fenêtre
 lAlternativeMenuTrayTipOpenContaining	Choisissez le document. l'application ou le dossier favori dont vous voulez ouvrir le dossier parent
 lAlternativeMenuTrayTipRunAs	Sélectionnez l'application à exécuter en tant qu'administrateur
-lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Initiation rapide</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Foire aux questions</a> • <a href="http://www.quickaccesspopup.com">Soutien en ligne</a> (anglais)
 lContextAddFile	Ajouter ce fichier au menu Quick Access Popup
 lContextAddFileXpress	Ajouter ce fichier au menu Quick Access Popup (Express)
 lContextAddFolder	Ajouter ce dossier au menu Quick Access Popup
@@ -17,7 +16,6 @@ lContextAddFolderXpress	Ajouter ce dossier au menu Quick Access Popup (Express)
 lContextAddShortcut	Importer le Raccourci dans le menu Quick Access Popup
 lContextCancelled	L'activation ou la désactivation des menus contextuels de Windows Explorer a été annulée par l'utilisateur.
 lContextShowMenu	Afficher le menu de Quick Access Popup
-lContextShowMenuAternative	Afficher le menu Alternatif de Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Garder cette fenêtre toujours visible
 lControlToolTipAlwaysOnTopOn	Arrêter de garder cette fenêtre toujours visible
 lControlToolTipColumnBreak	Insérer un saut de colonne à la position actuelle dans le menu
@@ -25,6 +23,9 @@ lControlToolTipMoveDown	Déplacer le(s) favori(s) vers le haut
 lControlToolTipMoveUp	Déplacer le(s) favori(s) vers le bas
 lControlToolTipParentMenu	Aller au menu parent
 lControlToolTipPreviousMenu	Retourner au menu précédent
+lControlToolTipSearchBoxClear	Efface le filtre et affiche tous les favoris
+lControlToolTipSearchBoxExtended	Recherche à partir du menu courant selon le nom *et* les propriétés des favoris
+lControlToolTipSearchButton	Recherche des favoris
 lControlToolTipSeparator	Insérer une ligne de séparation à la position actuelle du menu
 lControlToolTipSortFavorites	Trier tous les favoris ou ceux sélectionnés
 lControlToolTipTextSeparator	Insérer un texte séparateur à la position actuelle dans le menu
@@ -36,7 +37,6 @@ lDiagModeIntro	Envoyez ce fichier à ahk@jeanlalonde.ca avec une description de l
 lDiagModeSee	Voulez-vous consulter le fichier de diagnostique?
 lDialogActivateAlreadyRunning	Si l'application est déjà lancée, l'activer au lieu de la relancer`n(l'application doit avoir exactement le même emplacement)
 lDialogAdd	Ajouter
-lDialogAddAmpersand	&Ajouter
 lDialogAddEditFavoriteTitle	~1~ un favori: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Ajouter un favori - ~1~
 lDialogAddFavoriteTabs	Réglages de base|Options du menu|Options de fenêtres|Réglages avancés
@@ -47,7 +47,6 @@ lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement 
 lDialogAddFolderManuallyTitle	Ajouter le dossier actif ou la page web active - ~1~ ~2~
 lDialogAddFolderSelect	Choisir ou créer ce nouveau dossier:
 lDialogAdmnistrator	Administrateur
-lDialogAdmnistratorNot	Pas administrateur
 lDialogAlt	Alt
 lDialogAltShort	Alt
 lDialogApplicationLabel	Application
@@ -65,7 +64,6 @@ lDialogCancelPrompt	Annuler les changements?
 lDialogCancelTitle	Annuler - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Ceci est un raccourci du menu Alternatif.`n`nVoulez-vous gérer "~1~" dans "~2~"?
 lDialogChangeHotkeyAny	N'importe quelle
-lDialogChangeHotkeyKeyReserved	Le raccourci "~1~" est réservé par Windows.
 lDialogChangeHotkeyLeftAnyRight	Chaque touche spéciale peut être liée à seulement la touche de "Gauche", seulement celle de "Droite" ou à "N'importe quelle".
 lDialogChangeHotkeyModifierAndNone	Les touches spéciales comme "Alt" ou "Control" ne peuvent pas être sélectionnées seules. Choisissez aussi un bouton de la souris ou une touche du clavier dans la section de droite.
 lDialogChangeHotkeyMouseCheckLButton	Vous ne pouvez pas affecter le "Bouton gauche de la souris" sans touche spéciale `n(comme les touches ~1~, ~2~, ~3~ or ~4~).
@@ -84,33 +82,30 @@ lDialogCloseAllWindowsSelectAll	Sélectionner/Dé-sélectionner tout
 lDialogCloseComputerControl	Fermeture de l'ordinateur - Centre de contrôle
 lDialogCloseComputerControlDescription	Contrôler la fermeture de votre ordinateur:`n- Fermer la session, Éteindre, Redémarrer, forcé ou non`n- Mettre en veille ou Mettre en veille prolongée, immédiatement ou non, en désactivant les événements de réveil ou non`n- Éteindre l'écran, Mettre l'écran en mode d'économie d'énergie ou Démarrer l'écran de veille.
 lDialogCloseComputerDisableWakeEvents	Désactiver les événements de réveil
-lDialogCloseComputerForce	&Forcer (peut causer des pertes de données)
+lDialogCloseComputerForce	Forcer (peut causer des pertes de données)
 lDialogCloseComputerGo	Exécuter l'action sélectionnée
-lDialogCloseComputerHibernate	Mettre en veille &prolongée
+lDialogCloseComputerHibernate	Mettre en veille prolongée
 lDialogCloseComputerHibernateDescription	Mettre l'ordinateur en mode d'économie d'énergie (similaire à "Mettre en veille" mais utilise moins d'énergie). Ce mode permet de rapidement reprendre le travail là où vous l'aviez laissé (quoi que moins rapidement qu'avec la commande "Mettre en veille"). Ce mode est conçu pour les ordinateurs portatifs et peut ne pas être disponible sur des ordinateurs de bureau.
-lDialogCloseComputerIntro	Sélectionnez l'action à exécuter
-lDialogCloseComputerLogoff	Se &déconnecter
+lDialogCloseComputerLogoff	Se déconnecter
 lDialogCloseComputerLogoffDescription	Fermer toutes les applications et fermer la session Windows active.
-lDialogCloseComputerMonitorLowPower	&Mettre l'écran en mode d'économie d'énergie
+lDialogCloseComputerMonitorLowPower	Mettre l'écran en mode d'économie d'énergie
 lDialogCloseComputerMonitorLowPowerDescription	Mettre l'écran en mode d'économie d'énergie. Ce mode est conçu pour les ordinateurs portatifs et peut ne pas être disponible sur des ordinateurs de bureau.
-lDialogCloseComputerMonitorTurnOff	É&teindre l'écran
+lDialogCloseComputerMonitorTurnOff	Éteindre l'écran
 lDialogCloseComputerMonitorTurnOffDescription	Fermer le moniteur de l'ordinateur.
-lDialogCloseComputerPowerDown	&Éteindre l'ordinateur
+lDialogCloseComputerPowerDown	Éteindre l'ordinateur
 lDialogCloseComputerPowerDownDescription	Fermer toutes les applications et éteindre l'ordinateur.
 lDialogCloseComputerPrompt	Veuillez sélectionner une option
-lDialogCloseComputerRestart	&Redémarrer l'ordinateur
+lDialogCloseComputerRestart	Redémarrer l'ordinateur
 lDialogCloseComputerRestartDescription	Fermer toutes les applications et redémarrer l'ordinateur comme si l'utilisateur l'éteignait et le rallumait.
-lDialogCloseComputerShutdown	&Arrêter l'ordinateur
+lDialogCloseComputerShutdown	Arrêter l'ordinateur
 lDialogCloseComputerShutdownDescription	Fermer toutes les applications en vue de l'éteindre. Selon la configuration de votre système, ceci pourrait aussi éteindre l'ordinateur.
-lDialogCloseComputerStartScreenSaver	Démarrer &l'écran de veille
+lDialogCloseComputerStartScreenSaver	Démarrer l'écran de veille
 lDialogCloseComputerStartScreenSaverDescription	Démarrer l'économiseur d'écran par défaut de l'ordinateur.
-lDialogCloseComputerSuspend	Mettre l'ordinateur en &veille
+lDialogCloseComputerSuspend	Mettre l'ordinateur en veille
 lDialogCloseComputerSuspendDescription	Mettre l'ordinateur en veille afin de consommer moins d'énergie. Ce mode permet de rapidement reprendre le travail là où vous l'aviez laissé. Ce mode est conçu pour les ordinateurs portatifs et peut ne pas être disponible sur des ordinateurs de bureau.
-lDialogCloseComputerSuspendImmediately	Mettre en veille &immédiatement(peut causer des pertes de données)
+lDialogCloseComputerSuspendImmediately	Mettre en veille immédiatement(peut causer des pertes de données)
 lDialogContinue	Poursuivre
-lDialogContinueAmpersand	&Poursuivre
 lDialogCopy	Copier
-lDialogCopyAmpersand	C&opier
 lDialogCopyFavoritesTitle	Copier des favoris - ~1~ ~2~
 lDialogCtrl	Contrôle
 lDialogCtrlShort	Ctrl
@@ -123,7 +118,6 @@ lDialogElevate	Lancer l'application avec des droits d'administration augmentés
 lDialogEndOfMenu	fin du menu
 lDialogErrorMoving	Incapable de redimensionner pour le favori:`n"~1~"
 lDialogExtendedSearch	Recherche étendue
-lDialogExternalAddFromCatalogue	Voulez-vous ajouter un menu externe du Catalogue des menus partagés?
 lDialogExternalLocation	Emplacement du fichier de configuration de ce menu partagé
 lDialogExternalLocationIni	Le fichier de paramètres partagé doit être un fichier .ini.
 lDialogExternalLocationReadOnly	L'emplacement des des fichiers des menus partagés ne peut être modifié. Si le fichier de ce menu a été renommé ou déplacé, retirez le d'abord et créez un nouveau menu partagé avec le nouvel emplacement du fichier.
@@ -211,8 +205,7 @@ lDialogFavoriteTypesHelp6	Créez un raccourci vers un "Site FTP".`n`nChoisissez l
 lDialogFavoriteTypesHelp7	Dans n'importe quel menu, insérez des fonctionnalités de QAP tel que: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nVoyez les descriptions et liens d'aide pour plus d'information.
 lDialogFavoriteTypesHelp8	Rassemblez des favoris apparentés dans un "Sous-menu".`n`nDonnez un nom à ce sous-menu et sélectionnez diverses options.`n`nAjoutez des favoris à votre sous-menu ou déplacez-les à partir d'autres menus ou groupes avec le bouton "Déplacer" ou dans l'onglet "Options du menu" de la boîte de dialogue "Modifier un favori".
 lDialogFavoriteTypesHelp9	Lancez un "Groupe" de favoris en un seul raccourci.`n`nDonnez un nom à ce groupe et sélectionnez diverses options.`n`nAjoutez des favoris à votre groupe. Déplacez un favori vers un autre groupe ou sous-menu avec le bouton "Déplacer" ou dans l'onglet "Options du menu" de la boîte de dialogue "Modifier un favori".`n`nLes Réglages avancés permettent de contrôle la vitesse de restauration en insérant un délai entre chaque favori à restaurer.
-lDialogFavoriteTypesLabels	&Dossier|D&ocument|&Application|Dossier &spécial|&Lien (URL)|Site &FTP|Fonctionnalité &QAP|Sous-&menu|&Groupe||||Fragments de &texte|M&enu partagé|Texte séparateur|Appli &Windows
-lDialogFavoriteTypesLabelsNoAmpersand	Dossier|Document|Application|Dossier spécial|Lien (URL)|Site FTP|Fonctionnalité QAP|Sous-menu|Groupe||||Fragments de texte|Menu partagé|Texte séparateur|Appli Windows
+lDialogFavoriteTypesLabels	Dossier|Document|Application|Dossier spécial|Lien (URL)|Site FTP|Fonctionnalité QAP|Sous-menu|Groupe||||Fragments de texte|Menu partagé|Texte séparateur|Appli Windows
 lDialogFavoriteTypesLocationLabels	Dossier (emplacement)|Document (emplacement et nom de fichier)|Application (emplacement et nom de fichier)||Lien (URL)|Site FTP (URL)|||||||Contenu|Menu externe (emplacement et nom du fichier)|Texte séparateur|ID d'Appli Windows (AUMID)
 lDialogFavoriteTypesShortNames	Dossier|Doc|App|Spécial|Lien|FTP|QAP|Menu|Groupe|Separateur|Colonne|..|Fragment|Partagé|Texte|App Win
 lDialogFavoriteWorkingDirNotFoundPrompt	Le dossier "Démarrer dans" du favori "~1~" est introuvable:`n~2~
@@ -247,10 +240,8 @@ lDialogHotstringKeepHotstring	Conserver l'abréviation
 lDialogHotstringNotWaitEndingKey	Ne pas attendre de caractère de fin
 lDialogHotstrings	Chaînes de substitution
 lDialogHotstringsDescription	Afficher une boîte de dialogue offrant une vue globale de vos chaînes de substitution (petites séquences de caractères qui déclenchent automatiquement un favori de QAP). Vous pouvez trier les favoris en cliquant sur l'entête des colonnes.`n`nFaites un double-clic sur une chaîne de substitution pour la modifier.`n`nCliquez sur la case à cocher "Voir tous les favoris" pour assigner des chaînes de substitution à d'autres favoris.
-lDialogHotstringsShort	Substitution
 lDialogHotstringTriggerAbbreviation	Déclencheur (abréviation):
 lDialogHotstringTriggerOptions	Chaîne de substitution (déclencheur et options)
-lDialogHotstringWaitEndingKey	Attendre la touche de fin
 lDialogIcon	Icône
 lDialogIconsManage	Icônes
 lDialogIconsManageAbout	Choisissez de nouveaux icônes pour vos favoris ou rétablissez l'icône par défaut selon le type de favori. N'oubliez pas d'enregistrer vos changements dans la fenêtre Paramètres.
@@ -258,9 +249,9 @@ lDialogIconsManageCurrent	Icône actuel
 lDialogIconsManageDefault	Icône par défaut
 lDialogIconsManageDescription	Afficher une boîte de dialogue présentant tous les favoris dans votre menu avec leur icône actuelle et l'icône par défaut pour ce type de favori. Les favoris sont regroupés par sous-menu, dans l'ordre où ils apparaissent dans votre menu.`n`nCliquez sur les boutons pour sélectionner un autre icône ou restaurer l'icône par défaut de ce favori.
 lDialogIconsManageFavoriteName	Nom du favori
-lDialogIconsManageNext	&Suivant
+lDialogIconsManageNext	Suivant
 lDialogIconsManageParentMenu	Menu contenant ce favori
-lDialogIconsManagePrevious	&Précédant
+lDialogIconsManagePrevious	Précédant
 lDialogIconsManageSetDefaultIcon	Icône par défaut
 lDialogIconsManageTitle	Gérer les icônes - ~1~ ~2~
 lDialogInvalidHotkey	Avec votre configuration actuelle de clavier, la touche de raccourci "~1~" ne peut être utilisée comme un déclencheur pour le menu popup.`n`nVeuillez ouvrir la fenêtre "Paramètres" dans la zone de notification et cliquez sur "Options". Dans cette boîte de dialogue, choisissez une autre touche de raccourci pour "~2~".
@@ -276,23 +267,26 @@ lDialogMenuNotMoveUnderItself	Le menu "~1~" ne peut être déplacé sous lui-même.
 lDialogMinimized	Minimisée
 lDialogModifiedDate	Date de modification
 lDialogMore	Autres
-lDialogMoreOptions	D'autres options
 lDialogMouse	Souris
 lDialogMouseButtonsText	Bouton de gauche de la souris|Bouton du milieu de la souris|Bouton de droite de la souris|Bouton spécial 1 de la souris|Bouton spécial 2 de la souris|Molette vers le haut|Molette vers le bas|Molette à gauche|Molette à droite|
-lDialogMouseButtonsTextShort	Bouton de gauche|Bouton du milieu|Bouton de droite|Bouton spécial 1|Bouton spécial 2|Molette haut|Molette bas|Molette à gauche|Molette à droite|
+lDialogMouseButtonsTextShort	Bouton Gauche|Bouton Milieu|Bouton Droite|Bouton Spécial 1|Bouton Spécial 2|Molette Haut|Molette Bas|Molette Gauche|Molette Droite|
 lDialogMoveFavoritesTitle	Déplacer des favori - ~1~ ~2~
 lDialogMoveFavoriteTitle	Déplacer le favori - ~1~ ~2~
+lDialogMoveSettingsFail	Une erreur s'est produite lors de la copie des paramètres.`n`nLe déplacement des paramètres a été annulé.
+lDialogMoveSettingsReload	~1~ doit être redémarré...
+lDialogMoveSettingsSuccess	Le dossier des paramètres a été copié avec succès.`n`nAncien emplacement:`n~1~`n`nNouvel emplacement: `n~2~`n`nLes fichiers dans l'ancien emplacement n'ont pas été effacés. Supprimez-les à votre convenance après avoir quitté ~3~.
+lDialogMoveSettingsUnder	Vous ne pouvez pas déplacer l'emplacement des paramètres sous leur emplacement actuel. Choisissez une autre destination.
 lDialogNA	n/d
+lDialogNew	Nouveau
 lDialogNone	Aucun
 lDialogNormal	Normal
 lDialogOff	Inactif
 lDialogOK	OK
-lDialogOKAmpersand	&OK
 lDialogOn	Actif
 lDialogOpenThisGroup	Ouvrir ce groupe
 lDialogOpenThisMenu	Ouvrir ce menu
+lDialogOptionsPathNotExist	Ce dossier n'existe pas:`n~1~`n`nVoulez-vous le créer?
 lDialogOr	ou
-lDialogOtherHotkeys	Autres raccourcis pour le menu principal
 lDialogPlaceholders	Voir l'<a href="~1~">aide sur les codes de remplacement</a>.
 lDialogPlay	Jouer
 lDialogQAPFeatureCategoriesNames	En vedette|Menus dynamiques|Édition du menu de QAP|Ajouter un favori avec type|Gestion des fenêtres|Fonctionnalités de Windows|Fermeture de l'ordinateur|Divers utilitaires|Gestion de QAP
@@ -304,7 +298,7 @@ lDialogSearch	Rechercher
 lDialogSelectIcon	Sélectionnez l'icône
 lDialogSelectIconJL	Sélectionner dans JLicons.dll
 lDialogSelectIconNo	Pas d'icône
-lDialogSelectItemToAdd	Sélectionnez l'item à ajouter
+lDialogSelectItemOneOrMore	Veuillez sélectionner au moins un item.
 lDialogSelectItemToEdit	Veuillez sélectionner l'item à modifier.
 lDialogSelectItemToMove	Veuillez sélectionner l'item à déplacer.
 lDialogSelectItemToRemove	Veuillez sélectionner l'item à supprimer.
@@ -314,7 +308,7 @@ lDialogSettingsNotSavedTitle	~1~ - Paramètres pas enregistrés
 lDialogShift	Maj
 lDialogShiftShort	Maj
 lDialogShortcut	Raccourci
-lDialogShortcuts	Raccourci
+lDialogShortcuts	Raccourcis
 lDialogShortcutsDescription	Afficher une boîte de dialogue offrant une vue globale de vos raccourcis clavier ou souris. Vous pouvez trier les favoris en cliquant sur l'entête des colonnes.`n`nFaites un double-clic sur un favori pour modifier son raccourci.`n`nCliquez sur la case à cocher "Voir tous les favoris" pour assigner des raccourcis à d'autres favoris.
 lDialogSortBy	Trier par
 lDialogSortOrder	Ordre de tri
@@ -324,13 +318,11 @@ lDialogState	État de la fenêtre:
 lDialogSubmenuNameEmpty	Le nom du sous-menu est vide. Veuillez indiquer un nom court pour ce menu.
 lDialogSubmenuParentMenu	Menu contenant ce sous-menu
 lDialogSwitchSettings	Choisissez le fichier de configuration à utiliser
-lDialogSwitchSettingsCancel	Changement de fichier de configuration annulé...`n`nFichier de configuration actuel:`n~1~
-lDialogSwitchSettingsReady	Relancer ~2~ avec le nouveau fichier de configuration:`n`n~1~
 lDialogTabNext	Suite
 lDialogThirdPartyDetected	~1~ a détecté que ~2~ est installé sur votre ordinateur.`n`nVoulez-vous activer l'intégration avec ~2~?
 lDialogTreeView	vue hiérarchique
 lDialogTriggerFor	Déclencheur pour:
-lDialogUnavailableWithLiveFolders	(Non disponible dans un Dossier actif)
+lDialogUnavailableWithLiveFolders	(Non disponible pour les Dossiers actifs)
 lDialogUseDefaultWindowPosition	Utiliser la position de fenêtre par défaut
 lDialogWin	Windows
 lDialogWindowMonitor	Écran
@@ -358,16 +350,17 @@ lDialogWindowsFolderIconSet	Changer l'icône de dossier de Windows
 lDialogWindowsFolderIconUpdate	mettre à jour
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Démarrer dans
-lDonateButtonAmpersand	Soutenez ce &gratuiciel!
-lDonateCheckPrompt	Vous aimez ~1~?`n`n~1~ n'est pas seulement GRATUIT mais aussi distribué SANS ces attrapes publicitaires dont on ne sait jamais si elles transportent des virus ou encore des logiciels espions ou malveillants.`n`nCela fait maintenant ~2~ fois que ~1~ est lancé pour faciliter votre travail quotidien. Que diriez-vous de soutenir ce gratuiciel à votre tour?
-lDonateCheckPrompt2	Note: Les utilisateurs qui veulent bien faire un don reçoivent un CODE qui arrêtera ~1~.
+lDonateButton	Parrainez ce logiciel!
+lDonateCheckPrompt	Bienvenue dans cette nouvelle version de ~1~. Ce message n'est affiché qu'une fois jusqu'à ce que vous installiez une nouvelle version.`n`n~1~ n'est pas seulement distribué GRATUITEMENT mais aussi distribué SANS ces attrapes publicitaires dont on ne sait jamais si elles transportent des virus ou encore des logiciels espions ou malveillants.`n`nCela fait maintenant ~2~ fois que ~1~ est lancé pour faciliter votre travail quotidien. Que diriez-vous de parrainer ce logiciel à votre tour?
+lDonateCheckPrompt2	Note: Les utilisateurs qui veulent bien faire une contribution minimale de 5$ ou 5€ (ou toute contribution mensuelle) reçoivent un CODE DE PARRAINAGE qui arrêtera ~1~.
 lDonateCheckPrompt3	l'affichage de ce message
-lDonateCheckPrompt4	l'affichage des rappels à propos des dons
+lDonateCheckPrompt4	l'affichage des rappels à propos du parrainage
+lDonateCheckPrompt5	et affichera un message de parrainage dans la fenêtre Paramètres
 lDonateCheckTitle	~1~ fois! - ~2~
-lDonateMenu	Soutenez ce gratuiciel!
+lDonateMenu	Parrainez ce logiciel!
 lDonatePlatformComment1	Donnez avec votre carte de crédit (pas nécessaire de créer un compte) ou avec votre compte PayPal
-lDonatePlatformComment2	Pour les donateurs Européens
-lDonatePlatformComment3	Pour les donateurs Canadiens
+lDonatePlatformComment2	Pour les dons Européens
+lDonatePlatformComment3	Pour les dons Canadiens
 lDonatePlatformComment4	En US $, Euros ou CAD $
 lDonatePlatformName1	Avec Paypal en US $
 lDonatePlatformName2	Avec Paypal en Euros
@@ -379,13 +372,13 @@ lDonateReviewNameLeft3	Softpedia.com
 lDonateReviewNameRight1	BetaNews.com
 lDonateReviewNameRight2	FileCluster.com
 lDonateReviewNameRight3	Freewares && Tutos (FR)
-lDonateText1	Soutenez le développement de ~1~ !
-lDonateText2	<a href="~1~">Pourquoi soutenir ce gratuiciel?</a>
-lDonateText3	... ou soutenez ce gratuiciel gratuitement !
+lDonateText1	Parrainez le développement de ~1~ !
+lDonateText2	<a href="~1~">Pourquoi parrainer ce logiciel?</a>
+lDonateText3	... ou faites connaître ce logiciel si vous l'appréciez !
 lDonateText4	Rédigez un avis favorable à ~1~ sur :
 lDonateText5	Envoyez-moi votre lien
-lDonateThankyou	Merci pour cette marque d'appréciation!
-lDonateTitle	Soutenez ce gratuiciel! - ~1~ ~2~
+lDonateThankyou	Merci de parrainer ce logiciel!
+lDonateTitle	Parrainez ce logiciel! - ~1~ ~2~
 lDOpusLayoutsName	Dispositions
 lDOpusMenuName	Favoris Directory Opus
 lDopusMenuNameDescription	Pour les utilisateurs de Directory Opus (DOpus), affiche un menu dynamique comportant les dossiers ajoutés aux Favoris de DOpus. Si DOpus était sélectionné quand QAP a été installé, les Favoris Directory Opus ont été automatiquement ajoutés à votre menu.
@@ -394,12 +387,15 @@ lGuiAbout	À propos
 lGuiAboutDescription	Afficher les crédits pour le développement, la traduction et autres contributions, les numéros de version de l'application et de l'environnement d'exécution, la licence, les noms de l'utilisateur et de l'ordinateur, un lien vers le site web de l'application.`n`nCette information est aussi disponible à l'aide du bouton "À propos" dans la fenêtre Paramètres.
 lGuiAddFavorite	Ajouter
 lGuiCancel	Annuler
-lGuiCancelAmpersand	&Annuler
 lGuiClose	Fermer
-lGuiCloseAmpersand	&Fermer
-lGuiCopyAmpersand	C&opier
-lGuiDonate	Donner
-lGuiDonateDescription	Afficher la boîte de dialogue "Soutenir ce gratuiciel".
+lGuiCopy	Copier
+lGuiDonate	Parrainer ce logiciel
+lGuiDonateCodeInput	Entrez votre code de parrainage
+lGuiDonateCodeInputDescription	Entrez le code de parrainage et le nom du parrain/marraine qui vous a été envoyé par courriel après votre contribution.
+lGuiDonateCodeInputDonorInvalid	Code de parrainage invalide.`n`nAssurez-vous de copier exactement les valeurs telles qu'elles apparaissent dans le courriel de parrainage.
+lGuiDonateCodeInputDonorLabel	Entrez votre code de parrainage de 8 caractères (DONOR CODE)
+lGuiDonateCodeInputSponsorLabel	Entrez votre nom de parrain/marraine (SPONSOR NAME)
+lGuiDonateDescription	Afficher la boîte de dialogue "Parrainer ce logiciel".
 lGuiDropFilesHelp	Aide glisser-déposer
 lGuiDropFilesIncentive	Vous pouvez "glisser-déposer" les types de favoris suivants sur la fenêtre de ~1~:`n`n- ~2~`n- ~3~`n- ~4~
 lGuiDropFilesIncentive2	Pour "glisser-déposer" un ou plusieurs fichier plus facilement, activez l'option "toujours visible" en cliquant sur l'icône de punaise à la gauche de la fenêtre.
@@ -415,47 +411,50 @@ lGuiGroupSaveRestoreWith	Restaurer les dossier avec:
 lGuiHelp	Aide
 lGuiHelpDescription	Afficher la fenêtre d'aide.
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
-lGuiHotkeysHelpText	Flèche Bas: Sélectioner le prochain favori`nFlèche Haut: Sélectioner le favori précédent`n`nEntrée: Modifier un favori`nCtrl-N: Ajouter un favori`nCtrl-M: Déplacer un favori`nCtrl-C: Copier un favori`nSuppr: Supprimer un ou des favoris`n`nMaj-Haut/Bas: Sélectionner des favori contigus`nCtrl-Clic: Sélectionner des favoris non-contigus`nCtrl-A: Sélectionner tous les favoris`n`nCtrl-Bas: Déplacer un ou des favoris vers le bas`nCtrl-Haut: Déplacer un ou des favoris vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu`nCtrl-Gauche: Ouvrir le sous-menu contenant ce menu
-lGuiHotkeysHelpText2	F1: Afficher la fenêtre d'aide`nCtrl-F: Sélectionner la boîte de recherche`nCtrl-H: Afficher cette fenêtre
+lGuiHotkeysHelpText	RACCOURCIS CLAVIER DANS LA FENÊTRE PARAMÈTRES`n`nFlèche Bas: Sélectionner le prochain item`nFlèche Haut: Sélectionner l'item précédent`n`nCtrl-N: Ajouter un nouvel item`nCtrl-E: Éditer l'item sélectionné`nCtrl-M: Déplacer un item`nCtrl-C: Copier un item`nSuppr: Supprimer un ou des items`n`nMaj-Haut/Bas: Sélectionner des items contigus`nCtrl-Clic: Sélectionner des items non-contigus`nCtrl-A: Sélectionner tous les items`n`nCtrl-Bas: Déplacer un ou des items vers le bas`nCtrl-Haut: Déplacer un ou des items vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu ou éditer un item`nCtrl-Gauche: Remonter au menu supérieur
+lGuiHotkeysHelpText2	Ctrl-F: Activer la boîte de recherche`nCtrl-O: Ouvrir la fenêtre Options`nCtrl-H: Afficher cette fenêtre
 lGuiListApplicationsHeader	Index|ID|Titre de la fenêtre|Nom du processus|Chemin du processus|H & L|MinMax|Style|ExStyle|UWP Hwnd|Nom Universal Application
 lGuiLoginName	Code d'utilisateur
 lGuiLvFavoritesHeader	Nom|Type|Raccourci|Emplacement ou contenu
 lGuiLvFavoritesHeaderFiltered	Nom|Menu|Type|Raccourci|Emplacement ou contenu
 lGuiMove	Déplacer
-lGuiMoveAmpersand	&Déplacer
 lGuiOptions	Options
-lGuiOptionsDescription	Afficher la fenêtre "Options" qui permet d'adapter QAP à vos préférences.`n`nLes options sont regroupées en onglets: "Général", "Menu", "Déclencheurs", "Menu alternatif", "Gestionnaires" et "Autres".
+lGuiOptionsDescription	Afficher la fenêtre "Options" qui permet d'adapter QAP à vos préférences.
 lGuiPassword	Mot de passe
 lGuiPasswordNotEncripted	Note: Le mot de passe ne sera PAS encrypté lorsqu'il sera transmis sur Internet.
 lGuiRemoveFavorite	Supprimer
 lGuiResetDefault	Restaurer le raccourci par défaut
-lGuiSaveAmpersand	&Enregistrer
-lGuiSaveAndCloseAmpersand	&Enregistrer`net fermer
-lGuiSaveAndStayAmpersand	Enregistrer`net &raffraîchir
-lGuiSaveToUpdateBacklinks	Enregistrer pour mettre à jour les liens de retour
+lGuiSave	Enregistrer
+lGuiSaveAndClose	Enregistrer et fermer
 lGuiSaving	Enregistre
 lGuiSubmenuDropdownLabel	Menu à modifier:
 lGuiTitle	Paramètres - ~1~ ~2~
+lHelpMenuKnowledgeBase	Base de connaissance
+lHelpMenuQuickStart	Démarrage rapide
+lHelpMenuSupportForum	Aide sur le Forum
 lHelpTabAddingFavorite	Ajouter des favoris
 lHelpTabGettingStarted	Premier pas
 lHelpTabQAPFeatures	Fonctionnalités QAP
 lHelpTabSharedMenus	Menus partagés
-lHelpTabTipsAndTricks	Trucs et astuces
+lHelpTabTipsAndTricks	Trucs
 lHelpText11	Au lancement de Quick Access Popup, une icône attend vos ordres dans la zone de Notifications. Lorsque vous voudrez ouvrir une de vos DOSSIERS, DOCUMENTS, APPLICATIONS, SITES WEB, SITES FTP ou FRAGMENTS favoris, appuyez sur les raccourcis QAP [~1~] ou [~2~] pour qu'un menu popup affiche vos favoris.
-lHelpText12	Lorsque vous sélectionnez un DOSSIER favori dans l'Explorateur de fichiers ou une boîte de dialogue*, Quick Access Popup vous y mène instantanément! * Cette fonctionnalité doit être activée dans les  Options.
+lHelpText12	Lorsque vous sélectionnez un DOSSIER favori dans l'Explorateur de fichiers ou une boîte de dialogue*, Quick Access Popup vous y mène instantanément! *Cette fonctionnalité doit être activée dans les "Options", section "Général".
 lHelpText13	Pour forcer l'ouverture du favori dans une nouvelle fenêtre, appuyez sur les raccourcis du menu Alternatif [~1~] ou [~2~]. Dans le menu Alternatif, selectionnez "Ouvrir dans une nouvelle fenêtre", puis choisissez le dossier désiré. Le menu Alternatif offre plusieurs autres fonctionnalités.
 lHelpText14	Choisissez "Paramètres" pour personnaliser votre menu Quick Access Popup. Vous pouvez ajouter des favoris à votre menu. Vous pouvez les déplacer, renommer, supprimer. Vous pouvez aussi ajouter des SOUS-MENUS, des GROUPES ou des SOUS-MENUS PARTAGÉS. Chosissez "Menu ou groupe à modifier:" dans la liste déroulante. Cliquez sur "Enregistrer" pour conserver vos changements.
 lHelpText21	Pour ajouter des favoris, dans la fenêtre "Paramètres", cliquez sur le bouton "Ajouter". Sélectionnez le type du nouveau favori et consultez les conseils dans la partie droite de la fenêtre. Cliquez "Poursuivre" pour ouvrir la boîte de dialogue "Ajouter un favori".
-lHelpText22	Dans les quatre onglets de la boîte de dialogue "Ajouter un favori", entrez les "Réglages de base", "Options du menu", "Options de fenêtres" et "Réglages avancés". Cliquez sur "Ajouterpour insérer le favori dans votre menu et sur "Enregistrer" dans la fenêtre "Paramètres".
+lHelpText22	Dans les divers onglets de la boîte de dialogue "Ajouter un favori", entrez les "Réglages de base", "Options du menu", "Options de fenêtres" et "Réglages avancés". Cliquez sur "Ajouter" pour insérer le favori dans votre menu et sur "Enregistrer" dans la fenêtre "Paramètres".
 lHelpText23	AJOUTER LE DOSSIER ACTIF OU LA PAGE WEB ACTIVE`n`nPour AJOUTER rapidement un nouveau DOSSIER ou LIEN favori au menu:`n1) Ouvrez un dossier ou une page web souvent consulté.`n2) Appuyez sur [~1~] ou [~2~] et cliquez sur "Ajouter le dossier actif ou la page web active".`n3) Donnez au menu un nom court, cliquez sur "Ajouter", puis sur "Enregistrer" dans la fenêtre "Paramètres".
+lHelpText24	La fenêtre "Paramètres" s'ouvre automatiquement au démarrage de QAP. Lorsque vous serez satisfait de votre menu, vous pourrez garder cette fenêtre fermée au démarrage et l'ouvrir seulement quand vous voudrez modifier votre menu. Choisissez votre préférence dans les "Options", section "Fenêtre Paramètres".
 lHelpText31	Dans le menu "Mes Fonctions QAP":
-lHelpText32	- Cliquez "Basculer" pour basculer vers n'importe quelle fenêtre de l'Explorateur ou d'application.`n- Utilisez le menu "Réutiliser un dossier" pour rouvrir un des dossiers déjà ouvert dans l'Explorateur de fichiers (très utilie dans une boîte de dialogue de fichier).`n- Choisissez le menu "Dossiers récents..." pour afficher une liste des dossiers récents de Windows.`n- Ouvrez un emplacement de fichier ou un site web dont l'adresse est dans votre Presse-Papiers avec le menu "Presse-papiers".`n- Cliquez sur le menu "Disques" pour voir la liste des lecteurs et leur capacité actuelle.
+lHelpText32	- Utilisez les menus "Réutiliser un dossier" ou "Réouvrir le dossier actif dans une boîte de dialogue" pour rouvrir un des dossiers déjà ouverts dans l'Explorateur de fichiers.`n- Ouvrez un emplacement de fichier ou un site web dont l'adresse est dans votre Presse-Papiers avec le menu "Presse-papiers".`n- Cliquez sur le menu "Disques" pour voir la liste des lecteurs et leur capacité actuelle.
 lHelpText33	PERSONNALISEZ VOTRE MENU DES FONCTIONS QAP
-lHelpText34	Vous pouvez déplacer les rubriques du menu "Mes fonctions QAP" vers le menu principal ou d'autres sous-menus. `n`n1) Sélectionnez le menu "Paramètres" (ou appuyez sur [~1~]).`n2) Dans la liste déroulante "Menu ou groupe à modifier:", sélectionnez "Principal > Mes Fonctions QAP".`n3) Sélectionnez la fonction QAP à déplacer et cliquez "Modifier".`n4) Dans l'onglet "Options de menu", sélectionnez "Insérer le nouveau favori dans ce menu".`n5) Enregistrez vos changements.
+lHelpText34	Vous pouvez déplacer les rubriques des menus "En cours" et "Mes fonctions QAP" vers le menu principal ou d'autres sous-menus. Dans la fenêtre "Paramètres", sélectionnez la liste déroulante "Menu ou groupe à modifier:", éditez la fonction QAP à déplacer et, dans l'onglet "Options du menu", sélectionnez son nouveau menu et sa position.
+lHelpText35	Dans le menu "En cours", retrouvez vos dossiers courants:
+lHelpText36	- Choisissez les menus "Dossiers fréquemment utilisés" ou "Fichiers fréquemment utilisés" pour voir vos contenus les plus actifs.`n- Choisissez les menus "Dossiers récents" ou "Fichiers récents" pour afficher vos contenus les plus récents.`n- Cliquez "Fenêtres ouvertes" pour basculer vers n'importe quelle fenêtre de l'Explorateur ou d'une application.
 lHelpText41	- Utilisez l'icône de Quick Access Popup dans la zone de Notification (en bas à droite de l'écran de Windows) de l'une des trois façons suivantes:`n1) Cliquez l'icône avec le bouton de gauche pour afficher le menu popup de QAP.`n2) Cliquez avec le bouton de droite pour ouvrir le menu système de QAP.`n3) Double-cliquez l'icône pour afficher la fenêtre "Paramètes".
 lHelpText42	- Dans la zone de Notifications, cliquez sur l'icône de Quick Access Popup avec le bouton de droite et sélectionnez "Exécuter au démarrage" pour lancer QAP au démarrage de Windows.
-lHelpText43	- Configurez les déclencheurs du menu popup de Quick Access Popup: choisissez votre bouton de souris préféré ou votre raccourci clavier dans les "Paramètres, Options, Déclencheurs".
-lHelpText44	- Aussi dans les "Options": choisissez votre langue d'utilisation, la taille des icônes de menu, les couleurs des fenêtres. Décidez du nombre des "Emplacements récents" à afficher, de l'affiche des raccourcis clavier numériques ou des rappels des raccourcis de favoris. Fixez le menu popup à une position de votre choix ou mémorisez la position de la fenêtre des "Paramètres".
+lHelpText43	- Configurez les déclencheurs du menu popup de Quick Access Popup: choisissez votre bouton de souris préféré ou votre raccourci clavier. Dans les "Paramètres", choisissez le menu "Options, Déclencheurs du menu".
+lHelpText44	- Aussi dans les "Options": choisissez votre langue d'utilisation, la taille des icônes de menu ou les couleurs des fenêtres. Décidez du nombre des "Emplacements récents" à afficher, de l'affichage des raccourcis clavier numériques ou des rappels des raccourcis de favoris. Fixez le menu popup à une position de votre choix ou mémorisez la position de la fenêtre des "Paramètres". Et plus encore...
 lHelpText45	- Utilisateurs de Directory Opus, consultez <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">cette page</a> (en anglais) pour des renseignements additionnels.`n-Utilisateurs de Total Commander, consultez <a href="">cette page</a> (en anglais) pour plus de renseignements. Utilisateurs d'autres gestionnaires de fichiers, consultez <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">cette page</a> pour des renseignements sur QAPconnect.
 lHelpText51	Les "menus partagés" permettent d'enregistrer des favoris dans des fichiers .ini qui peuvent être partagés entre plusieurs utilisateurs ou utilisés par un même utilisateur sur divers ordinateurs. Il y a trois types de menus partagés:
 lHelpText52	Les menus partagés peuvent contenir tout type de favori, sauf d'autres Menus partagés. Les fichiers .ini des menus partagés sont enregistrés sur des lecteurs réseau ou des disques partagés (comme Dropbox) et uitilisés sur divers PCs. QAP permet un travail collaboratif en évitant les conflits de modification.
@@ -463,24 +462,20 @@ lHelpText53	Pour créer un menu partagé, dans la boîte de dialogue "Ajouter un fa
 lHelpText54	Configurez un Catalogue de menus partagés dans les Options (onglet "Général") pour faciliter l'ajout de menus partagés par vos utilisateurs.
 lHelpTextLead	Avec Quick Access Popup, navigez en un clin d'oeil parmi vos dossiers, pages web et documents favoris!
 lHelpTitle	Aide - ~1~ ~2~
+lHotkeyRemindersRightAlign	Aligner les rappels à droite du menu
 lImpExpAborted	annulé
 lImpExpAppend	Ajouter
 lImpExpCompleted	complété
 lImpExpDestination	Destination
 lImpExpExport	Exporter
-lImpExpExportAmpersand	&Exporter
 lImpExpFavorites	favoris
-lImpExpFavoritesNotFound	Favoris introuvables dans le fichier:`n`n~1~
 lImpExpFile	Fichier ~1~
 lImpExpFileGlobal	Configuration globale et raccourcis du menu principal
 lImpExpFileThemes	Thèmes
 lImpExpFinalReport	Transfert ~1~.`n`nSource:`n~2~`n`nDestination:`n~3~
-lImpExpHotkeys	raccourcis
 lImpExpImport	Importer
-lImpExpImportAmpersand	&Importer
 lImpExpMenu	Importer/exporter la configuration
 lImpExpMenuDescription	Afficher une boîte de dialogue permettant d'exporter les favoris et autres paramètres pour créer une copie de sécurité à l'emplacement voulu.`n`nVous pouvez aussi importer des favoris et paramètres d'un autre ordinateur ou d'un autre utilisateur.
-lImpExpMerge	Fusionner avec
 lImpExpNoThemes	Aucune liste de thèmes dans la valeur "~1~" de la section "~2~".`n`nFichier source:`n~3~
 lImpExpOptionAlternative	Raccourcis du menu Alternatif
 lImpExpOptionFavorites	Favoris
@@ -495,7 +490,7 @@ lImpExpSource	Source
 lImpExpTitle	Importer / exporter la configuration - ~1~
 lImpExpUnsavedSettings	Une fenêtre de configuration est ouverte, peut-être avec des changements non sauvegardés.`n`nVeuillez fermer les fenêtres de configuration avant d'importer ou d'exporter la configuration.
 lMainMenuName	Principal
-lMenuAboutAmpersand	À &propos
+lMenuAbout	À propos
 lMenuAddFavorite	Ajouter un favori
 lMenuAddFavoriteDescription	Afficher la liste des types de favoris dans laquelle on peut choisir le type de favori à ajouter.`n`nDans la prochain fenêtre, saisissez :`n- le nom du favori, `n- son contenu`n- diverses options tel que l'icône, le raccourci, la chaîne de substitution, divers paramètres, etc.`n`nSelon le type de favori, le contenu peut être l'emplacement d'un dossier, document ou application, un lien web, un fragment de texte, un sous-menu, etc.
 lMenuAddFavoriteOfTypeDescription	Ajouter un favori de type "~1~".`n`nDans la boîte de dialogue "Ajouter un favori", saisissez :`n- un nom pour votre favori`n- un contenu, selon le type de favori`n- diverses options tel qu'un icône, un raccourci, une chaîne de substitution, des paramètres, etc.
@@ -540,7 +535,8 @@ lMenuExitApp	Quitter ~1~
 lMenuExitAppDescription	Fermer l'application Quick Access Popup, libérant tous les raccourcis claviers ou souris du menu QAP et des favoris.
 lMenuExternalCatalogue	Ajouter un menu partagé du catalogue...
 lMenuExternalCatalogueDescription	Sélectionner un sous-menu dans le Catalogue des menus partagé. Ce catalogue répertorie les favoris gérés par un administrateur de menu ou par les membres d'un groupe d'utilisateurs.`n`nVous pouvez sélectionner un Menu partagé existant, ajouter un Menu partagé qui n'est pas dans le catalogue ou créer un nouveau Menu partagé.
-lMenuFavoritesInternet	Favoris (Internet)
+lMenuFavorite	Favori
+lMenuFile	Fichier
 lMenuFonts	Polices
 lMenuGetWinInfo	Lire les renseignements sur une fenêtre
 lMenuGetWinInfoDescription	Identifier une fenêtre à rendre hors de portés du raccourci souris qui affiche le menu QAP (par défaut, le bouton du milieu de la souris).`n`nCette commande vous invite à cliquer la fenêtre visée avec le bouton du menu QAP et à copier dans le Presse-papiers les renseignements sur cette fenêtre (titre, classe et nom du processus).`n`nVoyez "Liste d'exclusions" dans l'onglet "Autres" de la boîte de dialogue "Options" pour plus de détails.
@@ -558,14 +554,15 @@ lMenuMyQAPMenu	Mes Fonctions QAP
 lMenuMySpecialMenu	Mes Dossiers spéciaux
 lMenuMyVideo	Mes vidéos
 lMenuMyWindowsAppsMenu	Mes Applis Windows
-lMenuNoClipboard	Le Presse-papiers ne contient aucun emplacement de fichier ou d'URL
 lMenuNoCurrentFolder	Aucun dossier ouvert actuellement…
 lMenuOpenWorkingDirectory	Ouvrir le dossier de travail de QAP
+lMenuOptions	Options
 lMenuPictures	Images
 lMenuPopularFiles	Fichiers
 lMenuPopularFolders	Dossiers
-lMenuPopularMenus	~1~ fréquemment utilisés
+lMenuPopularMenus	Fichiers fréquemment utilisés
 lMenuPopularMenusDescription	Affiche un menu dynamique contenant les ~1~ les plus utilisés tel que mémorisés par Windows ou utilisés avec QAP. Ce menu est actualisé chaque fois que vous affichez le menu de QAP.
+lMenuPopularMenusFolders	Dossiers fréquemment utilisés
 lMenuPopularMenusWillImprove	Ce menu s'améliorera à mesure que vous utiliserez ~1~...
 lMenuProgramFiles	Programmes
 lMenuProgramsFolderStartMenu	Dossier Programmes (menu Démarrer)
@@ -576,7 +573,7 @@ lMenuRecentFilesDescription	Afficher un menu dynamique présentant les dix docume
 lMenuRecentFolders	Emplacements récents
 lMenuRecentFoldersDescription	Afficher un menu dynamique présentant les dix dossiers récemment utilisés tel que mémorisés par Windows dans son dossier virtuel "Items récents". Vous pouvez configurer le nombre d'items de ce menu dans les "Options", onglet "Menu".`n`nLes items dans ce menu sont triés par ordre chronologique inverse, tel que mémorisé par Windows.
 lMenuRecentItems	Documents récents
-lMenuRefreshMenu	Actualiser les Dossiers actifs et les menus partagés
+lMenuRefreshMenu	Actualiser les Dossiers actifs et les Menus partagés
 lMenuRefreshMenuDescription	Actualiser sur demande les "Dossiers actifs" et les "Menus partagés". Cette action peut aussi être exécutée périodiquement en entrant un intervalle (en secondes) dans la zone "Actualisation périodique du menu de QAP" dans l'onglet "Menu" de la fenêtre "Options".`n`nDurant la courte période d'actualisation (dont la durée varie selon le nombre de dossiers actifs ou de menus partagés), le menu de QAP n'est pas disponible.
 lMenuReload	Redémarrer ~1~
 lMenuReloadDescription	Redémarrer Quick Access Popup.`n`nAssurez-vous d'avoir enregistré vos changements dans la fenêtre "Paramètres" avant de redémarrer QAP.
@@ -584,18 +581,15 @@ lMenuReopenCurrentFolder	Réouvrir le dossier actif dans une boîte de dialogue
 lMenuReopenCurrentFolderDescription	Changer le dossier dans la boîte de dialogue pour afficher le dossier actif dans Windows Explorer.`n`nPour utiliser cette commande, assurez-vous d'avoir activé l'option "Changer de dossier dans les boîtes de dialogue..." dans l'onglet "Général" de la fenêtre "Options".
 lMenuReopenInNewWindow	Rouvrir le dossier actif à partir d'une boîte de dialogue
 lMenuReopenInNewWindowDescription	Rouvrir le dossier actuel dans une nouvelle fenêtre de Windows Explorer (ou Directory Opus, ou Total Commander). Cette commande est utile lorsque vous voulez ouvrir dans Windows Explorer le dossier que vous consultez actuellement dans une boîte de dialogue de fichier.
-lMenuRestoreEditCopyMoveWindowPosition	Restaurer la position des boîtes de dialogue
-lMenuRestoreEditCopyMoveWindowPositionDescription	Restaurer la position des boîtes de dialogue Éditer, Copier et Déplacer au centre de l'écran principal.
 lMenuRestoreSettingsWindowPosition	Restaurer la position de la fenêtre des Paramètres
 lMenuRestoreSettingsWindowPositionDescription	Restaurer la taille et la position par défaut (au centre de l'écran principal) de la fenêtre "Paramètres".
-lMenuRunAtStartupAmpersand	&Exécuter au démarrage
+lMenuRunAtStartup	Exécuter au démarrage
 lMenuSettings	Paramètres
 lMenuSettingsDescription	Afficher la fenêtre "Paramètres" pour personnaliser le menu QAP, gérer les favoris et configurer diverses options.`n`nPar défaut, cette commande est incluse dans le menu principal de QAP.
-lMenuSettingsFileOptions	Options de fichier de paramètres
 lMenuStartMenu	Menu Démarrer
 lMenuStartup	Démarrage
 lMenuSuspendHotkeys	Suspendre les déclencheurs (Hotkeys)
-lMenuSwitchFolderOrApp	Fenêtre ouvertes
+lMenuSwitchFolderOrApp	Fenêtres ouvertes
 lMenuSwitchFolderOrAppDescription	Afficher un menu dynamique en deux sections:`n1) les dossiers actuellement ouverts dans Windows Explorer et Directory Opus `n2) les applications actives sur le système (en commençant par la fenêtre la plus récemment activée).`n`nLorsque vous sélectionnez un item, cette fenêtre est automatiquement amenée au premier plan et activée.`n`nCe menu est actualisé à chaque fois que vous affichez le menu de QAP.
 lMenuSwitchSettings	Changer de fichier de configuration
 lMenuSwitchSettingsDefault	Revenir au fichier de paramètres par défaut
@@ -604,12 +598,11 @@ lMenuSwitchSettingsDescription	Choisir un autre fichier de configuration (.ini) 
 lMenuSystemCertificates	Certificats système
 lMenuTemplates	Modèles
 lMenuTemporaryFiles	Fichiers temporaires
-lMenuUpdateAmpersand	&Vérifier la mise à jour
-lMenuUpdateNoAmpersand	Vérifier la mise à jour
-lMenuUpdateNoAmpersandDescription	Vérifier sur le site web de Quick Access Popup si une nouvelle version est disponible.
+lMenuTools	Outils
+lMenuUpdate	Vérifier la mise à jour
+lMenuUpdateDescription	Vérifier sur le site web de Quick Access Popup si une nouvelle version est disponible.
 lMenuUserFolder	Dossier de l'utilisateur
 lMenuUserPinned	Epinglé par l'utilisateur
-lMenuWebSiteSupport	Groupe de soutien sur QAP
 lMessengerCloseQAPSettings	Une fenêtre de paramètres est ouverte dans ~1~, peut-être avec des changements non enregistrés.`n`nVeuillez fermer les fenêtres de paramètres avant d'utiliser ce menu contextuel.
 lMessengerDoNotRun	N'exécutez pas ~1~ directement. Vous pouvez:`n`n- faire un clic-droite sur l'icône d'un fichier ou d'un dossier dans l'Explorateur pour l'ajouter au menu`n- clic-droite dans le fond d'une fenêtre de l'Explorateur pour ajouter le dossier affiché`n- clic-droite sur le fond du Bureau pour afficher le menu.`n`nAssurez-vous que ~2~ est lancé avant d'utiliser ses menus contextuels. Voir la case à cocher "Menus contextuels" dans la fenêtre "Options" de ~2~.
 lMessengerError	Une erreur s'est produite.`n`nAssurez-vous que ~1~ est lancé avant d'utiliser ses menus contextuels.
@@ -620,7 +613,7 @@ lOopsAddThisFolderTip	Pour de meilleurs résultats avec la commande "Ajouter le d
 lOopsAmpersandInName	L'esperluette "&" dans les noms de menus de Windows est utilisée pour définir des raccourcis clavier. Pour afficher une esperluette dans un nom de menu, entrez "&&". `n`nPour plus d'informations, recherchez "ampersand" dans la FAQ du site Web de QAP.
 lOopsCannotCopyFavorite	Les favoris de type "~1~" ne peuvent pas être copiés.
 lOopsCannotCopyMoveToSelf	Vous ne pouvez pas déplacer ou copier un favori dans son menu d'origine. Veuillez choisir un menu de destination.
-lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option (première case à cocher de l'onglet "Général").`n`nVoulez-vous ouvrir la fenêtre "Options"?
+lOopsChangeFolderInDialogAlert	Vouliez-vous changer de dossier dans cette boîte de dialogue? Afin de pouvoir naviguer à l'intérieur d'une boîte de dialogue, vous devez activer une option dans la section "Général" des "Options".`n`nVoulez-vous ouvrir la fenêtre "Options"?
 lOopsCouldNotOpenSpecialFolder	~1~ ne peut ouvrir le dossier spécial: "~2~".
 lOopsEmpty	vide
 lOopsErrorIniFileDisplayErrorMessage	Afficher ce message d'erreur à nouveau pour ce menu partagé?
@@ -629,7 +622,6 @@ lOopsErrorIniFileReadOnly	Le fichier de paramètres de ce menu partagé ou cet emp
 lOopsErrorIniFileRetry	Si le fichier de configuration externe est sur un lecteur réseau, essayez de redémarrer ~1~ lorsque le lecteur réseau sera disponible.
 lOopsErrorIniFileUnavailable	Le fichier de configuration partagé n'est pas disponible
 lOopsErrorReadingIniFile	Une erreur s'est produite pendant la lecture du fichier de configuration:
-lOopsExternalCatalogueReadOnly	Ce menu partagé est en lecture seulement. Veuillez communiquer avec votre administrateur de système.
 lOopsExternalFileWriteError	Une erreur est survenue pendant l'enregistrement des paramètres du menu partagé:`n~1~.`n`nVérifiez que ce fichier et ce dossier ne sont pas protégés contre l'écriture.
 lOopsExternalFileWriteErrorCollaborative	Vous ne pouvez pas modifier le contenu de ce menu partagé. Si vous croyez que vous devriez y avoir accès, veuillez communiquer avec votre administrateur de système.
 lOopsExternalNotAllowedUnderExternal	On ne peut ajouter un menu partagé à l'intérieur d'un autre menu partagé. Veuillez sélectionner autre menu parent dans l'onglet "Options du menu".
@@ -641,9 +633,7 @@ lOopsFileExpandedFrom	Étendu à partir de
 lOopsFileNotFound	Cet emplacement n'existe pas
 lOopsFirstEnterUrl	Veuillez d'abord saisir une addresse dans le champ "~1~".
 lOopsFtpLocationProtocol	L'emplacement d'un site FTP doit débuter par "ftp://".
-lOopsGroup	groupe
 lOopsHotkeyAlreadyUsed	Le raccourci "~1~" est déjà utilisé pour l'emplacement "~2~".`n`nVeuillez choisir un autre raccourci pour "~3~".
-lOopsHotkeyNotInMenus	Erreur: l'emplacement "~1~" pour le raccourci "~1~" est introuvable dans les menus.
 lOopsHotkeyObjectNotFound	~1~ ne peut trouver le favori associé à: ~2~ "~3~".`n`nCela pourrait être une situation temporaire. Essayez de redémarrer ~1~.
 lOopsHotstringTriggerTooLong	Le déclencheur (abréviation) pour cette chaîne de substitution est trop long. Les déclencheurs ne peuvent avoir plus de 40 caractères.
 lOopsHttpLocationTransformed	L'emplacement HTTP (format URL) a été converti en chemin réseau (format UNC) afin d'être compatible avec Windows:`n`n~1~`n~2~
@@ -651,18 +641,18 @@ lOopsInvalidWinCmdIni	Le fichier des paramêtres "wincmd.ini" de Total Commander 
 lOopsInvalidWindowPosition	Valeur(s) de position de la fenêtre invalide
 lOopsJLiconsError	Icône de la zone de notification introuvable. Assurez-vous d'avoir mis à jour le fichier JLicons.dll à la version ~1~.
 lOopsLaunchWithNotFound	Le fichier de l'application "Lancer avec cette application" est introuvable:`n`n~1~`n`nVérifiez les réglages avancés ce ce favori.
-lOopsLocation	emplacement
-lOopsMaxLiveFolder	Le maximum d'items permis dans un Dossier actif (~1~) est dépassé. Veuillez réduire le nombre de niveaux de ce Dossier actif.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inatendus. Modifiez la valeur "NbLiveFolderItemsMax" sous la rubrique [Global] du fichier de paramètres (QuickAccessPop.ini).
+lOopsMaxLiveFolder	Le maximum d'items permis dans les Dossiers actifs (~1~) est dépassé. Veuillez réduire le nombre de niveaux des Dossiers actifs.`n`nVous pourriez augmenter le nombre d'items permis mais soyez prudents: un nombre trop élevé pourrait produire des résultats inattendus. Modifiez la valeur dans les "Options", section "Options de menu avancées".
 lOopsMenuExternalCentralized	menu partagé centralisé
 lOopsMenuExternalCollaborative	menu partagé collaboratif
 lOopsMenuExternalPersonalChangedBy	Ce menu partagé personnel est actuellement MODIFIÉ ou comporte des modifications NON ENREGISTRÉES sur l'ordinateur: ~1~.`n`nSi vous enregistrez ici les modifications à ce menu, les changements non enregistrés sur l'autre ordinateur seront perdus et vous devriez annuler ces changements quand vous serez de retour sur l'autre ordinateur.
 lOopsMenuExternalReservedBy	Ce ~1~ est RÉSERVÉ par l'utilisateur: ~2~.`n`nAttendez que cet utilisateur libère le menu ou contactez votre administrateur de système.
 lOopsNotAdmin	~1~ ne peut être exécuté en tant qu'administrateur.`n`nL'application est maintenant exécutée avec les privilèges normaux.
+lOopsOptionsPathNotExist	~1~ n'existe pas:`n~2~`n`nVeuillez choisir un emplacement valide.
+lOopsOptionsPathTrayIcon	Icône dans la zone de notification
 lOopsOSVerrsionError	~1~ nécessite Window 7 ou une version plus récente du système d'exploitation. Les utilisateurs de Windows Vista et XP sont invités à utiliser Folders Popup qui est compatible avec ces versions.`n`nVoulez-vous visiter le site web de Folders Popup?
-lOopsQAPfeature	Fonctions de QAP
-lOopsRestoreEditCopyMoveWindowPosition	Restaurer la position des boîtes de dialoue Éditer, Copier et Déplacer?
 lOopsSelectedItemDialogBoxes	L'item sélectionné ne peut pas être détecté dans une boîte de dialogue.
 lOopsSelectedItemTotalCommander	L'item sélectionné ne peut pas être détecté dans Total Commander.
+lOopsSortUpToSeparator	Tri effectué jusqu'au premier séparateur.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Une erreur s'est produite pendant l'ouverture de ce favori. Veuillez essayer à nouveau...
 lOopsUsageDbSQLiteMissing	Fichier ressource SQLite absent:`n`n~1~`nImpossible de construire les menus des items fréquemment utilisés.
@@ -674,12 +664,13 @@ lOptionsAddAutoAtTop	Lorsqu'un favori est ajouté automatiquement, l'ajouter à:
 lOptionsAddAutoBottomOfMenu	Fin du menu
 lOptionsAddAutoTopOfMenu	Début du menu
 lOptionsAddCloseToDynamicMenus	Ajouter "Fermer" aux menus
+lOptionsAdvancedLaunch	Options de démarrage avancées
+lOptionsAdvancedOther	Options avancées diverses
 lOptionsAlternativeMenuFeatures	Menu Alternatif
 lOptionsAlternativeMenuFeaturesIntro	Choisisez les raccourcis des fonctionnalités du menu Alternatif.
-lOptionsAlternativeMenuOptions	Options du Menu Alternatif
 lOptionsAlternativeMenuShowNotification	Afficher la notification lorsque le Menu Alternatif est utilisé
+lOptionsAlternativeTrayIcon	Icône de remplacement (fichier,index)
 lOptionsBackupFolder	Dossier pour les copies de sécurité
-lOptionsCatalogueHelp	Catalogue des menus partagés (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Dossier racine du catalogue
 lOptionsChangeFolderInDialog	Changer de dossier dans les boîtes de dialogue avec le bouton de souris ou le raccourcis clavier du menu principal de QAP
 lOptionsChangeFolderInDialogCheckbox	Cliquez "OK" pour confirmer que vous comprenez les conséquences d'essayer de changer de dossier dans une boîte de dialogue inappropriée.
@@ -687,9 +678,12 @@ lOptionsChangeFolderInDialogText	Activez cette option pour permettre le changeme
 lOptionsChangeHotkey	Modifier
 lOptionsCheck4Update	Vérifier la mise à jour
 lOptionsCheck4UpdateNow	vérifier maintenant
+lOptionsClipboardMaxSize	Ne pas actualiser le menu "Presse-papiers" si sa taille est plus grande que:
+lOptionsClipboardMaxSizeDefault	(10 000 octets par défaut)
 lOptionsControlDoublePressed	Ouvrir le menu principal avec Ctrl + Ctrl (Contrôle pressé à deux reprises)
 lOptionsControlDoublePressedLeft	Avec la touche Contrôle de gauche
 lOptionsControlDoublePressedRight	Avec la touche Contrôle de droite
+lOptionsDatabase	Base de données
 lOptionsDisplayIcons	Afficher les icônes des menus
 lOptionsDisplayMenuShortcuts	Afficher les raccourcis numériques
 lOptionsDisplayMenuShortcutsFromOne	Commencer les raccourcis numériques à 1 (au lieu de 0)
@@ -698,15 +692,16 @@ lOptionsExclusionMouseList	Liste d'exclusions pour le bouton de la souris du men
 lOptionsExclusionMouseListDescription	Liste d'exclusions pour le bouton de souris [~1~]
 lOptionsExclusionMouseListDetail1	Pour bloquer le bouton de souris [~1~] du menu QAP dans une application, tapez n'importe quelle partie du titre de la fenêtre de l'application . Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure Chrome et Word, entrez ces deux lignes dans la liste d'exclusion:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	Le bouton de souris du menu QAP sera inactif dans ces applications et le clic sur [~1~] sera traité par l'application visée comme si QAP ne roulait pas. Vous pouvez aussi exclure des fenêtres par leur nom de classe ou leur nom de processus. Ajoutez un astérisque (*) au début du titre ou de la classe pour aussi exclure les boîtes de dialogue de l'application. Vous trouvez de l'aide et du soutien sur cette fonction <a href="~2~">sur le site web de QAP</a>.
-lOptionsExplorerContextMenus	Activer les menus contextuels
-lOptionsExplorerContextMenusHeader	Menus contextuels de Windows Explorer
+lOptionsExplorerContextMenus	Activer les menus contextuels de Windows Explorer
 lOptionsFileManagerNavigateCurrent	la fenêtre actuelle de ~1~
 lOptionsFileManagerNavigateCurrentTab	l'onglet actuel de ~1~
 lOptionsFileManagerNavigateIntro	Lorsque vous ouvrez le menu QAP hors de ~1~, ouvrez les dossiers dans:
 lOptionsFileManagerNavigateNew	une nouvelle fenêtre de ~1~
 lOptionsFileManagerNavigateNewTab	un nouvel onglet de ~1~
+lOptionsFileManagers	Gestionnaires de fichiers
 lOptionsFtpEncoding	Encoder le code d'utilisateur et le mot de passe FTP (recommandé)
 lOptionsFtpEncodingTC	Encoder le code d'utilisateur et le mot de passe FTP (déconseillé aux utilisateurs de Total Commander)
+lOptionsGeneral	Général
 lOptionsGuiTitle	Options - ~1~ ~2~
 lOptionsHotkeyRemindersFull	Afficher les rappels complets
 lOptionsHotkeyRemindersNo	Ne pas afficher
@@ -715,53 +710,67 @@ lOptionsHotkeyRemindersShort	Afficher les rappels abrégés
 lOptionsHotstringsDefault	Options par défaut des chaînes de substitution
 lOptionsHotstringsDefaultSelect	Sélectionner
 lOptionsIconReplacementList	Remplacements des icônes de QAP
-lOptionsIconReplacementListDescription	Remplacements pour les icônes par défaut du fichier JLicons.dll
 lOptionsIconReplacementListInstructions	Entrez une instruction de remplacement par ligne. Chaque ligne doit commencer par le nom de l'icône QAP (i.e "iconFolderLive"), suivi du signe égal "=" et du "fichier,index" de l'icône de remplacement. Le "fichier,index" est le chemin et nom du fichier (.ico, .dll or .exe) contenant l'icône et l'index est la position de l'icône dans ce fichier, i.e. "C:\Icons\MonFichier.dll,1".
 lOptionsIconSize	Taille des icônes de menu
-lOptionsIconsManageRows	Nombre de rangées de la fenêtre Gérer les icônes`n(0 pour le maximum disponible)
+lOptionsIconsManageRows	Nombre de rangées de la fenêtre "Gérer les icônes" (0 pour le maximum possible)
+lOptionsIconsRetrieveInFrequentMenus	Récupérer les icônes lors de l'actualisation des menus "Dossiers fréquemment utilisés" et "Fichiers fréquemment utilisés" (à éviter si certains disques sont hors-ligne)
 lOptionsLanguage	Langue
 lOptionsLanguageLabels	Anglais|Français|Allemand|Espagnol|Portugais brésilien|Italien|Chinois traditionel|Portuguais|Chinois simplifié|Néerlandais|Coréen
 lOptionsMenuActiveWindow	Dans la fenêtre active
+lOptionsMenuAdvanced	Options de menu avancées
+lOptionsMenuAppearance	Apparence du menu
 lOptionsMenuFixPosition	À une position fixe
+lOptionsMenuIcons	Icônes du menu
 lOptionsMenuNearMouse	Près du pointeur de la souris
-lOptionsMenuOptions	Menu
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
+lOptionsMoveWorkingFolderTitle	Modifier l'emplacement du dossier des paramètres
+lOptionsMoveWorkingFolderType	Souhaitez-vous copier vos paramètres actuels dans ce nouvel emplacement:`n`n~1~`n`nSi vous choisissez COPIER, ~2~ sera relancé avec vos paramètres actuels COPIÉS dans ce dossier.`n`nSi vous choisissez NOUVEAU, ~2~ sera relancé avec les paramètres déjà présents (ou créés) dans ce NOUVEL emplacement.
+lOptionsNbLiveFolderItemsMax	Nombre maximum d'items dans les menus des Dossiers actifs:
+lOptionsNbLiveFolderItemsMaxDefault	(par défaut 500 items)
 lOptionsOpenFavoritesOnActiveMonitor	Sur un système multi-moniteurs, toujours ouvrir les fenêtres de l'Explorateur sur le moniteur actif
 lOptionsOpenMenuOnTaskbar	Ouvrir le menu en cliquant sur la barre des tâches
 lOptionsOpenSettingsOnActiveMonitor	Ouvrir la fenêtre des Paramètres sur le moniteur actif
 lOptionsOtherOptions	Général
 lOptionsPopupFixPositionX	Position X:
 lOptionsPopupFixPositionY	Y:
+lOptionsPopupHotkeys	Déclencheurs du menu
+lOptionsPopupHotkeysAlternative	Déclencheurs du menu alternatif
 lOptionsPopupHotkeyTitles	Bouton de souris du menu Quick Access Popup|Raccourci clavier du menu Quick Access Popup|Bouton de souris du menu Alternatif|Raccourci clavier du menu Alternatif
 lOptionsPopupHotkeyTitlesSub	Ce bouton de la souris affiche le menu n'importe où  (sauf dans les  <a>applications exclues</a>) et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce raccourci clavier affiche le menu n'importe où  et ouvre votre favori ou change le dossier dans la fenêtre active.|Ce bouton de la souris affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où (sans exception).|Ce raccourci clavier affiche le menu Alternatif qui propose diverses fonctions. Ce menu s'affiche n'importe où.
+lOptionsPopupMenu	Menu Popup
 lOptionsQAPTempFolder	Dossier temporaire
 lOptionsRecentFolders	Nombre d'items récents dans le menu
 lOptionsRecentFoldersPrompt	Items récents et fréquemment utilisés
 lOptionsRefreshedMenusAttached	Attacher les menus dynamiques au menu de QAP
 lOptionsRefreshedMenusAttachedInfo	lOptionsRefreshedMenusAttachedInfo Si vous activez cette option, Il pourrait y avoir un léger délai de raffraîchissement (selon la configuration de votre système) chaque fois que vous affichez le menu popup.`n`nLa durée de ce délai dépend du temps requis par Windows pour fournir les renseignements à jour requis pour bâtir le menu (liste des fichiers récents est espace disponible sur les disques). Ce délai peut varier d'une fois à l'autre.`n`nSi vous désactivez cette option, les menus "~1~", "~2~", "~3~", "~4~" et "~5~" seront raffraîchis seulement sur demande et seront affichés détachés du menu de QAP.
+lOptionsRefreshQAPconnectList	Actualiser la liste des applications
 lOptionsRefreshQAPMenuDebugBeep	Faire un bip avant et après les actualisation (déboguage)
 lOptionsRefreshQAPMenuIntervalSec	Intervalle entre les actualisations (suggéré: 300 secondes ou plus)
 lOptionsRefreshQAPMenuTitle	Activer l'actualisation périodique du menu de QAP
+lOptionsRefreshWindowsAppsListAtStartup	Actualiser la liste des Applications Windows à chaque démarrage
 lOptionsRememberSettingsPosition	Mémoriser la position de la fenêtre Paramètres
 lOptionsRunAsAdmin	Exécuter en tant qu'administrateur
 lOptionsRunAsAdminAlert	Avertissement: Exécuter ~1~ en tant qu'administrateur peut avoir des conséquences inattendues en lançant des programmes qui seraient infectés de codes malicieux. Ces programmes malicieux hériteraient alors des privilèges de l'administrateur et pourraient endommager ou prendre le contrôle de votre ordinateur. Soyez prudent lorsque vous exécutez ~1~ en tant qu'administrateur.
-lOptionsRunAsAdminExit	~1~ sera exécuté sans les privilèges d'administrateur la prochaine fois que vous relancerez l'application.`n`nVoulez-vous quitter ~1~ maintenant? Vos modifications non sauvegardées seront perdues.
+lOptionsRunAsAdminChanged	Nouveau réglage "Exécuter en tant qu'administrateur" enregistré. Quittez et relancez ~1~ pour activer ce nouveau réglage (ne pas utiliser "Redémarrer ~1~").
 lOptionsRunAsAdminShort	admin
 lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsSelectBackupFolder	Selectionnez le dossier de copie du fichier de configuration principal
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
 lOptionsSelectQAPTempFolder	Créer le dossier temporaire dans:
+lOptionsSelectWorkingFolder	Enregistrer les paramètres dans quel emplacement?
+lOptionsSendToConsoleWithAlt	Utiliser les codes ASCII (ALT+0nnn) lors des changements de dossier dans la fenêtre Commandes de Windows (CMD)
+lOptionsSettingsStartup	Ouvrir la fenêtre "Paramètres" lors du démarrage
+lOptionsSettingsWindow	Fenêtre des paramètres
+lOptionsSnippets	Fragments et Chaînes de substitution
 lOptionsSnippetsHelp	Valeurs par défaut pour les fragments de texte (<a href="~1~">~2~</a>)
 lOptionsSwitchExclusionList	Exclusions pour le menu Fenêtres ouvertes
-lOptionsSwitchExclusionListDescription	Liste d'exclusions pour les applications trouvées dans le menu "Fenêtres ouvertes".
-lOptionsSwitchExclusionListInstructions	Pour exclure une application du menu "Fenêtre ouvertes", entrez une partie du titre de la fenêtre de l'application. Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure les applications Sticky and GhostWindows, entrez les lignes suivantes :`n`nAStickies:`nGhostWindows`n`nVous pouvez aussi exclure les fenêtre par leur nom de classe ou leur nom de processus (nom du fichier EXE). Vous trouverez de l'aide à ce sujet <a href="~2~">sur le site web de QAP</a> (en anglais).
+lOptionsSwitchExclusionListInstructions	Pour exclure une application du menu "Fenêtre ouvertes", entrez une partie du titre de la fenêtre de l'application. Vous pouvez entrer plusieurs exclusions, une par ligne. Par exemple, pour exclure les applications Sticky and GhostWindows, entrez les lignes suivantes :`n`nAStickies:`nGhostWindows`n`nVous pouvez aussi exclure les fenêtre par leur nom de classe ou leur nom de processus (nom du fichier EXE). Vous trouverez de l'aide à ce sujet <a href="~1~">sur le site web de QAP</a> (en anglais).
 lOptionsTabFileManagersIntro	Sélectionnez le gestionnaire de fichiers à utiliser pour ouvrir des dossiers dans une nouvelle fenêtre.
 lOptionsTabFileManagersPreferences	Préférences du gestionnaire de fichiers
 lOptionsTabFileManagersPreferred	Gestionnaire de fichier préféré
-lOptionsTabMenuOptionsIntro	Affichez le menu comme vous le préférez
 lOptionsTabMouseAndKeyboardIntro	Choisissez les boutons de la souris et les raccourcis du clavier déclenchant le menu principal de ~1~.
-lOptionsTabOtherOptionsIntro	Adaptez ~1~ à vos préférences!
+lOptionsTCWinCmd	Fichier de configuration (ini) de Total Commander introuvable: ~1~.
 lOptionsTheme	Thème
 lOptionsThirdParty	Gestionnaires
 lOptionsThirdPartyDetail	Pour activer l'intégration avec ~1~, localisez le programme .exe sous votre dossier Program Files.
@@ -773,7 +782,6 @@ lOptionsThirdPartyUseTabs	Utiliser les onglets au lieu d'ouvrir dans une nouvell
 lOptionsTrayTip	Afficher la notification au démarrage
 lOptionsUsageDb	Base de données de ~1~
 lOptionsUsageDbDaysInPopular	Nombre de jours à considérer dans les menus des items fréquemment utilisés:
-lOptionsUsageDbDescription	Paramètres de la base de données de ~1~
 lOptionsUsageDbDisabling	Les changements à la base de données seront complétés lorsque vous relancerez ~1~.
 lOptionsUsageDbEnable	Activer la base de données de ~1~
 lOptionsUsageDbFlushDatabase	Vider les items fréquemment utilisés de la base de données
@@ -783,12 +791,19 @@ lOptionsUsageDbIntervalSeconds	Intervalle de collecte et d'actualisation (en sec
 lOptionsUsageDbMaximumSize	Taille maximale de la base de données (en MO):
 lOptionsUsageDbMaximumSizeInvalid	La taille maximale de la base de données n'est pas un nombre valide: ~1~
 lOptionsUsageDbShowPopularityIndex	Afficher l'index de fréquence dans la fenêtre Paramètres et dans les menus
-lOptionsUsageDbStatement	Déclaration de confidentialité: les données de la base de données de ~1~ sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
+lOptionsUsageDbStatement	Les données de la base de données de ~1~ sont collectées uniquement dans le but de vous présenter des menus reflétant l'utilisation de votre ordinateur personnel. Ces données résident uniquement sur votre ordinateur et AUCUNE information n'est transmise à un serveur distant.
+lOptionsUsageDbStatementTitle	Déclaration sur la confidentialité
+lOptionsUserVariables	Variables de l'utilisateur
 lOptionsUserVariablesList	Variables de l'utilisateur
-lOptionsUserVariablesListDescription	Court texte qui peut être insérée en remplacement d'un code, par exemple: {MaVariable}
 lOptionsUserVariablesListInstructions	Saisissez les variables de l'utilisateur, une variable par ligne. Chaque ligne doit commencer par le nom de la variable entre accolades (par exemple "{MaVariable}"), suivi du signe d'égalité "=" et du contenu de la variable (par exemple "{MaVariable}=Mon Contenu").`n`nPar exemple, si une ligne contient "{NotreDossierPartage}=S:\NotreDossier", le code de remplacement {NotreDossierPartage} sera remplacé par "S:\NotreDossier" dans les chemins d'accès des favoris et dans les fragments de texte.
+lOptionsWaitDelayInDialogBox	Delai (en ms) lors des changements d'emplacement dans les boîtes de dialogue:
+lOptionsWaitDelayInSnippet	Delai (en ms) lors de l'exécution des Fragments de texte
+lOptionsWorkingFolder	Emplacement des paramètres
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
+lSponsoredName	Ce logiciel est parrainé par ~1~
+lSponsoredNone	Veuillez cliquer ici pour parrainer ce logiciel
+lSponsoredUpdate	Veuillez mettre à jour votre code de donateur (pas besoin d'un nouveau don)
 lTCMenuName	TC Directory Hotlist
 lTCMenuNameDescription	Pour les utilisateurs de Total Commander (TC), afficher un menu dynamique présentant les favoris ajoutés à la "TC Hotlist" enregistrés dans le fichier wincdm.ini.`n`nSpécifiez l'emplacement du fichier wincdm.ini de TC dans les "Options", onglet "Gestionnaires". Si TC a été sélectionné lorsque vous avez installé QAP, le menu "TC Directory Hotlist" a automatiquement été ajouté à votre menu.
 lTCWinCmdLocation	Emplacement de WinCmd.ini
