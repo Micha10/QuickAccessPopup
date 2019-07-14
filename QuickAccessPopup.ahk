@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.5.1 (2019-07-14)
+- fix bug when cancelling the Select Hotstring dialog box that was erroneously deleting the hotstring
+
 Version: 9.5 (2019-06-11)
 - changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
 - add in "Options", "Icon" tab, new chekbox "Retrieve icon when refreshing Frequent folders and Frequent files menus (avoid if you often have offline files)" to bypass icon retrieval when refreshing Frequent items menu; enable this option if you never have offline network files in your Recent Items Windows folder
@@ -3084,7 +3087,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.5
+;@Ahk2Exe-SetVersion 9.5.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3111,7 +3114,7 @@ RegRead, strQAPRun, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\
 if (strQAPRun = "QuickAccessPopup.exe") ; only without full path and "/Working:" parameter (if full path or parameter exist, it has been created by the user)
 {
 	RegDelete, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run, Quick Access Popup
-	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.`n`nPlease, restart Quick Access Popup.
+	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.1.`n`nPlease, restart Quick Access Popup.
 	ExitApp
 }
 
@@ -3198,7 +3201,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.5.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
@@ -15726,7 +15729,6 @@ SelectHotstring(P_strActualHotstring, P_strFavoriteName, P_strFavoriteType, P_st
 	
 	; SH_strNewHotstring was built by ButtonChangeHotstringOK
 	SplitHotstring(SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
-	; ###_V("SH_strNewHotstring avant Validate", SH_strNewHotstring, SH_strHotstringTrigger, SH_strFavoriteHotstringOptionsShort)
 	
 	if !(P_blnDefaultOptions)
 	{
@@ -16096,7 +16098,7 @@ if (A_ThisLabel = "3GuiEscape")
 	}
 	else if (g_blnChangeHotstringInProgress) ; coming from SelectHotstring
 	{
-		SH_strNewHotstring := P_strActualHotstring
+		SH_strNewHotstring := g_objEditedFavorite.FavoriteHotstring ; do not use P_strActualHotstring that is a parameter, not global
 		g_blnChangeHotstringInProgress := false
 	}
 
