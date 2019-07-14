@@ -5650,6 +5650,7 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 		; saOneLine[2] contain favorite name
 		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
 		; saOneLine[4] contain favorite icon
+		saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 		saMenuItemsTable.Push(saOneLine)
 	}
 
