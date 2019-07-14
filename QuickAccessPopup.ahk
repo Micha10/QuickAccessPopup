@@ -14319,7 +14319,7 @@ if (A_ThisLabel = "3GuiEscape")
 	}
 	else if (g_blnChangeHotstringInProgress) ; coming from SelectHotstring
 	{
-		SH_strNewHotstring := P_strActualHotstring
+		SH_strNewHotstring := g_objEditedFavorite.FavoriteHotstring ; do not use P_strActualHotstring that is a parameter, not global
 		g_blnChangeHotstringInProgress := false
 	}
 
