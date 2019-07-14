@@ -6302,6 +6302,7 @@ loop, parse, % "Folders|Files", |
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
+			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
@@ -6531,6 +6532,7 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
+		arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
 AddCloseMenu(lMenuDrives)
@@ -6604,6 +6606,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
+			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(lMenuRecentFolders)
@@ -6617,6 +6620,7 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
+			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(lMenuRecentFiles)
