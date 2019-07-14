@@ -9982,6 +9982,7 @@ aaCategoriesID := Object()
 global g_aaTreeViewItemsByIDs := Object()
 
 aaCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
+aaCategories["8-All"] := "All (alphabetical order)"
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
@@ -10010,7 +10011,7 @@ for strCategory, strCategoryLabel in aaCategories
 		; name|code|categories
 		saItem := StrSplit(A_LoopField, "|")
 		
-		if InStr(saItem[3], strCategory)
+		if InStr(saItem[3], strCategory) or (strCategory = "8-All")
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
@@ -14964,7 +14965,6 @@ else ; item from the Repeat Last Actions menu
 	g_strLastActionRepeated := strThisMenuItem
 
 o_ThisFavorite := g_aaLastActions[g_strLastActionRepeated]
-o_ThisFavorite.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 gosub, OpenFavoriteFromLastAction
 
@@ -15056,6 +15056,7 @@ if (blnShiftPressed or blnControlPressed)
 
 ; collect last actions
 if !(g_blnAlternativeMenu) ; do not collect Alternative menu features
+	and !InStr(A_ThisMenu, "menuBar") ; do not collect actions from menu bar
 	gosub, CollectLastActions ; update g_aaLastActions
 
 ; always navigate
@@ -15328,6 +15329,7 @@ else
 	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
 }
 o_NewLastAction.AA.strOpenTimeStamp := A_Now
+o_NewLastAction.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 ; insert in g_aaLastActions
 if g_aaLastActions.HasKey(strLastActionLabel)
