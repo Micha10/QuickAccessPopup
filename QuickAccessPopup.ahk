@@ -4453,11 +4453,11 @@ global g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 global g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; Group MenuAdvanced
-o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
+o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_lblNbLiveFolderItemsMaxDefault|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
 o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", "f_blnOpenMenuOnTaskbar") ; g_blnOpenMenuOnTaskbar
-o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
+o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_lblClipboardMaxSizeDefault|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
 
 ; Group AdvancedLaunch
 o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", "f_blnRunAsAdmin|f_picRunAsAdmin") ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
@@ -6576,7 +6576,7 @@ GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue =
 Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow vf_lnkCheck4Update hidden, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 ; ChangeFolderInDialog
-Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w400 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
 GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 ; Working folder (only for Setup installation)
@@ -6649,7 +6649,7 @@ Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.Me
 GuiControl, 2:+gGuiOptionsGroupChanged, f_intIconsManageRowsSettingsEdit
 
 ; RetrieveIconInFrequentMenus
-Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w580 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
+Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w500 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
 GuiControl, , f_blnRetrieveIconInFrequentMenus, % (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue = true)
 gosub, DisplayIconsClickedInit
 
@@ -6683,7 +6683,7 @@ Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsX% w500 vf_blnDisplayNumericShortcut
 GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 ; DisplayMenuShortcutsFromOne
-Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsTab2X% w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged hidden, % o_L["OptionsDisplayMenuShortcutsFromOne"]
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab2X% w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged hidden, % o_L["OptionsDisplayMenuShortcutsFromOne"]
 GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
 gosub, DisplayMenuShortcutsClickedInit
 
@@ -6771,7 +6771,7 @@ for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA ; could also use o_Set
 	Gui, 2:Add, Text, % "Section x" . g_intGroupItemsX + 260 . " y+5 w280 h23 center 0x1000 vf_lblHotkeyText" . intThisIndex . " gButtonOptionsChangeShortcut" . intThisIndex . " hidden"
 		, % objThisPopupHotkey.AA.strPopupHotkeyTextShort
 	Gui, 2:Font
-	Gui, 2:Add, Button, yp x720 vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % o_L["OptionsChangeHotkey"]
+	Gui, 2:Add, Button, yp x%g_intGroupItemsTab5X% vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % o_L["OptionsChangeHotkey"]
 	Gui, 2:Font, s8 w500
 	Gui, 2:Add, Link, x%g_intGroupItemsX% ys w240 gOptionsTitlesDescriptionClicked hidden vf_lnkChangeShortcut%intThisIndex%, % objThisPopupHotkey.AA.strPopupHotkeyLocalizedDescription
 }
@@ -6915,8 +6915,10 @@ Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w300 vf_blnSnippetDefaultMacro gG
 GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
 
 ; HotstringsDefaultOptions
+Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% hidden vf_lblSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefault"]
-Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
+Gui, 2:Font
+Gui, 2:Add, Button, y+10 x%g_intGroupItemsX% gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
 
 GuiControlGet, arrPos, Pos, f_blnSnippetDefaultMacro
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -6989,17 +6991,19 @@ Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiO
 Gui, 2:Add, Text, yp x+10 vf_lblRefreshQAPMenuIntervalSec Disabled hidden, % o_L["OptionsRefreshQAPMenuIntervalSec"]
 
 ; RefreshQAPMenuDebugBeep
-Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+15 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
 GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
 gosub, RefreshQAPMenuEnableClickedInit
 
 ; ClipboardMaxSize
 Gui, 2:Add, Text, x%g_intGroupItemsX% y+20 vf_lblClipboardMaxSize hidden, % o_L["OptionsClipboardMaxSize"]
 Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
+Gui, 2:Add, Text, x+5 yp vf_lblClipboardMaxSizeDefault hidden, % o_L["OptionsClipboardMaxSizeDefault"]
 
 ; NbLiveFolderItemsMax
 Gui, 2:Add, Text, x%g_intGroupItemsX% y+15 vf_lblNbLiveFolderItemsMax hidden, % o_L["OptionsNbLiveFolderItemsMax"]
 Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
+Gui, 2:Add, Text, x+5 yp vf_lblNbLiveFolderItemsMaxDefault hidden, % o_L["OptionsNbLiveFolderItemsMaxDefault"]
 
 GuiControlGet, arrPos, Pos, f_intClipboardMaxSize
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -7564,24 +7568,25 @@ if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
 
-intMaxWidth := 0
+intOptionsButtonsColWidth := 0
 for intKey, strGroup in o_Settings.saOptionsGroups
 {
 	Gui, 2:Add, Button, % "x10 y" . (intKey = 1 ? "+15" : "p+22") . " gGuiOptionsGroupButtonClicked vf_btnOptionsGroup" . strGroup , % aaL[o_Settings.saOptionsGroupsLabelNames[intKey]]
 	GuiControlGet, arrPos, Pos, % "f_btnOptionsGroup" . strGroup
-	if (arrPosW > intMaxWidth) ; get max control width to get X of group items
-		intMaxWidth := arrPosW
+	if (arrPosW > intOptionsButtonsColWidth) ; get max control width to get X of group items
+		intOptionsButtonsColWidth := arrPosW
 }
 g_intOptionsFooterY := arrPosY + arrPosH
 
 for intKey, strGroup in o_Settings.saOptionsGroups ; same max width for all buttons
-	GuiControl, Move, % "f_btnOptionsGroup" . strGroup, w%intMaxWidth%
+	GuiControl, Move, % "f_btnOptionsGroup" . strGroup, w%intOptionsButtonsColWidth%
 
-g_intGroupItemsX := intMaxWidth + 30
+g_intGroupItemsX := intOptionsButtonsColWidth + 30
 g_intGroupItemsTab1X := g_intGroupItemsX + 10
 g_intGroupItemsTab2X := g_intGroupItemsX + 20
 g_intGroupItemsTab3X := g_intGroupItemsX + 120
 g_intGroupItemsTab4X := g_intGroupItemsX + 240
+g_intGroupItemsTab5X := g_intGroupItemsX + 550
 intGroupItemsY := 40 ; Y position of first item of a group
 
 Gui, 2:Font, s10 w700, Verdana
@@ -7590,7 +7595,7 @@ Gui, 2:Font
 
 strGroup := ""
 ResetArray("arrPos")
-intMaxWidth := ""
+intOptionsButtonsColWidth := ""
 
 return
 ;------------------------------------------------------------
@@ -16814,7 +16819,7 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, x10 w%intWidth%, % o_L["HelpTextLead"]
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, % " " . o_L["HelpTabGettingStarted"] . " | " . o_L["HelpTabAddingFavorite"] . " | "
+Gui, 2:Add, Tab2, vf_intHelpTab w640 h375 AltSubmit, % " " . o_L["HelpTabGettingStarted"] . " | " . o_L["HelpTabAddingFavorite"] . " | "
 	. o_L["HelpTabQAPFeatures"] . " | " . o_L["HelpTabSharedMenus"] . " | " . o_L["HelpTabTipsAndTricks"] . " "
 
 Gui, 2:Font, s8 w400, Verdana
@@ -16829,11 +16834,14 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText21"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText22"]
+Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText24"]
 Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText23"], o_PopupHotkeyNavigateOrLaunchHotkeyMouse.AA.strPopupHotkeyText, o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.AA.strPopupHotkeyText)
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
 Gui, 2:Tab, 3
+Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText35"]
+Gui, 2:Add, Link, w%intWidth% y+3, % o_L["HelpText36"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText31"]
 Gui, 2:Add, Link, w%intWidth% y+3, % o_L["HelpText32"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText33"]
@@ -16855,7 +16863,8 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext4")
 
 Gui, 2:Tab, 5 ; has text numbered 41, 42, etc.
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText41"]
-Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText42"]
+if (g_blnPortableMode)
+	Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText42"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText43"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText44"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText45"]
