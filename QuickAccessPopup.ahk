@@ -31,8 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 9.5.1 (2019-07-14)
-- fix bug when cancelling the Select Hotstring dialog box that was erroneously deleting the hotstring
+Version: 9.5.1 (2019-07-15)
+- fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
+- fix bug when cancelling the "Select Hotstring" dialog box was erroneously deleting the hotstring
 
 Version: 9.5 (2019-06-11)
 - changes to startup process to make this release forward/backward compatible with future release v10 (and alpha v9.9.2)
