@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.5.2 (2019-07-15)
+- full fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
+
 Version: 9.5.1 (2019-07-15)
 - fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
 - fix bug when cancelling the "Select Hotstring" dialog box was erroneously deleting the hotstring
@@ -3088,7 +3091,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.5.1
+;@Ahk2Exe-SetVersion 9.5.2
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3115,7 +3118,8 @@ RegRead, strQAPRun, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\
 if (strQAPRun = "QuickAccessPopup.exe") ; only without full path and "/Working:" parameter (if full path or parameter exist, it has been created by the user)
 {
 	RegDelete, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run, Quick Access Popup
-	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.1.`n`nPlease, restart Quick Access Popup.
+	; write version number in text because g_strCurrentVersion is not created yet
+	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.2.`n`nPlease, restart Quick Access Popup.
 	ExitApp
 }
 
@@ -3202,7 +3206,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.5.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.5.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
@@ -6303,7 +6307,8 @@ loop, parse, % "Folders|Files", |
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
+			if (g_blnDisplayNumericShortcuts)
+				arrMenuItemsList2 := SubStr(arrMenuItemsList2, 1, 1) . StrReplace(SubStr(arrMenuItemsList2, 2), "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(strFoldersOrFilesMenuNameLocalized)
@@ -6533,7 +6538,9 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 	if StrLen(A_LoopField)
 	{
 		StringSplit, arrMenuItemsList, A_LoopField, |
-		arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
+		if (g_blnDisplayNumericShortcuts)
+			; double ampersands in menu name (even if ampersands seem not to be supported in drive names - but they could be eventualy)
+			arrMenuItemsList2 := SubStr(arrMenuItemsList2, 1, 1) . StrReplace(SubStr(arrMenuItemsList2, 2), "&", "&&")
 		AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 	}
 AddCloseMenu(lMenuDrives)
@@ -6607,7 +6614,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Folders}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
+			if (g_blnDisplayNumericShortcuts)
+				arrMenuItemsList2 := SubStr(arrMenuItemsList2, 1, 1) . StrReplace(SubStr(arrMenuItemsList2, 2), "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(lMenuRecentFolders)
@@ -6621,7 +6629,8 @@ if (g_objQAPfeaturesInMenus.HasKey("{Recent Files}"))
 		if StrLen(A_LoopField)
 		{
 			StringSplit, arrMenuItemsList, A_LoopField, |
-			arrMenuItemsList2 := StrReplace(arrMenuItemsList2, "&", "&&") ; double ampersands in menu name
+			if (g_blnDisplayNumericShortcuts)
+				arrMenuItemsList2 := SubStr(arrMenuItemsList2, 1, 1) . StrReplace(SubStr(arrMenuItemsList2, 2), "&", "&&") ; double ampersands in menu name
 			AddMenuIcon(arrMenuItemsList1, arrMenuItemsList2, arrMenuItemsList3, arrMenuItemsList4)
 		}
 	AddCloseMenu(lMenuRecentFiles)
