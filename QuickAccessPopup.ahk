@@ -4386,7 +4386,7 @@ o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0,
 o_Settings.ReadIniOption("MenuIcons", "blnDisplayIcons", "DisplayIcons", 1, "MenuIcons", "f_blnDisplayIcons") ; g_blnDisplayIcons
 o_Settings.ReadIniOption("MenuIcons", "intIconSize", "IconSize", 32, "MenuIcons", "f_lblIconSize|f_drpIconSize") ; g_intIconSize
 o_Settings.ReadIniOption("MenuIcons", "intIconsManageRowsSettings", "IconsManageRows", 0, "MenuIcons", "f_intIconsManageRowsSettingsEdit|f_intIconsManageRowsSettings|f_lblIconsManageRows") ; g_intIconsManageRowsSettings
-o_Settings.ReadIniOption("MenuIcons", "blnRetrieveIconInFrequentMenus", "RetrieveIconInFrequentMenus", 0, "MenuIcons", "f_blnRetrieveIconInFrequentMenus") ; avoid offline delay when retrieving icons for Frequent items menus
+o_Settings.ReadIniOption("MenuIcons", "blnRetrieveIconInFrequentMenus", "RetrieveIconInFrequentMenus", 1, "MenuIcons", "f_blnRetrieveIconInFrequentMenus") ; avoid offline delay when retrieving icons for Frequent items menus
 o_Settings.ReadIniOption("MenuIcons", "strIconReplacementList", "IconReplacementList", " ", "MenuIcons", "f_lnkIconReplacementList1|f_lnkIconReplacementList2|f_strIconReplacementList") ; g_strIconReplacementList
 o_JLicons.ProcessReplacements(o_Settings.MenuIcons.strIconReplacementList.IniValue)
 
