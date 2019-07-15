@@ -31,8 +31,17 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.2 (2019-07-11)
+- fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
+- refresh sponsor message after sponsor code is entered
+- remove temporary debugging code for QAPmessenger checking if QAP is running
+
+Version BETA: 9.9.2.1 (2019-07-11)
+- fix bug not finding Run at startup menu item
+- fix bug building live folder with dynamic colum breaks; increase the number of items in first column of live folder
+- temporary debugging code for QAPmessenger checking if QAP is running
+
 Version BETA: 9.9.2 (2019-07-10)
-(Beta 9.9.2.x -> v10)
  
 Settings window menu bar
 - add a menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus
@@ -3325,7 +3334,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2
+;@Ahk2Exe-SetVersion 9.9.2.2
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3430,7 +3439,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -3702,7 +3711,7 @@ If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 		; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
 		; if the startup shortcut exists, update it at each execution in case the exe filename changed
 		Gosub, CreateStartupShortcut
-		Menu, Tray, Check, % aaMenuTrayL["MenuRunAtStartup"]
+		Menu, Tray, Check, % g_aaMenuTrayL["MenuRunAtStartup"]
 	}
 }
 
@@ -4444,11 +4453,11 @@ global g_blnUsageDbDebug := (g_intUsageDbDebug > 0)
 global g_blnUsageDbDebugBeep := (g_intUsageDbDebug > 1)
 
 ; Group MenuAdvanced
-o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
+o_Settings.ReadIniOption("MenuAdvanced", "intNbLiveFolderItemsMax", "NbLiveFolderItemsMax", "", "MenuAdvanced", "f_lblNbLiveFolderItemsMax|f_lblNbLiveFolderItemsMaxDefault|f_intNbLiveFolderItemsMax") ; ERROR if not found ; g_intNbLiveFolderItemsMax
 if (o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue = "ERROR")
 	o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.WriteIni(500)
 o_Settings.ReadIniOption("MenuPopup", "blnOpenMenuOnTaskbar", "OpenMenuOnTaskbar", 1, "MenuAdvanced", "f_blnOpenMenuOnTaskbar") ; g_blnOpenMenuOnTaskbar
-o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
+o_Settings.ReadIniOption("MenuAdvanced", "intClipboardMaxSize", "ClipboardMaxSize", 10000, "MenuAdvanced", "f_lblClipboardMaxSize|f_lblClipboardMaxSizeDefault|f_intClipboardMaxSize") ; default 10000 chars ; g_intClipboardMaxSize
 
 ; Group AdvancedLaunch
 o_Settings.ReadIniOption("LaunchAdvanced", "blnRunAsAdmin", "RunAsAdmin", 0, "AdvancedLaunch", "f_blnRunAsAdmin|f_picRunAsAdmin") ; default false, if true reload QAP as admin ; g_blnRunAsAdmin
@@ -4534,6 +4543,7 @@ else
 	g_SponsoredMessage := "<a id=""none"">" . o_L["SponsoredNone"] . "</a>"
 	o_Settings.Launch.blnDonor.IniValue := 0
 }
+g_SponsoredMessage := "                    " . g_SponsoredMessage . "                    " ; give extra space to control in case it is replaced with longer text
 
 return
 ;------------------------------------------------------------
@@ -6567,7 +6577,7 @@ GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue =
 Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow vf_lnkCheck4Update hidden, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
 
 ; ChangeFolderInDialog
-Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w400 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
 GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 ; Working folder (only for Setup installation)
@@ -6640,7 +6650,7 @@ Gui, 2:Add, Text, % "yp x+10 w400 hidden vf_lblIconsManageRows" . (o_Settings.Me
 GuiControl, 2:+gGuiOptionsGroupChanged, f_intIconsManageRowsSettingsEdit
 
 ; RetrieveIconInFrequentMenus
-Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w580 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
+Gui, 2:Add, CheckBox, y+20 x%g_intGroupItemsX% w500 vf_blnRetrieveIconInFrequentMenus gGuiOptionsGroupChanged hidden, % o_L["OptionsIconsRetrieveInFrequentMenus"]
 GuiControl, , f_blnRetrieveIconInFrequentMenus, % (o_Settings.MenuIcons.blnRetrieveIconInFrequentMenus.IniValue = true)
 gosub, DisplayIconsClickedInit
 
@@ -6674,7 +6684,7 @@ Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsX% w500 vf_blnDisplayNumericShortcut
 GuiControl, , f_blnDisplayNumericShortcuts, % (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue = true)
 
 ; DisplayMenuShortcutsFromOne
-Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsTab2X% w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged hidden, % o_L["OptionsDisplayMenuShortcutsFromOne"]
+Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab2X% w300 vf_blnDisplayNumericShortcutsFromOne gGuiOptionsGroupChanged hidden, % o_L["OptionsDisplayMenuShortcutsFromOne"]
 GuiControl, , f_blnDisplayNumericShortcutsFromOne, % (o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue = true)
 gosub, DisplayMenuShortcutsClickedInit
 
@@ -6762,7 +6772,7 @@ for intThisIndex, objThisPopupHotkey in o_PopupHotkeys.SA ; could also use o_Set
 	Gui, 2:Add, Text, % "Section x" . g_intGroupItemsX + 260 . " y+5 w280 h23 center 0x1000 vf_lblHotkeyText" . intThisIndex . " gButtonOptionsChangeShortcut" . intThisIndex . " hidden"
 		, % objThisPopupHotkey.AA.strPopupHotkeyTextShort
 	Gui, 2:Font
-	Gui, 2:Add, Button, yp x720 vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % o_L["OptionsChangeHotkey"]
+	Gui, 2:Add, Button, yp x%g_intGroupItemsTab5X% vf_btnChangeShortcut%intThisIndex% gButtonOptionsChangeShortcut%intThisIndex% hidden, % o_L["OptionsChangeHotkey"]
 	Gui, 2:Font, s8 w500
 	Gui, 2:Add, Link, x%g_intGroupItemsX% ys w240 gOptionsTitlesDescriptionClicked hidden vf_lnkChangeShortcut%intThisIndex%, % objThisPopupHotkey.AA.strPopupHotkeyLocalizedDescription
 }
@@ -6906,8 +6916,10 @@ Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w300 vf_blnSnippetDefaultMacro gG
 GuiControl, , f_blnOptionsSnippetDefaultMacro, % (o_Settings.Snippets.blnSnippetDefaultMacro.IniValue = true)
 
 ; HotstringsDefaultOptions
+Gui, 2:Font, s8 w700
 Gui, 2:Add, Text, y+20 x%g_intGroupItemsX% hidden vf_lblSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefault"]
-Gui, 2:Add, Button, yp x+5 gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
+Gui, 2:Font
+Gui, 2:Add, Button, y+10 x%g_intGroupItemsX% gSelectHotstringDefaultOptions hidden vf_btnSelectHotstringDefaultOptions, % o_L["OptionsHotstringsDefaultSelect"]
 
 GuiControlGet, arrPos, Pos, f_blnSnippetDefaultMacro
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -6980,17 +6992,19 @@ Gui, 2:Add, UpDown, vf_intRefreshQAPMenuIntervalSec Range30-86400 disabled gGuiO
 Gui, 2:Add, Text, yp x+10 vf_lblRefreshQAPMenuIntervalSec Disabled hidden, % o_L["OptionsRefreshQAPMenuIntervalSec"]
 
 ; RefreshQAPMenuDebugBeep
-Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+5 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
+Gui, 2:Add, CheckBox, x%g_intGroupItemsX% y+15 w300 vf_blnRefreshQAPMenuDebugBeep Disabled gGuiOptionsGroupChanged hidden, % o_L["OptionsRefreshQAPMenuDebugBeep"]
 GuiControl, , f_blnRefreshQAPMenuDebugBeep, % (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue = true)
 gosub, RefreshQAPMenuEnableClickedInit
 
 ; ClipboardMaxSize
 Gui, 2:Add, Text, x%g_intGroupItemsX% y+20 vf_lblClipboardMaxSize hidden, % o_L["OptionsClipboardMaxSize"]
 Gui, 2:Add, Edit, x+10 yp h20 w65 number vf_intClipboardMaxSize gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intClipboardMaxSize.IniValue
+Gui, 2:Add, Text, x+5 yp vf_lblClipboardMaxSizeDefault hidden, % o_L["OptionsClipboardMaxSizeDefault"]
 
 ; NbLiveFolderItemsMax
 Gui, 2:Add, Text, x%g_intGroupItemsX% y+15 vf_lblNbLiveFolderItemsMax hidden, % o_L["OptionsNbLiveFolderItemsMax"]
 Gui, 2:Add, Edit, x+10 yp h20 w65 number center vf_intNbLiveFolderItemsMax gGuiOptionsGroupChanged hidden, % o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue
+Gui, 2:Add, Text, x+5 yp vf_lblNbLiveFolderItemsMaxDefault hidden, % o_L["OptionsNbLiveFolderItemsMaxDefault"]
 
 GuiControlGet, arrPos, Pos, f_intClipboardMaxSize
 if ((arrPosY + arrPosH) > g_intOptionsFooterY)
@@ -7555,24 +7569,25 @@ if (g_blnUseColors)
 	Gui, 2:Color, %g_strGuiWindowColor%
 Gui, 2:+Owner1
 
-intMaxWidth := 0
+intOptionsButtonsColWidth := 0
 for intKey, strGroup in o_Settings.saOptionsGroups
 {
 	Gui, 2:Add, Button, % "x10 y" . (intKey = 1 ? "+15" : "p+22") . " gGuiOptionsGroupButtonClicked vf_btnOptionsGroup" . strGroup , % aaL[o_Settings.saOptionsGroupsLabelNames[intKey]]
 	GuiControlGet, arrPos, Pos, % "f_btnOptionsGroup" . strGroup
-	if (arrPosW > intMaxWidth) ; get max control width to get X of group items
-		intMaxWidth := arrPosW
+	if (arrPosW > intOptionsButtonsColWidth) ; get max control width to get X of group items
+		intOptionsButtonsColWidth := arrPosW
 }
 g_intOptionsFooterY := arrPosY + arrPosH
 
 for intKey, strGroup in o_Settings.saOptionsGroups ; same max width for all buttons
-	GuiControl, Move, % "f_btnOptionsGroup" . strGroup, w%intMaxWidth%
+	GuiControl, Move, % "f_btnOptionsGroup" . strGroup, w%intOptionsButtonsColWidth%
 
-g_intGroupItemsX := intMaxWidth + 30
+g_intGroupItemsX := intOptionsButtonsColWidth + 30
 g_intGroupItemsTab1X := g_intGroupItemsX + 10
 g_intGroupItemsTab2X := g_intGroupItemsX + 20
 g_intGroupItemsTab3X := g_intGroupItemsX + 120
 g_intGroupItemsTab4X := g_intGroupItemsX + 240
+g_intGroupItemsTab5X := g_intGroupItemsX + 550
 intGroupItemsY := 40 ; Y position of first item of a group
 
 Gui, 2:Font, s10 w700, Verdana
@@ -7581,7 +7596,7 @@ Gui, 2:Font
 
 strGroup := ""
 ResetArray("arrPos")
-intMaxWidth := ""
+intOptionsButtonsColWidth := ""
 
 return
 ;------------------------------------------------------------
@@ -9968,6 +9983,7 @@ aaCategoriesID := Object()
 global g_aaTreeViewItemsByIDs := Object()
 
 aaCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
+aaCategories["8-All"] := "All (alphabetical order)"
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
@@ -9996,7 +10012,7 @@ for strCategory, strCategoryLabel in aaCategories
 		; name|code|categories
 		saItem := StrSplit(A_LoopField, "|")
 		
-		if InStr(saItem[3], strCategory)
+		if InStr(saItem[3], strCategory) or (strCategory = "8-All")
 		{
 			if (A_ThisLabel = "LoadTreeviewQAP")
 			{
@@ -14950,7 +14966,6 @@ else ; item from the Repeat Last Actions menu
 	g_strLastActionRepeated := strThisMenuItem
 
 o_ThisFavorite := g_aaLastActions[g_strLastActionRepeated]
-o_ThisFavorite.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 gosub, OpenFavoriteFromLastAction
 
@@ -15042,6 +15057,7 @@ if (blnShiftPressed or blnControlPressed)
 
 ; collect last actions
 if !(g_blnAlternativeMenu) ; do not collect Alternative menu features
+	and !InStr(A_ThisMenu, "menuBar") ; do not collect actions from menu bar
 	gosub, CollectLastActions ; update g_aaLastActions
 
 ; always navigate
@@ -15314,6 +15330,7 @@ else
 	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
 }
 o_NewLastAction.AA.strOpenTimeStamp := A_Now
+o_NewLastAction.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
 
 ; insert in g_aaLastActions
 if g_aaLastActions.HasKey(strLastActionLabel)
@@ -16758,7 +16775,7 @@ strSponsorName := Trim(f_strSponsorName)
 
 ; Donor code must contain only numbers and capital letters and be 8 digits
 if (StrLen(strDonorCode) <> 8 or RegExMatch(strDonorCode, "[^A-Z^0-9]")) ; [^A-Z^0-9] any digit not in A-Z and not in 0-9
-	or (strDonorCode <> SubStr(MD5(g_strEscapePipe . strSponsorName . g_strEscapePipe, true), 13, 8))
+	or (strDonorCode <> SubStr(MD5(g_strEscapePipe . StrLower(strSponsorName) . g_strEscapePipe, true), 13, 8))
 {
 	Oops(o_L["GuiDonateCodeInputDonorInvalid"])
 	return
@@ -16772,6 +16789,9 @@ MsgBox, 0, %g_strAppNameText%, % L(o_L["DonateThankyou"], strSponsorName), 10
 Gosub, 2GuiClose
 Gosub, BuildGui
 o_MenuInGui := o_MainMenu
+
+Gosub, ProcessSponsorName
+GuiControl, , f_lnkSponsoredBy, %g_SponsoredMessage%
 Gosub, GuiShowFromGuiOutside
 
 strDonorCode := ""
@@ -16802,7 +16822,7 @@ Gui, 2:Font, s10 w400, Verdana
 Gui, 2:Add, Link, x10 w%intWidth%, % o_L["HelpTextLead"]
 
 Gui, 2:Font, s8 w600, Verdana
-Gui, 2:Add, Tab2, vf_intHelpTab w640 h350 AltSubmit, % " " . o_L["HelpTabGettingStarted"] . " | " . o_L["HelpTabAddingFavorite"] . " | "
+Gui, 2:Add, Tab2, vf_intHelpTab w640 h375 AltSubmit, % " " . o_L["HelpTabGettingStarted"] . " | " . o_L["HelpTabAddingFavorite"] . " | "
 	. o_L["HelpTabQAPFeatures"] . " | " . o_L["HelpTabSharedMenus"] . " | " . o_L["HelpTabTipsAndTricks"] . " "
 
 Gui, 2:Font, s8 w400, Verdana
@@ -16817,11 +16837,14 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext1")
 Gui, 2:Tab, 2
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText21"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText22"]
+Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText24"]
 Gui, 2:Add, Link, w%intWidth%, % L(o_L["HelpText23"], o_PopupHotkeyNavigateOrLaunchHotkeyMouse.AA.strPopupHotkeyText, o_PopupHotkeyNavigateOrLaunchHotkeyKeyboard.AA.strPopupHotkeyText)
 Gui, 2:Add, Button, y+25 vf_btnNext2 gNextHelpButtonClicked, % aaL["DialogTabNext"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext2")
 
 Gui, 2:Tab, 3
+Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText35"]
+Gui, 2:Add, Link, w%intWidth% y+3, % o_L["HelpText36"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText31"]
 Gui, 2:Add, Link, w%intWidth% y+3, % o_L["HelpText32"]
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText33"]
@@ -16843,7 +16866,8 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnNext4")
 
 Gui, 2:Tab, 5 ; has text numbered 41, 42, etc.
 Gui, 2:Add, Link, w%intWidth%, % o_L["HelpText41"]
-Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText42"]
+if (g_blnPortableMode)
+	Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText42"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText43"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText44"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText45"]
@@ -23725,10 +23749,10 @@ class Container
 			saItemSource.RemoveAt(1) ; remove sorting criteria, order becomes as expected by new Item class
 			; 1 favorite type, 2 menu name, 3 location, 4 icon (for folders, .url and .lnk), 5 args (for applications), 6 working dir (for applications)
 			
-			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and !Mod(A_Index + 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
+			if (o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns and (A_Index > 2) and !Mod(A_Index - 1, o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns)) ; insert column break before new item
 			{
 				oNewItem := new this.Item(["K"], this) ; simple array object with only favorite type "K"
-				this.SA.Push(oNewItem) ; add column break to the current container object
+				oNewSubMenu.SA.Push(oNewItem) ; add column break to the current container object
 				if (saItemSource[1] = "X") ; skip line separator after a column break
 					break ; continue with next line in strContent
 			}
@@ -23819,7 +23843,7 @@ class Container
 				Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, DoNothing, % (blnFlagNextItemHasColumnBreak ? "BarBreak" : "") ; DoNothing will never be called because disabled
 		}
 		else
-			Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%
+			Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%, % (blnHasColumnBreak ? "BarBreak" : "")
 		
 		if (o_Settings.MenuIcons.blnDisplayIcons.IniValue) and (strIconValue <> "iconNoIcon")
 		{
