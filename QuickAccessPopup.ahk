@@ -6187,7 +6187,7 @@ Diag(A_ThisLabel, "", "START")
 
 If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander settings file exists
 {
-	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded) ; RECURSIVE
+	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded, true) ; RECURSIVE, true for blnRoot
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	ToolTip
 }
@@ -11338,7 +11338,8 @@ if !InStr("GuiShowFromAlternative|GuiShowFromGuiSettings|GuiShowFromGuiOutside|G
 	if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
 		strThisMenu := o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath
 	else if (A_ThisMenu = "Tray" or A_ThisMenu = "" or !o_Containers.AA.HasKey(A_ThisMenu)
-		or o_Containers.AA[A_ThisMenu].AA.strMenuType = "MenuBar") ; A_ThisMenu is empty or menu not in containers or menu is menu bar
+		or o_Containers.AA[A_ThisMenu].AA.strMenuType = "MenuBar" ; A_ThisMenu is empty or menu not in containers or menu is menu bar
+		or A_ThisMenu = o_L["MenuLastActions"]) ; A_ThisMenu is empty or menu not in containers or menu is menu bar
 		strThisMenu := o_L["MainMenuName"] ; not "Main" for non-English
 	else
 		strThisMenu := A_ThisMenu
@@ -23100,7 +23101,7 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadFavoritesFromIniFile(blnWorkingToolTip := false, blnRefreshExternal := false, blnEntryMenu := true)
+	LoadFavoritesFromIniFile(blnWorkingToolTip := false, blnRefreshExternal := false, blnRoot := true)
 	; return "EOM" if no error (or managed external file error) or "EOF" if end of file not expected error
 	;---------------------------------------------------------
 	{
@@ -23109,7 +23110,7 @@ class Container
 		static s_intIniLineLoad := 1
 		static s_strIniFile
 		
-		if (blnEntryMenu) ; do not pass this value when recursing
+		if (blnRoot) ; do not pass this value when recursing
 			s_intIniLineLoad := 1
 		
 		if (blnRefreshExternal) ; do not pass this value when recursing
@@ -23239,12 +23240,15 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadTCFavoritesFromIniFile(strIniFile)
+	LoadTCFavoritesFromIniFile(strIniFile, blnRoot := false)
 	;---------------------------------------------------------
 	{
+		static s_intIniLineLoadTC := 1
+		
 		this.SA := Object() ; re-init
 		
-		static s_intIniLineLoadTC := 1
+		if (blnRoot) ; do not pass this value when recursing
+			s_intIniLineLoadTC := 1
 		
 		Loop
 		{
