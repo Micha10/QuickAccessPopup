@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.4 (2019-07-1?)
+- fix bug "Launch with" option not working
+- 
+
 Version BETA: 9.9.2.3 (2019-07-17)
  
 Bug fixes
@@ -4610,13 +4614,6 @@ if !FileExist(o_Settings.strIniFile)
 }
 else
 {
-	; reinit after Settings save if already exist
-	; g_objMainMenu := Object() ; object of menu structure entry point
-	; g_objMainMenu.MenuPath := o_L["MainMenuName"] ; localized name of the main menu
-	; g_objMainMenu.MenuType := "Menu" ; main menu is not a group
-
-	; global g_objMenusIndex := Object() ; index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-	
 	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
@@ -4625,7 +4622,6 @@ else
 		ExitApp
 	if (A_ThisLabel = "LoadMenuFromIniWithStatus")
 		ToolTip ; clear tooltip after refresh
-
 }
 
 return
@@ -7544,12 +7540,11 @@ g_blnGroupChanged := false
 Gosub, 2GuiClose
 
 ; rebuild Folders menus w/ or w/o optional folders and shortcuts
-for strMenuName, arrMenu in g_objMenusIndex
+for strMenuName, oContainer in o_Containers.AA
 {
 	Menu, %strMenuName%, Add
 	Menu, %strMenuName%, DeleteAll
 }
-strMenuName := ""
 
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
@@ -7569,6 +7564,8 @@ blnSettingsMoveOK := ""
 strWorkingFolderNew := ""
 strBackupFolderNew := ""
 strTempFolderNew := ""
+strMenuName := ""
+oContainer := ""
 
 return
 ;------------------------------------------------------------
@@ -9020,7 +9017,7 @@ g_strAddFavoriteType := StrReplace(A_ThisLabel, "GuiAddFavoriteFromQAPFeature")
 
 gosub, GuiShowFromGuiAddFavoriteQAPFeature
 gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list
-g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? (g_objMenusIndex[A_ThisMenu][1].FavoriteType = "B" ? 2 : 1): g_objMenusIndex[A_ThisMenu].MaxIndex() + 1) ; 
+g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : o_Containers.AA[A_ThisMenu].SA.MaxIndex() + 1)
 g_intOriginalMenuPosition := g_intNewItemPos
 
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
@@ -12223,7 +12220,7 @@ if InStr("GuiAddFavoriteSaveXpress|GuiAddExternalSave|", strThisLabel . "|")
 		strDestinationMenu := A_ThisMenu
 		if !StrLen(strDestinationMenu) ; for GuiAddFavoriteSaveXpress favorite is added from context menu (no A_ThisMenu)
 			strDestinationMenu := o_L["MainMenuName"]
-		g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : g_objMenusIndex[strDestinationMenu].MaxIndex() + 1) ; 
+		g_intNewItemPos := (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? 1 : o_Containers.AA[strDestinationMenu].SA.MaxIndex() + 1) ; 
 	}
 	else ; GuiAddExternalSave
 	{
@@ -12272,7 +12269,7 @@ if (!g_intNewItemPos)
 	if (f_drpParentMenuItems)
 		g_intNewItemPos := f_drpParentMenuItems
 	else ; if f_drpParentMenuItems is not set, add to the end of menu
-		g_intNewItemPos := g_objMenusIndex[strDestinationMenu].MaxIndex()
+		g_intNewItemPos := o_Containers.AA[strDestinationMenu].SA.MaxIndex() + 1
 
 ; for these favorites, file/folder must exist
 
@@ -15290,7 +15287,6 @@ GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 
 	intMenuItemPos := A_ThisMenuItemPos + intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
 	
-	; return g_objMenusIndex[A_ThisMenu][intMenuItemPos]
 	return o_Containers.AA[A_ThisMenu].SA[intMenuItemPos]
 }
 ;------------------------------------------------------------
@@ -15307,10 +15303,8 @@ GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef 
 	{
 		if ((A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem) > A_ThisMenuItemPos)
 			break
-		; else if (g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteType = "K")
 		else if (o_Containers.AA[A_ThisMenu].SA[A_Index].AA.strFavoriteType = "K")
 			intColumnBreaksBeforeThisItem++
-		; else if (g_objMenusIndex[A_ThisMenu][A_Index + intMenuObjectItemOffset].FavoriteDisabled)
 		else if (o_Containers.AA[A_ThisMenu].SA[A_Index].AA.blnFavoriteDisabled)
 			intDisabledItemsBeforeThisItem++
 	}
