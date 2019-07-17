@@ -43,8 +43,8 @@ Bug fixes
  
 Various changes
 - in the tree view when adding a favorite of type Special or QAP Feature, add a node at the end with all types (of Special folders or of QAP Features) in alphabeticall order
-- enable by default the option "Retrieve icons when refreshing Frequent menus"
 - enable "Open Settings Window at Startup" by default only for first time users, when the quickaccesspopup.ini is created
+- enable by default the option "Retrieve icons when refreshing Frequent menus"
 - French translation done
 - adjustments to dialog boxes after testing French translation
 
@@ -4521,14 +4521,12 @@ Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to fa
 
 strLanguageCode := ""
 blnExplorerContextMenus := ""
-ResetArray("arrMainMenu")
 strNavigateOrLaunchHotkeyMouseDefault := ""
 strNavigateOrLaunchHotkeyKeyboard := ""
 strAlternativeHotkeyMouseDefault := ""
 strAlternativeHotkeyKeyboardDefault := ""
 objThisFavorite := ""
 objLoadIniFavorite := ""
-ResetArray("arrSubMenu")
 strFileList := ""
 intNumberOfBackups := ""
 objIniFile := ""
@@ -7100,6 +7098,7 @@ Gosub, GuiOptionsFooter
 strUrl := ""
 intThisIndex := ""
 objThisPopupHotkey := ""
+ResetArray("arrPos")
 
 return
 ;------------------------------------------------------------
@@ -7549,10 +7548,8 @@ for strMenuName, arrMenu in g_objMenusIndex
 {
 	Menu, %strMenuName%, Add
 	Menu, %strMenuName%, DeleteAll
-	ResetArray("arrMenu") ; free object's memory
 }
 strMenuName := ""
-ResetArray("arrMenu")
 
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
@@ -9485,14 +9482,12 @@ if (o_EditedFavorite.AA.strFavoriteName = o_L["ToolTipRetrievingWebPageTitle"])
 
 GuiAddFavoriteCleanup:
 blnIsGroupMember := ""
-ResetArray("arrTop")
 g_strNewLocation := ""
 g_blnAbortEdit := ""
 o_ExternalMenu := ""
 strDialogPosition := ""
 intGui2Width := ""
 intGui2Height := ""
-ResetArray("arrDialogPosition")
 strGuiTitle := ""
 aaL := ""
 
@@ -10073,7 +10068,6 @@ intItemID := ""
 strSelect := ""
 blnSelectDone := ""
 strItemsNameCodeCategories := ""
-ResetArray("arrItem")
 
 return
 ;------------------------------------------------------------
@@ -10146,8 +10140,6 @@ if !(blnIsGroupMember)
 		Gui, 2:Add, Text, x20 y+5 w300 h46 0x1000 vf_strHotstringOptions gButtonChangeFavoriteHotstring, % GetHotstringOptionsLong(g_strNewFavoriteHotstringOptionsShort)
 	}
 }
-
-ResetArray("arrFavoriteHotstring")
 
 return
 ;------------------------------------------------------------
@@ -10509,7 +10501,6 @@ WinMove, ahk_id %g_strGui2Hwnd%, , , , %intGui2Width% ; restore only width, alwa
 Gosub, ShowGui2AndDisableGui1
 
 blnMove := ""
-ResetArray("arrDialogPosition")
 strDialogPosition := ""
 strGuiTitle := ""
 
@@ -15217,7 +15208,6 @@ strThisMenuItem := ""
 strFavoriteType := ""
 intMenuItemPos := ""
 strThisNameLocation := ""
-ResetArray("arrThisNameLocation")
 strTempName := ""
 strMenuPath := ""
 strReopenWindowsID := ""
@@ -15454,8 +15444,6 @@ GuiCenterButtons(strGuiTitle, 20, 10, , "f_btnCloseComputerGo", "f_btnCloseCompu
 CalculateTopGuiPosition(g_strGui3Hwnd, g_strAppHwnd, intX, intY)
 Gui, CloseComputer:Show, AutoSize x%intX% y%intY%
 
-ResetArray("arrGroup1Pos")
-ResetArray("arrGroupLastPos")
 intX := ""
 intY := ""
 strGuiTitle := ""
@@ -16904,7 +16892,6 @@ GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnHelpDonate", "f_btnHelpClose")
 GuiControl, Focus, btnHelpClose
 Gosub, ShowGui2AndDisableGui1
 
-ResetArray("arrSharedMenuTypes")
 ResetArray("arrTabPos")
 strGuiTitle := ""
 
@@ -17492,8 +17479,8 @@ Loop
 		strItem := SubStr(strShortcutsItemsList, 1, InStr(strShortcutsItemsList, "`n") - 1)
 		strShortcutsItemsList := SubStr(strShortcutsItemsList, InStr(strShortcutsItemsList, "`n") + 1)
 		
-		arrShortcutFullPath := StrSplit(strItem, A_Tab)
-		strShortcutFullPath := arrShortcutFullPath[2]
+		saShortcutFullPath := StrSplit(strItem, A_Tab)
+		strShortcutFullPath := saShortcutFullPath[2]
 		
 		FileGetShortcut, %strShortcutFullPath%, strTargetPath
 		
@@ -17539,12 +17526,11 @@ strTargetType := ""
 objDuplicatesFinder := ""
 strShortcutsItemsList := ""
 strRecentsFolder := ""
-ResetArray("arrShortcutFullPath")
+saShortcutFullPath := ""
 strShortcutFullPath := ""
 strNumericShortcut := ""
 strMenuName := ""
 strIcon := ""
-ResetArray("arrMenuItemsList")
 
 return
 ;------------------------------------------------------------
@@ -21287,8 +21273,10 @@ TODO
 				strPath := "dopus.exe"
 			this.AA.strFileManagerPath := strPath
 			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
-				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			strTemp := this.AA.strFileManagerPathExpanded ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+			this.AA.blnFileManagerValid := StrLen(strTemp)
+				and FileExistInPath(strTemp) ; return strFileManagerPathExpanded expanded and searched in PATH
+			this.AA.strFileManagerPathExpanded := strTemp
 				
 			if (this.AA.blnFileManagerValid)
 			{
@@ -21386,8 +21374,10 @@ TODO
 			}
 			this.AA.strFileManagerPath := strPath
 			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
-				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			strTemp := this.AA.strFileManagerPathExpanded ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+			this.AA.blnFileManagerValid := StrLen(strTemp)
+				and FileExistInPath(strTemp) ; return strFileManagerPathExpanded expanded and searched in PATH
+			this.AA.strFileManagerPathExpanded := strTemp
 				
 			if (this.AA.blnFileManagerValid)
 			{
@@ -21480,8 +21470,10 @@ TODO
 			strPath := o_Settings.ReadIniValue("AppPath", " ", strQAPconnectFileManager, this.AA.strQAPconnectIniPath)
 			this.AA.strFileManagerPath := strPath
 			this.AA.strFileManagerPathExpanded := strPath ; will be expanded by FileExistInPath()
-			this.AA.blnFileManagerValid := StrLen(this.AA.strFileManagerPathExpanded)
-				and FileExistInPath(this.AA.strFileManagerPathExpanded) ; return strFileManagerPathExpanded expanded and searched in PATH
+			strTemp := this.AA.strFileManagerPathExpanded ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+			this.AA.blnFileManagerValid := StrLen(strTemp)
+				and FileExistInPath(strTemp) ; return strFileManagerPathExpanded expanded and searched in PATH
+			this.AA.strFileManagerPathExpanded := strTemp
 				
 			if (this.AA.blnFileManagerValid)
 			{
@@ -24552,6 +24544,28 @@ class Container
 				, (InStr(this.AA.strFavoriteLocation, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
 				, (InStr(this.AA.strFavoriteLocation, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 			
+			; LAUNCH WITH
+			if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
+			{
+				strTemp := this.AA.strFavoriteLaunchWith ; use strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+				blnFileExist := FileExistInPath(strTemp) ; return this.aaTemp.strExpandedLaunchWith expanded and searched in PATH
+				this.aaTemp.strExpandedLaunchWith := strTemp
+				
+				if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
+				{
+					Gui, 1:+OwnDialogs
+					MsgBox, 4, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
+						. " " . o_L["DialogFavoriteDoesNotExistEdit"]
+					IfMsgBox, Yes
+					{
+						this.aaTemp.strHotkeyTypeDetected := "Alternative"
+						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
+					}
+					IfMsgBox, No
+						return
+				}
+			}
+			
 			; ALTERNATIVE
 			if (this.aaTemp.strHotkeyTypeDetected = "Alternative")
 			{
@@ -25565,11 +25579,13 @@ class Container
 				else
 					if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; not for URL, Special Folder and others
 						and !LocationIsHTTP(this.AA.strFavoriteLocation) ; except if the folder location is on a server (like WebDAV)
-					
+					{
 						; placeholders are already expanded but neet to expand other variables
 						; make the location absolute based on the current working directory
-						blnFileExist := FileExistInPath(this.aaTemp.strFullLocation) ; return this.aaTemp.strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
-						
+						strTemp := this.aaTemp.strFullLocation ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+						blnFileExist := FileExistInPath(strTemp) ; return this.aaTemp.strFullLocation with expanded relative path, envvars and user variables, and absolute location if in PATH
+						this.aaTemp.strFullLocation := strTemp
+					}	
 					else if (this.AA.strFavoriteType = "WindowsApp")
 					{
 						if (SubStr(this.aaTemp.strFullLocation, 1, 7) = "Custom:")
@@ -25580,8 +25596,14 @@ class Container
 						return true ; do no process remaining options (.FavoriteLaunchWith and .FavoriteArguments)
 					}
 					else if (this.AA.strFavoriteType = "Special")
-						this.aaTemp.strFullLocation := GetSpecialFolderLocation(this.aaTemp.strHotkeyTypeDetected, this.aaTemp.strTargetAppName, this.AA)
+					{
+						strTempHotkeyTypeDetected := this.aaTemp.strHotkeyTypeDetected ; temp variable because "Fields of objects are not considered variables for the purposes of ByRef"
+						strTempTargetAppName := this.aaTemp.strTargetAppName ; temp variable because "Fields of objects are not considered variables for the purposes of ByRef"
+						this.aaTemp.strFullLocation := GetSpecialFolderLocation(strTempHotkeyTypeDetected, strTempTargetAppName, this.AA)
 							; can change values of this.aaTemp.strHotkeyTypeDetected and this.aaTemp.strTargetAppName
+						this.aaTemp.strHotkeyTypeDetected := strTempHotkeyTypeDetected
+						this.aaTemp.strTargetAppName := strTempTargetAppName
+					}
 					; else URL or QAP (no need to expand or make absolute), keep this.aaTemp.strFullLocation as in g_objThisFavorite.FavoriteLocation
 
 				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
@@ -25612,14 +25634,16 @@ class Container
 					; except if the location is a DOpus Favorite special folder identified with <pidl>
 				and (this.aaTemp.strOpenFavoriteLabel <> "OpenDOpusLayout")
 					; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
-					
-				if !FileExistInPath(this.aaTemp.strLocationWithPlaceholders) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
+				
+				strTemp := this.aaTemp.strLocationWithPlaceholders ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+				if !FileExistInPath(strTemp) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 				{
+					
 					Gui, 1:+OwnDialogs
 					MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
 						, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
 						, % L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
-							, (StrLen(this.aaTemp.strLocationWithPlaceholders) and this.aaTemp.strLocationWithPlaceholders <> this.AA.strFavoriteLocation ? " (" . this.aaTemp.strLocationWithPlaceholders . ")" : ""))
+							, (StrLen(strTemp) and strTemp <> this.AA.strFavoriteLocation ? " (" . strTemp . ")" : ""))
 							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
 					IfMsgBox, Yes
 					{
@@ -25630,6 +25654,7 @@ class Container
 					else
 						return false
 				}
+				this.aaTemp.strLocationWithPlaceholders := strTemp
 				
 				if StrLen(this.AA.strFavoriteAppWorkingDir) and (this.AA.strFavoriteType = "Application")
 				{
@@ -25638,7 +25663,8 @@ class Container
 						, (InStr(this.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
 
 					strAppWorkingDirBeforeFileExist := this.aaTemp.strAppWorkingDirWithPlaceholders
-					if StrLen(this.aaTemp.strAppWorkingDirWithPlaceholders) and !FileExistInPath(this.aaTemp.strAppWorkingDirWithPlaceholders)
+					strTemp := this.aaTemp.strAppWorkingDirWithPlaceholders ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
+					if StrLen(strTemp) and !FileExistInPath(strTemp)
 						; FileExistInPath returns strAppWorkingDirWithPlaceholders with expanded relative path and envvars, also search in PATH
 						and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
 					{
@@ -25656,27 +25682,7 @@ class Container
 						else
 							return false
 					}
-				}
-				
-				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
-				{
-					this.aaTemp.strExpandedLaunchWith := this.AA.strFavoriteLaunchWith
-					blnFileExist := FileExistInPath(this.aaTemp.strExpandedLaunchWith) ; return this.aaTemp.strExpandedLaunchWith expanded and searched in PATH
-					
-					if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-					{
-						Gui, 1:+OwnDialogs
-						MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
-							, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
-							. (this.AA.blnFavoritePseudo ? "" : " " . o_L["DialogFavoriteDoesNotExistEdit"])
-						IfMsgBox, Yes
-						{
-							g_blnAlternativeMenu := true
-							g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-						}
-						else 
-							return false
-					}
+					this.aaTemp.strAppWorkingDirWithPlaceholders := strTemp
 				}
 				
 			; location (and working directory for applications) exists or do not have to exist on file system
