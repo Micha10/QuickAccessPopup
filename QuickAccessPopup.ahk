@@ -31,6 +31,23 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.3 (2019-07-17)
+ 
+Bug fixes
+- fix bug not hiding disabled favorites in menus
+- fix bug when cancelling the "Select Hotstring" dialog box that was erroneously deleting the hotstring
+- fix bug with "Total Commander Hotlist" menu when scheduled refresh was enabled
+- exclude actions from menu bar from the actions collected for the Repeat Last Action(s) features
+- fix bug in "Options" to enable the "Save" button when changing value in up-down controls manualy (without clicking up-down arrows)
+- fix bug when "Settings" is open from Repeat Last Actions, show main menu
+ 
+Various changes
+- in the tree view when adding a favorite of type Special or QAP Feature, add a node at the end with all types (of Special folders or of QAP Features) in alphabeticall order
+- enable by default the option "Retrieve icons when refreshing Frequent menus"
+- enable "Open Settings Window at Startup" by default only for first time users, when the quickaccesspopup.ini is created
+- French translation done
+- adjustments to dialog boxes after testing French translation
+
 Version BETA: 9.9.2.2 (2019-07-11)
 - fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
 - refresh sponsor message after sponsor code is entered
@@ -4264,6 +4281,7 @@ if (g_blnIniFileCreation) ; if it exists, it is not first launch or it was creat
 			NameLocationHotkeysUpgraded=1
 			WaitDelayInSnippet=40|80|180
 			DefaultDynamicMenusBuilt=1
+			DisplaySettingsStartup=1
 			[Gui-Grey]
 			WindowColor=E0E0E0
 			TextColor=000000
@@ -4377,7 +4395,7 @@ global g_blnUseColors := (o_Settings.Launch.strTheme.IniValue <> "Windows")
 o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableThemes") ; g_strAvailableThemes
 
 ; Group SettingsWindow
-o_Settings.ReadIniOption("SettingsWindow", "blnDisplaySettingsStartup", "DisplaySettingsStartup", 1, "SettingsWindow", "f_blnDisplaySettingsStartup")
+o_Settings.ReadIniOption("SettingsWindow", "blnDisplaySettingsStartup", "DisplaySettingsStartup", 0, "SettingsWindow", "f_blnDisplaySettingsStartup")
 o_Settings.ReadIniOption("SettingsWindow", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "SettingsWindow", "f_blnRememberSettingsPosition") ; g_blnRememberSettingsPosition
 o_Settings.ReadIniOption("SettingsWindow", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "SettingsWindow", "f_blnOpenSettingsOnActiveMonitor") ; g_blnOpenSettingsOnActiveMonitor
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", "f_lblAddAutoAtTop|f_blnAddAutoAtTop0|f_blnAddAutoAtTop1") ; g_blnAddAutoAtTop
@@ -5090,7 +5108,7 @@ if (A_ComputerName = "JEAN-PC") ; for my home PC
 	and !(blnDbClosed)
 	###_V(A_ThisLabel, "Error when closing database")
 else
-	###_V(A_ThisLabel, "Database closed")
+	MsgBox, , %A_ThisLabel%, Database closed, 1
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 {
