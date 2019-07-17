@@ -5086,6 +5086,12 @@ if IsObject(o_UsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it 
 		FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
 }
 
+if (A_ComputerName = "JEAN-PC") ; for my home PC
+	and !(blnDbClosed)
+	###_V(A_ThisLabel, "Error when closing database")
+else
+	###_V(A_ThisLabel, "Database closed")
+
 if (o_Settings.Launch.blnDiagMode.IniValue)
 {
 	MsgBox, % 52 + 256 , %g_strAppNameText%, % L(o_L["DiagModeExit"], g_strAppNameText, g_strDiagFile) . "`n`n" . o_L["DiagModeIntro"] . "`n`n" . o_L["DiagModeSee"]
@@ -6272,7 +6278,8 @@ saMenuItemsTable := Object()
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 		saMenuItemsTable.Push(["RepeatLastAction", A_LoopField, A_LoopField, g_aaLastActions[A_LoopField].AA.strFavoriteIconResource])
-###_O("g_strLastActionsOrderedKeys: `n" . g_strLastActionsOrderedKeys . "`n`nsaMenuItemsTable:", saMenuItemsTable)
+if (A_ComputerName = "JEAN-PC") ; for my home PC ####
+	###_O("g_strLastActionsOrderedKeys: `n" . g_strLastActionsOrderedKeys . "`n`nsaMenuItemsTable:", saMenuItemsTable)
 
 o_Containers.AA[o_L["MenuLastActions"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuLastActions"]].BuildMenu()
@@ -15349,7 +15356,8 @@ loop, parse, strLastActionsOrdered, `n
 	else
 		g_strLastActionsOrderedKeys .= strThisLastActionKey . "`n"
 }
-###_O("g_aaLastActions", g_aaLastActions, "AA", "strFavoriteName")
+if (A_ComputerName = "JEAN-PC") ; for my home PC ####
+	###_O("g_aaLastActions", g_aaLastActions, "AA", "strFavoriteName")
 
 strLastActionLabel := ""
 strLastActionsOrdered := ""
@@ -23477,6 +23485,9 @@ class Container
 		{
 			aaThisFavorite := this.SA[A_Index].AA
 			
+			if (aaThisFavorite.blnFavoriteDisabled)
+				continue
+				
 			intMenuItemsCount++ ; for objMenuColumnBreak
 			
 			strMenuItemAction := ""
