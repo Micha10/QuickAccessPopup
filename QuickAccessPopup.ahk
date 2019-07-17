@@ -31,9 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.4 (2019-07-1?)
+Version BETA: 9.9.2.4 (2019-07-18)
 - fix bug "Launch with" option not working
-- 
+- various internal change
 
 Version BETA: 9.9.2.3 (2019-07-17)
  
