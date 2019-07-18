@@ -6281,7 +6281,11 @@ RefreshLastActionsMenu:
 
 if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
 	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
+{
+	if (A_ComputerName = "JEAN-PC") ; for my home PC ####
+		###_V(A_ThisLabel, o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}"), g_strLastActionsOrderedKeys)
 	return
+}
 
 Diag(A_ThisLabel, "", "START")
 
@@ -23109,6 +23113,9 @@ class Container
 			oNewItem := new this.Item(saMenuItemsTable[A_Index], this)
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
+		if (A_ComputerName = "JEAN-PC") ; for my home PC ####
+			and InSTr(this.AA.strMenuPath, o_L["MenuLastActions"])
+			###_O(A_ThisFunc . "`n`nthis.SA:", this.SA, "AA", "strFavoriteName")
 	}
 	;---------------------------------------------------------
 	
