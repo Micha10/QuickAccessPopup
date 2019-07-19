@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.5 (2019-07-??)
+- 
+
 Version BETA: 9.9.2.4 (2019-07-18)
 - fix bug "Launch with" option not working
 - various internal change
@@ -3355,7 +3358,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.4
+;@Ahk2Exe-SetVersion 9.9.2.5
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3460,7 +3463,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.4" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -15184,8 +15187,9 @@ else if InStr("OpenReopenCurrentFolder|OpenReopenInNewWindow|", g_strOpenFavorit
 		g_strTargetClass := ""
 		g_strHotkeyTypeDetected := "Launch"
 	}
-
-	global o_ThisFavorite := new Container.Item(["Folder", "Name not displayed", GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)])
+	
+	strCurrentLocation := GetCurrentLocation(strReopenWindowClass, strReopenWindowsID)
+	global o_ThisFavorite := new Container.Item(["Folder", strCurrentLocation, strCurrentLocation])
 	o_ThisFavorite.AA.blnFavoritePseudo := true
 }
 else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
@@ -15213,6 +15217,7 @@ strTempName := ""
 strMenuPath := ""
 strReopenWindowsID := ""
 strReopenWindowClass := ""
+strCurrentLocation := ""
 
 return
 ;------------------------------------------------------------
@@ -15362,8 +15367,8 @@ loop, parse, strLastActionsOrdered, `n
 	else
 		g_strLastActionsOrderedKeys .= strThisLastActionKey . "`n"
 }
-if (A_ComputerName = "JEAN-PC") ; for my home PC ####
-	###_O("g_aaLastActions", g_aaLastActions, "AA", "strFavoriteName")
+; if (A_ComputerName = "JEAN-PC") ; for my home PC ####
+	; ###_O("g_aaLastActions", g_aaLastActions, "AA", "strFavoriteName")
 
 strLastActionLabel := ""
 strLastActionsOrdered := ""
