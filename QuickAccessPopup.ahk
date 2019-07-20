@@ -31,8 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.6 (2019-07-??)
-- 
+Version BETA: 9.9.2.6 (2019-07-20)
+- fix bug breaking dynamic menus refresh after favorites were saved from Settings window
 
 Version BETA: 9.9.2.5 (2019-07-20)
 - fix bug when launching favorites of type FTP or Special reporting erroneously that the file does not exist
