@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.6 (2019-07-??)
+- 
+
 Version BETA: 9.9.2.5 (2019-07-20)
 - fix bug when launching favorites of type FTP or Special reporting erroneously that the file does not exist
 
@@ -3358,7 +3361,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.5
+;@Ahk2Exe-SetVersion 9.9.2.6
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3463,7 +3466,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.5" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -15340,7 +15343,8 @@ else
 {
 	global o_NewLastAction := new Container.Item([])
 	o_NewLastAction := o_ThisFavorite.Backup()
-	strLastActionLabel := RemoveSingleAmpersand(A_ThisMenu . " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
+	strLastActionLabel := RemoveSingleAmpersand((g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? o_L["DialogShortcut"]: A_ThisMenu)
+		. " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
 }
 o_NewLastAction.AA.strOpenTimeStamp := A_Now
 o_NewLastAction.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
