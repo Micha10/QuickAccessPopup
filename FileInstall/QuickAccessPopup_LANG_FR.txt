@@ -570,7 +570,7 @@ lMenuPublicLibraries	Bibliothèques (public)
 lMenuQuickLaunch	Lancement rapide
 lMenuRecentFiles	Fichiers récents
 lMenuRecentFilesDescription	Afficher un menu dynamique présentant les dix documents récemment utilisés tel que mémorisés par Windows dans son dossier virtuel "Items récents". Vous pouvez configurer le nombre d'items de ce menu dans les "Options", onglet "Menu".`n`nLes items dans ce menu sont triés par ordre chronologique inverse, tel que mémorisé par Windows.
-lMenuRecentFolders	Emplacements récents
+lMenuRecentFolders	Dossiers récents
 lMenuRecentFoldersDescription	Afficher un menu dynamique présentant les dix dossiers récemment utilisés tel que mémorisés par Windows dans son dossier virtuel "Items récents". Vous pouvez configurer le nombre d'items de ce menu dans les "Options", onglet "Menu".`n`nLes items dans ce menu sont triés par ordre chronologique inverse, tel que mémorisé par Windows.
 lMenuRecentItems	Documents récents
 lMenuRefreshMenu	Actualiser les Dossiers actifs et les Menus partagés
@@ -725,7 +725,7 @@ lOptionsMenuNearMouse	Près du pointeur de la souris
 lOptionsMenuPositionPrompt	Afficher le menu popup:
 lOptionsMouseAndKeyboard	Déclencheurs
 lOptionsMoveWorkingFolderTitle	Modifier l'emplacement du dossier des paramètres
-lOptionsMoveWorkingFolderType	Souhaitez-vous copier vos paramètres actuels dans ce nouvel emplacement:`n`n~1~`n`nSi vous choisissez COPIER, ~2~ sera relancé avec vos paramètres actuels COPIÉS dans ce dossier.`n`nSi vous choisissez NOUVEAU, ~2~ sera relancé avec les paramètres déjà présents (ou créés) dans ce NOUVEL emplacement.
+lOptionsMoveWorkingFolderType	Souhaitez-vous copier vos paramètres actuels dans ce nouvel emplacement:`n`n~1~`n`nSi vous choisissez COPIER, ~2~ sera relancé avec vos paramètres actuels COPIÉS dans ce dossier.`n`nSi vous choisissez NOUVEAU, ~2~ sera relancé avec les paramètres déjà présents (ou créés) dans ce NOUVEAU dossier.
 lOptionsNbLiveFolderItemsMax	Nombre maximum d'items dans les menus des Dossiers actifs:
 lOptionsNbLiveFolderItemsMaxDefault	(par défaut 500 items)
 lOptionsOpenFavoritesOnActiveMonitor	Sur un système multi-moniteurs, toujours ouvrir les fenêtres de l'Explorateur sur le moniteur actif
@@ -758,7 +758,7 @@ lOptionsRunAtStartup	Exécuter au démarrage
 lOptionsSelectBackupFolder	Selectionnez le dossier de copie du fichier de configuration principal
 lOptionsSelectCatalogueRoot	Choisissez le dossier racine du Catalogue des menus partagés
 lOptionsSelectQAPTempFolder	Créer le dossier temporaire dans:
-lOptionsSelectWorkingFolder	Enregistrer les paramètres dans quel emplacement?
+lOptionsSelectWorkingFolder	Enregistrer les paramètres dans quel dossier?
 lOptionsSendToConsoleWithAlt	Utiliser les codes ASCII (ALT+0nnn) lors des changements de dossier dans la fenêtre Commandes de Windows (CMD)
 lOptionsSettingsStartup	Ouvrir la fenêtre "Paramètres" lors du démarrage
 lOptionsSettingsWindow	Fenêtre des paramètres
@@ -798,7 +798,7 @@ lOptionsUserVariablesList	Variables de l'utilisateur
 lOptionsUserVariablesListInstructions	Saisissez les variables de l'utilisateur, une variable par ligne. Chaque ligne doit commencer par le nom de la variable entre accolades (par exemple "{MaVariable}"), suivi du signe d'égalité "=" et du contenu de la variable (par exemple "{MaVariable}=Mon Contenu").`n`nPar exemple, si une ligne contient "{NotreDossierPartage}=S:\NotreDossier", le code de remplacement {NotreDossierPartage} sera remplacé par "S:\NotreDossier" dans les chemins d'accès des favoris et dans les fragments de texte.
 lOptionsWaitDelayInDialogBox	Delai (en ms) lors des changements d'emplacement dans les boîtes de dialogue:
 lOptionsWaitDelayInSnippet	Delai (en ms) lors de l'exécution des Fragments de texte
-lOptionsWorkingFolder	Emplacement des paramètres
+lOptionsWorkingFolder	Dossiers des paramètres
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
 lSponsoredName	Ce logiciel est parrainé par ~1~
