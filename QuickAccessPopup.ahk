@@ -31,8 +31,8 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.5 (2019-07-??)
-- 
+Version BETA: 9.9.2.5 (2019-07-20)
+- fix bug when launching favorites of type FTP or Special reporting erroneously that the file does not exist
 
 Version BETA: 9.9.2.4 (2019-07-18)
 - fix bug "Launch with" option not working
@@ -24665,8 +24665,8 @@ class Container
 				this.ActivateRunningApplication()
 				blnOpenOK := true
 			}
-			; DOCUMENTS, LINK and LAUNCH WITH
-			else if InStr("Document|URL", this.AA.strFavoriteType)
+			; DOCUMENTS, LINK, FTP and LAUNCH WITH
+			else if InStr("Document|URL|FTP", this.AA.strFavoriteType)
 				or (StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType))
 			{
 				this.LaunchFullLocation()
@@ -25640,7 +25640,7 @@ class Container
 					; except if the location is a DOpus Favorite special folder identified with <pidl>
 				and (this.aaTemp.strOpenFavoriteLabel <> "OpenDOpusLayout")
 					; except if the location is a DOpus Layout (with format "layout_name_or_sub/sub/name")
-				
+			{
 				strTemp := this.aaTemp.strLocationWithPlaceholders ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
 				if !FileExistInPath(strTemp) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
 				{
@@ -25690,7 +25690,7 @@ class Container
 					}
 					this.aaTemp.strAppWorkingDirWithPlaceholders := strTemp
 				}
-				
+			}	
 			; location (and working directory for applications) exists or do not have to exist on file system
 			return true
 		}
