@@ -3623,8 +3623,6 @@ strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentB
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
-Gosub, InitDynamicMenus
-
 ; Build main menus
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
@@ -4623,6 +4621,7 @@ else
 	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
+	Gosub, InitDynamicMenus
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
 	if (o_MainMenu.LoadFavoritesFromIniFile((A_ThisLabel = "LoadMenuFromIniWithStatus")) <> "EOM")
 		ExitApp
@@ -5108,7 +5107,7 @@ if (A_ComputerName = "JEAN-PC") ; for my home PC
 	and !(blnDbClosed)
 	###_V(A_ThisLabel, "Error when closing database")
 else
-	MsgBox, , %A_ThisLabel%, Database closed, 1
+	MsgBox, , %A_ThisLabel%, Database closed, 0.5
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 {
@@ -6287,11 +6286,7 @@ RefreshLastActionsMenu:
 
 if !(o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}")) ; we don't have this QAP features in at least one menu
 	or !StrLen(g_strLastActionsOrderedKeys) ; we don't have actions to repeat
-{
-	if (A_ComputerName = "JEAN-PC") ; for my home PC ####
-		###_V(A_ThisLabel, o_QAPfeatures.aaQAPfeaturesInMenus.HasKey("{Last Actions}"), g_strLastActionsOrderedKeys)
 	return
-}
 
 Diag(A_ThisLabel, "", "START")
 
@@ -6300,8 +6295,6 @@ saMenuItemsTable := Object()
 Loop, Parse, g_strLastActionsOrderedKeys, `n
 	if StrLen(A_LoopField)
 		saMenuItemsTable.Push(["RepeatLastAction", A_LoopField, A_LoopField, g_aaLastActions[A_LoopField].AA.strFavoriteIconResource])
-if (A_ComputerName = "JEAN-PC") ; for my home PC ####
-	###_O("g_strLastActionsOrderedKeys: `n" . g_strLastActionsOrderedKeys . "`n`nsaMenuItemsTable:", saMenuItemsTable)
 
 o_Containers.AA[o_L["MenuLastActions"]].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA[o_L["MenuLastActions"]].BuildMenu()
@@ -15371,8 +15364,6 @@ loop, parse, strLastActionsOrdered, `n
 	else
 		g_strLastActionsOrderedKeys .= strThisLastActionKey . "`n"
 }
-; if (A_ComputerName = "JEAN-PC") ; for my home PC ####
-	; ###_O("g_aaLastActions", g_aaLastActions, "AA", "strFavoriteName")
 
 strLastActionLabel := ""
 strLastActionsOrdered := ""
@@ -23122,9 +23113,6 @@ class Container
 			oNewItem := new this.Item(saMenuItemsTable[A_Index], this)
 			this.SA.Push(oNewItem) ; add to the current container object
 		}
-		if (A_ComputerName = "JEAN-PC") ; for my home PC ####
-			and InSTr(this.AA.strMenuPath, o_L["MenuLastActions"])
-			###_O(A_ThisFunc . "`n`nthis.SA:", this.SA, "AA", "strFavoriteName")
 	}
 	;---------------------------------------------------------
 	
