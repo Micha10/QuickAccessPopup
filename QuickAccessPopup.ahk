@@ -24665,8 +24665,8 @@ class Container
 				this.ActivateRunningApplication()
 				blnOpenOK := true
 			}
-			; DOCUMENTS, LINK, FTP and LAUNCH WITH
-			else if InStr("Document|URL|FTP", this.AA.strFavoriteType)
+			; DOCUMENTS, LINK and LAUNCH WITH
+			else if InStr("Document|URL", this.AA.strFavoriteType)
 				or (StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType))
 			{
 				this.LaunchFullLocation()
