@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.7 (2019-07-??)
+- refresh dynamic menus (Clipboard, Reopen a Folder, Directory Opus Favorites, Drives, Repeat Last Actions, Frequent Files, Frequent Folders, Recent Files, Recent Folders, Current Windows and TC Directory hotlist) when they are part of a submenu open using a keyboard shortcut or an hotstring;
+
 Version BETA: 9.9.2.6 (2019-07-20)
 - fix bug breaking dynamic menus refresh after favorites were saved from Settings window
 
@@ -3361,7 +3364,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.6
+;@Ahk2Exe-SetVersion 9.9.2.7
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3466,7 +3469,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.6" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -4621,7 +4624,7 @@ else
 	o_QAPfeatures.aaQAPfeaturesInMenus := Object() ; re-init
 
 	global o_Containers := new Containers() ; replace g_objMenusIndex index of menus path used in Gui menu dropdown list and to access the menu object for a given menu path
-	Gosub, InitDynamicMenus
+	o_QAPfeatures.InitDynamicMenus()
 	global o_MainMenu := new Container("Menu", o_L["MainMenuName"]) ; init o_MainMenu that replace g_objMainMenu, object of menu structure entry point
 	if (o_MainMenu.LoadFavoritesFromIniFile((A_ThisLabel = "LoadMenuFromIniWithStatus")) <> "EOM")
 		ExitApp
@@ -5359,24 +5362,6 @@ else if (A_ThisLabel = "HelpKnowledgeBase")
 	Run, https://www.quickaccesspopup.com/frequently-asked-questions/
 else if (A_ThisLabel = "HelpSupportForum")
 	Run, https://forum.quickaccesspopup.com
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-InitDynamicMenus:
-;------------------------------------------------------------
-
-; o_L[""] keys used as names for dynamic menus
-
-strMenuToInit := "DOpusMenuName|DOpusLayoutsName|TCMenuName|MenuDrives|MenuSwitchFolderOrApp|MenuCurrentFolders|MenuClipboard"
-	. "|MenuLastActions|MenuPopularMenusFiles|MenuPopularMenusFolders|MenuRecentFolders|MenuRecentFiles"
-
-loop, Parse, strMenuToInit, "|"
-	new Container("Menu", o_L[A_LoopField], "", "init", true) ; last parameter true for blnDynamic
-
-strPopularMenusFoldersAndFiles := ""
 
 return
 ;------------------------------------------------------------
@@ -15039,6 +15024,10 @@ if !IsObject(o_ThisFavorite) ; OpenFavoriteGetFavoriteObject was aborted
 	return
 }
 
+; if a menu open from an hotkey, refresh dynamic menus
+if o_ThisFavorite.IsContainer() and InStr("OpenFavoriteFromShortcut|OpenFavoriteFromHotstring|", g_strOpenFavoriteLabel . "|") ; include end marker
+	o_ThisFavorite.AA.oSubMenu.RefreshDynamicMenus()
+
 ; before opening the favorite, check if we show the "change folder alert" before opening the selected favorite, if the favorite is a folder or special
 if (g_blnShowChangeFolderInDialogAlert and InStr("Folder|Special", o_ThisFavorite.AA.strFavoriteType))
 {
@@ -21941,6 +21930,7 @@ class QAPfeatures
 	AA := Object() ; associative array
 	aaQAPFeaturesCodeByDefaultName := Object() ; associative array
 	aaQAPFeaturesDefaultNameByCode := Object() ; associative array
+	aaQAPFeaturesDynamicMenus := Object() ; associative array
 	saQAPFeaturesAlternativeCodeByOrder := Object() ; simple array
 	aaQAPfeaturesInMenus := Object() ; associative array, index of QAP features actualy present in menu, populated outside the class
 	aaQAPFeaturesNewShortcuts := Object() ; associative array, populated outside the class
@@ -21955,22 +21945,22 @@ class QAPfeatures
 		
 		this.AddQAPFeatureObject("Clipboard",				o_L["MenuClipboard"],				o_L["MenuClipboard"],			"ClipboardMenuShortcut",				"2-DynamicMenus"
 			, o_L["MenuClipboardDescription"], 0, "iconClipboard", "+^v"
-			, "what-is-in-the-clipboard-menu")
+			, "what-is-in-the-clipboard-menu", "RefreshClipboardMenu")
 		this.AddQAPFeatureObject("Switch Folder or App",	o_L["MenuSwitchFolderOrApp"],		o_L["MenuSwitchFolderOrApp"],	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuSwitchFolderOrAppDescription"], 0, "iconSwitch", "+^w"
-			, "how-is-built-the-switch-to-an-open-folder-or-application-menu")
+			, "how-is-built-the-switch-to-an-open-folder-or-application-menu", "RefreshSwitchFolderOraAppMenu")
 		this.AddQAPFeatureObject("Current Folders",			o_L["MenuCurrentFolders"],			o_L["MenuCurrentFolders"],		"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuCurrentFoldersDescription"], 0, "iconCurrentFolders", "+^f"
-			, "how-is-built-the-current-folders-menu")
+			, "how-is-built-the-current-folders-menu", "RefreshReopenFolderMenu")
 		this.AddQAPFeatureObject("Last Actions", 			o_L["MenuLastActions"], 			o_L["MenuLastActions"], 		"RepeatLastActionsShortcut",			"2-DynamicMenus~6-Utility"
 			, o_L["MenuLastActionsDescription"], 0, "iconReload", ""
-			, "can-i-reopen-one-of-the-last-favorites-i-selected-recently")
+			, "can-i-reopen-one-of-the-last-favorites-i-selected-recently", "RefreshLastActionsMenu")
 		this.AddQAPFeatureObject("TC Directory hotlist",	o_L["TCMenuName"],					o_L["TCMenuName"],				"TotalCommanderHotlistMenuShortcut", 	"2-DynamicMenus"
 			, o_L["TCMenuNameDescription"], 0, "TotalCommander", "+^t"
-			, "how-do-i-enable-total-commander-support-in-quick-access-popup")
+			, "how-do-i-enable-total-commander-support-in-quick-access-popup", "RefreshTotalCommanderHotlist")
 		this.AddQAPFeatureObject("DOpus Favorites",			o_L["DOpusMenuName"],				o_L["DOpusMenuName"],			"DirectoryOpusFavoritesMenuShortcut", 	"2-DynamicMenus"
 			, o_L["DOpusMenuNameDescription"], 0, "DirectoryOpus", ""
-			, "how-to-i-enable-directory-opus-support-in-quick-access-popup")
+			, "how-to-i-enable-directory-opus-support-in-quick-access-popup", "RefreshDirectoryOpusFavorites")
 
 		; Command features
 
@@ -22102,7 +22092,7 @@ class QAPfeatures
 		; this.AddQAPFeatureObject("Exclusions Keyboard", 			o_L["Menu"],					"", "command",				"1-Featured~7-QAPManagement"
 			; , o_L["MenuDescription"], 0, "icon", "", "")
 
-		this.AddAttachedOrDetachedQAPFeatureObject()
+		this.AddAttachedOrDetachedQAPFeatureObject() ; features that could be updated in case blnRefreshedMenusAttached menu was changed
 
 		Loop, % o_Favorites.s_SA.Length()
 			if StrLen(o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
@@ -22134,7 +22124,6 @@ class QAPfeatures
 			this.aaQAPFeaturesCategories[saQAPFeaturesCategoriesSystemName[A_Index]] := saQAPFeaturesCategoriesDisplayNames[A_Index]
 	}
 	;---------------------------------------------------------
-	
 
 	;---------------------------------------------------------
 	RefreshAttachedOrDetachedQAPFeatureObject()
@@ -22159,35 +22148,35 @@ class QAPfeatures
 			, (blnAttached ? o_L["MenuRecentFolders"] : "")
 			, "RecentFoldersMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuRecentFoldersDescription"], 0, "iconRecentFolders",	"+^r"
-			, "from-where-comes-the-content-of-the-recent-folders-menu")
+			, "from-where-comes-the-content-of-the-recent-folders-menu", "RefreshRecentItemsMenus")
 		this.AddQAPFeatureObject("Recent Files", o_L["MenuRecentFiles"] . (blnAttached ? "" : "...")
 			, (blnAttached ? o_L["MenuRecentFiles"] : ""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
 			, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuRecentFilesDescription"], 0, "iconRecentFolders",	""
-			, "from-where-comes-the-content-of-the-recent-folders-menu")
+			, "from-where-comes-the-content-of-the-recent-folders-menu", "RefreshRecentItemsMenus")
 		this.AddQAPFeatureObject("Popular Folders", o_L["MenuPopularMenusFolders"] . (blnAttached ? "" : "...")
 			, (blnAttached ? o_L["MenuPopularMenusFolders"] : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFolders"])), 0, "iconFavorites", ""
-			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
+			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus", "RefreshPopularMenus")
 		this.AddQAPFeatureObject("Popular Files", o_L["MenuPopularMenusFiles"] . (blnAttached ? "" : "...")
 			, (blnAttached ? o_L["MenuPopularMenusFiles"] : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFiles"])), 0, "iconFavorites", ""
-			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus")
+			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus", "RefreshPopularMenus")
 		this.AddQAPFeatureObject("Drives", o_L["MenuDrives"] . (blnAttached ? "" : "...")
 			, (blnAttached ? o_L["MenuDrives"] : ""
 			, "what-are-these-features-in-the-my-qap-essentials-menu")
 			, "DrivesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuDrivesDescription"], 0, "iconDrives", "+^d"
-			, "can-i-display-the-drives-recent-folders-and-recent-files-menus-attached-to-the-popup-menu")
+			, "can-i-display-the-drives-recent-folders-and-recent-files-menus-attached-to-the-popup-menu", "RefreshDrivesMenu")
 	}
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
 	AddQAPFeatureObject(strQAPFeatureCode, strThisLocalizedName, strQAPFeatureMenuName, strQAPFeatureCommand, strQAPFeatureCategories
-	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut, strHelpUrl)
+	, strQAPFeatureDescription, intQAPFeatureAlternativeOrder, strThisDefaultIcon, strDefaultShortcut, strHelpUrl, strRefreshCommand := "")
 	;
 	; QAP Feature Objects (o_QAPfeatures.AA) definition:
 	;		Key: strQAPFeatureInternalName
@@ -22201,7 +22190,8 @@ class QAPfeatures
 	;		QAPFeatureAlternativeOrder: order of feature in the Alternative Menu displayed before user choose the target favorite (0 if not Alternative menu feature)
 	;		DefaultIcon: default icon (in the "file,index" format)
 	;		DefaultShortcut: default feature hotkey (string like "+^s")
-	;		HelpURL: help URL for Add/Edit favorite dialog bvox
+	;		HelpURL: help URL for Add/Edit favorite dialog box
+	;		DynamicMenu: menu refreshed when QAP menu is shown
 	;---------------------------------------------------------
 	{
 		aaOneQAPFeature := Object()
@@ -22221,6 +22211,17 @@ class QAPfeatures
 		this.aaQAPFeaturesDefaultNameByCode["{" . strQAPFeatureCode . "}"] := strThisLocalizedName
 		if (intQAPFeatureAlternativeOrder)
 			this.saQAPFeaturesAlternativeCodeByOrder[intQAPFeatureAlternativeOrder] := "{" . strQAPFeatureCode . "}"
+		if StrLen(strRefreshCommand)
+			this.aaQAPFeaturesDynamicMenus["{" . strQAPFeatureCode . "}"] := strRefreshCommand
+	}
+	;---------------------------------------------------------
+	
+	;---------------------------------------------------------
+	InitDynamicMenus()
+	;---------------------------------------------------------
+	{
+		for strQAPFeatureCode in this.aaQAPFeaturesDynamicMenus
+			new Container("Menu", this.AA[strQAPFeatureCode].strLocalizedName, "", "init", true) ; last parameter true for blnDynamic
 	}
 	;---------------------------------------------------------
 }
@@ -24400,6 +24401,24 @@ class Container
 	}
 	;---------------------------------------------------------
 	
+	;--------------------------------------------------------
+	RefreshDynamicMenus()
+	;---------------------------------------------------------
+	{
+		strMenuRefreshCommands := "" ; list of menu commands already executed to avoid refreshing both Recent/Popular Folders and Files
+		for intKey, oItem in this.SA
+		{
+			if (o_QAPFeatures.aaQAPFeaturesDynamicMenus.HasKey(oItem.AA.strFavoriteLocation))
+			{
+				Gosub, % o_QAPFeatures.aaQAPFeaturesDynamicMenus[oItem.AA.strFavoriteLocation]
+				strMenuRefreshCommands .= o_QAPFeatures.aaQAPFeaturesDynamicMenus[oItem.AA.strFavoriteLocation] . "|"
+			}
+			if oItem.IsContainer()
+				oItem.AA.oSubMenu.RefreshDynamicMenus() ; recursive
+		}
+	}
+	;---------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
