@@ -33,6 +33,7 @@ HISTORY
 
 Version BETA: 9.9.2.7 (2019-07-??)
 - refresh dynamic menus (Clipboard, Reopen a Folder, Directory Opus Favorites, Drives, Repeat Last Actions, Frequent Files, Frequent Folders, Recent Files, Recent Folders, Current Windows and TC Directory hotlist) when they are part of a submenu open using a keyboard shortcut or an hotstring;
+- when saving options, close the Options window only after the end of menu refresh, avoiding errors if user close the Settings window before refresh is finished;
 
 Version BETA: 9.9.2.6 (2019-07-20)
 - fix bug breaking dynamic menus refresh after favorites were saved from Settings window
@@ -5106,12 +5107,6 @@ if IsObject(o_UsageDb) ; use IsObject instead of g_blnUsageDbEnabled in case it 
 		FileCopy, %g_strUsageDbFile%, % StrReplace(g_strUsageDbFile, ".DB", ".DB-BK"), 1
 }
 
-if (A_ComputerName = "JEAN-PC") ; for my home PC
-	and !(blnDbClosed)
-	###_V(A_ThisLabel, "Error when closing database")
-else
-	MsgBox, , %A_ThisLabel%, Database closed, 0.5
-
 if (o_Settings.Launch.blnDiagMode.IniValue)
 {
 	MsgBox, % 52 + 256 , %g_strAppNameText%, % L(o_L["DiagModeExit"], g_strAppNameText, g_strDiagFile) . "`n`n" . o_L["DiagModeIntro"] . "`n`n" . o_L["DiagModeSee"]
@@ -7524,9 +7519,6 @@ if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	}
 }
 
-g_blnGroupChanged := false
-Gosub, 2GuiClose
-
 ; rebuild Folders menus w/ or w/o optional folders and shortcuts
 for strMenuName, oContainer in o_Containers.AA
 {
@@ -7537,6 +7529,9 @@ for strMenuName, oContainer in o_Containers.AA
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
 Gosub, BuildTrayMenuRefresh
+
+g_blnGroupChanged := false
+Gosub, 2GuiClose
 
 g_blnMenuReady := true
 
@@ -15186,11 +15181,6 @@ else if (g_strOpenFavoriteLabel = "OpenWorkingDirectory")
 }
 else
 	o_ThisFavorite := GetFavoriteObjectFromMenuPosition(intMenuItemPos) ; was g_objThisFavorite
-
-; pseudo favorite object, set an icon ressource for repeat actions menu
-if (o_ThisFavorite.AA.blnFavoritePseudo)
-	o_ThisFavorite.AA.strFavoriteIconResource := (o_ThisFavorite.AA.strFavoriteType = "Folder" ? GetFolderIcon(o_ThisFavorite.AA.strFavoriteLocation)
-		: GetIcon4Location(o_ThisFavorite.AA.strFavoriteLocation))
 
 OpenFavoriteGetFavoriteObjectCleanup:
 saMenu := ""
@@ -24569,18 +24559,12 @@ class Container
 				this.aaTemp.strExpandedLaunchWith := strTemp
 				
 				if !(blnFileExist) and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-				{
-					Gui, 1:+OwnDialogs
-					MsgBox, 4, %g_strAppNameText%, % L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
-						. " " . o_L["DialogFavoriteDoesNotExistEdit"]
-					IfMsgBox, Yes
-					{
-						this.aaTemp.strHotkeyTypeDetected := "Alternative"
-						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-					}
-					IfMsgBox, No
-						return
-				}
+					
+					if !this.CheckIfEditFavorite(o_L["DialogFavoriteLaunchWithDoesNotExistTitle"]
+						, L(o_L["OopsLaunchWithNotFound"], this.aaTemp.strExpandedLaunchWith)
+						. " " . o_L["DialogFavoriteDoesNotExistEdit"])
+						
+						return false
 			}
 			
 			; ALTERNATIVE
@@ -24676,9 +24660,8 @@ class Container
 				this.ActivateRunningApplication()
 				blnOpenOK := true
 			}
-			; DOCUMENTS, LINK and LAUNCH WITH
+			; DOCUMENTS and LINK
 			else if InStr("Document|URL", this.AA.strFavoriteType)
-				or (StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType))
 			{
 				this.LaunchFullLocation()
 				blnOpenOK := true
@@ -24688,7 +24671,7 @@ class Container
 				and (!g_blnAlternativeMenu or (g_strAlternativeMenu = o_L["MenuAlternativeNewWindow"]))
 			{
 				this.PasteSnippet() ; using this.AA.strLocationWithPlaceholders
-				blnOpenOK := false
+				blnOpenOK := true
 			}	
 			; CHECK IF FILE/FOLDER MUST EXIST
 			else if this.FileExistIfMust()
@@ -24724,6 +24707,7 @@ class Container
 				; SET WINDOW POSITION
 				if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
 					and (InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue)
+
 					; we can access new Explorer or Total Commander windows, or try with other apps
 					
 					this.SetWindowPosition() ; was OpenFavoriteWindowPosition
@@ -25640,6 +25624,7 @@ class Container
 
 		;---------------------------------------------------------
 		FileExistIfMust()
+		; check for favorite location and working directory
 		;---------------------------------------------------------
 		{
 			if InStr("Folder|Document|Application", this.AA.strFavoriteType) ; for these favorites, file/folder must exist on file system
@@ -25654,23 +25639,14 @@ class Container
 			{
 				strTemp := this.aaTemp.strLocationWithPlaceholders ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
 				if !FileExistInPath(strTemp) ; return g_strLocationWithPlaceholders with expanded relative path and envvars, also search in PATH
-				{
 					
-					Gui, 1:+OwnDialogs
-					MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
-						, % L(o_L["DialogFavoriteDoesNotExistTitle"], g_strAppNameText)
-						, % L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
-							, (StrLen(strTemp) and strTemp <> this.AA.strFavoriteLocation ? " (" . strTemp . ")" : ""))
-							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
-					IfMsgBox, Yes
-					{
-						g_blnAlternativeMenu := true
-						g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-						return true
-					}
-					else
+					if !this.CheckIfEditFavorite(o_L["DialogFavoriteDoesNotExistTitle"]
+						, L(o_L["DialogFavoriteDoesNotExistPrompt"], this.AA.strFavoriteLocation
+						, (StrLen(strTemp) and strTemp <> this.AA.strFavoriteLocation ? " (" . strTemp . ")" : ""))
+						. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"]))
+						
 						return false
-				}
+				
 				this.aaTemp.strLocationWithPlaceholders := strTemp
 				
 				if StrLen(this.AA.strFavoriteAppWorkingDir) and (this.AA.strFavoriteType = "Application")
@@ -25684,26 +25660,40 @@ class Container
 					if StrLen(strTemp) and !FileExistInPath(strTemp)
 						; FileExistInPath returns strAppWorkingDirWithPlaceholders with expanded relative path and envvars, also search in PATH
 						and (g_strAlternativeMenu <> o_L["MenuAlternativeEditFavorite"])
-					{
-						Gui, 1:+OwnDialogs
-						MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
-							, % L(o_L["DialogFavoriteWorkingDirNotFoundTitle"], g_strAppNameText)
-							, % L(o_L["DialogFavoriteWorkingDirNotFoundPrompt"], this.AA.strFavoriteName, this.AA.strFavoriteAppWorkingDir
+						
+						if !this.CheckIfEditFavorite(o_L["DialogFavoriteWorkingDirNotFoundTitle"]
+							, L(o_L["DialogFavoriteWorkingDirNotFoundPrompt"]
+							, this.AA.strFavoriteName, this.AA.strFavoriteAppWorkingDir
 							. (this.AA.strFavoriteAppWorkingDir <> strAppWorkingDirBeforeFileExist ? " (" . strAppWorkingDirBeforeFileExist . ")": ""))
-							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"])
-						IfMsgBox, Yes
-						{
-							g_blnAlternativeMenu := true
-							g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
-						}
-						else
+							. (this.AA.blnFavoritePseudo ? "" : "`n`n" . o_L["DialogFavoriteDoesNotExistEdit"]))
+							
 							return false
-					}
+					
 					this.aaTemp.strAppWorkingDirWithPlaceholders := strTemp
 				}
 			}	
 			; location (and working directory for applications) exists or do not have to exist on file system
 			return true
+		}
+		;---------------------------------------------------------
+		
+		;---------------------------------------------------------
+		CheckIfEditFavorite(strTitle, strMessage)
+		;---------------------------------------------------------
+		{
+			Gui, 1:+OwnDialogs
+			MsgBox, % (this.AA.blnFavoritePseudo ? 0 : 4)
+				, % L(strTitle, g_strAppNameText)
+				, %strMessage%
+			IfMsgBox, Yes
+			{
+				g_blnAlternativeMenu := true
+				g_strAlternativeMenu := o_L["MenuAlternativeEditFavorite"]
+				this.OpenFavorite(strMenuTriggerLabel, strOpenFavoriteLabel, strTargetWinId, "Alternative")
+				return true
+			}
+			else
+				return false
 		}
 		;---------------------------------------------------------
 		
