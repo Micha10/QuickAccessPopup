@@ -3509,6 +3509,7 @@ global g_strGroupIndicatorPrefix := Chr(171) ; group item indicator, not allolow
 global g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strGroupIndicatorPrefix, and with number of items in menus, allowed in item names
 global g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 global g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
+global g_strAmpersandPlaceholder := "$?%" ; used as temporary marker for numeric shortcuts in menu item names
 
 global g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 global g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -5428,7 +5429,6 @@ loop, parse, % "Folders|Files", |
 				saOneLine[3] := SubStr(saOneLine[2], 1, InStr(saOneLine[2], " [", false, 0) - 1) ; strip " [n]" from end
 			else
 				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
-			saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 			; keep icon in 4
 			saMenuItemsTable.Push(saOneLine)
 		}
@@ -5663,7 +5663,6 @@ Loop, Parse, g_strMenuItemsListDrives, `n
 		; saOneLine[2] contain favorite name
 		saOneLine[3] := SubStr(saOneLine[2], 1, 1) . ":\" ; forge FavoriteLocation from name
 		; saOneLine[4] contain favorite icon
-		saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 		saMenuItemsTable.Push(saOneLine)
 	}
 
@@ -5745,7 +5744,6 @@ Loop, Parse, % "Folders|Files", |
 				saOneLine := StrSplit(A_LoopField, "|") 
 				saOneLine[1] := saOneLine[3] ; FavoriteType
 				saOneLine[3] := saOneLine[2] ; duplicate name 2 in location 3
-				saOneLine[2] := StrReplace(saOneLine[2], "&", "&&") ; double ampersands in menu name
 				; keep icon in 4
 				saMenuItemsTable.Push(saOneLine)
 			}
@@ -15259,7 +15257,6 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, aaIte
 ;------------------------------------------------------------
 
 
-
 ;------------------------------------------------------------
 GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
@@ -15315,8 +15312,8 @@ else
 {
 	global o_NewLastAction := new Container.Item([])
 	o_NewLastAction := o_ThisFavorite.Backup()
-	strLastActionLabel := RemoveSingleAmpersand((g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? o_L["DialogShortcut"]: A_ThisMenu)
-		. " > " . o_ThisFavorite.AA.strFavoriteName) ; double ampersand in menu item name
+	strLastActionLabel := (g_strOpenFavoriteLabel = "OpenFavoriteFromShortcut" ? o_L["DialogShortcut"] : A_ThisMenu)
+		. " > " . o_ThisFavorite.AA.strFavoriteName
 }
 o_NewLastAction.AA.strOpenTimeStamp := A_Now
 o_NewLastAction.AA.blnFavoritePseudo := true ; this is not a real favorite, it could not be edited if not found
@@ -19946,39 +19943,6 @@ GetPositionFromMouseOrKeyboard(strMenuTriggerLabel, strThisHotkey, ByRef intPosi
 
 
 ;------------------------------------------------------------
-DoubleAmpersand(str)
-; for ampersand in menu item names
-;------------------------------------------------------------
-{
-	if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and SubStr(str, 1, 1) = "&")
-	{
-		str := SubStr(str, 2)
-		blnRestoreNumericShortcut := true
-	}
-	
-	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
-	str := StrReplace(str, "&", "&&") ; double single ampersand
-	str := StrReplace(str, g_strEscapeReplacement, "&&") ; restore preserved double ampersand
-
-	return (blnRestoreNumericShortcut ? "&" : "") . str
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-RemoveSingleAmpersand(str, blnMakeDoubleSingle = false)
-;------------------------------------------------------------
-{
-	str := StrReplace(str, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
-	str := StrReplace(str, "&", "") ; remove single ampersand
-	str := StrReplace(str, g_strEscapeReplacement, (blnMakeDoubleSingle ? "&" : "&&")) ; restore preserved double ampersand
-
-	return str
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
 BuildMonitorsList(intDefault)
 ;------------------------------------------------------------
 {
@@ -22211,7 +22175,8 @@ class QAPfeatures
 	;---------------------------------------------------------
 	{
 		for strQAPFeatureCode in this.aaQAPFeaturesDynamicMenus
-			new Container("Menu", this.AA[strQAPFeatureCode].strLocalizedName, "", "init", true) ; last parameter true for blnDynamic
+			new Container("Menu", this.AA[strQAPFeatureCode].strLocalizedName, "", "init"
+			, (InStr("{TC Directory hotlist}", strQAPFeatureCode) ? false : true)) ; last parameter for blnDoubleAmpersands
 	}
 	;---------------------------------------------------------
 }
@@ -23011,11 +22976,11 @@ class Container
 	;---------------------------------------------------------
 
 	;---------------------------------------------------------
-	__New(strType, strContainerName, oParentMenu := "", strAction := "init", blnDynamic := false)
+	__New(strType, strContainerName, oParentMenu := "", strAction := "init", blnDoubleAmpersands := false)
 	;---------------------------------------------------------
 	{
 		this.AA.strMenuType := strType ; "Menu", "Group" or "External" ("Menu" can include any type of favorite and submenus, "Group" can contain only some favorite types and no submenu)
-		this.AA.blnMenuDynamic := blnDynamic ; when building menu, replace "&" with "&&" in dynamic menus only
+		this.AA.blnDoubleAmpersands := blnDoubleAmpersands ; when building menu, replace "&" with "&&" in some dynamic menus
 		if (oParentMenu)
 		{
 			; path from main menu to the current submenus, delimited with " > " (see constant g_strMenuPathSeparator), example: "Main > Sub1 > Sub1.1"
@@ -23274,7 +23239,7 @@ class Container
 			if (blnItemIsMenu)
 			{
 				strWinCmdItemName := SubStr(strWinCmdItemName, 2)
-				oNewSubMenu := new Container("Menu", strWinCmdItemName, this)
+				oNewSubMenu := new Container("Menu", strWinCmdItemName, this, "init", false) ; last parameter for blnDoubleAmpersands
 				oNewSubMenu.LoadTCFavoritesFromIniFile(strIniFile) ; RECURSIVE
 			}
 			else if (SubStr(strWinCmdItemCommand, 1, 3) <> "cd ")
@@ -23329,7 +23294,7 @@ class Container
 			
 			if (blnItemIsMenu)
 			{
-				oNewSubMenu := new Container("Menu", xmlItemAttributes.label, this)
+				oNewSubMenu := new Container("Menu", xmlItemAttributes.label, this, true) ; last parameter for blnDoubleAmpersands
 				oNewSubMenu.LoadDirectoryOpusFavoritesFromXML(xmlItem.xml) ; RECURSIVE
 			}
 			
@@ -23412,7 +23377,7 @@ class Container
 				
 				if (blnItemIsMenu)
 				{
-					oNewSubMenu := new Container("Menu", xmlItemAttributes.name, this)
+					oNewSubMenu := new Container("Menu", xmlItemAttributes.name, this, "init", true) ; last parameter true for blnDoubleAmpersands
 					oNewSubMenu.LoadDirectoryOpusLayoutsFromXML(strFolderNodeXml) ; RECURSIVE
 				}
 			}
@@ -23503,7 +23468,7 @@ class Container
 			
 			strMenuItemLabel := aaThisFavorite.strFavoriteName
 			if (StrLen(strMenuItemLabel) and !blnMenuShortcutAlreadyInserted)
-				strMenuItemLabel := this.MenuNameWithNumericShortcut(strMenuItemLabel)
+				strMenuItemLabel := this.MenuNameWithNumericShortcut(strMenuItemLabel, true) ; true for blnUseAmpersandPlaceholder
 			
 			if (aaThisFavorite.strFavoriteType = "Group")
 				strMenuItemLabel .= " " . g_strGroupIndicatorPrefix . aaThisFavorite.oSubmenu.SA.MaxIndex() . g_strGroupIndicatorSuffix
@@ -23739,7 +23704,7 @@ class Container
 		
 		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
 
-		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this, "", true)
+		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this, "init", true) ; last parameter true for blnDoubleAmpersands
 		oNewSubMenu.AA.blnIsLiveMenu := true
 		oNewSubMenu.AA.intLiveFolderParentPosition := intMenuParentPosition ; could be changed if we are in a Live Folder submenu
 		oNewSubMenu.AA.strLiveFolderParentPath := strMenuParentPath ; could be changed if we are in a Live Folder submenu
@@ -23844,9 +23809,27 @@ class Container
 		if StrLen(strMenuItemName) > 260
 			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
 		
-		if (this.AA.blnMenuDynamic) ; replace "&" with "&&" in dynamic menus only
-			strMenuItemName := DoubleAmpersand(strMenuItemName)
-		
+		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue
+			and SubStr(strMenuItemName, 1, StrLen(g_strAmpersandPlaceholder)) = g_strAmpersandPlaceholder)
+		{
+			if (this.AA.blnDoubleAmpersands) ; most dynamic menus
+			{
+				strMenuItemName := StrReplace(strMenuItemName, "&&", "&") ; convert existing "&&" to "&" (avoid "&&&&")
+				strMenuItemName := StrReplace(strMenuItemName, "&", "&&") ; convert "&" to "&&" to display only "&" in menus
+			}
+			else ; non-dynamic menus and TC Hotlist menu
+			{
+				strMenuItemName := StrReplace(strMenuItemName, "&&", g_strEscapeReplacement) ; preserve existing double ampersand
+				strMenuItemName := StrReplace(strMenuItemName, "&", "") ; remove single ampersands that would be shortcuts if numeric shortcuts were disabled
+				strMenuItemName := StrReplace(strMenuItemName, g_strEscapeReplacement, "&&") ; restore preserved  existing double ampersand
+			}
+			strMenuItemName := StrReplace(strMenuItemName, g_strAmpersandPlaceholder, "&")
+		}
+		else
+			if (this.AA.blnDoubleAmpersands) ; most dynamic menus
+				strMenuItemName := StrReplace(strMenuItemName, "&", "&&")
+			; else keep strMenuItemName unchanged
+			
 		if SubStr(strAction, 1, 1) = ":" ; this is a menu
 		{
 			Try Menu, % this.AA.strMenuPath, Add, %strMenuItemName%, %strAction%, % (blnHasColumnBreak ? "BarBreak" : "")
@@ -23878,14 +23861,11 @@ class Container
 	;------------------------------------------------------------
 	
 	;------------------------------------------------------------
-	MenuNameWithNumericShortcut(strMenuName)
+	MenuNameWithNumericShortcut(strMenuName, blnUseAmpersandPlaceholder := false)
 	;------------------------------------------------------------
 	{
 		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and (this.s_intMenuShortcutNumber <= 35))
 		{
-			; remove single ampersand in menu name (keep double ampersands)
-			strMenuName := RemoveSingleAmpersand(strMenuName, true) ; true to also convert double ampersand to single
-			
 			if (this.s_intMenuShortcutNumber < 10)
 			{
 				; 0 .. 9 (or 1 .. 9, 0 if o_Settings.Menu.blnDisplayNumericShortcutsFromOne.IniValue)
@@ -23895,9 +23875,9 @@ class Container
 				strShortcut := Chr(this.s_intMenuShortcutNumber + 55) ; Chr(10 + 55) = "A" .. Chr(35 + 55) = "Z"
 			this.s_intMenuShortcutNumber++
 			
-			return "&" . strShortcut . " " . StrReplace(strMenuName, "&", "&&")
+			return (blnUseAmpersandPlaceholder ? g_strAmpersandPlaceholder : "&") . strShortcut  . " " strMenuName ; g_strEscapePipe to be replaced by "&" in AddMenuIcon
 		}
-		else
+		else ; return unchanged
 			return strMenuName
 	}
 	;------------------------------------------------------------
@@ -24729,6 +24709,7 @@ class Container
 			strContainingFolder .= "\"
 			saContainingItem := ["Folder", "Containing Folder", strContainingFolder]
 			oContainingFolderItem := new Container.Item(saContainingItem)
+			oContainingFolderItem.AA.blnFavoritePseudo := true
 			oContainingFolderItem.aaTemp := Object()
 			oContainingFolderItem.aaTemp.strFullLocation := strContainingFolder
 			oContainingFolderItem.aaTemp.strTargetWinId := this.aaTemp.strTargetWinId
