@@ -31,9 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.7 (2019-07-??)
+Version BETA: 9.9.2.7 (2019-07-23)
 - refresh dynamic menus (Clipboard, Reopen a Folder, Directory Opus Favorites, Drives, Repeat Last Actions, Frequent Files, Frequent Folders, Recent Files, Recent Folders, Current Windows and TC Directory hotlist) when they are part of a submenu open using a keyboard shortcut or an hotstring;
 - when saving options, close the Options window only after the end of menu refresh, avoiding errors if user close the Settings window before refresh is finished;
+- fix bug logging execution of snippets in usage database
+- internal changes, refactoring (centralizing) processing of ampersands in menu w/o Numeric shortcut option
 
 Version BETA: 9.9.2.6 (2019-07-20)
 - fix bug breaking dynamic menus refresh after favorites were saved from Settings window
@@ -22176,7 +22178,7 @@ class QAPfeatures
 	{
 		for strQAPFeatureCode in this.aaQAPFeaturesDynamicMenus
 			new Container("Menu", this.AA[strQAPFeatureCode].strLocalizedName, "", "init"
-			, (InStr("{TC Directory hotlist}", strQAPFeatureCode) ? false : true)) ; last parameter for blnDoubleAmpersands
+			, (InStr("{TC Directory hotlist}|{Last Actions}", strQAPFeatureCode) ? false : true)) ; last parameter for blnDoubleAmpersands
 	}
 	;---------------------------------------------------------
 }
