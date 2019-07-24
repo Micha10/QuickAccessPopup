@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.8 (2019-07-24)
+- improve how icons are retrieved for document favorites and items in the "Recent files" menu
+- fix bug in error message when application file cannot be found after search in the PATH folders
+- in Settings window, for QAP Features items, repeat QAP Feature name in content column instead of the internal name
+- fix bug in DOpus Favorites menu when menu items have ampersand shortcuts
+
 Version BETA: 9.9.2.7 (2019-07-23)
 - refresh dynamic menus (Clipboard, Reopen a Folder, Directory Opus Favorites, Drives, Repeat Last Actions, Frequent Files, Frequent Folders, Recent Files, Recent Folders, Current Windows and TC Directory hotlist) when they are part of a submenu open using a keyboard shortcut or an hotstring;
 - when saving options, close the Options window only after the end of menu refresh, avoiding errors if user close the Settings window before refresh is finished;
@@ -3367,7 +3373,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.7
+;@Ahk2Exe-SetVersion 9.9.2.8
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3472,7 +3478,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.7" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5229,10 +5235,10 @@ loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuOpenWorkingDirectory"
 	, "MenuEditIniFile", "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiSaveAndStayFavorites", L(aaMenuFileL["GuiSave"], g_strAppNameText), "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", aaMenuFileL["GuiSaveAndClose"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiCancel"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiCancel", L(aaMenuFileL["GuiClose"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiClose"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
@@ -5246,8 +5252,8 @@ saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["TrayMenuExitApp", L(aaMenuFileL["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
-Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSave"], g_strAppNameText)
-Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"]
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSaveAndClose"]
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
 
 aaFavoriteL := o_L.InsertAmpersand(true, "DialogAdd", "DialogEdit", "GuiRemoveFavorite", "GuiMove", "DialogCopy"
@@ -12263,8 +12269,11 @@ if InStr("Folder|Document|Application", o_EditedFavorite.AA.strFavoriteType)
 	strExpandedNewFavoriteLocation := strNewFavoriteLocation
 	if !FileExistInPath(strExpandedNewFavoriteLocation)
 	{
-		OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
-			. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . o_L["OopsFileExpandedFrom"] . ":`n" . strNewFavoriteLocation : ""))
+		if StrLen(strExpandedNewFavoriteLocation)
+			OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strExpandedNewFavoriteLocation
+				. (strExpandedNewFavoriteLocation <> strNewFavoriteLocation ? "`n`n" . o_L["OopsFileExpandedFrom"] . ":`n" . strNewFavoriteLocation : ""))
+		else
+			OopsGui2(o_L["OopsFileNotFound"] . ":`n" . strNewFavoriteLocation)
 		g_blnAbortSave := true
 		return
 	}
@@ -18272,8 +18281,15 @@ GetIcon4Location(strLocation)
 	RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\DefaultIcon
 	if (strRegistryIconResource = "%1") ; use the file itself (for executable)
 		return strLocation . ",1"
-	else if InStr(strRegistryIconResource, """") ; for badly set icon in registry including double-quote (only one situation seen)
-		or !StrLen(strRegistryIconResource) ; empty result
+	else if InStr(strRegistryIconResource, """") ; for badly set icon in registry including double-quote
+		return StrReplace(strRegistryIconResource, """") ; remove double-cuotes
+	else if !StrLen(strRegistryIconResource) ; empty result, try reading the open command
+	{
+		RegRead, strRegistryIconResource, HKEY_CLASSES_ROOT, %strHKeyClassRoot%\shell\open\command
+		strRegistryIconResource := StrReplace(strRegistryIconResource, " ""%1""") ; remove " %1"
+		return StrReplace(strRegistryIconResource, """") ; remove double-cuotes
+	}
+	else if !StrLen(strRegistryIconResource) ; empty result
 		return "iconUnknown"
 	else
 		return strRegistryIconResource
@@ -22178,7 +22194,7 @@ class QAPfeatures
 	{
 		for strQAPFeatureCode in this.aaQAPFeaturesDynamicMenus
 			new Container("Menu", this.AA[strQAPFeatureCode].strLocalizedName, "", "init"
-			, (InStr("{TC Directory hotlist}|{Last Actions}", strQAPFeatureCode) ? false : true)) ; last parameter for blnDoubleAmpersands
+			, (InStr("{DOpus Favorites}|{TC Directory hotlist}|{Last Actions}", strQAPFeatureCode) ? false : true)) ; last parameter for blnDoubleAmpersands
 	}
 	;---------------------------------------------------------
 }
@@ -23928,6 +23944,9 @@ class Container
 				LV_Add(, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine
 				, g_strGuiDoubleLine, g_strGuiDoubleLine, g_strGuiDoubleLine . " " . o_L["MenuColumnBreak"] . " " . g_strGuiDoubleLine)
 				
+			else if (oItem.AA.strFavoriteType = "QAP") ; this is a QAP Feature
+				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
+					? " [" . oItem.AA.intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey, oItem.AA.strFavoriteName)
 			else ; this is a Folder, Document, QAP feature, URL, Application, Snippet or Windows App
 				LV_Add(, oItem.AA.strFavoriteName . (o_Settings.Database.blnUsageDbShowPopularityIndex.IniValue and oItem.AA.intFavoriteUsageDb
 					? " [" . oItem.AA.intFavoriteUsageDb . "]" : ""), strThisType, strThisHotkey
