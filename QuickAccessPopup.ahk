@@ -13522,9 +13522,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	
 	g_blnChangeShortcutInProgress := true
 	SS_strModifiersLabels := "Shift|Ctrl|Alt|Win"
-	StringSplit, SS_arrModifiersLabels, SS_strModifiersLabels, |
+	SS_saModifiersLabels := StrSplit(SS_strModifiersLabels, "|")
 	SS_strModifiersSymbols := "+|^|!|#"
-	StringSplit, SS_arrModifiersSymbols, SS_strModifiersSymbols, |
+	SS_saModifiersSymbols := StrSplit(SS_strModifiersSymbols, "|")
 	
 	o_HotkeyActual := new Triggers.HotkeyParts(P_strActualShortcut) ; global
 
@@ -13557,9 +13557,9 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 
 	Loop, 4 ; for each modifier add a checkbox
 	{
-		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
+		SS_strModifiersLabel := SS_saModifiersLabels[A_Index]
 		Gui, Add, CheckBox, % "y+" (SS_strModifiersLabel = "Shift" ? 20 : 10) . " x50 gModifierClicked vf_bln"
-			. SS_arrModifiersLabels%A_Index%, % o_L["Dialog" . SS_strModifiersLabel . "Short"]
+			. SS_saModifiersLabels[A_Index], % o_L["Dialog" . SS_strModifiersLabel . "Short"]
 		if (SS_strModifiersLabel = "Shift")
 			GuiControlGet, SS_arrTop, Pos, f_blnShift
 	}
@@ -13596,14 +13596,14 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	Gui, Add, Text, x10 y+25 w400, % o_L["DialogChangeHotkeyLeftAnyRight"]
 	Loop, 4 ; create 4 groups of radio buttons for Right, Any or Left keys
 	{
-		SS_strModifiersLabel := SS_arrModifiersLabels%A_Index%
+		SS_strModifiersLabel := SS_saModifiersLabels[A_Index]
 		Gui, Add, Text, y+10 x10 w60 right, % o_L["Dialog" . SS_strModifiersLabel . "Short"]
 		Gui, Font, w700
 		Gui, Add, Text, yp x+10 w40 center, % chr(0x2192) ; right arrow
 		Gui, Font
-		Gui, Add, Radio, % "yp x+10 disabled vf_radLeft" . SS_arrModifiersLabels%A_Index%, % o_L["DialogWindowPositionLeft"]
-		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SS_arrModifiersLabels%A_Index%, % o_L["DialogChangeHotkeyAny"]
-		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SS_arrModifiersLabels%A_Index%, % o_L["DialogWindowPositionRight"]
+		Gui, Add, Radio, % "yp x+10 disabled vf_radLeft" . SS_saModifiersLabels[A_Index], % o_L["DialogWindowPositionLeft"]
+		Gui, Add, Radio, % "yp x+10 disabled vf_radAny" . SS_saModifiersLabels[A_Index], % o_L["DialogChangeHotkeyAny"]
+		Gui, Add, Radio, % "yp x+10 disabled vf_radRight" . SS_saModifiersLabels[A_Index], % o_L["DialogWindowPositionRight"]
 	}
 	Gosub, SetModifiersCheckBoxAndRadio ; set checkboxes and radio buttons according to o_HotkeyActual.strModifiers
 
@@ -13624,8 +13624,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		SS_strNewShortcut := ShortcutIfAvailable(SS_strNewShortcut, P_strFavoriteName)
 
 	; Clean-up function global variables
-	ResetArray("SS_arrModifiersLabels")
-	ResetArray("SS_arrModifiersSymbols")
+	SS_saModifiersLabels := ""
+	SS_saModifiersSymbols := ""
 	ResetArray("SS_arrTop")
 	SS_blnAlt := ""
 	SS_blnCtrl := ""
@@ -13665,7 +13665,7 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	if (SS_strMouseValue = o_L["DialogNone"]) ; this is the translated "None"
 	{
 		loop, 4 ; uncheck modifiers checkbox
-			GuiControl, , % "f_bln" . SS_arrModifiersLabels%A_Index%, 0
+			GuiControl, , % "f_bln" . SS_saModifiersLabels[A_Index], 0
 		gosub, ModifierClicked
 	}
 
@@ -13744,8 +13744,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	loop, 4 ; set modifiers checkboxes according to o_HotkeyActual.strModifiers
 	{
-		SS_strThisLabel := SS_arrModifiersLabels%A_Index%
-		SS_strThisSymbol := SS_arrModifiersSymbols%A_Index%
+		SS_strThisLabel := SS_saModifiersLabels[A_Index]
+		SS_strThisSymbol := SS_saModifiersSymbols[A_Index]
 		
 		GuiControl, , % "f_bln" . SS_strThisLabel, % InStr(o_HotkeyActual.strModifiers, SS_strThisSymbol) > 0 ; > 0 required to make sure we have 0 or 1 value
 		
@@ -13763,10 +13763,10 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 	;------------------------------------------------------------
 	Loop, 4 ; enable/disable modifiers radio buttons groups for each modifier
 	{
-		SS_strThisLabel := SS_arrModifiersLabels%A_Index%
-		SS_strThisSymbol := SS_arrModifiersSymbols%A_Index%
+		SS_strThisLabel := SS_saModifiersLabels[A_Index]
+		SS_strThisSymbol := SS_saModifiersSymbols[A_Index]
 		
-		GuiControlGet, SS_blnThisModifierOn, , % "f_bln" . SS_arrModifiersLabels%A_Index%
+		GuiControlGet, SS_blnThisModifierOn, , % "f_bln" . SS_saModifiersLabels[A_Index]
 		GuiControl, Enable%SS_blnThisModifierOn%, f_radLeft%SS_strThisLabel%
 		GuiControl, Enable%SS_blnThisModifierOn%, f_radAny%SS_strThisLabel%
 		GuiControl, Enable%SS_blnThisModifierOn%, f_radRight%SS_strThisLabel%
@@ -13795,8 +13795,8 @@ SelectShortcut(P_strActualShortcut, P_strFavoriteName, P_strFavoriteType, P_strF
 		Loop, 4
 		{
 			SS_intReverseIndex := -(A_Index-5) ; reverse order of modifiers important to keep modifiers labels in correct order
-			SS_strThisLabel := SS_arrModifiersLabels%SS_intReverseIndex%
-			SS_strThisSymbol := SS_arrModifiersSymbols%SS_intReverseIndex%
+			SS_strThisLabel := SS_saModifiersLabels[SS_intReverseIndex]
+			SS_strThisSymbol := SS_saModifiersSymbols[SS_intReverseIndex]
 			if (SS_bln%SS_strThisLabel%)
 			{
 				GuiControlGet, SS_blnThisLeft, , f_radLeft%SS_strThisLabel%
@@ -18954,9 +18954,9 @@ ExpandUserVariables(str)
     loop, parse, % o_Settings.UserVariables.strUserVariablesList.IniValue, |
         if StrLen(A_LoopField)
         {
-            StringSplit, arrUserVariable, A_LoopField, =
-            if (SubStr(arrUserVariable1, 1, 1) = "{" and SubStr(arrUserVariable1, StrLen(arrUserVariable1), 1) = "}")
-                str := StrReplace(str, arrUserVariable1, arrUserVariable2)
+            saUserVariable := StrSplit(A_LoopField, "=")
+            if (SubStr(arrUserVariable[1], 1, 1) = "{" and SubStr(arrUserVariable[1], StrLen(arrUserVariable[1]), 1) = "}")
+                str := StrReplace(str, arrUserVariable[1], arrUserVariable[2])
         }
 	
     return str
@@ -19326,9 +19326,10 @@ GetCurrentUrlDDE(strClass)
 	DllCall("DdeUninitialize", "UPtr", idInst)
 	
 	csvWindowInfo := StrGet(&sData, "CP0")
-	StringSplit, strWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
+	; was: StringSplit, strWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
+	saWindowInfo := StrSplit(csvWindowInfo, """")
 	
-	Return strWindowInfo2
+	Return saWindowInfo[2]
 }
 ;------------------------------------------------------------
 
@@ -19488,25 +19489,6 @@ QAPSettingsString()
 ;------------------------------------------------------------
 {
 	return L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetInputLanguage()
-; from YMP (https://autohotkey.com/board/topic/43043-get-current-keyboard-layout/#entry268123)
-;------------------------------------------------------------
-{
-	strFormat := A_FormatInteger
-	SetFormat, Integer, H ; integer hexa
-	strProcessID := DllCall("GetCurrentProcessId")
-	strThreadID := DllCall("GetWindowThreadProcessId", "UInt", strProcessID, "UInt", 0)
-	strInputLanguage := DllCall("GetKeyboardLayout", "UInt", strThreadID, "UInt")
-	SetFormat, Integer, %strFormat% ; integer back to previsous format
-	
-	StringRight, strInputLanguage, strInputLanguage, 4 ; keep four right digits
-	
-	return strInputLanguage
 }
 ;------------------------------------------------------------
 
@@ -19978,16 +19960,17 @@ BuildMonitorsList(intDefault)
 GetLocalizedNameForClassId(strClassId)
 ;------------------------------------------------------------
 {
-    RegRead, strLocalizedString, HKEY_CLASSES_ROOT, CLSID\%strClassId%, LocalizedString
-    ; strLocalizedString example: "@%SystemRoot%\system32\shell32.dll,-9216"
+	RegRead, strLocalizedString, HKEY_CLASSES_ROOT, CLSID\%strClassId%, LocalizedString
+	; strLocalizedString example: "@%SystemRoot%\system32\shell32.dll,-9216"
 
-    StringSplit, arrLocalizedString, strLocalizedString, `,
-    intDllNameStart := InStr(arrLocalizedString1, "\", , 0)
-    StringRight, strDllFile, arrLocalizedString1, % StrLen(arrLocalizedString1) - intDllNameStart
-    strDllIndex := arrLocalizedString2
-    strTranslatedName := TranslateMUI(strDllFile, Abs(strDllIndex))
-    
-    return strTranslatedName
+	saLocalizedString := StrSplit(strLocalizedString, ",")
+	intDllNameStart := InStr(saLocalizedString[1], "\", , 0)
+	; was StringRight, strDllFile, saLocalizedString[1], % StrLen(saLocalizedString[1]) - intDllNameStart
+	strDllFile := SubStr(saLocalizedString[1], intDllNameStart + 1)
+	strDllIndex := saLocalizedString[2]
+	strTranslatedName := TranslateMUI(strDllFile, Abs(strDllIndex))
+
+	return strTranslatedName
 }
 ;------------------------------------------------------------
 
@@ -20304,52 +20287,52 @@ RECEIVE_QAPMESSENGER(wParam, lParam)
 	intStringAddress := NumGet(lParam + 2*A_PtrSize) ; Retrieves the CopyDataStruct's lpData member.
 	strCopyOfData := StrGet(intStringAddress) ; Copy the string out of the structure.
 	
-	StringSplit, arrData, strCopyOfData, |
+	saData := StrSplit(strCopyOfData, "|")
 	
-	if SubStr(arrData1, 1, 4) <> "Show" and SettingsUnsaved()
+	if SubStr(saData[1], 1, 4) <> "Show" and SettingsUnsaved()
 		return 0xFFFF
 	
-	if InStr(arrData1, "AddFolder") and (SubStr(arrData2, -1, 2) = ":""") ; -1 extracts the 2 last characters
+	if InStr(saData[1], "AddFolder") and (SubStr(saData[2], -1, 2) = ":""") ; -1 extracts the 2 last characters
 		; exception for drive paths
-		arrData2 := SubStr(arrData2, 1, StrLen(arrData2) - 1) . "\"
+		saData[2] := SubStr(saData[2], 1, StrLen(saData[2]) - 1) . "\"
 
-	if (arrData2 = "C:""")
-		arrData2 := "C:\"
+	if (saData[2] = "C:""")
+		saData[2] := "C:\"
 	
-	if (arrData1 = "AddFolder")
+	if (saData[1] = "AddFolder")
 	{
-		g_strNewLocation := arrData2
+		g_strNewLocation := saData[2]
 		Gosub, AddThisFolderFromMsg
 	}
-	else if (arrData1 = "AddFile")
+	else if (saData[1] = "AddFile")
 	{
-		g_strNewLocation := arrData2
+		g_strNewLocation := saData[2]
 		Gosub, AddThisFileFromMsg
 	}
-	else if (arrData1 = "AddFolderXpress")
+	else if (saData[1] = "AddFolderXpress")
 	{
-		g_strNewLocation := arrData2
+		g_strNewLocation := saData[2]
 		Gosub, AddThisFolderFromMsgXpress
 	}
-	else if (arrData1 = "AddFileXpress")
+	else if (saData[1] = "AddFileXpress")
 	{
-		g_strNewLocation := arrData2
+		g_strNewLocation := saData[2]
 		Gosub, AddThisFileFromMsgXpress
 	}
-	else if (arrData1 = "AddShortcut")
+	else if (saData[1] = "AddShortcut")
 	{
-		g_strNewLocation := arrData2
+		g_strNewLocation := saData[2]
 		Gosub, AddThisShortcutFromMsg
 	}
-	else if (arrData1 = "ShowMenuNavigate")
+	else if (saData[1] = "ShowMenuNavigate")
 
 		Gosub, NavigateFromMsg
 
-	else if (arrData1 = "ShowMenuLaunch")
+	else if (saData[1] = "ShowMenuLaunch")
 
 		Gosub, LaunchFromMsg
 
-	else if (arrData1 = "ShowMenuAlternative")
+	else if (saData[1] = "ShowMenuAlternative")
 
 		Gosub, AlternativeHotkeyKeyboard
 
