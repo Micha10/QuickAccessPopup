@@ -10582,6 +10582,7 @@ return
 ;------------------------------------------------------------
 DropdownParentMenuChanged:
 ;------------------------------------------------------------
+
 strPrevParentMenu := f_drpParentMenu ; backup previous menu in case we have to cancel
 Gui, 2:Submit, NoHide
 
@@ -12066,6 +12067,13 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 	
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(LV_GetNext(), "Vis")
+}
+else ; load destination menu to gui and select new/edited item
+{
+	o_MenuInGui := o_Containers.AA[strDestinationMenu]
+	Gosub, LoadMenuInGui
+	LV_Modify(0, "-Select")
+	LV_Modify(g_intNewItemPos, "Select Focus")
 }
 
 GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|" ; required if submenu was added
