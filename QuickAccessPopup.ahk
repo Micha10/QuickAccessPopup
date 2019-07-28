@@ -9811,7 +9811,7 @@ if !InStr("Special|QAP|WindowsApp", o_EditedFavorite.AA.strFavoriteType)
 					. o_Settings.Snippets.blnSnippetDefaultProcessEOLTab.IniValue . ";" 
 					. o_Settings.Snippets.blnSnippetDefaultFixedFont.IniValue . ";"
 					. o_Settings.Snippets.intSnippetDefaultFontSize.IniValue
-			saFavoriteSnippetOptions := StrSplit(strFavoriteSnippetOptions, ";")
+			saFavoriteSnippetOptions := StrSplit(o_EditedFavorite.AA.strFavoriteLaunchWith, ";")
 			
 			Gui, Font
 			Gui, Font, w700
@@ -10285,7 +10285,6 @@ Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteSoundLocation w300 h20, % o_EditedFavor
 Gui, 2:Add, Button, x+10 yp gButtonSelectFavoriteSoundLocation, % o_L["DialogBrowseButton"]
 Gui, 2:Add, Button, x+10 yp gButtonPlayFavoriteSoundLocation, % o_L["DialogPlay"]
 
-strFavoriteSnippetOptions := ""
 saFavoriteSnippetOptions := ""
 
 return
@@ -10399,7 +10398,7 @@ SnippetModeChanged:
 
 ; check if the icon was the default for the snippet type
 blnChangeDefaultSnippetIcon := (f_blnRadioSendModeText = 1 and g_strNewFavoriteIconResource = "iconPaste")
-	or (f_blnRadioSendModeMacro = 1 and g_strNewFavoriteIconResource = "iconPasteSpecial") ; text snippet with default macro icon, change to defaujlt text snippet icon
+	or (f_blnRadioSendModeMacro = 1 and g_strNewFavoriteIconResource = "iconPasteSpecial") ; text snippet with default macro icon, change to default text snippet icon
 
 Gui, 2:Submit, NoHide
 
