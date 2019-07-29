@@ -3656,7 +3656,7 @@ if (o_Settings.Launch.blnCheck4Update.IniValue) ; must be after BuildGui
 
 ; Must be after BuildGui
 ; Sponsor message when launching a portable prod release for the first time and user is not a sponsor
-if (g_blnPortableMode and g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonor.IniValue
+if (g_blnPortableMode and g_strCurrentBranch = "prod" and !o_Settings.Launch.blnDonorCode.IniValue
 	and FirstVsSecondIs(g_strCurrentVersion, strLastVersionUsed) = 1) ; FirstVsSecondIs() returns -1 if first smaller, 0 if equal, 1 if first greater
 {
 	MsgBox, 36, % l(o_L["DonateCheckTitle"], intStartups, g_strAppNameText)
@@ -4517,8 +4517,9 @@ o_Settings.ReadIniOption("Execution", "strSwitchExclusionList", "SwitchExclusion
 o_Settings.ReadIniOption("SettingsFile", "blnExternalMenusCataloguePathReadOnly", "ExternalMenusCataloguePathReadOnly", 0) ; false by default
 o_Settings.ReadIniOption("Execution", "blnTryWindowPosition", "TryWindowPosition", 0) ; g_blnTryWindowPosition
 o_Settings.ReadIniOption("Launch", "blnDiagMode", "DiagMode", 0) ; g_blnDiagMode
-o_Settings.ReadIniOption("Launch", "blnDonor", "Donor", 0)
-o_Settings.ReadIniOption("Launch", "strSponsorName", "Sponsor", " ")
+Gosub, UpdateDonorIniValues
+o_Settings.ReadIniOption("Launch", "blnDonorCode", "DonorCode", 0)
+o_Settings.ReadIniOption("Launch", "strSponsorName", "SponsorName", " ")
 Gosub, ProcessSponsorName
 
 o_Settings.ReadIniOption("Launch", "strUserBanner", "UserBanner", " ") ; g_strUserBanner
@@ -4561,24 +4562,48 @@ return
 
 
 ;------------------------------------------------------------
+UpdateDonorIniValues:
+; update values in ini file before v9.9.2.9
+; rename ini values "Donor" to "DonorCode" and "Sponsor" to "SponsorName", convert values under old names, if found
+;------------------------------------------------------------
+
+strOldDonor := o_Settings.ReadIniValue("Donor", " ")
+if StrLen(strOldDonor) ;  if old value exists, write value under new name and delete old value
+{
+	IniWrite, %strOldDonor%, % o_Settings.strIniFile, Global, DonorCode
+	IniDelete, % o_Settings.strIniFile, Global, Donor
+}
+
+strOldSponsor := o_Settings.ReadIniValue("Sponsor", " ")
+if StrLen(strOldSponsor) ;  if old value exists, write value under new name and delete old value
+{
+	IniWrite, %strOldSponsor%, % o_Settings.strIniFile, Global, SponsorName
+	IniDelete, % o_Settings.strIniFile, Global, Sponsor
+}
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 ProcessSponsorName:
 ;------------------------------------------------------------
 
-if (o_Settings.Launch.blnDonor.IniValue = 1) ; equals exact 1
+if (o_Settings.Launch.blnDonorCode.IniValue = 1) ; equals exact 1
 ; donor code need to be updated
 	g_SponsoredMessage := "<a id=""update"">" . o_L["SponsoredUpdate"] . "</a>"
-else if (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . StrLower(o_Settings.Launch.strSponsorName.IniValue) . g_strEscapePipe, true), 13, 8)) ; lower case starting 2019-06-27
-	or (o_Settings.Launch.blnDonor.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsorName.IniValue . g_strEscapePipe, true), 13, 8)) ; for backward compatibiity for donors in 201905-201906
+else if (o_Settings.Launch.blnDonorCode.IniValue = SubStr(MD5(g_strEscapePipe . StrLower(o_Settings.Launch.strSponsorName.IniValue) . g_strEscapePipe, true), 13, 8)) ; lower case starting 2019-06-27
+	or (o_Settings.Launch.blnDonorCode.IniValue = SubStr(MD5(g_strEscapePipe . o_Settings.Launch.strSponsorName.IniValue . g_strEscapePipe, true), 13, 8)) ; for backward compatibiity for donors in 201905-201906
 ; donor code matching the sponsor name
 {
 	g_SponsoredMessage := L(o_L["SponsoredName"], o_Settings.Launch.strSponsorName.IniValue)
-	o_Settings.Launch.blnDonor.IniValue := 1 ; boolean value used later
+	o_Settings.Launch.blnDonorCode.IniValue := 1 ; boolean value used later
 }
 else
 ; no donor code or donor code not matching the sponsor name
 {
 	g_SponsoredMessage := "<a id=""none"">" . o_L["SponsoredNone"] . "</a>"
-	o_Settings.Launch.blnDonor.IniValue := 0
+	o_Settings.Launch.blnDonorCode.IniValue := 0
 }
 g_SponsoredMessage := "                    " . g_SponsoredMessage . "                    " ; give extra space to control in case it is replaced with longer text
 
@@ -5201,7 +5226,7 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
 Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
-if (!o_Settings.Launch.blnDonor.IniValue)
+if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
 	Menu, Tray, Add, % g_aaMenuTrayL["GuiDonate"], GuiDonate
@@ -5216,7 +5241,7 @@ Menu, Tray, Default, % g_aaMenuTrayL["MenuSettings"] . "..."
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
-	. (o_Settings.Launch.blnDonor.IniValue ? L(g_aaMenuTrayL["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : g_aaMenuTrayL["DonateButton"]) ; A_PtrSize * 8 = 32 or 64
+	. (o_Settings.Launch.blnDonorCode.IniValue ? L(g_aaMenuTrayL["DonateThankyou"], o_Settings.Launch.strSponsorName.IniValue) : g_aaMenuTrayL["DonateButton"]) ; A_PtrSize * 8 = 32 or 64
 
 return
 ;------------------------------------------------------------
@@ -7612,9 +7637,9 @@ g_intOptionsFooterY += 20 ; place buttons below highest options group
 
 Gui, 2:Add, Button, x10 y%g_intOptionsFooterY% vf_btnOptionsSave gGuiOptionsGroupSave disabled Default, % aaL["GuiSave"]
 Gui, 2:Add, Button, yp vf_btnOptionsCancel gButtonOptionsCancel, % aaL["GuiCancel"]
-if (!o_Settings.Launch.blnDonor.IniValue)
+if (!o_Settings.Launch.blnDonorCode.IniValue)
 	Gui, 2:Add, Button, yp vf_btnOptionsDonate gGuiDonate, % o_L["DonateButton"]
-GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", (!o_Settings.Launch.blnDonor.IniValue ? "f_btnOptionsDonate" : ""))
+GuiCenterButtons(g_strOptionsGuiTitle, 10, 5, 20, "f_btnOptionsSave", "f_btnOptionsCancel", (!o_Settings.Launch.blnDonorCode.IniValue ? "f_btnOptionsDonate" : ""))
 
 Gui, 2:Add, Text
 GuiControl, Focus, f_btnOptionsSave
@@ -15966,7 +15991,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 	. "&os=" . GetOSVersion()
 	. "&is64=" . A_Is64bitOS
 	. "&setup=" . (blnSetup)
-				+ (2 * (o_Settings.Launch.blnDonor.IniValue ? 1 : 0))
+				+ (2 * (o_Settings.Launch.blnDonorCode.IniValue ? 1 : 0))
 				+ (4 * (o_FileManagers.P_intActiveFileManager = 2 ? 1 : 0)) ; DirectoryOpus
 				+ (8 * (o_FileManagers.P_intActiveFileManager = 3 ? 1 : 0)) ; TotalCommander
 				+ (16 * (o_FileManagers.P_intActiveFileManager = 4 ? 1 : 0)) ; QAPconnect
@@ -15979,7 +16004,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 if !StrLen(strLatestVersions)
 	if (A_ThisMenuItem = aaHelpL["MenuUpdate"])
 	{
-		Oops(o_L["UpdateError"])
+		Oops(o_L["UpdateError"] . "`n" . o_L["UpdateErrorFirewall"])
 		gosub, Check4UpdateCleanup
 		return ; an error occured during ComObjCreate
 	}
@@ -16783,7 +16808,7 @@ if (StrLen(strDonorCode) <> 8 or RegExMatch(strDonorCode, "[^A-Z^0-9]")) ; [^A-Z
 	return
 }
 
-o_Settings.Launch.blnDonor.WriteIni(strDonorCode)
+o_Settings.Launch.blnDonorCode.WriteIni(strDonorCode)
 o_Settings.Launch.strSponsorName.WriteIni(strSponsorName)
 
 MsgBox, 0, %g_strAppNameText%, % L(o_L["DonateThankyou"], strSponsorName), 10
@@ -23611,7 +23636,7 @@ class Container
 			blnFlagNextItemHasColumnBreak := false ; reset before next item
 		}
 		
-		if !(o_Settings.Launch.blnDonor.IniValue) and (this.AA.strMenuPath = o_L["MainMenuName"])
+		if !(o_Settings.Launch.blnDonorCode.IniValue) and (this.AA.strMenuPath = o_L["MainMenuName"])
 		{
 			this.AddMenuIcon("", "", "")
 			this.AddMenuIcon(o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
