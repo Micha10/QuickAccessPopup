@@ -4891,7 +4891,7 @@ AddToIniOneDefaultMenu(strLocation, strName, strFavoriteType, blnAddShortcut := 
 		if !StrLen(strName)
 			if (strFavoriteType = "Special")
 				strName := o_SpecialFolders.AA[strLocation].strDefaultName
-			else
+			else ; QAP or WindowsApp
 				strName := o_QAPfeatures.AA[strLocation].strDefaultName
 
 		if (g_blnIniFileCreation) ; do not add shortcut if not creation of ini file at first launch
@@ -9806,16 +9806,11 @@ if (o_EditedFavorite.AA.strFavoriteType = "Snippet")
 	g_intTypeHelpY := arrPosTypeHelpY
 }
 
-if (o_EditedFavorite.AA.strFavoriteType = "QAP")
-	Gui, 2:Add, Edit, x20 y+10 vf_strFavoriteShortName hidden, % o_EditedFavorite.AA.strFavoriteName ; not allow to change favorite short name for QAP feature favorites
-else
-{
-	Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (o_EditedFavorite.AA.strFavoriteType = "Text" ? o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLocationLabel : o_L["DialogFavoriteShortNameLabel"]) . " *"
+Gui, 2:Add, Text, % "x20 y+10 vf_ShortNameLabel", % (o_EditedFavorite.AA.strFavoriteType = "Text" ? o_Favorites.GetFavoriteTypeObject("Text").strFavoriteTypeLocationLabel : o_L["DialogFavoriteShortNameLabel"]) . " *"
 
-	Gui, 2:Add, Edit
-		, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (o_EditedFavorite.AA.strFavoriteType = "Menu" ? 50 : 0)
-		, % o_EditedFavorite.AA.strFavoriteName
-}
+Gui, 2:Add, Edit
+	, % "x20 y+10 Limit250 vf_strFavoriteShortName h21 w" . 400 - (o_EditedFavorite.AA.strFavoriteType = "Menu" ? 50 : 0)
+	, % o_EditedFavorite.AA.strFavoriteName
 
 if (InStr("Menu|Group|External", o_EditedFavorite.AA.strFavoriteType, true) and InStr(strGuiFavoriteLabel, "GuiEditFavorite"))
 	Gui, 2:Add, Button, x+10 yp gGuiOpenThisMenu, % (o_EditedFavorite.AA.strFavoriteType = "Group" ? o_L["DialogOpenThisGroup"] : o_L["DialogOpenThisMenu"])
@@ -9908,7 +9903,7 @@ else ; "Special", "QAP" or "WindowsApp"
 {
 	if (o_EditedFavorite.AA.strFavoriteType <> "WindowsApp")
 		Gui, 2:Add, Edit, x20 yp hidden section vf_strFavoriteLocation, % o_EditedFavorite.AA.strFavoriteLocation ; hidden because set by TreeViewSpecialChanged or TreeviewQAPChanged
-	Gui, 2:Add, Text, % (o_EditedFavorite.AA.strFavoriteType = "QAP" ? "yp" : "y+10") . " xs w300 vf_lblLocation", % o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel . " *"
+	Gui, 2:Add, Text, y+10 xs w300 vf_lblLocation, % o_Favorites.GetFavoriteTypeObject(o_EditedFavorite.AA.strFavoriteType).strFavoriteTypeLabel . " *"
 
 	if (o_EditedFavorite.AA.strFavoriteType = "WindowsApp")
 	{
@@ -10796,7 +10791,8 @@ if (A_GuiEvent = "S")
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
-		GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
+		if !StrLen(f_strFavoriteShortName)
+			GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
@@ -16951,7 +16947,8 @@ return
 UsageDbInit:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
+; Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
+Diag(A_ThisLabel, "", "START")
 
 strError := ""
 ; In portable mode, the two files sqlite.dll and sqlite.def are distributed in the zip file in their 32-bit (sqlite-32-bit.dll) and 64-bit (sqlite-64bit.dll) versions.
@@ -16988,7 +16985,8 @@ loop, parse, % "dll|def", |
 
 if StrLen(strError)
 {
-	Diag(A_ThisLabel, "Db SQLite Missing", "STOP", g_blnIniFileCreation) ; force if first launch
+	; Diag(A_ThisLabel, "Db SQLite Missing", "STOP", g_blnIniFileCreation) ; force if first launch
+	Diag(A_ThisLabel, "Db SQLite Missing", "STOP")
 	Oops(o_L["OopsUsageDbSQLiteMissing"], strError)
 	g_blnUsageDbEnabled := false
 	return
@@ -17004,7 +17002,8 @@ blnUsageDbIsNew := !FileExist(g_strUsageDbFile)
 
 if !o_UsageDb.OpenDb(g_strUsageDbFile)
 {
-	Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+	; Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+	Diag(A_ThisLabel, "SQLite Error OpenDb Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP")
 	Oops("SQLite Error OpenDb`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nFile: " . g_strUsageDbFile)
 	g_blnUsageDbEnabled := false
 	return
@@ -17028,7 +17027,8 @@ if (blnUsageDbIsNew)
 
 	If !o_UsageDb.Exec(strUsageDbSQL)
 	{
-		Diag(A_ThisLabel, "SQLite CREATE Error Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+		; Diag(A_ThisLabel, "SQLite CREATE Error Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP", g_blnIniFileCreation) ; force if first launch
+		Diag(A_ThisLabel, "SQLite CREATE Error Message: " . o_UsageDb.ErrorMsg . " Code: " . o_UsageDb.ErrorCode, "STOP")
 		Oops("SQLite CREATE Error`n`nMessage: " . o_UsageDb.ErrorMsg . "`nCode: " . o_UsageDb.ErrorCode . "`nQuery: " . strUsageDbSQL)
 		g_blnUsageDbEnabled := false
 		return
@@ -17093,7 +17093,8 @@ intSizeSQLiteCurrent := ""
 intSizeSQLiteRequired := ""
 objUsageDbTable := ""
 
-Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
+; Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -17889,7 +17890,8 @@ return
 DetectCloudUserVariables:
 ;------------------------------------------------------------
 
-Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
+; Diag(A_ThisLabel, "", "START", g_blnIniFileCreation) ; force if first launch
+Diag(A_ThisLabel, "", "START")
 
 o_Settings.UserVariables.strUserVariablesList.IniValue := ""
 
@@ -17955,7 +17957,8 @@ objGoogleDriveRecordSet := ""
 objGoogleDriveRow := ""
 strICloudDrive := ""
 
-Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
+; Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
+Diag(A_ThisLabel, "", "STOP")
 return
 ;------------------------------------------------------------
 
@@ -23502,7 +23505,7 @@ class Container
 				strMenuItemAction := aaThisFavorite.strFavoriteType
 				; keep strFavoriteType value, do not make empty to avoid InStr()
 			
-			if (aaThisFavorite.strFavoriteType = "QAP")
+			if (aaThisFavorite.strFavoriteType = "QAP") and !StrLen(aaThisFavorite.strFavoriteName)
 				; if QAP feature attach menu option was changed when saving options
 				aaThisFavorite.strFavoriteName := o_QAPfeatures.AA[aaThisFavorite.strFavoriteLocation].strLocalizedName
 			
@@ -24243,10 +24246,7 @@ class Container
 					continue
 
 			strIniLine := oItem.AA.strFavoriteType . "|" ; 1
-			if (oItem.AA.strFavoriteType = "QAP")
-				strIniLine .= "|" ; do not save name to ini file, use current language feature name when loading ini file
-			else
-				strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= StrReplace(oItem.AA.strFavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(o_JLicons.AA[oItem.AA.strFavoriteIconResource]) ; save index of o_JLicons.AA
 				strIniLine .= oItem.AA.strFavoriteIconResource . "|" ; 4
@@ -24468,8 +24468,8 @@ class Container
 			
 			if (saFavorite[1] = "QAP")
 			{
-				; get QAP feature's name in current language (QAP features names are not saved to ini file)
-				saFavorite[2] := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[saFavorite[3]]
+				if !StrLen(saFavorite[2]) ; get QAP feature's name in current language (QAP features names are not saved to ini file)
+					saFavorite[2] := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[saFavorite[3]]
 				if !StrLen(saFavorite[2]) ; if QAP feature is unknown
 					; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
 					saFavorite[2] := "* Unknown QAP feature * " . RandomBetween() . " *"
