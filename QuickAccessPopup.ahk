@@ -31,6 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.9 (2019-07-29)
+- fix bug not remembering options when editing snippet favorites
+- after saving a new or edited favorite, change menu in Settings window to the the favorite's destination menu
+- in quickaccesspopup.ini, rename values "Donor" to "DonorCode" and "Sponsor" to "SponsorName"; convert existing values to new names
+- additional info about firewall when displaying the error message when checking for update
+- upgraded the AutoHotkey runtime to v1.1.30.03 (dated April 4, 2019)
+
 Version BETA: 9.9.2.8 (2019-07-24)
 - improve how icons are retrieved for document favorites and items in the "Recent files" menu
 - fix bug in error message when application file cannot be found after search in the PATH folders
@@ -3373,7 +3380,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.8
+;@Ahk2Exe-SetVersion 9.9.2.9
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3478,7 +3485,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.8" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
