@@ -157,6 +157,7 @@ lDialogFavoriteFolderLiveExtensions	ces extensions (separées par des espaces, pa
 lDialogFavoriteFolderLiveInclude	Inclure
 lDialogFavoriteFolderLiveLevels	Nombre de niveaux de sous-dossiers à inclure dans le Dossier actif
 lDialogFavoriteFolderLiveType	Dossier actif
+lDialogFavoriteLaunchWithDoesNotExistTitle	L'exécutable "Lancer avec cette application" n'existe pas - ~1~
 lDialogFavoriteLocationEmpty	L'emplacement est vide. Veuillez indiquer l'emplacement du dossier.
 lDialogFavoriteMenuPosition	Insérer le nouveau favori avant cet item
 lDialogFavoriteNameEmpty	Le nom du favori est vide. Veuillez indiquer un nom court pour ce favori.
@@ -826,6 +827,7 @@ lUpdateButtonRemind	Rappelez-moi
 lUpdateButtonSkipVersion	Sauter cette version
 lUpdateButtonVisit	Visiter le site web
 lUpdateError	Une erreur est survenue lors de la vérification du numéro de la plus récente version. La vérification de la mise à jour est interrompue.
+lUpdateErrorFirewall	Cette erreur pourrait être causée par votre pare-feu. Vérifiez dans votre logiciel de sécurité si vous pouvez autoriser ~1~ à accéder à Internet.
 lUpdatePrompt	Mettre à jour ~1~ de la version v~2~ à la version v~3~?
 lUpdatePromptBeta	Il y a une nouvelle version BETA de ~1~.`n`nMettre à jour ~1~ de la version v~2~ à la version v~3~?
 lUpdatePromptBetaContinue	Désirez-vous toujours être informé des futures versions beta?
