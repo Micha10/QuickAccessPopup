@@ -24468,7 +24468,7 @@ class Container
 			
 			if (saFavorite[1] = "QAP")
 			{
-				if !StrLen(saFavorite[2]) ; get QAP feature's name in current language (QAP features names are not saved to ini file)
+				if !StrLen(saFavorite[2]) ; if empty, get QAP feature's name in current language
 					saFavorite[2] := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[saFavorite[3]]
 				if !StrLen(saFavorite[2]) ; if QAP feature is unknown
 					; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
