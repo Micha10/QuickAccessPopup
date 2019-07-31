@@ -10010,7 +10010,7 @@ aaCategoriesID := Object()
 global g_aaTreeViewItemsByIDs := Object()
 
 aaCategories := (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.aaQAPFeaturesCategories : o_SpecialFolders.aaSpecialFoldersCategories)
-aaCategories["8-All"] := "All (alphabetical order)"
+aaCategories["8-All"] := o_L["DialogQAPFeatureCategoriesNamesAll"]
 
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
@@ -18612,16 +18612,24 @@ GetWebPageTitle(strLocation)
 
 ;------------------------------------------------------------
 Url2Var(strUrl)
+; WinHttp.WinHttpRequest.5.1 Object properties:
+; .GetAllResponseHeaders()
+; .ResponseText()
+; .ResponseBody()
+; .StatusText()
+; .Status() ; numeric value 200 is success
 ;------------------------------------------------------------
 {
 	objWebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	/*
-	if (A_LastError)
-		; an error occurred during ComObjCreate (A_LastError probably is E_UNEXPECTED = -2147418113 #0x8000FFFFL)
-		BUT DO NOT ABORT because the following commands will be executed even if an error occurred in ComObjCreate (!)
-	*/
 	objWebRequest.Open("GET", strUrl)
 	objWebRequest.Send()
+	
+	if (objWebRequest.Status() <> 200) ; #### temporary test for beta users
+		Oops("~1~ could not access its web server. Please, report this error at support@quickaccesspopup.com:`n"
+			. "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
+			. "`nRequest status: " . objWebRequest.Status() . " (" . objWebRequest.StatusText() . ")"
+			. "`nHeader: " . objWebRequest.GetAllResponseHeaders()
+			, g_strAppNameText)
 
 	return (objWebRequest.StatusText() = "OK" ? objWebRequest.ResponseText() : "")
 }
