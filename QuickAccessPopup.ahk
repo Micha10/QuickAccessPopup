@@ -4575,10 +4575,13 @@ UpdateDonorIniValues:
 ;------------------------------------------------------------
 
 strOldDonor := o_Settings.ReadIniValue("Donor", " ")
-if StrLen(strOldDonor) ;  if old value exists, write value under new name and delete old value
+strExistingDonorCode := o_Settings.ReadIniValue("DonorCode", " ")
+
+if StrLen(strOldDonor) ;  old Donor value exists
 {
-	IniWrite, %strOldDonor%, % o_Settings.strIniFile, Global, DonorCode
-	IniDelete, % o_Settings.strIniFile, Global, Donor
+	if !StrLen(strExistingDonorCode) ; if DonorCode does not already exist, write Donor value under new name
+		IniWrite, %strOldDonor%, % o_Settings.strIniFile, Global, DonorCode
+	IniDelete, % o_Settings.strIniFile, Global, Donor ; in any case, delete old Donor value
 }
 
 strOldSponsor := o_Settings.ReadIniValue("Sponsor", " ")
@@ -18612,26 +18615,46 @@ GetWebPageTitle(strLocation)
 
 ;------------------------------------------------------------
 Url2Var(strUrl)
-; WinHttp.WinHttpRequest.5.1 Object properties:
-; .GetAllResponseHeaders()
-; .ResponseText()
-; .ResponseBody()
-; .StatusText()
-; .Status() ; numeric value 200 is success
+; WinHttp.WinHttpRequest.5.1 and MSXML2.XMLHTTP.6.0 properties:
+; 	.GetAllResponseHeaders()
+; 	.ResponseText()
+; 	.ResponseBody()
+; 	.StatusText()
+; 	.Status() ; numeric value 200 is success
 ;------------------------------------------------------------
 {
-	objWebRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	objWebRequest.Open("GET", strUrl)
-	objWebRequest.Send()
+	strUrl .= "&cache-breaker=" . A_NowUTC
 	
-	if (objWebRequest.Status() <> 200) ; #### temporary test for beta users
-		Oops("~1~ could not access its web server. Please, report this error at support@quickaccesspopup.com:`n"
+	oXmlHttpRequest := ComObjCreate("MSXML2.XMLHTTP.6.0")
+	oXmlHttpRequest.Open("GET", strUrl)
+	oXmlHttpRequest.Send()
+	if (oXmlHttpRequest.StatusText() = "OK")
+		strResponseText := oXmlHttpRequest.ResponseText()
+	
+	if (oXmlHttpRequest.Status() <> 200 or oXmlHttpRequest.StatusText() <> "OK") ; #### temporary test for beta users
+		Oops("~1~ could not access its web server with XmlHttp. Please, report this error at support@quickaccesspopup.com:`n"
 			. "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
-			. "`nRequest status: " . objWebRequest.Status() . " (" . objWebRequest.StatusText() . ")"
-			. "`nHeader: " . objWebRequest.GetAllResponseHeaders()
+			. "`nRequest status: " . oXmlHttpRequest.Status() . " (" . oXmlHttpRequest.StatusText() . ")"
+			. "`nHeader: " . oXmlHttpRequest.GetAllResponseHeaders()
 			, g_strAppNameText)
+	
+	if !StrLen(strResponseText)
+	{
+		oWinHttpRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
+		oWinHttpRequest.Open("GET", strUrl)
+		oWinHttpRequest.Send()
+		if (oWinHttpRequest.StatusText() = "OK")
+			strResponseText := oWinHttpRequest.ResponseText()
+		
+		if (oWinHttpRequest.Status() <> 200 or oWinHttpRequest.StatusText() <> "OK") ; #### temporary test for beta users
+			Oops("~1~ could not access its web server with WinHttpRequest. Please, report this error at support@quickaccesspopup.com:`n"
+				. "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
+				. "`nRequest status: " . oWinHttpRequest.Status() . " (" . oWinHttpRequest.StatusText() . ")"
+				. "`nHeader: " . oWinHttpRequest.GetAllResponseHeaders()
+				, g_strAppNameText)
+	}
 
-	return (objWebRequest.StatusText() = "OK" ? objWebRequest.ResponseText() : "")
+	return strResponseText
 }
 ;------------------------------------------------------------
 
