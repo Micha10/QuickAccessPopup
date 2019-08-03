@@ -31,6 +31,14 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.10 (2019-08-01)
+- allow to edit QAP features names, using the default localized name only if name is empty
+- in ini file, avoid converting Donor to DonorCode if DonorCode already exists
+- add temporary debugging code to web request code (used when checking for updates) and first try the new protocol MSXML2.XMLHTTP.6.0 before using WinHttp.WinHttpRequest.5.1
+- stop creating a diag file at first execution
+- add to translation file the "All" treeview category label shown when editing Special folders and QAP features favorites
+- German, Italian, Korean and Portuguese Brazilian language updates for v10
+
 Version BETA: 9.9.2.9 (2019-07-29)
 - fix bug not remembering options when editing snippet favorites
 - after saving a new or edited favorite, change menu in Settings window to the the favorite's destination menu
@@ -3380,7 +3388,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.9
+;@Ahk2Exe-SetVersion 9.9.2.10
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3485,7 +3493,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.9" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.10" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -16010,7 +16018,7 @@ strLatestVersions := Url2Var(strUrlCheck4Update
 if !StrLen(strLatestVersions)
 	if (A_ThisMenuItem = aaHelpL["MenuUpdate"])
 	{
-		Oops(o_L["UpdateError"] . "`n" . o_L["UpdateErrorFirewall"])
+		Oops(o_L["UpdateError"])
 		gosub, Check4UpdateCleanup
 		return ; an error occured during ComObjCreate
 	}
@@ -18621,40 +18629,33 @@ Url2Var(strUrl)
 ; 	.ResponseBody()
 ; 	.StatusText()
 ; 	.Status() ; numeric value 200 is success
+; see https://docs.microsoft.com/en-us/windows/win32/winhttp/winhttprequest
+; see https://www.autohotkey.com/boards/viewtopic.php?f=76&t=66685
 ;------------------------------------------------------------
 {
 	strUrl .= "&cache-breaker=" . A_NowUTC
 	
-	oXmlHttpRequest := ComObjCreate("MSXML2.XMLHTTP.6.0")
-	oXmlHttpRequest.Open("GET", strUrl)
-	oXmlHttpRequest.Send()
-	if (oXmlHttpRequest.StatusText() = "OK")
-		strResponseText := oXmlHttpRequest.ResponseText()
-	
-	if (oXmlHttpRequest.Status() <> 200 or oXmlHttpRequest.StatusText() <> "OK") ; #### temporary test for beta users
-		Oops("~1~ could not access its web server with XmlHttp. Please, report this error at support@quickaccesspopup.com:`n"
-			. "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
-			. "`nRequest status: " . oXmlHttpRequest.Status() . " (" . oXmlHttpRequest.StatusText() . ")"
-			. "`nHeader: " . oXmlHttpRequest.GetAllResponseHeaders()
-			, g_strAppNameText)
-	
-	if !StrLen(strResponseText)
+	loop, parse, % "MSXML2.XMLHTTP.6.0|WinHttp.WinHttpRequest.5.1", "|" ; if MSXML2.XMLHTTP.6.0 don't work, try WinHttp.WinHttpRequest.5.1
 	{
-		oWinHttpRequest := ComObjCreate("WinHttp.WinHttpRequest.5.1")
-		oWinHttpRequest.Open("GET", strUrl)
-		oWinHttpRequest.Send()
-		if (oWinHttpRequest.StatusText() = "OK")
-			strResponseText := oWinHttpRequest.ResponseText()
+		oHttpRequest := ComObjCreate(A_LoopField)
+		oHttpRequest.Open("GET", strUrl)
+		oHttpRequest.SetRequestHeader("Pragma", "no-cache")
+		oHttpRequest.SetRequestHeader("Cache-Control", "no-cache, no-store")
+		oHttpRequest.SetRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT")
+		oHttpRequest.Send()
 		
-		if (oWinHttpRequest.Status() <> 200 or oWinHttpRequest.StatusText() <> "OK") ; #### temporary test for beta users
-			Oops("~1~ could not access its web server with WinHttpRequest. Please, report this error at support@quickaccesspopup.com:`n"
-				. "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
-				. "`nRequest status: " . oWinHttpRequest.Status() . " (" . oWinHttpRequest.StatusText() . ")"
-				. "`nHeader: " . oWinHttpRequest.GetAllResponseHeaders()
-				, g_strAppNameText)
+		; if (oHttpRequest.Status() <> 200 or oHttpRequest.StatusText() <> "OK") ; #### temporary test for beta users
+			; Oops("~1~ could not access its web server with XmlHttp. Please, report this error at support@quickaccesspopup.com:`n"
+				; . "`nURL: " . (InStr(strUrl, "?") ? SubStr(strUrl, 1, InStr(strUrl, "?") - 1) : strUrl)
+				; . "`nRequest status: " . oHttpRequest.Status() . " (" . oHttpRequest.StatusText() . ")"
+				; . "`nHeader: " . oHttpRequest.GetAllResponseHeaders()
+				; , g_strAppNameText)
+				
+		if (oHttpRequest.StatusText() = "OK")
+			break
 	}
 
-	return strResponseText
+	return oHttpRequest.ResponseText()
 }
 ;------------------------------------------------------------
 
