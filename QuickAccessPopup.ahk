@@ -12119,7 +12119,7 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 	if o_Containers.AA[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
 		o_ExternalMenu.AA.blnNeedSave := true
 
-if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
 else
 	g_intNewItemPos := "" ; delete it for next use
@@ -12366,7 +12366,7 @@ if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavori
 
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
-	if !StrLen(strNewFavoriteShortName) and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
+	if !StrLen(strNewFavoriteShortName)
 	{
 		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
 		g_blnAbortSave := true
