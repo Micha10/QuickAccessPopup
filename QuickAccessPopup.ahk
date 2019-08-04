@@ -13259,6 +13259,7 @@ else ; LoadIconsManageList
 Loop, %g_intIconsManageRows%
 {
 	intThisItemInMenu := A_Index + g_intIconsManageStartingRow - 1
+	aaItem := g_saManageIcons[intThisItemInMenu].AA
 	
 	strShowHide := (intThisItemInMenu <= g_saManageIcons.MaxIndex() ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_picIconCurrent%A_Index%
@@ -13268,19 +13269,19 @@ Loop, %g_intIconsManageRows%
 	GuiControl, %strShowHide%, f_lblFavoriteName%A_Index%
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 	
-	if !StrLen(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource) ; for safety
-		g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource := g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation)
-	ParseIconResource(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
+	if !StrLen(aaItem.strFavoriteIconResource) ; for safety
+		aaItem.strFavoriteIconResource := g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(aaItem.strFavoriteLocation)
+	ParseIconResource(aaItem.strFavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
 	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	ParseIconResource(g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation), strInconFile, intIconIndex)
+	ParseIconResource(g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(aaItem.strFavoriteLocation), strInconFile, intIconIndex)
 	GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	strShowHide := (A_Index = 1 or (g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath <> strPreviousMenuPath
+	strShowHide := (A_Index = 1 or (aaItem.oParentMenu.AA.strMenuPath <> strPreviousMenuPath
 		and intThisItemInMenu <= g_saManageIcons.MaxIndex()) ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 
-	GuiControl, , f_lblFavoriteName%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.strFavoriteName
-	GuiControl, , f_lblMenuPath%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
-	strPreviousMenuPath := g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
+	GuiControl, , f_lblFavoriteName%A_Index%, % aaItem.strFavoriteName
+	GuiControl, , f_lblMenuPath%A_Index%, % aaItem.oParentMenu.AA.strMenuPath
+	strPreviousMenuPath := aaItem.oParentMenu.AA.strMenuPath
 }
 
 GuiControl, % ((g_intIconsManageStartingRow + g_intIconsManageRows) < g_saManageIcons.MaxIndex() ? "Enable" : "Disable"), f_btnIconsManageNext
