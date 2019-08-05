@@ -5309,20 +5309,21 @@ o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
 aaMenuToolsL := o_L.InsertAmpersand(true, "ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
-	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
+	, "MenuRefreshMenu", "MenuResetQAPSpecialDefaultNames", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
-saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaMenuToolsL["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiIconsManage", aaMenuToolsL["DialogIconsManage"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaMenuToolsL["DialogHotstrings"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiIconsManage", aaMenuToolsL["DialogIconsManage"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["RefreshQAPMenu", aaMenuToolsL["MenuRefreshMenu"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["SuspendHotkeys", aaMenuToolsL["MenuSuspendHotkeys"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["RefreshQAPMenu", aaMenuToolsL["MenuRefreshMenu"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["ResetQAPSpecialDefaultNames", aaMenuToolsL["MenuResetQAPSpecialDefaultNames"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["SuspendHotkeys", aaMenuToolsL["MenuSuspendHotkeys"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"])
  saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"])
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarTools"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
@@ -6505,6 +6506,22 @@ if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 	SoundBeep, 440
 
 Diag(A_ThisLabel, "", "STOP-REFRESH")
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ResetQAPSpecialDefaultNames:
+;------------------------------------------------------------
+
+MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogResetQAPSpecialDefaultNames"], g_strLanguageLabel)
+IfMsgBox, Yes
+{
+	o_MainMenu.ResetQAPSpecialDefaultNames() ; reset default QAP/Special favorites names to current language
+	Gosub, LoadMenuInGui ; reload menu curretnly in gui with new names
+	Gosub, EnableSaveAndCancel ; enable save button
+}
+
 return
 ;------------------------------------------------------------
 
@@ -24466,6 +24483,38 @@ class Container
 	}
 	;---------------------------------------------------------
 
+	;---------------------------------------------------------
+	ResetQAPSpecialDefaultNames()
+	;---------------------------------------------------------
+	{
+		for intKey, oItem in this.SA
+		{
+			if InStr("QAP|Special", oItem.AA.strFavoriteType)
+			{
+				strName := (oItem.AA.strFavoriteType = "QAP" ? o_QAPFeatures.aaQAPFeaturesDefaultNameByCode[oItem.AA.strFavoriteLocation]
+					: o_SpecialFolders.AA[oItem.AA.strFavoriteLocation].strDefaultName)
+				
+				; check if the name already exists in this menu, if not, append "+" until it is new
+				RetryThis:
+				loop, % this.SA.Length()
+				{
+					if (strName = this.SA[A_Index].AA.strFavoriteName ; name is the same
+						and this.SA[A_Index] <> oItem) ; but not the currently renamed item
+					{
+						strName .= "+"
+						goto, RetryThis
+					}
+				}
+					
+				oItem.AA.strFavoriteName := strName ; store new name in object
+			}
+			
+			if oItem.IsContainer()
+				oItem.AA.oSubMenu.ResetQAPSpecialDefaultNames(strPrevLanguage, strNewLanguage) ; recursive
+		}
+	}
+	;---------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
@@ -26008,10 +26057,10 @@ class Container
 		
 /*
 		;---------------------------------------------------------
-		; Method()
+		Method()
 		;---------------------------------------------------------
-		; {
-		; }
+		{
+		}
 		;---------------------------------------------------------
 */
 	}
