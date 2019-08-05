@@ -9920,8 +9920,9 @@ else ; "Special", "QAP" or "WindowsApp"
 			. (blnIsCustomWindowsApp ? "" : " hidden") ; hidden because Windows Apps dropdown list except if starts with "Custom:"
 			, % (blnIsCustomWindowsApp ? SubStr(o_EditedFavorite.AA.strFavoriteLocation, 8) : o_EditedFavorite.AA.strFavoriteLocation)
 	}
-	else
+	else ; "Special" or "QAP"
 	{
+		g_blnFirstInitDone := false
 		GuiControlGet, arrPosLocationLabel, Pos, f_lblLocation
 		intTreeViewHeight := intTabHeight - arrPosLocationLabelY - 43 ; 43 = space required below)
 			
@@ -10794,8 +10795,9 @@ if (A_GuiEvent = "S")
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
-		if !StrLen(f_strFavoriteShortName)
-			GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
+		if (!StrLen(f_strFavoriteShortName) or g_blnFirstInitDone)
+			GuiControl, , f_strFavoriteShortName, %strItemSelectedName% ; fill name if empty or replace existing name after first initialization
+		g_blnFirstInitDone := true
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
@@ -10804,7 +10806,7 @@ if (A_GuiEvent = "S")
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
-		if (A_ThisLabel = "TreeViewQAPChanged")
+		if (A_ThisLabel = "TreeViewQAPChanged") ; only QAP features can have default shortcut
 		{
 			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
