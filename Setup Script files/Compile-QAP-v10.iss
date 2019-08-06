@@ -194,7 +194,7 @@ Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{commonappdata}\{#MyAppName}"; D
 Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TE8TR28QKM3Z8"; Description: "{cm:HelpMePayExpenses}US $ (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
 Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Y9VVGCBNJK5DQ"; Description: "Euros (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
 Filename: "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DV4E4DYVWC5GC"; Description: "CDN $ (Paypal account or credit cards)"; Flags: postinstall shellexec unchecked
-Filename: "http://www.quickaccesspopup.com/why-support-freeware/"; Description: "MONTHLY donations: isn't QAP worth a coffe per month?"; Flags: postinstall shellexec unchecked
+Filename: "http://www.quickaccesspopup.com/why-support-freeware/"; Description: "MONTHLY donations: isn't QAP worth a coffee per month?"; Flags: postinstall shellexec unchecked
 
 [Tasks]
 
