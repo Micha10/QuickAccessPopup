@@ -5317,20 +5317,21 @@ o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
 aaMenuToolsL := o_L.InsertAmpersand(true, "ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
-	, "MenuRefreshMenu", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
+	, "MenuRefreshMenu", "MenuResetQAPSpecialDefaultNames", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"]) ; GuiFavoritesListFilterButton
-saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaMenuToolsL["DialogHotstrings"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiIconsManage", aaMenuToolsL["DialogIconsManage"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiHotkeysManageHotstrings", aaMenuToolsL["DialogHotstrings"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiIconsManage", aaMenuToolsL["DialogIconsManage"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["RefreshQAPMenu", aaMenuToolsL["MenuRefreshMenu"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["SuspendHotkeys", aaMenuToolsL["MenuSuspendHotkeys"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
-saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["RefreshQAPMenu", aaMenuToolsL["MenuRefreshMenu"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["ResetQAPSpecialDefaultNames", aaMenuToolsL["MenuResetQAPSpecialDefaultNames"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["SuspendHotkeys", aaMenuToolsL["MenuSuspendHotkeys"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiShowRestoreDefaultPosition", aaMenuToolsL["MenuRestoreSettingsWindowPosition"], "", "iconNoIcon"])
  saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"]) ; vf_blnFavoritesListFilterExtended x+10 yp gLoadFavoritesInGuiFiltered
+saMenuItemsTable.Push(["GuiAlwaysOnTop", aaMenuToolsL["ControlToolTipAlwaysOnTopOff"], "", "iconNoIcon"])
 o_Containers.AA["menuBarTools"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarTools"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
@@ -6513,6 +6514,22 @@ if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 	SoundBeep, 440
 
 Diag(A_ThisLabel, "", "STOP-REFRESH")
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+ResetQAPSpecialDefaultNames:
+;------------------------------------------------------------
+
+MsgBox, 4, %g_strAppNameText%, % L(o_L["DialogResetQAPSpecialDefaultNames"], g_strLanguageLabel)
+IfMsgBox, Yes
+{
+	o_MainMenu.ResetQAPSpecialDefaultNames() ; reset default QAP/Special favorites names to current language
+	Gosub, LoadMenuInGui ; reload menu curretnly in gui with new names
+	Gosub, EnableSaveAndCancel ; enable save button
+}
+
 return
 ;------------------------------------------------------------
 
@@ -9928,8 +9945,9 @@ else ; "Special", "QAP" or "WindowsApp"
 			. (blnIsCustomWindowsApp ? "" : " hidden") ; hidden because Windows Apps dropdown list except if starts with "Custom:"
 			, % (blnIsCustomWindowsApp ? SubStr(o_EditedFavorite.AA.strFavoriteLocation, 8) : o_EditedFavorite.AA.strFavoriteLocation)
 	}
-	else
+	else ; "Special" or "QAP"
 	{
+		g_blnFirstInitDone := false
 		GuiControlGet, arrPosLocationLabel, Pos, f_lblLocation
 		intTreeViewHeight := intTabHeight - arrPosLocationLabelY - 43 ; 43 = space required below)
 			
@@ -10802,8 +10820,9 @@ if (A_GuiEvent = "S")
 	if StrLen(strItemSelectedName) ; a QAP feature or Windows Special folder is selected
 	{
 		strLocation := (A_ThisLabel = "TreeViewQAPChanged" ? o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[strItemSelectedName] : o_SpecialFolders.aaClassIdOrPathByDefaultName[strItemSelectedName])
-		if !StrLen(f_strFavoriteShortName)
-			GuiControl, , f_strFavoriteShortName, %strItemSelectedName%
+		if (!StrLen(f_strFavoriteShortName) or g_blnFirstInitDone)
+			GuiControl, , f_strFavoriteShortName, %strItemSelectedName% ; fill name if empty or replace existing name after first initialization
+		g_blnFirstInitDone := true
 		GuiControl, , f_strFavoriteLocation, %strLocation%
 		
 		if InStr(strGuiFavoriteLabel, "GuiAdd") ; set new and default icon only when adding a QAP feature favorite
@@ -10812,7 +10831,7 @@ if (A_GuiEvent = "S")
 			g_strDefaultIconResource := g_strNewFavoriteIconResource
 		}
 		
-		if (A_ThisLabel = "TreeViewQAPChanged")
+		if (A_ThisLabel = "TreeViewQAPChanged") ; only QAP features can have default shortcut
 		{
 			; set default shortcut
 			if InStr(strGuiFavoriteLabel, "GuiAdd") ; this is a new favorite
@@ -11294,10 +11313,8 @@ else
 	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 }
 
-GuiControl, % (g_saSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
-GuiControl, % (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
-
-gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with o_MenuInGui
+Gosub, UpdatePreviousAndUpPictures
+Gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with o_MenuInGui
 
 if (A_ThisLabel = "OpenMenuFromGuiSearch")
 	Gosub, LoadMenuInGuiFromGuiSearch
@@ -12107,12 +12124,18 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(LV_GetNext(), "Vis")
 }
-else ; load destination menu to gui and select new/edited item
+else if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+; only if saving only one favorite, load destination menu to gui and select new/edited item
 {
+	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
+	g_saSubmenuStackPosition.Push(g_intOriginalMenuPosition)
+	
 	o_MenuInGui := o_Containers.AA[strDestinationMenu]
 	Gosub, LoadMenuInGui
+	
 	LV_Modify(0, "-Select")
 	LV_Modify(g_intNewItemPos, "Select Focus")
+	Gosub, UpdatePreviousAndUpPictures
 }
 
 GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|" ; required if submenu was added
@@ -12127,7 +12150,7 @@ if StrLen(strOriginalMenu) and (strOriginalMenu <> strDestinationMenu)
 	if o_Containers.AA[strOriginalMenu].FavoriteIsUnderExternalMenu(o_ExternalMenu)
 		o_ExternalMenu.AA.blnNeedSave := true
 
-if ("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+if InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	g_intNewItemPos++ ; move next favorite after this one in the destination menu (or will be deleted in GuiMoveOneFavoriteSave after the loop)
 else
 	g_intNewItemPos := "" ; delete it for next use
@@ -12374,7 +12397,7 @@ if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavori
 
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
-	if !StrLen(strNewFavoriteShortName) and (o_EditedFavorite.AA.strFavoriteType <> "QAP")
+	if !StrLen(strNewFavoriteShortName)
 	{
 		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
 		g_blnAbortSave := true
@@ -12571,6 +12594,17 @@ ValidateWindowPosition(strPosition)
 	
 	return blnOK
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UpdatePreviousAndUpPictures:
+;------------------------------------------------------------
+
+GuiControl, % (g_saSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
+GuiControl, % (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
+
+return
 ;------------------------------------------------------------
 
 
@@ -13267,6 +13301,7 @@ else ; LoadIconsManageList
 Loop, %g_intIconsManageRows%
 {
 	intThisItemInMenu := A_Index + g_intIconsManageStartingRow - 1
+	aaItem := g_saManageIcons[intThisItemInMenu].AA
 	
 	strShowHide := (intThisItemInMenu <= g_saManageIcons.MaxIndex() ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_picIconCurrent%A_Index%
@@ -13276,19 +13311,19 @@ Loop, %g_intIconsManageRows%
 	GuiControl, %strShowHide%, f_lblFavoriteName%A_Index%
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 	
-	if !StrLen(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource) ; for safety
-		g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource := g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation)
-	ParseIconResource(g_saManageIcons[intThisItemInMenu].AA.strFavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
+	if !StrLen(aaItem.strFavoriteIconResource) ; for safety
+		aaItem.strFavoriteIconResource := g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(aaItem.strFavoriteLocation)
+	ParseIconResource(aaItem.strFavoriteIconResource, strInconFile, intIconIndex, "iconFolder") ; only folder favorite may need the default icon
 	GuiControl, , f_picIconCurrent%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	ParseIconResource(g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation), strInconFile, intIconIndex)
+	ParseIconResource(g_saManageIcons[intThisItemInMenu].GetDefaultIcon4Type(aaItem.strFavoriteLocation), strInconFile, intIconIndex)
 	GuiControl, , f_picIconDefault%A_Index%, % "*icon" . intIconIndex . " " . strInconFile
-	strShowHide := (A_Index = 1 or (g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath <> strPreviousMenuPath
+	strShowHide := (A_Index = 1 or (aaItem.oParentMenu.AA.strMenuPath <> strPreviousMenuPath
 		and intThisItemInMenu <= g_saManageIcons.MaxIndex()) ? "Show" : "Hide")
 	GuiControl, %strShowHide%, f_lblMenuPath%A_Index%
 
-	GuiControl, , f_lblFavoriteName%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.strFavoriteName
-	GuiControl, , f_lblMenuPath%A_Index%, % g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
-	strPreviousMenuPath := g_saManageIcons[intThisItemInMenu].AA.oParentMenu.AA.strMenuPath
+	GuiControl, , f_lblFavoriteName%A_Index%, % aaItem.strFavoriteName
+	GuiControl, , f_lblMenuPath%A_Index%, % aaItem.oParentMenu.AA.strMenuPath
+	strPreviousMenuPath := aaItem.oParentMenu.AA.strMenuPath
 }
 
 GuiControl, % ((g_intIconsManageStartingRow + g_intIconsManageRows) < g_saManageIcons.MaxIndex() ? "Enable" : "Disable"), f_btnIconsManageNext
@@ -24464,6 +24499,38 @@ class Container
 	}
 	;---------------------------------------------------------
 
+	;---------------------------------------------------------
+	ResetQAPSpecialDefaultNames()
+	;---------------------------------------------------------
+	{
+		for intKey, oItem in this.SA
+		{
+			if InStr("QAP|Special", oItem.AA.strFavoriteType)
+			{
+				strName := (oItem.AA.strFavoriteType = "QAP" ? o_QAPFeatures.aaQAPFeaturesDefaultNameByCode[oItem.AA.strFavoriteLocation]
+					: o_SpecialFolders.AA[oItem.AA.strFavoriteLocation].strDefaultName)
+				
+				; check if the name already exists in this menu, if not, append "+" until it is new
+				RetryThis:
+				loop, % this.SA.Length()
+				{
+					if (strName = this.SA[A_Index].AA.strFavoriteName ; name is the same
+						and this.SA[A_Index] <> oItem) ; but not the currently renamed item
+					{
+						strName .= "+"
+						goto, RetryThis
+					}
+				}
+					
+				oItem.AA.strFavoriteName := strName ; store new name in object
+			}
+			
+			if oItem.IsContainer()
+				oItem.AA.oSubMenu.ResetQAPSpecialDefaultNames(strPrevLanguage, strNewLanguage) ; recursive
+		}
+	}
+	;---------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
@@ -26006,10 +26073,10 @@ class Container
 		
 /*
 		;---------------------------------------------------------
-		; Method()
+		Method()
 		;---------------------------------------------------------
-		; {
-		; }
+		{
+		}
 		;---------------------------------------------------------
 */
 	}
