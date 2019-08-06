@@ -11305,10 +11305,8 @@ else
 	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 }
 
-GuiControl, % (g_saSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
-GuiControl, % (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
-
-gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with o_MenuInGui
+Gosub, UpdatePreviousAndUpPictures
+Gosub, GuiFavoritesListFilterEmpty ; restore regular favorites list with o_MenuInGui
 
 if (A_ThisLabel = "OpenMenuFromGuiSearch")
 	Gosub, LoadMenuInGuiFromGuiSearch
@@ -12118,12 +12116,18 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 	if (strThisLabel <> "GuiCopyOneFavoriteSave") ; to protect selected items in multiple copy to same folder
 		LV_Modify(LV_GetNext(), "Vis")
 }
-else ; load destination menu to gui and select new/edited item
+else if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
+; if saving only one favorite, load destination menu to gui and select new/edited item
 {
+	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
+	g_saSubmenuStackPosition.Push(g_intOriginalMenuPosition)
+	
 	o_MenuInGui := o_Containers.AA[strDestinationMenu]
 	Gosub, LoadMenuInGui
+	
 	LV_Modify(0, "-Select")
 	LV_Modify(g_intNewItemPos, "Select Focus")
+	Gosub, UpdatePreviousAndUpPictures
 }
 
 GuiControl, 1:, f_drpMenusList, % "|" . o_MainMenu.BuildMenuListDropDown(o_MenuInGui.AA.strMenuPath) . "|" ; required if submenu was added
@@ -12582,6 +12586,17 @@ ValidateWindowPosition(strPosition)
 	
 	return blnOK
 }
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+UpdatePreviousAndUpPictures:
+;------------------------------------------------------------
+
+GuiControl, % (g_saSubmenuStack.MaxIndex() ? "Show" : "Hide"), f_picPreviousMenu
+GuiControl, % (o_MenuInGui.AA.strMenuPath <> o_L["MainMenuName"] ? "Show" : "Hide"), f_picUpMenu
+
+return
 ;------------------------------------------------------------
 
 
