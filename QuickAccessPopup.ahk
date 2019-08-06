@@ -12117,7 +12117,7 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 		LV_Modify(LV_GetNext(), "Vis")
 }
 else if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
-; if saving only one favorite, load destination menu to gui and select new/edited item
+; only if saving only one favorite, load destination menu to gui and select new/edited item
 {
 	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
 	g_saSubmenuStackPosition.Push(g_intOriginalMenuPosition)
