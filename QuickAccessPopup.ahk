@@ -5244,16 +5244,17 @@ if (A_ThisLabel = "BuildTrayMenuRefresh")
 
 Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
-if (g_blnPortableMode)
-{
-	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-	Menu, Tray, Add
-}
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
 Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+if (g_blnPortableMode)
+{
+	Menu, Tray, Add
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
+	Menu, Tray, Add, % L(aaMenuFileL["MenuExitApp"], g_strAppNameText), TrayMenuExitApp
+}
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
