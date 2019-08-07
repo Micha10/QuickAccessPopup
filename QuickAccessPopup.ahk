@@ -34,6 +34,16 @@ HISTORY
 Version: 10.0 (2019-08-03)
 - demo
 
+Version BETA: 9.9.2.11 (2019-08-06)
+- new item in "Tools" menu to "Reset QAP Features and Special Folders Default Names" in the current localized language (useful after switching language)
+- add code to avoid caching when "Check for updates" retrieves the current version numbers on the QAP website
+- avoid overwriting custom names when opening the "Edit favorite" dialog box for QAP features and Special folders
+- use the default name for the current language when QAP features has no name
+- show "previous menu" and "parent menu" arrows in Settings window after saving a favorite in a menu other than the one currently loaded
+- fix bug identifying default icon for favorites in "Manage icons" dialog box
+- fix bug when copying or moving multiple favorites
+- German language translation completed
+
 Version BETA: 9.9.2.10 (2019-08-01)
 - allow to edit QAP features names, using the default localized name only if name is empty
 - in ini file, avoid converting Donor to DonorCode if DonorCode already exists
