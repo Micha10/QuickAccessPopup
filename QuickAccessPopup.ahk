@@ -12409,11 +12409,16 @@ if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavori
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	if !StrLen(strNewFavoriteShortName)
-	{
-		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
-		g_blnAbortSave := true
-		return
-	}
+		if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+			strNewFavoriteShortName := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[strNewFavoriteLocation]
+		else if (o_EditedFavorite.AA.strFavoriteType = "Special")
+			strNewFavoriteShortName := o_SpecialFolders.AA[strNewFavoriteLocation].strDefaultName
+		else
+		{
+			OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
+			g_blnAbortSave := true
+			return
+		}
 
 	if  InStr("|Folder|Document|Application|URL|FTP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
@@ -24324,7 +24329,11 @@ class Container
 					continue
 
 			strIniLine := oItem.AA.strFavoriteType . "|" ; 1
-			strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			if (oItem.AA.strFavoriteType = "QAP" and oItem.AA.strFavoriteName = o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[oItem.AA.strFavoriteLocation])
+				or (oItem.AA.strFavoriteType = "Special" and oItem.AA.strFavoriteName = o_SpecialFolders.AA[oItem.AA.strFavoriteLocation].strDefaultName)
+				strIniLine .= "|" ; 2
+			else
+				strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= StrReplace(oItem.AA.strFavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(o_JLicons.AA[oItem.AA.strFavoriteIconResource]) ; save index of o_JLicons.AA
 				strIniLine .= oItem.AA.strFavoriteIconResource . "|" ; 4
@@ -24587,6 +24596,9 @@ class Container
 				; to keep track of QAP features in menus to allow enable/disable menu items
 				o_QAPfeatures.aaQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 			}
+			else if (saFavorite[1] = "Special")
+				if !StrLen(saFavorite[2]) ; if empty, get QAP feature's name in current language
+					saFavorite[2] := o_SpecialFolders.AA[saFavorite[3]].strDefaultName
 			
 			; this is a regular favorite, add it to the current menu
 			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
