@@ -22029,7 +22029,7 @@ class QAPfeatures
 			, "what-is-in-the-clipboard-menu", "RefreshClipboardMenu")
 		this.AddQAPFeatureObject("Switch Folder or App",	o_L["MenuSwitchFolderOrApp"],		o_L["MenuSwitchFolderOrApp"],	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuSwitchFolderOrAppDescription"], 0, "iconSwitch", "+^w"
-			, "how-is-built-the-switch-to-an-open-folder-or-application-menu", "RefreshSwitchFolderOraAppMenu")
+			, "how-is-built-the-switch-to-an-open-folder-or-application-menu", "RefreshSwitchFolderOrAppMenu")
 		this.AddQAPFeatureObject("Current Folders",			o_L["MenuCurrentFolders"],			o_L["MenuCurrentFolders"],		"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuCurrentFoldersDescription"], 0, "iconCurrentFolders", "+^f"
 			, "how-is-built-the-current-folders-menu", "RefreshReopenFolderMenu")
