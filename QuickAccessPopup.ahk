@@ -7270,8 +7270,6 @@ g_blnMenuReady := false
 
 ; === General ===
 
-ToggleRunAtStartup(f_blnOptionsRunAtStartup)
-
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
 loop, % g_objOptionsLanguageLabels.Length()
@@ -7605,7 +7603,9 @@ for strMenuName, oContainer in o_Containers.AA
 
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
+
 Gosub, BuildTrayMenuRefresh
+ToggleRunAtStartup(f_blnOptionsRunAtStartup) ; must be after BuildTrayMenuRefresh
 
 g_blnGroupChanged := false
 Gosub, 2GuiClose
@@ -20194,7 +20194,8 @@ ToggleRunAtStartup(blnForce := -1)
 ;------------------------------------------------------------
 {
 	if (blnForce = g_aaMenuTrayL["MenuRunAtStartup"]) ; toggle from Tray menu
-		; because function as Tray menu command puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+		; function assigneds to Tray menu puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+		; when called from Tray menu, art blnForce to toggle
 		blnForce := -1
 	
 	if (g_blnPortableMode)
