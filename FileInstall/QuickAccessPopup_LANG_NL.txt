@@ -9,7 +9,6 @@ lAlternativeMenuTrayTipEditFavorite	Selecteer een favoriet om te bewerken
 lAlternativeMenuTrayTipNewWindow	Selecteer een map om te openen in een nieuw venster
 lAlternativeMenuTrayTipOpenContaining	Selecteer een favoriet van het document, applicatie of map waarvan de bron geopend dient te worden
 lAlternativeMenuTrayTipRunAs	Selecteer de applicatie om te starten als administrator
-lAppTagline	<a href="http://www.quickaccesspopup.com/what-should-i-know-about-quick-access-popup-before-starting/">Snel Starten</a> • <a href="http://www.quickaccesspopup.com/frequently-asked-questions/">Veel gestelde vragen</a> • <a href="http://www.quickaccesspopup.com">Ondersteuning</a>
 lContextAddFile	Bestand toevoegen aan het Quick Access Popup menu
 lContextAddFileXpress	Bestand toevoegen aan het Quick Access Popup Express menu 
 lContextAddFolder	Map toevoegen aan het Quick Access Popup menu
@@ -17,7 +16,6 @@ lContextAddFolderXpress	Map toevoegen aan het Quick Access Popup Express menu
 lContextAddShortcut	Importeer de snelkoppeling naar het Quick Access Popup menu
 lContextCancelled	In- of uitschakelen van Windows Context menus is geannuleerd bij de gebruiker.
 lContextShowMenu	Quick Access Popup menu weergeven
-lContextShowMenuAternative	Alternatief QAP-menu weergeven
 lControlToolTipAlwaysOnTopOff	Dit venster altijd op de voorgrond weergeven
 lControlToolTipAlwaysOnTopOn	Stop met het weergeven van dit venster op de voorgrond
 lControlToolTipColumnBreak	Voeg een kolomeinde toe op de huidige positie
@@ -25,6 +23,9 @@ lControlToolTipMoveDown	Verplaats de geselecteerde favoriet(en) naar beneden
 lControlToolTipMoveUp	Verplaats de geselecteerde favoriet(en) naar boven
 lControlToolTipParentMenu	Ga naar het hoofdmenu
 lControlToolTipPreviousMenu	Ga terug naar het vorige menu
+lControlToolTipSearchBoxClear	Wis het zoekvak en toon alle favorieten
+lControlToolTipSearchBoxExtended	Zoek in het huidige menu naar favorieten *en* naar diverse eigenschappen
+lControlToolTipSearchButton	Zoek naar favorieten
 lControlToolTipSeparator	Voeg een separator toe op de huidige positie
 lControlToolTipSortFavorites	Sorteer alle (of geselecteerde) favorieten in de lijst
 lControlToolTipTextSeparator	Voeg een tekst menu separator toe op de huidige positie
@@ -36,7 +37,6 @@ lDiagModeIntro	verstuur dit bestand naar ahk@jeanlalonde.ca met een beschrijving
 lDiagModeSee	Wilt u het diagnostische log-bestand inzien?
 lDialogActivateAlreadyRunning	Als de applicatie al uitgevoerd wordt dient deze geopend te worden in plaats van de applicatie wederom op te starten`n(applicatie dient zich op exact dezelfde locatie te bevinden)
 lDialogAdd	Toevoegen
-lDialogAddAmpersand	&Toevoegen
 lDialogAddEditFavoriteTitle	~1~ Favoriet: ~4~ - ~2~ ~3~
 lDialogAddFavoriteSelectTitle	Favoriettype toevoegen - ~1~
 lDialogAddFavoriteTabs	Basis Opties|Menu Opties|Venster Opties|Geavanceerde Opties
@@ -46,8 +46,6 @@ lDialogAddFileSelect	Selecteer het nieuwe document:
 lDialogAddFolderManuallyPrompt	Sorry, we kunnen de huidige map niet opvragen in dit venstertype.`n`nWilt u de map handmatig toevoegen?
 lDialogAddFolderManuallyTitle	Voeg actieve map of webpagina toe - ~1~ ~2~
 lDialogAddFolderSelect	Selecteer of maak een nieuwe map:
-lDialogAdmnistrator	Administrator
-lDialogAdmnistratorNot	Gebruiker
 lDialogAlt	Alt
 lDialogAltShort	Alt
 lDialogApplicationLabel	Applicatie
@@ -65,7 +63,6 @@ lDialogCancelPrompt	Wijzigingen ongedaan maken?
 lDialogCancelTitle	Annuleren - ~1~ ~2~
 lDialogChangeHotkeyAlternative	Dit is een alternatieve menusneltoets.`n`nWilt u deze aanpassen van "~1~" in "~2~"?
 lDialogChangeHotkeyAny	Beide toetsen
-lDialogChangeHotkeyKeyReserved	De sneltoets "~1~" is gereserveerd door Windows.
 lDialogChangeHotkeyLeftAnyRight	Van elke functietoets kan bepaald worden welke actief is in combinatie met een sneltoets, dit kan alleen de linker of rechter zijn, of beide, selecteer hieronder uw voorkeur.
 lDialogChangeHotkeyModifierAndNone	Functietoetsen zoals "Alt" of "Control" kunnen niet zonder sneltoets geselecteerd worden. Selecteer ook een muis of snel -toets in de rechter sectie.
 lDialogChangeHotkeyMouseCheckLButton	Het is niet mogelijk om de "Linker Muistoets" te selecteren zonder een functietoets:`n(zoals: ~1~, ~2~, ~3~ of ~4~).
@@ -83,34 +80,31 @@ lDialogCloseAllWindowsIntro	Controleer de te sluiten vensters en klik op "Sluit 
 lDialogCloseAllWindowsSelectAll	Selecteer/Deselecteer alle vensters
 lDialogCloseComputerControl	Sluit Computer Control Center
 lDialogCloseComputerControlDescription	Neem de volledige controle over hoe uw computer zal afsluiten:`n - Afmelden, Afsluiten, Opnieuw opstarten, al dan niet geforceerd'n- slaapstand of sluimerstand, al dan niet geforceerd, wekgebeurtenissen uitschakelen`n- monitor uitschakelen, inschakelen lage voedingsmodus voor de monitor of de screensaver starten.
-lDialogCloseComputerDisableWakeEvents	&Disable wake events
-lDialogCloseComputerForce	&Forceren (mogelijk dataverlies als gevolg)
+lDialogCloseComputerDisableWakeEvents	Disable wake events
+lDialogCloseComputerForce	Forceren (mogelijk dataverlies als gevolg)
 lDialogCloseComputerGo	De geselecteerde actie uitvoeren
-lDialogCloseComputerHibernate	&Computer in Slaapstand zetten
+lDialogCloseComputerHibernate	Computer in Slaapstand zetten
 lDialogCloseComputerHibernateDescription	Zet de computer in een energiebesparende stand zodat deze snel weer op kan starten (vergelijkbaar met slaapstand maar met minder stroom). Wanneer u de pc opnieuw opstart, bent u terug bij waar u was gebleven (maar niet zo snel als de slaapstand). Sluimerstand is ontworpen voor laptops en is mogelijk niet voor alle pc's beschikbaar.
-lDialogCloseComputerIntro	Selecteer de actie om uit te voeren
-lDialogCloseComputerLogoff	&Gebruiker uitloggen
+lDialogCloseComputerLogoff	Gebruiker uitloggen
 lDialogCloseComputerLogoffDescription	Sluit alle toepassingen en beëindig de huidige gebruikerssessie.
-lDialogCloseComputerMonitorLowPower	&Zet monitor in low-power mode
+lDialogCloseComputerMonitorLowPower	Zet monitor in low-power mode
 lDialogCloseComputerMonitorLowPowerDescription	Zet de monitor in de energiebesparende modus. De energiezuinige modus is ontworpen voor laptops en is mogelijk niet beschikbaar voor desktopmonitoren.
-lDialogCloseComputerMonitorTurnOff	&Zet monitor uit
+lDialogCloseComputerMonitorTurnOff	Zet monitor uit
 lDialogCloseComputerMonitorTurnOffDescription	Schakel de monitor uit.
-lDialogCloseComputerPowerDown	&Computer uitschakelen
+lDialogCloseComputerPowerDown	Computer uitschakelen
 lDialogCloseComputerPowerDownDescription	Sluit alle toepassingen en schakel de computer uit.
 lDialogCloseComputerPrompt	Selecteer een optie alstublieft...
-lDialogCloseComputerRestart	&Herstart computer
+lDialogCloseComputerRestart	Herstart computer
 lDialogCloseComputerRestartDescription	Sluit alle toepassingen en start de computer opnieuw op alsof de gebruiker de computer uit- en weer aanzet.
-lDialogCloseComputerShutdown	&Computer uitschakelen
+lDialogCloseComputerShutdown	Computer uitschakelen
 lDialogCloseComputerShutdownDescription	Sluit alle toepassingen ter voorbereiding voor het uitschakelen van uw computer. Afhankelijk van de systeemconfiguratie kan dit worden gevolgd met het uitschakelen van de computer.
-lDialogCloseComputerStartScreenSaver	St&art screensaver
+lDialogCloseComputerStartScreenSaver	Start screensaver
 lDialogCloseComputerStartScreenSaverDescription	Start de ingestelde schermbeveiliging.
-lDialogCloseComputerSuspend	Computer in Slaapstand &zetten 
+lDialogCloseComputerSuspend	Computer in Slaapstand zetten 
 lDialogCloseComputerSuspendDescription	Zet de computer in de energiebesparende stand zodat deze snel weer opgestart kan worden. De slaapstand verbruikt heel weinig stroom, uw computer start sneller op en u bent direct weer terug bij het punt waar u was gebleven.
 lDialogCloseComputerSuspendImmediately	Direct in Slaapstand zetten (mogelijk dataverlies als gevolg)
 lDialogContinue	Volgende
-lDialogContinueAmpersand	&Volgende
 lDialogCopy	Kopiëren
-lDialogCopyAmpersand	&Kopiëren
 lDialogCopyFavoritesTitle	KopieÃ«r Favorieten - ~1~ ~2~
 lDialogCtrl	Control
 lDialogCtrlShort	Ctrl
@@ -123,7 +117,6 @@ lDialogElevate	Applicatie als administrator uitvoeren
 lDialogEndOfMenu	Einde van het menu
 lDialogErrorMoving	Het is niet mogelijk om de favoriet te herschalen:`n"~1~"
 lDialogExtendedSearch	Uitgebreide zoekopdracht
-lDialogExternalAddFromCatalogue	Wilt u een extern menu toevoegen vanuit de openbare menucatalogus?
 lDialogExternalLocation	Bestandslocatie voor openbare menuinstellingen
 lDialogExternalLocationIni	Het openbare menuinstellingenbestand dient een .ini-bestand te zijn
 lDialogExternalLocationReadOnly	Locatie van een bestaand openbaar menu kan niet worden gewijzigd. Als het bestand is hernoemt of verplaatst, verwijder dan dit openbaar menu en creëer een nieuw menu met het hernoemde of verplaatste bestand.
@@ -211,8 +204,7 @@ lDialogFavoriteTypesHelp6	Creër een link naar een "FTP site".`n`nConfigureer de 
 lDialogFavoriteTypesHelp7	Voeg "Quick Access Popup Functies" toe in het menu zoals: ~1~, ~2~, ~3~, ~4~, ~5~, etc.`n`nZie omschrijving en help -links voor meer informatie.
 lDialogFavoriteTypesHelp8	Verzamel gerelateerde favorieten in een "Submenu". 'n'nGeef uw submenu een naam en selecteer de menuopties.`n`nVoeg favorieten toe aan uw submenu of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.
 lDialogFavoriteTypesHelp9	Voer een "groep" van favorieten uit, allen in 1 enkele snelkoppeling!`n`nGeef uw groep een naam en configureer de verschillende opties voor uw groep.`n`nVoeg favorieten toe aan uw groep of verplaats favorieten naar een andere submenu's of groepen door middel van de "Verplaatsen" knop, of in de "menu opties" tab onder het "Wijzig favoriet" venster.`n`nIn Geavanceerde Opties kunt u bepalen wat de wachttijd tussen het starten van de verschillende favorieten dient te worden.
-lDialogFavoriteTypesLabels	&Map|&Document|&Applicatie|&Speciale Map|&Link (URL)|F&TP Site|&QAP Functies|Sub&menu|&Groep||||&Fragment|&Openbaar Menu|Tekst Separator|&Windows App
-lDialogFavoriteTypesLabelsNoAmpersand	Map|Document|Applicatie|Speciale Map|Link (URL)|FTP Site|QAP Functies|Submenu|Groep||||Fragment|Openbaar Menu|Tekst Separator|Windows App
+lDialogFavoriteTypesLabels	Map|Document|Applicatie|Speciale Map|Link (URL)|FTP Site|QAP Functies|Submenu|Groep||||Fragment|Openbaar Menu|Tekst Separator|Windows App
 lDialogFavoriteTypesLocationLabels	Map (pad)|Document (pad en bestandsnaam)|Applicatie (pad en bestandsnaam)||Link (URL)|FTP Site (URL)|||||||Inhoud|Extern instellingenbestand (pad)|Tekst Separator|Windows App ID (AUMID)
 lDialogFavoriteTypesShortNames	Map|Doc|App|Speciaal|Link|FTP|QAP|Menu|Groep|Separator|Kolomeinde|..|Fragment|Openbaar|Tekst|Win App
 lDialogFavoriteWorkingDirNotFoundPrompt	De geavanceerde functie "Start in" van favoriet "~1~" is niet gevonden:`n~2~
@@ -247,10 +239,8 @@ lDialogHotstringKeepHotstring	Behoudt de hotstring-afkorting
 lDialogHotstringNotWaitEndingKey	Niet wachten op de eindtoets
 lDialogHotstrings	Hotstrings
 lDialogHotstringsDescription	Geeft het venster weer met een globaal overzicht van uw hotstrings (kleine toetsenreeks die automatisch QAP-favorieten activeren). U kunt favorieten sorteren door op de kop te klikken.`n`nDubbelklik op een hotstring om deze te bewerken.`n`nKlik op het selectievakje "Alle favorieten bekijken" om hotstrings aan andere favorieten toe te wijzen.
-lDialogHotstringsShort	Hotstrings
 lDialogHotstringTriggerAbbreviation	Trigger (afkorting):
 lDialogHotstringTriggerOptions	Hotstring (trigger en opties)
-lDialogHotstringWaitEndingKey	Wacht op de eindtoets
 lDialogIcon	Pictogram
 lDialogIconsManage	Pictogrammen
 lDialogIconsManageAbout	Selecteer een nieuw pictogram voor het gewenste favoriet, of herstel het standaardpictogram. Vergeet niet om de wijzigingen op te slaan in het instellingenmenu.
@@ -258,9 +248,9 @@ lDialogIconsManageCurrent	Huidig pictogram
 lDialogIconsManageDefault	Standaard pictogram
 lDialogIconsManageDescription	Geeft het venster weer met alle favorieten in uw QAP-menu met de huidige pictogrammen en het standaardpictogram voor dit type favoriet. Favorieten zijn gegroepeerd op submenu's, in de volgorde waarin ze in uw menu verschijnen.`n`nKlik op de knoppen om een aangepast pictogram te selecteren of stel een favoriet in op het standaardpictogram.
 lDialogIconsManageFavoriteName	Naam van pictogram
-lDialogIconsManageNext	&Volgende
+lDialogIconsManageNext	Volgende
 lDialogIconsManageParentMenu	Favoriete hoofdmenu
-lDialogIconsManagePrevious	&Terug
+lDialogIconsManagePrevious	Terug
 lDialogIconsManageSetDefaultIcon	Stel standaard pictogram in
 lDialogIconsManageTitle	Beheer pictogrammen - ~1~ ~2~
 lDialogInvalidHotkey	Met de huidige toetsenbordindeling kan de sneltoets "~1~" niet gebruikt worden als commando voor het popup-menu.`n`nGelieve het instellingenmenu te openen vanuit de taakbalk en klik op "Instellingen". Selecteer hier een andere sneltoets voor "~2~".
@@ -276,7 +266,6 @@ lDialogMenuNotMoveUnderItself	Menu "~1~" kan niet onder zichzelf geplaatst worde
 lDialogMinimized	Minimaliseren
 lDialogModifiedDate	Datum aanpassen
 lDialogMore	Meer
-lDialogMoreOptions	Meer opties
 lDialogMouse	Muis
 lDialogMouseButtonsText	Linkse muistoets|Middelste muistoets|Rechtse muistoets|Speciale muistoets 1|Speciale muistoets 2|Scrollwiel op|Scrollwiel neer|Scrollwiel links|Scrollwiel rechts|
 lDialogMouseButtonsTextShort	Linkerknop|Middelste knop|Rechterknop|Speciale knop 1|Speciale knop 2|Wiel Op|Wiel Neer|Wiel Links|Wiel Rechts|
@@ -287,12 +276,10 @@ lDialogNone	Geen
 lDialogNormal	Normaal
 lDialogOff	Uit
 lDialogOK	OK
-lDialogOKAmpersand	&OK
 lDialogOn	Aan
 lDialogOpenThisGroup	Open deze groep
 lDialogOpenThisMenu	Open dit menu
 lDialogOr	of
-lDialogOtherHotkeys	Andere sneltoetsen voor het hoofdmenu
 lDialogPlaceholders	Browse naar <a href="~1~">placeholders help page</a>.
 lDialogPlay	Afspelen
 lDialogQAPFeatureCategoriesNames	Opties|Dynamische Menu's|QAP Menu opmaak|Favoriet toevoegen van type|Venstermanagement|Windows Opties|Verschillende Opties|QAP management
@@ -304,7 +291,7 @@ lDialogSearch	Zoeken
 lDialogSelectIcon	Selecteer pictogram
 lDialogSelectIconJL	Selecteer in JLicons.dll
 lDialogSelectIconNo	Geen pictogrammen
-lDialogSelectItemToAdd	Selecteer het item om toe te voegen
+lDialogSelectItemOneOrMore	Selecteer tenminste Ã©Ã©n item.
 lDialogSelectItemToEdit	Selecteer het te bewerken item alstublieft.
 lDialogSelectItemToMove	Selecteer het te verplaatsen item alstublieft.
 lDialogSelectItemToRemove	Selecteer het te verwijderen item alstublieft.
@@ -324,8 +311,6 @@ lDialogState	Vensterstatus:
 lDialogSubmenuNameEmpty	Voor dit submenu is geen naam geselecteerd, selecteer een naam...
 lDialogSubmenuParentMenu	Submenu hoofdmenu
 lDialogSwitchSettings	Selecteer het instellingenbestand om te gebruiken
-lDialogSwitchSettingsCancel	Het schakelen tussen instellingenbestanden is geannuleerd...`n`nHet huidige instellingen-bestand is: ~1~
-lDialogSwitchSettingsReady	Herlaad ~2~ met het nieuwe instellingenbestand:`n`n~1~
 lDialogTabNext	Volgende
 lDialogThirdPartyDetected	~1~ heeft gedetecteerd dat ~2~ is geinstlleerd op uw computer, wilt u de integratieoptie met ~2~ inschakelen?
 lDialogTreeView	Boomstructuur
@@ -358,16 +343,17 @@ lDialogWindowsFolderIconSet	Stel het Windowsmap pictogram in
 lDialogWindowsFolderIconUpdate	update
 lDialogWinShort	Win
 lDialogWorkingDirLabel	Start in
-lDonateButtonAmpersand	Steun &Freeware!
-lDonateCheckPrompt	Bent u tevreden over ~1~?`n`n~1~ is niet alleen GRATIS maar bevat ook GEEN vervelende reclame of adware (waarvan nooit zeker is of deze geen spyware of malware bevatten)`n`nTot nog toe heeft ~1~ u ~2~ maal geassisteerd om tijd te besparen tijdens de dagelijkse werkzaamheden. Zou u ~1~ willen steunen?
-lDonateCheckPrompt2	nb: Gebruikers die een donatie geven krijgen een code om het ~1~ te donatiealertsysteem te deactiveren.
+lDonateButton	Sponsor deze software!
+lDonateCheckPrompt	Welkom bij deze nieuwe versie van ~1~`n`nDit bericht toont zich slechts bij de installatie van een nieuwe versie.`n`n~1~ is niet alleen GRATIS maar bevat ook GEEN vervelende reclame of adware (waarvan nooit zeker is of deze geen spyware of malware bevatten)`n`nTot nog toe heeft ~1~ u ~2~ maal geassisteerd om tijd te besparen tijdens de dagelijkse werkzaamheden. Zou je ~1~ willen sponsoren?
+lDonateCheckPrompt2	nb: Gebruikers die een minimum donatie storten van €5,- of $5,- (of via een maandelijkse donatie) krijgen een sponsorcode om ~1~ te deactiveren.
 lDonateCheckPrompt3	dit bericht weergeven
-lDonateCheckPrompt4	Donatie herinneringen weergeven
+lDonateCheckPrompt4	sponsorherinneringen
+lDonateCheckPrompt5	en het sponsorbericht in het instellingenvenster
 lDonateCheckTitle	~1~ keer! - ~2~
-lDonateMenu	Steun Freeware!
+lDonateMenu	Sponsor deze software!
 lDonatePlatformComment1	Doneer met een Kredietkaart (een account is niet nodig) of uw Paypal account.
-lDonatePlatformComment2	Voor Europese donors
-lDonatePlatformComment3	Voor Canadese donors
+lDonatePlatformComment2	Voor Europese sponsors
+lDonatePlatformComment3	Voor Canadese sponsors
 lDonatePlatformComment4	Beschikbaar voor US $, Euros en CAD $
 lDonatePlatformName1	Gebruik Paypal in US $
 lDonatePlatformName2	Gebruik Paypal in Euros
@@ -379,13 +365,13 @@ lDonateReviewNameLeft3	Softpedia.com
 lDonateReviewNameRight1	BetaNews.com
 lDonateReviewNameRight2	FileCluster.com
 lDonateReviewNameRight3	Freewares && Tutos (FR)
-lDonateText1	Steun Freeware ontwikkeling!
-lDonateText2	<a href="~1~">Waarom ~1~ steunen?</a>
-lDonateText3	of... steun freeware gratis!
+lDonateText1	Sponsor ~1~ ontwikkeling!
+lDonateText2	<a href="~1~">Waarom deze software sponsoren?</a>
+lDonateText3	... vertel het door als je deze software geweldig vindt!
 lDonateText4	Geef een positieve review over ~1~ op:
 lDonateText5	Stuur mij uw link
-lDonateThankyou	Dank u voor het steunen van QAP!
-lDonateTitle	Steun freeware! - ~1~ ~2~
+lDonateThankyou	Dank je ~1~ voor het sponsoren van deze software!
+lDonateTitle	Sponsor deze software! - ~1~ ~2~
 lDOpusLayoutsName	Vensterindelingen
 lDOpusMenuName	Directory Opus Favorieten
 lDopusMenuNameDescription	Voor Directory Opus (DOpus) gebruikers: een dynamisch menu weergeven dat is opgebouwd met de mappen die zijn toegevoegd aan de DOpus-favorieten. Als u DOpus-support tijdens de installatie van QAP heeft geselecteerd dan zijn de Directory Opus-favorieten automatisch aan uw menu toegevoegd.
@@ -394,12 +380,15 @@ lGuiAbout	Over
 lGuiAboutDescription	Geeft het "Over" venster weer met verschillende informatie over de ontwikkeling, vertaling en andere credits, applicatie- en runtime-versienummers, licentie, de huidige gebruiker en computernaam, links naar de ondersteuningswebsite.`n`nDeze functie is ook beschikbaar via de knop "Over" in het hoofdvenster "Instellingen".
 lGuiAddFavorite	Toevoegen
 lGuiCancel	Annuleren
-lGuiCancelAmpersand	&Annuleren
 lGuiClose	Sluiten
-lGuiCloseAmpersand	&Sluiten
-lGuiCopyAmpersand	K&opiÃ«ren
-lGuiDonate	Doneer
-lGuiDonateDescription	Geeft het venster "Support freeware" weer.
+lGuiCopy	KopiÃ«ren
+lGuiDonate	Sponsor deze software
+lGuiDonateCodeInput	Voer jouw donorcode in
+lGuiDonateCodeInputDescription	Voer de donorcode en de sponsornaam in zoals je hebt ontvangen via de email nadat je een donatie hebt gedaan om Quick Access Popup ontwikkeling te steunen.
+lGuiDonateCodeInputDonorInvalid	De sponsorcode is ongeldig.`n`nZorg ervoor dat de donorcode én sponsornaam exact zijn overgenomen uit de sponsor-email.
+lGuiDonateCodeInputDonorLabel	Voer jouw 8-cijferige code in (DONORCODE)
+lGuiDonateCodeInputSponsorLabel	Voer jouw naam in (SPONSORNAAM)
+lGuiDonateDescription	Geeft het venster "Sponsor deze software" weer.
 lGuiDropFilesHelp	Hulp voor Slepen && Neerzetten
 lGuiDropFilesIncentive	U kunt de volgende type favorieten Slepen & Neerzetten naar het ~1~ venster:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
 lGuiDropFilesIncentive2	Om u te helpen met het verplaatsen van 1 of meerdere bestanden, kunt u het Instellingen venster altijd op de voorgrond laten weergeven door "altijd op de voorgrond weergeven" te selecteren door op de pin-pictogram te klikken links in het venster.
@@ -414,47 +403,49 @@ lGuiGroupSaveRestoreOption	Bij het verversen van mappen in deze groep:
 lGuiGroupSaveRestoreWith	Herstel mappen met:
 lGuiHelp	Help
 lGuiHotkeysHelp	Hulp voor sneltoetsen
-lGuiHotkeysHelpText	Pijl Neer: Ga naar de volgende favoriet`nPijl Op: Ga naar de vorige favoriet`n`nEnter: Wijzig favoriet`n`nCtrl-N: Maak een nieuwe favoriet`nCtrl-M: Verplaats een favoriet`nCtrl-C: Kopieër een favoriet`n`nDel: Verwijder favoriet(en)`n`nShift-Op/Neer: Selecteer aangrenzende favoriet`nCtrl-muisklik: Selecteer niet aangrenzende favorieten`nCtrl-A: Selecteer alle favorieten`nCtrl-Pijl Neer: Verplaats favoriet(en) omlaag`nCtrl-Pijl Op: Verplaats favoriet(en) naar boven`nCrtl-Pijl Rechts: Open submenu of groep`nCtrl-Links: Open hoofdmenu
-lGuiHotkeysHelpText2	F1: Help weergeven`nCtrl-F: Selecteer de zoekfunctie`nCtrl-H: Dit venster weergeven
+lGuiHotkeysHelpText	SNELTOETSEL IN INSTELLINGEN`n`nPijl Neer: Selecteer het volgende item`nPijl Op: Selecteer het vorige item`n`nCtrl-N: Voeg een nieuw item toe`nCtrl-E: Item aanpassen`nCtrl-M: Item verplaatsen`nCtrl-C: Kopieër een item`n`nDel: Verwijder item(s)`n`nShift-Op/Neer: Selecteer aangrenzende item(s)`nCtrl-muisklik: Selecteer niet aangrenzende item(s)`nCtrl-A: Selecteer alle items`nCtrl-Pijl Neer: Verplaats item(s) omlaag`nCtrl-Pijl Op: Verplaats item(s) omhoog`nCrtl-Pijl Rechts: Open submenu of favoriet aanpassen`nCtrl-Links: Open hoofdmenu
+lGuiHotkeysHelpText2	Ctrl-F: Selecteer de zoekfunctiebox`nCtrl-O: Open het optiemenu`nF1: Help weergeven`nCtrl-H: Dit venster weergeven
 lGuiListApplicationsHeader	Index|ID|Venstertitel|Procesnaam|Procespad|W & H|MinMax|Stijl|ExStijl|UWP Hwnd|Universele Applicatienaam
 lGuiLoginName	Login naam
 lGuiLvFavoritesHeader	Naam|Type|Sneltoets|Locatie of inhoud
 lGuiLvFavoritesHeaderFiltered	Naam|Menu|Type|Sneltoets|Locatie of inhoud
 lGuiMove	Verplaatsen
-lGuiMoveAmpersand	&Verplaatsen
 lGuiOptions	Opties
-lGuiOptionsDescription	Geeft het venster "Opties" weer, zodat QAP naar uw wens kan worden aangepast.`n`nDe opties zijn gegroepeerd in de tabbladen: "Algemeen", "Menu", "Sneltoetsen", "Alternatieve sneltoetsen", "Bestandsbeheerder" en "Meer" voor overige opties.
 lGuiPassword	Wachtwoord
 lGuiPasswordNotEncripted	nb: Het wachtwoord zal niet versleuteld worden wanneer deze verzonden wordt naar het internet
 lGuiRemoveFavorite	Verwijderen
 lGuiResetDefault	Standaard sneltoets herstellen
-lGuiSaveAmpersand	&Opslaan
-lGuiSaveAndCloseAmpersand	O&pslaan &&`n Sluiten
-lGuiSaveAndStayAmpersand	Opslaan &&`n &Herladen
-lGuiSaveToUpdateBacklinks	Opslaan om de backlinks te updaten
+lGuiSave	Opslaan
+lGuiSaveAndClose	Opslaan & Sluiten
 lGuiSaving	Bezig met opslaan
 lGuiSubmenuDropdownLabel	Menu of groep om te wijzigen:
 lGuiTitle	Instellingen - ~1~ ~2~
+lHelpMenuKnowledgeBase	Kennisdatabase
+lHelpMenuQuickStart	Snelstarten
+lHelpMenuSupportForum	Support Forum
 lHelpTabAddingFavorite	Favorieten toevoegen
 lHelpTabGettingStarted	Om te beginnen
 lHelpTabQAPFeatures	QAP functies
 lHelpTabSharedMenus	Openbaar menu
 lHelpTabTipsAndTricks	Tips and Trucs
 lHelpText11	Wanneer Quick Access Popup laadt, geeft het een pictogram weer in het systeemvak en zal wachten op uw orders.  Wanneer u 1 van uw geprefereerde MAPPEN, APPLICATIE'S, WEB LINKS, FTP SITE of FRAGMENTEN wilt starten, gebruik dan de sneltoets [~1~] of [~2~] en selecteer uw gewenste favoriet in het popupmenu.
-lHelpText12	Wanneer u een favoriete map selecteert in Windows Explorer of een dialoogbox*, zal Quick Access Popup direct "navigeren" naar de bewuste locatie opgeslagen in het favoriet!`n*) Deze optie dient ingeschakeld te worden in "Opties" - "Opties".
+lHelpText12	Wanneer je een favoriete map in Windows Explorer of een bestandsdialoogbox* selecteert, dan zal Quick Access Popup direct "navigeren" naar de bewuste locatie!`n*) Deze optie dient ingeschakeld te worden in "Opties" - "Algemeen".
 lHelpText13	Om het openen van een map in een nieuw venster te forceren, kunt u gebruik maken van de alternatieve sneltoetsen: [~1~] of [~2~].`nSelecteer "Open in nieuw venster" in het alternatieve menu en selecteer uw gewenste map.`nHet alternatieve menu heeft nog tal van andere functionaliteiten.
 lHelpText14	Kies "Instellingen" om uw Quick Access Popup menu aan te passen aan uw persoonlijke wensen. U kunt hier favorieten toevoegen aan uw menu of u kunt deze verplaatsen, hernoemen of verwijderen. Ook kunt u SUBMENU'S, GROEPEN of OPENBARE MENU'S toevoegen. Kies het aan te passen menu onder: "Menu of groep om te wijzigen" en sla uw wijzigingen op door op "Opslaan" te drukken.
 lHelpText21	Om een favoriet toe te voegen selecteert u in het "Instellingen"-menu de knop: "Toevoegen".`nSelecteer het gewenste type van de nieuwe favoriet en lees de tips aan de rechterkant van dit scherm.`nKlik op "Volgende" om het "Toevoegen Favoriet"-venster te openen.
-lHelpText22	In de 4 tabs van het venster "Toevoegen Favoriet" kunnen de "Basis Opties", "Menu Opties", "Venster Opties" en "Geavanceerde Opties" gewijzigd worden.`nKlik op "Toevoegen" om de favoriet toe te voegen en op "Opslaan" om de favoriet op te slaan.
+lHelpText22	In de verschillende tabs van het venster "Favoriet toevoegen" kunnen de "Basisopties", "Menuopties", "Vensteropties" en "Geavanceerde opties" ingesteld worden.`nKlik op "Toevoegen" om de favoriet toe te voegen in jouw menu en hierna op "Opslaan" om de favoriet op te slaan.
 lHelpText23	VOEG ACTIEVE MAP OF WEBPAGINA TOE`n`nOm snel een nieuwe MAP of LINK toe te voegen als favoriet in het popup-menu:`n1) Ga naar de veel gebuikte map of webpagina.`n2) Klik op de QAP-sneltoets [~1~] of [~2~] en selecteer "Voeg actieve map of webpagina toe".`n3) Geef de favoriet een verkorte naam, klik op "Toevoegen" en hierna op "Opslaan" in het Instellingen venster.
+lHelpText24	Het "Instellingen" menu wordt automatisch geopend bij het starten van QAP. Wanneer je tevreden bent in met jouw menu, dan kan je dit menu gesloten houden en alleen openen om jouw menu te updaten. Selecteer jouw voorkeur in "Opties" van het "Instellingen" venster.
 lHelpText31	In het "Mijn QAP Essentials"-menu:
-lHelpText32	- Gebruik "Schakelen..." in het menu om te schakelen tussen openstaande vensters zoals Windows Verkenners of andere applicaties.`n- Gebruik "Een map openen..." om snel te schakelen naar een openstaande map (erg handig in dialoogboxen)`n- Gebruik "Recent bezochte mappen..." voor een geüpdatet lijst van recent bezochte mappen`n- Gebruik de functie "Klembord" in het menu om informatie opgeslagen in het geheugen op te roepen en te gebruiken`n- En tot slot het menu "Stations" voor een lijst van bekende stations op deze computer met informatie over de vrije ruimte.
+lHelpText32	- Gebruik "Heropen een map" of "Heropen huidige map in dialoogbox" menu's om één van de mappen te heropenen in een Verkenner.`n- Gebruik de functie "Klembord" om bestanden of URL's opgeslagen in jouw klembord op te roepen.`n- Klik op het menu: "Stations" voor een lijst van bekende stations met informatie over de vrije ruimte.
 lHelpText33	PAS UW QAP FUNCTIES MENU AAN
-lHelpText34	Als volgt kunt u "Mijn QAP Essentials" menu-items verplaatsen naar het hoofdmenu of naar andere submenu's:`n1) Selecteer het "Instellingen"-menu (of maak gebruik van sneltoets: [~1~])`n2) Selecteer onder "Menu of groep om te wijzigen" het QAP Essentials menu`n    (Hoofdmenu -> Mijn QAP Essentials)`n3) Selecteer de QAP feature om te verplaatsen en klik op "Wijzigen"`n4) Selecteer in de tab "Menu Opties" de nieuwe locatie onder "Favoriete hoofdmenu"`n5) Sla uw wijzigingen op.
+lHelpText34	Je kunt menuitems van "Dagelijks Gebruik" en "Mijn QAP Essentials" als volgt verplaatsen naar het hoofdmenu of naar andere submenu's. Selecteer in het "Instellingen"-menu het item wat je wilt verplaatsen, maak gebruik van "Menu of groep om te wijzigen:" om de desbetreffende submenu te selecteren, vervolgens klik je op "Wijzigen", op het tabblad "Menuopties" pas je de locatie van het item aan.
+lHelpText35	Vindt je dagelijkse gebruikte items in het menu: "Dagelijks Gebruik":
+lHelpText36	- Open de menu's "Frequent gebruikte mappen" of "Frequent gebruikte bestanden" om jouw meest gebruikte inhoud te bekijken.`n- Kies de menu's "Recente mappen" of "Recente bestanden" om een bijgewerkte lijst van uw recente werk weer te geven.`n- Klik op het "Huidige vensters" om naar een andere actieve Verkenner of applicatie te schakelen.
 lHelpText41	- Gebruik het pictogram van Quick Access Popup in het systeemvak (bij de klok) op de volgende 3 methodes:`n1) Klik met de linkermuistoets op het pictogram om het QAP-Menu te openen`n2) Klik met de rechtermuistoets op het pictogram om het QAP-systeemmenu te openen`n3) Dubbelklik op het pictogram om het "Instellingen"-menu te openen.
 lHelpText42	- In het systeemvak, klik rechts op het Quick Access Popup pictogram en zet: "Uitboeren bij opstarten" aan om Quick Access Popup op automaisch op te starten bij het opstarten van Windows.
-lHelpText43	- Configureer uw Quick Access Popup menu triggers: kies uw geprefereerde muistoets of sneltoets in: "Instellingen, Opties, tab: sneltoetsen".
-lHelpText44	- Ook te vinden in "Instellingen": Kies uw taal, pictogramgrootte, vensterkleuren. Selecteer het aantal recente mappen om weer te geven, en voeg numerieke sneltoetsen toe aan mappen of geef de sneltoetsen direct weer in het menu. Selecteer waar QAP het menu opent, naast de muispijl, of juist op een vaste plaats.
+lHelpText43	- Configureer jouw "Quick Access Popup"-menutriggers zoals een muistoets of sneltoets onder: "Instellingen", "Opties", tab: "Popup sneltoetsen".
+lHelpText44	- Ook te vinden in "Instellingen": Taalkeuze, pictogramgrootte & vensterkleuren. Selecteer het aantal recente mappen om weer te geven, voeg numerieke sneltoetsen toe aan mappen of geef de sneltoetsen weer in het menu. Selecteer waar QAP het menu opent, op een vaste plaats of de voorgaande locatie. En er is nog zoveel meer...
 lHelpText45	- Directory Opus gebruikers, lees <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">deze pagina</a> voor aanvullende informatie`n- Total Commander gebruikers, lees <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">deze pagina</a> voor aanvullende informatie`n- Voor overige bestandsbeheerders, lees <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">deze pagina</a> voor aanvullende informatie over QAP-Connect.
 lHelpText51	Openbare menu's zorgen ervoor dat favorieten beheerd kunnen worden door een configuratiebestand welke gedeeld kan worden tussen verschillende gebruikers of door 1 gebruiker over verschillende computers. Er zijn 3 verschillende soorten Openbare Menu's:
 lHelpText52	Openbare menu's kunnen elk type favorieten bevatten, behalve andere Openbare menu's. Het configuratiebestand van een Openbare menu kan worden opgeslagen op een netwerklocatie of een openbare map (zoals dropbox) en kan worden gebruikt op verschillende computers. QAP heeft volledige ondersteuning voor het werken in teamverband en vermijd modificatieconflicten.
@@ -467,19 +458,14 @@ lImpExpAppend	Toevoegen
 lImpExpCompleted	voltooid
 lImpExpDestination	Bestemming
 lImpExpExport	Exporteren
-lImpExpExportAmpersand	&Exporteren
 lImpExpFavorites	Favorieten
-lImpExpFavoritesNotFound	Favorieten konden niet gevonden worden in bestand:`n`n~1~
 lImpExpFile	~1~ bestand
 lImpExpFileGlobal	Globale instellingen en sneltoetsen voor het hoofdmenu
 lImpExpFileThemes	Thema's
 lImpExpFinalReport	Verplaats ~1~. Bron: `n~2~`n`nBestemming:`n~3~
-lImpExpHotkeys	sneltoetsen
 lImpExpImport	Importeren
-lImpExpImportAmpersand	&Importeren
 lImpExpMenu	Instellingen Importeren/Exporteren
 lImpExpMenuDescription	Geeft het venster weer waarin u uw favorieten en andere instellingen kunt exporteren (bijvoorbeeld om een back-up te maken) op een locatie naar keuze.`n`nU kunt ook favorieten en instellingen van een andere computer of een andere gebruiker importeren.
-lImpExpMerge	Samenvoegen met
 lImpExpNoThemes	Geen themalijst gevonden in waarde "~1~" van sectie "~2~".`n`nBronbestand:`n~3~
 lImpExpOptionAlternative	Sneltoetsen voor alternatieve menu's
 lImpExpOptionFavorites	Favorieten
@@ -494,7 +480,7 @@ lImpExpSource	Bron
 lImpExpTitle	Instellingen Importeren/Exporteren - ~1~
 lImpExpUnsavedSettings	Een instellingenvenster is open, mogelijk met onopgeslagen wijzigingen.`n`nSluit het venster alvorens een bestand te importeren of te exporteren.
 lMainMenuName	Hoofdmenu
-lMenuAboutAmpersand	&Over
+lMenuAbout	Over
 lMenuAddFavorite	Favoriet toevoegen
 lMenuAddFavoriteDescription	Toont een lijst met verschillende favoriettypes, hierbij kunt u het type favoriet selecteren om toe te voegen.`n`nIn het volgende venster voert u in:`n- Een naam voor de favoriet`n- De inhoud`n- Het configureren van verschillende instellingen zoals pictogram, sneltoets, hotstring, parameters etcetera.`n`nAfhankelijk van het geselecteerde type favoriet kan de inhoud van de favoriet een map, document- of applicatiebestandspad, webkoppeling, fragmenttekst, of een submenunaam zijn.
 lMenuAddFavoriteOfTypeDescription	Voeg een favoriet toe van type "~1~".`n`nTyp in het venster "Favoriet toevoegen" de naam en inhoud in (afhankelijk van uw geselecteerde type).`nStel de verscheidene opties in zoals pictogram, sneltoets, hotstring, parameters, etcetera in.
@@ -539,7 +525,8 @@ lMenuExitApp	~1~ afsluiten
 lMenuExitAppDescription	Mogelijkheid om het Quick Access Popup af te sluiten, zodat alle muis- en toetsenbord sneltoetsen worden vrijgegeven welke voor favotieten zijn gedefinieerd.
 lMenuExternalCatalogue	Openbare favorietenmenu vanuit de catalogus toevoegen...
 lMenuExternalCatalogueDescription	Voeg een menu toe vanuit de "Openbaar Menu"-catalogus, dit is een opslagplaats van instellingenbestanden beheerd door menu-beheerders of groepsleden.`n`nU kunt een bestaand "Openbaar Menu"-bestand uit een bibliotheek selecteren, een Openbaar menu toevoegen welke zich niet in de catalogus bevindt of maak een nieuw Openbaar menu.
-lMenuFavoritesInternet	Internet favorieten
+lMenuFavorite	Favoriet
+lMenuFile	Bestand
 lMenuFonts	Lettertypen
 lMenuGetWinInfo	Haal vensterinformatie op
 lMenuGetWinInfoDescription	Deze functie helpt u bij het identificeren van een venster dat u wilt uitsluiten van QAP-sneltoetsen.`n`nDe functie zal u vragen om op het doelvenster te klikken met de QAP-menu sneltoets (standaard is dit de middelste muisknop) en de venstertitel en klasnaam te kopiëren naar uw klembord.`n`nZie de uitsluitingenlijst in Opties, tabblad "Meer" voor de volledige uitleg.
@@ -557,14 +544,16 @@ lMenuMyQAPMenu	Mijn QAP Essentials
 lMenuMySpecialMenu	Mijn speciale mappen
 lMenuMyVideo	Mijn videos
 lMenuMyWindowsAppsMenu	Mijn Windows Apps
-lMenuNoClipboard	Het klembord bevat geen pad of website...
 lMenuNoCurrentFolder	Geen open mappen gevonden...
 lMenuOpenWorkingDirectory	Open de QAP werkmap
+lMenuOptions	Opties
 lMenuPictures	Afbeeldingen
 lMenuPopularFiles	Bestanden
 lMenuPopularFolders	Mappen
 lMenuPopularMenus	Frequent gebruikt ~1~
 lMenuPopularMenusDescription	Geeft een dynamisch menu weer met de meest gebruikte ~1~ als bekend bij Windows en QAP. Dit menu wordt ververst wanneer het QAP-Menu wordt geopend.
+lMenuPopularMenusFiles	Frequente Bestanden
+lMenuPopularMenusFolders	Frequente Mappen
 lMenuPopularMenusWillImprove	Dit menu zal verbeteren bij gebruik van ~1~...
 lMenuProgramFiles	Programmabestanden
 lMenuProgramsFolderStartMenu	Programma Map (Start Menu)
@@ -575,7 +564,7 @@ lMenuRecentFilesDescription	Geeft een dynamisch menu weer met de tien meest rece
 lMenuRecentFolders	Recent bezochte mappen
 lMenuRecentFoldersDescription	Geeft een dynamisch menu weer met de tien meest recent geopende mappen uit de door Windows bijgehouden "Recente items". U kunt het aantal items in dit menu configureren op het tabblad "Opties" in het instellingenmenu.`n`nIn dit menu worden mappen gesorteerd naar de meest recent gebruikte map bovenaan in de lijst, zoals dit is vastgelegd door Windows.
 lMenuRecentItems	Onlangs geopend
-lMenuRefreshMenu	Live-mappen & Gedeelde menu's verversen
+lMenuRefreshMenu	Live-mappen && Gedeelde menu's verversen
 lMenuRefreshMenuDescription	Refresh on-demand the "Live folders" menus. This action can also be executed repeatedly by entering an interval (in seconds) in the "Scheduled QAP menu refresh" of the "Menu" tab in the "Options" windows.`n`nDuring the short (depending on the number of Live folders or Shared menus) refresh time, the QAP menu is not available.
 lMenuReload	~1~ opnieuw laden
 lMenuReloadDescription	Herstart Quick Access Popup.`n`nSla eventuele wijzigingen eerst op voordat u QAP opnieuw opstart.F
@@ -583,14 +572,11 @@ lMenuReopenCurrentFolder	Heropen de huidige map in een dialogbox
 lMenuReopenCurrentFolderDescription	Navigeer naar de openstaande map in Windows Verkenner binnen het bestandsdialoogvenster. Om deze functie te gebruiken, dient de optie "Schakel QAP-mapnavigatie voor dialoogboxen in" onder "Opties" -> "Algemeen".
 lMenuReopenInNewWindow	Heropen actuele map van dialoogbox
 lMenuReopenInNewWindowDescription	Open de huidige map opnieuw in een nieuw Explorer-venster (ook in Directory Opus of Total Commander). Handig als u de map wilt openen die u bekijkt in een bestandsdialoogvenster.
-lMenuRestoreEditCopyMoveWindowPosition	Dialoogbox venster posities herstellen
-lMenuRestoreEditCopyMoveWindowPositionDescription	Herstel de wijzig, kopie en verplaats vensters naar het midden van het hoofdscherm.
 lMenuRestoreSettingsWindowPosition	Positie van het Instellingenvenster herstellen
 lMenuRestoreSettingsWindowPositionDescription	Herstel het vensterformaat en de positie van het instellingenmenu naar het midden van het hoofdscherm.
-lMenuRunAtStartupAmpersand	&Uitvoeren bij opstarten
+lMenuRunAtStartup	Uitvoeren bij opstarten
 lMenuSettings	Instellingen
 lMenuSettingsDescription	Open het venster "Instellingen" waar u uw QAP-popupmenu kunt aanpassen, uw favorieten kunt beheren en verschillende opties kunt instellen.`n`nStandaard is deze functie opgenomen in het hoofdmenu.
-lMenuSettingsFileOptions	Opties voor instellingenbestand
 lMenuStartMenu	Startmenu
 lMenuStartup	Start op
 lMenuSuspendHotkeys	Sneltoetsen tijdelijk uitschakelen
@@ -603,12 +589,11 @@ lMenuSwitchSettingsDescription	Selecteert een ander QAP-instellingenbestand en s
 lMenuSystemCertificates	Systeem Certificaten
 lMenuTemplates	Sjablonen
 lMenuTemporaryFiles	Tijdelijke bestanden
-lMenuUpdateAmpersand	&Controleren op nieuwe versies
-lMenuUpdateNoAmpersand	Controleren op nieuwe versies
-lMenuUpdateNoAmpersandDescription	Controleren op nieuwe versies van Quick Access Popup.
+lMenuTools	Hulpmiddelen
+lMenuUpdate	Controleren op nieuwe versies
+lMenuUpdateDescription	Controleren op nieuwe versies van Quick Access Popup.
 lMenuUserFolder	Gebruikersmap
 lMenuUserPinned	User Pinned
-lMenuWebSiteSupport	QAP Support Groep
 lMessengerCloseQAPSettings	Een instellingenvenster is open in ~1~, mogelijk met onopgeslagen wijzingen.`n`nSluit alstublieft het venster alvorens het context menu te gebruiken.
 lMessengerDoNotRun	Start ~1~ niet direct. U kunt gebruik maken van:`n`n- Klik met de rechtermuistoets op een bestand of map in Explorer om deze toe te voegen aan het menu`n- Klik met de rechtermuistoets op de achtergrond van Explorer om de geopende map toe te voegen`n- Klik met de rechtermuistoets op het bureaublad om QAP te openen.`n`nZorg ervoor dat ~2~ geopend is voordat de contextmenus gebruikt kunnen worden. Zie de "Context menus"-optie in ~2~ "Instellingen".
 lMessengerError	Er is een fout opgetreden.`n`nZorg er alstublieft voor dat ~1~ geladen is voor het gebruik van het context menu.
@@ -628,7 +613,6 @@ lOopsErrorIniFileReadOnly	Dit "Openbaar Menu" -instellingenbestand of deze locat
 lOopsErrorIniFileRetry	Als het instellingenbestand opgeslagen is op een netwerkstation, probeer ~1~ te herladen wanneer het netwerkstation beschikbaar is.
 lOopsErrorIniFileUnavailable	Dit "Openbare Menu"-instellingenbestand is niet beschikbaar
 lOopsErrorReadingIniFile	Er is een fout opgetreden tijdens het lezen van dit instellingenbestand:
-lOopsExternalCatalogueReadOnly	Het "Openbare Menus" Catalogus-bestand is ingesteld op ALLEEN-LEZEN. Neem contact op met uw systeembeheerder.
 lOopsExternalFileWriteError	Er is een fout opgetreden tijdens het schrijven naar het "Openbare Menu" instellingenbestand:`n~1~.`n`nControleer of dit bestand, of de map is ingesteld op ALLEEN-LEZEN.
 lOopsExternalFileWriteErrorCollaborative	U heeft niet de rechten om dit "Openbare Menu" aan te passen. Als u rechten zou moeten hebben, neem dan contact op met uw systeembeheerder.
 lOopsExternalNotAllowedUnderExternal	"Openbare Menu's" kunnen niet worden opgeslagen in andere "Openbare Menu's". Selecteer een hoofdmap onder de tab: "Menu Opties".
@@ -640,9 +624,7 @@ lOopsFileExpandedFrom	Uitgebreid van
 lOopsFileNotFound	Deze locatie bestaat niet
 lOopsFirstEnterUrl	Selecteer eerst een adres in het "~1~" veld.
 lOopsFtpLocationProtocol	Het FTP-Adres dient te starten met "ftp://".
-lOopsGroup	Groep
 lOopsHotkeyAlreadyUsed	De sneltoets "~1~" is al in gebruik voor ~2~.`n`nSelecteer een andere sneltoets voor ~3~.
-lOopsHotkeyNotInMenus	Er is een fout opgetreden bij het openen van de locatie "~1~" met sneltoets "~1~", de sneltoets is niet gevonden in de menu's.
 lOopsHotkeyObjectNotFound	~1~ kon de favoriet geassocieerd met ~2~ "~3~" niet vinden.`n`nDit kan een tijdelijke situatie zijn, probeer ~1~ te herstarten.
 lOopsHotstringTriggerTooLong	Hotstringtrigger is te lang. Hotstringtriggers kunnen niet meer dan 40 karakters lang zijn.
 lOopsHttpLocationTransformed	De http locatie (URL formaat) is aangepast in een netwerkpad (UNC formaat) voor compatibiliteit met Windows: `n`n~1~`n~2~
@@ -650,7 +632,6 @@ lOopsInvalidWinCmdIni	Total Commander bestand "wincmd.ini" niet gevonden.`n`nSel
 lOopsInvalidWindowPosition	De vensterpositiewaarde(s) zijn ongeldig.
 lOopsJLiconsError	QAP taakbalk icoon niet gevonden, zorg ervoor dat u het bestand JLicons.dll heeft geÃ¼pdatet naar ~1~.
 lOopsLaunchWithNotFound	Bestand "Starten met deze applicatie" niet gevonden:`n`n~1~`n`nControleer de "Geavanceerde Opties" in de desbetreffende favoriet.
-lOopsLocation	locatie
 lOopsMaxLiveFolder	Het maximale aantal live mappen (~1~) is bereikt. Reduceer het aantal live mappen, of verhoog het maximaal toegestane aantal live mappen maar pas hiermee op, een te hoog aantal live mappen kan tot onvoorspelbare resultaten leiden! Wijzig de waarde "NbLiveFolderItemsMax" onder sectie [Global] in het QuickAccessPop.ini bestand.
 lOopsMenuExternalCentralized	gecentraliseerd openbaar menu
 lOopsMenuExternalCollaborative	openbaar team menu
@@ -658,10 +639,9 @@ lOopsMenuExternalPersonalChangedBy	Dit persoonlijke Openbare menu wordt GEWIJZIG
 lOopsMenuExternalReservedBy	Deze sessie van ~1~ is GERESERVEERD door gebruiker: ~2~.`n`nWacht alstublieft totdat deze gebruiker het Openbare menu afsluit of neem contact op met de systeembeheerder.
 lOopsNotAdmin	~1~ kon niet worden geladen als Administrator.`n`nHet is geladen in de normale modus.
 lOopsOSVerrsionError	~1~ kan worden uitgevoerd op Windows 7 of een recentere versie van Windows. Windows Vista en XP gebruikers zijn uitgenodigd om "Folders Popup" te downloaden, dit programma is geschikt voor oudere versies van Windows.`n`nWilt u de website bezoeken van Folders Popup?
-lOopsQAPfeature	QAP functies
-lOopsRestoreEditCopyMoveWindowPosition	Herstel de wijzig, kopie en verplaats-venster posities?
 lOopsSelectedItemDialogBoxes	De geselecteerde item kan niet worden gevonden in de dialoogvensters.
 lOopsSelectedItemTotalCommander	De geselecteerde item kan niet worden gevonden in Total Commander.
+lOopsSortUpToSeparator	Gesorteerd tot het eerste scheidingsteken.
 lOopsTitle	~1~ (~2~)
 lOopsUnknownTargetAppName	Er is een fout opgetreden tijdens het openen van deze favoriet, probeer het alstublieft opnieuw...
 lOopsUsageDbSQLiteMissing	SQLite bestanden kunnen niet gevonden worden:`n`n~1~`nHet was niet mogelijk om de "Frequente Items" menus op te bouwen.
@@ -675,22 +655,20 @@ lOptionsAddAutoTopOfMenu	de bovenkant van het menu
 lOptionsAddCloseToDynamicMenus	Voeg "Menu sluiten" toe aan de menu's
 lOptionsAlternativeMenuFeatures	Alternatieve sneltoetsen
 lOptionsAlternativeMenuFeaturesIntro	Configureer hier de muis en snel-toetsen welke het QAP-alternatieve menu zal oproepen.
-lOptionsAlternativeMenuOptions	Alternatieve Menu Opties
 lOptionsAlternativeMenuShowNotification	Notificatie weergeven bij het gebruik van het Alternatieve Menu
 lOptionsBackupFolder	Backupmap voor het hoofdinstellingenbestand
-lOptionsCatalogueHelp	Openbaar Menu (<a href="~1~">~2~</a>)
 lOptionsCataloguePath	Bronmap van de Catalogus
 lOptionsChangeFolderInDialog	Schakel QAP-mapnavigatie voor dialoogboxen in
 lOptionsChangeFolderInDialogCheckbox	Klik op "OK" als u begrijpt dat er mogelijke risico's verbonden zijn bij het niet juist gebruiken van de "mapnavigatie"-functie in vensters die niet bedoelt zijn voor bestandsselectie.
 lOptionsChangeFolderInDialogText	Zet deze optie AAN om mapnavigatie in dialoogboxen zoals Openen, Opslaan, Opslaan als, etc. mogelijk te maken, maar lees eerst de volgende waarschuwing aandachtig door:`n`nU dient deze functie ALLEEN TE GEBRUIKEN in "bestands-dialoogboxen"!`nAls u deze functie gebruikt in andere dialoogboxen, als voorbeeld een "Opties-dialoogbox" dan kunnen instellingen gewijzigd en opgeslagen worden zonder bevestiging hiervan.
 lOptionsChangeHotkey	Wijzig
-lOptionsCheck4Update	&Controleer op updates
+lOptionsCheck4Update	Controleer op updates
 lOptionsCheck4UpdateNow	nu controleren
 lOptionsControlDoublePressed	Open het hoofdmenu bij het intoetsen van Ctrl + Ctrl (Ctrl toets 2 maal indrukken)
 lOptionsControlDoublePressedLeft	Gebruik de linker "Control" toets
 lOptionsControlDoublePressedRight	Gebruik de rechter "Control" toets
-lOptionsDisplayIcons	Pictogrammen weergeven in het &menu
-lOptionsDisplayMenuShortcuts	&Numerieke snelkoppelingen in het menu weergeven
+lOptionsDisplayIcons	Pictogrammen weergeven in het menu
+lOptionsDisplayMenuShortcuts	Numerieke snelkoppelingen in het menu weergeven
 lOptionsDisplayMenuShortcutsFromOne	Start numerieke menusnelkoppelingen vanaf 1 (i.p.v. 0)
 lOptionsEnableExternalMenusCatalogue	Functie "Openbaar Menu" activeren
 lOptionsExclusionMouseList	Uitsluitingslijst voor QAP-Muisknoppen
@@ -698,7 +676,6 @@ lOptionsExclusionMouseListDescription	Uitsluitlijst voor muistoets: [~1~].
 lOptionsExclusionMouseListDetail1	Om de QAP-muistoets [~1~] uit te schakelen in een applicatie, kunt u de titel van het venster invoeren van de desbetreffende applicatie.`nMeerdere uitsluitsels zijn mogelijk (1 per regel).`nOm bijvoorbeeld Chrome en Word uit te sluiten kunt u het volgende invoeren:`n`nGoogle Chrome`nMicrosoft Word
 lOptionsExclusionMouseListDetail2	De QAP-muistoets zal uitgeschakeld zijn in de uitgesloten applicaties en de ~1~-toets zal direct beschikbaar zijn in het venster zonder tussenkomst van QAP.`nOok bestaat de mogelijkheid om uitsluitsels te maken op basis van klasse of procesnaam (.exe extensie) van het venster. Gebruik de titel of klasse met een * (asterisk) om applicatievensters uit te sluiten. Meer hulp kan gevonden worden op <a href="~2~">onze website</a>.
 lOptionsExplorerContextMenus	Voeg QAP toe aan Windows Verkenner Context Menu
-lOptionsExplorerContextMenusHeader	Windows Verkenner Context Menu's
 lOptionsFileManagerNavigateCurrent	het huidige ~1~ venster
 lOptionsFileManagerNavigateCurrentTab	de huidige ~1~ tab
 lOptionsFileManagerNavigateIntro	Bij het openen van het QAP menu buiten ~1~, open dan de mappen in:
@@ -707,61 +684,55 @@ lOptionsFileManagerNavigateNewTab	een nieuwe ~1~ tab
 lOptionsFtpEncoding	Versleutel FTP gebruikernaam en wachtwoord (aangeraden)
 lOptionsFtpEncodingTC	Versleutel FTP gebruikernaam en wachtwoord (niet aangeraden voor Total Commander)
 lOptionsGuiTitle	Instellingen - ~1~ ~2~
-lOptionsHotkeyRemindersFull	Complete sneltoetsen en hotstrings &weergeven
-lOptionsHotkeyRemindersNo	N&iet weergeven
+lOptionsHotkeyRemindersFull	Complete sneltoetsen en hotstrings weergeven
+lOptionsHotkeyRemindersNo	Niet weergeven
 lOptionsHotkeyRemindersPrompt	Sneltoetsen weergeven in het menu:
 lOptionsHotkeyRemindersShort	Afkortingen weergeven
 lOptionsHotstringsDefault	Standaard opties voor Hotstrings 
 lOptionsHotstringsDefaultSelect	Selecteren
 lOptionsIconReplacementList	QAP-icoon vervangers
-lOptionsIconReplacementListDescription	Vervangers voor standaard iconen gevonden in JLicons.dll
 lOptionsIconReplacementListInstructions	Voer QAP-Icoonvervangers in, 1 per regel. Elke regel dient te starten met de naam van het QAP-Icoon (b.v. "iconFolderLive"), gevolgd met het "="-teken en "bestandslocatie, index" van het vervangende icoon. De "bestandslocatie,index" is het pad naar het bestand (.ico, .dll of .exe) waar het icoon zich in bevindt en de index is de positie van het icoon in het bestand, b.v. "C:\Iconen\MijnBestand.dll,1".
 lOptionsIconSize	Pictogramgrootte
 lOptionsIconsManageRows	Beheer de pictogramvenster-regels`n(0 voor maximaal beschikbare ruimte)
-lOptionsLanguage	&Taal
+lOptionsLanguage	Taal
 lOptionsLanguageLabels	Engels|Frans|Duits|Spaans|Braziliaans Portugees|Italiaans|Traditioneel Chinees|Portugees|Manderijns|Nederlands|Korean
-lOptionsMenuActiveWindow	&Linksboven van het actieve venster
-lOptionsMenuFixPosition	Op een v&aste plaats
-lOptionsMenuNearMouse	In de buurt van de muispi&jl
-lOptionsMenuOptions	Menu
+lOptionsMenuActiveWindow	Linksboven van het actieve venster
+lOptionsMenuFixPosition	Op een vaste plaats
+lOptionsMenuNearMouse	In de buurt van de muispijl
 lOptionsMenuPositionPrompt	Popup het menu:
 lOptionsMouseAndKeyboard	Sneltoetsen
 lOptionsOpenFavoritesOnActiveMonitor	Op een multi-monitorsysteem, Windows Explorer altijd starten op de actieve monitor
-lOptionsOpenMenuOnTaskbar	&Open het menu wanneer er op de taakbalk geklikt wordt
-lOptionsOpenSettingsOnActiveMonitor	Open Instellingenvenster op de &Actieve monitor
+lOptionsOpenMenuOnTaskbar	Open het menu wanneer er op de taakbalk geklikt wordt
+lOptionsOpenSettingsOnActiveMonitor	Open Instellingenvenster op de Actieve monitor
 lOptionsOtherOptions	Algemeen
 lOptionsPopupFixPositionX	Positie X:
 lOptionsPopupFixPositionY	Y:
 lOptionsPopupHotkeyTitles	Quick Access Popup Muistoets|Quick Access Popup Sneltoets|QAP Alternatieve Menu Muistoets|QAP Alternatieve Menu Sneltoets
 lOptionsPopupHotkeyTitlesSub	Deze muistoets zal het QAP-menu oproepen (behalve bij <a>uitgesloten applicaties</a>) en kan een favoriet uitvoeren of een map openen.|Deze sneltoets zal het QAP-menu oproepen en kan een favoriet uitvoeren of een map openen.|Deze muistoets zal het QAP-alternatieve menu oproepen met verscheidene opties. Dit menu kan overal opgeroepen worden(zonder uitzonderingen).|Deze sneltoets zal het QAP-alternatieve menu oproepen met verscheidene opties. Dit menu kan overal opgeroepen worden.
 lOptionsQAPTempFolder	Tijdelijke map
-lOptionsRecentFolders	Numm&er van items in de menu's
+lOptionsRecentFolders	Nummer van items in de menu's
 lOptionsRecentFoldersPrompt	"Recente" en "Frequente"-Items menus:
 lOptionsRefreshedMenusAttached	Koppel alle dynamische menus aan het QAP-hoofdmenu
 lOptionsRefreshedMenusAttachedInfo	Als u deze optie inschakeld dan bestaat de mogelijkheid dat er een lichte vertraging (afhankelijk van uw systeemconfiguratie) optreedt elke keer als u het popupmenu opvraagt.`n`nDe duur van de vertraging is afhankelijk van de tijd dat Windows nodig heeft om de informatie te verversen voor het menu (b.v. de lijst van recente items en beschikbare ruimte op de stations). Deze tijd kan verschillen voor elke menuoproep.`n`nAls u deze optie uitschakeld, de "~1~", "~2~", "~3~", "~4~" en "~5~" menu's zullen alleen op handmatig verzoek worden ververst en los van het hoofdmenu weergegeven worden.
 lOptionsRefreshQAPMenuDebugBeep	Piep voor en na een verversing (debug)
 lOptionsRefreshQAPMenuIntervalSec	Verversinterval (in secondes)`n(minimaal 300 seconde wordt geadviseerd)
 lOptionsRefreshQAPMenuTitle	Automatisch verversen van het QAP-menu inschakelen
-lOptionsRememberSettingsPosition	Onthoud de positie van het &instellingenvenster
+lOptionsRememberSettingsPosition	Onthoud de positie van het instellingenvenster
 lOptionsRunAsAdmin	Als Administrator uitvoeren
 lOptionsRunAsAdminAlert	Waarschuwing: Het uitvoeren van ~1~ in Administrator mode kan leiden tot ongewenste consequenties bij het laden van programma's welke kwaadaardige en/of geÃ¯nfecteerde code bevat. Dit zou kwaadaardige programma's administratieve rechten tot uw computer kunnen geven en hierdoor uw computer kunnen infecteren of over kunnen nemen. Wees voorzichtig met het draaien van ~1~ in Administrator mode.
-lOptionsRunAsAdminExit	~1~ zal de volgende start worden geladen zonder administratieve rechten.`n`nWilt u ~1~ nu afsluiten? Onopgeslagen wijzigingen zullen verloren gaan.
 lOptionsRunAsAdminShort	admin
-lOptionsRunAtStartup	Uitvoeren bij op&starten
+lOptionsRunAtStartup	Uitvoeren bij opstarten
 lOptionsSelectBackupFolder	Selecteer de backupmap voor het hoofdinstellingenbestand
 lOptionsSelectCatalogueRoot	Selecteer een openbare map voor de Openbare Menu's
 lOptionsSelectQAPTempFolder	Maak de tijdelijke map aan in:
 lOptionsSnippetsHelp	Fragment standaard (<a href="~1~">~2~</a>)
 lOptionsSwitchExclusionList	Huidige uitsluitingen voor vensters
-lOptionsSwitchExclusionListDescription	Uitsluitingslijst voor applicaties is te vinden in het "Huidig Venster"-menu.
 lOptionsSwitchExclusionListInstructions	Om applicaties uit te sluiten van het "huidige venster" menu, voer een deel van de naam van het gewenste programma's venstertitel in. U kunt meerdere uitsluitingen invoeren, maximaal 1 per regel. Als voorbeeld, om het programma "Sticky Notes" en "Office Word" uit te sluiten, voer de volgende regels in de uitsluitingenlijst:`n`nSticky Notes`n`nOffice Word`n`nU kunt ook programma's uitsluiten bij klasse naam of procesnaam (.exe bestandsnaam). Meer hulp bij dit onderwerp is in het Engels te vinden op:<a href="~2~"> de QAP-website</a>.
 lOptionsTabFileManagersIntro	Selecteer de bestandsbeheerder waarin mappen worden geopend in een nieuw venster.
 lOptionsTabFileManagersPreferences	Optie's voor de bestandsbeheerder
 lOptionsTabFileManagersPreferred	Voorkeur Bestandsbeheerder
-lOptionsTabMenuOptionsIntro	Configureer uw popupmenu zoals u dit wenst!
 lOptionsTabMouseAndKeyboardIntro	Configureer hier de muis en snel-toetsen welke het ~1~ hoofdmenu zal openen.
-lOptionsTabOtherOptionsIntro	Laat ~1~ werken zoals u dit wenst!
-lOptionsTheme	&Thema
+lOptionsTheme	Thema
 lOptionsThirdParty	Bestandsbeheerders
 lOptionsThirdPartyDetail	Selecteer het ~1~ programmabestand (.exe) om integratie met ~1~ in te schakelen.
 lOptionsThirdPartyDetailQAPconnect	Selecteer uw bestandsbeheerder (of wijzig ~1~ om deze toe te voegen - zie help voor meer informatie).
@@ -772,22 +743,23 @@ lOptionsThirdPartyUseTabs	Gebruik tabs in plaats van het openen van een nieuw ve
 lOptionsTrayTip	"Tips tijdens opstarten" in Systeembalk weergeven
 lOptionsUsageDb	~1~ database
 lOptionsUsageDbDaysInPopular	Maximum aantal geregistreerde dagen voor de "Frequente Items" menus:
-lOptionsUsageDbDescription	Parameters voor ~1~ database instellen
 lOptionsUsageDbDisabling	Nieuwe instellingen voor de database worden pas na een herstart van ~1~ van kracht.
 lOptionsUsageDbEnable	~1~ database inschakelen 
 lOptionsUsageDbFlushDatabase	Frequente items in database verwijderen
 lOptionsUsageDbFlushDatabaseConfirm	Frequente items in database verwijderen?
 lOptionsUsageDbFlushDatabaseDone	Database content verwijderd.
-lOptionsUsageDbIntervalSeconds	Ververs & verzamelinterval (seconden):
+lOptionsUsageDbIntervalSeconds	Ververs && verzamelinterval (seconden):
 lOptionsUsageDbMaximumSize	Maximale grootte van de database (in MB):
 lOptionsUsageDbMaximumSizeInvalid	De ingestelde maximale grootte van de database is geen juiste grootte: ~1~
 lOptionsUsageDbShowPopularityIndex	Geef de populariteitsindex weer in menu en instellingenscherm
 lOptionsUsageDbStatement	Privacy Statement: The data in the ~1~ database is collected and stored locally, solely to build dynamic menus and increase performance. This data resides ONLY on your computer and NO information is transmitted to a remote server.
 lOptionsUserVariablesList	Gebruikersvariabelen
-lOptionsUserVariablesListDescription	Voorgedefinieerde tekst die als variabelen op de voorgedefinieerde locaties kunnen worden ingevoegd, bijvoorbeeld: {MijnVariabelen}
 lOptionsUserVariablesListInstructions	Voer uw gebruikersvariabelen in, 1 per regel. Elke regel dient te starten met de variabele naam tussen accolades (bijvoorbeeld: "{MijnVariabele}"), gevolgd door een gelijkteken "=" en de variabele content (bijvoorbeeld: "{MijnVariabele}=MijnContent").`n`nAls voorbeeld, een regel bevat: "{OnzeOpenbareMap}=S:\DezeMap", de variabele {OnzeOpenbareMap} zal worden vervangen door "S:\DezeMap" in de favorietpaden en/of fragmenten. 
 lPickIconNoLocation	Selecteer eerst een favoriet alvorens een pictogram te kiezen.
 lReloadPrompt	~1~ gewijzigd in ~2~. Wilt u ~3~ herladen naar ~2~? Niet opgeslagen wijzigingen gaan verloren.
+lSponsoredName	Deze software wordt vriendelijk gesponsord door ~1~
+lSponsoredNone	Klik hier om deze software te sponsoren!
+lSponsoredUpdate	Werk uw donorcode bij alsjeblieft (er is geen nieuwe donatie vereist)
 lTCMenuName	TC Directory hotlist
 lTCMenuNameDescription	Deze functie is specifiek bedoelt voor Total Commander (TC)-gebruikers.`nDeze functie geeft een dynamisch menu weer dat is opgebouwd met favorieten vanuit de TC Hotlist (vanuit wincdm.ini).`n`nStel de locatie van het wincdm.ini-bestand in via "Opties" -> "Bestandsbeheerders". Als TC was geselecteerd toen u QAP installeerde, is de directory-hotlist automatisch aan uw menu toegevoegd.
 lTCWinCmdLocation	WinCmd.ini locatie
