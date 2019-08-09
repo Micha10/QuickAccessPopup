@@ -3661,14 +3661,15 @@ strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentB
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
+if (g_blnUseColors)
+	Gosub, LoadThemeGlobal
+
 ; Build main menus
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
-if (g_blnUseColors)
-	Gosub, LoadThemeGlobal
 
 ; Build menu used in Settings Gui
 Gosub, BuildGuiMenuBar ; must be before BuildMainMenu
