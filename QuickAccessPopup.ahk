@@ -3661,9 +3661,6 @@ strLastVersionUsed := o_Settings.ReadIniValue("LastVersionUsed" . (g_strCurrentB
 ; not sure it is required to have a physical file with .html extension - but keep it as is by safety
 g_strURLIconFileIndex := GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 
-if (g_blnUseColors)
-	Gosub, LoadThemeGlobal
-
 ; Build main menus
 Gosub, BuildMainMenu
 Gosub, BuildAlternativeMenu
@@ -4563,6 +4560,10 @@ o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_Wo
 ; ---------------------
 ; Load favorites
 
+; must be before LoadMenuFromIni
+global g_strGuiWindowColor := o_Settings.ReadIniValue("WindowColor", E0E0E0, "Gui-" . o_Settings.Launch.strTheme.IniValue)
+global g_strMenuBackgroundColor := o_Settings.ReadIniValue("MenuBackgroundColor", FFFFFF, "Gui-" . o_Settings.Launch.strTheme.IniValue)
+
 Gosub, LoadMenuFromIni
 
 Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
@@ -5095,17 +5096,6 @@ g_intClipboardMenuTickCount := 0
 g_intDrivesMenuTickCount := 0
 g_intRecentItemsMenuTickCount := 0
 g_intSwitchReopenMenuTickCount := 0
-
-return
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-LoadThemeGlobal:
-;------------------------------------------------------------
-
-global g_strGuiWindowColor := o_Settings.ReadIniValue("WindowColor", E0E0E0, "Gui-" . o_Settings.Launch.strTheme.IniValue)
-global g_strMenuBackgroundColor := o_Settings.ReadIniValue("MenuBackgroundColor", FFFFFF, "Gui-" . o_Settings.Launch.strTheme.IniValue)
 
 return
 ;------------------------------------------------------------
@@ -23645,6 +23635,9 @@ class Container
 				}
 				
 				aaThisFavorite.oSubMenu.BuildMenu(blnWorkingToolTip, blnMenuShortcutAlreadyInserted) ; RECURSIVE - build the submenu first
+				
+				if (g_blnUseColors)
+					Try Menu, % aaThisFavorite.oSubMenu.AA.strMenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
 				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
