@@ -5233,11 +5233,11 @@ BuildTrayMenuRefresh:
 ;------------------------------------------------------------
 
 if (g_blnPortableMode)
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
-		, "MenuOptions", "MenuHelp", "GuiDonate")
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
+		, "MenuHelp", "MenuRunAtStartup", "MenuExitApp@" . g_strAppNameText, "GuiDonate")
 else
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools"
-		, "MenuOptions", "MenuHelp", "GuiDonate")
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
+		, "MenuHelp", "GuiDonate")
 
 if (A_ThisLabel = "BuildTrayMenuRefresh")
 	Menu, Tray, DeleteAll
@@ -5253,7 +5253,7 @@ if (g_blnPortableMode)
 {
 	Menu, Tray, Add
 	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-	Menu, Tray, Add, % L(aaMenuFileL["MenuExitApp"], g_strAppNameText), TrayMenuExitApp
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
 }
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
@@ -5287,7 +5287,8 @@ loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 
 aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuOpenWorkingDirectory"
-	, "MenuEditIniFile", "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
+	, "MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu"
+	, "MenuReload@" . g_strAppNameText, "MenuExitApp@" . g_strAppNameText)
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", aaMenuFileL["GuiSaveAndClose"], "", "iconNoIcon"])
@@ -5296,14 +5297,14 @@ saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiClose"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["ShowSettingsIniFile", L(aaMenuFileL["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), "", "iconNoIcon"])
+saMenuItemsTable.Push(["ShowSettingsIniFile", aaMenuFileL["MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly], "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettings", aaMenuFileL["MenuSwitchSettings"] . "...", "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettingsDefault", aaMenuFileL["MenuSwitchSettingsDefault"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . "...", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["ReloadQAP", L(aaMenuFileL["MenuReload"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["TrayMenuExitApp", L(aaMenuFileL["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText], "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"]
@@ -22958,20 +22959,28 @@ TODO
 	
 	;---------------------------------------------------------
 	InsertAmpersand(blnAddNumericShortcut, saIn*)
-	; if first item starts with "*", it is a list of pre-used letters
+	; blnAddNumericShortcut
+	; saIn:  variadic variables containing keys of o_L["..."] and an optional @ folowed by the text to replace ~1~ with L(...) - only 1 replacement is supported
+	;        if the first variable of saIn* starts with "*", it is a list of pre-used letters
+	;        ex.: "MenuSave" or "MenuExit@Quick Access Popup"
+	; aaOut: value returned containing an associative array with saIn variables as keys including "@" and text (ex.: "LanguageKey" or "LanguageKey@Replacement text")
+	;        and with values including replacement text (ex: "Save" or "Exit Quick Access Popup"
 	;---------------------------------------------------------
 	{
 		saContentCleaned := Object() ; contains only letters that can be used as shortcuts (this also excludes "~n~")
 		aaOut := Object()
 		
 		if (SubStr(saIn[1], 1, 1) = "*") ; this is already used letters in strUsed
-			aaOut.strUsed := SubStr(saIn.RemoveAt(1), 2) ; remove leading "*"
-		; sort items to process first the shortest labels (those with the least valid shortcut chars)
+			aaOut.strUsed := SubStr(saIn.RemoveAt(1), 2) ; remove leading "*" and remove item with "*"
+		
+		; process items to expand replacement and get strings lengths in order to sort items to process first the shortest labels (those with the least valid shortcut chars)
 		Loop, % saIn.MaxIndex()
 		{
-			saContentCleaned[A_Index] := RegExReplace(o_L[saIn[A_Index]], "[^a-zA-Z]", "")
-			; strSort line: 1) length, 2) aa o_L index, 3) saContentCleaned index
-			strSort .= StrLen(saContentCleaned[A_Index]) . "|" . saIn[A_Index] . "|" . A_Index . "`n"
+			saThisContent := StrSplit(saIn[A_Index], "@")
+			strThisContentExpanded := L(o_L[saThisContent[1]], saThisContent[2])
+			saContentCleaned[A_Index] := RegExReplace(strThisContentExpanded, "[^a-zA-Z]", "")
+			; strSort line: 1) length, 2) aa o_L index including "@...", 3) saContentCleaned index, 4) Expanded text
+			strSort .= StrLen(saContentCleaned[A_Index]) . "|" . saIn[A_Index] . "|" . A_Index . "|" . strThisContentExpanded . "`n"
 		}
 		
 		strSort := SubStr(strSort, 1, -1)
@@ -22981,7 +22990,7 @@ TODO
 		for intKey, strThisStr in saSorted
 		{
 			saThisStr := StrSplit(strThisStr, "|")
-			aaOut[saThisStr[2]] := o_L[saThisStr[2]] ; backup will be replaced if a letter can be used
+			aaOut[saThisStr[2]] := saThisStr[4] ; backup if not replaced with a ampersand and letter
 			if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and blnAddNumericShortcut) ; insert ampersand for numeric shortcuts
 			{
 				Container.s_intMenuShortcutNumber := saThisStr[3] - 1
@@ -22993,7 +23002,7 @@ TODO
 					if !InStr(aaOut.strUsed, A_LoopField) ; not case sensitive by default
 					{
 						aaOut.strUsed .= A_LoopField ; use this letter for this label
-						aaOut[saThisStr[2]] := StrReplace(o_L[saThisStr[2]], A_LoopField, "&" . A_LoopField, , 1)
+						aaOut[saThisStr[2]] := StrReplace(saThisStr[4], A_LoopField, "&" . A_LoopField, , 1)
 						break
 					}
 				}
@@ -23005,7 +23014,8 @@ TODO
 
 	;---------------------------------------------------------
 	InsertAmpersandInString(strIn)
-	; strIn and strOut delimited with "|"
+	; strIn delimited with "|"
+	; returns strOut delimited with "|"
 	; (this is based on InsertAmpersand but adapted to process the favorite types labels string and avoid having to refactor how these labels are managed)
 	;---------------------------------------------------------
 	{
@@ -23026,9 +23036,7 @@ TODO
 		
 		for intKey, strThisStr in saSorted
 		{
-			; ###_O("saOut", saOut)
 			saThisStr := StrSplit(strThisStr, "|")
-			; ###_V(A_ThisFunc, saThisStr[1], saThisStr[2], saThisStr[3], saThisStr[4])
 			saOut[saThisStr[3]] := saThisStr[4] ; backup will be replaced if a letter can be used
 			Loop, Parse, % saThisStr[2] ; scan available letters in label 
 			{
@@ -23045,7 +23053,6 @@ TODO
 			strOut .= strValue . "|"
 		strOut := SubStr(strOut, 1, -1)
 
-		; ###_V("strOut", strOut)
 		return strOut
 	}
 	;---------------------------------------------------------
