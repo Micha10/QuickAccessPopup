@@ -3670,8 +3670,6 @@ Gosub, BuildAlternativeMenu
 
 if (o_Settings.Launch.blnDiagMode.IniValue)
 	Gosub, InitDiagMode
-if (g_blnUseColors)
-	Gosub, LoadThemeGlobal
 
 ; Build menu used in Settings Gui
 Gosub, BuildGuiMenuBar ; must be before BuildMainMenu
@@ -4565,6 +4563,10 @@ o_Settings.ReadIniOption("SettingsFile", "strBackupFolder", "BackupFolder", A_Wo
 ; ---------------------
 ; Load favorites
 
+; must be before LoadMenuFromIni
+global g_strGuiWindowColor := o_Settings.ReadIniValue("WindowColor", E0E0E0, "Gui-" . o_Settings.Launch.strTheme.IniValue)
+global g_strMenuBackgroundColor := o_Settings.ReadIniValue("MenuBackgroundColor", FFFFFF, "Gui-" . o_Settings.Launch.strTheme.IniValue)
+
 Gosub, LoadMenuFromIni
 
 Gosub, ConvertLocationHotkeys ; if pre v8.8, convert name|location hotkeys to favorites shorcut
@@ -5102,17 +5104,6 @@ return
 ;------------------------------------------------------------
 
 
-;------------------------------------------------------------
-LoadThemeGlobal:
-;------------------------------------------------------------
-
-global g_strGuiWindowColor := o_Settings.ReadIniValue("WindowColor", E0E0E0, "Gui-" . o_Settings.Launch.strTheme.IniValue)
-global g_strMenuBackgroundColor := o_Settings.ReadIniValue("MenuBackgroundColor", FFFFFF, "Gui-" . o_Settings.Launch.strTheme.IniValue)
-
-return
-;------------------------------------------------------------
-
-
 
 ;========================================================================================================================
 ; END OF INITIALIZATION
@@ -5236,27 +5227,28 @@ BuildTrayMenuRefresh:
 ;------------------------------------------------------------
 
 if (g_blnPortableMode)
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuRunAtStartup", "MenuFile", "MenuFavorite", "MenuTools"
-		, "MenuOptions", "MenuHelp", "GuiDonate")
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
+		, "MenuHelp", "MenuRunAtStartup", "MenuExitApp@" . g_strAppNameText, "GuiDonate")
 else
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools"
-		, "MenuOptions", "MenuHelp", "GuiDonate")
+	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
+		, "MenuHelp", "GuiDonate")
 
 if (A_ThisLabel = "BuildTrayMenuRefresh")
 	Menu, Tray, DeleteAll
 
 Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
 Menu, Tray, Add
-if (g_blnPortableMode)
-{
-	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-	Menu, Tray, Add
-}
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
 Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+if (g_blnPortableMode)
+{
+	Menu, Tray, Add
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
+}
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
@@ -5289,7 +5281,8 @@ loop, Parse, % "Main|File|Favorite|Tools|Options|MoreOptions|Help", "|"
 ; 1 strFavoriteType, 2 strFavoriteName, 3 strFavoriteLocation, 4 strFavoriteIconResource
 
 aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCancel", "GuiClose", "MenuOpenWorkingDirectory"
-	, "MenuEditIniFile", "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu", "MenuReload", "MenuExitApp")
+	, "MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu"
+	, "MenuReload@" . g_strAppNameText, "MenuExitApp@" . g_strAppNameText)
 saMenuItemsTable := Object()
 saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", aaMenuFileL["GuiSaveAndClose"], "", "iconNoIcon"])
@@ -5298,14 +5291,14 @@ saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiClose"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["ShowSettingsIniFile", L(aaMenuFileL["MenuEditIniFile"], o_Settings.strIniFileNameExtOnly), "", "iconNoIcon"])
+saMenuItemsTable.Push(["ShowSettingsIniFile", aaMenuFileL["MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly], "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettings", aaMenuFileL["MenuSwitchSettings"] . "...", "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettingsDefault", aaMenuFileL["MenuSwitchSettingsDefault"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . "...", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["ReloadQAP", L(aaMenuFileL["MenuReload"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["TrayMenuExitApp", L(aaMenuFileL["MenuExitApp"], g_strAppNameText), "", "iconNoIcon"])
+saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText], "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"]
@@ -7272,8 +7265,6 @@ g_blnMenuReady := false
 
 ; === General ===
 
-ToggleRunAtStartup(f_blnOptionsRunAtStartup)
-
 strLanguageCodePrev := o_Settings.Launch.strLanguageCode.IniValue
 g_strLanguageLabel := f_drpLanguage
 loop, % g_objOptionsLanguageLabels.Length()
@@ -7607,7 +7598,9 @@ for strMenuName, oContainer in o_Containers.AA
 
 Gosub, BuildMainMenuWithStatus
 Gosub, BuildGuiMenuBar
+
 Gosub, BuildTrayMenuRefresh
+ToggleRunAtStartup(f_blnOptionsRunAtStartup) ; must be after BuildTrayMenuRefresh
 
 g_blnGroupChanged := false
 Gosub, 2GuiClose
@@ -12411,11 +12404,16 @@ if (o_EditedFavorite.AA.strFavoriteType = "External") and !InStr("|GuiEditFavori
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	if !StrLen(strNewFavoriteShortName)
-	{
-		OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
-		g_blnAbortSave := true
-		return
-	}
+		if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+			strNewFavoriteShortName := o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[strNewFavoriteLocation]
+		else if (o_EditedFavorite.AA.strFavoriteType = "Special")
+			strNewFavoriteShortName := o_SpecialFolders.AA[strNewFavoriteLocation].strDefaultName
+		else
+		{
+			OopsGui2(InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["DialogSubmenuNameEmpty"] : o_L["DialogFavoriteNameEmpty"])
+			g_blnAbortSave := true
+			return
+		}
 
 	if  InStr("|Folder|Document|Application|URL|FTP", "|" . o_EditedFavorite.AA.strFavoriteType) and !StrLen(strNewFavoriteLocation)
 	{
@@ -20191,7 +20189,8 @@ ToggleRunAtStartup(blnForce := -1)
 ;------------------------------------------------------------
 {
 	if (blnForce = g_aaMenuTrayL["MenuRunAtStartup"]) ; toggle from Tray menu
-		; because function as Tray menu command puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+		; function assigneds to Tray menu puts the menu name in first parameter (https://hotkeyit.github.io/v2/docs/commands/Menu.htm#Add_or_Change_Items_in_a_Menu)
+		; when called from Tray menu, art blnForce to toggle
 		blnForce := -1
 	
 	if (g_blnPortableMode)
@@ -22025,7 +22024,7 @@ class QAPfeatures
 			, "what-is-in-the-clipboard-menu", "RefreshClipboardMenu")
 		this.AddQAPFeatureObject("Switch Folder or App",	o_L["MenuSwitchFolderOrApp"],		o_L["MenuSwitchFolderOrApp"],	"SwitchFolderOrAppMenuShortcut",		"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuSwitchFolderOrAppDescription"], 0, "iconSwitch", "+^w"
-			, "how-is-built-the-switch-to-an-open-folder-or-application-menu", "RefreshSwitchFolderOraAppMenu")
+			, "how-is-built-the-switch-to-an-open-folder-or-application-menu", "RefreshSwitchFolderOrAppMenu")
 		this.AddQAPFeatureObject("Current Folders",			o_L["MenuCurrentFolders"],			o_L["MenuCurrentFolders"],		"ReopenFolderMenuShortcut",				"2-DynamicMenus~4-WindowManagement"
 			, o_L["MenuCurrentFoldersDescription"], 0, "iconCurrentFolders", "+^f"
 			, "how-is-built-the-current-folders-menu", "RefreshReopenFolderMenu")
@@ -22954,20 +22953,28 @@ TODO
 	
 	;---------------------------------------------------------
 	InsertAmpersand(blnAddNumericShortcut, saIn*)
-	; if first item starts with "*", it is a list of pre-used letters
+	; blnAddNumericShortcut
+	; saIn:  variadic variables containing keys of o_L["..."] and an optional @ folowed by the text to replace ~1~ with L(...) - only 1 replacement is supported
+	;        if the first variable of saIn* starts with "*", it is a list of pre-used letters
+	;        ex.: "MenuSave" or "MenuExit@Quick Access Popup"
+	; aaOut: value returned containing an associative array with saIn variables as keys including "@" and text (ex.: "LanguageKey" or "LanguageKey@Replacement text")
+	;        and with values including replacement text (ex: "Save" or "Exit Quick Access Popup"
 	;---------------------------------------------------------
 	{
 		saContentCleaned := Object() ; contains only letters that can be used as shortcuts (this also excludes "~n~")
 		aaOut := Object()
 		
 		if (SubStr(saIn[1], 1, 1) = "*") ; this is already used letters in strUsed
-			aaOut.strUsed := SubStr(saIn.RemoveAt(1), 2) ; remove leading "*"
-		; sort items to process first the shortest labels (those with the least valid shortcut chars)
+			aaOut.strUsed := SubStr(saIn.RemoveAt(1), 2) ; remove leading "*" and remove item with "*"
+		
+		; process items to expand replacement and get strings lengths in order to sort items to process first the shortest labels (those with the least valid shortcut chars)
 		Loop, % saIn.MaxIndex()
 		{
-			saContentCleaned[A_Index] := RegExReplace(o_L[saIn[A_Index]], "[^a-zA-Z]", "")
-			; strSort line: 1) length, 2) aa o_L index, 3) saContentCleaned index
-			strSort .= StrLen(saContentCleaned[A_Index]) . "|" . saIn[A_Index] . "|" . A_Index . "`n"
+			saThisContent := StrSplit(saIn[A_Index], "@")
+			strThisContentExpanded := L(o_L[saThisContent[1]], saThisContent[2])
+			saContentCleaned[A_Index] := RegExReplace(strThisContentExpanded, "[^a-zA-Z]", "")
+			; strSort line: 1) length, 2) aa o_L index including "@...", 3) saContentCleaned index, 4) Expanded text
+			strSort .= StrLen(saContentCleaned[A_Index]) . "|" . saIn[A_Index] . "|" . A_Index . "|" . strThisContentExpanded . "`n"
 		}
 		
 		strSort := SubStr(strSort, 1, -1)
@@ -22977,7 +22984,7 @@ TODO
 		for intKey, strThisStr in saSorted
 		{
 			saThisStr := StrSplit(strThisStr, "|")
-			aaOut[saThisStr[2]] := o_L[saThisStr[2]] ; backup will be replaced if a letter can be used
+			aaOut[saThisStr[2]] := saThisStr[4] ; backup if not replaced with a ampersand and letter
 			if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue and blnAddNumericShortcut) ; insert ampersand for numeric shortcuts
 			{
 				Container.s_intMenuShortcutNumber := saThisStr[3] - 1
@@ -22989,7 +22996,7 @@ TODO
 					if !InStr(aaOut.strUsed, A_LoopField) ; not case sensitive by default
 					{
 						aaOut.strUsed .= A_LoopField ; use this letter for this label
-						aaOut[saThisStr[2]] := StrReplace(o_L[saThisStr[2]], A_LoopField, "&" . A_LoopField, , 1)
+						aaOut[saThisStr[2]] := StrReplace(saThisStr[4], A_LoopField, "&" . A_LoopField, , 1)
 						break
 					}
 				}
@@ -23001,7 +23008,8 @@ TODO
 
 	;---------------------------------------------------------
 	InsertAmpersandInString(strIn)
-	; strIn and strOut delimited with "|"
+	; strIn delimited with "|"
+	; returns strOut delimited with "|"
 	; (this is based on InsertAmpersand but adapted to process the favorite types labels string and avoid having to refactor how these labels are managed)
 	;---------------------------------------------------------
 	{
@@ -23022,9 +23030,7 @@ TODO
 		
 		for intKey, strThisStr in saSorted
 		{
-			; ###_O("saOut", saOut)
 			saThisStr := StrSplit(strThisStr, "|")
-			; ###_V(A_ThisFunc, saThisStr[1], saThisStr[2], saThisStr[3], saThisStr[4])
 			saOut[saThisStr[3]] := saThisStr[4] ; backup will be replaced if a letter can be used
 			Loop, Parse, % saThisStr[2] ; scan available letters in label 
 			{
@@ -23041,7 +23047,6 @@ TODO
 			strOut .= strValue . "|"
 		strOut := SubStr(strOut, 1, -1)
 
-		; ###_V("strOut", strOut)
 		return strOut
 	}
 	;---------------------------------------------------------
@@ -23633,6 +23638,9 @@ class Container
 				}
 				
 				aaThisFavorite.oSubMenu.BuildMenu(blnWorkingToolTip, blnMenuShortcutAlreadyInserted) ; RECURSIVE - build the submenu first
+				
+				if (g_blnUseColors)
+					Try Menu, % aaThisFavorite.oSubMenu.AA.strMenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
 				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
@@ -24326,7 +24334,11 @@ class Container
 					continue
 
 			strIniLine := oItem.AA.strFavoriteType . "|" ; 1
-			strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
+			if (oItem.AA.strFavoriteType = "QAP" and oItem.AA.strFavoriteName = o_QAPfeatures.aaQAPFeaturesDefaultNameByCode[oItem.AA.strFavoriteLocation])
+				or (oItem.AA.strFavoriteType = "Special" and oItem.AA.strFavoriteName = o_SpecialFolders.AA[oItem.AA.strFavoriteLocation].strDefaultName)
+				strIniLine .= "|" ; 2
+			else
+				strIniLine .= StrReplace(oItem.AA.strFavoriteName, "|", g_strEscapePipe) . "|" ; 2
 			strIniLine .= StrReplace(oItem.AA.strFavoriteLocation, "|", g_strEscapePipe) . "|" ; 3
 			if StrLen(o_JLicons.AA[oItem.AA.strFavoriteIconResource]) ; save index of o_JLicons.AA
 				strIniLine .= oItem.AA.strFavoriteIconResource . "|" ; 4
@@ -24589,6 +24601,9 @@ class Container
 				; to keep track of QAP features in menus to allow enable/disable menu items
 				o_QAPfeatures.aaQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 			}
+			else if (saFavorite[1] = "Special")
+				if !StrLen(saFavorite[2]) ; if empty, get QAP feature's name in current language
+					saFavorite[2] := o_SpecialFolders.AA[saFavorite[3]].strDefaultName
 			
 			; this is a regular favorite, add it to the current menu
 			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
