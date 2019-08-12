@@ -5435,7 +5435,8 @@ CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Wi
 
 SetWaitCursor(false)
 
-Menu, % (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"]), Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
+	, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -5488,8 +5489,8 @@ loop, parse, % "Folders|Files", |
 			saMenuItemsTable.Push(saOneLine)
 		}
 	
-	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles]].LoadFavoritesFromTable(saMenuItemsTable)
-	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles]].BuildMenu()
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].LoadFavoritesFromTable(saMenuItemsTable)
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].BuildMenu()
 }
 
 saOneLine := ""
@@ -5749,7 +5750,8 @@ CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Wi
 
 SetWaitCursor(false)
 
-Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? o_L["MenuRecentFolders"] : o_L["MenuRecentFiles"]), Show, %g_intMenuPosX%, %g_intMenuPosY%
+Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? o_L["MenuRecentFolders"] : o_L["MenuRecentFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
+	, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
 ;------------------------------------------------------------
@@ -5803,8 +5805,8 @@ Loop, Parse, % "Folders|Files", |
 				saMenuItemsTable.Push(saOneLine)
 			}
 		
-		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles]].LoadFavoritesFromTable(saMenuItemsTable)
-		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles]].BuildMenu()
+		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].LoadFavoritesFromTable(saMenuItemsTable)
+		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].BuildMenu()
 	}
 
 g_strMenuItemsListRecentFolders := ""
@@ -7346,9 +7348,8 @@ if !(g_blnPortableMode)
 	o_Settings.MenuPopup.blnExplorerContextMenus.WriteIni("", true) ; value already updated in EnableExplorerContextMenus or DisableExplorerContextMenus
 }
 
+blnRefreshedMenusAttachedPrev := o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue
 o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIni(f_blnRefreshedMenusAttached)
-; next line re-init o_QAPfeatures according to o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue before rebuilding the menus
-o_QAPfeatures.RefreshAttachedOrDetachedQAPFeatureObject()
 
 ; ExclusionList
 o_Settings.MenuPopup.strExclusionMouseList.WriteIni(OptionsListCleanup(f_strExclusionMouseList))
@@ -7542,9 +7543,10 @@ if (!g_blnPortableMode) ; Working folder (only for Setup installation)
 	}
 }
 
-; === Need to restart QAP for new working folder
+; === Need to restart QAP for new working folder or for dynamic menus attached/detached
 
 if (strWorkingFolderPrev <> strWorkingFolderNew and blnSettingsMoveOK)
+	or (blnRefreshedMenusAttachedPrev <> o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue)
 {
 	Oops(o_L["DialogMoveSettingsReload"], g_strAppNameText)
 	Gosub, ReloadQAP
@@ -17342,6 +17344,7 @@ loop, parse, % "Folders|Files", |
 			strTargetType := "File"
 			strFoldersOrFilesMenuNameLocalized := o_L["MenuPopularMenusFiles"]
 		}
+	strFoldersOrFilesMenuNameLocalized .= (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
 
 	; SQLite GetTable
 	; Parse table
@@ -22195,15 +22198,6 @@ class QAPfeatures
 		saQAPFeaturesCategoriesDisplayNames := StrSplit(o_L["DialogQAPFeatureCategoriesNames"], "|")
 		Loop, % saQAPFeaturesCategoriesSystemName.Length()
 			this.aaQAPFeaturesCategories[saQAPFeaturesCategoriesSystemName[A_Index]] := saQAPFeaturesCategoriesDisplayNames[A_Index]
-	}
-	;---------------------------------------------------------
-
-	;---------------------------------------------------------
-	RefreshAttachedOrDetachedQAPFeatureObject()
-	; This function is called to re-init these QAP Features when options are saved
-	;---------------------------------------------------------
-	{
-		this.AddAttachedOrDetachedQAPFeatureObject()
 	}
 	;---------------------------------------------------------
 
