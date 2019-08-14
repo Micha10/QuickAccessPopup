@@ -31,6 +31,19 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.12 (2019-08-14)
+- add "Exit Quick Access Popup" to system menu when in portable mode
+- add "Run at Startup" to system menu when in setup mode
+- when saving favorites of types QAP or Special, if user kept the default name, do not save the name to the ini file allowing to reload these favorites with their new default names if language was changed
+- if name is empty when saving favorites of types QAP or Special, use current default name
+- improve how ampersands keyboard acceleatros are dynamically inserted in menus and dialog box labels
+- fix bug after saving favorites with the "Save" button that was displaying the old content of the submenu in "Settings" window
+- fix bug with the "Run at Startup" checkmark in system menu when changing the value from the "Options" dialog box
+- fix bug to load dialog boxes and menu theme before building main menu
+- fix bug assiging menu background theme color for submenus and dynamic menus
+- fix bug when the option "Attach all dynamic menus to QAP main menu" is disabled and reload QAP after option attach dynamic menus is changed
+- Dutch language update
+
 Version BETA: 9.9.2.11 (2019-08-06)
 - new item in "Tools" menu to "Reset QAP Features and Special Folders Default Names" in the current localized language (useful after switching language)
 - add code to avoid caching when "Check for updates" retrieves the current version numbers on the QAP website
@@ -3398,7 +3411,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.11
+;@Ahk2Exe-SetVersion 9.9.2.12
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3503,7 +3516,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.11" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.12" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5240,12 +5253,10 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
 Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+Menu, Tray, Add
+Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 if (g_blnPortableMode)
-{
-	Menu, Tray, Add
-	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 	Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
-}
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
