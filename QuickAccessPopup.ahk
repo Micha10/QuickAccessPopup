@@ -36,7 +36,7 @@ Version: 10.0 (2019-08-03)
 
 Version BETA: 9.9.2.12 (2019-08-14)
 - add "Exit Quick Access Popup" to system menu when in portable mode
-- add "Run at Startup" to system menu when in setup mode
+- add "Run at Startup" and "Exit Quick Access Popup" to system menu when in setup mode
 - when saving favorites of types QAP or Special, if user kept the default name, do not save the name to the ini file allowing to reload these favorites with their new default names if language was changed
 - if name is empty when saving favorites of types QAP or Special, use current default name
 - improve how ampersands keyboard acceleatros are dynamically inserted in menus and dialog box labels
@@ -3778,23 +3778,28 @@ if (o_Settings.Launch.blnDisplayTrayTip.IniValue)
 ; To popup menu when left click on the tray icon - See AHK_NOTIFYICON function below
 OnMessage(0x404, "AHK_NOTIFYICON")
 
-; the next gosubs can be done after menu is declared ready
+;---------------------------------
 
-If FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
-{
-	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk ; delete file if portable or setup
-	if (g_blnPortableMode)
-	{
-		; the startup shortcut was created at first execution of LoadIniFile (if ini file did not exist)
-		; if the startup shortcut exists, update it at each execution in case the exe filename changed
-		Gosub, CreateStartupShortcut
-		Menu, Tray, Check, % g_aaMenuTrayL["MenuRunAtStartup"]
-	}
-}
+if (g_blnPortableMode)
+	blnStartup := StrLen(FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")) ; convert file attribute to numeric (boolean) value
+else
+	blnStartup := RegistryExist("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run", g_strAppNameText)
 
-; if the startup shortcut for FoldersPopup still exist after QAP installation, delete it
-IfExist, %A_Startup%\FoldersPopup.lnk
+if (blnStartup) ; both setup and portable
+	Menu, Tray, Check, % g_aaMenuTrayL["MenuRunAtStartup"]
+
+if (FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk"))
+	FileDelete, %A_Startup%\%g_strAppNameFile%.lnk ; delete file for both portable (will be updated next) or setup (to discard obsolete lnk file)
+
+If (blnStartup and g_blnPortableMode)
+	; if the startup shortcut exists, update it at each execution in case the exe filename changed
+	Gosub, CreateStartupShortcut
+
+; if the obsolete startup shortcut for FoldersPopup still exist after QAP installation, delete it
+if (FileExist(A_Startup . "\FoldersPopup.lnk"))
 	FileDelete, %A_Startup%\FoldersPopup.lnk
+
+blnStartup := ""
 
 ;---------------------------------
 ; Load the cursor and start the "hook" to change mouse cursor in Settings - See WM_MOUSEMOVE function below
@@ -5239,12 +5244,8 @@ BuildTrayMenu:
 BuildTrayMenuRefresh:
 ;------------------------------------------------------------
 
-if (g_blnPortableMode)
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
-		, "MenuHelp", "MenuRunAtStartup", "MenuExitApp@" . g_strAppNameText, "GuiDonate")
-else
-	global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
-		, "MenuHelp", "GuiDonate")
+global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "MenuFavorite", "MenuTools", "MenuOptions"
+	, "MenuHelp", "MenuRunAtStartup", "MenuExitApp@" . g_strAppNameText, "GuiDonate")
 
 if (A_ThisLabel = "BuildTrayMenuRefresh")
 	Menu, Tray, DeleteAll
@@ -5258,8 +5259,7 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
 Menu, Tray, Add
 Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-if (g_blnPortableMode)
-	Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
+Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
@@ -20211,10 +20211,10 @@ ToggleRunAtStartup(blnForce := -1)
 
 	blnValueAfter := (blnForce = -1 ? !blnValueBefore : blnForce)
 
+	Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % g_aaMenuTrayL["MenuRunAtStartup"]
+	
 	if (g_blnPortableMode)
 	{
-		Menu, Tray, % (blnValueAfter ? "Check" : "Uncheck"), % g_aaMenuTrayL["MenuRunAtStartup"]
-		
 		; Startup code adapted from Avi Aryan Ryan in Clipjump
 		if FileExist(A_Startup . "\" . g_strAppNameFile . ".lnk")
 			FileDelete, %A_Startup%\%g_strAppNameFile%.lnk
