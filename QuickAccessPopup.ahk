@@ -34,6 +34,19 @@ HISTORY
 Version: 10.0 (2019-08-03)
 - demo
 
+Version BETA: 9.9.2.12 (2019-08-14)
+- add "Exit Quick Access Popup" to system menu when in portable mode
+- add "Run at Startup" to system menu when in setup mode
+- when saving favorites of types QAP or Special, if user kept the default name, do not save the name to the ini file allowing to reload these favorites with their new default names if language was changed
+- if name is empty when saving favorites of types QAP or Special, use current default name
+- improve how ampersands keyboard acceleatros are dynamically inserted in menus and dialog box labels
+- fix bug after saving favorites with the "Save" button that was displaying the old content of the submenu in "Settings" window
+- fix bug with the "Run at Startup" checkmark in system menu when changing the value from the "Options" dialog box
+- fix bug to load dialog boxes and menu theme before building main menu
+- fix bug assiging menu background theme color for submenus and dynamic menus
+- fix bug when the option "Attach all dynamic menus to QAP main menu" is disabled and reload QAP after option attach dynamic menus is changed
+- Dutch language update
+
 Version BETA: 9.9.2.11 (2019-08-06)
 - new item in "Tools" menu to "Reset QAP Features and Special Folders Default Names" in the current localized language (useful after switching language)
 - add code to avoid caching when "Check for updates" retrieves the current version numbers on the QAP website
@@ -5243,12 +5256,10 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
 Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
 Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+Menu, Tray, Add
+Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 if (g_blnPortableMode)
-{
-	Menu, Tray, Add
-	Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 	Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
-}
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
@@ -12732,7 +12743,6 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
 if (g_blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
 
-
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
 blnItemIsMenu := ""
@@ -13566,6 +13576,8 @@ if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
+if (A_ThisLabel = "GuiSaveAndStayFavorites") ; update object of menu in gui
+	o_MenuInGui := o_Containers.AA[strSavedMenuInGui]
 
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 
@@ -13574,11 +13586,7 @@ GuiControl, , f_btnGuiCancel, % aaSettingsL["GuiClose"]
 g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
-{
-	if o_Containers.AA[strSavedMenuInGui].FavoriteIsUnderExternalMenu(o_ExternalMenu) ; by safety, reload in main menu to make sure entering in the external menu is properly processed
-		o_MenuInGui := o_Containers.AA[aaMenuFileL["MainMenuName"]]
 	Gosub, GuiShowFromGuiSettings
-}
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
