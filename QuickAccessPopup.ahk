@@ -12729,7 +12729,6 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
 if (g_blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
 
-
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
 blnItemIsMenu := ""
@@ -13563,6 +13562,8 @@ if (A_ThisLabel = "GuiSaveAndReloadQAP") or (g_blnHotstringNeedRestart)
 
 Gosub, ExternalMenusRelease ; release reserved external menus
 Gosub, LoadMenuFromIniWithStatus ; load favorites to menu object
+if (A_ThisLabel = "GuiSaveAndStayFavorites") ; update object of menu in gui
+	o_MenuInGui := o_Containers.AA[strSavedMenuInGui]
 
 Gosub, BuildMainMenuWithStatus ; only here we load hotkeys, when user save favorites
 
@@ -13571,11 +13572,7 @@ GuiControl, , f_btnGuiCancel, % aaSettingsL["GuiClose"]
 g_blnMenuReady := true
 
 if (A_ThisLabel = "GuiSaveAndStayFavorites")
-{
-	if o_Containers.AA[strSavedMenuInGui].FavoriteIsUnderExternalMenu(o_ExternalMenu) ; by safety, reload in main menu to make sure entering in the external menu is properly processed
-		o_MenuInGui := o_Containers.AA[aaMenuFileL["MainMenuName"]]
 	Gosub, GuiShowFromGuiSettings
-}
 else if (A_ThisLabel <> "GuiSaveAndDoNothing")
 	Gosub, GuiCancel
 	
