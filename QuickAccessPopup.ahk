@@ -108,6 +108,12 @@ Various changes
 - French translation done
 - adjustments to dialog boxes after testing French translation
 
+Version: 9.5.2 (2019-07-15)
+- fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
+ 
+Version: 9.5.1 (2019-07-15)
+- fix bug when cancelling the "Select Hotstring" dialog box was erroneously deleting the hotstring
+ 
 Version BETA: 9.9.2.2 (2019-07-11)
 - fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
 - refresh sponsor message after sponsor code is entered
