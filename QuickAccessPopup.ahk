@@ -39,11 +39,11 @@ Version BETA: 9.9.2.12 (2019-08-14)
 - add "Run at Startup" and "Exit Quick Access Popup" to system menu when in setup mode
 - when saving favorites of types QAP or Special, if user kept the default name, do not save the name to the ini file allowing to reload these favorites with their new default names if language was changed
 - if name is empty when saving favorites of types QAP or Special, use current default name
-- improve how ampersands keyboard acceleatros are dynamically inserted in menus and dialog box labels
+- improve how ampersands keyboard accelerators are dynamically inserted in menus and dialog box labels
 - fix bug after saving favorites with the "Save" button that was displaying the old content of the submenu in "Settings" window
 - fix bug with the "Run at Startup" checkmark in system menu when changing the value from the "Options" dialog box
 - fix bug to load dialog boxes and menu theme before building main menu
-- fix bug assiging menu background theme color for submenus and dynamic menus
+- fix bug assigning menu background theme color for submenus and dynamic menus
 - fix bug when the option "Attach all dynamic menus to QAP main menu" is disabled and reload QAP after option attach dynamic menus is changed
 - Dutch language update
 
@@ -111,6 +111,12 @@ Various changes
 - French translation done
 - adjustments to dialog boxes after testing French translation
 
+Version: 9.5.2 (2019-07-15)
+- fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
+ 
+Version: 9.5.1 (2019-07-15)
+- fix bug when cancelling the "Select Hotstring" dialog box was erroneously deleting the hotstring
+ 
 Version BETA: 9.9.2.2 (2019-07-11)
 - fix bug when saving the sponsor code from the "Enter your sponsor code" dialog box
 - refresh sponsor message after sponsor code is entered
@@ -3484,7 +3490,12 @@ global o_Settings := new Settings
 ; Check if we received an alternative settings file in parameter /Settings:
 
 if StrLen(o_CommandLineParameters.AA["Settings"])
+{
 	o_Settings.strIniFile := PathCombine(A_WorkingDir, EnvVars(o_CommandLineParameters.AA["Settings"]))
+	SplitPath, % o_Settings.strIniFile, strIniFileNameExtOnly
+	o_Settings.strIniFileNameExtOnly := strIniFileNameExtOnly
+	strIniFileNameExtOnly := ""
+}
 
 ;---------------------------------
 ; Create temporary folder
@@ -18690,7 +18701,7 @@ Url2Var(strUrl)
 ; see https://www.autohotkey.com/boards/viewtopic.php?f=76&t=66685
 ;------------------------------------------------------------
 {
-	strUrl .= "&cache-breaker=" . A_NowUTC
+	strUrl .= (InStr(strUrl, "?") ? "&" : "?") . "cache-breaker=" . A_NowUTC
 	
 	loop, parse, % "MSXML2.XMLHTTP.6.0|WinHttp.WinHttpRequest.5.1", "|" ; if MSXML2.XMLHTTP.6.0 don't work, try WinHttp.WinHttpRequest.5.1
 	{
@@ -20507,7 +20518,7 @@ class CommandLineParameters
 ;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
-	__Call(function, parameters*)
+	###__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -22639,7 +22650,7 @@ TODO
 ;-------------------------------------------------------------
 {
 	;---------------------------------------------------------
-	__Call(function, parameters*)
+	###__Call(function, parameters*)
 	; based on code from LinearSpoon https://www.autohotkey.com/boards/viewtopic.php?t=1435#p9133
 	{
 		funcRef := Func(funcName := this.__class "." function)
@@ -22659,13 +22670,7 @@ TODO
 	;---------------------------------------------------------
 	{
 		this.strIniFile := A_WorkingDir . "\" . g_strAppNameFile . ".ini" ; value changed when reading external ini files
-		this.strIniFileDefault := this.strIniFile
 
-		this.saOptionsGroups := ["General", "SettingsWindow", "MenuIcons", "MenuAppearance"
-			, "PopupMenu", "PopupHotkeys", "PopupHotkeysAlternative", "FileManagers"
-			, "Snippets", "UserVariables", "Database"
-			, "MenuAdvanced", "AdvancedLaunch", "AdvancedOther"]
-			
 ; /* #### UNCOMMENT TO TEST WITH NORMAL SETTINGS FILE NAME
 		; Set developement ini file
 ;@Ahk2Exe-IgnoreBegin
@@ -22681,7 +22686,13 @@ TODO
 		; set file name used for Edit settings label
 		SplitPath, % this.strIniFile, strIniFileNameExtOnly
 		this.strIniFileNameExtOnly := strIniFileNameExtOnly
+		this.strIniFileDefault := this.strIniFile
 		
+		this.saOptionsGroups := ["General", "SettingsWindow", "MenuIcons", "MenuAppearance"
+			, "PopupMenu", "PopupHotkeys", "PopupHotkeysAlternative", "FileManagers"
+			, "Snippets", "UserVariables", "Database"
+			, "MenuAdvanced", "AdvancedLaunch", "AdvancedOther"]
+			
 		; at first launch quickaccesspopup.ini does not exist, read language value in quickaccesspopup-setup.ini (if exist) created by Setup
 		this.ReadIniOption("Launch", "strLanguageCode", "LanguageCode", "EN", "General", "f_drpLanguage|f_lblLanguage", "Global"
 			, (FileExist(this.strIniFile) ? this.strIniFile : A_WorkingDir . "\" . g_strAppNameFile . "-setup.ini"))
