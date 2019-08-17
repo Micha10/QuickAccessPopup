@@ -6514,11 +6514,13 @@ g_blnMenuReady := false
 g_blnRefreshQAPMenuInProgress := true
 
 for strMenuName, o_ThisContainer in o_Containers.AA
-	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
-	{
-		o_ThisContainer.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
-		o_ThisContainer.BuildMenu()
-	}
+	if (o_ThisContainer.AA.strMenuType = "External")
+		if o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
+			or !(o_ThisContainer.AA.blnMenuExternalLoaded)
+		{
+			o_ThisContainer.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
+			o_ThisContainer.BuildMenu()
+		}
 
 if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
