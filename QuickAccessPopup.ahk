@@ -11327,17 +11327,25 @@ if (A_ThisLabel = "GuiGotoPreviousMenu")
 }
 else
 {
-	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
-	
 	if (A_ThisLabel = "GuiMenusListChanged")
-		o_MenuInGui := o_Containers.AA[strNewDropdownMenu]
+		oMenuInGuiCandidate := o_Containers.AA[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		o_MenuInGui := o_MenuInGui.AA.oParentMenu
+		oMenuInGuiCandidate := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
-		o_MenuInGui := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
+		oMenuInGuiCandidate := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
 	; else if (A_ThisLabel = "OpenMenuFromGuiSearch") ; we already have the menu object in o_MenuInGui from the search event
-	
-	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
+
+	if (oMenuInGuiCandidate.AA.strMenuType = "External" and !oMenuInGuiCandidate.AA.blnMenuExternalLoaded)
+	{
+		gosub, GuiMenusListChangedCleanup
+		return
+	}
+	else
+	{
+		g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
+		g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
+		o_MenuInGui := oMenuInGuiCandidate
+	}
 }
 
 Gosub, UpdatePreviousAndUpPictures
@@ -11362,6 +11370,7 @@ intCurrentLastPosition := ""
 strNewDropdownMenu := ""
 strWriteAccessMessage := ""
 strExternalMenuName := ""
+oMenuInGuiCandidate := ""
 
 return
 ;------------------------------------------------------------
@@ -23271,7 +23280,6 @@ class Container
 		Loop
 		{
 			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . s_intIniLineLoad, "", "Favorites", s_strIniFile)
-			s_intIniLineLoad++
 			
 			if (strLoadIniLine = "ERROR")
 			{
@@ -23290,6 +23298,8 @@ class Container
 			}
 			else if (this.AA.strMenuType = "External")
 				this.AA.blnMenuExternalLoaded := true
+			
+			s_intIniLineLoad++ ; must be after if ERROR but before next if
 			
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
@@ -23325,10 +23335,17 @@ class Container
 				{
 					s_intIniLineLoad := intPreviousIniLine
 					s_strIniFile := strPreviousIniFile
+					if (strResult = "EOF") ; an error occured in a submenu of shared menu
+						strResult := "EOM" ; and continue with remaining of the menu
 				}
 				
 				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+				{
+					if (this.AA.strMenuType = "External")
+						this.AA.blnMenuExternalLoaded := false ; disable the external menu
+						
 					Return, %strResult%
+				}
 			}
 			
 			; create new item and add it to the container
@@ -23661,7 +23678,8 @@ class Container
 					Try Menu, % aaThisFavorite.oSubMenu.AA.strMenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
-				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
+				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0
+					and (aaThisFavorite.oSubMenu.AA.strMenuType <> "External" or aaThisFavorite.oSubMenu.AA.blnMenuExternalLoaded)) ; 0 disabled, 1 enabled, 2 default
 				strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
 			}
 			
