@@ -23275,6 +23275,10 @@ class Container
 			
 			if (strLoadIniLine = "ERROR")
 			{
+				if (blnRefreshExternal) ; reset the main ini file
+					; ##### si exit à cause d'une erreur dans un sous menu, blnRefreshExternal sera falsxe, est-ce qu'on passe par ici en remontant?
+					s_strIniFile := o_Settings.strIniFile
+				
 				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLineLoad . "=")
 				if (this.AA.strMenuType = "External")
 				{
@@ -23289,10 +23293,14 @@ class Container
 			
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
-			if (saThisFavorite[1] = "Z")
-				; container loaded without error
-				return "EOM" ; end of menu
+			if (saThisFavorite[1] = "Z") ; container loaded without error
+			{
+				if (blnRefreshExternal) ; reset the main ini file
+					s_strIniFile := o_Settings.strIniFile
 				
+				return "EOM" ; end of menu
+			}
+			
 			else if InStr("|Menu|Group|External", "|" . saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
 			{
 				if (saThisFavorite[1] = "External")
@@ -23310,7 +23318,7 @@ class Container
 				
 				if (oNewSubMenu.AA.strMenuType = "Group")
 					oNewSubMenu.AA.strFavoriteGroupSettings := saThisFavorite[11]
-
+				
 				strResult := oNewSubMenu.LoadFavoritesFromIniFile(blnWorkingToolTip, false, false) ; RECURSIVE, 2nd param false not external root, 3rd param false non entry menu
 				
 				if (saThisFavorite[1] = "External")
