@@ -11993,7 +11993,6 @@ else
 	o_EditedFavoriteMenu := o_EditedFavorite.AA.oSubmenu
 
 ; update menu object except if we multiple move or copy favorites
-
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	; if external menu file exists, load the submenu from the external settings ini file
@@ -12051,9 +12050,6 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			strNewFavoriteLocation := "Custom:" . strNewFavoriteLocation
 		o_EditedFavorite.AA.strFavoriteLocation := strNewFavoriteLocation
 	}
-
-	; attach favorite object to its parent menu
-	o_EditedFavorite.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
 
 	Gosub, UpdateFavoriteObjectSaveShortcut
 	Gosub, UpdateFavoriteObjectSaveHotstring ; puts g_strNewFavoriteHotstring in o_EditedFavorite.AA.strFavoriteHotstring
@@ -12115,6 +12111,9 @@ else ; GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave (but GuiCopyOneFavorite
 	if o_EditedFavorite.IsContainer()
 		; for Menu and Group in multiple moved, update the strFavoriteLocation in favorite object and update menus and hotkeys index objects
 		o_EditedFavorite.UpdateMenusPathAndLocation(strDestinationMenu)
+
+; attach favorite submenu object to its parent menu
+o_EditedFavorite.AA.oSubMenu.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
 
 ; updating original and destination menu objects (these can be the same)
 
@@ -25992,12 +25991,15 @@ class Container
 			this.AA.oSubMenu.AA.strMenuPath := strNewMenuPath ; update menu path
 			o_Containers.AA[strNewMenuPath] := this.AA.oSubMenu ; add new path to o_Containers
 			this.AA.strFavoriteLocation := StrReplace(strNewMenuPath, o_L["MainMenuName"] . " ") ; menu path without main menu localized name
+			this.AA.oParentMenu := o_Containers.AA[strNewDestinationMenu]
 			
 			; update submenus (recursive)
 			if (o_EditedFavorite.AA.strFavoriteType <> "Group") ; groups have no submenu
 				for intKey, oItem in this.AA.oSubMenu.SA
 					if oItem.IsContainer()
 						oItem.UpdateMenusPathAndLocation(strNewMenuPath) ; RECURSIVE
+					else
+						###_V(A_ThisFunc, strNewDestinationMenu, oItem.AA.oParentMenu.AA.strMenuPath)
 				
 			; Loop, % objEditedFavorite.SubMenu.MaxIndex()
 				; if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
