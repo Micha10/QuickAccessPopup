@@ -6517,11 +6517,13 @@ g_blnMenuReady := false
 g_blnRefreshQAPMenuInProgress := true
 
 for strMenuName, o_ThisContainer in o_Containers.AA
-	if (o_ThisContainer.AA.strMenuType = "External") and o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
-	{
-		o_ThisContainer.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
-		o_ThisContainer.BuildMenu()
-	}
+	if (o_ThisContainer.AA.strMenuType = "External")
+		if o_ThisContainer.ExternalMenuModifiedSinceLoaded() ; refresh only if changed
+			or !(o_ThisContainer.AA.blnMenuExternalLoaded)
+		{
+			o_ThisContainer.LoadFavoritesFromIniFile(false, true) ; true for Refresh External
+			o_ThisContainer.BuildMenu()
+		}
 
 if (A_ThisLabel <> "RefreshQAPMenuExternalOnly")
 	if (A_ThisLabel = "RefreshQAPMenuScheduled")
@@ -11330,17 +11332,25 @@ if (A_ThisLabel = "GuiGotoPreviousMenu")
 }
 else
 {
-	g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
-	
 	if (A_ThisLabel = "GuiMenusListChanged")
-		o_MenuInGui := o_Containers.AA[strNewDropdownMenu]
+		oMenuInGuiCandidate := o_Containers.AA[strNewDropdownMenu]
 	else if (A_ThisLabel = "GuiGotoUpMenu")
-		o_MenuInGui := o_MenuInGui.AA.oParentMenu
+		oMenuInGuiCandidate := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
-		o_MenuInGui := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
+		oMenuInGuiCandidate := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
 	; else if (A_ThisLabel = "OpenMenuFromGuiSearch") ; we already have the menu object in o_MenuInGui from the search event
-	
-	g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
+
+	if (oMenuInGuiCandidate.AA.strMenuType = "External" and !oMenuInGuiCandidate.AA.blnMenuExternalLoaded)
+	{
+		gosub, GuiMenusListChangedCleanup
+		return
+	}
+	else
+	{
+		g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
+		g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
+		o_MenuInGui := oMenuInGuiCandidate
+	}
 }
 
 Gosub, UpdatePreviousAndUpPictures
@@ -11365,6 +11375,7 @@ intCurrentLastPosition := ""
 strNewDropdownMenu := ""
 strWriteAccessMessage := ""
 strExternalMenuName := ""
+oMenuInGuiCandidate := ""
 
 return
 ;------------------------------------------------------------
@@ -23274,10 +23285,13 @@ class Container
 		Loop
 		{
 			strLoadIniLine := o_Settings.ReadIniValue("Favorite" . s_intIniLineLoad, "", "Favorites", s_strIniFile)
-			s_intIniLineLoad++
 			
 			if (strLoadIniLine = "ERROR")
 			{
+				if (blnRefreshExternal) ; reset the main ini file
+					; ##### si exit à cause d'une erreur dans un sous menu, blnRefreshExternal sera falsxe, est-ce qu'on passe par ici en remontant?
+					s_strIniFile := o_Settings.strIniFile
+				
 				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLineLoad . "=")
 				if (this.AA.strMenuType = "External")
 				{
@@ -23290,12 +23304,18 @@ class Container
 			else if (this.AA.strMenuType = "External")
 				this.AA.blnMenuExternalLoaded := true
 			
+			s_intIniLineLoad++ ; must be after if ERROR but before next if
+			
 			saThisFavorite := StrSplit(strLoadIniLine, "|")
 			
-			if (saThisFavorite[1] = "Z")
-				; container loaded without error
-				return "EOM" ; end of menu
+			if (saThisFavorite[1] = "Z") ; container loaded without error
+			{
+				if (blnRefreshExternal) ; reset the main ini file
+					s_strIniFile := o_Settings.strIniFile
 				
+				return "EOM" ; end of menu
+			}
+			
 			else if InStr("|Menu|Group|External", "|" . saThisFavorite[1], true) ; begin a submenu / case sensitive because type X is included in External ...
 			{
 				if (saThisFavorite[1] = "External")
@@ -23313,17 +23333,24 @@ class Container
 				
 				if (oNewSubMenu.AA.strMenuType = "Group")
 					oNewSubMenu.AA.strFavoriteGroupSettings := saThisFavorite[11]
-
+				
 				strResult := oNewSubMenu.LoadFavoritesFromIniFile(blnWorkingToolTip, false, false) ; RECURSIVE, 2nd param false not external root, 3rd param false non entry menu
 				
 				if (saThisFavorite[1] = "External")
 				{
 					s_intIniLineLoad := intPreviousIniLine
 					s_strIniFile := strPreviousIniFile
+					if (strResult = "EOF") ; an error occured in a submenu of shared menu
+						strResult := "EOM" ; and continue with remaining of the menu
 				}
 				
 				if (strResult = "EOF") ; end of file was encountered while building this submenu, exit recursive function
+				{
+					if (this.AA.strMenuType = "External")
+						this.AA.blnMenuExternalLoaded := false ; disable the external menu
+						
 					Return, %strResult%
+				}
 			}
 			
 			; create new item and add it to the container
@@ -23656,7 +23683,8 @@ class Container
 					Try Menu, % aaThisFavorite.oSubMenu.AA.strMenuPath, Color, %g_strMenuBackgroundColor% ; Try because this can fail if submenu is empty
 				
 				strMenuItemAction := ":" . aaThisFavorite.oSubMenu.AA.strMenuPath
-				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0) ; 0 disabled, 1 enabled, 2 default
+				intMenuItemStatus := (aaThisFavorite.oSubMenu.SA.MaxIndex() > 0
+					and (aaThisFavorite.oSubMenu.AA.strMenuType <> "External" or aaThisFavorite.oSubMenu.AA.blnMenuExternalLoaded)) ; 0 disabled, 1 enabled, 2 default
 				strMenuItemIcon := aaThisFavorite.strFavoriteIconResource
 			}
 			
