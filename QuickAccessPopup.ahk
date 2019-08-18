@@ -3570,6 +3570,7 @@ global g_strGroupIndicatorSuffix := Chr(187) ; displayed in Settings with g_strG
 global g_intListW := "" ; Gui width captured by GuiSize and used to adjust columns in fav list
 global g_strEscapePipe := "Ð¡þ€" ; used to escape pipe in ini file, should not be in item names or location but not checked
 global g_strAmpersandPlaceholder := "$?%" ; used as temporary marker for numeric shortcuts in menu item names
+global g_strEllipse := "…" ; "..."
 
 global g_strSnippetCommandStart := "{&" ; start of command in macro snippets
 global g_strSnippetCommandEnd := "}" ; end of command (including options) in macro snippets
@@ -4817,18 +4818,18 @@ AddToIniOneDefaultMenu("{21EC2020-3AEA-1069-A2DD-08002B30309D}", "", "Special") 
 AddToIniOneDefaultMenu("{645FF040-5081-101B-9F08-00AA002F954E}", "", "Special") ; Recycle Bin
 AddToIniOneDefaultMenu("", "", "Z") ; close special menu
 
-g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."] ; QAP feature code used here for comparison only, not for menu name
+g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"]] ; QAP feature code used here for comparison only, not for menu name
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"] . "..."]) ; if equal, it means that this menu is not already there
+if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuSettings"]]) ; if equal, it means that this menu is not already there
 ; (we cannot have this menu twice with "+" because, as all QAP features, o_L["MenuSettings"] always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{Settings}", o_L["MenuSettings"] . "...", "QAP", true) ; back in main menu
+	AddToIniOneDefaultMenu("{Settings}", o_L["MenuSettings"], "QAP", true) ; back in main menu
 
 }
 if (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileManager = 3) ; Directory Opus or Total Commander
 {
-	strDOpusOrTCMenuName := (o_FileManagers.P_intActiveFileManager = 2 ? o_L["DOpusMenuName"] : o_L["TCMenuName"]) . "..."
+	strDOpusOrTCMenuName := (o_FileManagers.P_intActiveFileManager = 2 ? o_L["DOpusMenuName"] : o_L["TCMenuName"])
 	
 	g_strAddThisMenuName := strDOpusOrTCMenuName
 	Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if g_strAddThisMenuName menu name exists
@@ -4839,13 +4840,13 @@ if (o_FileManagers.P_intActiveFileManager = 2 or o_FileManagers.P_intActiveFileM
 		AddToIniOneDefaultMenu((o_FileManagers.P_intActiveFileManager = 2 ? "{DOpus Favorites}" : "{TC Directory hotlist}"), strDOpusOrTCMenuName, "QAP")
 	}
 }
-g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."] ; QAP feature code used here for comparison only, not for menu name
+g_strAddThisMenuName := o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . g_strEllipse] ; QAP feature code used here for comparison only, not for menu name
 Gosub, AddToIniGetMenuName ; find next favorite number in ini file and check if the QAP feature exist in this menu
-if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . "..."]) ; if equal, it means that this menu is not already there
+if (g_strAddThisMenuNameWithInstance = o_QAPfeatures.aaQAPFeaturesCodeByDefaultName[o_L["MenuAddThisFolder"] . g_strEllipse]) ; if equal, it means that this menu is not already there
 ; (we cannot have this menu twice with "+" because, as all QAP features, o_L["MenuAddThisFolder"] always have the same menu name)
 {
 	AddToIniOneDefaultMenu("", "", "X")
-	AddToIniOneDefaultMenu("{Add This Folder}", o_L["MenuAddThisFolder"] . "...", "QAP", true)
+	AddToIniOneDefaultMenu("{Add This Folder}", o_L["MenuAddThisFolder"] . g_strEllipse, "QAP", true)
 }
 
 AddToIniOneDefaultMenu("", "", "Z") ; restore end of main menu marker
@@ -5261,7 +5262,7 @@ global g_aaMenuTrayL := o_L.InsertAmpersand(true, "MenuSettings", "MenuFile", "M
 if (A_ThisLabel = "BuildTrayMenuRefresh")
 	Menu, Tray, DeleteAll
 
-Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"] . "...", GuiShowFromTray
+Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"], GuiShowFromTray
 Menu, Tray, Add
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
 Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
@@ -5274,7 +5275,7 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExi
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
-	Menu, Tray, Add, % g_aaMenuTrayL["GuiDonate"], GuiDonate
+	Menu, Tray, Add, % g_aaMenuTrayL["GuiDonate"] . g_strEllipse, GuiDonate
 }
 ;@Ahk2Exe-IgnoreBegin
 ; Start of code for developement phase only - won't be compiled
@@ -5282,7 +5283,7 @@ Menu, Tray, Add
 ; / End of code for developement phase only - won't be compiled
 ;@Ahk2Exe-IgnoreEnd
 
-Menu, Tray, Default, % g_aaMenuTrayL["MenuSettings"] . "..."
+Menu, Tray, Default, % g_aaMenuTrayL["MenuSettings"]
 if (g_blnUseColors)
 	Menu, Tray, Color, %g_strMenuBackgroundColor%
 Menu, Tray, Tip, % g_strAppNameText . " " . g_strAppVersion . " (" . (A_PtrSize * 8) . "-bit)`n"
@@ -5314,9 +5315,9 @@ saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ShowSettingsIniFile", aaMenuFileL["MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly], "", "iconNoIcon"])
-saMenuItemsTable.Push(["SwitchSettings", aaMenuFileL["MenuSwitchSettings"] . "...", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SwitchSettings", aaMenuFileL["MenuSwitchSettings"] . g_strEllipse, "", "iconNoIcon"])
 saMenuItemsTable.Push(["SwitchSettingsDefault", aaMenuFileL["MenuSwitchSettingsDefault"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . "...", "", "iconNoIcon"])
+saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . g_strEllipse, "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
@@ -5330,12 +5331,12 @@ Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
 aaFavoriteL := o_L.InsertAmpersand(true, "DialogAdd", "DialogEdit", "GuiRemoveFavorite", "GuiMove", "DialogCopy"
 	, "ControlToolTipMoveUp", "ControlToolTipMoveDown", "ControlToolTipSortFavorites")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiAddFavoriteSelectType", aaFavoriteL["DialogAdd"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiEditFavorite", aaFavoriteL["DialogEdit"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiAddFavoriteSelectType", aaFavoriteL["DialogAdd"] . g_strEllipse, "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiEditFavorite", aaFavoriteL["DialogEdit"] . g_strEllipse, "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiRemoveFavorite", aaFavoriteL["GuiRemoveFavorite"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiMoveFavoriteToMenu", aaFavoriteL["GuiMove"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiCopyFavorite", aaFavoriteL["DialogCopy"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiMoveFavoriteToMenu", aaFavoriteL["GuiMove"] . g_strEllipse, "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCopyFavorite", aaFavoriteL["DialogCopy"] . g_strEllipse, "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiMoveFavoriteUp", aaFavoriteL["ControlToolTipMoveUp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiMoveFavoriteDown", aaFavoriteL["ControlToolTipMoveDown"], "", "iconNoIcon"])
@@ -5405,8 +5406,8 @@ saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiHotkeysHelpClicked", aaHelpL["GuiHotkeysHelp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiDropFilesHelpClicked", aaHelpL["GuiDropFilesHelp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiDonate", aaHelpL["GuiDonate"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiDonateCodeInput", aaHelpL["GuiDonateCodeInput"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiDonate", aaHelpL["GuiDonate"] . g_strEllipse, "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiDonateCodeInput", aaHelpL["GuiDonateCodeInput"] . g_strEllipse, "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiAbout", aaHelpL["MenuAbout"], "", "iconNoIcon"])
 o_Containers.AA["menuBarHelp"].LoadFavoritesFromTable(saMenuItemsTable)
@@ -5460,7 +5461,7 @@ CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Wi
 
 SetWaitCursor(false)
 
-Menu, % (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
+Menu, % (A_ThisLabel = "PopularFoldersMenuShortcut" ? o_L["MenuPopularMenusFolders"] : o_L["MenuPopularMenusFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)
 	, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -5514,8 +5515,8 @@ loop, parse, % "Folders|Files", |
 			saMenuItemsTable.Push(saOneLine)
 		}
 	
-	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].LoadFavoritesFromTable(saMenuItemsTable)
-	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].BuildMenu()
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)].LoadFavoritesFromTable(saMenuItemsTable)
+	o_Containers.AA[o_L["MenuPopularMenus" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)].BuildMenu()
 }
 
 saOneLine := ""
@@ -5775,7 +5776,7 @@ CoordMode, Menu, % (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 2 ? "Wi
 
 SetWaitCursor(false)
 
-Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? o_L["MenuRecentFolders"] : o_L["MenuRecentFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
+Menu, % (A_ThisLabel = "RecentFoldersMenuShortcut" ? o_L["MenuRecentFolders"] : o_L["MenuRecentFiles"]) . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)
 	, Show, %g_intMenuPosX%, %g_intMenuPosY%
 
 return
@@ -5830,8 +5831,8 @@ Loop, Parse, % "Folders|Files", |
 				saMenuItemsTable.Push(saOneLine)
 			}
 		
-		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].LoadFavoritesFromTable(saMenuItemsTable)
-		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")].BuildMenu()
+		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)].LoadFavoritesFromTable(saMenuItemsTable)
+		o_Containers.AA[o_L["MenuRecent" . strFoldersOrFiles] . (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)].BuildMenu()
 	}
 
 g_strMenuItemsListRecentFolders := ""
@@ -9007,10 +9008,11 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
 	}
 
-	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % aaFavoriteL["DialogEdit"] ; edit menu only if one item is selected
+	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % aaFavoriteL["DialogEdit"] . g_strEllipse ; edit menu only if one item is selected
 	Menu, menuBarFavorite, Enable, % aaFavoriteL["ControlToolTipSortFavorites"] ; re-enable if disabled by GuiCancel for Favorite Tray menu
-	loop, Parse, % "GuiRemoveFavorite|GuiMove|DialogCopy|ControlToolTipMoveUp|ControlToolTipMoveDown", |
-		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable"), % aaFavoriteL[A_LoopField] ; enable only if at least one item is selected
+	loop, Parse, % "GuiMove|DialogCopy|GuiRemoveFavorite|ControlToolTipMoveUp|ControlToolTipMoveDown", |
+		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable"), % aaFavoriteL[A_LoopField]
+			. (A_Index <= 2 ? g_strEllipse : "") ; add ellipse for two first items only
 }
 
 return
@@ -10254,7 +10256,7 @@ Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckb
 
 Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
 Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
-Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % "..." . o_L["DialogFavoriteFolderLiveExtensions"]
+Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % g_strEllipse . o_L["DialogFavoriteFolderLiveExtensions"]
 Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % o_EditedFavorite.AA.strFavoriteFolderLiveExtensions
 
 strLiveFolderSortOrder := ""
@@ -11732,7 +11734,7 @@ Gui, 2:Add, ListView, % "vf_lvExternalMenusCatalogue Count32 Checked " . (g_blnU
 Gui, 2:Add, Text, x10 w640 center, % o_L["DialogExternalTip"]
 Gui, 2:Add, Text
 Gui, 2:Add, Button, x10 gButtonAddExternalMenusFromCatalogue vf_btnAddExternalMenusFromCatalogue default, % o_L["DialogExternalMenuAdd"]
-Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, % o_L["DialogExternalMenuAddNotFromCatalogue"]
+Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusNotFromCatalogue vf_btnAddExternalMenusNotFromCatalogue, % o_L["DialogExternalMenuAddNotFromCatalogue"] . g_strEllipse
 Gui, 2:Add, Button, x+20 yp gButtonAddExternalMenusFromCatalogueClose vf_btnAddExternalMenusFromCatalogueClose, % o_L["GuiClose"]
 Gui, 2:Add, Text
 	
@@ -14342,8 +14344,8 @@ if (blnCancelEnabled)
 Gosub, ExternalMenusRelease ; release cancel enabled or not
 
 ; disable Favorite menu items in Tray menu
-loop, Parse, % "DialogEdit|GuiRemoveFavorite|GuiMove|DialogCopy|ControlToolTipMoveUp|ControlToolTipMoveDown|ControlToolTipSortFavorites", |
-	Menu, menuBarFavorite, Disable, % aaFavoriteL[A_LoopField]
+loop, Parse, % "DialogEdit|GuiMove|DialogCopy|GuiRemoveFavorite|ControlToolTipMoveUp|ControlToolTipMoveDown|ControlToolTipSortFavorites", |
+	Menu, menuBarFavorite, Disable, % aaFavoriteL[A_LoopField] . (A_Index <= 3 ? g_strEllipse : "") ; add ellipse for three first items only
 
 Gui, 1:Cancel
 
@@ -16803,7 +16805,7 @@ g_intLnkSendLink := arrPosW
 aaL := o_L.InsertAmpersand(false, "GuiDonateCodeInput", "GuiClose")
 
 Gui, 2:Font, s8 w400, Verdana
-Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % aaL["GuiDonateCodeInput"]
+Gui, 2:Add, Button, x175 y+20 gGuiDonateCodeInput vf_btnDonateCodeInuput, % aaL["GuiDonateCodeInput"] . g_strEllipse
 Gui, 2:Add, Button, x175 yp g2GuiClose vf_btnDonateClose, % aaL["GuiClose"]
 GuiCenterButtons(strGuiTitle, 10, 5, 20, "f_btnDonateCodeInuput", "f_btnDonateClose")
 Gui, 2:Add, Text
@@ -17376,7 +17378,7 @@ loop, parse, % "Folders|Files", |
 			strTargetType := "File"
 			strFoldersOrFilesMenuNameLocalized := o_L["MenuPopularMenusFiles"]
 		}
-	strFoldersOrFilesMenuNameLocalized .= (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : "...")
+	strFoldersOrFilesMenuNameLocalized .= (o_Settings.MenuPopup.blnRefreshedMenusAttached.IniValue ? "" : g_strEllipse)
 
 	; SQLite GetTable
 	; Parse table
@@ -19202,7 +19204,7 @@ SetWaitCursor(blnOnOff)
 StringLeftDotDotDot(strText, intMax)
 ;------------------------------------------------------------
 {
-	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? "..." : "")
+	return SubStr(strText, 1, intMax) . (StrLen(strText) > intMax ? g_strEllipse : "")
 }
 ;------------------------------------------------------------
 
@@ -22072,12 +22074,12 @@ class QAPfeatures
 
 		; Command features
 
-		this.AddQAPFeatureObject("About",					o_L["GuiAbout"] . "...",					"", "GuiAbout",								"7-QAPManagement"
+		this.AddQAPFeatureObject("About",					o_L["GuiAbout"],							"", "GuiAbout",								"7-QAPManagement"
 			, o_L["GuiAboutDescription"], 0, "iconAbout", "", "")
-		this.AddQAPFeatureObject("Add Favorite",			o_L["MenuAddFavorite"] . "...",				"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
+		this.AddQAPFeatureObject("Add Favorite",			o_L["MenuAddFavorite"] . g_strEllipse,		"", "GuiAddFavoriteFromQAPFeature",			"3-QAPMenuEditing"
 			, o_L["MenuAddFavoriteDescription"], 0, "iconAddFavorite", ""
 			, "what-should-i-know-about-quick-access-popup-before-starting")
-		this.AddQAPFeatureObject("Add This Folder",			o_L["MenuAddThisFolder"] . "...",			"", "AddThisFolder",						"3-QAPMenuEditing"
+		this.AddQAPFeatureObject("Add This Folder",			o_L["MenuAddThisFolder"] . g_strEllipse,	"", "AddThisFolder",						"3-QAPMenuEditing"
 			, o_L["MenuAddThisFolderDescription"], 0, "iconAddThisFolder", "+^a"
 			, "can-i-add-on-the-fly-the-folder-i-am-already-in")
 		this.AddQAPFeatureObject("Add This Folder Express",	o_L["MenuAddThisFolderXpress"],				"", "AddThisFolderXpress",					"3-QAPMenuEditing"
@@ -22085,27 +22087,27 @@ class QAPfeatures
 			, "can-i-add-on-the-fly-the-folder-i-am-already-in")
 		this.AddQAPFeatureObject("Exit",					L(o_L["MenuExitApp"], g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
 			, o_L["MenuExitAppDescription"], 0, "iconExit", "", "")
-		this.AddQAPFeatureObject("Help",					o_L["GuiHelp"] . "...",						"", "GuiHelp",								"7-QAPManagement"
+		this.AddQAPFeatureObject("Help",					o_L["GuiHelp"],								"", "GuiHelp",								"7-QAPManagement"
 			, o_L["GuiHelpDescription"], 0, "iconHelp", "", "")
-		this.AddQAPFeatureObject("Hotkeys",					o_L["DialogShortcuts"] . "...",				"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
+		this.AddQAPFeatureObject("Hotkeys",					o_L["DialogShortcuts"],						"", "GuiHotkeysManageFromQAPFeature",		"3-QAPMenuEditing"
 			, o_L["DialogShortcutsDescription"], 0, "iconHotkeys", ""
 			, "can-i-launch-my-favorites-with-keyboard-or-mouse-shortcuts")
-		this.AddQAPFeatureObject("Hotstrings",				o_L["DialogHotstrings"] . "...",			"", "GuiHotkeysManageHotstringsFromQAPFeature",	"1-Featured~3-QAPMenuEditing"
+		this.AddQAPFeatureObject("Hotstrings",				o_L["DialogHotstrings"],					"", "GuiHotkeysManageHotstringsFromQAPFeature",	"1-Featured~3-QAPMenuEditing"
 			, o_L["DialogHotstringsDescription"], 0, "iconHotkeys", ""
 			, "what-are-hotstrings")
-		this.AddQAPFeatureObject("Icons",					o_L["DialogIconsManage"] . "...",			"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
+		this.AddQAPFeatureObject("Icons",					o_L["DialogIconsManage"],					"", "GuiIconsManageFromQAPFeature",			"3-QAPMenuEditing"
 			, o_L["DialogIconsManageDescription"], 0, "iconIcons", ""
 			, "can-i-manage-all-my-menu-icons-in-one-screen")
-		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"] . "...",					"",	"GuiOptionsGroupGeneral",				"7-QAPManagement"
+		this.AddQAPFeatureObject("Options",					o_L["GuiOptions"],							"",	"GuiOptionsGroupGeneral",				"7-QAPManagement"
 			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
-		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"] . "...",				"", "GuiShowFromQAPFeature",				"3-QAPMenuEditing~7-QAPManagement"
+		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"],						"", "GuiShowFromQAPFeature",				"3-QAPMenuEditing~7-QAPManagement"
 			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^s"
 			, "what-should-i-know-about-quick-access-popup-before-starting")
-		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . "...",					"", "GuiDonate",							"7-QAPManagement"
+		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . g_strEllipse,			"", "GuiDonate",							"7-QAPManagement"
 			, o_L["GuiDonateDescription"], 0, "iconDonate", ""
 			, "sponsoring")
-		this.AddQAPFeatureObject("GetWinInfo",				o_L["MenuGetWinInfo"] . "...",				"", "GetWinInfo",							"6-Utility"
+		this.AddQAPFeatureObject("GetWinInfo",				o_L["MenuGetWinInfo"] . g_strEllipse,		"", "GetWinInfo",							"6-Utility"
 			, o_L["MenuGetWinInfoDescription"], 0, "iconAbout", ""
 			, "can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps")
 		this.AddQAPFeatureObject("Reload",					L(o_L["MenuReload"], g_strAppNameText),		"", "ReloadQAP",							"6-Utility~7-QAPManagement"
@@ -22114,10 +22116,10 @@ class QAPfeatures
 		this.AddQAPFeatureObject("CloseMenu",				o_L["MenuCloseThisMenu"],					"", "DoNothing",							"7-QAPManagement"
 			, o_L["MenuCloseThisMenuDescription"], 0, "iconClose", ""
 			, "what-is-the-close-menu-issue")
-		this.AddQAPFeatureObject("ImportExport",			o_L["ImpExpMenu"] . "...",					"", "ImportExport",							"7-QAPManagement"
+		this.AddQAPFeatureObject("ImportExport",			o_L["ImpExpMenu"] . g_strEllipse,			"", "ImportExport",							"7-QAPManagement"
 			, o_L["ImpExpMenuDescription"], 0, "iconSettings", ""
 			, "can-i-backup-import-or-export-my-favorites-and-settings")
-		this.AddQAPFeatureObject("SwitchSettings",			o_L["MenuSwitchSettings"] . "...",			"", "SwitchSettings",						"3-QAPMenuEditing~7-QAPManagement"
+		this.AddQAPFeatureObject("SwitchSettings",			o_L["MenuSwitchSettings"] . g_strEllipse,	"", "SwitchSettings",						"3-QAPMenuEditing~7-QAPManagement"
 			, o_L["MenuSwitchSettingsDescription"], 0, "iconSettings", ""
 			, "can-i-load-qap-with-an-alternative-settings-file")
 		this.AddQAPFeatureObject("SwitchSettingsDefault",	o_L["MenuSwitchSettingsDefault"],			"", "SwitchSettingsDefault",				"3-QAPMenuEditing~7-QAPManagement"
@@ -22126,7 +22128,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("RefreshMenu",				o_L["MenuRefreshMenu"],						"", "RefreshQAPMenu",						"3-QAPMenuEditing~7-QAPManagement"
 			, o_L["MenuRefreshMenuDescription"], 0, "iconReload", ""
 			, "what-are-the-qap-features")
-		this.AddQAPFeatureObject("AddExternalFromCatalogue",o_L["MenuExternalCatalogue"], 				"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
+		this.AddQAPFeatureObject("AddExternalFromCatalogue",o_L["MenuExternalCatalogue"] . g_strEllipse,"", "AddExternalCatalogueFromQAPFeature",	"3-QAPMenuEditing"
 			, o_L["MenuExternalCatalogueDescription"], 0, "iconAddFavorite", ""
 			, "shared-menu-catalogue")
 		this.AddQAPFeatureObject("ReopenCurrentFolder",		o_L["MenuReopenCurrentFolder"], 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
@@ -22135,7 +22137,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Last Action", 			o_L["MenuLastAction"],						"", "RepeatLastActionShortcut",				"6-Utility"
 			, o_L["MenuLastActionDescription"], 0, "iconReload", ""
 			, "can-i-reopen-one-of-the-last-favorites-i-selected-recently")
-		this.AddQAPFeatureObject("Close All Windows", 		o_L["MenuCloseAllWindows"],					"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
+		this.AddQAPFeatureObject("Close All Windows", 		o_L["MenuCloseAllWindows"] . g_strEllipse,	"", "CloseAllWindows",						"1-Featured~4-WindowManagement"
 			, o_L["MenuCloseAllWindowsDescription"], 0, "iconDesktop", ""
 			, "can-i-close-all-running-applications-and-windows-in-one-click")
 		this.AddQAPFeatureObject("Reopen in New Window", 	o_L["MenuReopenInNewWindow"],				"", "OpenReopenInNewWindow",				"4-WindowManagement"
@@ -22150,10 +22152,10 @@ class QAPfeatures
 			, "how-can-i-edit-the-file-quickaccesspopup-ini")
 		this.AddQAPFeatureObject("List Applications", 		o_L["MenuListApplications"],				"", "ListApplications",						"7-QAPManagement"
 			, o_L["MenuListApplicationsDescription"], 0, "iconDesktop", "", "")
-		this.AddQAPFeatureObject("Donor Code Input", 		o_L["GuiDonateCodeInput"],					"", "GuiDonateCodeInput",					"7-QAPManagement"
+		this.AddQAPFeatureObject("Donor Code Input", 		o_L["GuiDonateCodeInput"] . g_strEllipse,	"", "GuiDonateCodeInput",					"7-QAPManagement"
 			, o_L["GuiDonateCodeInputDescription"], 0, "iconDonate", "", "sponsoring")
 
-		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"], 			"", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
+		this.AddQAPFeatureObject("Close Computer Control", o_L["DialogCloseComputerControl"] . g_strEllipse, "", "CloseComputerControl",					"1-Featured~5.1-CloseComputer"
 			, o_L["DialogCloseComputerControlDescription"], 0, "iconExit", ""
 			, "can-i-control-how-my-computer-is-closed-with-qap")
 		strQAPFeatureName := StrReplace(o_L["DialogCloseComputerShutdown"], "&")
@@ -22204,7 +22206,8 @@ class QAPfeatures
 
 		Loop, % o_Favorites.s_SA.Length()
 			if StrLen(o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand)
-				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"] . " - " . o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . "..."
+				this.AddQAPFeatureObject("Add Favorite - " . o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName, o_L["MenuAddFavorite"]
+					. " - " . o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand . g_strEllipse
 					, "", "GuiAddFavoriteFromQAPFeature" . o_Favorites.s_SA[A_Index].strFavoriteTypeSystemName, "3.1-AddFavoriteOfType"
 					, L(o_L["MenuAddFavoriteOfTypeDescription"], o_Favorites.s_SA[A_Index].strFavoriteTypeLocationLabelNoAmpersand), 0, "iconAddFavorite", ""
 					, "what-should-i-know-about-quick-access-popup-before-starting")
@@ -22243,28 +22246,28 @@ class QAPfeatures
 		blnAttached := o_Settings.ReadIniOption("MenuPopup", "blnRefreshedMenusAttached", "RefreshedMenusAttached", 1, "PopupMenu", "f_blnRefreshedMenusAttached") ; g_blnRefreshedMenusAttached
 
 		; init refreshed menus attached or detached according to blnAttached
-		this.AddQAPFeatureObject("Recent Folders",	o_L["MenuRecentFolders"] . (blnAttached ? "" : "...")
+		this.AddQAPFeatureObject("Recent Folders",	o_L["MenuRecentFolders"] . (blnAttached ? "" : g_strEllipse)
 			, (blnAttached ? o_L["MenuRecentFolders"] : "")
 			, "RecentFoldersMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuRecentFoldersDescription"], 0, "iconRecentFolders",	"+^r"
 			, "from-where-comes-the-content-of-the-recent-folders-menu", "RefreshRecentItemsMenus")
-		this.AddQAPFeatureObject("Recent Files", o_L["MenuRecentFiles"] . (blnAttached ? "" : "...")
+		this.AddQAPFeatureObject("Recent Files", o_L["MenuRecentFiles"] . (blnAttached ? "" : g_strEllipse)
 			, (blnAttached ? o_L["MenuRecentFiles"] : ""
 			, "from-where-comes-the-content-of-the-recent-folders-menu")
 			, "RecentFilesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
 			, o_L["MenuRecentFilesDescription"], 0, "iconRecentFolders",	""
 			, "from-where-comes-the-content-of-the-recent-folders-menu", "RefreshRecentItemsMenus")
-		this.AddQAPFeatureObject("Popular Folders", o_L["MenuPopularMenusFolders"] . (blnAttached ? "" : "...")
+		this.AddQAPFeatureObject("Popular Folders", o_L["MenuPopularMenusFolders"] . (blnAttached ? "" : g_strEllipse)
 			, (blnAttached ? o_L["MenuPopularMenusFolders"] : "")
 			, "PopularFoldersMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFolders"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus", "RefreshPopularMenus")
-		this.AddQAPFeatureObject("Popular Files", o_L["MenuPopularMenusFiles"] . (blnAttached ? "" : "...")
+		this.AddQAPFeatureObject("Popular Files", o_L["MenuPopularMenusFiles"] . (blnAttached ? "" : g_strEllipse)
 			, (blnAttached ? o_L["MenuPopularMenusFiles"] : "")
 			, "PopularFilesMenuShortcut", "1-Featured~2-DynamicMenus"
 			, L(o_L["MenuPopularMenusDescription"], Format("{:U}", o_L["MenuPopularFiles"])), 0, "iconFavorites", ""
 			, "what-is-in-the-works-and-its-frequent-recent-and-current-menus", "RefreshPopularMenus")
-		this.AddQAPFeatureObject("Drives", o_L["MenuDrives"] . (blnAttached ? "" : "...")
+		this.AddQAPFeatureObject("Drives", o_L["MenuDrives"] . (blnAttached ? "" : g_strEllipse)
 			, (blnAttached ? o_L["MenuDrives"] : ""
 			, "what-are-these-features-in-the-my-qap-essentials-menu")
 			, "DrivesMenuShortcut", "2-DynamicMenus~5-WindowsFeature"
@@ -23752,7 +23755,7 @@ class Container
 				else
 					strMenuItemIcon := "iconNoIcon"
 				
-				if (aaThisFavorite.strFavoriteName = o_L["MenuSettings"] . "...") ; make Settings... menu bold in any menu
+				if (aaThisFavorite.strFavoriteName = o_L["MenuSettings"]) ; make Settings... menu bold in any menu
 					intMenuItemStatus := 2 ; 0 disabled, 1 enabled, 2 default
 					; Menu, % this.AA.strMenuPath, Default, %strMenuItemLabel%
 				else if (strMenuItemAction = "GuiShowNeverCalled")
@@ -23776,7 +23779,7 @@ class Container
 		if !(o_Settings.Launch.blnDonorCode.IniValue) and (this.AA.strMenuPath = o_L["MainMenuName"])
 		{
 			this.AddMenuIcon("", "", "")
-			this.AddMenuIcon(o_L["DonateMenu"] . "...", "GuiDonate", "iconDonate")
+			this.AddMenuIcon(o_L["DonateMenu"] . g_strEllipse, "GuiDonate", "iconDonate")
 		}
 		
 		if (!IsObject(this.AA.oParentMenu) and o_Settings.Menu.blnAddCloseToDynamicMenus.IniValue
@@ -23977,7 +23980,7 @@ class Container
 		
 		; The names of menus and menu items can be up to 260 characters long.
 		if StrLen(strMenuItemName) > 260
-			strMenuItemName := SubStr(strMenuItemName, 1, 256) . "..." ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
+			strMenuItemName := SubStr(strMenuItemName, 1, 256) . g_strEllipse ; minus one for the luck ;-) ### not ByRef strMenuItemName, since we will use a menu object to open the item
 		
 		if (o_Settings.Menu.blnDisplayNumericShortcuts.IniValue
 			and SubStr(strMenuItemName, 1, StrLen(g_strAmpersandPlaceholder)) = g_strAmpersandPlaceholder)
