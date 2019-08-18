@@ -10078,7 +10078,7 @@ aaCategories["8-All"] := o_L["DialogQAPFeatureCategoriesNamesAll"]
 ; build name|code|categories (sorted by name)
 strItemsNameCodeCategories := ""
 for strItemCode, oItem in % (A_ThisLabel = "LoadTreeviewQAP" ? o_QAPfeatures.AA : o_SpecialFolders.AA)
-	if (A_ThisLabel = "LoadTreeviewQAP")
+	if (A_ThisLabel = "LoadTreeviewQAP" and !oItem.intQAPFeatureAlternativeOrder)
 		strItemsNameCodeCategories .= oItem.strLocalizedName . "|" . strItemCode . "|" . oItem.strQAPFeatureCategories . "`n"
 	else ; LoadTreeviewSpecial
 		if StrLen(oItem.strDefaultName) ; to skip class object non-special folders items
