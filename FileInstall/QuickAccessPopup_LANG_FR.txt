@@ -46,7 +46,6 @@ lDialogAddFileSelect	Choisir un nouveau document:
 lDialogAddFolderManuallyPrompt	Désolé, nous ne pouvons détecter automatiquement le dossier actif dans ce type de fenêtre.`n`nVoulez-vous ajouter un dossier favori manuellement?
 lDialogAddFolderManuallyTitle	Ajouter le dossier actif ou la page web active - ~1~ ~2~
 lDialogAddFolderSelect	Choisir ou créer ce nouveau dossier:
-lDialogAdmnistrator	Administrateur
 lDialogAlt	Alt
 lDialogAltShort	Alt
 lDialogApplicationLabel	Application
@@ -125,7 +124,7 @@ lDialogExternalMenuAdd	Ajouter le(s) menu(s) sélectionnés
 lDialogExternalMenuAdded	Menu partagé ajouté.
 lDialogExternalMenuAddFromCatalogue	Ajouter des menus partagés du catalogue - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nom du menu partgé|Fichier de configuration du menu partagé
-lDialogExternalMenuAddNotFromCatalogue	Ajouter un autre menu partagé...
+lDialogExternalMenuAddNotFromCatalogue	Ajouter un autre menu partagé
 lDialogExternalMenuName	Nom du menu partagé
 lDialogExternalMenuNotExist	Ce menu partagé n'existe pas. Voulez-vous créer un nouveau menu partagé vide à cet emplacement?`n`n~1~
 lDialogExternalMenuOpen	Ouvrir le fichier du menu partagé?
@@ -534,7 +533,7 @@ lMenuEditIniFile	Modifier ~1~
 lMenuEditIniFileDescription	Modifier le fichier de configuration (.ini) de Quick Access Popup actuellement en vigueur.
 lMenuExitApp	Quitter ~1~
 lMenuExitAppDescription	Fermer l'application Quick Access Popup, libérant tous les raccourcis claviers ou souris du menu QAP et des favoris.
-lMenuExternalCatalogue	Ajouter un menu partagé du catalogue...
+lMenuExternalCatalogue	Ajouter un menu partagé du catalogue
 lMenuExternalCatalogueDescription	Sélectionner un sous-menu dans le Catalogue des menus partagé. Ce catalogue répertorie les favoris gérés par un administrateur de menu ou par les membres d'un groupe d'utilisateurs.`n`nVous pouvez sélectionner un Menu partagé existant, ajouter un Menu partagé qui n'est pas dans le catalogue ou créer un nouveau Menu partagé.
 lMenuFavorite	Favori
 lMenuFile	Fichier
@@ -799,7 +798,7 @@ lOptionsUserVariablesList	Variables de l'utilisateur
 lOptionsUserVariablesListInstructions	Saisissez les variables de l'utilisateur, une variable par ligne. Chaque ligne doit commencer par le nom de la variable entre accolades (par exemple "{MaVariable}"), suivi du signe d'égalité "=" et du contenu de la variable (par exemple "{MaVariable}=Mon Contenu").`n`nPar exemple, si une ligne contient "{NotreDossierPartage}=S:\NotreDossier", le code de remplacement {NotreDossierPartage} sera remplacé par "S:\NotreDossier" dans les chemins d'accès des favoris et dans les fragments de texte.
 lOptionsWaitDelayInDialogBox	Delai (en ms) lors des changements d'emplacement dans les boîtes de dialogue:
 lOptionsWaitDelayInSnippet	Delai (en ms) lors de l'exécution des Fragments de texte
-lOptionsWorkingFolder	Dossiers des paramètres
+lOptionsWorkingFolder	Dossier des paramètres
 lPickIconNoLocation	Veuillez d'abord choisisr un favori avant de sélectionner une icône.
 lReloadPrompt	Changement de ~1~ enregistré: ~2~. Voulez-vous relancer ~3~ en ~2~ maintenant? Les changements non sauvegardés dans le menu seront perdus.
 lSponsoredName	Ce logiciel est parrainé par ~1~
@@ -827,7 +826,6 @@ lUpdateButtonRemind	Rappelez-moi
 lUpdateButtonSkipVersion	Sauter cette version
 lUpdateButtonVisit	Visiter le site web
 lUpdateError	Une erreur est survenue lors de la vérification du numéro de la plus récente version. La vérification de la mise à jour est interrompue.
-lUpdateErrorFirewall	Cette erreur pourrait être causée par votre pare-feu. Vérifiez dans votre logiciel de sécurité si vous pouvez autoriser ~1~ à accéder à Internet.
 lUpdatePrompt	Mettre à jour ~1~ de la version v~2~ à la version v~3~?
 lUpdatePromptBeta	Il y a une nouvelle version BETA de ~1~.`n`nMettre à jour ~1~ de la version v~2~ à la version v~3~?
 lUpdatePromptBetaContinue	Désirez-vous toujours être informé des futures versions beta?
