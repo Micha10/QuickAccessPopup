@@ -23289,7 +23289,6 @@ class Container
 			if (strLoadIniLine = "ERROR")
 			{
 				if (blnRefreshExternal) ; reset the main ini file
-					; ##### si exit à cause d'une erreur dans un sous menu, blnRefreshExternal sera falsxe, est-ce qu'on passe par ici en remontant?
 					s_strIniFile := o_Settings.strIniFile
 				
 				Oops(o_L["OopsErrorReadingIniFile"] . "`n`n" . s_strIniFile . "`nFavorite" . s_intIniLineLoad . "=")
