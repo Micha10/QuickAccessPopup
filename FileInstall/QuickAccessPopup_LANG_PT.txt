@@ -124,7 +124,7 @@ lDialogExternalMenuAdd	Adicionar menu(s) partilhado(s) seleccionado(s)
 lDialogExternalMenuAdded	Menu partilhado adicionado.
 lDialogExternalMenuAddFromCatalogue	Adicionar menus partilhados do catálogo - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nome do Menu Partilhado|Ficheiro de Definições do Menu Partilhado
-lDialogExternalMenuAddNotFromCatalogue	Adicionar outro menu partilhado...
+lDialogExternalMenuAddNotFromCatalogue	Adicionar outro menu partilhado
 lDialogExternalMenuName	Nome do menu partilhado
 lDialogExternalMenuNotExist	Este menu partilhado não existe. Deseja criar um novo menu partilhado em branco nesta localização?`n`n~1~
 lDialogExternalMenuOpen	Abrir ficheiro de menu partilhado?
@@ -533,7 +533,7 @@ lMenuEditIniFile	Editar ~1~
 lMenuEditIniFileDescription	Edita o ficheiro de definições (.ini) activo do Quick Access Popup.
 lMenuExitApp	Sair ~1~
 lMenuExitAppDescription	Sai do Quick Access Popup, libertando todos os activadores de rato ou teclado e teclas de atalho atribuídas aos favoritos.
-lMenuExternalCatalogue	Adicionar menu de favoritos partilhado do catálogo...
+lMenuExternalCatalogue	Adicionar menu de favoritos partilhado do catálogo
 lMenuExternalCatalogueDescription	Adiciona um menu partilhado do Catálogo de Menus Partilhados ao seu menu, um repositório de ficheiros de definições favoritos geridos pelos administradores do menu ou por outros membros do grupo de trabalho.`n`nPode seleccionar um ficheiro existente de menu partilhado do repositório, adicionar um menu partilhado que não exista no catálogo ou criar um novo.
 lMenuFavorite	Favorito
 lMenuFile	Ficheiro

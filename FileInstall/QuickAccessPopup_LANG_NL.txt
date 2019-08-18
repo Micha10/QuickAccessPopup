@@ -124,7 +124,7 @@ lDialogExternalMenuAdd	De geselecteerde openbare menu('s) toevoegen
 lDialogExternalMenuAdded	Openbaar menu toegevoegd.
 lDialogExternalMenuAddFromCatalogue	Openbaar menu toevoegen vanuit de catalogus - ~1~ ~2~
 lDialogExternalMenuAddHeader	Naam voor openbaar menu|Instellingenbestand voor openbaar menu
-lDialogExternalMenuAddNotFromCatalogue	Een volgend openbaar menu toevoegen...
+lDialogExternalMenuAddNotFromCatalogue	Een volgend openbaar menu toevoegen
 lDialogExternalMenuName	Naam voor het openbare menu
 lDialogExternalMenuNotExist	Dit openbaar menu bestaat niet.`nWilt u een nieuw leeg openbaar menu aanmaken op deze locatie?`n`n~1~
 lDialogExternalMenuOpen	Openbaar menubestand openen?
@@ -532,7 +532,7 @@ lMenuEditIniFile	Wijzig ~1~...
 lMenuEditIniFileDescription	Wijzigen van het actieve "Quick Access Popup instellingenbestand (.ini).
 lMenuExitApp	~1~ afsluiten 
 lMenuExitAppDescription	Mogelijkheid om het Quick Access Popup af te sluiten, zodat alle muis- en toetsenbord sneltoetsen worden vrijgegeven welke voor favotieten zijn gedefinieerd.
-lMenuExternalCatalogue	Openbare favorietenmenu vanuit de catalogus toevoegen...
+lMenuExternalCatalogue	Openbare favorietenmenu vanuit de catalogus toevoegen
 lMenuExternalCatalogueDescription	Voeg een menu toe vanuit de "Openbaar Menu"-catalogus, dit is een opslagplaats van instellingenbestanden beheerd door menu-beheerders of groepsleden.`n`nU kunt een bestaand "Openbaar Menu"-bestand uit een bibliotheek selecteren, een Openbaar menu toevoegen welke zich niet in de catalogus bevindt of maak een nieuw Openbaar menu.
 lMenuFavorite	Favoriet
 lMenuFile	Bestand

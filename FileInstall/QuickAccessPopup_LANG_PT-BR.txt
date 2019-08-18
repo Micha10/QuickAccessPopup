@@ -124,7 +124,7 @@ lDialogExternalMenuAdd	Adicionar menu(s) compartilhado(s) selecionado(s)
 lDialogExternalMenuAdded	Menu compartilhado adicionado.
 lDialogExternalMenuAddFromCatalogue	Adicionar menus compartilhados do catálogo - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nome do Menu Compartilhado|Arquivos de Configurações do Menu Compartilhado
-lDialogExternalMenuAddNotFromCatalogue	Adicionar outro menu compartilhado...
+lDialogExternalMenuAddNotFromCatalogue	Adicionar outro menu compartilhado
 lDialogExternalMenuName	Nome do menu compartilhado
 lDialogExternalMenuNotExist	Este menu compartilhado não existe. Você deseja criar um novo menu compartilhado vazio neste local?`n`n~1~
 lDialogExternalMenuOpen	Abrir arquivo do menu compartilhado?
@@ -533,7 +533,7 @@ lMenuEditIniFile	Editar ~1~
 lMenuEditIniFileDescription	Edite o arquivo atual (.ini) de configurações do Quick Access Popup.
 lMenuExitApp	Sair do ~1~
 lMenuExitAppDescription	Fecha o Quick Access Popup, liberando todos os disparadores e atalhos de menu do mouse ou teclado atribuídos aos favoritos.
-lMenuExternalCatalogue	Adicionar menu de favoritos compartilhados do catálogo...
+lMenuExternalCatalogue	Adicionar menu de favoritos compartilhados do catálogo
 lMenuExternalCatalogueDescription	Adiciona ao seu menu um menu compartilhado do Catálogo de Menus Compartilhados, um repositório de arquivos de configuração de favoritos gerenciado pelos administradores do menu ou por outros membros do grupo de trabalho.`n`nVocê pode selecionar um arquivo de menu Compartilhado existente do repositório, adicionar um menu compartilhado não presente no catálogo ou criar um novo menu compartilhado.
 lMenuFavorite	Favorito
 lMenuFile	Arquivo
@@ -827,7 +827,6 @@ lUpdateButtonRemind	Lembrar
 lUpdateButtonSkipVersion	Pular esta versão
 lUpdateButtonVisit	Visitar site
 lUpdateError	Ocorreu um erro ao acessar o número da última versão. Verificação de atualização interrompida.
-lUpdateErrorFirewall	Isto pode ter sido causado pelo seu firewall. Verifique se o seu software de segurança autoriza o ~1~ acessar a Internet.
 lUpdatePrompt	Atualizar o ~1~ da v~2~ para v~3~?
 lUpdatePromptBeta	Há uma nova versão BETA do ~1~ .`n`nAtualizar o ~1~ da v~2~ para v~3~?
 lUpdatePromptBetaContinue	Ainda deseja ser informado de futuras versões beta?

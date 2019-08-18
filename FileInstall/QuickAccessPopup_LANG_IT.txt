@@ -124,7 +124,7 @@ lDialogExternalMenuAdd	Aggiungi il/i menù condivisi selezionati
 lDialogExternalMenuAdded	Menù condiviso aggiunto.
 lDialogExternalMenuAddFromCatalogue	Aggiungi menù condivisi dal catalogo - ~1~ ~2~
 lDialogExternalMenuAddHeader	Nome del Menù Condiviso|File di Impostazioni del Menù Condiviso
-lDialogExternalMenuAddNotFromCatalogue	Aggiungi un altro menù condiviso...
+lDialogExternalMenuAddNotFromCatalogue	Aggiungi un altro menù condiviso
 lDialogExternalMenuName	Nome del menù condiviso
 lDialogExternalMenuNotExist	Questo menù condiviso non esiste. Vuoi creare un nuovo menù condiviso vuoto in questa posizione?`n`n~1~
 lDialogExternalMenuOpen	Apro il file del menù condiviso?
@@ -533,7 +533,7 @@ lMenuEditIniFile	Modifica ~1~
 lMenuEditIniFileDescription	Modifica il file di impostazioni (.ini) attivo di Quick Access Popup (QAP).
 lMenuExitApp	Esci da ~1~
 lMenuExitAppDescription	Esci da Quick Access Popup, rilasciando tutti i tasti attivanti e le scorciatoie del menù, sia del mouse che della tastiera, assegnati ai preferiti.
-lMenuExternalCatalogue	Aggiungi un menù condiviso di Preferiti dal catalogo...
+lMenuExternalCatalogue	Aggiungi un menù condiviso di Preferiti dal catalogo
 lMenuExternalCatalogueDescription	Aggiungi al menù un menù condiviso preso dal Catalogo dei Menù Condivisi, un repository di file di impostazioni prescelti gestito dagli amministratori del menù o da altri membri del gruppo di lavoro.`n`nPuoi selezionare un file di menù condiviso dal repository, aggiungere un menù condiviso non presente nel catalogo o creare un nuovo menù condiviso.
 lMenuFavorite	Preferito
 lMenuFile	File
@@ -827,7 +827,6 @@ lUpdateButtonRemind	Ricordamelo più tardi
 lUpdateButtonSkipVersion	Salta questa versione
 lUpdateButtonVisit	Vai al sito web di QAP
 lUpdateError	C'è stato un errore nell'accesso al numero di versione più recente. Ricerca aggiornamenti interrotta.
-lUpdateErrorFirewall	Questo errore potrebbe essere causato dal tuo firewall. Controlla se il tuo software di sicurezza autorizza ~1~ ad accedere a Internet.
 lUpdatePrompt	Aggiornare ~1~ dalla v~2~ alla v~3~?
 lUpdatePromptBeta	C'è una nuova versione BETA ~1~.`n`nVuoi aggiornare ~1~ dalla v~2~ alla v~3~?
 lUpdatePromptBetaContinue	Vuoi continuare ad essere informato di future versioni beta?
