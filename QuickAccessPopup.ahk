@@ -13400,9 +13400,12 @@ intIconRow := StrReplace(intIconRow, "f_btnPickDialog")
 intIconRow := StrReplace(intIconRow, "f_btnSetDefault")
 intManageIconsIndex := g_intIconsManageStartingRow + intIconRow - 1
 
-strIconResource := (A_ThisLabel = "IconsManagePickIconDialog"
-	? PickIconDialog(g_saManageIcons[intManageIconsIndex].AA.strFavoriteIconResource) 
-	: g_saManageIcons[intManageIconsIndex].GetDefaultIcon4Type(oItem.AA.strFavoriteLocation))
+strIconResource := g_saManageIcons[intManageIconsIndex].AA.strFavoriteIconResource
+strTempNewIconResource := (A_ThisLabel = "IconsManagePickIconDialog" ? PickIconDialog(strIconResource) 
+	: g_saManageIcons[intManageIconsIndex].GetDefaultIcon4Type(g_saManageIcons[intManageIconsIndex].AA.strFavoriteLocation))
+
+strIconResource := (StrLen(strTempNewIconResource) ? strTempNewIconResource : strIconResource)
+
 ParseIconResource(strIconResource, strInconFile, intIconIndex)
 GuiControl, , f_picIconCurrent%intIconRow%, % "*icon" . intIconIndex . " " . strInconFile
 
@@ -13428,6 +13431,7 @@ IconsManagePickIconDialogCleanup:
 intIconRow := ""
 strIconResource := ""
 objExternalMenu := ""
+strTempNewIconResource := ""
 
 return
 ;------------------------------------------------------------
