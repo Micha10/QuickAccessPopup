@@ -3852,7 +3852,6 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
 	Hotkey, ^O, SettingsCtrlO, On UseErrorLevel
 	Hotkey, ^S, SettingsCtrlS, On UseErrorLevel
-	Hotkey, ^Z, SettingsCtrlZ, On UseErrorLevel
 	Hotkey, F1, SettingsF1, On UseErrorLevel
 	Hotkey, Esc, SettingsEsc, On UseErrorLevel
 
@@ -3926,7 +3925,6 @@ SettingsCtrlE: ; ^E::
 SettingsCtrlH: ; ^H::
 SettingsCtrlO: ; ^O::
 SettingsCtrlS: ; ^S::
-SettingsCtrlZ: ; ^Z::
 SettingsF1: ; F1::
 SettingsEsc: ; Escape::
 
@@ -4016,13 +4014,6 @@ else if (A_ThisLabel = "SettingsCtrlS")
 	GuiControlGet, blnEnabled, Enabled, f_btnGuiSaveAndStayFavorites
 	if (blnEnabled)
 		Gosub, GuiSaveAndStayFavorites
-}
-
-if (A_ThisLabel = "SettingsCtrlZ")
-{
-	GuiControlGet, strCancelLabel, , f_btnGuiCancel
-	if (StrReplace(strCancelLabel, "&") = o_L["GuiCancel"])
-		Gosub, GuiCancel
 }
 
 else if (A_ThisLabel = "SettingsF1")
@@ -5336,7 +5327,7 @@ aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCance
 	, "MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu"
 	, "MenuReload@" . g_strAppNameText, "MenuExitApp@" . g_strAppNameText)
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S", "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", aaMenuFileL["GuiSaveAndClose"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiCancel"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiClose"], "", "iconNoIcon"])
@@ -5353,7 +5344,7 @@ saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText], "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
-Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"]
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S"
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSaveAndClose"]
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
 
@@ -8942,7 +8933,7 @@ GuiHotkeysHelpClicked:
 Gui, 1:+OwnDialogs
 
 MsgBox, 0, % g_strAppNameText . " - " . o_L["GuiHotkeysHelp"]
-	, % o_L["GuiHotkeysHelpText"] . "`n`n" . o_L["GuiHotkeysHelpText2"]
+	, % o_L["GuiHotkeysHelpText"] . "`n`n" . o_L["GuiHotkeysHelpText3"] . "`n`n" . o_L["GuiHotkeysHelpText2"]
 
 return
 ;------------------------------------------------------------
@@ -17823,7 +17814,7 @@ GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
 GuiControl, 1:, f_btnGuiCancel, % aaSettingsL["GuiCancel"]
 
-Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSave"], g_strAppNameText)
+Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S", g_strAppNameText)
 Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
 Menu, menuBarFile, Enable, % aaMenuFileL["GuiCancel"]
 Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiClose"], g_strAppNameText)
