@@ -3838,10 +3838,10 @@ DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex
 
 Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 
-	Hotkey, ^Up, SettingsUp, On UseErrorLevel
-	Hotkey, ^Down, SettingsDown, On UseErrorLevel
-	Hotkey, ^Right, SettingsRight, On UseErrorLevel
-	Hotkey, ^Left, SettingsLeft, On UseErrorLevel
+	Hotkey, ^Up, SettingsCtrlUp, On UseErrorLevel
+	Hotkey, ^Down, SettingsCtrlDown, On UseErrorLevel
+	Hotkey, ^Right, SettingsCtrlRight, On UseErrorLevel
+	Hotkey, ^Left, SettingsCtrlLeft, On UseErrorLevel
 	Hotkey, ^A, SettingsCtrlA, On UseErrorLevel
 	Hotkey, ^N, SettingsCtrlN, On UseErrorLevel
 	Hotkey, Del, SettingsDel, On UseErrorLevel
@@ -3851,7 +3851,10 @@ Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 	Hotkey, ^E, SettingsCtrlE, On UseErrorLevel
 	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
 	Hotkey, ^O, SettingsCtrlO, On UseErrorLevel
+	Hotkey, ^S, SettingsCtrlS, On UseErrorLevel
+	Hotkey, ^Z, SettingsCtrlZ, On UseErrorLevel
 	Hotkey, F1, SettingsF1, On UseErrorLevel
+	Hotkey, Esc, SettingsEsc, On UseErrorLevel
 
 Hotkey, If
 
@@ -3909,107 +3912,133 @@ return
 
 ; see Hotkey, If, WinActive(QAPSettingsString())
 
-SettingsUp: ; ^Up::
-GuiControlGet, strFocusedControl, FocusV
-if InStr(strFocusedControl, "FavoritesListFilter")
-	return
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiMoveMultipleFavoritesUp
-else
-	Gosub, GuiMoveFavoriteUp
-return
-
-SettingsDown: ; ^Down::
-GuiControlGet, strFocusedControl, FocusV
-if InStr(strFocusedControl, "FavoritesListFilter")
-	return
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiMoveMultipleFavoritesDown
-else
-	Gosub, GuiMoveFavoriteDown
-return
-
-SettingsRight: ; ^Right::
-GuiControlGet, strFocusedControl, FocusV
-if InStr(strFocusedControl, "FavoritesListFilter")
-	return
-Gosub, HotkeyEnterMenuOrFavorite
-return
-
-SettingsLeft: ; ^Left::
-GuiControlGet, strFocusedControl, FocusV
-if InStr(strFocusedControl, "FavoritesListFilter")
-	return
-GuiControlGet, blnUpMenuVisible, Visible, f_picUpMenu
-if (blnUpMenuVisible)
-	Gosub, GuiGotoPreviousMenu
-return
-
+SettingsCtrlUp: ; ^Up::
+SettingsCtrlDown: ; ^Down::
+SettingsCtrlRight: ; ^Right::
+SettingsCtrlLeft: ; ^Left::
 SettingsCtrlA: ; ^A::
-GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	Send, ^a ; select all search control
-else
-	LV_Modify(0, "Select") ; select all in listview
-return
-
 SettingsCtrlN: ; ^N::
-Gosub, GuiAddFavoriteSelectType
-return
-
 SettingsDel: ; Del::
+SettingsCtrlM: ; ^M::
+SettingsCtrlC: ; ^C::
+SettingsCtrlF: ; ^F::
+SettingsCtrlE: ; ^E::
+SettingsCtrlH: ; ^H::
+SettingsCtrlO: ; ^O::
+SettingsCtrlS: ; ^S::
+SettingsCtrlZ: ; ^Z::
+SettingsF1: ; F1::
+SettingsEsc: ; Escape::
+
 GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	Send, {Del}
-else
+
+; for these keys, if Settings displays a search result, simply discard the hotkey
+if InStr("SettingsCtrlUp|SettingsCtrlDown|SettingsCtrlRight|SettingsCtrlLeft|SettingsCtrlF|SettingsCtrlE|", A_ThisLabel . "|")
+	and if InStr(strFocusedControl, "FavoritesListFilter")
+	return
+; else continue
+
+; for these keys, if focused control is the search box, send the key to this control
+if InStr("SettingsCtrlA|SettingsDel|SettingsCtrlC|", A_ThisLabel . "|")
+	and (strFocusedControl = "f_strFavoritesListFilter")
+{
+	; Send, %A_ThisHotkey% ; Send and GuiControlkSend do not work when with the variable !?! (don't know why)
+	if (A_ThisLabel = "SettingsCtrlA")
+		Send, ^a
+	else if (A_ThisLabel = "SettingsDel")
+		Send, {Del}
+	else if (A_ThisLabel = "SettingsCtrlC")
+		Send, ^c
+	return
+}
+; else continue
+
+if (A_ThisLabel = "SettingsCtrlUp")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiMoveMultipleFavoritesUp
+	else
+		Gosub, GuiMoveFavoriteUp
+	
+else if (A_ThisLabel = "SettingsCtrlDown")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiMoveMultipleFavoritesDown
+	else
+		Gosub, GuiMoveFavoriteDown
+	
+else if (A_ThisLabel = "SettingsCtrlRight")
+	Gosub, HotkeyEnterMenuOrFavorite
+
+else if (A_ThisLabel = "SettingsCtrlLeft")
+{
+	GuiControlGet, blnUpMenuVisible, Visible, f_picUpMenu
+	if (blnUpMenuVisible)
+		Gosub, GuiGotoPreviousMenu
+}
+
+else if (A_ThisLabel = "SettingsCtrlF")
+	Gosub, GuiFocusFilter
+
+else if (A_ThisLabel = "SettingsCtrlE")
+	Gosub, GuiEditFavorite
+
+else if (A_ThisLabel = "SettingsCtrlA")
+	LV_Modify(0, "Select") ; select all in listview
+
+else if (A_ThisLabel = "SettingsDel")
 	if (LV_GetCount("Selected") > 1)
 		Gosub, GuiRemoveMultipleFavorites
 	else
 		Gosub, GuiRemoveFavorite
-return
-
-SettingsCtrlM: ; ^M::
-if (LV_GetCount("Selected") > 1)
-	Gosub, GuiMoveMultipleFavoritesToMenu
-else
-	Gosub, GuiMoveFavoriteToMenu
-return
-
-SettingsCtrlC: ; ^C::
-GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	Send, ^c
-else
+	
+else if (A_ThisLabel = "SettingsCtrlC")
 	if (LV_GetCount("Selected") > 1)
 		Gosub, GuiCopyMultipleFavoritesToMenu
 	else
 		Gosub, GuiCopyFavorite
-return
+	
+else if (A_ThisLabel = "SettingsCtrlN")
+	Gosub, GuiAddFavoriteSelectType
 
-SettingsCtrlF: ; ^F::
-GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
-Gosub, GuiFocusFilter
-return
+else if (A_ThisLabel = "SettingsCtrlM")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiMoveMultipleFavoritesToMenu
+	else
+		Gosub, GuiMoveFavoriteToMenu
+	
+else if (A_ThisLabel = "SettingsCtrlH")
+	Gosub, GuiHotkeysHelpClicked
 
-SettingsCtrlE: ; ^E::
-GuiControlGet, strFocusedControl, FocusV
-if (strFocusedControl = "f_strFavoritesListFilter")
-	return
-Gosub, GuiEditFavorite
-return
+else if (A_ThisLabel = "SettingsCtrlO")
+	Gosub, GuiOptionsGroupGeneral
 
-SettingsCtrlH: ; ^H::
-Gosub, GuiHotkeysHelpClicked
-return
+else if (A_ThisLabel = "SettingsCtrlS")
+{
+	GuiControlGet, blnEnabled, Enabled, f_btnGuiSaveAndStayFavorites
+	if (blnEnabled)
+		Gosub, GuiSaveAndStayFavorites
+}
 
-SettingsCtrlO: ; ^O::
-Gosub, GuiOptionsGroupGeneral
-return
+if (A_ThisLabel = "SettingsCtrlZ")
+{
+	GuiControlGet, strCancelLabel, , f_btnGuiCancel
+	if (StrReplace(strCancelLabel, "&") = o_L["GuiCancel"])
+		Gosub, GuiCancel
+}
 
-SettingsF1: ; F1::
-Gosub, GuiHelp
+else if (A_ThisLabel = "SettingsF1")
+	Gosub, GuiHelp
+
+else if (A_ThisLabel = "SettingsEsc")
+	if (strFocusedControl = "f_strFavoritesListFilter")
+		Gosub, GuiFavoritesListFilterHide
+	else
+		Gosub, GuiCancel
+	
+strFocusedControl := ""
+blnUpMenuVisible := ""
+blnEnabled := ""
+strCancelLabel := ""
+
 return
 
 ; End of Gui Hotkeys
@@ -14786,18 +14815,6 @@ WindowIsExplorer(strClass)
 WindowIsDesktop(strClass)
 ;------------------------------------------------------------
 {
-	; global g_blnClickOnTrayIcon
-	
-	; blnWindowIsDesktop := (strClass = "ProgMan")
-	;	or (strClass = "WorkerW")
-	;	or (strClass = "Shell_TrayWnd" and (o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue or g_blnClickOnTrayIcon))
-	;	or (strClass = "NotifyIconOverflowWindow")
-	; ###_V("WindowIsDesktop", strClass, o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue, g_blnClickOnTrayIcon, blnWindowIsDesktop)
-
-	; g_blnClickOnTrayIcon := false
-	; g_blnClickOnTrayIcon was turned on by AHK_NOTIFYICON
-	; turn it off to avoid further clicks on taskbar to be accepted if o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue is off
-
 	return (strClass = "ProgMan") or (strClass = "WorkerW")
 }
 ;------------------------------------------------------------
@@ -20412,14 +20429,12 @@ AHK_NOTIFYICON(wParam, lParam)
 ; To popup menu when left click on the tray icon - See the OnMessage command in the init section
 ;------------------------------------------------------------
 {
-	; global g_blnClickOnTrayIcon
-	
 	if (lParam = 0x202) ; WM_LBUTTONUP
 	{
-		; g_blnClickOnTrayIcon := true
 		Gosub, LaunchFromTrayIcon
 		return 0
 	}
+	
 } 
 ;------------------------------------------------------------
 
