@@ -177,7 +177,7 @@ lDialogFavoriteSnippetEmpty	Le contenu est vide. Veuillez entrer le contenu du f
 lDialogFavoriteSnippetFixedFont	Police à largeur fixe
 lDialogFavoriteSnippetFontSize	Taille de la police
 lDialogFavoriteSnippetHelpNoProcess	Insérez `` n pour une fin de ligne et ``t pour une tabulation. Insérez `` (double accent grave) pour un accent grave.
-lDialogFavoriteSnippetHelpProcess	Pressez Ctrl-Tab pour insérer une tabulation et Entrée pour insérer une fin de ligne.
+lDialogFavoriteSnippetHelpProcess	Pressez Ctrl+Tab pour insérer une tabulation et Entrée pour insérer une fin de ligne.
 lDialogFavoriteSnippetHelpWeb	Voir l'aide (en anglais) sur <a href="~1~">les fragments</a> (snippets) and <a href="~2~">les codes de remplacements</a> (placeholders).
 lDialogFavoriteSnippetProcessEOLTab	Encoder automatiquement les fins de ligne et les tabulations
 lDialogFavoriteSnippetPromptLabel	Faire une pause avant ~1~ le fragment
@@ -411,8 +411,8 @@ lGuiGroupSaveRestoreWith	Restaurer les dossier avec:
 lGuiHelp	Aide
 lGuiHelpDescription	Afficher la fenêtre d'aide.
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
-lGuiHotkeysHelpText	RACCOURCIS CLAVIER DANS LA FENÊTRE PARAMÈTRES`n`nFlèche Bas: Sélectionner le prochain item`nFlèche Haut: Sélectionner l'item précédent`n`nCtrl-N: Ajouter un nouvel item`nCtrl-E: Éditer l'item sélectionné`nCtrl-M: Déplacer un item`nCtrl-C: Copier un item`nSuppr: Supprimer un ou des items`n`nMaj-Haut/Bas: Sélectionner des items contigus`nCtrl-Clic: Sélectionner des items non-contigus`nCtrl-A: Sélectionner tous les items`n`nCtrl-Bas: Déplacer un ou des items vers le bas`nCtrl-Haut: Déplacer un ou des items vers le haut`n`nCtrl-Droite: Ouvrir un sous-menu ou éditer un item`nCtrl-Gauche: Remonter au menu supérieur
-lGuiHotkeysHelpText2	Ctrl-F: Activer la boîte de recherche`nCtrl-O: Ouvrir la fenêtre Options`nCtrl-H: Afficher cette fenêtre
+lGuiHotkeysHelpText	RACCOURCIS CLAVIER DANS LA FENÊTRE PARAMÈTRES`n`nFlèche Bas: Sélectionner le prochain item`nFlèche Haut: Sélectionner l'item précédent`n`nCtrl+N: Ajouter un nouvel item`nCtrl+E: Éditer l'item sélectionné`nCtrl+M: Déplacer un item`nCtrl+C: Copier un item`nSuppr: Supprimer un ou des items`n`nMaj+Haut/Bas: Sélectionner des items contigus`nCtrl+Clic: Sélectionner des items non-contigus`nCtrl+A: Sélectionner tous les items`n`nCtrl+Bas: Déplacer un ou des items vers le bas`nCtrl+Haut: Déplacer un ou des items vers le haut`n`nCtrl+Droite: Ouvrir un sous-menu ou éditer un item`nCtrl+Gauche: Remonter au menu supérieur
+lGuiHotkeysHelpText2	Ctrl+F: Activer la boîte de recherche`nCtrl+O: Ouvrir la fenêtre Options`nCtrl+H: Afficher cette fenêtre
 lGuiListApplicationsHeader	Index|ID|Titre de la fenêtre|Nom du processus|Chemin du processus|H & L|MinMax|Style|ExStyle|UWP Hwnd|Nom Universal Application
 lGuiLoginName	Code d'utilisateur
 lGuiLvFavoritesHeader	Nom|Type|Raccourci|Emplacement ou contenu

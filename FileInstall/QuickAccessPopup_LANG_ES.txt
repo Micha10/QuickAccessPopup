@@ -173,7 +173,7 @@ lDialogFavoriteSnippetEmpty	El contenido está vacío. Por favor, introduzca el co
 lDialogFavoriteSnippetFixedFont	Tamaño de fuente fijado
 lDialogFavoriteSnippetFontSize	Tamaño de fuente
 lDialogFavoriteSnippetHelpNoProcess	Insertar `` n para final de linea y ``t para tabulador. Insertar `` (doble barra posterior) para dorso.
-lDialogFavoriteSnippetHelpProcess	Oprima Ctrl-Tab para insertar pestañas y Enter para insertar fin de linea.
+lDialogFavoriteSnippetHelpProcess	Oprima Ctrl+Tab para insertar pestañas y Enter para insertar fin de linea.
 lDialogFavoriteSnippetHelpWeb	Ver <a href="~1~">Fragmentos</a> y <a href="~2~">Marcadores</a> de páginas de ayuda.
 lDialogFavoriteSnippetProcessEOLTab	Codificará automáticamente fin de línea y tabuladores
 lDialogFavoriteSnippetPromptLabel	Preguntar antes de ~1~ el código 

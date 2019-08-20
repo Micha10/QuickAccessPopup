@@ -177,7 +177,7 @@ lDialogFavoriteSnippetEmpty	O conteúdo está vazio. Por favor, entre o conteúdo r
 lDialogFavoriteSnippetFixedFont	Fonte com largura fixa
 lDialogFavoriteSnippetFontSize	Tamanho da fonte
 lDialogFavoriteSnippetHelpNoProcess	Insira ``n para final da linha e ``t para tabulação. Insira ```` (aspas invertidas duplas) para aspas invertidas.
-lDialogFavoriteSnippetHelpProcess	Use Ctrl-Tab para inserir tabulações e Enter para inserir finais de linhas.
+lDialogFavoriteSnippetHelpProcess	Use Ctrl+Tab para inserir tabulações e Enter para inserir finais de linhas.
 lDialogFavoriteSnippetHelpWeb	Veja as páginas de ajuda <a href="~1~">Recortes</a> e <a href="~2~">Espaços Reservados</a>.
 lDialogFavoriteSnippetProcessEOLTab	Automaticamente codificar finais de linhas e tabulações
 lDialogFavoriteSnippetPromptLabel	Perguntar antes de ~1~ o recorte
@@ -411,8 +411,8 @@ lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Exibe a janela de "Ajuda" curta do QAP.
 lGuiHotkeysHelp	Ajuda de Atalhos para Favoritos
-lGuiHotkeysHelpText	ATALHOS DE TECLADO NAS CONFIGURAÇÕES: Seta para baixo: Selecionar próximo favorito`nSeta para cima: Selecionar favorito anterior`n`nnCtrl-N: Adicionar novo item`nCtrl-M: Mover um item`nCtrl-C: Copiar um item`nDel: Remover item(ns)`n`nShift-Seta para Cima/Baixo: Selecionar itens contínuos`nCtrl-Clique: Selecionar favoritos não-contínuos`nCtrl-A: Selecionar todos os itens`n`nCtrl-Seta para Baixo: Mover item(ns) para baixo`nCtrl-Seta para Cima: Mover item(ns) para cima`n`nCtrl-Seta Direita: Abrir submenu ou editar favorito`nCtrl-Seta Esquerda: Abrir menu pai
-lGuiHotkeysHelpText2	Ctrl-F: Seleciona a caixa de Pesquisa`nCtrl-O: Abre a janela de Opções`nF1: Exibe a janela de Ajuda`nCtrl-H: Mostra esta janela
+lGuiHotkeysHelpText	ATALHOS DE TECLADO NAS CONFIGURAÇÕES: Seta para baixo: Selecionar próximo favorito`nSeta para cima: Selecionar favorito anterior`n`nnCtrl+N: Adicionar novo item`nCtrl+M: Mover um item`nCtrl+C: Copiar um item`nDel: Remover item(ns)`n`nShift+Seta para Cima/Baixo: Selecionar itens contínuos`nCtrl+Clique: Selecionar favoritos não-contínuos`nCtrl+A: Selecionar todos os itens`n`nCtrl+Seta para Baixo: Mover item(ns) para baixo`nCtrl+Seta para Cima: Mover item(ns) para cima`n`nCtrl+Seta Direita: Abrir submenu ou editar favorito`nCtrl+Seta Esquerda: Abrir menu pai
+lGuiHotkeysHelpText2	Ctrl+F: Seleciona a caixa de Pesquisa`nCtrl+O: Abre a janela de Opções`nF1: Exibe a janela de Ajuda`nCtrl+H: Mostra esta janela
 lGuiListApplicationsHeader	Índice|ID|Título da janela|Nome do Processo|Caminho do Processo|L & A|Mín-Máx|Estilo|ExStyle|UWP Hwnd|Nome do Aplicativo Universal
 lGuiLoginName	Nome de login
 lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Local ou conteúdo
