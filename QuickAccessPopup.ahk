@@ -3838,22 +3838,10 @@ DllCall("CreateMutex", "uint", 0, "int", false, "str", g_strAppNameFile . "Mutex
 
 Hotkey, If, WinActive(QAPSettingsString()) ; main Gui title
 
-	Hotkey, ^Up, SettingsCtrlUp, On UseErrorLevel
-	Hotkey, ^Down, SettingsCtrlDown, On UseErrorLevel
 	Hotkey, ^Right, SettingsCtrlRight, On UseErrorLevel
 	Hotkey, ^Left, SettingsCtrlLeft, On UseErrorLevel
-	Hotkey, ^A, SettingsCtrlA, On UseErrorLevel
-	Hotkey, ^N, SettingsCtrlN, On UseErrorLevel
-	Hotkey, Del, SettingsDel, On UseErrorLevel
-	Hotkey, ^M, SettingsCtrlM, On UseErrorLevel
-	Hotkey, ^C, SettingsCtrlC, On UseErrorLevel
-	Hotkey, ^F, SettingsCtrlF, On UseErrorLevel
-	Hotkey, ^E, SettingsCtrlE, On UseErrorLevel
-	Hotkey, ^H, SettingsCtrlH, On UseErrorLevel
-	Hotkey, ^O, SettingsCtrlO, On UseErrorLevel
-	Hotkey, ^S, SettingsCtrlS, On UseErrorLevel
-	Hotkey, F1, SettingsF1, On UseErrorLevel
-	Hotkey, Esc, SettingsEsc, On UseErrorLevel
+
+	; other Hotkeys are now created by menu assignement in BuildGuiMenuBar
 
 Hotkey, If
 
@@ -3908,50 +3896,62 @@ return
 ;========================================================================================================================
 
 ; Settings Gui Hotkeys
-
 ; see Hotkey, If, WinActive(QAPSettingsString())
 
+SettingsCtrlS: ; ^S::
+SettingsEsc: ; Escape::
+SettingsCtrlE: ; ^E::
+SettingsCtrlR: ; ^R::
+SettingsCtrlM: ; ^M::
+SettingsCtrlY: ; ^Y::
 SettingsCtrlUp: ; ^Up::
 SettingsCtrlDown: ; ^Down::
 SettingsCtrlRight: ; ^Right::
 SettingsCtrlLeft: ; ^Left::
-SettingsCtrlA: ; ^A::
-SettingsCtrlN: ; ^N::
-SettingsDel: ; Del::
-SettingsCtrlM: ; ^M::
-SettingsCtrlC: ; ^C::
-SettingsCtrlF: ; ^F::
-SettingsCtrlE: ; ^E::
-SettingsCtrlH: ; ^H::
-SettingsCtrlO: ; ^O::
-SettingsCtrlS: ; ^S::
-SettingsF1: ; F1::
-SettingsEsc: ; Escape::
 
 GuiControlGet, strFocusedControl, FocusV
 
 ; for these keys, if Settings displays a search result, simply discard the hotkey
-if InStr("SettingsCtrlUp|SettingsCtrlDown|SettingsCtrlRight|SettingsCtrlLeft|SettingsCtrlF|SettingsCtrlE|", A_ThisLabel . "|")
+if InStr("SettingsCtrlE|SettingsCtrlR|SettingsCtrlY|SettingsCtrlUp|SettingsCtrlDown|SettingsCtrlRight|SettingsCtrlLeft|", A_ThisLabel . "|")
 	and if InStr(strFocusedControl, "FavoritesListFilter")
 	return
 ; else continue
 
-; for these keys, if focused control is the search box, send the key to this control
-if InStr("SettingsCtrlA|SettingsDel|SettingsCtrlC|", A_ThisLabel . "|")
-	and (strFocusedControl = "f_strFavoritesListFilter")
+if (A_ThisLabel = "SettingsCtrlS")
 {
-	; Send, %A_ThisHotkey% ; Send and GuiControlkSend do not work when with the variable !?! (don't know why)
-	if (A_ThisLabel = "SettingsCtrlA")
-		Send, ^a
-	else if (A_ThisLabel = "SettingsDel")
-		Send, {Del}
-	else if (A_ThisLabel = "SettingsCtrlC")
-		Send, ^c
-	return
+	GuiControlGet, blnEnabled, Enabled, f_btnGuiSaveAndStayFavorites
+	if (blnEnabled)
+		Gosub, GuiSaveAndStayFavorites
 }
-; else continue
 
-if (A_ThisLabel = "SettingsCtrlUp")
+else if (A_ThisLabel = "SettingsEsc")
+	if (strFocusedControl = "f_strFavoritesListFilter")
+		Gosub, GuiFavoritesListFilterHide
+	else
+		Gosub, GuiCancel
+	
+else if (A_ThisLabel = "SettingsCtrlE")
+	Gosub, GuiEditFavorite
+
+else if (A_ThisLabel = "SettingsCtrlR")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiRemoveMultipleFavorites
+	else
+		Gosub, GuiRemoveFavorite
+	
+else if (A_ThisLabel = "SettingsCtrlM")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiMoveMultipleFavoritesToMenu
+	else
+		Gosub, GuiMoveFavoriteToMenu
+	
+else if (A_ThisLabel = "SettingsCtrlY")
+	if (LV_GetCount("Selected") > 1)
+		Gosub, GuiCopyMultipleFavoritesToMenu
+	else
+		Gosub, GuiCopyFavorite
+	
+else if (A_ThisLabel = "SettingsCtrlUp")
 	if (LV_GetCount("Selected") > 1)
 		Gosub, GuiMoveMultipleFavoritesUp
 	else
@@ -3962,7 +3962,8 @@ else if (A_ThisLabel = "SettingsCtrlDown")
 		Gosub, GuiMoveMultipleFavoritesDown
 	else
 		Gosub, GuiMoveFavoriteDown
-	
+
+; these last two shortcuts are not found in the menu bar
 else if (A_ThisLabel = "SettingsCtrlRight")
 	Gosub, HotkeyEnterMenuOrFavorite
 
@@ -3973,62 +3974,9 @@ else if (A_ThisLabel = "SettingsCtrlLeft")
 		Gosub, GuiGotoPreviousMenu
 }
 
-else if (A_ThisLabel = "SettingsCtrlF")
-	Gosub, GuiFocusFilter
-
-else if (A_ThisLabel = "SettingsCtrlE")
-	Gosub, GuiEditFavorite
-
-else if (A_ThisLabel = "SettingsCtrlA")
-	LV_Modify(0, "Select") ; select all in listview
-
-else if (A_ThisLabel = "SettingsDel")
-	if (LV_GetCount("Selected") > 1)
-		Gosub, GuiRemoveMultipleFavorites
-	else
-		Gosub, GuiRemoveFavorite
-	
-else if (A_ThisLabel = "SettingsCtrlC")
-	if (LV_GetCount("Selected") > 1)
-		Gosub, GuiCopyMultipleFavoritesToMenu
-	else
-		Gosub, GuiCopyFavorite
-	
-else if (A_ThisLabel = "SettingsCtrlN")
-	Gosub, GuiAddFavoriteSelectType
-
-else if (A_ThisLabel = "SettingsCtrlM")
-	if (LV_GetCount("Selected") > 1)
-		Gosub, GuiMoveMultipleFavoritesToMenu
-	else
-		Gosub, GuiMoveFavoriteToMenu
-	
-else if (A_ThisLabel = "SettingsCtrlH")
-	Gosub, GuiHotkeysHelpClicked
-
-else if (A_ThisLabel = "SettingsCtrlO")
-	Gosub, GuiOptionsGroupGeneral
-
-else if (A_ThisLabel = "SettingsCtrlS")
-{
-	GuiControlGet, blnEnabled, Enabled, f_btnGuiSaveAndStayFavorites
-	if (blnEnabled)
-		Gosub, GuiSaveAndStayFavorites
-}
-
-else if (A_ThisLabel = "SettingsF1")
-	Gosub, GuiHelp
-
-else if (A_ThisLabel = "SettingsEsc")
-	if (strFocusedControl = "f_strFavoritesListFilter")
-		Gosub, GuiFavoritesListFilterHide
-	else
-		Gosub, GuiCancel
-	
 strFocusedControl := ""
 blnUpMenuVisible := ""
 blnEnabled := ""
-strCancelLabel := ""
 
 return
 
@@ -5327,10 +5275,9 @@ aaMenuFileL := o_L.InsertAmpersand(true, "GuiSave", "GuiSaveAndClose", "GuiCance
 	, "MenuEditIniFile@" . o_Settings.strIniFileNameExtOnly, "MenuSwitchSettings", "MenuSwitchSettingsDefault", "ImpExpMenu"
 	, "MenuReload@" . g_strAppNameText, "MenuExitApp@" . g_strAppNameText)
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiSaveAndStayFavorites", aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlS", aaMenuFileL["GuiSave"] . "`tCtrl+S", "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiSaveAndCloseFavorites", aaMenuFileL["GuiSaveAndClose"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiCancel"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["GuiClose"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsEsc", aaMenuFileL["GuiClose"] . "`tEsc", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["OpenWorkingDirectory", aaMenuFileL["MenuOpenWorkingDirectory"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
@@ -5341,34 +5288,41 @@ saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . g_strEllipse,
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText], "", "iconNoIcon"])
+saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText] . "`tAlt+F4", "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
-Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S"
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`tCtrl+S"
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSaveAndClose"]
-Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
+; Menu, menuBarFile, Disable, % aaMenuFileL["GuiClose"] . "`tEsc"
 
 aaFavoriteL := o_L.InsertAmpersand(true, "DialogAdd", "DialogEdit", "GuiRemoveFavorite", "GuiMove", "DialogCopy"
-	, "ControlToolTipMoveUp", "ControlToolTipMoveDown", "ControlToolTipSortFavorites")
+	, "ControlToolTipMoveUp", "ControlToolTipMoveDown", "ControlToolTipSortFavorites", "ControlToolTipSeparator"
+	, "ControlToolTipColumnBreak", "ControlToolTipTextSeparator", "MenuSelectAll")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiAddFavoriteSelectType", aaFavoriteL["DialogAdd"] . g_strEllipse, "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiEditFavorite", aaFavoriteL["DialogEdit"] . g_strEllipse, "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiAddFavoriteSelectType", aaFavoriteL["DialogAdd"] . g_strEllipse . "`tCtrl+N", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlE", aaFavoriteL["DialogEdit"] . g_strEllipse . "`tCtrl+E", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiRemoveFavorite", aaFavoriteL["GuiRemoveFavorite"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiMoveFavoriteToMenu", aaFavoriteL["GuiMove"] . g_strEllipse, "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiCopyFavorite", aaFavoriteL["DialogCopy"] . g_strEllipse, "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlR", aaFavoriteL["GuiRemoveFavorite"] . "`tCtrl+R", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlM", aaFavoriteL["GuiMove"] . g_strEllipse . "`tCtrl+M", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlY", aaFavoriteL["DialogCopy"] . g_strEllipse . "`tCtrl+Y", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiMoveFavoriteUp", aaFavoriteL["ControlToolTipMoveUp"], "", "iconNoIcon"])
-saMenuItemsTable.Push(["GuiMoveFavoriteDown", aaFavoriteL["ControlToolTipMoveDown"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlUp", aaFavoriteL["ControlToolTipMoveUp"] . "`tCtrl+Up", "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlDown", aaFavoriteL["ControlToolTipMoveDown"] . "`tCtrl+Down", "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiAddSeparator", aaFavoriteL["ControlToolTipSeparator"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiAddColumnBreak", aaFavoriteL["ControlToolTipColumnBreak"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiAddTextSeparator", aaFavoriteL["ControlToolTipTextSeparator"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiSortFavorites", aaFavoriteL["ControlToolTipSortFavorites"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["X"])
+saMenuItemsTable.Push(["GuiSelectAll", aaFavoriteL["MenuSelectAll"], "", "iconNoIcon"])
 o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
 aaMenuToolsL := o_L.InsertAmpersand(true, "ControlToolTipSearchButton", "DialogExtendedSearch", "DialogShortcuts", "DialogHotstrings", "DialogIconsManage"
 	, "MenuRefreshMenu", "MenuResetQAPSpecialDefaultNames", "MenuSuspendHotkeys", "MenuRestoreSettingsWindowPosition", "ControlToolTipAlwaysOnTopOff")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiFocusFilter", aaMenuToolsL["ControlToolTipSearchButton"] . "`tCtrl+F", "", "iconNoIcon"])
 saMenuItemsTable.Push(["FilterExtendedClick", aaMenuToolsL["DialogExtendedSearch"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiHotkeysManage", aaMenuToolsL["DialogShortcuts"], "", "iconNoIcon"])
@@ -5388,7 +5342,7 @@ aaL := o_L.InsertAmpersand(true, "OptionsGeneral", "OptionsSettingsWindow", "Opt
 	, "OptionsPopupHotkeys", "OptionsPopupHotkeysAlternative", "OptionsFileManagers", "OptionsSnippets", "OptionsUserVariables"
 	, "OptionsDatabase", "OptionsMenuAdvanced", "OptionsAdvancedLaunch", "OptionsAdvancedOther")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiOptionsGroupGeneral", aaL["OptionsGeneral"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiOptionsGroupGeneral", aaL["OptionsGeneral"] . "`tCtrl+O", "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiOptionsGroupSettingsWindow", aaL["OptionsSettingsWindow"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X", "", "", ""])
 saMenuItemsTable.Push(["GuiOptionsGroupMenuIcons", aaL["OptionsMenuIcons"], "", "iconNoIcon"])
@@ -5415,7 +5369,7 @@ o_Containers.AA["menuBarOptions"].BuildMenu(false, true) ; true for numeric shor
 aaHelpL := o_L.InsertAmpersand(true, "MenuHelp", "MenuUpdate", "HelpMenuQuickStart", "HelpMenuKnowledgeBase", "HelpMenuSupportForum"
 	, "GuiHotkeysHelp", "GuiDropFilesHelp", "GuiDonate", "GuiDonateCodeInput", "MenuAbout")
 saMenuItemsTable := Object()
-saMenuItemsTable.Push(["GuiHelp", aaHelpL["MenuHelp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiHelp", aaHelpL["MenuHelp"] . "`tCtrl+H", "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["Check4Update", aaHelpL["MenuUpdate"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
@@ -5423,7 +5377,7 @@ saMenuItemsTable.Push(["HelpQuickStart", aaHelpL["HelpMenuQuickStart"], "", "ico
 saMenuItemsTable.Push(["HelpKnowledgeBase", aaHelpL["HelpMenuKnowledgeBase"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["HelpSupportForum", aaHelpL["HelpMenuSupportForum"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiHotkeysHelpClicked", aaHelpL["GuiHotkeysHelp"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiHotkeysHelpClicked", aaHelpL["GuiHotkeysHelp"] . "`tF1", "", "iconNoIcon"])
 saMenuItemsTable.Push(["GuiDropFilesHelpClicked", aaHelpL["GuiDropFilesHelp"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiDonate", aaHelpL["GuiDonate"] . g_strEllipse, "", "iconNoIcon"])
@@ -9028,11 +8982,14 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
 	}
 
-	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % aaFavoriteL["DialogEdit"] . g_strEllipse ; edit menu only if one item is selected
+	Menu, menuBarFavorite, % (g_intFavoriteSelected = 1 ? "Enable" : "Disable"), % aaFavoriteL["DialogEdit"] . g_strEllipse . "`tCtrl+E" ; edit menu only if one item is selected
 	Menu, menuBarFavorite, Enable, % aaFavoriteL["ControlToolTipSortFavorites"] ; re-enable if disabled by GuiCancel for Favorite Tray menu
-	loop, Parse, % "GuiMove|DialogCopy|GuiRemoveFavorite|ControlToolTipMoveUp|ControlToolTipMoveDown", |
-		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable"), % aaFavoriteL[A_LoopField]
-			. (A_Index <= 2 ? g_strEllipse : "") ; add ellipse for two first items only
+	loop, Parse, % "GuiMove`t...`tCtrl+M|DialogCopy`t...`tCtrl+Y|GuiRemoveFavorite`t`tCtrl+R|ControlToolTipMoveUp`t`tCtrl+Up|ControlToolTipMoveDown`t`tCtrl+Down", |
+	{
+		saItem := StrSplit(A_LoopField, "`t") ; saItem[1]: language item, saItem[2]: ellipse, saItem[3]: shortcut
+		Menu, menuBarFavorite, % (g_intFavoriteSelected ? "Enable" : "Disable")
+			, % aaFavoriteL[saItem[1]] . (StrLen(saItem[2]) ? g_strEllipse : "") . "`t" . saItem[3]
+	}
 }
 
 return
@@ -13001,6 +12958,16 @@ GuiSortCleanFavoriteName(strFavoriteName)
 
 
 ;------------------------------------------------------------
+GuiSelectAll:
+;------------------------------------------------------------
+
+LV_Modify(0, "Select") ; select all in listview
+
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
 GetFirstSelected:
 GetLastSelected:
 ;------------------------------------------------------------
@@ -13598,10 +13565,9 @@ GuiControl, Disable, f_btnGuiSaveAndStayFavorites
 Gui, Font, s6 ; set a new default
 GuiControl, Disable, f_btnGuiCancel
 
-Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSave"], g_strAppNameText)
+; disable File save menu commands
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`tCtrl+S"
 Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
-Menu, menuBarFile, Disable, % aaMenuFileL["GuiCancel"]
-Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiClose"], g_strAppNameText)
 
 o_MainMenu.SaveFavoritesToIniFile()
 ToolTip ; clear tooltip after refresh
@@ -14367,9 +14333,17 @@ if (blnCancelEnabled)
 }
 Gosub, ExternalMenusRelease ; release cancel enabled or not
 
-; disable Favorite menu items in Tray menu
-loop, Parse, % "DialogEdit|GuiMove|DialogCopy|GuiRemoveFavorite|ControlToolTipMoveUp|ControlToolTipMoveDown|ControlToolTipSortFavorites", |
-	Menu, menuBarFavorite, Disable, % aaFavoriteL[A_LoopField] . (A_Index <= 3 ? g_strEllipse : "") ; add ellipse for three first items only
+; disable File menu save menu command
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`tCtrl+S"
+Menu, menuBarFile, Disable, % aaMenuFileL["GuiSaveAndClose"]
+
+; disable Favorite menu items in menu
+loop, Parse, % "DialogEdit`t...`tCtrl+E|GuiMove`t...`tCtrl+M|DialogCopy`t...`tCtrl+Y|GuiRemoveFavorite`t`tCtrl+R|ControlToolTipMoveUp`t`tCtrl+Up|ControlToolTipMoveDown`t`tCtrl+Down|ControlToolTipSortFavorites", |
+{
+	saItem := StrSplit(A_LoopField, "`t") ; saItem[1]: language item, saItem[2]: ellipse, saItem[3]: shortcut
+	Menu, menuBarFavorite, Disable
+		, % aaFavoriteL[saItem[1]] . (StrLen(saItem[2]) ? g_strEllipse : "") . (StrLen(saItem[3]) ? "`t" . saItem[3] : "")
+}
 
 Gui, 1:Cancel
 
@@ -17810,14 +17784,14 @@ return
 EnableSaveAndCancel:
 ;------------------------------------------------------------
 
+; enable save gui buttons
 GuiControl, 1:Enable, f_btnGuiSaveAndCloseFavorites
 GuiControl, 1:Enable, f_btnGuiSaveAndStayFavorites
 GuiControl, 1:, f_btnGuiCancel, % aaSettingsL["GuiCancel"]
 
-Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSave"] . "`t" . o_L["DialogCtrlShort"] . "+S", g_strAppNameText)
+; enable File menu save items
+Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSave"] . "`tCtrl+S", g_strAppNameText)
 Menu, menuBarFile, Enable, % L(aaMenuFileL["GuiSaveAndClose"], g_strAppNameText)
-Menu, menuBarFile, Enable, % aaMenuFileL["GuiCancel"]
-Menu, menuBarFile, Disable, % L(aaMenuFileL["GuiClose"], g_strAppNameText)
 
 return
 ;------------------------------------------------------------
