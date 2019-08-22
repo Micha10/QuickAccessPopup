@@ -3906,14 +3906,15 @@ SettingsCtrlM: ; ^M::
 SettingsCtrlY: ; ^Y::
 SettingsCtrlUp: ; ^Up::
 SettingsCtrlDown: ; ^Down::
+SettingsCtrlA: ; ^A::
 SettingsCtrlRight: ; ^Right::
 SettingsCtrlLeft: ; ^Left::
 
 GuiControlGet, strFocusedControl, FocusV
 
 ; for these keys, if Settings displays a search result, simply discard the hotkey
-if InStr("SettingsCtrlE|SettingsCtrlR|SettingsCtrlY|SettingsCtrlUp|SettingsCtrlDown|SettingsCtrlRight|SettingsCtrlLeft|", A_ThisLabel . "|")
-	and if InStr(strFocusedControl, "FavoritesListFilter")
+if InStr("SettingsCtrlE|SettingsCtrlR|SettingsCtrlY|SettingsCtrlUp|SettingsCtrlDown|SettingsCtrlRight|SettingsCtrlLeft|SettingsCtrlA|", A_ThisLabel . "|")
+	and InStr(strFocusedControl, "FavoritesListFilter") ; includes f_strFavoritesListFilter and f_lvFavoritesListFiltered
 	return
 ; else continue
 
@@ -3925,8 +3926,8 @@ if (A_ThisLabel = "SettingsCtrlS")
 }
 
 else if (A_ThisLabel = "SettingsEsc")
-	if (strFocusedControl = "f_strFavoritesListFilter")
-		Gosub, GuiFavoritesListFilterHide
+	if (strFocusedControl = "f_strFavoritesListFilter" and StrLen(f_strFavoritesListFilter))
+		GuiControl, , f_strFavoritesListFilter ; emptying it will trigger LoadFavoritesInGuiFiltered to hide the filtered list
 	else
 		Gosub, GuiCancel
 	
@@ -3962,6 +3963,9 @@ else if (A_ThisLabel = "SettingsCtrlDown")
 		Gosub, GuiMoveMultipleFavoritesDown
 	else
 		Gosub, GuiMoveFavoriteDown
+
+else if (A_ThisLabel = "SettingsCtrlA")
+	Gosub, GuiSelectAll
 
 ; these last two shortcuts are not found in the menu bar
 else if (A_ThisLabel = "SettingsCtrlRight")
@@ -5239,7 +5243,7 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
 Menu, Tray, Add
 Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], TrayMenuExitApp
+Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], GuiCancel
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
@@ -5288,7 +5292,7 @@ saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . g_strEllipse,
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["TrayMenuExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText] . "`tAlt+F4", "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["MenuExitApp@" . g_strAppNameText] . "`tAlt+F4", "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`tCtrl+S"
@@ -5315,7 +5319,7 @@ saMenuItemsTable.Push(["GuiAddTextSeparator", aaFavoriteL["ControlToolTipTextSep
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["GuiSortFavorites", aaFavoriteL["ControlToolTipSortFavorites"], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiSelectAll", aaFavoriteL["MenuSelectAll"], "", "iconNoIcon"])
+saMenuItemsTable.Push(["SettingsCtrlA", aaFavoriteL["MenuSelectAll"] . "`tCtrl+A", "", "iconNoIcon"])
 o_Containers.AA["menuBarFavorite"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFavorite"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 
@@ -8886,8 +8890,51 @@ GuiHotkeysHelpClicked:
 ;------------------------------------------------------------
 Gui, 1:+OwnDialogs
 
-MsgBox, 0, % g_strAppNameText . " - " . o_L["GuiHotkeysHelp"]
-	, % o_L["GuiHotkeysHelpText"] . "`n`n" . o_L["GuiHotkeysHelpText3"] . "`n`n" . o_L["GuiHotkeysHelpText2"]
+; MsgBox, 0, % g_strAppNameText . " - " . o_L["GuiHotkeysHelp"]
+	; , % o_L["GuiHotkeysHelpText"] . "`n`n" . o_L["GuiHotkeysHelpText3"] . "`n`n" . o_L["GuiHotkeysHelpText2"]
+
+g_intGui1WinID := WinExist("A")
+Gui, 1:Submit, NoHide
+
+strGuiTitle := o_L["GuiHotkeysHelp"]
+Gui, 2:New, +Hwndg_strGui2Hwnd, %strGuiTitle%
+if (g_blnUseColors)
+	Gui, 2:Color, %g_strGuiWindowColor%
+Gui, 2:+Owner1
+
+Gui, 2:Add, ListView 
+	, % "vf_lvFavoritesList Count32 LV0x10 w350 h375" . (g_blnUseColors ? "c" . g_strGuiListviewTextColor . " Background" . g_strGuiListviewBackgroundColor : "")
+	, % o_L["DialogHotkeysHelpHeader"] ; SysHeader321 / SysListView321
+
+loop, Parse, % "GuiHotkeysSelectNextItem`tDown/Up|GuiHotkeysOpenSubmenuOrEditFavorite`tCtrl+Right|GuiHotkeysOpenParentMenu`tCtrl+Left|"
+	. "DialogAdd`tCtrl+N|DialogEdit`tCtrl+E|GuiHotkeysSelectContiguousItems`tShift+Up/Down|GuiHotkeysSelectNonContiguousItems`tCtrl+Click|"
+	. "MenuSelectAll`tCtrl+A|GuiRemoveFavorite`tCtrl+R|GuiMove`tCtrl+M|DialogCopy`tCtrl+Y|ControlToolTipMoveUp`tCtrl+Up|ControlToolTipMoveDown`tCtrl+Down|"
+	. "ControlToolTipSearchButton`tCtrl+F|GuiOptions`tCtrl+O|MenuHelp`tCtrl+H|GuiHotkeysHelp`tF1|"
+	. "GuiSave`tCtrl+S|GuiClose`tEsc|MenuExitApp@g_strAppNameText`tAlt+F4"
+	, "|"
+{
+	saLine := StrSplit(A_LoopField, "`t")
+	strShortcut := saLine[2]
+	if InStr(saLine[1], "@")
+	{
+		saItem := StrSplit(saLine[1], "@")
+		strVar := saItem[2]
+		strCommandText := L(o_L[saItem[1]], %strVar%)
+	}
+	else
+		strCommandText := o_L[saLine[1]]
+	LV_Add("", strShortcut, strCommandText)
+}
+LV_ModifyCol(1, "100 Right")
+; LV_ModifyCol(1, 100)
+LV_ModifyCol(2, "Auto")
+Gui, 2:Add, Button, x10 y+10 g2GuiClose vf_btnHotkeysHelpClose, % o_L["GuiClose"]
+GuiCenterButtons(strGuiTitle, , , , "f_btnHotkeysHelpClose")
+
+GuiControl, Focus, f_btnHotkeysHelpClose
+Gosub, ShowGui2AndDisableGui1
+
+strGuiTitle := ""
 
 return
 ;------------------------------------------------------------
@@ -16977,7 +17024,6 @@ if (g_blnPortableMode)
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText43"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText44"]
 Gui, 2:Add, Link, y+5 w%intWidth%, % o_L["HelpText45"]
-
 
 Gui, 2:Tab
 GuiControlGet, arrTabPos, Pos, f_intHelpTab
