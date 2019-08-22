@@ -3674,7 +3674,7 @@ Gosub, LoadIniFile ; load options, load/enable popup hotkeys, load favorites to 
 ; Must be after LoadIniFile
 
 if (o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue and !A_IsAdmin)
-	gosub, ReloadAsAdmin
+	gosub, ReloadQAPAsAdmin
 if (A_IsAdmin and !o_CommandLineParameters.AA.HasKey("AdminSilent")
 	and o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue)
 	; show alert only if running as admin because of the o_Settings.LaunchAdvanced.blnRunAsAdmin.IniValue option, except if "/AdminSilent" command-line option is used
@@ -9637,9 +9637,9 @@ GuiFavoriteInit:
 ; when edit favorite, keep original values in o_EditedFavorite
 ; when add favorite, put initial or default values in o_EditedFavorite and update them when gui save
 
-blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+g_strFilterContent := GetFavoritesListFilter()
 
-if (blnFavoriteFromSearch)
+if StrLen(g_strFilterContent)
 	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
 
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
@@ -9651,7 +9651,7 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.E
 	return
 }
 
-if (blnFavoriteFromSearch)
+if StrLen(g_strFilterContent)
 {
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
@@ -10209,8 +10209,8 @@ Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenu gDropdownParentMenuChang
 		, (InStr("Menu|External", o_EditedFavorite.AA.strFavoriteType, true) ? o_L["MainMenuName"] . " " . o_EditedFavorite.AA.strFavoriteLocation : "") ; exclude self
 		, true) . "|" ; exclude read-only external menus
 
-Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % o_L["DialogFavoriteMenuPosition"]
-Gui, 2:Add, DropDownList, x20 y+5 w500 vf_drpParentMenuItems AltSubmit
+Gui, 2:Add, Text, x30 y+10 vf_lblFavoriteParentMenuPosition, % o_L["DialogFavoriteMenuPosition"]
+Gui, 2:Add, DropDownList, x30 y+5 w490 vf_drpParentMenuItems AltSubmit
 
 if !(blnIsGroupMember)
 {
@@ -12715,8 +12715,8 @@ GuiRemoveFavorite:
 GuiRemoveOneFavorite:
 ;------------------------------------------------------------
 
-g_blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
-if (g_blnFavoriteFromSearch)
+blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+if (blnFavoriteFromSearch)
 	o_MenuInGui := GetMenuForGuiFiltered(intItemToRemove)
 else
 {
@@ -12787,13 +12787,14 @@ Gosub, EnableSaveAndCancel
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
 	o_ExternalMenu.AA.blnNeedSave := true
 
-if (g_blnFavoriteFromSearch)
+if (blnFavoriteFromSearch)
 	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
 
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
 blnItemIsMenu := ""
 objExternalMenu := ""
+blnFavoriteFromSearch := ""
 
 return
 ;------------------------------------------------------------
@@ -14412,7 +14413,7 @@ if WindowIsAddEditCopyFavorite(strThisTitle)
 {
 	; resize add/edit/copy favorite dialog box to select long parent menu
 	GuiControl, 2:Move, f_drpParentMenu, % "w" . A_GuiWidth - 50
-	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 50
+	GuiControl, 2:Move, f_drpParentMenuItems, % "w" . A_GuiWidth - 60
 	GuiControl, 2:Move, f_intAddFavoriteTab, % "w" . A_GuiWidth - 30
 }
 else if WindowIsToMenuDialogBox(strThisTitle)
@@ -15522,10 +15523,12 @@ return
 GetWinInfo:
 ;------------------------------------------------------------
 
-g_blnGetWinInfo := true
 
-MsgBox, % 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey).Hotkey2Text())
+MsgBox, % 1 + 64 + 4096, % g_strAppNameText . " - " . o_L["MenuGetWinInfo"], % L(o_L["DialogGetWinInfo"], new Triggers.HotkeyParts(o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey).Hotkey2Text())
 
+IfMsgBox, OK
+	g_blnGetWinInfo := true
+	
 return
 ;------------------------------------------------------------
 
@@ -16006,8 +16009,14 @@ return
 ;------------------------------------------------------------
 ReloadQAP:
 ReloadQAPSwitch:
-ReloadAsAdmin:
+ReloadQAPAsAdmin:
 ;------------------------------------------------------------
+
+; check if there are changes to save
+gosub, GuiCancel
+GuiControlGet, strCancelLabel, , f_btnGuiCancel
+if (strCancelLabel = aaSettingsL["GuiCancel"]) ; changes wer not discarded
+	return
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
 ; Also, include the string /restart as the first parameter (i.e. after the name of the executable), which tells the program to
@@ -16032,12 +16041,12 @@ strCurrentCommandLineParameters := o_CommandLineParameters.strParams
 try
 {
 	if (A_IsCompiled)
-		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+		if (A_ThisLabel = "ReloadQAPAsAdmin" or A_IsAdmin)
 			RunWait, *RunAs %A_ScriptFullPath% /restart %strCurrentCommandLineParameters%
 		else
 			RunWait, %A_ScriptFullPath% /restart %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
 	else
-		if (A_ThisLabel = "ReloadAsAdmin" or A_IsAdmin)
+		if (A_ThisLabel = "ReloadQAPAsAdmin" or A_IsAdmin)
 			RunWait, *RunAs %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters%
 		else
 			RunWait, %A_AhkPath% /restart %A_ScriptFullPath% %strCurrentCommandLineParameters% ; double-quotes already included in strCurrentCommandLineParameters
