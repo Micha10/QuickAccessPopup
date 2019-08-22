@@ -410,8 +410,6 @@ lGuiGroupSaveRestoreOption	Bij het verversen van mappen in deze groep:
 lGuiGroupSaveRestoreWith	Herstel de mappen met:
 lGuiHelp	Help
 lGuiHotkeysHelp	Hulp voor sneltoetsen
-lGuiHotkeysHelpText	SNELTOETSEL IN INSTELLINGEN`n`nPijl Neer: Selecteer het volgende item`nPijl Op: Selecteer het vorige item`n`nCtrl+N: Voeg een nieuw item toe`nCtrl+E: Item aanpassen`nCtrl+M: Item verplaatsen`nCtrl+C: Kopieër een item`n`nDel: Verwijder item(s)`n`nShift+Op/Neer: Selecteer aangrenzende item(s)`nCtrl+muisklik: Selecteer niet aangrenzende item(s)`nCtrl+A: Selecteer alle items`nCtrl+Pijl Neer: Verplaats item(s) omlaag`nCtrl+Pijl Op: Verplaats item(s) omhoog`nCrtl-Pijl Rechts: Open submenu of favoriet aanpassen`nCtrl+Links: Open hoofdmenu
-lGuiHotkeysHelpText2	Ctrl+F: Selecteer de zoekfunctiebox`nCtrl+O: Open het optiemenu`nF1: Help weergeven`nCtrl+H: Dit venster weergeven
 lGuiListApplicationsHeader	Index|ID|Venstertitel|Procesnaam|Procespad|W & H|MinMax|Stijl|ExStijl|UWP Hwnd|Universele Applicatienaam
 lGuiLoginName	Login naam
 lGuiLvFavoritesHeader	Naam|Type|Sneltoets|Locatie of inhoud

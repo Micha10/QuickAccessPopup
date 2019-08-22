@@ -411,8 +411,6 @@ lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Mostra a janela reduzida da "Ajuda" do QAP.
 lGuiHotkeysHelp	Ajuda Atalhos dos Favoritos
-lGuiHotkeysHelpText	TECLAS DE ATALHO NAS DEFINIÇÕES`n`nBaixo: Selecciona o próximo favorito`nCima: Selecciona o anterior favorito`n`nCtrl+N: Adiciona um novo item`nCtrl+E: Edita o item seleccionado`nCtrl+M: Move um item`nCtrl+C: Copia um item`nDel: Remove item(ns)`n`nShift+Up/Down: Selecciona itens contíguos`nCtrl+Click: Selecciona itens não contíguos`nCtrl+A: Selecciona todos os itens`n`nCtrl+Down: Move item(ns) para baixo`nCtrl+Up: Move item(ns) para cima`n`nCtrl+Right: Abre o submenu ou edita favorito`nCtrl+Left: Abre o menu superior
-lGuiHotkeysHelpText2	Ctrl+F: Selecciona a caixa de procura`nCtrl+O: Abre a janela Opções`n`nF1: Exibe a janela de Ajuda`nCtrl+H: Exibe esta janela
 lGuiListApplicationsHeader	Índice|ID|Título da janela|Nome do Processo|Caminho do Processo|W & H|MinMax|Style|ExStyle|UWP Hwnd|Nome Universal da Aplicação
 lGuiLoginName	Nome de Utilizador
 lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Localização ou conteúdo

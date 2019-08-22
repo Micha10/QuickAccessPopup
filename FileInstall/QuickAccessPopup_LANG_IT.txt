@@ -411,8 +411,6 @@ lGuiGroupSaveRestoreWith	Ripristina le cartelle con:
 lGuiHelp	Aiuto
 lGuiHelpDescription	Mostra la finestra di "Aiuto" di QAP breve.
 lGuiHotkeysHelp	Organizzazione Preferiti (scorciatoie)
-lGuiHotkeysHelpText	SCORCIATOIE DA TASTIERA`n`nGiù: Seleziona voce successiva`nSu: Seleziona voce precedente`n`nCtrl+N: Aggiungi nuova voce`nCtrl+E: Modifica una voce`nCtrl+M: Sposta una voce`nCtrl+C: Copia una voce`nDel: Rimuovi voce/i`n`nShift+Su/Giù: Seleziona voci contigue`nCtrl+Click: Seleziona voci non contigue`nCtrl+A: Seleziona tutte le voci`n`nCtrl+Giù: Sposta giù voce/i`nCtrl+Su: Sposta su voce/i`n`nCtrl+Destra: Apri il sottomenù o modifica voce`nCtrl+Sinistra: Apri menù superiore
-lGuiHotkeysHelpText2	Ctrl+F: Seleziona la casella di ricerca`nCtrl+O: Apri la finestra delle Opzioni`n`nF1: Visualizza la finestra di Aiuto`nCtrl+H: Visualizza questa finestra
 lGuiListApplicationsHeader	Indice|ID|titolo Finestra|Nome Processo|Percorso del Processo|W & H|MinMax|Stile|ExStile|UWP Hwnd|Nome Applicazione Universale
 lGuiLoginName	Nome di Login
 lGuiLvFavoritesHeader	Nome|Tipo|Scorciatoia|Locazionen o contenuto
