@@ -31,6 +31,9 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.14 (2019-08-23)
+- 
+
 Version BETA: 9.9.2.13 (2019-08-23)
  
 Settings Menu bar and hotkeys
@@ -3446,7 +3449,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.13
+;@Ahk2Exe-SetVersion 9.9.2.14
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3556,7 +3559,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.13" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.14" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
@@ -5143,15 +5146,6 @@ return
 ;========================================================================================================================
 
 ;-----------------------------------------------------------
-ExitApp: ; should not be called
-TrayMenuExitApp:
-;-----------------------------------------------------------
-
-ExitApp
-;-----------------------------------------------------------
-
-
-;-----------------------------------------------------------
 CleanUpBeforeExit:
 ;-----------------------------------------------------------
 
@@ -5269,7 +5263,7 @@ Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
 Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
 Menu, Tray, Add
 Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
-Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], GuiCancel
+Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], GuiCancelAndExitApp
 if (!o_Settings.Launch.blnDonorCode.IniValue)
 {
 	Menu, Tray, Add
@@ -5318,7 +5312,7 @@ saMenuItemsTable.Push(["ImportExport", aaMenuFileL["ImpExpMenu"] . g_strEllipse,
 saMenuItemsTable.Push(["X"])
 saMenuItemsTable.Push(["ReloadQAP", aaMenuFileL["MenuReload@" . g_strAppNameText], "", "iconNoIcon"])
 saMenuItemsTable.Push(["X"])
-saMenuItemsTable.Push(["GuiCancel", aaMenuFileL["MenuExitApp@" . g_strAppNameText] . "`tAlt+F4", "", "iconNoIcon"])
+saMenuItemsTable.Push(["GuiCancelAndExitApp", aaMenuFileL["MenuExitApp@" . g_strAppNameText] . "`tAlt+F4", "", "iconNoIcon"])
 o_Containers.AA["menuBarFile"].LoadFavoritesFromTable(saMenuItemsTable)
 o_Containers.AA["menuBarFile"].BuildMenu(false, true) ; true for numeric shortcut already inserted
 Menu, menuBarFile, Disable, % aaMenuFileL["GuiSave"] . "`tCtrl+S"
@@ -14382,6 +14376,7 @@ return
 
 ;------------------------------------------------------------
 GuiCancel:
+GuiCancelAndExitApp:
 ;------------------------------------------------------------
 
 if !(g_blnFavoritesListFilterNeverFocused)
@@ -14389,10 +14384,8 @@ if !(g_blnFavoritesListFilterNeverFocused)
 	GuiControl, 1:, f_strFavoritesListFilter, % "" ; empty filter will hide filtered list and show regular list
 	g_blnFavoritesListFilterNeverFocused := false
 }
-GuiControlGet, strCancelLabel, , f_btnGuiCancel
 
-blnCancelEnabled := (strCancelLabel = aaSettingsL["GuiCancel"])
-if (blnCancelEnabled)
+if SettingsUnsaved()
 {
 	Gui, 1:+OwnDialogs
 	MsgBox, 36, % L(o_L["DialogCancelTitle"], g_strAppNameText, g_strAppVersion), % o_L["DialogCancelPrompt"]
@@ -14417,6 +14410,11 @@ if (blnCancelEnabled)
 		return
 	}
 }
+
+if (A_ThisLabel = "GuiCancelAndExitApp")
+	ExitApp
+; else continue
+
 Gosub, ExternalMenusRelease ; release cancel enabled or not
 
 ; disable File menu save menu command
@@ -16051,10 +16049,9 @@ ReloadQAPAsAdmin:
 ;------------------------------------------------------------
 
 ; check if there are changes to save
-gosub, GuiCancel
-GuiControlGet, strCancelLabel, , f_btnGuiCancel
-if (strCancelLabel = aaSettingsL["GuiCancel"]) ; changes wer not discarded
-	return
+if SettingsUnsaved()
+	if SettingsNotSavedReturn()
+		return
 
 ; Do not use the Reload command: Any command-line parameters passed to the original script are not passed to the new instance.
 ; Also, include the string /restart as the first parameter (i.e. after the name of the executable), which tells the program to
@@ -22162,7 +22159,7 @@ class QAPfeatures
 		this.AddQAPFeatureObject("Add This Folder Express",	o_L["MenuAddThisFolderXpress"],				"", "AddThisFolderXpress",					"3-QAPMenuEditing"
 			, o_L["MenuAddThisFolderXpressDescription"], 0, "iconAddThisFolder", ""
 			, "can-i-add-on-the-fly-the-folder-i-am-already-in")
-		this.AddQAPFeatureObject("Exit",					L(o_L["MenuExitApp"], g_strAppNameText),	"", "ExitApp",								"7-QAPManagement"
+		this.AddQAPFeatureObject("Exit",					L(o_L["MenuExitApp"], g_strAppNameText),	"", "GuiCancelAndExitApp",					"7-QAPManagement"
 			, o_L["MenuExitAppDescription"], 0, "iconExit", "", "")
 		this.AddQAPFeatureObject("Help",					o_L["GuiHelp"],								"", "GuiHelp",								"7-QAPManagement"
 			, o_L["GuiHelpDescription"], 0, "iconHelp", "", "")
@@ -24581,7 +24578,7 @@ class Container
 			}
 			
 			if InStr("Menu|External", oItem.AA.strFavoriteType, true)
-				this.AA.oSubMenu.LoadMenuHotkeysToManageList(intShortcutOrHotstrings, blnSeeAllFavorites, blnSeeShortHotkeyNames) ; RECURSIVE
+				oItem.AA.oSubMenu.LoadMenuHotkeysToManageList(intShortcutOrHotstrings, blnSeeAllFavorites, blnSeeShortHotkeyNames) ; RECURSIVE
 		}
 	}
 	;---------------------------------------------------------
