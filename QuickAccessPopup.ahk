@@ -10555,6 +10555,14 @@ GuiMoveFavoriteToMenu:
 GuiMoveMultipleFavoritesToMenu:
 GuiCopyMultipleFavoritesToMenu:
 ;------------------------------------------------------------
+
+blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
+if (blnFavoriteFromSearch)
+{
+	Oops("Items cannot be copied or moved from the search result.`n`nPlease ""Edit"" or ""Copy"" the favorite(e)s individually.")
+	return
+}
+
 strGuiFavoriteLabel := A_ThisLabel
 g_intGui1WinID := WinExist("A")
 
@@ -11364,7 +11372,8 @@ else
 		oMenuInGuiCandidate := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		oMenuInGuiCandidate := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
-	; else if (A_ThisLabel = "OpenMenuFromGuiSearch") ; we already have the menu object in o_MenuInGui from the search event
+	else ; OpenMenuFromGuiSearch
+		oMenuInGuiCandidate := o_MenuInGui ; from the search event
 
 	if (oMenuInGuiCandidate.AA.strMenuType = "External" and !oMenuInGuiCandidate.AA.blnMenuExternalLoaded)
 	{
@@ -11373,6 +11382,7 @@ else
 	}
 	else
 	{
+		o_MenuInGui := oMenuInGuiCandidate
 		g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
 		g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 		o_MenuInGui := oMenuInGuiCandidate
@@ -12717,7 +12727,11 @@ GuiRemoveOneFavorite:
 
 blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
 if (blnFavoriteFromSearch)
+{
 	o_MenuInGui := GetMenuForGuiFiltered(intItemToRemove)
+	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
+	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
+}
 else
 {
 	GuiControl, Focus, f_lvFavoritesList
@@ -12775,6 +12789,7 @@ if (blnItemIsMenu)
 LV_Delete(intItemToRemove)
 if (A_ThisLabel = "GuiRemoveFavorite")
 {
+	LV_Modify(0, "-Select") ; de-select all items
 	LV_Modify(intItemToRemove, "Select Focus") ; select item next to deleted one
 	if !LV_GetNext() ; if last item was deleted, select the new last item
 		LV_Modify(LV_GetCount(), "Select Focus")
@@ -12786,9 +12801,6 @@ Gosub, EnableSaveAndCancel
 ; if favorite's menu is in an external settings file, flag that it needs to be saved
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu)
 	o_ExternalMenu.AA.blnNeedSave := true
-
-if (blnFavoriteFromSearch)
-	gosub, LoadFavoritesInGuiFiltered ; stay in filtered list after item removed
 
 GuiRemoveFavoriteCleanup:
 intItemToRemove := ""
