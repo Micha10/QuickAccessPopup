@@ -31,8 +31,34 @@ limitations under the License.
 HISTORY
 =======
 
-Version: 10.0 (2019-08-03)
-- demo
+Version BETA: 9.9.2.13 (2019-08-23)
+ 
+Settings Menu bar and hotkeys
+- add to Favorite menu three Insert separators items: normal separator, column break and text separator
+- add Settings hotkeys Ctrl+S (Save), Esc to escape the Search box or close the Settings window, Alt+F4 to exit QAP
+- to avoid conflicts with the Search text box, replace shortcuts Del with Ctrl+R (Remove) and Ctrl+C with Ctrl+Y (Copy)
+- new Settings hotkeys Help window
+- display current settings file name in "File, Switch Settings file"  menu after user switched settings file
+- add/remove ellipses ("...") according to Microsoft design guidelines
+ 
+Settings window
+- check if changes need to be saved when exiting QAP from System menu, File menu bar, Alt+F4 or Reload QAP
+- remove Alternative menu QAP features from "All" list in Add Favorite
+- fix bug when editing and removing a favorite from the Search result
+- disable "Move" and "Copy" commands from a Search result (temporarily)
+ 
+Manage Icons
+- fix bug when cancelling the "Select icon" dialog box when called from the "Icons" dialog box
+- fix bug when setting default icon for a Document or Application favorites from the "Icons" dialog box
+ 
+Shared menus
+- check if Shared menu is loaded without error before opening it in Settings
+- disable a Shared menu if an error occurred when loading it
+- if an error occurred when loading a Shared menu, try to reload it when using the command Refresh external menus
+ 
+Various
+- fix bug in URL when retrieving change log for the latest version
+- Portuguese update for v10, Dutch and French translation of the last page of Setup installer
 
 Version BETA: 9.9.2.12 (2019-08-14)
 - add "Exit Quick Access Popup" to system menu when in portable mode
@@ -3420,7 +3446,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 10.0
+;@Ahk2Exe-SetVersion 9.9.2.13
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3530,8 +3556,8 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "10.0" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-global g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
+global g_strCurrentVersion := "9.9.2.13" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
 
