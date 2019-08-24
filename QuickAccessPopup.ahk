@@ -32,7 +32,7 @@ HISTORY
 =======
 
 Version: 9.5.3 (2019-08-24)
-- when in search result, hide the "Move" button (this command is not supported from search result)
+- when in Settings window's search result, hide the "Move" button (this command is not supported from search result)
 - swap "Copy" and "Move" buttons (to avoid having an empty space when in search result)
 - when loading favorites, if a Special Folder name is empty (probably after having used v10 before reverting to v9), use the Special Folder default name (working on v10, I realized that this change was required to ensure full forward/backward compatibility if reverting to QAP v9.5.3 after having used QAP v10)
 
