@@ -4850,8 +4850,8 @@ InsertGuiControlPos("f_picGuiAddFavorite",				 -44,  135, true)
 InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  210, true)
 InsertGuiControlPos("f_picGuiEditFavorited",			 -44,  210, true)
 InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  285, true)
-InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  360, true)
-InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  435, true)
+InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  360, true)
+InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  435, true)
 InsertGuiControlPos("f_picGuiHotkeysManage",			-124,  -100, true, true) ; true = center, true = draw
 InsertGuiControlPos("f_picGuiIconsManage",				 -44,  -94, true, true)
 InsertGuiControlPos("f_picGuiHelp",						  30,  -84, true, true)
@@ -4883,8 +4883,8 @@ InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  258, true) ; 240 + 5 - 2
 InsertGuiControlPos("f_lblGuiOptions",					 -44,   45, true)
 InsertGuiControlPos("f_lblGuiDonate",					-124,   45, true)
 InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  333, true)
-InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  408, true)
-InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  483, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  408, true)
+InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  483, true)
 InsertGuiControlPos("f_lblSubmenuDropdownLabel",		  40,   66)
 InsertGuiControlPos("f_lblGuiHotkeysManageShortcuts",	-124,  -57, true)
 InsertGuiControlPos("f_lblGuiHotkeysManageHotstrings",	-124,  -44, true, true)
@@ -5330,6 +5330,7 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 {
 	global g_objMenusIndex
 	global g_objQAPfeaturesInMenus
+	global g_objSpecialFolders
 	global g_strIniFile
 	global g_intIniLine
 	global g_strMenuPathSeparatorWithSpaces
@@ -5458,6 +5459,15 @@ RecursiveLoadMenuFromIni(objCurrentMenu, blnWorkingToolTip := false)
 			
 			; to keep track of QAP features in menus to allow enable/disable menu items
 			g_objQAPfeaturesInMenus.Insert(arrThisFavorite3, 1) ; boolean just to flag that we have this QAP feature in menus
+		}
+		else if (arrThisFavorite1 = "Special")
+		{
+			; if name is not specified in ini file (because usage of v10 before reverting to v9), get Special Folder default name
+			if !StrLen(arrThisFavorite2) ; if QAP feature is unknown
+				arrThisFavorite2 := g_objSpecialFolders[arrThisFavorite3].DefaultName
+			if !StrLen(arrThisFavorite2) ; if Special Folder is unknown
+				; by default RandomBetween returns an integer between 0 and 2147483647 to generate a random file number and variable number
+				arrThisFavorite2 := "* Unknown Special Folder * " . RandomBetween() . " *"
 		}
 
 		; this is a regular favorite, add it to the current menu
@@ -10144,6 +10154,8 @@ if !StrLen(strFavoritesListFilter)
 	GuiControl, Show, f_picAddColumnBreak
 	GuiControl, Show, f_picAddTextSeparator
 	GuiControl, Show, f_picSortFavorites
+	GuiControl, Show, f_picGuiMoveFavorite
+	GuiControl, Show, f_lblGuiMoveFavorite
 
 	GuiControl, Hide, f_lvFavoritesListFiltered
 	GuiControl, Show, f_lvFavoritesList
@@ -10157,6 +10169,8 @@ GuiControl, Hide, f_picAddSeparator
 GuiControl, Hide, f_picAddColumnBreak
 GuiControl, Hide, f_picAddTextSeparator
 GuiControl, Hide, f_picSortFavorites
+GuiControl, Hide, f_picGuiMoveFavorite
+GuiControl, Hide, f_lblGuiMoveFavorite
 
 GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
