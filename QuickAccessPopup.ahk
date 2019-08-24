@@ -31,6 +31,11 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 9.5.3 (2019-08-24)
+- when in search result, hide the "Move" button (this command is not supported from search result)
+- swap "Copy" and "Move" buttons (to avoid having an empty space when in search result)
+- when loading favorites, if a Special Folder name is empty (probably after having used v10 before reverting to v9), use the Special Folder default name (working on v10, I realized that this change was required to ensure full forward/backward compatibility if reverting to QAP v9.5.3 after having used QAP v10)
+
 Version: 9.5.2 (2019-07-15)
 - full fix bug in dynamic menus (Recent items, Frequent items, Drives) when numeric shortcuts are enabled and menu item includes an ampersand (&)
 
@@ -3091,7 +3096,7 @@ f_typNameOfVariable
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.5.2
+;@Ahk2Exe-SetVersion 9.5.3
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3119,7 +3124,7 @@ if (strQAPRun = "QuickAccessPopup.exe") ; only without full path and "/Working:"
 {
 	RegDelete, HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run, Quick Access Popup
 	; write version number in text because g_strCurrentVersion is not created yet
-	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release v9.5.2.`n`nPlease, restart Quick Access Popup.
+	MsgBox, 48, , Startup Run registry key created by Quick Access Popup v10 has been removed for compatibility with current release.`n`nPlease, restart Quick Access Popup.
 	ExitApp
 }
 
@@ -3206,7 +3211,7 @@ Gosub, InitLanguageVariables
 ; --- Global variables
 
 g_strAppNameText := "Quick Access Popup"
-g_strCurrentVersion := "9.5.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+g_strCurrentVersion := "9.5.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 g_strJLiconsVersion := "v1.5"
