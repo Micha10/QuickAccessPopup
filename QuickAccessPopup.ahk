@@ -8771,32 +8771,30 @@ Critical, On ; prevents the current thread from being interrupted by other threa
 strFavoritesListFilter := GetFavoritesListFilter()
 blnFavoritesListFilterExtended := f_blnFavoritesListFilterExtended
 
+; hide/show buttons for commands not supported in search result
+Loop, Parse, % "f_picMoveFavoriteUp|f_picMoveFavoriteDown|f_picAddSeparator|f_picAddColumnBreak|f_picAddTextSeparator|f_picSortFavorites"
+	. "|f_picGuiMoveFavorite|f_lblGuiMoveFavorite|f_picGuiCopyFavorite|f_lblGuiCopyFavorite|f_lvFavoritesList", "|"
+	GuiControl, % (StrLen(strFavoritesListFilter) ? "Hide" : "Show"), %A_LoopField%
+
+; disable/enable Favorite menu items for commands not supported in search result
+Loop, Parse, % "GuiMove`t...`tCtrl+M|DialogCopy`t...`tCtrl+Y|ControlToolTipMoveUp`t`tCtrl+Up|ControlToolTipMoveDown`t`tCtrl+Down"
+	. "|ControlToolTipSeparator|ControlToolTipColumnBreak|ControlToolTipTextSeparator|ControlToolTipSortFavorites|MenuSelectAll`t`tCtrl+A", "|"
+{
+	saMenuItem := StrSplit(A_LoopField, "`t")
+	Menu, menuBarFavorite, % (StrLen(strFavoritesListFilter) ? "Disable" : "Enable"), % aaFavoriteL[saMenuItem[1]] . (StrLen(saMenuItem[2]) ? g_strEllipse : "") . (StrLen(saMenuItem[3]) ? "`t" . saMenuItem[3] : "")
+}
+
 if !StrLen(strFavoritesListFilter)
 {
-	GuiControl, Show, f_picMoveFavoriteUp
-	GuiControl, Show, f_picMoveFavoriteDown
-	GuiControl, Show, f_picAddSeparator
-	GuiControl, Show, f_picAddColumnBreak
-	GuiControl, Show, f_picAddTextSeparator
-	GuiControl, Show, f_picSortFavorites
-
 	GuiControl, Hide, f_lvFavoritesListFiltered
-	GuiControl, Show, f_lvFavoritesList
 	Gui, 1:ListView, f_lvFavoritesList
 	return
 }
+; else continue
 
-GuiControl, Hide, f_picMoveFavoriteUp
-GuiControl, Hide, f_picMoveFavoriteDown
-GuiControl, Hide, f_picAddSeparator
-GuiControl, Hide, f_picAddColumnBreak
-GuiControl, Hide, f_picAddTextSeparator
-GuiControl, Hide, f_picSortFavorites
-
-GuiControl, Hide, f_lvFavoritesList
 GuiControl, Show, f_lvFavoritesListFiltered
-
 Gui, 1:ListView, f_lvFavoritesList
+
 if (LV_GetCount("Selected") > 1) ; if multiple select in list
 	LV_Modify(0, "-Select") ; reset "Move n" and "Remove n" labels to "Edit" and "Remove"
 
@@ -10575,13 +10573,6 @@ GuiMoveFavoriteToMenu:
 GuiMoveMultipleFavoritesToMenu:
 GuiCopyMultipleFavoritesToMenu:
 ;------------------------------------------------------------
-
-blnFavoriteFromSearch := StrLen(GetFavoritesListFilter())
-if (blnFavoriteFromSearch)
-{
-	Oops("Items cannot be copied or moved from the search result.`n`nPlease ""Edit"" or ""Copy"" the favorite(e)s individually.")
-	return
-}
 
 strGuiFavoriteLabel := A_ThisLabel
 g_intGui1WinID := WinExist("A")
