@@ -4271,8 +4271,8 @@ InsertGuiControlPos("f_picGuiAddFavorite",				 -44,   54, true, true)
 InsertGuiControlPos("f_picGuiEditFavorite",				 -44,  127, true)
 InsertGuiControlPos("f_picGuiEditFavorited",			 -44,  127, true)
 InsertGuiControlPos("f_picGuiRemoveFavorite",			 -44,  202, true)
-InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  277, true)
-InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  352, true)
+InsertGuiControlPos("f_picGuiCopyFavorite",				 -44,  277, true)
+InsertGuiControlPos("f_picGuiMoveFavorite",				 -44,  352, true)
 
 InsertGuiControlPos("f_picAddTextSeparator",			  10,  209)
 InsertGuiControlPos("f_picAddColumnBreak",				  10,  174)
@@ -4297,8 +4297,8 @@ InsertGuiControlPos("f_drpMenusList",					  40, 23)
 InsertGuiControlPos("f_lblGuiAddFavorite",				 -44,  100, true)
 InsertGuiControlPos("f_lblGuiEditFavorite",				 -44,  175, true)
 InsertGuiControlPos("f_lblGuiRemoveFavorite",			 -44,  250, true)
-InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  325, true)
-InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  400, true)
+InsertGuiControlPos("f_lblGuiCopyFavorite",				 -44,  325, true)
+InsertGuiControlPos("f_lblGuiMoveFavorite",				 -44,  400, true)
 InsertGuiControlPos("f_lblMenuDropdownOrSearchLabel",	  40,    5)
 
 InsertGuiControlPos("f_strFavoritesListFilter",			  40,   23)
@@ -8620,8 +8620,8 @@ Gui, 1:Add, Picture, vf_picGuiAddFavorite gGuiAddFavoriteSelectType, %g_strTempD
 Gui, 1:Add, Picture, vf_picGuiEditFavorite gGuiEditFavorite x+1 yp, %g_strTempDir%\edit_property-48_c.png ; Static2
 Gui, 1:Add, Picture, vf_picGuiEditFavorited xp yp, %g_strTempDir%\edit_property-48d_c.png ; Static3
 Gui, 1:Add, Picture, vf_picGuiRemoveFavorite gGuiRemoveFavorite x+1 yp, %g_strTempDir%\delete_property-48_c.png ; Static4
-Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static5
-Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static6
+Gui, 1:Add, Picture, vf_picGuiCopyFavorite gGuiCopyFavorite x+1 yp, %g_strTempDir%\copy-48_c.png ; Static5
+Gui, 1:Add, Picture, vf_picGuiMoveFavorite gGuiMoveFavoriteToMenu x+1 yp, %g_strTempDir%\play_property-48_c.png ; Static6
 Gui, 1:Add, Picture, vf_picUpMenu gGuiGotoUpMenu hidden x+1 yp, %g_strTempDir%\left2-24_c.png ; Static7
 g_aaToolTipsMessages["Static7"] := o_L["ControlToolTipParentMenu"]
 Gui, 1:Add, Picture, vf_picPreviousMenu gGuiGotoPreviousMenu hidden x+1 yp, %g_strTempDir%\left-24_c.png ; Static8
@@ -8649,8 +8649,8 @@ Gui, 1:Font, s8 w400, Arial ; button legend
 Gui, 1:Add, Text, vf_lblGuiAddFavorite center gGuiAddFavoriteSelectType x0 y+20, % o_L["GuiAddFavorite"] ; Static18
 Gui, 1:Add, Text, vf_lblGuiEditFavorite center gGuiEditFavorite x+1 yp w88, % o_L["GuiEditFavorite"] ; Static19, w88 to make room fot when multiple favorites are selected
 Gui, 1:Add, Text, vf_lblGuiRemoveFavorite center gGuiRemoveFavorite x+1 yp w88, % o_L["GuiRemoveFavorite"] ; Static20
-Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, % o_L["GuiMove"] ; Static21
-Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, % o_L["DialogCopy"] ; Static22
+Gui, 1:Add, Text, vf_lblGuiCopyFavorite center gGuiCopyFavorite x+1 yp w88, % o_L["DialogCopy"] ; Static21
+Gui, 1:Add, Text, vf_lblGuiMoveFavorite center gGuiMoveFavoriteToMenu x+1 yp w88, % o_L["GuiMove"] ; Static22
 
 Gui, 1:Font, s8 w400 normal, Verdana
 Gui, 1:Add, Text, vf_lblMenuDropdownOrSearchLabel x+1 yp, % o_L["GuiSubmenuDropdownLabel"] ; Static23
@@ -8773,7 +8773,7 @@ blnFavoritesListFilterExtended := f_blnFavoritesListFilterExtended
 
 ; hide/show buttons for commands not supported in search result
 Loop, Parse, % "f_picMoveFavoriteUp|f_picMoveFavoriteDown|f_picAddSeparator|f_picAddColumnBreak|f_picAddTextSeparator|f_picSortFavorites"
-	. "|f_picGuiMoveFavorite|f_lblGuiMoveFavorite|f_picGuiCopyFavorite|f_lblGuiCopyFavorite|f_lvFavoritesList", "|"
+	. "|f_picGuiMoveFavorite|f_lblGuiMoveFavorite|f_lvFavoritesList", "|"
 	GuiControl, % (StrLen(strFavoritesListFilter) ? "Hide" : "Show"), %A_LoopField%
 
 ; disable/enable Favorite menu items for commands not supported in search result
@@ -9013,13 +9013,13 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiRemoveMultipleFavorites, f_lblGuiRemoveFavorite
 		GuiControl, +gGuiRemoveMultipleFavorites, f_picGuiRemoveFavorite
 		
-		GuiControl, , f_lblGuiMoveFavorite, % o_L["GuiMove"] . " (" . g_intFavoriteSelected . ")"
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_lblGuiMoveFavorite
-		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_picGuiMoveFavorite
-		
 		GuiControl, , f_lblGuiCopyFavorite, % o_L["DialogCopy"] . " (" . g_intFavoriteSelected . ")"
 		GuiControl, +gGuiCopyMultipleFavoritesToMenu, f_lblGuiCopyFavorite
 		GuiControl, +gGuiCopyMultipleFavoritesToMenu, f_picGuiCopyFavorite
+		
+		GuiControl, , f_lblGuiMoveFavorite, % o_L["GuiMove"] . " (" . g_intFavoriteSelected . ")"
+		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_lblGuiMoveFavorite
+		GuiControl, +gGuiMoveMultipleFavoritesToMenu, f_picGuiMoveFavorite
 		
 		GuiControl, +gGuiMoveMultipleFavoritesUp, f_picMoveFavoriteUp
 		GuiControl, +gGuiMoveMultipleFavoritesDown, f_picMoveFavoriteDown
@@ -9035,13 +9035,13 @@ else if (A_GuiEvent = "I") ; Item changed, change Edit button label
 		GuiControl, +gGuiRemoveFavorite, f_lblGuiRemoveFavorite
 		GuiControl, +gGuiRemoveFavorite, f_picGuiRemoveFavorite
 		
-		GuiControl, , f_lblGuiMoveFavorite, % o_L["GuiMove"]
-		GuiControl, +gGuiMoveFavoriteToMenu, f_lblGuiMoveFavorite
-		GuiControl, +gGuiMoveFavoriteToMenu, f_picGuiMoveFavorite
-		
 		GuiControl, , f_lblGuiCopyFavorite, % o_L["DialogCopy"]
 		GuiControl, +gGuiCopyFavorite, f_lblGuiCopyFavorite
 		GuiControl, +gGuiCopyFavorite, f_picGuiCopyFavorite
+		
+		GuiControl, , f_lblGuiMoveFavorite, % o_L["GuiMove"]
+		GuiControl, +gGuiMoveFavoriteToMenu, f_lblGuiMoveFavorite
+		GuiControl, +gGuiMoveFavoriteToMenu, f_picGuiMoveFavorite
 		
 		GuiControl, +gGuiMoveFavoriteUp, f_picMoveFavoriteUp
 		GuiControl, +gGuiMoveFavoriteDown, f_picMoveFavoriteDown
