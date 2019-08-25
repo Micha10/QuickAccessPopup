@@ -8777,8 +8777,8 @@ Loop, Parse, % "f_picMoveFavoriteUp|f_picMoveFavoriteDown|f_picAddSeparator|f_pi
 	GuiControl, % (StrLen(strFavoritesListFilter) ? "Hide" : "Show"), %A_LoopField%
 
 ; disable/enable Favorite menu items for commands not supported in search result
-Loop, Parse, % "GuiMove`t...`tCtrl+M|DialogCopy`t...`tCtrl+Y|ControlToolTipMoveUp`t`tCtrl+Up|ControlToolTipMoveDown`t`tCtrl+Down"
-	. "|ControlToolTipSeparator|ControlToolTipColumnBreak|ControlToolTipTextSeparator|ControlToolTipSortFavorites|MenuSelectAll`t`tCtrl+A", "|"
+Loop, Parse, % "GuiMove`t...`tCtrl+M|ControlToolTipMoveUp`t`tCtrl+Up|ControlToolTipMoveDown`t`tCtrl+Down|ControlToolTipSeparator|ControlToolTipColumnBreak"
+	. "|ControlToolTipTextSeparator|ControlToolTipSortFavorites|MenuSelectAll`t`tCtrl+A", "|"
 {
 	saMenuItem := StrSplit(A_LoopField, "`t")
 	Menu, menuBarFavorite, % (StrLen(strFavoritesListFilter) ? "Disable" : "Enable"), % aaFavoriteL[saMenuItem[1]] . (StrLen(saMenuItem[2]) ? g_strEllipse : "") . (StrLen(saMenuItem[3]) ? "`t" . saMenuItem[3] : "")
@@ -9655,9 +9655,9 @@ GuiFavoriteInit:
 ; when edit favorite, keep original values in o_EditedFavorite
 ; when add favorite, put initial or default values in o_EditedFavorite and update them when gui save
 
-g_strFilterContent := GetFavoritesListFilter()
+strFilterContent := GetFavoritesListFilter()
 
-if StrLen(g_strFilterContent)
+if StrLen(strFilterContent)
 	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
 
 if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
@@ -9669,7 +9669,7 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.E
 	return
 }
 
-if StrLen(g_strFilterContent)
+if StrLen(strFilterContent)
 {
 	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
@@ -9887,6 +9887,7 @@ strShortcutIconIndex := ""
 intShortcutRunState := ""
 intShortcutRunStateWindowsOptions := ""
 strShortcutLocation := ""
+strFilterContent := ""
 
 return
 ;------------------------------------------------------------
@@ -11939,7 +11940,7 @@ if (!blnMove) ; multiple copy not supported for menus, external and groups
 		intTempMenuPosition := LV_GetNext(intTempMenuPosition)
 		if (!intTempMenuPosition)
 			break
-		if InStr("|Menu|Group|External", "|" . o_MenuInGui.SA[intTempMenuPosition].AA.strFavoriteType)
+		if o_MenuInGui.SA[intTempMenuPosition].IsContainer()
 		{
 			MsgBox, 4, %g_strAppNameText%, % o_L["CopyFavoritesToMenuOrGroup"]
 			IfMsgBox, Yes
@@ -11961,9 +11962,9 @@ Loop
 	if (!blnMove and o_MenuInGui.SA[g_intOriginalMenuPosition].IsContainer()) ; skip menus and groups for copy
 		continue
 
-	if (blnMove)
+	if (blnMove) ; can only come from regular favorites list (not from search result)
 		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition]
-	else
+	else ; can be from regular list or search result
 		o_EditedFavorite := o_MenuInGui.SA[g_intOriginalMenuPosition].Backup()
 
 	if (blnMove)
@@ -12043,7 +12044,6 @@ else
 if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 {
 	; if external menu file exists, load the submenu from the external settings ini file
-
 	if (o_EditedFavorite.AA.strFavoriteType = "External")
 	{
 		if FileExist(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath) ; file path exists
@@ -12079,7 +12079,7 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 			else
 				strLastModified := ExternalMenuGetModifiedDateTime(o_EditedFavoriteMenu.AA.strMenuExternalSettingsPath)
 				; else, no need to save values from advanced tab because they were not updated yet by GuiAddFavoriteTabChanged
-
+			
 			; update object's last modified dates anyway
 			o_EditedFavorite.AA.oSubMenu.MenuExternalLastModifiedWhenLoaded := strLastModified
 			o_EditedFavorite.AA.oSubMenu.MenuExternalLastModifiedNow := strLastModified
@@ -12159,8 +12159,8 @@ else ; GuiMoveOneFavoriteSave and GuiCopyOneFavoriteSave (but GuiCopyOneFavorite
 		; for Menu and Group in multiple moved, update the strFavoriteLocation in favorite object and update menus and hotkeys index objects
 		o_EditedFavorite.UpdateMenusPathAndLocation(strDestinationMenu)
 
-; attach favorite submenu object to its parent menu
-o_EditedFavorite.AA.oSubMenu.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
+; set item's parent menu
+o_EditedFavorite.AA.oParentMenu := o_Containers.AA[strDestinationMenu]
 
 ; updating original and destination menu objects (these can be the same)
 
@@ -26067,8 +26067,6 @@ class Container
 				for intKey, oItem in this.AA.oSubMenu.SA
 					if oItem.IsContainer()
 						oItem.UpdateMenusPathAndLocation(strNewMenuPath) ; RECURSIVE
-					else
-						###_V(A_ThisFunc, strNewDestinationMenu, oItem.AA.oParentMenu.AA.strMenuPath)
 				
 			; Loop, % objEditedFavorite.SubMenu.MaxIndex()
 				; if InStr("Menu|Group|External", objEditedFavorite.SubMenu[A_Index].FavoriteType, true)
