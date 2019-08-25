@@ -6269,7 +6269,7 @@ Diag(A_ThisLabel, "", "START")
 
 If o_FileManagers.SA[3].TotalCommanderWinCmdIniFileExist() ; TotalCommander settings file exists
 {
-	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded, true) ; RECURSIVE, true for blnRoot
+	o_Containers.AA[o_L["TCMenuName"]].LoadTCFavoritesFromIniFile(g_aaFileManagerTotalCommander.strTCIniFileExpanded)
 	o_Containers.AA[o_L["TCMenuName"]].BuildMenu() ; recurse for submenus
 	ToolTip
 }
@@ -10597,7 +10597,7 @@ Gui, 2:Add, Text, x10 y10 vf_lblFavoriteParentMenu
 	, % L((blnMove ? (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteParentMenuMove"] : o_L["DialogFavoritesParentMenuMove"])
 	: o_L["DialogFavoritesParentMenuCopy"]), g_intFavoriteSelected)
 Gui, 2:Add, DropDownList, x10 w300 vf_drpParentMenu gDropdownParentMenuChanged
-	, % o_MainMenu.BuildMenuListDropDown(o_MenuinGui.AA.strMenuPath, , true) ; include self but exclude read-only external
+	, % o_MainMenu.BuildMenuListDropDown(o_MenuinGui.AA.strMenuPath, , true) . "|" ; include self but exclude read-only external
 
 Gui, 2:Add, Text, x20 y+10 vf_lblFavoriteParentMenuPosition, % (A_ThisLabel = "GuiMoveFavoriteToMenu" ? o_L["DialogFavoriteMenuPosition"] : o_L["DialogFavoritesMenuPosition"])
 Gui, 2:Add, DropDownList, x20 y+5 w290 vf_drpParentMenuItems AltSubmit
@@ -23446,14 +23446,14 @@ class Container
 	;---------------------------------------------------------
 	
 	;---------------------------------------------------------
-	LoadTCFavoritesFromIniFile(strIniFile, blnRoot := false)
+	LoadTCFavoritesFromIniFile(strIniFile, blnRoot := true)
 	;---------------------------------------------------------
 	{
 		static s_intIniLineLoadTC := 1
 		
 		this.SA := Object() ; re-init
 		
-		if (blnRoot) ; do not pass this value when recursing
+		if (blnRoot)
 			s_intIniLineLoadTC := 1
 		
 		Loop
@@ -23474,7 +23474,7 @@ class Container
 			{
 				strWinCmdItemName := SubStr(strWinCmdItemName, 2)
 				oNewSubMenu := new Container("Menu", strWinCmdItemName, this, "init", false) ; last parameter for blnDoubleAmpersands
-				oNewSubMenu.LoadTCFavoritesFromIniFile(strIniFile) ; RECURSIVE
+				oNewSubMenu.LoadTCFavoritesFromIniFile(strIniFile, false) ; RECURSIVE
 			}
 			else if (SubStr(strWinCmdItemCommand, 1, 3) <> "cd ")
 				
@@ -24283,6 +24283,7 @@ class Container
 			; if we get here, we keep this menu and recurse in it
 			strList .= "|" . oItem.AA.oSubMenu.BuildMenuListDropDown(strDefaultMenuName, strSkipMenuName, blnExcludeReadonly) ; recursive call
 		}
+		
 		return strList
 	}
 	;------------------------------------------------------------
