@@ -9663,9 +9663,9 @@ GuiFavoriteInit:
 strFilterContent := GetFavoritesListFilter()
 
 if StrLen(strFilterContent)
-	o_MenuInGui := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
+	oMenuInGuiCandidate := GetMenuForGuiFiltered(g_intOriginalMenuPosition)
 
-if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
+if oMenuInGuiCandidate.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.ExternalMenuAvailableForLock()
 ; this favorite could not be added or edited because it is in an external menu locked by another user,
 ; or because external settings file is in a read-only folder, or because external files was modified 
 ; by another user since it was loaded in QAP by this user
@@ -9676,7 +9676,7 @@ if o_MenuInGui.FavoriteIsUnderExternalMenu(o_ExternalMenu) and !o_ExternalMenu.E
 
 if StrLen(strFilterContent)
 {
-	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite
+	gosub, OpenMenuFromGuiSearch ; open the parent menu of found selected favorite and put oMenuInGuiCandidate in o_MenuInGui
 	gosub, GuiFavoritesListFilterEmpty ; must be after we opened the menu
 
 	if (o_MenuInGui.SA[g_intOriginalMenuPosition].IsContainer() and g_blnOpenFromDoubleClick)
@@ -11389,8 +11389,7 @@ else
 		oMenuInGuiCandidate := o_MenuInGui.AA.oParentMenu
 	else if (A_ThisLabel = "OpenMenuFromEditForm") or (A_ThisLabel = "OpenMenuFromGuiHotkey")
 		oMenuInGuiCandidate := o_MenuInGui.SA[g_intOriginalMenuPosition].AA.oSubMenu
-	else ; OpenMenuFromGuiSearch
-		oMenuInGuiCandidate := o_MenuInGui ; from the search event
+	; else "OpenMenuFromGuiSearch", we already have oMenuInGuiCandidate
 
 	if (oMenuInGuiCandidate.AA.strMenuType = "External" and !oMenuInGuiCandidate.AA.blnMenuExternalLoaded)
 	{
@@ -11399,7 +11398,6 @@ else
 	}
 	else
 	{
-		o_MenuInGui := oMenuInGuiCandidate
 		g_saSubmenuStack.Push(o_MenuInGui.AA.strMenuPath) ; push the current menu to the left arrow stack
 		g_saSubmenuStackPosition.Push(LV_GetNext("Focused"))
 		o_MenuInGui := oMenuInGuiCandidate
