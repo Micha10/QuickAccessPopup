@@ -31,8 +31,13 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.14 (2019-08-23)
-- 
+Version BETA: 9.9.2.14 (2019-08-25)
+- fix bug collecting favorites with shortcuts or hotstrings in Manage Hotkeys dialog box
+- refactor how to check if changes need to be saved when exiting QAP from System menu, File menu bar, Alt+F4 or Reload QAP
+- when displaying a search result, disable items from Favorite menu for commands not supported in search results
+- hide the "Move" button when in search results (but keep the "Copy" button)
+- swap the "Copy" and "Move" buttons (to avoid having an empty space when in search result)
+- remove forgotten debugging dialog box when saving a favorite
 
 Version BETA: 9.9.2.13 (2019-08-23)
  
