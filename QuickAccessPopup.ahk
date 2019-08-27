@@ -31,6 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.15 (2019-08-??)
+- rename the "Settings" window (and related menus, help and error messages language) to "Customize" (English and French only in this release)
+- fix bug updating the left (back) arrow when opening a menu from the search result
+- swap Move and Copy menu items in menu bar for cinsistency with buttons in Settings window
+- ...
+
 Version BETA: 9.9.2.14 (2019-08-25)
 - fix bug collecting favorites with shortcuts or hotstrings in Manage Hotkeys dialog box
 - refactor how to check if changes need to be saved when exiting QAP from System menu, File menu bar, Alt+F4 or Reload QAP
