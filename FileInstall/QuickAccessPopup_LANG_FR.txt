@@ -18,7 +18,7 @@ lContextCancelled	L'activation ou la désactivation des menus contextuels de Wind
 lContextShowMenu	Afficher le menu de Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Garder cette fenêtre toujours visible
 lControlToolTipAlwaysOnTopOn	Arrêter de garder cette fenêtre toujours visible
-lControlToolTipColumnBreak	Insérer un saut de colonne à la position actuelle dans le menu
+lControlToolTipColumnBreak	Insérer un saut de colonne
 lControlToolTipMoveDown	Déplacer le(s) favori(s) vers le haut
 lControlToolTipMoveUp	Déplacer le(s) favori(s) vers le bas
 lControlToolTipParentMenu	Aller au menu parent
@@ -26,9 +26,9 @@ lControlToolTipPreviousMenu	Retourner au menu précédent
 lControlToolTipSearchBoxClear	Efface le filtre et affiche tous les favoris
 lControlToolTipSearchBoxExtended	Recherche à partir du menu courant selon le nom *et* les propriétés des favoris
 lControlToolTipSearchButton	Recherche des favoris
-lControlToolTipSeparator	Insérer une ligne de séparation à la position actuelle du menu
+lControlToolTipSeparator	Insérer une ligne de séparation
 lControlToolTipSortFavorites	Trier tous les favoris ou ceux sélectionnés
-lControlToolTipTextSeparator	Insérer un texte séparateur à la position actuelle dans le menu
+lControlToolTipTextSeparator	Insérer un texte séparateur
 lCopyFavoritesToMenuOrGroup	Les menus et les groupes ne peuvent pas être copiés.`n`nVoulez-vous continuer sans copier les menus et les groupes?
 lCopyLocationCopiedToClipboard	Emplacement copié dans le Presse-papiers
 lDiagModeCaution	~1~ roule en mode de diagnostique.`n`nDes renseignements à propos de l'exécution de cette application seront colligées dans le fichier:`n~2~`n`nAucune information ne sera transmise sans votre consentement.`n`nVoulez-vous rester en mode diagnostique?
@@ -220,6 +220,7 @@ lDialogGetWinInfo	Pour identifier la fenêtre dont vous voulez obtenir le titre, 
 lDialogGetWInInfo2Clippoard	Titre de la fenêtre:`n"~1~"`n`nClasse:`n"~2~"`n`nNom du processus:`n"~3~"`n`nCopier ces informations dans le Presse-papiers?
 lDialogHotkeyInvisibleKeys	<a id="~1~">espace</a>, <a id="~2~">tab</a>, <a id="~3~">entrée</a>, <a id="~4~">échappement</a>`nou <a id="~5~">touche menu (application)</a>
 lDialogHotkeys	Raccourcis
+lDialogHotkeysHelpHeader	Raccourci|Action
 lDialogHotkeysManageAboutHotstrings	Chaînes de substitution actuellement actives dans ~1~
 lDialogHotkeysManageAboutShortcuts	Raccourcis actuellement actifs dans ~1~
 lDialogHotkeysManageAlternative	Alternatif
@@ -289,10 +290,12 @@ lDialogOr	ou
 lDialogPlaceholders	Voir l'<a href="~1~">aide sur les codes de remplacement</a>.
 lDialogPlay	Jouer
 lDialogQAPFeatureCategoriesNames	En vedette|Menus dynamiques|Édition du menu de QAP|Ajouter un favori avec type|Gestion des fenêtres|Fonctionnalités de Windows|Fermeture de l'ordinateur|Divers utilitaires|Gestion de QAP
+lDialogQAPFeatureCategoriesNamesAll	Tous (en ordre alphabétique)
 lDialogQAPFeaturesHelpLink	Aide sur cette fonctionnalité
 lDialogReadOnly	Lecture seulement
 lDialogRefresh	Actualiser
 lDialogRemoveMultipleFavorites	Voulez-vous vraiement supprimer ~1~ favoris ou sous-menus?
+lDialogResetQAPSpecialDefaultNames	Cette commande va réinitialiser tous les noms des Dossiers spéciaux et des Fonctionnalités QAP dans votre menu à leur nom par défaut en "~1~".`n`nContinuer?
 lDialogSearch	Rechercher
 lDialogSelectIcon	Sélectionnez l'icône
 lDialogSelectIconJL	Sélectionner dans JLicons.dll
@@ -410,6 +413,11 @@ lGuiGroupSaveRestoreWith	Restaurer les dossier avec:
 lGuiHelp	Aide
 lGuiHelpDescription	Afficher la fenêtre d'aide.
 lGuiHotkeysHelp	Aide sur les raccourcis des favoris
+lGuiHotkeysOpenParentMenu	Ouvrir le dossier parent
+lGuiHotkeysOpenSubmenuOrEditFavorite	Ouvrir le sous-menu ou modifier le favori
+lGuiHotkeysSelectContiguousItems	Sélectionner des items contigus
+lGuiHotkeysSelectNextItem	Sélectionner l'item suivant/précédent
+lGuiHotkeysSelectNonContiguousItems	Sélectionner des items non contigus
 lGuiListApplicationsHeader	Index|ID|Titre de la fenêtre|Nom du processus|Chemin du processus|H & L|MinMax|Style|ExStyle|UWP Hwnd|Nom Universal Application
 lGuiLoginName	Code d'utilisateur
 lGuiLvFavoritesHeader	Nom|Type|Raccourci|Emplacement ou contenu
@@ -485,7 +493,7 @@ lImpExpSectionNotFound	Contenu introuvable dans le fichier:`n`n~1~`n`nSection: [
 lImpExpSelectFile	Veuillez sélectionner le fichier ~1~.
 lImpExpSource	Source
 lImpExpTitle	Importer / exporter la configuration - ~1~
-lImpExpUnsavedSettings	Une fenêtre de configuration est ouverte, peut-être avec des changements non sauvegardés.`n`nVeuillez fermer les fenêtres de configuration avant d'importer ou d'exporter la configuration.
+lImpExpUnsavedSettings	Une fenêtre de configuration est ouverte, peut-être avec des changements non sauvegardés.`n`nVeuillez fermer les fenêtres de configuration avant de changer de fichier, d'importer ou d'exporter la configuration.
 lMainMenuName	Principal
 lMenuAbout	À propos
 lMenuAddFavorite	Ajouter un favori
@@ -577,9 +585,11 @@ lMenuReopenCurrentFolder	Réouvrir le dossier actif dans une boîte de dialogue
 lMenuReopenCurrentFolderDescription	Changer le dossier dans la boîte de dialogue pour afficher le dossier actif dans Windows Explorer.`n`nPour utiliser cette commande, assurez-vous d'avoir activé l'option "Changer de dossier dans les boîtes de dialogue..." dans l'onglet "Général" de la fenêtre "Options".
 lMenuReopenInNewWindow	Rouvrir le dossier actif à partir d'une boîte de dialogue
 lMenuReopenInNewWindowDescription	Rouvrir le dossier actuel dans une nouvelle fenêtre de Windows Explorer (ou Directory Opus, ou Total Commander). Cette commande est utile lorsque vous voulez ouvrir dans Windows Explorer le dossier que vous consultez actuellement dans une boîte de dialogue de fichier.
+lMenuResetQAPSpecialDefaultNames	Réinitialiser les nom des Fonctionnalités QAP et Dossiers spéciaux
 lMenuRestoreSettingsWindowPosition	Restaurer la position de la fenêtre "Personnaliser"
 lMenuRestoreSettingsWindowPositionDescription	Restaurer la taille et la position par défaut (au centre de l'écran principal) de la fenêtre "Personnaliser".
 lMenuRunAtStartup	Exécuter au démarrage
+lMenuSelectAll	Sélectionner tous les items
 lMenuSettings	Personnaliser
 lMenuSettingsDescription	Afficher la fenêtre "Personnaliser" pour personnaliser le menu QAP, gérer les favoris et configurer diverses options.`n`nPar défaut, cette commande est incluse dans le menu principal de QAP.
 lMenuStartMenu	Menu Démarrer
