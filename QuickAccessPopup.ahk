@@ -31,11 +31,12 @@ limitations under the License.
 HISTORY
 =======
 
-Version BETA: 9.9.2.15 (2019-08-??)
-- rename the "Settings" window (and related menus, help and error messages language) to "Customize" (English and French only in this release)
+Version BETA: 9.9.2.15 (2019-08-29)
+- rename the "Settings" window (and related menus, help and error messages language) to "Customize" (English and French only in this release) and change its default shortcut to Shift+Control+C
+- change default keyboard shortcut for "Reopen Current Folder in Dialog Box" from Ctrl+Shift+C to Crtl+Shift+U (only for new installations)
 - fix bug updating the left (back) arrow when opening a menu from the search result
-- swap Move and Copy menu items in menu bar for cinsistency with buttons in Settings window
-- ...
+- swap Move and Copy menu items in menu bar for consistency with buttons in Settings window
+- reload menu in Customize window after Refresh a Shared menu
 
 Version BETA: 9.9.2.14 (2019-08-25)
 - fix bug collecting favorites with shortcuts or hotstrings in Manage Hotkeys dialog box
@@ -6554,6 +6555,9 @@ g_blnRefreshQAPMenuInProgress := false
 
 if (o_Settings.MenuAdvanced.blnRefreshQAPMenuDebugBeep.IniValue)
 	SoundBeep, 440
+
+if (A_ThisLabel <> "RefreshQAPMenuScheduled")
+	Gosub, LoadMenuInGui
 
 Diag(A_ThisLabel, "", "STOP-REFRESH")
 return
@@ -22176,7 +22180,7 @@ class QAPfeatures
 			, o_L["GuiOptionsDescription"], 0, "iconOptions", ""
 			, "what-are-the-essential-global-options-to-know")
 		this.AddQAPFeatureObject("Settings",				o_L["MenuSettings"],						"", "GuiShowFromQAPFeature",				"3-QAPMenuEditing~7-QAPManagement"
-			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^s"
+			, o_L["MenuSettingsDescription"], 0, "iconSettings", "+^c"
 			, "what-should-i-know-about-quick-access-popup-before-starting")
 		this.AddQAPFeatureObject("Support",					o_L["GuiDonate"] . g_strEllipse,			"", "GuiDonate",							"7-QAPManagement"
 			, o_L["GuiDonateDescription"], 0, "iconDonate", ""
@@ -22206,7 +22210,7 @@ class QAPfeatures
 			, o_L["MenuExternalCatalogueDescription"], 0, "iconAddFavorite", ""
 			, "shared-menu-catalogue")
 		this.AddQAPFeatureObject("ReopenCurrentFolder",		o_L["MenuReopenCurrentFolder"], 			"", "OpenReopenCurrentFolder",				"1-Featured~4-WindowManagement"
-			, o_L["MenuReopenCurrentFolderDescription"], 0, "iconChangeFolder", "+^c"
+			, o_L["MenuReopenCurrentFolderDescription"], 0, "iconChangeFolder", "+^u"
 			, "can-i-change-folders-in-file-dialog-boxes-open-save-as-etc")
 		this.AddQAPFeatureObject("Last Action", 			o_L["MenuLastAction"],						"", "RepeatLastActionShortcut",				"6-Utility"
 			, o_L["MenuLastActionDescription"], 0, "iconReload", ""
