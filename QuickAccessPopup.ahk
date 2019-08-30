@@ -3553,7 +3553,7 @@ if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 global g_strTempDirParent := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue))
 
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-global g_strTempDir := strTempDirParent . "\_QAP_temp_" . RandomBetween()
+global g_strTempDir := g_strTempDirParent . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ; remove temporary folders older than 7 days
