@@ -3550,19 +3550,14 @@ if !StrLen(o_Settings.Launch.strQAPTempFolderParent.IniValue)
 	else
 		o_Settings.Launch.strQAPTempFolderParent.IniValue := A_WorkingDir ; for installations installed before v8.6.9.2
 
-; remove temporary folders older than 7 days
-global g_strTempDir := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue))
-Loop, Files, %g_strTempDir%\_QAP_temp_*,  D
-{
-	strDate := A_Now
-	EnvSub, strDate, %A_LoopFileTimeModified%, D
-	if (strDate > 5)
-		FileRemoveDir, %A_LoopFileFullPath%, 1 ; Remove all files and subdirectories
-}
+global g_strTempDirParent := PathCombine(A_WorkingDir, EnvVars(o_Settings.Launch.strQAPTempFolderParent.IniValue))
 
 ; add a random number between 0 and 2147483647 to generate a unique temp folder in case multiple QAP instances are running
-g_strTempDir .= "\_QAP_temp_" . RandomBetween()
+global g_strTempDir := strTempDirParent . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
+
+; remove temporary folders older than 7 days
+SetTimer, RemoveOldTemporaryFolders, -10000 ; run once in 10 seconds
 
 ;---------------------------------
 ; Init temporary folder
@@ -18133,6 +18128,26 @@ strICloudDrive := ""
 
 ; Diag(A_ThisLabel, "", "STOP", g_blnIniFileCreation) ; force if first launch
 Diag(A_ThisLabel, "", "STOP")
+return
+;------------------------------------------------------------
+
+
+;------------------------------------------------------------
+RemoveOldTemporaryFolders:
+; remove temporary folders older than 5 days
+;------------------------------------------------------------
+
+Loop, Files, %g_strTempDirParent%\_QAP_temp_*,  D
+{
+	strDate := A_Now
+	EnvSub, strDate, %A_LoopFileTimeModified%, D
+	if (strDate > 5)
+	{
+		FileRemoveDir, %A_LoopFileFullPath%, 1 ; Remove all files and subdirectories
+		Sleep, 1000 ; wait 1 second
+	}
+}
+
 return
 ;------------------------------------------------------------
 
