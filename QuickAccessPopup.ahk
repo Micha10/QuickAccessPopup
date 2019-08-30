@@ -7203,6 +7203,7 @@ Gui, 2:Submit, NoHide
 ; === Validation ===
 
 blnOptionsPathsOK := true ; unless some folder not found later
+blnTCWinCmdOK := true ; unless WinCmd not found later
 
 if (g_intClickedFileManager = 4) ; QAPconnect
 {
@@ -7215,7 +7216,6 @@ if (g_intClickedFileManager = 4) ; QAPconnect
 }
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
-	blnTCWinCmdOK := true ; unless WinCmd not found later
 	blnOptionsPathsOK := StrLen(f_strFileManagerPath)
 	if (blnOptionsPathsOK)
 	{
@@ -7429,7 +7429,10 @@ strClickedFileManagerSystemName := o_FileManagers.SA[g_intClickedFileManager].AA
 if (g_intClickedFileManager = 1)
 	o_Settings.FileManagers.blnExplorerOpenFavoritesOnActiveMonitor.WriteIni(f_blnOpenFavoritesOnActiveMonitor)
 else if (g_intClickedFileManager = 4) ; QAPconnect
-	o_Settings.FileManagers.AA.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
+{
+	o_Settings.FileManagers.strQAPconnectFileManager.WriteIni(f_drpQAPconnectFileManager)
+	o_FileManagers.SA[4].InitQAPConnectValues() ;
+}
 else if (g_intClickedFileManager > 1) ; 2 DirectoryOpus or 3 TotalCommander
 {
 	o_Settings.FileManagers["str" . strClickedFileManagerSystemName . "Path"].WriteIni(f_strFileManagerPath)
@@ -21628,7 +21631,14 @@ TODO
 		;-----------------------------------------------------
 		{
 			base.__New(strThisSystemName, strThisDisplayName)
-			
+			this.InitQAPConnectValues()
+		}
+		;-----------------------------------------------------
+		
+		;-----------------------------------------------------
+		InitQAPConnectValues()
+		;-----------------------------------------------------
+		{
 			strQAPconnectFileManager := o_Settings.ReadIniOption("FileManagers", "strQAPconnectFileManager", "QAPconnectFileManager", " ", "FileManagers"
 				, "f_drpQAPconnectFileManager|f_btnFileManagerPath|f_btnQAPconnectEdit|f_btnQAPconnectRefresh")
 			this.AA.strQAPconnectFileManager := strQAPconnectFileManager
@@ -21673,7 +21683,6 @@ TODO
 				this.AA.strQAPconnectNeverQuotes := strNeverQuotes
 			}
 		}
-		;-----------------------------------------------------
 	}
 	;---------------------------------------------------------
 }
