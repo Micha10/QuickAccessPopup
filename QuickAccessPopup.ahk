@@ -6645,8 +6645,12 @@ Gosub, GuiOptionsHeader
 
 ; === General ===
 
+; ChangeFolderInDialog
+Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsTab3X% w400 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
+GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
+
 ; LanguageCode
-Gui, 2:Add, Text, y%intGroupItemsY% x%g_intGroupItemsX% w105 vf_lblLanguage hidden, % o_L["OptionsLanguage"]
+Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w105 vf_lblLanguage hidden, % o_L["OptionsLanguage"]
 Gui, 2:Add, DropDownList, yp x%g_intGroupItemsTab3X% w200 vf_drpLanguage Sort gGuiOptionsGroupChanged hidden, % o_L["OptionsLanguageLabels"]
 GuiControl, ChooseString, f_drpLanguage, %g_strLanguageLabel%
 
@@ -6670,10 +6674,6 @@ GuiControl, , f_blnDisplayTrayTip, % (o_Settings.Launch.blnDisplayTrayTip.IniVal
 Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% vf_blnCheck4Update gGuiOptionsGroupChanged hidden, % o_L["OptionsCheck4Update"]
 GuiControl, , f_blnCheck4Update, % (o_Settings.Launch.blnCheck4Update.IniValue = true)
 Gui, 2:Add, Link, yp x+1 gCheck4UpdateNow vf_lnkCheck4Update hidden, % "(<a>" . o_L["OptionsCheck4UpdateNow"] . "</a>)"
-
-; ChangeFolderInDialog
-Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsTab3X% w400 vf_blnChangeFolderInDialog gChangeFoldersInDialogClicked hidden, % o_L["OptionsChangeFolderInDialog"]
-GuiControl, , f_blnChangeFolderInDialog, % (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue = true)
 
 ; Working folder (only for Setup installation)
 if (!g_blnPortableMode)
