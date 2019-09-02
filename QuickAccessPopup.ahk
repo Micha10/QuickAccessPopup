@@ -3557,7 +3557,7 @@ global g_strTempDir := g_strTempDirParent . "\_QAP_temp_" . RandomBetween()
 FileCreateDir, %g_strTempDir%
 
 ; remove temporary folders older than 7 days
-SetTimer, RemoveOldTemporaryFolders, -10000 ; run once in 10 seconds
+SetTimer, RemoveOldTemporaryFolders, -10000, -100 ; run once in 10 seconds, low priority -100
 
 ;---------------------------------
 ; Init temporary folder
@@ -7250,6 +7250,11 @@ if (!g_blnPortableMode) ; Working folder prep (only for Setup installation)
 {
 	strWorkingFolderNew := EnvVars(f_strWorkingFolder) ; do not PathCombine, save expanded to registry
 	strWorkingFolderPrev := GetRegistry("HKEY_CURRENT_USER\Software\Jean Lalonde\" . g_strAppNameText, "WorkingFolder")
+	if (strWorkingFolderNew <> strWorkingFolderPrev and o_Settings.strIniFile <> o_Settings.strIniFileDefault) ; check that the settings file has not been switched
+	{
+		Oops(o_L["DialogMoveSettingsNotDefault"])
+		return
+	}
 	if (strWorkingFolderNew <> strWorkingFolderPrev) and InStr(strWorkingFolderNew, strWorkingFolderPrev . "\") ; check that dest is not under current location (preventing a recursive copy)
 	{
 		Oops(o_L["DialogMoveSettingsUnder"])
@@ -18144,7 +18149,7 @@ Loop, Files, %g_strTempDirParent%\_QAP_temp_*,  D
 	if (strDate > 5)
 	{
 		FileRemoveDir, %A_LoopFileFullPath%, 1 ; Remove all files and subdirectories
-		Sleep, 1000 ; wait 1 second
+		Sleep, 10000 ; wait 10 second
 	}
 }
 
@@ -23355,6 +23360,12 @@ class Container
 		
 		if (this.AA.strMenuType = "External")
 		{
+			if this.AA.oParentMenu.FavoriteIsUnderExternalMenu(o_ExternalMenu)
+			{
+				this.AA.blnMenuExternalLoaded := false ; true if the external menu was loaded, false if not loaded (or not an external menu)
+				Oops(o_L["OopsExternalUnderExternalError"], o_ExternalMenu.AA.strMenuPath)
+				return, "EOM" ; end of menu because of known error (external settings file unavailable) - error is noted in .MenuExternalLoaded false - external menu will be empty
+			}
 			if !FileExist(s_strIniFile)
 			{
 				this.AA.blnMenuExternalLoaded := false ; true if the external menu was loaded, false if not loaded (or not an external menu)
