@@ -18,7 +18,7 @@ lContextCancelled	A activaÃ§Ã£o ou desactivaÃ§Ã£o dos menus de contexto do Windo
 lContextShowMenu	Mostrar o menu do Quick Access Popup
 lControlToolTipAlwaysOnTopOff	Mantem esta janela sempre visível em primeiro plano
 lControlToolTipAlwaysOnTopOn	Para de manter esta janela sempre visível
-lControlToolTipColumnBreak	Insere uma quebra de coluna na actual posição do menu
+lControlToolTipColumnBreak	Insere uma quebra de coluna
 lControlToolTipMoveDown	Move o(s) favorito(s) seleccionado(s) para baixo
 lControlToolTipMoveUp	Move o(s) favorito(s) seleccionado(s) para cima
 lControlToolTipParentMenu	Vai para o menu principal
@@ -26,9 +26,9 @@ lControlToolTipPreviousMenu	Regressa ao menu anterior
 lControlToolTipSearchBoxClear	Limpa a caixa de procura e mostra todos os favoritos
 lControlToolTipSearchBoxExtended	Procura por nomes de favoritos no menu actual *e* vÃ¡rias propriedades
 lControlToolTipSearchButton	Procurar favoritos
-lControlToolTipSeparator	Insere um separador de menu na posição actual
+lControlToolTipSeparator	Insere um separador de menu
 lControlToolTipSortFavorites	Ordena todos ou os favoritos seleccionados na lista
-lControlToolTipTextSeparator	Insere um separador de texto na actual posição do menu
+lControlToolTipTextSeparator	Insere um separador de texto do menu
 lCopyFavoritesToMenuOrGroup	Os menus e grupos não podem ser copiados.`n`nDeseja continuar sem copiar menus e grupos?
 lCopyLocationCopiedToClipboard	Atalho ou URL copiado para a área de transferência
 lDiagModeCaution	~1~ está a ser executado em modo diagnóstico.`n`nA informação sobre a execução do programa será armazenada no ficheiro:`n~2~`n`nNada será enviado sem o seu consentimento.`n`nDeseja continuar no modo disgnóstico?
@@ -220,6 +220,7 @@ lDialogGetWinInfo	Para identificar a janela da qual pretende obter o título, cla
 lDialogGetWInInfo2Clippoard	Título da janela:`n"~1~"`n`nClasse:`n"~2~"`n`nProcesso:`n"~3~"`n`nCopiar esta informação para a Área de transferência?
 lDialogHotkeyInvisibleKeys	(OLD version *UPDATE next line and DELETE this line*) <a id="~1~">barra de espaços</a>, <a id="~2~">tab</a>, <a id="~3~">enter</a> ou <a id="~4~">escape</a>
 lDialogHotkeys	Teclas de Atalho
+lDialogHotkeysHelpHeader	Atalho|Acção
 lDialogHotkeysManageAboutHotstrings	Cadeias de substituição actualmente activas em ~1~
 lDialogHotkeysManageAboutShortcuts	Teclas de atalho actualmente activas em ~1~
 lDialogHotkeysManageAlternative	Alternativo
@@ -244,7 +245,7 @@ lDialogHotstringTriggerAbbreviation	Activador (abreviatura):
 lDialogHotstringTriggerOptions	Cadeia de substituição (activador e opções)
 lDialogIcon	Ícone do Favorito
 lDialogIconsManage	Ícones
-lDialogIconsManageAbout	Seleccione novos ícones para os seus favoritos ou defina-os para o ícone padrão do seu tipo. Não se esqueça de guardar as alterações na janela Definições.
+lDialogIconsManageAbout	Seleccione novos ícones para os seus favoritos ou defina-os para o ícone padrão do seu tipo. Não se esqueça de guardar as alterações na janela "Personalizar".
 lDialogIconsManageCurrent	Ícone actual
 lDialogIconsManageDefault	Ícone padrão
 lDialogIconsManageDescription	Exibe uma caixa de diálogo listando todos os favoritos no seu menu QAP com os seus ícones actuais e o ícone padrão para este tipo de favorito. Os favoritos são agrupados em sub-menus, pela ordem que aparecem no seu menu.`n`nClique nos botões para seleccionar um ícone personalizado para um favorito oureponha um favorito para o seu ícone padrão.
@@ -254,7 +255,7 @@ lDialogIconsManageParentMenu	Menu principal do Favorito
 lDialogIconsManagePrevious	Anterior
 lDialogIconsManageSetDefaultIcon	Definir ícone padrão
 lDialogIconsManageTitle	Gerir Ícones - ~1~ ~2~
-lDialogInvalidHotkey	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora do menu emergente (erro de nome de tecla inválido).`n`nPor favor, abra a janela "Definições" do menu da Barra de notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~2~".
+lDialogInvalidHotkey	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora do menu emergente (erro de nome de tecla inválido).`n`nPor favor, abra a janela "Personalizar" do menu da Barra de notificação e clique em "Opções". Nesta caixa de diálogo, escolha outro atalho para "~2~".
 lDialogInvalidHotkeyFavorite	Com a sua actual configuração do teclado, a tecla de atalho "~1~" não pode usada como desencadeadora para este favorito (erro de nome de tecla inválido).`n`nPor favor, escolha outro atalho para o favorito "~2~" e localização "~3~".
 lDialogKeyboard	Teclado
 lDialogLaunchWith	Abrir com esta aplicação
@@ -266,7 +267,6 @@ lDialogMenuKey	Tecla de Menu
 lDialogMenuNotMoveUnderItself	O menu "~1~" não pode ser movido para si próprio
 lDialogMinimized	Minimizado
 lDialogModifiedDate	Data de modificação
-lDialogMore	Mais
 lDialogMouse	Rato
 lDialogMouseButtonsText	Botão Esquerdo do Rato|Botão do Meio do Rato|Botão Direito do Rato|Botão Especial 1|Botão Especial 2|Roda p/Cima|Roda p/Baixo|Roda p/Esq.|Roda p/Dir.|
 lDialogMouseButtonsTextShort	Esquerdo|Médio|Direito|Especial 1|Especial 2|Roda p/ cima|Roda p/ baixo|Roda Esq.|Roda Dir.| 
@@ -290,10 +290,12 @@ lDialogOr	ou
 lDialogPlaceholders	Ver <a href="~1~">página de ajuda de espaços reservados</a>.
 lDialogPlay	Reproduzir
 lDialogQAPFeatureCategoriesNames	Destaque|Menus Dinâmicos|Edição do Menu QAP|Adicionar Favorito do Tipo|Gestão de janelas|Recursos do Windows|Utilitários|Gestão do QAP
+lDialogQAPFeatureCategoriesNamesAll	Todos (ordem alfabética)
 lDialogQAPFeaturesHelpLink	Ajuda neste recurso
 lDialogReadOnly	Só de leitura
 lDialogRefresh	Actualizar
 lDialogRemoveMultipleFavorites	Deseja mesmo remover ~1~ favoritos ou submenus?
+lDialogResetQAPSpecialDefaultNames	Este comando irá redefinir para o nome padrão todas as Pastas Especiais e Favoritos QAP no seu menu em "~1~".`n`nContinuar?
 lDialogSearch	Procurar
 lDialogSelectIcon	Seleccionar ícone
 lDialogSelectIconJL	Seleccionar em JLicons.dll
@@ -303,7 +305,7 @@ lDialogSelectItemToEdit	Por favor, seleccione o item para editar.
 lDialogSelectItemToMove	Por favor, seleccione o item para mover.
 lDialogSelectItemToRemove	Por favor, seleccione o item para remover.
 lDialogSettingsInvalid	Ficheiro de Definições inválido.`n`nCertifique-se que o ficheiro de definições inclui as secções ~1~ e ~2~.`n`nFicheiro: ~3~
-lDialogSettingsNotSavedPrompt	A janela Definições está aberta com alterações não guardadas. Essas alterações devem ser guardadas ou canceladas antes de executar acção seleccionada.`n`nDeseja:`n- "Guardar": guardar as alterações e executar a acção seleccionada`n- "Definições": cancelar a acção seleccionada e voltar à janela Definições`n- "Cancelar": cancelar a acção seleccionada?
+lDialogSettingsNotSavedPrompt	A janela "Personalizar" está aberta com alterações não guardadas. Essas alterações devem ser guardadas ou canceladas antes de executar acção seleccionada.`n`nDeseja:`n- "Guardar": guardar as alterações e executar a acção seleccionada`n- "Personalizar": cancelar a acção seleccionada e voltar à janela "Personalizar"`n- "Cancelar": cancelar a acção seleccionada?
 lDialogSettingsNotSavedTitle	~1~ - Definições não guardadas
 lDialogShift	Shift
 lDialogShiftShort	Shift
@@ -355,7 +357,7 @@ lDonateCheckPrompt	Bem-vindo a esta nova versão do ~1~?`n`nEsta é uma mensagem Ú
 lDonateCheckPrompt2	Nota: Aos utilizadores que gentilmente fizerem uma doação de 5$ ou 5€ ou mais (ou qualquer doação mensal) será fornecido um CÓDIGO DE PATROCINADOR que irá PARAR ~1~.
 lDonateCheckPrompt3	a exibição desta mensagem
 lDonateCheckPrompt4	a exibição de lembretes de patrocínio
-lDonateCheckPrompt5	e a exibição de mensagem de patrocínio na janela de Definições
+lDonateCheckPrompt5	e a exibição de mensagem de patrocínio na janela "Personalizar"
 lDonateCheckTitle	~1~ vezes! - ~2~
 lDonateMenu	Patrocine este software!
 lDonatePlatformComment1	Doe com cartão de crédito (não é necessário criar uma conta) ou com a sua conta PayPal
@@ -384,7 +386,7 @@ lDOpusMenuName	Favoritos Directory Opus
 lDopusMenuNameDescription	Para utilizadores do Directory Opus (DOpus), exibe um menu dinÃ¢mico construÃ­do com as pastas adicionadas aos Favoritos DOpus. Se o DOpus foi seleccionado quando instalou o QAP, os Favoritos Directory Opus foram adicionados automaticamente ao seu menu.
 lDopusMenuNameShowLayout	Exibir Esquemas nos menus ~1~
 lGuiAbout	Acerca
-lGuiAboutDescription	Exibe o desenvolvimento, traduções e outros créditos, versão da aplicação e runtime, licença, nome do utilizador actual e do PC, ligação para a página de suporte.`n`nEsta funcionalidade também está disponível através do botão "Acerca" da janela principal "Definições".
+lGuiAboutDescription	Exibe o desenvolvimento, traduções e outros créditos, versão da aplicação e runtime, licença, nome do utilizador actual e do PC, ligação para a página de suporte.
 lGuiAddFavorite	Adicionar
 lGuiCancel	Cancelar
 lGuiClose	Fechar
@@ -398,7 +400,7 @@ lGuiDonateCodeInputSponsorLabel	Introduza o seu nome (NOME DO PATROCINADOR)
 lGuiDonateDescription	Exibe a caixa de diálogo "Patrocine este software".
 lGuiDropFilesHelp	Ajuda Arrastar && Largar
 lGuiDropFilesIncentive	Pode Arrastar & Largar os seguintes tipos de favoritos para a janela ~1~ :`n`n`t- ~2~`n`t- ~3~`n`t- ~4~
-lGuiDropFilesIncentive2	Para ajudá-lo a arrastar um ou mais ficheiros, pode tornar a janela de Definições "sempre visível" clicando no ícone pin do lado esquerdo da janela.
+lGuiDropFilesIncentive2	Para ajudá-lo a arrastar um ou mais ficheiros, pode tornar a janela "Personalizar" "sempre visível" clicando no ícone pin do lado esquerdo da janela.
 lGuiEditFavorite	Editar
 lGuiGroupClosing	Fechar janelas do Explorador
 lGuiGroupRestoreDelay	Atraso entre os favoritos para restaurar:
@@ -411,6 +413,11 @@ lGuiGroupSaveRestoreWith	Restaurar pastas com:
 lGuiHelp	Ajuda
 lGuiHelpDescription	Mostra a janela reduzida da "Ajuda" do QAP.
 lGuiHotkeysHelp	Ajuda Atalhos dos Favoritos
+lGuiHotkeysOpenParentMenu	Abrir menu superior
+lGuiHotkeysOpenSubmenuOrEditFavorite	Abrir submenu ou editar favorito
+lGuiHotkeysSelectContiguousItems	Seleccionar itens contíguos
+lGuiHotkeysSelectNextItem	Seleccionar item seguinte/anterior
+lGuiHotkeysSelectNonContiguousItems	Seleccionar itens não-contíguos
 lGuiListApplicationsHeader	Índice|ID|Título da janela|Nome do Processo|Caminho do Processo|W & H|MinMax|Style|ExStyle|UWP Hwnd|Nome Universal da Aplicação
 lGuiLoginName	Nome de Utilizador
 lGuiLvFavoritesHeader	Nome|Tipo|Tecla de Atalho|Localização ou conteúdo
@@ -426,7 +433,7 @@ lGuiSave	Guardar
 lGuiSaveAndClose	Guardar && Fechar
 lGuiSaving	A guardar
 lGuiSubmenuDropdownLabel	Menu ou grupo para editar:
-lGuiTitle	Definições - ~1~ ~2~
+lGuiTitle	Personalizar - ~1~ ~2~
 lHelpMenuKnowledgeBase	Base de Conhecimento
 lHelpMenuQuickStart	InÃ­cio RÃ¡pido
 lHelpMenuSupportForum	FÃ³rum de Suporte
@@ -438,21 +445,21 @@ lHelpTabTipsAndTricks	Dicas e Truques
 lHelpText11	Ao iniciar, o Quick Access Popup adiciona um ícone na área de notificação e aguarda as suas ordens. Quando desejar abrir PASTAS, DOCUMENTOS, APLICAÇÕES, LIGAÇÕES WEB, SITES FTP ou AMOSTRAS DE TEXTO, da sua preferência, basta usar a tecla de atalho do QAP [~1~] ou [~2~] e, no menu emergente, seleccionar o favorito pretendido.
 lHelpText12	Quando seleccionar uma PASTA favorita no Explorador do Windows ou uma caixa de diálogo de ficheiro*, o Quick Access Popup "navega" de imediato a janela actual para essa pasta! * Esta função deve ser activada nas "Opções", secção "Geral".
 lHelpText13	Para forçar a abertura da pasta numa nova janela, use as teclas de atalho Alternativas [~1~] ou [~2~]. No menu Alternativo, seleccione "Abrir em nova janela", em seguida, seleccione a pasta desejada. O menu Alternativo disponibiliza várias outras funcionalidades.
-lHelpText14	Seleccione "Definições" para personalizar o seu menu do Quick Access Popup. Pode adicionar favoritos ao seu menu. Pode mover, renomear ou eliminá-los. Também pode adicionar SUBMENUS, GRUPOS ou MENUS PARTILHADOS. Seleccione o "Menu ou grupo para editar:" na lista pendente. Clique em "Guardar" para manter as suas alterações.
-lHelpText21	Para adicionar favoritos, clique no botão "Adicionar", na janela "Definições". Seleccione o tipo do novo favorito e veja as dicas no lado direito da janela. Clique em "Continuar" para abrir a caixa de diálogo "Adicionar Favorito".
-lHelpText22	Nos vários separadores da caixa de diálogo "Adicionar favorito", introduza as "Definições Básicas", "Opções do Menu", "Opções da Janela" e "Definições Avançadas". Clique em "Adicionar" para inserir o favorito no seu menu e em "Guardar" na janela Definições.
-lHelpText23	ADICIONAR PASTA ACTIVA OU PÁGINA WEB`n`nPara ADICIONAR rapidamente uma nova PASTA ou PÁGINA WEB favoritas ao menu emergente:`n1) Vá para uma pasta ou página web usada frequentemente.`n2) Clique na tecla de atalho do QAP [~1~] ou [~2~], e escolha "Adicionar Pasta Activa ou página Web".`n3) Dê um nome abreviado ao favorito, clique em "Adicionar", e depois em "Guardar" na janela Definições.
-lHelpText24	A janela "Definições" é aberta automaticamente ao iniciar o QAP. Se estiver satisfeito com o seu menu, pode manter esta janela fechada ao iniciar o QAP e abri-la apenas se necessitar de actualizar o seu menu. Seleccione as sua preferências em "Opções", secção "Janela Definições".
+lHelpText14	Seleccione "Personalizar" para personalizar o seu menu do Quick Access Popup. Pode adicionar favoritos ao seu menu. Pode mover, renomear ou eliminá-los. Também pode adicionar SUBMENUS, GRUPOS ou MENUS PARTILHADOS. Seleccione o "Menu ou grupo para editar:" na lista pendente. Clique em "Guardar" para manter as suas alterações.
+lHelpText21	Para adicionar favoritos, clique no botão "Adicionar", na janela "Personalizar". Seleccione o tipo do novo favorito e veja as dicas no lado direito da janela. Click "Continue" to open the "Add Favorite" dialog box.
+lHelpText22	Nos vários separadores da caixa de diálogo "Adicionar favorito", introduza as "Definições Básicas", "Opções do Menu", "Opções da Janela" e "Definições Avançadas". Clique em "Adicionar" para inserir o favorito no seu menu e em "Guardar" na janela "Personalizar".
+lHelpText23	ADICIONAR PASTA ACTIVA OU PÁGINA WEB`n`nPara ADICIONAR rapidamente uma nova PASTA ou PÁGINA WEB favoritas ao menu emergente:`n1) Vá para uma pasta ou página web usada frequentemente.`n2) Clique na tecla de atalho do QAP [~1~] ou [~2~], e escolha "Adicionar Pasta Activa ou página Web"".`n3) Dê um nome abreviado ao favorito, clique em "Adicionar", e depois em "Guardar" na janela "Personalizar".
+lHelpText24	A janela "Personalizar" é aberta automaticamente ao iniciar o QAP. Se estiver satisfeito com o seu menu, pode manter esta janela fechada ao iniciar o QAP e abri-la apenas se necessitar de actualizar o seu menu. Seleccione as sua preferências em "Opções", secção "Janela Persovalizar".
 lHelpText31	No menu "O Meu QAP Básico":
 lHelpText32	- Utilize os menus "Reabrir uma Pasta" ou "Reabrir a Pasta Actual em caixa de diálogo" para reabrir uma pasta anteriormente aberta na janela do Explorador.`n- Aceda aos ficheiros ou URLs na sua Área de Transferência com o menu "Área de Transferência".`n- Clique no menu "Unidades" para ver a lista de unidades com o espaço de disco actual.
 lHelpText33	PERSONALIZE O SEU MENU DE FUNÇÕES QAP
-lHelpText34	Pode mover os itens dos menus "A trabalhar" e "O Meu QAP Básico" para o menu principal ou para outros submenus como preferir. Na janela "Definições", seleccione "Menu ou grupo para editar:" na lista pendente, edite a função QAP para mover e, no separador "Opções do Menu", seleccione o novo menu superior e posição.
+lHelpText34	Pode mover os itens dos menus "A trabalhar" e "O Meu QAP Básico" para o menu principal ou para outros submenus como preferir. Na janela "Personalizar", seleccione "Menu ou grupo para editar:" na lista pendente, edite a função QAP para mover e, no separador "Opções do Menu", seleccione o novo menu superior e posição.
 lHelpText35	No menu "A trabalhar", encontre os seus actuais conteúdos:
 lHelpText36	- Abra os menus "Pastas Frequentes" ou "Ficheiros Frequentes" para ver os seus conteúdos usados frequentemente.`n- Escolha os menus "Pastas Recentes" ou "Ficheiros Recentes" para exibir uma lista actualizada do seu trabalho recente.`n- Seleccione o menu "Janelas Actuais" para mudar para qualquer outra janela em execução do Explorador ou de um programa.
-lHelpText41	- Utilize o ícone Quick Access Popup da Área de notificação (inferior direita do ecrã) de uma destas três formas:`n1) Clique esquerdo no ícone para abrir o menu emergente do QAP`n2) Clique direito no ícone para abrir o menu de sistema do QAP.`n3) Duplo clique no ícone para abrir a caixa de diálogo "Definições".
+lHelpText41	- Utilize o ícone Quick Access Popup da Área de notificação (inferior direita do ecrã) de uma destas três formas:`n1) Clique esquerdo no ícone para abrir o menu emergente do QAP`n2) Clique direito no ícone para abrir o menu de sistema do QAP.`n3) Duplo clique no ícone para abrir a janela "Personalizar".
 lHelpText42	- Na área de notificação, clique com o botão direito do rato no ícone do Quick Access Popup e marque a opção "Executar no Arranque" para iniciar o Quick Access Popup automaticamente com o sistema.
-lHelpText43	- Configure os seus desencadeadores do menu Quick Access Popup: escolha os seus botões do rato preferidos ou atalhos de teclado. Na janela "Definições", seleccione o menu "Opções, Teclas de atalho emergentes".
-lHelpText44	- Também nas "Opções": escolha o seu idioma preferido, tamanho dos ícones do menu e cores das janelas. Seleccione o número de pastas recentes a exibir, adicione atalhos de teclado numéricos ao menu das pastas ou lembretes de atalho. Fixe o menu emergente em determinada posição ou mantenha a posição da janela Definições. E muito mais...
+lHelpText43	- Configure os seus desencadeadores do menu Quick Access Popup: escolha os seus botões do rato preferidos ou atalhos de teclado. Na janela "Personalizar", seleccione o menu "Opções, Teclas de atalho emergentes".
+lHelpText44	- Também nas "Opções": escolha o seu idioma preferido, tamanho dos ícones do menu e cores das janelas. Seleccione o número de pastas recentes a exibir, adicione atalhos de teclado numéricos ao menu das pastas ou lembretes de atalho. Fixe o menu emergente em determinada posição ou mantenha a posição da janela "Personalizar". E muito mais...
 lHelpText45	- Utilizadores do Directory Opus, ver <a href="http://www.quickaccesspopup.com/how-to-i-enable-directory-opus-support-in-quick-access-popup/">esta página</a> para mais informações.`n- Utilizadores do Total Commander, ver <a href="http://www.quickaccesspopup.com/how-do-i-enable-total-commander-support-in-quick-access-popup/">esta página</a> para mais informações.`n- Utilizadores de outros gestores de ficheiros, ver <a href="http://www.quickaccesspopup.com/what-file-managers-are-supported-in-addition-to-windows-explorer/">esta página</a> para mais informações no QAPconnect.
 lHelpText51	Os menus partilhados permitem gerir os favoritos num ficheiro de definições que pode ser partilhado por vários utilizadores ou utilizado pelo mesmo utilizador em diferentes computadores. Existem três tipos de menus partilhados:
 lHelpText52	Os menus partilhados podem conter qualquer tipo de favoritos, excepto outros menus partilhados. O ficheiro de definições do menu partilhado pode ser guardado numa unidade de rede ou numa pasta partilhada (como o Dropbox) e usado em vários PCs. O QAP suporta trabalho colaborativo evitando conflitos de modificações.
@@ -486,7 +493,7 @@ lImpExpSectionNotFound	Conteúdo não encontrado no ficheiro:`n`n~1~`n`nSecção: [~
 lImpExpSelectFile	Por favor, seleccione ficheiro ~1~.
 lImpExpSource	Origem
 lImpExpTitle	Definições de Importação / Exportação - ~1~
-lImpExpUnsavedSettings	Está aberta uma janela de definições, possivelmente com alterações não guardadas.`n`nPEncerre as janelas de definições antes de importar ou exportar definições.
+lImpExpUnsavedSettings	Está aberta uma janela de definições, possivelmente com alterações não guardadas.`n`nPor favor encerre antes de alternar, importar ou exportar definições.
 lMainMenuName	Principal
 lMenuAbout	Acerca
 lMenuAddFavorite	Adicionar Favorito
@@ -558,7 +565,6 @@ lMenuOptions	OpÃ§Ãµes
 lMenuPictures	Imagens
 lMenuPopularFiles	Ficheiros
 lMenuPopularFolders	Pastas
-lMenuPopularMenus	~1~ Frequentes
 lMenuPopularMenusDescription	Exibe um menu dinâmico mostrando as ~1~ usadas mais frequentemente de acordo com o registo do Windows e usadas no QAP. Este menu é actualizado sempre que abrir o menu QAP.
 lMenuPopularMenusFiles	Ficheiros Frequentes
 lMenuPopularMenusFolders	Pastas Frequentes
@@ -575,16 +581,18 @@ lMenuRecentItems	Itens Recentes
 lMenuRefreshMenu	Actualizar Pastas Live e menus Partilhados
 lMenuRefreshMenuDescription	Actualiza a-pedido os menus "Pastas Live". Esta acção também pode ser executada periodicamente definindo um intervalo (em segundos) em "Actualização agendada do menu QAP" do separador "Menu" nas janelas "Opções".`n`nDurante o curto (dependendo do número de pastas Live ou menus Partilhados) tempo de actualização, o menu QAP não está disponível.
 lMenuReload	Reiniciar ~1~
-lMenuReloadDescription	Reinicia o Quick Access Popup.`n`nCertifique-se de que guarda as alterações na Definições antes de reiniciar o QAP.
+lMenuReloadDescription	Reinicia o Quick Access Popup.`n`nCertifique-se de que guarda as alterações na janela "Personalizar" antes de reiniciar o QAP.
 lMenuReopenCurrentFolder	Reabrir Pasta Actual na Caixa de Diálogo
 lMenuReopenCurrentFolderDescription	Muda a pasta nas caixas de diálogo de ficheiro para a pasta actualmente activa no Windows Explorer.`n`nPara usar esta funcionalidade, a opção "Mudar pasta em caixa de diálogo..." deve estar seleccionada em "Opções", separador "Geral".
 lMenuReopenInNewWindow	Reabrir pasta actual a partir da caixa de diálogo
 lMenuReopenInNewWindowDescription	Reabre a pasta actual numa nova janela do Explorer (Também no Directory Opus ou Total Commander). Útil quando desejar abrir a pasta onde navega numa caixa de diálogo de ficheiro numa janela do Explorer.
-lMenuRestoreSettingsWindowPosition	Restaurar posição da janela de Definições
-lMenuRestoreSettingsWindowPositionDescription	Restaura o tamanho e posição da janela Definições no centro do ecrã principal.
+lMenuResetQAPSpecialDefaultNames	Repor Nomes Padrão de Funções QAP e Pastas Especiais
+lMenuRestoreSettingsWindowPosition	Restaurar posição da janela "Personalizar"
+lMenuRestoreSettingsWindowPositionDescription	Restaura o tamanho e posição da janela "Personalizar" no centro do ecrã principal.
 lMenuRunAtStartup	Executar no Arranque
-lMenuSettings	Definições
-lMenuSettingsDescription	Exibe a janela "Definições" onde pode personalizar o seu menu emergente do QAP, gerir os seus favoritos e definir diversas opções.`n`nPor defeito esta funcionalidade faz parte do meu Principal.
+lMenuSelectAll	Seleccionar todos os itens
+lMenuSettings	Personalizar
+lMenuSettingsDescription	Exibe a janela "Personalizar" onde pode personalizar o seu menu emergente do QAP, gerir os seus favoritos e definir diversas opções.`n`nPor defeito esta funcionalidade faz parte do meu Principal.
 lMenuStartMenu	Menu Iniciar
 lMenuStartup	Arranque
 lMenuSuspendHotkeys	Suspender Teclas de Atalho
@@ -593,7 +601,7 @@ lMenuSwitchFolderOrAppDescription	Exibe um menu dinâmico em duas partes:`n1) as 
 lMenuSwitchSettings	Mudar de ficheiro de definições
 lMenuSwitchSettingsDefault	Mudar para o ficheiro de definições padrão
 lMenuSwitchSettingsDefaultDescription	Reinicia o Quick Access Popup com o ficheiro de definições na sua localização padrão.`n`nSe nstalou o QAP usando o procedimento "instalação em um passo", a localização padrão é na pasta Utilizador (por exemplo, "C:\Utilizadores\Lus\AppData\Roaming\Quick Access Popup").`n`nSe optou pela instalação portátil, a localização padrão é na pasta onde se encontra o programa QuickAccessPopup.exe.
-lMenuSwitchSettingsDescription	Selecciona outro ficheiro de definições do QAP e reinicia o Quick Access Popup com essas definições (incluindo favoritos e diversas opções).`n`nCertifique-se de que guarda as alterações na Definições antes de reiniciar o QAP.
+lMenuSwitchSettingsDescription	 Selecciona outro ficheiro de definições do QAP e reinicia o Quick Access Popup com essas definições (incluindo favoritos e diversas opções).`n`nCertifique-se de que guarda as alterações na janela "Personalizar" antes de reiniciar o QAP.
 lMenuSystemCertificates	Certificados do Sistema
 lMenuTemplates	Modelos
 lMenuTemporaryFiles	Ficheiros Temporários
@@ -729,7 +737,7 @@ lOptionsNbLiveFolderItemsMax	Nº máximo de itens em pastas Live:
 lOptionsNbLiveFolderItemsMaxDefault	(padrão 500 itens)
 lOptionsOpenFavoritesOnActiveMonitor	Num sistema multi-monitor, abrir sempre a janela do Explorador no monitor activo
 lOptionsOpenMenuOnTaskbar	Abrir menu ao clicar na barra de tarefas
-lOptionsOpenSettingsOnActiveMonitor	Abrir janela de DefiniÃ§Ãµes no monitor Activo
+lOptionsOpenSettingsOnActiveMonitor	Abrir a janela "Personalizar" no monitor Activo
 lOptionsOtherOptions	Geral
 lOptionsPopupFixPositionX	Posição X:
 lOptionsPopupFixPositionY	Y:
@@ -748,7 +756,7 @@ lOptionsRefreshQAPMenuDebugBeep	Bipar antes e depois de actualizar (depuração)
 lOptionsRefreshQAPMenuIntervalSec	Intervalo entre actualizações em segundos`n(recomendado 300 segundos ou mais)
 lOptionsRefreshQAPMenuTitle	Activar actualização agendada do Menu QAP
 lOptionsRefreshWindowsAppsListAtStartup	Actualizar a lista de Apps Windows em cada arranque
-lOptionsRememberSettingsPosition	Lembrar posição da janela de Definições
+lOptionsRememberSettingsPosition	Lembrar posição da janela "Personalizar"
 lOptionsRunAsAdmin	Executar como administrador
 lOptionsRunAsAdminAlert	Alerta: Executar o ~1~ em modo Administrador pode provocar resultados inesperados ao carregar programas que possam estar infectados com códigos maliciosos. Isso pode permitir a esses programas a aquisição de previlégios de administrador e infectarem ou controlarem o seu computador. Tenha cuidado ao executar o ~1~ em modo Administrador.
 lOptionsRunAsAdminChanged	Nova definição "Executar como administrador" guardada. Sair do ~1~ recarregá-lo para activar a nova definição (não reiniciar apenas).
@@ -759,8 +767,8 @@ lOptionsSelectCatalogueRoot	Seleccionar a pasta raiz do Catálogo de Menus Partil
 lOptionsSelectQAPTempFolder	Criar a Pasta Temporária em:
 lOptionsSelectWorkingFolder	Guardar definições em que pasta?
 lOptionsSendToConsoleWithAlt	Usar códigos ASCII (ALT+0nnn) quando alterar pasta na Linha de Comandos do Windows (CMD)
-lOptionsSettingsStartup	Abrir janela de definições ao iniciar
-lOptionsSettingsWindow	Janela de Definições
+lOptionsSettingsStartup	Abrir a janela "Personalizar" ao iniciar
+lOptionsSettingsWindow	Janela Personalizar
 lOptionsSnippets	Snippets e Hotstrings
 lOptionsSnippetsHelp	Padrões de 'Snippets' (<a href="~1~">~2~</a>)
 lOptionsSwitchExclusionList	Exclusões das Janelas Actuais
@@ -779,7 +787,6 @@ lOptionsThirdPartySelectedHelp	Gestor de Ficheiros Seleccionado: ~1~ (<a href="~
 lOptionsThirdPartySelectFile	Por favor, seleccione o ficheiro da aplicação ~1~ utilizando o botão "Procurar"
 lOptionsThirdPartyUseTabs	Usar separadores em vez de abrir numa nova janela
 lOptionsTrayTip	Exibir Dica da Área de Notificação
-lOptionsUsageDb	Base de Dados ~1~
 lOptionsUsageDbDaysInPopular	Número de dias a ter em conta nos menus Itens Frequentes:
 lOptionsUsageDbDisabling	As alterações às definições da base de dados serão concluídas depois de reiniciar o ~1~.
 lOptionsUsageDbEnable	Activar Base de Dados ~1~
@@ -789,7 +796,7 @@ lOptionsUsageDbFlushDatabaseDone	ConteÃºdo da Base de dados eliminado.
 lOptionsUsageDbIntervalSeconds	Intervalo de recolha e actualização (segundos):
 lOptionsUsageDbMaximumSize	Tamanho máximo da base de dados (em MB):
 lOptionsUsageDbMaximumSizeInvalid	O temanho máximo da base de dados não é um número válido: ~1~
-lOptionsUsageDbShowPopularityIndex	Mostrar índice de frequência nas definições e no menu
+lOptionsUsageDbShowPopularityIndex	Mostrar popularidade na janela "Personalizar" e nos menus
 lOptionsUsageDbStatement	Os dados da base de dados ~1~ são recolhidos e guardados localmente, apenas para elaborar os menus dinâmicos e aumentar o desempenho. Estes dados residem APENAS no seu computador e NENHUMA informação é transmitida pelo ~1~ a um servidor remoto.
 lOptionsUsageDbStatementTitle	Declaração de Privacidade
 lOptionsUserVariables	Variáveis do Utilizador
@@ -826,7 +833,6 @@ lUpdateButtonSkipVersion	Ignorar esta versão
 lUpdateButtonVisit	Visitar site web
 lUpdateError	Ocorreu um erro ao aceder ao número da última versão. Interrompida a procura de actualizações.
 lUpdatePrompt	Actualizar ~1~ de v~2~ para v~3~?
-lUpdatePromptBeta	Existe uma nova versão BETA do ~1~.`n`nActualizar o ~1~ da v~2~ para a v~3~?
 lUpdatePromptBetaContinue	Deseja ser informado sobre futuras versões beta?
 lUpdateTitle	Actualizar o ~1~?
 lUpdateYouHaveLatest	Já possui a versão mais recente: ~1~.`n`nDeseja visitar a página web do ~2~?
