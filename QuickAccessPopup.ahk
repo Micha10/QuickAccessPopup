@@ -12210,6 +12210,8 @@ if (strDestinationMenu = o_MenuInGui.AA.strMenuPath) ; add modified to Listview 
 			. g_strMenuPathSeparator . g_strMenuPathSeparator . " " . strFavoriteAppWorkingDir
 	else if (o_EditedFavorite.AA.strFavoriteType = "Group")
 		strThisLocation := g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix
+	else if (o_EditedFavorite.AA.strFavoriteType = "QAP")
+		strThisLocation := o_EditedFavorite.AA.strFavoriteName
 	else
 		strThisLocation := o_EditedFavorite.AA.strFavoriteLocation
 
