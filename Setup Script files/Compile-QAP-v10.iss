@@ -17,7 +17,7 @@
 #define MyAppExeName "QuickAccessPopup.exe"
 #define MyDateYearString GetDateTimeString('yyyy', '', '');
 #define MyAppCopyright "Copyright (c) Jean Lalonde 2013-"
-#define MyAppDescription "Quick Access Popup (Windows freeware)"
+#define MyAppDescription "Quick Access Popup (Windows software)"
 #define QAPmessengerVersionFileName "QAPmessenger-1_3-32-bit.exe"
 #define JLdir "JeanLalonde"
 #define JLicons "JLicons-1_5.dll"
