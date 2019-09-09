@@ -31,6 +31,15 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.16 (2019-09-09)
+- move the checkbox "Change folders in dialog box with main QAP mouse and keyboard hotkeys" to the top of "General" tab of "Options"
+- when loading a Shared menu, check that it is not under a shared menu (this could occur with the Move command and remains undetected when saving)
+- prevent moving the Settings Folder when an alternative settings file is loaded and ask user to reload the default settings file and try again
+- when saving a QAP Feature favorite, update the "Location or content" column in "Customize" window with the name of QAP feature instead of its code
+- remove temporary folders olders than 5 days with a low-priority background task launched 10 seconds after QAP launch
+- update Italian, Korean, Portuguese, Brazilian-Portuguese and Dutch translation for changes in v9.9.2.14
+- update Italian, Korean, Portuguese and Brazilian-Portuguese translation for "Customize" window
+
 Version BETA: 9.9.2.15 (2019-08-29)
 - rename the "Settings" window (and related menus, help and error messages language) to "Customize" (English and French only in this release) and change its default shortcut to Shift+Control+C
 - change default keyboard shortcut for "Reopen Current Folder in Dialog Box" from Ctrl+Shift+C to Crtl+Shift+U (only for new installations)
@@ -3461,7 +3470,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.15
+;@Ahk2Exe-SetVersion 9.9.2.16
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3566,7 +3575,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.15" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "9.9.2.16" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
