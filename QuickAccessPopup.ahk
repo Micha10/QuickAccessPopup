@@ -37,8 +37,8 @@ Version BETA: 9.9.2.16 (2019-09-09)
 - prevent moving the Settings Folder when an alternative settings file is loaded and ask user to reload the default settings file and try again
 - when saving a QAP Feature favorite, update the "Location or content" column in "Customize" window with the name of QAP feature instead of its code
 - remove temporary folders olders than 5 days with a low-priority background task launched 10 seconds after QAP launch
-- update Italian, Korean, Portuguese, Brazilian-Portuguese and Dutch translation for changes in v9.9.2.14
-- update Italian, Korean, Portuguese and Brazilian-Portuguese translation for "Customize" window
+- update German, Italian, Korean, Portuguese, Brazilian-Portuguese and Dutch translation for changes in v9.9.2.14
+- update German, Italian, Korean, Portuguese and Brazilian-Portuguese translation for "Customize" window
 
 Version BETA: 9.9.2.15 (2019-08-29)
 - rename the "Settings" window (and related menus, help and error messages language) to "Customize" (English and French only in this release) and change its default shortcut to Shift+Control+C
