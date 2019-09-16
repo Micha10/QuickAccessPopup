@@ -4260,7 +4260,7 @@ InitLanguageArrays:
 
 ; ----------------------
 ; OPTIONS
-g_objOptionsLanguageCodes := StrSplit("EN|FR|DE|ES|PT-BR|IT|ZH-TW|PT|ZH-CN|NL|KO", "|") ;  g_arrOptionsLanguageCodes
+g_objOptionsLanguageCodes := StrSplit("EN|FR|DE|ES|PT-BR|IT|PT|NL|KO", "|") ;  g_arrOptionsLanguageCodes
 g_objOptionsLanguageLabels := StrSplit(o_L["OptionsLanguageLabels"], "|") ; g_arrOptionsLanguageLabels
 loop, % g_objOptionsLanguageCodes.Length()
 	if (g_objOptionsLanguageCodes[A_Index] = o_Settings.Launch.strLanguageCode.IniValue)
@@ -10326,7 +10326,7 @@ Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckb
 
 Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
 Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
-Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % g_strEllipse . o_L["DialogFavoriteFolderLiveExtensions"]
+Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % o_L["DialogFavoriteFolderLiveExtensions"]
 Gui, 2:Add, Edit, x20 y+10 w400 vf_strFavoriteFolderLiveExtensions hidden, % o_EditedFavorite.AA.strFavoriteFolderLiveExtensions
 
 strLiveFolderSortOrder := ""

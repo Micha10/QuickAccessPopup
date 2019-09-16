@@ -561,7 +561,7 @@ lMenuMyVideo	Meus Vídeos
 lMenuMyWindowsAppsMenu	Meus Aplicativos do Windows
 lMenuNoCurrentFolder	Nenhuma pasta aberta atualmente...
 lMenuOpenWorkingDirectory	Abrir pasta de trabalho do QAP
-lMenuOptions	OpÃ§Ãµes
+lMenuOptions	Opções
 lMenuPictures	Imagens
 lMenuPopularFiles	Arquivos
 lMenuPopularFolders	Pastas
@@ -722,7 +722,7 @@ lOptionsIconSize	Tamanho dos ícones no menu
 lOptionsIconsManageRows	Linhas da janela 'Gerenciar Ícones' (0 para espaço máximo disponível)
 lOptionsIconsRetrieveInFrequentMenus	Recuperar ícones ao atualizar os menus de arquivos e pastas Frequentes (evite se alguns aquivos estão offline com frequência)
 lOptionsLanguage	Idioma
-lOptionsLanguageLabels	Inglês|Francês|Alemão|Espanhol|Português (Brasil)|Italiano|Chinês Tradicional|Português|Chinês Simplified|Holandês|Korean
+lOptionsLanguageLabels	Inglês|Francês|Alemão|Espanhol|Português (Brasil)|Italiano|Português|Holandês|Korean
 lOptionsMenuActiveWindow	Canto superior esquerdo da janela ativa
 lOptionsMenuAdvanced	Opções Avançadas de Menus
 lOptionsMenuAppearance	Aparência dos Menus
