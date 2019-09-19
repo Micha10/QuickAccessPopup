@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version BETA: 9.9.2.17 (2019-09-10)
+- English proofreading (thanks to Greg F.)
+- removed Simplified Chinese and Traditional Chinese languages; remove untranslated variables from Spanish language; fix typo in PT-BR
+
 Version BETA: 9.9.2.16 (2019-09-09)
 - move the checkbox "Change folders in dialog box with main QAP mouse and keyboard hotkeys" to the top of "General" tab of "Options"
 - when loading a Shared menu, check that it is not under a shared menu (this could occur with the Move command and remains undetected when saving)
@@ -3649,6 +3653,9 @@ global g_intNewWindowOffset := -1 ; to offset multiple Explorer windows position
 
 global g_strLastConfiguration ; last screen configuration updated by GetScreenConfiguration
 
+global g_saDialogListApplicationsDropdown := StrSplit(o_L["DialogListApplicationsDropdown"], "|") ; "List All||Current Windows menu|Running Applications|Close All Windows menu"
+g_saDialogListApplicationsDropdown.RemoveAt(2) ; 1) List All 2) Current Windows menu 3) Running Applications 4) Close All Windows menu"
+
 ;---------------------------------
 ; Used in OpenFavorite
 global g_blnAlternativeMenu
@@ -6009,7 +6016,8 @@ if (A_ThisLabel <> "RefreshReopenFolderMenu")
 
 	Loop, %strWinIDs%
 	{
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Current Windows menu", objWindowProperties)
+		; g_saDialogListApplicationsDropdown[2] -> Current Windows menu
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, g_saDialogListApplicationsDropdown[2], objWindowProperties)
 		{
 			intWindowsIdIndex++
 			aaFolderOrApp := Object()
@@ -15804,7 +15812,8 @@ WinGet, strWinIDs, list
 DetectHiddenWindows, On ; revert to app default
 
 Loop, %strWinIDs%
-	If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Close All Windows menu", objWindowProperties)
+	; g_saDialogListApplicationsDropdown[4] -> Close All Windows menu
+	If KeepThisWindow(A_Index, strWinIDs%A_Index%, g_saDialogListApplicationsDropdown[4], objWindowProperties)
 		LV_Add("", objWindowProperties.WindowTitle, strWinIDs%A_Index%, objWindowProperties.ProcessPath)
 LV_ModifyCol(1, "Auto")
 
@@ -17965,8 +17974,7 @@ Gui, ListApps:
 Gui, ListApps:Default
 
 Gui, ListApps:Add, Text, vf_ListApplicationLabel, % o_L["DialogListApplicationLabel"]
-strListApplicationsDropdown := "List All||Current Windows menu|Running Applications|Close All Windows menu" ; do not use o_L["DialogListApplicationsDropdown"] until the code below is updated for localization
-Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, %strListApplicationsDropdown%
+Gui, ListApps:Add, DropdownList, yp x+10 vf_drpListApplications gListApplicationsChanged, % o_L["DialogListApplicationsDropdown"]
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationRefreshButton gListApplicationsLoad, % o_L["DialogRefresh"]
 Gui, ListApps:Add, Button, yp x+10 vf_ListApplicationCloseButton gListAppsGuiClose, % o_L["GuiClose"]
 
@@ -18053,8 +18061,9 @@ Loop, %strWinIDs%
 			, objWindowProperties.WandH, objWindowProperties.MinMax, objWindowProperties.Style, objWindowProperties.ExStyle
 			, objWindowProperties.UniversalApplicationID, objWindowProperties.UniversalApplicationName)
 			
-		if (objWindowProperties.UniversalApplicationID) and (f_drpListApplications = "List All")
-			if KeepThisWindow(A_Index, objWindowProperties.UniversalApplicationID, "List All", objUniversalWindowProperties)
+		; g_saDialogListApplicationsDropdown[1] -> List All
+		if (objWindowProperties.UniversalApplicationID) and (f_drpListApplications = g_saDialogListApplicationsDropdown[1])
+			if KeepThisWindow(A_Index, objWindowProperties.UniversalApplicationID, g_saDialogListApplicationsDropdown[1], objUniversalWindowProperties)
 				LV_Add("", A_Index, objUniversalWindowProperties.WindowID, StringLeftDotDotDot(objUniversalWindowProperties.WindowTitle, 50)
 					, objUniversalWindowProperties.ProcessName, StringLeftDotDotDot(objUniversalWindowProperties.ProcessPath, 50), objUniversalWindowProperties.WandH
 					, objUniversalWindowProperties.MinMax, objUniversalWindowProperties.Style, objUniversalWindowProperties.ExStyle
@@ -18682,7 +18691,8 @@ CollectRunningApplications(strDefaultPath)
 	DetectHiddenWindows, On ; revert to app default
 	
 	Loop, %strWinIDs%
-		If KeepThisWindow(A_Index, strWinIDs%A_Index%, "Running Applications", objWindowProperties)
+		; g_saDialogListApplicationsDropdown[3] -> Running Applications
+		If KeepThisWindow(A_Index, strWinIDs%A_Index%, g_saDialogListApplicationsDropdown[3], objWindowProperties)
 			if !objApps.HasKey(objWindowProperties.ProcessPath)
 				objApps.Insert(objWindowProperties.ProcessPath, "")
 
@@ -19795,7 +19805,7 @@ BetweenParenthesis(str)
 
 ;------------------------------------------------------------
 KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
-; strCaller: one of "List All", "Current Windows", "Close All Windows menu" or "Running Applications"
+; strCaller: one of g_saDialogListApplicationsDropdown[n] -> 1) List All 2) Current Windows menu 3) Running Applications 4) Close All Windows menu
 ;------------------------------------------------------------
 {
 	static s_strWinTitlesWinApps
@@ -19856,7 +19866,7 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 	; if InStr(strProcessPath, "opus")
 		; ###_O(strCaller . " / " . strProcessPath . " / " . g_strDirectoryOpusPath . " / " . g_intActiveFileManager, objWindowProperties)
 
-	if (strCaller = "List All")
+	if (strCaller = g_saDialogListApplicationsDropdown[n]) ; "List All"
 		return true
 	
 	if !StrLen(strWindowTitle)
@@ -19876,13 +19886,13 @@ KeepThisWindow(intIndex, strWinID, strCaller, ByRef objWindowProperties)
 				or (intMinMax = -1) ; this is a running and minimized
 	}
 	
-	else if (strCaller = "Current Windows menu" and strProcessPath = A_WinDir . "\explorer.exe")
+	else if (strCaller = g_saDialogListApplicationsDropdown[2] and strProcessPath = A_WinDir . "\explorer.exe") ; "Current Windows menu"
 		return false
 	
-	else if (strCaller = "Current Windows menu" and strProcessPath = g_aaFileManagerDirectoryOpus.strFileManagerPath and o_FileManagers.SA.P_intActiveFileManager = 2)
+	else if (strCaller = g_saDialogListApplicationsDropdown[2] and strProcessPath = g_aaFileManagerDirectoryOpus.strFileManagerPath and o_FileManagers.SA.P_intActiveFileManager = 2) ; "Current Windows menu"
 		return false
 	
-	else if (strCaller = "Current Windows menu" and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue))
+	else if (strCaller = g_saDialogListApplicationsDropdown[2] and StrLen(o_Settings.Execution.strSwitchExclusionList.IniValue)) ; "Current Windows menu"
 		if ApplicationIsExcluded(strWindowClass, strWindowTitle, strProcessName)
 			return false
 	
