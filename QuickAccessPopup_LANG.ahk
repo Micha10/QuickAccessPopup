@@ -399,11 +399,6 @@ this["GuiDonateCodeInputDonorInvalid"] := "Donor code invalid.`n`nMake sure you 
 this["GuiDonateCodeInputDonorLabel"] := "Enter your 8-digit code (DONOR CODE)" ; DO NOT TRANSLATE "(DONOR CODE)"
 this["GuiDonateCodeInputSponsorLabel"] := "Enter your name (SPONSOR NAME)" ; DO NOT TRANSLATE "(SPONSOR NAME)"
 this["GuiDonateDescription"] := "Display the ""Sponsor this software"" dialog box."
-
-
-#####
-
-
 this["GuiDropFilesHelp"] := "Drag && Drop Help"
 this["GuiDropFilesIncentive"] := "You can Drag && Drop the following types of favorites to the ~1~ window:`n`n`t- ~2~`n`t- ~3~`n`t- ~4~"
 this["GuiDropFilesIncentive2"] := "To help when dragging one or multiple files, you can make the Settings window stay ""always on top"" by clicking the pin icon on the left side of the window."
@@ -598,12 +593,6 @@ this["MenuRestoreSettingsWindowPositionDescription"] := "Restore ""Customize"" w
 this["MenuRunAtStartup"] := "Run at Startup"
 this["MenuSelectAll"] := "Select all items"
 this["MenuSettings"] := "Customize"
-
-
-#####
-
-
-
 this["MenuSettingsDescription"] := "Display the ""Customize"" window, where you can customize your QAP popup menu, manage your favorites, and set various options.`n`nBy default this feature is included in the Main menu."
 this["MenuStartMenu"] := "Start Menu"
 this["MenuStartup"] := "Startup"
