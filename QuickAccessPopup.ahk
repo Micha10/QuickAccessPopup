@@ -9901,7 +9901,7 @@ else ; add favorite
 		g_strNewFavoriteIconResource := GetFolderIcon(o_EditedFavorite.AA.strFavoriteLocation)
 		o_EditedFavorite.AA.strFavoriteIconResource := g_strNewFavoriteIconResource
 	}
-	
+
 	o_EditedFavorite.AA.strFavoriteDateCreated := A_NowUTC
 	o_EditedFavorite.AA.strFavoriteDateModified := o_EditedFavorite.AA.strFavoriteDateCreated
 }
@@ -10325,13 +10325,20 @@ Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort2 hidden" . (strLiveFolderSort
 Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort3 hidden" . (strLiveFolderSortCriteria = "3" ? " checked" : ""), % o_L["DialogFileSize"]
 Gui, 2:Add, Radio, % "y+5 x20 vf_radLiveFolderSort4 hidden" . (strLiveFolderSortCriteria = "4" ? " checked" : ""), % o_L["DialogModifiedDate"]
 
+Gui, 2:Add, Checkbox, % "x20 y+15 w400 vf_blnFavoriteFolderLiveShowIcons hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveShowIcons ? "checked" : "")
+	, % o_L["DialogFavoriteFolderLiveShowIcons"]
+
 Gui, 2:Add, Edit, x20 y+15 w51 h22 vf_intFavoriteFolderLiveColumnsEdit number limit3 center hidden
 Gui, 2:Add, UpDown, vf_intFavoriteFolderLiveColumns Range0-999, % o_EditedFavorite.AA.intFavoriteFolderLiveColumns
 Gui, 2:Add, Text, x+5 yp w385 vf_lblFavoriteFolderLiveColumns hidden, % o_L["DialogFavoriteFolderLiveColumns"]
 
-Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments ? "checked" : "")
+Gui, 2:Add, Checkbox, % "x20 y+20 w400 vf_blnFavoriteFolderLiveShowHidden hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveShowHidden ? "checked" : "")
+	, % o_L["DialogFavoriteFolderLiveShowHidden"]
+Gui, 2:Add, Checkbox, % "x20 y+5 w400 vf_blnFavoriteFolderLiveShowSystem hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveShowSystem ? "checked" : "")
+	, % o_L["DialogFavoriteFolderLiveShowSystem"]
+	
+Gui, 2:Add, Checkbox, % "x20 y+15 w400 vf_blnFavoriteFolderLiveDocuments gCheckboxFolderLiveDocumentsClicked hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments ? "checked" : "")
 	, % o_L["DialogFavoriteFolderLiveDocuments"]
-
 Gui, 2:Add, Radio, % "x20 y+10 vf_radFavoriteFolderLiveInclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "checked" : ""), % o_L["DialogFavoriteFolderLiveInclude"]
 Gui, 2:Add, Radio, % "x+5 yp vf_radFavoriteFolderLiveExclude hidden " . (o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude ? "" : "checked"), % o_L["DialogFavoriteFolderLiveExclude"]
 Gui, 2:Add, Text, x20 y+10 w400 vf_lblFavoriteFolderLiveExtensions hidden, % o_L["DialogFavoriteFolderLiveExtensions"]
@@ -11277,9 +11284,12 @@ GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevelsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveLevels
 if (f_blnFavoriteFolderLive and !StrLen(f_intFavoriteFolderLiveLevels))
 	GuiControl, , f_intFavoriteFolderLiveLevels, 1
+GuiControl, %strShowHideCommand%, f_blnFavoriteFolderLiveShowIcons
 GuiControl, %strShowHideCommand%, f_lblFavoriteFolderLiveColumns
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumnsEdit
 GuiControl, %strShowHideCommand%, f_intFavoriteFolderLiveColumns
+GuiControl, %strShowHideCommand%, f_blnFavoriteFolderLiveShowHidden
+GuiControl, %strShowHideCommand%, f_blnFavoriteFolderLiveShowSystem
 GuiControl, %strShowHideCommand%, f_blnFavoriteFolderLiveDocuments
 
 ; GuiControl, % (f_blnFavoriteFolderLive ? "Disable" : "Enable"), f_blnUseDefaultWindowPosition
@@ -12157,6 +12167,9 @@ if !InStr("|GuiMoveOneFavoriteSave|GuiCopyOneFavoriteSave", "|" . strThisLabel)
 	o_EditedFavorite.AA.blnFavoriteDisabled := f_blnFavoriteDisabled
 	
 	o_EditedFavorite.AA.intFavoriteFolderLiveLevels := (f_blnFavoriteFolderLive ? f_intFavoriteFolderLiveLevels : "")
+	o_EditedFavorite.AA.blnFavoriteFolderLiveShowIcons := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveShowIcons : "")
+	o_EditedFavorite.AA.blnFavoriteFolderLiveShowHidden := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveShowHidden : "")
+	o_EditedFavorite.AA.blnFavoriteFolderLiveShowSystem := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveShowSystem : "")
 	o_EditedFavorite.AA.blnFavoriteFolderLiveDocuments := (f_blnFavoriteFolderLive ? f_blnFavoriteFolderLiveDocuments : "")
 	o_EditedFavorite.AA.intFavoriteFolderLiveColumns := (f_blnFavoriteFolderLive ? (f_intFavoriteFolderLiveColumns = 0 ? "" : f_intFavoriteFolderLiveColumns) : "")
 	o_EditedFavorite.AA.blnFavoriteFolderLiveIncludeExclude := (f_blnFavoriteFolderLive ? f_radFavoriteFolderLiveInclude : "")
@@ -12355,6 +12368,9 @@ f_blnRadioSendModeMacro := ""
 f_strFavoriteSnippetPrompt := ""
 f_blnFavoriteFolderLive := ""
 f_intFavoriteFolderLiveLevels := ""
+f_blnFavoriteFolderLiveShowIcons := ""
+f_blnFavoriteFolderLiveShowHidden := ""
+f_blnFavoriteFolderLiveShowSystem := ""
 f_blnFavoriteFolderLiveDocuments := ""
 f_intFavoriteFolderLiveColumns := ""
 f_radFavoriteFolderLiveInclude := ""
@@ -23341,7 +23357,8 @@ class Container
 			; 11 strFavoriteGroupSettings, 12 blnFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
 			; 15 intFavoriteFolderLiveLevels, 16 blnFavoriteFolderLiveDocuments, 17 intFavoriteFolderLiveColumns, 18 blnFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
 			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
-			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb, 27 blnFavoriteFolderLiveShowIcons, 28 intFavoriteFolderLiveShowHiddenSystem
+
 	;---------------------------------------------------------
 	{
 		this.SA := Object() ; re-init
@@ -23938,6 +23955,8 @@ class Container
 			strFolderIcon := o_FavoriteLiveFolder.AA.strFavoriteIconResource
 		if (strFolderIcon = "iconFolderLive" or strFolderIcon = "iconFolder")
 			strFolderIcon := "iconFolderLiveOpened"
+		if !(o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowIcons) ; must be last
+			strFolderIcon := "iconNoIcon"
 		strSelfFolder := "`tFolder`t" . StrReplace(o_FavoriteLiveFolder.AA.strFavoriteName, "&", "") . "`t" . strExpandedLocation . "`t" . strFolderIcon . "`n"
 		
 		; scan folders in live folder
@@ -23947,8 +23966,10 @@ class Container
 			g_intNbLiveFolderItems++
 			if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 				Break
-			if !InStr(A_LoopFileAttrib, "H")
-				strFolders .= this.GetSortCriteria(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t" . GetFolderIcon(A_LoopFileLongPath) . "`n"
+			if !(InStr(A_LoopFileAttrib, "H") and !o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowHidden) ; exclude if folder is hidden and include hidden items is false
+				and !(InStr(A_LoopFileAttrib, "S") and !o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowSystem) ; exclude if folder is system and include system items is false
+				strFolders .= this.GetSortCriteria(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort) . "`tFolder" . "`t" . A_LoopFileName . "`t" . A_LoopFileLongPath . "`t"
+					. (!o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowIcons ? "iconNoIcon" : GetFolderIcon(A_LoopFileLongPath)) . "`n"
 		}
 		
 		Sort, strFolders, % (SubStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
@@ -23957,16 +23978,17 @@ class Container
 		strFiles := ""
 		if (o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveDocuments)
 			Loop, Files, %strExpandedLocation%\*.*, F ; files
-				if !StrLen(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
-					or (o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include 
-					or (!o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and !InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; exclude 
+				if (!StrLen(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions) ; include all
+					or (o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and StrLen(A_LoopFileExt) and InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt)) ; include
+					or (!o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude and !InStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveExtensions, A_LoopFileExt))) ; exclude
+					and !(InStr(A_LoopFileAttrib, "H") and !o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowHidden) ; exclude if file is hidden and include hidden items is false
+					and !(InStr(A_LoopFileAttrib, "S") and !o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowSystem) ; exclude if file is system and include system items is false
 				{
-					; ###_V(A_ThisFunc, A_LoopFileName, A_LoopFileExt, A_LoopFileTimeModified, A_LoopFileTimeCreated, A_LoopFileTimeAccessed, A_LoopFileSize)
 					g_intNbLiveFolderItems++
 					if (g_intNbLiveFolderItems > o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 						Break
 					; favorite type Document is OK for Application items
-
+					
 					if (A_LoopFileExt = "lnk")
 					{
 						SplitPath, A_LoopFileName, , , , strFileName ; OutNameNoExt to remove .lnk extension
@@ -23991,7 +24013,9 @@ class Container
 						. strFileLocation . "`t" ; keep the ending tab to make sure we have an empty value if not .url or .lnk
 					
 					; get icon for link or shortcut, and add start in directory and args for applications
-					if (A_LoopFileExt = "url")
+					if !(o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowIcons)
+						strFiles .= "iconNoIcon"
+					else if (A_LoopFileExt = "url")
 						strFiles .= GetIcon4Location(g_strTempDir . "\default_browser_icon.html")
 					else if (A_LoopFileExt = "lnk")
 						strFiles .= (StrLen(strShortcutIconFile) ? EnvVars(strShortcutIconFile) . "," . strShortcutIconIndex : GetIcon4Location(strFileLocation))
@@ -24045,6 +24069,9 @@ class Container
 			if (saItemSource[1] = "Folder" and A_Index > 1) ; make it a live folder, except if self folder
 			{
 				oNewItem.AA.intFavoriteFolderLiveLevels := o_FavoriteLiveFolder.AA.intFavoriteFolderLiveLevels - 1 ; controls the number of recursive calls
+				oNewItem.AA.blnFavoriteFolderLiveShowIcons := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowIcons
+				oNewItem.AA.blnFavoriteFolderLiveShowHidden := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowHidden
+				oNewItem.AA.blnFavoriteFolderLiveShowSystem := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveShowSystem
 				oNewItem.AA.blnFavoriteFolderLiveDocuments := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveDocuments
 				oNewItem.AA.intFavoriteFolderLiveColumns := o_FavoriteLiveFolder.AA.intFavoriteFolderLiveColumns
 				oNewItem.AA.blnFavoriteFolderLiveIncludeExclude := o_FavoriteLiveFolder.AA.blnFavoriteFolderLiveIncludeExclude
@@ -24549,6 +24576,8 @@ class Container
 			strIniLine .= oItem.AA.strFavoriteDateCreated . "|" ; 24
 			strIniLine .= oItem.AA.strFavoriteDateModified . "|" ; 25
 			strIniLine .= oItem.AA.intFavoriteUsageDb . "|" ; 26
+			strIniLine .= oItem.AA.blnFavoriteFolderLiveShowIcons . "|" ; 27
+			strIniLine .= oItem.AA.blnFavoriteFolderLiveShowHidden + (oItem.AA.blnFavoriteFolderLiveShowSystem ? 2 : 0) . "|" ; 28 / hidden (+1) + system (+2) items, default 0+0
 
 			IniWrite, %strIniLine%, %s_strIniFile%, Favorites, % "Favorite" . s_intIniLineSave
 			s_intIniLineSave++
@@ -24763,7 +24792,7 @@ class Container
 			; 11 strFavoriteGroupSettings, 12 blnFavoriteFtpEncoding, 13 blnFavoriteElevate, 14 blnFavoriteDisabled,
 			; 15 intFavoriteFolderLiveLevels, 16 blnFavoriteFolderLiveDocuments, 17 intFavoriteFolderLiveColumns, 18 blnFavoriteFolderLiveIncludeExclude, 19 strFavoriteFolderLiveExtensions
 			; 20 strFavoriteShortcut, 21 strFavoriteHotstring, 22 strFavoriteFolderLiveSort, 23 strFavoriteSoundLocation
-			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb
+			; 24 strFavoriteDateCreated, 25 strFavoriteDateModified, 26 intFavoriteUsageDb, 27 blnFavoriteFolderLiveShowIcons, 28 intFavoriteFolderLiveShowHiddenSystem
 			
 			this.AA.oParentMenu := oParentMenu
 			
@@ -24815,7 +24844,10 @@ class Container
 			this.InsertItemValue("strFavoriteDateCreated", saFavorite[24]) ; UTC date of creation of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 			this.InsertItemValue("strFavoriteDateModified", saFavorite[25]) ; UTC date of last modification of the favorite in QAP, in YYYYMMDDHH24MISS format (added in v9.1.x)
 			this.InsertItemValue("intFavoriteUsageDb", saFavorite[26]) ; level of usage of this favorite (TBD - combo of occurrences in Recent Items and launches from QAP menu) (to be added in v9.2)
-
+			this.InsertItemValue("blnFavoriteFolderLiveShowIcons", (StrLen(saFavorite[27]) ? saFavorite[27] : true)) ; show icons in live folders, pre-existing and default true
+			this.InsertItemValue("blnFavoriteFolderLiveShowHidden", (StrLen(saFavorite[28]) ? Mod(saFavorite[28], 2) : false)) ; show hidden files, true if value is unpair, default false
+			this.InsertItemValue("blnFavoriteFolderLiveShowSystem", (StrLen(saFavorite[28]) ? saFavorite[28] >= 2 : false)) ; show system files, true if value is 2 or 3, default false
+			
 			if (!StrLen(this.AA.strFavoriteIconResource) or this.AA.strFavoriteIconResource = "iconUnknown")
 			; get icon if not in ini file (occurs at first run wen loading default menu - or if error occured earlier)
 				this.AA.strFavoriteIconResource := this.GetDefaultIcon4Type(this.AA.strFavoriteLocation)
