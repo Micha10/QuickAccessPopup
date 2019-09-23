@@ -4498,6 +4498,7 @@ o_Settings.ReadIniOption("SettingsWindow", "strAvailableThemes", "AvailableTheme
 
 ; Group SettingsWindow
 o_Settings.ReadIniOption("SettingsWindow", "blnDisplaySettingsStartup", "DisplaySettingsStartup", 0, "SettingsWindow", "f_blnDisplaySettingsStartup")
+o_Settings.ReadIniOption("SettingsWindow", "intShowQAPmenu", "ShowQAPmenu", 3, "SettingsWindow", "f_lblShowQAPmenu|f_radShowQAPmenu1|f_radShowQAPmenu2|f_radShowQAPmenu3")
 o_Settings.ReadIniOption("SettingsWindow", "blnRememberSettingsPosition", "RememberSettingsPosition", 1, "SettingsWindow", "f_blnRememberSettingsPosition") ; g_blnRememberSettingsPosition
 o_Settings.ReadIniOption("SettingsWindow", "blnOpenSettingsOnActiveMonitor", "OpenSettingsOnActiveMonitor", 1, "SettingsWindow", "f_blnOpenSettingsOnActiveMonitor") ; g_blnOpenSettingsOnActiveMonitor
 o_Settings.ReadIniOption("SettingsWindow", "blnAddAutoAtTop", "AddAutoAtTop", 0, "SettingsWindow", "f_lblAddAutoAtTop|f_blnAddAutoAtTop0|f_blnAddAutoAtTop1") ; g_blnAddAutoAtTop
@@ -5279,12 +5280,15 @@ if (A_ThisLabel = "BuildTrayMenuRefresh")
 	Menu, Tray, DeleteAll
 
 Menu, Tray, Add, % g_aaMenuTrayL["MenuSettings"], GuiShowFromTray
-Menu, Tray, Add
-Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
-Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
-Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
-Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
-Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+if (o_Settings.SettingsWindow.intShowQAPmenu.IniValue > 1) ; 1 Customize menu bar, 2 System menu, 3 both
+{
+	Menu, Tray, Add
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuFile"], :menuBarFile
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuFavorite"], :menuBarFavorite
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuTools"], :menuBarTools
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuOptions"], :menuBarOptions
+	Menu, Tray, Add, % g_aaMenuTrayL["MenuHelp"], :menuBarHelp
+}
 Menu, Tray, Add
 Menu, Tray, Add, % g_aaMenuTrayL["MenuRunAtStartup"], ToggleRunAtStartup ; function ToggleRunAtStartup replaces RunAtStartup
 Menu, Tray, Add, % g_aaMenuTrayL["MenuExitApp@" . g_strAppNameText], GuiCancelAndExitApp
@@ -6727,8 +6731,14 @@ if ((arrPosY + arrPosH) > g_intOptionsFooterY)
 Gui, 2:Add, CheckBox, y%intGroupItemsY% x%g_intGroupItemsX% vf_blnDisplaySettingsStartup gGuiOptionsGroupChanged hidden, % o_L["OptionsSettingsStartup"]
 GuiControl, , f_blnDisplaySettingsStartup, % (o_Settings.SettingsWindow.blnDisplaySettingsStartup.IniValue = true)
 
+; ShowQAPmenu
+Gui, 2:Add, Text, y+15 x%g_intGroupItemsX% w500 hidden vf_lblShowQAPmenu, % o_L["OptionsShowQAPmenu"]
+Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX . " w500 hidden vf_radShowQAPmenu1 Group gGuiOptionsGroupChanged " . (o_Settings.SettingsWindow.intShowQAPmenu.IniValue = 1 ? "Checked" : ""), % o_L["OptionsShowQAPmenuCustomize"]
+Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX . " w500 hidden vf_radShowQAPmenu2 gGuiOptionsGroupChanged " . (o_Settings.SettingsWindow.intShowQAPmenu.IniValue = 2 ? "Checked" : ""), % o_L["OptionsShowQAPmenuSystem"]
+Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX . " w500 hidden vf_radShowQAPmenu3 gGuiOptionsGroupChanged " . (o_Settings.SettingsWindow.intShowQAPmenu.IniValue = 3 ? "Checked" : ""), % o_L["OptionsShowQAPmenuBoth"]
+
 ; RememberSettingsPosition
-Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged hidden, % o_L["OptionsRememberSettingsPosition"]
+Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsX% w500 vf_blnRememberSettingsPosition gGuiOptionsGroupChanged hidden, % o_L["OptionsRememberSettingsPosition"]
 GuiControl, , f_blnRememberSettingsPosition, % (o_Settings.SettingsWindow.blnRememberSettingsPosition.IniValue = true)
 
 ; OpenSettingsOnActiveMonitor
@@ -6736,7 +6746,7 @@ Gui, 2:Add, CheckBox, y+10 x%g_intGroupItemsX% w500 vf_blnOpenSettingsOnActiveMo
 GuiControl, , f_blnOpenSettingsOnActiveMonitor, % (o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.IniValue = true)
 
 ; AddAutoAtTop
-Gui, 2:Add, Text, y+10 x%g_intGroupItemsX% w500 hidden vf_lblAddAutoAtTop, % o_L["OptionsAddAutoAtTop"]
+Gui, 2:Add, Text, y+15 x%g_intGroupItemsX% w500 hidden vf_lblAddAutoAtTop, % o_L["OptionsAddAutoAtTop"]
 Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX + 10 . " w500 vf_blnAddAutoAtTop0 Group gGuiOptionsGroupChanged hidden " . (o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoTopOfMenu"]
 Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX + 10 . " w500 vf_blnAddAutoAtTop1 gGuiOptionsGroupChanged hidden " . (!o_Settings.SettingsWindow.blnAddAutoAtTop.IniValue ? "Checked" : ""), % o_L["OptionsAddAutoBottomOfMenu"]
 
@@ -7349,6 +7359,14 @@ if StrLen(strTempFolderNew)
 ; === SettingsWindow ===
 
 o_Settings.SettingsWindow.blnDisplaySettingsStartup.WriteIni(f_blnDisplaySettingsStartup)
+strShowQAPmenuPrev := o_Settings.SettingsWindow.intShowQAPmenu.IniValue
+if (f_radShowQAPmenu1)
+	o_Settings.SettingsWindow.intShowQAPmenu.IniValue := 1
+else if (f_radShowQAPmenu2)
+	o_Settings.SettingsWindow.intShowQAPmenu.IniValue := 2
+else
+	o_Settings.SettingsWindow.intShowQAPmenu.IniValue := 3
+o_Settings.SettingsWindow.intShowQAPmenu.WriteIni("", true) ; value already updated
 o_Settings.SettingsWindow.blnRememberSettingsPosition.WriteIni(f_blnRememberSettingsPosition)
 o_Settings.SettingsWindow.blnOpenSettingsOnActiveMonitor.WriteIni(f_blnOpenSettingsOnActiveMonitor)
 o_Settings.SettingsWindow.blnAddAutoAtTop.WriteIni(f_blnAddAutoAtTop0)
@@ -7614,13 +7632,20 @@ if (strWorkingFolderPrev <> strWorkingFolderNew and blnSettingsMoveOK)
 	Gosub, ReloadQAP
 }
 
-; === Optional restart if language, theme or temporary folder changed
+; === Optional restart if show QAP menu, language, theme or temporary folder changed
 
-if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+if (strShowQAPmenuPrev <> o_Settings.SettingsWindow.intShowQAPmenu.IniValue)
+	or (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	or (strThemePrev <> o_Settings.Launch.strTheme.IniValue)
 	or (strQAPTempFolderParentPrev <> o_Settings.Launch.strQAPTempFolderParent.IniValue)
 {
-	if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
+	if (strShowQAPmenuPrev <> o_Settings.SettingsWindow.intShowQAPmenu.IniValue)
+	{
+		strOption := o_L["OptionsShowQAPmenu"]
+		strValue := (o_Settings.SettingsWindow.intShowQAPmenu.IniValue = 1 ? o_L["OptionsShowQAPmenuCustomize"]
+			: (o_Settings.SettingsWindow.intShowQAPmenu.IniValue = 2 ? o_L["OptionsShowQAPmenuSystem"] : o_L["OptionsShowQAPmenuBoth"]))
+	}
+	else if (strLanguageCodePrev <> o_Settings.Launch.strLanguageCode.IniValue)
 	{
 		strOption := o_L["OptionsLanguage"]
 		strValue := g_strLanguageLabel
@@ -8642,7 +8667,8 @@ g_strGuiListviewTextColor := o_Settings.ReadIniValue("ListviewText", 000000, "Gu
 g_strGuiFullTitle := L(o_L["GuiTitle"], g_strAppNameText, g_strAppVersion)
 Gui, 1:New, +Hwndg_strAppHwnd +Resize -MinimizeBox +MinSize%g_intGuiDefaultWidth%x%g_intGuiDefaultHeight%, %g_strGuiFullTitle%
 
-Gui, Menu, menuBar
+if (o_Settings.SettingsWindow.intShowQAPmenu.IniValue <> 2)
+	Gui, Menu, menuBar
 
 if (g_blnUseColors)
 	Gui, 1:Color, %g_strGuiWindowColor%
@@ -23958,7 +23984,7 @@ class Container
 		aaMenuNameCheckDuplicates := Object()
 		
 		strExpandedLocation := PathCombine(A_WorkingDir, EnvVars(o_FavoriteLiveFolder.AA.strFavoriteLocation))
-
+		
 		; content in 3 tab delimited strings, first on for self-folder, then for folders and files
 		; 1 sorting criteria, 2 favorite type, 3 menu name, 4 location, 5 icon (for folders, .url and .lnk), 6 args (for applications), 7 working dir (for applications)
 		
@@ -24035,7 +24061,7 @@ class Container
 					
 					strFiles .= "`n"
 				}
-
+		
 		; self folder
 		strFolderIcon := GetFolderIcon(strExpandedLocation)
 		if (strFolderIcon = "iconFolder")
@@ -24054,11 +24080,11 @@ class Container
 			Oops(o_L["OopsMaxLiveFolder"], o_Settings.MenuAdvanced.intNbLiveFolderItemsMax.IniValue)
 			return
 		}
-
+		
 		Sort, strFiles, % (SubStr(o_FavoriteLiveFolder.AA.strFavoriteFolderLiveSort, 1, 1) = "D" ? "R" : "") ; R for reverse order
 		
 		strContent := strSelfFolder . (StrLen(strFolders . strFiles) ? "`tX`n" : "")  . strFolders . (StrLen(strFolders) and StrLen(strFiles) ? "`tX`n" : "") . strFiles
-
+		
 		oNewSubMenu := new Container("Menu", o_FavoriteLiveFolder.AA.strFavoriteName, this, "init", true) ; last parameter true for blnDoubleAmpersands
 		oNewSubMenu.AA.blnIsLiveMenu := true
 		oNewSubMenu.AA.intLiveFolderParentPosition := intMenuParentPosition ; could be changed if we are in a Live Folder submenu
@@ -24108,7 +24134,7 @@ class Container
 			
 			oNewSubMenu.SA.Push(oNewItem) ; add to the current container object
 		}
-
+		
 		; attach live folder menu to live folder favorite object
 		o_FavoriteLiveFolder.AA.oSubMenu := oNewSubMenu
 	}
