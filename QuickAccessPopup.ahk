@@ -31,6 +31,54 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 10.0.1 (2019-09-25)
+ 
+Customize window improvements
+- the "Settings" window has been renamed "Customize" and has been lightened to give close to 50% more room to the favorites list
+- a new menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus is available in the "Customize" window and in the QAP system menu (right click on QAP icon in Notification zone)
+- various buttons for features and links were removed from the "Customize" window and were moved to the new QAP menu bar
+- the Search box is now hidden under the submenus dropdown list to save space and a magnifying glass icon allows to reveal it
+- new keyboard shortcuts were added: press F1 for a complete list of shortcuts
+ 
+Other improvements to the Customize window
+- QAP features names can now be edited, using the default localized name if name is left empty
+- the Search box now filters items from the menu currently in the "Customize" window instead of from the top menu (Main)
+- in the items list, the "parent menu" item ("..") was removed and parent menu (up) and previous menu (back) arrows are now more visible
+- when adding or editing a favorite of types Folder, Document or Application, QAP now checks if the file exists (except if the location includes a placeholder)
+- in the tree view when adding a favorite of type "Special Folder" or "QAP Feature", a new node at the end allows to list all "Special folders" or "QAP Features" in alphabetical order
+- after saving a new or edited favorite, the submenu in the "Customize" window is changed to the favorite's destination menu
+- a new dialog box facilitates the input of the "Sponsor code", this command is available from the "Enter your sponsor code" menu item in the "Help" menu
+ 
+Revamped Options window
+- a new "Options" window with sections tabs on the left: "General", "Settings Window", "Menu Icons", "Menu Appearance", "Popup Menu", "Popup Hotkeys", "Alternative Menu Hotkeys", "File Managers", "Snippets and Hotstrings", "User Variables" and "Database"
+- more advanced options and some options previously found only in the quickaccesspopup.ini file are now available under the "Menu Advanced Options", "Launch Advanced Options" and "Various Advanced Options" tabs
+- new options under the "Customize Window" tab of the "Options" dialog box allows to select if this window is open at startup (default on for new users) and to select to display the new QAP menu bar in the "Customize" window, in the QAP System menu or in both locations
+ 
+Easy Setup installation changes
+- for new installations, the default Settings Folder is now under "My Documents\Quick Access Popup" (instead of user's AppData folder)
+- Settings Folder can now be changed in "Options", "General" section, with a dialog box asking if user wants to copy actual settings to the new folder or use the settings already in this new location (or create new settings, if necessary)
+- QAP now uses the Windows Registry "Run" key to set QAP as a startup program (the old startup file shortcut is deleted), this option being enabled by default for new installations (for installations in portable mode, the startup file shortcut is kept and is disabled by default)
+- QAP now deletes temporary folders older than 7 days not removed when quitting QAP (as it should be normally done)
+ 
+Various changes
+- a new options for "Live Folders" allows to ask to display or not icons and file extensions in menu, and to include or not hidden and system folders/files in the menu
+- retrieve more icons for document favorites and items in the "Recent files" menu
+- support environment variables (like %TEMP%) in temporary, working and backup folders
+- refresh dynamic menus (Clipboard, Reopen a Folder, Directory Opus Favorites, Drives, Repeat Last Actions, Frequent Files, Frequent Folders, Recent Files, Recent Folders, Current Windows and TC Directory hotlist) when they are part of a submenu open using a keyboard shortcut or an hotstring
+- fix various small bugs not discovered when developing v9
+ 
+Language
+- thanks to volunteer translators, French, German, Italian, Dutch, Korean, Portuguese and Portuguese Brazilian language has been updated to v10 (looking for someone to take over Spanish translation)
+- English proofreading, thanks to Greg F.
+ 
+Internal changes
+- implement object oriented data model (using classes, etc.) for favorites data
+- upgraded the AutoHotkey runtime to v1.1.30.03 (dated April 4, 2019)
+ 
+Announcements:
+* looking for someone to take over Spanish translation
+* users who made a donation for QAP before v10, please see: https://www.quickaccesspopup.com/upgrading-donor-code/
+
 Version BETA: 9.9.2.19 (2019-09-24)
 - final Dutch language update for v10
 - last beta release before v10
@@ -3484,7 +3532,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 9.9.2.19
+;@Ahk2Exe-SetVersion 10.0.1
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3589,8 +3637,8 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "9.9.2.19" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
-global g_strCurrentBranch := "beta" ; "prod", "beta" or "alpha", always lowercase for filename
+global g_strCurrentVersion := "10.0.1" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
 
