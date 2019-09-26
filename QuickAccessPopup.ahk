@@ -34,7 +34,7 @@ HISTORY
 Version: 10.0.1 (2019-09-25)
  
 Customize window improvements
-- the "Settings" window has been renamed "Customize" and has been lightened to give close to 50% more room to the favorites list
+- the "Settings" window has been renamed "Customize" and has been lightened to give close to 50% more room to the favorites list
 - a new menu bar with "File", "Favorite", "Tools", "Options" and "Help" menus is available in the "Customize" window and in the QAP system menu (right click on QAP icon in Notification zone)
 - various buttons for features and links were removed from the "Customize" window and were moved to the new QAP menu bar
 - the Search box is now hidden under the submenus dropdown list to save space and a magnifying glass icon allows to reveal it
@@ -15602,34 +15602,9 @@ GetSpecialFolderLocation(ByRef strHotkeyTypeDetected, ByRef strTargetName, aaIte
 GetFavoriteObjectFromMenuPosition(ByRef intMenuItemPos)
 ;------------------------------------------------------------
 {
-	; o_L["MenuDrives"] added when testing new object model for dynamic menus
-	; the +1 test for the back menu item will not be required after all menu are converted to the new object model
-	GetNumberOfHiddenItemsBeforeThisItem(intColumnBreaksBeforeThisItem, intDisabledItemsBeforeThisItem)
-	; #### no need to have 2 variables, the function could return the position in object
-
-	intMenuItemPos := A_ThisMenuItemPos + intColumnBreaksBeforeThisItem + intDisabledItemsBeforeThisItem
+	intMenuItemPos := A_ThisMenuItemPos + o_Containers.AA[A_ThisMenu].GetNumberOfHiddenItemsBeforeThisItem(A_ThisMenuItemPos)
 	
 	return o_Containers.AA[A_ThisMenu].SA[intMenuItemPos]
-}
-;------------------------------------------------------------
-
-
-;------------------------------------------------------------
-GetNumberOfHiddenItemsBeforeThisItem(ByRef intColumnBreaksBeforeThisItem, ByRef intDisabledItemsBeforeThisItem)
-;------------------------------------------------------------
-{
-	intColumnBreaksBeforeThisItem := 0
-	intDisabledItemsBeforeThisItem := 0
-	
-	Loop
-	{
-		if ((A_Index - intColumnBreaksBeforeThisItem - intDisabledItemsBeforeThisItem) > A_ThisMenuItemPos)
-			break
-		else if (o_Containers.AA[A_ThisMenu].SA[A_Index].AA.strFavoriteType = "K")
-			intColumnBreaksBeforeThisItem++
-		else if (o_Containers.AA[A_ThisMenu].SA[A_Index].AA.blnFavoriteDisabled)
-			intDisabledItemsBeforeThisItem++
-	}
 }
 ;------------------------------------------------------------
 
@@ -24171,7 +24146,7 @@ class Container
 					break ; continue with next line in strContent
 			}
 			
-			oNewItem := new this.Item(saItemSource, this)
+			oNewItem := new this.Item(saItemSource, oNewSubMenu)
 			
 			if (saItemSource[1] = "Folder" and A_Index > 1) ; make it a live folder, except if self folder
 			{
@@ -24871,6 +24846,26 @@ class Container
 	}
 	;---------------------------------------------------------
 
+	;---------------------------------------------------------
+	GetNumberOfHiddenItemsBeforeThisItem(intItemPosition)
+	;---------------------------------------------------------
+	{
+		intHiddenItems := 0
+		
+		Loop
+		{
+			if ((A_Index - intHiddenItems + 1) > intItemPosition)
+				break
+			else if (this.SA[A_Index].AA.strFavoriteType = "K")
+				intHiddenItems++
+			else if (this.SA[A_Index].AA.blnFavoriteDisabled)
+				intHiddenItems++
+		}
+		
+		return intHiddenItems
+	}
+	;---------------------------------------------------------
+
 	; === end of methods for class Container ===
 	
 	;-------------------------------------------------------------
@@ -24890,7 +24885,7 @@ class Container
 				return
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		__New(saFavorite, oParentMenu := "")
 		;---------------------------------------------------------
@@ -25177,7 +25172,7 @@ class Container
 				; SET WINDOW POSITION
 				if (this.aaTemp.saFavoriteWindowPosition[1] or g_aaFileManagerExplorer.blnOpenFavoritesOnActiveMonitor) ;  we need to position window
 					and (InStr("Explorer|TotalCommander", this.aaTemp.strTargetAppName) or o_Settings.Execution.blnTryWindowPosition.IniValue)
-
+					
 					; we can access new Explorer or Total Commander windows, or try with other apps
 					
 					this.SetWindowPosition() ; was OpenFavoriteWindowPosition
@@ -25220,18 +25215,19 @@ class Container
 		; we get here via Alternative menu, Edit a favorite or with Ctrl+Shift+click on a favorite
 		;---------------------------------------------------------
 		{
-			if (o_Containers.AA[A_ThisMenu].AA.blnIsLiveMenu)
+			if (this.AA.oParentMenu.AA.blnIsLiveMenu)
 			{
 				; trying to edit items inside live folder leads to edit the top parent live folder favorite
 				; no need to consider column breaks or disabled items because already taken into account in .intLiveFolderParentPosition
-				g_intOriginalMenuPosition := o_Containers.AA[A_ThisMenu].AA.intLiveFolderParentPosition
-				o_MenuInGui := o_Containers.AA[o_Containers.AA[A_ThisMenu].AA.strLiveFolderParentPath]
-				o_EditedFavorite := o_Containers.AA[o_Containers.AA[A_ThisMenu].AA.oParentMenu.AA.strMenuPath].SA[g_intOriginalMenuPosition]
+				g_intOriginalMenuPosition := this.AA.oParentMenu.AA.intLiveFolderParentPosition
+				; for o_MenuInGui, use strLiveFolderParentPath (fix to root of Live Folder), not oParentMenu.AA.oParentMenu.AA because it does not work if Live Folder has more than 1 level
+				o_MenuInGui := o_Containers.AA[this.AA.oParentMenu.AA.strLiveFolderParentPath]
+				o_EditedFavorite := o_Containers.AA[this.AA.oParentMenu.AA.oParentMenu.AA.strMenuPath].SA[g_intOriginalMenuPosition]
 			}
 			else
 			{
-				g_intOriginalMenuPosition := A_ThisMenuItemPos
-				o_MenuInGui := o_Containers.AA[A_ThisMenu]
+				g_intOriginalMenuPosition := A_ThisMenuItemPos + this.AA.oParentMenu.GetNumberOfHiddenItemsBeforeThisItem(A_ThisMenuItemPos)
+				o_MenuInGui := this.AA.oParentMenu
 				; no need to set o_EditedFavorite here, it will be set in GuiEditFavorite / GuiFavoriteInit
 			}
 			
@@ -25723,9 +25719,9 @@ class Container
 		;---------------------------------------------------------
 		{
 			strWaitTime := 10
-
+			
 			WinGetClass, strClassSnippet, % "ahk_id " . this.aaTemp.strTargetWinId
-
+			
 			if (g_blnLaunchFromTrayIcon or WindowIsTray(strClassSnippet) or WindowIsDesktop(strClassSnippet) or StrLen(this.AA.strSnippetPrompt))
 			{
 				this.aaTemp.strSnippetPromptExpanded := ExpandPlaceholders(this.AA.strSnippetPrompt, ""
@@ -25772,7 +25768,7 @@ class Container
 			{
 				; DecodeSnippet: convert from raw content (as from ini file) to display format (when f_blnProcessEOLTab is true) or to paste format
 				strTemp := DecodeSnippet(this.aaTemp.strLocationWithPlaceholders) ; g_objThisFavorite.FavoriteLocation with expanded placeholders
-
+				
 				Loop
 				{
 					if InStr(strTemp, g_strSnippetCommandStart)
@@ -25802,7 +25798,7 @@ class Container
 							}
 							else
 								strOptions := ""
-
+							
 							saOptions := StrSplit(strOptions, ",")
 							loop, % saOptions.MaxIndex()
 								saOptions[A_Index] := Trim(saOptions[A_Index])
@@ -25836,7 +25832,7 @@ class Container
 						break
 					}
 				}
-
+				
 				SendMode, Input ; restore default SendMode to Input mode
 			}
 			;------------------------------------------------------------
@@ -25980,13 +25976,13 @@ class Container
 			}
 			else
 				this.aaTemp.strTargetAppName := "Unknown"
-
+			
 			if (this.aaTemp.strTargetAppName = "Desktop")
 			{
 				this.aaTemp.strTargetWinId := "" ; never use target window when clicked on the desktop
 				this.aaTemp.strHotkeyTypeDetected := "Launch" ; never navigate when clicked on the desktop
 			}
-
+			
 			if (this.aaTemp.strHotkeyTypeDetected = "Launch")
 				if (this.aaTemp.strOpenFavoriteLabel = "OpenFavoriteFromGroup" and this.AA.strGroupRestoreWithExplorerOrOther = "Windows Explorer")
 					this.aaTemp.strTargetAppName := "Explorer"
@@ -26020,13 +26016,13 @@ class Container
 			}
 			; Directory Opus Layouts
 			else if (this.aaTemp.strOpenFavoriteLabel = "OpenDOpusLayout")
-
+			
 				this.aaTemp.strFullLocation := this.AA.strFavoriteLocation
-
+			
 			else
 			{
 				this.aaTemp.strFullLocation := this.aaTemp.strLocationWithPlaceholders
-
+				
 				if (this.AA.strFavoriteType = "FTP")
 				{
 					; ftp://username:password@ftp.domain.ext/public_ftp/incoming/
@@ -26077,10 +26073,10 @@ class Container
 						this.aaTemp.strTargetAppName := strTempTargetAppName
 					}
 					; else URL or QAP (no need to expand or make absolute), keep this.aaTemp.strFullLocation as in g_objThisFavorite.FavoriteLocation
-
+				
 				if StrLen(this.AA.strFavoriteLaunchWith) and !InStr("Application|Snippet", this.AA.strFavoriteType) ; ignore for Application or Snippet favorites
 					this.aaTemp.strFullLocation := this.aaTemp.strExpandedLaunchWith . " """ . this.aaTemp.strFullLocation . """" ; enclose document path in double-quotes
-
+				
 				if StrLen(this.AA.strFavoriteArguments)
 					; let user enter double-quotes as required by his arguments
 					this.aaTemp.strFullLocation .= " " . ExpandPlaceholders(this.AA.strFavoriteArguments, this.aaTemp.strFullLocation
@@ -26092,7 +26088,7 @@ class Container
 			return StrLen(this.aaTemp.strFullLocation) ; if empty, SetFullLocation was aborted, return false, else return true
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		FileExistIfMust()
 		; check for favorite location and working directory
@@ -26125,7 +26121,7 @@ class Container
 					this.aaTemp.strAppWorkingDirWithPlaceholders := ExpandPlaceholders(this.AA.strFavoriteAppWorkingDir, this.aaTemp.strLocationWithPlaceholders
 						, (InStr(this.AA.strFavoriteAppWorkingDir, "{CUR_") ? GetCurrentLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1)
 						, (InStr(this.AA.strFavoriteAppWorkingDir, "{SEL_") ? GetSelectedLocation(g_strTargetClass, this.aaTemp.strTargetWinId) : -1))
-
+					
 					strAppWorkingDirBeforeFileExist := this.aaTemp.strAppWorkingDirWithPlaceholders
 					strTemp := this.aaTemp.strAppWorkingDirWithPlaceholders ; strTemp because "Fields of objects are not considered variables for the purposes of ByRef"
 					if StrLen(strTemp) and !FileExistInPath(strTemp)
@@ -26178,7 +26174,7 @@ class Container
 				intFavoriteSoundType := 2 ; system
 			else
 				intFavoriteSoundType := 3 ; file
-
+			
 			if (intFavoriteSoundType = 1)
 				Loop, Parse, % this.AA.strFavoriteSoundLocation, |, *
 					if StrLen(A_LoopField)
@@ -26201,7 +26197,7 @@ class Container
 			}
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		GetItemTypeLabelForList()
 		;---------------------------------------------------------
@@ -26216,7 +26212,7 @@ class Container
 			return strType
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		GetDefaultIcon4Type(strGuiFavoriteLocation)
 		;---------------------------------------------------------
@@ -26259,7 +26255,7 @@ class Container
 				return "iconUnknown"
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		UpdateMenusPathAndLocation(strNewDestinationMenu)
 		; update submenus and their childrens to the new path of the parent menu
@@ -26287,7 +26283,7 @@ class Container
 						; . (objEditedFavorite.SubMenu[A_Index].FavoriteType = "Group" ? " " . g_strGroupIndicatorPrefix . g_strGroupIndicatorSuffix : "") ) ; RECURSIVE
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		CollectUsageDb()
 		; add action to UsageDB
@@ -26397,7 +26393,7 @@ class Container
 			Diag(A_ThisFunc, "", "STOP")
 		}
 		;---------------------------------------------------------
-
+		
 		;---------------------------------------------------------
 		GetUsageDbFavoriteUsage()
 		; 2018-08-20 Take 1: one point per occurence of the location in usage (RecentItems or Menu)
