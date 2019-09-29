@@ -31,6 +31,10 @@ limitations under the License.
 HISTORY
 =======
 
+Version: 10.0.3 (2019-09-29)
+- fix bug introduced in v10.0.1 when a submenu contains a disabled item or a column break, the next item being offset
+- fix issue preventing situation where Special folders names would be empty (for example when favorites are imported from another system)
+ 
 Version: 10.0.2 (2019-09-28)
 - fix bug when using the Alternative Menu command "Edit a Favorite" or when editing a favorite after QAP reported its location could not be found if the edited item's is preceded by disabled items or column breaks
  
@@ -3535,7 +3539,7 @@ arrVar	refactror pseudo-array to simple array
 ; Doc: http://fincs.ahk4.net/Ahk2ExeDirectives.htm
 ; Note: prefix comma with `
 
-;@Ahk2Exe-SetVersion 10.0.2
+;@Ahk2Exe-SetVersion 10.0.3
 ;@Ahk2Exe-SetName Quick Access Popup
 ;@Ahk2Exe-SetDescription Quick Access Popup (Windows freeware)
 ;@Ahk2Exe-SetOrigFilename QuickAccessPopup.exe
@@ -3640,7 +3644,7 @@ Gosub, InitFileInstall
 
 ; --- Global variables
 
-global g_strCurrentVersion := "10.0.2" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
+global g_strCurrentVersion := "10.0.3" ; "major.minor.bugs" or "major.minor.beta.release", currently support up to 5 levels (1.2.3.4.5)
 global g_strCurrentBranch := "prod" ; "prod", "beta" or "alpha", always lowercase for filename
 global g_strAppVersion := "v" . g_strCurrentVersion . (g_strCurrentBranch <> "prod" ? " " . g_strCurrentBranch : "")
 global g_strJLiconsVersion := "v1.5"
