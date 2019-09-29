@@ -24857,7 +24857,7 @@ class Container
 		
 		Loop
 		{
-			if ((A_Index - intHiddenItems + 1) > intItemPosition)
+			if ((A_Index - intHiddenItems) > intItemPosition)
 				break
 			else if (this.SA[A_Index].AA.strFavoriteType = "K")
 				intHiddenItems++
@@ -24915,9 +24915,11 @@ class Container
 				; to keep track of QAP features in menus to allow enable/disable menu items
 				o_QAPfeatures.aaQAPfeaturesInMenus.Insert(saFavorite[3], 1) ; boolean just to flag that we have this QAP feature in menus
 			}
-			else if (saFavorite[1] = "Special")
-				if !StrLen(saFavorite[2]) ; if empty, get QAP feature's name in current language
+			else if ((saFavorite[1] = "Special") and !StrLen(saFavorite[2])) ; if empty, get QAP feature's name in current language or set unknown name
+				if StrLen(o_SpecialFolders.AA[saFavorite[3]].strDefaultName)
 					saFavorite[2] := o_SpecialFolders.AA[saFavorite[3]].strDefaultName
+				else ; in case favorites are imported from another system with different Special folders locations
+					saFavorite[2] := "* Unknown Special Folder * " . RandomBetween() . " *"
 			
 			; this is a regular favorite, add it to the current menu
 			this.InsertItemValue("strFavoriteType", saFavorite[1]) ; see Favorite Types
