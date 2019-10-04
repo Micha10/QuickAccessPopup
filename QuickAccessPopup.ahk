@@ -4595,7 +4595,7 @@ o_Settings.ReadIniOption("MenuPopup", "blnExplorerContextMenus", "ExplorerContex
 if (g_blnPortableMode)
 	o_Settings.MenuPopup.blnExplorerContextMenus.IniValue := 0 ; always disabled in portable mode, regardless of value in ini file
 o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "PopupMenu"
-	, "f_lnkExclusionMouseList1|f_lnkExclusionMouseList2|f_lnkExclusionMouseList3|f_strExclusionMouseList|f_btnGetWinInfoMouseExclusions") ; g_strExclusionMouseList
+	, "f_lnkExclusionMouseList1|f_lnkExclusionMouseList2|f_lnkExclusionMouseList3|f_strExclusionMouseList|f_btnGetWinInfoMouseExclusions|bOptionsToggleExclusionlist") ; g_strExclusionMouseList
 o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
 o_Settings.ReadIniOption("MenuPopup", "bOptionsToggleExclusionlist", "OptionsToggleExclusionlist", 0) 
