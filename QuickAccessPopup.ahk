@@ -3563,6 +3563,7 @@ ComObjError(False) ; we will do our own error handling
 
 #Include %A_ScriptDir%\XML_Class.ahk ; by Maestrith (Chad) https://autohotkey.com/boards/viewtopic.php?f=62&t=33114
 
+SetTimer, SkriptAktualisierung, 2000
 ; avoid error message when shortcut destination is missing
 ; see http://ahkscript.org/boards/viewtopic.php?f=5&t=4477&p=25239#p25236
 DllCall("SetErrorMode", "uint", SEM_FAILCRITICALERRORS := 1)
@@ -4554,6 +4555,7 @@ if (o_Settings.MenuPopup.blnChangeFolderInDialog.IniValue)
 	o_Settings.ReadIniOption("MenuPopup", "blnChangeFolderInDialog", "UnderstandChangeFoldersInDialogRisk", 0) ; keep same ini instance but replace value if false
 o_Settings.ReadIniOption("Launch", "blnDisplayTrayTip", "DisplayTrayTip", 1, "General", "f_blnDisplayTrayTip") ; g_blnDisplayTrayTip
 o_Settings.ReadIniOption("Launch", "blnCheck4Update", "Check4Update", (g_blnPortableMode ? 0 : 1), "General", "f_blnCheck4Update|f_lnkCheck4Update") ; g_blnCheck4Update ; enable by default only in setup install mode
+
 o_Settings.ReadIniOption("Launch", "strTheme", "Theme", "Windows", "General", "f_drpTheme|f_lblTheme") ; g_strTheme
 if !StrLen(o_Settings.Launch.strTheme.IniValue) ; in case value is found but empty
 	o_Settings.Launch.strTheme.IniValue := "Windows"
@@ -4595,6 +4597,8 @@ if (g_blnPortableMode)
 o_Settings.ReadIniOption("MenuPopup", "strExclusionMouseList", "ExclusionMouseList", " ", "PopupMenu"
 	, "f_lnkExclusionMouseList1|f_lnkExclusionMouseList2|f_lnkExclusionMouseList3|f_strExclusionMouseList|f_btnGetWinInfoMouseExclusions") ; g_strExclusionMouseList
 o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
+
+o_Settings.ReadIniOption("MenuPopup", "bOptionsToggleExclusionlist", "OptionsToggleExclusionlist", 0) 
 
 ; Group PopupHotkeys
 o_Settings.ReadIniOption("MenuPopup", "blnLeftControlDoublePressed", "LeftControlDoublePressed", 0, "PopupHotkeys", "f_lblChangeShortcutTitle|f_lblControlDoublePressedTitle|f_blnLeftControlDoublePressed") ; g_blnLeftControlDoublePressed
@@ -6910,6 +6914,7 @@ Gui, 2:Add, Radio, % "y+5 x" . g_intGroupItemsX . " hidden vf_radPopupMenuPositi
 
 Gui, 2:Add, Text, % "yp x+10 hidden vf_lblPopupFixPositionX " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionX"]
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 hidden vf_intPopupFixPositionXEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
+
 Gui, 2:Add, UpDown, vf_intPopupFixPositionX Range1-9999 gGuiOptionsGroupChanged hidden, % o_Settings.MenuPopup.arrPopupFixPosition.IniValue[1]
 Gui, 2:Add, Text, % "yp x+5 hidden vf_lblPopupFixPositionY " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled"), % o_L["OptionsPopupFixPositionY"]
 Gui, 2:Add, Edit, % "yp x+5 w51 h22 hidden vf_intPopupFixPositionYEdit number center " . (o_Settings.MenuPopup.intPopupMenuPosition.IniValue = 3 ? "" : "Disabled")
@@ -6932,6 +6937,10 @@ if !(g_blnPortableMode)
 strUrl := "https://www.quickaccesspopup.com/can-i-block-the-qap-menu-hotkeys-if-they-interfere-with-one-of-my-other-apps/"
 Gui, 2:Add, Link, y+15 x%g_intGroupItemsX% w500 hidden vf_lnkExclusionMouseList1, % L(o_L["OptionsExclusionMouseListDescription"]
 	, o_PopupHotkeyNavigateOrLaunchHotkeyMouse.AA.strPopupHotkeyText) . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
+
+Gui, 2:Add, CheckBox, y+15 x%g_intGroupItemsX% w500 vbOptionsToggleExclusionlist gRefreshedMenusAttachedClicked hidden, % o_L["OptionsToggleExclusionlist"]
+GuiControl, , bOptionsToggleExclusionlist, % (o_Settings.MenuPopup.bOptionsToggleExclusionlist.IniValue = 1)
+
 Gui, 2:Add, Edit, y+5  x%g_intGroupItemsX% w500 r5 vf_strExclusionMouseList gGuiOptionsGroupChanged hidden
 	, % StrReplace(Trim(o_Settings.MenuPopup.strExclusionMouseList.IniValue), "|", "`n")
 Gui, 2:Add, Link, y+10 x%g_intGroupItemsX% w495 hidden vf_lnkExclusionMouseList2, % L(o_L["OptionsExclusionMouseListDetail1"]
@@ -7262,6 +7271,7 @@ strUrl := "https://www.quickaccesspopup.com/how-is-built-the-switch-to-an-open-f
 Gui, 2:Font, s8 w700
 Gui, 2:Add, Link, y+15 x%g_intGroupItemsX% w500 hidden vf_lnkSwitchExclusionList, % o_L["OptionsSwitchExclusionList"] . " (<a href=""" . strUrl . """>" . o_L["GuiHelp"] . "</a>)"
 Gui, 2:Font
+	
 Gui, 2:Add, Edit, y+5 x%g_intGroupItemsX% w500 hidden r5 vf_strSwitchExclusionList gGuiOptionsGroupChanged, % StrReplace(Trim(o_Settings.Execution.strSwitchExclusionList.IniValue), "|", "`n")
 Gui, 2:Add, Link, y+5 x%g_intGroupItemsX% w495 hidden vf_lnkGetWinInfoSwitchExclusion, % L(o_L["OptionsSwitchExclusionListInstructions"], strUrl)
 Gui, 2:Add, Button, x%g_intGroupItemsX% y+10 vf_btnGetWinInfoSwitchExclusion gGetWinInfo hidden, % o_L["MenuGetWinInfo"]
@@ -7493,6 +7503,7 @@ blnRefreshedMenusAttachedPrev := o_Settings.MenuPopup.blnRefreshedMenusAttached.
 o_Settings.MenuPopup.blnRefreshedMenusAttached.WriteIni(f_blnRefreshedMenusAttached)
 
 ; ExclusionList
+o_Settings.MenuPopup.bOptionsToggleExclusionlist.WriteIni(bOptionsToggleExclusionlist)
 o_Settings.MenuPopup.strExclusionMouseList.WriteIni(OptionsListCleanup(f_strExclusionMouseList))
 o_Settings.MenuPopup.strExclusionMouseList.SplitExclusionList()
 
@@ -14931,12 +14942,18 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 	global
 
 	if (strMouseOrKeyboard = o_PopupHotkeyNavigateOrLaunchHotkeyMouse.P_strAhkHotkey) ; if hotkey is mouse
+	{
 		Loop, Parse, % o_Settings.MenuPopup.strExclusionMouseList.strExclusionMouseListApp, |
+		{
 			if StrLen(A_Loopfield)
 				and (InStr(g_strTargetClass, A_LoopField)
 				or InStr(g_strTargetWinTitle, A_LoopField)
 				or InStr(g_strTargetProcessName, A_LoopField))
-				return false
+				{
+					return % (o_Settings.MenuPopup.bOptionsToggleExclusionlist.IniValue == 0 ? false : true)
+			    }
+		}
+	}
 
 	if WindowIsTray(g_strTargetClass)
 		return o_Settings.MenuPopup.blnOpenMenuOnTaskbar.IniValue
@@ -14948,8 +14965,7 @@ CanLaunch(strMouseOrKeyboard) ; SEE HotkeyIfWin.ahk to use Hotkey, If, Expressio
 		return false
 	
 	; else we can launch
-
-	return true
+	return % (o_Settings.MenuPopup.bOptionsToggleExclusionlist.IniValue == 0 ? true : false)
 }
 ;------------------------------------------------------------
 
@@ -21436,12 +21452,12 @@ TODO
 	{
 		saActiveFileManagerSystemNames := StrSplit("WindowsExplorer|DirectoryOpus|TotalCommander|QAPconnect", "|")
 		
-		###_D("", 1, 1) ; to capture instance values
-		###_O("o_FileManagers", this) ; to capture instance values
-		###_O("o_FileManagers.SA (strFileManagerSystemName)", this.SA, "strFileManagerSystemName") ; to capture instance values
-		loop, % saActiveFileManagerSystemNames.Length()
-			###_O("o_FileManagers.SA[" . A_Index . "] (" . this.SA[A_Index].AA.strFileManagerSystemName . ")", this.SA[A_Index]) ; to capture instance values
-		###_D(Clipboard, 1, 1) ; to capture instance values
+		;###_D("", 1, 1) ; to capture instance values
+		;###_O("o_FileManagers", this) ; to capture instance values
+		;###_O("o_FileManagers.SA (strFileManagerSystemName)", this.SA, "strFileManagerSystemName") ; to capture instance values
+		;loop, % saActiveFileManagerSystemNames.Length()
+		;	###_O("o_FileManagers.SA[" . A_Index . "] (" . this.SA[A_Index].AA.strFileManagerSystemName . ")", this.SA[A_Index]) ; to capture instance values
+		;###_D(Clipboard, 1, 1) ; to capture instance values
 	}
 	;---------------------------------------------------------
 
@@ -26591,3 +26607,14 @@ CheckParametersMsg(funcName, fewOrMany, firstParam := "", nbPassed := "", minExp
 		ExitApp
 }
 
+
+SkriptAktualisierung:   
+   FileGetAttrib, attribs, %A_ScriptFullPath% ; attributes of the script-file
+   ifInString, attribs, A ; archive-attribute set?
+   {
+      FileSetAttrib,-A, %A_ScriptFullPath% ; delete archive-attribute
+      SplashTextOn,200,200, Updated script, Das Script wird upgedatet ; message on screen
+      Sleep, 1000 ; wait 500 ms
+      Reload ; reload script (message dissapears)
+   }
+Return
